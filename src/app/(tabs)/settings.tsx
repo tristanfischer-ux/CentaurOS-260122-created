@@ -20,15 +20,26 @@ export default function SettingsScreen() {
     router.replace('/sign-in');
   };
 
-  const handleThemeChange = (mode: ThemeMode) => {
+  const handleThemeChange = async (mode: ThemeMode) => {
     setThemeModeState(mode);
     if (currentUser) {
-      setCurrentUser({
+      const updatedUser = {
         ...currentUser,
         preferences: {
           ...currentUser.preferences,
           themeMode: mode,
         },
+      };
+
+      // Update in store (which also persists to storage)
+      setCurrentUser(updatedUser);
+
+      // Also update in the users database
+      const users = useAppStore.getState().users;
+      const setUsers = useAppStore.getState().setUsers;
+      setUsers({
+        ...users,
+        [currentUser.id]: updatedUser,
       });
     }
   };
@@ -42,22 +53,22 @@ export default function SettingsScreen() {
   ];
 
   return (
-    <ScrollView className="flex-1 bg-slate-950">
+    <ScrollView className="flex-1 bg-white dark:bg-slate-950">
       <View className="p-4">
-        <View className="bg-slate-900 rounded-2xl p-6 mb-4">
-          <Text className="text-slate-400 text-sm mb-2">Logged in as</Text>
-          <Text className="text-white text-lg font-semibold">{currentUser?.name}</Text>
-          <Text className="text-slate-400 text-sm">{currentUser?.email}</Text>
+        <View className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-6 mb-4">
+          <Text className="text-gray-600 dark:text-slate-400 text-sm mb-2">Logged in as</Text>
+          <Text className="text-gray-900 dark:text-white text-lg font-semibold">{currentUser?.name}</Text>
+          <Text className="text-gray-600 dark:text-slate-400 text-sm">{currentUser?.email}</Text>
           {currentMembership && (
-            <View className="mt-2 pt-2 border-t border-slate-800">
-              <Text className="text-slate-500 text-xs">Role: {currentMembership.role}</Text>
+            <View className="mt-2 pt-2 border-t border-gray-200 dark:border-slate-800">
+              <Text className="text-gray-500 dark:text-slate-500 text-xs">Role: {currentMembership.role}</Text>
             </View>
           )}
         </View>
 
         {/* Theme Selection */}
-        <View className="bg-slate-900 rounded-2xl p-4 mb-4">
-          <Text className="text-white font-semibold mb-3">Theme</Text>
+        <View className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-4 mb-4">
+          <Text className="text-gray-900 dark:text-white font-semibold mb-3">Theme</Text>
           <View className="flex-row gap-2">
             {themeOptions.map(({ mode, label, icon: Icon }) => (
               <Pressable
@@ -66,14 +77,14 @@ export default function SettingsScreen() {
                 className={`flex-1 p-3 rounded-xl border-2 ${
                   themeMode === mode
                     ? 'bg-blue-500/10 border-blue-500'
-                    : 'bg-slate-800 border-slate-700'
+                    : 'bg-gray-200 dark:bg-slate-800 border-gray-300 dark:border-slate-700'
                 } active:opacity-70`}
               >
                 <View className="items-center">
                   <Icon size={20} color={themeMode === mode ? '#3b82f6' : '#94a3b8'} />
                   <Text
                     className={`text-sm font-medium mt-1 ${
-                      themeMode === mode ? 'text-blue-400' : 'text-slate-400'
+                      themeMode === mode ? 'text-blue-400' : 'text-gray-600 dark:text-slate-400'
                     }`}
                   >
                     {label}
@@ -82,21 +93,21 @@ export default function SettingsScreen() {
               </Pressable>
             ))}
           </View>
-          <Text className="text-slate-500 text-xs mt-2">
+          <Text className="text-gray-500 dark:text-slate-500 text-xs mt-2">
             {themeMode === 'system'
               ? 'Theme follows your device settings'
-              : `Using ${themeMode} mode (Note: Light mode coming soon)`}
+              : `Using ${themeMode} mode`}
           </Text>
         </View>
 
         {/* Reports */}
         <Pressable
           onPress={() => router.push('/reports')}
-          className="bg-slate-900 rounded-2xl p-4 mb-4 flex-row items-center justify-between active:opacity-80"
+          className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-4 mb-4 flex-row items-center justify-between active:opacity-80"
         >
           <View className="flex-row items-center">
             <FileText size={20} color="#10b981" />
-            <Text className="text-white font-semibold ml-3">Reports</Text>
+            <Text className="text-gray-900 dark:text-white font-semibold ml-3">Reports</Text>
           </View>
           <ChevronRight size={20} color="#64748b" />
         </Pressable>
@@ -104,11 +115,11 @@ export default function SettingsScreen() {
         {canViewUtilization && (
           <Pressable
             onPress={() => router.push('/utilization')}
-            className="bg-slate-900 rounded-2xl p-4 mb-4 flex-row items-center justify-between active:opacity-80"
+            className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-4 mb-4 flex-row items-center justify-between active:opacity-80"
           >
             <View className="flex-row items-center">
               <Clock size={20} color="#3b82f6" />
-              <Text className="text-white font-semibold ml-3">Team Utilization</Text>
+              <Text className="text-gray-900 dark:text-white font-semibold ml-3">Team Utilization</Text>
             </View>
             <ChevronRight size={20} color="#64748b" />
           </Pressable>
