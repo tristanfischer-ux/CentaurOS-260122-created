@@ -138,6 +138,7 @@ Simply tap any demo account on the sign-in screen to log in instantly.
   ├── work                  # Work Hub (projects + tasks)
   ├── reviews               # Review Queue
   ├── copilot               # AI Copilot chat
+  ├── network               # Network (Suppliers, Companies, Events)
   └── settings              # Settings & logout
 ```
 

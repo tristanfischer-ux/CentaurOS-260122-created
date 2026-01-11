@@ -1,7 +1,6 @@
 import { View, Text, ScrollView, Pressable, Linking } from 'react-native';
 import { useState } from 'react';
-import { Building2, Users, Calendar, ExternalLink, MapPin, Package, Star, ChevronRight } from 'lucide-react-native';
-import { useCurrentWorkspace, useCurrentMembership } from '@/lib/state/app-store';
+import { Building2, Users, Calendar, ExternalLink, MapPin, Package, ChevronRight } from 'lucide-react-native';
 
 type NetworkTab = 'suppliers' | 'companies' | 'events';
 

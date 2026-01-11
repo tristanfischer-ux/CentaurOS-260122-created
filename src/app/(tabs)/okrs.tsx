@@ -1,9 +1,8 @@
 import { View, Text, ScrollView, Pressable, ActivityIndicator, TextInput, Modal, Alert, KeyboardAvoidingView, Platform } from 'react-native';
-import { useState, useEffect } from 'react';
-import { Target, Plus, TrendingUp, AlertTriangle, XCircle, Edit2, Trash2, X, Download } from 'lucide-react-native';
+import { useState } from 'react';
+import { Target, Plus, TrendingUp, AlertTriangle, XCircle, X, Download } from 'lucide-react-native';
 import { useCurrentWorkspace, useCurrentMembership, useCurrentUser } from '@/lib/state/app-store';
 import { useObjectives } from '@/lib/hooks/queries';
-import { LinearGradient } from 'expo-linear-gradient';
 import { objectiveApi, keyResultApi } from '@/lib/api';
 import { useQueryClient } from '@tanstack/react-query';
 import { exportToCSV, formatOKRsForExport } from '@/lib/export';
@@ -27,11 +26,6 @@ export default function OKRsScreen() {
   const [newObjectiveDescription, setNewObjectiveDescription] = useState('');
   const [isCreating, setIsCreating] = useState(false);
 
-  // Debug: Track modal state changes
-  useEffect(() => {
-    console.log('showCreateModal changed to:', showCreateModal);
-  }, [showCreateModal]);
-
   if (isLoading) {
     return (
       <View className="flex-1 bg-slate-950 items-center justify-center">
@@ -49,10 +43,7 @@ export default function OKRsScreen() {
           Create your first objective to start tracking progress
         </Text>
         <Pressable
-          onPress={() => {
-            console.log('Create Objective button clicked (empty state)');
-            setShowCreateModal(true);
-          }}
+          onPress={() => setShowCreateModal(true)}
           className="bg-blue-500 rounded-xl px-6 py-3 active:opacity-80"
         >
           <Text className="text-white font-semibold">Create Objective</Text>
@@ -152,10 +143,7 @@ export default function OKRsScreen() {
             </Pressable>
             {currentMembership?.role === 'Founder' && (
               <Pressable
-                onPress={() => {
-                  console.log('Plus button clicked, opening modal');
-                  setShowCreateModal(true);
-                }}
+                onPress={() => setShowCreateModal(true)}
                 className="bg-blue-500 rounded-xl px-4 py-2 active:opacity-80"
               >
                 <Plus size={20} color="white" />
