@@ -1,10 +1,11 @@
 import { View, Text, ScrollView, Pressable, ActivityIndicator, Modal, TextInput, KeyboardAvoidingView, Platform, Alert } from 'react-native';
 import { useState } from 'react';
-import { Briefcase, Plus, CheckCircle2, Clock, AlertCircle, Circle, X, User, Target } from 'lucide-react-native';
+import { Briefcase, Plus, CheckCircle2, Clock, AlertCircle, Circle, X, User, Target, AlertTriangle } from 'lucide-react-native';
 import { useCurrentWorkspace, useCurrentMembership, useCurrentUser } from '@/lib/state/app-store';
 import { useTasks, useUpdateTask, useRequestReview, useCreateTask, useWorkspaceMembers, useObjectives } from '@/lib/hooks/queries';
 import { TimeTrackingModal } from '@/components/TimeTrackingModal';
 import type { TaskStatus, TaskPriority, Function as TaskFunction, Task } from '@/types';
+import { router } from 'expo-router';
 
 export default function WorkScreen() {
   const currentWorkspace = useCurrentWorkspace();
@@ -19,6 +20,7 @@ export default function WorkScreen() {
   const createTaskMutation = useCreateTask();
 
   const [filterStatus, setFilterStatus] = useState<TaskStatus | 'all'>('all');
+  const [filterObjective, setFilterObjective] = useState<string | 'all'>('all');
   const [showStatusModal, setShowStatusModal] = useState(false);
   const [showAssignModal, setShowAssignModal] = useState(false);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
@@ -43,9 +45,14 @@ export default function WorkScreen() {
   }
 
   const filteredTasks = tasks?.filter((task) => {
-    if (filterStatus === 'all') return true;
-    return task.status === filterStatus;
+    if (filterStatus !== 'all' && task.status !== filterStatus) return false;
+    if (filterObjective === 'unlinked' && task.objectiveId) return false;
+    if (filterObjective !== 'all' && filterObjective !== 'unlinked' && task.objectiveId !== filterObjective) return false;
+    return true;
   }) || [];
+
+  const unlinkedTasks = tasks?.filter(t => !t.objectiveId) || [];
+  const hasUnlinkedTasks = unlinkedTasks.length > 0;
 
   const statuses: { value: TaskStatus | 'all'; label: string; count: number }[] = [
     { value: 'all', label: 'All', count: tasks?.length || 0 },
@@ -196,7 +203,91 @@ export default function WorkScreen() {
             ))}
           </View>
         </ScrollView>
+
+        {/* Objective Filter */}
+        {objectives && objectives.length > 0 && (
+          <View className="mt-3">
+            <Text className="text-slate-400 text-xs font-medium mb-2 uppercase tracking-wide">Filter by Objective</Text>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ flexGrow: 0 }}>
+              <View className="flex-row gap-2">
+                <Pressable
+                  onPress={() => setFilterObjective('all')}
+                  className={`px-4 py-2 rounded-xl ${
+                    filterObjective === 'all'
+                      ? 'bg-emerald-500'
+                      : 'bg-slate-800 border border-slate-700'
+                  }`}
+                >
+                  <Text className={`text-sm font-medium ${
+                    filterObjective === 'all' ? 'text-white' : 'text-slate-400'
+                  }`}>
+                    All
+                  </Text>
+                </Pressable>
+
+                <Pressable
+                  onPress={() => setFilterObjective('unlinked')}
+                  className={`px-4 py-2 rounded-xl flex-row items-center gap-1 ${
+                    filterObjective === 'unlinked'
+                      ? 'bg-amber-500'
+                      : 'bg-slate-800 border border-slate-700'
+                  }`}
+                >
+                  {hasUnlinkedTasks && filterObjective !== 'unlinked' && (
+                    <AlertTriangle size={14} color="#f59e0b" />
+                  )}
+                  <Text className={`text-sm font-medium ${
+                    filterObjective === 'unlinked' ? 'text-white' : 'text-slate-400'
+                  }`}>
+                    Not Linked ({unlinkedTasks.length})
+                  </Text>
+                </Pressable>
+
+                {objectives.map((obj) => {
+                  const count = tasks?.filter(t => t.objectiveId === obj.id).length || 0;
+                  return (
+                    <Pressable
+                      key={obj.id}
+                      onPress={() => setFilterObjective(obj.id)}
+                      className={`px-4 py-2 rounded-xl ${
+                        filterObjective === obj.id
+                          ? 'bg-blue-500'
+                          : 'bg-slate-800 border border-slate-700'
+                      }`}
+                    >
+                      <Text className={`text-sm font-medium ${
+                        filterObjective === obj.id ? 'text-white' : 'text-slate-400'
+                      }`} numberOfLines={1}>
+                        {obj.title} ({count})
+                      </Text>
+                    </Pressable>
+                  );
+                })}
+              </View>
+            </ScrollView>
+          </View>
+        )}
       </View>
+
+      {/* Unlinked Tasks Warning Banner */}
+      {hasUnlinkedTasks && filterObjective === 'all' && (
+        <View className="px-6 pb-4">
+          <Pressable
+            onPress={() => setFilterObjective('unlinked')}
+            className="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-4 flex-row items-start active:opacity-70"
+          >
+            <AlertTriangle size={20} color="#f59e0b" />
+            <View className="flex-1 ml-3">
+              <Text className="text-amber-400 font-semibold mb-1">
+                {unlinkedTasks.length} Task{unlinkedTasks.length !== 1 ? 's' : ''} Not Linked to Objectives
+              </Text>
+              <Text className="text-amber-300/80 text-xs">
+                All work should support strategic objectives. Tap to view and link these tasks.
+              </Text>
+            </View>
+          </Pressable>
+        </View>
+      )}
 
       {/* Tasks List */}
       <ScrollView className="flex-1 px-6">
@@ -239,12 +330,25 @@ export default function WorkScreen() {
                           {task.description}
                         </Text>
                       )}
-                      {task.objectiveId && (
-                        <View className="flex-row items-center gap-1 mt-2">
-                          <Target size={12} color="#3b82f6" />
-                          <Text className="text-blue-400 text-xs">
-                            {objectives?.find(o => o.id === task.objectiveId)?.title || 'Linked to Objective'}
-                          </Text>
+
+                      {/* Objective Badge - More Prominent */}
+                      {task.objectiveId ? (
+                        <View className="bg-blue-500/20 border border-blue-500/30 rounded-lg px-3 py-2 mt-2">
+                          <View className="flex-row items-center gap-2">
+                            <Target size={14} color="#3b82f6" />
+                            <Text className="text-blue-400 text-sm font-medium flex-1">
+                              {objectives?.find(o => o.id === task.objectiveId)?.title || 'Linked to Objective'}
+                            </Text>
+                          </View>
+                        </View>
+                      ) : (
+                        <View className="bg-amber-500/10 border border-amber-500/20 rounded-lg px-3 py-2 mt-2">
+                          <View className="flex-row items-center gap-2">
+                            <AlertTriangle size={12} color="#f59e0b" />
+                            <Text className="text-amber-400 text-xs font-medium">
+                              Not linked to any objective
+                            </Text>
+                          </View>
                         </View>
                       )}
                     </View>
@@ -500,6 +604,42 @@ export default function WorkScreen() {
               </View>
 
               <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+                  {/* Strategic Alignment Notice */}
+                  {objectives && objectives.length > 0 ? (
+                    <View className="mb-4 bg-blue-500/10 border border-blue-500/30 rounded-xl p-4">
+                      <View className="flex-row items-start gap-2">
+                        <Target size={18} color="#3b82f6" />
+                        <View className="flex-1">
+                          <Text className="text-blue-400 font-semibold mb-1">Link to Strategic Objectives</Text>
+                          <Text className="text-blue-300/80 text-xs">
+                            All work should support your strategic objectives. Select an objective below to link this task.
+                          </Text>
+                        </View>
+                      </View>
+                    </View>
+                  ) : (
+                    <View className="mb-4 bg-amber-500/10 border border-amber-500/30 rounded-xl p-4">
+                      <View className="flex-row items-start gap-2">
+                        <AlertTriangle size={18} color="#f59e0b" />
+                        <View className="flex-1">
+                          <Text className="text-amber-400 font-semibold mb-2">No Objectives Defined</Text>
+                          <Text className="text-amber-300/80 text-xs mb-3">
+                            All work should support strategic objectives. Create objectives first before adding tasks.
+                          </Text>
+                          <Pressable
+                            onPress={() => {
+                              setShowCreateModal(false);
+                              router.push('/okrs');
+                            }}
+                            className="bg-amber-500 rounded-lg py-2 px-3 active:opacity-80"
+                          >
+                            <Text className="text-white text-xs font-semibold text-center">Create Objectives First</Text>
+                          </Pressable>
+                        </View>
+                      </View>
+                    </View>
+                  )}
+
                   {/* Title */}
                   <View className="mb-4">
                     <Text className="text-slate-400 text-sm font-medium mb-2">Title *</Text>
@@ -571,7 +711,10 @@ export default function WorkScreen() {
                   {/* Link to Objective */}
                   {objectives && objectives.length > 0 && (
                     <View className="mb-4">
-                      <Text className="text-slate-400 text-sm font-medium mb-2">Link to Objective (Optional)</Text>
+                      <View className="flex-row items-center gap-2 mb-2">
+                        <Text className="text-slate-400 text-sm font-medium">Link to Objective</Text>
+                        <Text className="text-emerald-400 text-xs font-semibold">(Recommended)</Text>
+                      </View>
                       <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ flexGrow: 0 }}>
                         <View className="flex-row gap-2">
                           <Pressable

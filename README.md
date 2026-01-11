@@ -84,14 +84,19 @@ Centaur OS turns OKRs into work, tracks execution, enables review workflows, and
   - **Bidirectional Navigation**: Jump between tasks and objectives seamlessly
   - **Progress Tracking**: Task completion counts displayed on each objective (e.g., "5/12 tasks completed")
   - **Quick Access**: "View All" link to see all tasks for a specific objective in Work Hub
-- **Work Hub** - Manage projects and tasks with rich metadata (priority, function, status)
-  - **Task Creation**: Create tasks with title, description, assignee, function, and priority - now with proper scrolling and success feedback
-  - **Link to Objectives**: Optionally connect tasks to strategic objectives during creation
+- **Work Hub** - All work subordinated to strategic objectives
+  - **Strategic Alignment Enforcement**: Prominent reminders that all work should support objectives
+  - **Unlinked Task Warnings**: Alert banner showing tasks not linked to objectives with count
+  - **Filter by Objective**: View tasks for specific objectives or see all unlinked tasks
+  - **Objective-First Workflow**: Encouraged to create objectives before adding tasks
+  - **Prominent Objective Badges**: Large, color-coded badges on each task showing linked objective
+  - **Warning Badges**: Amber alert badges on tasks not linked to any objective
+  - **Task Creation Guidance**: Blue notice in create modal reminding users to link to objectives
+  - **Link to Objectives**: Recommended field in task creation with visual objective selector
   - **Task Assignment**: Assign tasks to workspace members (uses real user IDs from database)
   - **Task Reassignment**: Easily reassign existing tasks to different team members
   - **Status Management**: Update task status (todo, in_progress, in_review, done)
   - **Filter by Status**: Filter tasks by status to focus on what matters
-  - **Objective Badges**: Visual indicators on task cards showing which objective they support
   - **Success Alerts**: Visual confirmation when tasks are created or updated
 - **Review Queue** - Apprentices request reviews, Fractional Execs approve/reject with audit trails
 - **Time Tracking** - Apprentices log hours on tasks with notes and date tracking
