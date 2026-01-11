@@ -19,6 +19,7 @@ export default function WorkScreen() {
 
   const [filterStatus, setFilterStatus] = useState<TaskStatus | 'all'>('all');
   const [showStatusModal, setShowStatusModal] = useState(false);
+  const [showAssignModal, setShowAssignModal] = useState(false);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [showTimeModal, setShowTimeModal] = useState(false);
   const [timeTrackingTask, setTimeTrackingTask] = useState<Task | null>(null);
@@ -103,6 +104,22 @@ export default function WorkScreen() {
       setShowCreateModal(false);
     } catch (error) {
       console.error('Failed to create task:', error);
+    }
+  };
+
+  const handleAssignTask = async (assigneeId: string) => {
+    if (!selectedTask || !currentWorkspace) return;
+
+    try {
+      await updateTaskMutation.mutateAsync({
+        taskId: selectedTask.id,
+        workspaceId: currentWorkspace.id,
+        updates: { assigneeId: assigneeId || null },
+      });
+      setShowAssignModal(false);
+      setSelectedTask(null);
+    } catch (error) {
+      console.error('Failed to assign task:', error);
     }
   };
 
@@ -241,6 +258,18 @@ export default function WorkScreen() {
                     </View>
 
                     <View className="flex-row items-center gap-2">
+                      {/* Assign Button */}
+                      <Pressable
+                        onPress={(e) => {
+                          e.stopPropagation();
+                          setSelectedTask(task);
+                          setShowAssignModal(true);
+                        }}
+                        className="bg-slate-800 px-3 py-1 rounded-lg active:opacity-70"
+                      >
+                        <User size={14} color="#94a3b8" />
+                      </Pressable>
+
                       {/* Time Tracking Button */}
                       {isOwn && (
                         <Pressable
@@ -331,6 +360,103 @@ export default function WorkScreen() {
 
                 <Pressable
                   onPress={() => setShowStatusModal(false)}
+                  className="bg-slate-800 rounded-xl py-3 items-center active:opacity-80"
+                >
+                  <Text className="text-slate-400 font-semibold">Cancel</Text>
+                </Pressable>
+              </>
+            )}
+          </View>
+        </View>
+      </Modal>
+
+      {/* Assign Task Modal */}
+      <Modal visible={showAssignModal} transparent animationType="slide">
+        <View className="flex-1 bg-black/50 justify-end">
+          <View className="bg-slate-900 rounded-t-3xl p-6">
+            <View className="flex-row items-center justify-between mb-4">
+              <Text className="text-white text-xl font-bold">Assign Task</Text>
+              <Pressable onPress={() => setShowAssignModal(false)}>
+                <X size={24} color="#94a3b8" />
+              </Pressable>
+            </View>
+
+            {selectedTask && (
+              <>
+                <Text className="text-slate-400 mb-6">{selectedTask.title}</Text>
+
+                <ScrollView className="max-h-96 mb-6" showsVerticalScrollIndicator={false}>
+                  <View className="gap-3">
+                    {/* Unassigned Option */}
+                    <Pressable
+                      onPress={() => handleAssignTask('')}
+                      disabled={updateTaskMutation.isPending}
+                      className={`p-4 rounded-xl border-2 ${
+                        !selectedTask.assigneeId
+                          ? 'bg-blue-500/10 border-blue-500'
+                          : 'bg-slate-800 border-slate-700'
+                      } active:opacity-70`}
+                    >
+                      <View className="flex-row items-center justify-between">
+                        <View className="flex-row items-center gap-3">
+                          <View className="w-10 h-10 bg-slate-700 rounded-full items-center justify-center">
+                            <User size={20} color="#94a3b8" />
+                          </View>
+                          <Text className={`font-semibold ${
+                            !selectedTask.assigneeId ? 'text-blue-400' : 'text-white'
+                          }`}>
+                            Unassigned
+                          </Text>
+                        </View>
+                        {!selectedTask.assigneeId && (
+                          <View className="w-5 h-5 bg-blue-500 rounded-full items-center justify-center">
+                            <CheckCircle2 size={16} color="white" />
+                          </View>
+                        )}
+                      </View>
+                    </Pressable>
+
+                    {/* Team Members */}
+                    {members?.map((member) => (
+                      <Pressable
+                        key={member.userId}
+                        onPress={() => handleAssignTask(member.userId)}
+                        disabled={updateTaskMutation.isPending}
+                        className={`p-4 rounded-xl border-2 ${
+                          selectedTask.assigneeId === member.userId
+                            ? 'bg-blue-500/10 border-blue-500'
+                            : 'bg-slate-800 border-slate-700'
+                        } active:opacity-70`}
+                      >
+                        <View className="flex-row items-center justify-between">
+                          <View className="flex-row items-center gap-3">
+                            <View className="w-10 h-10 bg-blue-500 rounded-full items-center justify-center">
+                              <Text className="text-white font-bold">
+                                {member.user?.name.charAt(0) || '?'}
+                              </Text>
+                            </View>
+                            <View>
+                              <Text className={`font-semibold ${
+                                selectedTask.assigneeId === member.userId ? 'text-blue-400' : 'text-white'
+                              }`}>
+                                {member.user?.name || 'Unknown'}
+                              </Text>
+                              <Text className="text-slate-500 text-xs">{member.role}</Text>
+                            </View>
+                          </View>
+                          {selectedTask.assigneeId === member.userId && (
+                            <View className="w-5 h-5 bg-blue-500 rounded-full items-center justify-center">
+                              <CheckCircle2 size={16} color="white" />
+                            </View>
+                          )}
+                        </View>
+                      </Pressable>
+                    ))}
+                  </View>
+                </ScrollView>
+
+                <Pressable
+                  onPress={() => setShowAssignModal(false)}
                   className="bg-slate-800 rounded-xl py-3 items-center active:opacity-80"
                 >
                   <Text className="text-slate-400 font-semibold">Cancel</Text>

@@ -21,19 +21,28 @@ Centaur OS turns OKRs into work, tracks execution, enables review workflows, and
 - **Role-Based Dashboards** - Customized views for Founders, Apprentices, and Fractional Execs
 - **OKR Management** - Create objectives, track key results with real-time progress
 - **Work Hub** - Manage projects and tasks with rich metadata (priority, function, status)
+  - **Task Creation**: Create tasks with title, description, assignee, function, and priority
+  - **Task Assignment**: Assign tasks to team members or leave unassigned
+  - **Task Reassignment**: Easily reassign existing tasks to different team members
+  - **Status Management**: Update task status (todo, in_progress, in_review, done)
+  - **Filter by Status**: Filter tasks by status to focus on what matters
 - **Review Queue** - Apprentices request reviews, Fractional Execs approve/reject with audit trails
 - **Time Tracking** - Apprentices log hours on tasks with notes and date tracking
 - **Team Utilization Dashboard** - Executives and Founders view team capacity and productivity
-- **Automated Reports** - Quick-access reporting from home screen with one-tap generation
+- **Automated Reports** - Professional, board-ready reports with beautiful design
   - **Home Screen Quick Access**: Weekly, Monthly, Quarterly report cards
-  - **Founder Reports**: Business overview across all functions with OKR progress, executive performance, apprentice utilization, risks, and highlights
-  - **Executive Reports**: Function-specific performance and team metrics
-  - **Apprentice Reports**: Individual work summary and achievements
+  - **Founder Reports**: Business overview with gradient metric cards, OKR progress bars, executive performance, apprentice utilization, and risk alerts
+  - **Executive Reports**: Function-specific performance summary with highlighted metrics
+  - **Apprentice Reports**: Individual work summary with achievements and recent tasks
   - **Board Pack Export**: One-click markdown export ready for board presentations (Founder-only)
   - **Auto-generation**: Reports generate automatically when accessed from home screen
   - **Multiple Export Formats**: Markdown (board-ready), CSV (analysis), JSON (integration)
+  - **Professional Design**: Clean slate color palette, bold typography, proper visual hierarchy
 - **Executive Workflow System** - Pre-defined task sequences for each function (Marketing, Sales, Finance, Ops, Engineering, Admin)
-- **UK Supplier Network** - Shared manufacturing supplier directory across all companies
+- **UK Supplier Network** - Verified manufacturing supplier directory with 30+ UK suppliers
+  - **Comprehensive Details**: Contact info, capabilities, certifications, lead times
+  - **Verified Suppliers**: ISO-certified manufacturers across all specialties
+  - **Search & Filter**: Find suppliers by capability, location, and certifications
 - **Company Discovery** - Connect with other companies using Centaur OS
 - **Community Events** - Schedule and RSVP to cross-company meetups, workshops, and networking events
 - **Weekly Pack Generator** - One-click generation of status reports with OKR progress
