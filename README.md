@@ -19,6 +19,13 @@ Centaur OS turns OKRs into work, tracks execution, enables review workflows, and
 
 - **Multi-Tenant Workspaces** - Users can belong to multiple workspaces with role-based access
 - **Role-Based Dashboards** - Customized views for Founders, Apprentices, and Fractional Execs
+- **Team Hiring System (Founder-Only)** - Browse and hire talent to build your team
+  - **20 Fractional Executives**: Senior leaders in Sales, Marketing, Finance, Engineering, and Operations
+  - **20 Apprentices**: Junior talent eager to learn and execute across all business functions
+  - **Detailed Profiles**: View experience, ratings, daily rates, availability, skills, and previous companies
+  - **Search & Filter**: Find candidates by name, specialization, or skills
+  - **One-Click Hiring**: Add candidates to your team instantly
+  - **Realistic Candidates**: Real-world experience levels and competitive market rates
 - **OKR Management** - Create objectives, track key results with real-time progress
 - **Work Hub** - Manage projects and tasks with rich metadata (priority, function, status)
   - **Task Creation**: Create tasks with title, description, assignee, function, and priority
