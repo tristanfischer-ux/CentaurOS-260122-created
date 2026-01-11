@@ -60,6 +60,10 @@ export default function HomeScreen() {
   const [budget, setBudget] = useState<BudgetTargets>(DEFAULT_BUDGET);
   const [editingBudget, setEditingBudget] =
     useState<BudgetTargets>(DEFAULT_BUDGET);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [detailsType, setDetailsType] = useState<
+    "revenue" | "profit" | "burn" | "runway" | null
+  >(null);
 
   const financials = CURRENT_FINANCIALS;
   const ratios = calculateFinancialRatios(financials);
@@ -143,13 +147,19 @@ export default function HomeScreen() {
             {/* Key Metrics Grid */}
             <View className="flex-row flex-wrap gap-3 mb-3">
               {/* Revenue Card */}
-              <View
-                className="bg-slate-900 rounded-2xl p-4 border border-slate-800"
+              <Pressable
+                onPress={() => {
+                  setDetailsType("revenue");
+                  setShowDetailsModal(true);
+                }}
+                className="bg-slate-900 rounded-2xl p-4 border border-slate-800 active:opacity-70"
                 style={{ width: "48%" }}
               >
                 <View className="flex-row items-center gap-2 mb-2">
                   <DollarSign size={20} color="#10b981" />
-                  <Text className="text-slate-400 text-xs">Revenue</Text>
+                  <Text className="text-slate-400 text-xs">
+                    Monthly Revenue
+                  </Text>
                 </View>
                 <Text className="text-white text-2xl font-bold">
                   £{(financials.revenue.total / 1000).toFixed(0)}k
@@ -160,16 +170,22 @@ export default function HomeScreen() {
                     +{financials.revenue.growth}%
                   </Text>
                 </View>
-              </View>
+              </Pressable>
 
               {/* Gross Profit Card */}
-              <View
-                className="bg-slate-900 rounded-2xl p-4 border border-slate-800"
+              <Pressable
+                onPress={() => {
+                  setDetailsType("profit");
+                  setShowDetailsModal(true);
+                }}
+                className="bg-slate-900 rounded-2xl p-4 border border-slate-800 active:opacity-70"
                 style={{ width: "48%" }}
               >
                 <View className="flex-row items-center gap-2 mb-2">
                   <TrendingUp size={20} color="#3b82f6" />
-                  <Text className="text-slate-400 text-xs">Gross Profit</Text>
+                  <Text className="text-slate-400 text-xs">
+                    Monthly Gross Profit
+                  </Text>
                 </View>
                 <Text className="text-white text-2xl font-bold">
                   £{(ratios.grossProfit / 1000).toFixed(0)}k
@@ -177,11 +193,15 @@ export default function HomeScreen() {
                 <Text className="text-slate-500 text-xs mt-1">
                   {ratios.grossMargin.toFixed(1)}% margin
                 </Text>
-              </View>
+              </Pressable>
 
               {/* Burn Rate Card */}
-              <View
-                className="bg-slate-900 rounded-2xl p-4 border border-slate-800"
+              <Pressable
+                onPress={() => {
+                  setDetailsType("burn");
+                  setShowDetailsModal(true);
+                }}
+                className="bg-slate-900 rounded-2xl p-4 border border-slate-800 active:opacity-70"
                 style={{ width: "48%" }}
               >
                 <View className="flex-row items-center gap-2 mb-2">
@@ -195,11 +215,15 @@ export default function HomeScreen() {
                   {variance.burnRate.variance > 0 ? "+" : ""}
                   {(variance.burnRate.variance / 1000).toFixed(1)}k vs budget
                 </Text>
-              </View>
+              </Pressable>
 
               {/* Runway Card */}
-              <View
-                className="bg-slate-900 rounded-2xl p-4 border border-slate-800"
+              <Pressable
+                onPress={() => {
+                  setDetailsType("runway");
+                  setShowDetailsModal(true);
+                }}
+                className="bg-slate-900 rounded-2xl p-4 border border-slate-800 active:opacity-70"
                 style={{ width: "48%" }}
               >
                 <View className="flex-row items-center gap-2 mb-2">
@@ -210,7 +234,7 @@ export default function HomeScreen() {
                   {financials.runway.toFixed(1)}
                 </Text>
                 <Text className="text-slate-500 text-xs mt-1">months</Text>
-              </View>
+              </Pressable>
             </View>
 
             {/* Cost Breakdown */}
@@ -838,6 +862,600 @@ export default function HomeScreen() {
                   </Text>
                 </LinearGradient>
               </Pressable>
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Financial Details Modal */}
+      <Modal visible={showDetailsModal} transparent animationType="slide">
+        <View className="flex-1 bg-black/50 justify-end">
+          <View
+            className="bg-slate-900 rounded-t-3xl"
+            style={{ maxHeight: "90%" }}
+          >
+            <View className="flex-row items-center justify-between p-6 pb-4 border-b border-slate-800">
+              <Text className="text-white text-xl font-bold">
+                {detailsType === "revenue" && "Revenue Breakdown"}
+                {detailsType === "profit" && "Profit Breakdown"}
+                {detailsType === "burn" && "Burn Rate Breakdown"}
+                {detailsType === "runway" && "Runway Details"}
+              </Text>
+              <Pressable
+                onPress={() => setShowDetailsModal(false)}
+                className="active:opacity-70"
+              >
+                <X size={24} color="#64748b" />
+              </Pressable>
+            </View>
+
+            <ScrollView
+              style={{ flex: 1 }}
+              className="px-6 py-4"
+              showsVerticalScrollIndicator={false}
+            >
+              {detailsType === "revenue" && (
+                <View>
+                  <View className="mb-6">
+                    <Text className="text-slate-400 text-sm mb-4">
+                      Monthly Revenue Sources
+                    </Text>
+
+                    {/* Product Sales */}
+                    <View className="mb-4">
+                      <View className="flex-row items-center justify-between mb-2">
+                        <Text className="text-white font-medium">
+                          Product Sales
+                        </Text>
+                        <Text className="text-white font-bold">
+                          £
+                          {(
+                            financials.revenue.breakdown.productSales / 1000
+                          ).toFixed(1)}
+                          k
+                        </Text>
+                      </View>
+                      <View className="bg-slate-800 h-2 rounded-full overflow-hidden">
+                        <View
+                          className="bg-emerald-500 h-full rounded-full"
+                          style={{
+                            width: `${(financials.revenue.breakdown.productSales / financials.revenue.total) * 100}%`,
+                          }}
+                        />
+                      </View>
+                      <Text className="text-slate-500 text-xs mt-1">
+                        {(
+                          (financials.revenue.breakdown.productSales /
+                            financials.revenue.total) *
+                          100
+                        ).toFixed(1)}
+                        % of total
+                      </Text>
+                    </View>
+
+                    {/* Services */}
+                    <View className="mb-4">
+                      <View className="flex-row items-center justify-between mb-2">
+                        <Text className="text-white font-medium">Services</Text>
+                        <Text className="text-white font-bold">
+                          £
+                          {(
+                            financials.revenue.breakdown.services / 1000
+                          ).toFixed(1)}
+                          k
+                        </Text>
+                      </View>
+                      <View className="bg-slate-800 h-2 rounded-full overflow-hidden">
+                        <View
+                          className="bg-blue-500 h-full rounded-full"
+                          style={{
+                            width: `${(financials.revenue.breakdown.services / financials.revenue.total) * 100}%`,
+                          }}
+                        />
+                      </View>
+                      <Text className="text-slate-500 text-xs mt-1">
+                        {(
+                          (financials.revenue.breakdown.services /
+                            financials.revenue.total) *
+                          100
+                        ).toFixed(1)}
+                        % of total
+                      </Text>
+                    </View>
+
+                    {/* Recurring */}
+                    <View className="mb-4">
+                      <View className="flex-row items-center justify-between mb-2">
+                        <Text className="text-white font-medium">
+                          Recurring
+                        </Text>
+                        <Text className="text-white font-bold">
+                          £
+                          {(
+                            financials.revenue.breakdown.recurring / 1000
+                          ).toFixed(1)}
+                          k
+                        </Text>
+                      </View>
+                      <View className="bg-slate-800 h-2 rounded-full overflow-hidden">
+                        <View
+                          className="bg-purple-500 h-full rounded-full"
+                          style={{
+                            width: `${(financials.revenue.breakdown.recurring / financials.revenue.total) * 100}%`,
+                          }}
+                        />
+                      </View>
+                      <Text className="text-slate-500 text-xs mt-1">
+                        {(
+                          (financials.revenue.breakdown.recurring /
+                            financials.revenue.total) *
+                          100
+                        ).toFixed(1)}
+                        % of total
+                      </Text>
+                    </View>
+
+                    {/* Other */}
+                    <View className="mb-4">
+                      <View className="flex-row items-center justify-between mb-2">
+                        <Text className="text-white font-medium">Other</Text>
+                        <Text className="text-white font-bold">
+                          £
+                          {(financials.revenue.breakdown.other / 1000).toFixed(
+                            1,
+                          )}
+                          k
+                        </Text>
+                      </View>
+                      <View className="bg-slate-800 h-2 rounded-full overflow-hidden">
+                        <View
+                          className="bg-amber-500 h-full rounded-full"
+                          style={{
+                            width: `${(financials.revenue.breakdown.other / financials.revenue.total) * 100}%`,
+                          }}
+                        />
+                      </View>
+                      <Text className="text-slate-500 text-xs mt-1">
+                        {(
+                          (financials.revenue.breakdown.other /
+                            financials.revenue.total) *
+                          100
+                        ).toFixed(1)}
+                        % of total
+                      </Text>
+                    </View>
+                  </View>
+
+                  {/* Total */}
+                  <View className="bg-emerald-500/20 border border-emerald-500/30 rounded-xl p-4">
+                    <View className="flex-row items-center justify-between">
+                      <Text className="text-emerald-400 font-semibold">
+                        Total Monthly Revenue
+                      </Text>
+                      <Text className="text-emerald-400 text-xl font-bold">
+                        £{(financials.revenue.total / 1000).toFixed(1)}k
+                      </Text>
+                    </View>
+                  </View>
+                </View>
+              )}
+
+              {detailsType === "profit" && (
+                <View>
+                  <View className="mb-6">
+                    <Text className="text-slate-400 text-sm mb-4">
+                      Monthly Profit Calculation
+                    </Text>
+
+                    {/* Revenue */}
+                    <View className="mb-4">
+                      <View className="flex-row items-center justify-between mb-2">
+                        <Text className="text-white font-medium">Revenue</Text>
+                        <Text className="text-emerald-400 font-bold">
+                          £{(financials.revenue.total / 1000).toFixed(1)}k
+                        </Text>
+                      </View>
+                    </View>
+
+                    {/* COGS/BOM */}
+                    <View className="mb-4">
+                      <View className="flex-row items-center justify-between mb-2">
+                        <Text className="text-white font-medium">
+                          COGS (Bill of Materials)
+                        </Text>
+                        <Text className="text-red-400 font-bold">
+                          -£{(financials.cogs.total / 1000).toFixed(1)}k
+                        </Text>
+                      </View>
+                      <View className="ml-4 mt-2">
+                        <View className="flex-row items-center justify-between mb-1">
+                          <Text className="text-slate-400 text-sm">
+                            Materials
+                          </Text>
+                          <Text className="text-slate-300 text-sm">
+                            £
+                            {(
+                              financials.cogs.breakdown.materials / 1000
+                            ).toFixed(1)}
+                            k
+                          </Text>
+                        </View>
+                        <View className="flex-row items-center justify-between mb-1">
+                          <Text className="text-slate-400 text-sm">
+                            Manufacturing
+                          </Text>
+                          <Text className="text-slate-300 text-sm">
+                            £
+                            {(
+                              financials.cogs.breakdown.manufacturing / 1000
+                            ).toFixed(1)}
+                            k
+                          </Text>
+                        </View>
+                        <View className="flex-row items-center justify-between mb-1">
+                          <Text className="text-slate-400 text-sm">
+                            Shipping
+                          </Text>
+                          <Text className="text-slate-300 text-sm">
+                            £
+                            {(
+                              financials.cogs.breakdown.shipping / 1000
+                            ).toFixed(1)}
+                            k
+                          </Text>
+                        </View>
+                        <View className="flex-row items-center justify-between">
+                          <Text className="text-slate-400 text-sm">Other</Text>
+                          <Text className="text-slate-300 text-sm">
+                            £
+                            {(financials.cogs.breakdown.other / 1000).toFixed(
+                              1,
+                            )}
+                            k
+                          </Text>
+                        </View>
+                      </View>
+                    </View>
+                  </View>
+
+                  {/* Gross Profit */}
+                  <View className="bg-blue-500/20 border border-blue-500/30 rounded-xl p-4">
+                    <View className="flex-row items-center justify-between mb-2">
+                      <Text className="text-blue-400 font-semibold">
+                        Gross Profit
+                      </Text>
+                      <Text className="text-blue-400 text-xl font-bold">
+                        £{(ratios.grossProfit / 1000).toFixed(1)}k
+                      </Text>
+                    </View>
+                    <Text className="text-blue-300 text-xs">
+                      {ratios.grossMargin.toFixed(1)}% margin
+                    </Text>
+                  </View>
+                </View>
+              )}
+
+              {detailsType === "burn" && (
+                <View>
+                  <View className="mb-6">
+                    <Text className="text-slate-400 text-sm mb-4">
+                      Monthly Burn Rate by Category
+                    </Text>
+
+                    {/* Sales/Revenue (shown as COGS) */}
+                    <View className="mb-4">
+                      <View className="flex-row items-center justify-between mb-2">
+                        <Text className="text-white font-medium">
+                          Bill of Materials (BOM)
+                        </Text>
+                        <Text className="text-white font-bold">
+                          £{(financials.cogs.total / 1000).toFixed(1)}k
+                        </Text>
+                      </View>
+                      <View className="bg-slate-800 h-2 rounded-full overflow-hidden">
+                        <View
+                          className="bg-purple-500 h-full rounded-full"
+                          style={{
+                            width: `${(financials.cogs.total / financials.burnRate) * 100}%`,
+                          }}
+                        />
+                      </View>
+                      <Text className="text-slate-500 text-xs mt-1">
+                        {(
+                          (financials.cogs.total / financials.burnRate) *
+                          100
+                        ).toFixed(1)}
+                        % of burn
+                      </Text>
+                    </View>
+
+                    {/* People */}
+                    <View className="mb-4">
+                      <View className="flex-row items-center justify-between mb-2">
+                        <Text className="text-white font-medium">People</Text>
+                        <Text className="text-white font-bold">
+                          £{(financials.teamCosts.total / 1000).toFixed(1)}k
+                        </Text>
+                      </View>
+                      <View className="bg-slate-800 h-2 rounded-full overflow-hidden">
+                        <View
+                          className="bg-blue-500 h-full rounded-full"
+                          style={{ width: `${ratios.teamBurnPercentage}%` }}
+                        />
+                      </View>
+                      <Text className="text-slate-500 text-xs mt-1">
+                        {ratios.teamBurnPercentage.toFixed(1)}% of burn
+                      </Text>
+                      <View className="ml-4 mt-2">
+                        <View className="flex-row items-center justify-between mb-1">
+                          <Text className="text-slate-400 text-sm">
+                            Founders
+                          </Text>
+                          <Text className="text-slate-300 text-sm">
+                            £
+                            {(
+                              financials.teamCosts.breakdown.founders / 1000
+                            ).toFixed(1)}
+                            k ({financials.teamCosts.headcount.founders})
+                          </Text>
+                        </View>
+                        <View className="flex-row items-center justify-between mb-1">
+                          <Text className="text-slate-400 text-sm">
+                            Fractional Execs
+                          </Text>
+                          <Text className="text-slate-300 text-sm">
+                            £
+                            {(
+                              financials.teamCosts.breakdown.fractionalExecs /
+                              1000
+                            ).toFixed(1)}
+                            k ({financials.teamCosts.headcount.fractionalExecs})
+                          </Text>
+                        </View>
+                        <View className="flex-row items-center justify-between">
+                          <Text className="text-slate-400 text-sm">
+                            Apprentices
+                          </Text>
+                          <Text className="text-slate-300 text-sm">
+                            £
+                            {(
+                              financials.teamCosts.breakdown.apprentices / 1000
+                            ).toFixed(1)}
+                            k ({financials.teamCosts.headcount.apprentices})
+                          </Text>
+                        </View>
+                      </View>
+                    </View>
+
+                    {/* AI */}
+                    <View className="mb-4">
+                      <View className="flex-row items-center justify-between mb-2">
+                        <Text className="text-white font-medium">
+                          AI Services
+                        </Text>
+                        <Text className="text-white font-bold">
+                          £{(financials.aiCosts.total / 1000).toFixed(1)}k
+                        </Text>
+                      </View>
+                      <View className="bg-slate-800 h-2 rounded-full overflow-hidden">
+                        <View
+                          className="bg-emerald-500 h-full rounded-full"
+                          style={{ width: `${ratios.aiBurnPercentage}%` }}
+                        />
+                      </View>
+                      <Text className="text-slate-500 text-xs mt-1">
+                        {ratios.aiBurnPercentage.toFixed(1)}% of burn
+                      </Text>
+                      <View className="ml-4 mt-2">
+                        <View className="flex-row items-center justify-between mb-1">
+                          <Text className="text-slate-400 text-sm">OpenAI</Text>
+                          <Text className="text-slate-300 text-sm">
+                            £
+                            {(
+                              financials.aiCosts.breakdown.openai / 1000
+                            ).toFixed(1)}
+                            k
+                          </Text>
+                        </View>
+                        <View className="flex-row items-center justify-between mb-1">
+                          <Text className="text-slate-400 text-sm">
+                            Anthropic
+                          </Text>
+                          <Text className="text-slate-300 text-sm">
+                            £
+                            {(
+                              financials.aiCosts.breakdown.anthropic / 1000
+                            ).toFixed(1)}
+                            k
+                          </Text>
+                        </View>
+                        <View className="flex-row items-center justify-between mb-1">
+                          <Text className="text-slate-400 text-sm">Google</Text>
+                          <Text className="text-slate-300 text-sm">
+                            £
+                            {(
+                              financials.aiCosts.breakdown.google / 1000
+                            ).toFixed(1)}
+                            k
+                          </Text>
+                        </View>
+                        <View className="flex-row items-center justify-between mb-1">
+                          <Text className="text-slate-400 text-sm">
+                            ElevenLabs
+                          </Text>
+                          <Text className="text-slate-300 text-sm">
+                            £
+                            {(
+                              financials.aiCosts.breakdown.elevenlabs / 1000
+                            ).toFixed(1)}
+                            k
+                          </Text>
+                        </View>
+                        <View className="flex-row items-center justify-between">
+                          <Text className="text-slate-400 text-sm">Other</Text>
+                          <Text className="text-slate-300 text-sm">
+                            £
+                            {(
+                              financials.aiCosts.breakdown.other / 1000
+                            ).toFixed(1)}
+                            k
+                          </Text>
+                        </View>
+                      </View>
+                    </View>
+
+                    {/* Other */}
+                    <View className="mb-4">
+                      <View className="flex-row items-center justify-between mb-2">
+                        <Text className="text-white font-medium">
+                          Other Costs
+                        </Text>
+                        <Text className="text-white font-bold">
+                          £{(financials.otherCosts.total / 1000).toFixed(1)}k
+                        </Text>
+                      </View>
+                      <View className="bg-slate-800 h-2 rounded-full overflow-hidden">
+                        <View
+                          className="bg-amber-500 h-full rounded-full"
+                          style={{
+                            width: `${(financials.otherCosts.total / financials.burnRate) * 100}%`,
+                          }}
+                        />
+                      </View>
+                      <Text className="text-slate-500 text-xs mt-1">
+                        {(
+                          (financials.otherCosts.total / financials.burnRate) *
+                          100
+                        ).toFixed(1)}
+                        % of burn
+                      </Text>
+                      <View className="ml-4 mt-2">
+                        <View className="flex-row items-center justify-between mb-1">
+                          <Text className="text-slate-400 text-sm">Office</Text>
+                          <Text className="text-slate-300 text-sm">
+                            £
+                            {(
+                              financials.otherCosts.breakdown.office / 1000
+                            ).toFixed(1)}
+                            k
+                          </Text>
+                        </View>
+                        <View className="flex-row items-center justify-between mb-1">
+                          <Text className="text-slate-400 text-sm">
+                            Software
+                          </Text>
+                          <Text className="text-slate-300 text-sm">
+                            £
+                            {(
+                              financials.otherCosts.breakdown.software / 1000
+                            ).toFixed(1)}
+                            k
+                          </Text>
+                        </View>
+                        <View className="flex-row items-center justify-between mb-1">
+                          <Text className="text-slate-400 text-sm">
+                            Marketing
+                          </Text>
+                          <Text className="text-slate-300 text-sm">
+                            £
+                            {(
+                              financials.otherCosts.breakdown.marketing / 1000
+                            ).toFixed(1)}
+                            k
+                          </Text>
+                        </View>
+                        <View className="flex-row items-center justify-between mb-1">
+                          <Text className="text-slate-400 text-sm">Legal</Text>
+                          <Text className="text-slate-300 text-sm">
+                            £
+                            {(
+                              financials.otherCosts.breakdown.legal / 1000
+                            ).toFixed(1)}
+                            k
+                          </Text>
+                        </View>
+                        <View className="flex-row items-center justify-between">
+                          <Text className="text-slate-400 text-sm">Other</Text>
+                          <Text className="text-slate-300 text-sm">
+                            £
+                            {(
+                              financials.otherCosts.breakdown.other / 1000
+                            ).toFixed(1)}
+                            k
+                          </Text>
+                        </View>
+                      </View>
+                    </View>
+                  </View>
+
+                  {/* Total Burn */}
+                  <View className="bg-red-500/20 border border-red-500/30 rounded-xl p-4">
+                    <View className="flex-row items-center justify-between">
+                      <Text className="text-red-400 font-semibold">
+                        Total Monthly Burn
+                      </Text>
+                      <Text className="text-red-400 text-xl font-bold">
+                        £{(financials.burnRate / 1000).toFixed(1)}k
+                      </Text>
+                    </View>
+                  </View>
+                </View>
+              )}
+
+              {detailsType === "runway" && (
+                <View>
+                  <View className="mb-6">
+                    <Text className="text-slate-400 text-sm mb-4">
+                      Runway Calculation
+                    </Text>
+
+                    <View className="mb-4">
+                      <View className="flex-row items-center justify-between mb-2">
+                        <Text className="text-white font-medium">
+                          Cash Balance
+                        </Text>
+                        <Text className="text-white font-bold">
+                          £{(financials.cashBalance / 1000).toFixed(0)}k
+                        </Text>
+                      </View>
+                    </View>
+
+                    <View className="mb-4">
+                      <View className="flex-row items-center justify-between mb-2">
+                        <Text className="text-white font-medium">
+                          Monthly Burn Rate
+                        </Text>
+                        <Text className="text-white font-bold">
+                          £{(financials.burnRate / 1000).toFixed(1)}k
+                        </Text>
+                      </View>
+                    </View>
+                  </View>
+
+                  {/* Runway Result */}
+                  <View className="bg-amber-500/20 border border-amber-500/30 rounded-xl p-4 mb-4">
+                    <View className="flex-row items-center justify-between mb-2">
+                      <Text className="text-amber-400 font-semibold">
+                        Runway Remaining
+                      </Text>
+                      <Text className="text-amber-400 text-xl font-bold">
+                        {financials.runway.toFixed(1)} months
+                      </Text>
+                    </View>
+                    <Text className="text-amber-300 text-xs">
+                      Based on current burn rate of £
+                      {(financials.burnRate / 1000).toFixed(0)}k/month
+                    </Text>
+                  </View>
+
+                  <View className="bg-slate-800 rounded-xl p-4">
+                    <Text className="text-slate-300 text-sm">
+                      💡 To extend runway, reduce monthly burn or increase
+                      revenue. Use the Budget settings to set targets.
+                    </Text>
+                  </View>
+                </View>
+              )}
             </ScrollView>
           </View>
         </View>

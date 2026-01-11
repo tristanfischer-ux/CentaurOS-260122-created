@@ -20,17 +20,29 @@ Centaur OS turns OKRs into work, tracks execution, enables review workflows, and
 - **Multi-Tenant Workspaces** - Users can belong to multiple workspaces with role-based access
 - **Role-Based Dashboards** - Customized views for Founders, Apprentices, and Fractional Execs
 - **Financial Dashboard (Founder-Only)** - Comprehensive financial tracking and budget management
-  - **Key Metrics**: Revenue, Gross Profit, Monthly Burn Rate, Runway displayed prominently
-  - **Revenue Tracking**: £45k current revenue with 15.5% growth, broken down by product sales, services, and recurring
-  - **Cost Breakdown**: Separate tracking for COGS (manufacturing), Team Costs (people), AI Costs, and Other operating expenses
-  - **Burn Rate Analysis**: £57.7k monthly burn with detailed percentage breakdowns showing Team (49.5%), COGS (32.0%), AI (3.8%), Other (14.7%)
-  - **Team Cost Detail**: £28.6k for 4 fractional execs and 7 apprentices with headcount tracking
-  - **AI Cost Tracking**: £2.2k monthly AI spend broken down by provider (OpenAI, Anthropic, Google, ElevenLabs)
-  - **Profitability Metrics**: Gross margin (58.9%), net margin (-28.3%), and profit/loss calculations
-  - **Cash Management**: £600k cash balance with 10.4 months runway
+  - **Key Metrics**: Monthly Revenue, Monthly Gross Profit, Monthly Burn Rate, Runway - all clearly labeled as monthly
+  - **Tappable Metric Cards**: Tap any financial metric card to see detailed breakdowns
+  - **Revenue Breakdown Modal**: £45k current revenue with 15.5% growth
+    - Product Sales breakdown with percentages
+    - Services revenue tracking
+    - Recurring revenue streams
+    - Other revenue sources
+  - **Profit Breakdown Modal**: Shows complete profit calculation
+    - Monthly revenue sources
+    - COGS/Bill of Materials (BOM) detailed breakdown (materials, manufacturing, shipping)
+    - Gross profit calculation with margin percentage
+  - **Burn Rate Breakdown Modal**: £57.7k monthly burn with detailed category analysis
+    - **Bill of Materials (BOM)**: £18.5k (32.0% of burn) - Materials, Manufacturing, Shipping, Other
+    - **People**: £28.6k (49.5% of burn) - Founders, Fractional Execs (4), Apprentices (7) with headcount
+    - **AI Services**: £2.2k (3.8% of burn) - OpenAI, Anthropic, Google, ElevenLabs, Other
+    - **Other Costs**: £8.5k (14.7% of burn) - Office, Software, Marketing, Legal, Other
+  - **Runway Details Modal**: Cash balance and runway calculation
+    - Current cash balance: £600k
+    - Monthly burn rate: £57.7k
+    - Runway: 10.4 months with actionable recommendations
   - **Budget Setting**: Interactive modal to set targets for revenue, costs, and burn rate
-  - **Budget Variance**: Real-time comparison of actual vs budget with variance percentages
-  - **Visual Indicators**: Progress bars showing each cost category as percentage of total burn
+  - **Budget Variance**: Real-time comparison of actual vs budget with variance amounts
+  - **Visual Progress Bars**: Each cost category shown as percentage of total monthly burn
   - **Board Pack Integration**: Financial metrics automatically included in board pack exports
 - **Team Directory** - Comprehensive team management with real workspace members
   - **Live Workspace Members**: Displays actual workspace members from database (not mock data)
