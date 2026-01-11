@@ -1,6 +1,6 @@
-import { View, Text, ScrollView, Pressable, Linking } from 'react-native';
+import { View, Text, ScrollView, Pressable, Linking, TextInput } from 'react-native';
 import { useState } from 'react';
-import { Building2, Users, Calendar, ExternalLink, MapPin, Package, ChevronRight } from 'lucide-react-native';
+import { Building2, Users, Calendar, ExternalLink, MapPin, Package, ChevronRight, Search, X } from 'lucide-react-native';
 
 type NetworkTab = 'suppliers' | 'companies' | 'events';
 
@@ -272,9 +272,32 @@ export default function NetworkScreen() {
 
 // Suppliers Tab - UK Manufacturing Directory
 function SuppliersTab() {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCapability, setSelectedCapability] = useState<string | null>(null);
+
   const handleVisitWebsite = (url: string) => {
     Linking.openURL(url);
   };
+
+  // Get all unique capabilities for filter chips
+  const allCapabilities = Array.from(
+    new Set(UK_SUPPLIERS.flatMap((s) => s.capabilities))
+  ).sort();
+
+  // Filter suppliers based on search and capability
+  const filteredSuppliers = UK_SUPPLIERS.filter((supplier) => {
+    const matchesSearch =
+      searchQuery === '' ||
+      supplier.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      supplier.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      supplier.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      supplier.capabilities.some((c) => c.toLowerCase().includes(searchQuery.toLowerCase()));
+
+    const matchesCapability =
+      !selectedCapability || supplier.capabilities.includes(selectedCapability);
+
+    return matchesSearch && matchesCapability;
+  });
 
   return (
     <View className="p-6">
@@ -285,48 +308,131 @@ function SuppliersTab() {
         </Text>
       </View>
 
-      <View className="gap-4">
-        {UK_SUPPLIERS.map((supplier) => (
-          <View
-            key={supplier.id}
-            className="bg-slate-900 rounded-2xl p-4 border border-slate-800"
-          >
-            <View className="flex-row items-start justify-between mb-3">
-              <View className="flex-1 mr-3">
-                <View className="flex-row items-center gap-2 mb-1">
-                  <Text className="text-white text-lg font-semibold">{supplier.name}</Text>
-                  {supplier.verified && (
-                    <View className="bg-blue-950 px-2 py-0.5 rounded-full">
-                      <Text className="text-blue-400 text-[10px] font-semibold">VERIFIED</Text>
-                    </View>
-                  )}
-                </View>
-                <Text className="text-slate-400 text-sm mb-2">{supplier.description}</Text>
-                <View className="flex-row items-center gap-1">
-                  <MapPin size={14} color="#64748b" />
-                  <Text className="text-slate-500 text-xs">{supplier.location}</Text>
-                </View>
-              </View>
-              <Building2 size={24} color="#64748b" />
-            </View>
-
-            <View className="flex-row flex-wrap gap-2 mb-3">
-              {supplier.capabilities.map((capability, idx) => (
-                <View key={idx} className="bg-slate-800 px-3 py-1 rounded-full">
-                  <Text className="text-slate-300 text-xs">{capability}</Text>
-                </View>
-              ))}
-            </View>
-
-            <Pressable
-              onPress={() => handleVisitWebsite(supplier.website)}
-              className="flex-row items-center justify-center bg-blue-500 rounded-xl py-2.5 active:opacity-80"
-            >
-              <ExternalLink size={16} color="white" />
-              <Text className="text-white font-semibold ml-2 text-sm">Visit Website</Text>
+      {/* Search Bar */}
+      <View className="mb-4">
+        <View className="bg-slate-900 rounded-xl flex-row items-center px-4 py-3 border border-slate-800">
+          <Search size={20} color="#64748b" />
+          <TextInput
+            className="flex-1 text-white ml-3 text-base"
+            placeholder="Search suppliers, capabilities, or location..."
+            placeholderTextColor="#64748b"
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+          />
+          {searchQuery.length > 0 && (
+            <Pressable onPress={() => setSearchQuery('')} className="ml-2">
+              <X size={20} color="#64748b" />
             </Pressable>
+          )}
+        </View>
+      </View>
+
+      {/* Capability Filter Chips */}
+      <View className="mb-4">
+        <Text className="text-slate-400 text-xs font-semibold mb-2 uppercase">
+          Filter by Capability
+        </Text>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+          <View className="flex-row gap-2">
+            <Pressable
+              onPress={() => setSelectedCapability(null)}
+              className={`px-4 py-2 rounded-full border ${
+                selectedCapability === null
+                  ? 'bg-blue-500 border-blue-500'
+                  : 'bg-slate-900 border-slate-700'
+              }`}
+            >
+              <Text
+                className={`text-xs font-semibold ${
+                  selectedCapability === null ? 'text-white' : 'text-slate-400'
+                }`}
+              >
+                All
+              </Text>
+            </Pressable>
+            {allCapabilities.map((capability) => (
+              <Pressable
+                key={capability}
+                onPress={() => setSelectedCapability(capability)}
+                className={`px-4 py-2 rounded-full border ${
+                  selectedCapability === capability
+                    ? 'bg-blue-500 border-blue-500'
+                    : 'bg-slate-900 border-slate-700'
+                }`}
+              >
+                <Text
+                  className={`text-xs font-semibold ${
+                    selectedCapability === capability ? 'text-white' : 'text-slate-400'
+                  }`}
+                >
+                  {capability}
+                </Text>
+              </Pressable>
+            ))}
           </View>
-        ))}
+        </ScrollView>
+      </View>
+
+      {/* Results Count */}
+      <Text className="text-slate-500 text-sm mb-4">
+        {filteredSuppliers.length} {filteredSuppliers.length === 1 ? 'supplier' : 'suppliers'} found
+      </Text>
+
+      {/* Suppliers List */}
+      <View className="gap-4">
+        {filteredSuppliers.length === 0 ? (
+          <View className="bg-slate-900 rounded-2xl p-8 border border-slate-800 items-center">
+            <Search size={48} color="#64748b" />
+            <Text className="text-white text-lg font-semibold mt-4 mb-2">
+              No suppliers found
+            </Text>
+            <Text className="text-slate-400 text-center text-sm">
+              Try adjusting your search or filters
+            </Text>
+          </View>
+        ) : (
+          filteredSuppliers.map((supplier) => (
+            <View
+              key={supplier.id}
+              className="bg-slate-900 rounded-2xl p-4 border border-slate-800"
+            >
+              <View className="flex-row items-start justify-between mb-3">
+                <View className="flex-1 mr-3">
+                  <View className="flex-row items-center gap-2 mb-1">
+                    <Text className="text-white text-lg font-semibold">{supplier.name}</Text>
+                    {supplier.verified && (
+                      <View className="bg-blue-950 px-2 py-0.5 rounded-full">
+                        <Text className="text-blue-400 text-[10px] font-semibold">VERIFIED</Text>
+                      </View>
+                    )}
+                  </View>
+                  <Text className="text-slate-400 text-sm mb-2">{supplier.description}</Text>
+                  <View className="flex-row items-center gap-1">
+                    <MapPin size={14} color="#64748b" />
+                    <Text className="text-slate-500 text-xs">{supplier.location}</Text>
+                  </View>
+                </View>
+                <Building2 size={24} color="#64748b" />
+              </View>
+
+              <View className="flex-row flex-wrap gap-2 mb-3">
+                {supplier.capabilities.map((capability, idx) => (
+                  <View key={idx} className="bg-slate-800 px-3 py-1 rounded-full">
+                    <Text className="text-slate-300 text-xs">{capability}</Text>
+                  </View>
+                ))}
+              </View>
+
+              <Pressable
+                onPress={() => handleVisitWebsite(supplier.website)}
+                className="flex-row items-center justify-center bg-blue-500 rounded-xl py-2.5 active:opacity-80"
+              >
+                <ExternalLink size={16} color="white" />
+                <Text className="text-white font-semibold ml-2 text-sm">Visit Website</Text>
+              </Pressable>
+            </View>
+          ))
+        )}
       </View>
     </View>
   );
