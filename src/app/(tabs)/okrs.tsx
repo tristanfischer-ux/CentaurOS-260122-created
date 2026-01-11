@@ -1,12 +1,13 @@
 import { View, Text, ScrollView, Pressable, ActivityIndicator, TextInput, Modal, Alert, KeyboardAvoidingView, Platform } from 'react-native';
 import { useState } from 'react';
-import { Target, Plus, TrendingUp, AlertTriangle, XCircle, X, Download } from 'lucide-react-native';
+import { Target, Plus, TrendingUp, AlertTriangle, XCircle, X, Download, Briefcase, CheckCircle2 } from 'lucide-react-native';
 import { useCurrentWorkspace, useCurrentMembership, useCurrentUser } from '@/lib/state/app-store';
-import { useObjectives } from '@/lib/hooks/queries';
+import { useObjectives, useTasks } from '@/lib/hooks/queries';
 import { objectiveApi, keyResultApi } from '@/lib/api';
 import { useQueryClient } from '@tanstack/react-query';
 import { exportToCSV, formatOKRsForExport } from '@/lib/export';
 import type { KeyResult } from '@/types';
+import { router } from 'expo-router';
 
 export default function OKRsScreen() {
   const currentWorkspace = useCurrentWorkspace();
@@ -15,6 +16,7 @@ export default function OKRsScreen() {
   const queryClient = useQueryClient();
 
   const { data: objectives, isLoading } = useObjectives(currentWorkspace?.id ?? null);
+  const { data: tasks } = useTasks(currentWorkspace?.id ?? null);
 
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditKRModal, setShowEditKRModal] = useState(false);
@@ -278,6 +280,72 @@ export default function OKRsScreen() {
                     );
                   })}
                 </View>
+
+                {/* Related Tasks */}
+                {(() => {
+                  const relatedTasks = tasks?.filter(t => t.objectiveId === objective.id) || [];
+                  const completedTasks = relatedTasks.filter(t => t.status === 'done').length;
+
+                  if (relatedTasks.length > 0) {
+                    return (
+                      <View className="mt-4 pt-4 border-t border-slate-800">
+                        <View className="flex-row items-center justify-between mb-3">
+                          <View className="flex-row items-center gap-2">
+                            <Briefcase size={16} color="#3b82f6" />
+                            <Text className="text-white font-semibold text-sm">Related Tasks</Text>
+                            <View className="bg-slate-800 px-2 py-0.5 rounded-full">
+                              <Text className="text-slate-400 text-xs">{completedTasks}/{relatedTasks.length}</Text>
+                            </View>
+                          </View>
+                          <Pressable
+                            onPress={() => router.push('/work')}
+                            className="active:opacity-70"
+                          >
+                            <Text className="text-blue-400 text-xs font-medium">View All</Text>
+                          </Pressable>
+                        </View>
+
+                        <View className="gap-2">
+                          {relatedTasks.slice(0, 3).map((task) => (
+                            <View
+                              key={task.id}
+                              className="bg-slate-800 rounded-lg p-3 flex-row items-center justify-between"
+                            >
+                              <View className="flex-1">
+                                <Text className="text-white text-sm font-medium mb-1">
+                                  {task.title}
+                                </Text>
+                                <View className="flex-row items-center gap-2">
+                                  <Text className="text-slate-500 text-xs capitalize">
+                                    {task.status.replace('_', ' ')}
+                                  </Text>
+                                  {task.assignee && (
+                                    <>
+                                      <Text className="text-slate-600">•</Text>
+                                      <Text className="text-slate-500 text-xs">
+                                        {task.assignee.name}
+                                      </Text>
+                                    </>
+                                  )}
+                                </View>
+                              </View>
+                              {task.status === 'done' && (
+                                <CheckCircle2 size={16} color="#10b981" />
+                              )}
+                            </View>
+                          ))}
+                        </View>
+
+                        {relatedTasks.length > 3 && (
+                          <Text className="text-slate-500 text-xs mt-2 text-center">
+                            +{relatedTasks.length - 3} more tasks
+                          </Text>
+                        )}
+                      </View>
+                    );
+                  }
+                  return null;
+                })()}
               </View>
             );
           })}

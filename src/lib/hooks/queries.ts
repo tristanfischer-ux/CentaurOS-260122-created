@@ -197,6 +197,7 @@ export function useCreateTask() {
     mutationFn: async (data: {
       workspaceId: string;
       projectId?: string;
+      objectiveId?: string;
       title: string;
       description?: string;
       assigneeId?: string;

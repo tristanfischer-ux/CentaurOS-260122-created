@@ -228,6 +228,7 @@ export interface Task {
   id: string;
   workspaceId: string;
   projectId?: string;
+  objectiveId?: string; // Link task to an objective
   title: string;
   description?: string;
   assigneeId?: string;

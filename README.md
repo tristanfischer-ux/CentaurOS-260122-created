@@ -37,12 +37,19 @@ Centaur OS turns OKRs into work, tracks execution, enables review workflows, and
   - **One-Click Hiring**: Add candidates to your team instantly
   - **Realistic Candidates**: Real-world experience levels and competitive market rates
 - **OKR Management** - Create objectives, track key results with real-time progress
+  - **Link Tasks to Objectives**: Connect work directly to strategic goals when creating tasks
+  - **Visual Task Integration**: See related tasks directly on objective cards with completion metrics
+  - **Bidirectional Navigation**: Jump between tasks and objectives seamlessly
+  - **Progress Tracking**: Task completion counts displayed on each objective (e.g., "5/12 tasks completed")
+  - **Quick Access**: "View All" link to see all tasks for a specific objective in Work Hub
 - **Work Hub** - Manage projects and tasks with rich metadata (priority, function, status)
   - **Task Creation**: Create tasks with title, description, assignee, function, and priority
+  - **Link to Objectives**: Optionally connect tasks to strategic objectives during creation
   - **Task Assignment**: Assign tasks to team members or leave unassigned
   - **Task Reassignment**: Easily reassign existing tasks to different team members
   - **Status Management**: Update task status (todo, in_progress, in_review, done)
   - **Filter by Status**: Filter tasks by status to focus on what matters
+  - **Objective Badges**: Visual indicators on task cards showing which objective they support
 - **Review Queue** - Apprentices request reviews, Fractional Execs approve/reject with audit trails
 - **Time Tracking** - Apprentices log hours on tasks with notes and date tracking
 - **Team Utilization Dashboard** - Executives and Founders view team capacity and productivity

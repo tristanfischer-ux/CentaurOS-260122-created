@@ -165,6 +165,7 @@ export const taskApi = {
     data: {
       workspaceId: string;
       projectId?: string;
+      objectiveId?: string;
       title: string;
       description?: string;
       assigneeId?: string;
@@ -185,6 +186,7 @@ export const taskApi = {
       id: uuidv4(),
       workspaceId: data.workspaceId,
       projectId: data.projectId,
+      objectiveId: data.objectiveId,
       title: data.title,
       description: data.description,
       assigneeId: data.assigneeId,

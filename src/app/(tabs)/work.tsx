@@ -1,8 +1,8 @@
 import { View, Text, ScrollView, Pressable, ActivityIndicator, Modal, TextInput, KeyboardAvoidingView, Platform } from 'react-native';
 import { useState } from 'react';
-import { Briefcase, Plus, Filter, CheckCircle2, Clock, AlertCircle, Circle, X, User, Calendar as CalendarIcon } from 'lucide-react-native';
+import { Briefcase, Plus, Filter, CheckCircle2, Clock, AlertCircle, Circle, X, User, Calendar as CalendarIcon, Target } from 'lucide-react-native';
 import { useCurrentWorkspace, useCurrentMembership, useCurrentUser } from '@/lib/state/app-store';
-import { useTasks, useUpdateTask, useRequestReview, useCreateTask, useWorkspaceMembers } from '@/lib/hooks/queries';
+import { useTasks, useUpdateTask, useRequestReview, useCreateTask, useWorkspaceMembers, useObjectives } from '@/lib/hooks/queries';
 import { TimeTrackingModal } from '@/components/TimeTrackingModal';
 import type { TaskStatus, TaskPriority, Function as TaskFunction, Task } from '@/types';
 
@@ -13,6 +13,7 @@ export default function WorkScreen() {
 
   const { data: tasks, isLoading } = useTasks(currentWorkspace?.id ?? null);
   const { data: members } = useWorkspaceMembers(currentWorkspace?.id ?? null);
+  const { data: objectives } = useObjectives(currentWorkspace?.id ?? null);
   const updateTaskMutation = useUpdateTask();
   const requestReviewMutation = useRequestReview();
   const createTaskMutation = useCreateTask();
@@ -29,6 +30,7 @@ export default function WorkScreen() {
   const [newTaskTitle, setNewTaskTitle] = useState('');
   const [newTaskDescription, setNewTaskDescription] = useState('');
   const [newTaskAssignee, setNewTaskAssignee] = useState<string>('');
+  const [newTaskObjective, setNewTaskObjective] = useState<string>(''); // Add objective field
   const [newTaskPriority, setNewTaskPriority] = useState<TaskPriority>('medium');
   const [newTaskFunction, setNewTaskFunction] = useState<TaskFunction>('Ops');
 
@@ -91,6 +93,7 @@ export default function WorkScreen() {
         title: newTaskTitle.trim(),
         description: newTaskDescription.trim() || undefined,
         assigneeId: newTaskAssignee || undefined,
+        objectiveId: newTaskObjective || undefined, // Include objective
         priority: newTaskPriority,
         function: newTaskFunction,
       });
@@ -99,6 +102,7 @@ export default function WorkScreen() {
       setNewTaskTitle('');
       setNewTaskDescription('');
       setNewTaskAssignee('');
+      setNewTaskObjective('');
       setNewTaskPriority('medium');
       setNewTaskFunction('Ops');
       setShowCreateModal(false);
@@ -230,6 +234,14 @@ export default function WorkScreen() {
                         <Text className="text-slate-400 text-sm" numberOfLines={2}>
                           {task.description}
                         </Text>
+                      )}
+                      {task.objectiveId && (
+                        <View className="flex-row items-center gap-1 mt-2">
+                          <Target size={12} color="#3b82f6" />
+                          <Text className="text-blue-400 text-xs">
+                            {objectives?.find(o => o.id === task.objectiveId)?.title || 'Linked to Objective'}
+                          </Text>
+                        </View>
                       )}
                     </View>
                   </View>
@@ -551,6 +563,51 @@ export default function WorkScreen() {
                       </View>
                     </ScrollView>
                   </View>
+
+                  {/* Link to Objective */}
+                  {objectives && objectives.length > 0 && (
+                    <View className="mb-4">
+                      <Text className="text-slate-400 text-sm font-medium mb-2">Link to Objective (Optional)</Text>
+                      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ flexGrow: 0 }}>
+                        <View className="flex-row gap-2">
+                          <Pressable
+                            onPress={() => setNewTaskObjective('')}
+                            className={`px-4 py-2 rounded-xl border ${
+                              newTaskObjective === ''
+                                ? 'bg-blue-500 border-blue-500'
+                                : 'bg-slate-800 border-slate-700'
+                            }`}
+                          >
+                            <Text className={`text-sm font-medium ${
+                              newTaskObjective === '' ? 'text-white' : 'text-slate-400'
+                            }`}>
+                              None
+                            </Text>
+                          </Pressable>
+                          {objectives.map((objective) => (
+                            <Pressable
+                              key={objective.id}
+                              onPress={() => setNewTaskObjective(objective.id)}
+                              className={`px-4 py-2 rounded-xl border ${
+                                newTaskObjective === objective.id
+                                  ? 'bg-blue-500 border-blue-500'
+                                  : 'bg-slate-800 border-slate-700'
+                              }`}
+                            >
+                              <View className="flex-row items-center gap-1">
+                                <Target size={12} color={newTaskObjective === objective.id ? '#ffffff' : '#94a3b8'} />
+                                <Text className={`text-sm font-medium ${
+                                  newTaskObjective === objective.id ? 'text-white' : 'text-slate-400'
+                                }`}>
+                                  {objective.title}
+                                </Text>
+                              </View>
+                            </Pressable>
+                          ))}
+                        </View>
+                      </ScrollView>
+                    </View>
+                  )}
 
                   {/* Function */}
                   <View className="mb-4">
