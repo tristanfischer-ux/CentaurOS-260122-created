@@ -105,6 +105,14 @@ Centaur OS turns OKRs into work, tracks execution, enables review workflows, and
   - **Progress Tracking**: Task completion counts displayed on each objective (e.g., "5/12 tasks completed")
   - **Quick Access**: "View All" link to see all tasks for a specific objective in Work Hub
 - **Work Hub** - All work subordinated to strategic objectives
+  - **Comprehensive Task Editing**: Tap any task to edit all properties in one place
+    - Title and Description
+    - Status (To Do, In Progress, In Review, Done)
+    - Priority (Low, Medium, High, Urgent)
+    - Function (Finance, Sales, Marketing, Ops, Engineering, Admin)
+    - Assignee selection (Executives and Apprentices displayed separately)
+    - Link to Objective (with visual feedback if not linked)
+    - Due Date
   - **Strategic Alignment Enforcement**: Prominent reminders that all work should support objectives
   - **Unlinked Task Warnings**: Alert banner showing tasks not linked to objectives with count
   - **Filter by Objective**: View tasks for specific objectives or see all unlinked tasks

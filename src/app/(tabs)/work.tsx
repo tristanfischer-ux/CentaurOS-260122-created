@@ -21,12 +21,22 @@ export default function WorkScreen() {
 
   const [filterStatus, setFilterStatus] = useState<TaskStatus | 'all'>('all');
   const [filterObjective, setFilterObjective] = useState<string | 'all'>('all');
-  const [showStatusModal, setShowStatusModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
   const [showAssignModal, setShowAssignModal] = useState(false);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [showTimeModal, setShowTimeModal] = useState(false);
   const [timeTrackingTask, setTimeTrackingTask] = useState<Task | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
+
+  // Edit task form state
+  const [editTitle, setEditTitle] = useState('');
+  const [editDescription, setEditDescription] = useState('');
+  const [editStatus, setEditStatus] = useState<TaskStatus>('todo');
+  const [editPriority, setEditPriority] = useState<TaskPriority>('medium');
+  const [editFunction, setEditFunction] = useState<TaskFunction>('Ops');
+  const [editAssignee, setEditAssignee] = useState<string>('');
+  const [editObjective, setEditObjective] = useState<string>('');
+  const [editDueDate, setEditDueDate] = useState<string>('');
 
   // Create task form state
   const [newTaskTitle, setNewTaskTitle] = useState('');
@@ -71,7 +81,7 @@ export default function WorkScreen() {
         workspaceId: currentWorkspace.id,
         updates: { status: newStatus },
       });
-      setShowStatusModal(false);
+      setShowEditModal(false);
       setSelectedTask(null);
     } catch (error) {
       console.error('Failed to update task:', error);
@@ -135,6 +145,33 @@ export default function WorkScreen() {
       setSelectedTask(null);
     } catch (error) {
       console.error('Failed to assign task:', error);
+    }
+  };
+
+  const handleUpdateTask = async () => {
+    if (!selectedTask || !currentWorkspace || !editTitle.trim()) return;
+
+    try {
+      await updateTaskMutation.mutateAsync({
+        taskId: selectedTask.id,
+        workspaceId: currentWorkspace.id,
+        updates: {
+          title: editTitle.trim(),
+          description: editDescription.trim() || undefined,
+          status: editStatus,
+          priority: editPriority,
+          function: editFunction,
+          assigneeId: editAssignee || null,
+          objectiveId: editObjective || null,
+          dueDate: editDueDate || undefined,
+        },
+      });
+      setShowEditModal(false);
+      setSelectedTask(null);
+      Alert.alert('Success', 'Task updated successfully!');
+    } catch (error) {
+      console.error('Failed to update task:', error);
+      Alert.alert('Error', 'Failed to update task. Please try again.');
     }
   };
 
@@ -310,7 +347,16 @@ export default function WorkScreen() {
                   key={task.id}
                   onPress={() => {
                     setSelectedTask(task);
-                    setShowStatusModal(true);
+                    // Populate edit form with current task values
+                    setEditTitle(task.title);
+                    setEditDescription(task.description || '');
+                    setEditStatus(task.status);
+                    setEditPriority(task.priority);
+                    setEditFunction(task.function);
+                    setEditAssignee(task.assigneeId || '');
+                    setEditObjective(task.objectiveId || '');
+                    setEditDueDate(task.dueDate || '');
+                    setShowEditModal(true);
                   }}
                   className="bg-slate-900 rounded-2xl p-4 border border-slate-800 active:opacity-70"
                 >
@@ -432,61 +478,244 @@ export default function WorkScreen() {
         )}
       </ScrollView>
 
-      {/* Change Status Modal */}
-      <Modal visible={showStatusModal} transparent animationType="slide">
+      {/* Edit Task Modal */}
+      <Modal visible={showEditModal} transparent animationType="slide">
         <View className="flex-1 bg-black/50 justify-end">
-          <View className="bg-slate-900 rounded-t-3xl p-6">
-            <View className="flex-row items-center justify-between mb-4">
-              <Text className="text-white text-xl font-bold">Change Status</Text>
-              <Pressable onPress={() => setShowStatusModal(false)}>
-                <X size={24} color="#94a3b8" />
-              </Pressable>
-            </View>
-
-            {selectedTask && (
-              <>
-                <Text className="text-slate-400 mb-6">{selectedTask.title}</Text>
-
-                <View className="gap-3 mb-6">
-                  {(['todo', 'in_progress', 'in_review', 'done'] as TaskStatus[]).map((status) => (
-                    <Pressable
-                      key={status}
-                      onPress={() => handleStatusChange(status)}
-                      disabled={updateTaskMutation.isPending}
-                      className={`p-4 rounded-xl border-2 ${
-                        selectedTask.status === status
-                          ? 'bg-blue-500/10 border-blue-500'
-                          : 'bg-slate-800 border-slate-700'
-                      } active:opacity-70`}
-                    >
-                      <View className="flex-row items-center justify-between">
-                        <View className="flex-row items-center gap-3">
-                          {getStatusIcon(status)}
-                          <Text className={`font-semibold ${
-                            selectedTask.status === status ? 'text-blue-400' : 'text-white'
-                          }`}>
-                            {status.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
-                          </Text>
-                        </View>
-                        {selectedTask.status === status && (
-                          <View className="w-5 h-5 bg-blue-500 rounded-full items-center justify-center">
-                            <CheckCircle2 size={16} color="white" />
-                          </View>
-                        )}
-                      </View>
-                    </Pressable>
-                  ))}
-                </View>
-
-                <Pressable
-                  onPress={() => setShowStatusModal(false)}
-                  className="bg-slate-800 rounded-xl py-3 items-center active:opacity-80"
-                >
-                  <Text className="text-slate-400 font-semibold">Cancel</Text>
+          <KeyboardAvoidingView
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            className="flex-1 justify-end"
+          >
+            <View className="bg-slate-900 rounded-t-3xl" style={{ maxHeight: '90%' }}>
+              <View className="flex-row items-center justify-between p-6 pb-4 border-b border-slate-800">
+                <Text className="text-white text-xl font-bold">Edit Task</Text>
+                <Pressable onPress={() => setShowEditModal(false)}>
+                  <X size={24} color="#94a3b8" />
                 </Pressable>
-              </>
-            )}
-          </View>
+              </View>
+
+              <ScrollView className="px-6 py-4" showsVerticalScrollIndicator={false}>
+                {selectedTask && (
+                  <View className="gap-4">
+                    {/* Title */}
+                    <View>
+                      <Text className="text-slate-400 text-sm mb-2 font-medium">Title *</Text>
+                      <TextInput
+                        value={editTitle}
+                        onChangeText={setEditTitle}
+                        placeholder="Task title"
+                        placeholderTextColor="#64748b"
+                        className="bg-slate-800 text-white rounded-xl px-4 py-3 border border-slate-700"
+                      />
+                    </View>
+
+                    {/* Description */}
+                    <View>
+                      <Text className="text-slate-400 text-sm mb-2 font-medium">Description</Text>
+                      <TextInput
+                        value={editDescription}
+                        onChangeText={setEditDescription}
+                        placeholder="Add details..."
+                        placeholderTextColor="#64748b"
+                        multiline
+                        numberOfLines={4}
+                        textAlignVertical="top"
+                        className="bg-slate-800 text-white rounded-xl px-4 py-3 border border-slate-700"
+                      />
+                    </View>
+
+                    {/* Status */}
+                    <View>
+                      <Text className="text-slate-400 text-sm mb-2 font-medium">Status</Text>
+                      <View className="flex-row flex-wrap gap-2">
+                        {(['todo', 'in_progress', 'in_review', 'done'] as TaskStatus[]).map((status) => (
+                          <Pressable
+                            key={status}
+                            onPress={() => setEditStatus(status)}
+                            className={`px-4 py-2 rounded-lg border ${
+                              editStatus === status
+                                ? 'bg-blue-500/20 border-blue-500'
+                                : 'bg-slate-800 border-slate-700'
+                            }`}
+                          >
+                            <Text className={editStatus === status ? 'text-blue-400' : 'text-slate-300'}>
+                              {status.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                            </Text>
+                          </Pressable>
+                        ))}
+                      </View>
+                    </View>
+
+                    {/* Priority */}
+                    <View>
+                      <Text className="text-slate-400 text-sm mb-2 font-medium">Priority</Text>
+                      <View className="flex-row flex-wrap gap-2">
+                        {(['low', 'medium', 'high', 'urgent'] as TaskPriority[]).map((priority) => (
+                          <Pressable
+                            key={priority}
+                            onPress={() => setEditPriority(priority)}
+                            className={`px-4 py-2 rounded-lg border ${
+                              editPriority === priority
+                                ? 'bg-blue-500/20 border-blue-500'
+                                : 'bg-slate-800 border-slate-700'
+                            }`}
+                          >
+                            <Text className={editPriority === priority ? 'text-blue-400' : 'text-slate-300'}>
+                              {priority.charAt(0).toUpperCase() + priority.slice(1)}
+                            </Text>
+                          </Pressable>
+                        ))}
+                      </View>
+                    </View>
+
+                    {/* Function */}
+                    <View>
+                      <Text className="text-slate-400 text-sm mb-2 font-medium">Function</Text>
+                      <View className="flex-row flex-wrap gap-2">
+                        {(['Finance', 'Sales', 'Marketing', 'Ops', 'Engineering', 'Admin'] as TaskFunction[]).map((func) => (
+                          <Pressable
+                            key={func}
+                            onPress={() => setEditFunction(func)}
+                            className={`px-4 py-2 rounded-lg border ${
+                              editFunction === func
+                                ? 'bg-blue-500/20 border-blue-500'
+                                : 'bg-slate-800 border-slate-700'
+                            }`}
+                          >
+                            <Text className={editFunction === func ? 'text-blue-400' : 'text-slate-300'}>
+                              {func}
+                            </Text>
+                          </Pressable>
+                        ))}
+                      </View>
+                    </View>
+
+                    {/* Assignee */}
+                    <View>
+                      <Text className="text-slate-400 text-sm mb-2 font-medium">Assign To</Text>
+                      <ScrollView horizontal showsHorizontalScrollIndicator={false} className="gap-2" style={{ flexGrow: 0 }}>
+                        {/* Unassigned */}
+                        <Pressable
+                          onPress={() => setEditAssignee('')}
+                          className={`px-4 py-3 rounded-lg border ${
+                            editAssignee === ''
+                              ? 'bg-blue-500/20 border-blue-500'
+                              : 'bg-slate-800 border-slate-700'
+                          }`}
+                        >
+                          <Text className={editAssignee === '' ? 'text-blue-400' : 'text-slate-300'}>
+                            Unassigned
+                          </Text>
+                        </Pressable>
+
+                        {/* Executives */}
+                        {members?.filter(m => m.role === 'FractionalExec' || m.role === 'Founder').map((member) => (
+                          <Pressable
+                            key={member.userId}
+                            onPress={() => setEditAssignee(member.userId)}
+                            className={`px-4 py-3 rounded-lg border flex-row items-center gap-2 ${
+                              editAssignee === member.userId
+                                ? 'bg-blue-500/20 border-blue-500'
+                                : 'bg-slate-800 border-slate-700'
+                            }`}
+                          >
+                            <View className="w-6 h-6 bg-purple-500 rounded-full items-center justify-center">
+                              <Text className="text-white text-xs font-semibold">
+                                {member.user.name.charAt(0)}
+                              </Text>
+                            </View>
+                            <Text className={editAssignee === member.userId ? 'text-blue-400' : 'text-slate-300'}>
+                              {member.user.name}
+                            </Text>
+                          </Pressable>
+                        ))}
+
+                        {/* Apprentices */}
+                        {members?.filter(m => m.role === 'Apprentice').map((member) => (
+                          <Pressable
+                            key={member.userId}
+                            onPress={() => setEditAssignee(member.userId)}
+                            className={`px-4 py-3 rounded-lg border flex-row items-center gap-2 ${
+                              editAssignee === member.userId
+                                ? 'bg-blue-500/20 border-blue-500'
+                                : 'bg-slate-800 border-slate-700'
+                            }`}
+                          >
+                            <View className="w-6 h-6 bg-emerald-500 rounded-full items-center justify-center">
+                              <Text className="text-white text-xs font-semibold">
+                                {member.user.name.charAt(0)}
+                              </Text>
+                            </View>
+                            <Text className={editAssignee === member.userId ? 'text-blue-400' : 'text-slate-300'}>
+                              {member.user.name}
+                            </Text>
+                          </Pressable>
+                        ))}
+                      </ScrollView>
+                    </View>
+
+                    {/* Link to Objective */}
+                    <View>
+                      <Text className="text-slate-400 text-sm mb-2 font-medium">Link to Objective</Text>
+                      {objectives && objectives.length > 0 ? (
+                        <ScrollView horizontal showsHorizontalScrollIndicator={false} className="gap-2" style={{ flexGrow: 0 }}>
+                          {/* No Objective */}
+                          <Pressable
+                            onPress={() => setEditObjective('')}
+                            className={`px-4 py-3 rounded-lg border ${
+                              editObjective === ''
+                                ? 'bg-amber-500/20 border-amber-500'
+                                : 'bg-slate-800 border-slate-700'
+                            }`}
+                          >
+                            <Text className={editObjective === '' ? 'text-amber-400' : 'text-slate-300'}>
+                              Not Linked
+                            </Text>
+                          </Pressable>
+
+                          {objectives.map((obj) => (
+                            <Pressable
+                              key={obj.id}
+                              onPress={() => setEditObjective(obj.id)}
+                              className={`px-4 py-3 rounded-lg border ${
+                                editObjective === obj.id
+                                  ? 'bg-blue-500/20 border-blue-500'
+                                  : 'bg-slate-800 border-slate-700'
+                              }`}
+                            >
+                              <Text className={editObjective === obj.id ? 'text-blue-400' : 'text-slate-300'} numberOfLines={1}>
+                                {obj.title}
+                              </Text>
+                            </Pressable>
+                          ))}
+                        </ScrollView>
+                      ) : (
+                        <View className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-4">
+                          <Text className="text-amber-400 text-sm">No objectives available. Create one first.</Text>
+                        </View>
+                      )}
+                    </View>
+
+                    {/* Save Button */}
+                    <View className="pt-4">
+                      <Pressable
+                        onPress={handleUpdateTask}
+                        disabled={updateTaskMutation.isPending || !editTitle.trim()}
+                        className={`rounded-xl py-4 items-center ${
+                          updateTaskMutation.isPending || !editTitle.trim()
+                            ? 'bg-slate-700'
+                            : 'bg-blue-500 active:opacity-80'
+                        }`}
+                      >
+                        <Text className="text-white font-bold text-base">
+                          {updateTaskMutation.isPending ? 'Updating...' : 'Save Changes'}
+                        </Text>
+                      </Pressable>
+                    </View>
+                  </View>
+                )}
+              </ScrollView>
+            </View>
+          </KeyboardAvoidingView>
         </View>
       </Modal>
 
