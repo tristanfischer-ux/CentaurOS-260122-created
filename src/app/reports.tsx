@@ -20,6 +20,13 @@ export default function ReportsScreen() {
   const [period, setPeriod] = useState<ReportPeriod>(initialPeriod);
   const [generatedReport, setGeneratedReport] = useState<Report | null>(null);
 
+  // Update period when params change
+  useEffect(() => {
+    if (params.period) {
+      setPeriod(params.period as ReportPeriod);
+    }
+  }, [params.period]);
+
   const tasks = useAppStore((s) => Object.values(s.tasks));
   const timeEntries = useAppStore((s) => Object.values(s.timeEntries));
   const objectives = useAppStore((s) => Object.values(s.objectives));
@@ -114,7 +121,7 @@ export default function ReportsScreen() {
     { value: 'quarter', label: 'Last 90 Days' },
   ];
 
-  // Auto-generate report when coming from home screen
+  // Auto-generate report when coming from home screen or when period changes
   useEffect(() => {
     if (params.period && currentWorkspace && userId && role) {
       // Auto-generate after a short delay to allow UI to settle
@@ -123,7 +130,7 @@ export default function ReportsScreen() {
       }, 500);
       return () => clearTimeout(timer);
     }
-  }, []); // Only run once on mount
+  }, [params.period, currentWorkspace?.id, userId, role]); // Re-run when params or context changes
 
   // Auto-export board pack if requested
   useEffect(() => {
