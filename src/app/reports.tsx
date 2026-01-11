@@ -1,7 +1,8 @@
 // Reports screen with role-based views
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { View, Text, ScrollView, Pressable, ActivityIndicator, Alert } from 'react-native';
 import { useMutation } from '@tanstack/react-query';
+import { useLocalSearchParams } from 'expo-router';
 import { FileText, Download, Calendar, TrendingUp, Users, Target, AlertTriangle } from 'lucide-react-native';
 import { useAppStore } from '@/lib/state/app-store';
 import { generateReport } from '@/lib/reports/generator';
@@ -10,11 +11,13 @@ import type { Report, ReportPeriod, FounderReportData, ExecutiveReportData, Appr
 import { cn } from '@/lib/cn';
 
 export default function ReportsScreen() {
+  const params = useLocalSearchParams<{ period?: string; export?: string }>();
   const currentUser = useAppStore((s) => s.currentUser);
   const currentWorkspace = useAppStore((s) => s.currentWorkspace);
   const currentMembership = useAppStore((s) => s.currentMembership);
 
-  const [period, setPeriod] = useState<ReportPeriod>('week');
+  const initialPeriod = (params.period as ReportPeriod) || 'week';
+  const [period, setPeriod] = useState<ReportPeriod>(initialPeriod);
   const [generatedReport, setGeneratedReport] = useState<Report | null>(null);
 
   const tasks = useAppStore((s) => Object.values(s.tasks));
@@ -110,6 +113,27 @@ export default function ReportsScreen() {
     { value: 'month', label: 'Last 30 Days' },
     { value: 'quarter', label: 'Last 90 Days' },
   ];
+
+  // Auto-generate report when coming from home screen
+  useEffect(() => {
+    if (params.period && currentWorkspace && userId && role) {
+      // Auto-generate after a short delay to allow UI to settle
+      const timer = setTimeout(() => {
+        generateReportMutation.mutate();
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, []); // Only run once on mount
+
+  // Auto-export board pack if requested
+  useEffect(() => {
+    if (params.export === 'boardpack' && generatedReport && role === 'Founder') {
+      const timer = setTimeout(() => {
+        exportBoardPackMutation.mutate();
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [generatedReport, params.export, role]);
 
   return (
     <View className="flex-1 bg-zinc-950">

@@ -9,6 +9,10 @@ import {
   ArrowRight,
   Target,
   Briefcase,
+  FileText,
+  BarChart3,
+  PieChart,
+  Calendar,
 } from 'lucide-react-native';
 import { useCurrentWorkspace, useCurrentMembership, useCurrentUser } from '@/lib/state/app-store';
 import { useDashboardStats } from '@/lib/hooks/queries';
@@ -63,6 +67,80 @@ export default function HomeScreen() {
               <Text className="text-white text-2xl font-bold">{tile.value}</Text>
             </View>
           ))}
+        </View>
+      </View>
+
+      {/* Reports Section */}
+      <View className="px-6 pb-4">
+        <View className="flex-row items-center justify-between mb-3">
+          <Text className="text-white text-lg font-semibold">Reports</Text>
+        </View>
+        <View className="gap-3">
+          {/* Weekly Report Card */}
+          <Pressable
+            onPress={() => router.push('/reports?period=week')}
+            className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-2xl p-4 active:opacity-80"
+          >
+            <LinearGradient
+              colors={['#2563eb', '#1d4ed8']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              className="absolute inset-0 rounded-2xl"
+            />
+            <View className="flex-row items-center justify-between relative z-10">
+              <View className="flex-1">
+                <View className="flex-row items-center mb-1">
+                  <Calendar size={18} color="#fff" />
+                  <Text className="text-white font-semibold ml-2">Weekly Report</Text>
+                </View>
+                <Text className="text-blue-100 text-xs">Last 7 days performance</Text>
+              </View>
+              <ArrowRight size={20} color="#fff" />
+            </View>
+          </Pressable>
+
+          {/* Quick Report Options Grid */}
+          <View className="flex-row gap-3">
+            <Pressable
+              onPress={() => router.push('/reports?period=month')}
+              className="flex-1 bg-slate-900 rounded-2xl p-4 border border-slate-800 active:opacity-80"
+            >
+              <BarChart3 size={24} color="#10b981" />
+              <Text className="text-white font-semibold mt-2 mb-1">Monthly</Text>
+              <Text className="text-slate-400 text-xs">30 day overview</Text>
+            </Pressable>
+
+            <Pressable
+              onPress={() => router.push('/reports?period=quarter')}
+              className="flex-1 bg-slate-900 rounded-2xl p-4 border border-slate-800 active:opacity-80"
+            >
+              <PieChart size={24} color="#f59e0b" />
+              <Text className="text-white font-semibold mt-2 mb-1">Quarterly</Text>
+              <Text className="text-slate-400 text-xs">90 day summary</Text>
+            </Pressable>
+          </View>
+
+          {/* Board Pack for Founders */}
+          {role === 'Founder' && (
+            <Pressable
+              onPress={() => router.push('/reports?period=month&export=boardpack')}
+              className="bg-slate-900 rounded-2xl p-4 border border-emerald-800 active:opacity-80"
+            >
+              <View className="flex-row items-center justify-between">
+                <View className="flex-1">
+                  <View className="flex-row items-center mb-1">
+                    <FileText size={18} color="#10b981" />
+                    <Text className="text-white font-semibold ml-2">Board Pack</Text>
+                    <View className="bg-emerald-950 px-2 py-0.5 rounded-full ml-2">
+                      <Text className="text-emerald-400 text-[10px] font-semibold">FOUNDER</Text>
+                    </View>
+                  </View>
+                  <Text className="text-slate-400 text-xs">Export board-ready report</Text>
+                </View>
+                <ArrowRight size={20} color="#10b981" />
+              </View>
+            </Pressable>
+          )}
         </View>
       </View>
 

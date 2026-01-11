@@ -24,11 +24,14 @@ Centaur OS turns OKRs into work, tracks execution, enables review workflows, and
 - **Review Queue** - Apprentices request reviews, Fractional Execs approve/reject with audit trails
 - **Time Tracking** - Apprentices log hours on tasks with notes and date tracking
 - **Team Utilization Dashboard** - Executives and Founders view team capacity and productivity
-- **Automated Reports** - Role-based reporting with board-ready exports
+- **Automated Reports** - Quick-access reporting from home screen with one-tap generation
+  - **Home Screen Quick Access**: Weekly, Monthly, Quarterly report cards
   - **Founder Reports**: Business overview across all functions with OKR progress, executive performance, apprentice utilization, risks, and highlights
   - **Executive Reports**: Function-specific performance and team metrics
   - **Apprentice Reports**: Individual work summary and achievements
-  - **Board Pack Export**: One-click markdown export ready for board presentations
+  - **Board Pack Export**: One-click markdown export ready for board presentations (Founder-only)
+  - **Auto-generation**: Reports generate automatically when accessed from home screen
+  - **Multiple Export Formats**: Markdown (board-ready), CSV (analysis), JSON (integration)
 - **Executive Workflow System** - Pre-defined task sequences for each function (Marketing, Sales, Finance, Ops, Engineering, Admin)
 - **UK Supplier Network** - Shared manufacturing supplier directory across all companies
 - **Company Discovery** - Connect with other companies using Centaur OS
@@ -36,8 +39,7 @@ Centaur OS turns OKRs into work, tracks execution, enables review workflows, and
 - **Weekly Pack Generator** - One-click generation of status reports with OKR progress
 - **AI Copilot (Stub Mode)** - Chat interface with deterministic AI that proposes actions (human approval required)
 - **Templates Library** - Pre-built task templates by function (Finance, Sales, Marketing, Ops, Engineering)
-- **Export Functionality** - Export OKRs, tasks, and reports as CSV, JSON, or Markdown
-- **Dark Mode** - Full dark theme support (light mode coming soon)
+- **Dark/Light Mode** - Full theme support with system preference option
 - **Audit Logging** - Full audit trail of all actions across the workspace
 
 ---
