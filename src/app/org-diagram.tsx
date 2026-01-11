@@ -1,5 +1,5 @@
 import { View, Text, ScrollView, Pressable, Modal, Dimensions } from 'react-native';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { X, Mail, Phone, Users, ChevronRight } from 'lucide-react-native';
 import Svg, { Circle, Line, Text as SvgText } from 'react-native-svg';
 import { ORGANIZATION_MEMBERS, type OrganizationMember } from '@/lib/organization-seed';
@@ -130,101 +130,125 @@ export default function OrgDiagramScreen() {
         <View className="p-4">
           <View className="bg-slate-900 rounded-2xl p-4 border border-slate-800 overflow-hidden">
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-              <Svg width={DIAGRAM_WIDTH} height={DIAGRAM_HEIGHT}>
-                {/* Draw reporting lines */}
-                {ORGANIZATION_MEMBERS.map((member) => {
-                  if (member.reportsTo) {
-                    const manager = ORGANIZATION_MEMBERS.find(m => m.id === member.reportsTo);
-                    if (manager) {
-                      const memberPos = getPosition(
-                        member,
-                        ORGANIZATION_MEMBERS.indexOf(member),
-                        ORGANIZATION_MEMBERS.filter(m => m.role === member.role).length
-                      );
-                      const managerPos = getPosition(
-                        manager,
-                        ORGANIZATION_MEMBERS.indexOf(manager),
-                        ORGANIZATION_MEMBERS.filter(m => m.role === manager.role).length
-                      );
+              <View>
+                <Svg width={DIAGRAM_WIDTH} height={DIAGRAM_HEIGHT}>
+                  {/* Draw reporting lines */}
+                  {ORGANIZATION_MEMBERS.map((member) => {
+                    if (member.reportsTo) {
+                      const manager = ORGANIZATION_MEMBERS.find(m => m.id === member.reportsTo);
+                      if (manager) {
+                        const memberPos = getPosition(
+                          member,
+                          ORGANIZATION_MEMBERS.indexOf(member),
+                          ORGANIZATION_MEMBERS.filter(m => m.role === member.role).length
+                        );
+                        const managerPos = getPosition(
+                          manager,
+                          ORGANIZATION_MEMBERS.indexOf(manager),
+                          ORGANIZATION_MEMBERS.filter(m => m.role === manager.role).length
+                        );
 
-                      return (
-                        <Line
-                          key={`line-${member.id}`}
-                          x1={managerPos.x}
-                          y1={managerPos.y}
-                          x2={memberPos.x}
-                          y2={memberPos.y}
-                          stroke="#334155"
-                          strokeWidth="2"
-                          strokeDasharray="4,4"
-                        />
-                      );
+                        return (
+                          <Line
+                            key={`line-${member.id}`}
+                            x1={managerPos.x}
+                            y1={managerPos.y}
+                            x2={memberPos.x}
+                            y2={memberPos.y}
+                            stroke="#334155"
+                            strokeWidth="2"
+                            strokeDasharray="4,4"
+                          />
+                        );
+                      }
                     }
-                  }
-                  return null;
-                })}
+                    return null;
+                  })}
 
-                {/* Draw member nodes */}
-                {ORGANIZATION_MEMBERS.map((member, idx) => {
+                  {/* Draw member nodes */}
+                  {ORGANIZATION_MEMBERS.map((member) => {
+                    const position = getPosition(
+                      member,
+                      ORGANIZATION_MEMBERS.filter(m => m.role === member.role).indexOf(member),
+                      ORGANIZATION_MEMBERS.filter(m => m.role === member.role).length
+                    );
+                    const color = getRoleColor(member.role);
+                    const nodeRadius = member.role === 'Founder' ? 35 : 28;
+
+                    return (
+                      <React.Fragment key={member.id}>
+                        {/* Node circle */}
+                        <Circle
+                          cx={position.x}
+                          cy={position.y}
+                          r={nodeRadius}
+                          fill={color + '20'}
+                          stroke={color}
+                          strokeWidth="3"
+                        />
+
+                        {/* Role label */}
+                        <SvgText
+                          x={position.x}
+                          y={position.y + 6}
+                          fontSize="18"
+                          fontWeight="bold"
+                          fill={color}
+                          textAnchor="middle"
+                        >
+                          {getRoleLabel(member.role)}
+                        </SvgText>
+
+                        {/* Name label below */}
+                        <SvgText
+                          x={position.x}
+                          y={position.y + nodeRadius + 18}
+                          fontSize="11"
+                          fill="#e2e8f0"
+                          textAnchor="middle"
+                          fontWeight="600"
+                        >
+                          {member.name.split(' ')[0]}
+                        </SvgText>
+                        <SvgText
+                          x={position.x}
+                          y={position.y + nodeRadius + 32}
+                          fontSize="9"
+                          fill="#94a3b8"
+                          textAnchor="middle"
+                        >
+                          {member.function}
+                        </SvgText>
+                      </React.Fragment>
+                    );
+                  })}
+                </Svg>
+
+                {/* Transparent touch targets overlaid on top of SVG */}
+                {ORGANIZATION_MEMBERS.map((member) => {
                   const position = getPosition(
                     member,
                     ORGANIZATION_MEMBERS.filter(m => m.role === member.role).indexOf(member),
                     ORGANIZATION_MEMBERS.filter(m => m.role === member.role).length
                   );
-                  const color = getRoleColor(member.role);
                   const nodeRadius = member.role === 'Founder' ? 35 : 28;
+                  const touchRadius = nodeRadius + 15; // Extra touch area
 
                   return (
                     <Pressable
-                      key={member.id}
+                      key={`touch-${member.id}`}
                       onPress={() => setSelectedMember(member)}
-                    >
-                      {/* Node circle */}
-                      <Circle
-                        cx={position.x}
-                        cy={position.y}
-                        r={nodeRadius}
-                        fill={color + '20'}
-                        stroke={color}
-                        strokeWidth="3"
-                      />
-
-                      {/* Role label */}
-                      <SvgText
-                        x={position.x}
-                        y={position.y + 6}
-                        fontSize="18"
-                        fontWeight="bold"
-                        fill={color}
-                        textAnchor="middle"
-                      >
-                        {getRoleLabel(member.role)}
-                      </SvgText>
-
-                      {/* Name label below */}
-                      <SvgText
-                        x={position.x}
-                        y={position.y + nodeRadius + 18}
-                        fontSize="11"
-                        fill="#e2e8f0"
-                        textAnchor="middle"
-                        fontWeight="600"
-                      >
-                        {member.name.split(' ')[0]}
-                      </SvgText>
-                      <SvgText
-                        x={position.x}
-                        y={position.y + nodeRadius + 32}
-                        fontSize="9"
-                        fill="#94a3b8"
-                        textAnchor="middle"
-                      >
-                        {member.function}
-                      </SvgText>
-                    </Pressable>
+                      style={{
+                        position: 'absolute',
+                        left: position.x - touchRadius,
+                        top: position.y - touchRadius,
+                        width: touchRadius * 2,
+                        height: touchRadius * 2,
+                      }}
+                    />
                   );
                 })}
-              </Svg>
+              </View>
             </ScrollView>
           </View>
 
