@@ -12,9 +12,13 @@ import { cn } from '@/lib/cn';
 
 export default function ReportsScreen() {
   const params = useLocalSearchParams<{ period?: string; export?: string }>();
+
+  // Use selectors that return stable references
   const currentUser = useAppStore((s) => s.currentUser);
   const currentWorkspace = useAppStore((s) => s.currentWorkspace);
   const currentMembership = useAppStore((s) => s.currentMembership);
+  const userId = currentUser?.id;
+  const role = currentMembership?.role;
 
   const initialPeriod = (params.period as ReportPeriod) || 'week';
   const [period, setPeriod] = useState<ReportPeriod>(initialPeriod);
@@ -27,23 +31,22 @@ export default function ReportsScreen() {
     }
   }, [params.period]);
 
-  const tasks = useAppStore((s) => Object.values(s.tasks));
-  const timeEntries = useAppStore((s) => Object.values(s.timeEntries));
-  const objectives = useAppStore((s) => Object.values(s.objectives));
-  const keyResults = useAppStore((s) => Object.values(s.keyResults));
-  const projects = useAppStore((s) => Object.values(s.projects));
-  const reviews = useAppStore((s) => Object.values(s.reviews));
-  const users = useAppStore((s) => s.users);
-  const memberships = useAppStore((s) => Object.values(s.memberships));
-
-  const userId = currentUser?.id;
-  const role = currentMembership?.role;
-
   const generateReportMutation = useMutation({
     mutationFn: async (periodOverride?: ReportPeriod) => {
       if (!currentWorkspace || !userId || !role) {
         throw new Error('Missing required data');
       }
+
+      // Get fresh data from store at mutation time
+      const store = useAppStore.getState();
+      const tasks = Object.values(store.tasks);
+      const timeEntries = Object.values(store.timeEntries);
+      const objectives = Object.values(store.objectives);
+      const keyResults = Object.values(store.keyResults);
+      const projects = Object.values(store.projects);
+      const reviews = Object.values(store.reviews);
+      const users = store.users;
+      const memberships = Object.values(store.memberships);
 
       const reportType = role === 'Founder' ? 'founder' : role === 'FractionalExec' ? 'executive' : 'apprentice';
       const effectivePeriod = periodOverride || period;
