@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, Pressable, ActivityIndicator, Modal, TextInput, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, ScrollView, Pressable, ActivityIndicator, Modal, TextInput, KeyboardAvoidingView, Platform, Alert } from 'react-native';
 import { useState } from 'react';
 import { Briefcase, Plus, CheckCircle2, Clock, AlertCircle, Circle, X, User, Target } from 'lucide-react-native';
 import { useCurrentWorkspace, useCurrentMembership, useCurrentUser } from '@/lib/state/app-store';
@@ -106,8 +106,12 @@ export default function WorkScreen() {
       setNewTaskPriority('medium');
       setNewTaskFunction('Ops');
       setShowCreateModal(false);
+
+      // Show success feedback
+      Alert.alert('Success', 'Task created successfully!');
     } catch (error) {
       console.error('Failed to create task:', error);
+      Alert.alert('Error', 'Failed to create task. Please try again.');
     }
   };
 
@@ -487,7 +491,7 @@ export default function WorkScreen() {
           keyboardVerticalOffset={0}
         >
           <View className="flex-1 bg-black/50 justify-end">
-            <View className="bg-slate-900 rounded-t-3xl p-6 max-h-[90%]">
+            <View className="bg-slate-900 rounded-t-3xl p-6" style={{ maxHeight: '90%' }}>
               <View className="flex-row items-center justify-between mb-6">
                 <Text className="text-white text-2xl font-bold">Create Task</Text>
                 <Pressable onPress={() => setShowCreateModal(false)}>
@@ -495,7 +499,7 @@ export default function WorkScreen() {
                 </Pressable>
               </View>
 
-              <ScrollView className="flex-1" showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+              <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
                   {/* Title */}
                   <View className="mb-4">
                     <Text className="text-slate-400 text-sm font-medium mb-2">Title *</Text>
