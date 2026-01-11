@@ -72,12 +72,20 @@ Centaur OS turns OKRs into work, tracks execution, enables review workflows, and
   - **Location Details**: See exact addresses and cities (Birmingham, Leeds, Manchester, 2x London)
   - **Map Markers**: Tap any supplier on the map to view full engagement details
   - **Geographic Overview**: Visual understanding of supply chain distribution across the country
-  - **AI Agents Directory**: Complete catalog of 10 AI tools used across the organization
-  - **AI Cost Management**: £2,169/month total AI spend tracked by agent
-  - **Usage Analytics**: Monthly request counts, response times, and success rates per AI agent
-  - **Team Access**: See which team members use which AI tools for what functions
-  - **Provider Breakdown**: OpenAI, Anthropic, Google, ElevenLabs, and other providers
-  - **Capability Mapping**: Understand what each AI agent can do and how it's integrated
+- **AI Agents by Function** - 24 AI agents organized by business function (£5,754/month total)
+  - **Finance (3 agents - £1,000/mo)**: Vic AI (invoice processing), Digits AI (bookkeeping), Gemini Pro (analysis)
+  - **Sales (4 agents - £1,649/mo)**: 11x Alice (AI SDR), Gong AI (call analysis), Clay AI (lead enrichment), ElevenLabs (voiceovers)
+  - **Marketing (6 agents - £890/mo)**: Jasper AI (content), Copy.ai (copy), Midjourney (imagery), DALL-E 3 (graphics), Perplexity (research), Runway (video)
+  - **Ops (3 agents - £1,050/mo)**: Hebbia AI (document analysis), Zapier AI (automation), Harvey AI (legal)
+  - **Engineering (4 agents - £270/mo)**: GitHub Copilot, Cursor AI, Replit Ghostwriter, Tabnine
+  - **Admin (4 agents - £895/mo)**: ChatGPT Enterprise, Notion AI, Otter.ai (transcription), Grammarly
+  - **Function-Based Filtering**: Filter by Finance, Sales, Marketing, Ops, Engineering, or Admin
+  - **Visual Organization**: Agents grouped by function with emoji icons (💰📈📣⚙️💻📋) and color coding
+  - **Agent Count Badges**: See how many agents available per function at a glance
+  - **Workflow-Oriented**: "Need marketing? Select Marketing execs, apprentices, and AI agents together"
+  - **Detailed Agent Profiles**: View capabilities, integrations, usage stats, and costs per agent
+  - **Onboarding Flow**: Add new AI agents with custom monthly cost tracking
+  - **Search & Filter**: Find agents by name, purpose, or capability across all functions
 - **OKR Management** - Create objectives, track key results with real-time progress
   - **Link Tasks to Objectives**: Connect work directly to strategic goals when creating tasks
   - **Visual Task Integration**: See related tasks directly on objective cards with completion metrics

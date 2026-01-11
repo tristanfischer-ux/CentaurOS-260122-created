@@ -892,7 +892,93 @@ function HiringTab() {
   );
 }
 
-// AI Agents Tab - Browse and onboard AI tools
+// Agent Card Component
+function AgentCard({ agent, onPress, getFunctionColor }: {
+  agent: AIAgent;
+  onPress: () => void;
+  getFunctionColor: (func: string) => string;
+}) {
+  const getProviderColor = (provider: string) => {
+    switch (provider) {
+      case 'OpenAI': return '#10b981';
+      case 'Anthropic': return '#f59e0b';
+      case 'Google': return '#3b82f6';
+      case 'ElevenLabs': return '#8b5cf6';
+      case 'Vic.ai': return '#10b981';
+      case 'Digits': return '#10b981';
+      case '11x': return '#3b82f6';
+      case 'Gong': return '#3b82f6';
+      case 'Clay': return '#3b82f6';
+      case 'Jasper': return '#f59e0b';
+      case 'Copy.ai': return '#f59e0b';
+      case 'Midjourney': return '#8b5cf6';
+      case 'Perplexity': return '#64748b';
+      case 'Runway': return '#8b5cf6';
+      case 'Hebbia': return '#8b5cf6';
+      case 'Zapier': return '#f59e0b';
+      case 'Harvey': return '#3b82f6';
+      case 'Cursor': return '#06b6d4';
+      case 'Replit': return '#06b6d4';
+      case 'Tabnine': return '#10b981';
+      case 'Notion': return '#64748b';
+      case 'Otter.ai': return '#3b82f6';
+      case 'Grammarly': return '#10b981';
+      default: return '#64748b';
+    }
+  };
+
+  return (
+    <Pressable
+      onPress={onPress}
+      className="bg-slate-900 rounded-2xl p-4 border border-slate-800 active:opacity-70"
+    >
+      <View className="flex-row items-start justify-between mb-3">
+        <View className="flex-1">
+          <View className="flex-row items-center gap-2 mb-1">
+            <Bot size={20} color={getProviderColor(agent.provider)} />
+            <Text className="text-white text-lg font-bold">{agent.name}</Text>
+          </View>
+          <View className="flex-row items-center gap-2 mb-2">
+            <View
+              className="px-2 py-1 rounded"
+              style={{ backgroundColor: getProviderColor(agent.provider) + '20' }}
+            >
+              <Text
+                className="text-xs font-semibold"
+                style={{ color: getProviderColor(agent.provider) }}
+              >
+                {agent.provider}
+              </Text>
+            </View>
+            <Text className="text-slate-500 text-xs">•</Text>
+            <Text className="text-slate-400 text-xs">{agent.model}</Text>
+          </View>
+        </View>
+        <View className="items-end">
+          <Text className="text-emerald-400 text-xl font-bold">£{agent.costPerMonth}</Text>
+          <Text className="text-slate-500 text-xs">per month</Text>
+        </View>
+      </View>
+
+      <Text className="text-slate-300 text-sm mb-3">{agent.purpose}</Text>
+
+      <View className="flex-row items-center justify-between">
+        <View className="flex-row items-center gap-2">
+          <Zap size={14} color="#64748b" />
+          <Text className="text-slate-400 text-xs">
+            {agent.capabilities.length} capabilities
+          </Text>
+        </View>
+        <View className="flex-row items-center gap-2">
+          <ChevronRight size={16} color="#3b82f6" />
+          <Text className="text-blue-400 text-xs font-semibold">View Details</Text>
+        </View>
+      </View>
+    </Pressable>
+  );
+}
+
+// AI Agents Tab - Browse and onboard AI tools organized by function
 function AIAgentsTab({ selectedAgent, setSelectedAgent, onboardingAgent, setOnboardingAgent, monthlyCost, setMonthlyCost }: {
   selectedAgent: AIAgent | null;
   setSelectedAgent: (agent: AIAgent | null) => void;
@@ -902,7 +988,7 @@ function AIAgentsTab({ selectedAgent, setSelectedAgent, onboardingAgent, setOnbo
   setMonthlyCost: (cost: string) => void;
 }) {
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedProvider, setSelectedProvider] = useState<string | null>(null);
+  const [selectedFunction, setSelectedFunction] = useState<string | null>(null);
 
   const handleOnboard = () => {
     if (!onboardingAgent || !monthlyCost.trim()) {
@@ -925,15 +1011,54 @@ function AIAgentsTab({ selectedAgent, setSelectedAgent, onboardingAgent, setOnbo
     );
   };
 
-  const providers = [...new Set(AI_AGENTS.map(a => a.provider))];
+  // Get unique functions from AI agents
+  const functions = ['Finance', 'Sales', 'Marketing', 'Ops', 'Engineering', 'Admin'];
 
   const filteredAgents = AI_AGENTS.filter(agent => {
     const matchesSearch = agent.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          agent.purpose.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          agent.capabilities.some(c => c.toLowerCase().includes(searchQuery.toLowerCase()));
-    const matchesProvider = !selectedProvider || agent.provider === selectedProvider;
-    return matchesSearch && matchesProvider;
+    const matchesFunction = !selectedFunction ||
+                           agent.functions.includes(selectedFunction) ||
+                           agent.functions.includes('All') ||
+                           agent.functions.includes('Admin');
+    return matchesSearch && matchesFunction;
   });
+
+  // Group agents by function for display
+  const agentsByFunction = functions.reduce((acc, func) => {
+    const funcAgents = filteredAgents.filter(agent =>
+      agent.functions.includes(func) || agent.functions.includes('All') || agent.functions.includes('Admin')
+    );
+    if (funcAgents.length > 0) {
+      acc[func] = funcAgents;
+    }
+    return acc;
+  }, {} as Record<string, typeof AI_AGENTS>);
+
+  const getFunctionColor = (func: string) => {
+    switch (func) {
+      case 'Finance': return '#10b981';
+      case 'Sales': return '#3b82f6';
+      case 'Marketing': return '#f59e0b';
+      case 'Ops': return '#8b5cf6';
+      case 'Engineering': return '#06b6d4';
+      case 'Admin': return '#64748b';
+      default: return '#64748b';
+    }
+  };
+
+  const getFunctionIcon = (func: string) => {
+    switch (func) {
+      case 'Finance': return '💰';
+      case 'Sales': return '📈';
+      case 'Marketing': return '📣';
+      case 'Ops': return '⚙️';
+      case 'Engineering': return '💻';
+      case 'Admin': return '📋';
+      default: return '🤖';
+    }
+  };
 
   const getProviderColor = (provider: string) => {
     switch (provider) {
@@ -941,6 +1066,25 @@ function AIAgentsTab({ selectedAgent, setSelectedAgent, onboardingAgent, setOnbo
       case 'Anthropic': return '#f59e0b';
       case 'Google': return '#3b82f6';
       case 'ElevenLabs': return '#8b5cf6';
+      case 'Vic.ai': return '#10b981';
+      case 'Digits': return '#10b981';
+      case '11x': return '#3b82f6';
+      case 'Gong': return '#3b82f6';
+      case 'Clay': return '#3b82f6';
+      case 'Jasper': return '#f59e0b';
+      case 'Copy.ai': return '#f59e0b';
+      case 'Midjourney': return '#8b5cf6';
+      case 'Perplexity': return '#64748b';
+      case 'Runway': return '#8b5cf6';
+      case 'Hebbia': return '#8b5cf6';
+      case 'Zapier': return '#f59e0b';
+      case 'Harvey': return '#3b82f6';
+      case 'Cursor': return '#06b6d4';
+      case 'Replit': return '#06b6d4';
+      case 'Tabnine': return '#10b981';
+      case 'Notion': return '#64748b';
+      case 'Otter.ai': return '#3b82f6';
+      case 'Grammarly': return '#10b981';
       default: return '#64748b';
     }
   };
@@ -951,7 +1095,7 @@ function AIAgentsTab({ selectedAgent, setSelectedAgent, onboardingAgent, setOnbo
       <View className="p-6 border-b border-slate-800">
         <Text className="text-white text-2xl font-bold mb-2">AI Agents Directory</Text>
         <Text className="text-slate-400 text-sm">
-          Discover and onboard AI tools to supercharge your team's productivity
+          Browse AI agents by function - Finance, Sales, Marketing, Ops, Engineering, Admin
         </Text>
       </View>
 
@@ -968,98 +1112,102 @@ function AIAgentsTab({ selectedAgent, setSelectedAgent, onboardingAgent, setOnbo
           />
         </View>
 
-        {/* Provider Filter */}
+        {/* Function Filter */}
         <ScrollView horizontal showsHorizontalScrollIndicator={false} className="mt-4" style={{ flexGrow: 0 }}>
           <View className="flex-row gap-2">
             <Pressable
-              onPress={() => setSelectedProvider(null)}
+              onPress={() => setSelectedFunction(null)}
               className={`px-4 py-2 rounded-xl border ${
-                !selectedProvider ? 'bg-blue-500 border-blue-500' : 'bg-slate-800 border-slate-700'
+                !selectedFunction ? 'bg-blue-500 border-blue-500' : 'bg-slate-800 border-slate-700'
               }`}
             >
-              <Text className={`text-sm font-medium ${!selectedProvider ? 'text-white' : 'text-slate-400'}`}>
-                All Providers
+              <Text className={`text-sm font-medium ${!selectedFunction ? 'text-white' : 'text-slate-400'}`}>
+                All Functions
               </Text>
             </Pressable>
-            {providers.map(provider => (
-              <Pressable
-                key={provider}
-                onPress={() => setSelectedProvider(provider)}
-                className={`px-4 py-2 rounded-xl border ${
-                  selectedProvider === provider ? 'bg-blue-500 border-blue-500' : 'bg-slate-800 border-slate-700'
-                }`}
-              >
-                <Text className={`text-sm font-medium ${selectedProvider === provider ? 'text-white' : 'text-slate-400'}`}>
-                  {provider}
-                </Text>
-              </Pressable>
-            ))}
+            {functions.map(func => {
+              const count = AI_AGENTS.filter(a =>
+                a.functions.includes(func) || a.functions.includes('All') || a.functions.includes('Admin')
+              ).length;
+              return (
+                <Pressable
+                  key={func}
+                  onPress={() => setSelectedFunction(func)}
+                  className={`px-4 py-2 rounded-xl border ${
+                    selectedFunction === func ? 'bg-blue-500 border-blue-500' : 'bg-slate-800 border-slate-700'
+                  }`}
+                >
+                  <Text className={`text-sm font-medium ${selectedFunction === func ? 'text-white' : 'text-slate-400'}`}>
+                    {getFunctionIcon(func)} {func} ({count})
+                  </Text>
+                </Pressable>
+              );
+            })}
           </View>
         </ScrollView>
       </View>
 
-      {/* AI Agents List */}
-      <View className="p-6 gap-4">
-        {filteredAgents.map((agent) => (
-          <Pressable
-            key={agent.id}
-            onPress={() => setSelectedAgent(agent)}
-            className="bg-slate-900 rounded-2xl p-4 border border-slate-800 active:opacity-70"
-          >
-            <View className="flex-row items-start justify-between mb-3">
-              <View className="flex-1">
-                <View className="flex-row items-center gap-2 mb-1">
-                  <Bot size={20} color={getProviderColor(agent.provider)} />
-                  <Text className="text-white text-lg font-bold">{agent.name}</Text>
+      {/* AI Agents List - Organized by Function */}
+      <ScrollView className="flex-1">
+        {selectedFunction ? (
+          /* Show selected function only */
+          <View className="p-6">
+            <View className="mb-6">
+              <View className="flex-row items-center gap-2 mb-4">
+                <Text className="text-3xl">{getFunctionIcon(selectedFunction)}</Text>
+                <Text className="text-white text-xl font-bold">{selectedFunction}</Text>
+                <View className="bg-slate-800 px-3 py-1 rounded-full">
+                  <Text className="text-slate-400 text-xs font-semibold">
+                    {filteredAgents.length} agent{filteredAgents.length !== 1 ? 's' : ''}
+                  </Text>
                 </View>
-                <View className="flex-row items-center gap-2 mb-2">
-                  <View
-                    className="px-2 py-1 rounded"
-                    style={{ backgroundColor: getProviderColor(agent.provider) + '20' }}
-                  >
-                    <Text
-                      className="text-xs font-semibold"
-                      style={{ color: getProviderColor(agent.provider) }}
-                    >
-                      {agent.provider}
-                    </Text>
+              </View>
+              <View className="gap-4">
+                {filteredAgents.map((agent) => (
+                  <AgentCard
+                    key={agent.id}
+                    agent={agent}
+                    onPress={() => setSelectedAgent(agent)}
+                    getFunctionColor={getFunctionColor}
+                  />
+                ))}
+              </View>
+            </View>
+          </View>
+        ) : (
+          /* Show all functions grouped */
+          <View className="p-6">
+            {functions.map(func => {
+              const funcAgents = agentsByFunction[func];
+              if (!funcAgents || funcAgents.length === 0) return null;
+
+              return (
+                <View key={func} className="mb-6">
+                  <View className="flex-row items-center gap-2 mb-4">
+                    <Text className="text-3xl">{getFunctionIcon(func)}</Text>
+                    <Text className="text-white text-xl font-bold">{func}</Text>
+                    <View className="bg-slate-800 px-3 py-1 rounded-full">
+                      <Text className="text-slate-400 text-xs font-semibold">
+                        {funcAgents.length} agent{funcAgents.length !== 1 ? 's' : ''}
+                      </Text>
+                    </View>
                   </View>
-                  <Text className="text-slate-500 text-xs">•</Text>
-                  <Text className="text-slate-400 text-xs">{agent.model}</Text>
+                  <View className="gap-4">
+                    {funcAgents.map((agent) => (
+                      <AgentCard
+                        key={agent.id}
+                        agent={agent}
+                        onPress={() => setSelectedAgent(agent)}
+                        getFunctionColor={getFunctionColor}
+                      />
+                    ))}
+                  </View>
                 </View>
-              </View>
-              <View className="items-end">
-                <Text className="text-emerald-400 text-xl font-bold">£{agent.costPerMonth}</Text>
-                <Text className="text-slate-500 text-xs">per month</Text>
-              </View>
-            </View>
-
-            <Text className="text-slate-300 text-sm mb-3">{agent.purpose}</Text>
-
-            <View className="flex-row items-center justify-between">
-              <View className="flex-row items-center gap-2">
-                <Zap size={14} color="#64748b" />
-                <Text className="text-slate-400 text-xs">
-                  {agent.capabilities.length} capabilities
-                </Text>
-              </View>
-              <View className="flex-row items-center gap-2">
-                <ChevronRight size={16} color="#3b82f6" />
-                <Text className="text-blue-400 text-xs font-semibold">View Details</Text>
-              </View>
-            </View>
-          </Pressable>
-        ))}
-
-        {filteredAgents.length === 0 && (
-          <View className="items-center justify-center py-12">
-            <Bot size={48} color="#64748b" />
-            <Text className="text-slate-400 text-center mt-4">
-              No AI agents found matching your criteria
-            </Text>
+              );
+            })}
           </View>
         )}
-      </View>
+      </ScrollView>
 
       {/* Agent Detail Modal */}
       <Modal visible={selectedAgent !== null} transparent animationType="slide">
