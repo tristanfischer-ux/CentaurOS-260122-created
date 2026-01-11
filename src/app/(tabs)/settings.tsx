@@ -1,5 +1,5 @@
 import { View, Text, Pressable, ScrollView } from 'react-native';
-import { LogOut, Clock, ChevronRight, Sun, Moon, Smartphone } from 'lucide-react-native';
+import { LogOut, Clock, ChevronRight, Sun, Moon, Smartphone, FileText } from 'lucide-react-native';
 import { useAppStore, useCurrentUser, useCurrentMembership } from '@/lib/state/app-store';
 import { router } from 'expo-router';
 import { useState } from 'react';
@@ -88,6 +88,18 @@ export default function SettingsScreen() {
               : `Using ${themeMode} mode (Note: Light mode coming soon)`}
           </Text>
         </View>
+
+        {/* Reports */}
+        <Pressable
+          onPress={() => router.push('/reports')}
+          className="bg-slate-900 rounded-2xl p-4 mb-4 flex-row items-center justify-between active:opacity-80"
+        >
+          <View className="flex-row items-center">
+            <FileText size={20} color="#10b981" />
+            <Text className="text-white font-semibold ml-3">Reports</Text>
+          </View>
+          <ChevronRight size={20} color="#64748b" />
+        </Pressable>
 
         {canViewUtilization && (
           <Pressable

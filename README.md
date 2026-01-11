@@ -22,9 +22,22 @@ Centaur OS turns OKRs into work, tracks execution, enables review workflows, and
 - **OKR Management** - Create objectives, track key results with real-time progress
 - **Work Hub** - Manage projects and tasks with rich metadata (priority, function, status)
 - **Review Queue** - Apprentices request reviews, Fractional Execs approve/reject with audit trails
+- **Time Tracking** - Apprentices log hours on tasks with notes and date tracking
+- **Team Utilization Dashboard** - Executives and Founders view team capacity and productivity
+- **Automated Reports** - Role-based reporting with board-ready exports
+  - **Founder Reports**: Business overview across all functions with OKR progress, executive performance, apprentice utilization, risks, and highlights
+  - **Executive Reports**: Function-specific performance and team metrics
+  - **Apprentice Reports**: Individual work summary and achievements
+  - **Board Pack Export**: One-click markdown export ready for board presentations
+- **Executive Workflow System** - Pre-defined task sequences for each function (Marketing, Sales, Finance, Ops, Engineering, Admin)
+- **UK Supplier Network** - Shared manufacturing supplier directory across all companies
+- **Company Discovery** - Connect with other companies using Centaur OS
+- **Community Events** - Schedule and RSVP to cross-company meetups, workshops, and networking events
 - **Weekly Pack Generator** - One-click generation of status reports with OKR progress
 - **AI Copilot (Stub Mode)** - Chat interface with deterministic AI that proposes actions (human approval required)
 - **Templates Library** - Pre-built task templates by function (Finance, Sales, Marketing, Ops, Engineering)
+- **Export Functionality** - Export OKRs, tasks, and reports as CSV, JSON, or Markdown
+- **Dark Mode** - Full dark theme support (light mode coming soon)
 - **Audit Logging** - Full audit trail of all actions across the workspace
 
 ---
@@ -47,27 +60,37 @@ Centaur OS turns OKRs into work, tracks execution, enables review workflows, and
 The app simulates a backend using AsyncStorage as a local database. All entities are stored as normalized records:
 
 **Core Entities:**
-- `User` - Email, name, avatar
-- `Workspace` - Multi-tenant workspaces
+- `User` - Email, name, avatar, preferences (theme)
+- `Workspace` - Multi-tenant workspaces with optional public company profiles
 - `Membership` - Role (Founder/Apprentice/FractionalExec), Function (Finance/Sales/etc)
 - `Objective` - Time-bound objectives with owners
-- `KeyResult` - Measurable KRs with target/current/unit
+- `KeyResult` - Measurable KRs with target/current/unit and health status
 - `MetricEvent` - Historical KR updates
 - `Project` - Linked to objectives, track status
-- `Task` - Assignee, priority, function, status, due date
+- `Task` - Assignee, priority, function, status, due date, attachments
 - `TaskComment` - Comments on tasks
+- `TimeEntry` - Hours logged on tasks with notes and dates
 - `Review` - Review workflow (pending/approved/changes_requested)
 - `WeeklyPack` - Generated HTML status reports
 - `Template` - Task templates by function
+- `WorkflowItem` - Pre-defined task sequences with approval chain tracking
+- `WorkflowTemplate` - System templates with 60 pre-defined tasks across 6 functions
+- `Supplier` - Platform-wide manufacturing supplier directory (UK-focused)
+- `SupplierRecommendation` - User-submitted supplier suggestions
+- `CompanyProfile` - Public company profiles for networking
+- `CompanyConnection` - Peer-to-peer connections between companies
+- `CommunityEvent` - Cross-company events (meetups, workshops, office hours)
+- `EventRSVP` - Event attendance tracking
+- `Report` - Generated reports with role-based data (Founder/Executive/Apprentice)
 - `AuditLog` - Full audit trail
 
 ### RBAC (Role-Based Access Control)
 
 All CRUD operations enforce permissions based on role:
 
-- **Founder**: Full access to everything
-- **Apprentice**: Create/update own tasks, request reviews, use templates
-- **FractionalExec**: Read all, update OKRs/projects, approve reviews, generate weekly packs
+- **Founder**: Full access to everything, board-ready reports, company networking
+- **Apprentice**: Create/update own tasks, log time, request reviews, use templates, view individual reports
+- **FractionalExec**: Read all, update OKRs/projects, approve reviews, generate weekly packs, view function reports, see team utilization
 
 Permissions are checked server-side (in the API layer) on every mutation.
 

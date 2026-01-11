@@ -495,3 +495,166 @@ export interface DashboardStats {
   todaysTasks?: Task[];
   reviewQueue?: Review[];
 }
+
+// Report Types
+export type ReportType = 'founder' | 'executive' | 'apprentice';
+export type ReportPeriod = 'week' | 'month' | 'quarter' | 'custom';
+
+export interface Report {
+  id: string;
+  workspaceId: string;
+  reportType: ReportType;
+  period: ReportPeriod;
+  startDate: string;
+  endDate: string;
+  generatedAt: string;
+  generatedBy: string;
+  data: FounderReportData | ExecutiveReportData | ApprenticeReportData;
+  metadata?: {
+    totalPages?: number;
+    includeCharts?: boolean;
+    exportFormat?: 'pdf' | 'csv' | 'json';
+  };
+}
+
+// Founder Report - Board-ready business overview
+export interface FounderReportData {
+  overview: {
+    totalTasks: number;
+    completedTasks: number;
+    completionRate: number;
+    totalTimeLogged: number;
+    activeWorkflowItems: number;
+    completedWorkflowItems: number;
+    totalTeamMembers: number;
+    activeFunctions: Function[];
+  };
+  okrProgress: Array<{
+    objectiveId: string;
+    objectiveTitle: string;
+    progress: number;
+    healthStatus: KRHealthStatus;
+    keyResultsCount: number;
+    owner: string;
+  }>;
+  executivePerformance: Array<{
+    executiveId: string;
+    executiveName: string;
+    function: Function;
+    tasksCreated: number;
+    tasksCompleted: number;
+    workflowItemsStructured: number;
+    apprenticeWorkVerified: number;
+    hoursLogged: number;
+  }>;
+  apprenticeUtilization: Array<{
+    apprenticeId: string;
+    apprenticeName: string;
+    function: Function;
+    tasksAssigned: number;
+    tasksCompleted: number;
+    hoursLogged: number;
+    averageTaskCompletionDays: number;
+    utilizationRate: number;
+  }>;
+  projectStatus: Array<{
+    projectId: string;
+    projectTitle: string;
+    status: ProjectStatus;
+    tasksTotal: number;
+    tasksCompleted: number;
+    owner: string;
+  }>;
+  risks: Array<{
+    type: 'kr_off_track' | 'task_overdue' | 'workflow_blocked' | 'low_utilization';
+    severity: 'low' | 'medium' | 'high';
+    message: string;
+    affectedArea: Function | 'general';
+  }>;
+  weeklyHighlights: string[];
+}
+
+// Executive Report - Function-specific performance
+export interface ExecutiveReportData {
+  executiveId: string;
+  executiveName: string;
+  function: Function;
+  summary: {
+    tasksCreated: number;
+    tasksCompleted: number;
+    workflowItemsAllocated: number;
+    workflowItemsStructured: number;
+    apprenticeWorkVerified: number;
+    hoursLogged: number;
+  };
+  apprenticePerformance: Array<{
+    apprenticeId: string;
+    apprenticeName: string;
+    tasksAssigned: number;
+    tasksCompleted: number;
+    hoursLogged: number;
+    pendingVerifications: number;
+    averageCompletionTime: number;
+  }>;
+  workflowProgress: Array<{
+    workflowItemId: string;
+    title: string;
+    status: WorkflowItemStatus;
+    sequenceOrder: number;
+    completedAt?: string;
+  }>;
+  tasksBreakdown: {
+    byStatus: Record<TaskStatus, number>;
+    byPriority: Record<TaskPriority, number>;
+    overdueTasks: number;
+  };
+  functionOKRs: Array<{
+    objectiveId: string;
+    objectiveTitle: string;
+    progress: number;
+    keyResults: Array<{
+      title: string;
+      current: number;
+      target: number;
+      unit: string;
+    }>;
+  }>;
+}
+
+// Apprentice Report - Individual work summary
+export interface ApprenticeReportData {
+  apprenticeId: string;
+  apprenticeName: string;
+  function: Function;
+  summary: {
+    tasksAssigned: number;
+    tasksCompleted: number;
+    tasksInProgress: number;
+    totalHoursLogged: number;
+    verificationsPending: number;
+    verificationsApproved: number;
+    averageTaskDuration: number;
+  };
+  taskDetails: Array<{
+    taskId: string;
+    title: string;
+    status: TaskStatus;
+    priority: TaskPriority;
+    hoursLogged: number;
+    createdAt: string;
+    completedAt?: string;
+    verifiedAt?: string;
+  }>;
+  timeBreakdown: {
+    byDate: Array<{ date: string; hours: number; }>;
+    byTask: Array<{ taskTitle: string; hours: number; }>;
+    totalHours: number;
+  };
+  workflowContributions: Array<{
+    workflowItemId: string;
+    title: string;
+    status: WorkflowItemStatus;
+    hoursSpent: number;
+  }>;
+  achievements: string[];
+}
