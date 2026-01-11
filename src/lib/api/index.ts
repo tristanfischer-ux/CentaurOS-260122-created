@@ -43,6 +43,7 @@ export function checkPermission(
       objective: ['read'],
       comment: ['create', 'read'],
       template: ['read', 'use'],
+      timeEntry: ['create', 'read', 'update_own', 'delete_own'],
     },
     FractionalExec: {
       task: ['read', 'update', 'approve'],
@@ -51,6 +52,7 @@ export function checkPermission(
       review: ['create', 'approve', 'reject'],
       weeklyPack: ['read', 'generate'],
       comment: ['create', 'read'],
+      timeEntry: ['read'],
     },
   };
 

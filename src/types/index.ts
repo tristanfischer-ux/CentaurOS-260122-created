@@ -7,6 +7,7 @@ export type TaskPriority = 'low' | 'medium' | 'high' | 'urgent';
 export type ProjectStatus = 'planning' | 'active' | 'paused' | 'completed' | 'cancelled';
 export type ReviewStatus = 'pending' | 'approved' | 'changes_requested';
 export type KRHealthStatus = 'on_track' | 'at_risk' | 'off_track';
+export type ThemeMode = 'light' | 'dark' | 'system';
 
 // User
 export interface User {
@@ -15,6 +16,9 @@ export interface User {
   name: string;
   avatarUrl?: string;
   createdAt: string;
+  preferences?: {
+    themeMode: ThemeMode;
+  };
 }
 
 // Workspace
@@ -106,6 +110,31 @@ export interface Task {
   createdAt: string;
   updatedAt: string;
   completedAt?: string;
+  attachments?: Attachment[];
+}
+
+// Time Entry
+export interface TimeEntry {
+  id: string;
+  taskId: string;
+  userId: string;
+  workspaceId: string;
+  hours: number;
+  date: string;
+  note?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// Attachment
+export interface Attachment {
+  id: string;
+  name: string;
+  uri: string;
+  type: string; // 'image' | 'document' | 'other'
+  size: number;
+  uploadedBy: string;
+  uploadedAt: string;
 }
 
 // Task Comment
@@ -125,6 +154,7 @@ export interface Review {
   reviewerId: string;
   status: ReviewStatus;
   notes?: string;
+  attachments?: Attachment[];
   requestedAt: string;
   reviewedAt?: string;
   createdAt: string;

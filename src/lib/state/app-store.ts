@@ -13,6 +13,7 @@ import type {
   TaskComment,
   MetricEvent,
   AuditLog,
+  TimeEntry,
   Role,
 } from '@/types';
 import { authStorage, appStorage } from '../storage';
@@ -38,6 +39,7 @@ interface AppState {
   projects: Record<string, Project>;
   tasks: Record<string, Task>;
   taskComments: Record<string, TaskComment>;
+  timeEntries: Record<string, TimeEntry>;
   reviews: Record<string, Review>;
   weeklyPacks: Record<string, WeeklyPack>;
   templates: Record<string, Template>;
@@ -60,6 +62,7 @@ interface AppState {
   setProjects: (projects: Record<string, Project>) => void;
   setTasks: (tasks: Record<string, Task>) => void;
   setTaskComments: (comments: Record<string, TaskComment>) => void;
+  setTimeEntries: (entries: Record<string, TimeEntry>) => void;
   setReviews: (reviews: Record<string, Review>) => void;
   setWeeklyPacks: (packs: Record<string, WeeklyPack>) => void;
   setTemplates: (templates: Record<string, Template>) => void;
@@ -87,6 +90,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   projects: {},
   tasks: {},
   taskComments: {},
+  timeEntries: {},
   reviews: {},
   weeklyPacks: {},
   templates: {},
@@ -144,6 +148,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   setProjects: (projects) => set({ projects }),
   setTasks: (tasks) => set({ tasks }),
   setTaskComments: (comments) => set({ taskComments: comments }),
+  setTimeEntries: (entries) => set({ timeEntries: entries }),
   setReviews: (reviews) => set({ reviews }),
   setWeeklyPacks: (packs) => set({ weeklyPacks: packs }),
   setTemplates: (templates) => set({ templates }),

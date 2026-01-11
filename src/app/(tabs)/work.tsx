@@ -3,7 +3,8 @@ import { useState } from 'react';
 import { Briefcase, Plus, Filter, CheckCircle2, Clock, AlertCircle, Circle, X } from 'lucide-react-native';
 import { useCurrentWorkspace, useCurrentMembership, useCurrentUser } from '@/lib/state/app-store';
 import { useTasks, useUpdateTask, useRequestReview } from '@/lib/hooks/queries';
-import type { TaskStatus, TaskPriority, Function as TaskFunction } from '@/types';
+import { TimeTrackingModal } from '@/components/TimeTrackingModal';
+import type { TaskStatus, TaskPriority, Function as TaskFunction, Task } from '@/types';
 
 export default function WorkScreen() {
   const currentWorkspace = useCurrentWorkspace();
@@ -16,7 +17,9 @@ export default function WorkScreen() {
 
   const [filterStatus, setFilterStatus] = useState<TaskStatus | 'all'>('all');
   const [showStatusModal, setShowStatusModal] = useState(false);
-  const [selectedTask, setSelectedTask] = useState<any>(null);
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  const [showTimeModal, setShowTimeModal] = useState(false);
+  const [timeTrackingTask, setTimeTrackingTask] = useState<Task | null>(null);
 
   if (isLoading) {
     return (
@@ -199,17 +202,33 @@ export default function WorkScreen() {
                       )}
                     </View>
 
-                    {canRequestReview && (
-                      <Pressable
-                        onPress={(e) => {
-                          e.stopPropagation();
-                          handleRequestReview(task.id);
-                        }}
-                        className="bg-blue-500/20 px-3 py-1 rounded-lg active:opacity-70"
-                      >
-                        <Text className="text-blue-400 text-xs font-semibold">Request Review</Text>
-                      </Pressable>
-                    )}
+                    <View className="flex-row items-center gap-2">
+                      {/* Time Tracking Button */}
+                      {isOwn && (
+                        <Pressable
+                          onPress={(e) => {
+                            e.stopPropagation();
+                            setTimeTrackingTask(task);
+                            setShowTimeModal(true);
+                          }}
+                          className="bg-slate-800 px-3 py-1 rounded-lg active:opacity-70"
+                        >
+                          <Clock size={14} color="#94a3b8" />
+                        </Pressable>
+                      )}
+
+                      {canRequestReview && (
+                        <Pressable
+                          onPress={(e) => {
+                            e.stopPropagation();
+                            handleRequestReview(task.id);
+                          }}
+                          className="bg-blue-500/20 px-3 py-1 rounded-lg active:opacity-70"
+                        >
+                          <Text className="text-blue-400 text-xs font-semibold">Request Review</Text>
+                        </Pressable>
+                      )}
+                    </View>
                   </View>
 
                   {task.project && (
@@ -283,6 +302,16 @@ export default function WorkScreen() {
           </View>
         </View>
       </Modal>
+
+      {/* Time Tracking Modal */}
+      <TimeTrackingModal
+        visible={showTimeModal}
+        task={timeTrackingTask}
+        onClose={() => {
+          setShowTimeModal(false);
+          setTimeTrackingTask(null);
+        }}
+      />
     </View>
   );
 }

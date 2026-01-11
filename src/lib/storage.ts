@@ -19,6 +19,7 @@ const STORAGE_KEYS = {
   PROJECTS: 'db:projects',
   TASKS: 'db:tasks',
   TASK_COMMENTS: 'db:taskComments',
+  TIME_ENTRIES: 'db:timeEntries',
   REVIEWS: 'db:reviews',
   WEEKLY_PACKS: 'db:weeklyPacks',
   TEMPLATES: 'db:templates',
@@ -143,6 +144,14 @@ export const db = {
   },
   async setTaskComments(comments: Record<string, any>) {
     await storage.set(STORAGE_KEYS.TASK_COMMENTS, comments);
+  },
+
+  // Time Entries
+  async getTimeEntries() {
+    return (await storage.get<Record<string, any>>(STORAGE_KEYS.TIME_ENTRIES)) || {};
+  },
+  async setTimeEntries(entries: Record<string, any>) {
+    await storage.set(STORAGE_KEYS.TIME_ENTRIES, entries);
   },
 
   // Reviews

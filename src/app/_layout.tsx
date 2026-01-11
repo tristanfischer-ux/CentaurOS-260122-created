@@ -50,6 +50,15 @@ function RootLayoutNav({ colorScheme }: { colorScheme: 'light' | 'dark' | null |
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="sign-in" options={{ headerShown: false }} />
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen
+          name="utilization"
+          options={{
+            headerShown: true,
+            title: 'Team Utilization',
+            headerStyle: { backgroundColor: '#0f172a' },
+            headerTintColor: '#fff',
+          }}
+        />
       </Stack>
     </ThemeProvider>
   );

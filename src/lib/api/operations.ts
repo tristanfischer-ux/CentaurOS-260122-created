@@ -10,6 +10,7 @@ import type {
   WeeklyPack,
   Template,
   MetricEvent,
+  TimeEntry,
   Role,
   Function,
   TaskStatus,
@@ -612,5 +613,146 @@ export const metricEventApi = {
     await db.setMetricEvents(events);
 
     return event;
+  },
+};
+
+// ============================================================================
+// TIME ENTRY API
+// ============================================================================
+
+export const timeEntryApi = {
+  async getByTask(taskId: string): Promise<TimeEntry[]> {
+    const entries = await db.getTimeEntries();
+    return Object.values(entries)
+      .filter((e: any) => e.taskId === taskId)
+      .sort((a: any, b: any) => b.date.localeCompare(a.date));
+  },
+
+  async getByUser(userId: string, workspaceId: string): Promise<TimeEntry[]> {
+    const entries = await db.getTimeEntries();
+    return Object.values(entries)
+      .filter((e: any) => e.userId === userId && e.workspaceId === workspaceId)
+      .sort((a: any, b: any) => b.date.localeCompare(a.date));
+  },
+
+  async getByWorkspace(workspaceId: string, startDate?: string, endDate?: string): Promise<TimeEntry[]> {
+    const entries = await db.getTimeEntries();
+    let filtered = Object.values(entries).filter((e: any) => e.workspaceId === workspaceId);
+
+    if (startDate) {
+      filtered = filtered.filter((e: any) => e.date >= startDate);
+    }
+    if (endDate) {
+      filtered = filtered.filter((e: any) => e.date <= endDate);
+    }
+
+    return filtered.sort((a: any, b: any) => b.date.localeCompare(a.date));
+  },
+
+  async create(
+    data: {
+      taskId: string;
+      workspaceId: string;
+      hours: number;
+      date: string;
+      note?: string;
+    },
+    userId: string,
+    role: Role
+  ): Promise<TimeEntry> {
+    // Check permissions
+    if (!checkPermission(role, 'create', 'timeEntry')) {
+      throw new Error('Permission denied: Cannot create time entry');
+    }
+
+    const entries = await db.getTimeEntries();
+    const entry: TimeEntry = {
+      id: uuidv4(),
+      taskId: data.taskId,
+      userId,
+      workspaceId: data.workspaceId,
+      hours: data.hours,
+      date: data.date,
+      note: data.note,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    entries[entry.id] = entry;
+    await db.setTimeEntries(entries);
+
+    await logAudit({
+      workspaceId: data.workspaceId,
+      actorId: userId,
+      action: 'timeEntry.created',
+      objectType: 'timeEntry',
+      objectId: entry.id,
+      payloadSummary: `Logged ${data.hours} hours`,
+    });
+
+    return entry;
+  },
+
+  async update(
+    entryId: string,
+    data: Partial<Pick<TimeEntry, 'hours' | 'date' | 'note'>>,
+    userId: string,
+    role: Role
+  ): Promise<TimeEntry> {
+    const entries = await db.getTimeEntries();
+    const entry = entries[entryId];
+
+    if (!entry) {
+      throw new Error('Time entry not found');
+    }
+
+    // Only the creator or Founder can update
+    if (entry.userId !== userId && role !== 'Founder') {
+      throw new Error('Permission denied: Can only update your own time entries');
+    }
+
+    const updated = {
+      ...entry,
+      ...data,
+      updatedAt: new Date().toISOString(),
+    };
+    entries[entryId] = updated;
+    await db.setTimeEntries(entries);
+
+    await logAudit({
+      workspaceId: entry.workspaceId,
+      actorId: userId,
+      action: 'timeEntry.updated',
+      objectType: 'timeEntry',
+      objectId: entryId,
+      payloadSummary: `Updated time entry`,
+    });
+
+    return updated;
+  },
+
+  async delete(entryId: string, userId: string, role: Role): Promise<void> {
+    const entries = await db.getTimeEntries();
+    const entry = entries[entryId];
+
+    if (!entry) {
+      throw new Error('Time entry not found');
+    }
+
+    // Only the creator or Founder can delete
+    if (entry.userId !== userId && role !== 'Founder') {
+      throw new Error('Permission denied: Can only delete your own time entries');
+    }
+
+    delete entries[entryId];
+    await db.setTimeEntries(entries);
+
+    await logAudit({
+      workspaceId: entry.workspaceId,
+      actorId: userId,
+      action: 'timeEntry.deleted',
+      objectType: 'timeEntry',
+      objectId: entryId,
+      payloadSummary: `Deleted time entry`,
+    });
   },
 };

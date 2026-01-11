@@ -17,6 +17,7 @@ export function useInitializeApp() {
   const setProjects = useAppStore((s) => s.setProjects);
   const setTasks = useAppStore((s) => s.setTasks);
   const setTaskComments = useAppStore((s) => s.setTaskComments);
+  const setTimeEntries = useAppStore((s) => s.setTimeEntries);
   const setReviews = useAppStore((s) => s.setReviews);
   const setWeeklyPacks = useAppStore((s) => s.setWeeklyPacks);
   const setTemplates = useAppStore((s) => s.setTemplates);
@@ -40,6 +41,7 @@ export function useInitializeApp() {
           projects,
           tasks,
           taskComments,
+          timeEntries,
           reviews,
           weeklyPacks,
           templates,
@@ -54,6 +56,7 @@ export function useInitializeApp() {
           db.getProjects(),
           db.getTasks(),
           db.getTaskComments(),
+          db.getTimeEntries(),
           db.getReviews(),
           db.getWeeklyPacks(),
           db.getTemplates(),
@@ -78,6 +81,7 @@ export function useInitializeApp() {
             newProjects,
             newTasks,
             newTaskComments,
+            newTimeEntries,
             newReviews,
             newWeeklyPacks,
             newTemplates,
@@ -92,6 +96,7 @@ export function useInitializeApp() {
             db.getProjects(),
             db.getTasks(),
             db.getTaskComments(),
+            db.getTimeEntries(),
             db.getReviews(),
             db.getWeeklyPacks(),
             db.getTemplates(),
@@ -107,6 +112,7 @@ export function useInitializeApp() {
           setProjects(newProjects);
           setTasks(newTasks);
           setTaskComments(newTaskComments);
+          setTimeEntries(newTimeEntries);
           setReviews(newReviews);
           setWeeklyPacks(newWeeklyPacks);
           setTemplates(newTemplates);
@@ -122,6 +128,7 @@ export function useInitializeApp() {
           setProjects(projects);
           setTasks(tasks);
           setTaskComments(taskComments);
+          setTimeEntries(timeEntries);
           setReviews(reviews);
           setWeeklyPacks(weeklyPacks);
           setTemplates(templates);

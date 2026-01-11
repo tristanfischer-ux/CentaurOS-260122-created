@@ -1,11 +1,12 @@
-import { View, Text, ScrollView, Pressable, ActivityIndicator, TextInput, Modal } from 'react-native';
+import { View, Text, ScrollView, Pressable, ActivityIndicator, TextInput, Modal, Alert } from 'react-native';
 import { useState } from 'react';
-import { Target, Plus, TrendingUp, AlertTriangle, XCircle, Edit2, Trash2, X } from 'lucide-react-native';
+import { Target, Plus, TrendingUp, AlertTriangle, XCircle, Edit2, Trash2, X, Download } from 'lucide-react-native';
 import { useCurrentWorkspace, useCurrentMembership, useCurrentUser } from '@/lib/state/app-store';
 import { useObjectives } from '@/lib/hooks/queries';
 import { LinearGradient } from 'expo-linear-gradient';
 import { objectiveApi, keyResultApi } from '@/lib/api';
 import { useQueryClient } from '@tanstack/react-query';
+import { exportToCSV, formatOKRsForExport } from '@/lib/export';
 import type { KeyResult } from '@/types';
 
 export default function OKRsScreen() {
@@ -70,6 +71,21 @@ export default function OKRsScreen() {
     }
   };
 
+  const handleExportOKRs = async () => {
+    if (!objectives || objectives.length === 0) {
+      Alert.alert('No Data', 'There are no OKRs to export');
+      return;
+    }
+
+    try {
+      const allKeyResults = objectives.flatMap((obj) => obj.keyResults);
+      const exportData = formatOKRsForExport(objectives, allKeyResults);
+      await exportToCSV(exportData, `okrs-${currentWorkspace?.name || 'export'}-${new Date().toISOString().split('T')[0]}.csv`);
+    } catch (error: any) {
+      Alert.alert('Export Failed', error.message || 'Failed to export OKRs');
+    }
+  };
+
   return (
     <ScrollView className="flex-1 bg-slate-950">
       {/* Header */}
@@ -81,14 +97,22 @@ export default function OKRsScreen() {
               {objectives.length} active objective{objectives.length !== 1 ? 's' : ''}
             </Text>
           </View>
-          {currentMembership?.role === 'Founder' && (
+          <View className="flex-row gap-2">
             <Pressable
-              onPress={() => setShowCreateModal(true)}
-              className="bg-blue-500 rounded-xl px-4 py-2 active:opacity-80"
+              onPress={handleExportOKRs}
+              className="bg-slate-800 rounded-xl px-4 py-2 active:opacity-80"
             >
-              <Plus size={20} color="white" />
+              <Download size={20} color="#94a3b8" />
             </Pressable>
-          )}
+            {currentMembership?.role === 'Founder' && (
+              <Pressable
+                onPress={() => setShowCreateModal(true)}
+                className="bg-blue-500 rounded-xl px-4 py-2 active:opacity-80"
+              >
+                <Plus size={20} color="white" />
+              </Pressable>
+            )}
+          </View>
         </View>
       </View>
 
