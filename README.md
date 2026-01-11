@@ -29,13 +29,29 @@ Centaur OS turns OKRs into work, tracks execution, enables review workflows, and
   - **One-Click Communication**: Email or call team members with single tap
   - **Role-Based Filtering**: Filter by Founders, Executives, or Apprentices
   - **Detailed Profiles**: Bio, skills, work history, and performance stats for each member
-- **Team Hiring System (Founder-Only)** - Browse and hire talent to build your team
-  - **20 Fractional Executives**: Senior leaders in Sales, Marketing, Finance, Engineering, and Operations
-  - **20 Apprentices**: Junior talent eager to learn and execute across all business functions
+- **Team Hiring System (Founder-Only)** - Browse and hire talent to build your team (Located in Network tab)
+  - **30 Fractional Executives**: Senior leaders in Sales, Marketing, Finance, Engineering, and Operations
+  - **30 Apprentices**: Junior talent eager to learn and execute across all business functions
   - **Detailed Profiles**: View experience, ratings, daily rates, availability, skills, and previous companies
   - **Search & Filter**: Find candidates by name, specialization, or skills
   - **One-Click Hiring**: Add candidates to your team instantly
   - **Realistic Candidates**: Real-world experience levels and competitive market rates
+- **Organization Structure (Founder-Only)** - Complete operational overview and org chart
+  - **Hierarchical Org Chart**: Visual reporting structure showing founders → execs → apprentices
+  - **Reporting Lines**: Clear view of who reports to whom across the organization
+  - **Role Breakdown**: 2 Founders, 4 Fractional Executives managing 7 Apprentices
+  - **Cost Analysis**: Daily rates and total team costs at a glance
+  - **Supplier Engagements**: Track all active supplier projects with costs, timelines, and deliverables
+  - **Financial Tracking**: £101k total supplier spend, £33k paid to date, £68k remaining
+  - **Project Management**: See which team members manage which supplier relationships
+  - **Delivery Timelines**: Track supplier delivery dates and project status (planning, in progress, delivered)
+  - **Task Breakdown**: Detailed task lists for each supplier engagement
+  - **AI Agents Directory**: Complete catalog of 10 AI tools used across the organization
+  - **AI Cost Management**: £2,169/month total AI spend tracked by agent
+  - **Usage Analytics**: Monthly request counts, response times, and success rates per AI agent
+  - **Team Access**: See which team members use which AI tools for what functions
+  - **Provider Breakdown**: OpenAI, Anthropic, Google, ElevenLabs, and other providers
+  - **Capability Mapping**: Understand what each AI agent can do and how it's integrated
 - **OKR Management** - Create objectives, track key results with real-time progress
   - **Link Tasks to Objectives**: Connect work directly to strategic goals when creating tasks
   - **Visual Task Integration**: See related tasks directly on objective cards with completion metrics

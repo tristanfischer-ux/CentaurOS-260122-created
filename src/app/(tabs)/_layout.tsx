@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { Tabs, router } from 'expo-router';
-import { Home, Target, Briefcase, CheckCircle, MessageSquare, Settings, Network, Users } from 'lucide-react-native';
+import { Home, Target, Briefcase, CheckCircle, MessageSquare, Settings, Network, Users, Building2 } from 'lucide-react-native';
 import { useColorScheme } from '@/lib/useColorScheme';
 import { useIsAuthenticated, useCurrentWorkspace, useAppStore } from '@/lib/state/app-store';
 
@@ -83,6 +83,14 @@ export default function TabLayout() {
           title: 'Team',
           headerTitle: 'Team Directory',
           tabBarIcon: ({ color }) => <TabBarIcon Icon={Users} color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="organization"
+        options={{
+          title: 'Org',
+          headerTitle: 'Organization',
+          tabBarIcon: ({ color }) => <TabBarIcon Icon={Building2} color={color} />,
         }}
       />
       <Tabs.Screen
