@@ -1,5 +1,5 @@
 import { View, Text, Pressable, ScrollView } from 'react-native';
-import { LogOut, Clock, ChevronRight, Sun, Moon, Smartphone, FileText } from 'lucide-react-native';
+import { LogOut, ChevronRight, Sun, Moon, Smartphone, FileText } from 'lucide-react-native';
 import { useAppStore, useCurrentUser, useCurrentMembership } from '@/lib/state/app-store';
 import { router } from 'expo-router';
 import { useState } from 'react';
@@ -43,8 +43,6 @@ export default function SettingsScreen() {
       });
     }
   };
-
-  const canViewUtilization = currentMembership?.role === 'FractionalExec' || currentMembership?.role === 'Founder';
 
   const themeOptions: { mode: ThemeMode; label: string; icon: typeof Sun }[] = [
     { mode: 'light', label: 'Light', icon: Sun },
@@ -111,19 +109,6 @@ export default function SettingsScreen() {
           </View>
           <ChevronRight size={20} color="#64748b" />
         </Pressable>
-
-        {canViewUtilization && (
-          <Pressable
-            onPress={() => router.push('/utilization')}
-            className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-4 mb-4 flex-row items-center justify-between active:opacity-80"
-          >
-            <View className="flex-row items-center">
-              <Clock size={20} color="#3b82f6" />
-              <Text className="text-gray-900 dark:text-white font-semibold ml-3">Team Utilization</Text>
-            </View>
-            <ChevronRight size={20} color="#64748b" />
-          </Pressable>
-        )}
 
         <Pressable
           onPress={handleLogout}
