@@ -1,7 +1,6 @@
 import { View, Text, ScrollView, Pressable, Modal, Dimensions } from 'react-native';
 import { useState } from 'react';
 import { X, Mail, Phone, Users, ChevronRight } from 'lucide-react-native';
-import { Stack, router } from 'expo-router';
 import Svg, { Circle, Line, Text as SvgText } from 'react-native-svg';
 import { ORGANIZATION_MEMBERS, type OrganizationMember } from '@/lib/organization-seed';
 
@@ -91,15 +90,6 @@ export default function OrgDiagramScreen() {
 
   return (
     <View className="flex-1 bg-slate-950">
-      <Stack.Screen
-        options={{
-          title: 'Organization Chart',
-          headerStyle: { backgroundColor: '#020617' },
-          headerTintColor: '#fff',
-          headerShadowVisible: false,
-        }}
-      />
-
       <ScrollView className="flex-1">
         {/* Info Banner */}
         <View className="p-4 bg-blue-500/10 border-b border-blue-500/20">

@@ -69,7 +69,11 @@ function RootLayoutNav({ colorScheme }: { colorScheme: 'light' | 'dark' | null |
         <Stack.Screen
           name="org-diagram"
           options={{
-            headerShown: false,
+            headerShown: true,
+            title: 'Organization Chart',
+            headerStyle: { backgroundColor: '#020617' },
+            headerTintColor: '#fff',
+            headerShadowVisible: false,
           }}
         />
       </Stack>
