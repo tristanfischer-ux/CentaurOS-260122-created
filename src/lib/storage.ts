@@ -23,6 +23,7 @@ const STORAGE_KEYS = {
   REVIEWS: 'db:reviews',
   WEEKLY_PACKS: 'db:weeklyPacks',
   TEMPLATES: 'db:templates',
+  WORKFLOW_ITEMS: 'db:workflowItems',
   AUDIT_LOGS: 'db:auditLogs',
   CURRENT_WORKSPACE: 'app:currentWorkspace',
 } as const;
@@ -176,6 +177,14 @@ export const db = {
   },
   async setTemplates(templates: Record<string, any>) {
     await storage.set(STORAGE_KEYS.TEMPLATES, templates);
+  },
+
+  // Workflow Items
+  async getWorkflowItems() {
+    return (await storage.get<Record<string, any>>(STORAGE_KEYS.WORKFLOW_ITEMS)) || {};
+  },
+  async setWorkflowItems(items: Record<string, any>) {
+    await storage.set(STORAGE_KEYS.WORKFLOW_ITEMS, items);
   },
 
   // Audit Logs

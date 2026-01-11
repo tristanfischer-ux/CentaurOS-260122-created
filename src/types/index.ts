@@ -8,6 +8,7 @@ export type ProjectStatus = 'planning' | 'active' | 'paused' | 'completed' | 'ca
 export type ReviewStatus = 'pending' | 'approved' | 'changes_requested';
 export type KRHealthStatus = 'on_track' | 'at_risk' | 'off_track';
 export type ThemeMode = 'light' | 'dark' | 'system';
+export type WorkflowItemStatus = 'suggested' | 'allocated' | 'structured' | 'assigned' | 'in_progress' | 'submitted' | 'verified' | 'completed';
 
 // User
 export interface User {
@@ -225,6 +226,48 @@ export interface ProposedAction {
   description: string;
   payload: any;
   status: 'pending' | 'approved' | 'rejected';
+}
+
+// Workflow Item (for suggested task sequences)
+export interface WorkflowItem {
+  id: string;
+  workspaceId: string;
+  function: Function;
+  title: string;
+  description: string;
+  sequenceOrder: number;
+  status: WorkflowItemStatus;
+  allocatedToExecId?: string; // Founder allocates to Exec
+  structuredByExecId?: string; // Exec structures the task
+  taskId?: string; // Linked task when assigned to Apprentice
+  submittedAt?: string; // When Apprentice submits for verification
+  verifiedAt?: string; // When Exec verifies
+  completedAt?: string; // When Founder marks complete
+  createdAt: string;
+  updatedAt: string;
+  metadata?: {
+    estimatedHours?: number;
+    dependencies?: string[]; // Other workflow item IDs
+    resources?: string[];
+  };
+}
+
+// Suggested Workflow Templates
+export interface WorkflowTemplate {
+  id: string;
+  function: Function;
+  title: string;
+  description: string;
+  items: Array<{
+    title: string;
+    description: string;
+    sequenceOrder: number;
+    estimatedHours?: number;
+    dependencies?: number[]; // Indexes of dependent items
+  }>;
+  isSystem: boolean;
+  createdBy?: string;
+  createdAt: string;
 }
 
 // View models for UI
