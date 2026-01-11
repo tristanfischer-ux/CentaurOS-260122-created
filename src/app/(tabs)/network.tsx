@@ -1,102 +1,30 @@
 import { View, Text, ScrollView, Pressable, Linking, TextInput } from 'react-native';
 import { useState } from 'react';
 import { Building2, Users, Calendar, ExternalLink, MapPin, Package, ChevronRight, Search, X } from 'lucide-react-native';
+import { UK_SUPPLIERS } from '@/lib/suppliers-seed';
 
 type NetworkTab = 'suppliers' | 'companies' | 'events';
 
-// UK Suppliers Data
-const UK_SUPPLIERS = [
-  {
-    id: '1',
-    name: 'Proto Labs UK',
-    description: 'Rapid prototyping and low-volume production',
-    capabilities: ['CNC Machining', 'Injection Molding', '3D Printing'],
-    location: 'Telford, England',
-    website: 'https://www.protolabs.co.uk',
-    verified: true,
-  },
-  {
-    id: '2',
-    name: 'Omega Plastics',
-    description: 'High-volume injection molding specialist',
-    capabilities: ['Injection Molding', 'Tool Making', 'Assembly'],
-    location: 'Northamptonshire, England',
-    website: 'https://www.omegaplastics.co.uk',
-    verified: true,
-  },
-  {
-    id: '3',
-    name: 'Laser Master UK',
-    description: 'Precision laser cutting and sheet metal fabrication',
-    capabilities: ['Laser Cutting', 'CNC Punching', 'Bending'],
-    location: 'Birmingham, England',
-    website: 'https://www.lasermasteruk.com',
-    verified: true,
-  },
-  {
-    id: '4',
-    name: 'RPWORLD UK',
-    description: 'One-stop manufacturing solution from prototyping to production',
-    capabilities: ['Rapid Prototyping', 'CNC Machining', 'Sheet Metal'],
-    location: 'London, England',
-    website: 'https://www.rpworld.co.uk',
-    verified: true,
-  },
-  {
-    id: '5',
-    name: 'Newbury Electronics',
-    description: 'Electronics manufacturing services and PCB assembly',
-    capabilities: ['PCB Assembly', 'Box Build', 'Testing'],
-    location: 'Newbury, England',
-    website: 'https://www.newburyelectronics.co.uk',
-    verified: true,
-  },
-  {
-    id: '6',
-    name: 'Formero',
-    description: 'Vacuum forming and thermoforming specialist',
-    capabilities: ['Vacuum Forming', 'Pressure Forming', 'Tooling'],
-    location: 'Yorkshire, England',
-    website: 'https://www.formero.co.uk',
-    verified: true,
-  },
-  {
-    id: '7',
-    name: 'MJN Neuro',
-    description: 'EPS and EPP molding for packaging and protective components',
-    capabilities: ['EPS Molding', 'EPP Molding', 'Custom Packaging'],
-    location: 'Manchester, England',
-    website: 'https://www.mjnneuro.co.uk',
-    verified: true,
-  },
-  {
-    id: '8',
-    name: 'EMS UK',
-    description: 'Full-service electronics manufacturing',
-    capabilities: ['PCB Design', 'SMT Assembly', 'Cable Assembly'],
-    location: 'Cambridge, England',
-    website: 'https://www.emsuk.com',
-    verified: true,
-  },
-  {
-    id: '9',
-    name: 'Brandauer',
-    description: 'Precision metal stamping and tooling since 1862',
-    capabilities: ['Metal Stamping', 'Tool & Die', 'Progressive Dies'],
-    location: 'Birmingham, England',
-    website: 'https://www.brandauer.co.uk',
-    verified: true,
-  },
-  {
-    id: '10',
-    name: 'Tharsus',
-    description: 'Robotic assembly and automation solutions',
-    capabilities: ['Robotic Assembly', 'Automation', 'Test Systems'],
-    location: 'Blyth, England',
-    website: 'https://www.tharsus.co.uk',
-    verified: true,
-  },
-];
+interface DisplaySupplier {
+  id: string;
+  name: string;
+  description: string;
+  capabilities: string[];
+  location: string;
+  website: string;
+  verified: boolean;
+}
+
+// Transform supplier data for display
+const DISPLAY_SUPPLIERS: DisplaySupplier[] = UK_SUPPLIERS.map((supplier, index) => ({
+  id: (index + 1).toString(),
+  name: supplier.name,
+  description: supplier.description,
+  capabilities: supplier.capabilities.slice(0, 3), // Show first 3 capabilities
+  location: `${supplier.location.city}, ${supplier.location.country}`,
+  website: supplier.contact.website || 'https://www.google.com',
+  verified: supplier.status === 'verified',
+}));
 
 // Demo Companies Data
 const DEMO_COMPANIES = [
@@ -281,11 +209,11 @@ function SuppliersTab() {
 
   // Get all unique capabilities for filter chips
   const allCapabilities = Array.from(
-    new Set(UK_SUPPLIERS.flatMap((s) => s.capabilities))
+    new Set(DISPLAY_SUPPLIERS.flatMap((s) => s.capabilities))
   ).sort();
 
   // Filter suppliers based on search and capability
-  const filteredSuppliers = UK_SUPPLIERS.filter((supplier) => {
+  const filteredSuppliers = DISPLAY_SUPPLIERS.filter((supplier) => {
     const matchesSearch =
       searchQuery === '' ||
       supplier.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -304,7 +232,7 @@ function SuppliersTab() {
       <View className="mb-6">
         <Text className="text-white text-2xl font-bold mb-2">UK Supplier Network</Text>
         <Text className="text-slate-400 text-sm">
-          {UK_SUPPLIERS.length} verified manufacturing suppliers across the UK
+          {DISPLAY_SUPPLIERS.length} verified manufacturing suppliers across the UK
         </Text>
       </View>
 
