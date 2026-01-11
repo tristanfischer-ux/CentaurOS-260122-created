@@ -472,24 +472,18 @@ export default function WorkScreen() {
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
           className="flex-1"
+          keyboardVerticalOffset={0}
         >
-          <Pressable
-            className="flex-1 bg-black/50"
-            onPress={() => setShowCreateModal(false)}
-          >
-            <Pressable
-              className="mt-auto"
-              onPress={(e) => e.stopPropagation()}
-            >
-              <View className="bg-slate-900 rounded-t-3xl p-6 max-h-[90%]">
-                <View className="flex-row items-center justify-between mb-6">
-                  <Text className="text-white text-2xl font-bold">Create Task</Text>
-                  <Pressable onPress={() => setShowCreateModal(false)}>
-                    <X size={24} color="#94a3b8" />
-                  </Pressable>
-                </View>
+          <View className="flex-1 bg-black/50 justify-end">
+            <View className="bg-slate-900 rounded-t-3xl p-6 max-h-[90%]">
+              <View className="flex-row items-center justify-between mb-6">
+                <Text className="text-white text-2xl font-bold">Create Task</Text>
+                <Pressable onPress={() => setShowCreateModal(false)}>
+                  <X size={24} color="#94a3b8" />
+                </Pressable>
+              </View>
 
-                <ScrollView className="flex-1" showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+              <ScrollView className="flex-1" showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
                   {/* Title */}
                   <View className="mb-4">
                     <Text className="text-slate-400 text-sm font-medium mb-2">Title *</Text>
@@ -635,8 +629,7 @@ export default function WorkScreen() {
                   </Pressable>
                 </View>
               </View>
-            </Pressable>
-          </Pressable>
+            </View>
         </KeyboardAvoidingView>
       </Modal>
 
