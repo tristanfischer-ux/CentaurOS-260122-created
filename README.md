@@ -84,21 +84,25 @@ Centaur OS turns OKRs into work, tracks execution, enables review workflows, and
   - **Location Details**: See exact addresses and cities (Birmingham, Leeds, Manchester, 2x London)
   - **Map Markers**: Tap any supplier on the map to view full engagement details
   - **Geographic Overview**: Visual understanding of supply chain distribution across the country
-- **AI Agents by Function** - 24 AI agents organized by business function (£5,754/month total)
+- **AI Agents by Function** - 36 AI agents organized by business function (£7,334/month total)
   - **Finance (3 agents - £1,000/mo)**: Vic AI (invoice processing), Digits AI (bookkeeping), Gemini Pro (analysis)
   - **Sales (4 agents - £1,649/mo)**: 11x Alice (AI SDR), Gong AI (call analysis), Clay AI (lead enrichment), ElevenLabs (voiceovers)
   - **Marketing (6 agents - £890/mo)**: Jasper AI (content), Copy.ai (copy), Midjourney (imagery), DALL-E 3 (graphics), Perplexity (research), Runway (video)
   - **Ops (3 agents - £1,050/mo)**: Hebbia AI (document analysis), Zapier AI (automation), Harvey AI (legal)
   - **Engineering (4 agents - £270/mo)**: GitHub Copilot, Cursor AI, Replit Ghostwriter, Tabnine
   - **Admin (4 agents - £895/mo)**: ChatGPT Enterprise, Notion AI, Otter.ai (transcription), Grammarly
-  - **Function-Based Filtering**: Filter by Finance, Sales, Marketing, Ops, Engineering, or Admin
-  - **Visual Organization**: Agents grouped by function with emoji icons (💰📈📣⚙️💻📋) and color coding
+  - **Design & Manufacturing (6 agents - £1,580/mo)**: Autodesk Fusion AI (generative CAD design), Monolith AI (FEA simulation), Diagram AI (PCB design), Manufacturing GPT (DFM optimization), Spline AI (3D visualization), Quality AI Inspector (quality control)
+  - **Function-Based Filtering**: Filter by Finance, Sales, Marketing, Ops, Engineering, Admin, or Design & Manufacturing
+  - **Visual Organization**: Agents grouped by function with emoji icons (💰📈📣⚙️💻📋🏭) and color coding
   - **Agent Count Badges**: See how many agents available per function at a glance
   - **Workflow-Oriented**: "Need marketing? Select Marketing execs, apprentices, and AI agents together"
   - **Detailed Agent Profiles**: View capabilities, integrations, usage stats, and costs per agent
   - **Onboarding Flow**: Add new AI agents with custom monthly cost tracking
   - **Search & Filter**: Find agents by name, purpose, or capability across all functions
+  - **Modal Views Fixed**: Tappable AI agent and supplier cards now display full details in properly positioned bottom-sheet modals
 - **OKR Management** - Create objectives, track key results with real-time progress
+  - **Custom Date Ranges**: Set specific start and end dates for objectives (defaults to today and 90 days if not specified)
+  - **Target Numbers**: Add numeric targets or metrics to objectives (e.g., "100 units", "£50k revenue") for reference tracking
   - **Link Tasks to Objectives**: Connect work directly to strategic goals when creating tasks
   - **Visual Task Integration**: See related tasks directly on objective cards with completion metrics
   - **Bidirectional Navigation**: Jump between tasks and objectives seamlessly
@@ -150,6 +154,11 @@ Centaur OS turns OKRs into work, tracks execution, enables review workflows, and
 - **Weekly Pack Generator** - One-click generation of status reports with OKR progress
 - **Templates Library** - Pre-built task templates by function (Finance, Sales, Marketing, Ops, Engineering)
 - **Dark/Light Mode** - Full theme support with system preference option
+- **About Section** - Comprehensive in-app documentation explaining Centaur OS features
+  - **What is Centaur OS**: Overview of the operating system for lean hardware startups
+  - **Key Features Guide**: Detailed explanations of all 9 major features (Dashboard, OKRs, Work Hub, Team Directory, AI Agents, Supplier Management, Network, Financial Dashboard, Reports)
+  - **Organizational Philosophy**: Decide • Evaluate • Do framework with role descriptions
+  - **Version Information**: Current app version and technical stack details
 - **Audit Logging** - Full audit trail of all actions across the workspace
 
 ---
@@ -244,12 +253,13 @@ Simply tap any demo account on the sign-in screen to log in instantly.
 /sign-in                    # Authentication screen
 /(tabs)/
   ├── index                 # Home dashboard (role-based)
-  ├── okrs                  # Objectives & Key Results
+  ├── okrs                  # Objectives & Key Results (now with custom dates and targets)
   ├── work                  # Work Hub (projects + tasks)
   ├── reviews               # Review Queue
   ├── copilot               # AI Copilot chat
   ├── network               # Network (Suppliers, Companies, Events)
-  └── settings              # Settings & logout
+  ├── organization          # Organization (Org Chart, AI Agents, Suppliers)
+  └── settings              # Settings, About section, logout
 ```
 
 ### Home Dashboard Views

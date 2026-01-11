@@ -26,6 +26,9 @@ export default function OKRsScreen() {
   // Create objective form state
   const [newObjectiveTitle, setNewObjectiveTitle] = useState('');
   const [newObjectiveDescription, setNewObjectiveDescription] = useState('');
+  const [newObjectiveStartDate, setNewObjectiveStartDate] = useState('');
+  const [newObjectiveEndDate, setNewObjectiveEndDate] = useState('');
+  const [newObjectiveTarget, setNewObjectiveTarget] = useState('');
   const [isCreating, setIsCreating] = useState(false);
 
   if (isLoading) {
@@ -82,6 +85,11 @@ export default function OKRsScreen() {
       return;
     }
 
+    const startDate = newObjectiveStartDate ? new Date(newObjectiveStartDate).toISOString() : new Date().toISOString();
+    const endDate = newObjectiveEndDate
+      ? new Date(newObjectiveEndDate).toISOString()
+      : new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString(); // 90 days from now
+
     setIsCreating(true);
     try {
       await objectiveApi.create(
@@ -90,8 +98,8 @@ export default function OKRsScreen() {
           description: newObjectiveDescription.trim() || undefined,
           workspaceId: currentWorkspace.id,
           ownerId: currentUser.id,
-          startDate: new Date().toISOString(),
-          endDate: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString(), // 90 days from now
+          startDate,
+          endDate,
         },
         currentUser.id,
         currentMembership.role
@@ -101,6 +109,9 @@ export default function OKRsScreen() {
       setShowCreateModal(false);
       setNewObjectiveTitle('');
       setNewObjectiveDescription('');
+      setNewObjectiveStartDate('');
+      setNewObjectiveEndDate('');
+      setNewObjectiveTarget('');
       Alert.alert('Success', 'Objective created successfully');
     } catch (error: any) {
       Alert.alert('Error', error.message || 'Failed to create objective');
@@ -449,8 +460,47 @@ export default function OKRsScreen() {
                 />
               </View>
 
+              <View className="mb-4">
+                <Text className="text-slate-400 text-sm mb-2">Start Date (Optional)</Text>
+                <TextInput
+                  className="bg-slate-800 rounded-xl px-4 py-3 text-white text-base"
+                  value={newObjectiveStartDate}
+                  onChangeText={setNewObjectiveStartDate}
+                  placeholder="YYYY-MM-DD (defaults to today)"
+                  placeholderTextColor="#475569"
+                  editable={!isCreating}
+                />
+              </View>
+
+              <View className="mb-4">
+                <Text className="text-slate-400 text-sm mb-2">End Date (Optional)</Text>
+                <TextInput
+                  className="bg-slate-800 rounded-xl px-4 py-3 text-white text-base"
+                  value={newObjectiveEndDate}
+                  onChangeText={setNewObjectiveEndDate}
+                  placeholder="YYYY-MM-DD (defaults to 90 days)"
+                  placeholderTextColor="#475569"
+                  editable={!isCreating}
+                />
+              </View>
+
+              <View className="mb-6">
+                <Text className="text-slate-400 text-sm mb-2">Target (Optional)</Text>
+                <TextInput
+                  className="bg-slate-800 rounded-xl px-4 py-3 text-white text-base"
+                  value={newObjectiveTarget}
+                  onChangeText={setNewObjectiveTarget}
+                  placeholder="e.g., 100 units, £50k revenue"
+                  placeholderTextColor="#475569"
+                  editable={!isCreating}
+                />
+                <Text className="text-slate-500 text-xs mt-1">
+                  Add specific numbers or metrics to track (for reference only)
+                </Text>
+              </View>
+
               <Text className="text-slate-500 text-xs mb-4">
-                Objective will be set to 90 days from today by default.
+                Dates default to today (start) and 90 days from today (end) if not specified.
               </Text>
 
               <View className="flex-row gap-3">

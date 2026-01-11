@@ -578,8 +578,8 @@ export default function OrganizationScreen() {
 
       {/* Supplier Detail Modal */}
       <Modal visible={selectedSupplier !== null} transparent animationType="slide">
-        <View className="flex-1 bg-black/50">
-          <View className="mt-auto bg-slate-900 rounded-t-3xl" style={{ maxHeight: '90%' }}>
+        <View className="flex-1 bg-black/50 justify-end">
+          <View className="bg-slate-900 rounded-t-3xl" style={{ maxHeight: '90%' }}>
             {selectedSupplier && (
               <>
                 <View className="p-6 border-b border-slate-800">
@@ -594,7 +594,7 @@ export default function OrganizationScreen() {
                   <Text className="text-blue-400 text-sm">{selectedSupplier.supplierName}</Text>
                 </View>
 
-                <ScrollView style={{ flex: 1 }} className="px-6 py-4" showsVerticalScrollIndicator={false}>
+                <ScrollView className="px-6 py-4" showsVerticalScrollIndicator={false}>
                   <View className="mb-4">
                     <Text className="text-slate-400 text-sm mb-1">Description</Text>
                     <Text className="text-white">{selectedSupplier.description}</Text>
@@ -689,8 +689,8 @@ export default function OrganizationScreen() {
 
       {/* AI Agent Detail Modal */}
       <Modal visible={selectedAI !== null} transparent animationType="slide">
-        <View className="flex-1 bg-black/50">
-          <View className="mt-auto bg-slate-900 rounded-t-3xl" style={{ maxHeight: '90%' }}>
+        <View className="flex-1 bg-black/50 justify-end">
+          <View className="bg-slate-900 rounded-t-3xl" style={{ maxHeight: '90%' }}>
             {selectedAI && (
               <>
                 <View className="p-6 border-b border-slate-800">
@@ -707,7 +707,7 @@ export default function OrganizationScreen() {
                   </View>
                 </View>
 
-                <ScrollView style={{ flex: 1 }} className="px-6 py-4" showsVerticalScrollIndicator={false}>
+                <ScrollView className="px-6 py-4" showsVerticalScrollIndicator={false}>
                   <View className="bg-slate-800 rounded-xl p-4 mb-4">
                     <View className="flex-row justify-between items-center">
                       <Text className="text-slate-400">Monthly Cost:</Text>
