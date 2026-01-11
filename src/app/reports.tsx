@@ -40,19 +40,20 @@ export default function ReportsScreen() {
   const role = currentMembership?.role;
 
   const generateReportMutation = useMutation({
-    mutationFn: async () => {
+    mutationFn: async (periodOverride?: ReportPeriod) => {
       if (!currentWorkspace || !userId || !role) {
         throw new Error('Missing required data');
       }
 
       const reportType = role === 'Founder' ? 'founder' : role === 'FractionalExec' ? 'executive' : 'apprentice';
+      const effectivePeriod = periodOverride || period;
 
       return await generateReport(
         reportType,
         currentWorkspace.id,
         userId,
         role,
-        period,
+        effectivePeriod,
         undefined,
         undefined,
         {
@@ -126,7 +127,7 @@ export default function ReportsScreen() {
     if (params.period && currentWorkspace && userId && role) {
       // Auto-generate after a short delay to allow UI to settle
       const timer = setTimeout(() => {
-        generateReportMutation.mutate();
+        generateReportMutation.mutate(params.period as ReportPeriod);
       }, 500);
       return () => clearTimeout(timer);
     }
@@ -193,7 +194,7 @@ export default function ReportsScreen() {
         {/* Generate Button */}
         <View className="p-6">
           <Pressable
-            onPress={() => generateReportMutation.mutate()}
+            onPress={() => generateReportMutation.mutate(period)}
             disabled={generateReportMutation.isPending}
             className={cn(
               'py-4 rounded-xl items-center flex-row justify-center',
