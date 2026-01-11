@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, Pressable, ActivityIndicator, TextInput, Modal, Alert } from 'react-native';
+import { View, Text, ScrollView, Pressable, ActivityIndicator, TextInput, Modal, Alert, KeyboardAvoidingView, Platform } from 'react-native';
 import { useState, useEffect } from 'react';
 import { Target, Plus, TrendingUp, AlertTriangle, XCircle, Edit2, Trash2, X, Download } from 'lucide-react-native';
 import { useCurrentWorkspace, useCurrentMembership, useCurrentUser } from '@/lib/state/app-store';
@@ -353,68 +353,73 @@ export default function OKRsScreen() {
 
       {/* Create Objective Modal */}
       <Modal visible={showCreateModal} transparent animationType="slide">
-        <View className="flex-1 bg-black/50 justify-end">
-          <View className="bg-slate-900 rounded-t-3xl p-6">
-            <View className="flex-row items-center justify-between mb-6">
-              <Text className="text-white text-xl font-bold">Create Objective</Text>
-              <Pressable onPress={() => setShowCreateModal(false)}>
-                <X size={24} color="#94a3b8" />
-              </Pressable>
-            </View>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          className="flex-1"
+        >
+          <View className="flex-1 bg-black/50 justify-end">
+            <View className="bg-slate-900 rounded-t-3xl p-6">
+              <View className="flex-row items-center justify-between mb-6">
+                <Text className="text-white text-xl font-bold">Create Objective</Text>
+                <Pressable onPress={() => setShowCreateModal(false)}>
+                  <X size={24} color="#94a3b8" />
+                </Pressable>
+              </View>
 
-            <View className="mb-4">
-              <Text className="text-slate-400 text-sm mb-2">Title *</Text>
-              <TextInput
-                className="bg-slate-800 rounded-xl px-4 py-3 text-white text-base"
-                value={newObjectiveTitle}
-                onChangeText={setNewObjectiveTitle}
-                placeholder="Enter objective title"
-                placeholderTextColor="#475569"
-                editable={!isCreating}
-              />
-            </View>
+              <View className="mb-4">
+                <Text className="text-slate-400 text-sm mb-2">Title *</Text>
+                <TextInput
+                  className="bg-slate-800 rounded-xl px-4 py-3 text-white text-base"
+                  value={newObjectiveTitle}
+                  onChangeText={setNewObjectiveTitle}
+                  placeholder="Enter objective title"
+                  placeholderTextColor="#475569"
+                  editable={!isCreating}
+                />
+              </View>
 
-            <View className="mb-6">
-              <Text className="text-slate-400 text-sm mb-2">Description (Optional)</Text>
-              <TextInput
-                className="bg-slate-800 rounded-xl px-4 py-3 text-white text-base"
-                value={newObjectiveDescription}
-                onChangeText={setNewObjectiveDescription}
-                placeholder="Add details about this objective"
-                placeholderTextColor="#475569"
-                multiline
-                numberOfLines={3}
-                textAlignVertical="top"
-                editable={!isCreating}
-              />
-            </View>
+              <View className="mb-6">
+                <Text className="text-slate-400 text-sm mb-2">Description (Optional)</Text>
+                <TextInput
+                  className="bg-slate-800 rounded-xl px-4 py-3 text-white text-base"
+                  value={newObjectiveDescription}
+                  onChangeText={setNewObjectiveDescription}
+                  placeholder="Add details about this objective"
+                  placeholderTextColor="#475569"
+                  multiline
+                  numberOfLines={3}
+                  textAlignVertical="top"
+                  editable={!isCreating}
+                />
+              </View>
 
-            <Text className="text-slate-500 text-xs mb-4">
-              Objective will be set to 90 days from today by default.
-            </Text>
+              <Text className="text-slate-500 text-xs mb-4">
+                Objective will be set to 90 days from today by default.
+              </Text>
 
-            <View className="flex-row gap-3">
-              <Pressable
-                onPress={() => setShowCreateModal(false)}
-                className="flex-1 bg-slate-800 rounded-xl py-3 items-center active:opacity-80"
-                disabled={isCreating}
-              >
-                <Text className="text-slate-400 font-semibold">Cancel</Text>
-              </Pressable>
-              <Pressable
-                onPress={handleCreateObjective}
-                className="flex-1 bg-blue-500 rounded-xl py-3 items-center active:opacity-80"
-                disabled={isCreating || !newObjectiveTitle.trim()}
-              >
-                {isCreating ? (
-                  <ActivityIndicator size="small" color="white" />
-                ) : (
-                  <Text className="text-white font-semibold">Create</Text>
-                )}
-              </Pressable>
+              <View className="flex-row gap-3">
+                <Pressable
+                  onPress={() => setShowCreateModal(false)}
+                  className="flex-1 bg-slate-800 rounded-xl py-3 items-center active:opacity-80"
+                  disabled={isCreating}
+                >
+                  <Text className="text-slate-400 font-semibold">Cancel</Text>
+                </Pressable>
+                <Pressable
+                  onPress={handleCreateObjective}
+                  className="flex-1 bg-blue-500 rounded-xl py-3 items-center active:opacity-80"
+                  disabled={isCreating || !newObjectiveTitle.trim()}
+                >
+                  {isCreating ? (
+                    <ActivityIndicator size="small" color="white" />
+                  ) : (
+                    <Text className="text-white font-semibold">Create</Text>
+                  )}
+                </Pressable>
+              </View>
             </View>
           </View>
-        </View>
+        </KeyboardAvoidingView>
       </Modal>
     </>
   );
