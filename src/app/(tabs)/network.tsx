@@ -1211,26 +1211,29 @@ function AIAgentsTab({ selectedAgent, setSelectedAgent, onboardingAgent, setOnbo
 
       {/* Agent Detail Modal */}
       <Modal visible={selectedAgent !== null} transparent animationType="slide">
-        <View className="flex-1 bg-black/70">
+        <View className="flex-1 bg-black/70 justify-end">
           {selectedAgent && (
-            <View className="mt-auto bg-slate-900 rounded-t-3xl" style={{ maxHeight: '90%' }}>
-              <ScrollView showsVerticalScrollIndicator={false} style={{ flex: 1 }}>
-                <View className="p-6">
+            <View className="bg-slate-900 rounded-t-3xl" style={{ maxHeight: '90%' }}>
+              <View className="flex-row items-center justify-between p-6 pb-4 border-b border-slate-800">
+                <Text className="text-white text-xl font-bold">AI Agent Details</Text>
+                <Pressable onPress={() => setSelectedAgent(null)}>
+                  <X size={24} color="#94a3b8" />
+                </Pressable>
+              </View>
+
+              <ScrollView className="px-6 py-4" showsVerticalScrollIndicator={false}>
+                <View className="gap-6">
                   {/* Header */}
-                  <View className="flex-row items-start justify-between mb-6">
+                  <View className="flex-row items-start gap-3">
+                    <View
+                      className="w-12 h-12 rounded-xl items-center justify-center"
+                      style={{ backgroundColor: getProviderColor(selectedAgent.provider) + '20' }}
+                    >
+                      <Bot size={24} color={getProviderColor(selectedAgent.provider)} />
+                    </View>
                     <View className="flex-1">
-                      <View className="flex-row items-center gap-3 mb-2">
-                        <View
-                          className="w-12 h-12 rounded-xl items-center justify-center"
-                          style={{ backgroundColor: getProviderColor(selectedAgent.provider) + '20' }}
-                        >
-                          <Bot size={24} color={getProviderColor(selectedAgent.provider)} />
-                        </View>
-                        <View className="flex-1">
-                          <Text className="text-white text-xl font-bold">{selectedAgent.name}</Text>
-                          <Text className="text-slate-400 text-sm">{selectedAgent.model}</Text>
-                        </View>
-                      </View>
+                      <Text className="text-white text-xl font-bold mb-1">{selectedAgent.name}</Text>
+                      <Text className="text-slate-400 text-sm mb-2">{selectedAgent.model}</Text>
                       <View
                         className="self-start px-3 py-1 rounded-lg"
                         style={{ backgroundColor: getProviderColor(selectedAgent.provider) + '20' }}
@@ -1243,25 +1246,22 @@ function AIAgentsTab({ selectedAgent, setSelectedAgent, onboardingAgent, setOnbo
                         </Text>
                       </View>
                     </View>
-                    <Pressable onPress={() => setSelectedAgent(null)}>
-                      <X size={24} color="#94a3b8" />
-                    </Pressable>
                   </View>
 
                   {/* Cost */}
-                  <View className="bg-gradient-to-r from-emerald-900/20 to-emerald-800/20 rounded-xl p-4 mb-6 border border-emerald-500/20">
+                  <View className="bg-emerald-500/20 border border-emerald-500/30 rounded-xl p-4">
                     <Text className="text-slate-400 text-sm mb-1">Monthly Cost</Text>
                     <Text className="text-emerald-400 text-3xl font-bold">£{selectedAgent.costPerMonth}</Text>
                   </View>
 
                   {/* Purpose */}
-                  <View className="mb-6">
+                  <View>
                     <Text className="text-white font-semibold mb-2">Purpose</Text>
                     <Text className="text-slate-300 text-sm leading-5">{selectedAgent.purpose}</Text>
                   </View>
 
                   {/* Capabilities */}
-                  <View className="mb-6">
+                  <View>
                     <Text className="text-white font-semibold mb-3">Capabilities</Text>
                     <View className="gap-2">
                       {selectedAgent.capabilities.map((capability, idx) => (
@@ -1274,7 +1274,7 @@ function AIAgentsTab({ selectedAgent, setSelectedAgent, onboardingAgent, setOnbo
                   </View>
 
                   {/* Business Functions */}
-                  <View className="mb-6">
+                  <View>
                     <Text className="text-white font-semibold mb-2">Business Functions</Text>
                     <View className="flex-row flex-wrap gap-2">
                       {selectedAgent.functions.map((func, idx) => (
@@ -1286,7 +1286,7 @@ function AIAgentsTab({ selectedAgent, setSelectedAgent, onboardingAgent, setOnbo
                   </View>
 
                   {/* Integrations */}
-                  <View className="mb-6">
+                  <View>
                     <Text className="text-white font-semibold mb-2">Integrations</Text>
                     <View className="flex-row flex-wrap gap-2">
                       {selectedAgent.integrations.map((integration, idx) => (
@@ -1299,7 +1299,7 @@ function AIAgentsTab({ selectedAgent, setSelectedAgent, onboardingAgent, setOnbo
 
                   {/* Usage Stats */}
                   {selectedAgent.usageStats && (
-                    <View className="mb-6">
+                    <View>
                       <Text className="text-white font-semibold mb-3">Usage Statistics</Text>
                       <View className="flex-row gap-3">
                         <View className="flex-1 bg-slate-800 rounded-xl p-3">
@@ -1321,7 +1321,7 @@ function AIAgentsTab({ selectedAgent, setSelectedAgent, onboardingAgent, setOnbo
                   )}
 
                   {/* Action Buttons */}
-                  <View className="gap-3">
+                  <View className="gap-3 pb-4">
                     <Pressable
                       onPress={() => {
                         setOnboardingAgent(selectedAgent);
