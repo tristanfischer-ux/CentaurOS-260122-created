@@ -1,5 +1,5 @@
 import { View, Text, ScrollView, Pressable, ActivityIndicator, TextInput, Modal, Alert } from 'react-native';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Target, Plus, TrendingUp, AlertTriangle, XCircle, Edit2, Trash2, X, Download } from 'lucide-react-native';
 import { useCurrentWorkspace, useCurrentMembership, useCurrentUser } from '@/lib/state/app-store';
 import { useObjectives } from '@/lib/hooks/queries';
@@ -15,9 +15,6 @@ export default function OKRsScreen() {
   const currentUser = useCurrentUser();
   const queryClient = useQueryClient();
 
-  // Debug: Check role
-  console.log('OKRs Screen - Current role:', currentMembership?.role);
-
   const { data: objectives, isLoading } = useObjectives(currentWorkspace?.id ?? null);
 
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -29,6 +26,11 @@ export default function OKRsScreen() {
   const [newObjectiveTitle, setNewObjectiveTitle] = useState('');
   const [newObjectiveDescription, setNewObjectiveDescription] = useState('');
   const [isCreating, setIsCreating] = useState(false);
+
+  // Debug: Track modal state changes
+  useEffect(() => {
+    console.log('showCreateModal changed to:', showCreateModal);
+  }, [showCreateModal]);
 
   if (isLoading) {
     return (
