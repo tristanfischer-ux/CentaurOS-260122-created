@@ -1,9 +1,10 @@
-import { View, Text, ScrollView, Pressable, Linking, TextInput } from 'react-native';
+import { View, Text, ScrollView, Pressable, Linking, TextInput, Modal } from 'react-native';
 import { useState } from 'react';
-import { Building2, Users, Calendar, ExternalLink, MapPin, Package, ChevronRight, Search, X } from 'lucide-react-native';
+import { Building2, Users, Calendar, ExternalLink, MapPin, Package, ChevronRight, Search, X, Star, DollarSign, CalendarCheck, Award, Target, Mail, Phone } from 'lucide-react-native';
 import { UK_SUPPLIERS } from '@/lib/suppliers-seed';
+import { fractionalExecutives, apprentices, type Candidate } from '@/lib/candidates-seed';
 
-type NetworkTab = 'suppliers' | 'companies' | 'events';
+type NetworkTab = 'suppliers' | 'companies' | 'events' | 'hiring';
 
 interface DisplaySupplier {
   id: string;
@@ -152,6 +153,7 @@ export default function NetworkScreen() {
     { id: 'suppliers' as NetworkTab, label: 'Suppliers', icon: Building2 },
     { id: 'companies' as NetworkTab, label: 'Companies', icon: Users },
     { id: 'events' as NetworkTab, label: 'Events', icon: Calendar },
+    { id: 'hiring' as NetworkTab, label: 'Hiring', icon: Award },
   ];
 
   return (
@@ -193,6 +195,7 @@ export default function NetworkScreen() {
         {activeTab === 'suppliers' && <SuppliersTab />}
         {activeTab === 'companies' && <CompaniesTab />}
         {activeTab === 'events' && <EventsTab />}
+        {activeTab === 'hiring' && <HiringTab />}
       </ScrollView>
     </View>
   );
@@ -495,6 +498,390 @@ function EventsTab() {
           </View>
         ))}
       </View>
+    </View>
+  );
+}
+
+// Hiring Tab - Fractional Executives and Apprentices
+function HiringTab() {
+  const [hiringType, setHiringType] = useState<'exec' | 'apprentice'>('exec');
+  const [selectedCandidate, setSelectedCandidate] = useState<Candidate | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filterSpecialization, setFilterSpecialization] = useState<string>('all');
+
+  const candidates = hiringType === 'exec' ? fractionalExecutives : apprentices;
+
+  const filteredCandidates = candidates.filter(candidate => {
+    const matchesSearch = candidate.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         candidate.bio.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesSpecialization = filterSpecialization === 'all' ||
+                                  candidate.specialization.includes(filterSpecialization as any);
+    return matchesSearch && matchesSpecialization;
+  });
+
+  const handleHireCandidate = (candidate: Candidate) => {
+    alert(`${candidate.name} has been added to your team! They will appear in your workspace shortly.`);
+    setSelectedCandidate(null);
+  };
+
+  const handleEmailPress = (email: string) => {
+    Linking.openURL(`mailto:${email}`);
+  };
+
+  const handlePhonePress = (phone: string) => {
+    Linking.openURL(`tel:${phone}`);
+  };
+
+  return (
+    <View className="p-6">
+      <View className="mb-6">
+        <Text className="text-white text-2xl font-bold mb-2">Hire Talent</Text>
+        <Text className="text-slate-400 text-sm">
+          Browse {hiringType === 'exec' ? '30 Fractional Executives' : '30 Apprentices'} to build your team
+        </Text>
+      </View>
+
+      {/* Type Toggle */}
+      <View className="flex-row gap-2 mb-4">
+        <Pressable
+          onPress={() => setHiringType('exec')}
+          className={`flex-1 py-3 rounded-xl ${
+            hiringType === 'exec' ? 'bg-blue-500' : 'bg-slate-800'
+          }`}
+        >
+          <Text className={`text-center font-semibold ${
+            hiringType === 'exec' ? 'text-white' : 'text-slate-400'
+          }`}>
+            Executives
+          </Text>
+        </Pressable>
+        <Pressable
+          onPress={() => setHiringType('apprentice')}
+          className={`flex-1 py-3 rounded-xl ${
+            hiringType === 'apprentice' ? 'bg-emerald-500' : 'bg-slate-800'
+          }`}
+        >
+          <Text className={`text-center font-semibold ${
+            hiringType === 'apprentice' ? 'text-white' : 'text-slate-400'
+          }`}>
+            Apprentices
+          </Text>
+        </Pressable>
+      </View>
+
+      {/* Search */}
+      <View className="mb-4">
+        <View className="bg-slate-900 rounded-xl flex-row items-center px-4 py-3 border border-slate-800">
+          <Search size={20} color="#64748b" />
+          <TextInput
+            className="flex-1 text-white ml-3 text-base"
+            placeholder="Search by name or skills..."
+            placeholderTextColor="#64748b"
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+          />
+          {searchQuery.length > 0 && (
+            <Pressable onPress={() => setSearchQuery('')} className="ml-2">
+              <X size={20} color="#64748b" />
+            </Pressable>
+          )}
+        </View>
+      </View>
+
+      {/* Specialization Filter */}
+      <View className="mb-4">
+        <Text className="text-slate-400 text-xs font-semibold mb-2 uppercase">
+          Filter by Specialization
+        </Text>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ flexGrow: 0 }}>
+          <View className="flex-row gap-2">
+            {['all', 'Sales', 'Marketing', 'Finance', 'Engineering', 'Ops', 'Admin'].map((spec) => (
+              <Pressable
+                key={spec}
+                onPress={() => setFilterSpecialization(spec)}
+                className={`px-4 py-2 rounded-full border ${
+                  filterSpecialization === spec
+                    ? 'bg-blue-500 border-blue-500'
+                    : 'bg-slate-900 border-slate-700'
+                }`}
+              >
+                <Text className={`text-xs font-semibold ${
+                  filterSpecialization === spec ? 'text-white' : 'text-slate-400'
+                }`}>
+                  {spec === 'all' ? 'All' : spec}
+                </Text>
+              </Pressable>
+            ))}
+          </View>
+        </ScrollView>
+      </View>
+
+      {/* Results Count */}
+      <Text className="text-slate-500 text-sm mb-4">
+        {filteredCandidates.length} {filteredCandidates.length === 1 ? 'candidate' : 'candidates'} found
+      </Text>
+
+      {/* Candidates List */}
+      <View className="gap-3 pb-6">
+        {filteredCandidates.map((candidate) => (
+          <Pressable
+            key={candidate.id}
+            onPress={() => setSelectedCandidate(candidate)}
+            className="bg-slate-900 rounded-2xl p-4 border border-slate-800 active:opacity-70"
+          >
+            <View className="flex-row items-start">
+              {/* Avatar */}
+              <View
+                className="w-14 h-14 rounded-full items-center justify-center mr-3"
+                style={{ backgroundColor: candidate.avatarColor + '20' }}
+              >
+                <Text
+                  className="text-xl font-bold"
+                  style={{ color: candidate.avatarColor }}
+                >
+                  {candidate.name.charAt(0)}
+                </Text>
+              </View>
+
+              {/* Info */}
+              <View className="flex-1">
+                <View className="flex-row items-center justify-between mb-1">
+                  <Text className="text-white font-bold text-base">{candidate.name}</Text>
+                  <View className="flex-row items-center">
+                    <Star size={14} color="#f59e0b" fill="#f59e0b" />
+                    <Text className="text-slate-300 text-sm ml-1">{candidate.rating}</Text>
+                  </View>
+                </View>
+
+                <Text className="text-slate-400 text-xs mb-2">
+                  {candidate.specialization.join(' • ')} • {candidate.experience}y exp
+                </Text>
+
+                <Text className="text-slate-300 text-sm mb-3" numberOfLines={2}>
+                  {candidate.bio}
+                </Text>
+
+                <View className="flex-row items-center justify-between">
+                  <View className="flex-row items-center gap-3">
+                    <View className="flex-row items-center">
+                      <DollarSign size={14} color="#10b981" />
+                      <Text className="text-emerald-400 text-sm font-semibold">
+                        £{candidate.costPerDay}/day
+                      </Text>
+                    </View>
+                    <View className="flex-row items-center">
+                      <CalendarCheck size={14} color="#3b82f6" />
+                      <Text className="text-blue-400 text-xs ml-1">
+                        {candidate.availability}
+                      </Text>
+                    </View>
+                  </View>
+                </View>
+              </View>
+            </View>
+          </Pressable>
+        ))}
+
+        {filteredCandidates.length === 0 && (
+          <View className="items-center justify-center py-12">
+            <Users size={48} color="#475569" />
+            <Text className="text-slate-400 text-center mt-4">
+              No candidates match your filters
+            </Text>
+          </View>
+        )}
+      </View>
+
+      {/* Candidate Detail Modal */}
+      <Modal visible={selectedCandidate !== null} transparent animationType="slide">
+        <View className="flex-1 bg-black/70">
+          {selectedCandidate && (
+            <View className="mt-auto bg-slate-900 rounded-t-3xl max-h-[90%]">
+              <ScrollView showsVerticalScrollIndicator={false}>
+                <View className="p-6">
+                  {/* Header */}
+                  <View className="flex-row items-start justify-between mb-6">
+                    <View className="flex-1">
+                      <View
+                        className="w-20 h-20 rounded-full items-center justify-center mb-3"
+                        style={{ backgroundColor: selectedCandidate.avatarColor + '20' }}
+                      >
+                        <Text
+                          className="text-3xl font-bold"
+                          style={{ color: selectedCandidate.avatarColor }}
+                        >
+                          {selectedCandidate.name.charAt(0)}
+                        </Text>
+                      </View>
+                      <Text className="text-white text-2xl font-bold mb-1">
+                        {selectedCandidate.name}
+                      </Text>
+                      <Text className="text-slate-400 text-sm mb-2">
+                        {selectedCandidate.specialization.join(' • ')}
+                      </Text>
+                      <View className="flex-row items-center">
+                        <Star size={16} color="#f59e0b" fill="#f59e0b" />
+                        <Text className="text-slate-300 text-base ml-1 font-semibold">
+                          {selectedCandidate.rating} rating
+                        </Text>
+                      </View>
+                    </View>
+                    <Pressable onPress={() => setSelectedCandidate(null)}>
+                      <X size={24} color="#94a3b8" />
+                    </Pressable>
+                  </View>
+
+                  {/* Stats */}
+                  <View className="flex-row gap-3 mb-6">
+                    <View className="flex-1 bg-slate-800 rounded-xl p-3">
+                      <Text className="text-slate-400 text-xs mb-1">Experience</Text>
+                      <Text className="text-white font-bold">{selectedCandidate.experience} years</Text>
+                    </View>
+                    <View className="flex-1 bg-slate-800 rounded-xl p-3">
+                      <Text className="text-slate-400 text-xs mb-1">Daily Rate</Text>
+                      <Text className="text-emerald-400 font-bold">£{selectedCandidate.costPerDay}</Text>
+                    </View>
+                    <View className="flex-1 bg-slate-800 rounded-xl p-3">
+                      <Text className="text-slate-400 text-xs mb-1">Available</Text>
+                      <Text className="text-blue-400 font-bold text-xs">
+                        {selectedCandidate.availability.replace('Available ', '')}
+                      </Text>
+                    </View>
+                  </View>
+
+                  {/* Contact Info */}
+                  <View className="mb-6">
+                    <Text className="text-white font-semibold mb-3">Contact Information</Text>
+
+                    <Pressable
+                      onPress={() => handleEmailPress(selectedCandidate.email)}
+                      className="flex-row items-center mb-3 active:opacity-70"
+                    >
+                      <View className="w-10 h-10 bg-blue-500/20 rounded-lg items-center justify-center mr-3">
+                        <Mail size={18} color="#3b82f6" />
+                      </View>
+                      <View className="flex-1">
+                        <Text className="text-slate-400 text-xs">Email</Text>
+                        <Text className="text-white text-sm">{selectedCandidate.email}</Text>
+                      </View>
+                    </Pressable>
+
+                    <Pressable
+                      onPress={() => handlePhonePress(selectedCandidate.phone)}
+                      className="flex-row items-center mb-3 active:opacity-70"
+                    >
+                      <View className="w-10 h-10 bg-emerald-500/20 rounded-lg items-center justify-center mr-3">
+                        <Phone size={18} color="#10b981" />
+                      </View>
+                      <View className="flex-1">
+                        <Text className="text-slate-400 text-xs">Phone</Text>
+                        <Text className="text-white text-sm">{selectedCandidate.phone}</Text>
+                      </View>
+                    </Pressable>
+
+                    <View className="flex-row items-center">
+                      <View className="w-10 h-10 bg-purple-500/20 rounded-lg items-center justify-center mr-3">
+                        <MapPin size={18} color="#8b5cf6" />
+                      </View>
+                      <View className="flex-1">
+                        <Text className="text-slate-400 text-xs">Location</Text>
+                        <Text className="text-white text-sm">{selectedCandidate.location}</Text>
+                      </View>
+                    </View>
+                  </View>
+
+                  {/* Bio */}
+                  <View className="mb-6">
+                    <Text className="text-white font-semibold mb-2">About</Text>
+                    <Text className="text-slate-300 text-sm leading-5">
+                      {selectedCandidate.bio}
+                    </Text>
+                  </View>
+
+                  {/* Education */}
+                  {selectedCandidate.education && (
+                    <View className="mb-6">
+                      <Text className="text-white font-semibold mb-2">Education</Text>
+                      <Text className="text-slate-300 text-sm">{selectedCandidate.education}</Text>
+                    </View>
+                  )}
+
+                  {/* Certifications */}
+                  {selectedCandidate.certifications && selectedCandidate.certifications.length > 0 && (
+                    <View className="mb-6">
+                      <Text className="text-white font-semibold mb-2">Certifications</Text>
+                      <View className="flex-row flex-wrap gap-2">
+                        {selectedCandidate.certifications.map((cert, idx) => (
+                          <View key={idx} className="bg-purple-500/20 px-3 py-1.5 rounded-lg">
+                            <Text className="text-purple-400 text-xs font-medium">{cert}</Text>
+                          </View>
+                        ))}
+                      </View>
+                    </View>
+                  )}
+
+                  {/* Skills */}
+                  <View className="mb-6">
+                    <Text className="text-white font-semibold mb-2">Key Skills</Text>
+                    <View className="flex-row flex-wrap gap-2">
+                      {selectedCandidate.skills.map((skill, idx) => (
+                        <View key={idx} className="bg-blue-500/20 px-3 py-1.5 rounded-lg">
+                          <Text className="text-blue-400 text-xs font-medium">{skill}</Text>
+                        </View>
+                      ))}
+                    </View>
+                  </View>
+
+                  {/* Achievements */}
+                  {selectedCandidate.achievements && selectedCandidate.achievements.length > 0 && (
+                    <View className="mb-6">
+                      <Text className="text-white font-semibold mb-2">Key Achievements</Text>
+                      <View className="gap-2">
+                        {selectedCandidate.achievements.map((achievement, idx) => (
+                          <View key={idx} className="flex-row items-start">
+                            <Text className="text-emerald-400 mr-2">•</Text>
+                            <Text className="text-slate-300 text-sm flex-1">{achievement}</Text>
+                          </View>
+                        ))}
+                      </View>
+                    </View>
+                  )}
+
+                  {/* Previous Companies */}
+                  <View className="mb-6">
+                    <Text className="text-white font-semibold mb-2">Previous Experience</Text>
+                    <View className="flex-row flex-wrap gap-2">
+                      {selectedCandidate.previousCompanies.map((company, idx) => (
+                        <View key={idx} className="bg-slate-800 px-3 py-1.5 rounded-lg">
+                          <Text className="text-slate-300 text-xs font-medium">{company}</Text>
+                        </View>
+                      ))}
+                    </View>
+                  </View>
+
+                  {/* Action Buttons */}
+                  <View className="gap-3">
+                    <Pressable
+                      onPress={() => handleHireCandidate(selectedCandidate)}
+                      className="bg-blue-500 py-4 rounded-xl active:opacity-80"
+                    >
+                      <Text className="text-white text-center font-bold text-base">
+                        Add to Team
+                      </Text>
+                    </Pressable>
+                    <Pressable
+                      onPress={() => setSelectedCandidate(null)}
+                      className="bg-slate-800 py-3 rounded-xl active:opacity-80"
+                    >
+                      <Text className="text-slate-400 text-center font-semibold">Close</Text>
+                    </Pressable>
+                  </View>
+                </View>
+              </ScrollView>
+            </View>
+          )}
+        </View>
+      </Modal>
     </View>
   );
 }
