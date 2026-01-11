@@ -1,5 +1,5 @@
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { Stack, Redirect } from 'expo-router';
+import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useColorScheme } from '@/lib/useColorScheme';
@@ -9,7 +9,6 @@ import { KeyboardProvider } from 'react-native-keyboard-controller';
 import { View, ActivityIndicator } from 'react-native';
 import { useEffect } from 'react';
 import { useInitializeApp } from '@/lib/hooks/useInitializeApp';
-import { useIsAuthenticated } from '@/lib/state/app-store';
 
 export const unstable_settings = {
   initialRouteName: 'sign-in',
@@ -29,7 +28,6 @@ const queryClient = new QueryClient({
 
 function RootLayoutNav({ colorScheme }: { colorScheme: 'light' | 'dark' | null | undefined }) {
   const { isInitialized } = useInitializeApp();
-  const isAuthenticated = useIsAuthenticated();
 
   useEffect(() => {
     if (isInitialized) {

@@ -1,21 +1,17 @@
 import { View, Text, ScrollView, Pressable, Modal, TextInput, Linking } from 'react-native';
 import { useState } from 'react';
 import {
-  Users,
   Star,
   Mail,
   Phone,
   MapPin,
   Briefcase,
-  Calendar,
-  DollarSign,
   Plus,
   X,
-  Filter,
   CheckCircle2,
 } from 'lucide-react-native';
 import { useCurrentWorkspace, useCurrentMembership } from '@/lib/state/app-store';
-import { useWorkspaceMembers, useTasks, useCreateTask } from '@/lib/hooks/queries';
+import { useCreateTask } from '@/lib/hooks/queries';
 import type { TaskPriority, Function as TaskFunction } from '@/types';
 
 // Mock team members data - in a real app this would come from the database
@@ -295,7 +291,6 @@ const MOCK_TEAM: TeamMember[] = [
 export default function TeamScreen() {
   const currentWorkspace = useCurrentWorkspace();
   const currentMembership = useCurrentMembership();
-  const { data: tasks } = useTasks(currentWorkspace?.id ?? null);
   const createTaskMutation = useCreateTask();
 
   const [selectedMember, setSelectedMember] = useState<TeamMember | null>(null);

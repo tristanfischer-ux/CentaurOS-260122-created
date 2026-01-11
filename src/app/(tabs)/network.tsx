@@ -1,6 +1,6 @@
 import { View, Text, ScrollView, Pressable, Linking, TextInput, Modal } from 'react-native';
 import { useState } from 'react';
-import { Building2, Users, Calendar, ExternalLink, MapPin, Package, ChevronRight, Search, X, Star, DollarSign, CalendarCheck, Award, Target, Mail, Phone } from 'lucide-react-native';
+import { Building2, Users, Calendar, ExternalLink, MapPin, Package, ChevronRight, Search, X, Star, DollarSign, CalendarCheck, Award, Mail, Phone } from 'lucide-react-native';
 import { UK_SUPPLIERS } from '@/lib/suppliers-seed';
 import { fractionalExecutives, apprentices, type Candidate } from '@/lib/candidates-seed';
 

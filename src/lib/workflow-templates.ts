@@ -475,7 +475,7 @@ export const WORKFLOW_TEMPLATES: Record<Function, WorkflowTemplate> = {
 export function createWorkflowItemsFromTemplate(
   workspaceId: string,
   functionType: Function
-): Array<Omit<import('@/types').WorkflowItem, 'id' | 'createdAt' | 'updatedAt'>> {
+): Omit<import('@/types').WorkflowItem, 'id' | 'createdAt' | 'updatedAt'>[] {
   const template = WORKFLOW_TEMPLATES[functionType];
 
   return template.items.map((item, index) => ({

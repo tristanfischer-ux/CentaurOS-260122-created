@@ -387,13 +387,13 @@ export interface WorkflowTemplate {
   function: Function;
   title: string;
   description: string;
-  items: Array<{
+  items: {
     title: string;
     description: string;
     sequenceOrder: number;
     estimatedHours?: number;
     dependencies?: number[]; // Indexes of dependent items
-  }>;
+  }[];
   isSystem: boolean;
   createdBy?: string;
   createdAt: string;
@@ -533,15 +533,15 @@ export interface FounderReportData {
     totalTeamMembers: number;
     activeFunctions: Function[];
   };
-  okrProgress: Array<{
+  okrProgress: {
     objectiveId: string;
     objectiveTitle: string;
     progress: number;
     healthStatus: KRHealthStatus;
     keyResultsCount: number;
     owner: string;
-  }>;
-  executivePerformance: Array<{
+  }[];
+  executivePerformance: {
     executiveId: string;
     executiveName: string;
     function: Function;
@@ -550,8 +550,8 @@ export interface FounderReportData {
     workflowItemsStructured: number;
     apprenticeWorkVerified: number;
     hoursLogged: number;
-  }>;
-  apprenticeUtilization: Array<{
+  }[];
+  apprenticeUtilization: {
     apprenticeId: string;
     apprenticeName: string;
     function: Function;
@@ -560,21 +560,21 @@ export interface FounderReportData {
     hoursLogged: number;
     averageTaskCompletionDays: number;
     utilizationRate: number;
-  }>;
-  projectStatus: Array<{
+  }[];
+  projectStatus: {
     projectId: string;
     projectTitle: string;
     status: ProjectStatus;
     tasksTotal: number;
     tasksCompleted: number;
     owner: string;
-  }>;
-  risks: Array<{
+  }[];
+  risks: {
     type: 'kr_off_track' | 'task_overdue' | 'workflow_blocked' | 'low_utilization';
     severity: 'low' | 'medium' | 'high';
     message: string;
     affectedArea: Function | 'general';
-  }>;
+  }[];
   weeklyHighlights: string[];
 }
 
@@ -591,7 +591,7 @@ export interface ExecutiveReportData {
     apprenticeWorkVerified: number;
     hoursLogged: number;
   };
-  apprenticePerformance: Array<{
+  apprenticePerformance: {
     apprenticeId: string;
     apprenticeName: string;
     tasksAssigned: number;
@@ -599,30 +599,30 @@ export interface ExecutiveReportData {
     hoursLogged: number;
     pendingVerifications: number;
     averageCompletionTime: number;
-  }>;
-  workflowProgress: Array<{
+  }[];
+  workflowProgress: {
     workflowItemId: string;
     title: string;
     status: WorkflowItemStatus;
     sequenceOrder: number;
     completedAt?: string;
-  }>;
+  }[];
   tasksBreakdown: {
     byStatus: Record<TaskStatus, number>;
     byPriority: Record<TaskPriority, number>;
     overdueTasks: number;
   };
-  functionOKRs: Array<{
+  functionOKRs: {
     objectiveId: string;
     objectiveTitle: string;
     progress: number;
-    keyResults: Array<{
+    keyResults: {
       title: string;
       current: number;
       target: number;
       unit: string;
-    }>;
-  }>;
+    }[];
+  }[];
 }
 
 // Apprentice Report - Individual work summary
@@ -639,7 +639,7 @@ export interface ApprenticeReportData {
     verificationsApproved: number;
     averageTaskDuration: number;
   };
-  taskDetails: Array<{
+  taskDetails: {
     taskId: string;
     title: string;
     status: TaskStatus;
@@ -648,17 +648,17 @@ export interface ApprenticeReportData {
     createdAt: string;
     completedAt?: string;
     verifiedAt?: string;
-  }>;
+  }[];
   timeBreakdown: {
-    byDate: Array<{ date: string; hours: number; }>;
-    byTask: Array<{ taskTitle: string; hours: number; }>;
+    byDate: { date: string; hours: number; }[];
+    byTask: { taskTitle: string; hours: number; }[];
     totalHours: number;
   };
-  workflowContributions: Array<{
+  workflowContributions: {
     workflowItemId: string;
     title: string;
     status: WorkflowItemStatus;
     hoursSpent: number;
-  }>;
+  }[];
   achievements: string[];
 }

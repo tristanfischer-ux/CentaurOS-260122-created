@@ -1,6 +1,6 @@
 import { View, Text, ScrollView, Pressable, ActivityIndicator, Modal, TextInput } from 'react-native';
 import { useState } from 'react';
-import { CheckCircle, XCircle, MessageSquare, Clock, X, ThumbsUp, AlertTriangle } from 'lucide-react-native';
+import { CheckCircle, XCircle, Clock, X, ThumbsUp, AlertTriangle } from 'lucide-react-native';
 import { useCurrentWorkspace, useCurrentMembership } from '@/lib/state/app-store';
 import { useReviews, useSubmitReview } from '@/lib/hooks/queries';
 import type { ReviewStatus } from '@/types';

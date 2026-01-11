@@ -46,7 +46,7 @@ export default function SettingsScreen() {
 
   const canViewUtilization = currentMembership?.role === 'FractionalExec' || currentMembership?.role === 'Founder';
 
-  const themeOptions: Array<{ mode: ThemeMode; label: string; icon: typeof Sun }> = [
+  const themeOptions: { mode: ThemeMode; label: string; icon: typeof Sun }[] = [
     { mode: 'light', label: 'Light', icon: Sun },
     { mode: 'dark', label: 'Dark', icon: Moon },
     { mode: 'system', label: 'System', icon: Smartphone },

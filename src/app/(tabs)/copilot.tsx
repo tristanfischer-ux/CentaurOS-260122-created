@@ -5,7 +5,6 @@ import { useCurrentWorkspace, useCurrentMembership, useCurrentUser } from '@/lib
 import { CopilotService } from '@/lib/copilot';
 import type { CopilotMessage, ProposedAction } from '@/types';
 import { useQueryClient } from '@tanstack/react-query';
-import { taskApi } from '@/lib/api/operations';
 
 export default function CopilotScreen() {
   const currentWorkspace = useCurrentWorkspace();

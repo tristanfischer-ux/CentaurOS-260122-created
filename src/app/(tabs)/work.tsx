@@ -1,6 +1,6 @@
 import { View, Text, ScrollView, Pressable, ActivityIndicator, Modal, TextInput, KeyboardAvoidingView, Platform } from 'react-native';
 import { useState } from 'react';
-import { Briefcase, Plus, Filter, CheckCircle2, Clock, AlertCircle, Circle, X, User, Calendar as CalendarIcon, Target } from 'lucide-react-native';
+import { Briefcase, Plus, CheckCircle2, Clock, AlertCircle, Circle, X, User, Target } from 'lucide-react-native';
 import { useCurrentWorkspace, useCurrentMembership, useCurrentUser } from '@/lib/state/app-store';
 import { useTasks, useUpdateTask, useRequestReview, useCreateTask, useWorkspaceMembers, useObjectives } from '@/lib/hooks/queries';
 import { TimeTrackingModal } from '@/components/TimeTrackingModal';
@@ -47,7 +47,7 @@ export default function WorkScreen() {
     return task.status === filterStatus;
   }) || [];
 
-  const statuses: Array<{ value: TaskStatus | 'all'; label: string; count: number }> = [
+  const statuses: { value: TaskStatus | 'all'; label: string; count: number }[] = [
     { value: 'all', label: 'All', count: tasks?.length || 0 },
     { value: 'todo', label: 'To Do', count: tasks?.filter(t => t.status === 'todo').length || 0 },
     { value: 'in_progress', label: 'In Progress', count: tasks?.filter(t => t.status === 'in_progress').length || 0 },

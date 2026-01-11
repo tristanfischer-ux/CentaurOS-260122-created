@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { View, Text, ScrollView, Pressable, ActivityIndicator, Alert } from 'react-native';
 import { useMutation } from '@tanstack/react-query';
 import { useLocalSearchParams } from 'expo-router';
-import { FileText, Download, Calendar, TrendingUp, Users, Target, AlertTriangle } from 'lucide-react-native';
+import { FileText, Download, TrendingUp, Users, Target, AlertTriangle } from 'lucide-react-native';
 import { useAppStore } from '@/lib/state/app-store';
 import { generateReport } from '@/lib/reports/generator';
 import { exportBoardPack, exportReportAsCSV, exportReportAsJSON } from '@/lib/reports/export-board-pack';

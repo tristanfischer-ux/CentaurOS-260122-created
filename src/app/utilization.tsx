@@ -12,7 +12,6 @@ export default function UtilizationScreen() {
   const currentWorkspace = useCurrentWorkspace();
   const currentMembership = useCurrentMembership();
   const users = useAppStore((s) => s.users);
-  const tasks = useAppStore((s) => s.tasks);
   const memberships = useAppStore((s) => s.memberships);
 
   const [timeRange, setTimeRange] = useState<'week' | 'month' | 'all'>('week');

@@ -1,9 +1,6 @@
 import { View, Text, ScrollView, Pressable, ActivityIndicator } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import {
-  TrendingUp,
-  TrendingDown,
-  AlertCircle,
   CheckCircle2,
   Clock,
   ArrowRight,
