@@ -75,31 +75,57 @@ export async function exportToJSON(data: any, filename: string): Promise<void> {
 
 // Format OKRs for export
 export function formatOKRsForExport(objectives: Objective[], keyResults: KeyResult[]) {
-  return objectives.map((obj) => {
+  // Flatten to CSV-friendly format
+  const rows: any[] = [];
+
+  objectives.forEach((obj) => {
     const objKRs = keyResults.filter((kr) => kr.objectiveId === obj.id);
-    return {
-      objective: obj.title,
-      description: obj.description || '',
-      status: obj.status,
-      startDate: obj.startDate,
-      endDate: obj.endDate,
-      keyResults: objKRs.length,
-      progress:
-        objKRs.length > 0
-          ? Math.round(
-              (objKRs.reduce((sum, kr) => sum + (kr.currentValue / kr.targetValue) * 100, 0) /
-                objKRs.length)
-            )
-          : 0,
-      keyResultsDetail: objKRs.map((kr) => ({
-        title: kr.title,
-        current: kr.currentValue,
-        target: kr.targetValue,
-        unit: kr.unit,
-        health: kr.healthStatus,
-      })),
-    };
+    const progress =
+      objKRs.length > 0
+        ? Math.round(
+            (objKRs.reduce((sum, kr) => sum + (kr.currentValue / kr.targetValue) * 100, 0) /
+              objKRs.length)
+          )
+        : 0;
+
+    if (objKRs.length === 0) {
+      // Objective with no key results
+      rows.push({
+        objective: obj.title,
+        description: obj.description || '',
+        status: obj.status,
+        startDate: obj.startDate,
+        endDate: obj.endDate,
+        progress: `${progress}%`,
+        keyResult: '',
+        krCurrent: '',
+        krTarget: '',
+        krUnit: '',
+        krHealth: '',
+      });
+    } else {
+      // One row per key result
+      objKRs.forEach((kr) => {
+        const krProgress = Math.round((kr.currentValue / kr.targetValue) * 100);
+        rows.push({
+          objective: obj.title,
+          description: obj.description || '',
+          status: obj.status,
+          startDate: obj.startDate,
+          endDate: obj.endDate,
+          progress: `${progress}%`,
+          keyResult: kr.title,
+          krCurrent: kr.currentValue,
+          krTarget: kr.targetValue,
+          krUnit: kr.unit,
+          krHealth: kr.healthStatus,
+          krProgress: `${krProgress}%`,
+        });
+      });
+    }
   });
+
+  return rows;
 }
 
 // Format Tasks for export

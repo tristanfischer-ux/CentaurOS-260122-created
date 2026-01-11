@@ -22,6 +22,11 @@ export default function OKRsScreen() {
   const [selectedKR, setSelectedKR] = useState<KeyResult | null>(null);
   const [newKRValue, setNewKRValue] = useState('');
 
+  // Create objective form state
+  const [newObjectiveTitle, setNewObjectiveTitle] = useState('');
+  const [newObjectiveDescription, setNewObjectiveDescription] = useState('');
+  const [isCreating, setIsCreating] = useState(false);
+
   if (isLoading) {
     return (
       <View className="flex-1 bg-slate-950 items-center justify-center">
@@ -68,6 +73,38 @@ export default function OKRsScreen() {
       setNewKRValue('');
     } catch (error) {
       console.error('Failed to update KR:', error);
+    }
+  };
+
+  const handleCreateObjective = async () => {
+    if (!newObjectiveTitle.trim() || !currentUser || !currentMembership || !currentWorkspace) {
+      return;
+    }
+
+    setIsCreating(true);
+    try {
+      await objectiveApi.create(
+        {
+          title: newObjectiveTitle.trim(),
+          description: newObjectiveDescription.trim() || undefined,
+          workspaceId: currentWorkspace.id,
+          ownerId: currentUser.id,
+          startDate: new Date().toISOString(),
+          endDate: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString(), // 90 days from now
+        },
+        currentUser.id,
+        currentMembership.role
+      );
+
+      queryClient.invalidateQueries({ queryKey: ['objectives', currentWorkspace.id] });
+      setShowCreateModal(false);
+      setNewObjectiveTitle('');
+      setNewObjectiveDescription('');
+      Alert.alert('Success', 'Objective created successfully');
+    } catch (error: any) {
+      Alert.alert('Error', error.message || 'Failed to create objective');
+    } finally {
+      setIsCreating(false);
     }
   };
 
@@ -296,6 +333,72 @@ export default function OKRsScreen() {
                 </View>
               </>
             )}
+          </View>
+        </View>
+      </Modal>
+
+      {/* Create Objective Modal */}
+      <Modal visible={showCreateModal} transparent animationType="slide">
+        <View className="flex-1 bg-black/50 justify-end">
+          <View className="bg-slate-900 rounded-t-3xl p-6">
+            <View className="flex-row items-center justify-between mb-6">
+              <Text className="text-white text-xl font-bold">Create Objective</Text>
+              <Pressable onPress={() => setShowCreateModal(false)}>
+                <X size={24} color="#94a3b8" />
+              </Pressable>
+            </View>
+
+            <View className="mb-4">
+              <Text className="text-slate-400 text-sm mb-2">Title *</Text>
+              <TextInput
+                className="bg-slate-800 rounded-xl px-4 py-3 text-white text-base"
+                value={newObjectiveTitle}
+                onChangeText={setNewObjectiveTitle}
+                placeholder="Enter objective title"
+                placeholderTextColor="#475569"
+                editable={!isCreating}
+              />
+            </View>
+
+            <View className="mb-6">
+              <Text className="text-slate-400 text-sm mb-2">Description (Optional)</Text>
+              <TextInput
+                className="bg-slate-800 rounded-xl px-4 py-3 text-white text-base"
+                value={newObjectiveDescription}
+                onChangeText={setNewObjectiveDescription}
+                placeholder="Add details about this objective"
+                placeholderTextColor="#475569"
+                multiline
+                numberOfLines={3}
+                textAlignVertical="top"
+                editable={!isCreating}
+              />
+            </View>
+
+            <Text className="text-slate-500 text-xs mb-4">
+              Objective will be set to 90 days from today by default.
+            </Text>
+
+            <View className="flex-row gap-3">
+              <Pressable
+                onPress={() => setShowCreateModal(false)}
+                className="flex-1 bg-slate-800 rounded-xl py-3 items-center active:opacity-80"
+                disabled={isCreating}
+              >
+                <Text className="text-slate-400 font-semibold">Cancel</Text>
+              </Pressable>
+              <Pressable
+                onPress={handleCreateObjective}
+                className="flex-1 bg-blue-500 rounded-xl py-3 items-center active:opacity-80"
+                disabled={isCreating || !newObjectiveTitle.trim()}
+              >
+                {isCreating ? (
+                  <ActivityIndicator size="small" color="white" />
+                ) : (
+                  <Text className="text-white font-semibold">Create</Text>
+                )}
+              </Pressable>
+            </View>
           </View>
         </View>
       </Modal>
