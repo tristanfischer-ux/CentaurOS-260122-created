@@ -1,7 +1,6 @@
 // Reports screen with role-based views
 import { useState } from 'react';
 import { View, Text, ScrollView, Pressable, ActivityIndicator, Alert } from 'react-native';
-import { Stack } from 'expo-router';
 import { useMutation } from '@tanstack/react-query';
 import { FileText, Download, Calendar, TrendingUp, Users, Target, AlertTriangle } from 'lucide-react-native';
 import { useAppStore } from '@/lib/state/app-store';
@@ -114,14 +113,6 @@ export default function ReportsScreen() {
 
   return (
     <View className="flex-1 bg-zinc-950">
-      <Stack.Screen
-        options={{
-          title: 'Reports',
-          headerStyle: { backgroundColor: '#09090b' },
-          headerTintColor: '#fff',
-        }}
-      />
-
       <ScrollView className="flex-1" contentContainerStyle={{ paddingBottom: 40 }}>
         {/* Header */}
         <View className="p-6 border-b border-zinc-800">
