@@ -50,6 +50,7 @@ export interface AIAgent {
   functions: string[]; // What business functions it helps with
   costPerMonth: number;
   apiEndpoint?: string;
+  website?: string; // Website URL
   capabilities: string[];
   integrations: string[];
   status: 'active' | 'trial' | 'inactive';
@@ -397,6 +398,7 @@ export const AI_AGENTS: AIAgent[] = [
     usedBy: ['apprentice-1', 'apprentice-2', 'exec-1'],
     functions: ['Finance'],
     costPerMonth: 450,
+    website: 'https://vic.ai',
     capabilities: [
       'Automated invoice extraction',
       'GL code assignment',
@@ -424,6 +426,7 @@ export const AI_AGENTS: AIAgent[] = [
     usedBy: ['apprentice-1', 'exec-1'],
     functions: ['Finance'],
     costPerMonth: 350,
+    website: 'https://digits.com',
     capabilities: [
       'Automated bookkeeping',
       'Financial reporting dashboards',
@@ -451,6 +454,7 @@ export const AI_AGENTS: AIAgent[] = [
     usedBy: ['apprentice-1', 'apprentice-2', 'exec-1'],
     functions: ['Finance'],
     costPerMonth: 200,
+    website: 'https://ai.google.dev',
     capabilities: [
       'Financial modeling',
       'Google Sheets integration',
@@ -480,6 +484,7 @@ export const AI_AGENTS: AIAgent[] = [
     usedBy: ['apprentice-3', 'apprentice-4', 'exec-2'],
     functions: ['Sales'],
     costPerMonth: 850,
+    website: 'https://11x.ai',
     capabilities: [
       'Automated lead prospecting',
       'Personalized email sequences',
@@ -507,6 +512,7 @@ export const AI_AGENTS: AIAgent[] = [
     usedBy: ['apprentice-3', 'apprentice-4', 'exec-2'],
     functions: ['Sales'],
     costPerMonth: 400,
+    website: 'https://gong.io',
     capabilities: [
       'Call recording and transcription',
       'Conversation insights',
@@ -534,6 +540,7 @@ export const AI_AGENTS: AIAgent[] = [
     usedBy: ['apprentice-3', 'apprentice-4'],
     functions: ['Sales'],
     costPerMonth: 300,
+    website: 'https://clay.com',
     capabilities: [
       'Contact data enrichment',
       'Company intelligence',
@@ -561,6 +568,7 @@ export const AI_AGENTS: AIAgent[] = [
     usedBy: ['apprentice-3', 'apprentice-4'],
     functions: ['Sales'],
     costPerMonth: 99,
+    website: 'https://elevenlabs.io',
     capabilities: [
       'Text-to-speech for demos',
       'Multi-language support',
@@ -590,6 +598,7 @@ export const AI_AGENTS: AIAgent[] = [
     usedBy: ['apprentice-7', 'exec-4'],
     functions: ['Marketing'],
     costPerMonth: 200,
+    website: 'https://jasper.ai',
     capabilities: [
       'Blog post generation',
       'Social media content',
@@ -617,6 +626,7 @@ export const AI_AGENTS: AIAgent[] = [
     usedBy: ['apprentice-7', 'exec-4'],
     functions: ['Marketing'],
     costPerMonth: 180,
+    website: 'https://copy.ai',
     capabilities: [
       'Ad copy generation',
       'Product descriptions',
@@ -644,6 +654,7 @@ export const AI_AGENTS: AIAgent[] = [
     usedBy: ['apprentice-7', 'exec-4'],
     functions: ['Marketing'],
     costPerMonth: 60,
+    website: 'https://midjourney.com',
     capabilities: [
       'Photorealistic imagery',
       'Product visualization',
@@ -671,6 +682,7 @@ export const AI_AGENTS: AIAgent[] = [
     usedBy: ['apprentice-7', 'exec-4'],
     functions: ['Marketing'],
     costPerMonth: 120,
+    website: 'https://openai.com',
     capabilities: [
       'Social media graphics',
       'Ad creative concepts',
@@ -698,6 +710,7 @@ export const AI_AGENTS: AIAgent[] = [
     usedBy: ['apprentice-7', 'exec-4'],
     functions: ['Marketing'],
     costPerMonth: 80,
+    website: 'https://perplexity.ai',
     capabilities: [
       'Real-time web search',
       'Competitor research',
@@ -725,6 +738,7 @@ export const AI_AGENTS: AIAgent[] = [
     usedBy: ['apprentice-7', 'exec-4'],
     functions: ['Marketing'],
     costPerMonth: 250,
+    website: 'https://runwayml.com',
     capabilities: [
       'Text-to-video generation',
       'Image-to-video animation',
@@ -754,6 +768,7 @@ export const AI_AGENTS: AIAgent[] = [
     usedBy: ['exec-1', 'exec-3', 'apprentice-1', 'apprentice-5'],
     functions: ['Ops'],
     costPerMonth: 400,
+    website: 'https://hebbia.ai',
     capabilities: [
       'Multi-document analysis',
       'Contract review',
@@ -781,6 +796,7 @@ export const AI_AGENTS: AIAgent[] = [
     usedBy: ['All team members'],
     functions: ['Ops'],
     costPerMonth: 150,
+    website: 'https://zapier.com',
     capabilities: [
       'App integration',
       'Automated workflows',
@@ -808,6 +824,7 @@ export const AI_AGENTS: AIAgent[] = [
     usedBy: ['exec-1', 'founder-1'],
     functions: ['Ops'],
     costPerMonth: 500,
+    website: 'https://harvey.ai',
     capabilities: [
       'Contract analysis',
       'Legal research',
@@ -837,6 +854,7 @@ export const AI_AGENTS: AIAgent[] = [
     usedBy: ['apprentice-5', 'apprentice-6', 'exec-3'],
     functions: ['Engineering'],
     costPerMonth: 60,
+    website: 'https://github.com/features/copilot',
     capabilities: [
       'Code autocomplete',
       'Function generation',
@@ -864,6 +882,7 @@ export const AI_AGENTS: AIAgent[] = [
     usedBy: ['apprentice-5', 'apprentice-6', 'exec-3'],
     functions: ['Engineering'],
     costPerMonth: 80,
+    website: 'https://cursor.sh',
     capabilities: [
       'Natural language code editing',
       'Codebase understanding',
@@ -891,6 +910,7 @@ export const AI_AGENTS: AIAgent[] = [
     usedBy: ['apprentice-5', 'apprentice-6'],
     functions: ['Engineering'],
     costPerMonth: 40,
+    website: 'https://replit.com',
     capabilities: [
       'Code completion',
       'Error explanation',
@@ -918,6 +938,7 @@ export const AI_AGENTS: AIAgent[] = [
     usedBy: ['exec-3', 'apprentice-5', 'apprentice-6'],
     functions: ['Engineering'],
     costPerMonth: 90,
+    website: 'https://tabnine.com',
     capabilities: [
       'On-premise code completion',
       'Team model training',
@@ -947,6 +968,7 @@ export const AI_AGENTS: AIAgent[] = [
     usedBy: ['All team members'],
     functions: ['Admin'],
     costPerMonth: 600,
+    website: 'https://openai.com',
     capabilities: [
       'Email drafting',
       'Meeting summaries',
@@ -974,6 +996,7 @@ export const AI_AGENTS: AIAgent[] = [
     usedBy: ['All team members'],
     functions: ['Admin'],
     costPerMonth: 120,
+    website: 'https://notion.so/product/ai',
     capabilities: [
       'Note summarization',
       'Action item extraction',
@@ -1001,6 +1024,7 @@ export const AI_AGENTS: AIAgent[] = [
     usedBy: ['All team members'],
     functions: ['Admin'],
     costPerMonth: 100,
+    website: 'https://otter.ai',
     capabilities: [
       'Real-time transcription',
       'Speaker identification',
@@ -1028,6 +1052,7 @@ export const AI_AGENTS: AIAgent[] = [
     usedBy: ['All team members'],
     functions: ['Admin'],
     costPerMonth: 75,
+    website: 'https://grammarly.com',
     capabilities: [
       'Grammar checking',
       'Tone detection',
@@ -1057,6 +1082,7 @@ export const AI_AGENTS: AIAgent[] = [
     usedBy: ['exec-5', 'apprentice-6'],
     functions: ['Engineering', 'Ops'],
     costPerMonth: 420,
+    website: 'https://autodesk.com/products/fusion-360',
     capabilities: [
       'Generative design optimization',
       'DFM analysis and suggestions',
@@ -1084,6 +1110,7 @@ export const AI_AGENTS: AIAgent[] = [
     usedBy: ['exec-5', 'apprentice-5'],
     functions: ['Engineering'],
     costPerMonth: 380,
+    website: 'https://monolithai.com',
     capabilities: [
       'Virtual material testing',
       'Stress analysis prediction',
@@ -1111,6 +1138,7 @@ export const AI_AGENTS: AIAgent[] = [
     usedBy: ['exec-4', 'apprentice-7'],
     functions: ['Engineering'],
     costPerMonth: 250,
+    website: 'https://diagram.com',
     capabilities: [
       'Auto-routing optimization',
       'Component placement suggestions',
@@ -1138,6 +1166,7 @@ export const AI_AGENTS: AIAgent[] = [
     usedBy: ['exec-3', 'apprentice-3', 'apprentice-6'],
     functions: ['Ops', 'Engineering'],
     costPerMonth: 180,
+    website: 'https://example.com',
     capabilities: [
       'Process selection recommendations',
       'Supplier capability matching',
@@ -1165,6 +1194,7 @@ export const AI_AGENTS: AIAgent[] = [
     usedBy: ['apprentice-4', 'exec-2'],
     functions: ['Marketing', 'Engineering'],
     costPerMonth: 150,
+    website: 'https://spline.design',
     capabilities: [
       '3D model generation from sketches',
       'Photorealistic rendering',
@@ -1192,6 +1222,7 @@ export const AI_AGENTS: AIAgent[] = [
     usedBy: ['exec-3', 'apprentice-5'],
     functions: ['Ops'],
     costPerMonth: 200,
+    website: 'https://example.com',
     capabilities: [
       'Visual defect detection',
       'Dimensional accuracy checking',

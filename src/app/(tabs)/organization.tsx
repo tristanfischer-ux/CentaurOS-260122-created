@@ -19,6 +19,7 @@ import {
   Sparkles,
   MapPin,
   Map,
+  Globe,
 } from 'lucide-react-native';
 import MapView, { Marker, PROVIDER_DEFAULT } from 'react-native-maps';
 import { useCurrentWorkspace, useCurrentMembership } from '@/lib/state/app-store';
@@ -721,6 +722,22 @@ export default function OrganizationScreen() {
                     <Text className="text-slate-400 text-sm mb-1">Purpose</Text>
                     <Text className="text-white">{selectedAI.purpose}</Text>
                   </View>
+
+                  {selectedAI.website && (
+                    <View className="mb-4">
+                      <Text className="text-slate-400 text-sm mb-2">Website</Text>
+                      <Pressable
+                        onPress={() => Linking.openURL(selectedAI.website!)}
+                        className="bg-blue-500/10 border border-blue-500/30 rounded-xl p-3 flex-row items-center active:opacity-70"
+                      >
+                        <Globe size={18} color="#3b82f6" />
+                        <Text className="text-blue-400 ml-2 flex-1" numberOfLines={1}>
+                          {selectedAI.website}
+                        </Text>
+                        <ChevronRight size={18} color="#3b82f6" />
+                      </Pressable>
+                    </View>
+                  )}
 
                   <View className="mb-4">
                     <Text className="text-white font-semibold mb-2">Capabilities</Text>
