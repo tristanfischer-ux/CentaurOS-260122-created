@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, Pressable, ActivityIndicator, Modal, TextInput } from 'react-native';
+import { View, Text, ScrollView, Pressable, ActivityIndicator, Modal, TextInput, KeyboardAvoidingView, Platform } from 'react-native';
 import { useState } from 'react';
 import { Briefcase, Plus, Filter, CheckCircle2, Clock, AlertCircle, Circle, X, User, Calendar as CalendarIcon } from 'lucide-react-native';
 import { useCurrentWorkspace, useCurrentMembership, useCurrentUser } from '@/lib/state/app-store';
@@ -343,161 +343,175 @@ export default function WorkScreen() {
 
       {/* Create Task Modal */}
       <Modal visible={showCreateModal} transparent animationType="slide">
-        <View className="flex-1 bg-black/50 justify-end">
-          <View className="bg-slate-900 rounded-t-3xl p-6 max-h-[90%]">
-            <View className="flex-row items-center justify-between mb-6">
-              <Text className="text-white text-2xl font-bold">Create Task</Text>
-              <Pressable onPress={() => setShowCreateModal(false)}>
-                <X size={24} color="#94a3b8" />
-              </Pressable>
-            </View>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          className="flex-1"
+        >
+          <Pressable
+            className="flex-1 bg-black/50"
+            onPress={() => setShowCreateModal(false)}
+          >
+            <Pressable
+              className="mt-auto"
+              onPress={(e) => e.stopPropagation()}
+            >
+              <View className="bg-slate-900 rounded-t-3xl p-6 max-h-[90%]">
+                <View className="flex-row items-center justify-between mb-6">
+                  <Text className="text-white text-2xl font-bold">Create Task</Text>
+                  <Pressable onPress={() => setShowCreateModal(false)}>
+                    <X size={24} color="#94a3b8" />
+                  </Pressable>
+                </View>
 
-            <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
-              {/* Title */}
-              <View className="mb-4">
-                <Text className="text-slate-400 text-sm font-medium mb-2">Title *</Text>
-                <TextInput
-                  value={newTaskTitle}
-                  onChangeText={setNewTaskTitle}
-                  placeholder="Enter task title"
-                  placeholderTextColor="#64748b"
-                  className="bg-slate-800 text-white px-4 py-3 rounded-xl border border-slate-700"
-                />
-              </View>
+                <ScrollView className="flex-1" showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+                  {/* Title */}
+                  <View className="mb-4">
+                    <Text className="text-slate-400 text-sm font-medium mb-2">Title *</Text>
+                    <TextInput
+                      value={newTaskTitle}
+                      onChangeText={setNewTaskTitle}
+                      placeholder="Enter task title"
+                      placeholderTextColor="#64748b"
+                      className="bg-slate-800 text-white px-4 py-3 rounded-xl border border-slate-700"
+                      autoFocus
+                    />
+                  </View>
 
-              {/* Description */}
-              <View className="mb-4">
-                <Text className="text-slate-400 text-sm font-medium mb-2">Description</Text>
-                <TextInput
-                  value={newTaskDescription}
-                  onChangeText={setNewTaskDescription}
-                  placeholder="Enter task description"
-                  placeholderTextColor="#64748b"
-                  multiline
-                  numberOfLines={3}
-                  className="bg-slate-800 text-white px-4 py-3 rounded-xl border border-slate-700"
-                  style={{ minHeight: 80, textAlignVertical: 'top' }}
-                />
-              </View>
+                  {/* Description */}
+                  <View className="mb-4">
+                    <Text className="text-slate-400 text-sm font-medium mb-2">Description</Text>
+                    <TextInput
+                      value={newTaskDescription}
+                      onChangeText={setNewTaskDescription}
+                      placeholder="Enter task description"
+                      placeholderTextColor="#64748b"
+                      multiline
+                      numberOfLines={3}
+                      className="bg-slate-800 text-white px-4 py-3 rounded-xl border border-slate-700"
+                      style={{ minHeight: 80, textAlignVertical: 'top' }}
+                    />
+                  </View>
 
-              {/* Assignee */}
-              <View className="mb-4">
-                <Text className="text-slate-400 text-sm font-medium mb-2">Assign To</Text>
-                <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ flexGrow: 0 }}>
-                  <View className="flex-row gap-2">
-                    <Pressable
-                      onPress={() => setNewTaskAssignee('')}
-                      className={`px-4 py-2 rounded-xl border ${
-                        newTaskAssignee === ''
-                          ? 'bg-blue-500 border-blue-500'
-                          : 'bg-slate-800 border-slate-700'
-                      }`}
-                    >
-                      <Text className={`text-sm font-medium ${
-                        newTaskAssignee === '' ? 'text-white' : 'text-slate-400'
-                      }`}>
-                        Unassigned
-                      </Text>
-                    </Pressable>
-                    {members?.map((member) => (
-                      <Pressable
-                        key={member.userId}
-                        onPress={() => setNewTaskAssignee(member.userId)}
-                        className={`px-4 py-2 rounded-xl border ${
-                          newTaskAssignee === member.userId
-                            ? 'bg-blue-500 border-blue-500'
-                            : 'bg-slate-800 border-slate-700'
-                        }`}
-                      >
-                        <Text className={`text-sm font-medium ${
-                          newTaskAssignee === member.userId ? 'text-white' : 'text-slate-400'
-                        }`}>
-                          {member.user?.name || 'Unknown'}
-                        </Text>
-                      </Pressable>
-                    ))}
+                  {/* Assignee */}
+                  <View className="mb-4">
+                    <Text className="text-slate-400 text-sm font-medium mb-2">Assign To</Text>
+                    <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ flexGrow: 0 }}>
+                      <View className="flex-row gap-2">
+                        <Pressable
+                          onPress={() => setNewTaskAssignee('')}
+                          className={`px-4 py-2 rounded-xl border ${
+                            newTaskAssignee === ''
+                              ? 'bg-blue-500 border-blue-500'
+                              : 'bg-slate-800 border-slate-700'
+                          }`}
+                        >
+                          <Text className={`text-sm font-medium ${
+                            newTaskAssignee === '' ? 'text-white' : 'text-slate-400'
+                          }`}>
+                            Unassigned
+                          </Text>
+                        </Pressable>
+                        {members?.map((member) => (
+                          <Pressable
+                            key={member.userId}
+                            onPress={() => setNewTaskAssignee(member.userId)}
+                            className={`px-4 py-2 rounded-xl border ${
+                              newTaskAssignee === member.userId
+                                ? 'bg-blue-500 border-blue-500'
+                                : 'bg-slate-800 border-slate-700'
+                            }`}
+                          >
+                            <Text className={`text-sm font-medium ${
+                              newTaskAssignee === member.userId ? 'text-white' : 'text-slate-400'
+                            }`}>
+                              {member.user?.name || 'Unknown'}
+                            </Text>
+                          </Pressable>
+                        ))}
+                      </View>
+                    </ScrollView>
+                  </View>
+
+                  {/* Function */}
+                  <View className="mb-4">
+                    <Text className="text-slate-400 text-sm font-medium mb-2">Function</Text>
+                    <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ flexGrow: 0 }}>
+                      <View className="flex-row gap-2">
+                        {(['Finance', 'Sales', 'Marketing', 'Ops', 'Engineering', 'Admin'] as TaskFunction[]).map((func) => (
+                          <Pressable
+                            key={func}
+                            onPress={() => setNewTaskFunction(func)}
+                            className={`px-4 py-2 rounded-xl border ${
+                              newTaskFunction === func
+                                ? 'bg-blue-500 border-blue-500'
+                                : 'bg-slate-800 border-slate-700'
+                            }`}
+                          >
+                            <Text className={`text-sm font-medium ${
+                              newTaskFunction === func ? 'text-white' : 'text-slate-400'
+                            }`}>
+                              {func}
+                            </Text>
+                          </Pressable>
+                        ))}
+                      </View>
+                    </ScrollView>
+                  </View>
+
+                  {/* Priority */}
+                  <View className="mb-6">
+                    <Text className="text-slate-400 text-sm font-medium mb-2">Priority</Text>
+                    <View className="flex-row gap-2">
+                      {(['low', 'medium', 'high', 'urgent'] as TaskPriority[]).map((priority) => (
+                        <Pressable
+                          key={priority}
+                          onPress={() => setNewTaskPriority(priority)}
+                          className={`flex-1 px-4 py-3 rounded-xl border ${
+                            newTaskPriority === priority
+                              ? 'bg-blue-500 border-blue-500'
+                              : 'bg-slate-800 border-slate-700'
+                          }`}
+                        >
+                          <Text className={`text-sm font-medium text-center capitalize ${
+                            newTaskPriority === priority ? 'text-white' : 'text-slate-400'
+                          }`}>
+                            {priority}
+                          </Text>
+                        </Pressable>
+                      ))}
+                    </View>
                   </View>
                 </ScrollView>
-              </View>
 
-              {/* Function */}
-              <View className="mb-4">
-                <Text className="text-slate-400 text-sm font-medium mb-2">Function</Text>
-                <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ flexGrow: 0 }}>
-                  <View className="flex-row gap-2">
-                    {(['Finance', 'Sales', 'Marketing', 'Ops', 'Engineering', 'Admin'] as TaskFunction[]).map((func) => (
-                      <Pressable
-                        key={func}
-                        onPress={() => setNewTaskFunction(func)}
-                        className={`px-4 py-2 rounded-xl border ${
-                          newTaskFunction === func
-                            ? 'bg-blue-500 border-blue-500'
-                            : 'bg-slate-800 border-slate-700'
-                        }`}
-                      >
-                        <Text className={`text-sm font-medium ${
-                          newTaskFunction === func ? 'text-white' : 'text-slate-400'
-                        }`}>
-                          {func}
-                        </Text>
-                      </Pressable>
-                    ))}
-                  </View>
-                </ScrollView>
-              </View>
+                {/* Action Buttons */}
+                <View className="gap-3 mt-4">
+                  <Pressable
+                    onPress={handleCreateTask}
+                    disabled={!newTaskTitle.trim() || createTaskMutation.isPending}
+                    className={`py-4 rounded-xl items-center ${
+                      !newTaskTitle.trim() || createTaskMutation.isPending
+                        ? 'bg-slate-700'
+                        : 'bg-blue-500'
+                    } active:opacity-80`}
+                  >
+                    {createTaskMutation.isPending ? (
+                      <ActivityIndicator size="small" color="#fff" />
+                    ) : (
+                      <Text className="text-white font-bold text-base">Create Task</Text>
+                    )}
+                  </Pressable>
 
-              {/* Priority */}
-              <View className="mb-6">
-                <Text className="text-slate-400 text-sm font-medium mb-2">Priority</Text>
-                <View className="flex-row gap-2">
-                  {(['low', 'medium', 'high', 'urgent'] as TaskPriority[]).map((priority) => (
-                    <Pressable
-                      key={priority}
-                      onPress={() => setNewTaskPriority(priority)}
-                      className={`flex-1 px-4 py-3 rounded-xl border ${
-                        newTaskPriority === priority
-                          ? 'bg-blue-500 border-blue-500'
-                          : 'bg-slate-800 border-slate-700'
-                      }`}
-                    >
-                      <Text className={`text-sm font-medium text-center capitalize ${
-                        newTaskPriority === priority ? 'text-white' : 'text-slate-400'
-                      }`}>
-                        {priority}
-                      </Text>
-                    </Pressable>
-                  ))}
+                  <Pressable
+                    onPress={() => setShowCreateModal(false)}
+                    className="bg-slate-800 rounded-xl py-3 items-center active:opacity-80"
+                  >
+                    <Text className="text-slate-400 font-semibold">Cancel</Text>
+                  </Pressable>
                 </View>
               </View>
-            </ScrollView>
-
-            {/* Action Buttons */}
-            <View className="gap-3 mt-4">
-              <Pressable
-                onPress={handleCreateTask}
-                disabled={!newTaskTitle.trim() || createTaskMutation.isPending}
-                className={`py-4 rounded-xl items-center ${
-                  !newTaskTitle.trim() || createTaskMutation.isPending
-                    ? 'bg-slate-700'
-                    : 'bg-blue-500'
-                } active:opacity-80`}
-              >
-                {createTaskMutation.isPending ? (
-                  <ActivityIndicator size="small" color="#fff" />
-                ) : (
-                  <Text className="text-white font-bold text-base">Create Task</Text>
-                )}
-              </Pressable>
-
-              <Pressable
-                onPress={() => setShowCreateModal(false)}
-                className="bg-slate-800 rounded-xl py-3 items-center active:opacity-80"
-              >
-                <Text className="text-slate-400 font-semibold">Cancel</Text>
-              </Pressable>
-            </View>
-          </View>
-        </View>
+            </Pressable>
+          </Pressable>
+        </KeyboardAvoidingView>
       </Modal>
 
       {/* Time Tracking Modal */}
