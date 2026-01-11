@@ -392,10 +392,10 @@ export default function OrgDiagramScreen() {
 
       {/* Member Detail Modal */}
       <Modal visible={selectedMember !== null} transparent animationType="slide">
-        <View className="flex-1 bg-black/70">
+        <View className="flex-1 bg-black/70 justify-end">
           {selectedMember && (
-            <View className="mt-auto bg-slate-900 rounded-t-3xl" style={{ maxHeight: '80%' }}>
-              <ScrollView showsVerticalScrollIndicator={false} style={{ flex: 1 }}>
+            <View className="bg-slate-900 rounded-t-3xl" style={{ maxHeight: '80%' }}>
+              <ScrollView showsVerticalScrollIndicator={false}>
                 {/* Header */}
                 <View className="p-6 border-b border-slate-800">
                   <View className="flex-row justify-between items-start mb-4">
