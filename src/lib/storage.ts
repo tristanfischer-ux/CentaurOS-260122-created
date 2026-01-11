@@ -26,6 +26,10 @@ const STORAGE_KEYS = {
   WORKFLOW_ITEMS: 'db:workflowItems',
   SUPPLIERS: 'db:suppliers', // Platform-wide supplier network
   SUPPLIER_RECOMMENDATIONS: 'db:supplierRecommendations',
+  COMPANY_PROFILES: 'db:companyProfiles', // Platform-wide company directory
+  COMPANY_CONNECTIONS: 'db:companyConnections',
+  COMMUNITY_EVENTS: 'db:communityEvents',
+  EVENT_RSVPS: 'db:eventRSVPs',
   AUDIT_LOGS: 'db:auditLogs',
   CURRENT_WORKSPACE: 'app:currentWorkspace',
 } as const;
@@ -203,6 +207,38 @@ export const db = {
   },
   async setSupplierRecommendations(recommendations: Record<string, any>) {
     await storage.set(STORAGE_KEYS.SUPPLIER_RECOMMENDATIONS, recommendations);
+  },
+
+  // Company Profiles (platform-wide)
+  async getCompanyProfiles() {
+    return (await storage.get<Record<string, any>>(STORAGE_KEYS.COMPANY_PROFILES)) || {};
+  },
+  async setCompanyProfiles(profiles: Record<string, any>) {
+    await storage.set(STORAGE_KEYS.COMPANY_PROFILES, profiles);
+  },
+
+  // Company Connections
+  async getCompanyConnections() {
+    return (await storage.get<Record<string, any>>(STORAGE_KEYS.COMPANY_CONNECTIONS)) || {};
+  },
+  async setCompanyConnections(connections: Record<string, any>) {
+    await storage.set(STORAGE_KEYS.COMPANY_CONNECTIONS, connections);
+  },
+
+  // Community Events (platform-wide)
+  async getCommunityEvents() {
+    return (await storage.get<Record<string, any>>(STORAGE_KEYS.COMMUNITY_EVENTS)) || {};
+  },
+  async setCommunityEvents(events: Record<string, any>) {
+    await storage.set(STORAGE_KEYS.COMMUNITY_EVENTS, events);
+  },
+
+  // Event RSVPs
+  async getEventRSVPs() {
+    return (await storage.get<Record<string, any>>(STORAGE_KEYS.EVENT_RSVPS)) || {};
+  },
+  async setEventRSVPs(rsvps: Record<string, any>) {
+    await storage.set(STORAGE_KEYS.EVENT_RSVPS, rsvps);
   },
 
   // Audit Logs

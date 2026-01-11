@@ -69,6 +69,90 @@ export interface Workspace {
   name: string;
   createdAt: string;
   ownerId: string;
+  companyProfile?: CompanyProfile; // Optional public profile
+}
+
+// Company Profile (for networking and discovery)
+export interface CompanyProfile {
+  workspaceId: string;
+  companyName: string;
+  tagline?: string;
+  description?: string;
+  industry: string;
+  stage: 'idea' | 'pre-seed' | 'seed' | 'series-a' | 'series-b+' | 'revenue' | 'growth';
+  location: {
+    city: string;
+    country: string;
+    region?: string;
+  };
+  website?: string;
+  linkedIn?: string;
+  twitter?: string;
+  teamSize?: string; // '1-5', '6-10', '11-25', '26-50', '51-100', '100+'
+  productType?: 'hardware' | 'software' | 'hardware+software' | 'services' | 'other';
+  lookingFor: string[]; // e.g., 'co-founders', 'advisors', 'suppliers', 'customers', 'investors', 'partnerships'
+  tags: string[]; // e.g., 'IoT', 'Medical Devices', 'Consumer Electronics', 'Climate Tech'
+  isPublic: boolean; // Whether the profile is visible in the directory
+  visibility: 'public' | 'network-only' | 'private'; // Who can see the profile
+  updatedAt: string;
+  createdAt: string;
+}
+
+// Company Connection (between workspaces)
+export interface CompanyConnection {
+  id: string;
+  fromWorkspaceId: string;
+  toWorkspaceId: string;
+  status: 'pending' | 'accepted' | 'rejected' | 'blocked';
+  requestedBy: string; // User ID
+  requestMessage?: string;
+  respondedBy?: string; // User ID
+  responseMessage?: string;
+  connectedAt?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// Community Event (meetups, workshops, office hours)
+export interface CommunityEvent {
+  id: string;
+  title: string;
+  description: string;
+  eventType: 'meetup' | 'workshop' | 'office-hours' | 'demo-day' | 'networking' | 'social' | 'webinar';
+  organizerWorkspaceId: string;
+  organizerUserId: string;
+  startTime: string;
+  endTime: string;
+  timezone: string;
+  location: {
+    type: 'in-person' | 'virtual' | 'hybrid';
+    venue?: string;
+    address?: string;
+    city?: string;
+    country?: string;
+    virtualLink?: string;
+  };
+  capacity?: number;
+  isPublic: boolean; // Visible to all Centaur OS users or just connections
+  requiresApproval: boolean; // Whether RSVPs need organizer approval
+  tags: string[];
+  imageUrl?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// Event RSVP
+export interface EventRSVP {
+  id: string;
+  eventId: string;
+  workspaceId: string;
+  userId: string;
+  status: 'pending' | 'approved' | 'rejected' | 'confirmed' | 'cancelled';
+  attendeeCount: number; // How many people from this company
+  note?: string;
+  respondedAt?: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 // Membership
