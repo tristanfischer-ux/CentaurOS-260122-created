@@ -46,6 +46,10 @@ Centaur OS turns OKRs into work, tracks execution, enables review workflows, and
   - **Project Management**: See which team members manage which supplier relationships
   - **Delivery Timelines**: Track supplier delivery dates and project status (planning, in progress, delivered)
   - **Task Breakdown**: Detailed task lists for each supplier engagement
+  - **Interactive Map**: View all 5 supplier locations across UK on an interactive map with markers
+  - **Location Details**: See exact addresses and cities (Birmingham, Leeds, Manchester, 2x London)
+  - **Map Markers**: Tap any supplier on the map to view full engagement details
+  - **Geographic Overview**: Visual understanding of supply chain distribution across the country
   - **AI Agents Directory**: Complete catalog of 10 AI tools used across the organization
   - **AI Cost Management**: £2,169/month total AI spend tracked by agent
   - **Usage Analytics**: Monthly request counts, response times, and success rates per AI agent
@@ -87,6 +91,11 @@ Centaur OS turns OKRs into work, tracks execution, enables review workflows, and
 - **Community Events** - Schedule and RSVP to cross-company meetups, workshops, and networking events
 - **Weekly Pack Generator** - One-click generation of status reports with OKR progress
 - **AI Copilot (Stub Mode)** - Chat interface with deterministic AI that proposes actions (human approval required)
+  - **Status**: Currently in stub mode with hardcoded responses (not using real LLM)
+  - **Capabilities**: Can answer questions about business state, suggest role-specific actions, draft weekly packs, identify risks
+  - **Action Proposals**: Proposes tasks to create with human approval gates before execution
+  - **Limitations**: Deterministic responses, not context-aware, limited intelligence compared to real AI
+  - **Future**: Ready to switch to API mode with real LLM (Claude/GPT-4) when needed
 - **Templates Library** - Pre-built task templates by function (Finance, Sales, Marketing, Ops, Engineering)
 - **Dark/Light Mode** - Full theme support with system preference option
 - **Audit Logging** - Full audit trail of all actions across the workspace

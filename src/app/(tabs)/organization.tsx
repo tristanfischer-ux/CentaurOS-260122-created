@@ -17,7 +17,10 @@ import {
   ChevronDown,
   ChevronRight,
   Sparkles,
+  MapPin,
+  Map,
 } from 'lucide-react-native';
+import MapView, { Marker, PROVIDER_DEFAULT } from 'react-native-maps';
 import { useCurrentWorkspace, useCurrentMembership } from '@/lib/state/app-store';
 import {
   ORGANIZATION_MEMBERS,
@@ -41,6 +44,7 @@ export default function OrganizationScreen() {
   const [selectedSupplier, setSelectedSupplier] = useState<SupplierEngagement | null>(null);
   const [selectedAI, setSelectedAI] = useState<AIAgent | null>(null);
   const [expandedExecs, setExpandedExecs] = useState<string[]>([]);
+  const [showMap, setShowMap] = useState(false);
 
   // Only founders can view this
   const canView = currentMembership?.role === 'Founder';
@@ -266,6 +270,18 @@ export default function OrganizationScreen() {
                 </Text>
               </View>
             </View>
+
+            {/* Map View Button */}
+            <Pressable
+              onPress={() => setShowMap(true)}
+              className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl p-4 mb-4 flex-row items-center justify-between active:opacity-80"
+            >
+              <View className="flex-row items-center gap-2">
+                <Map size={20} color="#fff" />
+                <Text className="text-white font-semibold">View Supplier Locations</Text>
+              </View>
+              <ChevronRight size={20} color="#fff" />
+            </Pressable>
 
             <Text className="text-white text-base font-semibold mb-3">
               Active Engagements ({SUPPLIER_ENGAGEMENTS.length})
@@ -775,6 +791,79 @@ export default function OrganizationScreen() {
                 </ScrollView>
               </>
             )}
+          </View>
+        </View>
+      </Modal>
+
+      {/* Supplier Map Modal */}
+      <Modal visible={showMap} transparent animationType="slide">
+        <View className="flex-1 bg-slate-950">
+          {/* Map Header */}
+          <View className="p-6 pb-4 border-b border-slate-800">
+            <View className="flex-row items-center justify-between">
+              <View>
+                <Text className="text-white text-xl font-bold mb-1">Supplier Locations</Text>
+                <Text className="text-slate-400 text-sm">{SUPPLIER_ENGAGEMENTS.length} active engagements across UK</Text>
+              </View>
+              <Pressable onPress={() => setShowMap(false)} className="w-10 h-10 items-center justify-center">
+                <X size={24} color="#94a3b8" />
+              </Pressable>
+            </View>
+          </View>
+
+          {/* Map View */}
+          <MapView
+            provider={PROVIDER_DEFAULT}
+            style={{ flex: 1 }}
+            initialRegion={{
+              latitude: 52.5,
+              longitude: -1.5,
+              latitudeDelta: 4,
+              longitudeDelta: 4,
+            }}
+          >
+            {SUPPLIER_ENGAGEMENTS.map(engagement => (
+              <Marker
+                key={engagement.id}
+                coordinate={{
+                  latitude: engagement.location.latitude,
+                  longitude: engagement.location.longitude,
+                }}
+                title={engagement.supplierName}
+                description={`${engagement.projectName} - £${(engagement.totalCost / 1000).toFixed(0)}k`}
+                onCalloutPress={() => {
+                  setShowMap(false);
+                  setSelectedSupplier(engagement);
+                }}
+              >
+                <View className="bg-blue-500 w-10 h-10 rounded-full items-center justify-center border-2 border-white">
+                  <Package size={20} color="white" />
+                </View>
+              </Marker>
+            ))}
+          </MapView>
+
+          {/* Map Legend */}
+          <View className="absolute bottom-6 left-6 right-6 bg-slate-900/95 rounded-2xl p-4 border border-slate-800">
+            <Text className="text-white font-semibold mb-2">Locations</Text>
+            {SUPPLIER_ENGAGEMENTS.map((engagement, idx) => (
+              <Pressable
+                key={engagement.id}
+                onPress={() => {
+                  setShowMap(false);
+                  setSelectedSupplier(engagement);
+                }}
+                className="flex-row items-center justify-between py-2 active:opacity-70"
+              >
+                <View className="flex-row items-center flex-1">
+                  <View className="w-2 h-2 bg-blue-500 rounded-full mr-2" />
+                  <Text className="text-white text-sm flex-1" numberOfLines={1}>
+                    {engagement.supplierName}
+                  </Text>
+                </View>
+                <Text className="text-slate-400 text-xs">{engagement.location.city}</Text>
+              </Pressable>
+            ))}
           </View>
         </View>
       </Modal>

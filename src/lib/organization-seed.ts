@@ -32,6 +32,12 @@ export interface SupplierEngagement {
   contactEmail: string;
   contactPhone: string;
   notes?: string;
+  location: {
+    city: string;
+    address: string;
+    latitude: number;
+    longitude: number;
+  };
 }
 
 export interface AIAgent {
@@ -248,6 +254,12 @@ export const SUPPLIER_ENGAGEMENTS: SupplierEngagement[] = [
     contactEmail: 'john.smith@precisioncomponents.co.uk',
     contactPhone: '+44 1234 567890',
     notes: 'On track for delivery. Prototypes approved, moving to full production.',
+    location: {
+      city: 'Birmingham',
+      address: 'Birmingham Business Park, B37 7YE',
+      latitude: 52.4862,
+      longitude: -1.8904,
+    },
   },
   {
     id: 'eng-2',
@@ -272,6 +284,12 @@ export const SUPPLIER_ENGAGEMENTS: SupplierEngagement[] = [
     contactEmail: 'emily@ukplastics.co.uk',
     contactPhone: '+44 1234 567891',
     notes: 'Molds completed. Waiting on color approval from design team.',
+    location: {
+      city: 'Leeds',
+      address: 'West Yorkshire Trading Estate, LS12 6HH',
+      latitude: 53.7997,
+      longitude: -1.5492,
+    },
   },
   {
     id: 'eng-3',
@@ -296,6 +314,12 @@ export const SUPPLIER_ENGAGEMENTS: SupplierEngagement[] = [
     contactEmail: 'robert@manchestermetalworks.co.uk',
     contactPhone: '+44 161 234 5678',
     notes: 'Delivered on time. Quality excellent. Approved for future orders.',
+    location: {
+      city: 'Manchester',
+      address: 'Trafford Park Industrial Estate, M17 1SN',
+      latitude: 53.4668,
+      longitude: -2.3084,
+    },
   },
   {
     id: 'eng-4',
@@ -321,6 +345,12 @@ export const SUPPLIER_ENGAGEMENTS: SupplierEngagement[] = [
     contactEmail: 'catherine@britishassembly.co.uk',
     contactPhone: '+44 20 7946 0958',
     notes: 'Waiting for PCB and housing delivery before starting.',
+    location: {
+      city: 'London',
+      address: 'Park Royal Business Centre, NW10 7XP',
+      latitude: 51.5319,
+      longitude: -0.2893,
+    },
   },
   {
     id: 'eng-5',
@@ -345,6 +375,12 @@ export const SUPPLIER_ENGAGEMENTS: SupplierEngagement[] = [
     contactEmail: 'david@londonlogistics.co.uk',
     contactPhone: '+44 20 7946 0959',
     notes: 'Ongoing monthly contract. First shipments scheduled for Feb 2025.',
+    location: {
+      city: 'London',
+      address: 'Docklands Logistics Park, E16 2EZ',
+      latitude: 51.5074,
+      longitude: 0.0278,
+    },
   },
 ];
 
