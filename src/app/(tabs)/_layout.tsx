@@ -4,6 +4,7 @@ import { Home, Target, Briefcase, CheckCircle, Settings, Network, Users, Buildin
 import { useColorScheme } from '@/lib/useColorScheme';
 import { useIsAuthenticated, useCurrentWorkspace, useAppStore } from '@/lib/state/app-store';
 
+// Tab navigation layout
 function TabBarIcon(props: { Icon: any; color: string }) {
   const { Icon, color } = props;
   return <Icon size={24} color={color} strokeWidth={2} />;
