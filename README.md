@@ -19,6 +19,16 @@ Centaur OS turns OKRs into work, tracks execution, enables review workflows, and
 
 - **Multi-Tenant Workspaces** - Users can belong to multiple workspaces with role-based access
 - **Role-Based Dashboards** - Customized views for Founders, Apprentices, and Fractional Execs
+- **Team Directory** - Comprehensive team management and contact center
+  - **13 Team Members**: 2 Founders, 4 Fractional Executives, 7 Apprentices
+  - **Full Contact Information**: Direct email and phone access for every team member
+  - **Professional Profiles**: Experience, ratings, skills, specializations, availability, join dates
+  - **Location Details**: Physical location for each team member (London, Manchester, Edinburgh, etc.)
+  - **Task Performance Metrics**: View active and completed task counts per member
+  - **Direct Task Assignment**: Assign tasks to team members directly from their profile (Founders/Execs only)
+  - **One-Click Communication**: Email or call team members with single tap
+  - **Role-Based Filtering**: Filter by Founders, Executives, or Apprentices
+  - **Detailed Profiles**: Bio, skills, work history, and performance stats for each member
 - **Team Hiring System (Founder-Only)** - Browse and hire talent to build your team
   - **20 Fractional Executives**: Senior leaders in Sales, Marketing, Finance, Engineering, and Operations
   - **20 Apprentices**: Junior talent eager to learn and execute across all business functions
