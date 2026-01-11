@@ -24,6 +24,8 @@ const STORAGE_KEYS = {
   WEEKLY_PACKS: 'db:weeklyPacks',
   TEMPLATES: 'db:templates',
   WORKFLOW_ITEMS: 'db:workflowItems',
+  SUPPLIERS: 'db:suppliers', // Platform-wide supplier network
+  SUPPLIER_RECOMMENDATIONS: 'db:supplierRecommendations',
   AUDIT_LOGS: 'db:auditLogs',
   CURRENT_WORKSPACE: 'app:currentWorkspace',
 } as const;
@@ -185,6 +187,22 @@ export const db = {
   },
   async setWorkflowItems(items: Record<string, any>) {
     await storage.set(STORAGE_KEYS.WORKFLOW_ITEMS, items);
+  },
+
+  // Suppliers (platform-wide)
+  async getSuppliers() {
+    return (await storage.get<Record<string, any>>(STORAGE_KEYS.SUPPLIERS)) || {};
+  },
+  async setSuppliers(suppliers: Record<string, any>) {
+    await storage.set(STORAGE_KEYS.SUPPLIERS, suppliers);
+  },
+
+  // Supplier Recommendations
+  async getSupplierRecommendations() {
+    return (await storage.get<Record<string, any>>(STORAGE_KEYS.SUPPLIER_RECOMMENDATIONS)) || {};
+  },
+  async setSupplierRecommendations(recommendations: Record<string, any>) {
+    await storage.set(STORAGE_KEYS.SUPPLIER_RECOMMENDATIONS, recommendations);
   },
 
   // Audit Logs

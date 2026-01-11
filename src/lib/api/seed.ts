@@ -8,12 +8,19 @@ import {
   keyResultApi,
 } from './index';
 import { projectApi, taskApi, templateApi } from './operations';
+import { createSuppliersSeedData } from '../suppliers-seed';
+import { db } from '../storage';
 import type { User, Workspace } from '@/types';
 
 export async function seedDemoData() {
   console.log('🌱 Seeding demo data...');
 
   try {
+    // Seed platform-wide suppliers first (shared across all workspaces)
+    const suppliers = createSuppliersSeedData();
+    await db.setSuppliers(suppliers);
+    console.log(`✅ Seeded ${Object.keys(suppliers).length} UK manufacturing suppliers`);
+
     // 1. Create users
     const founder = await userApi.create({
       email: 'founder@fractional.com',

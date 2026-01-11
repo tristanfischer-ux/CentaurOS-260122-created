@@ -10,6 +10,47 @@ export type KRHealthStatus = 'on_track' | 'at_risk' | 'off_track';
 export type ThemeMode = 'light' | 'dark' | 'system';
 export type WorkflowItemStatus = 'suggested' | 'allocated' | 'structured' | 'assigned' | 'in_progress' | 'submitted' | 'verified' | 'completed';
 
+// Manufacturing capabilities
+export type ManufacturingCapability =
+  | 'Additive Manufacturing - Plastic'
+  | 'Additive Manufacturing - Metal'
+  | 'EPS Molding'
+  | 'EPP Molding'
+  | 'Heat Chest Molding'
+  | 'Injection Molding'
+  | 'Blow Molding'
+  | 'Rotational Molding'
+  | 'Vacuum Forming'
+  | 'Laser Cutting'
+  | 'CNC Machining'
+  | 'Waterjet Cutting'
+  | 'Sheet Metal Fabrication'
+  | 'Welding & Assembly'
+  | 'Wire Harness Assembly'
+  | 'PCB Assembly'
+  | 'Electronic Assembly'
+  | 'Cable Assembly'
+  | 'Powder Coating'
+  | 'Anodizing'
+  | 'Screen Printing'
+  | 'Pad Printing'
+  | 'Die Casting'
+  | 'Investment Casting'
+  | 'Extrusion'
+  | 'Compression Molding'
+  | 'Overmolding'
+  | 'Insert Molding'
+  | 'Ultrasonic Welding'
+  | 'Heat Staking'
+  | 'Final Assembly & Packaging'
+  | 'Quality Control & Testing'
+  | 'Certification Support'
+  | 'Design for Manufacturing';
+
+export type SupplierStatus = 'pending_approval' | 'approved' | 'verified' | 'suspended' | 'rejected';
+
+export type SupplierRegion = 'UK' | 'EU' | 'North America' | 'Asia' | 'Global';
+
 // User
 export interface User {
   id: string;
@@ -267,6 +308,69 @@ export interface WorkflowTemplate {
   }>;
   isSystem: boolean;
   createdBy?: string;
+  createdAt: string;
+}
+
+// Supplier (shared across all workspaces on the platform)
+export interface Supplier {
+  id: string;
+  name: string;
+  description: string;
+  capabilities: ManufacturingCapability[];
+  region: SupplierRegion;
+  location: {
+    city: string;
+    country: string;
+    postcode?: string;
+  };
+  contact: {
+    email: string;
+    phone?: string;
+    website?: string;
+    contactName?: string;
+  };
+  certifications: string[]; // e.g., "ISO 9001", "ISO 13485"
+  minimumOrderQuantity?: number;
+  leadTimeWeeks?: number;
+  status: SupplierStatus;
+  rating?: number; // 1-5 stars
+  reviewCount?: number;
+  recommendedByWorkspaceIds: string[]; // Which workspaces recommended this supplier
+  approvedByAdminAt?: string;
+  createdAt: string;
+  updatedAt: string;
+  metadata?: {
+    notes?: string;
+    yearEstablished?: number;
+    employeeCount?: string;
+    priceRange?: 'budget' | 'mid-range' | 'premium';
+  };
+}
+
+// Supplier Recommendation (when someone suggests a new supplier)
+export interface SupplierRecommendation {
+  id: string;
+  supplierId?: string; // If recommending existing supplier for new capability
+  workspaceId: string;
+  recommendedBy: string; // User ID
+  supplierName: string;
+  description: string;
+  capabilities: ManufacturingCapability[];
+  region: SupplierRegion;
+  location: {
+    city: string;
+    country: string;
+  };
+  contact: {
+    email: string;
+    phone?: string;
+    website?: string;
+  };
+  rationale: string; // Why they're recommending this supplier
+  status: 'pending' | 'approved' | 'rejected';
+  reviewedBy?: string; // Admin/Executive who reviewed
+  reviewedAt?: string;
+  reviewNotes?: string;
   createdAt: string;
 }
 
