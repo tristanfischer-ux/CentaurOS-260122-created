@@ -1,5 +1,6 @@
-import { View, Text, ScrollView, Pressable, ActivityIndicator } from 'react-native';
+import { View, Text, ScrollView, Pressable, ActivityIndicator, Modal, TextInput, Alert } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useState } from 'react';
 import {
   CheckCircle2,
   Clock,
@@ -10,10 +11,19 @@ import {
   BarChart3,
   PieChart,
   Calendar,
+  DollarSign,
+  TrendingUp,
+  TrendingDown,
+  Users,
+  Bot,
+  Package,
+  Settings,
+  X,
 } from 'lucide-react-native';
 import { useCurrentWorkspace, useCurrentMembership, useCurrentUser } from '@/lib/state/app-store';
 import { useDashboardStats } from '@/lib/hooks/queries';
 import { router } from 'expo-router';
+import { CURRENT_FINANCIALS, DEFAULT_BUDGET, calculateFinancialRatios, calculateBudgetVariance, FINANCIAL_HISTORY, type BudgetTargets } from '@/lib/financial-seed';
 
 export default function HomeScreen() {
   const currentWorkspace = useCurrentWorkspace();
@@ -21,6 +31,15 @@ export default function HomeScreen() {
   const currentUser = useCurrentUser();
 
   const { data: stats, isLoading } = useDashboardStats(currentWorkspace?.id ?? null);
+
+  // Financial dashboard state
+  const [showBudgetModal, setShowBudgetModal] = useState(false);
+  const [budget, setBudget] = useState<BudgetTargets>(DEFAULT_BUDGET);
+  const [editingBudget, setEditingBudget] = useState<BudgetTargets>(DEFAULT_BUDGET);
+
+  const financials = CURRENT_FINANCIALS;
+  const ratios = calculateFinancialRatios(financials);
+  const variance = calculateBudgetVariance(financials, budget);
 
   if (isLoading) {
     return (
@@ -66,6 +85,315 @@ export default function HomeScreen() {
           ))}
         </View>
       </View>
+
+      {/* Financial Dashboard - Founders Only */}
+      {role === 'Founder' && (
+        <View className="px-6 pb-4">
+          <View className="flex-row items-center justify-between mb-3">
+            <Text className="text-white text-lg font-semibold">Financial Dashboard</Text>
+            <Pressable
+              onPress={() => {
+                setEditingBudget(budget);
+                setShowBudgetModal(true);
+              }}
+              className="active:opacity-70"
+            >
+              <View className="flex-row items-center gap-1">
+                <Settings size={16} color="#3b82f6" />
+                <Text className="text-blue-500 text-sm">Budget</Text>
+              </View>
+            </Pressable>
+          </View>
+
+          {/* Key Metrics Grid */}
+          <View className="flex-row flex-wrap gap-3 mb-3">
+            {/* Revenue Card */}
+            <View className="bg-slate-900 rounded-2xl p-4 border border-slate-800" style={{ width: '48%' }}>
+              <View className="flex-row items-center gap-2 mb-2">
+                <DollarSign size={20} color="#10b981" />
+                <Text className="text-slate-400 text-xs">Revenue</Text>
+              </View>
+              <Text className="text-white text-2xl font-bold">£{(financials.revenue.total / 1000).toFixed(0)}k</Text>
+              <View className="flex-row items-center gap-1 mt-1">
+                <TrendingUp size={14} color="#10b981" />
+                <Text className="text-emerald-400 text-xs">+{financials.revenue.growth}%</Text>
+              </View>
+            </View>
+
+            {/* Gross Profit Card */}
+            <View className="bg-slate-900 rounded-2xl p-4 border border-slate-800" style={{ width: '48%' }}>
+              <View className="flex-row items-center gap-2 mb-2">
+                <TrendingUp size={20} color="#3b82f6" />
+                <Text className="text-slate-400 text-xs">Gross Profit</Text>
+              </View>
+              <Text className="text-white text-2xl font-bold">£{(ratios.grossProfit / 1000).toFixed(0)}k</Text>
+              <Text className="text-slate-500 text-xs mt-1">{ratios.grossMargin.toFixed(1)}% margin</Text>
+            </View>
+
+            {/* Burn Rate Card */}
+            <View className="bg-slate-900 rounded-2xl p-4 border border-slate-800" style={{ width: '48%' }}>
+              <View className="flex-row items-center gap-2 mb-2">
+                <TrendingDown size={20} color="#ef4444" />
+                <Text className="text-slate-400 text-xs">Monthly Burn</Text>
+              </View>
+              <Text className="text-white text-2xl font-bold">£{(financials.burnRate / 1000).toFixed(0)}k</Text>
+              <Text className="text-slate-500 text-xs mt-1">
+                {variance.burnRate.variance > 0 ? '+' : ''}{((variance.burnRate.variance / 1000)).toFixed(1)}k vs budget
+              </Text>
+            </View>
+
+            {/* Runway Card */}
+            <View className="bg-slate-900 rounded-2xl p-4 border border-slate-800" style={{ width: '48%' }}>
+              <View className="flex-row items-center gap-2 mb-2">
+                <Calendar size={20} color="#f59e0b" />
+                <Text className="text-slate-400 text-xs">Runway</Text>
+              </View>
+              <Text className="text-white text-2xl font-bold">{financials.runway.toFixed(1)}</Text>
+              <Text className="text-slate-500 text-xs mt-1">months</Text>
+            </View>
+          </View>
+
+          {/* Cost Breakdown */}
+          <View className="bg-slate-900 rounded-2xl p-4 border border-slate-800 mb-3">
+            <Text className="text-white font-semibold mb-3">Cost Breakdown</Text>
+
+            {/* COGS */}
+            <View className="mb-3">
+              <View className="flex-row items-center justify-between mb-1">
+                <View className="flex-row items-center gap-2">
+                  <Package size={16} color="#8b5cf6" />
+                  <Text className="text-slate-300 text-sm">COGS</Text>
+                </View>
+                <Text className="text-white font-semibold">£{(financials.cogs.total / 1000).toFixed(1)}k</Text>
+              </View>
+              <View className="bg-slate-800 h-2 rounded-full overflow-hidden">
+                <View
+                  className="bg-purple-500 h-full rounded-full"
+                  style={{ width: `${(financials.cogs.total / financials.burnRate) * 100}%` }}
+                />
+              </View>
+              <Text className="text-slate-500 text-xs mt-1">
+                {((financials.cogs.total / financials.burnRate) * 100).toFixed(1)}% of burn
+              </Text>
+            </View>
+
+            {/* Team Costs */}
+            <View className="mb-3">
+              <View className="flex-row items-center justify-between mb-1">
+                <View className="flex-row items-center gap-2">
+                  <Users size={16} color="#3b82f6" />
+                  <Text className="text-slate-300 text-sm">Team</Text>
+                </View>
+                <Text className="text-white font-semibold">£{(financials.teamCosts.total / 1000).toFixed(1)}k</Text>
+              </View>
+              <View className="bg-slate-800 h-2 rounded-full overflow-hidden">
+                <View
+                  className="bg-blue-500 h-full rounded-full"
+                  style={{ width: `${ratios.teamBurnPercentage}%` }}
+                />
+              </View>
+              <Text className="text-slate-500 text-xs mt-1">
+                {ratios.teamBurnPercentage.toFixed(1)}% of burn • {financials.teamCosts.headcount.fractionalExecs} execs, {financials.teamCosts.headcount.apprentices} apprentices
+              </Text>
+            </View>
+
+            {/* AI Costs */}
+            <View className="mb-3">
+              <View className="flex-row items-center justify-between mb-1">
+                <View className="flex-row items-center gap-2">
+                  <Bot size={16} color="#10b981" />
+                  <Text className="text-slate-300 text-sm">AI Services</Text>
+                </View>
+                <Text className="text-white font-semibold">£{(financials.aiCosts.total / 1000).toFixed(1)}k</Text>
+              </View>
+              <View className="bg-slate-800 h-2 rounded-full overflow-hidden">
+                <View
+                  className="bg-emerald-500 h-full rounded-full"
+                  style={{ width: `${ratios.aiBurnPercentage}%` }}
+                />
+              </View>
+              <Text className="text-slate-500 text-xs mt-1">
+                {ratios.aiBurnPercentage.toFixed(1)}% of burn
+              </Text>
+            </View>
+
+            {/* Other Costs */}
+            <View>
+              <View className="flex-row items-center justify-between mb-1">
+                <View className="flex-row items-center gap-2">
+                  <Briefcase size={16} color="#f59e0b" />
+                  <Text className="text-slate-300 text-sm">Other</Text>
+                </View>
+                <Text className="text-white font-semibold">£{(financials.otherCosts.total / 1000).toFixed(1)}k</Text>
+              </View>
+              <View className="bg-slate-800 h-2 rounded-full overflow-hidden">
+                <View
+                  className="bg-amber-500 h-full rounded-full"
+                  style={{ width: `${(financials.otherCosts.total / financials.burnRate) * 100}%` }}
+                />
+              </View>
+              <Text className="text-slate-500 text-xs mt-1">
+                {((financials.otherCosts.total / financials.burnRate) * 100).toFixed(1)}% of burn
+              </Text>
+            </View>
+          </View>
+
+          {/* Net Profit/Loss */}
+          <View className="bg-slate-900 rounded-2xl p-4 border border-slate-800">
+            <View className="flex-row items-center justify-between">
+              <Text className="text-slate-400 text-sm">Net Profit/Loss</Text>
+              <View className="flex-row items-center gap-2">
+                <Text className={`text-xl font-bold ${ratios.netProfit >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                  £{(ratios.netProfit / 1000).toFixed(1)}k
+                </Text>
+                {ratios.netProfit >= 0 ? (
+                  <TrendingUp size={20} color="#10b981" />
+                ) : (
+                  <TrendingDown size={20} color="#ef4444" />
+                )}
+              </View>
+            </View>
+            <Text className="text-slate-500 text-xs mt-1">
+              {ratios.netMargin.toFixed(1)}% net margin
+            </Text>
+          </View>
+        </View>
+      )}
+
+      {/* Budget Setting Modal */}
+      <Modal visible={showBudgetModal} transparent animationType="slide">
+        <View className="flex-1 bg-black/50 justify-end">
+          <View className="bg-slate-900 rounded-t-3xl" style={{ maxHeight: '90%' }}>
+            <View className="flex-row items-center justify-between p-6 pb-4 border-b border-slate-800">
+              <Text className="text-white text-xl font-bold">Budget Targets</Text>
+              <Pressable onPress={() => setShowBudgetModal(false)} className="active:opacity-70">
+                <X size={24} color="#64748b" />
+              </Pressable>
+            </View>
+
+            <ScrollView style={{ flex: 1 }} className="px-6 py-4" showsVerticalScrollIndicator={false}>
+              {/* Monthly Revenue Target */}
+              <View className="mb-4">
+                <Text className="text-slate-400 text-sm mb-2">Monthly Revenue Target</Text>
+                <View className="flex-row items-center bg-slate-800 rounded-xl px-4 py-3">
+                  <Text className="text-white mr-2">£</Text>
+                  <TextInput
+                    value={editingBudget.monthlyRevenue.toString()}
+                    onChangeText={(text) => setEditingBudget({ ...editingBudget, monthlyRevenue: parseInt(text) || 0 })}
+                    keyboardType="numeric"
+                    placeholder="50000"
+                    placeholderTextColor="#64748b"
+                    className="text-white flex-1"
+                  />
+                </View>
+              </View>
+
+              {/* Max Team Cost */}
+              <View className="mb-4">
+                <Text className="text-slate-400 text-sm mb-2">Max Team Cost</Text>
+                <View className="flex-row items-center bg-slate-800 rounded-xl px-4 py-3">
+                  <Text className="text-white mr-2">£</Text>
+                  <TextInput
+                    value={editingBudget.maxTeamCost.toString()}
+                    onChangeText={(text) => setEditingBudget({ ...editingBudget, maxTeamCost: parseInt(text) || 0 })}
+                    keyboardType="numeric"
+                    placeholder="30000"
+                    placeholderTextColor="#64748b"
+                    className="text-white flex-1"
+                  />
+                </View>
+              </View>
+
+              {/* Max AI Cost */}
+              <View className="mb-4">
+                <Text className="text-slate-400 text-sm mb-2">Max AI Cost</Text>
+                <View className="flex-row items-center bg-slate-800 rounded-xl px-4 py-3">
+                  <Text className="text-white mr-2">£</Text>
+                  <TextInput
+                    value={editingBudget.maxAICost.toString()}
+                    onChangeText={(text) => setEditingBudget({ ...editingBudget, maxAICost: parseInt(text) || 0 })}
+                    keyboardType="numeric"
+                    placeholder="2500"
+                    placeholderTextColor="#64748b"
+                    className="text-white flex-1"
+                  />
+                </View>
+              </View>
+
+              {/* Max COGS */}
+              <View className="mb-4">
+                <Text className="text-slate-400 text-sm mb-2">Max COGS</Text>
+                <View className="flex-row items-center bg-slate-800 rounded-xl px-4 py-3">
+                  <Text className="text-white mr-2">£</Text>
+                  <TextInput
+                    value={editingBudget.maxCOGS.toString()}
+                    onChangeText={(text) => setEditingBudget({ ...editingBudget, maxCOGS: parseInt(text) || 0 })}
+                    keyboardType="numeric"
+                    placeholder="20000"
+                    placeholderTextColor="#64748b"
+                    className="text-white flex-1"
+                  />
+                </View>
+              </View>
+
+              {/* Max Other Costs */}
+              <View className="mb-4">
+                <Text className="text-slate-400 text-sm mb-2">Max Other Costs</Text>
+                <View className="flex-row items-center bg-slate-800 rounded-xl px-4 py-3">
+                  <Text className="text-white mr-2">£</Text>
+                  <TextInput
+                    value={editingBudget.maxOtherCosts.toString()}
+                    onChangeText={(text) => setEditingBudget({ ...editingBudget, maxOtherCosts: parseInt(text) || 0 })}
+                    keyboardType="numeric"
+                    placeholder="9000"
+                    placeholderTextColor="#64748b"
+                    className="text-white flex-1"
+                  />
+                </View>
+              </View>
+
+              {/* Target Burn Rate */}
+              <View className="mb-6">
+                <Text className="text-slate-400 text-sm mb-2">Target Burn Rate</Text>
+                <View className="flex-row items-center bg-slate-800 rounded-xl px-4 py-3">
+                  <Text className="text-white mr-2">£</Text>
+                  <TextInput
+                    value={editingBudget.targetBurnRate.toString()}
+                    onChangeText={(text) => setEditingBudget({ ...editingBudget, targetBurnRate: parseInt(text) || 0 })}
+                    keyboardType="numeric"
+                    placeholder="60000"
+                    placeholderTextColor="#64748b"
+                    className="text-white flex-1"
+                  />
+                </View>
+              </View>
+
+              {/* Save Button */}
+              <Pressable
+                onPress={() => {
+                  setBudget(editingBudget);
+                  setShowBudgetModal(false);
+                  Alert.alert('Success', 'Budget targets updated successfully!');
+                }}
+                className="active:opacity-80"
+              >
+                <LinearGradient
+                  colors={['#2563eb', '#3b82f6']}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 0 }}
+                  style={{
+                    borderRadius: 16,
+                    padding: 16,
+                    alignItems: 'center',
+                  }}
+                >
+                  <Text className="text-white font-bold text-base">Save Budget</Text>
+                </LinearGradient>
+              </Pressable>
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
 
       {/* Reports Section */}
       <View className="px-6 pb-4">

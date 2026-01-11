@@ -19,6 +19,19 @@ Centaur OS turns OKRs into work, tracks execution, enables review workflows, and
 
 - **Multi-Tenant Workspaces** - Users can belong to multiple workspaces with role-based access
 - **Role-Based Dashboards** - Customized views for Founders, Apprentices, and Fractional Execs
+- **Financial Dashboard (Founder-Only)** - Comprehensive financial tracking and budget management
+  - **Key Metrics**: Revenue, Gross Profit, Monthly Burn Rate, Runway displayed prominently
+  - **Revenue Tracking**: £45k current revenue with 15.5% growth, broken down by product sales, services, and recurring
+  - **Cost Breakdown**: Separate tracking for COGS (manufacturing), Team Costs (people), AI Costs, and Other operating expenses
+  - **Burn Rate Analysis**: £57.7k monthly burn with detailed percentage breakdowns showing Team (49.5%), COGS (32.0%), AI (3.8%), Other (14.7%)
+  - **Team Cost Detail**: £28.6k for 4 fractional execs and 7 apprentices with headcount tracking
+  - **AI Cost Tracking**: £2.2k monthly AI spend broken down by provider (OpenAI, Anthropic, Google, ElevenLabs)
+  - **Profitability Metrics**: Gross margin (58.9%), net margin (-28.3%), and profit/loss calculations
+  - **Cash Management**: £600k cash balance with 10.4 months runway
+  - **Budget Setting**: Interactive modal to set targets for revenue, costs, and burn rate
+  - **Budget Variance**: Real-time comparison of actual vs budget with variance percentages
+  - **Visual Indicators**: Progress bars showing each cost category as percentage of total burn
+  - **Board Pack Integration**: Financial metrics automatically included in board pack exports
 - **Team Directory** - Comprehensive team management with real workspace members
   - **Live Workspace Members**: Displays actual workspace members from database (not mock data)
   - **Task Assignment Fixed**: Assign tasks using real user IDs that work with the database
@@ -89,6 +102,8 @@ Centaur OS turns OKRs into work, tracks execution, enables review workflows, and
   - **Executive Reports**: Function-specific performance summary with highlighted metrics
   - **Apprentice Reports**: Individual work summary with achievements and recent tasks
   - **Board Pack Export**: One-click markdown export ready for board presentations (Founder-only)
+  - **Financial Metrics in Board Pack**: Complete financial overview including revenue, costs, burn rate, and cash position
+  - **Financial CSV Export**: Detailed financial data in CSV format with revenue breakdown, team headcount, and cost structure
   - **Auto-generation**: Reports generate automatically when accessed from home screen
   - **Multiple Export Formats**: Markdown (board-ready), CSV (analysis), JSON (integration)
   - **Professional Design**: Clean slate color palette, bold typography, proper visual hierarchy

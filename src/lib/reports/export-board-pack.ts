@@ -4,6 +4,7 @@
 import * as FileSystem from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
 import type { Report, FounderReportData } from '@/types';
+import { CURRENT_FINANCIALS, calculateFinancialRatios } from '@/lib/financial-seed';
 
 // Format founder report as markdown for board pack
 export function formatFounderReportAsMarkdown(report: Report): string {
@@ -31,6 +32,45 @@ export function formatFounderReportAsMarkdown(report: Report): string {
   markdown += `**Workflow Progress**\n`;
   markdown += `- Active Items: ${data.overview.activeWorkflowItems}\n`;
   markdown += `- Completed Items: ${data.overview.completedWorkflowItems}\n\n`;
+
+  // Financial Overview
+  const financials = CURRENT_FINANCIALS;
+  const ratios = calculateFinancialRatios(financials);
+
+  markdown += `## Financial Overview\n\n`;
+  markdown += `**Revenue & Profitability (${financials.currentMonth})**\n`;
+  markdown += `- Revenue: £${(financials.revenue.total / 1000).toFixed(1)}k (${financials.revenue.growth > 0 ? '+' : ''}${financials.revenue.growth}% growth)\n`;
+  markdown += `- Gross Profit: £${(ratios.grossProfit / 1000).toFixed(1)}k (${ratios.grossMargin.toFixed(1)}% margin)\n`;
+  markdown += `- Net Profit/Loss: £${(ratios.netProfit / 1000).toFixed(1)}k (${ratios.netMargin.toFixed(1)}% margin)\n\n`;
+
+  markdown += `**Revenue Breakdown**\n`;
+  markdown += `- Product Sales: £${(financials.revenue.breakdown.productSales / 1000).toFixed(1)}k\n`;
+  markdown += `- Services: £${(financials.revenue.breakdown.services / 1000).toFixed(1)}k\n`;
+  markdown += `- Recurring: £${(financials.revenue.breakdown.recurring / 1000).toFixed(1)}k\n\n`;
+
+  markdown += `**Cost Structure**\n`;
+  markdown += `- COGS: £${(financials.cogs.total / 1000).toFixed(1)}k (${((financials.cogs.total / financials.burnRate) * 100).toFixed(1)}% of burn)\n`;
+  markdown += `  - Materials: £${(financials.cogs.breakdown.materials / 1000).toFixed(1)}k\n`;
+  markdown += `  - Manufacturing: £${(financials.cogs.breakdown.manufacturing / 1000).toFixed(1)}k\n`;
+  markdown += `  - Shipping: £${(financials.cogs.breakdown.shipping / 1000).toFixed(1)}k\n`;
+  markdown += `- Team Costs: £${(financials.teamCosts.total / 1000).toFixed(1)}k (${ratios.teamBurnPercentage.toFixed(1)}% of burn)\n`;
+  markdown += `  - Fractional Execs (${financials.teamCosts.headcount.fractionalExecs}): £${(financials.teamCosts.breakdown.fractionalExecs / 1000).toFixed(1)}k\n`;
+  markdown += `  - Apprentices (${financials.teamCosts.headcount.apprentices}): £${(financials.teamCosts.breakdown.apprentices / 1000).toFixed(1)}k\n`;
+  markdown += `- AI Services: £${(financials.aiCosts.total / 1000).toFixed(1)}k (${ratios.aiBurnPercentage.toFixed(1)}% of burn)\n`;
+  markdown += `  - OpenAI: £${(financials.aiCosts.breakdown.openai / 1000).toFixed(1)}k\n`;
+  markdown += `  - Anthropic: £${(financials.aiCosts.breakdown.anthropic / 1000).toFixed(1)}k\n`;
+  markdown += `  - Google: £${(financials.aiCosts.breakdown.google / 1000).toFixed(1)}k\n`;
+  markdown += `  - ElevenLabs: £${(financials.aiCosts.breakdown.elevenlabs / 1000).toFixed(1)}k\n`;
+  markdown += `- Other Costs: £${(financials.otherCosts.total / 1000).toFixed(1)}k\n`;
+  markdown += `  - Office: £${(financials.otherCosts.breakdown.office / 1000).toFixed(1)}k\n`;
+  markdown += `  - Software: £${(financials.otherCosts.breakdown.software / 1000).toFixed(1)}k\n`;
+  markdown += `  - Marketing: £${(financials.otherCosts.breakdown.marketing / 1000).toFixed(1)}k\n`;
+  markdown += `  - Legal: £${(financials.otherCosts.breakdown.legal / 1000).toFixed(1)}k\n\n`;
+
+  markdown += `**Cash Position**\n`;
+  markdown += `- Monthly Burn Rate: £${(financials.burnRate / 1000).toFixed(1)}k\n`;
+  markdown += `- Cash Balance: £${(financials.cashBalance / 1000).toFixed(0)}k\n`;
+  markdown += `- Runway: ${financials.runway.toFixed(1)} months\n\n`;
 
   // Risks & Alerts
   if (data.risks.length > 0) {
@@ -177,6 +217,39 @@ export async function exportReportAsCSV(report: Report): Promise<void> {
     csvContent += `Active Workflow Items,${data.overview.activeWorkflowItems}\n`;
     csvContent += `Completed Workflow Items,${data.overview.completedWorkflowItems}\n`;
     csvContent += `Total Team Members,${data.overview.totalTeamMembers}\n\n`;
+
+    // Financial Metrics
+    const financials = CURRENT_FINANCIALS;
+    const ratios = calculateFinancialRatios(financials);
+
+    csvContent += `Financial Metrics (${financials.currentMonth})\n`;
+    csvContent += `Metric,Value\n`;
+    csvContent += `Revenue,£${financials.revenue.total}\n`;
+    csvContent += `Revenue Growth,${financials.revenue.growth}%\n`;
+    csvContent += `Gross Profit,£${ratios.grossProfit.toFixed(0)}\n`;
+    csvContent += `Gross Margin,${ratios.grossMargin.toFixed(1)}%\n`;
+    csvContent += `Net Profit,£${ratios.netProfit.toFixed(0)}\n`;
+    csvContent += `Net Margin,${ratios.netMargin.toFixed(1)}%\n`;
+    csvContent += `COGS,£${financials.cogs.total}\n`;
+    csvContent += `Team Costs,£${financials.teamCosts.total}\n`;
+    csvContent += `AI Costs,£${financials.aiCosts.total}\n`;
+    csvContent += `Other Costs,£${financials.otherCosts.total}\n`;
+    csvContent += `Burn Rate,£${financials.burnRate}\n`;
+    csvContent += `Cash Balance,£${financials.cashBalance}\n`;
+    csvContent += `Runway,${financials.runway.toFixed(1)} months\n\n`;
+
+    csvContent += `Revenue Breakdown\n`;
+    csvContent += `Category,Amount\n`;
+    csvContent += `Product Sales,£${financials.revenue.breakdown.productSales}\n`;
+    csvContent += `Services,£${financials.revenue.breakdown.services}\n`;
+    csvContent += `Recurring,£${financials.revenue.breakdown.recurring}\n`;
+    csvContent += `Other,£${financials.revenue.breakdown.other}\n\n`;
+
+    csvContent += `Team Headcount\n`;
+    csvContent += `Role,Count\n`;
+    csvContent += `Founders,${financials.teamCosts.headcount.founders}\n`;
+    csvContent += `Fractional Execs,${financials.teamCosts.headcount.fractionalExecs}\n`;
+    csvContent += `Apprentices,${financials.teamCosts.headcount.apprentices}\n\n`;
 
     // Executive Performance
     csvContent += `Executive Performance\n`;
