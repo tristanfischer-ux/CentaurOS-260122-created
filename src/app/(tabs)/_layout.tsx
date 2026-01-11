@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { Tabs, router } from 'expo-router';
-import { Home, Target, Briefcase, CheckCircle, MessageSquare, Settings } from 'lucide-react-native';
+import { Home, Target, Briefcase, CheckCircle, MessageSquare, Settings, Network } from 'lucide-react-native';
 import { useColorScheme } from '@/lib/useColorScheme';
 import { useIsAuthenticated, useCurrentWorkspace, useAppStore } from '@/lib/state/app-store';
 
@@ -91,6 +91,14 @@ export default function TabLayout() {
           title: 'Copilot',
           headerTitle: 'AI Copilot',
           tabBarIcon: ({ color }) => <TabBarIcon Icon={MessageSquare} color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="network"
+        options={{
+          title: 'Network',
+          headerTitle: 'Network',
+          tabBarIcon: ({ color }) => <TabBarIcon Icon={Network} color={color} />,
         }}
       />
       <Tabs.Screen
