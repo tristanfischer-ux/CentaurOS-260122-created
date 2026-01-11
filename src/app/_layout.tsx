@@ -59,6 +59,12 @@ function RootLayoutNav({ colorScheme }: { colorScheme: 'light' | 'dark' | null |
             headerTintColor: '#fff',
           }}
         />
+        <Stack.Screen
+          name="reports"
+          options={{
+            headerShown: false,
+          }}
+        />
       </Stack>
     </ThemeProvider>
   );

@@ -1,8 +1,8 @@
 // Reports screen with role-based views
 import { useState } from 'react';
 import { View, Text, ScrollView, Pressable, ActivityIndicator, Alert } from 'react-native';
-import { useLocalSearchParams, Stack } from 'expo-router';
-import { useQuery, useMutation } from '@tanstack/react-query';
+import { Stack } from 'expo-router';
+import { useMutation } from '@tanstack/react-query';
 import { FileText, Download, Calendar, TrendingUp, Users, Target, AlertTriangle } from 'lucide-react-native';
 import { useAppStore } from '@/lib/state/app-store';
 import { generateReport } from '@/lib/reports/generator';

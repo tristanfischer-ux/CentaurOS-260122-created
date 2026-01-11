@@ -168,7 +168,12 @@ export async function generateFounderReport(
       : 0;
 
     const hoursLogged = apprenticeTimeEntries.reduce((sum, te) => sum + te.hours, 0);
-    const utilizationRate = hoursLogged > 0 ? Math.round((hoursLogged / (7 * 8)) * 100) : 0; // Assuming 8h/day, 7 days in period
+
+    // Calculate expected hours based on period
+    const periodDays = Math.ceil((new Date(endDate).getTime() - new Date(startDate).getTime()) / (1000 * 60 * 60 * 24));
+    const expectedWorkDays = Math.min(periodDays, 30); // Cap at 30 days for reasonable utilization calculation
+    const expectedHours = expectedWorkDays * 8; // 8 hours per work day
+    const utilizationRate = expectedHours > 0 ? Math.min(Math.round((hoursLogged / expectedHours) * 100), 100) : 0;
 
     return {
       apprenticeId: apprentice.userId,
@@ -523,7 +528,7 @@ export async function generateApprenticeReport(
       acc.push({ date: te.date, hours: te.hours });
     }
     return acc;
-  }, [] as Array<{ date: string; hours: number }>);
+  }, [] as { date: string; hours: number }[]);
 
   // Time breakdown by task
   const timeByTask = periodTasks.map((t) => {

@@ -192,6 +192,49 @@ export async function exportReportAsCSV(report: Report): Promise<void> {
     data.apprenticeUtilization.forEach((apprentice) => {
       csvContent += `"${apprentice.apprenticeName}",${apprentice.function},${apprentice.tasksAssigned},${apprentice.tasksCompleted},${apprentice.hoursLogged},${apprentice.averageTaskCompletionDays},${apprentice.utilizationRate}%\n`;
     });
+  } else if (report.reportType === 'executive') {
+    const data = report.data as import('@/types').ExecutiveReportData;
+
+    // Summary
+    csvContent += `Executive Summary\n`;
+    csvContent += `Metric,Value\n`;
+    csvContent += `Executive,${data.executiveName}\n`;
+    csvContent += `Function,${data.function}\n`;
+    csvContent += `Tasks Created,${data.summary.tasksCreated}\n`;
+    csvContent += `Tasks Completed,${data.summary.tasksCompleted}\n`;
+    csvContent += `Workflow Items Allocated,${data.summary.workflowItemsAllocated}\n`;
+    csvContent += `Workflow Items Structured,${data.summary.workflowItemsStructured}\n`;
+    csvContent += `Apprentice Work Verified,${data.summary.apprenticeWorkVerified}\n`;
+    csvContent += `Hours Logged,${data.summary.hoursLogged}h\n\n`;
+
+    // Apprentice Performance
+    csvContent += `Apprentice Performance\n`;
+    csvContent += `Apprentice,Tasks Assigned,Tasks Completed,Hours Logged,Pending Verifications,Avg Completion Time\n`;
+    data.apprenticePerformance.forEach((apprentice) => {
+      csvContent += `"${apprentice.apprenticeName}",${apprentice.tasksAssigned},${apprentice.tasksCompleted},${apprentice.hoursLogged},${apprentice.pendingVerifications},${apprentice.averageCompletionTime}d\n`;
+    });
+  } else if (report.reportType === 'apprentice') {
+    const data = report.data as import('@/types').ApprenticeReportData;
+
+    // Summary
+    csvContent += `Apprentice Summary\n`;
+    csvContent += `Metric,Value\n`;
+    csvContent += `Apprentice,${data.apprenticeName}\n`;
+    csvContent += `Function,${data.function}\n`;
+    csvContent += `Tasks Assigned,${data.summary.tasksAssigned}\n`;
+    csvContent += `Tasks Completed,${data.summary.tasksCompleted}\n`;
+    csvContent += `Tasks In Progress,${data.summary.tasksInProgress}\n`;
+    csvContent += `Total Hours Logged,${data.summary.totalHoursLogged}h\n`;
+    csvContent += `Verifications Pending,${data.summary.verificationsPending}\n`;
+    csvContent += `Verifications Approved,${data.summary.verificationsApproved}\n`;
+    csvContent += `Average Task Duration,${data.summary.averageTaskDuration}d\n\n`;
+
+    // Task Details
+    csvContent += `Task Details\n`;
+    csvContent += `Task,Status,Priority,Hours Logged,Created,Completed,Verified\n`;
+    data.taskDetails.forEach((task) => {
+      csvContent += `"${task.title}",${task.status},${task.priority},${task.hoursLogged},${task.createdAt},${task.completedAt || 'N/A'},${task.verifiedAt || 'N/A'}\n`;
+    });
   }
 
   // Save to file
