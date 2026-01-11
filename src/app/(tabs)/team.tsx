@@ -9,10 +9,12 @@ import {
   Plus,
   X,
   CheckCircle2,
+  Network,
 } from 'lucide-react-native';
 import { useCurrentWorkspace, useCurrentMembership } from '@/lib/state/app-store';
-import { useCreateTask } from '@/lib/hooks/queries';
+import { useCreateTask, useWorkspaceMembers } from '@/lib/hooks/queries';
 import type { TaskPriority, Function as TaskFunction } from '@/types';
+import { router } from 'expo-router';
 
 // Mock team members data - in a real app this would come from the database
 interface TeamMember {
@@ -292,8 +294,9 @@ export default function TeamScreen() {
   const currentWorkspace = useCurrentWorkspace();
   const currentMembership = useCurrentMembership();
   const createTaskMutation = useCreateTask();
+  const { data: memberships = [] } = useWorkspaceMembers(currentWorkspace?.id ?? null);
 
-  const [selectedMember, setSelectedMember] = useState<TeamMember | null>(null);
+  const [selectedMember, setSelectedMember] = useState<any>(null);
   const [filterRole, setFilterRole] = useState<'all' | 'Founder' | 'FractionalExec' | 'Apprentice'>('all');
   const [showTaskModal, setShowTaskModal] = useState(false);
   const [taskTitle, setTaskTitle] = useState('');
@@ -301,17 +304,47 @@ export default function TeamScreen() {
   const [taskPriority, setTaskPriority] = useState<TaskPriority>('medium');
   const [taskFunction, setTaskFunction] = useState<TaskFunction>('Ops');
 
-  const filteredTeam = MOCK_TEAM.filter(member => {
+  // Convert memberships to team member format for display
+  const teamMembers = memberships.map(membership => ({
+    id: membership.userId,
+    name: membership.user?.name || 'Unknown',
+    role: membership.role,
+    email: membership.user?.email || '',
+    phone: '', // Not available in current data model
+    location: '', // Not available
+    specialization: [membership.function],
+    experience: 0, // Not available
+    rating: 0, // Not available
+    costPerDay: undefined,
+    availability: 'Active',
+    bio: '',
+    skills: [membership.function],
+    currentTasks: 0,
+    completedTasks: 0,
+    avatarColor: getColorForRole(membership.role),
+    joinedDate: membership.joinedAt || new Date().toISOString(),
+  }));
+
+  const filteredTeam = teamMembers.filter(member => {
     if (filterRole === 'all') return true;
     return member.role === filterRole;
   });
 
   const roleStats = {
-    total: MOCK_TEAM.length,
-    founders: MOCK_TEAM.filter(m => m.role === 'Founder').length,
-    execs: MOCK_TEAM.filter(m => m.role === 'FractionalExec').length,
-    apprentices: MOCK_TEAM.filter(m => m.role === 'Apprentice').length,
+    total: teamMembers.length,
+    founders: teamMembers.filter(m => m.role === 'Founder').length,
+    execs: teamMembers.filter(m => m.role === 'FractionalExec').length,
+    apprentices: teamMembers.filter(m => m.role === 'Apprentice').length,
   };
+
+  function getColorForRole(role: string) {
+    switch (role) {
+      case 'Founder': return '#3b82f6';
+      case 'FractionalExec': return '#8b5cf6';
+      case 'Apprentice': return '#10b981';
+      default: return '#64748b';
+    }
+  }
 
   const handleAssignTask = async () => {
     if (!currentWorkspace || !selectedMember || !taskTitle.trim()) return;
@@ -368,7 +401,18 @@ export default function TeamScreen() {
     <View className="flex-1 bg-slate-950">
       {/* Header Stats */}
       <View className="p-6 pb-4">
-        <Text className="text-white text-2xl font-bold mb-4">Team Directory</Text>
+        <View className="flex-row justify-between items-center mb-4">
+          <Text className="text-white text-2xl font-bold">Team Directory</Text>
+
+          {/* Org Diagram Button */}
+          <Pressable
+            onPress={() => router.push('/org-diagram')}
+            className="bg-blue-500 px-4 py-2 rounded-xl flex-row items-center active:opacity-80"
+          >
+            <Network size={16} color="white" />
+            <Text className="text-white text-sm font-semibold ml-2">Org Chart</Text>
+          </Pressable>
+        </View>
 
         {/* Stats Cards */}
         <View className="flex-row gap-3 mb-4">
@@ -616,7 +660,7 @@ export default function TeamScreen() {
                   <View>
                     <Text className="text-slate-400 text-xs mb-2">Skills</Text>
                     <View className="flex-row flex-wrap gap-2">
-                      {selectedMember.skills.map((skill, idx) => (
+                      {selectedMember.skills.map((skill: string, idx: number) => (
                         <View key={idx} className="bg-blue-500/20 px-3 py-1.5 rounded-lg">
                           <Text className="text-blue-400 text-xs font-medium">{skill}</Text>
                         </View>

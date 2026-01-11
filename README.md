@@ -19,16 +19,25 @@ Centaur OS turns OKRs into work, tracks execution, enables review workflows, and
 
 - **Multi-Tenant Workspaces** - Users can belong to multiple workspaces with role-based access
 - **Role-Based Dashboards** - Customized views for Founders, Apprentices, and Fractional Execs
-- **Team Directory** - Comprehensive team management and contact center
-  - **13 Team Members**: 2 Founders, 4 Fractional Executives, 7 Apprentices
-  - **Full Contact Information**: Direct email and phone access for every team member
-  - **Professional Profiles**: Experience, ratings, skills, specializations, availability, join dates
-  - **Location Details**: Physical location for each team member (London, Manchester, Edinburgh, etc.)
+- **Team Directory** - Comprehensive team management with real workspace members
+  - **Live Workspace Members**: Displays actual workspace members from database (not mock data)
+  - **Task Assignment Fixed**: Assign tasks using real user IDs that work with the database
+  - **Full Contact Information**: Direct email access for every team member
+  - **Professional Profiles**: Role, function, specialization, and availability
   - **Task Performance Metrics**: View active and completed task counts per member
   - **Direct Task Assignment**: Assign tasks to team members directly from their profile (Founders/Execs only)
-  - **One-Click Communication**: Email or call team members with single tap
+  - **One-Click Communication**: Email team members with single tap
   - **Role-Based Filtering**: Filter by Founders, Executives, or Apprentices
-  - **Detailed Profiles**: Bio, skills, work history, and performance stats for each member
+  - **Visual Org Chart Button**: Quick access to interactive organization diagram
+- **Interactive Organization Diagram** - Visual representation of team structure
+  - **Circular Layout**: Founders in center, executives in middle ring, apprentices in outer ring
+  - **Reporting Lines**: Dashed lines show who reports to whom
+  - **Interactive Nodes**: Tap any team member to see full details
+  - **Color-Coded Roles**: Blue (Founders), Purple (Executives), Green (Apprentices)
+  - **Decide • Evaluate • Do Framework**: Visual explanation of organizational philosophy
+  - **Team Member Details**: Full profiles with contact info, reporting structure, and cost data
+  - **Scrollable Canvas**: Pan to explore the full diagram
+  - **Legend**: Clear indication of what each node type represents
 - **Team Hiring System (Founder-Only)** - Browse and hire talent to build your team (Located in Network tab)
   - **30 Fractional Executives**: Senior leaders in Sales, Marketing, Finance, Engineering, and Operations
   - **30 Apprentices**: Junior talent eager to learn and execute across all business functions

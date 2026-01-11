@@ -66,6 +66,12 @@ function RootLayoutNav({ colorScheme }: { colorScheme: 'light' | 'dark' | null |
             headerTintColor: '#fff',
           }}
         />
+        <Stack.Screen
+          name="org-diagram"
+          options={{
+            headerShown: false,
+          }}
+        />
       </Stack>
     </ThemeProvider>
   );
