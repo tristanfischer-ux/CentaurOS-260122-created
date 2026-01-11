@@ -132,6 +132,7 @@ export default function OKRsScreen() {
   };
 
   return (
+    <>
     <ScrollView className="flex-1 bg-slate-950">
       {/* Header */}
       <View className="p-6 pb-4">
@@ -294,9 +295,11 @@ export default function OKRsScreen() {
           })}
         </View>
       </View>
+    </ScrollView>
 
-      {/* Update KR Modal */}
-      <Modal visible={showEditKRModal} transparent animationType="slide">
+    {/* Modals - Outside ScrollView */}
+    {/* Update KR Modal */}
+    <Modal visible={showEditKRModal} transparent animationType="slide">
         <View className="flex-1 bg-black/50 justify-end">
           <View className="bg-slate-900 rounded-t-3xl p-6">
             <View className="flex-row items-center justify-between mb-4">
@@ -413,6 +416,6 @@ export default function OKRsScreen() {
           </View>
         </View>
       </Modal>
-    </ScrollView>
+    </>
   );
 }
