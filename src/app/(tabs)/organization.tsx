@@ -497,8 +497,8 @@ export default function OrganizationScreen() {
       <Modal visible={selectedMember !== null} transparent animationType="fade">
         <View className="flex-1 bg-black/70 justify-center px-6">
           {selectedMember && (
-            <View className="bg-slate-900 rounded-3xl p-6 max-h-[80%]">
-              <ScrollView showsVerticalScrollIndicator={false}>
+            <View className="bg-slate-900 rounded-3xl p-6" style={{ maxHeight: '80%' }}>
+              <ScrollView showsVerticalScrollIndicator={false} style={{ flex: 1 }}>
                 <View className="flex-row items-center justify-between mb-4">
                   <Text className="text-white text-xl font-bold">{selectedMember.name}</Text>
                   <Pressable onPress={() => setSelectedMember(null)}>
@@ -579,7 +579,7 @@ export default function OrganizationScreen() {
       {/* Supplier Detail Modal */}
       <Modal visible={selectedSupplier !== null} transparent animationType="slide">
         <View className="flex-1 bg-black/50">
-          <View className="mt-auto bg-slate-900 rounded-t-3xl max-h-[90%]">
+          <View className="mt-auto bg-slate-900 rounded-t-3xl" style={{ maxHeight: '90%' }}>
             {selectedSupplier && (
               <>
                 <View className="p-6 border-b border-slate-800">
@@ -594,7 +594,7 @@ export default function OrganizationScreen() {
                   <Text className="text-blue-400 text-sm">{selectedSupplier.supplierName}</Text>
                 </View>
 
-                <ScrollView className="flex-1 px-6 py-4" showsVerticalScrollIndicator={false}>
+                <ScrollView style={{ flex: 1 }} className="px-6 py-4" showsVerticalScrollIndicator={false}>
                   <View className="mb-4">
                     <Text className="text-slate-400 text-sm mb-1">Description</Text>
                     <Text className="text-white">{selectedSupplier.description}</Text>
@@ -690,7 +690,7 @@ export default function OrganizationScreen() {
       {/* AI Agent Detail Modal */}
       <Modal visible={selectedAI !== null} transparent animationType="slide">
         <View className="flex-1 bg-black/50">
-          <View className="mt-auto bg-slate-900 rounded-t-3xl max-h-[90%]">
+          <View className="mt-auto bg-slate-900 rounded-t-3xl" style={{ maxHeight: '90%' }}>
             {selectedAI && (
               <>
                 <View className="p-6 border-b border-slate-800">
@@ -707,7 +707,7 @@ export default function OrganizationScreen() {
                   </View>
                 </View>
 
-                <ScrollView className="flex-1 px-6 py-4" showsVerticalScrollIndicator={false}>
+                <ScrollView style={{ flex: 1 }} className="px-6 py-4" showsVerticalScrollIndicator={false}>
                   <View className="bg-slate-800 rounded-xl p-4 mb-4">
                     <View className="flex-row justify-between items-center">
                       <Text className="text-slate-400">Monthly Cost:</Text>
