@@ -1,10 +1,11 @@
-import { View, Text, ScrollView, Pressable, Linking, TextInput, Modal } from 'react-native';
+import { View, Text, ScrollView, Pressable, Linking, TextInput, Modal, Alert } from 'react-native';
 import { useState } from 'react';
-import { Building2, Users, Calendar, ExternalLink, MapPin, Package, ChevronRight, Search, X, Star, DollarSign, CalendarCheck, Award, Mail, Phone } from 'lucide-react-native';
+import { Building2, Users, Calendar, ExternalLink, MapPin, Package, ChevronRight, Search, X, Star, DollarSign, CalendarCheck, Award, Mail, Phone, Bot, Zap, CheckCircle } from 'lucide-react-native';
 import { UK_SUPPLIERS } from '@/lib/suppliers-seed';
 import { fractionalExecutives, apprentices, type Candidate } from '@/lib/candidates-seed';
+import { AI_AGENTS, type AIAgent } from '@/lib/organization-seed';
 
-type NetworkTab = 'suppliers' | 'companies' | 'events' | 'hiring';
+type NetworkTab = 'suppliers' | 'companies' | 'events' | 'hiring' | 'ai-agents';
 
 interface DisplaySupplier {
   id: string;
@@ -148,9 +149,13 @@ const DEMO_EVENTS = [
 
 export default function NetworkScreen() {
   const [activeTab, setActiveTab] = useState<NetworkTab>('suppliers');
+  const [selectedAgent, setSelectedAgent] = useState<AIAgent | null>(null);
+  const [onboardingAgent, setOnboardingAgent] = useState<AIAgent | null>(null);
+  const [monthlyCost, setMonthlyCost] = useState('');
 
   const tabs = [
     { id: 'suppliers' as NetworkTab, label: 'Suppliers', icon: Building2 },
+    { id: 'ai-agents' as NetworkTab, label: 'AI Agents', icon: Bot },
     { id: 'companies' as NetworkTab, label: 'Companies', icon: Users },
     { id: 'events' as NetworkTab, label: 'Events', icon: Calendar },
     { id: 'hiring' as NetworkTab, label: 'Hiring', icon: Award },
@@ -193,6 +198,7 @@ export default function NetworkScreen() {
       {/* Tab Content */}
       <ScrollView className="flex-1">
         {activeTab === 'suppliers' && <SuppliersTab />}
+        {activeTab === 'ai-agents' && <AIAgentsTab selectedAgent={selectedAgent} setSelectedAgent={setSelectedAgent} onboardingAgent={onboardingAgent} setOnboardingAgent={setOnboardingAgent} monthlyCost={monthlyCost} setMonthlyCost={setMonthlyCost} />}
         {activeTab === 'companies' && <CompaniesTab />}
         {activeTab === 'events' && <EventsTab />}
         {activeTab === 'hiring' && <HiringTab />}
@@ -878,6 +884,382 @@ function HiringTab() {
                   </View>
                 </View>
               </ScrollView>
+            </View>
+          )}
+        </View>
+      </Modal>
+    </View>
+  );
+}
+
+// AI Agents Tab - Browse and onboard AI tools
+function AIAgentsTab({ selectedAgent, setSelectedAgent, onboardingAgent, setOnboardingAgent, monthlyCost, setMonthlyCost }: {
+  selectedAgent: AIAgent | null;
+  setSelectedAgent: (agent: AIAgent | null) => void;
+  onboardingAgent: AIAgent | null;
+  setOnboardingAgent: (agent: AIAgent | null) => void;
+  monthlyCost: string;
+  setMonthlyCost: (cost: string) => void;
+}) {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedProvider, setSelectedProvider] = useState<string | null>(null);
+
+  const handleOnboard = () => {
+    if (!onboardingAgent || !monthlyCost.trim()) {
+      Alert.alert('Error', 'Please enter the monthly cost');
+      return;
+    }
+
+    Alert.alert(
+      'Success',
+      `${onboardingAgent.name} has been onboarded!\nMonthly cost: £${monthlyCost}`,
+      [
+        {
+          text: 'OK',
+          onPress: () => {
+            setOnboardingAgent(null);
+            setMonthlyCost('');
+          }
+        }
+      ]
+    );
+  };
+
+  const providers = [...new Set(AI_AGENTS.map(a => a.provider))];
+
+  const filteredAgents = AI_AGENTS.filter(agent => {
+    const matchesSearch = agent.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         agent.purpose.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         agent.capabilities.some(c => c.toLowerCase().includes(searchQuery.toLowerCase()));
+    const matchesProvider = !selectedProvider || agent.provider === selectedProvider;
+    return matchesSearch && matchesProvider;
+  });
+
+  const getProviderColor = (provider: string) => {
+    switch (provider) {
+      case 'OpenAI': return '#10b981';
+      case 'Anthropic': return '#f59e0b';
+      case 'Google': return '#3b82f6';
+      case 'ElevenLabs': return '#8b5cf6';
+      default: return '#64748b';
+    }
+  };
+
+  return (
+    <View className="flex-1">
+      {/* Header */}
+      <View className="p-6 border-b border-slate-800">
+        <Text className="text-white text-2xl font-bold mb-2">AI Agents Directory</Text>
+        <Text className="text-slate-400 text-sm">
+          Discover and onboard AI tools to supercharge your team's productivity
+        </Text>
+      </View>
+
+      {/* Search */}
+      <View className="p-6 pb-4 border-b border-slate-800">
+        <View className="flex-row items-center bg-slate-900 rounded-xl px-4 py-3 border border-slate-800">
+          <Search size={20} color="#64748b" />
+          <TextInput
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            placeholder="Search AI agents..."
+            placeholderTextColor="#64748b"
+            className="flex-1 ml-3 text-white"
+          />
+        </View>
+
+        {/* Provider Filter */}
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} className="mt-4" style={{ flexGrow: 0 }}>
+          <View className="flex-row gap-2">
+            <Pressable
+              onPress={() => setSelectedProvider(null)}
+              className={`px-4 py-2 rounded-xl border ${
+                !selectedProvider ? 'bg-blue-500 border-blue-500' : 'bg-slate-800 border-slate-700'
+              }`}
+            >
+              <Text className={`text-sm font-medium ${!selectedProvider ? 'text-white' : 'text-slate-400'}`}>
+                All Providers
+              </Text>
+            </Pressable>
+            {providers.map(provider => (
+              <Pressable
+                key={provider}
+                onPress={() => setSelectedProvider(provider)}
+                className={`px-4 py-2 rounded-xl border ${
+                  selectedProvider === provider ? 'bg-blue-500 border-blue-500' : 'bg-slate-800 border-slate-700'
+                }`}
+              >
+                <Text className={`text-sm font-medium ${selectedProvider === provider ? 'text-white' : 'text-slate-400'}`}>
+                  {provider}
+                </Text>
+              </Pressable>
+            ))}
+          </View>
+        </ScrollView>
+      </View>
+
+      {/* AI Agents List */}
+      <View className="p-6 gap-4">
+        {filteredAgents.map((agent) => (
+          <Pressable
+            key={agent.id}
+            onPress={() => setSelectedAgent(agent)}
+            className="bg-slate-900 rounded-2xl p-4 border border-slate-800 active:opacity-70"
+          >
+            <View className="flex-row items-start justify-between mb-3">
+              <View className="flex-1">
+                <View className="flex-row items-center gap-2 mb-1">
+                  <Bot size={20} color={getProviderColor(agent.provider)} />
+                  <Text className="text-white text-lg font-bold">{agent.name}</Text>
+                </View>
+                <View className="flex-row items-center gap-2 mb-2">
+                  <View
+                    className="px-2 py-1 rounded"
+                    style={{ backgroundColor: getProviderColor(agent.provider) + '20' }}
+                  >
+                    <Text
+                      className="text-xs font-semibold"
+                      style={{ color: getProviderColor(agent.provider) }}
+                    >
+                      {agent.provider}
+                    </Text>
+                  </View>
+                  <Text className="text-slate-500 text-xs">•</Text>
+                  <Text className="text-slate-400 text-xs">{agent.model}</Text>
+                </View>
+              </View>
+              <View className="items-end">
+                <Text className="text-emerald-400 text-xl font-bold">£{agent.costPerMonth}</Text>
+                <Text className="text-slate-500 text-xs">per month</Text>
+              </View>
+            </View>
+
+            <Text className="text-slate-300 text-sm mb-3">{agent.purpose}</Text>
+
+            <View className="flex-row items-center justify-between">
+              <View className="flex-row items-center gap-2">
+                <Zap size={14} color="#64748b" />
+                <Text className="text-slate-400 text-xs">
+                  {agent.capabilities.length} capabilities
+                </Text>
+              </View>
+              <View className="flex-row items-center gap-2">
+                <ChevronRight size={16} color="#3b82f6" />
+                <Text className="text-blue-400 text-xs font-semibold">View Details</Text>
+              </View>
+            </View>
+          </Pressable>
+        ))}
+
+        {filteredAgents.length === 0 && (
+          <View className="items-center justify-center py-12">
+            <Bot size={48} color="#64748b" />
+            <Text className="text-slate-400 text-center mt-4">
+              No AI agents found matching your criteria
+            </Text>
+          </View>
+        )}
+      </View>
+
+      {/* Agent Detail Modal */}
+      <Modal visible={selectedAgent !== null} transparent animationType="slide">
+        <View className="flex-1 bg-black/70">
+          {selectedAgent && (
+            <View className="mt-auto bg-slate-900 rounded-t-3xl" style={{ maxHeight: '90%' }}>
+              <ScrollView showsVerticalScrollIndicator={false} style={{ flex: 1 }}>
+                <View className="p-6">
+                  {/* Header */}
+                  <View className="flex-row items-start justify-between mb-6">
+                    <View className="flex-1">
+                      <View className="flex-row items-center gap-3 mb-2">
+                        <View
+                          className="w-12 h-12 rounded-xl items-center justify-center"
+                          style={{ backgroundColor: getProviderColor(selectedAgent.provider) + '20' }}
+                        >
+                          <Bot size={24} color={getProviderColor(selectedAgent.provider)} />
+                        </View>
+                        <View className="flex-1">
+                          <Text className="text-white text-xl font-bold">{selectedAgent.name}</Text>
+                          <Text className="text-slate-400 text-sm">{selectedAgent.model}</Text>
+                        </View>
+                      </View>
+                      <View
+                        className="self-start px-3 py-1 rounded-lg"
+                        style={{ backgroundColor: getProviderColor(selectedAgent.provider) + '20' }}
+                      >
+                        <Text
+                          className="text-sm font-semibold"
+                          style={{ color: getProviderColor(selectedAgent.provider) }}
+                        >
+                          {selectedAgent.provider}
+                        </Text>
+                      </View>
+                    </View>
+                    <Pressable onPress={() => setSelectedAgent(null)}>
+                      <X size={24} color="#94a3b8" />
+                    </Pressable>
+                  </View>
+
+                  {/* Cost */}
+                  <View className="bg-gradient-to-r from-emerald-900/20 to-emerald-800/20 rounded-xl p-4 mb-6 border border-emerald-500/20">
+                    <Text className="text-slate-400 text-sm mb-1">Monthly Cost</Text>
+                    <Text className="text-emerald-400 text-3xl font-bold">£{selectedAgent.costPerMonth}</Text>
+                  </View>
+
+                  {/* Purpose */}
+                  <View className="mb-6">
+                    <Text className="text-white font-semibold mb-2">Purpose</Text>
+                    <Text className="text-slate-300 text-sm leading-5">{selectedAgent.purpose}</Text>
+                  </View>
+
+                  {/* Capabilities */}
+                  <View className="mb-6">
+                    <Text className="text-white font-semibold mb-3">Capabilities</Text>
+                    <View className="gap-2">
+                      {selectedAgent.capabilities.map((capability, idx) => (
+                        <View key={idx} className="flex-row items-start">
+                          <CheckCircle size={16} color="#10b981" style={{ marginTop: 2 }} />
+                          <Text className="text-slate-300 text-sm flex-1 ml-2">{capability}</Text>
+                        </View>
+                      ))}
+                    </View>
+                  </View>
+
+                  {/* Business Functions */}
+                  <View className="mb-6">
+                    <Text className="text-white font-semibold mb-2">Business Functions</Text>
+                    <View className="flex-row flex-wrap gap-2">
+                      {selectedAgent.functions.map((func, idx) => (
+                        <View key={idx} className="bg-blue-500/20 px-3 py-1.5 rounded-lg">
+                          <Text className="text-blue-400 text-xs font-medium">{func}</Text>
+                        </View>
+                      ))}
+                    </View>
+                  </View>
+
+                  {/* Integrations */}
+                  <View className="mb-6">
+                    <Text className="text-white font-semibold mb-2">Integrations</Text>
+                    <View className="flex-row flex-wrap gap-2">
+                      {selectedAgent.integrations.map((integration, idx) => (
+                        <View key={idx} className="bg-slate-800 px-3 py-1.5 rounded-lg">
+                          <Text className="text-slate-300 text-xs font-medium">{integration}</Text>
+                        </View>
+                      ))}
+                    </View>
+                  </View>
+
+                  {/* Usage Stats */}
+                  {selectedAgent.usageStats && (
+                    <View className="mb-6">
+                      <Text className="text-white font-semibold mb-3">Usage Statistics</Text>
+                      <View className="flex-row gap-3">
+                        <View className="flex-1 bg-slate-800 rounded-xl p-3">
+                          <Text className="text-slate-400 text-xs mb-1">Requests</Text>
+                          <Text className="text-white font-bold">{selectedAgent.usageStats.requestsThisMonth.toLocaleString()}</Text>
+                          <Text className="text-slate-500 text-xs">this month</Text>
+                        </View>
+                        <View className="flex-1 bg-slate-800 rounded-xl p-3">
+                          <Text className="text-slate-400 text-xs mb-1">Response Time</Text>
+                          <Text className="text-white font-bold">{selectedAgent.usageStats.averageResponseTime}</Text>
+                          <Text className="text-slate-500 text-xs">average</Text>
+                        </View>
+                        <View className="flex-1 bg-slate-800 rounded-xl p-3">
+                          <Text className="text-slate-400 text-xs mb-1">Success Rate</Text>
+                          <Text className="text-emerald-400 font-bold">{selectedAgent.usageStats.successRate}%</Text>
+                        </View>
+                      </View>
+                    </View>
+                  )}
+
+                  {/* Action Buttons */}
+                  <View className="gap-3">
+                    <Pressable
+                      onPress={() => {
+                        setOnboardingAgent(selectedAgent);
+                        setSelectedAgent(null);
+                      }}
+                      className="bg-blue-500 py-4 rounded-xl active:opacity-80"
+                    >
+                      <Text className="text-white text-center font-bold text-base">
+                        Onboard This Agent
+                      </Text>
+                    </Pressable>
+                    <Pressable
+                      onPress={() => setSelectedAgent(null)}
+                      className="bg-slate-800 py-3 rounded-xl active:opacity-80"
+                    >
+                      <Text className="text-slate-400 text-center font-semibold">Close</Text>
+                    </Pressable>
+                  </View>
+                </View>
+              </ScrollView>
+            </View>
+          )}
+        </View>
+      </Modal>
+
+      {/* Onboarding Modal */}
+      <Modal visible={onboardingAgent !== null} transparent animationType="fade">
+        <View className="flex-1 bg-black/70 justify-center px-6">
+          {onboardingAgent && (
+            <View className="bg-slate-900 rounded-3xl p-6">
+              <Text className="text-white text-2xl font-bold mb-2">Onboard AI Agent</Text>
+              <Text className="text-slate-400 text-sm mb-6">
+                Set up {onboardingAgent.name} for your team
+              </Text>
+
+              <View className="bg-slate-800 rounded-xl p-4 mb-6">
+                <View className="flex-row items-center gap-3 mb-2">
+                  <Bot size={20} color={getProviderColor(onboardingAgent.provider)} />
+                  <Text className="text-white font-semibold text-lg">{onboardingAgent.name}</Text>
+                </View>
+                <Text className="text-slate-400 text-sm">{onboardingAgent.provider} • {onboardingAgent.model}</Text>
+              </View>
+
+              {/* Cost Input */}
+              <View className="mb-6">
+                <Text className="text-slate-400 text-sm font-medium mb-2">Monthly Cost (£)</Text>
+                <View className="flex-row items-center bg-slate-800 rounded-xl px-4 py-3 border border-slate-700">
+                  <DollarSign size={20} color="#64748b" />
+                  <TextInput
+                    value={monthlyCost}
+                    onChangeText={setMonthlyCost}
+                    placeholder={onboardingAgent.costPerMonth.toString()}
+                    placeholderTextColor="#64748b"
+                    keyboardType="numeric"
+                    className="flex-1 ml-2 text-white text-lg"
+                  />
+                  <Text className="text-slate-400">/month</Text>
+                </View>
+                <Text className="text-slate-500 text-xs mt-2">
+                  Suggested: £{onboardingAgent.costPerMonth}/month
+                </Text>
+              </View>
+
+              {/* Action Buttons */}
+              <View className="gap-3">
+                <Pressable
+                  onPress={handleOnboard}
+                  disabled={!monthlyCost.trim()}
+                  className={`py-4 rounded-xl ${
+                    !monthlyCost.trim() ? 'bg-slate-700' : 'bg-blue-500'
+                  } active:opacity-80`}
+                >
+                  <Text className="text-white text-center font-bold text-base">
+                    Confirm Onboarding
+                  </Text>
+                </Pressable>
+                <Pressable
+                  onPress={() => {
+                    setOnboardingAgent(null);
+                    setMonthlyCost('');
+                  }}
+                  className="bg-slate-800 py-3 rounded-xl active:opacity-80"
+                >
+                  <Text className="text-slate-400 text-center font-semibold">Cancel</Text>
+                </Pressable>
+              </View>
             </View>
           )}
         </View>
