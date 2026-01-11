@@ -15,6 +15,9 @@ export default function OKRsScreen() {
   const currentUser = useCurrentUser();
   const queryClient = useQueryClient();
 
+  // Debug: Check role
+  console.log('OKRs Screen - Current role:', currentMembership?.role);
+
   const { data: objectives, isLoading } = useObjectives(currentWorkspace?.id ?? null);
 
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -44,7 +47,10 @@ export default function OKRsScreen() {
           Create your first objective to start tracking progress
         </Text>
         <Pressable
-          onPress={() => setShowCreateModal(true)}
+          onPress={() => {
+            console.log('Create Objective button clicked (empty state)');
+            setShowCreateModal(true);
+          }}
           className="bg-blue-500 rounded-xl px-6 py-3 active:opacity-80"
         >
           <Text className="text-white font-semibold">Create Objective</Text>
@@ -143,7 +149,10 @@ export default function OKRsScreen() {
             </Pressable>
             {currentMembership?.role === 'Founder' && (
               <Pressable
-                onPress={() => setShowCreateModal(true)}
+                onPress={() => {
+                  console.log('Plus button clicked, opening modal');
+                  setShowCreateModal(true);
+                }}
                 className="bg-blue-500 rounded-xl px-4 py-2 active:opacity-80"
               >
                 <Plus size={20} color="white" />
