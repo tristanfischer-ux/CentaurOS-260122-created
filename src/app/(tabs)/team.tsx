@@ -25,13 +25,13 @@ interface TeamMember {
   role: 'Founder' | 'FractionalExec' | 'Apprentice';
   specialization: string[];
   email: string;
-  phone: string;
-  location: string;
+  phone?: string;
+  location?: string;
   experience: number;
   rating: number;
   costPerDay?: number;
   availability: string;
-  bio: string;
+  bio?: string;
   skills: string[];
   currentTasks: number;
   completedTasks: number;
@@ -373,10 +373,12 @@ export default function TeamScreen() {
   };
 
   const handleEmailPress = (email: string) => {
+    if (!email) return;
     Linking.openURL(`mailto:${email}`);
   };
 
-  const handlePhonePress = (phone: string) => {
+  const handlePhonePress = (phone?: string) => {
+    if (!phone) return;
     Linking.openURL(`tel:${phone}`);
   };
 
