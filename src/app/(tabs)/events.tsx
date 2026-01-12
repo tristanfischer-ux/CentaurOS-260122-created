@@ -534,7 +534,7 @@ export default function EventsScreen() {
         <View className="flex-1 bg-black/70 justify-end">
           {selectedEvent && (
             <View className="bg-gray-100 dark:bg-slate-900 rounded-t-3xl" style={{ maxHeight: '90%' }}>
-              <ScrollView showsVerticalScrollIndicator={false}>
+              <ScrollView showsVerticalScrollIndicator={true}>
                 {/* Header */}
                 <View className="p-6 border-b border-gray-300 dark:border-slate-800">
                   <View className="flex-row items-start justify-between mb-3">

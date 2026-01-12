@@ -313,7 +313,7 @@ export default function SettingsScreen() {
               </View>
             </View>
 
-            <ScrollView className="px-6 py-4" showsVerticalScrollIndicator={false}>
+            <ScrollView className="px-6 py-4" showsVerticalScrollIndicator={true}>
               <View className="gap-6">
                 {/* Overview */}
                 <View>
@@ -477,7 +477,7 @@ export default function SettingsScreen() {
               </View>
             </View>
 
-            <ScrollView className="px-6 py-4" showsVerticalScrollIndicator={false}>
+            <ScrollView className="px-6 py-4" showsVerticalScrollIndicator={true}>
               {/* Google Sheets Sync */}
               <View className="mb-6">
                 <View className="flex-row items-center gap-2 mb-3">

@@ -880,7 +880,7 @@ export default function OKRsScreen() {
         <View className="flex-1 bg-black/70">
           {selectedObjectiveForTasks && (
             <View className="mt-auto bg-gray-100 dark:bg-slate-900 rounded-t-3xl" style={{ maxHeight: '90%' }}>
-              <ScrollView showsVerticalScrollIndicator={false}>
+              <ScrollView showsVerticalScrollIndicator={true}>
                 {/* Header */}
                 <LinearGradient
                   colors={['#7c3aed', '#2563eb']}

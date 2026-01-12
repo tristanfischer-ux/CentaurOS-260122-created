@@ -15,7 +15,7 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
 
 ## 🚨 PRODUCTION READINESS STATUS
 
-**Last Updated**: 2026-01-12 (Org Chart Improved + List Yourself Modal Fixed)
+**Last Updated**: 2026-01-12 (Modal Scrolling Fixed Globally)
 
 ### Current Status: ✅ **READY FOR APP STORE SUBMISSION**
 

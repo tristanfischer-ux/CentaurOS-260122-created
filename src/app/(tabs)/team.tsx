@@ -627,7 +627,7 @@ export default function TeamScreen() {
           <Pressable onPress={(e) => e.stopPropagation()}>
             {selectedMember && (
               <View className="bg-gray-100 dark:bg-slate-900 rounded-t-3xl" style={{ maxHeight: '90%' }}>
-                <ScrollView showsVerticalScrollIndicator={false} bounces={false}>
+                <ScrollView showsVerticalScrollIndicator={true} bounces={false}>
                   {/* Header */}
                   <View className="p-6 border-b border-gray-300 dark:border-slate-800">
                   <View className="flex-row justify-between items-start mb-4">

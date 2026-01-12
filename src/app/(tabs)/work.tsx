@@ -617,7 +617,7 @@ export default function WorkScreen() {
                 </Pressable>
               </View>
 
-              <ScrollView className="px-6 py-4" showsVerticalScrollIndicator={false}>
+              <ScrollView className="px-6 py-4" showsVerticalScrollIndicator={true}>
                 {selectedTask && (
                   <View className="gap-4">
                     {/* Title */}
@@ -962,15 +962,15 @@ export default function WorkScreen() {
           keyboardVerticalOffset={0}
         >
           <View className="flex-1 bg-black/70 justify-end">
-            <View className="bg-gray-100 dark:bg-slate-900 rounded-t-3xl p-6" style={{ maxHeight: '90%' }}>
-              <View className="flex-row items-center justify-between mb-6">
+            <View className="bg-gray-100 dark:bg-slate-900 rounded-t-3xl" style={{ maxHeight: '90%' }}>
+              <View className="flex-row items-center justify-between px-6 pt-6 pb-4 border-b border-gray-300 dark:border-slate-800">
                 <Text className="text-gray-900 dark:text-white text-2xl font-bold">Create Task</Text>
                 <Pressable onPress={() => setShowCreateModal(false)}>
                   <X size={24} color="#94a3b8" />
                 </Pressable>
               </View>
 
-              <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+              <ScrollView className="px-6 py-4" showsVerticalScrollIndicator={true} keyboardShouldPersistTaps="handled">
                   {/* Strategic Alignment Notice */}
                   {objectives && objectives.length > 0 ? (
                     <View className="mb-4 bg-blue-500/10 border border-blue-500/30 rounded-xl p-4">

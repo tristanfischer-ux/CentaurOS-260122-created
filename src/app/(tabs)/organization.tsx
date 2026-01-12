@@ -566,7 +566,7 @@ export default function OrganizationScreen() {
           <Pressable onPress={(e) => e.stopPropagation()}>
             {selectedMember && (
               <View className="bg-gray-100 dark:bg-slate-900 rounded-3xl p-6" style={{ maxHeight: '90%' }}>
-                <ScrollView showsVerticalScrollIndicator={false} bounces={false}>
+                <ScrollView showsVerticalScrollIndicator={true} bounces={false}>
                 <View className="flex-row items-center justify-between mb-4">
                   <Text className="text-gray-900 dark:text-white text-xl font-bold">{selectedMember.name}</Text>
                   <Pressable onPress={() => setSelectedMember(null)}>
@@ -673,7 +673,7 @@ export default function OrganizationScreen() {
                   <Text className="text-blue-400 text-sm">{selectedSupplier.supplierName}</Text>
                 </View>
 
-                <ScrollView className="px-6 py-4" showsVerticalScrollIndicator={false}>
+                <ScrollView className="px-6 py-4" showsVerticalScrollIndicator={true}>
                   <View className="mb-4">
                     <Text className="text-gray-600 dark:text-slate-400 text-sm mb-1">Description</Text>
                     <Text className="text-gray-900 dark:text-white">{selectedSupplier.description}</Text>
@@ -791,7 +791,7 @@ export default function OrganizationScreen() {
                   </View>
                 </View>
 
-                <ScrollView className="px-6 py-4" showsVerticalScrollIndicator={false}>
+                <ScrollView className="px-6 py-4" showsVerticalScrollIndicator={true}>
                   <View className="bg-gray-200 dark:bg-slate-800 rounded-xl p-4 mb-4">
                     <View className="flex-row justify-between items-center">
                       <Text className="text-gray-600 dark:text-slate-400">Monthly Cost:</Text>
