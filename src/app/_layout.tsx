@@ -7,8 +7,9 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
 import { View, ActivityIndicator } from 'react-native';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useInitializeApp } from '@/lib/hooks/useInitializeApp';
+import { WelcomeSplash } from '@/components/WelcomeSplash';
 
 export const unstable_settings = {
   initialRouteName: 'sign-in',
@@ -28,10 +29,13 @@ const queryClient = new QueryClient({
 
 function RootLayoutNav({ colorScheme }: { colorScheme: 'light' | 'dark' | null | undefined }) {
   const { isInitialized } = useInitializeApp();
+  const [showWelcomeSplash, setShowWelcomeSplash] = useState(false);
 
   useEffect(() => {
     if (isInitialized) {
       SplashScreen.hideAsync();
+      // Show welcome splash after initialization
+      setShowWelcomeSplash(true);
     }
   }, [isInitialized]);
 
@@ -44,72 +48,79 @@ function RootLayoutNav({ colorScheme }: { colorScheme: 'light' | 'dark' | null |
   }
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="sign-in" options={{ headerShown: false }} />
-        <Stack.Screen name="sign-up" options={{ headerShown: false }} />
-        <Stack.Screen name="welcome" options={{ headerShown: false }} />
-        <Stack.Screen name="onboarding" options={{ headerShown: false }} />
-        <Stack.Screen name="onboarding-executive" options={{ headerShown: false }} />
-        <Stack.Screen name="onboarding-apprentice" options={{ headerShown: false }} />
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="search" options={{ headerShown: false }} />
-        <Stack.Screen name="swipe" options={{ headerShown: false }} />
-        <Stack.Screen
-          name="utilization"
-          options={{
-            headerShown: true,
-            title: 'Team Utilization',
-            headerStyle: { backgroundColor: '#0f172a' },
-            headerTintColor: '#fff',
-          }}
-        />
-        <Stack.Screen
-          name="reports"
-          options={{
-            headerShown: true,
-            title: 'Reports',
-            headerStyle: { backgroundColor: '#09090b' },
-            headerTintColor: '#fff',
-          }}
-        />
-        <Stack.Screen
-          name="org-diagram"
-          options={{
-            headerShown: true,
-            title: 'Organization Chart',
-            headerStyle: { backgroundColor: '#020617' },
-            headerTintColor: '#fff',
-            headerShadowVisible: false,
-          }}
-        />
-        <Stack.Screen
-          name="kpi-details"
-          options={{
-            headerShown: true,
-            headerStyle: { backgroundColor: '#020617' },
-            headerTintColor: '#fff',
-            headerShadowVisible: false,
-          }}
-        />
-        <Stack.Screen
-          name="learning"
-          options={{
-            headerShown: true,
-            title: 'Learning & Development',
-            headerStyle: { backgroundColor: '#020617' },
-            headerTintColor: '#fff',
-            headerShadowVisible: false,
-          }}
-        />
-        <Stack.Screen
-          name="function-hub"
-          options={{
-            headerShown: false,
-          }}
-        />
-      </Stack>
-    </ThemeProvider>
+    <>
+      <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+        <Stack screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="sign-in" options={{ headerShown: false }} />
+          <Stack.Screen name="sign-up" options={{ headerShown: false }} />
+          <Stack.Screen name="welcome" options={{ headerShown: false }} />
+          <Stack.Screen name="onboarding" options={{ headerShown: false }} />
+          <Stack.Screen name="onboarding-executive" options={{ headerShown: false }} />
+          <Stack.Screen name="onboarding-apprentice" options={{ headerShown: false }} />
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="search" options={{ headerShown: false }} />
+          <Stack.Screen name="swipe" options={{ headerShown: false }} />
+          <Stack.Screen
+            name="utilization"
+            options={{
+              headerShown: true,
+              title: 'Team Utilization',
+              headerStyle: { backgroundColor: '#0f172a' },
+              headerTintColor: '#fff',
+            }}
+          />
+          <Stack.Screen
+            name="reports"
+            options={{
+              headerShown: true,
+              title: 'Reports',
+              headerStyle: { backgroundColor: '#09090b' },
+              headerTintColor: '#fff',
+            }}
+          />
+          <Stack.Screen
+            name="org-diagram"
+            options={{
+              headerShown: true,
+              title: 'Organization Chart',
+              headerStyle: { backgroundColor: '#020617' },
+              headerTintColor: '#fff',
+              headerShadowVisible: false,
+            }}
+          />
+          <Stack.Screen
+            name="kpi-details"
+            options={{
+              headerShown: true,
+              headerStyle: { backgroundColor: '#020617' },
+              headerTintColor: '#fff',
+              headerShadowVisible: false,
+            }}
+          />
+          <Stack.Screen
+            name="learning"
+            options={{
+              headerShown: true,
+              title: 'Learning & Development',
+              headerStyle: { backgroundColor: '#020617' },
+              headerTintColor: '#fff',
+              headerShadowVisible: false,
+            }}
+          />
+          <Stack.Screen
+            name="function-hub"
+            options={{
+              headerShown: false,
+            }}
+          />
+        </Stack>
+      </ThemeProvider>
+
+      {/* Welcome Splash Overlay */}
+      {showWelcomeSplash && (
+        <WelcomeSplash onComplete={() => setShowWelcomeSplash(false)} />
+      )}
+    </>
   );
 }
 
