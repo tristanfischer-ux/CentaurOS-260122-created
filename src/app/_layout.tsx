@@ -113,6 +113,16 @@ function RootLayoutNav({ colorScheme }: { colorScheme: 'light' | 'dark' | null |
               headerShown: false,
             }}
           />
+          <Stack.Screen
+            name="marketplace"
+            options={{
+              headerShown: true,
+              title: 'Marketplace',
+              headerStyle: { backgroundColor: '#0f172a' },
+              headerTintColor: '#fff',
+              headerShadowVisible: false,
+            }}
+          />
         </Stack>
       </ThemeProvider>
 

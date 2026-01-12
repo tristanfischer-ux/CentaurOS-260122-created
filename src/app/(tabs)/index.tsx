@@ -35,6 +35,7 @@ import {
   Sparkles,
   BarChart,
   Search,
+  Store,
 } from "lucide-react-native";
 import {
   useCurrentWorkspace,
@@ -765,6 +766,30 @@ export default function HomeScreen() {
               <View className="flex-row items-center flex-1">
                 <Briefcase size={24} color="white" />
                 <Text className="text-white font-semibold ml-3">Work Hub</Text>
+              </View>
+              <ArrowRight size={20} color="white" />
+            </Pressable>
+
+            <Pressable
+              onPress={() => router.push("/marketplace")}
+              className="bg-gradient-to-r from-pink-600 to-pink-500 rounded-2xl p-4 flex-row items-center justify-between active:opacity-70"
+            >
+              <LinearGradient
+                colors={["#db2777", "#ec4899"]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={{
+                  position: "absolute",
+                  left: 0,
+                  right: 0,
+                  top: 0,
+                  bottom: 0,
+                  borderRadius: 16,
+                }}
+              />
+              <View className="flex-row items-center flex-1">
+                <Store size={24} color="white" />
+                <Text className="text-white font-semibold ml-3">Marketplace</Text>
               </View>
               <ArrowRight size={20} color="white" />
             </Pressable>

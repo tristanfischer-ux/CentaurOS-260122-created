@@ -23,10 +23,11 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
 ✅ **TypeScript**: Perfect (0 errors) - All type-safe
 ✅ **UI/UX**: A+ (96/100) - Apple HIG compliant, beautiful design
 ✅ **Themes**: 4 modes (Dark, Light, Off-White, System) - Complete support
-✅ **Features**: 18 major features - Fully functional
+✅ **Features**: 19 major features - Fully functional
 ✅ **RBAC**: A+ (100/100) - Perfect implementation
-✅ **Navigation**: A (95/100) - 7 tabs + 11 screens, all working
+✅ **Navigation**: A (95/100) - 7 tabs + 12 screens, all working
 ✅ **Onboarding**: Complete role-based system implemented
+✅ **Marketplace**: 5-category marketplace for discovery and connection
 ✅ **Testing**: Comprehensive audit complete - See [APP_STORE_AUDIT.md](./APP_STORE_AUDIT.md)
 ⚠️ **Backend**: Local-only (Firebase migration planned for v2.0)
 
@@ -412,6 +413,39 @@ Centaur OS turns OKRs into work, tracks execution, enables review workflows, and
   - **Comprehensive Details**: Contact info, capabilities, certifications, lead times
   - **Verified Suppliers**: ISO-certified manufacturers across all specialties
   - **Search & Filter**: Find suppliers by capability, location, and certifications
+- **Comprehensive Marketplace** - Discover and connect with all resources needed for hardware startups
+  - **5 Core Categories**: Executives, Apprentices, Hardware Suppliers, AI Agents, and Physical Locations
+  - **Executive Marketplace**: Browse fractional executives with specialized expertise across all business functions
+    - Detailed profiles with experience, availability, day rates, and skills
+    - Filter by function (Finance, Sales, Marketing, Operations, Engineering, Admin)
+    - View ratings, reviews, and previous engagements
+  - **Apprentice Marketplace**: Discover talented apprentices ready to contribute
+    - Skills, learning goals, and education background
+    - Hourly rates and availability
+    - Project portfolios and certifications
+  - **Hardware Suppliers Marketplace**: UK manufacturing network with full capabilities
+    - Additive Manufacturing (Plastic & Metal), 3D Printing, Heat Chest Molding
+    - Laser Cutting, CNC Machining, Waterjet Cutting
+    - PCB Assembly, Wire Harness Assembly, Electronic Assembly
+    - Powder Coating, Anodizing, Electroplating
+    - Full stack from design to final assembly and packaging
+    - Certifications (ISO 9001, ISO 14001) and verified suppliers
+  - **AI Agents Marketplace**: 50+ AI tools organized by business function
+    - Finance agents (invoice processing, bookkeeping, analysis)
+    - Sales agents (AI SDR, call analysis, lead enrichment)
+    - Marketing agents (content creation, design, video generation)
+    - Operations agents (document analysis, legal, automation)
+    - Engineering agents (code assistance, design tools)
+    - Admin agents (general purpose, transcription, writing)
+  - **Physical Locations Marketplace**: Offices, co-working spaces, and maker spaces
+    - Meeting rooms, 3D printers, and maker equipment
+    - Capacity, amenities, and pricing
+    - Instant booking availability
+  - **Featured Listings System**: Promoted/advertising capability for top visibility
+  - **Reviews & Ratings**: Community-driven quality indicators for all listings
+  - **Provider Onboarding**: Easy listing creation for service providers
+  - **Quick Navigation**: Direct links from home screen and network tab
+  - **Swipe Discovery**: Tinder-style interface to discover people, AI, and suppliers
 - **Company Discovery** - Connect with other companies using Centaur OS
 - **Community Events** - Schedule and RSVP to cross-company meetups, workshops, and networking events
   - **Interactive Map Visualization**: See event locations on interactive maps with markers
