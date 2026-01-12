@@ -336,40 +336,45 @@ export default function HomeScreen() {
                 Team
               </Text>
 
-              <View className="bg-gray-100 dark:bg-slate-900 rounded-xl p-4">
-                <View className="flex-row items-center justify-between mb-3">
+              <View className="bg-gray-100 dark:bg-slate-900 rounded-xl p-4 border border-gray-300 dark:border-slate-800">
+                <Pressable
+                  onPress={() => router.push('/(tabs)/community')}
+                  className="flex-row items-center justify-between mb-3 active:opacity-70"
+                >
                   <View className="flex-row items-center">
                     <Users size={20} color="#3b82f6" />
                     <Text className="text-gray-900 dark:text-white font-semibold ml-2">
                       {FOUNDER_DATA.team.executives} Executives
                     </Text>
                   </View>
-                  <Pressable onPress={() => router.push('/(tabs)/community')}>
-                    <ArrowRight size={20} color="#3b82f6" />
-                  </Pressable>
-                </View>
-                <View className="flex-row items-center justify-between mb-3">
+                  <ArrowRight size={20} color="#3b82f6" />
+                </Pressable>
+
+                <Pressable
+                  onPress={() => router.push('/(tabs)/community')}
+                  className="flex-row items-center justify-between mb-3 active:opacity-70"
+                >
                   <View className="flex-row items-center">
                     <Award size={20} color="#10b981" />
                     <Text className="text-gray-900 dark:text-white font-semibold ml-2">
                       {FOUNDER_DATA.team.apprentices} Apprentices
                     </Text>
                   </View>
-                  <Pressable onPress={() => router.push('/(tabs)/community')}>
-                    <ArrowRight size={20} color="#10b981" />
-                  </Pressable>
-                </View>
-                <View className="flex-row items-center justify-between">
+                  <ArrowRight size={20} color="#10b981" />
+                </Pressable>
+
+                <Pressable
+                  onPress={() => router.push('/(tabs)/make')}
+                  className="flex-row items-center justify-between active:opacity-70"
+                >
                   <View className="flex-row items-center">
                     <Factory size={20} color="#f59e0b" />
                     <Text className="text-gray-900 dark:text-white font-semibold ml-2">
                       {FOUNDER_DATA.team.suppliers} Suppliers
                     </Text>
                   </View>
-                  <Pressable onPress={() => router.push('/(tabs)/make')}>
-                    <ArrowRight size={20} color="#f59e0b" />
-                  </Pressable>
-                </View>
+                  <ArrowRight size={20} color="#f59e0b" />
+                </Pressable>
               </View>
             </View>
 
