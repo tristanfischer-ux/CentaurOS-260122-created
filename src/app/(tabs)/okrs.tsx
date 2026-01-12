@@ -1,6 +1,6 @@
 import { View, Text, ScrollView, Pressable, ActivityIndicator, TextInput, Modal, Alert, KeyboardAvoidingView, Platform } from 'react-native';
 import { useState } from 'react';
-import { Target, Plus, TrendingUp, AlertTriangle, XCircle, X, Download, Briefcase, CheckCircle2, Edit3, Trash2, GripVertical, Sparkles, Lightbulb, Clock, ArrowRight, CheckSquare, Shield, Activity } from 'lucide-react-native';
+import { Target, Plus, TrendingUp, AlertTriangle, XCircle, X, Download, Briefcase, CheckCircle2, Edit3, Trash2, GripVertical, Sparkles, Lightbulb, Clock, ArrowRight, CheckSquare, Shield, Activity, BookOpen } from 'lucide-react-native';
 import { useCurrentWorkspace, useCurrentMembership, useCurrentUser } from '@/lib/state/app-store';
 import { useObjectives, useTasks } from '@/lib/hooks/queries';
 import { objectiveApi, keyResultApi } from '@/lib/api';
@@ -12,6 +12,7 @@ import { router } from 'expo-router';
 import { suggestTasksForObjective, getObjectiveCoaching, calculateTotalEffort, type SuggestedTask } from '@/lib/objective-tasks';
 import { LinearGradient } from 'expo-linear-gradient';
 import { calculateObjectiveRisk, getRiskColor, getRiskLabel } from '@/lib/okr-risk-scoring';
+import { OKR_SUGGESTIONS, OKR_CATEGORIES, getOKRsByCategory, type OKRSuggestion, type OKRCategory } from '@/lib/okr-suggestions';
 
 export default function OKRsScreen() {
   const currentWorkspace = useCurrentWorkspace();
@@ -23,6 +24,9 @@ export default function OKRsScreen() {
   const { data: tasks } = useTasks(currentWorkspace?.id ?? null);
 
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showOKRLibraryModal, setShowOKRLibraryModal] = useState(false);
+  const [selectedOKRCategory, setSelectedOKRCategory] = useState<OKRCategory | 'all'>('all');
+  const [selectedOKRSuggestion, setSelectedOKRSuggestion] = useState<OKRSuggestion | null>(null);
   const [showEditKRModal, setShowEditKRModal] = useState(false);
   const [showEditObjectiveModal, setShowEditObjectiveModal] = useState(false);
   const [showSuggestTasksModal, setShowSuggestTasksModal] = useState(false);
@@ -313,12 +317,20 @@ export default function OKRsScreen() {
               <Download size={20} color="#94a3b8" />
             </Pressable>
             {currentMembership?.role === 'Founder' && (
-              <Pressable
-                onPress={() => setShowCreateModal(true)}
-                className="bg-blue-500 rounded-xl px-4 py-2 active:opacity-70"
-              >
-                <Plus size={20} color="white" />
-              </Pressable>
+              <>
+                <Pressable
+                  onPress={() => setShowOKRLibraryModal(true)}
+                  className="bg-purple-500 rounded-xl px-4 py-2 active:opacity-70"
+                >
+                  <BookOpen size={20} color="white" />
+                </Pressable>
+                <Pressable
+                  onPress={() => setShowCreateModal(true)}
+                  className="bg-blue-500 rounded-xl px-4 py-2 active:opacity-70"
+                >
+                  <Plus size={20} color="white" />
+                </Pressable>
+              </>
             )}
           </View>
         </View>
@@ -1102,6 +1114,248 @@ export default function OKRsScreen() {
               </ScrollView>
             </View>
           )}
+        </View>
+      </Modal>
+
+      {/* OKR Library Modal */}
+      <Modal
+        visible={showOKRLibraryModal}
+        transparent
+        animationType="slide"
+        onRequestClose={() => {
+          setShowOKRLibraryModal(false);
+          setSelectedOKRSuggestion(null);
+        }}
+      >
+        <View className="flex-1 bg-black/50">
+          <View className="flex-1 mt-20 bg-white dark:bg-slate-900 rounded-t-3xl">
+            {/* Header */}
+            <View className="p-6 border-b border-gray-200 dark:border-slate-800">
+              <View className="flex-row items-center justify-between mb-4">
+                <Text className="text-gray-900 dark:text-white text-2xl font-bold">OKR Library</Text>
+                <Pressable onPress={() => {
+                  setShowOKRLibraryModal(false);
+                  setSelectedOKRSuggestion(null);
+                }}>
+                  <X size={24} color="#94a3b8" />
+                </Pressable>
+              </View>
+              <Text className="text-gray-600 dark:text-slate-400">
+                Browse pre-built OKRs for common startup objectives
+              </Text>
+            </View>
+
+            {!selectedOKRSuggestion ? (
+              <>
+                {/* Category Filter */}
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  className="px-6 py-4 border-b border-gray-200 dark:border-slate-800"
+                  style={{ flexGrow: 0 }}
+                >
+                  <Pressable
+                    onPress={() => setSelectedOKRCategory('all')}
+                    className={`mr-3 px-4 py-2 rounded-xl ${
+                      selectedOKRCategory === 'all'
+                        ? 'bg-purple-500'
+                        : 'bg-gray-200 dark:bg-slate-800'
+                    }`}
+                  >
+                    <Text className={selectedOKRCategory === 'all' ? 'text-white font-semibold' : 'text-gray-700 dark:text-slate-300'}>
+                      All ({OKR_SUGGESTIONS.length})
+                    </Text>
+                  </Pressable>
+
+                  {OKR_CATEGORIES.map((category) => {
+                    const count = getOKRsByCategory(category.id as OKRCategory).length;
+                    const isSelected = selectedOKRCategory === category.id;
+
+                    return (
+                      <Pressable
+                        key={category.id}
+                        onPress={() => setSelectedOKRCategory(category.id as OKRCategory)}
+                        className={`mr-3 px-4 py-2 rounded-xl ${
+                          isSelected ? 'bg-purple-500' : 'bg-gray-200 dark:bg-slate-800'
+                        }`}
+                      >
+                        <Text className={isSelected ? 'text-white font-semibold' : 'text-gray-700 dark:text-slate-300'}>
+                          {category.icon} {category.name} ({count})
+                        </Text>
+                      </Pressable>
+                    );
+                  })}
+                </ScrollView>
+
+                {/* OKR List */}
+                <ScrollView className="flex-1 px-6 py-4">
+                  <View className="gap-4 pb-6">
+                    {(selectedOKRCategory === 'all'
+                      ? OKR_SUGGESTIONS
+                      : getOKRsByCategory(selectedOKRCategory)
+                    ).map((okr) => (
+                      <Pressable
+                        key={okr.id}
+                        onPress={() => setSelectedOKRSuggestion(okr)}
+                        className="bg-gray-100 dark:bg-slate-800 rounded-2xl p-5 border border-gray-200 dark:border-slate-700 active:opacity-70"
+                      >
+                        <Text className="text-gray-900 dark:text-white font-bold text-lg mb-2">
+                          {okr.title}
+                        </Text>
+                        <Text className="text-gray-600 dark:text-slate-400 text-sm mb-3" numberOfLines={2}>
+                          {okr.description}
+                        </Text>
+                        <View className="flex-row items-center justify-between">
+                          <View className="flex-row items-center gap-2">
+                            <Clock size={14} color="#94a3b8" />
+                            <Text className="text-gray-600 dark:text-slate-400 text-xs">
+                              {okr.suggestedDuration} days
+                            </Text>
+                          </View>
+                          <View className="flex-row items-center gap-2">
+                            <Target size={14} color="#94a3b8" />
+                            <Text className="text-gray-600 dark:text-slate-400 text-xs">
+                              {okr.keyResults.length} Key Results
+                            </Text>
+                          </View>
+                        </View>
+                      </Pressable>
+                    ))}
+                  </View>
+                </ScrollView>
+              </>
+            ) : (
+              <ScrollView className="flex-1">
+                {/* OKR Detail View */}
+                <View className="p-6">
+                  <Pressable
+                    onPress={() => setSelectedOKRSuggestion(null)}
+                    className="flex-row items-center gap-2 mb-6"
+                  >
+                    <ArrowRight size={20} color="#94a3b8" style={{ transform: [{ rotate: '180deg' }] }} />
+                    <Text className="text-gray-600 dark:text-slate-400 text-sm">Back to Library</Text>
+                  </Pressable>
+
+                  <Text className="text-gray-900 dark:text-white text-2xl font-bold mb-3">
+                    {selectedOKRSuggestion.title}
+                  </Text>
+
+                  <View className="bg-purple-500/10 border border-purple-500/30 rounded-xl p-4 mb-6">
+                    <Text className="text-gray-700 dark:text-slate-300 leading-6">
+                      {selectedOKRSuggestion.description}
+                    </Text>
+                  </View>
+
+                  {/* Suggested Duration */}
+                  <View className="mb-6">
+                    <View className="flex-row items-center gap-2 mb-2">
+                      <Clock size={18} color="#8b5cf6" />
+                      <Text className="text-gray-900 dark:text-white font-bold">Suggested Timeline</Text>
+                    </View>
+                    <Text className="text-gray-600 dark:text-slate-400">
+                      {selectedOKRSuggestion.suggestedDuration} days ({Math.round(selectedOKRSuggestion.suggestedDuration / 7)} weeks)
+                    </Text>
+                  </View>
+
+                  {/* Key Results */}
+                  <View className="mb-6">
+                    <View className="flex-row items-center gap-2 mb-3">
+                      <Target size={18} color="#8b5cf6" />
+                      <Text className="text-gray-900 dark:text-white font-bold">Key Results</Text>
+                    </View>
+                    {selectedOKRSuggestion.keyResults.map((kr, idx) => (
+                      <View key={idx} className="bg-gray-100 dark:bg-slate-800 rounded-xl p-4 mb-3 border border-gray-200 dark:border-slate-700">
+                        <View className="flex-row items-center justify-between mb-1">
+                          <Text className="text-gray-900 dark:text-white font-semibold flex-1">
+                            {kr.title}
+                          </Text>
+                        </View>
+                        <View className="flex-row items-center gap-2">
+                          <Text className="text-purple-500 font-bold">Target: {kr.targetValue}</Text>
+                          <Text className="text-gray-600 dark:text-slate-400 text-sm">{kr.unit}</Text>
+                        </View>
+                      </View>
+                    ))}
+                  </View>
+
+                  {/* Why It Matters */}
+                  <View className="mb-6">
+                    <View className="flex-row items-center gap-2 mb-3">
+                      <Lightbulb size={18} color="#8b5cf6" />
+                      <Text className="text-gray-900 dark:text-white font-bold">Why It Matters</Text>
+                    </View>
+                    <Text className="text-gray-700 dark:text-slate-300 leading-6">
+                      {selectedOKRSuggestion.whyItMatters}
+                    </Text>
+                  </View>
+
+                  {/* Common Pitfalls */}
+                  <View className="mb-6">
+                    <View className="flex-row items-center gap-2 mb-3">
+                      <AlertTriangle size={18} color="#f59e0b" />
+                      <Text className="text-gray-900 dark:text-white font-bold">Common Pitfalls</Text>
+                    </View>
+                    {selectedOKRSuggestion.commonPitfalls.map((pitfall, idx) => (
+                      <View key={idx} className="flex-row items-start gap-2 mb-2">
+                        <Text className="text-amber-500 text-lg">⚠️</Text>
+                        <Text className="text-gray-700 dark:text-slate-300 flex-1">{pitfall}</Text>
+                      </View>
+                    ))}
+                  </View>
+
+                  {/* Success Metrics */}
+                  <View className="mb-6">
+                    <View className="flex-row items-center gap-2 mb-3">
+                      <CheckCircle2 size={18} color="#10b981" />
+                      <Text className="text-gray-900 dark:text-white font-bold">Success Metrics</Text>
+                    </View>
+                    {selectedOKRSuggestion.successMetrics.map((metric, idx) => (
+                      <View key={idx} className="flex-row items-start gap-2 mb-2">
+                        <Text className="text-emerald-500 text-lg">✓</Text>
+                        <Text className="text-gray-700 dark:text-slate-300 flex-1">{metric}</Text>
+                      </View>
+                    ))}
+                  </View>
+
+                  {/* Add to My OKRs Button */}
+                  <Pressable
+                    onPress={async () => {
+                      if (!currentUser || !currentMembership || !currentWorkspace) return;
+
+                      try {
+                        const startDate = new Date().toISOString();
+                        const endDate = new Date(Date.now() + selectedOKRSuggestion.suggestedDuration * 24 * 60 * 60 * 1000).toISOString();
+
+                        await objectiveApi.create(
+                          {
+                            title: selectedOKRSuggestion.title,
+                            description: selectedOKRSuggestion.description,
+                            workspaceId: currentWorkspace.id,
+                            ownerId: currentUser.id,
+                            startDate,
+                            endDate,
+                          },
+                          currentUser.id,
+                          currentMembership.role
+                        );
+
+                        queryClient.invalidateQueries({ queryKey: ['objectives', currentWorkspace.id] });
+                        setShowOKRLibraryModal(false);
+                        setSelectedOKRSuggestion(null);
+                        Alert.alert('Success', 'OKR added to your objectives!');
+                      } catch (error: any) {
+                        Alert.alert('Error', error.message || 'Failed to add OKR');
+                      }
+                    }}
+                    className="bg-purple-500 rounded-xl p-4 flex-row items-center justify-center active:opacity-70"
+                  >
+                    <Plus size={20} color="white" />
+                    <Text className="text-white font-bold text-lg ml-2">Add to My OKRs</Text>
+                  </Pressable>
+                </View>
+              </ScrollView>
+            )}
+          </View>
         </View>
       </Modal>
     </>

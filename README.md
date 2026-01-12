@@ -327,6 +327,13 @@ Centaur OS turns OKRs into work, tracks execution, enables review workflows, and
   - **Visual Organization**: Agents grouped by function with emoji icons (💰📈📣⚙️💻📋🏭) and color coding
   - **Modal Views**: Tappable AI agent and supplier cards display full details in properly positioned bottom-sheet modals
 - **OKR Management** - Create, edit, and delete objectives with real-time progress tracking
+  - **OKR Library (NEW - Founder-Only)** - Browse and add pre-built OKRs from comprehensive library
+    - **30+ Pre-Built OKR Templates**: Research-backed objectives for common startup goals
+    - **12 Categories**: Revenue Growth, Product-Market Fit, Customer Acquisition, Customer Retention, Team Building, Operational Efficiency, Fundraising, Product Development, Brand Awareness, Manufacturing, Supply Chain, Sustainability
+    - **Detailed OKR Profiles**: Each includes title, description, suggested timeline, 3 key results with targets, "Why It Matters" coaching, common pitfalls to avoid, and success metrics
+    - **One-Click Add**: Browse library → View OKR details → Add to My OKRs with automatic dates
+    - **Category Filtering**: Filter by specific category or browse all 30+ templates
+    - **Expert Guidance**: Every OKR includes founder-level coaching on what matters and what to avoid
   - **Full Objective Management (Founder-Only)**:
     - Create new objectives with title, description, and date ranges
     - Edit existing objectives by tapping the blue edit icon on each objective card
