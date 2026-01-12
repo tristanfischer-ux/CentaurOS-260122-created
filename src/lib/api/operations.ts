@@ -252,6 +252,11 @@ export const taskApi = {
       payloadSummary: `Updated task: ${task.title} to ${data.status || task.status}`,
     });
 
+    // Auto-calculate OKR progress if task is linked to an objective
+    if (updated.linkedObjectiveId) {
+      await updateOKRProgressFromTasks(updated.linkedObjectiveId);
+    }
+
     return updated;
   },
 
@@ -264,6 +269,8 @@ export const taskApi = {
     const task = tasks[taskId];
     if (!task) return;
 
+    const linkedObjectiveId = task.linkedObjectiveId; // Save before deletion
+
     delete tasks[taskId];
     await db.setTasks(tasks);
 
@@ -275,6 +282,11 @@ export const taskApi = {
       objectId: taskId,
       payloadSummary: `Deleted task: ${task.title}`,
     });
+
+    // Recalculate OKR progress if task was linked
+    if (linkedObjectiveId) {
+      await updateOKRProgressFromTasks(linkedObjectiveId);
+    }
   },
 };
 
@@ -758,3 +770,48 @@ export const timeEntryApi = {
     });
   },
 };
+
+// ============================================================================
+// OKR PROGRESS AUTO-CALCULATION
+// ============================================================================
+
+/**
+ * Calculate OKR progress based on linked tasks
+ * Returns progress percentage (0-100) based on completed vs total tasks
+ */
+export async function calculateOKRProgress(objectiveId: string): Promise<number> {
+  const tasks = await db.getTasks();
+  const linkedTasks = Object.values(tasks).filter(
+    (t: any) => t.linkedObjectiveId === objectiveId
+  );
+
+  if (linkedTasks.length === 0) {
+    return 0; // No tasks linked, 0% progress
+  }
+
+  const completedTasks = linkedTasks.filter((t: any) => t.status === 'done');
+  const progress = (completedTasks.length / linkedTasks.length) * 100;
+
+  return Math.round(progress);
+}
+
+/**
+ * Update all key results for an objective with auto-calculated progress
+ * Call this whenever a task is completed or status changes
+ */
+export async function updateOKRProgressFromTasks(objectiveId: string): Promise<void> {
+  try {
+    const progress = await calculateOKRProgress(objectiveId);
+    
+    // Update the objective's implicit progress
+    // This can be used to show overall objective health
+    const objectives = await db.getObjectives();
+    if (objectives[objectiveId]) {
+      objectives[objectiveId].calculatedProgress = progress;
+      objectives[objectiveId].updatedAt = new Date().toISOString();
+      await db.setObjectives(objectives);
+    }
+  } catch (error) {
+    console.error('Failed to update OKR progress:', error);
+  }
+}

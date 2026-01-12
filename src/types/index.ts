@@ -283,6 +283,7 @@ export interface Objective {
   startDate: string;
   endDate: string;
   status: 'active' | 'completed' | 'archived';
+  calculatedProgress?: number; // Auto-calculated from linked tasks (0-100)
   createdAt: string;
   updatedAt: string;
 }
