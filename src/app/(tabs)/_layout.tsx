@@ -137,16 +137,6 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => <TabBarIcon Icon={Settings} color={color} />,
         }}
       />
-
-      {/* Hide old tabs - keep files for backward compatibility */}
-      <Tabs.Screen name="okrs" options={{ href: null }} />
-      <Tabs.Screen name="work" options={{ href: null }} />
-      <Tabs.Screen name="team" options={{ href: null }} />
-      <Tabs.Screen name="organization" options={{ href: null }} />
-      <Tabs.Screen name="events" options={{ href: null }} />
-      <Tabs.Screen name="network" options={{ href: null }} />
-      <Tabs.Screen name="reviews" options={{ href: null }} />
-      <Tabs.Screen name="ai-agents" options={{ href: null }} />
     </Tabs>
   );
 }
