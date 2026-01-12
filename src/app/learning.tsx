@@ -505,6 +505,18 @@ export default function LearningScreen() {
             </Text>
           </View>
         )}
+
+        {selectedApprentice && !selectedData && (
+          <View className="items-center justify-center py-20 px-6">
+            <GraduationCap size={48} color="#334155" />
+            <Text className="text-slate-400 text-center mt-4 mb-4">
+              No data available for this apprentice yet.
+            </Text>
+            <Text className="text-slate-500 text-center text-sm">
+              Add skills, training modules, and performance reviews to start tracking their development.
+            </Text>
+          </View>
+        )}
       </ScrollView>
     </View>
   );
