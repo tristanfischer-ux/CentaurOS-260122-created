@@ -739,6 +739,62 @@ export default function OrganizationScreen() {
                     </View>
                   )}
 
+                  {selectedAI.usedBy && selectedAI.usedBy.length > 0 && (
+                    <View className="mb-4">
+                      <Text className="text-white font-semibold mb-2">Used By Team</Text>
+                      <View className="bg-slate-800 rounded-xl p-3">
+                        <View className="gap-2">
+                          {selectedAI.usedBy.map((userId, idx) => {
+                            const member = ORGANIZATION_MEMBERS.find(m => m.id === userId);
+                            if (!member) return null;
+
+                            const getRoleColor = (role: string) => {
+                              switch (role) {
+                                case 'Founder': return '#3b82f6';
+                                case 'FractionalExec': return '#8b5cf6';
+                                case 'Apprentice': return '#10b981';
+                                default: return '#64748b';
+                              }
+                            };
+
+                            const getRoleLabel = (role: string) => {
+                              switch (role) {
+                                case 'Founder': return 'Founder';
+                                case 'FractionalExec': return 'Executive';
+                                case 'Apprentice': return 'Apprentice';
+                                default: return role;
+                              }
+                            };
+
+                            return (
+                              <View key={idx} className="flex-row items-center justify-between py-2">
+                                <View className="flex-row items-center flex-1">
+                                  <View
+                                    className="w-10 h-10 rounded-full items-center justify-center mr-3"
+                                    style={{ backgroundColor: getRoleColor(member.role) + '20' }}
+                                  >
+                                    <Text
+                                      className="text-sm font-bold"
+                                      style={{ color: getRoleColor(member.role) }}
+                                    >
+                                      {member.name.split(' ').map(n => n[0]).join('')}
+                                    </Text>
+                                  </View>
+                                  <View className="flex-1">
+                                    <Text className="text-white font-medium">{member.name}</Text>
+                                    <Text className="text-slate-400 text-xs">
+                                      {getRoleLabel(member.role)} • {member.function}
+                                    </Text>
+                                  </View>
+                                </View>
+                              </View>
+                            );
+                          })}
+                        </View>
+                      </View>
+                    </View>
+                  )}
+
                   <View className="mb-4">
                     <Text className="text-white font-semibold mb-2">Capabilities</Text>
                     {selectedAI.capabilities.map((cap, idx) => (
