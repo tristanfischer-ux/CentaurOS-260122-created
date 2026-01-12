@@ -341,8 +341,13 @@ Centaur OS turns OKRs into work, tracks execution, enables review workflows, and
   - **Task Reassignment**: Easily reassign existing tasks to different team members
   - **Status Management**: Update task status (todo, in_progress, in_review, done)
   - **Filter by Status**: Filter tasks by status to focus on what matters
+  - **Review Workflow** (Integrated):
+    - **Apprentices**: Request review when work is complete (moves task to "In Review" status)
+    - **Executives/Founders**: Quick approve (✓) or request changes (✗) buttons on tasks in review
+    - **Approve**: Marks task as Done and logs approval activity
+    - **Request Changes**: Returns task to In Progress with feedback notification
+    - **In Review Filter**: Easily see all tasks awaiting review
   - **Success Alerts**: Visual confirmation when tasks are created or updated
-- **Review Queue** - Apprentices request reviews, Fractional Execs approve/reject with audit trails
 - **Time Tracking** - Apprentices log hours on tasks with notes and date tracking
 - **Team Utilization Dashboard** - Executives and Founders view team capacity and productivity
 - **Automated Reports** - Professional, board-ready reports with beautiful design

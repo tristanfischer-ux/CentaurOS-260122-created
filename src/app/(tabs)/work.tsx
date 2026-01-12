@@ -407,6 +407,7 @@ export default function WorkScreen() {
             {filteredTasks.map((task) => {
               const isOwn = task.assigneeId === currentUser?.id;
               const canRequestReview = isOwn && task.status === 'in_progress' && currentMembership?.role === 'Apprentice';
+              const canReview = task.status === 'in_review' && (currentMembership?.role === 'FractionalExec' || currentMembership?.role === 'Founder');
 
               return (
                 <Pressable
@@ -526,6 +527,63 @@ export default function WorkScreen() {
                         >
                           <Text className="text-blue-400 text-xs font-semibold">Request Review</Text>
                         </Pressable>
+                      )}
+
+                      {canReview && (
+                        <>
+                          <Pressable
+                            onPress={async (e) => {
+                              e.stopPropagation();
+                              try {
+                                await updateTaskMutation.mutateAsync({
+                                  taskId: task.id,
+                                  workspaceId: currentWorkspace!.id,
+                                  updates: { status: 'done' },
+                                });
+                                if (currentUser) {
+                                  await addActivity({
+                                    type: 'review_approved',
+                                    title: 'Work Approved',
+                                    description: `${currentUser.name} approved "${task.title}"`,
+                                    userId: currentUser.id,
+                                    userName: currentUser.name,
+                                  });
+                                }
+                              } catch (error) {
+                                console.error('Failed to approve task:', error);
+                              }
+                            }}
+                            className="bg-green-500/20 border border-green-500/30 px-3 py-1 rounded-lg active:opacity-70"
+                          >
+                            <Text className="text-green-400 text-xs font-semibold">✓ Approve</Text>
+                          </Pressable>
+                          <Pressable
+                            onPress={async (e) => {
+                              e.stopPropagation();
+                              try {
+                                await updateTaskMutation.mutateAsync({
+                                  taskId: task.id,
+                                  workspaceId: currentWorkspace!.id,
+                                  updates: { status: 'in_progress' },
+                                });
+                                if (currentUser) {
+                                  await addActivity({
+                                    type: 'review_requested',
+                                    title: 'Changes Requested',
+                                    description: `${currentUser.name} requested changes on "${task.title}"`,
+                                    userId: currentUser.id,
+                                    userName: currentUser.name,
+                                  });
+                                }
+                              } catch (error) {
+                                console.error('Failed to request changes:', error);
+                              }
+                            }}
+                            className="bg-red-500/20 border border-red-500/30 px-3 py-1 rounded-lg active:opacity-70"
+                          >
+                            <Text className="text-red-400 text-xs font-semibold">✗ Changes</Text>
+                          </Pressable>
+                        </>
                       )}
                     </View>
                   </View>

@@ -103,19 +103,18 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="reviews"
-        options={{
-          title: 'Reviews',
-          headerTitle: 'Review Queue',
-          tabBarIcon: ({ color }) => <TabBarIcon Icon={CheckCircle} color={color} />,
-        }}
-      />
-      <Tabs.Screen
         name="network"
         options={{
           title: 'Network',
           headerTitle: 'Network',
           tabBarIcon: ({ color }) => <TabBarIcon Icon={Network} color={color} />,
+        }}
+      />
+      {/* Reviews tab removed - review functionality integrated into Work tab */}
+      <Tabs.Screen
+        name="reviews"
+        options={{
+          href: null, // Hide from tab bar
         }}
       />
       <Tabs.Screen
