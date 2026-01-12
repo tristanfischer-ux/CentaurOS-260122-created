@@ -1,7 +1,7 @@
 import { View, Text, Animated } from 'react-native';
 import { useEffect, useRef } from 'react';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Building2 } from 'lucide-react-native';
+import { CentaurLogo } from './CentaurLogo';
 
 // Curated collection of inspiring business quotes
 const BUSINESS_QUOTES = [
@@ -152,9 +152,7 @@ export function WelcomeSplash({ onComplete }: WelcomeSplashProps) {
               marginBottom: 32,
             }}
           >
-            <View className="w-24 h-24 bg-blue-500 rounded-3xl items-center justify-center shadow-2xl">
-              <Building2 size={48} color="white" />
-            </View>
+            <CentaurLogo size={140} />
           </Animated.View>
 
           {/* Welcome Text */}
