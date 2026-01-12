@@ -869,13 +869,36 @@ export default function OKRsScreen() {
                   <>
                     {/* Coaching Section */}
                     {(() => {
-                      const pattern = suggestedTasks[0];
-                      const category = pattern ?
-                        (pattern.function === 'Sales' || pattern.function === 'Finance') ? 'revenue' :
-                        (pattern.function === 'Marketing') ? 'customer' :
-                        (pattern.function === 'Engineering') ? 'product' :
-                        'operations' : 'operations';
-                      const coaching = getObjectiveCoaching(category as any);
+                      // Determine category based on the matched pattern
+                      const firstTask = suggestedTasks[0];
+                      let category: 'revenue' | 'product' | 'customer' | 'team' | 'operations' | 'fundraising' = 'operations';
+
+                      if (firstTask) {
+                        // Match based on task ID prefix
+                        const idPrefix = firstTask.id.split('-')[0];
+                        switch (idPrefix) {
+                          case 'rev':
+                            category = 'revenue';
+                            break;
+                          case 'pmf':
+                            category = 'product';
+                            break;
+                          case 'acq':
+                            category = 'customer';
+                            break;
+                          case 'team':
+                            category = 'team';
+                            break;
+                          case 'ops':
+                            category = 'operations';
+                            break;
+                          case 'fund':
+                            category = 'fundraising';
+                            break;
+                        }
+                      }
+
+                      const coaching = getObjectiveCoaching(category);
                       const effort = calculateTotalEffort(suggestedTasks);
 
                       return (
