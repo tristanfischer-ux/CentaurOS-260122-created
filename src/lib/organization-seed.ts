@@ -13,6 +13,8 @@ export interface OrganizationMember {
   costPerDay?: number;
   startDate: string;
   status: 'active' | 'inactive';
+  linkedIn?: string; // LinkedIn profile URL
+  bio?: string; // Professional bio
 }
 
 export interface SupplierEngagement {
@@ -76,6 +78,8 @@ export const ORGANIZATION_MEMBERS: OrganizationMember[] = [
     phone: '+44 7700 900101',
     startDate: '2024-01-01',
     status: 'active',
+    linkedIn: 'https://www.linkedin.com/in/sarahchen',
+    bio: 'Serial entrepreneur with 15+ years in hardware startups. Previously founded two successful IoT companies. Passionate about lean operations and fractional teams.',
   },
   {
     id: 'founder-2',
@@ -87,6 +91,8 @@ export const ORGANIZATION_MEMBERS: OrganizationMember[] = [
     phone: '+44 7700 900102',
     startDate: '2024-01-01',
     status: 'active',
+    linkedIn: 'https://www.linkedin.com/in/marcusthompson',
+    bio: 'Product leader with deep hardware engineering background. Ex-Dyson, ex-Apple. Specializes in design for manufacturability and rapid prototyping.',
   },
 
   // Fractional Executives
@@ -102,6 +108,8 @@ export const ORGANIZATION_MEMBERS: OrganizationMember[] = [
     costPerDay: 850,
     startDate: '2024-02-01',
     status: 'active',
+    linkedIn: 'https://www.linkedin.com/in/jordanmartinez',
+    bio: 'Fractional CFO with 12 years experience. Helped 20+ startups raise Series A funding. Expert in financial modeling and unit economics.',
   },
   {
     id: 'exec-2',
@@ -115,6 +123,8 @@ export const ORGANIZATION_MEMBERS: OrganizationMember[] = [
     costPerDay: 920,
     startDate: '2024-02-15',
     status: 'active',
+    linkedIn: 'https://www.linkedin.com/in/emmarichardson',
+    bio: 'Enterprise sales leader with £50M+ closed. Built sales teams from 0 to 15. Specializes in B2B manufacturing and industrial markets.',
   },
   {
     id: 'exec-3',
@@ -128,6 +138,8 @@ export const ORGANIZATION_MEMBERS: OrganizationMember[] = [
     costPerDay: 1100,
     startDate: '2024-03-01',
     status: 'active',
+    linkedIn: 'https://www.linkedin.com/in/davidpark',
+    bio: 'Former CTO at Series B hardware startup. 18 years in embedded systems and IoT. Led teams of 30+ engineers. Expert in manufacturing scale-up.',
   },
   {
     id: 'exec-4',
@@ -141,6 +153,8 @@ export const ORGANIZATION_MEMBERS: OrganizationMember[] = [
     costPerDay: 780,
     startDate: '2024-03-15',
     status: 'active',
+    linkedIn: 'https://www.linkedin.com/in/sophieadams',
+    bio: 'Growth marketing specialist for hardware products. 10 years in consumer electronics marketing. Led launches for 5 successful Kickstarter campaigns.',
   },
 
   // Apprentices
@@ -155,6 +169,8 @@ export const ORGANIZATION_MEMBERS: OrganizationMember[] = [
     costPerDay: 140,
     startDate: '2024-04-01',
     status: 'active',
+    linkedIn: 'https://www.linkedin.com/in/alexrivera',
+    bio: 'Finance graduate eager to learn startup financial operations. Strong Excel skills and quick learner. Passionate about building unit economics models.',
   },
   {
     id: 'apprentice-2',
@@ -167,6 +183,8 @@ export const ORGANIZATION_MEMBERS: OrganizationMember[] = [
     costPerDay: 135,
     startDate: '2024-04-15',
     status: 'active',
+    linkedIn: 'https://www.linkedin.com/in/priyasharma',
+    bio: 'Accounting background with interest in startup finance. Detail-oriented and methodical. Learning financial modeling and fundraising processes.',
   },
   {
     id: 'apprentice-3',
@@ -179,6 +197,8 @@ export const ORGANIZATION_MEMBERS: OrganizationMember[] = [
     costPerDay: 145,
     startDate: '2024-05-01',
     status: 'active',
+    linkedIn: 'https://www.linkedin.com/in/jameswilson',
+    bio: 'Natural communicator with 2 years in B2B sales. Consistently exceeds outreach targets. Learning enterprise sales methodology.',
   },
   {
     id: 'apprentice-4',
@@ -191,6 +211,8 @@ export const ORGANIZATION_MEMBERS: OrganizationMember[] = [
     costPerDay: 150,
     startDate: '2024-05-01',
     status: 'active',
+    linkedIn: 'https://www.linkedin.com/in/lilychen',
+    bio: 'Business development enthusiast with strong relationship-building skills. Previous experience in customer success. Learning complex sales cycles.',
   },
   {
     id: 'apprentice-5',
@@ -203,6 +225,8 @@ export const ORGANIZATION_MEMBERS: OrganizationMember[] = [
     costPerDay: 155,
     startDate: '2024-05-15',
     status: 'active',
+    linkedIn: 'https://www.linkedin.com/in/omarhassan',
+    bio: 'Computer engineering graduate with embedded systems interest. Strong C++ and Python skills. Learning hardware-software integration.',
   },
   {
     id: 'apprentice-6',
@@ -215,6 +239,8 @@ export const ORGANIZATION_MEMBERS: OrganizationMember[] = [
     costPerDay: 160,
     startDate: '2024-06-01',
     status: 'active',
+    linkedIn: 'https://www.linkedin.com/in/mayapatel',
+    bio: 'Electronics engineering background. Experienced with PCB design and microcontrollers. Learning manufacturing processes and DFM principles.',
   },
   {
     id: 'apprentice-7',
@@ -227,6 +253,8 @@ export const ORGANIZATION_MEMBERS: OrganizationMember[] = [
     costPerDay: 142,
     startDate: '2024-06-15',
     status: 'active',
+    linkedIn: 'https://www.linkedin.com/in/lucassilva',
+    bio: 'Marketing graduate with social media and content creation skills. Creative mindset with data-driven approach. Learning product marketing for hardware.',
   },
 ];
 

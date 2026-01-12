@@ -1,4 +1,4 @@
-import { View, Text, Pressable, Dimensions, Alert, ScrollView } from 'react-native';
+import { View, Text, Pressable, Dimensions, Alert, ScrollView, Modal, Linking } from 'react-native';
 import { useState } from 'react';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, {
@@ -34,6 +34,8 @@ import {
   Building,
   Cpu,
   Factory,
+  Linkedin,
+  ExternalLink,
 } from 'lucide-react-native';
 import { router } from 'expo-router';
 import { ORGANIZATION_MEMBERS, AI_AGENTS, SUPPLIER_ENGAGEMENTS } from '@/lib/organization-seed';
@@ -57,6 +59,8 @@ interface PersonCard {
   skills?: string[];
   reportsTo?: string;
   manages?: string[];
+  linkedIn?: string;
+  bio?: string;
 }
 
 interface AICard {
@@ -96,6 +100,7 @@ export default function SwipeScreen() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [shortlist, setShortlist] = useState<CardData[]>([]);
   const [showShortlist, setShowShortlist] = useState(false);
+  const [selectedPerson, setSelectedPerson] = useState<PersonCard | null>(null);
 
   const translateX = useSharedValue(0);
   const translateY = useSharedValue(0);
@@ -119,6 +124,8 @@ export default function SwipeScreen() {
           skills: [m.function],
           reportsTo: m.reportsTo,
           manages: m.manages,
+          linkedIn: m.linkedIn,
+          bio: m.bio,
         }));
       case 'ai':
         return AI_AGENTS.map(a => ({
@@ -484,7 +491,7 @@ export default function SwipeScreen() {
 
               {/* Top Trumps Style Card */}
               {currentCard.type === 'people' && (
-                <PersonTopTrumpsCard card={currentCard as PersonCard} />
+                <PersonTopTrumpsCard card={currentCard as PersonCard} onTap={setSelectedPerson} />
               )}
               {currentCard.type === 'ai' && (
                 <AITopTrumpsCard card={currentCard as AICard} />
@@ -529,13 +536,157 @@ export default function SwipeScreen() {
           </Pressable>
         </View>
       )}
+
+      {/* Person Detail Modal */}
+      <Modal visible={selectedPerson !== null} transparent animationType="slide">
+        <View className="flex-1 bg-black/80">
+          {selectedPerson && (
+            <View className="mt-auto bg-slate-900 rounded-t-3xl" style={{ maxHeight: '85%' }}>
+              <ScrollView showsVerticalScrollIndicator={false}>
+                {/* Header */}
+                <LinearGradient
+                  colors={['#3b82f6', '#2563eb']}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 0 }}
+                  style={{ padding: 24, paddingTop: 32 }}
+                >
+                  <View className="flex-row justify-between items-start mb-4">
+                    <View className="flex-1">
+                      <View className="w-16 h-16 bg-white/20 rounded-full items-center justify-center mb-3">
+                        <Users size={32} color="#fff" />
+                      </View>
+                      <Text className="text-white text-3xl font-bold mb-1">{selectedPerson.name}</Text>
+                      <Text className="text-blue-100 text-lg mb-2">{selectedPerson.role}</Text>
+                      <View className="bg-white/20 px-3 py-1 rounded-lg self-start">
+                        <Text className="text-white text-sm font-semibold">{selectedPerson.function}</Text>
+                      </View>
+                    </View>
+                    <Pressable onPress={() => setSelectedPerson(null)} className="bg-white/20 p-2 rounded-full">
+                      <X size={24} color="#fff" />
+                    </Pressable>
+                  </View>
+                </LinearGradient>
+
+                {/* Bio */}
+                {selectedPerson.bio && (
+                  <View className="p-6 border-b border-slate-800">
+                    <Text className="text-slate-400 text-sm font-semibold mb-2">About</Text>
+                    <Text className="text-slate-300 text-base leading-6">{selectedPerson.bio}</Text>
+                  </View>
+                )}
+
+                {/* Stats */}
+                <View className="p-6 border-b border-slate-800">
+                  <Text className="text-slate-400 text-sm font-semibold mb-3">Details</Text>
+                  <View className="gap-3">
+                    {selectedPerson.costPerDay && (
+                      <View className="flex-row justify-between">
+                        <Text className="text-slate-400">Daily Rate:</Text>
+                        <Text className="text-white font-semibold">£{selectedPerson.costPerDay}</Text>
+                      </View>
+                    )}
+                    <View className="flex-row justify-between">
+                      <Text className="text-slate-400">Started:</Text>
+                      <Text className="text-white font-semibold">
+                        {new Date(selectedPerson.startDate).toLocaleDateString('en-GB', {
+                          day: 'numeric',
+                          month: 'long',
+                          year: 'numeric'
+                        })}
+                      </Text>
+                    </View>
+                  </View>
+                </View>
+
+                {/* Contact */}
+                <View className="p-6 border-b border-slate-800">
+                  <Text className="text-slate-400 text-sm font-semibold mb-3">Contact</Text>
+                  <View className="gap-3">
+                    <Pressable
+                      onPress={() => Linking.openURL(`mailto:${selectedPerson.email}`)}
+                      className="bg-slate-800 p-4 rounded-xl flex-row items-center active:opacity-70"
+                    >
+                      <View className="w-10 h-10 bg-blue-500/20 rounded-full items-center justify-center mr-3">
+                        <Mail size={20} color="#3b82f6" />
+                      </View>
+                      <View className="flex-1">
+                        <Text className="text-slate-400 text-xs">Email</Text>
+                        <Text className="text-white">{selectedPerson.email}</Text>
+                      </View>
+                    </Pressable>
+
+                    {selectedPerson.phone && (
+                      <Pressable
+                        onPress={() => Linking.openURL(`tel:${selectedPerson.phone}`)}
+                        className="bg-slate-800 p-4 rounded-xl flex-row items-center active:opacity-70"
+                      >
+                        <View className="w-10 h-10 bg-emerald-500/20 rounded-full items-center justify-center mr-3">
+                          <Phone size={20} color="#10b981" />
+                        </View>
+                        <View className="flex-1">
+                          <Text className="text-slate-400 text-xs">Phone</Text>
+                          <Text className="text-white">{selectedPerson.phone}</Text>
+                        </View>
+                      </Pressable>
+                    )}
+                  </View>
+                </View>
+
+                {/* LinkedIn Profile */}
+                {selectedPerson.linkedIn && (
+                  <View className="p-6">
+                    <Pressable
+                      onPress={() => Linking.openURL(selectedPerson.linkedIn!)}
+                      className="bg-gradient-to-r from-blue-600 to-blue-700 p-5 rounded-2xl flex-row items-center justify-between active:opacity-80"
+                    >
+                      <LinearGradient
+                        colors={['#0077b5', '#005582']}
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 1, y: 0 }}
+                        style={{
+                          position: 'absolute',
+                          left: 0,
+                          right: 0,
+                          top: 0,
+                          bottom: 0,
+                          borderRadius: 16,
+                        }}
+                      />
+                      <View className="flex-row items-center flex-1">
+                        <View className="w-12 h-12 bg-white rounded-lg items-center justify-center mr-4">
+                          <Linkedin size={28} color="#0077b5" />
+                        </View>
+                        <View className="flex-1">
+                          <Text className="text-white font-bold text-lg mb-1">View LinkedIn Profile</Text>
+                          <Text className="text-blue-100 text-sm">See full professional background</Text>
+                        </View>
+                      </View>
+                      <ExternalLink size={24} color="#fff" />
+                    </Pressable>
+                  </View>
+                )}
+
+                {/* Close Button */}
+                <View className="p-6 pt-0">
+                  <Pressable
+                    onPress={() => setSelectedPerson(null)}
+                    className="bg-slate-800 py-4 rounded-xl active:opacity-80"
+                  >
+                    <Text className="text-slate-400 text-center font-semibold text-base">Close</Text>
+                  </Pressable>
+                </View>
+              </ScrollView>
+            </View>
+          )}
+        </View>
+      </Modal>
     </View>
   );
 }
 
 // TOP TRUMPS STYLE CARD COMPONENTS
 
-function PersonTopTrumpsCard({ card }: { card: PersonCard }) {
+function PersonTopTrumpsCard({ card, onTap }: { card: PersonCard; onTap: (person: PersonCard) => void }) {
   const experienceMonths = Math.floor(
     (new Date().getTime() - new Date(card.startDate).getTime()) / (1000 * 60 * 60 * 24 * 30)
   );
@@ -558,22 +709,25 @@ function PersonTopTrumpsCard({ card }: { card: PersonCard }) {
     >
       <View className="flex-1 bg-slate-900 rounded-2xl overflow-hidden">
         {/* Header */}
-        <LinearGradient
-          colors={['#3b82f6', '#2563eb']}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 0 }}
-          style={{ padding: 20 }}
-        >
-          <View className="flex-row items-center gap-3 mb-2">
-            <View className="w-12 h-12 bg-white/20 rounded-full items-center justify-center">
-              <Users size={24} color="#fff" />
+        <Pressable onPress={() => onTap(card)}>
+          <LinearGradient
+            colors={['#3b82f6', '#2563eb']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+            style={{ padding: 20 }}
+          >
+            <View className="flex-row items-center gap-3 mb-2">
+              <View className="w-12 h-12 bg-white/20 rounded-full items-center justify-center">
+                <Users size={24} color="#fff" />
+              </View>
+              <View className="flex-1">
+                <Text className="text-white text-2xl font-bold">{card.name}</Text>
+                <Text className="text-blue-100 text-sm">{card.role}</Text>
+              </View>
+              <ExternalLink size={20} color="rgba(255,255,255,0.7)" />
             </View>
-            <View className="flex-1">
-              <Text className="text-white text-2xl font-bold">{card.name}</Text>
-              <Text className="text-blue-100 text-sm">{card.role}</Text>
-            </View>
-          </View>
-        </LinearGradient>
+          </LinearGradient>
+        </Pressable>
 
         <ScrollView className="flex-1 p-5">
           {/* Stats Grid - Top Trumps Style */}
