@@ -1,9 +1,11 @@
 import { View, Text, ScrollView, Pressable, Linking, TextInput, Modal, Alert } from 'react-native';
 import { useState } from 'react';
-import { Building2, Users, Calendar, ExternalLink, MapPin, Package, ChevronRight, Search, X, Star, DollarSign, CalendarCheck, Award, Mail, Phone, Bot, Zap, CheckCircle, Globe } from 'lucide-react-native';
+import { Building2, Users, Calendar, ExternalLink, MapPin, Package, ChevronRight, Search, X, Star, DollarSign, CalendarCheck, Award, Mail, Phone, Bot, Zap, CheckCircle, Globe, Heart } from 'lucide-react-native';
 import { UK_SUPPLIERS } from '@/lib/suppliers-seed';
 import { fractionalExecutives, apprentices, type Candidate } from '@/lib/candidates-seed';
 import { AI_AGENTS, type AIAgent } from '@/lib/organization-seed';
+import { router } from 'expo-router';
+import { LinearGradient } from 'expo-linear-gradient';
 
 type NetworkTab = 'suppliers' | 'companies' | 'hiring' | 'ai-agents';
 
@@ -107,9 +109,35 @@ export default function NetworkScreen() {
 
   return (
     <View className="flex-1 bg-slate-950">
+      {/* Discover Button */}
+      <View className="px-6 pt-4 pb-2">
+        <Pressable
+          onPress={() => router.push('/swipe')}
+          className="active:opacity-80"
+        >
+          <LinearGradient
+            colors={['#ec4899', '#d946ef']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+            style={{
+              borderRadius: 16,
+              padding: 16,
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 8,
+            }}
+          >
+            <Heart size={20} color="#fff" fill="#fff" />
+            <Text className="text-white font-bold text-base">
+              Discover People, AI & Suppliers
+            </Text>
+          </LinearGradient>
+        </Pressable>
+      </View>
+
       {/* Tab Selector */}
-      <View className="flex-row border-b border-slate-800 bg-slate-950">
-        {tabs.map((tab) => {
+      <View className="flex-row border-b border-slate-800 bg-slate-950">{tabs.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
           return (

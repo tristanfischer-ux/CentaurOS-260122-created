@@ -192,6 +192,24 @@ Centaur OS turns OKRs into work, tracks execution, enables review workflows, and
   - **Quick Navigation**: Tap any result to jump to the relevant screen
   - **Smart Filtering**: Searches across names, descriptions, emails, and more
   - **Top 5 per Category**: Shows most relevant 5 results per data type
+- **Tinder-Style Discovery** - Swipe to discover people, AI agents, and suppliers
+  - **Unified Swipe Interface**: Browse all resources with consistent card layouts
+  - **Three Categories**: People (team members), AI Agents (tools), Suppliers (partners)
+  - **Interactive Cards**: Swipe right to add to shortlist, left to pass
+  - **Rich Information**: Each card shows key details at a glance
+    - **People Cards**: Name, role, function, contact info, daily cost, experience
+    - **AI Agent Cards**: Name, provider, model, purpose, capabilities, monthly cost
+    - **Supplier Cards**: Project name, description, location, status, total cost
+  - **Gesture Controls**: Swipe or tap buttons (❌ Pass / ❤️ Add to Shortlist)
+  - **Progress Tracking**: See current position in deck (e.g., 5/13)
+  - **Shortlist Management**: Build a curated list of resources to engage
+  - **Quick Access**: Heart icon shows shortlist count with visual indicator
+  - **Reach Out Feature**: Contact shortlisted people via email from one place
+  - **Tab Switching**: Seamlessly switch between People, AI Agents, and Suppliers
+  - **Visual Overlays**: "LIKE" and "PASS" overlays appear as you swipe
+  - **Gradient Cards**: Color-coded by type (Blue: People, Green: AI, Amber: Suppliers)
+  - **Entry Point**: Prominent "Discover" button in Network tab with gradient styling
+  - **Start Over**: Reset and review all cards again when finished
 - **Learning & Onboarding (Founder/Exec-Only)** - Track apprentice growth and development
   - **Skills Matrix**: Track proficiency levels across technical, soft, and domain skills
   - **Skill Levels**: Beginner, Intermediate, Advanced, Expert with progress tracking (0-100%)
