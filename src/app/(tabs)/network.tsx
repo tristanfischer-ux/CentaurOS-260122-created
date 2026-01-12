@@ -234,7 +234,7 @@ export default function NetworkScreen() {
         }}
       >
         <View className="flex-1 bg-black/70 justify-end">
-          <View className="bg-white dark:bg-slate-900 rounded-t-3xl" style={{ maxHeight: '90%' }}>
+          <View className="bg-white dark:bg-slate-900 rounded-t-3xl" style={{ maxHeight: '90%', minHeight: '60%' }}>
             {/* Fixed Header */}
             <View className="px-6 pt-6 pb-4 border-b border-gray-200 dark:border-slate-800 flex-row items-center justify-between">
               <Text className="text-gray-900 dark:text-white text-xl font-bold">List Yourself</Text>
