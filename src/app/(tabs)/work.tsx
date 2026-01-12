@@ -1,16 +1,19 @@
 import { View, Text, ScrollView, Pressable, ActivityIndicator, Modal, TextInput, KeyboardAvoidingView, Platform, Alert } from 'react-native';
 import { useState } from 'react';
-import { Briefcase, Plus, CheckCircle2, Clock, AlertCircle, Circle, X, User, Target, AlertTriangle } from 'lucide-react-native';
+import { Briefcase, Plus, CheckCircle2, Clock, AlertCircle, Circle, X, User, Target, AlertTriangle, Trash2, ArrowUp, ArrowDown } from 'lucide-react-native';
 import { useCurrentWorkspace, useCurrentMembership, useCurrentUser } from '@/lib/state/app-store';
 import { useTasks, useUpdateTask, useRequestReview, useCreateTask, useWorkspaceMembers, useObjectives } from '@/lib/hooks/queries';
 import { TimeTrackingModal } from '@/components/TimeTrackingModal';
 import type { TaskStatus, TaskPriority, Function as TaskFunction, Task } from '@/types';
 import { router } from 'expo-router';
+import { taskApi } from '@/lib/api/operations';
+import { useQueryClient } from '@tanstack/react-query';
 
 export default function WorkScreen() {
   const currentWorkspace = useCurrentWorkspace();
   const currentMembership = useCurrentMembership();
   const currentUser = useCurrentUser();
+  const queryClient = useQueryClient();
 
   const { data: tasks, isLoading } = useTasks(currentWorkspace?.id ?? null);
   const { data: members } = useWorkspaceMembers(currentWorkspace?.id ?? null);
@@ -59,6 +62,15 @@ export default function WorkScreen() {
     if (filterObjective === 'unlinked' && task.objectiveId) return false;
     if (filterObjective !== 'all' && filterObjective !== 'unlinked' && task.objectiveId !== filterObjective) return false;
     return true;
+  }).sort((a, b) => {
+    // Priority order: urgent > high > medium > low
+    const priorityOrder: Record<TaskPriority, number> = {
+      urgent: 4,
+      high: 3,
+      medium: 2,
+      low: 1,
+    };
+    return priorityOrder[b.priority] - priorityOrder[a.priority];
   }) || [];
 
   const unlinkedTasks = tasks?.filter(t => !t.objectiveId) || [];
@@ -173,6 +185,33 @@ export default function WorkScreen() {
       console.error('Failed to update task:', error);
       Alert.alert('Error', 'Failed to update task. Please try again.');
     }
+  };
+
+  const handleDeleteTask = async (task: Task) => {
+    if (!currentUser || !currentMembership) return;
+
+    Alert.alert(
+      'Delete Task',
+      `Are you sure you want to delete "${task.title}"?`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await taskApi.delete(task.id, currentUser.id, currentMembership.role);
+              queryClient.invalidateQueries({ queryKey: ['tasks', currentWorkspace?.id] });
+              setShowEditModal(false);
+              setSelectedTask(null);
+              Alert.alert('Success', 'Task deleted successfully');
+            } catch (error: any) {
+              Alert.alert('Error', error.message || 'Failed to delete task');
+            }
+          },
+        },
+      ]
+    );
   };
 
   const getStatusIcon = (status: TaskStatus) => {
@@ -695,8 +734,8 @@ export default function WorkScreen() {
                       )}
                     </View>
 
-                    {/* Save Button */}
-                    <View className="pt-4">
+                    {/* Action Buttons */}
+                    <View className="pt-4 gap-3">
                       <Pressable
                         onPress={handleUpdateTask}
                         disabled={updateTaskMutation.isPending || !editTitle.trim()}
@@ -710,6 +749,20 @@ export default function WorkScreen() {
                           {updateTaskMutation.isPending ? 'Updating...' : 'Save Changes'}
                         </Text>
                       </Pressable>
+
+                      {selectedTask && (currentMembership?.role === 'Founder' || currentMembership?.role === 'FractionalExec') && (
+                        <Pressable
+                          onPress={() => handleDeleteTask(selectedTask)}
+                          className="rounded-xl py-4 items-center bg-red-500/10 border border-red-500/30 active:opacity-80"
+                        >
+                          <View className="flex-row items-center gap-2">
+                            <Trash2 size={18} color="#ef4444" />
+                            <Text className="text-red-400 font-bold text-base">
+                              Delete Task
+                            </Text>
+                          </View>
+                        </Pressable>
+                      )}
                     </View>
                   </View>
                 )}

@@ -138,6 +138,8 @@ Centaur OS turns OKRs into work, tracks execution, enables review workflows, and
     - Assignee selection (Executives and Apprentices displayed separately)
     - Link to Objective (with visual feedback if not linked)
     - Due Date
+  - **Delete Tasks** (Founder/Exec Only): Remove tasks with confirmation dialog
+  - **Priority-Based Sorting**: Tasks automatically sorted by priority (Urgent → High → Medium → Low)
   - **Strategic Alignment Enforcement**: Prominent reminders that all work should support objectives
   - **Unlinked Task Warnings**: Alert banner showing tasks not linked to objectives with count
   - **Filter by Objective**: View tasks for specific objectives or see all unlinked tasks
