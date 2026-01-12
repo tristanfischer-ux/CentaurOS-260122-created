@@ -34,6 +34,7 @@ import {
   Sliders as SlidersIcon,
   Sparkles,
   BarChart,
+  Search,
 } from "lucide-react-native";
 import {
   useCurrentWorkspace,
@@ -107,10 +108,20 @@ export default function HomeScreen() {
       <ScrollView className="flex-1">
         {/* Header Section */}
         <View className="p-6 pb-4">
-          <Text className="text-slate-400 text-sm mb-1">Welcome back,</Text>
-          <Text className="text-white text-2xl font-bold">
-            {currentUser?.name}
-          </Text>
+          <View className="flex-row items-center justify-between mb-2">
+            <View className="flex-1">
+              <Text className="text-slate-400 text-sm mb-1">Welcome back,</Text>
+              <Text className="text-white text-2xl font-bold">
+                {currentUser?.name}
+              </Text>
+            </View>
+            <Pressable
+              onPress={() => router.push('/search')}
+              className="w-10 h-10 bg-slate-900 rounded-xl items-center justify-center border border-slate-800 active:opacity-70"
+            >
+              <Search size={20} color="#3b82f6" />
+            </Pressable>
+          </View>
           <View className="mt-2 bg-blue-500/20 self-start px-3 py-1 rounded-full">
             <Text className="text-blue-400 text-xs font-semibold">{role}</Text>
           </View>

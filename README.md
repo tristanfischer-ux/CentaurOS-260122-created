@@ -168,6 +168,15 @@ Centaur OS turns OKRs into work, tracks execution, enables review workflows, and
   - **RSVP Management**: Join or leave events with real-time attendee tracking
 - **Weekly Pack Generator** - One-click generation of status reports with OKR progress
 - **Templates Library** - Pre-built task templates by function (Finance, Sales, Marketing, Ops, Engineering)
+- **Global Search** - Search across all data types from anywhere in the app
+  - **One-Click Access**: Search button on home screen for instant access
+  - **Search Everything**: Tasks, OKRs, Team Members, Suppliers, AI Agents in one place
+  - **Live Results**: Real-time filtering as you type
+  - **Categorized Results**: Results grouped by type (Tasks, OKRs, People, etc.)
+  - **Result Counts**: Shows how many results found in each category
+  - **Quick Navigation**: Tap any result to jump to the relevant screen
+  - **Smart Filtering**: Searches across names, descriptions, emails, and more
+  - **Top 5 per Category**: Shows most relevant 5 results per data type
 - **Data Management (Founder-Only)** - Bulk import and export with Google Sheets integration
   - **Google Sheets Sync**: Two-way synchronization with Google Sheets for automatic data updates
   - **CSV Import/Export**: Import and export all data types as CSV files
