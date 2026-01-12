@@ -69,30 +69,19 @@ export default function MakeScreen() {
 
   return (
     <View className="flex-1 bg-white dark:bg-slate-950" style={{ paddingTop: insets.top }}>
-      <TabDescription description="AI tools, suppliers, manufacturers, and bill of materials (BOM) tracking for your hardware product." />
-
-      {/* Header with stats */}
-      <View className="px-6 pt-4 pb-2">
-        {/* Supplier Orders CTA */}
-        <Pressable
-          onPress={() => router.push('/supplier-orders')}
-          className="bg-gradient-to-r from-emerald-500 to-blue-500 rounded-2xl p-4 mb-4 flex-row items-center justify-between active:opacity-70"
-        >
-          <View className="flex-row items-center flex-1">
-            <View className="bg-white/20 rounded-xl p-2 mr-3">
-              <ShoppingCart size={24} color="#fff" />
-            </View>
-            <View className="flex-1">
-              <Text className="text-white font-bold text-base">Supplier Orders</Text>
-              <Text className="text-white/80 text-xs mt-0.5">
-                Track manufacturing orders & quotes
-              </Text>
-            </View>
+      {/* Header */}
+      <View className="px-6 py-4 border-b border-gray-300 dark:border-slate-800">
+        <View className="flex-row items-center justify-between mb-3">
+          <View className="flex-1">
+            <Text className="text-gray-900 dark:text-white text-2xl font-bold">Make</Text>
+            <Text className="text-gray-600 dark:text-slate-400 text-sm mt-0.5">
+              AI tools, suppliers, manufacturers, and BOM tracking
+            </Text>
           </View>
-          <ChevronRight size={20} color="#fff" />
-        </Pressable>
+        </View>
 
-        <View className="flex-row gap-3 mb-4">
+        {/* Summary Stats */}
+        <View className="flex-row gap-3 mb-3">
           <View className="flex-1 bg-gray-100 dark:bg-slate-900 rounded-xl p-3 border border-gray-300 dark:border-slate-800">
             <Text className="text-gray-600 dark:text-slate-400 text-xs mb-1">Suppliers</Text>
             <Text className="text-emerald-400 text-xl font-bold">
@@ -113,10 +102,8 @@ export default function MakeScreen() {
             </Text>
           </View>
         </View>
-      </View>
 
-      {/* Tab Selector */}
-      <View className="px-6 mb-2">
+        {/* Tab Selector */}
         <View className="flex-row bg-gray-100 dark:bg-slate-900 rounded-xl p-1 border border-gray-300 dark:border-slate-800">
           {tabs.map((tab) => {
             const Icon = tab.icon;

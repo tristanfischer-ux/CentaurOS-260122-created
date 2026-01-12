@@ -191,10 +191,34 @@ export default function CommunityScreen() {
 
   return (
     <View className="flex-1 bg-white dark:bg-slate-950" style={{ paddingTop: insets.top }}>
-      <TabDescription description="Search and connect with fractional executives, apprentices, suppliers, and manufacturers. Apply to join the marketplace." />
+      {/* Header */}
+      <View className="px-6 py-4 border-b border-gray-300 dark:border-slate-800">
+        <View className="flex-row items-center justify-between mb-3">
+          <View className="flex-1">
+            <Text className="text-gray-900 dark:text-white text-2xl font-bold">Community</Text>
+            <Text className="text-gray-600 dark:text-slate-400 text-sm mt-0.5">
+              Find executives, apprentices, suppliers, and apply to join
+            </Text>
+          </View>
+        </View>
 
-      {/* Tab Selector */}
-      <View className="px-6 pt-4 pb-2">
+        {/* Summary Stats */}
+        <View className="flex-row gap-3 mb-3">
+          <View className="flex-1 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl p-3 border border-emerald-200 dark:border-emerald-800">
+            <Text className="text-emerald-700 dark:text-emerald-300 text-xs mb-1">Executives</Text>
+            <Text className="text-emerald-600 dark:text-emerald-400 text-2xl font-bold">{filteredExecutives.length}</Text>
+          </View>
+          <View className="flex-1 bg-purple-50 dark:bg-purple-900/20 rounded-xl p-3 border border-purple-200 dark:border-purple-800">
+            <Text className="text-purple-700 dark:text-purple-300 text-xs mb-1">Apprentices</Text>
+            <Text className="text-purple-600 dark:text-purple-400 text-2xl font-bold">{filteredApprentices.length}</Text>
+          </View>
+          <View className="flex-1 bg-amber-50 dark:bg-amber-900/20 rounded-xl p-3 border border-amber-200 dark:border-amber-800">
+            <Text className="text-amber-700 dark:text-amber-300 text-xs mb-1">Suppliers</Text>
+            <Text className="text-amber-600 dark:text-amber-400 text-2xl font-bold">{filteredSuppliers.length}</Text>
+          </View>
+        </View>
+
+        {/* Tab Selector */}
         <View className="flex-row bg-gray-100 dark:bg-slate-900 rounded-xl p-1 border border-gray-300 dark:border-slate-800">
           {tabs.map((tab) => {
             const Icon = tab.icon;
@@ -227,7 +251,7 @@ export default function CommunityScreen() {
 
       {/* Search & Filter */}
       {(activeTab === 'executives' || activeTab === 'apprentices' || activeTab === 'suppliers') && (
-        <View className="px-6 pb-3">
+        <View className="px-6 py-3 border-b border-gray-300 dark:border-slate-800">
           <TextInput
             className="bg-gray-100 dark:bg-slate-900 rounded-xl px-4 py-3 text-gray-900 dark:text-white text-base border border-gray-300 dark:border-slate-800"
             value={searchQuery}
