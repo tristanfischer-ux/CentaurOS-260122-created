@@ -1,19 +1,16 @@
 import { View, Text, ScrollView, Pressable, Modal, Dimensions } from 'react-native';
 import React, { useState } from 'react';
-import { X, Mail, Phone, Users, ChevronRight, Bot, Sparkles } from 'lucide-react-native';
+import { X, Mail, Phone, Bot, ChevronRight } from 'lucide-react-native';
 import Svg, { Circle, Line, Text as SvgText } from 'react-native-svg';
 import { ORGANIZATION_MEMBERS, AI_AGENTS, type OrganizationMember } from '@/lib/organization-seed';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
-const DIAGRAM_WIDTH = Math.max(SCREEN_WIDTH * 2, 800); // Make it much wider
-const DIAGRAM_HEIGHT = 1000; // Taller for better vertical spacing
-const CENTER_X = DIAGRAM_WIDTH / 2;
-const CENTER_Y = DIAGRAM_HEIGHT / 2;
 
-// Layout configuration for circular org diagram - IMPROVED SPACING
-const FOUNDER_RADIUS = 60;
-const EXEC_DISTANCE = 280; // Increased from 220
-const APPRENTICE_DISTANCE = 480; // Increased from 360
+// Hierarchical layout: Founders → Executives → AI Agents → Apprentices
+const NODE_WIDTH = 140;
+const NODE_HEIGHT = 80;
+const VERTICAL_SPACING = 120;
+const HORIZONTAL_SPACING = 20;
 
 export default function OrgDiagramScreen() {
   const [selectedMember, setSelectedMember] = useState<OrganizationMember | null>(null);
@@ -23,51 +20,35 @@ export default function OrgDiagramScreen() {
   const execs = ORGANIZATION_MEMBERS.filter(m => m.role === 'FractionalExec');
   const apprentices = ORGANIZATION_MEMBERS.filter(m => m.role === 'Apprentice');
 
-  // Calculate positions for each member
-  const getPosition = (member: OrganizationMember, index: number, total: number) => {
-    if (member.role === 'Founder') {
-      // Founders in the center (side by side)
-      const spacing = 70;
-      return {
-        x: CENTER_X - (founders.length - 1) * spacing / 2 + index * spacing,
-        y: CENTER_Y,
-      };
-    }
+  // Calculate diagram dimensions
+  const maxRowWidth = Math.max(
+    founders.length * (NODE_WIDTH + HORIZONTAL_SPACING),
+    execs.length * (NODE_WIDTH + HORIZONTAL_SPACING),
+    AI_AGENTS.length * (NODE_WIDTH + HORIZONTAL_SPACING),
+    apprentices.length * (NODE_WIDTH + HORIZONTAL_SPACING)
+  );
+  const DIAGRAM_WIDTH = Math.max(maxRowWidth + 100, SCREEN_WIDTH);
+  const DIAGRAM_HEIGHT = VERTICAL_SPACING * 5 + 100; // 4 rows + padding
 
-    if (member.role === 'FractionalExec') {
-      // Executives in a circle around founders
-      const angle = (index / total) * 2 * Math.PI - Math.PI / 2;
-      return {
-        x: CENTER_X + EXEC_DISTANCE * Math.cos(angle),
-        y: CENTER_Y + EXEC_DISTANCE * Math.sin(angle),
-      };
-    }
+  // Calculate positions for hierarchical layout
+  const getHierarchicalPosition = (member: OrganizationMember, index: number, total: number, rowIndex: number) => {
+    const rowWidth = total * NODE_WIDTH + (total - 1) * HORIZONTAL_SPACING;
+    const startX = (DIAGRAM_WIDTH - rowWidth) / 2;
 
-    // Apprentices in outer circle, positioned near their manager
-    const manager = execs.find(e => e.manages?.includes(member.id));
-    if (manager) {
-      const execIndex = execs.indexOf(manager);
-      const execAngle = (execIndex / execs.length) * 2 * Math.PI - Math.PI / 2;
+    return {
+      x: startX + index * (NODE_WIDTH + HORIZONTAL_SPACING) + NODE_WIDTH / 2,
+      y: 60 + rowIndex * VERTICAL_SPACING,
+    };
+  };
 
-      // Find this apprentice's position among manager's apprentices
-      const siblingApprentices = apprentices.filter(a =>
-        execs.find(e => e.manages?.includes(a.id))?.id === manager.id
-      );
-      const apprenticeIndex = siblingApprentices.indexOf(member);
-      const apprenticeCount = siblingApprentices.length;
+  const getAIAgentPosition = (agentIndex: number, total: number) => {
+    const rowWidth = total * NODE_WIDTH + (total - 1) * HORIZONTAL_SPACING;
+    const startX = (DIAGRAM_WIDTH - rowWidth) / 2;
 
-      // Spread apprentices in an arc around their manager
-      const arcSpread = Math.PI / 4; // Increased from PI/6 for wider spread
-      const apprenticeAngle = execAngle + (apprenticeIndex - (apprenticeCount - 1) / 2) * arcSpread / Math.max(apprenticeCount - 1, 1);
-
-      return {
-        x: CENTER_X + APPRENTICE_DISTANCE * Math.cos(apprenticeAngle),
-        y: CENTER_Y + APPRENTICE_DISTANCE * Math.sin(apprenticeAngle),
-      };
-    }
-
-    // Fallback position
-    return { x: CENTER_X, y: CENTER_Y + APPRENTICE_DISTANCE };
+    return {
+      x: startX + agentIndex * (NODE_WIDTH + HORIZONTAL_SPACING) + NODE_WIDTH / 2,
+      y: 60 + 2 * VERTICAL_SPACING, // Row 3 (0-indexed row 2)
+    };
   };
 
   const getRoleColor = (role: string) => {
@@ -79,25 +60,16 @@ export default function OrgDiagramScreen() {
     }
   };
 
-  const getRoleLabel = (role: string) => {
-    switch (role) {
-      case 'Founder': return 'F';
-      case 'FractionalExec': return 'E';
-      case 'Apprentice': return 'A';
-      default: return '?';
-    }
-  };
-
   return (
     <View className="flex-1 bg-slate-950">
       <ScrollView className="flex-1">
         {/* Info Banner */}
         <View className="p-4 bg-blue-500/10 border-b border-blue-500/20">
           <Text className="text-blue-400 text-sm font-medium mb-1">
-            Interactive Organization Diagram
+            Organization Hierarchy
           </Text>
           <Text className="text-slate-400 text-xs">
-            Tap any member to see details and AI agents used. Blue badges show AI agent count. Scroll horizontally to see all members.
+            Standard org chart: Founders → Executives → AI Agents → Apprentices. Tap any member to see details.
           </Text>
         </View>
 
@@ -106,36 +78,33 @@ export default function OrgDiagramScreen() {
           <Text className="text-white font-semibold mb-3">Legend</Text>
           <View className="flex-row flex-wrap gap-4">
             <View className="flex-row items-center">
-              <View className="w-8 h-8 rounded-full bg-blue-500/20 border-2 border-blue-500 items-center justify-center mr-2">
-                <Text className="text-blue-400 text-xs font-bold">SC</Text>
+              <View className="w-8 h-8 rounded-lg bg-blue-500/20 border-2 border-blue-500 items-center justify-center mr-2">
+                <Text className="text-blue-400 text-xs font-bold">F</Text>
               </View>
               <Text className="text-slate-300 text-sm">Founder</Text>
             </View>
             <View className="flex-row items-center">
-              <View className="w-8 h-8 rounded-full bg-purple-500/20 border-2 border-purple-500 items-center justify-center mr-2">
-                <Text className="text-purple-400 text-xs font-bold">JM</Text>
+              <View className="w-8 h-8 rounded-lg bg-purple-500/20 border-2 border-purple-500 items-center justify-center mr-2">
+                <Text className="text-purple-400 text-xs font-bold">E</Text>
               </View>
               <Text className="text-slate-300 text-sm">Executive</Text>
             </View>
             <View className="flex-row items-center">
-              <View className="w-8 h-8 rounded-full bg-emerald-500/20 border-2 border-emerald-500 items-center justify-center mr-2">
-                <Text className="text-emerald-400 text-xs font-bold">AL</Text>
+              <View className="w-8 h-8 rounded-lg bg-slate-600/20 border-2 border-slate-500 items-center justify-center mr-2">
+                <Bot size={14} color="#64748b" />
+              </View>
+              <Text className="text-slate-300 text-sm">AI Agent</Text>
+            </View>
+            <View className="flex-row items-center">
+              <View className="w-8 h-8 rounded-lg bg-emerald-500/20 border-2 border-emerald-500 items-center justify-center mr-2">
+                <Text className="text-emerald-400 text-xs font-bold">A</Text>
               </View>
               <Text className="text-slate-300 text-sm">Apprentice</Text>
             </View>
-            <View className="flex-row items-center">
-              <View className="w-5 h-5 rounded-full bg-blue-500 items-center justify-center mr-2">
-                <Text className="text-white text-xs font-bold">5</Text>
-              </View>
-              <Text className="text-slate-300 text-sm">AI Agents</Text>
-            </View>
           </View>
-          <Text className="text-slate-400 text-xs mt-3">
-            Tip: Larger diagram with better spacing. Scroll horizontally to see the full org chart. Tap any circle to view member details and their AI agents.
-          </Text>
         </View>
 
-        {/* Org Diagram */}
+        {/* Hierarchical Org Diagram */}
         <View className="p-4">
           <View className="bg-slate-900 rounded-2xl p-4 border border-slate-800">
             <ScrollView
@@ -145,144 +114,274 @@ export default function OrgDiagramScreen() {
             >
               <View style={{ width: DIAGRAM_WIDTH, height: DIAGRAM_HEIGHT, position: 'relative' }}>
                 <Svg width={DIAGRAM_WIDTH} height={DIAGRAM_HEIGHT}>
-                  {/* Draw reporting lines */}
-                  {ORGANIZATION_MEMBERS.map((member) => {
-                    if (member.reportsTo) {
-                      const manager = ORGANIZATION_MEMBERS.find(m => m.id === member.reportsTo);
-                      if (manager) {
-                        const memberPos = getPosition(
-                          member,
-                          ORGANIZATION_MEMBERS.indexOf(member),
-                          ORGANIZATION_MEMBERS.filter(m => m.role === member.role).length
-                        );
-                        const managerPos = getPosition(
-                          manager,
-                          ORGANIZATION_MEMBERS.indexOf(manager),
-                          ORGANIZATION_MEMBERS.filter(m => m.role === manager.role).length
-                        );
+                  {/* Draw lines from Founders to Executives */}
+                  {founders.map((founder, founderIdx) => {
+                    const founderPos = getHierarchicalPosition(founder, founderIdx, founders.length, 0);
+                    return execs.map((exec, execIdx) => {
+                      const execPos = getHierarchicalPosition(exec, execIdx, execs.length, 1);
+                      return (
+                        <Line
+                          key={`founder-exec-${founder.id}-${exec.id}`}
+                          x1={founderPos.x}
+                          y1={founderPos.y + 25}
+                          x2={execPos.x}
+                          y2={execPos.y - 25}
+                          stroke="#334155"
+                          strokeWidth="2"
+                        />
+                      );
+                    });
+                  })}
 
+                  {/* Draw lines from Executives to AI Agents */}
+                  {execs.map((exec, execIdx) => {
+                    const execPos = getHierarchicalPosition(exec, execIdx, execs.length, 1);
+                    return AI_AGENTS.map((agent, agentIdx) => {
+                      if (agent.usedBy.includes(exec.id) || agent.usedBy.includes('All team members')) {
+                        const agentPos = getAIAgentPosition(agentIdx, AI_AGENTS.length);
                         return (
                           <Line
-                            key={`line-${member.id}`}
-                            x1={managerPos.x}
-                            y1={managerPos.y}
-                            x2={memberPos.x}
-                            y2={memberPos.y}
-                            stroke="#334155"
-                            strokeWidth="2"
+                            key={`exec-ai-${exec.id}-${agent.id}`}
+                            x1={execPos.x}
+                            y1={execPos.y + 25}
+                            x2={agentPos.x}
+                            y2={agentPos.y - 25}
+                            stroke="#475569"
+                            strokeWidth="1.5"
                             strokeDasharray="4,4"
                           />
                         );
                       }
-                    }
-                    return null;
+                      return null;
+                    });
                   })}
 
-                  {/* Draw member nodes */}
-                  {ORGANIZATION_MEMBERS.map((member) => {
-                    const position = getPosition(
-                      member,
-                      ORGANIZATION_MEMBERS.filter(m => m.role === member.role).indexOf(member),
-                      ORGANIZATION_MEMBERS.filter(m => m.role === member.role).length
-                    );
-                    const color = getRoleColor(member.role);
-                    const nodeRadius = member.role === 'Founder' ? 40 : 32;
+                  {/* Draw lines from Executives to their Apprentices */}
+                  {execs.map((exec, execIdx) => {
+                    const execPos = getHierarchicalPosition(exec, execIdx, execs.length, 1);
+                    const managedApprentices = apprentices.filter(a => a.reportsTo === exec.id);
+                    return managedApprentices.map(apprentice => {
+                      const apprenticeIdx = apprentices.indexOf(apprentice);
+                      const apprenticePos = getHierarchicalPosition(apprentice, apprenticeIdx, apprentices.length, 3);
+                      return (
+                        <Line
+                          key={`exec-apprentice-${exec.id}-${apprentice.id}`}
+                          x1={execPos.x}
+                          y1={execPos.y + 25}
+                          x2={apprenticePos.x}
+                          y2={apprenticePos.y - 25}
+                          stroke="#334155"
+                          strokeWidth="2"
+                        />
+                      );
+                    });
+                  })}
 
-                    // Count AI agents for this member
-                    const aiAgentCount = AI_AGENTS.filter(agent =>
-                      Array.isArray(agent.usedBy) &&
-                      (agent.usedBy.includes(member.id) ||
-                       agent.usedBy.includes('All team members'))
-                    ).length;
-
+                  {/* ROW 1: Founders */}
+                  {founders.map((founder, index) => {
+                    const position = getHierarchicalPosition(founder, index, founders.length, 0);
                     return (
-                      <React.Fragment key={member.id}>
-                        {/* Node circle */}
+                      <React.Fragment key={founder.id}>
                         <Circle
                           cx={position.x}
                           cy={position.y}
-                          r={nodeRadius}
-                          fill={color + '20'}
-                          stroke={color}
+                          r="32"
+                          fill="#3b82f620"
+                          stroke="#3b82f6"
                           strokeWidth="3"
                         />
-
-                        {/* Initials in center */}
                         <SvgText
                           x={position.x}
                           y={position.y + 6}
-                          fontSize="20"
+                          fontSize="18"
                           fontWeight="bold"
-                          fill={color}
+                          fill="#3b82f6"
                           textAnchor="middle"
                         >
-                          {member.name.split(' ').map(n => n[0]).join('')}
+                          {founder.name.split(' ').map(n => n[0]).join('')}
                         </SvgText>
-
-                        {/* Name label below */}
                         <SvgText
                           x={position.x}
-                          y={position.y + nodeRadius + 20}
-                          fontSize="12"
+                          y={position.y + 50}
+                          fontSize="11"
                           fill="#e2e8f0"
                           textAnchor="middle"
                           fontWeight="600"
                         >
-                          {member.name.split(' ')[0]}
+                          {founder.name.split(' ')[0]}
                         </SvgText>
                         <SvgText
                           x={position.x}
-                          y={position.y + nodeRadius + 36}
-                          fontSize="11"
+                          y={position.y + 64}
+                          fontSize="9"
                           fill="#94a3b8"
                           textAnchor="middle"
                         >
-                          {member.function}
+                          {founder.function}
                         </SvgText>
+                      </React.Fragment>
+                    );
+                  })}
 
-                        {/* AI Agent Indicator */}
-                        {aiAgentCount > 0 && (
-                          <>
-                            <Circle
-                              cx={position.x}
-                              cy={position.y + nodeRadius + 52}
-                              r="10"
-                              fill="#3b82f6"
-                            />
-                            <SvgText
-                              x={position.x}
-                              y={position.y + nodeRadius + 57}
-                              fontSize="10"
-                              fontWeight="bold"
-                              fill="#ffffff"
-                              textAnchor="middle"
-                            >
-                              {aiAgentCount}
-                            </SvgText>
-                          </>
-                        )}
+                  {/* ROW 2: Executives */}
+                  {execs.map((exec, index) => {
+                    const position = getHierarchicalPosition(exec, index, execs.length, 1);
+                    return (
+                      <React.Fragment key={exec.id}>
+                        <Circle
+                          cx={position.x}
+                          cy={position.y}
+                          r="28"
+                          fill="#8b5cf620"
+                          stroke="#8b5cf6"
+                          strokeWidth="3"
+                        />
+                        <SvgText
+                          x={position.x}
+                          y={position.y + 5}
+                          fontSize="16"
+                          fontWeight="bold"
+                          fill="#8b5cf6"
+                          textAnchor="middle"
+                        >
+                          {exec.name.split(' ').map(n => n[0]).join('')}
+                        </SvgText>
+                        <SvgText
+                          x={position.x}
+                          y={position.y + 46}
+                          fontSize="11"
+                          fill="#e2e8f0"
+                          textAnchor="middle"
+                          fontWeight="600"
+                        >
+                          {exec.name.split(' ')[0]}
+                        </SvgText>
+                        <SvgText
+                          x={position.x}
+                          y={position.y + 60}
+                          fontSize="9"
+                          fill="#94a3b8"
+                          textAnchor="middle"
+                        >
+                          {exec.function}
+                        </SvgText>
+                      </React.Fragment>
+                    );
+                  })}
+
+                  {/* ROW 3: AI Agents */}
+                  {AI_AGENTS.map((agent, index) => {
+                    const position = getAIAgentPosition(index, AI_AGENTS.length);
+                    return (
+                      <React.Fragment key={agent.id}>
+                        <Circle
+                          cx={position.x}
+                          cy={position.y}
+                          r="24"
+                          fill="#64748b20"
+                          stroke="#64748b"
+                          strokeWidth="2"
+                        />
+                        <SvgText
+                          x={position.x}
+                          y={position.y + 5}
+                          fontSize="14"
+                          fontWeight="bold"
+                          fill="#64748b"
+                          textAnchor="middle"
+                        >
+                          AI
+                        </SvgText>
+                        <SvgText
+                          x={position.x}
+                          y={position.y + 42}
+                          fontSize="10"
+                          fill="#94a3b8"
+                          textAnchor="middle"
+                          fontWeight="600"
+                        >
+                          {agent.name.split(' ').slice(0, 2).join(' ')}
+                        </SvgText>
+                        <SvgText
+                          x={position.x}
+                          y={position.y + 56}
+                          fontSize="8"
+                          fill="#64748b"
+                          textAnchor="middle"
+                        >
+                          {agent.provider}
+                        </SvgText>
+                      </React.Fragment>
+                    );
+                  })}
+
+                  {/* ROW 4: Apprentices */}
+                  {apprentices.map((apprentice, index) => {
+                    const position = getHierarchicalPosition(apprentice, index, apprentices.length, 3);
+                    return (
+                      <React.Fragment key={apprentice.id}>
+                        <Circle
+                          cx={position.x}
+                          cy={position.y}
+                          r="28"
+                          fill="#10b98120"
+                          stroke="#10b981"
+                          strokeWidth="3"
+                        />
+                        <SvgText
+                          x={position.x}
+                          y={position.y + 5}
+                          fontSize="16"
+                          fontWeight="bold"
+                          fill="#10b981"
+                          textAnchor="middle"
+                        >
+                          {apprentice.name.split(' ').map(n => n[0]).join('')}
+                        </SvgText>
+                        <SvgText
+                          x={position.x}
+                          y={position.y + 46}
+                          fontSize="11"
+                          fill="#e2e8f0"
+                          textAnchor="middle"
+                          fontWeight="600"
+                        >
+                          {apprentice.name.split(' ')[0]}
+                        </SvgText>
+                        <SvgText
+                          x={position.x}
+                          y={position.y + 60}
+                          fontSize="9"
+                          fill="#94a3b8"
+                          textAnchor="middle"
+                        >
+                          {apprentice.function}
+                        </SvgText>
                       </React.Fragment>
                     );
                   })}
                 </Svg>
 
-                {/* Transparent touch targets overlaid on top of SVG */}
+                {/* Transparent touch targets for team members */}
                 {ORGANIZATION_MEMBERS.map((member) => {
-                  const position = getPosition(
-                    member,
-                    ORGANIZATION_MEMBERS.filter(m => m.role === member.role).indexOf(member),
-                    ORGANIZATION_MEMBERS.filter(m => m.role === member.role).length
-                  );
-                  const nodeRadius = member.role === 'Founder' ? 40 : 32;
-                  const touchRadius = nodeRadius + 20; // Larger touch area
+                  let position;
+                  if (member.role === 'Founder') {
+                    const index = founders.indexOf(member);
+                    position = getHierarchicalPosition(member, index, founders.length, 0);
+                  } else if (member.role === 'FractionalExec') {
+                    const index = execs.indexOf(member);
+                    position = getHierarchicalPosition(member, index, execs.length, 1);
+                  } else {
+                    const index = apprentices.indexOf(member);
+                    position = getHierarchicalPosition(member, index, apprentices.length, 3);
+                  }
+
+                  const touchRadius = 40;
 
                   return (
                     <Pressable
                       key={`touch-${member.id}`}
-                      onPress={() => {
-                        console.log('Tapped member:', member.name);
-                        setSelectedMember(member);
-                      }}
+                      onPress={() => setSelectedMember(member)}
                       style={{
                         position: 'absolute',
                         left: position.x - touchRadius,
@@ -352,9 +451,7 @@ export default function OrgDiagramScreen() {
             <View className="gap-2">
               {founders.map(member => {
                 const aiAgentCount = AI_AGENTS.filter(agent =>
-                  Array.isArray(agent.usedBy) &&
-                  (agent.usedBy.includes(member.id) ||
-                   agent.usedBy.includes('All team members'))
+                  agent.usedBy.includes(member.id) || agent.usedBy.includes('All team members')
                 ).length;
 
                 return (
@@ -394,9 +491,7 @@ export default function OrgDiagramScreen() {
             <View className="gap-2">
               {execs.map(member => {
                 const aiAgentCount = AI_AGENTS.filter(agent =>
-                  Array.isArray(agent.usedBy) &&
-                  (agent.usedBy.includes(member.id) ||
-                   agent.usedBy.includes('All team members'))
+                  agent.usedBy.includes(member.id) || agent.usedBy.includes('All team members')
                 ).length;
 
                 return (
@@ -439,9 +534,7 @@ export default function OrgDiagramScreen() {
               {apprentices.map(member => {
                 const manager = ORGANIZATION_MEMBERS.find(m => m.id === member.reportsTo);
                 const aiAgentCount = AI_AGENTS.filter(agent =>
-                  Array.isArray(agent.usedBy) &&
-                  (agent.usedBy.includes(member.id) ||
-                   agent.usedBy.includes('All team members'))
+                  agent.usedBy.includes(member.id) || agent.usedBy.includes('All team members')
                 ).length;
 
                 return (
@@ -480,212 +573,216 @@ export default function OrgDiagramScreen() {
       </ScrollView>
 
       {/* Member Detail Modal */}
-      <Modal visible={selectedMember !== null} transparent animationType="slide">
-        <View className="flex-1 bg-black/70 justify-end">
-          {selectedMember && (
-            <View className="bg-slate-900 rounded-t-3xl" style={{ maxHeight: '80%' }}>
-              <ScrollView showsVerticalScrollIndicator={false}>
-                {/* Header */}
-                <View className="p-6 border-b border-slate-800">
-                  <View className="flex-row justify-between items-start mb-4">
-                    <View className="flex-1">
-                      <View
-                        className="w-16 h-16 rounded-full items-center justify-center mb-3 border-4"
-                        style={{
-                          backgroundColor: getRoleColor(selectedMember.role) + '20',
-                          borderColor: getRoleColor(selectedMember.role),
-                        }}
-                      >
-                        <Text
-                          className="text-2xl font-bold"
-                          style={{ color: getRoleColor(selectedMember.role) }}
-                        >
-                          {selectedMember.name.charAt(0)}
-                        </Text>
-                      </View>
-                      <Text className="text-white text-2xl font-bold mb-1">
-                        {selectedMember.name}
-                      </Text>
-                      <View className="flex-row items-center gap-2">
+      <Modal visible={selectedMember !== null} transparent animationType="slide" onRequestClose={() => setSelectedMember(null)}>
+        <Pressable
+          className="flex-1 bg-black/70 justify-end"
+          onPress={() => setSelectedMember(null)}
+        >
+          <Pressable onPress={(e) => e.stopPropagation()}>
+            {selectedMember && (
+              <View className="bg-slate-900 rounded-t-3xl" style={{ maxHeight: '80%' }}>
+                <ScrollView showsVerticalScrollIndicator={false} bounces={false}>
+                  {/* Header */}
+                  <View className="p-6 border-b border-slate-800">
+                    <View className="flex-row justify-between items-start mb-4">
+                      <View className="flex-1">
                         <View
-                          className="px-3 py-1 rounded-lg border-2"
+                          className="w-16 h-16 rounded-full items-center justify-center mb-3 border-4"
                           style={{
                             backgroundColor: getRoleColor(selectedMember.role) + '20',
                             borderColor: getRoleColor(selectedMember.role),
                           }}
                         >
                           <Text
-                            className="text-sm font-semibold"
+                            className="text-2xl font-bold"
                             style={{ color: getRoleColor(selectedMember.role) }}
                           >
-                            {selectedMember.role === 'FractionalExec' ? 'Executive' : selectedMember.role}
+                            {selectedMember.name.charAt(0)}
                           </Text>
                         </View>
-                        <View className="bg-slate-800 px-3 py-1 rounded-lg">
-                          <Text className="text-slate-300 text-sm">{selectedMember.function}</Text>
-                        </View>
-                      </View>
-                    </View>
-                    <Pressable onPress={() => setSelectedMember(null)}>
-                      <X size={24} color="#94a3b8" />
-                    </Pressable>
-                  </View>
-
-                  {/* Reporting Structure */}
-                  {(selectedMember.reportsTo || selectedMember.manages) && (
-                    <View className="bg-slate-800 rounded-xl p-4">
-                      {selectedMember.reportsTo && (
-                        <View className="mb-3">
-                          <Text className="text-slate-400 text-xs mb-1">Reports To</Text>
-                          <Text className="text-white font-medium">
-                            {ORGANIZATION_MEMBERS.find(m => m.id === selectedMember.reportsTo)?.name}
-                          </Text>
-                        </View>
-                      )}
-                      {selectedMember.manages && selectedMember.manages.length > 0 && (
-                        <View>
-                          <Text className="text-slate-400 text-xs mb-1">Manages</Text>
-                          <View className="flex-row flex-wrap gap-2">
-                            {selectedMember.manages.map(id => {
-                              const report = ORGANIZATION_MEMBERS.find(m => m.id === id);
-                              return (
-                                <View key={id} className="bg-slate-700 px-3 py-1 rounded-lg">
-                                  <Text className="text-slate-200 text-sm">{report?.name}</Text>
-                                </View>
-                              );
-                            })}
-                          </View>
-                        </View>
-                      )}
-                    </View>
-                  )}
-                </View>
-
-                {/* Contact Info */}
-                <View className="p-6 border-b border-slate-800">
-                  <Text className="text-white font-semibold mb-3">Contact Information</Text>
-
-                  <View className="flex-row items-center mb-3">
-                    <View className="w-10 h-10 bg-blue-500/20 rounded-lg items-center justify-center mr-3">
-                      <Mail size={18} color="#3b82f6" />
-                    </View>
-                    <View className="flex-1">
-                      <Text className="text-slate-400 text-xs">Email</Text>
-                      <Text className="text-white text-sm">{selectedMember.email}</Text>
-                    </View>
-                  </View>
-
-                  <View className="flex-row items-center">
-                    <View className="w-10 h-10 bg-emerald-500/20 rounded-lg items-center justify-center mr-3">
-                      <Phone size={18} color="#10b981" />
-                    </View>
-                    <View className="flex-1">
-                      <Text className="text-slate-400 text-xs">Phone</Text>
-                      <Text className="text-white text-sm">{selectedMember.phone}</Text>
-                    </View>
-                  </View>
-                </View>
-
-                {/* AI Agents Used */}
-                {(() => {
-                  const memberAIAgents = AI_AGENTS.filter(agent =>
-                    Array.isArray(agent.usedBy) &&
-                    (agent.usedBy.includes(selectedMember.id) ||
-                     agent.usedBy.includes('All team members'))
-                  );
-
-                  if (memberAIAgents.length > 0) {
-                    return (
-                      <View className="p-6 border-b border-slate-800">
-                        <View className="flex-row items-center justify-between mb-3">
-                          <View className="flex-row items-center gap-2">
-                            <Bot size={20} color="#3b82f6" />
-                            <Text className="text-white font-semibold">AI Agents Used</Text>
-                          </View>
-                          <View className="bg-blue-500/20 px-2 py-1 rounded-full">
-                            <Text className="text-blue-400 text-xs font-medium">
-                              {memberAIAgents.length}
+                        <Text className="text-white text-2xl font-bold mb-1">
+                          {selectedMember.name}
+                        </Text>
+                        <View className="flex-row items-center gap-2">
+                          <View
+                            className="px-3 py-1 rounded-lg border-2"
+                            style={{
+                              backgroundColor: getRoleColor(selectedMember.role) + '20',
+                              borderColor: getRoleColor(selectedMember.role),
+                            }}
+                          >
+                            <Text
+                              className="text-sm font-semibold"
+                              style={{ color: getRoleColor(selectedMember.role) }}
+                            >
+                              {selectedMember.role === 'FractionalExec' ? 'Executive' : selectedMember.role}
                             </Text>
                           </View>
+                          <View className="bg-slate-800 px-3 py-1 rounded-lg">
+                            <Text className="text-slate-300 text-sm">{selectedMember.function}</Text>
+                          </View>
                         </View>
+                      </View>
+                      <Pressable onPress={() => setSelectedMember(null)}>
+                        <X size={24} color="#94a3b8" />
+                      </Pressable>
+                    </View>
 
-                        <View className="gap-2">
-                          {memberAIAgents.map(agent => (
-                            <View
-                              key={agent.id}
-                              className="bg-slate-800 rounded-xl p-3 border border-slate-700"
-                            >
-                              <View className="flex-row items-start justify-between mb-1">
-                                <View className="flex-1">
-                                  <Text className="text-white font-medium text-sm mb-1">
-                                    {agent.name}
-                                  </Text>
-                                  <Text className="text-slate-400 text-xs mb-2">
-                                    {agent.purpose}
-                                  </Text>
-                                  <View className="flex-row items-center gap-2">
-                                    <View className="bg-purple-500/20 px-2 py-1 rounded">
-                                      <Text className="text-purple-400 text-[10px] font-medium">
-                                        {agent.provider}
-                                      </Text>
-                                    </View>
-                                    {agent.functions.slice(0, 2).map((func, idx) => (
-                                      <View key={idx} className="bg-slate-700 px-2 py-1 rounded">
-                                        <Text className="text-slate-300 text-[10px]">{func}</Text>
+                    {/* Reporting Structure */}
+                    {(selectedMember.reportsTo || selectedMember.manages) && (
+                      <View className="bg-slate-800 rounded-xl p-4">
+                        {selectedMember.reportsTo && (
+                          <View className="mb-3">
+                            <Text className="text-slate-400 text-xs mb-1">Reports To</Text>
+                            <Text className="text-white font-medium">
+                              {ORGANIZATION_MEMBERS.find(m => m.id === selectedMember.reportsTo)?.name}
+                            </Text>
+                          </View>
+                        )}
+                        {selectedMember.manages && selectedMember.manages.length > 0 && (
+                          <View>
+                            <Text className="text-slate-400 text-xs mb-1">Manages</Text>
+                            <View className="flex-row flex-wrap gap-2">
+                              {selectedMember.manages.map(id => {
+                                const report = ORGANIZATION_MEMBERS.find(m => m.id === id);
+                                return (
+                                  <View key={id} className="bg-slate-700 px-3 py-1 rounded-lg">
+                                    <Text className="text-slate-200 text-sm">{report?.name}</Text>
+                                  </View>
+                                );
+                              })}
+                            </View>
+                          </View>
+                        )}
+                      </View>
+                    )}
+                  </View>
+
+                  {/* Contact Info */}
+                  <View className="p-6 border-b border-slate-800">
+                    <Text className="text-white font-semibold mb-3">Contact Information</Text>
+
+                    <View className="flex-row items-center mb-3">
+                      <View className="w-10 h-10 bg-blue-500/20 rounded-lg items-center justify-center mr-3">
+                        <Mail size={18} color="#3b82f6" />
+                      </View>
+                      <View className="flex-1">
+                        <Text className="text-slate-400 text-xs">Email</Text>
+                        <Text className="text-white text-sm">{selectedMember.email}</Text>
+                      </View>
+                    </View>
+
+                    <View className="flex-row items-center">
+                      <View className="w-10 h-10 bg-emerald-500/20 rounded-lg items-center justify-center mr-3">
+                        <Phone size={18} color="#10b981" />
+                      </View>
+                      <View className="flex-1">
+                        <Text className="text-slate-400 text-xs">Phone</Text>
+                        <Text className="text-white text-sm">{selectedMember.phone}</Text>
+                      </View>
+                    </View>
+                  </View>
+
+                  {/* AI Agents Used */}
+                  {(() => {
+                    const memberAIAgents = AI_AGENTS.filter(agent =>
+                      agent.usedBy.includes(selectedMember.id) ||
+                      agent.usedBy.includes('All team members')
+                    );
+
+                    if (memberAIAgents.length > 0) {
+                      return (
+                        <View className="p-6 border-b border-slate-800">
+                          <View className="flex-row items-center justify-between mb-3">
+                            <View className="flex-row items-center gap-2">
+                              <Bot size={20} color="#3b82f6" />
+                              <Text className="text-white font-semibold">AI Agents Used</Text>
+                            </View>
+                            <View className="bg-blue-500/20 px-2 py-1 rounded-full">
+                              <Text className="text-blue-400 text-xs font-medium">
+                                {memberAIAgents.length}
+                              </Text>
+                            </View>
+                          </View>
+
+                          <View className="gap-2">
+                            {memberAIAgents.map(agent => (
+                              <View
+                                key={agent.id}
+                                className="bg-slate-800 rounded-xl p-3 border border-slate-700"
+                              >
+                                <View className="flex-row items-start justify-between mb-1">
+                                  <View className="flex-1">
+                                    <Text className="text-white font-medium text-sm mb-1">
+                                      {agent.name}
+                                    </Text>
+                                    <Text className="text-slate-400 text-xs mb-2">
+                                      {agent.purpose}
+                                    </Text>
+                                    <View className="flex-row items-center gap-2">
+                                      <View className="bg-purple-500/20 px-2 py-1 rounded">
+                                        <Text className="text-purple-400 text-[10px] font-medium">
+                                          {agent.provider}
+                                        </Text>
                                       </View>
-                                    ))}
+                                      {agent.functions.slice(0, 2).map((func, idx) => (
+                                        <View key={idx} className="bg-slate-700 px-2 py-1 rounded">
+                                          <Text className="text-slate-300 text-[10px]">{func}</Text>
+                                        </View>
+                                      ))}
+                                    </View>
+                                  </View>
+                                  <View className="ml-2">
+                                    <Text className="text-blue-400 text-xs font-bold">
+                                      £{agent.costPerMonth}/mo
+                                    </Text>
                                   </View>
                                 </View>
-                                <View className="ml-2">
-                                  <Text className="text-blue-400 text-xs font-bold">
-                                    £{agent.costPerMonth}/mo
-                                  </Text>
-                                </View>
                               </View>
-                            </View>
-                          ))}
-                        </View>
+                            ))}
+                          </View>
 
-                        <View className="mt-3 bg-blue-500/10 border border-blue-500/30 rounded-xl p-3">
-                          <View className="flex-row items-center justify-between">
-                            <Text className="text-slate-300 text-sm">Total AI Cost:</Text>
-                            <Text className="text-blue-400 font-bold text-lg">
-                              £{memberAIAgents.reduce((sum, agent) => sum + agent.costPerMonth, 0)}/mo
-                            </Text>
+                          <View className="mt-3 bg-blue-500/10 border border-blue-500/30 rounded-xl p-3">
+                            <View className="flex-row items-center justify-between">
+                              <Text className="text-slate-300 text-sm">Total AI Cost:</Text>
+                              <Text className="text-blue-400 font-bold text-lg">
+                                £{memberAIAgents.reduce((sum, agent) => sum + agent.costPerMonth, 0)}/mo
+                              </Text>
+                            </View>
                           </View>
                         </View>
+                      );
+                    }
+                    return null;
+                  })()}
+
+                  {/* Cost Info */}
+                  {selectedMember.costPerDay && (
+                    <View className="p-6 border-b border-slate-800">
+                      <Text className="text-white font-semibold mb-3">Cost Information</Text>
+                      <View className="bg-slate-800 rounded-xl p-4">
+                        <Text className="text-slate-400 text-xs mb-1">Daily Rate</Text>
+                        <Text className="text-emerald-400 text-2xl font-bold">
+                          £{selectedMember.costPerDay.toLocaleString()}
+                        </Text>
                       </View>
-                    );
-                  }
-                  return null;
-                })()}
-
-                {/* Cost Info */}
-                {selectedMember.costPerDay && (
-                  <View className="p-6 border-b border-slate-800">
-                    <Text className="text-white font-semibold mb-3">Cost Information</Text>
-                    <View className="bg-slate-800 rounded-xl p-4">
-                      <Text className="text-slate-400 text-xs mb-1">Daily Rate</Text>
-                      <Text className="text-emerald-400 text-2xl font-bold">
-                        £{selectedMember.costPerDay.toLocaleString()}
-                      </Text>
                     </View>
-                  </View>
-                )}
+                  )}
 
-                {/* Actions */}
-                <View className="p-6">
-                  <Pressable
-                    onPress={() => setSelectedMember(null)}
-                    className="bg-slate-800 py-3 rounded-xl active:opacity-80"
-                  >
-                    <Text className="text-slate-400 text-center font-semibold">Close</Text>
-                  </Pressable>
-                </View>
-              </ScrollView>
-            </View>
-          )}
-        </View>
+                  {/* Actions */}
+                  <View className="p-6">
+                    <Pressable
+                      onPress={() => setSelectedMember(null)}
+                      className="bg-slate-800 py-3 rounded-xl active:opacity-80"
+                    >
+                      <Text className="text-slate-400 text-center font-semibold">Close</Text>
+                    </Pressable>
+                  </View>
+                </ScrollView>
+              </View>
+            )}
+          </Pressable>
+        </Pressable>
       </Modal>
     </View>
   );
