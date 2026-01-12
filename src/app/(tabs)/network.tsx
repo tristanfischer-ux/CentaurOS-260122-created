@@ -233,10 +233,11 @@ export default function NetworkScreen() {
           setListingType(null);
         }}
       >
-        <View className="flex-1 bg-black/50 justify-end">
+        <View className="flex-1 bg-black/70 justify-end">
           <View className="bg-white dark:bg-slate-900 rounded-t-3xl" style={{ maxHeight: '90%' }}>
+            {/* Fixed Header */}
             <View className="px-6 pt-6 pb-4 border-b border-gray-200 dark:border-slate-800 flex-row items-center justify-between">
-              <Text className="text-gray-900 dark:text-white text-2xl font-bold">List Yourself</Text>
+              <Text className="text-gray-900 dark:text-white text-xl font-bold">List Yourself</Text>
               <Pressable onPress={() => {
                 setShowListYourselfModal(false);
                 setListingType(null);
@@ -245,8 +246,9 @@ export default function NetworkScreen() {
               </Pressable>
             </View>
 
+            {/* Scrollable Content */}
             {!listingType ? (
-              <ScrollView showsVerticalScrollIndicator={true} className="flex-1">
+              <ScrollView showsVerticalScrollIndicator={true} bounces={false} className="flex-1">
                 <View className="p-6">
                   <Text className="text-gray-600 dark:text-slate-400 mb-6">
                     Choose how you want to be listed in the marketplace:
@@ -346,11 +348,7 @@ export default function NetworkScreen() {
                 </View>
               </ScrollView>
             ) : (
-              <KeyboardAvoidingView
-                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-                className="flex-1"
-              >
-                <ScrollView showsVerticalScrollIndicator={true} className="flex-1">
+              <ScrollView showsVerticalScrollIndicator={true} bounces={false} className="flex-1" keyboardShouldPersistTaps="handled">
                   <View className="p-6">
                     <View className={`${
                       listingType === 'executive' ? 'bg-purple-500/10 border-purple-500/30' :
@@ -709,7 +707,6 @@ export default function NetworkScreen() {
                   </View>
                   </View>
                 </ScrollView>
-              </KeyboardAvoidingView>
             )}
           </View>
         </View>
