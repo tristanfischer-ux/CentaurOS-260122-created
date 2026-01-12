@@ -76,6 +76,7 @@ export default function CommunityScreen() {
   const [activeTab, setActiveTab] = useState<CommunityTab>('executives');
   const [selectedCandidate, setSelectedCandidate] = useState<Candidate | null>(null);
   const [selectedSupplier, setSelectedSupplier] = useState<Supplier | null>(null);
+  const [showProfileModal, setShowProfileModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedFunction, setSelectedFunction] = useState<string>('all');
   const [showFilters, setShowFilters] = useState(false);
@@ -272,7 +273,10 @@ export default function CommunityScreen() {
             {filteredExecutives.map((exec) => (
               <Pressable
                 key={exec.id}
-                onPress={() => setSelectedCandidate(exec)}
+                onPress={() => {
+                  setSelectedCandidate(exec);
+                  setShowProfileModal(true);
+                }}
                 className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-4 mb-3 border border-gray-300 dark:border-slate-800 active:opacity-70"
               >
                 <View className="flex-row items-start justify-between mb-2">
@@ -324,7 +328,10 @@ export default function CommunityScreen() {
             {filteredApprentices.map((apprentice) => (
               <Pressable
                 key={apprentice.id}
-                onPress={() => setSelectedCandidate(apprentice)}
+                onPress={() => {
+                  setSelectedCandidate(apprentice);
+                  setShowProfileModal(true);
+                }}
                 className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-4 mb-3 border border-gray-300 dark:border-slate-800 active:opacity-70"
               >
                 <View className="flex-row items-start justify-between mb-2">
@@ -376,7 +383,10 @@ export default function CommunityScreen() {
             {filteredSuppliers.map((supplier) => (
               <Pressable
                 key={supplier.id}
-                onPress={() => setSelectedSupplier(supplier)}
+                onPress={() => {
+                  setSelectedSupplier(supplier);
+                  setShowProfileModal(true);
+                }}
                 className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-4 mb-3 border border-gray-300 dark:border-slate-800 active:opacity-70"
               >
                 <View className="flex-row items-start justify-between mb-2">
@@ -489,6 +499,278 @@ export default function CommunityScreen() {
           </View>
         )}
       </ScrollView>
+
+      {/* Profile Detail Modal */}
+      <Modal visible={showProfileModal} transparent animationType="slide" onRequestClose={() => setShowProfileModal(false)}>
+        <View className="flex-1 bg-black/70">
+          <View className="flex-1 bg-white dark:bg-slate-950 mt-16 rounded-t-3xl">
+            {/* Header */}
+            <View className="px-6 pt-6 pb-4 border-b border-gray-300 dark:border-slate-800">
+              <View className="flex-row items-center justify-between">
+                <Text className="text-gray-900 dark:text-white text-2xl font-bold">
+                  {selectedCandidate ? 'Profile Details' : 'Supplier Details'}
+                </Text>
+                <Pressable
+                  onPress={() => {
+                    setShowProfileModal(false);
+                    setSelectedCandidate(null);
+                    setSelectedSupplier(null);
+                  }}
+                  className="w-10 h-10 items-center justify-center rounded-full bg-gray-100 dark:bg-slate-900 active:opacity-70"
+                >
+                  <X size={24} color="#64748b" />
+                </Pressable>
+              </View>
+            </View>
+
+            <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
+              {selectedCandidate && (
+                <View className="px-6 py-6">
+                  {/* Name and Role */}
+                  <View className="mb-6">
+                    <View className="flex-row items-center mb-3">
+                      <View className={`w-16 h-16 rounded-full items-center justify-center ${
+                        selectedCandidate.role === 'FractionalExec' ? 'bg-emerald-500' : 'bg-purple-500'
+                      }`}>
+                        <Text className="text-white text-xl font-bold">
+                          {selectedCandidate.name.split(' ').map(n => n[0]).join('')}
+                        </Text>
+                      </View>
+                      <View className="ml-4 flex-1">
+                        <Text className="text-gray-900 dark:text-white text-2xl font-bold">
+                          {selectedCandidate.name}
+                        </Text>
+                        <Text className="text-gray-600 dark:text-slate-400 text-base">
+                          {selectedCandidate.role === 'FractionalExec' ? 'Fractional Executive' : 'Apprentice'}
+                        </Text>
+                      </View>
+                    </View>
+                    <View className={`self-start px-3 py-1.5 rounded-full ${
+                      selectedCandidate.availability === 'Available now'
+                        ? 'bg-emerald-100 dark:bg-emerald-900/30'
+                        : 'bg-amber-100 dark:bg-amber-900/30'
+                    }`}>
+                      <Text className={`text-sm font-semibold ${
+                        selectedCandidate.availability === 'Available now'
+                          ? 'text-emerald-700 dark:text-emerald-300'
+                          : 'text-amber-700 dark:text-amber-300'
+                      }`}>
+                        {selectedCandidate.availability}
+                      </Text>
+                    </View>
+                  </View>
+
+                  {/* Specialization */}
+                  <View className="mb-6">
+                    <Text className="text-gray-900 dark:text-white font-bold text-lg mb-3">
+                      Specialization
+                    </Text>
+                    <View className="flex-row flex-wrap gap-2">
+                      {selectedCandidate.specialization.map((spec, idx) => (
+                        <View key={idx} className="bg-blue-100 dark:bg-blue-900/30 px-3 py-2 rounded-lg">
+                          <Text className="text-blue-700 dark:text-blue-300 font-semibold">{spec}</Text>
+                        </View>
+                      ))}
+                    </View>
+                  </View>
+
+                  {/* Experience */}
+                  <View className="mb-6">
+                    <Text className="text-gray-900 dark:text-white font-bold text-lg mb-2">
+                      Experience
+                    </Text>
+                    <Text className="text-gray-700 dark:text-slate-300 text-base">
+                      {selectedCandidate.experience}
+                    </Text>
+                  </View>
+
+                  {/* Skills */}
+                  <View className="mb-6">
+                    <Text className="text-gray-900 dark:text-white font-bold text-lg mb-3">
+                      Skills & Expertise
+                    </Text>
+                    <View className="flex-row flex-wrap gap-2">
+                      {selectedCandidate.skills.map((skill, idx) => (
+                        <View key={idx} className="bg-gray-200 dark:bg-slate-800 px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-700">
+                          <Text className="text-gray-800 dark:text-slate-200 text-sm">{skill}</Text>
+                        </View>
+                      ))}
+                    </View>
+                  </View>
+
+                  {/* Previous Companies */}
+                  {selectedCandidate.previousCompanies && selectedCandidate.previousCompanies.length > 0 && (
+                    <View className="mb-6">
+                      <Text className="text-gray-900 dark:text-white font-bold text-lg mb-3">
+                        Previous Experience
+                      </Text>
+                      <View className="gap-3">
+                        {selectedCandidate.previousCompanies.map((company, idx) => (
+                          <View key={idx} className="bg-gray-100 dark:bg-slate-900 rounded-xl p-4 border border-gray-300 dark:border-slate-800">
+                            <View className="flex-row items-center mb-2">
+                              <Building2 size={18} color="#3b82f6" />
+                              <Text className="text-gray-900 dark:text-white font-semibold ml-2">{company}</Text>
+                            </View>
+                          </View>
+                        ))}
+                      </View>
+                    </View>
+                  )}
+
+                  {/* Hourly Rate */}
+                  {selectedCandidate.costPerDay && (
+                    <View className="mb-6">
+                      <Text className="text-gray-900 dark:text-white font-bold text-lg mb-2">
+                        Rate
+                      </Text>
+                      <View className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-xl p-4">
+                        <Text className="text-emerald-700 dark:text-emerald-300 text-2xl font-bold">
+                          £{selectedCandidate.costPerDay}/day
+                        </Text>
+                        <Text className="text-emerald-600 dark:text-emerald-400 text-sm mt-1">
+                          {selectedCandidate.role === 'FractionalExec' ? 'Fractional engagement' : 'Apprentice rate'}
+                        </Text>
+                      </View>
+                    </View>
+                  )}
+
+                  {/* Bio / Additional Info */}
+                  <View className="mb-6">
+                    <Text className="text-gray-900 dark:text-white font-bold text-lg mb-2">
+                      About
+                    </Text>
+                    <Text className="text-gray-700 dark:text-slate-300 text-base leading-6">
+                      {selectedCandidate.role === 'FractionalExec'
+                        ? `${selectedCandidate.name} is an experienced ${selectedCandidate.specialization.join(' and ')} professional with ${selectedCandidate.experience} years of experience. They bring deep expertise in ${selectedCandidate.skills.slice(0, 3).join(', ')}, and have worked with leading companies in the hardware and technology sectors.`
+                        : `${selectedCandidate.name} is an apprentice specializing in ${selectedCandidate.specialization.join(' and ')}. With ${selectedCandidate.experience} years of experience, they are eager to learn and contribute to innovative hardware projects while developing their skills under experienced executives.`
+                      }
+                    </Text>
+                  </View>
+                </View>
+              )}
+
+              {selectedSupplier && (
+                <View className="px-6 py-6">
+                  {/* Name and Type */}
+                  <View className="mb-6">
+                    <View className="flex-row items-center mb-3">
+                      <View className="w-16 h-16 bg-amber-500 rounded-full items-center justify-center">
+                        <Factory size={32} color="#fff" />
+                      </View>
+                      <View className="ml-4 flex-1">
+                        <Text className="text-gray-900 dark:text-white text-2xl font-bold">
+                          {selectedSupplier.name}
+                        </Text>
+                        <Text className="text-gray-600 dark:text-slate-400 text-base">
+                          {selectedSupplier.type.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}
+                        </Text>
+                      </View>
+                    </View>
+                    <View className="flex-row items-center">
+                      <Building2 size={16} color="#64748b" />
+                      <Text className="text-gray-600 dark:text-slate-400 text-sm ml-2">
+                        {selectedSupplier.location}
+                      </Text>
+                    </View>
+                  </View>
+
+                  {/* Specialization */}
+                  <View className="mb-6">
+                    <Text className="text-gray-900 dark:text-white font-bold text-lg mb-3">
+                      Capabilities
+                    </Text>
+                    <View className="flex-row flex-wrap gap-2">
+                      {selectedSupplier.specialization.map((spec, idx) => (
+                        <View key={idx} className="bg-amber-100 dark:bg-amber-900/30 px-3 py-2 rounded-lg">
+                          <Text className="text-amber-700 dark:text-amber-300 font-semibold">{spec}</Text>
+                        </View>
+                      ))}
+                    </View>
+                  </View>
+
+                  {/* Order Info */}
+                  <View className="mb-6">
+                    <Text className="text-gray-900 dark:text-white font-bold text-lg mb-3">
+                      Order Information
+                    </Text>
+                    <View className="bg-gray-100 dark:bg-slate-900 rounded-xl p-4 border border-gray-300 dark:border-slate-800">
+                      <View className="flex-row justify-between mb-3">
+                        <Text className="text-gray-600 dark:text-slate-400">Min. Order Quantity</Text>
+                        <Text className="text-gray-900 dark:text-white font-semibold">{selectedSupplier.minOrderQuantity}</Text>
+                      </View>
+                      <View className="flex-row justify-between">
+                        <Text className="text-gray-600 dark:text-slate-400">Lead Time</Text>
+                        <Text className="text-gray-900 dark:text-white font-semibold">{selectedSupplier.leadTime}</Text>
+                      </View>
+                    </View>
+                  </View>
+
+                  {/* Certifications */}
+                  <View className="mb-6">
+                    <Text className="text-gray-900 dark:text-white font-bold text-lg mb-3">
+                      Certifications
+                    </Text>
+                    <View className="flex-row flex-wrap gap-2">
+                      {selectedSupplier.certifications.map((cert, idx) => (
+                        <View key={idx} className="bg-emerald-100 dark:bg-emerald-900/30 px-3 py-2 rounded-lg border border-emerald-200 dark:border-emerald-800">
+                          <View className="flex-row items-center">
+                            <CheckCircle2 size={14} color="#10b981" />
+                            <Text className="text-emerald-700 dark:text-emerald-300 font-semibold ml-1">{cert}</Text>
+                          </View>
+                        </View>
+                      ))}
+                    </View>
+                  </View>
+
+                  {/* Additional Info */}
+                  <View className="mb-6">
+                    <Text className="text-gray-900 dark:text-white font-bold text-lg mb-2">
+                      About
+                    </Text>
+                    <Text className="text-gray-700 dark:text-slate-300 text-base leading-6">
+                      {selectedSupplier.name} is a trusted {selectedSupplier.type.split('-').join(' ')} based in {selectedSupplier.location}. They specialize in {selectedSupplier.specialization.join(', ')} and hold certifications including {selectedSupplier.certifications.join(', ')}.
+                    </Text>
+                  </View>
+                </View>
+              )}
+            </ScrollView>
+
+            {/* Action Buttons */}
+            <View className="px-6 py-4 border-t border-gray-300 dark:border-slate-800 bg-white dark:bg-slate-950">
+              <View className="flex-row gap-3">
+                <Pressable
+                  onPress={() => {
+                    setShowProfileModal(false);
+                    setTimeout(() => {
+                      if (selectedSupplier) {
+                        handleRequestAllocation('supplier', selectedSupplier);
+                      } else if (selectedCandidate) {
+                        handleRequestAllocation(
+                          selectedCandidate.role === 'FractionalExec' ? 'executive' : 'apprentice',
+                          selectedCandidate
+                        );
+                      }
+                    }, 300);
+                  }}
+                  className="flex-1 bg-blue-500 rounded-xl py-4 items-center active:opacity-70"
+                >
+                  <Text className="text-white font-bold text-base">Request to Onboard</Text>
+                </Pressable>
+                <Pressable
+                  onPress={() => {
+                    setShowProfileModal(false);
+                    setSelectedCandidate(null);
+                    setSelectedSupplier(null);
+                  }}
+                  className="px-6 py-4 bg-gray-200 dark:bg-slate-800 rounded-xl items-center justify-center active:opacity-70"
+                >
+                  <Text className="text-gray-700 dark:text-slate-300 font-semibold">Close</Text>
+                </Pressable>
+              </View>
+            </View>
+          </View>
+        </View>
+      </Modal>
 
       {/* Allocation Request Modal */}
       <Modal visible={showRequestModal} transparent animationType="slide" onRequestClose={() => setShowRequestModal(false)}>
