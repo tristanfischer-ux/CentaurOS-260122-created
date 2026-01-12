@@ -181,16 +181,17 @@ export default function OrganizationScreen() {
             <Pressable
               key={tab.value}
               onPress={() => setActiveTab(tab.value)}
-              className={`flex-1 py-3 rounded-xl flex-row items-center justify-center gap-2 ${
+              className={`flex-1 py-3 rounded-xl flex-row items-center justify-center gap-1.5 ${
                 activeTab === tab.value ? 'bg-blue-500' : 'bg-slate-900 border border-slate-800'
               }`}
             >
               <tab.icon
-                size={16}
+                size={14}
                 color={activeTab === tab.value ? '#fff' : '#94a3b8'}
               />
               <Text
-                className={`font-semibold text-sm ${
+                numberOfLines={1}
+                className={`font-semibold text-xs ${
                   activeTab === tab.value ? 'text-white' : 'text-gray-600 dark:text-slate-400'
                 }`}
               >
