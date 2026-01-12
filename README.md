@@ -352,8 +352,30 @@ Centaur OS turns OKRs into work, tracks execution, enables review workflows, and
 - **State**: Zustand + React Query
 - **Storage**: AsyncStorage + MMKV (for fast key-value)
 - **Styling**: NativeWind (TailwindCSS for React Native)
+- **Design System**: Comprehensive design tokens in `/src/lib/design-system.ts`
 - **UI**: Lucide icons, LinearGradient, custom components
 - **Package Manager**: Bun
+
+### Design System
+
+Centaur OS implements a comprehensive design system following **Apple Human Interface Guidelines**:
+
+**Key Features:**
+- **Typography Hierarchy**: Consistent font sizes and weights across all screens
+- **Spacing Tokens**: Standardized padding, margins, and gaps
+- **Color Palette**: Semantic colors for statuses, priorities, and actions
+- **Component Styles**: Unified buttons, cards, modals, and empty states
+- **Interactive Feedback**: Consistent opacity changes and haptic patterns
+
+**Location**: `/src/lib/design-system.ts`
+
+**Documentation**: See `UI_ENHANCEMENT_SUMMARY.md` for detailed design decisions
+
+**Benefits:**
+- Consistent visual language across all tabs
+- Faster development with reusable tokens
+- Easy theme customization
+- Production-ready polish
 
 ### Data Model
 
