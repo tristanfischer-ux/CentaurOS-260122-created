@@ -318,11 +318,27 @@ Simply tap any demo account on the sign-in screen to log in instantly.
 ### Home Dashboard Views
 
 **Founder View:**
+- **Interactive Header**
+  - Tap search icon → Open global search
+  - Tap role badge → Navigate to Settings/Profile
 - **Tappable KPI Tiles** (Active Objectives, Completed Tasks, In Progress, Pending Reviews)
   - Tap "Active Objectives" → Navigate to OKRs tab
   - Tap "Completed This Week" → View detailed list of all tasks completed in the last 7 days
   - Tap "In Progress" → View all currently active tasks with full details
   - Tap "Pending Reviews" → Navigate to Reviews tab
+- **Interactive Financial Dashboard**
+  - Tap "Planning" button → Open scenario planning modal
+  - Tap "Budget" button → Open budget targets modal
+  - Tap any key metric card (Revenue, Profit, Burn, Runway) → View detailed breakdown
+  - Tap any cost breakdown card (COGS, Team, AI Services, Other) → View detailed breakdown
+  - Tap "Net Profit/Loss" card → View profit calculation details
+- **Interactive Key Results**
+  - Tap any Key Result card → Navigate to OKRs tab
+  - View progress, health status, and completion percentage
+- **Interactive Reports Section**
+  - All report cards are clickable and navigate to report views
+- **Interactive Quick Actions**
+  - All quick action buttons navigate to their respective screens
 - Key Results progress with health indicators
 - Quick actions to OKRs and Work Hub
 

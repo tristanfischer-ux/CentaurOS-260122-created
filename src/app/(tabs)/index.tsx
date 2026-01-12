@@ -122,9 +122,14 @@ export default function HomeScreen() {
               <Search size={20} color="#3b82f6" />
             </Pressable>
           </View>
-          <View className="mt-2 bg-blue-500/20 self-start px-3 py-1 rounded-full">
-            <Text className="text-blue-400 text-xs font-semibold">{role}</Text>
-          </View>
+          <Pressable
+            onPress={() => router.push("/(tabs)/settings")}
+            className="active:opacity-70"
+          >
+            <View className="mt-2 bg-blue-500/20 self-start px-3 py-1 rounded-full">
+              <Text className="text-blue-400 text-xs font-semibold">{role}</Text>
+            </View>
+          </Pressable>
         </View>
 
         {/* KPI Tiles */}
@@ -420,7 +425,13 @@ export default function HomeScreen() {
             </View>
 
             {/* Net Profit/Loss */}
-            <View className="bg-slate-900 rounded-2xl p-4 border border-slate-800">
+            <Pressable
+              onPress={() => {
+                setDetailsType("profit");
+                setShowDetailsModal(true);
+              }}
+              className="bg-slate-900 rounded-2xl p-4 border border-slate-800 active:opacity-70"
+            >
               <View className="flex-row items-center justify-between">
                 <Text className="text-slate-400 text-sm">Net Profit/Loss</Text>
                 <View className="flex-row items-center gap-2">
@@ -439,7 +450,7 @@ export default function HomeScreen() {
               <Text className="text-slate-500 text-xs mt-1">
                 {ratios.netMargin.toFixed(1)}% net margin
               </Text>
-            </View>
+            </Pressable>
           </View>
         )}
 
@@ -558,9 +569,10 @@ export default function HomeScreen() {
                 const percentage = Math.round(kr.progress * 100);
 
                 return (
-                  <View
+                  <Pressable
                     key={kr.krId}
-                    className="bg-slate-900 rounded-2xl p-4 border border-slate-800"
+                    onPress={() => router.push("/(tabs)/okrs")}
+                    className="bg-slate-900 rounded-2xl p-4 border border-slate-800 active:opacity-70"
                   >
                     <View className="flex-row items-start justify-between mb-2">
                       <Text className="text-white font-medium flex-1 mr-2">
@@ -577,7 +589,7 @@ export default function HomeScreen() {
                     <Text className="text-slate-400 text-xs mt-2">
                       {percentage}% complete
                     </Text>
-                  </View>
+                  </Pressable>
                 );
               })}
             </View>
