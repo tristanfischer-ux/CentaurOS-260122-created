@@ -2,6 +2,7 @@ import { useColorScheme as useRNColorScheme } from 'react-native';
 import { useColorScheme as useNWColorScheme } from 'nativewind';
 import { useAppStore } from './state/app-store';
 import { useEffect } from 'react';
+import type { ThemeMode } from '@/types';
 
 export function useColorScheme(): 'light' | 'dark' {
   const systemColorScheme = useRNColorScheme();
@@ -13,7 +14,8 @@ export function useColorScheme(): 'light' | 'dark' {
   // Determine the effective color scheme
   let effectiveScheme: 'light' | 'dark';
 
-  if (userPreference === 'light') {
+  if (userPreference === 'light' || userPreference === 'off-white') {
+    // Both light and off-white use light mode (off-white is handled with bg colors)
     effectiveScheme = 'light';
   } else if (userPreference === 'dark') {
     effectiveScheme = 'dark';
@@ -28,4 +30,16 @@ export function useColorScheme(): 'light' | 'dark' {
   }, [effectiveScheme, setColorScheme]);
 
   return effectiveScheme;
+}
+
+// Helper to get the exact theme mode (including off-white)
+export function useThemeMode(): ThemeMode {
+  const currentUser = useAppStore((s) => s.currentUser);
+  return currentUser?.preferences?.themeMode || 'system';
+}
+
+// Helper to check if using off-white theme
+export function useIsOffWhite(): boolean {
+  const themeMode = useThemeMode();
+  return themeMode === 'off-white';
 }

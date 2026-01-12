@@ -77,21 +77,21 @@ export default function SignInScreen() {
               <Building2 size={40} color="white" />
             </View>
             <Text className="text-4xl font-bold text-white mb-2">Centaur OS</Text>
-            <Text className="text-slate-400 text-center text-base">
+            <Text className="text-gray-600 dark:text-slate-400 text-center text-base">
               The operating system for lean hardware startups
             </Text>
           </View>
 
           {/* Sign In Form */}
           <View className="bg-slate-800/50 rounded-3xl p-6 border border-slate-700">
-            <Text className="text-white text-xl font-semibold mb-4">Sign In</Text>
+            <Text className="text-gray-900 dark:text-white text-xl font-semibold mb-4">Sign In</Text>
 
             <View className="mb-4">
-              <Text className="text-slate-400 mb-2 text-sm">Email</Text>
+              <Text className="text-gray-600 dark:text-slate-400 mb-2 text-sm">Email</Text>
               <View className="flex-row items-center bg-slate-900/50 rounded-xl px-4 py-3 border border-slate-700">
                 <Mail size={20} color="#94a3b8" />
                 <TextInput
-                  className="flex-1 ml-3 text-white text-base"
+                  className="flex-1 ml-3 text-gray-900 dark:text-white text-base"
                   placeholder="you@example.com"
                   placeholderTextColor="#64748b"
                   value={email}
@@ -126,7 +126,7 @@ export default function SignInScreen() {
 
           {/* Demo Accounts */}
           <View className="mt-8">
-            <Text className="text-slate-400 text-center mb-4 text-sm">Demo Accounts</Text>
+            <Text className="text-gray-600 dark:text-slate-400 text-center mb-4 text-sm">Demo Accounts</Text>
             <View className="gap-3">
               <Pressable
                 onPress={() => quickSignIn('founder@fractional.com')}
@@ -134,7 +134,7 @@ export default function SignInScreen() {
                 className="bg-slate-800/30 border border-slate-700 rounded-xl p-4 active:opacity-80"
               >
                 <Text className="text-white font-medium mb-1">Founder (Sarah Chen)</Text>
-                <Text className="text-slate-400 text-xs">founder@fractional.com</Text>
+                <Text className="text-gray-600 dark:text-slate-400 text-xs">founder@fractional.com</Text>
               </Pressable>
 
               <Pressable
@@ -143,7 +143,7 @@ export default function SignInScreen() {
                 className="bg-slate-800/30 border border-slate-700 rounded-xl p-4 active:opacity-80"
               >
                 <Text className="text-white font-medium mb-1">Apprentice (Alex Rivera)</Text>
-                <Text className="text-slate-400 text-xs">apprentice@fractional.com</Text>
+                <Text className="text-gray-600 dark:text-slate-400 text-xs">apprentice@fractional.com</Text>
               </Pressable>
 
               <Pressable
@@ -152,14 +152,14 @@ export default function SignInScreen() {
                 className="bg-slate-800/30 border border-slate-700 rounded-xl p-4 active:opacity-80"
               >
                 <Text className="text-white font-medium mb-1">Fractional Exec (Jordan Martinez)</Text>
-                <Text className="text-slate-400 text-xs">exec@fractional.com</Text>
+                <Text className="text-gray-600 dark:text-slate-400 text-xs">exec@fractional.com</Text>
               </Pressable>
             </View>
           </View>
 
           {/* Sign Up Link */}
           <View className="mt-6 flex-row items-center justify-center">
-            <Text className="text-slate-400 text-sm">Don't have an account? </Text>
+            <Text className="text-gray-600 dark:text-slate-400 text-sm">Don't have an account? </Text>
             <Pressable
               onPress={() => router.push('/sign-up')}
               disabled={isLoading}

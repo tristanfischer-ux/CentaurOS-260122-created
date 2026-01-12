@@ -396,16 +396,16 @@ export default function TeamScreen() {
       case 'Founder': return 'text-blue-400';
       case 'FractionalExec': return 'text-purple-400';
       case 'Apprentice': return 'text-emerald-400';
-      default: return 'text-slate-400';
+      default: return 'text-gray-600 dark:text-slate-400';
     }
   };
 
   return (
-    <View className="flex-1 bg-slate-950">
+    <View className="flex-1 bg-white dark:bg-slate-950">
       {/* Header Stats */}
       <View className="p-6 pb-4">
         <View className="flex-row justify-between items-center mb-4">
-          <Text className="text-white text-2xl font-bold">Team Directory</Text>
+          <Text className="text-gray-900 dark:text-white text-2xl font-bold">Team Directory</Text>
 
           {/* Action Buttons */}
           <View className="flex-row gap-2">
@@ -416,7 +416,7 @@ export default function TeamScreen() {
                 className="bg-emerald-500 px-4 py-2 rounded-xl flex-row items-center active:opacity-70"
               >
                 <GraduationCap size={16} color="white" />
-                <Text className="text-white text-sm font-semibold ml-2">Learning</Text>
+                <Text className="text-gray-900 dark:text-white text-sm font-semibold ml-2">Learning</Text>
               </Pressable>
             )}
 
@@ -426,27 +426,27 @@ export default function TeamScreen() {
               className="bg-blue-500 px-4 py-2 rounded-xl flex-row items-center active:opacity-70"
             >
               <Network size={16} color="white" />
-              <Text className="text-white text-sm font-semibold ml-2">Org Chart</Text>
+              <Text className="text-gray-900 dark:text-white text-sm font-semibold ml-2">Org Chart</Text>
             </Pressable>
           </View>
         </View>
 
         {/* Stats Cards */}
         <View className="flex-row gap-3 mb-4">
-          <View className="flex-1 bg-slate-900 rounded-xl p-3 border border-slate-800">
-            <Text className="text-slate-400 text-xs mb-1">Total</Text>
-            <Text className="text-white text-2xl font-bold">{roleStats.total}</Text>
+          <View className="flex-1 bg-gray-100 dark:bg-slate-900 rounded-xl p-3 border border-slate-800">
+            <Text className="text-gray-600 dark:text-slate-400 text-xs mb-1">Total</Text>
+            <Text className="text-gray-900 dark:text-white text-2xl font-bold">{roleStats.total}</Text>
           </View>
-          <View className="flex-1 bg-slate-900 rounded-xl p-3 border border-slate-800">
-            <Text className="text-slate-400 text-xs mb-1">Founders</Text>
+          <View className="flex-1 bg-gray-100 dark:bg-slate-900 rounded-xl p-3 border border-slate-800">
+            <Text className="text-gray-600 dark:text-slate-400 text-xs mb-1">Founders</Text>
             <Text className="text-blue-400 text-2xl font-bold">{roleStats.founders}</Text>
           </View>
-          <View className="flex-1 bg-slate-900 rounded-xl p-3 border border-slate-800">
-            <Text className="text-slate-400 text-xs mb-1">Execs</Text>
+          <View className="flex-1 bg-gray-100 dark:bg-slate-900 rounded-xl p-3 border border-slate-800">
+            <Text className="text-gray-600 dark:text-slate-400 text-xs mb-1">Execs</Text>
             <Text className="text-purple-400 text-2xl font-bold">{roleStats.execs}</Text>
           </View>
-          <View className="flex-1 bg-slate-900 rounded-xl p-3 border border-slate-800">
-            <Text className="text-slate-400 text-xs mb-1">Apprentices</Text>
+          <View className="flex-1 bg-gray-100 dark:bg-slate-900 rounded-xl p-3 border border-slate-800">
+            <Text className="text-gray-600 dark:text-slate-400 text-xs mb-1">Apprentices</Text>
             <Text className="text-emerald-400 text-2xl font-bold">{roleStats.apprentices}</Text>
           </View>
         </View>
@@ -470,7 +470,7 @@ export default function TeamScreen() {
                 }`}
               >
                 <Text className={`text-sm font-medium ${
-                  filterRole === filter.value ? 'text-white' : 'text-slate-400'
+                  filterRole === filter.value ? 'text-white' : 'text-gray-600 dark:text-slate-400'
                 }`}>
                   {filter.label}
                 </Text>
@@ -487,7 +487,7 @@ export default function TeamScreen() {
             <Pressable
               key={member.id}
               onPress={() => setSelectedMember(member)}
-              className="bg-slate-900 rounded-2xl p-4 border border-slate-800 active:opacity-70"
+              className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-4 border border-slate-800 active:opacity-70"
             >
               <View className="flex-row items-start">
                 {/* Avatar */}
@@ -521,7 +521,7 @@ export default function TeamScreen() {
                     </Text>
                   </View>
 
-                  <Text className="text-slate-400 text-xs mb-2">
+                  <Text className="text-gray-600 dark:text-slate-400 text-xs mb-2">
                     {member.specialization.join(' • ')}
                     {member.experience > 0 && ` • ${member.experience}y exp`}
                   </Text>
@@ -530,7 +530,7 @@ export default function TeamScreen() {
                     <View className="flex-row items-center gap-3">
                       <View className="flex-row items-center">
                         <Briefcase size={12} color="#64748b" />
-                        <Text className="text-slate-400 text-xs ml-1">
+                        <Text className="text-gray-600 dark:text-slate-400 text-xs ml-1">
                           {member.currentTasks} active
                         </Text>
                       </View>
@@ -557,7 +557,7 @@ export default function TeamScreen() {
         >
           <Pressable onPress={(e) => e.stopPropagation()}>
             {selectedMember && (
-              <View className="bg-slate-900 rounded-t-3xl" style={{ maxHeight: '90%' }}>
+              <View className="bg-gray-100 dark:bg-slate-900 rounded-t-3xl" style={{ maxHeight: '90%' }}>
                 <ScrollView showsVerticalScrollIndicator={false} bounces={false}>
                   {/* Header */}
                   <View className="p-6 border-b border-slate-800">
@@ -574,7 +574,7 @@ export default function TeamScreen() {
                           {selectedMember.name.charAt(0)}
                         </Text>
                       </View>
-                      <Text className="text-white text-2xl font-bold mb-1">
+                      <Text className="text-gray-900 dark:text-white text-2xl font-bold mb-1">
                         {selectedMember.name}
                       </Text>
                       <View className={`self-start px-3 py-1 rounded-lg border ${getRoleBadgeColor(selectedMember.role)}`}>
@@ -592,7 +592,7 @@ export default function TeamScreen() {
                   <View className="flex-row gap-3 mb-4">
                     {selectedMember.rating > 0 && (
                       <View className="flex-1 bg-slate-800 rounded-xl p-3">
-                        <Text className="text-slate-400 text-xs mb-1">Rating</Text>
+                        <Text className="text-gray-600 dark:text-slate-400 text-xs mb-1">Rating</Text>
                         <View className="flex-row items-center">
                           <Star size={14} color="#f59e0b" fill="#f59e0b" />
                           <Text className="text-white font-bold ml-1">{selectedMember.rating.toFixed(1)}</Text>
@@ -601,13 +601,13 @@ export default function TeamScreen() {
                     )}
                     {selectedMember.experience > 0 && (
                       <View className="flex-1 bg-slate-800 rounded-xl p-3">
-                        <Text className="text-slate-400 text-xs mb-1">Experience</Text>
+                        <Text className="text-gray-600 dark:text-slate-400 text-xs mb-1">Experience</Text>
                         <Text className="text-white font-bold">{selectedMember.experience}y</Text>
                       </View>
                     )}
                     {selectedMember.costPerDay && selectedMember.costPerDay > 0 && (
                       <View className="flex-1 bg-slate-800 rounded-xl p-3">
-                        <Text className="text-slate-400 text-xs mb-1">Rate</Text>
+                        <Text className="text-gray-600 dark:text-slate-400 text-xs mb-1">Rate</Text>
                         <Text className="text-emerald-400 font-bold text-xs">£{selectedMember.costPerDay}/d</Text>
                       </View>
                     )}
@@ -626,8 +626,8 @@ export default function TeamScreen() {
                       <Mail size={18} color="#3b82f6" />
                     </View>
                     <View className="flex-1">
-                      <Text className="text-slate-400 text-xs">Email</Text>
-                      <Text className="text-white text-sm">{selectedMember.email}</Text>
+                      <Text className="text-gray-600 dark:text-slate-400 text-xs">Email</Text>
+                      <Text className="text-gray-900 dark:text-white text-sm">{selectedMember.email}</Text>
                     </View>
                   </Pressable>
 
@@ -640,8 +640,8 @@ export default function TeamScreen() {
                         <Phone size={18} color="#10b981" />
                       </View>
                       <View className="flex-1">
-                        <Text className="text-slate-400 text-xs">Phone</Text>
-                        <Text className="text-white text-sm">{selectedMember.phone}</Text>
+                        <Text className="text-gray-600 dark:text-slate-400 text-xs">Phone</Text>
+                        <Text className="text-gray-900 dark:text-white text-sm">{selectedMember.phone}</Text>
                       </View>
                     </Pressable>
                   )}
@@ -652,8 +652,8 @@ export default function TeamScreen() {
                         <MapPin size={18} color="#8b5cf6" />
                       </View>
                       <View className="flex-1">
-                        <Text className="text-slate-400 text-xs">Location</Text>
-                        <Text className="text-white text-sm">{selectedMember.location}</Text>
+                        <Text className="text-gray-600 dark:text-slate-400 text-xs">Location</Text>
+                        <Text className="text-gray-900 dark:text-white text-sm">{selectedMember.location}</Text>
                       </View>
                     </View>
                   )}
@@ -664,22 +664,22 @@ export default function TeamScreen() {
                   <Text className="text-white font-semibold mb-3">Professional Details</Text>
 
                   <View className="mb-4">
-                    <Text className="text-slate-400 text-xs mb-1">Specializations</Text>
-                    <Text className="text-white text-sm">
+                    <Text className="text-gray-600 dark:text-slate-400 text-xs mb-1">Specializations</Text>
+                    <Text className="text-gray-900 dark:text-white text-sm">
                       {selectedMember.specialization?.join(', ') || 'N/A'}
                     </Text>
                   </View>
 
                   {selectedMember.availability && (
                     <View className="mb-4">
-                      <Text className="text-slate-400 text-xs mb-1">Availability</Text>
-                      <Text className="text-white text-sm">{selectedMember.availability}</Text>
+                      <Text className="text-gray-600 dark:text-slate-400 text-xs mb-1">Availability</Text>
+                      <Text className="text-gray-900 dark:text-white text-sm">{selectedMember.availability}</Text>
                     </View>
                   )}
 
                   <View className="mb-4">
-                    <Text className="text-slate-400 text-xs mb-1">Joined</Text>
-                    <Text className="text-white text-sm">
+                    <Text className="text-gray-600 dark:text-slate-400 text-xs mb-1">Joined</Text>
+                    <Text className="text-gray-900 dark:text-white text-sm">
                       {selectedMember.joinedDate ? new Date(selectedMember.joinedDate).toLocaleDateString('en-GB', {
                         day: 'numeric',
                         month: 'long',
@@ -690,14 +690,14 @@ export default function TeamScreen() {
 
                   {selectedMember.bio && (
                     <View className="mb-4">
-                      <Text className="text-slate-400 text-xs mb-1">About</Text>
+                      <Text className="text-gray-600 dark:text-slate-400 text-xs mb-1">About</Text>
                       <Text className="text-slate-300 text-sm leading-5">{selectedMember.bio}</Text>
                     </View>
                   )}
 
                   {selectedMember.skills && selectedMember.skills.length > 0 && (
                     <View>
-                      <Text className="text-slate-400 text-xs mb-2">Skills</Text>
+                      <Text className="text-gray-600 dark:text-slate-400 text-xs mb-2">Skills</Text>
                       <View className="flex-row flex-wrap gap-2">
                         {selectedMember.skills.map((skill: string, idx: number) => (
                           <View key={idx} className="bg-blue-500/20 px-3 py-1.5 rounded-lg">
@@ -715,13 +715,13 @@ export default function TeamScreen() {
                   <View className="flex-row gap-3">
                     <View className="flex-1 bg-slate-800 rounded-xl p-4">
                       <Briefcase size={20} color="#3b82f6" />
-                      <Text className="text-white text-2xl font-bold mt-2">{selectedMember.currentTasks}</Text>
-                      <Text className="text-slate-400 text-xs">Active Tasks</Text>
+                      <Text className="text-gray-900 dark:text-white text-2xl font-bold mt-2">{selectedMember.currentTasks}</Text>
+                      <Text className="text-gray-600 dark:text-slate-400 text-xs">Active Tasks</Text>
                     </View>
                     <View className="flex-1 bg-slate-800 rounded-xl p-4">
                       <CheckCircle2 size={20} color="#10b981" />
-                      <Text className="text-white text-2xl font-bold mt-2">{selectedMember.completedTasks}</Text>
-                      <Text className="text-slate-400 text-xs">Completed</Text>
+                      <Text className="text-gray-900 dark:text-white text-2xl font-bold mt-2">{selectedMember.completedTasks}</Text>
+                      <Text className="text-gray-600 dark:text-slate-400 text-xs">Completed</Text>
                     </View>
                   </View>
                 </View>
@@ -746,7 +746,7 @@ export default function TeamScreen() {
                     onPress={() => setSelectedMember(null)}
                     className="bg-slate-800 py-3 rounded-xl active:opacity-70"
                   >
-                    <Text className="text-slate-400 text-center font-semibold">Close</Text>
+                    <Text className="text-gray-600 dark:text-slate-400 text-center font-semibold">Close</Text>
                   </Pressable>
                 </View>
               </ScrollView>
@@ -759,18 +759,18 @@ export default function TeamScreen() {
       {/* Assign Task Modal */}
       <Modal visible={showTaskModal} transparent animationType="slide">
         <View className="flex-1 bg-black/70 justify-center px-6">
-          <View className="bg-slate-900 rounded-3xl p-6" style={{ maxHeight: '90%' }}>
+          <View className="bg-gray-100 dark:bg-slate-900 rounded-3xl p-6" style={{ maxHeight: '90%' }}>
             <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled" style={{ flex: 1 }}>
-              <Text className="text-white text-2xl font-bold mb-1">Assign Task</Text>
+              <Text className="text-gray-900 dark:text-white text-2xl font-bold mb-1">Assign Task</Text>
               {selectedMember && (
-                <Text className="text-slate-400 text-sm mb-6">
+                <Text className="text-gray-600 dark:text-slate-400 text-sm mb-6">
                   Assigning to {selectedMember.name}
                 </Text>
               )}
 
               {/* Title */}
               <View className="mb-4">
-                <Text className="text-slate-400 text-sm font-medium mb-2">Task Title *</Text>
+                <Text className="text-gray-600 dark:text-slate-400 text-sm font-medium mb-2">Task Title *</Text>
                 <TextInput
                   value={taskTitle}
                   onChangeText={setTaskTitle}
@@ -782,7 +782,7 @@ export default function TeamScreen() {
 
               {/* Description */}
               <View className="mb-4">
-                <Text className="text-slate-400 text-sm font-medium mb-2">Description</Text>
+                <Text className="text-gray-600 dark:text-slate-400 text-sm font-medium mb-2">Description</Text>
                 <TextInput
                   value={taskDescription}
                   onChangeText={setTaskDescription}
@@ -797,7 +797,7 @@ export default function TeamScreen() {
 
               {/* Function */}
               <View className="mb-4">
-                <Text className="text-slate-400 text-sm font-medium mb-2">Function</Text>
+                <Text className="text-gray-600 dark:text-slate-400 text-sm font-medium mb-2">Function</Text>
                 <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ flexGrow: 0 }}>
                   <View className="flex-row gap-2">
                     {(['Finance', 'Sales', 'Marketing', 'Ops', 'Engineering', 'Admin'] as TaskFunction[]).map((func) => (
@@ -811,7 +811,7 @@ export default function TeamScreen() {
                         }`}
                       >
                         <Text className={`text-sm font-medium ${
-                          taskFunction === func ? 'text-white' : 'text-slate-400'
+                          taskFunction === func ? 'text-white' : 'text-gray-600 dark:text-slate-400'
                         }`}>
                           {func}
                         </Text>
@@ -823,7 +823,7 @@ export default function TeamScreen() {
 
               {/* Priority */}
               <View className="mb-6">
-                <Text className="text-slate-400 text-sm font-medium mb-2">Priority</Text>
+                <Text className="text-gray-600 dark:text-slate-400 text-sm font-medium mb-2">Priority</Text>
                 <View className="flex-row gap-2">
                   {(['low', 'medium', 'high', 'urgent'] as TaskPriority[]).map((priority) => (
                     <Pressable
@@ -836,7 +836,7 @@ export default function TeamScreen() {
                       }`}
                     >
                       <Text className={`text-sm font-medium text-center capitalize ${
-                        taskPriority === priority ? 'text-white' : 'text-slate-400'
+                        taskPriority === priority ? 'text-white' : 'text-gray-600 dark:text-slate-400'
                       }`}>
                         {priority}
                       </Text>
@@ -856,7 +856,7 @@ export default function TeamScreen() {
                       : 'bg-blue-500'
                   } active:opacity-70`}
                 >
-                  <Text className="text-white text-center font-bold text-base">
+                  <Text className="text-gray-900 dark:text-white text-center font-bold text-base">
                     {createTaskMutation.isPending ? 'Assigning...' : 'Assign Task'}
                   </Text>
                 </Pressable>
@@ -868,7 +868,7 @@ export default function TeamScreen() {
                   }}
                   className="bg-slate-800 py-3 rounded-xl active:opacity-70"
                 >
-                  <Text className="text-slate-400 text-center font-semibold">Cancel</Text>
+                  <Text className="text-gray-600 dark:text-slate-400 text-center font-semibold">Cancel</Text>
                 </Pressable>
               </View>
             </ScrollView>

@@ -18,7 +18,7 @@ export default function ReviewsScreen() {
 
   if (isLoading) {
     return (
-      <View className="flex-1 bg-slate-950 items-center justify-center">
+      <View className="flex-1 bg-white dark:bg-slate-950 items-center justify-center">
         <ActivityIndicator size="large" color="#3b82f6" />
       </View>
     );
@@ -50,10 +50,10 @@ export default function ReviewsScreen() {
 
   if (!canReview) {
     return (
-      <View className="flex-1 bg-slate-950 items-center justify-center p-6">
+      <View className="flex-1 bg-white dark:bg-slate-950 items-center justify-center p-6">
         <AlertTriangle size={64} color="#eab308" />
-        <Text className="text-white text-xl font-semibold mt-4 mb-2">Access Restricted</Text>
-        <Text className="text-slate-400 text-center">
+        <Text className="text-gray-900 dark:text-white text-xl font-semibold mt-4 mb-2">Access Restricted</Text>
+        <Text className="text-gray-600 dark:text-slate-400 text-center">
           Only Fractional Executives and Founders can access the Review Queue
         </Text>
       </View>
@@ -62,10 +62,10 @@ export default function ReviewsScreen() {
 
   if (pendingReviews.length === 0 && completedReviews.length === 0) {
     return (
-      <View className="flex-1 bg-slate-950 items-center justify-center p-6">
+      <View className="flex-1 bg-white dark:bg-slate-950 items-center justify-center p-6">
         <CheckCircle size={64} color="#10b981" />
-        <Text className="text-white text-xl font-semibold mt-4 mb-2">All Caught Up!</Text>
-        <Text className="text-slate-400 text-center">
+        <Text className="text-gray-900 dark:text-white text-xl font-semibold mt-4 mb-2">All Caught Up!</Text>
+        <Text className="text-gray-600 dark:text-slate-400 text-center">
           No reviews pending. Check back when apprentices submit work for review.
         </Text>
       </View>
@@ -73,11 +73,11 @@ export default function ReviewsScreen() {
   }
 
   return (
-    <ScrollView className="flex-1 bg-slate-950">
+    <ScrollView className="flex-1 bg-white dark:bg-slate-950">
       {/* Header */}
       <View className="p-6 pb-4">
-        <Text className="text-white text-2xl font-bold">Review Queue</Text>
-        <Text className="text-slate-400 text-sm mt-1">
+        <Text className="text-gray-900 dark:text-white text-2xl font-bold">Review Queue</Text>
+        <Text className="text-gray-600 dark:text-slate-400 text-sm mt-1">
           {pendingReviews.length} pending review{pendingReviews.length !== 1 ? 's' : ''}
         </Text>
       </View>
@@ -85,7 +85,7 @@ export default function ReviewsScreen() {
       {/* Pending Reviews */}
       {pendingReviews.length > 0 && (
         <View className="px-6 pb-6">
-          <Text className="text-white text-lg font-semibold mb-3">Pending</Text>
+          <Text className="text-gray-900 dark:text-white text-lg font-semibold mb-3">Pending</Text>
           <View className="gap-3">
             {pendingReviews.map((review) => (
               <Pressable
@@ -94,7 +94,7 @@ export default function ReviewsScreen() {
                   setSelectedReview(review);
                   setShowReviewModal(true);
                 }}
-                className="bg-slate-900 rounded-2xl p-4 border-2 border-yellow-500/30 active:opacity-70"
+                className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-4 border-2 border-yellow-500/30 active:opacity-70"
               >
                 {/* Review Header */}
                 <View className="flex-row items-start justify-between mb-3">
@@ -109,7 +109,7 @@ export default function ReviewsScreen() {
                       {review.task?.title || 'Task'}
                     </Text>
                     {review.task?.description && (
-                      <Text className="text-slate-400 text-sm" numberOfLines={2}>
+                      <Text className="text-gray-600 dark:text-slate-400 text-sm" numberOfLines={2}>
                         {review.task.description}
                       </Text>
                     )}
@@ -119,7 +119,7 @@ export default function ReviewsScreen() {
                 {/* Review Meta */}
                 <View className="flex-row items-center justify-between pt-3 border-t border-slate-800">
                   <View className="flex-row items-center gap-3">
-                    <Text className="text-slate-400 text-xs">
+                    <Text className="text-gray-600 dark:text-slate-400 text-xs">
                       Requested {new Date(review.requestedAt).toLocaleDateString()}
                     </Text>
                   </View>
@@ -133,7 +133,7 @@ export default function ReviewsScreen() {
       {/* Completed Reviews */}
       {completedReviews.length > 0 && (
         <View className="px-6 pb-6">
-          <Text className="text-white text-lg font-semibold mb-3">Completed</Text>
+          <Text className="text-gray-900 dark:text-white text-lg font-semibold mb-3">Completed</Text>
           <View className="gap-3">
             {completedReviews.map((review) => {
               const isApproved = review.status === 'approved';
@@ -141,7 +141,7 @@ export default function ReviewsScreen() {
               return (
                 <View
                   key={review.id}
-                  className={`bg-slate-900 rounded-2xl p-4 border ${
+                  className={`bg-gray-100 dark:bg-slate-900 rounded-2xl p-4 border ${
                     isApproved ? 'border-green-500/30' : 'border-red-500/30'
                   }`}
                 >
@@ -179,16 +179,16 @@ export default function ReviewsScreen() {
                       <>
                         <View className="flex-row items-center">
                           <View className="w-6 h-6 bg-purple-500 rounded-full items-center justify-center mr-2">
-                            <Text className="text-white text-xs font-semibold">
+                            <Text className="text-gray-900 dark:text-white text-xs font-semibold">
                               {review.reviewer.name.charAt(0)}
                             </Text>
                           </View>
-                          <Text className="text-slate-400 text-xs">{review.reviewer.name}</Text>
+                          <Text className="text-gray-600 dark:text-slate-400 text-xs">{review.reviewer.name}</Text>
                         </View>
                         <Text className="text-slate-600">•</Text>
                       </>
                     )}
-                    <Text className="text-slate-400 text-xs">
+                    <Text className="text-gray-600 dark:text-slate-400 text-xs">
                       {review.reviewedAt ? new Date(review.reviewedAt).toLocaleDateString() : 'N/A'}
                     </Text>
                   </View>
@@ -202,9 +202,9 @@ export default function ReviewsScreen() {
       {/* Review Modal */}
       <Modal visible={showReviewModal} transparent animationType="slide">
         <View className="flex-1 bg-black/70 justify-end">
-          <View className="bg-slate-900 rounded-t-3xl p-6">
+          <View className="bg-gray-100 dark:bg-slate-900 rounded-t-3xl p-6">
             <View className="flex-row items-center justify-between mb-4">
-              <Text className="text-white text-xl font-bold">Review Task</Text>
+              <Text className="text-gray-900 dark:text-white text-xl font-bold">Review Task</Text>
               <Pressable onPress={() => setShowReviewModal(false)}>
                 <X size={24} color="#94a3b8" />
               </Pressable>
@@ -217,15 +217,15 @@ export default function ReviewsScreen() {
                     {selectedReview.task?.title}
                   </Text>
                   {selectedReview.task?.description && (
-                    <Text className="text-slate-400 text-sm">{selectedReview.task.description}</Text>
+                    <Text className="text-gray-600 dark:text-slate-400 text-sm">{selectedReview.task.description}</Text>
                   )}
                 </View>
 
                 {/* Notes Input */}
                 <View className="mb-6">
-                  <Text className="text-slate-400 text-sm mb-2">Review Notes (Optional)</Text>
+                  <Text className="text-gray-600 dark:text-slate-400 text-sm mb-2">Review Notes (Optional)</Text>
                   <TextInput
-                    className="bg-slate-800 rounded-xl px-4 py-3 text-white text-base min-h-[100px]"
+                    className="bg-slate-800 rounded-xl px-4 py-3 text-gray-900 dark:text-white text-base min-h-[100px]"
                     value={reviewNotes}
                     onChangeText={setReviewNotes}
                     placeholder="Add feedback or comments..."
@@ -259,7 +259,7 @@ export default function ReviewsScreen() {
                     onPress={() => setShowReviewModal(false)}
                     className="bg-slate-800 rounded-xl py-3 items-center active:opacity-70"
                   >
-                    <Text className="text-slate-400 font-semibold">Cancel</Text>
+                    <Text className="text-gray-600 dark:text-slate-400 font-semibold">Cancel</Text>
                   </Pressable>
                 </View>
               </>

@@ -50,7 +50,7 @@ export default function OKRsScreen() {
 
   if (isLoading) {
     return (
-      <View className="flex-1 bg-slate-950 items-center justify-center">
+      <View className="flex-1 bg-white dark:bg-slate-950 items-center justify-center">
         <ActivityIndicator size="large" color="#3b82f6" />
       </View>
     );
@@ -58,10 +58,10 @@ export default function OKRsScreen() {
 
   if (!objectives || objectives.length === 0) {
     return (
-      <View className="flex-1 bg-slate-950 items-center justify-center p-6">
+      <View className="flex-1 bg-white dark:bg-slate-950 items-center justify-center p-6">
         <Target size={64} color="#475569" />
-        <Text className="text-white text-xl font-semibold mt-4 mb-2">No Objectives Yet</Text>
-        <Text className="text-slate-400 text-center mb-6">
+        <Text className="text-gray-900 dark:text-white text-xl font-semibold mt-4 mb-2">No Objectives Yet</Text>
+        <Text className="text-gray-600 dark:text-slate-400 text-center mb-6">
           Create your first objective to start tracking progress
         </Text>
         <Pressable
@@ -294,13 +294,13 @@ export default function OKRsScreen() {
 
   return (
     <>
-    <ScrollView className="flex-1 bg-slate-950">
+    <ScrollView className="flex-1 bg-white dark:bg-slate-950">
       {/* Header */}
       <View className="p-6 pb-4">
         <View className="flex-row items-center justify-between">
           <View>
-            <Text className="text-white text-2xl font-bold">Objectives & Key Results</Text>
-            <Text className="text-slate-400 text-sm mt-1">
+            <Text className="text-gray-900 dark:text-white text-2xl font-bold">Objectives & Key Results</Text>
+            <Text className="text-gray-600 dark:text-slate-400 text-sm mt-1">
               {objectives.length} active objective{objectives.length !== 1 ? 's' : ''}
             </Text>
           </View>
@@ -333,14 +333,14 @@ export default function OKRsScreen() {
             const offTrackKRs = objective.keyResults.filter((kr) => kr.healthStatus === 'off_track').length;
 
             return (
-              <View key={objective.id} className="bg-slate-900 rounded-3xl p-5 border border-slate-800">
+              <View key={objective.id} className="bg-gray-100 dark:bg-slate-900 rounded-3xl p-5 border border-slate-800">
                 {/* Objective Header */}
                 <View className="mb-4">
                   <View className="flex-row items-start justify-between mb-2">
                     <View className="flex-1 mr-3">
-                      <Text className="text-white text-lg font-bold mb-1">{objective.title}</Text>
+                      <Text className="text-gray-900 dark:text-white text-lg font-bold mb-1">{objective.title}</Text>
                       {objective.description && (
-                        <Text className="text-slate-400 text-sm">{objective.description}</Text>
+                        <Text className="text-gray-600 dark:text-slate-400 text-sm">{objective.description}</Text>
                       )}
                     </View>
                     <View className="flex-row items-center gap-2">
@@ -459,7 +459,7 @@ export default function OKRsScreen() {
                             <Text className="text-white font-bold mr-1">
                               {kr.currentValue}{kr.unit}
                             </Text>
-                            <Text className="text-slate-400 text-sm">/ {kr.targetValue}{kr.unit}</Text>
+                            <Text className="text-gray-600 dark:text-slate-400 text-sm">/ {kr.targetValue}{kr.unit}</Text>
                           </View>
                         </View>
 
@@ -475,7 +475,7 @@ export default function OKRsScreen() {
                         </View>
 
                         <View className="flex-row items-center justify-between mt-2">
-                          <Text className="text-slate-400 text-xs">{Math.round(progress)}% complete</Text>
+                          <Text className="text-gray-600 dark:text-slate-400 text-xs">{Math.round(progress)}% complete</Text>
                           <View className="flex-row items-center">
                             <View
                               style={{
@@ -486,7 +486,7 @@ export default function OKRsScreen() {
                                 marginRight: 4,
                               }}
                             />
-                            <Text className="text-slate-400 text-xs capitalize">
+                            <Text className="text-gray-600 dark:text-slate-400 text-xs capitalize">
                               {kr.healthStatus.replace('_', ' ')}
                             </Text>
                           </View>
@@ -509,7 +509,7 @@ export default function OKRsScreen() {
                             <Briefcase size={16} color="#3b82f6" />
                             <Text className="text-white font-semibold text-sm">Related Tasks</Text>
                             <View className="bg-slate-800 px-2 py-0.5 rounded-full">
-                              <Text className="text-slate-400 text-xs">{completedTasks}/{relatedTasks.length}</Text>
+                              <Text className="text-gray-600 dark:text-slate-400 text-xs">{completedTasks}/{relatedTasks.length}</Text>
                             </View>
                           </View>
                           <Pressable
@@ -527,7 +527,7 @@ export default function OKRsScreen() {
                               className="bg-slate-800 rounded-lg p-3 flex-row items-center justify-between"
                             >
                               <View className="flex-1">
-                                <Text className="text-white text-sm font-medium mb-1">
+                                <Text className="text-gray-900 dark:text-white text-sm font-medium mb-1">
                                   {task.title}
                                 </Text>
                                 <View className="flex-row items-center gap-2">
@@ -572,9 +572,9 @@ export default function OKRsScreen() {
     {/* Update KR Modal */}
     <Modal visible={showEditKRModal} transparent animationType="slide">
         <View className="flex-1 bg-black/70 justify-end">
-          <View className="bg-slate-900 rounded-t-3xl p-6">
+          <View className="bg-gray-100 dark:bg-slate-900 rounded-t-3xl p-6">
             <View className="flex-row items-center justify-between mb-4">
-              <Text className="text-white text-xl font-bold">Update Key Result</Text>
+              <Text className="text-gray-900 dark:text-white text-xl font-bold">Update Key Result</Text>
               <Pressable onPress={() => setShowEditKRModal(false)}>
                 <X size={24} color="#94a3b8" />
               </Pressable>
@@ -582,20 +582,20 @@ export default function OKRsScreen() {
 
             {selectedKR && (
               <>
-                <Text className="text-slate-400 mb-4">{selectedKR.title}</Text>
+                <Text className="text-gray-600 dark:text-slate-400 mb-4">{selectedKR.title}</Text>
 
                 <View className="mb-6">
-                  <Text className="text-slate-400 text-sm mb-2">Current Value</Text>
+                  <Text className="text-gray-600 dark:text-slate-400 text-sm mb-2">Current Value</Text>
                   <View className="bg-slate-800 rounded-xl px-4 py-3 flex-row items-center">
                     <TextInput
-                      className="flex-1 text-white text-lg font-semibold"
+                      className="flex-1 text-gray-900 dark:text-white text-lg font-semibold"
                       value={newKRValue}
                       onChangeText={setNewKRValue}
                       keyboardType="numeric"
                       placeholder="0"
                       placeholderTextColor="#475569"
                     />
-                    <Text className="text-slate-400 ml-2">{selectedKR.unit}</Text>
+                    <Text className="text-gray-600 dark:text-slate-400 ml-2">{selectedKR.unit}</Text>
                   </View>
                   <Text className="text-slate-500 text-xs mt-2">
                     Target: {selectedKR.targetValue}{selectedKR.unit}
@@ -607,7 +607,7 @@ export default function OKRsScreen() {
                     onPress={() => setShowEditKRModal(false)}
                     className="flex-1 bg-slate-800 rounded-xl py-3 items-center active:opacity-70"
                   >
-                    <Text className="text-slate-400 font-semibold">Cancel</Text>
+                    <Text className="text-gray-600 dark:text-slate-400 font-semibold">Cancel</Text>
                   </Pressable>
                   <Pressable
                     onPress={handleUpdateKR}
@@ -629,18 +629,18 @@ export default function OKRsScreen() {
           className="flex-1"
         >
           <View className="flex-1 bg-black/70 justify-end">
-            <View className="bg-slate-900 rounded-t-3xl p-6">
+            <View className="bg-gray-100 dark:bg-slate-900 rounded-t-3xl p-6">
               <View className="flex-row items-center justify-between mb-6">
-                <Text className="text-white text-xl font-bold">Create Objective</Text>
+                <Text className="text-gray-900 dark:text-white text-xl font-bold">Create Objective</Text>
                 <Pressable onPress={() => setShowCreateModal(false)}>
                   <X size={24} color="#94a3b8" />
                 </Pressable>
               </View>
 
               <View className="mb-4">
-                <Text className="text-slate-400 text-sm mb-2">Title *</Text>
+                <Text className="text-gray-600 dark:text-slate-400 text-sm mb-2">Title *</Text>
                 <TextInput
-                  className="bg-slate-800 rounded-xl px-4 py-3 text-white text-base"
+                  className="bg-slate-800 rounded-xl px-4 py-3 text-gray-900 dark:text-white text-base"
                   value={newObjectiveTitle}
                   onChangeText={setNewObjectiveTitle}
                   placeholder="Enter objective title"
@@ -650,9 +650,9 @@ export default function OKRsScreen() {
               </View>
 
               <View className="mb-6">
-                <Text className="text-slate-400 text-sm mb-2">Description (Optional)</Text>
+                <Text className="text-gray-600 dark:text-slate-400 text-sm mb-2">Description (Optional)</Text>
                 <TextInput
-                  className="bg-slate-800 rounded-xl px-4 py-3 text-white text-base"
+                  className="bg-slate-800 rounded-xl px-4 py-3 text-gray-900 dark:text-white text-base"
                   value={newObjectiveDescription}
                   onChangeText={setNewObjectiveDescription}
                   placeholder="Add details about this objective"
@@ -665,9 +665,9 @@ export default function OKRsScreen() {
               </View>
 
               <View className="mb-4">
-                <Text className="text-slate-400 text-sm mb-2">Start Date (Optional)</Text>
+                <Text className="text-gray-600 dark:text-slate-400 text-sm mb-2">Start Date (Optional)</Text>
                 <TextInput
-                  className="bg-slate-800 rounded-xl px-4 py-3 text-white text-base"
+                  className="bg-slate-800 rounded-xl px-4 py-3 text-gray-900 dark:text-white text-base"
                   value={newObjectiveStartDate}
                   onChangeText={setNewObjectiveStartDate}
                   placeholder="YYYY-MM-DD (defaults to today)"
@@ -677,9 +677,9 @@ export default function OKRsScreen() {
               </View>
 
               <View className="mb-4">
-                <Text className="text-slate-400 text-sm mb-2">End Date (Optional)</Text>
+                <Text className="text-gray-600 dark:text-slate-400 text-sm mb-2">End Date (Optional)</Text>
                 <TextInput
-                  className="bg-slate-800 rounded-xl px-4 py-3 text-white text-base"
+                  className="bg-slate-800 rounded-xl px-4 py-3 text-gray-900 dark:text-white text-base"
                   value={newObjectiveEndDate}
                   onChangeText={setNewObjectiveEndDate}
                   placeholder="YYYY-MM-DD (defaults to 90 days)"
@@ -689,9 +689,9 @@ export default function OKRsScreen() {
               </View>
 
               <View className="mb-6">
-                <Text className="text-slate-400 text-sm mb-2">Target (Optional)</Text>
+                <Text className="text-gray-600 dark:text-slate-400 text-sm mb-2">Target (Optional)</Text>
                 <TextInput
-                  className="bg-slate-800 rounded-xl px-4 py-3 text-white text-base"
+                  className="bg-slate-800 rounded-xl px-4 py-3 text-gray-900 dark:text-white text-base"
                   value={newObjectiveTarget}
                   onChangeText={setNewObjectiveTarget}
                   placeholder="e.g., 100 units, £50k revenue"
@@ -713,7 +713,7 @@ export default function OKRsScreen() {
                   className="flex-1 bg-slate-800 rounded-xl py-3 items-center active:opacity-70"
                   disabled={isCreating}
                 >
-                  <Text className="text-slate-400 font-semibold">Cancel</Text>
+                  <Text className="text-gray-600 dark:text-slate-400 font-semibold">Cancel</Text>
                 </Pressable>
                 <Pressable
                   onPress={handleCreateObjective}
@@ -739,18 +739,18 @@ export default function OKRsScreen() {
           className="flex-1"
         >
           <View className="flex-1 bg-black/70 justify-end">
-            <View className="bg-slate-900 rounded-t-3xl p-6">
+            <View className="bg-gray-100 dark:bg-slate-900 rounded-t-3xl p-6">
               <View className="flex-row items-center justify-between mb-6">
-                <Text className="text-white text-xl font-bold">Edit Objective</Text>
+                <Text className="text-gray-900 dark:text-white text-xl font-bold">Edit Objective</Text>
                 <Pressable onPress={() => setShowEditObjectiveModal(false)}>
                   <X size={24} color="#94a3b8" />
                 </Pressable>
               </View>
 
               <View className="mb-4">
-                <Text className="text-slate-400 text-sm mb-2">Title *</Text>
+                <Text className="text-gray-600 dark:text-slate-400 text-sm mb-2">Title *</Text>
                 <TextInput
-                  className="bg-slate-800 rounded-xl px-4 py-3 text-white text-base"
+                  className="bg-slate-800 rounded-xl px-4 py-3 text-gray-900 dark:text-white text-base"
                   value={editObjectiveTitle}
                   onChangeText={setEditObjectiveTitle}
                   placeholder="Enter objective title"
@@ -760,9 +760,9 @@ export default function OKRsScreen() {
               </View>
 
               <View className="mb-6">
-                <Text className="text-slate-400 text-sm mb-2">Description (Optional)</Text>
+                <Text className="text-gray-600 dark:text-slate-400 text-sm mb-2">Description (Optional)</Text>
                 <TextInput
-                  className="bg-slate-800 rounded-xl px-4 py-3 text-white text-base"
+                  className="bg-slate-800 rounded-xl px-4 py-3 text-gray-900 dark:text-white text-base"
                   value={editObjectiveDescription}
                   onChangeText={setEditObjectiveDescription}
                   placeholder="Add details about this objective"
@@ -775,9 +775,9 @@ export default function OKRsScreen() {
               </View>
 
               <View className="mb-4">
-                <Text className="text-slate-400 text-sm mb-2">Start Date</Text>
+                <Text className="text-gray-600 dark:text-slate-400 text-sm mb-2">Start Date</Text>
                 <TextInput
-                  className="bg-slate-800 rounded-xl px-4 py-3 text-white text-base"
+                  className="bg-slate-800 rounded-xl px-4 py-3 text-gray-900 dark:text-white text-base"
                   value={editObjectiveStartDate}
                   onChangeText={setEditObjectiveStartDate}
                   placeholder="YYYY-MM-DD"
@@ -787,9 +787,9 @@ export default function OKRsScreen() {
               </View>
 
               <View className="mb-6">
-                <Text className="text-slate-400 text-sm mb-2">End Date</Text>
+                <Text className="text-gray-600 dark:text-slate-400 text-sm mb-2">End Date</Text>
                 <TextInput
-                  className="bg-slate-800 rounded-xl px-4 py-3 text-white text-base"
+                  className="bg-slate-800 rounded-xl px-4 py-3 text-gray-900 dark:text-white text-base"
                   value={editObjectiveEndDate}
                   onChangeText={setEditObjectiveEndDate}
                   placeholder="YYYY-MM-DD"
@@ -804,7 +804,7 @@ export default function OKRsScreen() {
                   className="flex-1 bg-slate-800 rounded-xl py-3 items-center active:opacity-70"
                   disabled={isEditing}
                 >
-                  <Text className="text-slate-400 font-semibold">Cancel</Text>
+                  <Text className="text-gray-600 dark:text-slate-400 font-semibold">Cancel</Text>
                 </Pressable>
                 <Pressable
                   onPress={handleEditObjective}
@@ -827,7 +827,7 @@ export default function OKRsScreen() {
       <Modal visible={showSuggestTasksModal} transparent animationType="slide">
         <View className="flex-1 bg-black/70">
           {selectedObjectiveForTasks && (
-            <View className="mt-auto bg-slate-900 rounded-t-3xl" style={{ maxHeight: '90%' }}>
+            <View className="mt-auto bg-gray-100 dark:bg-slate-900 rounded-t-3xl" style={{ maxHeight: '90%' }}>
               <ScrollView showsVerticalScrollIndicator={false}>
                 {/* Header */}
                 <LinearGradient
@@ -840,7 +840,7 @@ export default function OKRsScreen() {
                     <View className="flex-1 mr-4">
                       <View className="flex-row items-center gap-2 mb-2">
                         <Lightbulb size={28} color="#fff" />
-                        <Text className="text-white text-2xl font-bold">AI Task Advisor</Text>
+                        <Text className="text-gray-900 dark:text-white text-2xl font-bold">AI Task Advisor</Text>
                       </View>
                       <Text className="text-purple-100 text-sm">
                         Proven tasks that lead to: {selectedObjectiveForTasks.title}
@@ -859,8 +859,8 @@ export default function OKRsScreen() {
                   <View className="p-6">
                     <View className="bg-slate-800 rounded-2xl p-6 items-center">
                       <Target size={64} color="#64748b" />
-                      <Text className="text-white text-lg font-bold mt-4 mb-2">No Specific Suggestions Yet</Text>
-                      <Text className="text-slate-400 text-center text-sm">
+                      <Text className="text-gray-900 dark:text-white text-lg font-bold mt-4 mb-2">No Specific Suggestions Yet</Text>
+                      <Text className="text-gray-600 dark:text-slate-400 text-center text-sm">
                         Try adding keywords like "revenue", "customer acquisition", "product market fit", "hire team", or "fundraising" to your objective title.
                       </Text>
                     </View>
@@ -915,16 +915,16 @@ export default function OKRsScreen() {
 
                           <View className="flex-row gap-3">
                             <View className="flex-1 bg-slate-800 rounded-xl p-3">
-                              <Text className="text-slate-400 text-xs mb-1">Total Tasks</Text>
-                              <Text className="text-white text-xl font-bold">{suggestedTasks.length}</Text>
+                              <Text className="text-gray-600 dark:text-slate-400 text-xs mb-1">Total Tasks</Text>
+                              <Text className="text-gray-900 dark:text-white text-xl font-bold">{suggestedTasks.length}</Text>
                             </View>
                             <View className="flex-1 bg-slate-800 rounded-xl p-3">
-                              <Text className="text-slate-400 text-xs mb-1">Est. Effort</Text>
-                              <Text className="text-white text-xl font-bold">{effort.totalHours}h</Text>
+                              <Text className="text-gray-600 dark:text-slate-400 text-xs mb-1">Est. Effort</Text>
+                              <Text className="text-gray-900 dark:text-white text-xl font-bold">{effort.totalHours}h</Text>
                             </View>
                             <View className="flex-1 bg-slate-800 rounded-xl p-3">
-                              <Text className="text-slate-400 text-xs mb-1">Selected</Text>
-                              <Text className="text-white text-xl font-bold">{selectedTaskIds.size}</Text>
+                              <Text className="text-gray-600 dark:text-slate-400 text-xs mb-1">Selected</Text>
+                              <Text className="text-gray-900 dark:text-white text-xl font-bold">{selectedTaskIds.size}</Text>
                             </View>
                           </View>
                         </View>
@@ -989,7 +989,7 @@ export default function OKRsScreen() {
                                     </View>
                                     <View className="flex-row items-center gap-1">
                                       <Clock size={12} color="#64748b" />
-                                      <Text className="text-slate-400 text-xs">{task.estimatedHours}h</Text>
+                                      <Text className="text-gray-600 dark:text-slate-400 text-xs">{task.estimatedHours}h</Text>
                                     </View>
                                   </View>
                                   <Text className="text-white font-bold text-base mb-1">{task.title}</Text>
@@ -998,7 +998,7 @@ export default function OKRsScreen() {
                                   </Text>
 
                                   {/* Why This Matters */}
-                                  <View className="bg-slate-900 rounded-xl p-3 mb-2">
+                                  <View className="bg-gray-100 dark:bg-slate-900 rounded-xl p-3 mb-2">
                                     <Text className="text-purple-400 font-semibold text-xs mb-1">
                                       💡 Why This Matters
                                     </Text>
@@ -1008,7 +1008,7 @@ export default function OKRsScreen() {
                                   </View>
 
                                   {/* Impact */}
-                                  <View className="bg-slate-900 rounded-xl p-3">
+                                  <View className="bg-gray-100 dark:bg-slate-900 rounded-xl p-3">
                                     <Text className="text-emerald-400 font-semibold text-xs mb-1">
                                       🎯 Expected Impact
                                     </Text>
@@ -1035,7 +1035,7 @@ export default function OKRsScreen() {
                         className="flex-1 bg-slate-800 rounded-xl py-4 items-center active:opacity-70"
                         disabled={isCreatingTasks}
                       >
-                        <Text className="text-slate-400 font-semibold">Cancel</Text>
+                        <Text className="text-gray-600 dark:text-slate-400 font-semibold">Cancel</Text>
                       </Pressable>
                       <Pressable
                         onPress={handleCreateSuggestedTasks}

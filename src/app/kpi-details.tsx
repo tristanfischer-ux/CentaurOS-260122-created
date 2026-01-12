@@ -22,7 +22,7 @@ export default function KPIDetailsScreen() {
 
   if (isLoading || tasksLoading) {
     return (
-      <View className="flex-1 bg-slate-950 items-center justify-center">
+      <View className="flex-1 bg-white dark:bg-slate-950 items-center justify-center">
         <Stack.Screen
           options={{
             title: "Loading...",
@@ -81,7 +81,7 @@ export default function KPIDetailsScreen() {
       : "No tasks currently in progress";
 
   return (
-    <View className="flex-1 bg-slate-950">
+    <View className="flex-1 bg-white dark:bg-slate-950">
       <Stack.Screen
         options={{
           title,
@@ -104,9 +104,9 @@ export default function KPIDetailsScreen() {
         <View className="p-6 pb-4">
           <View className="flex-row items-center gap-3 mb-2">
             {icon}
-            <Text className="text-white text-2xl font-bold">{title}</Text>
+            <Text className="text-gray-900 dark:text-white text-2xl font-bold">{title}</Text>
           </View>
-          <Text className="text-slate-400 text-sm">
+          <Text className="text-gray-600 dark:text-slate-400 text-sm">
             {tasks.length} {tasks.length === 1 ? "task" : "tasks"} found
           </Text>
         </View>
@@ -114,9 +114,9 @@ export default function KPIDetailsScreen() {
         {/* Tasks List */}
         <View className="px-6 pb-6">
           {tasks.length === 0 ? (
-            <View className="bg-slate-900 rounded-2xl p-8 border border-slate-800 items-center">
+            <View className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-8 border border-slate-800 items-center">
               <AlertCircle size={48} color="#64748b" />
-              <Text className="text-slate-400 text-center mt-4">
+              <Text className="text-gray-600 dark:text-slate-400 text-center mt-4">
                 {emptyMessage}
               </Text>
             </View>
@@ -143,7 +143,7 @@ export default function KPIDetailsScreen() {
                   <Pressable
                     key={task.id}
                     onPress={() => router.push("/work")}
-                    className="bg-slate-900 rounded-2xl p-4 border border-slate-800 active:opacity-70"
+                    className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-4 border border-slate-800 active:opacity-70"
                   >
                     <View className="flex-row items-start justify-between mb-2">
                       <View className="flex-1 mr-2">
@@ -151,7 +151,7 @@ export default function KPIDetailsScreen() {
                           {task.title}
                         </Text>
                         {task.description && (
-                          <Text className="text-slate-400 text-sm mb-2">
+                          <Text className="text-gray-600 dark:text-slate-400 text-sm mb-2">
                             {task.description}
                           </Text>
                         )}
@@ -164,13 +164,13 @@ export default function KPIDetailsScreen() {
                       <View
                         className={`w-2 h-2 rounded-full ${priorityColor}`}
                       />
-                      <Text className="text-slate-400 text-xs capitalize">
+                      <Text className="text-gray-600 dark:text-slate-400 text-xs capitalize">
                         {task.function || "General"}
                       </Text>
                       {task.assignee && (
                         <>
                           <Text className="text-slate-600">•</Text>
-                          <Text className="text-slate-400 text-xs">
+                          <Text className="text-gray-600 dark:text-slate-400 text-xs">
                             {task.assignee.name}
                           </Text>
                         </>
@@ -178,7 +178,7 @@ export default function KPIDetailsScreen() {
                       {task.dueDate && (
                         <>
                           <Text className="text-slate-600">•</Text>
-                          <Text className="text-slate-400 text-xs">
+                          <Text className="text-gray-600 dark:text-slate-400 text-xs">
                             Due {new Date(task.dueDate).toLocaleDateString()}
                           </Text>
                         </>

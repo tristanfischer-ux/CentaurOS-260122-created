@@ -1,5 +1,5 @@
 import { View, Text, Pressable, ScrollView, Modal, Alert, Linking } from 'react-native';
-import { LogOut, ChevronRight, Sun, Moon, Smartphone, FileText, Info, X, Database, Download, Upload, RefreshCw, Check, ExternalLink, Sheet, Play, Library } from 'lucide-react-native';
+import { LogOut, ChevronRight, Sun, Moon, Smartphone, FileText, Info, X, Database, Download, Upload, RefreshCw, Check, ExternalLink, Sheet, Play, Library, Eye } from 'lucide-react-native';
 import { useAppStore, useCurrentUser, useCurrentMembership } from '@/lib/state/app-store';
 import { router } from 'expo-router';
 import { useState } from 'react';
@@ -150,19 +150,20 @@ export default function SettingsScreen() {
     }
   };
 
-  const themeOptions: { mode: ThemeMode; label: string; icon: typeof Sun }[] = [
-    { mode: 'light', label: 'Light', icon: Sun },
-    { mode: 'dark', label: 'Dark', icon: Moon },
-    { mode: 'system', label: 'System', icon: Smartphone },
+  const themeOptions: { mode: ThemeMode; label: string; icon: typeof Sun; description: string }[] = [
+    { mode: 'light', label: 'Light', icon: Sun, description: 'Bright theme' },
+    { mode: 'dark', label: 'Dark', icon: Moon, description: 'Dark theme' },
+    { mode: 'off-white', label: 'Off-White', icon: Eye, description: 'Easy on eyes' },
+    { mode: 'system', label: 'System', icon: Smartphone, description: 'Auto' },
   ];
 
   return (
     <ScrollView className="flex-1 bg-white dark:bg-slate-950">
       <View className="p-4">
-        <View className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-6 mb-4">
-          <Text className="text-gray-600 dark:text-slate-400 text-sm mb-2">Logged in as</Text>
-          <Text className="text-gray-900 dark:text-white text-lg font-semibold">{currentUser?.name}</Text>
-          <Text className="text-gray-600 dark:text-slate-400 text-sm">{currentUser?.email}</Text>
+        <View className="bg-gray-100 dark:bg-gray-100 dark:bg-slate-900 rounded-2xl p-6 mb-4">
+          <Text className="text-gray-600 dark:text-gray-600 dark:text-slate-400 text-sm mb-2">Logged in as</Text>
+          <Text className="text-gray-900 dark:text-gray-900 dark:text-white text-lg font-semibold">{currentUser?.name}</Text>
+          <Text className="text-gray-600 dark:text-gray-600 dark:text-slate-400 text-sm">{currentUser?.email}</Text>
           {currentMembership && (
             <View className="mt-2 pt-2 border-t border-gray-200 dark:border-slate-800">
               <Text className="text-gray-500 dark:text-slate-500 text-xs">Role: {currentMembership.role}</Text>
@@ -171,35 +172,45 @@ export default function SettingsScreen() {
         </View>
 
         {/* Theme Selection */}
-        <View className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-4 mb-4">
+        <View className="bg-gray-100 dark:bg-gray-100 dark:bg-slate-900 rounded-2xl p-4 mb-4">
           <Text className="text-gray-900 dark:text-white font-semibold mb-3">Theme</Text>
-          <View className="flex-row gap-2">
-            {themeOptions.map(({ mode, label, icon: Icon }) => (
+          <View className="flex-row flex-wrap gap-2">
+            {themeOptions.map(({ mode, label, icon: Icon, description }) => (
               <Pressable
                 key={mode}
                 onPress={() => handleThemeChange(mode)}
-                className={`flex-1 p-3 rounded-xl border-2 ${
+                className={`p-3 rounded-xl border-2 ${
                   themeMode === mode
                     ? 'bg-blue-500/10 border-blue-500'
                     : 'bg-gray-200 dark:bg-slate-800 border-gray-300 dark:border-slate-700'
                 } active:opacity-70`}
+                style={{ width: '48%' }}
               >
                 <View className="items-center">
-                  <Icon size={20} color={themeMode === mode ? '#3b82f6' : '#94a3b8'} />
+                  <Icon size={22} color={themeMode === mode ? '#3b82f6' : '#94a3b8'} />
                   <Text
-                    className={`text-sm font-medium mt-1 ${
-                      themeMode === mode ? 'text-blue-400' : 'text-gray-600 dark:text-slate-400'
+                    className={`text-sm font-semibold mt-1 ${
+                      themeMode === mode ? 'text-blue-500 dark:text-blue-400' : 'text-gray-700 dark:text-gray-600 dark:text-slate-400'
                     }`}
                   >
                     {label}
+                  </Text>
+                  <Text
+                    className={`text-xs mt-0.5 ${
+                      themeMode === mode ? 'text-blue-600 dark:text-blue-500' : 'text-gray-500 dark:text-slate-500'
+                    }`}
+                  >
+                    {description}
                   </Text>
                 </View>
               </Pressable>
             ))}
           </View>
-          <Text className="text-gray-500 dark:text-slate-500 text-xs mt-2">
+          <Text className="text-gray-500 dark:text-slate-500 text-xs mt-3">
             {themeMode === 'system'
               ? 'Theme follows your device settings'
+              : themeMode === 'off-white'
+              ? 'Using soft off-white background for reduced eye strain'
               : `Using ${themeMode} mode`}
           </Text>
         </View>
@@ -207,7 +218,7 @@ export default function SettingsScreen() {
         {/* Reports */}
         <Pressable
           onPress={() => router.push('/reports')}
-          className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-4 mb-4 flex-row items-center justify-between active:opacity-70"
+          className="bg-gray-100 dark:bg-gray-100 dark:bg-slate-900 rounded-2xl p-4 mb-4 flex-row items-center justify-between active:opacity-70"
         >
           <View className="flex-row items-center">
             <FileText size={20} color="#10b981" />
@@ -219,13 +230,13 @@ export default function SettingsScreen() {
         {/* Function Hub */}
         <Pressable
           onPress={() => router.push('/function-hub')}
-          className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-4 mb-4 flex-row items-center justify-between active:opacity-70"
+          className="bg-gray-100 dark:bg-gray-100 dark:bg-slate-900 rounded-2xl p-4 mb-4 flex-row items-center justify-between active:opacity-70"
         >
           <View className="flex-row items-center">
             <Library size={20} color="#f59e0b" />
             <View className="ml-3">
               <Text className="text-gray-900 dark:text-white font-semibold">Function Library</Text>
-              <Text className="text-gray-600 dark:text-slate-400 text-xs mt-0.5">
+              <Text className="text-gray-600 dark:text-gray-600 dark:text-slate-400 text-xs mt-0.5">
                 Resources, tools, and advice for your function
               </Text>
             </View>
@@ -236,7 +247,7 @@ export default function SettingsScreen() {
         {/* Replay Onboarding */}
         <Pressable
           onPress={handleReplayOnboarding}
-          className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-4 mb-4 flex-row items-center justify-between active:opacity-70"
+          className="bg-gray-100 dark:bg-gray-100 dark:bg-slate-900 rounded-2xl p-4 mb-4 flex-row items-center justify-between active:opacity-70"
         >
           <View className="flex-row items-center">
             <Play size={20} color="#8b5cf6" />
@@ -249,7 +260,7 @@ export default function SettingsScreen() {
         {currentMembership?.role === 'Founder' && (
           <Pressable
             onPress={() => setShowDataManagement(true)}
-            className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-4 mb-4 border-2 border-blue-500/30 active:opacity-70"
+            className="bg-gray-100 dark:bg-gray-100 dark:bg-slate-900 rounded-2xl p-4 mb-4 border-2 border-blue-500/30 active:opacity-70"
           >
             <View className="flex-row items-center justify-between">
               <View className="flex-row items-center flex-1">
@@ -258,7 +269,7 @@ export default function SettingsScreen() {
                 </View>
                 <View className="ml-3 flex-1">
                   <Text className="text-gray-900 dark:text-white font-semibold">Data Management</Text>
-                  <Text className="text-gray-600 dark:text-slate-400 text-xs mt-0.5">
+                  <Text className="text-gray-600 dark:text-gray-600 dark:text-slate-400 text-xs mt-0.5">
                     Import/Export • Google Sheets Sync
                   </Text>
                 </View>
@@ -271,7 +282,7 @@ export default function SettingsScreen() {
         {/* About */}
         <Pressable
           onPress={() => setShowAbout(true)}
-          className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-4 mb-4 flex-row items-center justify-between active:opacity-70"
+          className="bg-gray-100 dark:bg-gray-100 dark:bg-slate-900 rounded-2xl p-4 mb-4 flex-row items-center justify-between active:opacity-70"
         >
           <View className="flex-row items-center">
             <Info size={20} color="#3b82f6" />
@@ -292,10 +303,10 @@ export default function SettingsScreen() {
       {/* About Modal */}
       <Modal visible={showAbout} transparent animationType="slide">
         <View className="flex-1 bg-black/70 justify-end">
-          <View className="bg-white dark:bg-slate-900 rounded-t-3xl" style={{ maxHeight: '90%' }}>
+          <View className="bg-white dark:bg-gray-100 dark:bg-slate-900 rounded-t-3xl" style={{ maxHeight: '90%' }}>
             <View className="p-6 border-b border-gray-200 dark:border-slate-800">
               <View className="flex-row items-center justify-between">
-                <Text className="text-gray-900 dark:text-white text-2xl font-bold">About Centaur OS</Text>
+                <Text className="text-gray-900 dark:text-gray-900 dark:text-white text-2xl font-bold">About Centaur OS</Text>
                 <Pressable onPress={() => setShowAbout(false)}>
                   <X size={24} color="#94a3b8" />
                 </Pressable>
@@ -306,7 +317,7 @@ export default function SettingsScreen() {
               <View className="gap-6">
                 {/* Overview */}
                 <View>
-                  <Text className="text-gray-900 dark:text-white text-lg font-bold mb-2">What is Centaur OS?</Text>
+                  <Text className="text-gray-900 dark:text-gray-900 dark:text-white text-lg font-bold mb-2">What is Centaur OS?</Text>
                   <Text className="text-gray-700 dark:text-slate-300 leading-6">
                     The operating system for lean hardware startups. Run your business efficiently with a small team: founders who decide, fractional executives who evaluate, and apprentices who execute—augmented by AI and manufacturing partners.
                   </Text>
@@ -314,102 +325,102 @@ export default function SettingsScreen() {
 
                 {/* Key Features */}
                 <View>
-                  <Text className="text-gray-900 dark:text-white text-lg font-bold mb-2">Core Features</Text>
+                  <Text className="text-gray-900 dark:text-gray-900 dark:text-white text-lg font-bold mb-2">Core Features</Text>
 
                   <View className="mb-3">
                     <Text className="text-gray-900 dark:text-white font-semibold mb-1">🎯 OKR Management</Text>
-                    <Text className="text-gray-700 dark:text-slate-400 text-sm">
+                    <Text className="text-gray-700 dark:text-gray-600 dark:text-slate-400 text-sm">
                       Set objectives, track key results, monitor health indicators. AI Task Advisor suggests proven tasks based on your goals across 6 categories (revenue, PMF, customer acquisition, team building, ops, fundraising). Get founder-level coaching on impact and execution.
                     </Text>
                   </View>
 
                   <View className="mb-3">
                     <Text className="text-gray-900 dark:text-white font-semibold mb-1">✅ Task Management</Text>
-                    <Text className="text-gray-700 dark:text-slate-400 text-sm">
+                    <Text className="text-gray-700 dark:text-gray-600 dark:text-slate-400 text-sm">
                       Priority-based workflow (Urgent → High → Medium → Low). Full task editing, strategic alignment warnings, time tracking. Filter by status or objective. Assign to team members with one tap.
                     </Text>
                   </View>
 
                   <View className="mb-3">
                     <Text className="text-gray-900 dark:text-white font-semibold mb-1">👥 Team Performance</Text>
-                    <Text className="text-gray-700 dark:text-slate-400 text-sm">
+                    <Text className="text-gray-700 dark:text-gray-600 dark:text-slate-400 text-sm">
                       Interactive org chart showing reporting lines. Team Performance Analytics with contribution scores (0-100), productivity metrics, quality ratings, and efficiency tracking. Compare executives vs apprentices. Skills matrix and performance reviews for apprentice development.
                     </Text>
                   </View>
 
                   <View className="mb-3">
                     <Text className="text-gray-900 dark:text-white font-semibold mb-1">🔍 Review Workflow</Text>
-                    <Text className="text-gray-700 dark:text-slate-400 text-sm">
+                    <Text className="text-gray-700 dark:text-gray-600 dark:text-slate-400 text-sm">
                       Executives review apprentice work with approve/reject actions. Feedback loops ensure quality. Track status: pending, approved, changes requested.
                     </Text>
                   </View>
 
                   <View className="mb-3">
                     <Text className="text-gray-900 dark:text-white font-semibold mb-1">📚 Function Library</Text>
-                    <Text className="text-gray-700 dark:text-slate-400 text-sm">
+                    <Text className="text-gray-700 dark:text-gray-600 dark:text-slate-400 text-sm">
                       Complete resource hub for all business functions (Finance, Sales, Marketing, Ops, Engineering, Admin). Each function includes: people to hire, recommended tools, AI assistants, templates, guides, checklists, suggested OKRs, and role-specific advice for founders, executives, and apprentices.
                     </Text>
                   </View>
 
                   <View className="mb-3">
                     <Text className="text-gray-900 dark:text-white font-semibold mb-1">🤖 AI Agents</Text>
-                    <Text className="text-gray-700 dark:text-slate-400 text-sm">
+                    <Text className="text-gray-700 dark:text-gray-600 dark:text-slate-400 text-sm">
                       36 AI agents organized by function: Finance, Sales, Marketing, Operations, Engineering, Admin, Design & Manufacturing. Track team usage and costs. Directory includes GPT-4, Claude, Midjourney, GitHub Copilot, and specialized tools.
                     </Text>
                   </View>
 
                   <View className="mb-3">
                     <Text className="text-gray-900 dark:text-white font-semibold mb-1">🏭 Manufacturing & Suppliers</Text>
-                    <Text className="text-gray-700 dark:text-slate-400 text-sm">
+                    <Text className="text-gray-700 dark:text-gray-600 dark:text-slate-400 text-sm">
                       Track supplier engagements with costs, delivery timelines, and task breakdowns. Interactive map shows locations. Contact managers and monitor delivery status. Built for hardware startups managing multiple manufacturing partners.
                     </Text>
                   </View>
 
                   <View className="mb-3">
                     <Text className="text-gray-900 dark:text-white font-semibold mb-1">🌐 Network & Hiring</Text>
-                    <Text className="text-gray-700 dark:text-slate-400 text-sm">
+                    <Text className="text-gray-700 dark:text-gray-600 dark:text-slate-400 text-sm">
                       Browse and hire 30 Fractional Executives and 30 Apprentices. View experience, ratings, availability, and skills. Tinder-style discovery with detail views. One-click hiring adds candidates to your team.
                     </Text>
                   </View>
 
                   <View className="mb-3">
                     <Text className="text-gray-900 dark:text-white font-semibold mb-1">💰 Financial Dashboard</Text>
-                    <Text className="text-gray-700 dark:text-slate-400 text-sm">
+                    <Text className="text-gray-700 dark:text-gray-600 dark:text-slate-400 text-sm">
                       Monitor revenue, gross profit, burn rate (BOM, people, AI, other costs), and runway. Interactive scenario planning with sliders to model changes. Budget setting with variance tracking. Tap any metric for detailed breakdowns.
                     </Text>
                   </View>
 
                   <View className="mb-3">
                     <Text className="text-gray-900 dark:text-white font-semibold mb-1">📊 Reports & Analytics</Text>
-                    <Text className="text-gray-700 dark:text-slate-400 text-sm">
+                    <Text className="text-gray-700 dark:text-gray-600 dark:text-slate-400 text-sm">
                       Generate Weekly Packs and Board Packs. Export to CSV. Role-based reports (Founder/Executive/Apprentice). Professional summaries of progress, risks, and decisions. McKinsey-grade reporting with trend analysis and recommendations.
                     </Text>
                   </View>
 
                   <View className="mb-3">
                     <Text className="text-gray-900 dark:text-white font-semibold mb-1">💾 Data Management</Text>
-                    <Text className="text-gray-700 dark:text-slate-400 text-sm">
+                    <Text className="text-gray-700 dark:text-gray-600 dark:text-slate-400 text-sm">
                       Bulk import/export with CSV templates. Two-way sync with Google Sheets. Import: tasks, OKRs, team members, suppliers, financial data. Works with Excel and any spreadsheet tool.
                     </Text>
                   </View>
 
                   <View className="mb-3">
                     <Text className="text-gray-900 dark:text-white font-semibold mb-1">📅 Community Events</Text>
-                    <Text className="text-gray-700 dark:text-slate-400 text-sm">
+                    <Text className="text-gray-700 dark:text-gray-600 dark:text-slate-400 text-sm">
                       Create and join hardware startup events: networking, workshops, office hours, showcases. Interactive map with locations. RSVP tracking and attendee lists. Foster ecosystem connections.
                     </Text>
                   </View>
 
                   <View className="mb-3">
                     <Text className="text-gray-900 dark:text-white font-semibold mb-1">🔔 Smart Notifications</Text>
-                    <Text className="text-gray-700 dark:text-slate-400 text-sm">
+                    <Text className="text-gray-700 dark:text-gray-600 dark:text-slate-400 text-sm">
                       Task assignments, completions, review requests, OKR updates, milestones. Daily 9 AM reminder for priorities. Weekly Monday digest. Granular controls for each notification type.
                     </Text>
                   </View>
 
                   <View className="mb-3">
                     <Text className="text-gray-900 dark:text-white font-semibold mb-1">🎨 Beautiful Design</Text>
-                    <Text className="text-gray-700 dark:text-slate-400 text-sm">
+                    <Text className="text-gray-700 dark:text-gray-600 dark:text-slate-400 text-sm">
                       Apple Human Interface Guidelines compliant. Consistent typography, spacing, and interactions. Professional polish throughout. Dark mode support.
                     </Text>
                   </View>
@@ -417,7 +428,7 @@ export default function SettingsScreen() {
 
                 {/* Organizational Philosophy */}
                 <View>
-                  <Text className="text-gray-900 dark:text-white text-lg font-bold mb-2">Decide • Evaluate • Do</Text>
+                  <Text className="text-gray-900 dark:text-gray-900 dark:text-white text-lg font-bold mb-2">Decide • Evaluate • Do</Text>
                   <Text className="text-gray-700 dark:text-slate-300 leading-6 mb-2">
                     Centaur OS is built around a three-tier organizational model:
                   </Text>
@@ -436,8 +447,8 @@ export default function SettingsScreen() {
 
                 {/* Version */}
                 <View className="bg-gray-100 dark:bg-slate-800 rounded-xl p-4">
-                  <Text className="text-gray-600 dark:text-slate-400 text-sm">Version 1.0.0</Text>
-                  <Text className="text-gray-600 dark:text-slate-400 text-sm">Built with Expo SDK 53 & React Native 0.76.7</Text>
+                  <Text className="text-gray-600 dark:text-gray-600 dark:text-slate-400 text-sm">Version 1.0.0</Text>
+                  <Text className="text-gray-600 dark:text-gray-600 dark:text-slate-400 text-sm">Built with Expo SDK 53 & React Native 0.76.7</Text>
                 </View>
               </View>
             </ScrollView>
@@ -448,7 +459,7 @@ export default function SettingsScreen() {
       {/* Data Management Modal */}
       <Modal visible={showDataManagement} transparent animationType="slide">
         <View className="flex-1 bg-black/70 justify-end">
-          <View className="bg-white dark:bg-slate-900 rounded-t-3xl" style={{ maxHeight: '90%' }}>
+          <View className="bg-white dark:bg-gray-100 dark:bg-slate-900 rounded-t-3xl" style={{ maxHeight: '90%' }}>
             <View className="p-6 border-b border-gray-200 dark:border-slate-800">
               <View className="flex-row items-center justify-between">
                 <View className="flex-row items-center gap-3">
@@ -456,8 +467,8 @@ export default function SettingsScreen() {
                     <Database size={24} color="#3b82f6" />
                   </View>
                   <View>
-                    <Text className="text-gray-900 dark:text-white text-xl font-bold">Data Management</Text>
-                    <Text className="text-gray-600 dark:text-slate-400 text-xs">Bulk import & export data</Text>
+                    <Text className="text-gray-900 dark:text-gray-900 dark:text-white text-xl font-bold">Data Management</Text>
+                    <Text className="text-gray-600 dark:text-gray-600 dark:text-slate-400 text-xs">Bulk import & export data</Text>
                   </View>
                 </View>
                 <Pressable onPress={() => setShowDataManagement(false)}>
@@ -471,9 +482,9 @@ export default function SettingsScreen() {
               <View className="mb-6">
                 <View className="flex-row items-center gap-2 mb-3">
                   <Sheet size={20} color="#10b981" />
-                  <Text className="text-gray-900 dark:text-white text-lg font-bold">Google Sheets Sync</Text>
+                  <Text className="text-gray-900 dark:text-gray-900 dark:text-white text-lg font-bold">Google Sheets Sync</Text>
                 </View>
-                <Text className="text-gray-600 dark:text-slate-400 text-sm mb-4">
+                <Text className="text-gray-600 dark:text-gray-600 dark:text-slate-400 text-sm mb-4">
                   Two-way sync with Google Sheets. Keep your data in sync across Centaur OS and your spreadsheets.
                 </Text>
 
@@ -484,7 +495,7 @@ export default function SettingsScreen() {
                   <View className="flex-row items-center justify-between">
                     <View className="flex-1">
                       <Text className="text-gray-900 dark:text-white font-semibold mb-1">Connect Google Sheets</Text>
-                      <Text className="text-gray-600 dark:text-slate-400 text-xs">
+                      <Text className="text-gray-600 dark:text-gray-600 dark:text-slate-400 text-xs">
                         Link your Google Sheets for automatic sync
                       </Text>
                     </View>
@@ -526,9 +537,9 @@ export default function SettingsScreen() {
               <View className="mb-6">
                 <View className="flex-row items-center gap-2 mb-3">
                   <FileText size={20} color="#3b82f6" />
-                  <Text className="text-gray-900 dark:text-white text-lg font-bold">CSV Import/Export</Text>
+                  <Text className="text-gray-900 dark:text-gray-900 dark:text-white text-lg font-bold">CSV Import/Export</Text>
                 </View>
-                <Text className="text-gray-600 dark:text-slate-400 text-sm mb-4">
+                <Text className="text-gray-600 dark:text-gray-600 dark:text-slate-400 text-sm mb-4">
                   Import and export data as CSV files. Perfect for Excel, Google Sheets, or any spreadsheet tool.
                 </Text>
 
@@ -538,7 +549,7 @@ export default function SettingsScreen() {
                     <Download size={18} color="#3b82f6" />
                     <Text className="text-gray-900 dark:text-white font-semibold">Download CSV Templates</Text>
                   </View>
-                  <Text className="text-gray-600 dark:text-slate-400 text-xs mb-3">
+                  <Text className="text-gray-600 dark:text-gray-600 dark:text-slate-400 text-xs mb-3">
                     Get pre-formatted templates with all required columns and example data
                   </Text>
                   <View className="flex-row flex-wrap gap-2">
@@ -555,7 +566,7 @@ export default function SettingsScreen() {
                         onPress={() => handleDownloadTemplate(type)}
                         className="bg-blue-500 px-3 py-2 rounded-lg active:opacity-70"
                       >
-                        <Text className="text-white text-xs font-semibold">{type}</Text>
+                        <Text className="text-gray-900 dark:text-white text-xs font-semibold">{type}</Text>
                       </Pressable>
                     ))}
                   </View>

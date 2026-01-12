@@ -74,7 +74,7 @@ export default function ApprenticeOnboardingScreen() {
   };
 
   return (
-    <View className="flex-1 bg-slate-950">
+    <View className="flex-1 bg-white dark:bg-slate-950">
       <LinearGradient
         colors={['#0f172a', '#1e293b', '#334155']}
         style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 }}
@@ -87,7 +87,7 @@ export default function ApprenticeOnboardingScreen() {
             <Pressable onPress={handleBack} className="p-2 active:opacity-60">
               <ArrowLeft size={24} color="#94a3b8" />
             </Pressable>
-            <Text className="text-slate-400 text-sm font-semibold">
+            <Text className="text-gray-600 dark:text-slate-400 text-sm font-semibold">
               Step {step} of {totalSteps}
             </Text>
             <View style={{ width: 40 }} />
@@ -111,23 +111,23 @@ export default function ApprenticeOnboardingScreen() {
             {/* Step 1: Basic Info */}
             {step === 1 && (
               <View>
-                <Text className="text-white text-3xl font-bold mb-2">
+                <Text className="text-gray-900 dark:text-white text-3xl font-bold mb-2">
                   Welcome, Apprentice!
                 </Text>
-                <Text className="text-slate-400 text-base leading-6 mb-8">
+                <Text className="text-gray-600 dark:text-slate-400 text-base leading-6 mb-8">
                   Let's start with your basic information
                 </Text>
 
-                <Text className="text-white text-sm font-semibold mb-2">Full Name</Text>
+                <Text className="text-gray-900 dark:text-white text-sm font-semibold mb-2">Full Name</Text>
                 <TextInput
                   value={name}
                   onChangeText={setName}
                   placeholder="Sarah Johnson"
                   placeholderTextColor="#64748b"
-                  className="bg-slate-900 border border-slate-700 rounded-xl px-4 py-4 text-white text-base mb-4"
+                  className="bg-slate-900 border border-slate-700 rounded-xl px-4 py-4 text-gray-900 dark:text-white text-base mb-4"
                 />
 
-                <Text className="text-white text-sm font-semibold mb-2">Email Address</Text>
+                <Text className="text-gray-900 dark:text-white text-sm font-semibold mb-2">Email Address</Text>
                 <TextInput
                   value={email}
                   onChangeText={setEmail}
@@ -135,7 +135,7 @@ export default function ApprenticeOnboardingScreen() {
                   placeholderTextColor="#64748b"
                   keyboardType="email-address"
                   autoCapitalize="none"
-                  className="bg-slate-900 border border-slate-700 rounded-xl px-4 py-4 text-white text-base"
+                  className="bg-slate-900 border border-slate-700 rounded-xl px-4 py-4 text-gray-900 dark:text-white text-base"
                 />
               </View>
             )}
@@ -143,10 +143,10 @@ export default function ApprenticeOnboardingScreen() {
             {/* Step 2: Function Interest */}
             {step === 2 && (
               <View>
-                <Text className="text-white text-3xl font-bold mb-2">
+                <Text className="text-gray-900 dark:text-white text-3xl font-bold mb-2">
                   Your Interest
                 </Text>
-                <Text className="text-slate-400 text-base leading-6 mb-8">
+                <Text className="text-gray-600 dark:text-slate-400 text-base leading-6 mb-8">
                   Which function would you like to focus on?
                 </Text>
 
@@ -182,14 +182,14 @@ export default function ApprenticeOnboardingScreen() {
             {/* Step 3: Education (Optional) */}
             {step === 3 && (
               <View>
-                <Text className="text-white text-3xl font-bold mb-2">
+                <Text className="text-gray-900 dark:text-white text-3xl font-bold mb-2">
                   Education
                 </Text>
-                <Text className="text-slate-400 text-base leading-6 mb-8">
+                <Text className="text-gray-600 dark:text-slate-400 text-base leading-6 mb-8">
                   Share your educational background (optional)
                 </Text>
 
-                <Text className="text-white text-sm font-semibold mb-2">
+                <Text className="text-gray-900 dark:text-white text-sm font-semibold mb-2">
                   Degree / Qualification
                 </Text>
                 <TextInput
@@ -197,10 +197,10 @@ export default function ApprenticeOnboardingScreen() {
                   onChangeText={setEducation}
                   placeholder="Bachelor's in Computer Science"
                   placeholderTextColor="#64748b"
-                  className="bg-slate-900 border border-slate-700 rounded-xl px-4 py-4 text-white text-base mb-4"
+                  className="bg-slate-900 border border-slate-700 rounded-xl px-4 py-4 text-gray-900 dark:text-white text-base mb-4"
                 />
 
-                <Text className="text-white text-sm font-semibold mb-2">
+                <Text className="text-gray-900 dark:text-white text-sm font-semibold mb-2">
                   Institution
                 </Text>
                 <TextInput
@@ -208,7 +208,7 @@ export default function ApprenticeOnboardingScreen() {
                   onChangeText={setInstitution}
                   placeholder="University of London"
                   placeholderTextColor="#64748b"
-                  className="bg-slate-900 border border-slate-700 rounded-xl px-4 py-4 text-white text-base"
+                  className="bg-slate-900 border border-slate-700 rounded-xl px-4 py-4 text-gray-900 dark:text-white text-base"
                 />
               </View>
             )}
@@ -216,10 +216,10 @@ export default function ApprenticeOnboardingScreen() {
             {/* Step 4: Technical Skills */}
             {step === 4 && (
               <View>
-                <Text className="text-white text-3xl font-bold mb-2">
+                <Text className="text-gray-900 dark:text-white text-3xl font-bold mb-2">
                   Your Skills
                 </Text>
-                <Text className="text-slate-400 text-base leading-6 mb-8">
+                <Text className="text-gray-600 dark:text-slate-400 text-base leading-6 mb-8">
                   What technical skills do you have?
                 </Text>
 
@@ -229,11 +229,11 @@ export default function ApprenticeOnboardingScreen() {
                     {technicalSkills.map((skill, index) => (
                       <View
                         key={index}
-                        className="bg-slate-900 rounded-xl p-4 flex-row items-center justify-between"
+                        className="bg-gray-100 dark:bg-slate-900 rounded-xl p-4 flex-row items-center justify-between"
                       >
                         <View className="flex-1">
-                          <Text className="text-white text-base font-semibold">{skill.name}</Text>
-                          <Text className="text-slate-400 text-sm capitalize">{skill.level}</Text>
+                          <Text className="text-gray-900 dark:text-white text-base font-semibold">{skill.name}</Text>
+                          <Text className="text-gray-600 dark:text-slate-400 text-sm capitalize">{skill.level}</Text>
                         </View>
                         <Pressable onPress={() => removeSkill(index)} className="p-2 active:opacity-60">
                           <X size={20} color="#ef4444" />
@@ -244,16 +244,16 @@ export default function ApprenticeOnboardingScreen() {
                 )}
 
                 {/* Add New Skill */}
-                <Text className="text-white text-sm font-semibold mb-2">Skill Name</Text>
+                <Text className="text-gray-900 dark:text-white text-sm font-semibold mb-2">Skill Name</Text>
                 <TextInput
                   value={technicalSkill}
                   onChangeText={setTechnicalSkill}
                   placeholder="Excel, Python, Salesforce, etc."
                   placeholderTextColor="#64748b"
-                  className="bg-slate-900 border border-slate-700 rounded-xl px-4 py-4 text-white text-base mb-4"
+                  className="bg-slate-900 border border-slate-700 rounded-xl px-4 py-4 text-gray-900 dark:text-white text-base mb-4"
                 />
 
-                <Text className="text-white text-sm font-semibold mb-2">Skill Level</Text>
+                <Text className="text-gray-900 dark:text-white text-sm font-semibold mb-2">Skill Level</Text>
                 <View className="flex-row gap-2 mb-4">
                   {SKILL_LEVELS.map((level) => (
                     <Pressable
@@ -303,14 +303,14 @@ export default function ApprenticeOnboardingScreen() {
             {/* Step 5: Learning Goals */}
             {step === 5 && (
               <View>
-                <Text className="text-white text-3xl font-bold mb-2">
+                <Text className="text-gray-900 dark:text-white text-3xl font-bold mb-2">
                   Learning Goals
                 </Text>
-                <Text className="text-slate-400 text-base leading-6 mb-8">
+                <Text className="text-gray-600 dark:text-slate-400 text-base leading-6 mb-8">
                   What do you want to learn and achieve?
                 </Text>
 
-                <Text className="text-white text-sm font-semibold mb-2">Your Goals</Text>
+                <Text className="text-gray-900 dark:text-white text-sm font-semibold mb-2">Your Goals</Text>
                 <TextInput
                   value={learningGoals}
                   onChangeText={setLearningGoals}
@@ -318,7 +318,7 @@ export default function ApprenticeOnboardingScreen() {
                   placeholderTextColor="#64748b"
                   multiline
                   numberOfLines={6}
-                  className="bg-slate-900 border border-slate-700 rounded-xl px-4 py-4 text-white text-base"
+                  className="bg-slate-900 border border-slate-700 rounded-xl px-4 py-4 text-gray-900 dark:text-white text-base"
                   style={{ textAlignVertical: 'top' }}
                 />
               </View>
@@ -327,14 +327,14 @@ export default function ApprenticeOnboardingScreen() {
             {/* Step 6: Availability & Rate */}
             {step === 6 && (
               <View>
-                <Text className="text-white text-3xl font-bold mb-2">
+                <Text className="text-gray-900 dark:text-white text-3xl font-bold mb-2">
                   Availability & Rate
                 </Text>
-                <Text className="text-slate-400 text-base leading-6 mb-8">
+                <Text className="text-gray-600 dark:text-slate-400 text-base leading-6 mb-8">
                   Final step - let's set your availability and day rate
                 </Text>
 
-                <Text className="text-white text-sm font-semibold mb-2">Availability</Text>
+                <Text className="text-gray-900 dark:text-white text-sm font-semibold mb-2">Availability</Text>
                 <View className="gap-3 mb-6">
                   {AVAILABILITIES.map((avail) => (
                     <Pressable
@@ -362,16 +362,16 @@ export default function ApprenticeOnboardingScreen() {
                   ))}
                 </View>
 
-                <Text className="text-white text-sm font-semibold mb-2">Day Rate (£)</Text>
+                <Text className="text-gray-900 dark:text-white text-sm font-semibold mb-2">Day Rate (£)</Text>
                 <View className="flex-row items-center">
-                  <Text className="text-white text-2xl mr-2">£</Text>
+                  <Text className="text-gray-900 dark:text-white text-2xl mr-2">£</Text>
                   <TextInput
                     value={dayRate}
                     onChangeText={setDayRate}
                     placeholder="150"
                     placeholderTextColor="#64748b"
                     keyboardType="numeric"
-                    className="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-4 py-4 text-white text-base"
+                    className="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-4 py-4 text-gray-900 dark:text-white text-base"
                   />
                 </View>
                 <Text className="text-slate-500 text-sm mt-2">

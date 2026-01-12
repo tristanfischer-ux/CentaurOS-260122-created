@@ -306,7 +306,7 @@ export default function SwipeScreen() {
 
   if (showShortlist) {
     return (
-      <View className="flex-1 bg-slate-950">
+      <View className="flex-1 bg-white dark:bg-slate-950">
         {/* Shortlist Header */}
         <View className="px-6 pt-12 pb-4 border-b border-slate-800">
           <Pressable onPress={() => setShowShortlist(false)} className="mb-4 active:opacity-70">
@@ -315,32 +315,32 @@ export default function SwipeScreen() {
               <Text className="text-blue-400 text-lg font-semibold">Back to Cards</Text>
             </View>
           </Pressable>
-          <Text className="text-white text-2xl font-bold">Your Shortlist</Text>
-          <Text className="text-slate-400 mt-1">{shortlist.length} items selected</Text>
+          <Text className="text-gray-900 dark:text-white text-2xl font-bold">Your Shortlist</Text>
+          <Text className="text-gray-600 dark:text-slate-400 mt-1">{shortlist.length} items selected</Text>
         </View>
 
         <ScrollView className="flex-1 px-6 py-4">
           {shortlist.length === 0 ? (
             <View className="items-center justify-center py-12">
               <Heart size={48} color="#475569" />
-              <Text className="text-slate-400 text-center mt-4">
+              <Text className="text-gray-600 dark:text-slate-400 text-center mt-4">
                 Your shortlist is empty.{'\n'}Swipe right on cards to add them!
               </Text>
             </View>
           ) : (
             shortlist.map((item) => (
-              <View key={item.id} className="bg-slate-900 rounded-xl p-4 mb-3 border border-slate-800">
+              <View key={item.id} className="bg-gray-100 dark:bg-slate-900 rounded-xl p-4 mb-3 border border-slate-800">
                 <View className="flex-row items-start justify-between">
                   <View className="flex-1">
                     <Text className="text-white font-bold text-lg mb-1">{item.name}</Text>
                     {item.type === 'people' && (
-                      <Text className="text-slate-400 text-sm">{(item as PersonCard).role} • {(item as PersonCard).function}</Text>
+                      <Text className="text-gray-600 dark:text-slate-400 text-sm">{(item as PersonCard).role} • {(item as PersonCard).function}</Text>
                     )}
                     {item.type === 'ai' && (
-                      <Text className="text-slate-400 text-sm">{(item as AICard).provider} • {(item as AICard).model}</Text>
+                      <Text className="text-gray-600 dark:text-slate-400 text-sm">{(item as AICard).provider} • {(item as AICard).model}</Text>
                     )}
                     {item.type === 'suppliers' && (
-                      <Text className="text-slate-400 text-sm">{(item as SupplierCard).projectName}</Text>
+                      <Text className="text-gray-600 dark:text-slate-400 text-sm">{(item as SupplierCard).projectName}</Text>
                     )}
                   </View>
                   <Pressable onPress={() => removeFromShortlist(item.id)} className="active:opacity-70">
@@ -379,7 +379,7 @@ export default function SwipeScreen() {
   }
 
   return (
-    <View className="flex-1 bg-slate-950">
+    <View className="flex-1 bg-white dark:bg-slate-950">
       {/* Header */}
       <View className="px-6 pt-12 pb-4">
         <View className="flex-row items-center justify-between mb-4">
@@ -398,8 +398,8 @@ export default function SwipeScreen() {
           </Pressable>
         </View>
 
-        <Text className="text-white text-2xl font-bold mb-2">Discover Resources</Text>
-        <Text className="text-slate-400">Swipe right to add to shortlist, left to pass</Text>
+        <Text className="text-gray-900 dark:text-white text-2xl font-bold mb-2">Discover Resources</Text>
+        <Text className="text-gray-600 dark:text-slate-400">Swipe right to add to shortlist, left to pass</Text>
       </View>
 
       {/* Tab Selector */}
@@ -410,7 +410,7 @@ export default function SwipeScreen() {
         >
           <View className="flex-row items-center justify-center gap-2">
             <Users size={18} color={activeTab === 'people' ? '#fff' : '#94a3b8'} />
-            <Text className={`font-semibold ${activeTab === 'people' ? 'text-white' : 'text-slate-400'}`}>
+            <Text className={`font-semibold ${activeTab === 'people' ? 'text-white' : 'text-gray-600 dark:text-slate-400'}`}>
               People
             </Text>
           </View>
@@ -422,7 +422,7 @@ export default function SwipeScreen() {
         >
           <View className="flex-row items-center justify-center gap-2">
             <Bot size={18} color={activeTab === 'ai' ? '#fff' : '#94a3b8'} />
-            <Text className={`font-semibold ${activeTab === 'ai' ? 'text-white' : 'text-slate-400'}`}>
+            <Text className={`font-semibold ${activeTab === 'ai' ? 'text-white' : 'text-gray-600 dark:text-slate-400'}`}>
               AI Agents
             </Text>
           </View>
@@ -434,7 +434,7 @@ export default function SwipeScreen() {
         >
           <View className="flex-row items-center justify-center gap-2">
             <Package size={18} color={activeTab === 'suppliers' ? '#fff' : '#94a3b8'} />
-            <Text className={`font-semibold ${activeTab === 'suppliers' ? 'text-white' : 'text-slate-400'}`}>
+            <Text className={`font-semibold ${activeTab === 'suppliers' ? 'text-white' : 'text-gray-600 dark:text-slate-400'}`}>
               Suppliers
             </Text>
           </View>
@@ -502,10 +502,10 @@ export default function SwipeScreen() {
             </Animated.View>
           </GestureDetector>
         ) : (
-          <View className="bg-slate-900 rounded-2xl p-8 items-center justify-center border border-slate-800">
+          <View className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-8 items-center justify-center border border-slate-800">
             <Check size={48} color="#10b981" />
-            <Text className="text-white text-xl font-bold mt-4">All Done!</Text>
-            <Text className="text-slate-400 text-center mt-2">
+            <Text className="text-gray-900 dark:text-white text-xl font-bold mt-4">All Done!</Text>
+            <Text className="text-gray-600 dark:text-slate-400 text-center mt-2">
               You've viewed all {activeTab}
             </Text>
             <Pressable
@@ -541,7 +541,7 @@ export default function SwipeScreen() {
       <Modal visible={selectedPerson !== null} transparent animationType="slide">
         <View className="flex-1 bg-black/80">
           {selectedPerson && (
-            <View className="mt-auto bg-slate-900 rounded-t-3xl" style={{ maxHeight: '85%' }}>
+            <View className="mt-auto bg-gray-100 dark:bg-slate-900 rounded-t-3xl" style={{ maxHeight: '85%' }}>
               <ScrollView showsVerticalScrollIndicator={false}>
                 {/* Header */}
                 <LinearGradient
@@ -555,10 +555,10 @@ export default function SwipeScreen() {
                       <View className="w-16 h-16 bg-white/20 rounded-full items-center justify-center mb-3">
                         <Users size={32} color="#fff" />
                       </View>
-                      <Text className="text-white text-3xl font-bold mb-1">{selectedPerson.name}</Text>
+                      <Text className="text-gray-900 dark:text-white text-3xl font-bold mb-1">{selectedPerson.name}</Text>
                       <Text className="text-blue-100 text-lg mb-2">{selectedPerson.role}</Text>
                       <View className="bg-white/20 px-3 py-1 rounded-lg self-start">
-                        <Text className="text-white text-sm font-semibold">{selectedPerson.function}</Text>
+                        <Text className="text-gray-900 dark:text-white text-sm font-semibold">{selectedPerson.function}</Text>
                       </View>
                     </View>
                     <Pressable onPress={() => setSelectedPerson(null)} className="bg-white/20 p-2 rounded-full">
@@ -570,23 +570,23 @@ export default function SwipeScreen() {
                 {/* Bio */}
                 {selectedPerson.bio && (
                   <View className="p-6 border-b border-slate-800">
-                    <Text className="text-slate-400 text-sm font-semibold mb-2">About</Text>
+                    <Text className="text-gray-600 dark:text-slate-400 text-sm font-semibold mb-2">About</Text>
                     <Text className="text-slate-300 text-base leading-6">{selectedPerson.bio}</Text>
                   </View>
                 )}
 
                 {/* Stats */}
                 <View className="p-6 border-b border-slate-800">
-                  <Text className="text-slate-400 text-sm font-semibold mb-3">Details</Text>
+                  <Text className="text-gray-600 dark:text-slate-400 text-sm font-semibold mb-3">Details</Text>
                   <View className="gap-3">
                     {selectedPerson.costPerDay && (
                       <View className="flex-row justify-between">
-                        <Text className="text-slate-400">Daily Rate:</Text>
+                        <Text className="text-gray-600 dark:text-slate-400">Daily Rate:</Text>
                         <Text className="text-white font-semibold">£{selectedPerson.costPerDay}</Text>
                       </View>
                     )}
                     <View className="flex-row justify-between">
-                      <Text className="text-slate-400">Started:</Text>
+                      <Text className="text-gray-600 dark:text-slate-400">Started:</Text>
                       <Text className="text-white font-semibold">
                         {new Date(selectedPerson.startDate).toLocaleDateString('en-GB', {
                           day: 'numeric',
@@ -600,7 +600,7 @@ export default function SwipeScreen() {
 
                 {/* Contact */}
                 <View className="p-6 border-b border-slate-800">
-                  <Text className="text-slate-400 text-sm font-semibold mb-3">Contact</Text>
+                  <Text className="text-gray-600 dark:text-slate-400 text-sm font-semibold mb-3">Contact</Text>
                   <View className="gap-3">
                     <Pressable
                       onPress={() => Linking.openURL(`mailto:${selectedPerson.email}`)}
@@ -610,7 +610,7 @@ export default function SwipeScreen() {
                         <Mail size={20} color="#3b82f6" />
                       </View>
                       <View className="flex-1">
-                        <Text className="text-slate-400 text-xs">Email</Text>
+                        <Text className="text-gray-600 dark:text-slate-400 text-xs">Email</Text>
                         <Text className="text-white">{selectedPerson.email}</Text>
                       </View>
                     </Pressable>
@@ -624,7 +624,7 @@ export default function SwipeScreen() {
                           <Phone size={20} color="#10b981" />
                         </View>
                         <View className="flex-1">
-                          <Text className="text-slate-400 text-xs">Phone</Text>
+                          <Text className="text-gray-600 dark:text-slate-400 text-xs">Phone</Text>
                           <Text className="text-white">{selectedPerson.phone}</Text>
                         </View>
                       </Pressable>
@@ -672,7 +672,7 @@ export default function SwipeScreen() {
                     onPress={() => setSelectedPerson(null)}
                     className="bg-slate-800 py-4 rounded-xl active:opacity-80"
                   >
-                    <Text className="text-slate-400 text-center font-semibold text-base">Close</Text>
+                    <Text className="text-gray-600 dark:text-slate-400 text-center font-semibold text-base">Close</Text>
                   </Pressable>
                 </View>
               </ScrollView>
@@ -707,7 +707,7 @@ function PersonTopTrumpsCard({ card, onTap }: { card: PersonCard; onTap: (person
         elevation: 10,
       }}
     >
-      <View className="flex-1 bg-slate-900 rounded-2xl overflow-hidden">
+      <View className="flex-1 bg-gray-100 dark:bg-slate-900 rounded-2xl overflow-hidden">
         {/* Header */}
         <Pressable onPress={() => onTap(card)}>
           <LinearGradient
@@ -721,7 +721,7 @@ function PersonTopTrumpsCard({ card, onTap }: { card: PersonCard; onTap: (person
                 <Users size={24} color="#fff" />
               </View>
               <View className="flex-1">
-                <Text className="text-white text-2xl font-bold">{card.name}</Text>
+                <Text className="text-gray-900 dark:text-white text-2xl font-bold">{card.name}</Text>
                 <Text className="text-blue-100 text-sm">{card.role}</Text>
               </View>
               <ExternalLink size={20} color="rgba(255,255,255,0.7)" />
@@ -780,7 +780,7 @@ function PersonTopTrumpsCard({ card, onTap }: { card: PersonCard; onTap: (person
 
           {/* Contact Info */}
           <View className="mt-6 pt-4 border-t border-slate-800">
-            <Text className="text-slate-400 text-xs uppercase tracking-wider mb-3">Contact</Text>
+            <Text className="text-gray-600 dark:text-slate-400 text-xs uppercase tracking-wider mb-3">Contact</Text>
             <View className="gap-2">
               <View className="flex-row items-center gap-2">
                 <Mail size={16} color="#64748b" />
@@ -832,7 +832,7 @@ function AITopTrumpsCard({ card }: { card: AICard }) {
         elevation: 10,
       }}
     >
-      <View className="flex-1 bg-slate-900 rounded-2xl overflow-hidden">
+      <View className="flex-1 bg-gray-100 dark:bg-slate-900 rounded-2xl overflow-hidden">
         {/* Header */}
         <LinearGradient
           colors={['#10b981', '#059669']}
@@ -845,7 +845,7 @@ function AITopTrumpsCard({ card }: { card: AICard }) {
               <Cpu size={24} color="#fff" />
             </View>
             <View className="flex-1">
-              <Text className="text-white text-2xl font-bold">{card.name}</Text>
+              <Text className="text-gray-900 dark:text-white text-2xl font-bold">{card.name}</Text>
               <Text className="text-emerald-100 text-sm">{card.provider}</Text>
             </View>
           </View>
@@ -902,13 +902,13 @@ function AITopTrumpsCard({ card }: { card: AICard }) {
 
           {/* Purpose */}
           <View className="mt-6 pt-4 border-t border-slate-800">
-            <Text className="text-slate-400 text-xs uppercase tracking-wider mb-2">Purpose</Text>
+            <Text className="text-gray-600 dark:text-slate-400 text-xs uppercase tracking-wider mb-2">Purpose</Text>
             <Text className="text-slate-300 text-sm leading-relaxed">{card.purpose}</Text>
           </View>
 
           {/* Capabilities List */}
           <View className="mt-4">
-            <Text className="text-slate-400 text-xs uppercase tracking-wider mb-2">Key Capabilities</Text>
+            <Text className="text-gray-600 dark:text-slate-400 text-xs uppercase tracking-wider mb-2">Key Capabilities</Text>
             <View className="flex-row flex-wrap gap-2">
               {card.capabilities.slice(0, 4).map((cap, i) => (
                 <View key={i} className="bg-emerald-500/20 px-3 py-1 rounded-full">
@@ -954,7 +954,7 @@ function SupplierTopTrumpsCard({ card }: { card: SupplierCard }) {
         elevation: 10,
       }}
     >
-      <View className="flex-1 bg-slate-900 rounded-2xl overflow-hidden">
+      <View className="flex-1 bg-gray-100 dark:bg-slate-900 rounded-2xl overflow-hidden">
         {/* Header */}
         <LinearGradient
           colors={['#f59e0b', '#d97706']}
@@ -967,7 +967,7 @@ function SupplierTopTrumpsCard({ card }: { card: SupplierCard }) {
               <Factory size={24} color="#fff" />
             </View>
             <View className="flex-1">
-              <Text className="text-white text-2xl font-bold">{card.name}</Text>
+              <Text className="text-gray-900 dark:text-white text-2xl font-bold">{card.name}</Text>
               <Text className="text-amber-100 text-sm">{card.projectName}</Text>
             </View>
           </View>
@@ -1024,13 +1024,13 @@ function SupplierTopTrumpsCard({ card }: { card: SupplierCard }) {
 
           {/* Description */}
           <View className="mt-6 pt-4 border-t border-slate-800">
-            <Text className="text-slate-400 text-xs uppercase tracking-wider mb-2">Description</Text>
+            <Text className="text-gray-600 dark:text-slate-400 text-xs uppercase tracking-wider mb-2">Description</Text>
             <Text className="text-slate-300 text-sm leading-relaxed">{card.description}</Text>
           </View>
 
           {/* Location */}
           <View className="mt-4">
-            <Text className="text-slate-400 text-xs uppercase tracking-wider mb-2">Location</Text>
+            <Text className="text-gray-600 dark:text-slate-400 text-xs uppercase tracking-wider mb-2">Location</Text>
             <View className="flex-row items-center gap-2">
               <MapPin size={16} color="#64748b" />
               <Text className="text-slate-300 text-sm">{card.location.city}</Text>

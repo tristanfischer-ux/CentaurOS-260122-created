@@ -52,7 +52,7 @@ export default function WorkScreen() {
 
   if (isLoading) {
     return (
-      <View className="flex-1 bg-slate-950 items-center justify-center">
+      <View className="flex-1 bg-white dark:bg-slate-950 items-center justify-center">
         <ActivityIndicator size="large" color="#3b82f6" />
       </View>
     );
@@ -264,13 +264,13 @@ export default function WorkScreen() {
   };
 
   return (
-    <View className="flex-1 bg-slate-950">
+    <View className="flex-1 bg-white dark:bg-slate-950">
       {/* Header with Filters */}
       <View className="p-6 pb-4">
         <View className="flex-row items-center justify-between mb-4">
           <View>
-            <Text className="text-white text-2xl font-bold">Work Hub</Text>
-            <Text className="text-slate-400 text-sm mt-1">
+            <Text className="text-gray-900 dark:text-white text-2xl font-bold">Work Hub</Text>
+            <Text className="text-gray-600 dark:text-slate-400 text-sm mt-1">
               {filteredTasks.length} task{filteredTasks.length !== 1 ? 's' : ''}
             </Text>
           </View>
@@ -297,7 +297,7 @@ export default function WorkScreen() {
               >
                 <Text
                   className={`text-sm font-medium ${
-                    filterStatus === status.value ? 'text-white' : 'text-slate-400'
+                    filterStatus === status.value ? 'text-white' : 'text-gray-600 dark:text-slate-400'
                   }`}
                 >
                   {status.label} ({status.count})
@@ -310,7 +310,7 @@ export default function WorkScreen() {
         {/* Objective Filter */}
         {objectives && objectives.length > 0 && (
           <View className="mt-3">
-            <Text className="text-slate-400 text-xs font-medium mb-2 uppercase tracking-wide">Filter by Objective</Text>
+            <Text className="text-gray-600 dark:text-slate-400 text-xs font-medium mb-2 uppercase tracking-wide">Filter by Objective</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ flexGrow: 0 }}>
               <View className="flex-row gap-2">
                 <Pressable
@@ -322,7 +322,7 @@ export default function WorkScreen() {
                   }`}
                 >
                   <Text className={`text-sm font-medium ${
-                    filterObjective === 'all' ? 'text-white' : 'text-slate-400'
+                    filterObjective === 'all' ? 'text-white' : 'text-gray-600 dark:text-slate-400'
                   }`}>
                     All
                   </Text>
@@ -340,7 +340,7 @@ export default function WorkScreen() {
                     <AlertTriangle size={14} color="#f59e0b" />
                   )}
                   <Text className={`text-sm font-medium ${
-                    filterObjective === 'unlinked' ? 'text-white' : 'text-slate-400'
+                    filterObjective === 'unlinked' ? 'text-white' : 'text-gray-600 dark:text-slate-400'
                   }`}>
                     Not Linked ({unlinkedTasks.length})
                   </Text>
@@ -359,7 +359,7 @@ export default function WorkScreen() {
                       }`}
                     >
                       <Text className={`text-sm font-medium ${
-                        filterObjective === obj.id ? 'text-white' : 'text-slate-400'
+                        filterObjective === obj.id ? 'text-white' : 'text-gray-600 dark:text-slate-400'
                       }`} numberOfLines={1}>
                         {obj.title} ({count})
                       </Text>
@@ -397,8 +397,8 @@ export default function WorkScreen() {
         {filteredTasks.length === 0 ? (
           <View className="items-center justify-center py-12">
             <Briefcase size={64} color="#475569" />
-            <Text className="text-white text-xl font-semibold mt-4 mb-2">No Tasks</Text>
-            <Text className="text-slate-400 text-center">
+            <Text className="text-gray-900 dark:text-white text-xl font-semibold mt-4 mb-2">No Tasks</Text>
+            <Text className="text-gray-600 dark:text-slate-400 text-center">
               {filterStatus === 'all' ? 'No tasks yet' : `No ${filterStatus.replace('_', ' ')} tasks`}
             </Text>
           </View>
@@ -425,7 +425,7 @@ export default function WorkScreen() {
                     setEditDueDate(task.dueDate || '');
                     setShowEditModal(true);
                   }}
-                  className="bg-slate-900 rounded-2xl p-4 border border-slate-800 active:opacity-70"
+                  className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-4 border border-slate-800 active:opacity-70"
                 >
                   {/* Task Header */}
                   <View className="flex-row items-start justify-between mb-3">
@@ -433,13 +433,13 @@ export default function WorkScreen() {
                       <View className="flex-row items-center gap-2 mb-2">
                         {getStatusIcon(task.status)}
                         <View className={`w-2 h-2 rounded-full ${getPriorityColor(task.priority)}`} />
-                        <Text className="text-slate-400 text-xs uppercase tracking-wide">
+                        <Text className="text-gray-600 dark:text-slate-400 text-xs uppercase tracking-wide">
                           {task.function}
                         </Text>
                       </View>
                       <Text className="text-white font-semibold text-base mb-1">{task.title}</Text>
                       {task.description && (
-                        <Text className="text-slate-400 text-sm" numberOfLines={2}>
+                        <Text className="text-gray-600 dark:text-slate-400 text-sm" numberOfLines={2}>
                           {task.description}
                         </Text>
                       )}
@@ -473,17 +473,17 @@ export default function WorkScreen() {
                       {task.assignee && (
                         <View className="flex-row items-center">
                           <View className="w-6 h-6 bg-blue-500 rounded-full items-center justify-center mr-2">
-                            <Text className="text-white text-xs font-semibold">
+                            <Text className="text-gray-900 dark:text-white text-xs font-semibold">
                               {task.assignee.name.charAt(0)}
                             </Text>
                           </View>
-                          <Text className="text-slate-400 text-xs">{task.assignee.name}</Text>
+                          <Text className="text-gray-600 dark:text-slate-400 text-xs">{task.assignee.name}</Text>
                         </View>
                       )}
                       {task.dueDate && (
                         <>
                           <Text className="text-slate-600">•</Text>
-                          <Text className="text-slate-400 text-xs">
+                          <Text className="text-gray-600 dark:text-slate-400 text-xs">
                             {new Date(task.dueDate).toLocaleDateString()}
                           </Text>
                         </>
@@ -609,9 +609,9 @@ export default function WorkScreen() {
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
             className="flex-1 justify-end"
           >
-            <View className="bg-slate-900 rounded-t-3xl" style={{ maxHeight: '90%' }}>
+            <View className="bg-gray-100 dark:bg-slate-900 rounded-t-3xl" style={{ maxHeight: '90%' }}>
               <View className="flex-row items-center justify-between p-6 pb-4 border-b border-slate-800">
-                <Text className="text-white text-xl font-bold">Edit Task</Text>
+                <Text className="text-gray-900 dark:text-white text-xl font-bold">Edit Task</Text>
                 <Pressable onPress={() => setShowEditModal(false)}>
                   <X size={24} color="#94a3b8" />
                 </Pressable>
@@ -622,7 +622,7 @@ export default function WorkScreen() {
                   <View className="gap-4">
                     {/* Title */}
                     <View>
-                      <Text className="text-slate-400 text-sm mb-2 font-medium">Title *</Text>
+                      <Text className="text-gray-600 dark:text-slate-400 text-sm mb-2 font-medium">Title *</Text>
                       <TextInput
                         value={editTitle}
                         onChangeText={setEditTitle}
@@ -634,7 +634,7 @@ export default function WorkScreen() {
 
                     {/* Description */}
                     <View>
-                      <Text className="text-slate-400 text-sm mb-2 font-medium">Description</Text>
+                      <Text className="text-gray-600 dark:text-slate-400 text-sm mb-2 font-medium">Description</Text>
                       <TextInput
                         value={editDescription}
                         onChangeText={setEditDescription}
@@ -649,7 +649,7 @@ export default function WorkScreen() {
 
                     {/* Status */}
                     <View>
-                      <Text className="text-slate-400 text-sm mb-2 font-medium">Status</Text>
+                      <Text className="text-gray-600 dark:text-slate-400 text-sm mb-2 font-medium">Status</Text>
                       <View className="flex-row flex-wrap gap-2">
                         {(['todo', 'in_progress', 'in_review', 'done'] as TaskStatus[]).map((status) => (
                           <Pressable
@@ -671,7 +671,7 @@ export default function WorkScreen() {
 
                     {/* Priority */}
                     <View>
-                      <Text className="text-slate-400 text-sm mb-2 font-medium">Priority</Text>
+                      <Text className="text-gray-600 dark:text-slate-400 text-sm mb-2 font-medium">Priority</Text>
                       <View className="flex-row flex-wrap gap-2">
                         {(['low', 'medium', 'high', 'urgent'] as TaskPriority[]).map((priority) => (
                           <Pressable
@@ -693,7 +693,7 @@ export default function WorkScreen() {
 
                     {/* Function */}
                     <View>
-                      <Text className="text-slate-400 text-sm mb-2 font-medium">Function</Text>
+                      <Text className="text-gray-600 dark:text-slate-400 text-sm mb-2 font-medium">Function</Text>
                       <View className="flex-row flex-wrap gap-2">
                         {(['Finance', 'Sales', 'Marketing', 'Ops', 'Engineering', 'Admin'] as TaskFunction[]).map((func) => (
                           <Pressable
@@ -715,7 +715,7 @@ export default function WorkScreen() {
 
                     {/* Assignee */}
                     <View>
-                      <Text className="text-slate-400 text-sm mb-2 font-medium">Assign To</Text>
+                      <Text className="text-gray-600 dark:text-slate-400 text-sm mb-2 font-medium">Assign To</Text>
                       <ScrollView horizontal showsHorizontalScrollIndicator={false} className="gap-2" style={{ flexGrow: 0 }}>
                         {/* Unassigned */}
                         <Pressable
@@ -743,7 +743,7 @@ export default function WorkScreen() {
                             }`}
                           >
                             <View className="w-6 h-6 bg-purple-500 rounded-full items-center justify-center">
-                              <Text className="text-white text-xs font-semibold">
+                              <Text className="text-gray-900 dark:text-white text-xs font-semibold">
                                 {member.user.name.charAt(0)}
                               </Text>
                             </View>
@@ -765,7 +765,7 @@ export default function WorkScreen() {
                             }`}
                           >
                             <View className="w-6 h-6 bg-emerald-500 rounded-full items-center justify-center">
-                              <Text className="text-white text-xs font-semibold">
+                              <Text className="text-gray-900 dark:text-white text-xs font-semibold">
                                 {member.user.name.charAt(0)}
                               </Text>
                             </View>
@@ -779,7 +779,7 @@ export default function WorkScreen() {
 
                     {/* Link to Objective */}
                     <View>
-                      <Text className="text-slate-400 text-sm mb-2 font-medium">Link to Objective</Text>
+                      <Text className="text-gray-600 dark:text-slate-400 text-sm mb-2 font-medium">Link to Objective</Text>
                       {objectives && objectives.length > 0 ? (
                         <ScrollView horizontal showsHorizontalScrollIndicator={false} className="gap-2" style={{ flexGrow: 0 }}>
                           {/* No Objective */}
@@ -860,9 +860,9 @@ export default function WorkScreen() {
       {/* Assign Task Modal */}
       <Modal visible={showAssignModal} transparent animationType="slide">
         <View className="flex-1 bg-black/70 justify-end">
-          <View className="bg-slate-900 rounded-t-3xl p-6">
+          <View className="bg-gray-100 dark:bg-slate-900 rounded-t-3xl p-6">
             <View className="flex-row items-center justify-between mb-4">
-              <Text className="text-white text-xl font-bold">Assign Task</Text>
+              <Text className="text-gray-900 dark:text-white text-xl font-bold">Assign Task</Text>
               <Pressable onPress={() => setShowAssignModal(false)}>
                 <X size={24} color="#94a3b8" />
               </Pressable>
@@ -870,7 +870,7 @@ export default function WorkScreen() {
 
             {selectedTask && (
               <>
-                <Text className="text-slate-400 mb-6">{selectedTask.title}</Text>
+                <Text className="text-gray-600 dark:text-slate-400 mb-6">{selectedTask.title}</Text>
 
                 <ScrollView className="max-h-96 mb-6" showsVerticalScrollIndicator={false}>
                   <View className="gap-3">
@@ -946,7 +946,7 @@ export default function WorkScreen() {
                   onPress={() => setShowAssignModal(false)}
                   className="bg-slate-800 rounded-xl py-3 items-center active:opacity-70"
                 >
-                  <Text className="text-slate-400 font-semibold">Cancel</Text>
+                  <Text className="text-gray-600 dark:text-slate-400 font-semibold">Cancel</Text>
                 </Pressable>
               </>
             )}
@@ -962,9 +962,9 @@ export default function WorkScreen() {
           keyboardVerticalOffset={0}
         >
           <View className="flex-1 bg-black/70 justify-end">
-            <View className="bg-slate-900 rounded-t-3xl p-6" style={{ maxHeight: '90%' }}>
+            <View className="bg-gray-100 dark:bg-slate-900 rounded-t-3xl p-6" style={{ maxHeight: '90%' }}>
               <View className="flex-row items-center justify-between mb-6">
-                <Text className="text-white text-2xl font-bold">Create Task</Text>
+                <Text className="text-gray-900 dark:text-white text-2xl font-bold">Create Task</Text>
                 <Pressable onPress={() => setShowCreateModal(false)}>
                   <X size={24} color="#94a3b8" />
                 </Pressable>
@@ -1000,7 +1000,7 @@ export default function WorkScreen() {
                             }}
                             className="bg-amber-500 rounded-lg py-2 px-3 active:opacity-70"
                           >
-                            <Text className="text-white text-xs font-semibold text-center">Create Objectives First</Text>
+                            <Text className="text-gray-900 dark:text-white text-xs font-semibold text-center">Create Objectives First</Text>
                           </Pressable>
                         </View>
                       </View>
@@ -1009,7 +1009,7 @@ export default function WorkScreen() {
 
                   {/* Title */}
                   <View className="mb-4">
-                    <Text className="text-slate-400 text-sm font-medium mb-2">Title *</Text>
+                    <Text className="text-gray-600 dark:text-slate-400 text-sm font-medium mb-2">Title *</Text>
                     <TextInput
                       value={newTaskTitle}
                       onChangeText={setNewTaskTitle}
@@ -1022,7 +1022,7 @@ export default function WorkScreen() {
 
                   {/* Description */}
                   <View className="mb-4">
-                    <Text className="text-slate-400 text-sm font-medium mb-2">Description</Text>
+                    <Text className="text-gray-600 dark:text-slate-400 text-sm font-medium mb-2">Description</Text>
                     <TextInput
                       value={newTaskDescription}
                       onChangeText={setNewTaskDescription}
@@ -1037,7 +1037,7 @@ export default function WorkScreen() {
 
                   {/* Assignee */}
                   <View className="mb-4">
-                    <Text className="text-slate-400 text-sm font-medium mb-2">Assign To</Text>
+                    <Text className="text-gray-600 dark:text-slate-400 text-sm font-medium mb-2">Assign To</Text>
                     <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ flexGrow: 0 }}>
                       <View className="flex-row gap-2">
                         <Pressable
@@ -1049,7 +1049,7 @@ export default function WorkScreen() {
                           }`}
                         >
                           <Text className={`text-sm font-medium ${
-                            newTaskAssignee === '' ? 'text-white' : 'text-slate-400'
+                            newTaskAssignee === '' ? 'text-white' : 'text-gray-600 dark:text-slate-400'
                           }`}>
                             Unassigned
                           </Text>
@@ -1065,7 +1065,7 @@ export default function WorkScreen() {
                             }`}
                           >
                             <Text className={`text-sm font-medium ${
-                              newTaskAssignee === member.userId ? 'text-white' : 'text-slate-400'
+                              newTaskAssignee === member.userId ? 'text-white' : 'text-gray-600 dark:text-slate-400'
                             }`}>
                               {member.user?.name || 'Unknown'}
                             </Text>
@@ -1079,7 +1079,7 @@ export default function WorkScreen() {
                   {objectives && objectives.length > 0 && (
                     <View className="mb-4">
                       <View className="flex-row items-center gap-2 mb-2">
-                        <Text className="text-slate-400 text-sm font-medium">Link to Objective</Text>
+                        <Text className="text-gray-600 dark:text-slate-400 text-sm font-medium">Link to Objective</Text>
                         <Text className="text-emerald-400 text-xs font-semibold">(Recommended)</Text>
                       </View>
                       <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ flexGrow: 0 }}>
@@ -1093,7 +1093,7 @@ export default function WorkScreen() {
                             }`}
                           >
                             <Text className={`text-sm font-medium ${
-                              newTaskObjective === '' ? 'text-white' : 'text-slate-400'
+                              newTaskObjective === '' ? 'text-white' : 'text-gray-600 dark:text-slate-400'
                             }`}>
                               None
                             </Text>
@@ -1111,7 +1111,7 @@ export default function WorkScreen() {
                               <View className="flex-row items-center gap-1">
                                 <Target size={12} color={newTaskObjective === objective.id ? '#ffffff' : '#94a3b8'} />
                                 <Text className={`text-sm font-medium ${
-                                  newTaskObjective === objective.id ? 'text-white' : 'text-slate-400'
+                                  newTaskObjective === objective.id ? 'text-white' : 'text-gray-600 dark:text-slate-400'
                                 }`}>
                                   {objective.title}
                                 </Text>
@@ -1125,7 +1125,7 @@ export default function WorkScreen() {
 
                   {/* Function */}
                   <View className="mb-4">
-                    <Text className="text-slate-400 text-sm font-medium mb-2">Function</Text>
+                    <Text className="text-gray-600 dark:text-slate-400 text-sm font-medium mb-2">Function</Text>
                     <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ flexGrow: 0 }}>
                       <View className="flex-row gap-2">
                         {(['Finance', 'Sales', 'Marketing', 'Ops', 'Engineering', 'Admin'] as TaskFunction[]).map((func) => (
@@ -1139,7 +1139,7 @@ export default function WorkScreen() {
                             }`}
                           >
                             <Text className={`text-sm font-medium ${
-                              newTaskFunction === func ? 'text-white' : 'text-slate-400'
+                              newTaskFunction === func ? 'text-white' : 'text-gray-600 dark:text-slate-400'
                             }`}>
                               {func}
                             </Text>
@@ -1151,7 +1151,7 @@ export default function WorkScreen() {
 
                   {/* Priority */}
                   <View className="mb-6">
-                    <Text className="text-slate-400 text-sm font-medium mb-2">Priority</Text>
+                    <Text className="text-gray-600 dark:text-slate-400 text-sm font-medium mb-2">Priority</Text>
                     <View className="flex-row gap-2">
                       {(['low', 'medium', 'high', 'urgent'] as TaskPriority[]).map((priority) => (
                         <Pressable
@@ -1164,7 +1164,7 @@ export default function WorkScreen() {
                           }`}
                         >
                           <Text className={`text-sm font-medium text-center capitalize ${
-                            newTaskPriority === priority ? 'text-white' : 'text-slate-400'
+                            newTaskPriority === priority ? 'text-white' : 'text-gray-600 dark:text-slate-400'
                           }`}>
                             {priority}
                           </Text>
@@ -1196,7 +1196,7 @@ export default function WorkScreen() {
                     onPress={() => setShowCreateModal(false)}
                     className="bg-slate-800 rounded-xl py-3 items-center active:opacity-70"
                   >
-                    <Text className="text-slate-400 font-semibold">Cancel</Text>
+                    <Text className="text-gray-600 dark:text-slate-400 font-semibold">Cancel</Text>
                   </Pressable>
                 </View>
               </View>

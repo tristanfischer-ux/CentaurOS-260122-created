@@ -96,12 +96,12 @@ export default function OrganizationScreen() {
 
   if (!canView) {
     return (
-      <View className="flex-1 bg-slate-950 items-center justify-center p-6">
+      <View className="flex-1 bg-white dark:bg-slate-950 items-center justify-center p-6">
         <Building2 size={64} color="#475569" />
-        <Text className="text-white text-xl font-semibold mt-4 mb-2">
+        <Text className="text-gray-900 dark:text-white text-xl font-semibold mt-4 mb-2">
           Founder Access Only
         </Text>
-        <Text className="text-slate-400 text-center">
+        <Text className="text-gray-600 dark:text-slate-400 text-center">
           Organization structure is only visible to founders
         </Text>
       </View>
@@ -134,26 +134,26 @@ export default function OrganizationScreen() {
   ];
 
   return (
-    <View className="flex-1 bg-slate-950">
+    <View className="flex-1 bg-white dark:bg-slate-950">
       {/* Header with stats */}
       <View className="p-6 pb-4">
-        <Text className="text-white text-2xl font-bold mb-1">Organization</Text>
-        <Text className="text-slate-400 text-sm mb-4">
+        <Text className="text-gray-900 dark:text-white text-2xl font-bold mb-1">Organization</Text>
+        <Text className="text-gray-600 dark:text-slate-400 text-sm mb-4">
           Complete operational overview
         </Text>
 
         {/* Key Metrics */}
         <View className="flex-row gap-3">
-          <View className="flex-1 bg-slate-900 rounded-xl p-3 border border-slate-800">
-            <Text className="text-slate-400 text-xs mb-1">Team</Text>
-            <Text className="text-white text-xl font-bold">{ORGANIZATION_MEMBERS.length}</Text>
+          <View className="flex-1 bg-gray-100 dark:bg-slate-900 rounded-xl p-3 border border-slate-800">
+            <Text className="text-gray-600 dark:text-slate-400 text-xs mb-1">Team</Text>
+            <Text className="text-gray-900 dark:text-white text-xl font-bold">{ORGANIZATION_MEMBERS.length}</Text>
             <Text className="text-blue-400 text-[10px] mt-0.5 font-semibold">
               £{(teamCost.total / 1000).toFixed(0)}k/mo
             </Text>
           </View>
 
-          <View className="flex-1 bg-slate-900 rounded-xl p-3 border border-slate-800">
-            <Text className="text-slate-400 text-xs mb-1">Suppliers</Text>
+          <View className="flex-1 bg-gray-100 dark:bg-slate-900 rounded-xl p-3 border border-slate-800">
+            <Text className="text-gray-600 dark:text-slate-400 text-xs mb-1">Suppliers</Text>
             <Text className="text-emerald-400 text-xl font-bold">
               £{(supplierSpend.total / 1000).toFixed(0)}k
             </Text>
@@ -162,8 +162,8 @@ export default function OrganizationScreen() {
             </Text>
           </View>
 
-          <View className="flex-1 bg-slate-900 rounded-xl p-3 border border-slate-800">
-            <Text className="text-slate-400 text-xs mb-1">AI/Month</Text>
+          <View className="flex-1 bg-gray-100 dark:bg-slate-900 rounded-xl p-3 border border-slate-800">
+            <Text className="text-gray-600 dark:text-slate-400 text-xs mb-1">AI/Month</Text>
             <Text className="text-blue-400 text-xl font-bold">
               £{aiSpend.toLocaleString()}
             </Text>
@@ -191,7 +191,7 @@ export default function OrganizationScreen() {
               />
               <Text
                 className={`font-semibold text-sm ${
-                  activeTab === tab.value ? 'text-white' : 'text-slate-400'
+                  activeTab === tab.value ? 'text-white' : 'text-gray-600 dark:text-slate-400'
                 }`}
               >
                 {tab.label}
@@ -206,7 +206,7 @@ export default function OrganizationScreen() {
         {activeTab === 'structure' && (
           <View className="px-6 pb-6">
             {/* Founders Level */}
-            <Text className="text-white text-base font-semibold mb-3">Founders</Text>
+            <Text className="text-gray-900 dark:text-white text-base font-semibold mb-3">Founders</Text>
             {founders.map(founder => (
               <View key={founder.id} className="mb-4">
                 <Pressable
@@ -236,7 +236,7 @@ export default function OrganizationScreen() {
                       </View>
 
                       <View className="flex-1">
-                        <View className="bg-slate-900 rounded-xl p-3 border border-slate-800 mb-2">
+                        <View className="bg-gray-100 dark:bg-slate-900 rounded-xl p-3 border border-slate-800 mb-2">
                           <Pressable
                             onPress={() => toggleExecExpansion(exec.id)}
                             className="active:opacity-70"
@@ -281,7 +281,7 @@ export default function OrganizationScreen() {
                                   onPress={() => setSelectedMember(apprentice)}
                                   className="flex-1 bg-slate-800 rounded-lg p-3 border border-slate-700 active:opacity-70"
                                 >
-                                  <Text className="text-white text-sm font-medium mb-0.5">
+                                  <Text className="text-gray-900 dark:text-white text-sm font-medium mb-0.5">
                                     {apprentice.name}
                                   </Text>
                                   <Text className="text-emerald-400 text-xs">
@@ -312,22 +312,22 @@ export default function OrganizationScreen() {
         {/* Suppliers Tab */}
         {activeTab === 'suppliers' && (
           <View className="px-6 pb-6">
-            <View className="bg-slate-900 rounded-xl p-4 border border-slate-800 mb-4">
+            <View className="bg-gray-100 dark:bg-slate-900 rounded-xl p-4 border border-slate-800 mb-4">
               <Text className="text-white font-semibold mb-2">Financial Summary</Text>
               <View className="flex-row justify-between mb-2">
-                <Text className="text-slate-400 text-sm">Total Committed:</Text>
+                <Text className="text-gray-600 dark:text-slate-400 text-sm">Total Committed:</Text>
                 <Text className="text-white font-semibold">
                   £{supplierSpend.total.toLocaleString()}
                 </Text>
               </View>
               <View className="flex-row justify-between mb-2">
-                <Text className="text-slate-400 text-sm">Paid to Date:</Text>
+                <Text className="text-gray-600 dark:text-slate-400 text-sm">Paid to Date:</Text>
                 <Text className="text-emerald-400 font-semibold">
                   £{supplierSpend.paid.toLocaleString()}
                 </Text>
               </View>
               <View className="flex-row justify-between">
-                <Text className="text-slate-400 text-sm">Remaining:</Text>
+                <Text className="text-gray-600 dark:text-slate-400 text-sm">Remaining:</Text>
                 <Text className="text-orange-400 font-semibold">
                   £{supplierSpend.remaining.toLocaleString()}
                 </Text>
@@ -346,7 +346,7 @@ export default function OrganizationScreen() {
               <ChevronRight size={20} color="#fff" />
             </Pressable>
 
-            <Text className="text-white text-base font-semibold mb-3">
+            <Text className="text-gray-900 dark:text-white text-base font-semibold mb-3">
               Active Engagements ({SUPPLIER_ENGAGEMENTS.length})
             </Text>
 
@@ -372,14 +372,14 @@ export default function OrganizationScreen() {
                 <Pressable
                   key={engagement.id}
                   onPress={() => setSelectedSupplier(engagement)}
-                  className="bg-slate-900 rounded-2xl p-4 border border-slate-800 mb-3 active:opacity-70"
+                  className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-4 border border-slate-800 mb-3 active:opacity-70"
                 >
                   <View className="flex-row items-start justify-between mb-2">
                     <View className="flex-1">
                       <Text className="text-white font-bold text-base mb-1">
                         {engagement.projectName}
                       </Text>
-                      <Text className="text-slate-400 text-sm mb-2">
+                      <Text className="text-gray-600 dark:text-slate-400 text-sm mb-2">
                         {engagement.supplierName}
                       </Text>
                     </View>
@@ -387,7 +387,7 @@ export default function OrganizationScreen() {
                       className={`${statusColors[engagement.status]} px-2 py-1 rounded-lg flex-row items-center gap-1`}
                     >
                       <StatusIcon size={12} color="#fff" />
-                      <Text className="text-white text-[10px] font-semibold uppercase">
+                      <Text className="text-gray-900 dark:text-white text-[10px] font-semibold uppercase">
                         {engagement.status.replace('_', ' ')}
                       </Text>
                     </View>
@@ -399,19 +399,19 @@ export default function OrganizationScreen() {
 
                   <View className="flex-row gap-3 mb-3">
                     <View className="flex-1 bg-slate-800 rounded-lg p-2">
-                      <Text className="text-slate-400 text-[10px] mb-0.5">Cost</Text>
-                      <Text className="text-white text-sm font-semibold">
+                      <Text className="text-gray-600 dark:text-slate-400 text-[10px] mb-0.5">Cost</Text>
+                      <Text className="text-gray-900 dark:text-white text-sm font-semibold">
                         £{engagement.totalCost.toLocaleString()}
                       </Text>
                     </View>
                     <View className="flex-1 bg-slate-800 rounded-lg p-2">
-                      <Text className="text-slate-400 text-[10px] mb-0.5">Paid</Text>
+                      <Text className="text-gray-600 dark:text-slate-400 text-[10px] mb-0.5">Paid</Text>
                       <Text className="text-emerald-400 text-sm font-semibold">
                         £{engagement.paidToDate.toLocaleString()}
                       </Text>
                     </View>
                     <View className="flex-1 bg-slate-800 rounded-lg p-2">
-                      <Text className="text-slate-400 text-[10px] mb-0.5">Delivery</Text>
+                      <Text className="text-gray-600 dark:text-slate-400 text-[10px] mb-0.5">Delivery</Text>
                       <Text className="text-blue-400 text-sm font-semibold">
                         {new Date(engagement.deliveryDate).toLocaleDateString('en-GB', {
                           day: 'numeric',
@@ -423,7 +423,7 @@ export default function OrganizationScreen() {
 
                   <View className="flex-row items-center justify-between">
                     <View className="flex-row items-center">
-                      <Text className="text-slate-400 text-xs">Managed by: </Text>
+                      <Text className="text-gray-600 dark:text-slate-400 text-xs">Managed by: </Text>
                       <Text className="text-blue-400 text-xs font-medium">
                         {assignedPerson?.name}
                       </Text>
@@ -467,7 +467,7 @@ export default function OrganizationScreen() {
               </View>
             </View>
 
-            <Text className="text-white text-base font-semibold mb-3">
+            <Text className="text-gray-900 dark:text-white text-base font-semibold mb-3">
               AI Agents Directory ({AI_AGENTS.length})
             </Text>
 
@@ -478,7 +478,7 @@ export default function OrganizationScreen() {
                 Google: 'bg-emerald-500/20 text-emerald-400',
                 ElevenLabs: 'bg-orange-500/20 text-orange-400',
                 Vibecode: 'bg-pink-500/20 text-pink-400',
-                Other: 'bg-slate-500/20 text-slate-400',
+                Other: 'bg-slate-500/20 text-gray-600 dark:text-slate-400',
               };
               const statusColors = {
                 active: 'bg-emerald-500',
@@ -490,7 +490,7 @@ export default function OrganizationScreen() {
                 <Pressable
                   key={agent.id}
                   onPress={() => setSelectedAI(agent)}
-                  className="bg-slate-900 rounded-2xl p-4 border border-slate-800 mb-3 active:opacity-70"
+                  className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-4 border border-slate-800 mb-3 active:opacity-70"
                 >
                   <View className="flex-row items-start justify-between mb-2">
                     <View className="flex-1">
@@ -514,7 +514,7 @@ export default function OrganizationScreen() {
                   <View className="flex-row flex-wrap gap-1 mb-3">
                     {agent.functions.slice(0, 3).map((func, idx) => (
                       <View key={idx} className="bg-slate-800 px-2 py-1 rounded">
-                        <Text className="text-slate-400 text-[10px]">{func}</Text>
+                        <Text className="text-gray-600 dark:text-slate-400 text-[10px]">{func}</Text>
                       </View>
                     ))}
                   </View>
@@ -522,19 +522,19 @@ export default function OrganizationScreen() {
                   {agent.usageStats && (
                     <View className="flex-row gap-2 mb-3">
                       <View className="flex-1 bg-slate-800 rounded-lg p-2">
-                        <Text className="text-slate-400 text-[10px] mb-0.5">Requests</Text>
-                        <Text className="text-white text-xs font-semibold">
+                        <Text className="text-gray-600 dark:text-slate-400 text-[10px] mb-0.5">Requests</Text>
+                        <Text className="text-gray-900 dark:text-white text-xs font-semibold">
                           {agent.usageStats.requestsThisMonth.toLocaleString()}
                         </Text>
                       </View>
                       <View className="flex-1 bg-slate-800 rounded-lg p-2">
-                        <Text className="text-slate-400 text-[10px] mb-0.5">Avg Time</Text>
-                        <Text className="text-white text-xs font-semibold">
+                        <Text className="text-gray-600 dark:text-slate-400 text-[10px] mb-0.5">Avg Time</Text>
+                        <Text className="text-gray-900 dark:text-white text-xs font-semibold">
                           {agent.usageStats.averageResponseTime}
                         </Text>
                       </View>
                       <View className="flex-1 bg-slate-800 rounded-lg p-2">
-                        <Text className="text-slate-400 text-[10px] mb-0.5">Success</Text>
+                        <Text className="text-gray-600 dark:text-slate-400 text-[10px] mb-0.5">Success</Text>
                         <Text className="text-emerald-400 text-xs font-semibold">
                           {agent.usageStats.successRate}%
                         </Text>
@@ -543,7 +543,7 @@ export default function OrganizationScreen() {
                   )}
 
                   <View className="flex-row items-center justify-between">
-                    <Text className="text-slate-400 text-xs">
+                    <Text className="text-gray-600 dark:text-slate-400 text-xs">
                       Used by {Array.isArray(agent.usedBy) ? agent.usedBy.length : 'all'} team{' '}
                       members
                     </Text>
@@ -564,10 +564,10 @@ export default function OrganizationScreen() {
         >
           <Pressable onPress={(e) => e.stopPropagation()}>
             {selectedMember && (
-              <View className="bg-slate-900 rounded-3xl p-6" style={{ maxHeight: '90%' }}>
+              <View className="bg-gray-100 dark:bg-slate-900 rounded-3xl p-6" style={{ maxHeight: '90%' }}>
                 <ScrollView showsVerticalScrollIndicator={false} bounces={false}>
                 <View className="flex-row items-center justify-between mb-4">
-                  <Text className="text-white text-xl font-bold">{selectedMember.name}</Text>
+                  <Text className="text-gray-900 dark:text-white text-xl font-bold">{selectedMember.name}</Text>
                   <Pressable onPress={() => setSelectedMember(null)}>
                     <X size={24} color="#94a3b8" />
                   </Pressable>
@@ -575,23 +575,23 @@ export default function OrganizationScreen() {
 
                 <View className="bg-slate-800 rounded-xl p-4 mb-4">
                   <View className="flex-row justify-between mb-2">
-                    <Text className="text-slate-400 text-sm">Role:</Text>
+                    <Text className="text-gray-600 dark:text-slate-400 text-sm">Role:</Text>
                     <Text className="text-white font-semibold">{selectedMember.role}</Text>
                   </View>
                   <View className="flex-row justify-between mb-2">
-                    <Text className="text-slate-400 text-sm">Function:</Text>
+                    <Text className="text-gray-600 dark:text-slate-400 text-sm">Function:</Text>
                     <Text className="text-white font-semibold">{selectedMember.function}</Text>
                   </View>
                   {selectedMember.costPerDay && (
                     <View className="flex-row justify-between mb-2">
-                      <Text className="text-slate-400 text-sm">Cost:</Text>
+                      <Text className="text-gray-600 dark:text-slate-400 text-sm">Cost:</Text>
                       <Text className="text-emerald-400 font-semibold">
                         £{selectedMember.costPerDay}/day
                       </Text>
                     </View>
                   )}
                   <View className="flex-row justify-between">
-                    <Text className="text-slate-400 text-sm">Started:</Text>
+                    <Text className="text-gray-600 dark:text-slate-400 text-sm">Started:</Text>
                     <Text className="text-white font-semibold">
                       {selectedMember.startDate
                         ? new Date(selectedMember.startDate).toLocaleDateString()
@@ -602,7 +602,7 @@ export default function OrganizationScreen() {
 
                 {selectedMember.reportsTo && (
                   <View className="mb-4">
-                    <Text className="text-slate-400 text-sm mb-2">Reports To:</Text>
+                    <Text className="text-gray-600 dark:text-slate-400 text-sm mb-2">Reports To:</Text>
                     <Text className="text-blue-400 font-semibold">
                       {ORGANIZATION_MEMBERS.find(m => m.id === selectedMember.reportsTo)?.name}
                     </Text>
@@ -611,7 +611,7 @@ export default function OrganizationScreen() {
 
                 {selectedMember.manages && selectedMember.manages.length > 0 && (
                   <View className="mb-4">
-                    <Text className="text-slate-400 text-sm mb-2">Manages:</Text>
+                    <Text className="text-gray-600 dark:text-slate-400 text-sm mb-2">Manages:</Text>
                     {selectedMember.manages.map(managedId => {
                       const managed = ORGANIZATION_MEMBERS.find(m => m.id === managedId);
                       return (
@@ -657,12 +657,12 @@ export default function OrganizationScreen() {
           onPress={() => setSelectedSupplier(null)}
         >
           <Pressable onPress={(e) => e.stopPropagation()}>
-            <View className="bg-slate-900 rounded-t-3xl" style={{ maxHeight: '90%' }}>
+            <View className="bg-gray-100 dark:bg-slate-900 rounded-t-3xl" style={{ maxHeight: '90%' }}>
             {selectedSupplier && (
               <>
                 <View className="p-6 border-b border-slate-800">
                   <View className="flex-row items-center justify-between mb-2">
-                    <Text className="text-white text-xl font-bold flex-1">
+                    <Text className="text-gray-900 dark:text-white text-xl font-bold flex-1">
                       {selectedSupplier.projectName}
                     </Text>
                     <Pressable onPress={() => setSelectedSupplier(null)}>
@@ -674,26 +674,26 @@ export default function OrganizationScreen() {
 
                 <ScrollView className="px-6 py-4" showsVerticalScrollIndicator={false}>
                   <View className="mb-4">
-                    <Text className="text-slate-400 text-sm mb-1">Description</Text>
+                    <Text className="text-gray-600 dark:text-slate-400 text-sm mb-1">Description</Text>
                     <Text className="text-white">{selectedSupplier.description}</Text>
                   </View>
 
                   <View className="bg-slate-800 rounded-xl p-4 mb-4">
                     <Text className="text-white font-semibold mb-3">Financial Details</Text>
                     <View className="flex-row justify-between mb-2">
-                      <Text className="text-slate-400">Total Cost:</Text>
+                      <Text className="text-gray-600 dark:text-slate-400">Total Cost:</Text>
                       <Text className="text-white font-semibold">
                         £{selectedSupplier.totalCost.toLocaleString()}
                       </Text>
                     </View>
                     <View className="flex-row justify-between mb-2">
-                      <Text className="text-slate-400">Paid to Date:</Text>
+                      <Text className="text-gray-600 dark:text-slate-400">Paid to Date:</Text>
                       <Text className="text-emerald-400 font-semibold">
                         £{selectedSupplier.paidToDate.toLocaleString()}
                       </Text>
                     </View>
                     <View className="flex-row justify-between">
-                      <Text className="text-slate-400">Remaining:</Text>
+                      <Text className="text-gray-600 dark:text-slate-400">Remaining:</Text>
                       <Text className="text-orange-400 font-semibold">
                         £{(selectedSupplier.totalCost - selectedSupplier.paidToDate).toLocaleString()}
                       </Text>
@@ -703,13 +703,13 @@ export default function OrganizationScreen() {
                   <View className="mb-4">
                     <Text className="text-white font-semibold mb-2">Timeline</Text>
                     <View className="flex-row justify-between mb-2">
-                      <Text className="text-slate-400">Start Date:</Text>
+                      <Text className="text-gray-600 dark:text-slate-400">Start Date:</Text>
                       <Text className="text-white">
                         {new Date(selectedSupplier.startDate).toLocaleDateString()}
                       </Text>
                     </View>
                     <View className="flex-row justify-between">
-                      <Text className="text-slate-400">Delivery Date:</Text>
+                      <Text className="text-gray-600 dark:text-slate-400">Delivery Date:</Text>
                       <Text className="text-white">
                         {new Date(selectedSupplier.deliveryDate).toLocaleDateString()}
                       </Text>
@@ -721,7 +721,7 @@ export default function OrganizationScreen() {
                     {selectedSupplier.tasks.map((task, idx) => (
                       <View key={idx} className="flex-row items-start mb-2">
                         <View className="w-5 h-5 bg-slate-700 rounded-full items-center justify-center mr-2 mt-0.5">
-                          <Text className="text-slate-400 text-xs">{idx + 1}</Text>
+                          <Text className="text-gray-600 dark:text-slate-400 text-xs">{idx + 1}</Text>
                         </View>
                         <Text className="text-slate-300 flex-1">{task}</Text>
                       </View>
@@ -750,7 +750,7 @@ export default function OrganizationScreen() {
                   )}
 
                   <View className="mb-4">
-                    <Text className="text-slate-400 text-sm">Managed by:</Text>
+                    <Text className="text-gray-600 dark:text-slate-400 text-sm">Managed by:</Text>
                     <Text className="text-white font-semibold">
                       {
                         ORGANIZATION_MEMBERS.find(m => m.id === selectedSupplier.assignedTo)
@@ -773,12 +773,12 @@ export default function OrganizationScreen() {
           onPress={() => setSelectedAI(null)}
         >
           <Pressable onPress={(e) => e.stopPropagation()}>
-            <View className="bg-slate-900 rounded-t-3xl" style={{ maxHeight: '90%' }}>
+            <View className="bg-gray-100 dark:bg-slate-900 rounded-t-3xl" style={{ maxHeight: '90%' }}>
             {selectedAI && (
               <>
                 <View className="p-6 border-b border-slate-800">
                   <View className="flex-row items-center justify-between mb-2">
-                    <Text className="text-white text-xl font-bold flex-1">{selectedAI.name}</Text>
+                    <Text className="text-gray-900 dark:text-white text-xl font-bold flex-1">{selectedAI.name}</Text>
                     <Pressable onPress={() => setSelectedAI(null)}>
                       <X size={24} color="#94a3b8" />
                     </Pressable>
@@ -786,14 +786,14 @@ export default function OrganizationScreen() {
                   <View className="flex-row items-center gap-2">
                     <Text className="text-blue-400 text-sm">{selectedAI.provider}</Text>
                     <Text className="text-slate-500">•</Text>
-                    <Text className="text-slate-400 text-sm">{selectedAI.model}</Text>
+                    <Text className="text-gray-600 dark:text-slate-400 text-sm">{selectedAI.model}</Text>
                   </View>
                 </View>
 
                 <ScrollView className="px-6 py-4" showsVerticalScrollIndicator={false}>
                   <View className="bg-slate-800 rounded-xl p-4 mb-4">
                     <View className="flex-row justify-between items-center">
-                      <Text className="text-slate-400">Monthly Cost:</Text>
+                      <Text className="text-gray-600 dark:text-slate-400">Monthly Cost:</Text>
                       <Text className="text-blue-400 text-xl font-bold">
                         £{selectedAI.costPerMonth}
                       </Text>
@@ -801,13 +801,13 @@ export default function OrganizationScreen() {
                   </View>
 
                   <View className="mb-4">
-                    <Text className="text-slate-400 text-sm mb-1">Purpose</Text>
+                    <Text className="text-gray-600 dark:text-slate-400 text-sm mb-1">Purpose</Text>
                     <Text className="text-white">{selectedAI.purpose}</Text>
                   </View>
 
                   {selectedAI.website && (
                     <View className="mb-4">
-                      <Text className="text-slate-400 text-sm mb-2">Website</Text>
+                      <Text className="text-gray-600 dark:text-slate-400 text-sm mb-2">Website</Text>
                       <Pressable
                         onPress={() => Linking.openURL(selectedAI.website!)}
                         className="bg-blue-500/10 border border-blue-500/30 rounded-xl p-3 flex-row items-center active:opacity-70"
@@ -864,7 +864,7 @@ export default function OrganizationScreen() {
                                   </View>
                                   <View className="flex-1">
                                     <Text className="text-white font-medium">{member.name}</Text>
-                                    <Text className="text-slate-400 text-xs">
+                                    <Text className="text-gray-600 dark:text-slate-400 text-xs">
                                       {getRoleLabel(member.role)} • {member.function}
                                     </Text>
                                   </View>
@@ -913,19 +913,19 @@ export default function OrganizationScreen() {
                     <View className="bg-slate-800 rounded-xl p-4 mb-4">
                       <Text className="text-white font-semibold mb-3">Usage Statistics</Text>
                       <View className="flex-row justify-between mb-2">
-                        <Text className="text-slate-400">Requests This Month:</Text>
+                        <Text className="text-gray-600 dark:text-slate-400">Requests This Month:</Text>
                         <Text className="text-white font-semibold">
                           {selectedAI.usageStats.requestsThisMonth.toLocaleString()}
                         </Text>
                       </View>
                       <View className="flex-row justify-between mb-2">
-                        <Text className="text-slate-400">Avg Response Time:</Text>
+                        <Text className="text-gray-600 dark:text-slate-400">Avg Response Time:</Text>
                         <Text className="text-white font-semibold">
                           {selectedAI.usageStats.averageResponseTime}
                         </Text>
                       </View>
                       <View className="flex-row justify-between">
-                        <Text className="text-slate-400">Success Rate:</Text>
+                        <Text className="text-gray-600 dark:text-slate-400">Success Rate:</Text>
                         <Text className="text-emerald-400 font-semibold">
                           {selectedAI.usageStats.successRate}%
                         </Text>
@@ -934,11 +934,11 @@ export default function OrganizationScreen() {
                   )}
 
                   <View className="mb-4">
-                    <Text className="text-slate-400 text-sm">
+                    <Text className="text-gray-600 dark:text-slate-400 text-sm">
                       Added: {new Date(selectedAI.addedDate).toLocaleDateString()}
                     </Text>
                     {selectedAI.lastUsed && (
-                      <Text className="text-slate-400 text-sm">
+                      <Text className="text-gray-600 dark:text-slate-400 text-sm">
                         Last used: {new Date(selectedAI.lastUsed).toLocaleDateString()}
                       </Text>
                     )}
@@ -953,13 +953,13 @@ export default function OrganizationScreen() {
 
       {/* Supplier Map Modal */}
       <Modal visible={showMap} transparent animationType="slide">
-        <View className="flex-1 bg-slate-950">
+        <View className="flex-1 bg-white dark:bg-slate-950">
           {/* Map Header */}
           <View className="p-6 pb-4 border-b border-slate-800">
             <View className="flex-row items-center justify-between">
               <View>
-                <Text className="text-white text-xl font-bold mb-1">Supplier Locations</Text>
-                <Text className="text-slate-400 text-sm">{SUPPLIER_ENGAGEMENTS.length} active engagements across UK</Text>
+                <Text className="text-gray-900 dark:text-white text-xl font-bold mb-1">Supplier Locations</Text>
+                <Text className="text-gray-600 dark:text-slate-400 text-sm">{SUPPLIER_ENGAGEMENTS.length} active engagements across UK</Text>
               </View>
               <Pressable onPress={() => setShowMap(false)} className="w-10 h-10 items-center justify-center">
                 <X size={24} color="#94a3b8" />
@@ -1013,11 +1013,11 @@ export default function OrganizationScreen() {
               >
                 <View className="flex-row items-center flex-1">
                   <View className="w-2 h-2 bg-blue-500 rounded-full mr-2" />
-                  <Text className="text-white text-sm flex-1" numberOfLines={1}>
+                  <Text className="text-gray-900 dark:text-white text-sm flex-1" numberOfLines={1}>
                     {engagement.supplierName}
                   </Text>
                 </View>
-                <Text className="text-slate-400 text-xs">{engagement.location.city}</Text>
+                <Text className="text-gray-600 dark:text-slate-400 text-xs">{engagement.location.city}</Text>
               </Pressable>
             ))}
           </View>

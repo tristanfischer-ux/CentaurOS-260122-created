@@ -103,7 +103,7 @@ export default function SignUpScreen() {
               className="flex-row items-center mb-6 active:opacity-70"
             >
               <ArrowLeft size={20} color="#94a3b8" />
-              <Text className="text-slate-400 ml-2">Back to Sign In</Text>
+              <Text className="text-gray-600 dark:text-slate-400 ml-2">Back to Sign In</Text>
             </Pressable>
 
             {/* Logo and Title */}
@@ -112,22 +112,22 @@ export default function SignUpScreen() {
                 <Building2 size={40} color="white" />
               </View>
               <Text className="text-4xl font-bold text-white mb-2">Create Account</Text>
-              <Text className="text-slate-400 text-center text-base">
+              <Text className="text-gray-600 dark:text-slate-400 text-center text-base">
                 Start managing your lean startup today
               </Text>
             </View>
 
             {/* Sign Up Form */}
             <View className="bg-slate-800/50 rounded-3xl p-6 border border-slate-700">
-              <Text className="text-white text-xl font-semibold mb-4">Sign Up</Text>
+              <Text className="text-gray-900 dark:text-white text-xl font-semibold mb-4">Sign Up</Text>
 
               {/* Name Input */}
               <View className="mb-4">
-                <Text className="text-slate-400 mb-2 text-sm">Full Name</Text>
+                <Text className="text-gray-600 dark:text-slate-400 mb-2 text-sm">Full Name</Text>
                 <View className="flex-row items-center bg-slate-900/50 rounded-xl px-4 py-3 border border-slate-700">
                   <User size={20} color="#94a3b8" />
                   <TextInput
-                    className="flex-1 ml-3 text-white text-base"
+                    className="flex-1 ml-3 text-gray-900 dark:text-white text-base"
                     placeholder="John Doe"
                     placeholderTextColor="#64748b"
                     value={name}
@@ -141,11 +141,11 @@ export default function SignUpScreen() {
 
               {/* Email Input */}
               <View className="mb-4">
-                <Text className="text-slate-400 mb-2 text-sm">Email</Text>
+                <Text className="text-gray-600 dark:text-slate-400 mb-2 text-sm">Email</Text>
                 <View className="flex-row items-center bg-slate-900/50 rounded-xl px-4 py-3 border border-slate-700">
                   <Mail size={20} color="#94a3b8" />
                   <TextInput
-                    className="flex-1 ml-3 text-white text-base"
+                    className="flex-1 ml-3 text-gray-900 dark:text-white text-base"
                     placeholder="you@example.com"
                     placeholderTextColor="#64748b"
                     value={email}
@@ -160,11 +160,11 @@ export default function SignUpScreen() {
 
               {/* Workspace Name Input */}
               <View className="mb-4">
-                <Text className="text-slate-400 mb-2 text-sm">Workspace Name</Text>
+                <Text className="text-gray-600 dark:text-slate-400 mb-2 text-sm">Workspace Name</Text>
                 <View className="flex-row items-center bg-slate-900/50 rounded-xl px-4 py-3 border border-slate-700">
                   <Building2 size={20} color="#94a3b8" />
                   <TextInput
-                    className="flex-1 ml-3 text-white text-base"
+                    className="flex-1 ml-3 text-gray-900 dark:text-white text-base"
                     placeholder="My Startup"
                     placeholderTextColor="#64748b"
                     value={workspaceName}
@@ -201,7 +201,7 @@ export default function SignUpScreen() {
 
             {/* Sign In Link */}
             <View className="mt-6 flex-row items-center justify-center">
-              <Text className="text-slate-400 text-sm">Already have an account? </Text>
+              <Text className="text-gray-600 dark:text-slate-400 text-sm">Already have an account? </Text>
               <Pressable
                 onPress={() => router.replace('/sign-in')}
                 disabled={isLoading}

@@ -139,7 +139,7 @@ export default function OnboardingScreen() {
   const currentGradient = gradientColors[role] || gradientColors.Founder;
 
   return (
-    <View className="flex-1 bg-slate-950">
+    <View className="flex-1 bg-white dark:bg-slate-950">
       <LinearGradient
         colors={currentGradient}
         style={{ flex: 1 }}
@@ -179,7 +179,7 @@ export default function OnboardingScreen() {
                 </View>
 
                 {/* Title */}
-                <Text className="text-white text-3xl font-bold text-center mb-4 px-4">
+                <Text className="text-gray-900 dark:text-white text-3xl font-bold text-center mb-4 px-4">
                   {currentStep.title}
                 </Text>
 

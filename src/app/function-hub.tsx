@@ -76,7 +76,7 @@ export default function FunctionHubScreen() {
   // If no function selected, show function selector
   if (!selectedFunction) {
     return (
-      <View className="flex-1 bg-slate-950">
+      <View className="flex-1 bg-white dark:bg-slate-950">
         <SafeAreaView edges={['top']} className="flex-1">
           {/* Header */}
           <View className="px-6 py-4 border-b border-slate-800">
@@ -84,9 +84,9 @@ export default function FunctionHubScreen() {
               <Pressable onPress={handleBack} className="mr-4 active:opacity-70">
                 <ArrowLeft size={24} color="#fff" />
               </Pressable>
-              <Text className="text-white text-2xl font-bold">Function Library</Text>
+              <Text className="text-gray-900 dark:text-white text-2xl font-bold">Function Library</Text>
             </View>
-            <Text className="text-slate-400 text-sm">
+            <Text className="text-gray-600 dark:text-slate-400 text-sm">
               Access resources, tools, and advice for your function
             </Text>
           </View>
@@ -133,7 +133,7 @@ export default function FunctionHubScreen() {
   const role = currentMembership?.role || 'Founder';
 
   return (
-    <View className="flex-1 bg-slate-950">
+    <View className="flex-1 bg-white dark:bg-slate-950">
       <SafeAreaView edges={['top']} className="flex-1">
         {/* Header with gradient */}
         <LinearGradient
@@ -146,7 +146,7 @@ export default function FunctionHubScreen() {
             <Pressable onPress={handleBack} className="mr-4 active:opacity-70">
               <ArrowLeft size={24} color="#fff" />
             </Pressable>
-            <Text className="text-white text-2xl font-bold flex-1">{currentProfile.title}</Text>
+            <Text className="text-gray-900 dark:text-white text-2xl font-bold flex-1">{currentProfile.title}</Text>
           </View>
           <Text className="text-white/80 text-sm mb-4">{currentProfile.description}</Text>
 
@@ -169,7 +169,7 @@ export default function FunctionHubScreen() {
             onPress={() => setActiveTab('resources')}
             className={cn('flex-1 py-3 items-center border-b-2', activeTab === 'resources' ? 'border-blue-500' : 'border-transparent')}
           >
-            <Text className={cn('font-semibold', activeTab === 'resources' ? 'text-blue-500' : 'text-slate-400')}>
+            <Text className={cn('font-semibold', activeTab === 'resources' ? 'text-blue-500' : 'text-gray-600 dark:text-slate-400')}>
               Resources
             </Text>
           </Pressable>
@@ -177,7 +177,7 @@ export default function FunctionHubScreen() {
             onPress={() => setActiveTab('advice')}
             className={cn('flex-1 py-3 items-center border-b-2', activeTab === 'advice' ? 'border-blue-500' : 'border-transparent')}
           >
-            <Text className={cn('font-semibold', activeTab === 'advice' ? 'text-blue-500' : 'text-slate-400')}>
+            <Text className={cn('font-semibold', activeTab === 'advice' ? 'text-blue-500' : 'text-gray-600 dark:text-slate-400')}>
               Advice
             </Text>
           </Pressable>
@@ -185,7 +185,7 @@ export default function FunctionHubScreen() {
             onPress={() => setActiveTab('okrs')}
             className={cn('flex-1 py-3 items-center border-b-2', activeTab === 'okrs' ? 'border-blue-500' : 'border-transparent')}
           >
-            <Text className={cn('font-semibold', activeTab === 'okrs' ? 'text-blue-500' : 'text-slate-400')}>
+            <Text className={cn('font-semibold', activeTab === 'okrs' ? 'text-blue-500' : 'text-gray-600 dark:text-slate-400')}>
               OKRs
             </Text>
           </Pressable>
@@ -260,7 +260,7 @@ export default function FunctionHubScreen() {
           {activeTab === 'advice' && (
             <View className="p-6">
               {/* Role-specific advice */}
-              <View className="bg-slate-900 rounded-2xl p-6 mb-4 border border-slate-800">
+              <View className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-6 mb-4 border border-slate-800">
                 <View className="flex-row items-center mb-4">
                   <Lightbulb size={24} color={currentProfile.color} />
                   <Text className="text-white font-bold text-lg ml-3">Advice for {role}s</Text>
@@ -274,7 +274,7 @@ export default function FunctionHubScreen() {
               </View>
 
               {/* Key Responsibilities */}
-              <View className="bg-slate-900 rounded-2xl p-6 mb-4 border border-slate-800">
+              <View className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-6 mb-4 border border-slate-800">
                 <Text className="text-white font-bold text-lg mb-4">Key Responsibilities</Text>
                 {currentProfile.keyResponsibilities.map((resp, index) => (
                   <View key={index} className="flex-row mb-3">
@@ -285,7 +285,7 @@ export default function FunctionHubScreen() {
               </View>
 
               {/* Common Challenges */}
-              <View className="bg-slate-900 rounded-2xl p-6 mb-4 border border-slate-800">
+              <View className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-6 mb-4 border border-slate-800">
                 <Text className="text-white font-bold text-lg mb-4">Common Challenges</Text>
                 {currentProfile.commonChallenges.map((challenge, index) => (
                   <View key={index} className="flex-row mb-3">
@@ -296,7 +296,7 @@ export default function FunctionHubScreen() {
               </View>
 
               {/* Success Metrics */}
-              <View className="bg-slate-900 rounded-2xl p-6 mb-4 border border-slate-800">
+              <View className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-6 mb-4 border border-slate-800">
                 <Text className="text-white font-bold text-lg mb-4">Success Metrics</Text>
                 {currentProfile.successMetrics.map((metric, index) => (
                   <View key={index} className="flex-row mb-3">
@@ -310,12 +310,12 @@ export default function FunctionHubScreen() {
 
           {activeTab === 'okrs' && (
             <View className="p-6">
-              <View className="bg-slate-900 rounded-2xl p-6 mb-4 border border-slate-800">
+              <View className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-6 mb-4 border border-slate-800">
                 <View className="flex-row items-center mb-4">
                   <Target size={24} color={currentProfile.color} />
                   <Text className="text-white font-bold text-lg ml-3">Suggested OKRs</Text>
                 </View>
-                <Text className="text-slate-400 mb-6">
+                <Text className="text-gray-600 dark:text-slate-400 mb-6">
                   These are example OKRs for the {currentProfile.title} function. Adapt them to your specific context.
                 </Text>
 
@@ -323,7 +323,7 @@ export default function FunctionHubScreen() {
                   <View key={index} className="mb-6 last:mb-0">
                     <View className="bg-slate-800 rounded-xl p-4 mb-3">
                       <Text className="text-white font-bold text-base mb-2">{okr.objective}</Text>
-                      <Text className="text-slate-400 text-sm italic mb-3">{okr.rationale}</Text>
+                      <Text className="text-gray-600 dark:text-slate-400 text-sm italic mb-3">{okr.rationale}</Text>
 
                       <Text className="text-slate-300 font-semibold text-sm mb-2">Key Results:</Text>
                       {okr.keyResults.map((kr, krIndex) => (
@@ -364,14 +364,14 @@ function ResourceSection({
         <Icon size={20} color={color} />
         <Text className="text-white font-bold text-lg ml-2">{title}</Text>
         <View className="ml-2 bg-slate-800 rounded-full px-2 py-0.5">
-          <Text className="text-slate-400 text-xs">{resources.length}</Text>
+          <Text className="text-gray-600 dark:text-slate-400 text-xs">{resources.length}</Text>
         </View>
       </View>
 
       {resources.map((resource) => (
         <Pressable
           key={resource.id}
-          className="bg-slate-900 rounded-xl p-4 mb-3 border border-slate-800 active:opacity-80"
+          className="bg-gray-100 dark:bg-slate-900 rounded-xl p-4 mb-3 border border-slate-800 active:opacity-80"
         >
           <View className="flex-row items-start">
             <View className="flex-1">
@@ -379,11 +379,11 @@ function ResourceSection({
                 <Text className="text-white font-semibold text-base flex-1">{resource.title}</Text>
                 {resource.url && <ExternalLink size={16} color="#64748b" />}
               </View>
-              <Text className="text-slate-400 text-sm mb-2">{resource.description}</Text>
+              <Text className="text-gray-600 dark:text-slate-400 text-sm mb-2">{resource.description}</Text>
               <View className="flex-row flex-wrap gap-2">
                 {resource.tags.slice(0, 3).map((tag) => (
                   <View key={tag} className="bg-slate-800 rounded-full px-2 py-1">
-                    <Text className="text-slate-400 text-xs">{tag}</Text>
+                    <Text className="text-gray-600 dark:text-slate-400 text-xs">{tag}</Text>
                   </View>
                 ))}
               </View>

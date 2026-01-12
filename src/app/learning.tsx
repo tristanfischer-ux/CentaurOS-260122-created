@@ -546,9 +546,9 @@ export default function LearningScreen() {
   // Only Founders and Execs can access
   if (!currentMembership || !['Founder', 'FractionalExec'].includes(currentMembership.role)) {
     return (
-      <View className="flex-1 bg-slate-950 items-center justify-center p-6">
+      <View className="flex-1 bg-white dark:bg-slate-950 items-center justify-center p-6">
         <GraduationCap size={48} color="#64748b" />
-        <Text className="text-slate-400 text-center mt-4">
+        <Text className="text-gray-600 dark:text-slate-400 text-center mt-4">
           This feature is only available to Founders and Executives
         </Text>
       </View>
@@ -563,7 +563,7 @@ export default function LearningScreen() {
   );
 
   return (
-    <View className="flex-1 bg-slate-950">
+    <View className="flex-1 bg-white dark:bg-slate-950">
       <ScrollView className="flex-1">
         {/* Header */}
         <View className="p-6 border-b border-slate-800">
@@ -573,8 +573,8 @@ export default function LearningScreen() {
                 <GraduationCap size={24} color="#3b82f6" />
               </View>
               <View>
-                <Text className="text-white text-xl font-bold">Learning & Development</Text>
-                <Text className="text-slate-400 text-xs">Track apprentice growth and skills</Text>
+                <Text className="text-gray-900 dark:text-white text-xl font-bold">Learning & Development</Text>
+                <Text className="text-gray-600 dark:text-slate-400 text-xs">Track apprentice growth and skills</Text>
               </View>
             </View>
             <Pressable onPress={() => router.back()}>
@@ -610,7 +610,7 @@ export default function LearningScreen() {
                       </View>
                       <View className="flex-1">
                         <Text className="text-white font-semibold">{apprentice.name}</Text>
-                        <Text className="text-slate-400 text-xs">{apprentice.function}</Text>
+                        <Text className="text-gray-600 dark:text-slate-400 text-xs">{apprentice.function}</Text>
                         {data && (
                           <View className="flex-row items-center gap-3 mt-1">
                             <View className="flex-row items-center gap-1">
@@ -653,7 +653,7 @@ export default function LearningScreen() {
                   <tab.icon size={16} color={selectedView === tab.id ? '#ffffff' : '#64748b'} />
                   <Text
                     className={`text-sm font-semibold ${
-                      selectedView === tab.id ? 'text-white' : 'text-slate-400'
+                      selectedView === tab.id ? 'text-white' : 'text-gray-600 dark:text-slate-400'
                     }`}
                   >
                     {tab.label}
@@ -672,7 +672,7 @@ export default function LearningScreen() {
                     className="bg-blue-500 px-3 py-2 rounded-lg flex-row items-center gap-2 active:opacity-70"
                   >
                     <Plus size={16} color="#ffffff" />
-                    <Text className="text-white text-sm font-semibold">Add Skill</Text>
+                    <Text className="text-gray-900 dark:text-white text-sm font-semibold">Add Skill</Text>
                   </Pressable>
                 </View>
 
@@ -689,7 +689,7 @@ export default function LearningScreen() {
                       >
                         <Text
                           className={`text-sm font-medium ${
-                            selectedSkillCategory === cat.id ? 'text-white' : 'text-slate-400'
+                            selectedSkillCategory === cat.id ? 'text-white' : 'text-gray-600 dark:text-slate-400'
                           }`}
                         >
                           {cat.label}
@@ -702,7 +702,7 @@ export default function LearningScreen() {
                 {/* Skills List */}
                 <View className="gap-3">
                   {filteredSkills?.map((skill) => (
-                    <View key={skill.id} className="bg-slate-900 rounded-xl p-4 border border-slate-800">
+                    <View key={skill.id} className="bg-gray-100 dark:bg-slate-900 rounded-xl p-4 border border-slate-800">
                       <View className="flex-row items-center justify-between mb-2">
                         <View className="flex-1">
                           <Text className="text-white font-semibold mb-1">{skill.name}</Text>
@@ -762,13 +762,13 @@ export default function LearningScreen() {
                       <View className="flex-row items-start justify-between mb-2">
                         <View className="flex-1 mr-3">
                           <Text className="text-white font-semibold mb-1">{training.title}</Text>
-                          <Text className="text-slate-400 text-xs mb-2">{training.description}</Text>
+                          <Text className="text-gray-600 dark:text-slate-400 text-xs mb-2">{training.description}</Text>
                           <View className="flex-row items-center gap-2">
                             <View className="bg-slate-800 px-2 py-1 rounded">
-                              <Text className="text-slate-400 text-xs">{training.category}</Text>
+                              <Text className="text-gray-600 dark:text-slate-400 text-xs">{training.category}</Text>
                             </View>
                             <View className="bg-slate-800 px-2 py-1 rounded">
-                              <Text className="text-slate-400 text-xs">{training.duration}</Text>
+                              <Text className="text-gray-600 dark:text-slate-400 text-xs">{training.duration}</Text>
                             </View>
                           </View>
                         </View>
@@ -797,18 +797,18 @@ export default function LearningScreen() {
                   <Text className="text-white font-semibold">Performance Reviews</Text>
                   <Pressable className="bg-blue-500 px-3 py-2 rounded-lg flex-row items-center gap-2 active:opacity-70">
                     <Plus size={16} color="#ffffff" />
-                    <Text className="text-white text-sm font-semibold">New Review</Text>
+                    <Text className="text-gray-900 dark:text-white text-sm font-semibold">New Review</Text>
                   </Pressable>
                 </View>
 
                 <View className="gap-4">
                   {selectedData.reviews.map((review) => (
-                    <View key={review.id} className="bg-slate-900 rounded-xl p-4 border border-slate-800">
+                    <View key={review.id} className="bg-gray-100 dark:bg-slate-900 rounded-xl p-4 border border-slate-800">
                       {/* Header */}
                       <View className="flex-row items-center justify-between mb-3">
                         <View>
                           <Text className="text-white font-bold text-lg">{review.quarter}</Text>
-                          <Text className="text-slate-400 text-xs">
+                          <Text className="text-gray-600 dark:text-slate-400 text-xs">
                             Reviewed by {review.reviewerName}
                           </Text>
                           <Text className="text-slate-500 text-xs">
@@ -819,7 +819,7 @@ export default function LearningScreen() {
                           <Text className="text-blue-400 font-bold text-lg">
                             {(Object.values(review.ratings).reduce((a, b) => a + b, 0) / 5).toFixed(1)}
                           </Text>
-                          <Text className="text-slate-400 text-xs">Overall</Text>
+                          <Text className="text-gray-600 dark:text-slate-400 text-xs">Overall</Text>
                         </View>
                       </View>
 
@@ -828,7 +828,7 @@ export default function LearningScreen() {
                         <Text className="text-slate-300 font-semibold text-sm mb-2">Ratings</Text>
                         {Object.entries(review.ratings).map(([key, value]) => (
                           <View key={key} className="flex-row items-center justify-between mb-2">
-                            <Text className="text-slate-400 text-sm capitalize">{key}</Text>
+                            <Text className="text-gray-600 dark:text-slate-400 text-sm capitalize">{key}</Text>
                             <View className="flex-row items-center gap-1">
                               {[1, 2, 3, 4, 5].map((star) => (
                                 <Star
@@ -890,7 +890,7 @@ export default function LearningScreen() {
         {!selectedApprentice && (
           <View className="items-center justify-center py-20 px-6">
             <GraduationCap size={48} color="#334155" />
-            <Text className="text-slate-400 text-center mt-4">
+            <Text className="text-gray-600 dark:text-slate-400 text-center mt-4">
               Select an apprentice above to view their skills, training, and performance reviews
             </Text>
           </View>
@@ -899,7 +899,7 @@ export default function LearningScreen() {
         {selectedApprentice && !selectedData && (
           <View className="items-center justify-center py-20 px-6">
             <GraduationCap size={48} color="#334155" />
-            <Text className="text-slate-400 text-center mt-4 mb-4">
+            <Text className="text-gray-600 dark:text-slate-400 text-center mt-4 mb-4">
               No data available for this apprentice yet.
             </Text>
             <Text className="text-slate-500 text-center text-sm">

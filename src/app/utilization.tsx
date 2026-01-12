@@ -44,10 +44,10 @@ export default function UtilizationScreen() {
 
   if (!canView) {
     return (
-      <View className="flex-1 bg-slate-950 items-center justify-center p-6">
+      <View className="flex-1 bg-white dark:bg-slate-950 items-center justify-center p-6">
         <Clock size={64} color="#475569" />
-        <Text className="text-white text-xl font-semibold mt-4 mb-2">Access Restricted</Text>
-        <Text className="text-slate-400 text-center">
+        <Text className="text-gray-900 dark:text-white text-xl font-semibold mt-4 mb-2">Access Restricted</Text>
+        <Text className="text-gray-600 dark:text-slate-400 text-center">
           Only Fractional Executives and Founders can view utilization data.
         </Text>
       </View>
@@ -56,7 +56,7 @@ export default function UtilizationScreen() {
 
   if (isLoading) {
     return (
-      <View className="flex-1 bg-slate-950 items-center justify-center">
+      <View className="flex-1 bg-white dark:bg-slate-950 items-center justify-center">
         <ActivityIndicator size="large" color="#3b82f6" />
       </View>
     );
@@ -100,11 +100,11 @@ export default function UtilizationScreen() {
   const avgHoursPerUser = utilization.length > 0 ? totalHours / utilization.length : 0;
 
   return (
-    <View className="flex-1 bg-slate-950">
+    <View className="flex-1 bg-white dark:bg-slate-950">
       {/* Header */}
       <View className="p-6 pb-4">
-        <Text className="text-white text-2xl font-bold">Team Utilization</Text>
-        <Text className="text-slate-400 text-sm mt-1">Track team hours and productivity</Text>
+        <Text className="text-gray-900 dark:text-white text-2xl font-bold">Team Utilization</Text>
+        <Text className="text-gray-600 dark:text-slate-400 text-sm mt-1">Track team hours and productivity</Text>
 
         {/* Time Range Selector */}
         <ScrollView horizontal showsHorizontalScrollIndicator={false} className="mt-4" style={{ flexGrow: 0 }}>
@@ -125,7 +125,7 @@ export default function UtilizationScreen() {
               >
                 <Text
                   className={`text-sm font-medium ${
-                    timeRange === range.value ? 'text-white' : 'text-slate-400'
+                    timeRange === range.value ? 'text-white' : 'text-gray-600 dark:text-slate-400'
                   }`}
                 >
                   {range.label}
@@ -142,30 +142,30 @@ export default function UtilizationScreen() {
           <View className="flex-1 bg-gradient-to-br from-blue-500/20 to-blue-600/10 border border-blue-500/30 rounded-xl p-4">
             <Clock size={20} color="#3B82F6" />
             <Text className="text-blue-400 text-sm mt-2">Total Hours</Text>
-            <Text className="text-white text-2xl font-bold mt-1">{totalHours.toFixed(1)}</Text>
+            <Text className="text-gray-900 dark:text-white text-2xl font-bold mt-1">{totalHours.toFixed(1)}</Text>
           </View>
 
           <View className="flex-1 bg-gradient-to-br from-green-500/20 to-green-600/10 border border-green-500/30 rounded-xl p-4">
             <User size={20} color="#10B981" />
             <Text className="text-green-400 text-sm mt-2">Team Members</Text>
-            <Text className="text-white text-2xl font-bold mt-1">{utilization.length}</Text>
+            <Text className="text-gray-900 dark:text-white text-2xl font-bold mt-1">{utilization.length}</Text>
           </View>
         </View>
 
         <View className="bg-gradient-to-br from-purple-500/20 to-purple-600/10 border border-purple-500/30 rounded-xl p-4 mb-6">
           <TrendingUp size={20} color="#A855F7" />
           <Text className="text-purple-400 text-sm mt-2">Avg Hours / Member</Text>
-          <Text className="text-white text-2xl font-bold mt-1">{avgHoursPerUser.toFixed(1)}</Text>
+          <Text className="text-gray-900 dark:text-white text-2xl font-bold mt-1">{avgHoursPerUser.toFixed(1)}</Text>
         </View>
 
         {/* Utilization by User */}
-        <Text className="text-white text-lg font-semibold mb-3">Team Members</Text>
+        <Text className="text-gray-900 dark:text-white text-lg font-semibold mb-3">Team Members</Text>
 
         {utilization.length === 0 ? (
           <View className="items-center justify-center py-12">
             <Clock size={64} color="#475569" />
-            <Text className="text-white text-xl font-semibold mt-4 mb-2">No Time Entries</Text>
-            <Text className="text-slate-400 text-center">
+            <Text className="text-gray-900 dark:text-white text-xl font-semibold mt-4 mb-2">No Time Entries</Text>
+            <Text className="text-gray-600 dark:text-slate-400 text-center">
               No time has been logged in the selected period.
             </Text>
           </View>
@@ -174,19 +174,19 @@ export default function UtilizationScreen() {
             {utilization.map(({ user, role, hours, taskCount, lastEntry }) => (
               <View
                 key={user.id}
-                className="bg-slate-900 rounded-2xl p-4 border border-slate-800"
+                className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-4 border border-slate-800"
               >
                 {/* User Header */}
                 <View className="flex-row items-center justify-between mb-3">
                   <View className="flex-row items-center flex-1">
                     <View className="w-12 h-12 bg-blue-500 rounded-full items-center justify-center mr-3">
-                      <Text className="text-white text-lg font-bold">
+                      <Text className="text-gray-900 dark:text-white text-lg font-bold">
                         {user.name.charAt(0)}
                       </Text>
                     </View>
                     <View className="flex-1">
                       <Text className="text-white font-semibold text-base">{user.name}</Text>
-                      <Text className="text-slate-400 text-xs">{role}</Text>
+                      <Text className="text-gray-600 dark:text-slate-400 text-xs">{role}</Text>
                     </View>
                   </View>
 
@@ -199,7 +199,7 @@ export default function UtilizationScreen() {
                 <View className="flex-row items-center gap-4">
                   <View className="flex-row items-center">
                     <User size={14} color="#64748b" />
-                    <Text className="text-slate-400 text-xs ml-1">
+                    <Text className="text-gray-600 dark:text-slate-400 text-xs ml-1">
                       {taskCount} task{taskCount !== 1 ? 's' : ''}
                     </Text>
                   </View>
@@ -208,7 +208,7 @@ export default function UtilizationScreen() {
 
                   <View className="flex-row items-center">
                     <Calendar size={14} color="#64748b" />
-                    <Text className="text-slate-400 text-xs ml-1">
+                    <Text className="text-gray-600 dark:text-slate-400 text-xs ml-1">
                       Last: {new Date(lastEntry).toLocaleDateString()}
                     </Text>
                   </View>

@@ -55,14 +55,14 @@ export default function GlobalSearchScreen() {
     : 0;
 
   return (
-    <View className="flex-1 bg-slate-950">
+    <View className="flex-1 bg-white dark:bg-slate-950">
       {/* Search Header */}
       <View className="p-4 border-b border-slate-800">
         <View className="flex-row items-center gap-3">
           <Pressable onPress={() => router.back()}>
             <X size={24} color="#94a3b8" />
           </Pressable>
-          <View className="flex-1 bg-slate-900 rounded-xl flex-row items-center px-4 border border-slate-700">
+          <View className="flex-1 bg-gray-100 dark:bg-slate-900 rounded-xl flex-row items-center px-4 border border-slate-700">
             <Search size={20} color="#64748b" />
             <TextInput
               value={searchQuery}
@@ -81,7 +81,7 @@ export default function GlobalSearchScreen() {
         </View>
 
         {searchQuery && (
-          <Text className="text-slate-400 text-xs mt-3">
+          <Text className="text-gray-600 dark:text-slate-400 text-xs mt-3">
             {totalResults} results found
           </Text>
         )}
@@ -91,7 +91,7 @@ export default function GlobalSearchScreen() {
         {!searchQuery && (
           <View className="items-center justify-center py-20">
             <Search size={48} color="#334155" />
-            <Text className="text-slate-400 text-center mt-4">
+            <Text className="text-gray-600 dark:text-slate-400 text-center mt-4">
               Search across tasks, OKRs, team,{'\n'}suppliers, and AI agents
             </Text>
           </View>
@@ -99,7 +99,7 @@ export default function GlobalSearchScreen() {
 
         {searchQuery && totalResults === 0 && (
           <View className="items-center justify-center py-20">
-            <Text className="text-slate-400 text-center">
+            <Text className="text-gray-600 dark:text-slate-400 text-center">
               No results found for "{searchQuery}"
             </Text>
           </View>
@@ -118,10 +118,10 @@ export default function GlobalSearchScreen() {
                   <Pressable
                     key={task.id}
                     onPress={() => router.push('/work')}
-                    className="bg-slate-900 rounded-xl p-3 mb-2 border border-slate-800 active:opacity-70"
+                    className="bg-gray-100 dark:bg-slate-900 rounded-xl p-3 mb-2 border border-slate-800 active:opacity-70"
                   >
                     <Text className="text-white font-medium mb-1">{task.title}</Text>
-                    <Text className="text-slate-400 text-xs" numberOfLines={1}>
+                    <Text className="text-gray-600 dark:text-slate-400 text-xs" numberOfLines={1}>
                       {task.description}
                     </Text>
                     <View className="flex-row items-center gap-2 mt-2">
@@ -133,7 +133,7 @@ export default function GlobalSearchScreen() {
                         <Text className={`text-xs ${
                           task.status === 'done' ? 'text-emerald-400' :
                           task.status === 'in_progress' ? 'text-blue-400' :
-                          task.status === 'in_review' ? 'text-purple-400' : 'text-slate-400'
+                          task.status === 'in_review' ? 'text-purple-400' : 'text-gray-600 dark:text-slate-400'
                         }`}>
                           {task.status.replace('_', ' ')}
                         </Text>
@@ -160,10 +160,10 @@ export default function GlobalSearchScreen() {
                   <Pressable
                     key={okr.id}
                     onPress={() => router.push('/okrs')}
-                    className="bg-slate-900 rounded-xl p-3 mb-2 border border-slate-800 active:opacity-70"
+                    className="bg-gray-100 dark:bg-slate-900 rounded-xl p-3 mb-2 border border-slate-800 active:opacity-70"
                   >
                     <Text className="text-white font-medium mb-1">{okr.title}</Text>
-                    <Text className="text-slate-400 text-xs" numberOfLines={2}>
+                    <Text className="text-gray-600 dark:text-slate-400 text-xs" numberOfLines={2}>
                       {okr.description}
                     </Text>
                   </Pressable>
@@ -182,7 +182,7 @@ export default function GlobalSearchScreen() {
                   <Pressable
                     key={person.id}
                     onPress={() => router.push('/team')}
-                    className="bg-slate-900 rounded-xl p-3 mb-2 border border-slate-800 flex-row items-center active:opacity-70"
+                    className="bg-gray-100 dark:bg-slate-900 rounded-xl p-3 mb-2 border border-slate-800 flex-row items-center active:opacity-70"
                   >
                     <View className={`w-10 h-10 rounded-full items-center justify-center mr-3 ${
                       person.role === 'Founder' ? 'bg-blue-500/20' :
@@ -197,7 +197,7 @@ export default function GlobalSearchScreen() {
                     </View>
                     <View className="flex-1">
                       <Text className="text-white font-medium">{person.name}</Text>
-                      <Text className="text-slate-400 text-xs">{person.function}</Text>
+                      <Text className="text-gray-600 dark:text-slate-400 text-xs">{person.function}</Text>
                     </View>
                   </Pressable>
                 ))}
@@ -215,10 +215,10 @@ export default function GlobalSearchScreen() {
                   <Pressable
                     key={supplier.id}
                     onPress={() => router.push('/organization')}
-                    className="bg-slate-900 rounded-xl p-3 mb-2 border border-slate-800 active:opacity-70"
+                    className="bg-gray-100 dark:bg-slate-900 rounded-xl p-3 mb-2 border border-slate-800 active:opacity-70"
                   >
                     <Text className="text-white font-medium mb-1">{supplier.supplierName}</Text>
-                    <Text className="text-slate-400 text-xs">
+                    <Text className="text-gray-600 dark:text-slate-400 text-xs">
                       {supplier.projectName} • {supplier.status}
                     </Text>
                   </Pressable>
@@ -237,12 +237,12 @@ export default function GlobalSearchScreen() {
                   <Pressable
                     key={agent.id}
                     onPress={() => router.push('/organization')}
-                    className="bg-slate-900 rounded-xl p-3 mb-2 border border-slate-800 active:opacity-70"
+                    className="bg-gray-100 dark:bg-slate-900 rounded-xl p-3 mb-2 border border-slate-800 active:opacity-70"
                   >
                     <View className="flex-row items-center justify-between">
                       <View className="flex-1">
                         <Text className="text-white font-medium mb-1">{agent.name}</Text>
-                        <Text className="text-slate-400 text-xs" numberOfLines={1}>
+                        <Text className="text-gray-600 dark:text-slate-400 text-xs" numberOfLines={1}>
                           {agent.purpose}
                         </Text>
                       </View>

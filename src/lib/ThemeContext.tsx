@@ -26,7 +26,9 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   const theme: 'light' | 'dark' =
     themeMode === 'system'
       ? (deviceColorScheme ?? 'dark')
-      : themeMode;
+      : (themeMode === 'light' || themeMode === 'off-white')
+      ? 'light'
+      : 'dark';
 
   const setThemeMode = (mode: ThemeMode) => {
     setThemeModeState(mode);

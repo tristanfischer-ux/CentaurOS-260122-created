@@ -61,14 +61,14 @@ export default function OrgDiagramScreen() {
   };
 
   return (
-    <View className="flex-1 bg-slate-950">
+    <View className="flex-1 bg-white dark:bg-slate-950">
       <ScrollView className="flex-1">
         {/* Info Banner */}
         <View className="p-4 bg-blue-500/10 border-b border-blue-500/20">
           <Text className="text-blue-400 text-sm font-medium mb-1">
             Organization Hierarchy
           </Text>
-          <Text className="text-slate-400 text-xs">
+          <Text className="text-gray-600 dark:text-slate-400 text-xs">
             Standard org chart: Founders → Executives → AI Agents → Apprentices. Tap any member to see details.
           </Text>
         </View>
@@ -106,7 +106,7 @@ export default function OrgDiagramScreen() {
 
         {/* Hierarchical Org Diagram */}
         <View className="p-4">
-          <View className="bg-slate-900 rounded-2xl p-4 border border-slate-800">
+          <View className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-4 border border-slate-800">
             <ScrollView
               horizontal
               showsHorizontalScrollIndicator={true}
@@ -458,7 +458,7 @@ export default function OrgDiagramScreen() {
                   <Pressable
                     key={member.id}
                     onPress={() => setSelectedMember(member)}
-                    className="bg-slate-900 rounded-xl p-3 border border-slate-800 flex-row items-center justify-between active:opacity-70"
+                    className="bg-gray-100 dark:bg-slate-900 rounded-xl p-3 border border-slate-800 flex-row items-center justify-between active:opacity-70"
                   >
                     <View className="flex-row items-center flex-1">
                       <View className="w-10 h-10 rounded-full bg-blue-500/20 border-2 border-blue-500 items-center justify-center mr-3">
@@ -471,11 +471,11 @@ export default function OrgDiagramScreen() {
                           <Text className="text-white font-semibold">{member.name}</Text>
                           {aiAgentCount > 0 && (
                             <View className="bg-blue-500 rounded-full w-5 h-5 items-center justify-center">
-                              <Text className="text-white text-[10px] font-bold">{aiAgentCount}</Text>
+                              <Text className="text-gray-900 dark:text-white text-[10px] font-bold">{aiAgentCount}</Text>
                             </View>
                           )}
                         </View>
-                        <Text className="text-slate-400 text-xs">{member.function}</Text>
+                        <Text className="text-gray-600 dark:text-slate-400 text-xs">{member.function}</Text>
                       </View>
                     </View>
                     <ChevronRight size={20} color="#64748b" />
@@ -498,7 +498,7 @@ export default function OrgDiagramScreen() {
                   <Pressable
                     key={member.id}
                     onPress={() => setSelectedMember(member)}
-                    className="bg-slate-900 rounded-xl p-3 border border-slate-800 flex-row items-center justify-between active:opacity-70"
+                    className="bg-gray-100 dark:bg-slate-900 rounded-xl p-3 border border-slate-800 flex-row items-center justify-between active:opacity-70"
                   >
                     <View className="flex-row items-center flex-1">
                       <View className="w-10 h-10 rounded-full bg-purple-500/20 border-2 border-purple-500 items-center justify-center mr-3">
@@ -511,11 +511,11 @@ export default function OrgDiagramScreen() {
                           <Text className="text-white font-semibold">{member.name}</Text>
                           {aiAgentCount > 0 && (
                             <View className="bg-blue-500 rounded-full w-5 h-5 items-center justify-center">
-                              <Text className="text-white text-[10px] font-bold">{aiAgentCount}</Text>
+                              <Text className="text-gray-900 dark:text-white text-[10px] font-bold">{aiAgentCount}</Text>
                             </View>
                           )}
                         </View>
-                        <Text className="text-slate-400 text-xs">
+                        <Text className="text-gray-600 dark:text-slate-400 text-xs">
                           {member.function} • {member.manages?.length || 0} reports
                         </Text>
                       </View>
@@ -541,7 +541,7 @@ export default function OrgDiagramScreen() {
                   <Pressable
                     key={member.id}
                     onPress={() => setSelectedMember(member)}
-                    className="bg-slate-900 rounded-xl p-3 border border-slate-800 flex-row items-center justify-between active:opacity-70"
+                    className="bg-gray-100 dark:bg-slate-900 rounded-xl p-3 border border-slate-800 flex-row items-center justify-between active:opacity-70"
                   >
                     <View className="flex-row items-center flex-1">
                       <View className="w-10 h-10 rounded-full bg-emerald-500/20 border-2 border-emerald-500 items-center justify-center mr-3">
@@ -554,11 +554,11 @@ export default function OrgDiagramScreen() {
                           <Text className="text-white font-semibold">{member.name}</Text>
                           {aiAgentCount > 0 && (
                             <View className="bg-blue-500 rounded-full w-5 h-5 items-center justify-center">
-                              <Text className="text-white text-[10px] font-bold">{aiAgentCount}</Text>
+                              <Text className="text-gray-900 dark:text-white text-[10px] font-bold">{aiAgentCount}</Text>
                             </View>
                           )}
                         </View>
-                        <Text className="text-slate-400 text-xs">
+                        <Text className="text-gray-600 dark:text-slate-400 text-xs">
                           {member.function} • Reports to {manager?.name.split(' ')[0]}
                         </Text>
                       </View>
@@ -580,7 +580,7 @@ export default function OrgDiagramScreen() {
         >
           <Pressable onPress={(e) => e.stopPropagation()}>
             {selectedMember && (
-              <View className="bg-slate-900 rounded-t-3xl" style={{ maxHeight: '80%' }}>
+              <View className="bg-gray-100 dark:bg-slate-900 rounded-t-3xl" style={{ maxHeight: '80%' }}>
                 <ScrollView showsVerticalScrollIndicator={false} bounces={false}>
                   {/* Header */}
                   <View className="p-6 border-b border-slate-800">
@@ -600,7 +600,7 @@ export default function OrgDiagramScreen() {
                             {selectedMember.name.charAt(0)}
                           </Text>
                         </View>
-                        <Text className="text-white text-2xl font-bold mb-1">
+                        <Text className="text-gray-900 dark:text-white text-2xl font-bold mb-1">
                           {selectedMember.name}
                         </Text>
                         <View className="flex-row items-center gap-2">
@@ -633,7 +633,7 @@ export default function OrgDiagramScreen() {
                       <View className="bg-slate-800 rounded-xl p-4">
                         {selectedMember.reportsTo && (
                           <View className="mb-3">
-                            <Text className="text-slate-400 text-xs mb-1">Reports To</Text>
+                            <Text className="text-gray-600 dark:text-slate-400 text-xs mb-1">Reports To</Text>
                             <Text className="text-white font-medium">
                               {ORGANIZATION_MEMBERS.find(m => m.id === selectedMember.reportsTo)?.name}
                             </Text>
@@ -641,7 +641,7 @@ export default function OrgDiagramScreen() {
                         )}
                         {selectedMember.manages && selectedMember.manages.length > 0 && (
                           <View>
-                            <Text className="text-slate-400 text-xs mb-1">Manages</Text>
+                            <Text className="text-gray-600 dark:text-slate-400 text-xs mb-1">Manages</Text>
                             <View className="flex-row flex-wrap gap-2">
                               {selectedMember.manages.map(id => {
                                 const report = ORGANIZATION_MEMBERS.find(m => m.id === id);
@@ -667,8 +667,8 @@ export default function OrgDiagramScreen() {
                         <Mail size={18} color="#3b82f6" />
                       </View>
                       <View className="flex-1">
-                        <Text className="text-slate-400 text-xs">Email</Text>
-                        <Text className="text-white text-sm">{selectedMember.email}</Text>
+                        <Text className="text-gray-600 dark:text-slate-400 text-xs">Email</Text>
+                        <Text className="text-gray-900 dark:text-white text-sm">{selectedMember.email}</Text>
                       </View>
                     </View>
 
@@ -677,8 +677,8 @@ export default function OrgDiagramScreen() {
                         <Phone size={18} color="#10b981" />
                       </View>
                       <View className="flex-1">
-                        <Text className="text-slate-400 text-xs">Phone</Text>
-                        <Text className="text-white text-sm">{selectedMember.phone}</Text>
+                        <Text className="text-gray-600 dark:text-slate-400 text-xs">Phone</Text>
+                        <Text className="text-gray-900 dark:text-white text-sm">{selectedMember.phone}</Text>
                       </View>
                     </View>
                   </View>
@@ -716,7 +716,7 @@ export default function OrgDiagramScreen() {
                                     <Text className="text-white font-medium text-sm mb-1">
                                       {agent.name}
                                     </Text>
-                                    <Text className="text-slate-400 text-xs mb-2">
+                                    <Text className="text-gray-600 dark:text-slate-400 text-xs mb-2">
                                       {agent.purpose}
                                     </Text>
                                     <View className="flex-row items-center gap-2">
@@ -761,7 +761,7 @@ export default function OrgDiagramScreen() {
                     <View className="p-6 border-b border-slate-800">
                       <Text className="text-white font-semibold mb-3">Cost Information</Text>
                       <View className="bg-slate-800 rounded-xl p-4">
-                        <Text className="text-slate-400 text-xs mb-1">Daily Rate</Text>
+                        <Text className="text-gray-600 dark:text-slate-400 text-xs mb-1">Daily Rate</Text>
                         <Text className="text-emerald-400 text-2xl font-bold">
                           £{selectedMember.costPerDay.toLocaleString()}
                         </Text>
@@ -775,7 +775,7 @@ export default function OrgDiagramScreen() {
                       onPress={() => setSelectedMember(null)}
                       className="bg-slate-800 py-3 rounded-xl active:opacity-80"
                     >
-                      <Text className="text-slate-400 text-center font-semibold">Close</Text>
+                      <Text className="text-gray-600 dark:text-slate-400 text-center font-semibold">Close</Text>
                     </Pressable>
                   </View>
                 </ScrollView>

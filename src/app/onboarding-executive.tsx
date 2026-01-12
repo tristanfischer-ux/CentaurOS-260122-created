@@ -60,7 +60,7 @@ export default function ExecutiveOnboardingScreen() {
   };
 
   return (
-    <View className="flex-1 bg-slate-950">
+    <View className="flex-1 bg-white dark:bg-slate-950">
       <LinearGradient
         colors={['#0f172a', '#1e293b', '#334155']}
         style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 }}
@@ -73,7 +73,7 @@ export default function ExecutiveOnboardingScreen() {
             <Pressable onPress={handleBack} className="p-2 active:opacity-60">
               <ArrowLeft size={24} color="#94a3b8" />
             </Pressable>
-            <Text className="text-slate-400 text-sm font-semibold">
+            <Text className="text-gray-600 dark:text-slate-400 text-sm font-semibold">
               Step {step} of {totalSteps}
             </Text>
             <View style={{ width: 40 }} />
@@ -97,23 +97,23 @@ export default function ExecutiveOnboardingScreen() {
             {/* Step 1: Basic Info */}
             {step === 1 && (
               <View>
-                <Text className="text-white text-3xl font-bold mb-2">
+                <Text className="text-gray-900 dark:text-white text-3xl font-bold mb-2">
                   Welcome, Executive!
                 </Text>
-                <Text className="text-slate-400 text-base leading-6 mb-8">
+                <Text className="text-gray-600 dark:text-slate-400 text-base leading-6 mb-8">
                   Let's start with your basic information
                 </Text>
 
-                <Text className="text-white text-sm font-semibold mb-2">Full Name</Text>
+                <Text className="text-gray-900 dark:text-white text-sm font-semibold mb-2">Full Name</Text>
                 <TextInput
                   value={name}
                   onChangeText={setName}
                   placeholder="John Smith"
                   placeholderTextColor="#64748b"
-                  className="bg-slate-900 border border-slate-700 rounded-xl px-4 py-4 text-white text-base mb-4"
+                  className="bg-slate-900 border border-slate-700 rounded-xl px-4 py-4 text-gray-900 dark:text-white text-base mb-4"
                 />
 
-                <Text className="text-white text-sm font-semibold mb-2">Email Address</Text>
+                <Text className="text-gray-900 dark:text-white text-sm font-semibold mb-2">Email Address</Text>
                 <TextInput
                   value={email}
                   onChangeText={setEmail}
@@ -121,7 +121,7 @@ export default function ExecutiveOnboardingScreen() {
                   placeholderTextColor="#64748b"
                   keyboardType="email-address"
                   autoCapitalize="none"
-                  className="bg-slate-900 border border-slate-700 rounded-xl px-4 py-4 text-white text-base"
+                  className="bg-slate-900 border border-slate-700 rounded-xl px-4 py-4 text-gray-900 dark:text-white text-base"
                 />
               </View>
             )}
@@ -129,10 +129,10 @@ export default function ExecutiveOnboardingScreen() {
             {/* Step 2: Primary Function */}
             {step === 2 && (
               <View>
-                <Text className="text-white text-3xl font-bold mb-2">
+                <Text className="text-gray-900 dark:text-white text-3xl font-bold mb-2">
                   Your Expertise
                 </Text>
-                <Text className="text-slate-400 text-base leading-6 mb-8">
+                <Text className="text-gray-600 dark:text-slate-400 text-base leading-6 mb-8">
                   What's your primary functional area?
                 </Text>
 
@@ -168,21 +168,21 @@ export default function ExecutiveOnboardingScreen() {
             {/* Step 3: Experience */}
             {step === 3 && (
               <View>
-                <Text className="text-white text-3xl font-bold mb-2">
+                <Text className="text-gray-900 dark:text-white text-3xl font-bold mb-2">
                   Your Experience
                 </Text>
-                <Text className="text-slate-400 text-base leading-6 mb-8">
+                <Text className="text-gray-600 dark:text-slate-400 text-base leading-6 mb-8">
                   How many years of experience do you have in {primaryFunction}?
                 </Text>
 
-                <Text className="text-white text-sm font-semibold mb-2">Years of Experience</Text>
+                <Text className="text-gray-900 dark:text-white text-sm font-semibold mb-2">Years of Experience</Text>
                 <TextInput
                   value={yearsOfExperience}
                   onChangeText={setYearsOfExperience}
                   placeholder="5"
                   placeholderTextColor="#64748b"
                   keyboardType="numeric"
-                  className="bg-slate-900 border border-slate-700 rounded-xl px-4 py-4 text-white text-base"
+                  className="bg-slate-900 border border-slate-700 rounded-xl px-4 py-4 text-gray-900 dark:text-white text-base"
                 />
               </View>
             )}
@@ -190,10 +190,10 @@ export default function ExecutiveOnboardingScreen() {
             {/* Step 4: Availability */}
             {step === 4 && (
               <View>
-                <Text className="text-white text-3xl font-bold mb-2">
+                <Text className="text-gray-900 dark:text-white text-3xl font-bold mb-2">
                   Availability
                 </Text>
-                <Text className="text-slate-400 text-base leading-6 mb-8">
+                <Text className="text-gray-600 dark:text-slate-400 text-base leading-6 mb-8">
                   How much time can you commit to client engagements?
                 </Text>
 
@@ -229,23 +229,23 @@ export default function ExecutiveOnboardingScreen() {
             {/* Step 5: Day Rate */}
             {step === 5 && (
               <View>
-                <Text className="text-white text-3xl font-bold mb-2">
+                <Text className="text-gray-900 dark:text-white text-3xl font-bold mb-2">
                   Your Day Rate
                 </Text>
-                <Text className="text-slate-400 text-base leading-6 mb-8">
+                <Text className="text-gray-600 dark:text-slate-400 text-base leading-6 mb-8">
                   What's your preferred daily rate in GBP?
                 </Text>
 
-                <Text className="text-white text-sm font-semibold mb-2">Day Rate (£)</Text>
+                <Text className="text-gray-900 dark:text-white text-sm font-semibold mb-2">Day Rate (£)</Text>
                 <View className="flex-row items-center">
-                  <Text className="text-white text-2xl mr-2">£</Text>
+                  <Text className="text-gray-900 dark:text-white text-2xl mr-2">£</Text>
                   <TextInput
                     value={dayRate}
                     onChangeText={setDayRate}
                     placeholder="500"
                     placeholderTextColor="#64748b"
                     keyboardType="numeric"
-                    className="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-4 py-4 text-white text-base"
+                    className="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-4 py-4 text-gray-900 dark:text-white text-base"
                   />
                 </View>
                 <Text className="text-slate-500 text-sm mt-2">
@@ -257,14 +257,14 @@ export default function ExecutiveOnboardingScreen() {
             {/* Step 6: Skills */}
             {step === 6 && (
               <View>
-                <Text className="text-white text-3xl font-bold mb-2">
+                <Text className="text-gray-900 dark:text-white text-3xl font-bold mb-2">
                   Your Skills
                 </Text>
-                <Text className="text-slate-400 text-base leading-6 mb-8">
+                <Text className="text-gray-600 dark:text-slate-400 text-base leading-6 mb-8">
                   List your key skills (comma-separated)
                 </Text>
 
-                <Text className="text-white text-sm font-semibold mb-2">Skills</Text>
+                <Text className="text-gray-900 dark:text-white text-sm font-semibold mb-2">Skills</Text>
                 <TextInput
                   value={skills}
                   onChangeText={setSkills}
@@ -272,7 +272,7 @@ export default function ExecutiveOnboardingScreen() {
                   placeholderTextColor="#64748b"
                   multiline
                   numberOfLines={4}
-                  className="bg-slate-900 border border-slate-700 rounded-xl px-4 py-4 text-white text-base"
+                  className="bg-slate-900 border border-slate-700 rounded-xl px-4 py-4 text-gray-900 dark:text-white text-base"
                   style={{ textAlignVertical: 'top' }}
                 />
                 <Text className="text-slate-500 text-sm mt-2">
@@ -284,14 +284,14 @@ export default function ExecutiveOnboardingScreen() {
             {/* Step 7: Bio */}
             {step === 7 && (
               <View>
-                <Text className="text-white text-3xl font-bold mb-2">
+                <Text className="text-gray-900 dark:text-white text-3xl font-bold mb-2">
                   About You
                 </Text>
-                <Text className="text-slate-400 text-base leading-6 mb-8">
+                <Text className="text-gray-600 dark:text-slate-400 text-base leading-6 mb-8">
                   Tell founders why they should work with you
                 </Text>
 
-                <Text className="text-white text-sm font-semibold mb-2">Professional Bio</Text>
+                <Text className="text-gray-900 dark:text-white text-sm font-semibold mb-2">Professional Bio</Text>
                 <TextInput
                   value={bio}
                   onChangeText={setBio}
@@ -299,11 +299,11 @@ export default function ExecutiveOnboardingScreen() {
                   placeholderTextColor="#64748b"
                   multiline
                   numberOfLines={6}
-                  className="bg-slate-900 border border-slate-700 rounded-xl px-4 py-4 text-white text-base mb-4"
+                  className="bg-slate-900 border border-slate-700 rounded-xl px-4 py-4 text-gray-900 dark:text-white text-base mb-4"
                   style={{ textAlignVertical: 'top' }}
                 />
 
-                <Text className="text-white text-sm font-semibold mb-2">
+                <Text className="text-gray-900 dark:text-white text-sm font-semibold mb-2">
                   LinkedIn URL (Optional)
                 </Text>
                 <TextInput
@@ -312,7 +312,7 @@ export default function ExecutiveOnboardingScreen() {
                   placeholder="https://linkedin.com/in/yourprofile"
                   placeholderTextColor="#64748b"
                   autoCapitalize="none"
-                  className="bg-slate-900 border border-slate-700 rounded-xl px-4 py-4 text-white text-base"
+                  className="bg-slate-900 border border-slate-700 rounded-xl px-4 py-4 text-gray-900 dark:text-white text-base"
                 />
               </View>
             )}
