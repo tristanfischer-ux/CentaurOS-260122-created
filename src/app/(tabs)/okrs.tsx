@@ -1,13 +1,16 @@
 import { View, Text, ScrollView, Pressable, ActivityIndicator, TextInput, Modal, Alert, KeyboardAvoidingView, Platform } from 'react-native';
 import { useState } from 'react';
-import { Target, Plus, TrendingUp, AlertTriangle, XCircle, X, Download, Briefcase, CheckCircle2, Edit3, Trash2, GripVertical } from 'lucide-react-native';
+import { Target, Plus, TrendingUp, AlertTriangle, XCircle, X, Download, Briefcase, CheckCircle2, Edit3, Trash2, GripVertical, Sparkles, Lightbulb, Clock, ArrowRight, CheckSquare } from 'lucide-react-native';
 import { useCurrentWorkspace, useCurrentMembership, useCurrentUser } from '@/lib/state/app-store';
 import { useObjectives, useTasks } from '@/lib/hooks/queries';
 import { objectiveApi, keyResultApi } from '@/lib/api';
+import { taskApi } from '@/lib/api/operations';
 import { useQueryClient } from '@tanstack/react-query';
 import { exportToCSV, formatOKRsForExport } from '@/lib/export';
 import type { KeyResult, Objective } from '@/types';
 import { router } from 'expo-router';
+import { suggestTasksForObjective, getObjectiveCoaching, calculateTotalEffort, type SuggestedTask } from '@/lib/objective-tasks';
+import { LinearGradient } from 'expo-linear-gradient';
 
 export default function OKRsScreen() {
   const currentWorkspace = useCurrentWorkspace();
@@ -21,8 +24,13 @@ export default function OKRsScreen() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditKRModal, setShowEditKRModal] = useState(false);
   const [showEditObjectiveModal, setShowEditObjectiveModal] = useState(false);
+  const [showSuggestTasksModal, setShowSuggestTasksModal] = useState(false);
   const [selectedKR, setSelectedKR] = useState<KeyResult | null>(null);
   const [selectedObjective, setSelectedObjective] = useState<Objective | null>(null);
+  const [selectedObjectiveForTasks, setSelectedObjectiveForTasks] = useState<Objective | null>(null);
+  const [suggestedTasks, setSuggestedTasks] = useState<SuggestedTask[]>([]);
+  const [selectedTaskIds, setSelectedTaskIds] = useState<Set<string>>(new Set());
+  const [isCreatingTasks, setIsCreatingTasks] = useState(false);
   const [newKRValue, setNewKRValue] = useState('');
 
   // Create objective form state
@@ -201,6 +209,74 @@ export default function OKRsScreen() {
     setShowEditObjectiveModal(true);
   };
 
+  const openSuggestTasksModal = (objective: Objective) => {
+    setSelectedObjectiveForTasks(objective);
+    const suggestions = suggestTasksForObjective(objective.title, objective.description);
+    setSuggestedTasks(suggestions);
+    setSelectedTaskIds(new Set());
+    setShowSuggestTasksModal(true);
+  };
+
+  const toggleTaskSelection = (taskId: string) => {
+    setSelectedTaskIds(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(taskId)) {
+        newSet.delete(taskId);
+      } else {
+        newSet.add(taskId);
+      }
+      return newSet;
+    });
+  };
+
+  const handleCreateSuggestedTasks = async () => {
+    if (!selectedObjectiveForTasks || !currentUser || !currentMembership || !currentWorkspace || selectedTaskIds.size === 0) {
+      return;
+    }
+
+    setIsCreatingTasks(true);
+    try {
+      const tasksToCreate = suggestedTasks.filter(t => selectedTaskIds.has(t.id));
+
+      for (const task of tasksToCreate) {
+        await taskApi.create(
+          {
+            title: task.title,
+            description: `${task.description}\n\n**Why This Matters:**\n${task.why}\n\n**Impact:**\n${task.impact}`,
+            status: 'todo',
+            priority: task.priority,
+            function: task.function,
+            objectiveId: selectedObjectiveForTasks.id,
+            workspaceId: currentWorkspace.id,
+          },
+          currentUser.id,
+          currentMembership.role
+        );
+      }
+
+      queryClient.invalidateQueries({ queryKey: ['tasks', currentWorkspace.id] });
+      queryClient.invalidateQueries({ queryKey: ['objectives', currentWorkspace.id] });
+
+      setShowSuggestTasksModal(false);
+      setSelectedObjectiveForTasks(null);
+      setSuggestedTasks([]);
+      setSelectedTaskIds(new Set());
+
+      Alert.alert(
+        'Tasks Created!',
+        `${tasksToCreate.length} task${tasksToCreate.length !== 1 ? 's' : ''} created successfully. View them in the Work tab.`,
+        [
+          { text: 'View Tasks', onPress: () => router.push('/work') },
+          { text: 'Stay Here', style: 'cancel' }
+        ]
+      );
+    } catch (error: any) {
+      Alert.alert('Error', error.message || 'Failed to create tasks');
+    } finally {
+      setIsCreatingTasks(false);
+    }
+  };
+
   const handleExportOKRs = async () => {
     if (!objectives || objectives.length === 0) {
       Alert.alert('No Data', 'There are no OKRs to export');
@@ -328,6 +404,35 @@ export default function OKRsScreen() {
                       </View>
                     )}
                   </View>
+
+                  {/* AI Task Suggestions Button */}
+                  {currentMembership?.role === 'Founder' && (
+                    <Pressable
+                      onPress={() => openSuggestTasksModal(objective)}
+                      className="mt-3 bg-gradient-to-r from-purple-600 to-blue-600 rounded-xl p-3 active:opacity-70"
+                    >
+                      <LinearGradient
+                        colors={['#7c3aed', '#2563eb']}
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 1, y: 0 }}
+                        style={{
+                          position: 'absolute',
+                          left: 0,
+                          right: 0,
+                          top: 0,
+                          bottom: 0,
+                          borderRadius: 12,
+                        }}
+                      />
+                      <View className="flex-row items-center justify-between">
+                        <View className="flex-row items-center gap-2 flex-1">
+                          <Sparkles size={18} color="#fff" />
+                          <Text className="text-white font-semibold">Get AI Task Suggestions</Text>
+                        </View>
+                        <ArrowRight size={18} color="#fff" />
+                      </View>
+                    </Pressable>
+                  )}
                 </View>
 
                 {/* Key Results */}
@@ -716,6 +821,225 @@ export default function OKRsScreen() {
             </View>
           </View>
         </KeyboardAvoidingView>
+      </Modal>
+
+      {/* Suggest Tasks Modal */}
+      <Modal visible={showSuggestTasksModal} transparent animationType="slide">
+        <View className="flex-1 bg-black/90">
+          {selectedObjectiveForTasks && (
+            <View className="mt-auto bg-slate-900 rounded-t-3xl" style={{ maxHeight: '90%' }}>
+              <ScrollView showsVerticalScrollIndicator={false}>
+                {/* Header */}
+                <LinearGradient
+                  colors={['#7c3aed', '#2563eb']}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 0 }}
+                  style={{ padding: 24, paddingTop: 32 }}
+                >
+                  <View className="flex-row justify-between items-start mb-3">
+                    <View className="flex-1 mr-4">
+                      <View className="flex-row items-center gap-2 mb-2">
+                        <Lightbulb size={28} color="#fff" />
+                        <Text className="text-white text-2xl font-bold">AI Task Advisor</Text>
+                      </View>
+                      <Text className="text-purple-100 text-sm">
+                        Proven tasks that lead to: {selectedObjectiveForTasks.title}
+                      </Text>
+                    </View>
+                    <Pressable
+                      onPress={() => setShowSuggestTasksModal(false)}
+                      className="bg-white/20 p-2 rounded-full active:opacity-70"
+                    >
+                      <X size={24} color="#fff" />
+                    </Pressable>
+                  </View>
+                </LinearGradient>
+
+                {suggestedTasks.length === 0 ? (
+                  <View className="p-6">
+                    <View className="bg-slate-800 rounded-2xl p-6 items-center">
+                      <Target size={48} color="#64748b" />
+                      <Text className="text-white text-lg font-bold mt-4 mb-2">No Specific Suggestions Yet</Text>
+                      <Text className="text-slate-400 text-center text-sm">
+                        Try adding keywords like "revenue", "customer acquisition", "product market fit", "hire team", or "fundraising" to your objective title.
+                      </Text>
+                    </View>
+                  </View>
+                ) : (
+                  <>
+                    {/* Coaching Section */}
+                    {(() => {
+                      const pattern = suggestedTasks[0];
+                      const category = pattern ?
+                        (pattern.function === 'Sales' || pattern.function === 'Finance') ? 'revenue' :
+                        (pattern.function === 'Marketing') ? 'customer' :
+                        (pattern.function === 'Engineering') ? 'product' :
+                        'operations' : 'operations';
+                      const coaching = getObjectiveCoaching(category as any);
+                      const effort = calculateTotalEffort(suggestedTasks);
+
+                      return (
+                        <View className="p-6 border-b border-slate-800">
+                          <View className="bg-purple-500/10 border border-purple-500/30 rounded-2xl p-4 mb-4">
+                            <View className="flex-row items-start gap-3">
+                              <Lightbulb size={20} color="#a855f7" />
+                              <View className="flex-1">
+                                <Text className="text-purple-300 font-semibold mb-1">Founder Coaching</Text>
+                                <Text className="text-purple-100 text-sm leading-5">{coaching}</Text>
+                              </View>
+                            </View>
+                          </View>
+
+                          <View className="flex-row gap-3">
+                            <View className="flex-1 bg-slate-800 rounded-xl p-3">
+                              <Text className="text-slate-400 text-xs mb-1">Total Tasks</Text>
+                              <Text className="text-white text-xl font-bold">{suggestedTasks.length}</Text>
+                            </View>
+                            <View className="flex-1 bg-slate-800 rounded-xl p-3">
+                              <Text className="text-slate-400 text-xs mb-1">Est. Effort</Text>
+                              <Text className="text-white text-xl font-bold">{effort.totalHours}h</Text>
+                            </View>
+                            <View className="flex-1 bg-slate-800 rounded-xl p-3">
+                              <Text className="text-slate-400 text-xs mb-1">Selected</Text>
+                              <Text className="text-white text-xl font-bold">{selectedTaskIds.size}</Text>
+                            </View>
+                          </View>
+                        </View>
+                      );
+                    })()}
+
+                    {/* Task List */}
+                    <View className="px-6 pb-6">
+                      <View className="flex-row items-center justify-between mb-4 mt-2">
+                        <Text className="text-white font-bold text-lg">Suggested Tasks</Text>
+                        <Pressable
+                          onPress={() => {
+                            if (selectedTaskIds.size === suggestedTasks.length) {
+                              setSelectedTaskIds(new Set());
+                            } else {
+                              setSelectedTaskIds(new Set(suggestedTasks.map(t => t.id)));
+                            }
+                          }}
+                          className="active:opacity-70"
+                        >
+                          <Text className="text-blue-400 text-sm font-medium">
+                            {selectedTaskIds.size === suggestedTasks.length ? 'Deselect All' : 'Select All'}
+                          </Text>
+                        </Pressable>
+                      </View>
+
+                      <View className="gap-3">
+                        {suggestedTasks.map((task, index) => {
+                          const isSelected = selectedTaskIds.has(task.id);
+                          const priorityColors = {
+                            urgent: { bg: 'bg-red-500/10', border: 'border-red-500/30', text: 'text-red-400' },
+                            high: { bg: 'bg-orange-500/10', border: 'border-orange-500/30', text: 'text-orange-400' },
+                            medium: { bg: 'bg-yellow-500/10', border: 'border-yellow-500/30', text: 'text-yellow-400' },
+                            low: { bg: 'bg-blue-500/10', border: 'border-blue-500/30', text: 'text-blue-400' },
+                          };
+                          const colors = priorityColors[task.priority];
+
+                          return (
+                            <Pressable
+                              key={task.id}
+                              onPress={() => toggleTaskSelection(task.id)}
+                              className={`rounded-2xl p-4 border-2 ${
+                                isSelected ? 'bg-blue-500/10 border-blue-500' : 'bg-slate-800 border-slate-700'
+                              } active:opacity-70`}
+                            >
+                              {/* Task Header */}
+                              <View className="flex-row items-start gap-3 mb-3">
+                                <View className={`w-6 h-6 rounded-lg border-2 ${
+                                  isSelected ? 'bg-blue-500 border-blue-500' : 'border-slate-600'
+                                } items-center justify-center mt-0.5`}>
+                                  {isSelected && <CheckSquare size={16} color="#fff" />}
+                                </View>
+                                <View className="flex-1">
+                                  <View className="flex-row items-center gap-2 mb-1">
+                                    <View className={`px-2 py-0.5 rounded ${colors.bg} ${colors.border} border`}>
+                                      <Text className={`${colors.text} text-xs font-semibold uppercase`}>
+                                        {task.priority}
+                                      </Text>
+                                    </View>
+                                    <View className="bg-slate-700 px-2 py-0.5 rounded">
+                                      <Text className="text-slate-300 text-xs">{task.function}</Text>
+                                    </View>
+                                    <View className="flex-row items-center gap-1">
+                                      <Clock size={12} color="#64748b" />
+                                      <Text className="text-slate-400 text-xs">{task.estimatedHours}h</Text>
+                                    </View>
+                                  </View>
+                                  <Text className="text-white font-bold text-base mb-1">{task.title}</Text>
+                                  <Text className="text-slate-300 text-sm leading-5 mb-3">
+                                    {task.description}
+                                  </Text>
+
+                                  {/* Why This Matters */}
+                                  <View className="bg-slate-900 rounded-xl p-3 mb-2">
+                                    <Text className="text-purple-400 font-semibold text-xs mb-1">
+                                      💡 Why This Matters
+                                    </Text>
+                                    <Text className="text-slate-300 text-xs leading-4">
+                                      {task.why}
+                                    </Text>
+                                  </View>
+
+                                  {/* Impact */}
+                                  <View className="bg-slate-900 rounded-xl p-3">
+                                    <Text className="text-emerald-400 font-semibold text-xs mb-1">
+                                      🎯 Expected Impact
+                                    </Text>
+                                    <Text className="text-slate-300 text-xs leading-4">
+                                      {task.impact}
+                                    </Text>
+                                  </View>
+                                </View>
+                              </View>
+                            </Pressable>
+                          );
+                        })}
+                      </View>
+                    </View>
+                  </>
+                )}
+
+                {/* Action Buttons */}
+                {suggestedTasks.length > 0 && (
+                  <View className="p-6 pt-0 pb-8 border-t border-slate-800">
+                    <View className="flex-row gap-3">
+                      <Pressable
+                        onPress={() => setShowSuggestTasksModal(false)}
+                        className="flex-1 bg-slate-800 rounded-xl py-4 items-center active:opacity-80"
+                        disabled={isCreatingTasks}
+                      >
+                        <Text className="text-slate-400 font-semibold">Cancel</Text>
+                      </Pressable>
+                      <Pressable
+                        onPress={handleCreateSuggestedTasks}
+                        className="flex-[2] bg-blue-500 rounded-xl py-4 items-center active:opacity-80"
+                        disabled={isCreatingTasks || selectedTaskIds.size === 0}
+                      >
+                        {isCreatingTasks ? (
+                          <ActivityIndicator size="small" color="white" />
+                        ) : (
+                          <View className="flex-row items-center gap-2">
+                            <CheckCircle2 size={20} color="#fff" />
+                            <Text className="text-white font-bold">
+                              Create {selectedTaskIds.size} Task{selectedTaskIds.size !== 1 ? 's' : ''}
+                            </Text>
+                          </View>
+                        )}
+                      </Pressable>
+                    </View>
+                    <Text className="text-slate-500 text-xs text-center mt-3">
+                      Tasks will be added to the Work tab and linked to this objective
+                    </Text>
+                  </View>
+                )}
+              </ScrollView>
+            </View>
+          )}
+        </View>
       </Modal>
     </>
   );

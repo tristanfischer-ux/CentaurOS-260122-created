@@ -174,6 +174,30 @@ Centaur OS turns OKRs into work, tracks execution, enables review workflows, and
     - Create new objectives with title, description, and date ranges
     - Edit existing objectives by tapping the blue edit icon on each objective card
     - Delete objectives with confirmation (also removes all associated key results)
+  - **AI Task Advisor (Founder-Only)** - Turn objectives into actionable tasks with proven frameworks
+    - **"Get AI Task Suggestions" Button**: Purple gradient button on each objective card
+    - **Research-Backed Task Library**: 42 proven tasks across 6 objective categories
+      - Revenue Growth (7 tasks): ICP definition, lead scoring, sales playbook, metrics dashboard, referral program, pricing optimization, upsell motion
+      - Product-Market Fit (7 tasks): Customer interviews, "aha moment" definition, PMF survey, retention cohorts, success playbook, feature usage, advisory board
+      - Customer Acquisition (7 tasks): Channel audit, SEO strategy, landing page optimization, partnerships, retargeting, lead magnets, community building
+      - Team Building (7 tasks): Role scorecards, talent pipeline, interview process, onboarding program, 1-on-1 rhythm, performance reviews, career ladders
+      - Operational Efficiency (7 tasks): Workflow mapping, automation opportunities, project management, SOPs, metrics reviews, workflow automation, knowledge base
+      - Fundraising (7 tasks): Pitch deck, financial model, investor list, warm intros, data room, pitch practice, FOMO creation
+    - **Founder Coaching**: Each task includes "Why This Matters" explanations and expected impact
+    - **Smart Matching**: Keywords in objective title/description automatically surface relevant tasks
+    - **Task Selection**: Choose which suggested tasks to create (select all, individual selection, or none)
+    - **Detailed Task Cards**: Each suggestion shows:
+      - Priority level (Urgent, High, Medium, Low) with color coding
+      - Business function (Sales, Marketing, Finance, etc.)
+      - Estimated hours to complete
+      - Full description of what to do
+      - "Why This Matters" coaching section (founder-level insights)
+      - "Expected Impact" section (what success looks like)
+    - **Execution Order**: Tasks organized by optimal execution sequence with dependencies
+    - **Milestone Types**: Quick wins, foundation builders, breakthroughs, and scale initiatives
+    - **One-Click Creation**: Selected tasks automatically created in Work tab with full descriptions and coaching
+    - **Strategic Linking**: Created tasks automatically linked to the source objective
+    - **Effort Estimation**: See total hours required across all suggested tasks
   - **Interactive Objective Cards**: Each objective displays edit and delete buttons for easy management
   - **Custom Date Ranges**: Set specific start and end dates for objectives (defaults to today and 90 days if not specified)
   - **Target Numbers**: Add numeric targets or metrics to objectives (e.g., "100 units", "£50k revenue") for reference tracking
