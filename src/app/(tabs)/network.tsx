@@ -1034,16 +1034,35 @@ function HiringTab() {
   const [selectedCandidate, setSelectedCandidate] = useState<Candidate | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterSpecialization, setFilterSpecialization] = useState<string>('all');
+  const [viewMode, setViewMode] = useState<'swipe' | 'liked'>('swipe');
+  const [likedCandidates, setLikedCandidates] = useState<Candidate[]>([]);
+  const [passedCandidates, setPassedCandidates] = useState<string[]>([]);
+  const [currentCardIndex, setCurrentCardIndex] = useState(0);
 
   const candidates = hiringType === 'exec' ? fractionalExecutives : apprentices;
 
   const filteredCandidates = candidates.filter(candidate => {
+    const notPassed = !passedCandidates.includes(candidate.id);
     const matchesSearch = candidate.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          candidate.bio.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesSpecialization = filterSpecialization === 'all' ||
                                   candidate.specialization.includes(filterSpecialization as any);
-    return matchesSearch && matchesSpecialization;
+    return notPassed && matchesSearch && matchesSpecialization;
   });
+
+  const handleLike = (candidate: Candidate) => {
+    setLikedCandidates(prev => [...prev, candidate]);
+    setCurrentCardIndex(prev => prev + 1);
+  };
+
+  const handlePass = (candidate: Candidate) => {
+    setPassedCandidates(prev => [...prev, candidate.id]);
+    setCurrentCardIndex(prev => prev + 1);
+  };
+
+  const handleUnlike = (candidateId: string) => {
+    setLikedCandidates(prev => prev.filter(c => c.id !== candidateId));
+  };
 
   const handleHireCandidate = (candidate: Candidate) => {
     alert(`${candidate.name} has been added to your team! They will appear in your workspace shortly.`);
@@ -1063,12 +1082,47 @@ function HiringTab() {
       <View className="mb-6">
         <Text className="text-gray-900 dark:text-white text-2xl font-bold mb-2">Hire Talent</Text>
         <Text className="text-gray-600 dark:text-slate-400 text-sm">
-          Browse {hiringType === 'exec' ? '30 Fractional Executives' : '30 Apprentices'} to build your team
+          {viewMode === 'swipe'
+            ? `Browse ${hiringType === 'exec' ? '30 Fractional Executives' : '30 Apprentices'} to build your team`
+            : `${likedCandidates.length} ${likedCandidates.length === 1 ? 'candidate' : 'candidates'} liked`
+          }
         </Text>
       </View>
 
-      {/* Type Toggle */}
+      {/* View Mode Toggle */}
       <View className="flex-row gap-2 mb-4">
+        <Pressable
+          onPress={() => setViewMode('swipe')}
+          className={`flex-1 py-3 rounded-xl flex-row items-center justify-center ${
+            viewMode === 'swipe' ? 'bg-blue-500' : 'bg-slate-800'
+          }`}
+        >
+          <Zap size={18} color={viewMode === 'swipe' ? '#fff' : '#64748b'} />
+          <Text className={`ml-2 font-semibold ${
+            viewMode === 'swipe' ? 'text-white' : 'text-gray-600 dark:text-slate-400'
+          }`}>
+            Swipe Mode
+          </Text>
+        </Pressable>
+        <Pressable
+          onPress={() => setViewMode('liked')}
+          className={`flex-1 py-3 rounded-xl flex-row items-center justify-center ${
+            viewMode === 'liked' ? 'bg-emerald-500' : 'bg-slate-800'
+          }`}
+        >
+          <Heart size={18} color={viewMode === 'liked' ? '#fff' : '#64748b'} fill={viewMode === 'liked' ? '#fff' : 'none'} />
+          <Text className={`ml-2 font-semibold ${
+            viewMode === 'liked' ? 'text-white' : 'text-gray-600 dark:text-slate-400'
+          }`}>
+            Liked ({likedCandidates.length})
+          </Text>
+        </Pressable>
+      </View>
+
+      {viewMode === 'swipe' ? (
+        <>
+          {/* Type Toggle */}
+          <View className="flex-row gap-2 mb-4">
         <Pressable
           onPress={() => setHiringType('exec')}
           className={`flex-1 py-3 rounded-xl ${
@@ -1321,6 +1375,132 @@ function HiringTab() {
           </View>
         )}
       </View>
+
+      {/* Swipe Action Buttons - Show current card */}
+      {currentCardIndex < filteredCandidates.length && (
+        <View className="flex-row gap-3 mt-4">
+          <Pressable
+            onPress={() => handlePass(filteredCandidates[currentCardIndex])}
+            className="flex-1 bg-red-500/20 border-2 border-red-500 py-4 rounded-xl flex-row items-center justify-center active:opacity-70"
+          >
+            <X size={24} color="#ef4444" />
+            <Text className="text-red-500 font-bold text-base ml-2">Pass</Text>
+          </Pressable>
+          <Pressable
+            onPress={() => handleLike(filteredCandidates[currentCardIndex])}
+            className="flex-1 bg-emerald-500/20 border-2 border-emerald-500 py-4 rounded-xl flex-row items-center justify-center active:opacity-70"
+          >
+            <Heart size={24} color="#10b981" fill="#10b981" />
+            <Text className="text-emerald-500 font-bold text-base ml-2">Like</Text>
+          </Pressable>
+        </View>
+      )}
+
+      {currentCardIndex >= filteredCandidates.length && (
+        <View className="items-center justify-center py-12">
+          <CheckCircle size={64} color="#10b981" />
+          <Text className="text-gray-900 dark:text-white text-xl font-bold mt-4">
+            All Done!
+          </Text>
+          <Text className="text-gray-600 dark:text-slate-400 text-center mt-2">
+            You've reviewed all candidates. Check your liked list to follow up.
+          </Text>
+        </View>
+      )}
+        </>
+      ) : (
+        /* Liked Candidates List */
+        <View className="gap-4 pb-6">
+          {likedCandidates.length === 0 ? (
+            <View className="items-center justify-center py-12">
+              <Heart size={64} color="#64748b" />
+              <Text className="text-gray-900 dark:text-white text-xl font-bold mt-4">
+                No Liked Candidates Yet
+              </Text>
+              <Text className="text-gray-600 dark:text-slate-400 text-center mt-2 px-6">
+                Switch to Swipe Mode and like candidates to build your shortlist
+              </Text>
+            </View>
+          ) : (
+            likedCandidates.map((candidate) => (
+              <Pressable
+                key={candidate.id}
+                onPress={() => setSelectedCandidate(candidate)}
+                className="bg-gray-100 dark:bg-slate-900 rounded-2xl border border-gray-300 dark:border-slate-800 overflow-hidden active:opacity-70"
+              >
+                {/* Compact Card View for Liked List */}
+                <View className="p-4 flex-row items-center">
+                  <View
+                    className="w-14 h-14 rounded-full items-center justify-center mr-3"
+                    style={{ backgroundColor: candidate.avatarColor + '20' }}
+                  >
+                    <Text
+                      className="text-xl font-bold"
+                      style={{ color: candidate.avatarColor }}
+                    >
+                      {candidate.name.charAt(0)}
+                    </Text>
+                  </View>
+
+                  <View className="flex-1">
+                    <View className="flex-row items-center justify-between mb-1">
+                      <Text className="text-gray-900 dark:text-white font-bold text-base">{candidate.name}</Text>
+                      <View className="flex-row items-center">
+                        <Star size={14} color="#f59e0b" fill="#f59e0b" />
+                        <Text className="text-gray-700 dark:text-slate-300 text-sm ml-1">{candidate.rating}</Text>
+                      </View>
+                    </View>
+
+                    <Text className="text-gray-600 dark:text-slate-400 text-xs mb-1">
+                      {candidate.specialization.join(' • ')}
+                    </Text>
+
+                    <View className="flex-row items-center gap-3">
+                      <Text className="text-emerald-400 text-sm font-semibold">£{candidate.costPerDay}/day</Text>
+                      <Text className="text-gray-500">•</Text>
+                      <Text className="text-blue-400 text-xs">{candidate.availability}</Text>
+                    </View>
+                  </View>
+
+                  <Pressable
+                    onPress={(e) => {
+                      e.stopPropagation();
+                      handleUnlike(candidate.id);
+                    }}
+                    className="ml-2 bg-red-500/20 p-2 rounded-lg active:opacity-70"
+                  >
+                    <X size={20} color="#ef4444" />
+                  </Pressable>
+                </View>
+
+                {/* Action Buttons */}
+                <View className="flex-row border-t border-gray-300 dark:border-slate-800">
+                  <Pressable
+                    onPress={(e) => {
+                      e.stopPropagation();
+                      handleEmailPress(candidate.email);
+                    }}
+                    className="flex-1 py-3 flex-row items-center justify-center border-r border-gray-300 dark:border-slate-800 active:opacity-70"
+                  >
+                    <Mail size={16} color="#3b82f6" />
+                    <Text className="text-blue-400 text-sm font-semibold ml-2">Email</Text>
+                  </Pressable>
+                  <Pressable
+                    onPress={(e) => {
+                      e.stopPropagation();
+                      handlePhonePress(candidate.phone);
+                    }}
+                    className="flex-1 py-3 flex-row items-center justify-center active:opacity-70"
+                  >
+                    <Phone size={16} color="#10b981" />
+                    <Text className="text-emerald-400 text-sm font-semibold ml-2">Call</Text>
+                  </Pressable>
+                </View>
+              </Pressable>
+            ))
+          )}
+        </View>
+      )}
 
       {/* Candidate Detail Modal */}
       <Modal visible={selectedCandidate !== null} transparent animationType="slide" onRequestClose={() => setSelectedCandidate(null)}>

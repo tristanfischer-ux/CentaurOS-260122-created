@@ -15,7 +15,7 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
 
 ## 🚨 PRODUCTION READINESS STATUS
 
-**Last Updated**: 2026-01-12 (Discovery Resources Enhanced - Full CV Cards)
+**Last Updated**: 2026-01-12 (Swipe-to-Like Feature + Liked List Added)
 
 ### Current Status: ✅ **READY FOR APP STORE SUBMISSION**
 
@@ -296,6 +296,18 @@ Centaur OS turns OKRs into work, tracks execution, enables review workflows, and
   - **Team Member Details**: Full profiles with contact info, reporting structure, and cost data
   - **Legend**: Clear indication of what each node type represents
 - **Team Hiring System (Founder-Only)** - Browse and hire talent to build your team (Located in Network tab)
+  - **Two View Modes**: Toggle between Swipe Mode and Liked List
+  - **Swipe Mode**: Review candidates one at a time with Like/Pass actions
+    - Large Pass button (red) and Like button (green) below each card
+    - Real-time counter showing progress through candidate list
+    - "All Done!" message when you've reviewed everyone
+    - Passed candidates are hidden from future views
+  - **Liked List**: View all candidates you've liked for easy follow-up
+    - Compact card view with essential info (name, rating, specialization, rate, availability)
+    - Quick action buttons: Email and Call directly from the list
+    - Remove from liked list with X button
+    - Empty state prompts you to start swiping
+    - Shows count of liked candidates in toggle button
   - **30 Fractional Executives**: Senior leaders in Sales, Marketing, Finance, Engineering, and Operations
   - **30 Apprentices**: Junior talent across all functions ready to execute
   - **Full CV-Style Cards**: Comprehensive information displayed directly in browsable cards
@@ -310,11 +322,8 @@ Centaur OS turns OKRs into work, tracks execution, enables review workflows, and
     - **Contact Information**: Email, phone, and location with colored icon badges
   - **Detailed Modal View**: Tap any card to see full profile with scrollable content
   - **Fixed Header Modal**: Name, avatar, and rating stay visible while scrolling details
-  - **30 Apprentices**: Junior talent eager to learn and execute across all business functions
-  - **Detailed Profiles**: View experience, ratings, daily rates, availability, skills, and previous companies
-  - **Search & Filter**: Find candidates by name, specialization, or skills
-  - **One-Click Hiring**: Add candidates to your team instantly
-  - **Realistic Candidates**: Real-world experience levels and competitive market rates
+  - **Smart Filtering**: Search by name/skills and filter by specialization
+  - **Type Toggle**: Switch between Executives and Apprentices
 - **Organization Structure (Founder-Only)** - Complete operational overview and org chart
   - **Hierarchical Org Chart**: Visual reporting structure showing founders → execs → apprentices
   - **Reporting Lines**: Clear view of who reports to whom across the organization
