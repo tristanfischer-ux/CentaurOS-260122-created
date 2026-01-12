@@ -373,41 +373,122 @@ export default function HomeScreen() {
               </View>
             </View>
 
-            {/* Financial Summary */}
-            <Pressable
-              onPress={() => router.push('/financial-dashboard')}
-              className="bg-gradient-to-r from-emerald-500 to-teal-500 rounded-2xl p-4 mb-4 active:opacity-70"
-            >
+            {/* Financial Overview */}
+            <View className="mb-4">
+              <View className="flex-row items-center justify-between mb-3">
+                <Text className="text-gray-900 dark:text-white text-lg font-bold">
+                  Financial Overview
+                </Text>
+                <Pressable onPress={() => router.push('/financial-dashboard')}>
+                  <Text className="text-blue-500 text-sm font-semibold">Full Dashboard</Text>
+                </Pressable>
+              </View>
+
               <LinearGradient
                 colors={['#10b981', '#14b8a6']}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 0 }}
-                style={{ borderRadius: 16, padding: 16 }}
+                style={{ borderRadius: 16, padding: 16, marginBottom: 12 }}
               >
-                <View className="flex-row items-center justify-between mb-3">
-                  <Text className="text-white text-lg font-bold">Financials</Text>
-                  <BarChart3 size={24} color="#fff" />
-                </View>
-                <View className="flex-row gap-4">
+                <View className="flex-row items-center justify-between mb-4">
                   <View>
-                    <Text className="text-emerald-100 text-xs">Revenue</Text>
-                    <Text className="text-white text-xl font-bold">
+                    <Text className="text-emerald-100 text-xs font-semibold mb-1">RUNWAY</Text>
+                    <Text className="text-white text-3xl font-bold">
+                      {FOUNDER_DATA.financials.runway} months
+                    </Text>
+                  </View>
+                  <BarChart3 size={32} color="#fff" />
+                </View>
+
+                <View className="h-px bg-white/20 mb-3" />
+
+                <View className="flex-row gap-4 mb-2">
+                  <View className="flex-1">
+                    <Text className="text-emerald-100 text-xs mb-1">Monthly Revenue</Text>
+                    <Text className="text-white text-lg font-bold">
                       £{(FOUNDER_DATA.financials.revenue / 1000).toFixed(0)}K
                     </Text>
                   </View>
-                  <View>
-                    <Text className="text-emerald-100 text-xs">Burn Rate</Text>
-                    <Text className="text-white text-xl font-bold">
+                  <View className="flex-1">
+                    <Text className="text-emerald-100 text-xs mb-1">Monthly Burn</Text>
+                    <Text className="text-white text-lg font-bold">
                       £{(FOUNDER_DATA.financials.burnRate / 1000).toFixed(0)}K
                     </Text>
                   </View>
                 </View>
-                <View className="flex-row items-center mt-2">
-                  <Text className="text-white text-sm">View full dashboard</Text>
-                  <ArrowRight size={16} color="#fff" className="ml-1" />
+
+                <View className="flex-row gap-4">
+                  <View className="flex-1">
+                    <Text className="text-emerald-100 text-xs mb-1">Net Cash Flow</Text>
+                    <Text className="text-white text-lg font-bold">
+                      {FOUNDER_DATA.financials.revenue - FOUNDER_DATA.financials.burnRate >= 0 ? '+' : '-'}£{Math.abs(FOUNDER_DATA.financials.revenue - FOUNDER_DATA.financials.burnRate / 1000).toFixed(0)}K
+                    </Text>
+                  </View>
+                  <View className="flex-1">
+                    <Text className="text-emerald-100 text-xs mb-1">Cash Position</Text>
+                    <Text className="text-white text-lg font-bold">
+                      £{((FOUNDER_DATA.financials.runway * FOUNDER_DATA.financials.burnRate) / 1000).toFixed(0)}K
+                    </Text>
+                  </View>
                 </View>
               </LinearGradient>
-            </Pressable>
+
+              {/* Cost Breakdown */}
+              <View className="bg-gray-100 dark:bg-slate-900 rounded-xl p-4 border border-gray-300 dark:border-slate-800">
+                <Text className="text-gray-900 dark:text-white font-bold text-sm mb-3">
+                  Monthly Cost Breakdown
+                </Text>
+
+                <View className="gap-3">
+                  <View className="flex-row items-center justify-between">
+                    <View className="flex-row items-center flex-1">
+                      <View className="w-2 h-2 rounded-full bg-blue-500 mr-2" />
+                      <Text className="text-gray-700 dark:text-slate-300 text-sm">Team (5 Execs + 8 Apprentices)</Text>
+                    </View>
+                    <Text className="text-gray-900 dark:text-white font-bold text-sm">£52K</Text>
+                  </View>
+
+                  <View className="flex-row items-center justify-between">
+                    <View className="flex-row items-center flex-1">
+                      <View className="w-2 h-2 rounded-full bg-purple-500 mr-2" />
+                      <Text className="text-gray-700 dark:text-slate-300 text-sm">Manufacturing & Suppliers</Text>
+                    </View>
+                    <Text className="text-gray-900 dark:text-white font-bold text-sm">£18K</Text>
+                  </View>
+
+                  <View className="flex-row items-center justify-between">
+                    <View className="flex-row items-center flex-1">
+                      <View className="w-2 h-2 rounded-full bg-cyan-500 mr-2" />
+                      <Text className="text-gray-700 dark:text-slate-300 text-sm">AI Tools & Software</Text>
+                    </View>
+                    <Text className="text-gray-900 dark:text-white font-bold text-sm">£3K</Text>
+                  </View>
+
+                  <View className="flex-row items-center justify-between">
+                    <View className="flex-row items-center flex-1">
+                      <View className="w-2 h-2 rounded-full bg-amber-500 mr-2" />
+                      <Text className="text-gray-700 dark:text-slate-300 text-sm">Infrastructure & Ops</Text>
+                    </View>
+                    <Text className="text-gray-900 dark:text-white font-bold text-sm">£7K</Text>
+                  </View>
+
+                  <View className="flex-row items-center justify-between">
+                    <View className="flex-row items-center flex-1">
+                      <View className="w-2 h-2 rounded-full bg-pink-500 mr-2" />
+                      <Text className="text-gray-700 dark:text-slate-300 text-sm">Marketing & Sales</Text>
+                    </View>
+                    <Text className="text-gray-900 dark:text-white font-bold text-sm">£5K</Text>
+                  </View>
+
+                  <View className="h-px bg-gray-300 dark:bg-slate-700 my-1" />
+
+                  <View className="flex-row items-center justify-between">
+                    <Text className="text-gray-900 dark:text-white font-bold text-sm">Total Monthly Burn</Text>
+                    <Text className="text-gray-900 dark:text-white font-bold text-base">£85K</Text>
+                  </View>
+                </View>
+              </View>
+            </View>
           </View>
         </ScrollView>
       </View>
