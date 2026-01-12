@@ -5,15 +5,15 @@ import Svg, { Circle, Line, Text as SvgText } from 'react-native-svg';
 import { ORGANIZATION_MEMBERS, type OrganizationMember } from '@/lib/organization-seed';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
-const DIAGRAM_WIDTH = SCREEN_WIDTH - 32;
-const DIAGRAM_HEIGHT = 600;
+const DIAGRAM_WIDTH = Math.max(SCREEN_WIDTH * 1.5, 600); // Make it wider and scrollable
+const DIAGRAM_HEIGHT = 800; // Taller for better spacing
 const CENTER_X = DIAGRAM_WIDTH / 2;
 const CENTER_Y = DIAGRAM_HEIGHT / 2;
 
 // Layout configuration for circular org diagram
 const FOUNDER_RADIUS = 60;
-const EXEC_DISTANCE = 180;
-const APPRENTICE_DISTANCE = 280;
+const EXEC_DISTANCE = 220; // Increased spacing
+const APPRENTICE_DISTANCE = 360; // Increased spacing
 
 export default function OrgDiagramScreen() {
   const [selectedMember, setSelectedMember] = useState<OrganizationMember | null>(null);
@@ -106,31 +106,36 @@ export default function OrgDiagramScreen() {
           <Text className="text-white font-semibold mb-3">Legend</Text>
           <View className="flex-row flex-wrap gap-4">
             <View className="flex-row items-center">
-              <View className="w-6 h-6 rounded-full bg-blue-500/20 border-2 border-blue-500 items-center justify-center mr-2">
-                <Text className="text-blue-400 text-xs font-bold">F</Text>
+              <View className="w-8 h-8 rounded-full bg-blue-500/20 border-2 border-blue-500 items-center justify-center mr-2">
+                <Text className="text-blue-400 text-xs font-bold">SC</Text>
               </View>
-              <Text className="text-slate-300 text-sm">Founder</Text>
+              <Text className="text-slate-300 text-sm">Founder (Initials)</Text>
             </View>
             <View className="flex-row items-center">
-              <View className="w-6 h-6 rounded-full bg-purple-500/20 border-2 border-purple-500 items-center justify-center mr-2">
-                <Text className="text-purple-400 text-xs font-bold">E</Text>
+              <View className="w-8 h-8 rounded-full bg-purple-500/20 border-2 border-purple-500 items-center justify-center mr-2">
+                <Text className="text-purple-400 text-xs font-bold">JM</Text>
               </View>
-              <Text className="text-slate-300 text-sm">Executive</Text>
+              <Text className="text-slate-300 text-sm">Executive (Initials)</Text>
             </View>
             <View className="flex-row items-center">
-              <View className="w-6 h-6 rounded-full bg-emerald-500/20 border-2 border-emerald-500 items-center justify-center mr-2">
-                <Text className="text-emerald-400 text-xs font-bold">A</Text>
+              <View className="w-8 h-8 rounded-full bg-emerald-500/20 border-2 border-emerald-500 items-center justify-center mr-2">
+                <Text className="text-emerald-400 text-xs font-bold">AL</Text>
               </View>
-              <Text className="text-slate-300 text-sm">Apprentice</Text>
+              <Text className="text-slate-300 text-sm">Apprentice (Initials)</Text>
             </View>
           </View>
+          <Text className="text-slate-400 text-xs mt-3">Tip: Scroll horizontally to see the full diagram. Tap any circle to view details.</Text>
         </View>
 
         {/* Org Diagram */}
         <View className="p-4">
-          <View className="bg-slate-900 rounded-2xl p-4 border border-slate-800 overflow-hidden">
-            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-              <View>
+          <View className="bg-slate-900 rounded-2xl p-4 border border-slate-800">
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={true}
+              contentContainerStyle={{ paddingVertical: 20 }}
+            >
+              <View style={{ width: DIAGRAM_WIDTH, height: DIAGRAM_HEIGHT, position: 'relative' }}>
                 <Svg width={DIAGRAM_WIDTH} height={DIAGRAM_HEIGHT}>
                   {/* Draw reporting lines */}
                   {ORGANIZATION_MEMBERS.map((member) => {
@@ -173,7 +178,7 @@ export default function OrgDiagramScreen() {
                       ORGANIZATION_MEMBERS.filter(m => m.role === member.role).length
                     );
                     const color = getRoleColor(member.role);
-                    const nodeRadius = member.role === 'Founder' ? 35 : 28;
+                    const nodeRadius = member.role === 'Founder' ? 40 : 32;
 
                     return (
                       <React.Fragment key={member.id}>
@@ -187,23 +192,23 @@ export default function OrgDiagramScreen() {
                           strokeWidth="3"
                         />
 
-                        {/* Role label */}
+                        {/* Initials in center */}
                         <SvgText
                           x={position.x}
                           y={position.y + 6}
-                          fontSize="18"
+                          fontSize="20"
                           fontWeight="bold"
                           fill={color}
                           textAnchor="middle"
                         >
-                          {getRoleLabel(member.role)}
+                          {member.name.split(' ').map(n => n[0]).join('')}
                         </SvgText>
 
                         {/* Name label below */}
                         <SvgText
                           x={position.x}
-                          y={position.y + nodeRadius + 18}
-                          fontSize="11"
+                          y={position.y + nodeRadius + 20}
+                          fontSize="12"
                           fill="#e2e8f0"
                           textAnchor="middle"
                           fontWeight="600"
@@ -212,8 +217,8 @@ export default function OrgDiagramScreen() {
                         </SvgText>
                         <SvgText
                           x={position.x}
-                          y={position.y + nodeRadius + 32}
-                          fontSize="9"
+                          y={position.y + nodeRadius + 36}
+                          fontSize="11"
                           fill="#94a3b8"
                           textAnchor="middle"
                         >
@@ -231,19 +236,23 @@ export default function OrgDiagramScreen() {
                     ORGANIZATION_MEMBERS.filter(m => m.role === member.role).indexOf(member),
                     ORGANIZATION_MEMBERS.filter(m => m.role === member.role).length
                   );
-                  const nodeRadius = member.role === 'Founder' ? 35 : 28;
-                  const touchRadius = nodeRadius + 15; // Extra touch area
+                  const nodeRadius = member.role === 'Founder' ? 40 : 32;
+                  const touchRadius = nodeRadius + 20; // Larger touch area
 
                   return (
                     <Pressable
                       key={`touch-${member.id}`}
-                      onPress={() => setSelectedMember(member)}
+                      onPress={() => {
+                        console.log('Tapped member:', member.name);
+                        setSelectedMember(member);
+                      }}
                       style={{
                         position: 'absolute',
                         left: position.x - touchRadius,
                         top: position.y - touchRadius,
                         width: touchRadius * 2,
                         height: touchRadius * 2,
+                        borderRadius: touchRadius,
                       }}
                     />
                   );

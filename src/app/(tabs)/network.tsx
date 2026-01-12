@@ -5,7 +5,7 @@ import { UK_SUPPLIERS } from '@/lib/suppliers-seed';
 import { fractionalExecutives, apprentices, type Candidate } from '@/lib/candidates-seed';
 import { AI_AGENTS, type AIAgent } from '@/lib/organization-seed';
 
-type NetworkTab = 'suppliers' | 'companies' | 'events' | 'hiring' | 'ai-agents';
+type NetworkTab = 'suppliers' | 'companies' | 'hiring' | 'ai-agents';
 
 interface DisplaySupplier {
   id: string;
@@ -77,76 +77,6 @@ const DEMO_COMPANIES = [
   },
 ];
 
-// Demo Events Data
-const DEMO_EVENTS = [
-  {
-    id: '1',
-    title: 'Hardware Founders Meetup',
-    date: '2026-02-15',
-    time: '18:00',
-    location: 'Level39, Canary Wharf, London',
-    type: 'In-person',
-    capacity: 30,
-    attending: 18,
-    description: 'Monthly gathering of hardware startup founders',
-  },
-  {
-    id: '2',
-    title: 'DFM Workshop: Injection Molding',
-    date: '2026-02-20',
-    time: '14:00',
-    location: 'Omega Plastics, Northamptonshire',
-    type: 'Hybrid',
-    capacity: 20,
-    attending: 12,
-    description: 'Hands-on workshop on designing for manufacturing with injection molding',
-  },
-  {
-    id: '3',
-    title: 'Fractional Executive Office Hours',
-    date: '2026-02-18',
-    time: '10:00',
-    location: 'Virtual (Zoom)',
-    type: 'Virtual',
-    capacity: 12,
-    attending: 8,
-    description: '1-on-1 mentorship sessions with experienced fractional executives',
-  },
-  {
-    id: '4',
-    title: 'Demo Day: Spring 2026 Cohort',
-    date: '2026-03-10',
-    time: '17:00',
-    location: 'Level39, Canary Wharf, London',
-    type: 'Hybrid',
-    capacity: 100,
-    attending: 67,
-    description: 'Showcase of hardware startups from the Spring 2026 cohort',
-  },
-  {
-    id: '5',
-    title: 'PCB Design Masterclass',
-    date: '2026-02-25',
-    time: '13:00',
-    location: 'Virtual (Zoom)',
-    type: 'Virtual',
-    capacity: 50,
-    attending: 34,
-    description: 'Learn best practices for PCB design and layout',
-  },
-  {
-    id: '6',
-    title: 'Hardware Startup Social',
-    date: '2026-03-01',
-    time: '19:00',
-    location: 'The Anchor Pub, Birmingham',
-    type: 'In-person',
-    capacity: 40,
-    attending: 23,
-    description: 'Casual networking over drinks with fellow hardware founders',
-  },
-];
-
 export default function NetworkScreen() {
   const [activeTab, setActiveTab] = useState<NetworkTab>('suppliers');
   const [selectedAgent, setSelectedAgent] = useState<AIAgent | null>(null);
@@ -157,7 +87,6 @@ export default function NetworkScreen() {
     { id: 'suppliers' as NetworkTab, label: 'Suppliers', icon: Building2 },
     { id: 'ai-agents' as NetworkTab, label: 'AI Agents', icon: Bot },
     { id: 'companies' as NetworkTab, label: 'Companies', icon: Users },
-    { id: 'events' as NetworkTab, label: 'Events', icon: Calendar },
     { id: 'hiring' as NetworkTab, label: 'Hiring', icon: Award },
   ];
 
@@ -200,7 +129,6 @@ export default function NetworkScreen() {
         {activeTab === 'suppliers' && <SuppliersTab />}
         {activeTab === 'ai-agents' && <AIAgentsTab selectedAgent={selectedAgent} setSelectedAgent={setSelectedAgent} onboardingAgent={onboardingAgent} setOnboardingAgent={setOnboardingAgent} monthlyCost={monthlyCost} setMonthlyCost={setMonthlyCost} />}
         {activeTab === 'companies' && <CompaniesTab />}
-        {activeTab === 'events' && <EventsTab />}
         {activeTab === 'hiring' && <HiringTab />}
       </ScrollView>
     </View>
@@ -429,77 +357,6 @@ function CompaniesTab() {
             <Pressable className="flex-row items-center justify-center bg-slate-800 rounded-xl py-2.5 border border-slate-700 active:opacity-80">
               <Text className="text-white font-semibold text-sm">Connect</Text>
               <ChevronRight size={16} color="white" className="ml-1" />
-            </Pressable>
-          </View>
-        ))}
-      </View>
-    </View>
-  );
-}
-
-// Events Tab - Community Events
-function EventsTab() {
-  return (
-    <View className="p-6">
-      <View className="mb-6">
-        <Text className="text-white text-2xl font-bold mb-2">Community Events</Text>
-        <Text className="text-slate-400 text-sm">
-          {DEMO_EVENTS.length} upcoming meetups, workshops, and networking events
-        </Text>
-      </View>
-
-      <View className="gap-4">
-        {DEMO_EVENTS.map((event) => (
-          <View
-            key={event.id}
-            className="bg-slate-900 rounded-2xl p-4 border border-slate-800"
-          >
-            <View className="flex-row items-start justify-between mb-3">
-              <View className="flex-1 mr-3">
-                <View className="flex-row items-center gap-2 mb-1">
-                  <Text className="text-white text-lg font-semibold">{event.title}</Text>
-                </View>
-                <Text className="text-slate-400 text-sm mb-3">{event.description}</Text>
-
-                <View className="gap-2">
-                  <View className="flex-row items-center gap-1">
-                    <Calendar size={14} color="#64748b" />
-                    <Text className="text-slate-300 text-xs">
-                      {new Date(event.date).toLocaleDateString('en-GB', {
-                        weekday: 'short',
-                        year: 'numeric',
-                        month: 'short',
-                        day: 'numeric',
-                      })} at {event.time}
-                    </Text>
-                  </View>
-                  <View className="flex-row items-center gap-1">
-                    <MapPin size={14} color="#64748b" />
-                    <Text className="text-slate-300 text-xs">{event.location}</Text>
-                  </View>
-                  <View className="flex-row items-center gap-1">
-                    <Users size={14} color="#64748b" />
-                    <Text className="text-slate-300 text-xs">
-                      {event.attending} / {event.capacity} attending
-                    </Text>
-                  </View>
-                </View>
-              </View>
-              <View className="bg-blue-950 px-3 py-1.5 rounded-full">
-                <Text className="text-blue-400 text-[10px] font-bold">{event.type.toUpperCase()}</Text>
-              </View>
-            </View>
-
-            <View className="bg-slate-800 rounded-full h-2 mb-3 overflow-hidden">
-              <View
-                className="bg-blue-500 h-full"
-                style={{ width: `${(event.attending / event.capacity) * 100}%` }}
-              />
-            </View>
-
-            <Pressable className="flex-row items-center justify-center bg-blue-500 rounded-xl py-2.5 active:opacity-80">
-              <Calendar size={16} color="white" />
-              <Text className="text-white font-semibold ml-2 text-sm">RSVP</Text>
             </Pressable>
           </View>
         ))}
