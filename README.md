@@ -17,6 +17,39 @@ Centaur OS turns OKRs into work, tracks execution, enables review workflows, and
 
 ### Key Features
 
+- **Daily Engagement & Motivation** - Built to drive daily active usage with compelling features
+  - **Streak Tracking**: Track consecutive days of task completion with visual fire emoji indicator
+    - Shows current streak and personal best (longest streak)
+    - Tap to view detailed streak statistics
+    - Gamified motivation to maintain daily activity
+  - **Today's Focus Section**: Top 3 priority tasks displayed prominently on home screen
+    - Color-coded by priority (urgent, high, medium, low)
+    - Quick tap to navigate to full task details
+    - Shows function tags for context
+  - **Quick Win Counter**: Daily completion count with pending task counter
+    - Real-time updates as tasks are completed
+    - Visual reinforcement of daily progress
+  - **Recent Activity Feed**: Live feed of team activity (last 24 hours)
+    - Task completions with completion time ("5m ago", "2h ago")
+    - Task assignments to team members
+    - Review requests and approvals
+    - OKR updates with progress percentages
+    - Milestone achievements
+    - Color-coded by activity type with icons
+  - **Quick Action Buttons**: Prominent CTAs to "Complete Task" and "Update OKRs"
+    - Gradient blue button for primary action (complete tasks)
+    - Secondary button for OKR updates
+  - **Push Notifications** - Smart notification system to bring users back to the app
+    - **Task Assignments**: Get notified when someone assigns you a task (with priority indicator)
+    - **Task Completions**: Know when your team completes important tasks
+    - **Review Requests**: Immediate notification when someone needs your review
+    - **Review Approvals**: Celebrate when your work gets approved
+    - **OKR Updates**: Stay informed on strategic progress updates
+    - **Milestone Achievements**: Team-wide celebrations for major milestones
+    - **Daily Reminders**: Morning notification at 9 AM to check priority tasks
+    - **Weekly Digest**: Monday morning summary of last week's progress
+    - **Granular Settings**: Enable/disable specific notification types
+    - **Badge Counts**: Visual indicator of pending items on app icon
 - **Multi-Tenant Workspaces** - Users can belong to multiple workspaces with role-based access
 - **Role-Based Dashboards** - Customized views for Founders, Apprentices, and Fractional Execs
 - **Financial Dashboard (Founder-Only)** - Comprehensive financial tracking and budget management

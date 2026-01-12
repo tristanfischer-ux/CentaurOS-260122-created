@@ -8,6 +8,7 @@ import type { TaskStatus, TaskPriority, Function as TaskFunction, Task } from '@
 import { router } from 'expo-router';
 import { taskApi } from '@/lib/api/operations';
 import { useQueryClient } from '@tanstack/react-query';
+import { recordCompletion, addActivity } from '@/lib/engagement-tracking';
 
 export default function WorkScreen() {
   const currentWorkspace = useCurrentWorkspace();
@@ -85,7 +86,7 @@ export default function WorkScreen() {
   ];
 
   const handleStatusChange = async (newStatus: TaskStatus) => {
-    if (!selectedTask || !currentWorkspace) return;
+    if (!selectedTask || !currentWorkspace || !currentUser) return;
 
     try {
       await updateTaskMutation.mutateAsync({
@@ -93,6 +94,20 @@ export default function WorkScreen() {
         workspaceId: currentWorkspace.id,
         updates: { status: newStatus },
       });
+
+      // Track completion for streaks
+      if (newStatus === 'done') {
+        await recordCompletion();
+        await addActivity({
+          type: 'task_completed',
+          title: 'Task Completed',
+          description: selectedTask.title,
+          userId: currentUser.id,
+          userName: currentUser.name,
+          priority: selectedTask.priority,
+        });
+      }
+
       setShowEditModal(false);
       setSelectedTask(null);
     } catch (error) {
@@ -101,12 +116,24 @@ export default function WorkScreen() {
   };
 
   const handleRequestReview = async (taskId: string) => {
-    if (!currentWorkspace) return;
+    if (!currentWorkspace || !currentUser) return;
+
+    const task = tasks?.find(t => t.id === taskId);
+    if (!task) return;
 
     try {
       await requestReviewMutation.mutateAsync({
         taskId,
         workspaceId: currentWorkspace.id,
+      });
+
+      // Add to activity feed
+      await addActivity({
+        type: 'review_requested',
+        title: 'Review Requested',
+        description: task.title,
+        userId: currentUser.id,
+        userName: currentUser.name,
       });
     } catch (error) {
       console.error('Failed to request review:', error);

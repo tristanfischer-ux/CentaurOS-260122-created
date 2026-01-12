@@ -51,6 +51,8 @@ import {
   FINANCIAL_HISTORY,
   type BudgetTargets,
 } from "@/lib/financial-seed";
+import { EngagementSections } from "@/components/EngagementSections";
+import { useTasks } from "@/lib/hooks/queries";
 
 export default function HomeScreen() {
   // Home screen with dashboard
@@ -61,6 +63,7 @@ export default function HomeScreen() {
   const { data: stats, isLoading } = useDashboardStats(
     currentWorkspace?.id ?? null,
   );
+  const { data: tasks } = useTasks(currentWorkspace?.id ?? null);
 
   // Financial dashboard state
   const [showBudgetModal, setShowBudgetModal] = useState(false);
@@ -131,6 +134,13 @@ export default function HomeScreen() {
             </View>
           </Pressable>
         </View>
+
+        {/* Engagement Sections - Streak, Today's Focus, Activity Feed */}
+        <EngagementSections
+          role={role}
+          tasks={tasks || []}
+          userName={currentUser?.name}
+        />
 
         {/* KPI Tiles */}
         <View className="px-6 pb-4">
