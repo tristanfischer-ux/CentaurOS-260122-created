@@ -126,36 +126,39 @@ export default function AIAgentsScreen() {
                 key={agent.id}
                 onPress={() => setSelectedAgent(agent)}
                 className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-200 dark:border-slate-800 p-5 active:opacity-70"
+                style={{ minHeight: 220 }}
               >
-                {/* Header */}
-                <View className="flex-row items-start justify-between mb-3">
+                {/* Header - Fixed Height */}
+                <View className="flex-row items-start justify-between mb-3" style={{ height: 56 }}>
                   <View className="flex-row items-center gap-3 flex-1">
                     <View className={`${colors.bg} rounded-xl p-3`}>
                       <AgentIcon size={24} color={colors.hex} />
                     </View>
                     <View className="flex-1">
-                      <Text className="text-gray-900 dark:text-white font-bold text-lg mb-1">
+                      <Text className="text-gray-900 dark:text-white font-bold text-lg mb-1" numberOfLines={1}>
                         {agent.name}
                       </Text>
-                      <Text className={`${colors.text} text-xs font-semibold uppercase`}>
+                      <Text className={`${colors.text} text-xs font-semibold uppercase`} numberOfLines={1}>
                         {agent.category.replace('-', ' ')}
                       </Text>
                     </View>
                   </View>
                   {agent.approvalRequired && (
-                    <View className="bg-amber-500/20 rounded-lg px-2 py-1">
-                      <Text className="text-amber-400 text-xs font-semibold">Approval Required</Text>
+                    <View className="bg-amber-500/20 rounded-lg px-2 py-1" style={{ height: 24 }}>
+                      <Text className="text-amber-400 text-xs font-semibold">Approval</Text>
                     </View>
                   )}
                 </View>
 
-                {/* Description */}
-                <Text className="text-gray-600 dark:text-slate-400 text-sm mb-4 leading-5">
-                  {agent.description}
-                </Text>
+                {/* Description - Fixed Height */}
+                <View style={{ height: 60 }} className="mb-4">
+                  <Text className="text-gray-600 dark:text-slate-400 text-sm leading-5" numberOfLines={3}>
+                    {agent.description}
+                  </Text>
+                </View>
 
-                {/* Expertise Tags */}
-                <View className="flex-row flex-wrap gap-2 mb-4">
+                {/* Expertise Tags - Fixed Height */}
+                <View style={{ height: 28 }} className="flex-row flex-wrap gap-2 mb-4">
                   {agent.expertise.slice(0, 3).map((skill, idx) => (
                     <View key={idx} className="bg-gray-100 dark:bg-slate-800 rounded-lg px-3 py-1">
                       <Text className="text-gray-700 dark:text-slate-300 text-xs">{skill}</Text>
@@ -164,14 +167,14 @@ export default function AIAgentsScreen() {
                   {agent.expertise.length > 3 && (
                     <View className="bg-gray-100 dark:bg-slate-800 rounded-lg px-3 py-1">
                       <Text className="text-gray-700 dark:text-slate-300 text-xs">
-                        +{agent.expertise.length - 3} more
+                        +{agent.expertise.length - 3}
                       </Text>
                     </View>
                   )}
                 </View>
 
-                {/* Footer */}
-                <View className="flex-row items-center justify-between pt-3 border-t border-gray-200 dark:border-slate-800">
+                {/* Footer - Fixed Height */}
+                <View className="flex-row items-center justify-between pt-3 border-t border-gray-200 dark:border-slate-800" style={{ height: 48 }}>
                   <View className="flex-row items-center gap-2">
                     <DollarSign size={14} color="#94a3b8" />
                     <Text className="text-gray-600 dark:text-slate-400 text-xs">
