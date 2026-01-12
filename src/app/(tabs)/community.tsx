@@ -21,7 +21,7 @@ import { fractionalExecutives, apprentices, type Candidate } from '@/lib/candida
 import MapView, { Marker, PROVIDER_DEFAULT } from 'react-native-maps';
 import { TabDescription } from '@/components/TabDescription';
 
-type CommunityTab = 'events' | 'hiring';
+type CommunityTab = 'executives' | 'apprentices' | 'events';
 
 // Demo Events Data (from old events tab)
 const DEMO_EVENTS = [
@@ -73,15 +73,18 @@ const DEMO_EVENTS = [
 ];
 
 export default function CommunityScreen() {
-  const [activeTab, setActiveTab] = useState<CommunityTab>('events');
+  const [activeTab, setActiveTab] = useState<CommunityTab>('executives');
   const [selectedEvent, setSelectedEvent] = useState<typeof DEMO_EVENTS[0] | null>(null);
   const [selectedCandidate, setSelectedCandidate] = useState<Candidate | null>(null);
   const [showMap, setShowMap] = useState(false);
   const [showCreateEventModal, setShowCreateEventModal] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedFunction, setSelectedFunction] = useState<string>('all');
 
   const tabs: { value: CommunityTab; label: string; icon: any }[] = [
+    { value: 'executives', label: 'Executives', icon: Briefcase },
+    { value: 'apprentices', label: 'Apprentices', icon: Award },
     { value: 'events', label: 'Events', icon: Calendar },
-    { value: 'hiring', label: 'Hiring', icon: Award },
   ];
 
   return (
@@ -189,39 +192,33 @@ export default function CommunityScreen() {
           </View>
         )}
 
-        {/* Hiring Tab */}
-        {activeTab === 'hiring' && (
+        {/* Executives Tab */}
+        {activeTab === 'executives' && (
           <View className="px-6 pb-6">
-            <Pressable
-              onPress={() => router.push('/swipe')}
-              className="mb-4 active:opacity-70"
-            >
-              <LinearGradient
-                colors={['#ec4899', '#db2777']}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 0 }}
-                style={{
-                  borderRadius: 16,
-                  padding: 16,
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: 8,
-                }}
+            <View className="flex-row items-center justify-between mb-4">
+              <Text className="text-gray-900 dark:text-white text-lg font-semibold">
+                Fractional Executives ({fractionalExecutives.length})
+              </Text>
+              <Pressable
+                onPress={() => router.push('/swipe')}
+                className="bg-purple-500 px-4 py-2 rounded-xl active:opacity-70"
               >
-                <Heart size={20} color="#fff" />
-                <Text className="text-white font-bold text-base">
-                  Swipe to Hire
-                </Text>
-              </LinearGradient>
-            </Pressable>
+                <Text className="text-white text-sm font-semibold">Swipe Mode</Text>
+              </Pressable>
+            </View>
 
-            {/* Fractional Executives */}
-            <Text className="text-gray-900 dark:text-white text-base font-semibold mb-3">
-              Fractional Executives ({fractionalExecutives.length})
-            </Text>
+            {/* Search Bar */}
+            <View className="mb-4">
+              <TextInput
+                value={searchQuery}
+                onChangeText={setSearchQuery}
+                placeholder="Search by name or skills..."
+                placeholderTextColor="#94a3b8"
+                className="bg-gray-100 dark:bg-slate-900 border border-gray-300 dark:border-slate-800 rounded-xl px-4 py-3 text-gray-900 dark:text-white"
+              />
+            </View>
 
-            {fractionalExecutives.slice(0, 3).map((exec) => (
+            {fractionalExecutives.map((exec) => (
               <Pressable
                 key={exec.id}
                 onPress={() => setSelectedCandidate(exec)}
@@ -264,13 +261,36 @@ export default function CommunityScreen() {
                 </View>
               </Pressable>
             ))}
+          </View>
+        )}
 
-            {/* Apprentices */}
-            <Text className="text-gray-900 dark:text-white text-base font-semibold mb-3 mt-4">
-              Apprentices ({apprentices.length})
-            </Text>
+        {/* Apprentices Tab */}
+        {activeTab === 'apprentices' && (
+          <View className="px-6 pb-6">
+            <View className="flex-row items-center justify-between mb-4">
+              <Text className="text-gray-900 dark:text-white text-lg font-semibold">
+                Apprentices ({apprentices.length})
+              </Text>
+              <Pressable
+                onPress={() => router.push('/swipe')}
+                className="bg-emerald-500 px-4 py-2 rounded-xl active:opacity-70"
+              >
+                <Text className="text-white text-sm font-semibold">Swipe Mode</Text>
+              </Pressable>
+            </View>
 
-            {apprentices.slice(0, 3).map((apprentice) => (
+            {/* Search Bar */}
+            <View className="mb-4">
+              <TextInput
+                value={searchQuery}
+                onChangeText={setSearchQuery}
+                placeholder="Search by name or skills..."
+                placeholderTextColor="#94a3b8"
+                className="bg-gray-100 dark:bg-slate-900 border border-gray-300 dark:border-slate-800 rounded-xl px-4 py-3 text-gray-900 dark:text-white"
+              />
+            </View>
+
+            {apprentices.map((apprentice) => (
               <Pressable
                 key={apprentice.id}
                 onPress={() => setSelectedCandidate(apprentice)}
@@ -308,18 +328,11 @@ export default function CommunityScreen() {
                     </Text>
                   </View>
                   <Text className="text-gray-600 dark:text-slate-400 text-xs">
-                    Full-time
+                    {apprentice.availability}
                   </Text>
                 </View>
               </Pressable>
             ))}
-
-            <Pressable
-              onPress={() => router.push('/swipe')}
-              className="bg-gray-100 dark:bg-slate-900 border border-gray-300 dark:border-slate-800 rounded-xl p-4 items-center active:opacity-70"
-            >
-              <Text className="text-blue-400 font-semibold">View All Candidates</Text>
-            </Pressable>
           </View>
         )}
       </ScrollView>
