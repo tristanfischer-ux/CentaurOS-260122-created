@@ -111,7 +111,7 @@ export default function SignUpScreen() {
               <View className="w-20 h-20 bg-blue-500 rounded-2xl items-center justify-center mb-6">
                 <Building2 size={40} color="white" />
               </View>
-              <Text className="text-4xl font-bold text-white mb-2">Create Account</Text>
+              <Text className="text-4xl font-bold text-gray-900 dark:text-white mb-2">Create Account</Text>
               <Text className="text-gray-600 dark:text-slate-400 text-center text-base">
                 Start managing your lean startup today
               </Text>
@@ -192,7 +192,7 @@ export default function SignUpScreen() {
                   <ActivityIndicator color="white" />
                 ) : (
                   <>
-                    <Text className="text-white font-semibold text-base mr-2">Create Account</Text>
+                    <Text className="text-gray-900 dark:text-white font-semibold text-base mr-2">Create Account</Text>
                     <ArrowRight size={20} color="white" />
                   </>
                 )}

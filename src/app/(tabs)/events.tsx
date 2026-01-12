@@ -558,7 +558,7 @@ export default function EventsScreen() {
                     </View>
                     <View>
                       <Text className="text-gray-600 dark:text-slate-400 text-xs">Hosted by</Text>
-                      <Text className="text-white font-semibold">{selectedEvent.hostName}</Text>
+                      <Text className="text-gray-900 dark:text-white font-semibold">{selectedEvent.hostName}</Text>
                       <Text className="text-gray-600 dark:text-slate-400 text-xs">{selectedEvent.hostRole}</Text>
                     </View>
                   </View>
@@ -576,7 +576,7 @@ export default function EventsScreen() {
                   <View className="bg-slate-800 rounded-xl p-4 mb-4">
                     <View className="flex-row items-center mb-3">
                       <Calendar size={20} color="#3b82f6" />
-                      <Text className="text-white font-semibold ml-3">Date & Time</Text>
+                      <Text className="text-gray-900 dark:text-white font-semibold ml-3">Date & Time</Text>
                     </View>
                     <Text className="text-slate-300">{formatDate(selectedEvent.startTime)}</Text>
                     <Text className="text-slate-300">
@@ -592,7 +592,7 @@ export default function EventsScreen() {
                       ) : (
                         <MapPin size={20} color="#3b82f6" />
                       )}
-                      <Text className="text-white font-semibold ml-3">Location</Text>
+                      <Text className="text-gray-900 dark:text-white font-semibold ml-3">Location</Text>
                     </View>
                     {selectedEvent.location.type === 'virtual' && (
                       <View>
@@ -695,7 +695,7 @@ export default function EventsScreen() {
                   {/* Who can attend */}
                   <View className="bg-slate-800 rounded-xl p-4 mb-4">
                     <Text className="text-gray-600 dark:text-slate-400 text-xs mb-1">Who can attend</Text>
-                    <Text className="text-white font-semibold capitalize">
+                    <Text className="text-gray-900 dark:text-white font-semibold capitalize">
                       {selectedEvent.attendeeFor === 'all' ? 'Everyone' : selectedEvent.attendeeFor}
                     </Text>
                   </View>
@@ -705,7 +705,7 @@ export default function EventsScreen() {
                     <View className="bg-slate-800 rounded-xl p-4 mb-6">
                       <View className="flex-row items-center mb-3">
                         <UserPlus size={16} color="#3b82f6" />
-                        <Text className="text-white font-semibold ml-2">Invited Team Members</Text>
+                        <Text className="text-gray-900 dark:text-white font-semibold ml-2">Invited Team Members</Text>
                         <View className="ml-auto bg-blue-500/20 px-2 py-1 rounded-full">
                           <Text className="text-blue-400 text-xs font-medium">
                             {selectedEvent.invitedMembers.length}
@@ -774,7 +774,7 @@ export default function EventsScreen() {
                     ) : (
                       <>
                         <Plus size={20} color="white" />
-                        <Text className="text-white font-bold text-base ml-2">Join Event</Text>
+                        <Text className="text-gray-900 dark:text-white font-bold text-base ml-2">Join Event</Text>
                       </>
                     )}
                   </Pressable>
@@ -805,11 +805,11 @@ export default function EventsScreen() {
                 <View className="bg-slate-800 rounded-xl p-4 mb-4">
                   <View className="flex-row justify-between mb-2">
                     <Text className="text-gray-600 dark:text-slate-400 text-sm">Role:</Text>
-                    <Text className="text-white font-semibold">{selectedMemberFromEvent.role}</Text>
+                    <Text className="text-gray-900 dark:text-white font-semibold">{selectedMemberFromEvent.role}</Text>
                   </View>
                   <View className="flex-row justify-between mb-2">
                     <Text className="text-gray-600 dark:text-slate-400 text-sm">Function:</Text>
-                    <Text className="text-white font-semibold">{selectedMemberFromEvent.function}</Text>
+                    <Text className="text-gray-900 dark:text-white font-semibold">{selectedMemberFromEvent.function}</Text>
                   </View>
                   {selectedMemberFromEvent.costPerDay && (
                     <View className="flex-row justify-between">
@@ -827,7 +827,7 @@ export default function EventsScreen() {
                     className="bg-blue-500 py-3 rounded-xl flex-row items-center justify-center gap-2 active:opacity-70"
                   >
                     <Mail size={18} color="#fff" />
-                    <Text className="text-white font-semibold">Email</Text>
+                    <Text className="text-gray-900 dark:text-white font-semibold">Email</Text>
                   </Pressable>
                   {selectedMemberFromEvent.phone && (
                     <Pressable
@@ -835,7 +835,7 @@ export default function EventsScreen() {
                       className="bg-emerald-500 py-3 rounded-xl flex-row items-center justify-center gap-2 active:opacity-70"
                     >
                       <Phone size={18} color="#fff" />
-                      <Text className="text-white font-semibold">Call</Text>
+                      <Text className="text-gray-900 dark:text-white font-semibold">Call</Text>
                     </Pressable>
                   )}
                 </View>
@@ -867,7 +867,7 @@ export default function EventsScreen() {
                     onChangeText={setNewEventTitle}
                     placeholder="e.g., Hardware Networking Meetup"
                     placeholderTextColor="#64748b"
-                    className="bg-slate-800 text-white px-4 py-3 rounded-xl border border-slate-700"
+                    className="bg-slate-800 text-gray-900 dark:text-white px-4 py-3 rounded-xl border border-slate-700"
                   />
                 </View>
 
@@ -881,7 +881,7 @@ export default function EventsScreen() {
                     placeholderTextColor="#64748b"
                     multiline
                     numberOfLines={4}
-                    className="bg-slate-800 text-white px-4 py-3 rounded-xl border border-slate-700"
+                    className="bg-slate-800 text-gray-900 dark:text-white px-4 py-3 rounded-xl border border-slate-700"
                     style={{ minHeight: 100, textAlignVertical: 'top' }}
                   />
                 </View>
@@ -946,7 +946,7 @@ export default function EventsScreen() {
                         onChangeText={setNewEventVenue}
                         placeholder="e.g., Hardware Hub London"
                         placeholderTextColor="#64748b"
-                        className="bg-slate-800 text-white px-4 py-3 rounded-xl border border-slate-700"
+                        className="bg-slate-800 text-gray-900 dark:text-white px-4 py-3 rounded-xl border border-slate-700"
                       />
                     </View>
                     <View className="mb-4">
@@ -956,7 +956,7 @@ export default function EventsScreen() {
                         onChangeText={setNewEventAddress}
                         placeholder="Full address"
                         placeholderTextColor="#64748b"
-                        className="bg-slate-800 text-white px-4 py-3 rounded-xl border border-slate-700"
+                        className="bg-slate-800 text-gray-900 dark:text-white px-4 py-3 rounded-xl border border-slate-700"
                       />
                     </View>
                   </>
@@ -971,7 +971,7 @@ export default function EventsScreen() {
                       onChangeText={setNewEventVirtualLink}
                       placeholder="Zoom, Teams, or Meet link"
                       placeholderTextColor="#64748b"
-                      className="bg-slate-800 text-white px-4 py-3 rounded-xl border border-slate-700"
+                      className="bg-slate-800 text-gray-900 dark:text-white px-4 py-3 rounded-xl border border-slate-700"
                     />
                   </View>
                 )}
@@ -983,7 +983,7 @@ export default function EventsScreen() {
                     onPress={() => setShowStartDatePicker(true)}
                     className="bg-slate-800 px-4 py-3 rounded-xl border border-slate-700"
                   >
-                    <Text className="text-white">
+                    <Text className="text-gray-900 dark:text-white">
                       {newEventStartDate.toLocaleString('en-GB', {
                         weekday: 'short',
                         day: 'numeric',
@@ -1021,7 +1021,7 @@ export default function EventsScreen() {
                     onPress={() => setShowEndDatePicker(true)}
                     className="bg-slate-800 px-4 py-3 rounded-xl border border-slate-700"
                   >
-                    <Text className="text-white">
+                    <Text className="text-gray-900 dark:text-white">
                       {newEventEndDate.toLocaleString('en-GB', {
                         weekday: 'short',
                         day: 'numeric',
@@ -1079,7 +1079,7 @@ export default function EventsScreen() {
                     placeholder="0 for free events"
                     placeholderTextColor="#64748b"
                     keyboardType="numeric"
-                    className="bg-slate-800 text-white px-4 py-3 rounded-xl border border-slate-700"
+                    className="bg-slate-800 text-gray-900 dark:text-white px-4 py-3 rounded-xl border border-slate-700"
                   />
                 </View>
 
@@ -1092,7 +1092,7 @@ export default function EventsScreen() {
                     placeholder="Leave empty for unlimited"
                     placeholderTextColor="#64748b"
                     keyboardType="numeric"
-                    className="bg-slate-800 text-white px-4 py-3 rounded-xl border border-slate-700"
+                    className="bg-slate-800 text-gray-900 dark:text-white px-4 py-3 rounded-xl border border-slate-700"
                   />
                 </View>
 
@@ -1140,7 +1140,7 @@ export default function EventsScreen() {
                               </Text>
                             </View>
                             <View className="flex-1 ml-3">
-                              <Text className="text-white font-medium text-sm">{member.name}</Text>
+                              <Text className="text-gray-900 dark:text-white font-medium text-sm">{member.name}</Text>
                               <Text className="text-gray-600 dark:text-slate-400 text-xs">{member.role}</Text>
                             </View>
                             {isSelected && (

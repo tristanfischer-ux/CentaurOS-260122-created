@@ -76,7 +76,7 @@ export default function SignInScreen() {
             <View className="w-20 h-20 bg-blue-500 rounded-2xl items-center justify-center mb-6">
               <Building2 size={40} color="white" />
             </View>
-            <Text className="text-4xl font-bold text-white mb-2">Centaur OS</Text>
+            <Text className="text-4xl font-bold text-gray-900 dark:text-white mb-2">Centaur OS</Text>
             <Text className="text-gray-600 dark:text-slate-400 text-center text-base">
               The operating system for lean hardware startups
             </Text>
@@ -117,7 +117,7 @@ export default function SignInScreen() {
                 <ActivityIndicator color="white" />
               ) : (
                 <>
-                  <Text className="text-white font-semibold text-base mr-2">Continue</Text>
+                  <Text className="text-gray-900 dark:text-white font-semibold text-base mr-2">Continue</Text>
                   <ArrowRight size={20} color="white" />
                 </>
               )}
@@ -133,7 +133,7 @@ export default function SignInScreen() {
                 disabled={isLoading}
                 className="bg-slate-800/30 border border-slate-700 rounded-xl p-4 active:opacity-80"
               >
-                <Text className="text-white font-medium mb-1">Founder (Sarah Chen)</Text>
+                <Text className="text-gray-900 dark:text-white font-medium mb-1">Founder (Sarah Chen)</Text>
                 <Text className="text-gray-600 dark:text-slate-400 text-xs">founder@fractional.com</Text>
               </Pressable>
 
@@ -142,7 +142,7 @@ export default function SignInScreen() {
                 disabled={isLoading}
                 className="bg-slate-800/30 border border-slate-700 rounded-xl p-4 active:opacity-80"
               >
-                <Text className="text-white font-medium mb-1">Apprentice (Alex Rivera)</Text>
+                <Text className="text-gray-900 dark:text-white font-medium mb-1">Apprentice (Alex Rivera)</Text>
                 <Text className="text-gray-600 dark:text-slate-400 text-xs">apprentice@fractional.com</Text>
               </Pressable>
 
@@ -151,7 +151,7 @@ export default function SignInScreen() {
                 disabled={isLoading}
                 className="bg-slate-800/30 border border-slate-700 rounded-xl p-4 active:opacity-80"
               >
-                <Text className="text-white font-medium mb-1">Fractional Exec (Jordan Martinez)</Text>
+                <Text className="text-gray-900 dark:text-white font-medium mb-1">Fractional Exec (Jordan Martinez)</Text>
                 <Text className="text-gray-600 dark:text-slate-400 text-xs">exec@fractional.com</Text>
               </Pressable>
             </View>

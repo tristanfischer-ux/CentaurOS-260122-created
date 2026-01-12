@@ -111,10 +111,10 @@ export default function FunctionHubScreen() {
                         <View className="w-16 h-16 bg-white/10 rounded-full items-center justify-center mb-3 border-2 border-white/20">
                           <Text className="text-3xl">{getIconEmoji(profile.icon)}</Text>
                         </View>
-                        <Text className="text-white font-bold text-base text-center mb-1">
+                        <Text className="text-gray-900 dark:text-white font-bold text-base text-center mb-1">
                           {profile.title}
                         </Text>
-                        <Text className="text-white/70 text-xs text-center" numberOfLines={2}>
+                        <Text className="text-gray-900 dark:text-white/70 text-xs text-center" numberOfLines={2}>
                           {profile.description.split('.')[0]}
                         </Text>
                       </View>
@@ -148,7 +148,7 @@ export default function FunctionHubScreen() {
             </Pressable>
             <Text className="text-gray-900 dark:text-white text-2xl font-bold flex-1">{currentProfile.title}</Text>
           </View>
-          <Text className="text-white/80 text-sm mb-4">{currentProfile.description}</Text>
+          <Text className="text-gray-900 dark:text-white/80 text-sm mb-4">{currentProfile.description}</Text>
 
           {/* Search */}
           <View className="bg-white/10 rounded-xl px-4 py-3 flex-row items-center backdrop-blur">
@@ -158,7 +158,7 @@ export default function FunctionHubScreen() {
               onChangeText={setSearchQuery}
               placeholder="Search resources..."
               placeholderTextColor="#ffffff80"
-              className="flex-1 ml-3 text-white"
+              className="flex-1 ml-3 text-gray-900 dark:text-white"
             />
           </View>
         </LinearGradient>
@@ -263,7 +263,7 @@ export default function FunctionHubScreen() {
               <View className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-6 mb-4 border border-slate-800">
                 <View className="flex-row items-center mb-4">
                   <Lightbulb size={24} color={currentProfile.color} />
-                  <Text className="text-white font-bold text-lg ml-3">Advice for {role}s</Text>
+                  <Text className="text-gray-900 dark:text-white font-bold text-lg ml-3">Advice for {role}s</Text>
                 </View>
                 {getAdviceForRole(currentProfile, role).map((advice, index) => (
                   <View key={index} className="flex-row mb-3">
@@ -275,7 +275,7 @@ export default function FunctionHubScreen() {
 
               {/* Key Responsibilities */}
               <View className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-6 mb-4 border border-slate-800">
-                <Text className="text-white font-bold text-lg mb-4">Key Responsibilities</Text>
+                <Text className="text-gray-900 dark:text-white font-bold text-lg mb-4">Key Responsibilities</Text>
                 {currentProfile.keyResponsibilities.map((resp, index) => (
                   <View key={index} className="flex-row mb-3">
                     <View className="w-2 h-2 rounded-full bg-green-500 mt-2 mr-3" />
@@ -286,7 +286,7 @@ export default function FunctionHubScreen() {
 
               {/* Common Challenges */}
               <View className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-6 mb-4 border border-slate-800">
-                <Text className="text-white font-bold text-lg mb-4">Common Challenges</Text>
+                <Text className="text-gray-900 dark:text-white font-bold text-lg mb-4">Common Challenges</Text>
                 {currentProfile.commonChallenges.map((challenge, index) => (
                   <View key={index} className="flex-row mb-3">
                     <View className="w-2 h-2 rounded-full bg-amber-500 mt-2 mr-3" />
@@ -297,7 +297,7 @@ export default function FunctionHubScreen() {
 
               {/* Success Metrics */}
               <View className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-6 mb-4 border border-slate-800">
-                <Text className="text-white font-bold text-lg mb-4">Success Metrics</Text>
+                <Text className="text-gray-900 dark:text-white font-bold text-lg mb-4">Success Metrics</Text>
                 {currentProfile.successMetrics.map((metric, index) => (
                   <View key={index} className="flex-row mb-3">
                     <View className="w-2 h-2 rounded-full bg-purple-500 mt-2 mr-3" />
@@ -313,7 +313,7 @@ export default function FunctionHubScreen() {
               <View className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-6 mb-4 border border-slate-800">
                 <View className="flex-row items-center mb-4">
                   <Target size={24} color={currentProfile.color} />
-                  <Text className="text-white font-bold text-lg ml-3">Suggested OKRs</Text>
+                  <Text className="text-gray-900 dark:text-white font-bold text-lg ml-3">Suggested OKRs</Text>
                 </View>
                 <Text className="text-gray-600 dark:text-slate-400 mb-6">
                   These are example OKRs for the {currentProfile.title} function. Adapt them to your specific context.
@@ -322,7 +322,7 @@ export default function FunctionHubScreen() {
                 {currentProfile.suggestedOKRs.map((okr, index) => (
                   <View key={index} className="mb-6 last:mb-0">
                     <View className="bg-slate-800 rounded-xl p-4 mb-3">
-                      <Text className="text-white font-bold text-base mb-2">{okr.objective}</Text>
+                      <Text className="text-gray-900 dark:text-white font-bold text-base mb-2">{okr.objective}</Text>
                       <Text className="text-gray-600 dark:text-slate-400 text-sm italic mb-3">{okr.rationale}</Text>
 
                       <Text className="text-slate-300 font-semibold text-sm mb-2">Key Results:</Text>
@@ -362,7 +362,7 @@ function ResourceSection({
     <View className="mb-8">
       <View className="flex-row items-center mb-4">
         <Icon size={20} color={color} />
-        <Text className="text-white font-bold text-lg ml-2">{title}</Text>
+        <Text className="text-gray-900 dark:text-white font-bold text-lg ml-2">{title}</Text>
         <View className="ml-2 bg-slate-800 rounded-full px-2 py-0.5">
           <Text className="text-gray-600 dark:text-slate-400 text-xs">{resources.length}</Text>
         </View>
@@ -376,7 +376,7 @@ function ResourceSection({
           <View className="flex-row items-start">
             <View className="flex-1">
               <View className="flex-row items-center mb-1">
-                <Text className="text-white font-semibold text-base flex-1">{resource.title}</Text>
+                <Text className="text-gray-900 dark:text-white font-semibold text-base flex-1">{resource.title}</Text>
                 {resource.url && <ExternalLink size={16} color="#64748b" />}
               </View>
               <Text className="text-gray-600 dark:text-slate-400 text-sm mb-2">{resource.description}</Text>

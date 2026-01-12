@@ -92,7 +92,7 @@ export function TimeTrackingModal({ visible, task, onClose }: TimeTrackingModalP
           {/* Header */}
           <View className="flex-row items-center justify-between px-6 py-4 border-b border-gray-800">
             <View className="flex-1">
-              <Text className="text-white text-lg font-semibold">Time Tracking</Text>
+              <Text className="text-gray-900 dark:text-white text-lg font-semibold">Time Tracking</Text>
               <Text className="text-gray-400 text-sm" numberOfLines={1}>
                 {task.title}
               </Text>
@@ -109,12 +109,12 @@ export function TimeTrackingModal({ visible, task, onClose }: TimeTrackingModalP
                 <Clock size={20} color="#3B82F6" />
                 <Text className="text-blue-400 text-sm font-medium ml-2">Total Hours</Text>
               </View>
-              <Text className="text-white text-3xl font-bold mt-1">{totalHours.toFixed(1)}h</Text>
+              <Text className="text-gray-900 dark:text-white text-3xl font-bold mt-1">{totalHours.toFixed(1)}h</Text>
             </View>
 
             {/* Log Time Form */}
             <View className="bg-gray-800/50 border border-gray-700 rounded-xl p-4 mb-6">
-              <Text className="text-white text-base font-semibold mb-3">Log Time</Text>
+              <Text className="text-gray-900 dark:text-white text-base font-semibold mb-3">Log Time</Text>
 
               {/* Hours Input */}
               <View className="mb-3">
@@ -125,7 +125,7 @@ export function TimeTrackingModal({ visible, task, onClose }: TimeTrackingModalP
                   placeholder="e.g., 2.5"
                   placeholderTextColor="#6B7280"
                   keyboardType="decimal-pad"
-                  className="bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-white"
+                  className="bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-gray-900 dark:text-white"
                 />
               </View>
 
@@ -139,7 +139,7 @@ export function TimeTrackingModal({ visible, task, onClose }: TimeTrackingModalP
                     onChangeText={setDate}
                     placeholder="YYYY-MM-DD"
                     placeholderTextColor="#6B7280"
-                    className="flex-1 ml-2 text-white"
+                    className="flex-1 ml-2 text-gray-900 dark:text-white"
                   />
                 </View>
               </View>
@@ -154,7 +154,7 @@ export function TimeTrackingModal({ visible, task, onClose }: TimeTrackingModalP
                   placeholderTextColor="#6B7280"
                   multiline
                   numberOfLines={2}
-                  className="bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-white"
+                  className="bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-gray-900 dark:text-white"
                 />
               </View>
 
@@ -166,7 +166,7 @@ export function TimeTrackingModal({ visible, task, onClose }: TimeTrackingModalP
                   logTimeMutation.isPending || !hours ? 'bg-gray-700' : 'bg-blue-600'
                 }`}
               >
-                <Text className="text-white text-center font-semibold">
+                <Text className="text-gray-900 dark:text-white text-center font-semibold">
                   {logTimeMutation.isPending ? 'Logging...' : 'Log Time'}
                 </Text>
               </Pressable>
@@ -175,7 +175,7 @@ export function TimeTrackingModal({ visible, task, onClose }: TimeTrackingModalP
             {/* Time Entries List */}
             {timeEntries.length > 0 && (
               <View>
-                <Text className="text-white text-base font-semibold mb-3">Time Log</Text>
+                <Text className="text-gray-900 dark:text-white text-base font-semibold mb-3">Time Log</Text>
                 {timeEntries.map((entry) => (
                   <View
                     key={entry.id}
@@ -183,7 +183,7 @@ export function TimeTrackingModal({ visible, task, onClose }: TimeTrackingModalP
                   >
                     <View className="flex-row items-center justify-between">
                       <View className="flex-1">
-                        <Text className="text-white text-base font-medium">
+                        <Text className="text-gray-900 dark:text-white text-base font-medium">
                           {entry.hours}h
                         </Text>
                         <Text className="text-gray-400 text-sm">

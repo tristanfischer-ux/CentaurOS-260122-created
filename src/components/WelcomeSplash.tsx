@@ -156,7 +156,7 @@ export function WelcomeSplash({ onComplete }: WelcomeSplashProps) {
           </Animated.View>
 
           {/* Welcome Text */}
-          <Text className="text-white text-3xl font-bold mb-2 text-center">
+          <Text className="text-gray-900 dark:text-white text-3xl font-bold mb-2 text-center">
             Welcome to Centaur OS
           </Text>
           <Text className="text-slate-300 text-base mb-12 text-center">

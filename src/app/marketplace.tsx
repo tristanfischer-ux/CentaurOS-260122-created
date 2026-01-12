@@ -60,7 +60,7 @@ export default function MarketplaceScreen() {
             }}
           >
             <Heart size={20} color="#fff" fill="#fff" />
-            <Text className="text-white font-bold text-base">
+            <Text className="text-gray-900 dark:text-white font-bold text-base">
               Swipe to Discover
             </Text>
             <TrendingUp size={20} color="#fff" />

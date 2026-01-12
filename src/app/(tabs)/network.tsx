@@ -221,7 +221,7 @@ function SuppliersTab() {
         <View className="bg-gray-100 dark:bg-slate-900 rounded-xl flex-row items-center px-4 py-3 border border-slate-800">
           <Search size={20} color="#64748b" />
           <TextInput
-            className="flex-1 text-white ml-3 text-base"
+            className="flex-1 text-gray-900 dark:text-white ml-3 text-base"
             placeholder="Search suppliers, capabilities, or location..."
             placeholderTextColor="#64748b"
             value={searchQuery}
@@ -336,7 +336,7 @@ function SuppliersTab() {
                 className="flex-row items-center justify-center bg-blue-500 rounded-xl py-2.5 active:opacity-70"
               >
                 <ExternalLink size={16} color="white" />
-                <Text className="text-white font-semibold ml-2 text-sm">Visit Website</Text>
+                <Text className="text-gray-900 dark:text-white font-semibold ml-2 text-sm">Visit Website</Text>
               </Pressable>
             </View>
           ))
@@ -402,7 +402,7 @@ function CompaniesTab() {
               </View>
 
               <View className="flex-row items-center justify-center bg-slate-800 rounded-xl py-2.5 border border-slate-700">
-                <Text className="text-white font-semibold text-sm">View Details</Text>
+                <Text className="text-gray-900 dark:text-white font-semibold text-sm">View Details</Text>
                 <ChevronRight size={16} color="white" className="ml-1" />
               </View>
             </Pressable>
@@ -426,7 +426,7 @@ function CompaniesTab() {
                 <View className="bg-slate-800 rounded-xl p-4 mb-4">
                   <View className="flex-row justify-between mb-2">
                     <Text className="text-gray-600 dark:text-slate-400 text-sm">Industry:</Text>
-                    <Text className="text-white font-semibold">{selectedCompany.industry}</Text>
+                    <Text className="text-gray-900 dark:text-white font-semibold">{selectedCompany.industry}</Text>
                   </View>
                   <View className="flex-row justify-between mb-2">
                     <Text className="text-gray-600 dark:text-slate-400 text-sm">Stage:</Text>
@@ -434,7 +434,7 @@ function CompaniesTab() {
                   </View>
                   <View className="flex-row justify-between">
                     <Text className="text-gray-600 dark:text-slate-400 text-sm">Location:</Text>
-                    <Text className="text-white font-semibold">{selectedCompany.location}</Text>
+                    <Text className="text-gray-900 dark:text-white font-semibold">{selectedCompany.location}</Text>
                   </View>
                 </View>
 
@@ -454,7 +454,7 @@ function CompaniesTab() {
                   </View>
                 </View>
 
-                <Text className="text-white font-semibold mb-3">Contact</Text>
+                <Text className="text-gray-900 dark:text-white font-semibold mb-3">Contact</Text>
 
                 <View className="gap-3">
                   <Pressable
@@ -462,21 +462,21 @@ function CompaniesTab() {
                     className="bg-blue-500 py-3 rounded-xl flex-row items-center justify-center gap-2 active:opacity-70"
                   >
                     <Globe size={18} color="#fff" />
-                    <Text className="text-white font-semibold">Visit Website</Text>
+                    <Text className="text-gray-900 dark:text-white font-semibold">Visit Website</Text>
                   </Pressable>
                   <Pressable
                     onPress={() => Linking.openURL(`mailto:${selectedCompany.email}`)}
                     className="bg-slate-800 py-3 rounded-xl flex-row items-center justify-center gap-2 border border-slate-700 active:opacity-70"
                   >
                     <Mail size={18} color="#fff" />
-                    <Text className="text-white font-semibold">Send Email</Text>
+                    <Text className="text-gray-900 dark:text-white font-semibold">Send Email</Text>
                   </Pressable>
                   <Pressable
                     onPress={() => Linking.openURL(`tel:${selectedCompany.phone}`)}
                     className="bg-slate-800 py-3 rounded-xl flex-row items-center justify-center gap-2 border border-slate-700 active:opacity-70"
                   >
                     <Phone size={18} color="#fff" />
-                    <Text className="text-white font-semibold">Call</Text>
+                    <Text className="text-gray-900 dark:text-white font-semibold">Call</Text>
                   </Pressable>
                 </View>
               </ScrollView>
@@ -560,7 +560,7 @@ function HiringTab() {
         <View className="bg-gray-100 dark:bg-slate-900 rounded-xl flex-row items-center px-4 py-3 border border-slate-800">
           <Search size={20} color="#64748b" />
           <TextInput
-            className="flex-1 text-white ml-3 text-base"
+            className="flex-1 text-gray-900 dark:text-white ml-3 text-base"
             placeholder="Search by name or skills..."
             placeholderTextColor="#64748b"
             value={searchQuery}
@@ -632,7 +632,7 @@ function HiringTab() {
               {/* Info */}
               <View className="flex-1">
                 <View className="flex-row items-center justify-between mb-1">
-                  <Text className="text-white font-bold text-base">{candidate.name}</Text>
+                  <Text className="text-gray-900 dark:text-white font-bold text-base">{candidate.name}</Text>
                   <View className="flex-row items-center">
                     <Star size={14} color="#f59e0b" fill="#f59e0b" />
                     <Text className="text-slate-300 text-sm ml-1">{candidate.rating}</Text>
@@ -721,7 +721,7 @@ function HiringTab() {
                   <View className="flex-row gap-3 mb-6">
                     <View className="flex-1 bg-slate-800 rounded-xl p-3">
                       <Text className="text-gray-600 dark:text-slate-400 text-xs mb-1">Experience</Text>
-                      <Text className="text-white font-bold">{selectedCandidate.experience} years</Text>
+                      <Text className="text-gray-900 dark:text-white font-bold">{selectedCandidate.experience} years</Text>
                     </View>
                     <View className="flex-1 bg-slate-800 rounded-xl p-3">
                       <Text className="text-gray-600 dark:text-slate-400 text-xs mb-1">Daily Rate</Text>
@@ -737,7 +737,7 @@ function HiringTab() {
 
                   {/* Contact Info */}
                   <View className="mb-6">
-                    <Text className="text-white font-semibold mb-3">Contact Information</Text>
+                    <Text className="text-gray-900 dark:text-white font-semibold mb-3">Contact Information</Text>
 
                     <Pressable
                       onPress={() => handleEmailPress(selectedCandidate.email)}
@@ -778,7 +778,7 @@ function HiringTab() {
 
                   {/* Bio */}
                   <View className="mb-6">
-                    <Text className="text-white font-semibold mb-2">About</Text>
+                    <Text className="text-gray-900 dark:text-white font-semibold mb-2">About</Text>
                     <Text className="text-slate-300 text-sm leading-5">
                       {selectedCandidate.bio}
                     </Text>
@@ -787,7 +787,7 @@ function HiringTab() {
                   {/* Education */}
                   {selectedCandidate.education && (
                     <View className="mb-6">
-                      <Text className="text-white font-semibold mb-2">Education</Text>
+                      <Text className="text-gray-900 dark:text-white font-semibold mb-2">Education</Text>
                       <Text className="text-slate-300 text-sm">{selectedCandidate.education}</Text>
                     </View>
                   )}
@@ -795,7 +795,7 @@ function HiringTab() {
                   {/* Certifications */}
                   {selectedCandidate.certifications && selectedCandidate.certifications.length > 0 && (
                     <View className="mb-6">
-                      <Text className="text-white font-semibold mb-2">Certifications</Text>
+                      <Text className="text-gray-900 dark:text-white font-semibold mb-2">Certifications</Text>
                       <View className="flex-row flex-wrap gap-2">
                         {selectedCandidate.certifications.map((cert, idx) => (
                           <View key={idx} className="bg-purple-500/20 px-3 py-1.5 rounded-lg">
@@ -808,7 +808,7 @@ function HiringTab() {
 
                   {/* Skills */}
                   <View className="mb-6">
-                    <Text className="text-white font-semibold mb-2">Key Skills</Text>
+                    <Text className="text-gray-900 dark:text-white font-semibold mb-2">Key Skills</Text>
                     <View className="flex-row flex-wrap gap-2">
                       {selectedCandidate.skills.map((skill, idx) => (
                         <View key={idx} className="bg-blue-500/20 px-3 py-1.5 rounded-lg">
@@ -821,7 +821,7 @@ function HiringTab() {
                   {/* Achievements */}
                   {selectedCandidate.achievements && selectedCandidate.achievements.length > 0 && (
                     <View className="mb-6">
-                      <Text className="text-white font-semibold mb-2">Key Achievements</Text>
+                      <Text className="text-gray-900 dark:text-white font-semibold mb-2">Key Achievements</Text>
                       <View className="gap-2">
                         {selectedCandidate.achievements.map((achievement, idx) => (
                           <View key={idx} className="flex-row items-start">
@@ -835,7 +835,7 @@ function HiringTab() {
 
                   {/* Previous Companies */}
                   <View className="mb-6">
-                    <Text className="text-white font-semibold mb-2">Previous Experience</Text>
+                    <Text className="text-gray-900 dark:text-white font-semibold mb-2">Previous Experience</Text>
                     <View className="flex-row flex-wrap gap-2">
                       {selectedCandidate.previousCompanies.map((company, idx) => (
                         <View key={idx} className="bg-slate-800 px-3 py-1.5 rounded-lg">
@@ -1088,7 +1088,7 @@ function AIAgentsTab({ selectedAgent, setSelectedAgent, onboardingAgent, setOnbo
             onChangeText={setSearchQuery}
             placeholder="Search AI agents..."
             placeholderTextColor="#64748b"
-            className="flex-1 ml-3 text-white"
+            className="flex-1 ml-3 text-gray-900 dark:text-white"
           />
         </View>
 
@@ -1236,13 +1236,13 @@ function AIAgentsTab({ selectedAgent, setSelectedAgent, onboardingAgent, setOnbo
 
                   {/* Purpose */}
                   <View>
-                    <Text className="text-white font-semibold mb-2">Purpose</Text>
+                    <Text className="text-gray-900 dark:text-white font-semibold mb-2">Purpose</Text>
                     <Text className="text-slate-300 text-sm leading-5">{selectedAgent.purpose}</Text>
                   </View>
 
                   {/* Capabilities */}
                   <View>
-                    <Text className="text-white font-semibold mb-3">Capabilities</Text>
+                    <Text className="text-gray-900 dark:text-white font-semibold mb-3">Capabilities</Text>
                     <View className="gap-2">
                       {selectedAgent.capabilities.map((capability, idx) => (
                         <View key={idx} className="flex-row items-start">
@@ -1255,7 +1255,7 @@ function AIAgentsTab({ selectedAgent, setSelectedAgent, onboardingAgent, setOnbo
 
                   {/* Business Functions */}
                   <View>
-                    <Text className="text-white font-semibold mb-2">Business Functions</Text>
+                    <Text className="text-gray-900 dark:text-white font-semibold mb-2">Business Functions</Text>
                     <View className="flex-row flex-wrap gap-2">
                       {selectedAgent.functions.map((func, idx) => (
                         <View key={idx} className="bg-blue-500/20 px-3 py-1.5 rounded-lg">
@@ -1267,7 +1267,7 @@ function AIAgentsTab({ selectedAgent, setSelectedAgent, onboardingAgent, setOnbo
 
                   {/* Integrations */}
                   <View>
-                    <Text className="text-white font-semibold mb-2">Integrations</Text>
+                    <Text className="text-gray-900 dark:text-white font-semibold mb-2">Integrations</Text>
                     <View className="flex-row flex-wrap gap-2">
                       {selectedAgent.integrations.map((integration, idx) => (
                         <View key={idx} className="bg-slate-800 px-3 py-1.5 rounded-lg">
@@ -1280,16 +1280,16 @@ function AIAgentsTab({ selectedAgent, setSelectedAgent, onboardingAgent, setOnbo
                   {/* Usage Stats */}
                   {selectedAgent.usageStats && (
                     <View>
-                      <Text className="text-white font-semibold mb-3">Usage Statistics</Text>
+                      <Text className="text-gray-900 dark:text-white font-semibold mb-3">Usage Statistics</Text>
                       <View className="flex-row gap-3">
                         <View className="flex-1 bg-slate-800 rounded-xl p-3">
                           <Text className="text-gray-600 dark:text-slate-400 text-xs mb-1">Requests</Text>
-                          <Text className="text-white font-bold">{selectedAgent.usageStats.requestsThisMonth.toLocaleString()}</Text>
+                          <Text className="text-gray-900 dark:text-white font-bold">{selectedAgent.usageStats.requestsThisMonth.toLocaleString()}</Text>
                           <Text className="text-slate-500 text-xs">this month</Text>
                         </View>
                         <View className="flex-1 bg-slate-800 rounded-xl p-3">
                           <Text className="text-gray-600 dark:text-slate-400 text-xs mb-1">Response Time</Text>
-                          <Text className="text-white font-bold">{selectedAgent.usageStats.averageResponseTime}</Text>
+                          <Text className="text-gray-900 dark:text-white font-bold">{selectedAgent.usageStats.averageResponseTime}</Text>
                           <Text className="text-slate-500 text-xs">average</Text>
                         </View>
                         <View className="flex-1 bg-slate-800 rounded-xl p-3">
@@ -1340,7 +1340,7 @@ function AIAgentsTab({ selectedAgent, setSelectedAgent, onboardingAgent, setOnbo
               <View className="bg-slate-800 rounded-xl p-4 mb-6">
                 <View className="flex-row items-center gap-3 mb-2">
                   <Bot size={20} color={getProviderColor(onboardingAgent.provider)} />
-                  <Text className="text-white font-semibold text-lg">{onboardingAgent.name}</Text>
+                  <Text className="text-gray-900 dark:text-white font-semibold text-lg">{onboardingAgent.name}</Text>
                 </View>
                 <Text className="text-gray-600 dark:text-slate-400 text-sm">{onboardingAgent.provider} • {onboardingAgent.model}</Text>
               </View>

@@ -517,17 +517,17 @@ export default function SettingsScreen() {
                   {syncStatus === 'syncing' ? (
                     <>
                       <RefreshCw size={20} color="#ffffff" className="animate-spin" />
-                      <Text className="text-white font-bold">Syncing...</Text>
+                      <Text className="text-gray-900 dark:text-white font-bold">Syncing...</Text>
                     </>
                   ) : syncStatus === 'success' ? (
                     <>
                       <Check size={20} color="#ffffff" />
-                      <Text className="text-white font-bold">Synced!</Text>
+                      <Text className="text-gray-900 dark:text-white font-bold">Synced!</Text>
                     </>
                   ) : (
                     <>
                       <RefreshCw size={20} color="#ffffff" />
-                      <Text className="text-white font-bold">Sync Now</Text>
+                      <Text className="text-gray-900 dark:text-white font-bold">Sync Now</Text>
                     </>
                   )}
                 </Pressable>
@@ -601,7 +601,7 @@ export default function SettingsScreen() {
                         className="flex-1 bg-blue-500 py-3 rounded-lg flex-row items-center justify-center gap-2 active:opacity-70"
                       >
                         <Upload size={16} color="#ffffff" />
-                        <Text className="text-white font-semibold text-sm">Import</Text>
+                        <Text className="text-gray-900 dark:text-white font-semibold text-sm">Import</Text>
                       </Pressable>
                       <Pressable
                         onPress={() => handleExportCSV(item.type)}

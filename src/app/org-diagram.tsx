@@ -75,7 +75,7 @@ export default function OrgDiagramScreen() {
 
         {/* Legend */}
         <View className="p-4 border-b border-slate-800">
-          <Text className="text-white font-semibold mb-3">Legend</Text>
+          <Text className="text-gray-900 dark:text-white font-semibold mb-3">Legend</Text>
           <View className="flex-row flex-wrap gap-4">
             <View className="flex-row items-center">
               <View className="w-8 h-8 rounded-lg bg-blue-500/20 border-2 border-blue-500 items-center justify-center mr-2">
@@ -399,12 +399,12 @@ export default function OrgDiagramScreen() {
 
           {/* Decide • Evaluate • Do Framework */}
           <View className="mt-6 bg-gradient-to-r from-blue-900/20 to-purple-900/20 rounded-2xl p-4 border border-blue-500/20">
-            <Text className="text-white font-bold text-lg mb-3">Decide • Evaluate • Do</Text>
+            <Text className="text-gray-900 dark:text-white font-bold text-lg mb-3">Decide • Evaluate • Do</Text>
 
             <View className="gap-3">
               <View className="flex-row items-start">
                 <View className="w-8 h-8 rounded-full bg-blue-500 items-center justify-center mr-3">
-                  <Text className="text-white font-bold text-sm">D</Text>
+                  <Text className="text-gray-900 dark:text-white font-bold text-sm">D</Text>
                 </View>
                 <View className="flex-1">
                   <Text className="text-blue-400 font-semibold mb-1">Decide</Text>
@@ -416,7 +416,7 @@ export default function OrgDiagramScreen() {
 
               <View className="flex-row items-start">
                 <View className="w-8 h-8 rounded-full bg-purple-500 items-center justify-center mr-3">
-                  <Text className="text-white font-bold text-sm">E</Text>
+                  <Text className="text-gray-900 dark:text-white font-bold text-sm">E</Text>
                 </View>
                 <View className="flex-1">
                   <Text className="text-purple-400 font-semibold mb-1">Evaluate</Text>
@@ -428,7 +428,7 @@ export default function OrgDiagramScreen() {
 
               <View className="flex-row items-start">
                 <View className="w-8 h-8 rounded-full bg-emerald-500 items-center justify-center mr-3">
-                  <Text className="text-white font-bold text-sm">D</Text>
+                  <Text className="text-gray-900 dark:text-white font-bold text-sm">D</Text>
                 </View>
                 <View className="flex-1">
                   <Text className="text-emerald-400 font-semibold mb-1">Do</Text>
@@ -443,7 +443,7 @@ export default function OrgDiagramScreen() {
 
         {/* Team List */}
         <View className="p-4">
-          <Text className="text-white font-bold text-lg mb-4">Team Members</Text>
+          <Text className="text-gray-900 dark:text-white font-bold text-lg mb-4">Team Members</Text>
 
           {/* Founders */}
           <View className="mb-4">
@@ -468,7 +468,7 @@ export default function OrgDiagramScreen() {
                       </View>
                       <View className="flex-1">
                         <View className="flex-row items-center gap-2 mb-1">
-                          <Text className="text-white font-semibold">{member.name}</Text>
+                          <Text className="text-gray-900 dark:text-white font-semibold">{member.name}</Text>
                           {aiAgentCount > 0 && (
                             <View className="bg-blue-500 rounded-full w-5 h-5 items-center justify-center">
                               <Text className="text-gray-900 dark:text-white text-[10px] font-bold">{aiAgentCount}</Text>
@@ -508,7 +508,7 @@ export default function OrgDiagramScreen() {
                       </View>
                       <View className="flex-1">
                         <View className="flex-row items-center gap-2 mb-1">
-                          <Text className="text-white font-semibold">{member.name}</Text>
+                          <Text className="text-gray-900 dark:text-white font-semibold">{member.name}</Text>
                           {aiAgentCount > 0 && (
                             <View className="bg-blue-500 rounded-full w-5 h-5 items-center justify-center">
                               <Text className="text-gray-900 dark:text-white text-[10px] font-bold">{aiAgentCount}</Text>
@@ -551,7 +551,7 @@ export default function OrgDiagramScreen() {
                       </View>
                       <View className="flex-1">
                         <View className="flex-row items-center gap-2 mb-1">
-                          <Text className="text-white font-semibold">{member.name}</Text>
+                          <Text className="text-gray-900 dark:text-white font-semibold">{member.name}</Text>
                           {aiAgentCount > 0 && (
                             <View className="bg-blue-500 rounded-full w-5 h-5 items-center justify-center">
                               <Text className="text-gray-900 dark:text-white text-[10px] font-bold">{aiAgentCount}</Text>
@@ -634,7 +634,7 @@ export default function OrgDiagramScreen() {
                         {selectedMember.reportsTo && (
                           <View className="mb-3">
                             <Text className="text-gray-600 dark:text-slate-400 text-xs mb-1">Reports To</Text>
-                            <Text className="text-white font-medium">
+                            <Text className="text-gray-900 dark:text-white font-medium">
                               {ORGANIZATION_MEMBERS.find(m => m.id === selectedMember.reportsTo)?.name}
                             </Text>
                           </View>
@@ -660,7 +660,7 @@ export default function OrgDiagramScreen() {
 
                   {/* Contact Info */}
                   <View className="p-6 border-b border-slate-800">
-                    <Text className="text-white font-semibold mb-3">Contact Information</Text>
+                    <Text className="text-gray-900 dark:text-white font-semibold mb-3">Contact Information</Text>
 
                     <View className="flex-row items-center mb-3">
                       <View className="w-10 h-10 bg-blue-500/20 rounded-lg items-center justify-center mr-3">
@@ -696,7 +696,7 @@ export default function OrgDiagramScreen() {
                           <View className="flex-row items-center justify-between mb-3">
                             <View className="flex-row items-center gap-2">
                               <Bot size={20} color="#3b82f6" />
-                              <Text className="text-white font-semibold">AI Agents Used</Text>
+                              <Text className="text-gray-900 dark:text-white font-semibold">AI Agents Used</Text>
                             </View>
                             <View className="bg-blue-500/20 px-2 py-1 rounded-full">
                               <Text className="text-blue-400 text-xs font-medium">
@@ -713,7 +713,7 @@ export default function OrgDiagramScreen() {
                               >
                                 <View className="flex-row items-start justify-between mb-1">
                                   <View className="flex-1">
-                                    <Text className="text-white font-medium text-sm mb-1">
+                                    <Text className="text-gray-900 dark:text-white font-medium text-sm mb-1">
                                       {agent.name}
                                     </Text>
                                     <Text className="text-gray-600 dark:text-slate-400 text-xs mb-2">
@@ -759,7 +759,7 @@ export default function OrgDiagramScreen() {
                   {/* Cost Info */}
                   {selectedMember.costPerDay && (
                     <View className="p-6 border-b border-slate-800">
-                      <Text className="text-white font-semibold mb-3">Cost Information</Text>
+                      <Text className="text-gray-900 dark:text-white font-semibold mb-3">Cost Information</Text>
                       <View className="bg-slate-800 rounded-xl p-4">
                         <Text className="text-gray-600 dark:text-slate-400 text-xs mb-1">Daily Rate</Text>
                         <Text className="text-emerald-400 text-2xl font-bold">

@@ -109,7 +109,7 @@ export function TeamPerformanceDashboard({
     <View className="flex-1">
       {/* Team Summary Header */}
       <View className="px-6 pt-4 pb-4">
-        <Text className="text-white text-lg font-bold mb-3">Team Overview</Text>
+        <Text className="text-gray-900 dark:text-white text-lg font-bold mb-3">Team Overview</Text>
 
         {/* Summary Stats */}
         <View className="flex-row gap-2 mb-4">
@@ -118,7 +118,7 @@ export function TeamPerformanceDashboard({
               <Users size={14} color="#64748b" />
               <Text className="text-slate-400 text-xs ml-1">Team Size</Text>
             </View>
-            <Text className="text-white text-xl font-bold">{summary.totalMembers}</Text>
+            <Text className="text-gray-900 dark:text-white text-xl font-bold">{summary.totalMembers}</Text>
             <Text className="text-slate-500 text-[10px] mt-0.5">
               {executivesCount} execs, {apprenticesCount} apprentices
             </Text>
@@ -155,7 +155,7 @@ export function TeamPerformanceDashboard({
         <View className="bg-gradient-to-r from-blue-900/30 to-purple-900/30 rounded-xl p-4 border border-blue-800/40">
           <View className="flex-row items-center mb-3">
             <BarChart3 size={18} color="#60a5fa" />
-            <Text className="text-white font-semibold ml-2">Executive vs Apprentice</Text>
+            <Text className="text-gray-900 dark:text-white font-semibold ml-2">Executive vs Apprentice</Text>
           </View>
 
           <View className="gap-3">
@@ -238,7 +238,7 @@ export function TeamPerformanceDashboard({
             </View>
             {summary.topPerformers.slice(0, 3).map((performer: TeamMemberPerformance, idx: number) => (
               <View key={performer.userId} className="flex-row items-center justify-between mb-1.5">
-                <Text className="text-white text-xs" numberOfLines={1}>
+                <Text className="text-gray-900 dark:text-white text-xs" numberOfLines={1}>
                   {idx + 1}. {performer.name}
                 </Text>
                 <Text className="text-emerald-400 text-xs font-bold ml-2">
@@ -257,7 +257,7 @@ export function TeamPerformanceDashboard({
               </View>
               {summary.needsAttention.map((member: TeamMemberPerformance, idx: number) => (
                 <View key={member.userId} className="flex-row items-center justify-between mb-1.5">
-                  <Text className="text-white text-xs" numberOfLines={1}>
+                  <Text className="text-gray-900 dark:text-white text-xs" numberOfLines={1}>
                     {member.name}
                   </Text>
                   <Text className="text-orange-400 text-xs font-bold ml-2">
@@ -320,7 +320,7 @@ export function TeamPerformanceDashboard({
 
       {/* Individual Performance Cards */}
       <ScrollView className="flex-1 px-6" showsVerticalScrollIndicator={false}>
-        <Text className="text-white font-semibold mb-3">Individual Performance</Text>
+        <Text className="text-gray-900 dark:text-white font-semibold mb-3">Individual Performance</Text>
 
         {filteredPerformances.length === 0 ? (
           <View className="bg-slate-900 rounded-xl p-6 border border-slate-800 items-center">
@@ -352,15 +352,15 @@ export function TeamPerformanceDashboard({
                       >
                         <View className="flex-row items-center justify-between">
                           <View className="flex-1">
-                            <Text className="text-white font-bold text-base mb-1">
+                            <Text className="text-gray-900 dark:text-white font-bold text-base mb-1">
                               {member.name}
                             </Text>
-                            <Text className="text-white/80 text-xs mb-1">
+                            <Text className="text-gray-900 dark:text-white/80 text-xs mb-1">
                               {member.role === 'FractionalExec' ? 'Executive' : 'Apprentice'} • {member.function}
                             </Text>
                             <View className="flex-row items-center gap-2">
                               {getTrendIcon(member.trend)}
-                              <Text className="text-white/90 text-xs font-medium">
+                              <Text className="text-gray-900 dark:text-white/90 text-xs font-medium">
                                 {member.trend === 'improving' ? 'Improving' : member.trend === 'declining' ? 'Declining' : 'Steady'}
                               </Text>
                             </View>
@@ -368,12 +368,12 @@ export function TeamPerformanceDashboard({
 
                           <View className="items-end">
                             <View className="bg-white/20 px-3 py-1 rounded-lg mb-2">
-                              <Text className="text-white font-bold text-xl">
+                              <Text className="text-gray-900 dark:text-white font-bold text-xl">
                                 {member.contributionScore.toFixed(0)}
                               </Text>
                             </View>
                             <View className="flex-row items-center">
-                              <Text className="text-white/80 text-xs mr-1">Details</Text>
+                              <Text className="text-gray-900 dark:text-white/80 text-xs mr-1">Details</Text>
                               {isExpanded ? (
                                 <ChevronDown size={16} color="rgba(255,255,255,0.8)" />
                               ) : (
@@ -388,7 +388,7 @@ export function TeamPerformanceDashboard({
                       <View className="bg-slate-800/50 px-4 py-2 flex-row justify-between">
                         <View className="items-center">
                           <Text className="text-slate-400 text-[10px] mb-0.5">Tasks</Text>
-                          <Text className="text-white text-sm font-semibold">
+                          <Text className="text-gray-900 dark:text-white text-sm font-semibold">
                             {member.tasksCompletedThisWeek}
                           </Text>
                         </View>
@@ -426,26 +426,26 @@ export function TeamPerformanceDashboard({
                             <View className="bg-slate-800 rounded-lg p-3 gap-2">
                               <View className="flex-row justify-between">
                                 <Text className="text-slate-400 text-xs">Tasks Completed (Total):</Text>
-                                <Text className="text-white text-xs font-semibold">
+                                <Text className="text-gray-900 dark:text-white text-xs font-semibold">
                                   {member.tasksCompleted}
                                 </Text>
                               </View>
                               <View className="flex-row justify-between">
                                 <Text className="text-slate-400 text-xs">This Month:</Text>
-                                <Text className="text-white text-xs font-semibold">
+                                <Text className="text-gray-900 dark:text-white text-xs font-semibold">
                                   {member.tasksCompletedThisMonth}
                                 </Text>
                               </View>
                               <View className="flex-row justify-between">
                                 <Text className="text-slate-400 text-xs">Avg per Week:</Text>
-                                <Text className="text-white text-xs font-semibold">
+                                <Text className="text-gray-900 dark:text-white text-xs font-semibold">
                                   {member.avgTasksPerWeek.toFixed(1)}
                                 </Text>
                               </View>
                               <View className="flex-row justify-between">
                                 <Text className="text-slate-400 text-xs">Velocity Trend:</Text>
                                 <View className="flex-row items-center">
-                                  <Text className="text-white text-xs font-semibold mr-1">
+                                  <Text className="text-gray-900 dark:text-white text-xs font-semibold mr-1">
                                     {member.velocity.toFixed(1)} tasks/week
                                   </Text>
                                   {getTrendIcon(member.trend)}
@@ -471,7 +471,7 @@ export function TeamPerformanceDashboard({
                               </View>
                               <View className="flex-row justify-between">
                                 <Text className="text-slate-400 text-xs">Tasks Requiring Rework:</Text>
-                                <Text className="text-white text-xs font-semibold">
+                                <Text className="text-gray-900 dark:text-white text-xs font-semibold">
                                   {member.tasksRequiringRework}
                                 </Text>
                               </View>
@@ -483,7 +483,7 @@ export function TeamPerformanceDashboard({
                               </View>
                               <View className="flex-row justify-between">
                                 <Text className="text-slate-400 text-xs">Priority Tasks:</Text>
-                                <Text className="text-white text-xs font-semibold">
+                                <Text className="text-gray-900 dark:text-white text-xs font-semibold">
                                   {member.urgentTaskCompletion} urgent, {member.highPriorityCompletion} high
                                 </Text>
                               </View>
@@ -501,7 +501,7 @@ export function TeamPerformanceDashboard({
                             <View className="bg-slate-800 rounded-lg p-3 gap-2">
                               <View className="flex-row justify-between">
                                 <Text className="text-slate-400 text-xs">Avg Time to Complete:</Text>
-                                <Text className="text-white text-xs font-semibold">
+                                <Text className="text-gray-900 dark:text-white text-xs font-semibold">
                                   {member.avgTimeToComplete.toFixed(1)} hours
                                 </Text>
                               </View>
@@ -525,7 +525,7 @@ export function TeamPerformanceDashboard({
                             <View className="bg-slate-800 rounded-lg p-3 gap-2">
                               <View className="flex-row justify-between">
                                 <Text className="text-slate-400 text-xs">Days Active:</Text>
-                                <Text className="text-white text-xs font-semibold">
+                                <Text className="text-gray-900 dark:text-white text-xs font-semibold">
                                   {member.daysActive}
                                 </Text>
                               </View>
@@ -537,7 +537,7 @@ export function TeamPerformanceDashboard({
                               </View>
                               <View className="flex-row justify-between">
                                 <Text className="text-slate-400 text-xs">Responsiveness:</Text>
-                                <Text className="text-white text-xs font-semibold">
+                                <Text className="text-gray-900 dark:text-white text-xs font-semibold">
                                   {member.responsiveness.toFixed(1)} hours
                                 </Text>
                               </View>

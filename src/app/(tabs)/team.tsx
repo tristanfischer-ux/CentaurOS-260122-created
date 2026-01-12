@@ -506,7 +506,7 @@ export default function TeamScreen() {
                 {/* Info */}
                 <View className="flex-1">
                   <View className="flex-row items-center justify-between mb-1">
-                    <Text className="text-white font-bold text-base">{member.name}</Text>
+                    <Text className="text-gray-900 dark:text-white font-bold text-base">{member.name}</Text>
                     {member.rating > 0 && (
                       <View className="flex-row items-center">
                         <Star size={12} color="#f59e0b" fill="#f59e0b" />
@@ -595,14 +595,14 @@ export default function TeamScreen() {
                         <Text className="text-gray-600 dark:text-slate-400 text-xs mb-1">Rating</Text>
                         <View className="flex-row items-center">
                           <Star size={14} color="#f59e0b" fill="#f59e0b" />
-                          <Text className="text-white font-bold ml-1">{selectedMember.rating.toFixed(1)}</Text>
+                          <Text className="text-gray-900 dark:text-white font-bold ml-1">{selectedMember.rating.toFixed(1)}</Text>
                         </View>
                       </View>
                     )}
                     {selectedMember.experience > 0 && (
                       <View className="flex-1 bg-slate-800 rounded-xl p-3">
                         <Text className="text-gray-600 dark:text-slate-400 text-xs mb-1">Experience</Text>
-                        <Text className="text-white font-bold">{selectedMember.experience}y</Text>
+                        <Text className="text-gray-900 dark:text-white font-bold">{selectedMember.experience}y</Text>
                       </View>
                     )}
                     {selectedMember.costPerDay && selectedMember.costPerDay > 0 && (
@@ -616,7 +616,7 @@ export default function TeamScreen() {
 
                 {/* Contact Info */}
                 <View className="p-6 border-b border-slate-800">
-                  <Text className="text-white font-semibold mb-3">Contact Information</Text>
+                  <Text className="text-gray-900 dark:text-white font-semibold mb-3">Contact Information</Text>
 
                   <Pressable
                     onPress={() => handleEmailPress(selectedMember.email)}
@@ -661,7 +661,7 @@ export default function TeamScreen() {
 
                 {/* Professional Info */}
                 <View className="p-6 border-b border-slate-800">
-                  <Text className="text-white font-semibold mb-3">Professional Details</Text>
+                  <Text className="text-gray-900 dark:text-white font-semibold mb-3">Professional Details</Text>
 
                   <View className="mb-4">
                     <Text className="text-gray-600 dark:text-slate-400 text-xs mb-1">Specializations</Text>
@@ -711,7 +711,7 @@ export default function TeamScreen() {
 
                 {/* Task Stats */}
                 <View className="p-6 border-b border-slate-800">
-                  <Text className="text-white font-semibold mb-3">Task Performance</Text>
+                  <Text className="text-gray-900 dark:text-white font-semibold mb-3">Task Performance</Text>
                   <View className="flex-row gap-3">
                     <View className="flex-1 bg-slate-800 rounded-xl p-4">
                       <Briefcase size={20} color="#3b82f6" />
@@ -736,7 +736,7 @@ export default function TeamScreen() {
                       className="bg-blue-500 py-4 rounded-xl flex-row items-center justify-center active:opacity-70"
                     >
                       <Plus size={20} color="white" />
-                      <Text className="text-white font-bold text-base ml-2">
+                      <Text className="text-gray-900 dark:text-white font-bold text-base ml-2">
                         Assign New Task
                       </Text>
                     </Pressable>
@@ -776,7 +776,7 @@ export default function TeamScreen() {
                   onChangeText={setTaskTitle}
                   placeholder="Enter task title"
                   placeholderTextColor="#64748b"
-                  className="bg-slate-800 text-white px-4 py-3 rounded-xl border border-slate-700"
+                  className="bg-slate-800 text-gray-900 dark:text-white px-4 py-3 rounded-xl border border-slate-700"
                 />
               </View>
 
@@ -790,7 +790,7 @@ export default function TeamScreen() {
                   placeholderTextColor="#64748b"
                   multiline
                   numberOfLines={3}
-                  className="bg-slate-800 text-white px-4 py-3 rounded-xl border border-slate-700"
+                  className="bg-slate-800 text-gray-900 dark:text-white px-4 py-3 rounded-xl border border-slate-700"
                   style={{ minHeight: 80, textAlignVertical: 'top' }}
                 />
               </View>

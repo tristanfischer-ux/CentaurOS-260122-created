@@ -185,7 +185,7 @@ export default function UtilizationScreen() {
                       </Text>
                     </View>
                     <View className="flex-1">
-                      <Text className="text-white font-semibold text-base">{user.name}</Text>
+                      <Text className="text-gray-900 dark:text-white font-semibold text-base">{user.name}</Text>
                       <Text className="text-gray-600 dark:text-slate-400 text-xs">{role}</Text>
                     </View>
                   </View>

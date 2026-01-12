@@ -332,7 +332,7 @@ export default function SwipeScreen() {
               <View key={item.id} className="bg-gray-100 dark:bg-slate-900 rounded-xl p-4 mb-3 border border-slate-800">
                 <View className="flex-row items-start justify-between">
                   <View className="flex-1">
-                    <Text className="text-white font-bold text-lg mb-1">{item.name}</Text>
+                    <Text className="text-gray-900 dark:text-white font-bold text-lg mb-1">{item.name}</Text>
                     {item.type === 'people' && (
                       <Text className="text-gray-600 dark:text-slate-400 text-sm">{(item as PersonCard).role} • {(item as PersonCard).function}</Text>
                     )}
@@ -369,7 +369,7 @@ export default function SwipeScreen() {
                 }}
               >
                 <Mail size={20} color="#fff" />
-                <Text className="text-white font-bold text-lg">Reach Out</Text>
+                <Text className="text-gray-900 dark:text-white font-bold text-lg">Reach Out</Text>
               </LinearGradient>
             </Pressable>
           </View>
@@ -467,7 +467,7 @@ export default function SwipeScreen() {
                 ]}
               >
                 <View className="bg-red-500/90 px-6 py-3 rounded-xl border-4 border-red-500">
-                  <Text className="text-white font-bold text-2xl">PASS</Text>
+                  <Text className="text-gray-900 dark:text-white font-bold text-2xl">PASS</Text>
                 </View>
               </Animated.View>
 
@@ -485,7 +485,7 @@ export default function SwipeScreen() {
                 ]}
               >
                 <View className="bg-emerald-500/90 px-6 py-3 rounded-xl border-4 border-emerald-500">
-                  <Text className="text-white font-bold text-2xl">LIKE</Text>
+                  <Text className="text-gray-900 dark:text-white font-bold text-2xl">LIKE</Text>
                 </View>
               </Animated.View>
 
@@ -512,7 +512,7 @@ export default function SwipeScreen() {
               onPress={() => setCurrentIndex(0)}
               className="mt-4 bg-blue-500 px-6 py-3 rounded-xl active:opacity-70"
             >
-              <Text className="text-white font-semibold">Start Over</Text>
+              <Text className="text-gray-900 dark:text-white font-semibold">Start Over</Text>
             </Pressable>
           </View>
         )}
@@ -582,12 +582,12 @@ export default function SwipeScreen() {
                     {selectedPerson.costPerDay && (
                       <View className="flex-row justify-between">
                         <Text className="text-gray-600 dark:text-slate-400">Daily Rate:</Text>
-                        <Text className="text-white font-semibold">£{selectedPerson.costPerDay}</Text>
+                        <Text className="text-gray-900 dark:text-white font-semibold">£{selectedPerson.costPerDay}</Text>
                       </View>
                     )}
                     <View className="flex-row justify-between">
                       <Text className="text-gray-600 dark:text-slate-400">Started:</Text>
-                      <Text className="text-white font-semibold">
+                      <Text className="text-gray-900 dark:text-white font-semibold">
                         {new Date(selectedPerson.startDate).toLocaleDateString('en-GB', {
                           day: 'numeric',
                           month: 'long',
@@ -611,7 +611,7 @@ export default function SwipeScreen() {
                       </View>
                       <View className="flex-1">
                         <Text className="text-gray-600 dark:text-slate-400 text-xs">Email</Text>
-                        <Text className="text-white">{selectedPerson.email}</Text>
+                        <Text className="text-gray-900 dark:text-white">{selectedPerson.email}</Text>
                       </View>
                     </Pressable>
 
@@ -625,7 +625,7 @@ export default function SwipeScreen() {
                         </View>
                         <View className="flex-1">
                           <Text className="text-gray-600 dark:text-slate-400 text-xs">Phone</Text>
-                          <Text className="text-white">{selectedPerson.phone}</Text>
+                          <Text className="text-gray-900 dark:text-white">{selectedPerson.phone}</Text>
                         </View>
                       </Pressable>
                     )}
@@ -657,7 +657,7 @@ export default function SwipeScreen() {
                           <Linkedin size={28} color="#0077b5" />
                         </View>
                         <View className="flex-1">
-                          <Text className="text-white font-bold text-lg mb-1">View LinkedIn Profile</Text>
+                          <Text className="text-gray-900 dark:text-white font-bold text-lg mb-1">View LinkedIn Profile</Text>
                           <Text className="text-blue-100 text-sm">See full professional background</Text>
                         </View>
                       </View>
@@ -1083,7 +1083,7 @@ function StatRow({
           {icon}
           <Text className="text-slate-300 font-semibold">{label}</Text>
         </View>
-        <Text className="text-white font-bold">{value}</Text>
+        <Text className="text-gray-900 dark:text-white font-bold">{value}</Text>
       </View>
 
       {/* Rating Bar */}

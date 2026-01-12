@@ -159,7 +159,7 @@ export default function OnboardingScreen() {
                 onPress={handleSkip}
                 className="px-4 py-2 bg-white/10 rounded-full active:opacity-70"
               >
-                <Text className="text-white font-semibold text-sm">Skip</Text>
+                <Text className="text-gray-900 dark:text-white font-semibold text-sm">Skip</Text>
               </Pressable>
             </View>
 
@@ -173,7 +173,7 @@ export default function OnboardingScreen() {
 
                 {/* Step Number */}
                 <View className="mb-4">
-                  <Text className="text-white/60 text-center font-medium text-sm">
+                  <Text className="text-gray-900 dark:text-white/60 text-center font-medium text-sm">
                     {currentStepIndex + 1} of {onboardingFlow.steps.length}
                   </Text>
                 </View>
@@ -184,7 +184,7 @@ export default function OnboardingScreen() {
                 </Text>
 
                 {/* Description */}
-                <Text className="text-white/80 text-lg text-center leading-7 px-4">
+                <Text className="text-gray-900 dark:text-white/80 text-lg text-center leading-7 px-4">
                   {currentStep.description}
                 </Text>
               </View>
@@ -218,7 +218,7 @@ export default function OnboardingScreen() {
                   className="flex-1 bg-white/10 rounded-2xl py-5 flex-row items-center justify-center active:opacity-70"
                 >
                   <ChevronLeft size={24} color="white" />
-                  <Text className="text-white font-bold text-lg ml-2">Previous</Text>
+                  <Text className="text-gray-900 dark:text-white font-bold text-lg ml-2">Previous</Text>
                 </Pressable>
               )}
 

@@ -585,7 +585,7 @@ export default function LearningScreen() {
 
         {/* Apprentice Selection */}
         <View className="p-6">
-          <Text className="text-white font-semibold mb-3">Select Apprentice</Text>
+          <Text className="text-gray-900 dark:text-white font-semibold mb-3">Select Apprentice</Text>
           <View className="gap-2">
             {apprentices.map((apprentice) => {
               const data = APPRENTICE_DATA[apprentice.id];
@@ -609,7 +609,7 @@ export default function LearningScreen() {
                         </Text>
                       </View>
                       <View className="flex-1">
-                        <Text className="text-white font-semibold">{apprentice.name}</Text>
+                        <Text className="text-gray-900 dark:text-white font-semibold">{apprentice.name}</Text>
                         <Text className="text-gray-600 dark:text-slate-400 text-xs">{apprentice.function}</Text>
                         {data && (
                           <View className="flex-row items-center gap-3 mt-1">
@@ -666,7 +666,7 @@ export default function LearningScreen() {
             {selectedView === 'skills' && (
               <View>
                 <View className="flex-row items-center justify-between mb-3">
-                  <Text className="text-white font-semibold">Skills Matrix</Text>
+                  <Text className="text-gray-900 dark:text-white font-semibold">Skills Matrix</Text>
                   <Pressable
                     onPress={() => setShowAddSkillModal(true)}
                     className="bg-blue-500 px-3 py-2 rounded-lg flex-row items-center gap-2 active:opacity-70"
@@ -705,7 +705,7 @@ export default function LearningScreen() {
                     <View key={skill.id} className="bg-gray-100 dark:bg-slate-900 rounded-xl p-4 border border-slate-800">
                       <View className="flex-row items-center justify-between mb-2">
                         <View className="flex-1">
-                          <Text className="text-white font-semibold mb-1">{skill.name}</Text>
+                          <Text className="text-gray-900 dark:text-white font-semibold mb-1">{skill.name}</Text>
                           <View
                             className="px-2 py-1 rounded self-start"
                             style={{ backgroundColor: LEVEL_COLORS[skill.level] + '20' }}
@@ -741,7 +741,7 @@ export default function LearningScreen() {
             {selectedView === 'training' && (
               <View>
                 <View className="flex-row items-center justify-between mb-4">
-                  <Text className="text-white font-semibold">Training Modules</Text>
+                  <Text className="text-gray-900 dark:text-white font-semibold">Training Modules</Text>
                   <View className="bg-blue-500/20 px-3 py-1 rounded-full">
                     <Text className="text-blue-400 text-xs font-medium">
                       {selectedData.trainings.filter(t => t.completed).length} / {selectedData.trainings.length} completed
@@ -761,7 +761,7 @@ export default function LearningScreen() {
                     >
                       <View className="flex-row items-start justify-between mb-2">
                         <View className="flex-1 mr-3">
-                          <Text className="text-white font-semibold mb-1">{training.title}</Text>
+                          <Text className="text-gray-900 dark:text-white font-semibold mb-1">{training.title}</Text>
                           <Text className="text-gray-600 dark:text-slate-400 text-xs mb-2">{training.description}</Text>
                           <View className="flex-row items-center gap-2">
                             <View className="bg-slate-800 px-2 py-1 rounded">
@@ -794,7 +794,7 @@ export default function LearningScreen() {
             {selectedView === 'reviews' && (
               <View>
                 <View className="flex-row items-center justify-between mb-4">
-                  <Text className="text-white font-semibold">Performance Reviews</Text>
+                  <Text className="text-gray-900 dark:text-white font-semibold">Performance Reviews</Text>
                   <Pressable className="bg-blue-500 px-3 py-2 rounded-lg flex-row items-center gap-2 active:opacity-70">
                     <Plus size={16} color="#ffffff" />
                     <Text className="text-gray-900 dark:text-white text-sm font-semibold">New Review</Text>
@@ -807,7 +807,7 @@ export default function LearningScreen() {
                       {/* Header */}
                       <View className="flex-row items-center justify-between mb-3">
                         <View>
-                          <Text className="text-white font-bold text-lg">{review.quarter}</Text>
+                          <Text className="text-gray-900 dark:text-white font-bold text-lg">{review.quarter}</Text>
                           <Text className="text-gray-600 dark:text-slate-400 text-xs">
                             Reviewed by {review.reviewerName}
                           </Text>

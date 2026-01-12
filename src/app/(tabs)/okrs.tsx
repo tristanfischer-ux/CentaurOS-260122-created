@@ -68,7 +68,7 @@ export default function OKRsScreen() {
           onPress={() => setShowCreateModal(true)}
           className="bg-blue-500 rounded-xl px-6 py-3 active:opacity-70"
         >
-          <Text className="text-white font-semibold">Create Objective</Text>
+          <Text className="text-gray-900 dark:text-white font-semibold">Create Objective</Text>
         </Pressable>
       </View>
     );
@@ -427,7 +427,7 @@ export default function OKRsScreen() {
                       <View className="flex-row items-center justify-between">
                         <View className="flex-row items-center gap-2 flex-1">
                           <Sparkles size={18} color="#fff" />
-                          <Text className="text-white font-semibold">Get AI Task Suggestions</Text>
+                          <Text className="text-gray-900 dark:text-white font-semibold">Get AI Task Suggestions</Text>
                         </View>
                         <ArrowRight size={18} color="#fff" />
                       </View>
@@ -454,9 +454,9 @@ export default function OKRsScreen() {
                         className="bg-slate-800 rounded-xl p-3 active:opacity-70"
                       >
                         <View className="flex-row items-start justify-between mb-2">
-                          <Text className="text-white font-medium flex-1 mr-2">{kr.title}</Text>
+                          <Text className="text-gray-900 dark:text-white font-medium flex-1 mr-2">{kr.title}</Text>
                           <View className="flex-row items-center">
-                            <Text className="text-white font-bold mr-1">
+                            <Text className="text-gray-900 dark:text-white font-bold mr-1">
                               {kr.currentValue}{kr.unit}
                             </Text>
                             <Text className="text-gray-600 dark:text-slate-400 text-sm">/ {kr.targetValue}{kr.unit}</Text>
@@ -507,7 +507,7 @@ export default function OKRsScreen() {
                         <View className="flex-row items-center justify-between mb-3">
                           <View className="flex-row items-center gap-2">
                             <Briefcase size={16} color="#3b82f6" />
-                            <Text className="text-white font-semibold text-sm">Related Tasks</Text>
+                            <Text className="text-gray-900 dark:text-white font-semibold text-sm">Related Tasks</Text>
                             <View className="bg-slate-800 px-2 py-0.5 rounded-full">
                               <Text className="text-gray-600 dark:text-slate-400 text-xs">{completedTasks}/{relatedTasks.length}</Text>
                             </View>
@@ -613,7 +613,7 @@ export default function OKRsScreen() {
                     onPress={handleUpdateKR}
                     className="flex-1 bg-blue-500 rounded-xl py-3 items-center active:opacity-70"
                   >
-                    <Text className="text-white font-semibold">Update</Text>
+                    <Text className="text-gray-900 dark:text-white font-semibold">Update</Text>
                   </Pressable>
                 </View>
               </>
@@ -723,7 +723,7 @@ export default function OKRsScreen() {
                   {isCreating ? (
                     <ActivityIndicator size="small" color="white" />
                   ) : (
-                    <Text className="text-white font-semibold">Create</Text>
+                    <Text className="text-gray-900 dark:text-white font-semibold">Create</Text>
                   )}
                 </Pressable>
               </View>
@@ -814,7 +814,7 @@ export default function OKRsScreen() {
                   {isEditing ? (
                     <ActivityIndicator size="small" color="white" />
                   ) : (
-                    <Text className="text-white font-semibold">Save</Text>
+                    <Text className="text-gray-900 dark:text-white font-semibold">Save</Text>
                   )}
                 </Pressable>
               </View>
@@ -934,7 +934,7 @@ export default function OKRsScreen() {
                     {/* Task List */}
                     <View className="px-6 pb-6">
                       <View className="flex-row items-center justify-between mb-4 mt-2">
-                        <Text className="text-white font-bold text-lg">Suggested Tasks</Text>
+                        <Text className="text-gray-900 dark:text-white font-bold text-lg">Suggested Tasks</Text>
                         <Pressable
                           onPress={() => {
                             if (selectedTaskIds.size === suggestedTasks.length) {
@@ -992,7 +992,7 @@ export default function OKRsScreen() {
                                       <Text className="text-gray-600 dark:text-slate-400 text-xs">{task.estimatedHours}h</Text>
                                     </View>
                                   </View>
-                                  <Text className="text-white font-bold text-base mb-1">{task.title}</Text>
+                                  <Text className="text-gray-900 dark:text-white font-bold text-base mb-1">{task.title}</Text>
                                   <Text className="text-slate-300 text-sm leading-5 mb-3">
                                     {task.description}
                                   </Text>
@@ -1047,7 +1047,7 @@ export default function OKRsScreen() {
                         ) : (
                           <View className="flex-row items-center gap-2">
                             <CheckCircle2 size={20} color="#fff" />
-                            <Text className="text-white font-bold">
+                            <Text className="text-gray-900 dark:text-white font-bold">
                               Create {selectedTaskIds.size} Task{selectedTaskIds.size !== 1 ? 's' : ''}
                             </Text>
                           </View>

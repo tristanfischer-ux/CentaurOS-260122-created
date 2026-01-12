@@ -70,7 +70,7 @@ export default function GlobalSearchScreen() {
               placeholder="Search everything..."
               placeholderTextColor="#64748b"
               autoFocus
-              className="flex-1 text-white py-3 px-3"
+              className="flex-1 text-gray-900 dark:text-white py-3 px-3"
             />
             {searchQuery.length > 0 && (
               <Pressable onPress={() => setSearchQuery('')}>
@@ -112,7 +112,7 @@ export default function GlobalSearchScreen() {
               <View>
                 <View className="flex-row items-center gap-2 mb-3">
                   <Briefcase size={18} color="#3b82f6" />
-                  <Text className="text-white font-semibold">Tasks ({searchResults.tasks.length})</Text>
+                  <Text className="text-gray-900 dark:text-white font-semibold">Tasks ({searchResults.tasks.length})</Text>
                 </View>
                 {searchResults.tasks.map((task) => (
                   <Pressable
@@ -120,7 +120,7 @@ export default function GlobalSearchScreen() {
                     onPress={() => router.push('/work')}
                     className="bg-gray-100 dark:bg-slate-900 rounded-xl p-3 mb-2 border border-slate-800 active:opacity-70"
                   >
-                    <Text className="text-white font-medium mb-1">{task.title}</Text>
+                    <Text className="text-gray-900 dark:text-white font-medium mb-1">{task.title}</Text>
                     <Text className="text-gray-600 dark:text-slate-400 text-xs" numberOfLines={1}>
                       {task.description}
                     </Text>
@@ -154,7 +154,7 @@ export default function GlobalSearchScreen() {
               <View>
                 <View className="flex-row items-center gap-2 mb-3">
                   <Target size={18} color="#8b5cf6" />
-                  <Text className="text-white font-semibold">OKRs ({searchResults.objectives.length})</Text>
+                  <Text className="text-gray-900 dark:text-white font-semibold">OKRs ({searchResults.objectives.length})</Text>
                 </View>
                 {searchResults.objectives.map((okr) => (
                   <Pressable
@@ -162,7 +162,7 @@ export default function GlobalSearchScreen() {
                     onPress={() => router.push('/okrs')}
                     className="bg-gray-100 dark:bg-slate-900 rounded-xl p-3 mb-2 border border-slate-800 active:opacity-70"
                   >
-                    <Text className="text-white font-medium mb-1">{okr.title}</Text>
+                    <Text className="text-gray-900 dark:text-white font-medium mb-1">{okr.title}</Text>
                     <Text className="text-gray-600 dark:text-slate-400 text-xs" numberOfLines={2}>
                       {okr.description}
                     </Text>
@@ -176,7 +176,7 @@ export default function GlobalSearchScreen() {
               <View>
                 <View className="flex-row items-center gap-2 mb-3">
                   <Users size={18} color="#10b981" />
-                  <Text className="text-white font-semibold">Team ({searchResults.people.length})</Text>
+                  <Text className="text-gray-900 dark:text-white font-semibold">Team ({searchResults.people.length})</Text>
                 </View>
                 {searchResults.people.map((person) => (
                   <Pressable
@@ -196,7 +196,7 @@ export default function GlobalSearchScreen() {
                       </Text>
                     </View>
                     <View className="flex-1">
-                      <Text className="text-white font-medium">{person.name}</Text>
+                      <Text className="text-gray-900 dark:text-white font-medium">{person.name}</Text>
                       <Text className="text-gray-600 dark:text-slate-400 text-xs">{person.function}</Text>
                     </View>
                   </Pressable>
@@ -209,7 +209,7 @@ export default function GlobalSearchScreen() {
               <View>
                 <View className="flex-row items-center gap-2 mb-3">
                   <Package size={18} color="#f59e0b" />
-                  <Text className="text-white font-semibold">Suppliers ({searchResults.suppliers.length})</Text>
+                  <Text className="text-gray-900 dark:text-white font-semibold">Suppliers ({searchResults.suppliers.length})</Text>
                 </View>
                 {searchResults.suppliers.map((supplier) => (
                   <Pressable
@@ -217,7 +217,7 @@ export default function GlobalSearchScreen() {
                     onPress={() => router.push('/organization')}
                     className="bg-gray-100 dark:bg-slate-900 rounded-xl p-3 mb-2 border border-slate-800 active:opacity-70"
                   >
-                    <Text className="text-white font-medium mb-1">{supplier.supplierName}</Text>
+                    <Text className="text-gray-900 dark:text-white font-medium mb-1">{supplier.supplierName}</Text>
                     <Text className="text-gray-600 dark:text-slate-400 text-xs">
                       {supplier.projectName} • {supplier.status}
                     </Text>
@@ -231,7 +231,7 @@ export default function GlobalSearchScreen() {
               <View>
                 <View className="flex-row items-center gap-2 mb-3">
                   <Bot size={18} color="#ec4899" />
-                  <Text className="text-white font-semibold">AI Agents ({searchResults.aiAgents.length})</Text>
+                  <Text className="text-gray-900 dark:text-white font-semibold">AI Agents ({searchResults.aiAgents.length})</Text>
                 </View>
                 {searchResults.aiAgents.map((agent) => (
                   <Pressable
@@ -241,7 +241,7 @@ export default function GlobalSearchScreen() {
                   >
                     <View className="flex-row items-center justify-between">
                       <View className="flex-1">
-                        <Text className="text-white font-medium mb-1">{agent.name}</Text>
+                        <Text className="text-gray-900 dark:text-white font-medium mb-1">{agent.name}</Text>
                         <Text className="text-gray-600 dark:text-slate-400 text-xs" numberOfLines={1}>
                           {agent.purpose}
                         </Text>

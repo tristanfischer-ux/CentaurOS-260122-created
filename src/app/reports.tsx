@@ -181,7 +181,7 @@ export default function ReportsScreen() {
 
         {/* Period Selector */}
         <View className="px-6 pb-6">
-          <Text className="text-white font-semibold text-sm uppercase tracking-wider mb-3 text-gray-600 dark:text-slate-400">Report Period</Text>
+          <Text className="text-gray-900 dark:text-white font-semibold text-sm uppercase tracking-wider mb-3 text-gray-600 dark:text-slate-400">Report Period</Text>
           <View className="flex-row gap-2">
             {periods.map((p) => (
               <Pressable
@@ -220,12 +220,12 @@ export default function ReportsScreen() {
             {generateReportMutation.isPending ? (
               <>
                 <ActivityIndicator size="small" color="#fff" />
-                <Text className="text-white font-bold ml-3 text-base">Generating...</Text>
+                <Text className="text-gray-900 dark:text-white font-bold ml-3 text-base">Generating...</Text>
               </>
             ) : (
               <>
                 <FileText size={20} color="#fff" />
-                <Text className="text-white font-bold ml-3 text-base">Generate Report</Text>
+                <Text className="text-gray-900 dark:text-white font-bold ml-3 text-base">Generate Report</Text>
               </>
             )}
           </Pressable>
@@ -240,7 +240,7 @@ export default function ReportsScreen() {
 
             {/* Export Actions */}
             <View className="px-6 pt-4 pb-6">
-              <Text className="text-white font-bold text-lg mb-4">Export Options</Text>
+              <Text className="text-gray-900 dark:text-white font-bold text-lg mb-4">Export Options</Text>
               <View className="gap-3">
                 {/* PDF Export - Available for all roles */}
                 <Pressable
@@ -254,7 +254,7 @@ export default function ReportsScreen() {
                   ) : (
                     <>
                       <FileText size={20} color="#fff" />
-                      <Text className="text-white font-bold ml-3">Export as PDF</Text>
+                      <Text className="text-gray-900 dark:text-white font-bold ml-3">Export as PDF</Text>
                     </>
                   )}
                 </Pressable>
@@ -271,7 +271,7 @@ export default function ReportsScreen() {
                     ) : (
                       <>
                         <Download size={20} color="#fff" />
-                        <Text className="text-white font-bold ml-3">Export Board Pack</Text>
+                        <Text className="text-gray-900 dark:text-white font-bold ml-3">Export Board Pack</Text>
                       </>
                     )}
                   </Pressable>
@@ -324,7 +324,7 @@ function FounderReportView({ report }: { report: Report }) {
       {/* Executive Summary (McKinsey Pyramid Principle) */}
       {data.executiveSummary && (
         <View>
-          <Text className="text-white font-bold text-2xl mb-4">Executive Summary</Text>
+          <Text className="text-gray-900 dark:text-white font-bold text-2xl mb-4">Executive Summary</Text>
           <View className={cn(
             'p-6 rounded-2xl border-2',
             data.executiveSummary.overallStatus === 'green' && 'bg-emerald-500/10 border-emerald-500/40',
@@ -338,7 +338,7 @@ function FounderReportView({ report }: { report: Report }) {
                 data.executiveSummary.overallStatus === 'yellow' && 'bg-amber-500',
                 data.executiveSummary.overallStatus === 'red' && 'bg-red-500'
               )} />
-              <Text className="text-white font-bold text-lg">{data.executiveSummary.statusLabel}</Text>
+              <Text className="text-gray-900 dark:text-white font-bold text-lg">{data.executiveSummary.statusLabel}</Text>
             </View>
 
             <Text className="text-gray-900 dark:text-white text-base leading-6 mb-5">{data.executiveSummary.headline}</Text>
@@ -348,7 +348,7 @@ function FounderReportView({ report }: { report: Report }) {
               {data.executiveSummary.keyInsights.map((insight: any, idx: number) => (
                 <View key={idx} className="bg-slate-900/50 p-4 rounded-xl border border-slate-700">
                   <View className="flex-row items-start justify-between mb-2">
-                    <Text className="text-white font-semibold text-base flex-1">{insight.title}</Text>
+                    <Text className="text-gray-900 dark:text-white font-semibold text-base flex-1">{insight.title}</Text>
                     <View className={cn(
                       'ml-2 px-2 py-1 rounded',
                       insight.status === 'green' && 'bg-emerald-500/20',
@@ -386,7 +386,7 @@ function FounderReportView({ report }: { report: Report }) {
       {/* Strategic Recommendations */}
       {data.recommendations && data.recommendations.length > 0 && (
         <View>
-          <Text className="text-white font-bold text-2xl mb-4">Strategic Recommendations</Text>
+          <Text className="text-gray-900 dark:text-white font-bold text-2xl mb-4">Strategic Recommendations</Text>
           <View className="gap-3">
             {data.recommendations.slice(0, 5).map((rec: any) => (
               <View
@@ -406,7 +406,7 @@ function FounderReportView({ report }: { report: Report }) {
                       rec.priority === 2 && 'text-amber-400',
                       rec.priority === 3 && 'text-emerald-400'
                     )}>{rec.priorityLabel}</Text>
-                    <Text className="text-white font-semibold text-base">{rec.title}</Text>
+                    <Text className="text-gray-900 dark:text-white font-semibold text-base">{rec.title}</Text>
                   </View>
                   <Lightbulb
                     size={24}
@@ -432,11 +432,11 @@ function FounderReportView({ report }: { report: Report }) {
                 <View className="flex-row justify-between pt-3 border-t border-slate-700">
                   <View>
                     <Text className="text-slate-500 text-xs mb-1">Owner</Text>
-                    <Text className="text-white font-medium text-sm">{rec.owner}</Text>
+                    <Text className="text-gray-900 dark:text-white font-medium text-sm">{rec.owner}</Text>
                   </View>
                   <View>
                     <Text className="text-slate-500 text-xs mb-1">Timeline</Text>
-                    <Text className="text-white font-medium text-sm">{rec.timeline}</Text>
+                    <Text className="text-gray-900 dark:text-white font-medium text-sm">{rec.timeline}</Text>
                   </View>
                 </View>
               </View>
@@ -448,7 +448,7 @@ function FounderReportView({ report }: { report: Report }) {
       {/* Enhanced Risks (McKinsey Impact × Probability) */}
       {data.enhancedRisks && data.enhancedRisks.length > 0 && (
         <View>
-          <Text className="text-white font-bold text-2xl mb-4">Risk Assessment</Text>
+          <Text className="text-gray-900 dark:text-white font-bold text-2xl mb-4">Risk Assessment</Text>
           <View className="gap-3">
             {data.enhancedRisks.slice(0, 5).map((risk: any, idx: number) => (
               <View
@@ -462,7 +462,7 @@ function FounderReportView({ report }: { report: Report }) {
               >
                 <View className="flex-row items-start justify-between mb-3">
                   <View className="flex-1">
-                    <Text className="text-white font-semibold text-base mb-2">{risk.message}</Text>
+                    <Text className="text-gray-900 dark:text-white font-semibold text-base mb-2">{risk.message}</Text>
                     <View className="flex-row items-center gap-3">
                       <View className="bg-slate-900/70 px-3 py-1.5 rounded-lg">
                         <Text className="text-gray-600 dark:text-slate-400 text-xs">
@@ -491,11 +491,11 @@ function FounderReportView({ report }: { report: Report }) {
                 <View className="flex-row justify-between pt-3 border-t border-slate-800">
                   <View>
                     <Text className="text-slate-500 text-xs mb-1">Owner</Text>
-                    <Text className="text-white font-medium text-sm">{risk.owner}</Text>
+                    <Text className="text-gray-900 dark:text-white font-medium text-sm">{risk.owner}</Text>
                   </View>
                   <View>
                     <Text className="text-slate-500 text-xs mb-1">Timeline</Text>
-                    <Text className="text-white font-medium text-sm">{risk.timeline}</Text>
+                    <Text className="text-gray-900 dark:text-white font-medium text-sm">{risk.timeline}</Text>
                   </View>
                 </View>
               </View>
@@ -506,7 +506,7 @@ function FounderReportView({ report }: { report: Report }) {
 
       {/* Overview Cards */}
       <View>
-        <Text className="text-white font-bold text-xl mb-4">Key Metrics</Text>
+        <Text className="text-gray-900 dark:text-white font-bold text-xl mb-4">Key Metrics</Text>
         <View className="gap-3">
           <View className="bg-gradient-to-br from-blue-500/10 to-blue-600/10 p-5 rounded-2xl border border-blue-500/20">
             <View className="flex-row items-center justify-between">
@@ -558,7 +558,7 @@ function FounderReportView({ report }: { report: Report }) {
       {/* Risks */}
       {data.risks.length > 0 && (
         <View>
-          <Text className="text-white font-bold text-xl mb-4">Risks & Alerts</Text>
+          <Text className="text-gray-900 dark:text-white font-bold text-xl mb-4">Risks & Alerts</Text>
           <View className="gap-3">
             {data.risks.map((risk, idx) => (
               <View
@@ -575,7 +575,7 @@ function FounderReportView({ report }: { report: Report }) {
                   color={risk.severity === 'high' ? '#ef4444' : risk.severity === 'medium' ? '#f59e0b' : '#94a3b8'}
                 />
                 <View className="flex-1 ml-3">
-                  <Text className="text-white font-medium mb-1">{risk.message}</Text>
+                  <Text className="text-gray-900 dark:text-white font-medium mb-1">{risk.message}</Text>
                   <Text className="text-gray-600 dark:text-slate-400 text-xs">{risk.affectedArea}</Text>
                 </View>
               </View>
@@ -587,12 +587,12 @@ function FounderReportView({ report }: { report: Report }) {
       {/* OKR Progress */}
       {data.okrProgress.length > 0 && (
         <View>
-          <Text className="text-white font-bold text-xl mb-4">OKR Progress</Text>
+          <Text className="text-gray-900 dark:text-white font-bold text-xl mb-4">OKR Progress</Text>
           <View className="gap-3">
             {data.okrProgress.map((okr) => (
               <View key={okr.objectiveId} className="bg-slate-900 p-5 rounded-xl border border-slate-800">
                 <View className="flex-row items-start justify-between mb-3">
-                  <Text className="text-white font-semibold text-base flex-1">{okr.objectiveTitle}</Text>
+                  <Text className="text-gray-900 dark:text-white font-semibold text-base flex-1">{okr.objectiveTitle}</Text>
                   <View
                     className={cn(
                       'px-3 py-1.5 rounded-full ml-3',
@@ -634,13 +634,13 @@ function FounderReportView({ report }: { report: Report }) {
       {/* Executive Performance */}
       {data.executivePerformance.length > 0 && (
         <View>
-          <Text className="text-white font-bold text-xl mb-4">Executive Performance</Text>
+          <Text className="text-gray-900 dark:text-white font-bold text-xl mb-4">Executive Performance</Text>
           <View className="gap-3">
             {data.executivePerformance.map((exec) => (
               <View key={exec.executiveId} className="bg-slate-900 p-5 rounded-xl border border-slate-800">
                 <View className="flex-row items-start justify-between mb-4">
                   <View className="flex-1">
-                    <Text className="text-white font-semibold text-base">{exec.executiveName}</Text>
+                    <Text className="text-gray-900 dark:text-white font-semibold text-base">{exec.executiveName}</Text>
                     <Text className="text-gray-600 dark:text-slate-400 text-sm mt-1">{exec.function}</Text>
                   </View>
                   <View className="bg-blue-500/20 px-3 py-2 rounded-lg">
@@ -650,15 +650,15 @@ function FounderReportView({ report }: { report: Report }) {
                 <View className="flex-row justify-between pt-3 border-t border-slate-800">
                   <View className="items-center">
                     <Text className="text-slate-500 text-xs mb-1">Tasks</Text>
-                    <Text className="text-white font-semibold text-base">{exec.tasksCompleted}/{exec.tasksCreated}</Text>
+                    <Text className="text-gray-900 dark:text-white font-semibold text-base">{exec.tasksCompleted}/{exec.tasksCreated}</Text>
                   </View>
                   <View className="items-center">
                     <Text className="text-slate-500 text-xs mb-1">Structured</Text>
-                    <Text className="text-white font-semibold text-base">{exec.workflowItemsStructured}</Text>
+                    <Text className="text-gray-900 dark:text-white font-semibold text-base">{exec.workflowItemsStructured}</Text>
                   </View>
                   <View className="items-center">
                     <Text className="text-slate-500 text-xs mb-1">Verified</Text>
-                    <Text className="text-white font-semibold text-base">{exec.apprenticeWorkVerified}</Text>
+                    <Text className="text-gray-900 dark:text-white font-semibold text-base">{exec.apprenticeWorkVerified}</Text>
                   </View>
                 </View>
               </View>
@@ -670,13 +670,13 @@ function FounderReportView({ report }: { report: Report }) {
       {/* Apprentice Utilization */}
       {data.apprenticeUtilization.length > 0 && (
         <View>
-          <Text className="text-white font-bold text-xl mb-4">Apprentice Utilization</Text>
+          <Text className="text-gray-900 dark:text-white font-bold text-xl mb-4">Apprentice Utilization</Text>
           <View className="gap-3">
             {data.apprenticeUtilization.map((apprentice) => (
               <View key={apprentice.apprenticeId} className="bg-slate-900 p-5 rounded-xl border border-slate-800">
                 <View className="flex-row items-start justify-between mb-4">
                   <View className="flex-1">
-                    <Text className="text-white font-semibold text-base">{apprentice.apprenticeName}</Text>
+                    <Text className="text-gray-900 dark:text-white font-semibold text-base">{apprentice.apprenticeName}</Text>
                     <Text className="text-gray-600 dark:text-slate-400 text-sm mt-1">{apprentice.function}</Text>
                   </View>
                   <View className="bg-emerald-500/20 px-3 py-2 rounded-lg">
@@ -686,15 +686,15 @@ function FounderReportView({ report }: { report: Report }) {
                 <View className="flex-row justify-between pt-3 border-t border-slate-800">
                   <View className="items-center">
                     <Text className="text-slate-500 text-xs mb-1">Tasks</Text>
-                    <Text className="text-white font-semibold text-base">{apprentice.tasksCompleted}/{apprentice.tasksAssigned}</Text>
+                    <Text className="text-gray-900 dark:text-white font-semibold text-base">{apprentice.tasksCompleted}/{apprentice.tasksAssigned}</Text>
                   </View>
                   <View className="items-center">
                     <Text className="text-slate-500 text-xs mb-1">Hours</Text>
-                    <Text className="text-white font-semibold text-base">{apprentice.hoursLogged}h</Text>
+                    <Text className="text-gray-900 dark:text-white font-semibold text-base">{apprentice.hoursLogged}h</Text>
                   </View>
                   <View className="items-center">
                     <Text className="text-slate-500 text-xs mb-1">Avg Days</Text>
-                    <Text className="text-white font-semibold text-base">{apprentice.averageTaskCompletionDays}d</Text>
+                    <Text className="text-gray-900 dark:text-white font-semibold text-base">{apprentice.averageTaskCompletionDays}d</Text>
                   </View>
                 </View>
               </View>
@@ -713,17 +713,17 @@ function ExecutiveReportView({ report }: { report: Report }) {
   return (
     <View className="px-6 pt-2 pb-4 gap-6">
       <View>
-        <Text className="text-white font-bold text-xl mb-4">Performance Summary</Text>
+        <Text className="text-gray-900 dark:text-white font-bold text-xl mb-4">Performance Summary</Text>
         <View className="bg-slate-900 p-5 rounded-xl border border-slate-800">
           <View className="mb-4 pb-4 border-b border-slate-800">
             <Text className="text-gray-600 dark:text-slate-400 text-sm mb-1">Function</Text>
-            <Text className="text-white font-semibold text-lg">{data.function}</Text>
+            <Text className="text-gray-900 dark:text-white font-semibold text-lg">{data.function}</Text>
           </View>
 
           <View className="gap-3">
             <View className="flex-row justify-between items-center">
               <Text className="text-gray-600 dark:text-slate-400 font-medium">Tasks Created</Text>
-              <Text className="text-white font-bold text-lg">{data.summary.tasksCreated}</Text>
+              <Text className="text-gray-900 dark:text-white font-bold text-lg">{data.summary.tasksCreated}</Text>
             </View>
             <View className="flex-row justify-between items-center">
               <Text className="text-gray-600 dark:text-slate-400 font-medium">Tasks Completed</Text>
@@ -731,11 +731,11 @@ function ExecutiveReportView({ report }: { report: Report }) {
             </View>
             <View className="flex-row justify-between items-center">
               <Text className="text-gray-600 dark:text-slate-400 font-medium">Workflow Items Structured</Text>
-              <Text className="text-white font-bold text-lg">{data.summary.workflowItemsStructured}</Text>
+              <Text className="text-gray-900 dark:text-white font-bold text-lg">{data.summary.workflowItemsStructured}</Text>
             </View>
             <View className="flex-row justify-between items-center">
               <Text className="text-gray-600 dark:text-slate-400 font-medium">Work Verified</Text>
-              <Text className="text-white font-bold text-lg">{data.summary.apprenticeWorkVerified}</Text>
+              <Text className="text-gray-900 dark:text-white font-bold text-lg">{data.summary.apprenticeWorkVerified}</Text>
             </View>
 
             <View className="mt-3 pt-3 border-t border-slate-800">
@@ -752,19 +752,19 @@ function ExecutiveReportView({ report }: { report: Report }) {
 
       {data.apprenticePerformance.length > 0 && (
         <View>
-          <Text className="text-white font-bold text-xl mb-4">Team Performance</Text>
+          <Text className="text-gray-900 dark:text-white font-bold text-xl mb-4">Team Performance</Text>
           <View className="gap-3">
             {data.apprenticePerformance.map((apprentice) => (
               <View key={apprentice.apprenticeId} className="bg-slate-900 p-5 rounded-xl border border-slate-800">
-                <Text className="text-white font-semibold text-base mb-4">{apprentice.apprenticeName}</Text>
+                <Text className="text-gray-900 dark:text-white font-semibold text-base mb-4">{apprentice.apprenticeName}</Text>
                 <View className="flex-row justify-between">
                   <View className="items-center flex-1">
                     <Text className="text-slate-500 text-xs mb-1.5">Tasks</Text>
-                    <Text className="text-white font-bold text-lg">{apprentice.tasksCompleted}/{apprentice.tasksAssigned}</Text>
+                    <Text className="text-gray-900 dark:text-white font-bold text-lg">{apprentice.tasksCompleted}/{apprentice.tasksAssigned}</Text>
                   </View>
                   <View className="items-center flex-1">
                     <Text className="text-slate-500 text-xs mb-1.5">Hours</Text>
-                    <Text className="text-white font-bold text-lg">{apprentice.hoursLogged}h</Text>
+                    <Text className="text-gray-900 dark:text-white font-bold text-lg">{apprentice.hoursLogged}h</Text>
                   </View>
                   <View className="items-center flex-1">
                     <Text className="text-slate-500 text-xs mb-1.5">Pending</Text>
@@ -787,17 +787,17 @@ function ApprenticeReportView({ report }: { report: Report }) {
   return (
     <View className="px-6 pt-2 pb-4 gap-6">
       <View>
-        <Text className="text-white font-bold text-xl mb-4">Your Performance</Text>
+        <Text className="text-gray-900 dark:text-white font-bold text-xl mb-4">Your Performance</Text>
         <View className="bg-slate-900 p-5 rounded-xl border border-slate-800">
           <View className="mb-4 pb-4 border-b border-slate-800">
             <Text className="text-gray-600 dark:text-slate-400 text-sm mb-1">Function</Text>
-            <Text className="text-white font-semibold text-lg">{data.function}</Text>
+            <Text className="text-gray-900 dark:text-white font-semibold text-lg">{data.function}</Text>
           </View>
 
           <View className="gap-3">
             <View className="flex-row justify-between items-center">
               <Text className="text-gray-600 dark:text-slate-400 font-medium">Tasks Assigned</Text>
-              <Text className="text-white font-bold text-lg">{data.summary.tasksAssigned}</Text>
+              <Text className="text-gray-900 dark:text-white font-bold text-lg">{data.summary.tasksAssigned}</Text>
             </View>
             <View className="flex-row justify-between items-center">
               <Text className="text-gray-600 dark:text-slate-400 font-medium">Tasks Completed</Text>
@@ -831,7 +831,7 @@ function ApprenticeReportView({ report }: { report: Report }) {
 
       {data.achievements.length > 0 && (
         <View>
-          <Text className="text-white font-bold text-xl mb-4">Achievements</Text>
+          <Text className="text-gray-900 dark:text-white font-bold text-xl mb-4">Achievements</Text>
           <View className="gap-2">
             {data.achievements.map((achievement, idx) => (
               <View key={idx} className="bg-emerald-500/10 border border-emerald-500/30 p-4 rounded-xl flex-row items-center">
@@ -847,12 +847,12 @@ function ApprenticeReportView({ report }: { report: Report }) {
 
       {data.taskDetails.length > 0 && (
         <View>
-          <Text className="text-white font-bold text-xl mb-4">Recent Tasks</Text>
+          <Text className="text-gray-900 dark:text-white font-bold text-xl mb-4">Recent Tasks</Text>
           <View className="gap-3">
             {data.taskDetails.slice(0, 5).map((task) => (
               <View key={task.taskId} className="bg-slate-900 p-4 rounded-xl border border-slate-800">
                 <View className="flex-row items-start justify-between mb-2">
-                  <Text className="text-white font-medium text-base flex-1 mr-3">{task.title}</Text>
+                  <Text className="text-gray-900 dark:text-white font-medium text-base flex-1 mr-3">{task.title}</Text>
                   <View
                     className={cn(
                       'px-3 py-1.5 rounded-full',

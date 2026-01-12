@@ -147,7 +147,7 @@ export default function KPIDetailsScreen() {
                   >
                     <View className="flex-row items-start justify-between mb-2">
                       <View className="flex-1 mr-2">
-                        <Text className="text-white font-semibold text-base mb-1">
+                        <Text className="text-gray-900 dark:text-white font-semibold text-base mb-1">
                           {task.title}
                         </Text>
                         {task.description && (

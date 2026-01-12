@@ -105,7 +105,7 @@ export default function ReviewsScreen() {
                         Awaiting Review
                       </Text>
                     </View>
-                    <Text className="text-white font-semibold text-base mb-1">
+                    <Text className="text-gray-900 dark:text-white font-semibold text-base mb-1">
                       {review.task?.title || 'Task'}
                     </Text>
                     {review.task?.description && (
@@ -162,7 +162,7 @@ export default function ReviewsScreen() {
                           {isApproved ? 'Approved' : 'Changes Requested'}
                         </Text>
                       </View>
-                      <Text className="text-white font-semibold text-base mb-1">
+                      <Text className="text-gray-900 dark:text-white font-semibold text-base mb-1">
                         {review.task?.title || 'Task'}
                       </Text>
                       {review.notes && (
@@ -213,7 +213,7 @@ export default function ReviewsScreen() {
             {selectedReview && (
               <>
                 <View className="mb-4">
-                  <Text className="text-white font-semibold text-lg mb-2">
+                  <Text className="text-gray-900 dark:text-white font-semibold text-lg mb-2">
                     {selectedReview.task?.title}
                   </Text>
                   {selectedReview.task?.description && (
@@ -243,7 +243,7 @@ export default function ReviewsScreen() {
                     className="bg-green-500 rounded-xl py-4 flex-row items-center justify-center active:opacity-70"
                   >
                     <ThumbsUp size={20} color="white" />
-                    <Text className="text-white font-bold ml-2 text-base">Approve</Text>
+                    <Text className="text-gray-900 dark:text-white font-bold ml-2 text-base">Approve</Text>
                   </Pressable>
 
                   <Pressable
@@ -252,7 +252,7 @@ export default function ReviewsScreen() {
                     className="bg-red-500 rounded-xl py-4 flex-row items-center justify-center active:opacity-70"
                   >
                     <XCircle size={20} color="white" />
-                    <Text className="text-white font-bold ml-2 text-base">Request Changes</Text>
+                    <Text className="text-gray-900 dark:text-white font-bold ml-2 text-base">Request Changes</Text>
                   </Pressable>
 
                   <Pressable

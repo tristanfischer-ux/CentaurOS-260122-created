@@ -437,7 +437,7 @@ export default function WorkScreen() {
                           {task.function}
                         </Text>
                       </View>
-                      <Text className="text-white font-semibold text-base mb-1">{task.title}</Text>
+                      <Text className="text-gray-900 dark:text-white font-semibold text-base mb-1">{task.title}</Text>
                       {task.description && (
                         <Text className="text-gray-600 dark:text-slate-400 text-sm" numberOfLines={2}>
                           {task.description}
@@ -628,7 +628,7 @@ export default function WorkScreen() {
                         onChangeText={setEditTitle}
                         placeholder="Task title"
                         placeholderTextColor="#64748b"
-                        className="bg-slate-800 text-white rounded-xl px-4 py-3 border border-slate-700"
+                        className="bg-slate-800 text-gray-900 dark:text-white rounded-xl px-4 py-3 border border-slate-700"
                       />
                     </View>
 
@@ -643,7 +643,7 @@ export default function WorkScreen() {
                         multiline
                         numberOfLines={4}
                         textAlignVertical="top"
-                        className="bg-slate-800 text-white rounded-xl px-4 py-3 border border-slate-700"
+                        className="bg-slate-800 text-gray-900 dark:text-white rounded-xl px-4 py-3 border border-slate-700"
                       />
                     </View>
 
@@ -830,7 +830,7 @@ export default function WorkScreen() {
                             : 'bg-blue-500 active:opacity-70'
                         }`}
                       >
-                        <Text className="text-white font-bold text-base">
+                        <Text className="text-gray-900 dark:text-white font-bold text-base">
                           {updateTaskMutation.isPending ? 'Updating...' : 'Save Changes'}
                         </Text>
                       </Pressable>
@@ -918,7 +918,7 @@ export default function WorkScreen() {
                         <View className="flex-row items-center justify-between">
                           <View className="flex-row items-center gap-3">
                             <View className="w-10 h-10 bg-blue-500 rounded-full items-center justify-center">
-                              <Text className="text-white font-bold">
+                              <Text className="text-gray-900 dark:text-white font-bold">
                                 {member.user?.name.charAt(0) || '?'}
                               </Text>
                             </View>
@@ -1015,7 +1015,7 @@ export default function WorkScreen() {
                       onChangeText={setNewTaskTitle}
                       placeholder="Enter task title"
                       placeholderTextColor="#64748b"
-                      className="bg-slate-800 text-white px-4 py-3 rounded-xl border border-slate-700"
+                      className="bg-slate-800 text-gray-900 dark:text-white px-4 py-3 rounded-xl border border-slate-700"
                       autoFocus
                     />
                   </View>
@@ -1030,7 +1030,7 @@ export default function WorkScreen() {
                       placeholderTextColor="#64748b"
                       multiline
                       numberOfLines={3}
-                      className="bg-slate-800 text-white px-4 py-3 rounded-xl border border-slate-700"
+                      className="bg-slate-800 text-gray-900 dark:text-white px-4 py-3 rounded-xl border border-slate-700"
                       style={{ minHeight: 80, textAlignVertical: 'top' }}
                     />
                   </View>
@@ -1188,7 +1188,7 @@ export default function WorkScreen() {
                     {createTaskMutation.isPending ? (
                       <ActivityIndicator size="small" color="#fff" />
                     ) : (
-                      <Text className="text-white font-bold text-base">Create Task</Text>
+                      <Text className="text-gray-900 dark:text-white font-bold text-base">Create Task</Text>
                     )}
                   </Pressable>
 

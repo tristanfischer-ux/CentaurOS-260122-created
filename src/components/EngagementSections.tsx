@@ -129,7 +129,7 @@ export function EngagementSections({ role, tasks = [], userName }: EngagementSec
                 <Flame size={20} color="#f97316" />
                 <Text className="text-orange-400 text-xs font-semibold">Streak</Text>
               </View>
-              <Text className="text-white text-3xl font-bold">
+              <Text className="text-gray-900 dark:text-white text-3xl font-bold">
                 {streakData?.currentStreak || 0}
               </Text>
               <Text className="text-slate-400 text-xs mt-1">
@@ -153,7 +153,7 @@ export function EngagementSections({ role, tasks = [], userName }: EngagementSec
             <Zap size={20} color="#eab308" />
             <Text className="text-slate-400 text-xs font-semibold">Today</Text>
           </View>
-          <Text className="text-white text-3xl font-bold">{completedToday}</Text>
+          <Text className="text-gray-900 dark:text-white text-3xl font-bold">{completedToday}</Text>
           <Text className="text-slate-400 text-xs mt-1">
             {pendingCount} pending
           </Text>
@@ -164,7 +164,7 @@ export function EngagementSections({ role, tasks = [], userName }: EngagementSec
       {todayTasks.length > 0 && (
         <View className="mb-4">
           <View className="flex-row items-center justify-between mb-3">
-            <Text className="text-white text-lg font-semibold">Today's Focus</Text>
+            <Text className="text-gray-900 dark:text-white text-lg font-semibold">Today's Focus</Text>
             <Pressable onPress={() => router.push('/(tabs)/work')} className="active:opacity-70">
               <Text className="text-blue-400 text-sm">View All</Text>
             </Pressable>
@@ -197,7 +197,7 @@ export function EngagementSections({ role, tasks = [], userName }: EngagementSec
                         </View>
                         <Text className="text-slate-500 text-xs">{task.function}</Text>
                       </View>
-                      <Text className="text-white font-medium" numberOfLines={1}>
+                      <Text className="text-gray-900 dark:text-white font-medium" numberOfLines={1}>
                         {task.title}
                       </Text>
                     </View>
@@ -214,7 +214,7 @@ export function EngagementSections({ role, tasks = [], userName }: EngagementSec
       {activityFeed.length > 0 && (
         <View className="mb-4">
           <View className="flex-row items-center justify-between mb-3">
-            <Text className="text-white text-lg font-semibold">Recent Activity</Text>
+            <Text className="text-gray-900 dark:text-white text-lg font-semibold">Recent Activity</Text>
             <View className="flex-row items-center gap-1">
               <Activity size={16} color="#64748b" />
               <Text className="text-slate-400 text-sm">Live</Text>
@@ -267,7 +267,7 @@ export function EngagementSections({ role, tasks = [], userName }: EngagementSec
             }}
           >
             <CheckCircle2 size={20} color="#fff" />
-            <Text className="text-white font-bold">Complete Task</Text>
+            <Text className="text-gray-900 dark:text-white font-bold">Complete Task</Text>
           </LinearGradient>
         </Pressable>
 

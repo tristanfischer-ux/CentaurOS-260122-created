@@ -304,7 +304,7 @@ export default function HomeScreen() {
 
             {/* Cost Breakdown */}
             <View className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-4 border border-slate-800 mb-3">
-              <Text className="text-white font-semibold mb-3">
+              <Text className="text-gray-900 dark:text-white font-semibold mb-3">
                 Cost Breakdown
               </Text>
 
@@ -321,7 +321,7 @@ export default function HomeScreen() {
                     <Package size={16} color="#8b5cf6" />
                     <Text className="text-slate-300 text-sm">COGS</Text>
                   </View>
-                  <Text className="text-white font-semibold">
+                  <Text className="text-gray-900 dark:text-white font-semibold">
                     £{(financials.cogs.total / 1000).toFixed(1)}k
                   </Text>
                 </View>
@@ -355,7 +355,7 @@ export default function HomeScreen() {
                     <Users size={16} color="#3b82f6" />
                     <Text className="text-slate-300 text-sm">Team</Text>
                   </View>
-                  <Text className="text-white font-semibold">
+                  <Text className="text-gray-900 dark:text-white font-semibold">
                     £{(financials.teamCosts.total / 1000).toFixed(1)}k
                   </Text>
                 </View>
@@ -385,7 +385,7 @@ export default function HomeScreen() {
                     <Bot size={16} color="#10b981" />
                     <Text className="text-slate-300 text-sm">AI Services</Text>
                   </View>
-                  <Text className="text-white font-semibold">
+                  <Text className="text-gray-900 dark:text-white font-semibold">
                     £{(financials.aiCosts.total / 1000).toFixed(1)}k
                   </Text>
                 </View>
@@ -413,7 +413,7 @@ export default function HomeScreen() {
                     <Briefcase size={16} color="#f59e0b" />
                     <Text className="text-slate-300 text-sm">Other</Text>
                   </View>
-                  <Text className="text-white font-semibold">
+                  <Text className="text-gray-900 dark:text-white font-semibold">
                     £{(financials.otherCosts.total / 1000).toFixed(1)}k
                   </Text>
                 </View>
@@ -486,7 +486,7 @@ export default function HomeScreen() {
                 <View className="flex-1">
                   <View className="flex-row items-center mb-1">
                     <Calendar size={18} color="#fff" />
-                    <Text className="text-white font-semibold ml-2">
+                    <Text className="text-gray-900 dark:text-white font-semibold ml-2">
                       Weekly Report
                     </Text>
                   </View>
@@ -505,7 +505,7 @@ export default function HomeScreen() {
                 className="flex-1 bg-gray-100 dark:bg-slate-900 rounded-2xl p-4 border border-slate-800 active:opacity-70"
               >
                 <BarChart3 size={24} color="#10b981" />
-                <Text className="text-white font-semibold mt-2 mb-1">
+                <Text className="text-gray-900 dark:text-white font-semibold mt-2 mb-1">
                   Monthly
                 </Text>
                 <Text className="text-gray-600 dark:text-slate-400 text-xs">30 day overview</Text>
@@ -516,7 +516,7 @@ export default function HomeScreen() {
                 className="flex-1 bg-gray-100 dark:bg-slate-900 rounded-2xl p-4 border border-slate-800 active:opacity-70"
               >
                 <PieChart size={24} color="#f59e0b" />
-                <Text className="text-white font-semibold mt-2 mb-1">
+                <Text className="text-gray-900 dark:text-white font-semibold mt-2 mb-1">
                   Quarterly
                 </Text>
                 <Text className="text-gray-600 dark:text-slate-400 text-xs">90 day summary</Text>
@@ -535,7 +535,7 @@ export default function HomeScreen() {
                   <View className="flex-1">
                     <View className="flex-row items-center mb-1">
                       <FileText size={18} color="#10b981" />
-                      <Text className="text-white font-semibold ml-2">
+                      <Text className="text-gray-900 dark:text-white font-semibold ml-2">
                         Board Pack
                       </Text>
                       <View className="bg-emerald-950 px-2 py-0.5 rounded-full ml-2">
@@ -586,7 +586,7 @@ export default function HomeScreen() {
                     className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-4 border border-slate-800 active:opacity-70"
                   >
                     <View className="flex-row items-start justify-between mb-2">
-                      <Text className="text-white font-medium flex-1 mr-2">
+                      <Text className="text-gray-900 dark:text-white font-medium flex-1 mr-2">
                         {kr.title}
                       </Text>
                       <View className={`w-2 h-2 rounded-full ${healthColor}`} />
@@ -649,7 +649,7 @@ export default function HomeScreen() {
                     >
                       <View className="flex-row items-start justify-between">
                         <View className="flex-1 mr-2">
-                          <Text className="text-white font-medium mb-1">
+                          <Text className="text-gray-900 dark:text-white font-medium mb-1">
                             {task.title}
                           </Text>
                           <View className="flex-row items-center gap-2">
@@ -700,7 +700,7 @@ export default function HomeScreen() {
                   >
                     <View className="flex-row items-center justify-between">
                       <View className="flex-1">
-                        <Text className="text-white font-medium mb-1">
+                        <Text className="text-gray-900 dark:text-white font-medium mb-1">
                           Task awaiting review
                         </Text>
                         <Text className="text-gray-600 dark:text-slate-400 text-xs">
@@ -741,7 +741,7 @@ export default function HomeScreen() {
               />
               <View className="flex-row items-center flex-1">
                 <Target size={24} color="white" />
-                <Text className="text-white font-semibold ml-3">View OKRs</Text>
+                <Text className="text-gray-900 dark:text-white font-semibold ml-3">View OKRs</Text>
               </View>
               <ArrowRight size={20} color="white" />
             </Pressable>
@@ -765,7 +765,7 @@ export default function HomeScreen() {
               />
               <View className="flex-row items-center flex-1">
                 <Briefcase size={24} color="white" />
-                <Text className="text-white font-semibold ml-3">Work Hub</Text>
+                <Text className="text-gray-900 dark:text-white font-semibold ml-3">Work Hub</Text>
               </View>
               <ArrowRight size={20} color="white" />
             </Pressable>
@@ -789,7 +789,7 @@ export default function HomeScreen() {
               />
               <View className="flex-row items-center flex-1">
                 <Store size={24} color="white" />
-                <Text className="text-white font-semibold ml-3">Marketplace</Text>
+                <Text className="text-gray-900 dark:text-white font-semibold ml-3">Marketplace</Text>
               </View>
               <ArrowRight size={20} color="white" />
             </Pressable>
@@ -826,7 +826,7 @@ export default function HomeScreen() {
                   Monthly Revenue Target
                 </Text>
                 <View className="flex-row items-center bg-slate-800 rounded-xl px-4 py-3">
-                  <Text className="text-white mr-2">£</Text>
+                  <Text className="text-gray-900 dark:text-white mr-2">£</Text>
                   <TextInput
                     value={editingBudget.monthlyRevenue.toString()}
                     onChangeText={(text) =>
@@ -838,7 +838,7 @@ export default function HomeScreen() {
                     keyboardType="numeric"
                     placeholder="50000"
                     placeholderTextColor="#64748b"
-                    className="text-white flex-1"
+                    className="text-gray-900 dark:text-white flex-1"
                   />
                 </View>
               </View>
@@ -849,7 +849,7 @@ export default function HomeScreen() {
                   Max Team Cost
                 </Text>
                 <View className="flex-row items-center bg-slate-800 rounded-xl px-4 py-3">
-                  <Text className="text-white mr-2">£</Text>
+                  <Text className="text-gray-900 dark:text-white mr-2">£</Text>
                   <TextInput
                     value={editingBudget.maxTeamCost.toString()}
                     onChangeText={(text) =>
@@ -861,7 +861,7 @@ export default function HomeScreen() {
                     keyboardType="numeric"
                     placeholder="30000"
                     placeholderTextColor="#64748b"
-                    className="text-white flex-1"
+                    className="text-gray-900 dark:text-white flex-1"
                   />
                 </View>
               </View>
@@ -870,7 +870,7 @@ export default function HomeScreen() {
               <View className="mb-4">
                 <Text className="text-gray-600 dark:text-slate-400 text-sm mb-2">Max AI Cost</Text>
                 <View className="flex-row items-center bg-slate-800 rounded-xl px-4 py-3">
-                  <Text className="text-white mr-2">£</Text>
+                  <Text className="text-gray-900 dark:text-white mr-2">£</Text>
                   <TextInput
                     value={editingBudget.maxAICost.toString()}
                     onChangeText={(text) =>
@@ -882,7 +882,7 @@ export default function HomeScreen() {
                     keyboardType="numeric"
                     placeholder="2500"
                     placeholderTextColor="#64748b"
-                    className="text-white flex-1"
+                    className="text-gray-900 dark:text-white flex-1"
                   />
                 </View>
               </View>
@@ -891,7 +891,7 @@ export default function HomeScreen() {
               <View className="mb-4">
                 <Text className="text-gray-600 dark:text-slate-400 text-sm mb-2">Max COGS</Text>
                 <View className="flex-row items-center bg-slate-800 rounded-xl px-4 py-3">
-                  <Text className="text-white mr-2">£</Text>
+                  <Text className="text-gray-900 dark:text-white mr-2">£</Text>
                   <TextInput
                     value={editingBudget.maxCOGS.toString()}
                     onChangeText={(text) =>
@@ -903,7 +903,7 @@ export default function HomeScreen() {
                     keyboardType="numeric"
                     placeholder="20000"
                     placeholderTextColor="#64748b"
-                    className="text-white flex-1"
+                    className="text-gray-900 dark:text-white flex-1"
                   />
                 </View>
               </View>
@@ -914,7 +914,7 @@ export default function HomeScreen() {
                   Max Other Costs
                 </Text>
                 <View className="flex-row items-center bg-slate-800 rounded-xl px-4 py-3">
-                  <Text className="text-white mr-2">£</Text>
+                  <Text className="text-gray-900 dark:text-white mr-2">£</Text>
                   <TextInput
                     value={editingBudget.maxOtherCosts.toString()}
                     onChangeText={(text) =>
@@ -926,7 +926,7 @@ export default function HomeScreen() {
                     keyboardType="numeric"
                     placeholder="9000"
                     placeholderTextColor="#64748b"
-                    className="text-white flex-1"
+                    className="text-gray-900 dark:text-white flex-1"
                   />
                 </View>
               </View>
@@ -937,7 +937,7 @@ export default function HomeScreen() {
                   Target Burn Rate
                 </Text>
                 <View className="flex-row items-center bg-slate-800 rounded-xl px-4 py-3">
-                  <Text className="text-white mr-2">£</Text>
+                  <Text className="text-gray-900 dark:text-white mr-2">£</Text>
                   <TextInput
                     value={editingBudget.targetBurnRate.toString()}
                     onChangeText={(text) =>
@@ -949,7 +949,7 @@ export default function HomeScreen() {
                     keyboardType="numeric"
                     placeholder="60000"
                     placeholderTextColor="#64748b"
-                    className="text-white flex-1"
+                    className="text-gray-900 dark:text-white flex-1"
                   />
                 </View>
               </View>
@@ -976,7 +976,7 @@ export default function HomeScreen() {
                     alignItems: "center",
                   }}
                 >
-                  <Text className="text-white font-bold text-base">
+                  <Text className="text-gray-900 dark:text-white font-bold text-base">
                     Save Budget
                   </Text>
                 </LinearGradient>
@@ -1026,10 +1026,10 @@ export default function HomeScreen() {
                     {/* Product Sales */}
                     <View className="mb-4">
                       <View className="flex-row items-center justify-between mb-2">
-                        <Text className="text-white font-medium">
+                        <Text className="text-gray-900 dark:text-white font-medium">
                           Product Sales
                         </Text>
-                        <Text className="text-white font-bold">
+                        <Text className="text-gray-900 dark:text-white font-bold">
                           £
                           {(
                             financials.revenue.breakdown.productSales / 1000
@@ -1058,8 +1058,8 @@ export default function HomeScreen() {
                     {/* Services */}
                     <View className="mb-4">
                       <View className="flex-row items-center justify-between mb-2">
-                        <Text className="text-white font-medium">Services</Text>
-                        <Text className="text-white font-bold">
+                        <Text className="text-gray-900 dark:text-white font-medium">Services</Text>
+                        <Text className="text-gray-900 dark:text-white font-bold">
                           £
                           {(
                             financials.revenue.breakdown.services / 1000
@@ -1088,10 +1088,10 @@ export default function HomeScreen() {
                     {/* Recurring */}
                     <View className="mb-4">
                       <View className="flex-row items-center justify-between mb-2">
-                        <Text className="text-white font-medium">
+                        <Text className="text-gray-900 dark:text-white font-medium">
                           Recurring
                         </Text>
-                        <Text className="text-white font-bold">
+                        <Text className="text-gray-900 dark:text-white font-bold">
                           £
                           {(
                             financials.revenue.breakdown.recurring / 1000
@@ -1120,8 +1120,8 @@ export default function HomeScreen() {
                     {/* Other */}
                     <View className="mb-4">
                       <View className="flex-row items-center justify-between mb-2">
-                        <Text className="text-white font-medium">Other</Text>
-                        <Text className="text-white font-bold">
+                        <Text className="text-gray-900 dark:text-white font-medium">Other</Text>
+                        <Text className="text-gray-900 dark:text-white font-bold">
                           £
                           {(financials.revenue.breakdown.other / 1000).toFixed(
                             1,
@@ -1172,7 +1172,7 @@ export default function HomeScreen() {
                     {/* Revenue */}
                     <View className="mb-4">
                       <View className="flex-row items-center justify-between mb-2">
-                        <Text className="text-white font-medium">Revenue</Text>
+                        <Text className="text-gray-900 dark:text-white font-medium">Revenue</Text>
                         <Text className="text-emerald-400 font-bold">
                           £{(financials.revenue.total / 1000).toFixed(1)}k
                         </Text>
@@ -1182,7 +1182,7 @@ export default function HomeScreen() {
                     {/* COGS/BOM */}
                     <View className="mb-4">
                       <View className="flex-row items-center justify-between mb-2">
-                        <Text className="text-white font-medium">
+                        <Text className="text-gray-900 dark:text-white font-medium">
                           COGS (Bill of Materials)
                         </Text>
                         <Text className="text-red-400 font-bold">
@@ -1267,10 +1267,10 @@ export default function HomeScreen() {
                     {/* Sales/Revenue (shown as COGS) */}
                     <View className="mb-4">
                       <View className="flex-row items-center justify-between mb-2">
-                        <Text className="text-white font-medium">
+                        <Text className="text-gray-900 dark:text-white font-medium">
                           Bill of Materials (BOM)
                         </Text>
-                        <Text className="text-white font-bold">
+                        <Text className="text-gray-900 dark:text-white font-bold">
                           £{(financials.cogs.total / 1000).toFixed(1)}k
                         </Text>
                       </View>
@@ -1294,8 +1294,8 @@ export default function HomeScreen() {
                     {/* People */}
                     <View className="mb-4">
                       <View className="flex-row items-center justify-between mb-2">
-                        <Text className="text-white font-medium">People</Text>
-                        <Text className="text-white font-bold">
+                        <Text className="text-gray-900 dark:text-white font-medium">People</Text>
+                        <Text className="text-gray-900 dark:text-white font-bold">
                           £{(financials.teamCosts.total / 1000).toFixed(1)}k
                         </Text>
                       </View>
@@ -1352,10 +1352,10 @@ export default function HomeScreen() {
                     {/* AI */}
                     <View className="mb-4">
                       <View className="flex-row items-center justify-between mb-2">
-                        <Text className="text-white font-medium">
+                        <Text className="text-gray-900 dark:text-white font-medium">
                           AI Services
                         </Text>
-                        <Text className="text-white font-bold">
+                        <Text className="text-gray-900 dark:text-white font-bold">
                           £{(financials.aiCosts.total / 1000).toFixed(1)}k
                         </Text>
                       </View>
@@ -1429,10 +1429,10 @@ export default function HomeScreen() {
                     {/* Other */}
                     <View className="mb-4">
                       <View className="flex-row items-center justify-between mb-2">
-                        <Text className="text-white font-medium">
+                        <Text className="text-gray-900 dark:text-white font-medium">
                           Other Costs
                         </Text>
-                        <Text className="text-white font-bold">
+                        <Text className="text-gray-900 dark:text-white font-bold">
                           £{(financials.otherCosts.total / 1000).toFixed(1)}k
                         </Text>
                       </View>
@@ -1533,10 +1533,10 @@ export default function HomeScreen() {
 
                     <View className="mb-4">
                       <View className="flex-row items-center justify-between mb-2">
-                        <Text className="text-white font-medium">
+                        <Text className="text-gray-900 dark:text-white font-medium">
                           Cash Balance
                         </Text>
-                        <Text className="text-white font-bold">
+                        <Text className="text-gray-900 dark:text-white font-bold">
                           £{(financials.cashBalance / 1000).toFixed(0)}k
                         </Text>
                       </View>
@@ -1544,10 +1544,10 @@ export default function HomeScreen() {
 
                     <View className="mb-4">
                       <View className="flex-row items-center justify-between mb-2">
-                        <Text className="text-white font-medium">
+                        <Text className="text-gray-900 dark:text-white font-medium">
                           Monthly Burn Rate
                         </Text>
-                        <Text className="text-white font-bold">
+                        <Text className="text-gray-900 dark:text-white font-bold">
                           £{(financials.burnRate / 1000).toFixed(1)}k
                         </Text>
                       </View>
@@ -1589,8 +1589,8 @@ export default function HomeScreen() {
                     {/* Materials */}
                     <View className="mb-4">
                       <View className="flex-row items-center justify-between mb-2">
-                        <Text className="text-white font-medium">Materials</Text>
-                        <Text className="text-white font-bold">
+                        <Text className="text-gray-900 dark:text-white font-medium">Materials</Text>
+                        <Text className="text-gray-900 dark:text-white font-bold">
                           £{(financials.cogs.breakdown.materials / 1000).toFixed(1)}k
                         </Text>
                       </View>
@@ -1610,8 +1610,8 @@ export default function HomeScreen() {
                     {/* Manufacturing */}
                     <View className="mb-4">
                       <View className="flex-row items-center justify-between mb-2">
-                        <Text className="text-white font-medium">Manufacturing</Text>
-                        <Text className="text-white font-bold">
+                        <Text className="text-gray-900 dark:text-white font-medium">Manufacturing</Text>
+                        <Text className="text-gray-900 dark:text-white font-bold">
                           £{(financials.cogs.breakdown.manufacturing / 1000).toFixed(1)}k
                         </Text>
                       </View>
@@ -1631,8 +1631,8 @@ export default function HomeScreen() {
                     {/* Shipping */}
                     <View className="mb-4">
                       <View className="flex-row items-center justify-between mb-2">
-                        <Text className="text-white font-medium">Shipping</Text>
-                        <Text className="text-white font-bold">
+                        <Text className="text-gray-900 dark:text-white font-medium">Shipping</Text>
+                        <Text className="text-gray-900 dark:text-white font-bold">
                           £{(financials.cogs.breakdown.shipping / 1000).toFixed(1)}k
                         </Text>
                       </View>
@@ -1652,8 +1652,8 @@ export default function HomeScreen() {
                     {/* Other COGS */}
                     <View className="mb-4">
                       <View className="flex-row items-center justify-between mb-2">
-                        <Text className="text-white font-medium">Other</Text>
-                        <Text className="text-white font-bold">
+                        <Text className="text-gray-900 dark:text-white font-medium">Other</Text>
+                        <Text className="text-gray-900 dark:text-white font-bold">
                           £{(financials.cogs.breakdown.other / 1000).toFixed(1)}k
                         </Text>
                       </View>
@@ -1693,8 +1693,8 @@ export default function HomeScreen() {
                     {/* Founders */}
                     <View className="mb-4">
                       <View className="flex-row items-center justify-between mb-2">
-                        <Text className="text-white font-medium">Founders</Text>
-                        <Text className="text-white font-bold">
+                        <Text className="text-gray-900 dark:text-white font-medium">Founders</Text>
+                        <Text className="text-gray-900 dark:text-white font-bold">
                           £{(financials.teamCosts.breakdown.founders / 1000).toFixed(1)}k
                         </Text>
                       </View>
@@ -1714,8 +1714,8 @@ export default function HomeScreen() {
                     {/* Fractional Execs */}
                     <View className="mb-4">
                       <View className="flex-row items-center justify-between mb-2">
-                        <Text className="text-white font-medium">Fractional Executives</Text>
-                        <Text className="text-white font-bold">
+                        <Text className="text-gray-900 dark:text-white font-medium">Fractional Executives</Text>
+                        <Text className="text-gray-900 dark:text-white font-bold">
                           £{(financials.teamCosts.breakdown.fractionalExecs / 1000).toFixed(1)}k
                         </Text>
                       </View>
@@ -1735,8 +1735,8 @@ export default function HomeScreen() {
                     {/* Apprentices */}
                     <View className="mb-4">
                       <View className="flex-row items-center justify-between mb-2">
-                        <Text className="text-white font-medium">Apprentices</Text>
-                        <Text className="text-white font-bold">
+                        <Text className="text-gray-900 dark:text-white font-medium">Apprentices</Text>
+                        <Text className="text-gray-900 dark:text-white font-bold">
                           £{(financials.teamCosts.breakdown.apprentices / 1000).toFixed(1)}k
                         </Text>
                       </View>
@@ -1779,8 +1779,8 @@ export default function HomeScreen() {
                     {/* OpenAI */}
                     <View className="mb-4">
                       <View className="flex-row items-center justify-between mb-2">
-                        <Text className="text-white font-medium">OpenAI</Text>
-                        <Text className="text-white font-bold">
+                        <Text className="text-gray-900 dark:text-white font-medium">OpenAI</Text>
+                        <Text className="text-gray-900 dark:text-white font-bold">
                           £{(financials.aiCosts.breakdown.openai / 1000).toFixed(1)}k
                         </Text>
                       </View>
@@ -1800,8 +1800,8 @@ export default function HomeScreen() {
                     {/* Anthropic */}
                     <View className="mb-4">
                       <View className="flex-row items-center justify-between mb-2">
-                        <Text className="text-white font-medium">Anthropic</Text>
-                        <Text className="text-white font-bold">
+                        <Text className="text-gray-900 dark:text-white font-medium">Anthropic</Text>
+                        <Text className="text-gray-900 dark:text-white font-bold">
                           £{(financials.aiCosts.breakdown.anthropic / 1000).toFixed(1)}k
                         </Text>
                       </View>
@@ -1821,8 +1821,8 @@ export default function HomeScreen() {
                     {/* Google */}
                     <View className="mb-4">
                       <View className="flex-row items-center justify-between mb-2">
-                        <Text className="text-white font-medium">Google</Text>
-                        <Text className="text-white font-bold">
+                        <Text className="text-gray-900 dark:text-white font-medium">Google</Text>
+                        <Text className="text-gray-900 dark:text-white font-bold">
                           £{(financials.aiCosts.breakdown.google / 1000).toFixed(1)}k
                         </Text>
                       </View>
@@ -1842,8 +1842,8 @@ export default function HomeScreen() {
                     {/* ElevenLabs */}
                     <View className="mb-4">
                       <View className="flex-row items-center justify-between mb-2">
-                        <Text className="text-white font-medium">ElevenLabs</Text>
-                        <Text className="text-white font-bold">
+                        <Text className="text-gray-900 dark:text-white font-medium">ElevenLabs</Text>
+                        <Text className="text-gray-900 dark:text-white font-bold">
                           £{(financials.aiCosts.breakdown.elevenlabs / 1000).toFixed(1)}k
                         </Text>
                       </View>
@@ -1863,8 +1863,8 @@ export default function HomeScreen() {
                     {/* Other AI */}
                     <View className="mb-4">
                       <View className="flex-row items-center justify-between mb-2">
-                        <Text className="text-white font-medium">Other</Text>
-                        <Text className="text-white font-bold">
+                        <Text className="text-gray-900 dark:text-white font-medium">Other</Text>
+                        <Text className="text-gray-900 dark:text-white font-bold">
                           £{(financials.aiCosts.breakdown.other / 1000).toFixed(1)}k
                         </Text>
                       </View>
@@ -1907,8 +1907,8 @@ export default function HomeScreen() {
                     {/* Office */}
                     <View className="mb-4">
                       <View className="flex-row items-center justify-between mb-2">
-                        <Text className="text-white font-medium">Office & Facilities</Text>
-                        <Text className="text-white font-bold">
+                        <Text className="text-gray-900 dark:text-white font-medium">Office & Facilities</Text>
+                        <Text className="text-gray-900 dark:text-white font-bold">
                           £{(financials.otherCosts.breakdown.office / 1000).toFixed(1)}k
                         </Text>
                       </View>
@@ -1928,8 +1928,8 @@ export default function HomeScreen() {
                     {/* Software */}
                     <View className="mb-4">
                       <View className="flex-row items-center justify-between mb-2">
-                        <Text className="text-white font-medium">Software & Tools</Text>
-                        <Text className="text-white font-bold">
+                        <Text className="text-gray-900 dark:text-white font-medium">Software & Tools</Text>
+                        <Text className="text-gray-900 dark:text-white font-bold">
                           £{(financials.otherCosts.breakdown.software / 1000).toFixed(1)}k
                         </Text>
                       </View>
@@ -1949,8 +1949,8 @@ export default function HomeScreen() {
                     {/* Marketing */}
                     <View className="mb-4">
                       <View className="flex-row items-center justify-between mb-2">
-                        <Text className="text-white font-medium">Marketing</Text>
-                        <Text className="text-white font-bold">
+                        <Text className="text-gray-900 dark:text-white font-medium">Marketing</Text>
+                        <Text className="text-gray-900 dark:text-white font-bold">
                           £{(financials.otherCosts.breakdown.marketing / 1000).toFixed(1)}k
                         </Text>
                       </View>
@@ -1970,8 +1970,8 @@ export default function HomeScreen() {
                     {/* Legal */}
                     <View className="mb-4">
                       <View className="flex-row items-center justify-between mb-2">
-                        <Text className="text-white font-medium">Legal & Compliance</Text>
-                        <Text className="text-white font-bold">
+                        <Text className="text-gray-900 dark:text-white font-medium">Legal & Compliance</Text>
+                        <Text className="text-gray-900 dark:text-white font-bold">
                           £{(financials.otherCosts.breakdown.legal / 1000).toFixed(1)}k
                         </Text>
                       </View>
@@ -1991,8 +1991,8 @@ export default function HomeScreen() {
                     {/* Other */}
                     <View className="mb-4">
                       <View className="flex-row items-center justify-between mb-2">
-                        <Text className="text-white font-medium">Miscellaneous</Text>
-                        <Text className="text-white font-bold">
+                        <Text className="text-gray-900 dark:text-white font-medium">Miscellaneous</Text>
+                        <Text className="text-gray-900 dark:text-white font-bold">
                           £{(financials.otherCosts.breakdown.other / 1000).toFixed(1)}k
                         </Text>
                       </View>
@@ -2059,19 +2059,19 @@ export default function HomeScreen() {
             >
               {/* Current Situation - Compact */}
               <View className="mb-6 bg-slate-800 rounded-xl p-4">
-                <Text className="text-white font-semibold mb-3">Current Financials</Text>
+                <Text className="text-gray-900 dark:text-white font-semibold mb-3">Current Financials</Text>
                 <View className="flex-row justify-between flex-wrap gap-y-2">
                   <View className="w-[48%]">
                     <Text className="text-gray-600 dark:text-slate-400 text-xs">Revenue</Text>
-                    <Text className="text-white font-bold text-lg">£{(financials.revenue.total / 1000).toFixed(0)}k</Text>
+                    <Text className="text-gray-900 dark:text-white font-bold text-lg">£{(financials.revenue.total / 1000).toFixed(0)}k</Text>
                   </View>
                   <View className="w-[48%]">
                     <Text className="text-gray-600 dark:text-slate-400 text-xs">Burn Rate</Text>
-                    <Text className="text-white font-bold text-lg">£{(financials.burnRate / 1000).toFixed(1)}k</Text>
+                    <Text className="text-gray-900 dark:text-white font-bold text-lg">£{(financials.burnRate / 1000).toFixed(1)}k</Text>
                   </View>
                   <View className="w-[48%]">
                     <Text className="text-gray-600 dark:text-slate-400 text-xs">Cash Balance</Text>
-                    <Text className="text-white font-bold text-lg">£{(financials.cashBalance / 1000).toFixed(0)}k</Text>
+                    <Text className="text-gray-900 dark:text-white font-bold text-lg">£{(financials.cashBalance / 1000).toFixed(0)}k</Text>
                   </View>
                   <View className="w-[48%]">
                     <Text className="text-gray-600 dark:text-slate-400 text-xs">Runway</Text>
@@ -2085,7 +2085,7 @@ export default function HomeScreen() {
                 <View className="flex-row items-center justify-between mb-2">
                   <View className="flex-row items-center gap-2">
                     <TrendingUp size={20} color="#10b981" />
-                    <Text className="text-white font-semibold">Increase Revenue</Text>
+                    <Text className="text-gray-900 dark:text-white font-semibold">Increase Revenue</Text>
                   </View>
                   <Text className="text-emerald-400 font-bold text-xl">+{revenueIncrease}%</Text>
                 </View>
@@ -2108,7 +2108,7 @@ export default function HomeScreen() {
                   <View className="bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-4 mt-3">
                     <View className="flex-row items-center justify-between mb-2">
                       <Text className="text-emerald-400 font-semibold">New Revenue</Text>
-                      <Text className="text-white font-bold text-lg">
+                      <Text className="text-gray-900 dark:text-white font-bold text-lg">
                         £{((financials.revenue.total * (1 + revenueIncrease / 100)) / 1000).toFixed(1)}k/mo
                       </Text>
                     </View>
@@ -2133,7 +2133,7 @@ export default function HomeScreen() {
                 <View className="flex-row items-center justify-between mb-2">
                   <View className="flex-row items-center gap-2">
                     <TrendingDown size={20} color="#3b82f6" />
-                    <Text className="text-white font-semibold">Reduce Burn Rate</Text>
+                    <Text className="text-gray-900 dark:text-white font-semibold">Reduce Burn Rate</Text>
                   </View>
                   <Text className="text-blue-400 font-bold text-xl">-{burnReduction}%</Text>
                 </View>
@@ -2156,7 +2156,7 @@ export default function HomeScreen() {
                   <View className="bg-blue-500/10 border border-blue-500/30 rounded-xl p-4 mt-3">
                     <View className="flex-row items-center justify-between mb-2">
                       <Text className="text-blue-400 font-semibold">New Burn Rate</Text>
-                      <Text className="text-white font-bold text-lg">
+                      <Text className="text-gray-900 dark:text-white font-bold text-lg">
                         £{((financials.burnRate * (1 - burnReduction / 100)) / 1000).toFixed(1)}k/mo
                       </Text>
                     </View>
@@ -2181,14 +2181,14 @@ export default function HomeScreen() {
                 <View className="mb-6">
                   <View className="flex-row items-center gap-2 mb-3">
                     <BarChart size={20} color="#a855f7" />
-                    <Text className="text-white font-semibold text-lg">Combined Impact</Text>
+                    <Text className="text-gray-900 dark:text-white font-semibold text-lg">Combined Impact</Text>
                   </View>
 
                   <View className="bg-gradient-to-r from-purple-900/20 to-purple-800/20 border border-purple-500/30 rounded-xl p-4">
                     <View className="bg-gray-100 dark:bg-slate-900 rounded-xl p-4 mb-3">
                       <View className="flex-row items-center justify-between mb-3">
                         <Text className="text-gray-600 dark:text-slate-400">New Monthly P&L</Text>
-                        <Text className="text-white font-bold text-xl">
+                        <Text className="text-gray-900 dark:text-white font-bold text-xl">
                           {((financials.revenue.total * (1 + revenueIncrease / 100) - financials.burnRate * (1 - burnReduction / 100)) / 1000) >= 0 ? '+' : ''}
                           £{((financials.revenue.total * (1 + revenueIncrease / 100) - financials.burnRate * (1 - burnReduction / 100)) / 1000).toFixed(1)}k
                         </Text>
@@ -2224,7 +2224,7 @@ export default function HomeScreen() {
                           <Zap size={18} color="#a855f7" />
                           <Text className="text-purple-300 font-semibold">New Runway</Text>
                         </View>
-                        <Text className="text-white font-bold text-2xl">
+                        <Text className="text-gray-900 dark:text-white font-bold text-2xl">
                           {(() => {
                             const newBurn = financials.burnRate * (1 - burnReduction / 100) - financials.revenue.total * (revenueIncrease / 100);
                             if (newBurn <= 0) return '∞';
@@ -2267,7 +2267,7 @@ export default function HomeScreen() {
 
               {/* Quick Action Buttons */}
               <View className="mb-6">
-                <Text className="text-white font-semibold mb-3">Quick Presets</Text>
+                <Text className="text-gray-900 dark:text-white font-semibold mb-3">Quick Presets</Text>
                 <View className="flex-row gap-2 mb-2">
                   <Pressable
                     onPress={() => {
@@ -2316,7 +2316,7 @@ export default function HomeScreen() {
 
               {/* Break-even Calculator */}
               <View className="mb-4 bg-slate-800 rounded-xl p-4">
-                <Text className="text-white font-semibold mb-2">Path to Break-even</Text>
+                <Text className="text-gray-900 dark:text-white font-semibold mb-2">Path to Break-even</Text>
                 <Text className="text-slate-300 text-sm mb-3">
                   To reach break-even (£0 net burn):
                 </Text>

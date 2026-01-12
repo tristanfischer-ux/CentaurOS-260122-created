@@ -149,7 +149,7 @@ export function CompletedTasksView({ tasks, workspaceId, onClose, members = [] }
           )}
         </View>
 
-        <Text className="text-white text-2xl font-bold mb-2">Completed Tasks</Text>
+        <Text className="text-gray-900 dark:text-white text-2xl font-bold mb-2">Completed Tasks</Text>
         <Text className="text-slate-400">
           Your achievement history. Keep as reference or delete permanently.
         </Text>
@@ -159,15 +159,15 @@ export function CompletedTasksView({ tasks, workspaceId, onClose, members = [] }
       <View className="px-6 py-4 flex-row gap-3">
         <View className="flex-1 bg-slate-900 rounded-xl p-3 border border-slate-800">
           <Text className="text-emerald-400 text-xs mb-1">Today</Text>
-          <Text className="text-white text-2xl font-bold">{todayCompleted.length}</Text>
+          <Text className="text-gray-900 dark:text-white text-2xl font-bold">{todayCompleted.length}</Text>
         </View>
         <View className="flex-1 bg-slate-900 rounded-xl p-3 border border-slate-800">
           <Text className="text-blue-400 text-xs mb-1">This Week</Text>
-          <Text className="text-white text-2xl font-bold">{thisWeekCompleted.length}</Text>
+          <Text className="text-gray-900 dark:text-white text-2xl font-bold">{thisWeekCompleted.length}</Text>
         </View>
         <View className="flex-1 bg-slate-900 rounded-xl p-3 border border-slate-800">
           <Text className="text-purple-400 text-xs mb-1">This Month</Text>
-          <Text className="text-white text-2xl font-bold">{thisMonthCompleted.length}</Text>
+          <Text className="text-gray-900 dark:text-white text-2xl font-bold">{thisMonthCompleted.length}</Text>
         </View>
       </View>
 
@@ -209,7 +209,7 @@ export function CompletedTasksView({ tasks, workspaceId, onClose, members = [] }
 
                     <View className="flex-1">
                       {/* Title */}
-                      <Text className="text-white font-semibold text-base mb-1">
+                      <Text className="text-gray-900 dark:text-white font-semibold text-base mb-1">
                         {task.title}
                       </Text>
 
