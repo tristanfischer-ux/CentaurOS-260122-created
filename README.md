@@ -313,7 +313,11 @@ Simply tap any demo account on the sign-in screen to log in instantly.
 ### Home Dashboard Views
 
 **Founder View:**
-- KPI tiles (Active Objectives, Completed Tasks, In Progress, Pending Reviews)
+- **Tappable KPI Tiles** (Active Objectives, Completed Tasks, In Progress, Pending Reviews)
+  - Tap "Active Objectives" → Navigate to OKRs tab
+  - Tap "Completed This Week" → View detailed list of all tasks completed in the last 7 days
+  - Tap "In Progress" → View all currently active tasks with full details
+  - Tap "Pending Reviews" → Navigate to Reviews tab
 - Key Results progress with health indicators
 - Quick actions to OKRs and Work Hub
 

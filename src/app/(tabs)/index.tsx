@@ -130,20 +130,34 @@ export default function HomeScreen() {
         {/* KPI Tiles */}
         <View className="px-6 pb-4">
           <View className="flex-row flex-wrap gap-3">
-            {stats.kpiTiles?.map((tile, index) => (
-              <View
-                key={index}
-                className="bg-slate-900 rounded-2xl p-4 border border-slate-800"
-                style={{ width: "48%" }}
-              >
-                <Text className="text-slate-400 text-xs mb-1">
-                  {tile.label}
-                </Text>
-                <Text className="text-white text-2xl font-bold">
-                  {tile.value}
-                </Text>
-              </View>
-            ))}
+            {stats.kpiTiles?.map((tile, index) => {
+              // Determine route based on tile label
+              const getRouteForTile = (label: string) => {
+                if (label === 'Active Objectives') return '/(tabs)/okrs';
+                if (label === 'Completed This Week') return '/kpi-details?type=completed';
+                if (label === 'In Progress') return '/kpi-details?type=in_progress';
+                if (label === 'Pending Reviews') return '/(tabs)/reviews';
+                return null;
+              };
+
+              const route = getRouteForTile(tile.label);
+
+              return (
+                <Pressable
+                  key={index}
+                  onPress={() => route && router.push(route)}
+                  className="bg-slate-900 rounded-2xl p-4 border border-slate-800 active:opacity-70"
+                  style={{ width: "48%" }}
+                >
+                  <Text className="text-slate-400 text-xs mb-1">
+                    {tile.label}
+                  </Text>
+                  <Text className="text-white text-2xl font-bold">
+                    {tile.value}
+                  </Text>
+                </Pressable>
+              );
+            })}
           </View>
         </View>
 
