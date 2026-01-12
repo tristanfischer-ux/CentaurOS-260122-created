@@ -86,7 +86,7 @@ export function TimeTrackingModal({ visible, task, onClose }: TimeTrackingModalP
   const totalHours = timeEntries.reduce((sum, entry) => sum + entry.hours, 0);
 
   return (
-    <Modal visible={visible} animationType="slide" transparent presentationStyle="pageSheet">
+    <Modal visible={visible} animationType="slide" transparent presentationStyle="pageSheet" onRequestClose={onClose}>
       <View className="flex-1 bg-black/50">
         <View className="flex-1 mt-16 bg-gray-100 dark:bg-gray-900 rounded-t-3xl">
           {/* Header */}

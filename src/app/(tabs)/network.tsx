@@ -1987,7 +1987,7 @@ function AIAgentsTab({ selectedAgent, setSelectedAgent, onboardingAgent, setOnbo
       </ScrollView>
 
       {/* Agent Detail Modal */}
-      <Modal visible={selectedAgent !== null} transparent animationType="slide">
+      <Modal visible={selectedAgent !== null} transparent animationType="slide" onRequestClose={() => setSelectedAgent(null)}>
         <View className="flex-1 bg-black/70 justify-end">
           {selectedAgent && (
             <View className="bg-gray-100 dark:bg-slate-900 rounded-t-3xl" style={{ maxHeight: '90%', minHeight: '60%' }}>
@@ -2125,7 +2125,7 @@ function AIAgentsTab({ selectedAgent, setSelectedAgent, onboardingAgent, setOnbo
       </Modal>
 
       {/* Onboarding Modal */}
-      <Modal visible={onboardingAgent !== null} transparent animationType="slide">
+      <Modal visible={onboardingAgent !== null} transparent animationType="slide" onRequestClose={() => setOnboardingAgent(null)}>
         <View className="flex-1 bg-black/70 justify-center px-6">
           {onboardingAgent && (
             <View className="bg-gray-100 dark:bg-slate-900 rounded-3xl p-6">

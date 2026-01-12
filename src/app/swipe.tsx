@@ -538,7 +538,7 @@ export default function SwipeScreen() {
       )}
 
       {/* Person Detail Modal */}
-      <Modal visible={selectedPerson !== null} transparent animationType="slide">
+      <Modal visible={selectedPerson !== null} transparent animationType="slide" onRequestClose={() => setSelectedPerson(null)}>
         <View className="flex-1 bg-black/80">
           {selectedPerson && (
             <View className="mt-auto bg-gray-100 dark:bg-slate-900 rounded-t-3xl" style={{ maxHeight: '85%' }}>
