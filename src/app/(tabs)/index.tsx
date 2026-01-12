@@ -1740,7 +1740,7 @@ export default function HomeScreen() {
                 <View>
                   <View className="mb-6">
                     <Text className="text-gray-600 dark:text-slate-400 text-sm mb-4">
-                      Runway Calculation
+                      Current Status
                     </Text>
 
                     <View className="mb-4">
@@ -1767,7 +1767,7 @@ export default function HomeScreen() {
                   </View>
 
                   {/* Runway Result */}
-                  <View className="bg-amber-500/20 border border-amber-500/30 rounded-xl p-4 mb-4">
+                  <View className="bg-amber-500/20 border border-amber-500/30 rounded-xl p-4 mb-6">
                     <View className="flex-row items-center justify-between mb-2">
                       <Text className="text-amber-400 font-semibold">
                         Runway Remaining
@@ -1782,10 +1782,121 @@ export default function HomeScreen() {
                     </Text>
                   </View>
 
-                  <View className="bg-slate-800 rounded-xl p-4">
-                    <Text className="text-slate-300 text-sm">
-                      💡 To extend runway, reduce monthly burn or increase
-                      revenue. Use the Budget settings to set targets.
+                  {/* 12-Month Forecast */}
+                  <View className="mb-6">
+                    <Text className="text-gray-900 dark:text-white font-semibold mb-3">
+                      12-Month Forecast
+                    </Text>
+                    <Text className="text-gray-600 dark:text-slate-400 text-sm mb-4">
+                      Projected cash balance assuming current burn rate
+                    </Text>
+
+                    {(() => {
+                      const months = [];
+                      let balance = financials.cashBalance;
+                      const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                      const today = new Date();
+
+                      for (let i = 0; i < 12; i++) {
+                        const monthIndex = (today.getMonth() + i) % 12;
+                        const projectedBalance = Math.max(0, balance - (financials.burnRate * i));
+                        months.push({
+                          month: monthNames[monthIndex],
+                          balance: projectedBalance,
+                          percentage: (projectedBalance / financials.cashBalance) * 100,
+                        });
+                      }
+
+                      return (
+                        <View>
+                          {months.map((m, idx) => (
+                            <View key={idx} className="mb-3">
+                              <View className="flex-row items-center justify-between mb-1">
+                                <Text className="text-gray-900 dark:text-white text-sm font-medium">
+                                  {m.month}
+                                </Text>
+                                <Text className={`text-sm font-bold ${
+                                  m.balance === 0
+                                    ? 'text-red-400'
+                                    : m.percentage < 30
+                                    ? 'text-amber-400'
+                                    : 'text-gray-900 dark:text-white'
+                                }`}>
+                                  £{(m.balance / 1000).toFixed(0)}k
+                                </Text>
+                              </View>
+                              <View className="bg-slate-800 h-2 rounded-full overflow-hidden">
+                                <View
+                                  className={`h-full rounded-full ${
+                                    m.balance === 0
+                                      ? 'bg-red-500'
+                                      : m.percentage < 30
+                                      ? 'bg-amber-500'
+                                      : 'bg-blue-500'
+                                  }`}
+                                  style={{
+                                    width: `${Math.max(2, m.percentage)}%`,
+                                  }}
+                                />
+                              </View>
+                            </View>
+                          ))}
+                        </View>
+                      );
+                    })()}
+                  </View>
+
+                  {/* Burn Rate Scenarios */}
+                  <View className="mb-6">
+                    <Text className="text-gray-900 dark:text-white font-semibold mb-3">
+                      Burn Rate Scenarios
+                    </Text>
+                    <Text className="text-gray-600 dark:text-slate-400 text-sm mb-4">
+                      How different burn rates affect runway
+                    </Text>
+
+                    {[
+                      { label: 'Increase 25%', multiplier: 1.25, color: 'red' },
+                      { label: 'Current', multiplier: 1, color: 'amber' },
+                      { label: 'Reduce 25%', multiplier: 0.75, color: 'green' },
+                      { label: 'Reduce 50%', multiplier: 0.5, color: 'blue' },
+                    ].map((scenario, idx) => {
+                      const newBurn = financials.burnRate * scenario.multiplier;
+                      const newRunway = financials.cashBalance / newBurn;
+
+                      return (
+                        <View key={idx} className="mb-3 bg-gray-100 dark:bg-slate-900 rounded-xl p-3">
+                          <View className="flex-row items-center justify-between mb-2">
+                            <Text className="text-gray-900 dark:text-white text-sm font-medium">
+                              {scenario.label}
+                            </Text>
+                            <Text className={`text-${scenario.color}-400 text-lg font-bold`}>
+                              {newRunway.toFixed(1)}m
+                            </Text>
+                          </View>
+                          <View className="flex-row items-center justify-between">
+                            <Text className="text-gray-600 dark:text-slate-400 text-xs">
+                              £{(newBurn / 1000).toFixed(1)}k/month
+                            </Text>
+                            <Text className={`text-${scenario.color}-400 text-xs font-semibold`}>
+                              {newRunway >= 12 ? '✓ Healthy' : newRunway >= 6 ? '⚠ Warning' : '⚠ Critical'}
+                            </Text>
+                          </View>
+                        </View>
+                      );
+                    })}
+                  </View>
+
+                  <View className="bg-blue-500/20 border border-blue-500/30 rounded-xl p-4">
+                    <Text className="text-blue-300 text-sm font-medium mb-1">
+                      💡 Runway Strategy
+                    </Text>
+                    <Text className="text-blue-300/80 text-xs">
+                      {financials.runway < 6
+                        ? 'Critical: Reduce burn immediately or raise capital within 3 months'
+                        : financials.runway < 12
+                        ? 'Warning: Focus on burn reduction or revenue growth in next quarter'
+                        : 'Healthy: Maintain current trajectory and plan for growth'}
                     </Text>
                   </View>
                 </View>
