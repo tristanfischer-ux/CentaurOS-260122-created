@@ -311,9 +311,14 @@ export default function HomeScreen() {
             {/* Work Plans Overview */}
             <View className="mb-4">
               <View className="flex-row items-center justify-between mb-3">
-                <Text className="text-gray-900 dark:text-white text-lg font-bold">
-                  Work Plans
-                </Text>
+                <View>
+                  <Text className="text-gray-900 dark:text-white text-lg font-bold">
+                    Work Plans
+                  </Text>
+                  <Text className="text-gray-600 dark:text-slate-400 text-xs mt-0.5">
+                    Structured tasks assigned to apprentices
+                  </Text>
+                </View>
                 <Pressable onPress={() => router.push('/(tabs)/do')}>
                   <Text className="text-blue-500 text-sm font-semibold">View All</Text>
                 </Pressable>
@@ -328,7 +333,7 @@ export default function HomeScreen() {
                   <Text className="text-blue-900 dark:text-blue-100 text-2xl font-bold mt-2">
                     {FOUNDER_DATA.workPlans.inProgress}
                   </Text>
-                  <Text className="text-blue-600 dark:text-blue-400 text-xs">In Progress</Text>
+                  <Text className="text-blue-600 dark:text-blue-400 text-xs">Active Now</Text>
                 </Pressable>
                 <Pressable
                   onPress={() => router.push('/(tabs)/evaluate')}
@@ -338,7 +343,7 @@ export default function HomeScreen() {
                   <Text className="text-purple-900 dark:text-purple-100 text-2xl font-bold mt-2">
                     {FOUNDER_DATA.workPlans.total}
                   </Text>
-                  <Text className="text-purple-600 dark:text-purple-400 text-xs">Total Plans</Text>
+                  <Text className="text-purple-600 dark:text-purple-400 text-xs">Total Active</Text>
                 </Pressable>
               </View>
             </View>
