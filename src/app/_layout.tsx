@@ -58,7 +58,13 @@ function RootLayoutNav({ colorScheme }: { colorScheme: 'light' | 'dark' | null |
           <Stack.Screen name="onboarding" options={{ headerShown: false }} />
           <Stack.Screen name="onboarding-executive" options={{ headerShown: false }} />
           <Stack.Screen name="onboarding-apprentice" options={{ headerShown: false }} />
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen
+            name="(tabs)"
+            options={{
+              headerShown: false,
+              gestureEnabled: true,
+            }}
+          />
           <Stack.Screen name="search" options={{ headerShown: false }} />
           <Stack.Screen name="swipe" options={{ headerShown: false }} />
           <Stack.Screen
