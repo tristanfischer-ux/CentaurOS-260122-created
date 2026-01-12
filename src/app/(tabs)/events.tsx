@@ -530,40 +530,41 @@ export default function EventsScreen() {
       </ScrollView>
 
       {/* Event Detail Modal */}
-      <Modal visible={selectedEvent !== null} transparent animationType="slide">
+      <Modal visible={selectedEvent !== null} transparent animationType="slide" onRequestClose={() => setSelectedEvent(null)}>
         <View className="flex-1 bg-black/70 justify-end">
           {selectedEvent && (
             <View className="bg-gray-100 dark:bg-slate-900 rounded-t-3xl" style={{ maxHeight: '90%' }}>
-              <ScrollView showsVerticalScrollIndicator={true}>
-                {/* Header */}
-                <View className="p-6 border-b border-gray-300 dark:border-slate-800">
-                  <View className="flex-row items-start justify-between mb-3">
-                    <View className="flex-1 mr-4">
-                      <View className={`self-start px-3 py-1 rounded-lg mb-2 ${getEventTypeColor(selectedEvent.eventType)}`}>
-                        <Text className="text-xs font-semibold capitalize">
-                          {selectedEvent.eventType.replace('-', ' ')}
-                        </Text>
-                      </View>
-                      <Text className="text-gray-900 dark:text-white text-2xl font-bold">{selectedEvent.title}</Text>
+              {/* Fixed Header */}
+              <View className="px-6 pt-6 pb-4 border-b border-gray-300 dark:border-slate-800">
+                <View className="flex-row items-start justify-between mb-3">
+                  <View className="flex-1 mr-4">
+                    <View className={`self-start px-3 py-1 rounded-lg mb-2 ${getEventTypeColor(selectedEvent.eventType)}`}>
+                      <Text className="text-xs font-semibold capitalize">
+                        {selectedEvent.eventType.replace('-', ' ')}
+                      </Text>
                     </View>
-                    <Pressable onPress={() => setSelectedEvent(null)}>
-                      <X size={24} color="#94a3b8" />
-                    </Pressable>
+                    <Text className="text-gray-900 dark:text-white text-xl font-bold">{selectedEvent.title}</Text>
                   </View>
-
-                  {/* Host Info */}
-                  <View className="bg-gray-200 dark:bg-slate-800 rounded-xl p-3 flex-row items-center">
-                    <View className="w-10 h-10 rounded-full bg-blue-500/20 items-center justify-center mr-3">
-                      <User size={20} color="#3b82f6" />
-                    </View>
-                    <View>
-                      <Text className="text-gray-600 dark:text-slate-400 text-xs">Hosted by</Text>
-                      <Text className="text-gray-900 dark:text-white font-semibold">{selectedEvent.hostName}</Text>
-                      <Text className="text-gray-600 dark:text-slate-400 text-xs">{selectedEvent.hostRole}</Text>
-                    </View>
-                  </View>
+                  <Pressable onPress={() => setSelectedEvent(null)}>
+                    <X size={24} color="#94a3b8" />
+                  </Pressable>
                 </View>
 
+                {/* Host Info */}
+                <View className="bg-gray-200 dark:bg-slate-800 rounded-xl p-3 flex-row items-center">
+                  <View className="w-10 h-10 rounded-full bg-blue-500/20 items-center justify-center mr-3">
+                    <User size={20} color="#3b82f6" />
+                  </View>
+                  <View>
+                    <Text className="text-gray-600 dark:text-slate-400 text-xs">Hosted by</Text>
+                    <Text className="text-gray-900 dark:text-white font-semibold">{selectedEvent.hostName}</Text>
+                    <Text className="text-gray-600 dark:text-slate-400 text-xs">{selectedEvent.hostRole}</Text>
+                  </View>
+                </View>
+              </View>
+
+              {/* Scrollable Content */}
+              <ScrollView showsVerticalScrollIndicator={true} bounces={false} className="flex-1">
                 {/* Event Details */}
                 <View className="p-6">
                   {/* Description */}
@@ -787,77 +788,79 @@ export default function EventsScreen() {
 
       {/* Member Detail Modal (from invited list) */}
       <Modal visible={selectedMemberFromEvent !== null} transparent animationType="slide" onRequestClose={() => setSelectedMemberFromEvent(null)}>
-        <Pressable
-          className="flex-1 bg-black/70 justify-center px-6"
-          onPress={() => setSelectedMemberFromEvent(null)}
-        >
-          <Pressable onPress={(e) => e.stopPropagation()}>
-            {selectedMemberFromEvent && (
-              <View className="bg-gray-100 dark:bg-slate-900 rounded-3xl p-6" style={{ maxHeight: '90%' }}>
-                <ScrollView showsVerticalScrollIndicator={false} bounces={false}>
-                <View className="flex-row items-center justify-between mb-4">
-                  <Text className="text-gray-900 dark:text-white text-xl font-bold">{selectedMemberFromEvent.name}</Text>
-                  <Pressable onPress={() => setSelectedMemberFromEvent(null)}>
-                    <X size={24} color="#94a3b8" />
-                  </Pressable>
-                </View>
+        <View className="flex-1 bg-black/70 justify-center px-6">
+          {selectedMemberFromEvent && (
+            <View className="bg-gray-100 dark:bg-slate-900 rounded-3xl" style={{ maxHeight: '90%' }}>
+              {/* Fixed Header */}
+              <View className="px-6 pt-6 pb-4 border-b border-gray-300 dark:border-slate-800 flex-row items-center justify-between">
+                <Text className="text-gray-900 dark:text-white text-xl font-bold">{selectedMemberFromEvent.name}</Text>
+                <Pressable onPress={() => setSelectedMemberFromEvent(null)}>
+                  <X size={24} color="#94a3b8" />
+                </Pressable>
+              </View>
 
-                <View className="bg-gray-200 dark:bg-slate-800 rounded-xl p-4 mb-4">
-                  <View className="flex-row justify-between mb-2">
-                    <Text className="text-gray-600 dark:text-slate-400 text-sm">Role:</Text>
-                    <Text className="text-gray-900 dark:text-white font-semibold">{selectedMemberFromEvent.role}</Text>
-                  </View>
-                  <View className="flex-row justify-between mb-2">
-                    <Text className="text-gray-600 dark:text-slate-400 text-sm">Function:</Text>
-                    <Text className="text-gray-900 dark:text-white font-semibold">{selectedMemberFromEvent.function}</Text>
-                  </View>
-                  {selectedMemberFromEvent.costPerDay && (
-                    <View className="flex-row justify-between">
-                      <Text className="text-gray-600 dark:text-slate-400 text-sm">Cost:</Text>
-                      <Text className="text-emerald-400 font-semibold">
-                        £{selectedMemberFromEvent.costPerDay}/day
-                      </Text>
+              {/* Scrollable Content */}
+              <ScrollView showsVerticalScrollIndicator={true} bounces={false} className="flex-1">
+                <View className="p-6">
+                  <View className="bg-gray-200 dark:bg-slate-800 rounded-xl p-4 mb-4">
+                    <View className="flex-row justify-between mb-2">
+                      <Text className="text-gray-600 dark:text-slate-400 text-sm">Role:</Text>
+                      <Text className="text-gray-900 dark:text-white font-semibold">{selectedMemberFromEvent.role}</Text>
                     </View>
-                  )}
-                </View>
+                    <View className="flex-row justify-between mb-2">
+                      <Text className="text-gray-600 dark:text-slate-400 text-sm">Function:</Text>
+                      <Text className="text-gray-900 dark:text-white font-semibold">{selectedMemberFromEvent.function}</Text>
+                    </View>
+                    {selectedMemberFromEvent.costPerDay && (
+                      <View className="flex-row justify-between">
+                        <Text className="text-gray-600 dark:text-slate-400 text-sm">Cost:</Text>
+                        <Text className="text-emerald-400 font-semibold">
+                          £{selectedMemberFromEvent.costPerDay}/day
+                        </Text>
+                      </View>
+                    )}
+                  </View>
 
-                <View className="gap-3">
-                  <Pressable
-                    onPress={() => Linking.openURL(`mailto:${selectedMemberFromEvent.email}`)}
-                    className="bg-blue-500 py-3 rounded-xl flex-row items-center justify-center gap-2 active:opacity-70"
-                  >
-                    <Mail size={18} color="#fff" />
-                    <Text className="text-gray-900 dark:text-white font-semibold">Email</Text>
-                  </Pressable>
-                  {selectedMemberFromEvent.phone && (
+                  <View className="gap-3">
                     <Pressable
-                      onPress={() => Linking.openURL(`tel:${selectedMemberFromEvent.phone}`)}
-                      className="bg-emerald-500 py-3 rounded-xl flex-row items-center justify-center gap-2 active:opacity-70"
+                      onPress={() => Linking.openURL(`mailto:${selectedMemberFromEvent.email}`)}
+                      className="bg-blue-500 py-3 rounded-xl flex-row items-center justify-center gap-2 active:opacity-70"
                     >
-                      <Phone size={18} color="#fff" />
-                      <Text className="text-gray-900 dark:text-white font-semibold">Call</Text>
+                      <Mail size={18} color="#fff" />
+                      <Text className="text-gray-900 dark:text-white font-semibold">Email</Text>
                     </Pressable>
-                  )}
+                    {selectedMemberFromEvent.phone && (
+                      <Pressable
+                        onPress={() => Linking.openURL(`tel:${selectedMemberFromEvent.phone}`)}
+                        className="bg-emerald-500 py-3 rounded-xl flex-row items-center justify-center gap-2 active:opacity-70"
+                      >
+                        <Phone size={18} color="#fff" />
+                        <Text className="text-gray-900 dark:text-white font-semibold">Call</Text>
+                      </Pressable>
+                    )}
+                  </View>
                 </View>
               </ScrollView>
             </View>
-            )}
-          </Pressable>
-        </Pressable>
+          )}
+        </View>
       </Modal>
 
       {/* Create Event Modal */}
-      <Modal visible={showCreateModal} transparent animationType="slide">
+      <Modal visible={showCreateModal} transparent animationType="slide" onRequestClose={() => setShowCreateModal(false)}>
         <View className="flex-1 bg-black/70 justify-end">
           <View className="bg-gray-100 dark:bg-slate-900 rounded-t-3xl" style={{ maxHeight: '90%' }}>
-            <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+            {/* Fixed Header */}
+            <View className="px-6 pt-6 pb-4 border-b border-gray-300 dark:border-slate-800 flex-row items-center justify-between">
+              <Text className="text-gray-900 dark:text-white text-xl font-bold">Create Event</Text>
+              <Pressable onPress={() => setShowCreateModal(false)}>
+                <X size={24} color="#94a3b8" />
+              </Pressable>
+            </View>
+
+            {/* Scrollable Content */}
+            <ScrollView showsVerticalScrollIndicator={true} keyboardShouldPersistTaps="handled" className="flex-1">
               <View className="p-6">
-                <View className="flex-row items-center justify-between mb-6">
-                  <Text className="text-gray-900 dark:text-white text-2xl font-bold">Create Event</Text>
-                  <Pressable onPress={() => setShowCreateModal(false)}>
-                    <X size={24} color="#94a3b8" />
-                  </Pressable>
-                </View>
 
                 {/* Title */}
                 <View className="mb-4">

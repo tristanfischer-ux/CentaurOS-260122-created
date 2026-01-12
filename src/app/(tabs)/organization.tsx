@@ -559,20 +559,20 @@ export default function OrganizationScreen() {
 
       {/* Member Detail Modal */}
       <Modal visible={selectedMember !== null} transparent animationType="slide" onRequestClose={() => setSelectedMember(null)}>
-        <Pressable
-          className="flex-1 bg-black/70 justify-center px-6"
-          onPress={() => setSelectedMember(null)}
-        >
-          <Pressable onPress={(e) => e.stopPropagation()}>
-            {selectedMember && (
-              <View className="bg-gray-100 dark:bg-slate-900 rounded-3xl p-6" style={{ maxHeight: '90%' }}>
-                <ScrollView showsVerticalScrollIndicator={true} bounces={false}>
-                <View className="flex-row items-center justify-between mb-4">
-                  <Text className="text-gray-900 dark:text-white text-xl font-bold">{selectedMember.name}</Text>
-                  <Pressable onPress={() => setSelectedMember(null)}>
-                    <X size={24} color="#94a3b8" />
-                  </Pressable>
-                </View>
+        <View className="flex-1 bg-black/70 justify-center px-6">
+          {selectedMember && (
+            <View className="bg-gray-100 dark:bg-slate-900 rounded-3xl" style={{ maxHeight: '90%' }}>
+              {/* Fixed Header */}
+              <View className="px-6 pt-6 pb-4 border-b border-gray-300 dark:border-slate-800 flex-row items-center justify-between">
+                <Text className="text-gray-900 dark:text-white text-xl font-bold">{selectedMember.name}</Text>
+                <Pressable onPress={() => setSelectedMember(null)}>
+                  <X size={24} color="#94a3b8" />
+                </Pressable>
+              </View>
+
+              {/* Scrollable Content */}
+              <ScrollView showsVerticalScrollIndicator={true} bounces={false} className="flex-1">
+                <View className="p-6">
 
                 <View className="bg-gray-200 dark:bg-slate-800 rounded-xl p-4 mb-4">
                   <View className="flex-row justify-between mb-2">
@@ -644,36 +644,34 @@ export default function OrganizationScreen() {
                     </Pressable>
                   )}
                 </View>
+                </View>
               </ScrollView>
             </View>
-            )}
-          </Pressable>
-        </Pressable>
+          )}
+        </View>
       </Modal>
 
       {/* Supplier Detail Modal */}
       <Modal visible={selectedSupplier !== null} transparent animationType="slide" onRequestClose={() => setSelectedSupplier(null)}>
-        <Pressable
-          className="flex-1 bg-black/70 justify-end"
-          onPress={() => setSelectedSupplier(null)}
-        >
-          <Pressable onPress={(e) => e.stopPropagation()}>
+        <View className="flex-1 bg-black/70 justify-end">
+          {selectedSupplier && (
             <View className="bg-gray-100 dark:bg-slate-900 rounded-t-3xl" style={{ maxHeight: '90%' }}>
-            {selectedSupplier && (
-              <>
-                <View className="p-6 border-b border-gray-300 dark:border-slate-800">
-                  <View className="flex-row items-center justify-between mb-2">
-                    <Text className="text-gray-900 dark:text-white text-xl font-bold flex-1">
-                      {selectedSupplier.projectName}
-                    </Text>
-                    <Pressable onPress={() => setSelectedSupplier(null)}>
-                      <X size={24} color="#94a3b8" />
-                    </Pressable>
-                  </View>
-                  <Text className="text-blue-400 text-sm">{selectedSupplier.supplierName}</Text>
+              {/* Fixed Header */}
+              <View className="px-6 pt-6 pb-4 border-b border-gray-300 dark:border-slate-800">
+                <View className="flex-row items-center justify-between mb-2">
+                  <Text className="text-gray-900 dark:text-white text-xl font-bold flex-1">
+                    {selectedSupplier.projectName}
+                  </Text>
+                  <Pressable onPress={() => setSelectedSupplier(null)}>
+                    <X size={24} color="#94a3b8" />
+                  </Pressable>
                 </View>
+                <Text className="text-blue-400 text-sm">{selectedSupplier.supplierName}</Text>
+              </View>
 
-                <ScrollView className="px-6 py-4" showsVerticalScrollIndicator={true}>
+              {/* Scrollable Content */}
+              <ScrollView showsVerticalScrollIndicator={true} bounces={false} className="flex-1">
+                <View className="px-6 py-4">
                   <View className="mb-4">
                     <Text className="text-gray-600 dark:text-slate-400 text-sm mb-1">Description</Text>
                     <Text className="text-gray-900 dark:text-white">{selectedSupplier.description}</Text>
@@ -759,39 +757,36 @@ export default function OrganizationScreen() {
                       }
                     </Text>
                   </View>
-                </ScrollView>
-              </>
-            )}
-          </View>
-          </Pressable>
-        </Pressable>
+                </View>
+              </ScrollView>
+            </View>
+          )}
+        </View>
       </Modal>
 
       {/* AI Agent Detail Modal */}
       <Modal visible={selectedAI !== null} transparent animationType="slide" onRequestClose={() => setSelectedAI(null)}>
-        <Pressable
-          className="flex-1 bg-black/70 justify-end"
-          onPress={() => setSelectedAI(null)}
-        >
-          <Pressable onPress={(e) => e.stopPropagation()}>
+        <View className="flex-1 bg-black/70 justify-end">
+          {selectedAI && (
             <View className="bg-gray-100 dark:bg-slate-900 rounded-t-3xl" style={{ maxHeight: '90%' }}>
-            {selectedAI && (
-              <>
-                <View className="p-6 border-b border-gray-300 dark:border-slate-800">
-                  <View className="flex-row items-center justify-between mb-2">
-                    <Text className="text-gray-900 dark:text-white text-xl font-bold flex-1">{selectedAI.name}</Text>
-                    <Pressable onPress={() => setSelectedAI(null)}>
-                      <X size={24} color="#94a3b8" />
-                    </Pressable>
-                  </View>
-                  <View className="flex-row items-center gap-2">
-                    <Text className="text-blue-400 text-sm">{selectedAI.provider}</Text>
-                    <Text className="text-gray-600 dark:text-slate-500">•</Text>
-                    <Text className="text-gray-600 dark:text-slate-400 text-sm">{selectedAI.model}</Text>
-                  </View>
+              {/* Fixed Header */}
+              <View className="px-6 pt-6 pb-4 border-b border-gray-300 dark:border-slate-800">
+                <View className="flex-row items-center justify-between mb-2">
+                  <Text className="text-gray-900 dark:text-white text-xl font-bold flex-1">{selectedAI.name}</Text>
+                  <Pressable onPress={() => setSelectedAI(null)}>
+                    <X size={24} color="#94a3b8" />
+                  </Pressable>
                 </View>
+                <View className="flex-row items-center gap-2">
+                  <Text className="text-blue-400 text-sm">{selectedAI.provider}</Text>
+                  <Text className="text-gray-600 dark:text-slate-500">•</Text>
+                  <Text className="text-gray-600 dark:text-slate-400 text-sm">{selectedAI.model}</Text>
+                </View>
+              </View>
 
-                <ScrollView className="px-6 py-4" showsVerticalScrollIndicator={true}>
+              {/* Scrollable Content */}
+              <ScrollView showsVerticalScrollIndicator={true} bounces={false} className="flex-1">
+                <View className="px-6 py-4">
                   <View className="bg-gray-200 dark:bg-slate-800 rounded-xl p-4 mb-4">
                     <View className="flex-row justify-between items-center">
                       <Text className="text-gray-600 dark:text-slate-400">Monthly Cost:</Text>
@@ -944,12 +939,11 @@ export default function OrganizationScreen() {
                       </Text>
                     )}
                   </View>
-                </ScrollView>
-              </>
-            )}
-          </View>
-          </Pressable>
-        </Pressable>
+                </View>
+              </ScrollView>
+            </View>
+          )}
+        </View>
       </Modal>
 
       {/* Supplier Map Modal */}

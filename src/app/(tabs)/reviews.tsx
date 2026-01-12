@@ -200,70 +200,74 @@ export default function ReviewsScreen() {
       )}
 
       {/* Review Modal */}
-      <Modal visible={showReviewModal} transparent animationType="slide">
+      <Modal visible={showReviewModal} transparent animationType="slide" onRequestClose={() => setShowReviewModal(false)}>
         <View className="flex-1 bg-black/70 justify-end">
-          <View className="bg-gray-100 dark:bg-slate-900 rounded-t-3xl p-6">
-            <View className="flex-row items-center justify-between mb-4">
+          <View className="bg-gray-100 dark:bg-slate-900 rounded-t-3xl" style={{ maxHeight: '90%' }}>
+            {/* Fixed Header */}
+            <View className="px-6 pt-6 pb-4 border-b border-gray-300 dark:border-slate-800 flex-row items-center justify-between">
               <Text className="text-gray-900 dark:text-white text-xl font-bold">Review Task</Text>
               <Pressable onPress={() => setShowReviewModal(false)}>
                 <X size={24} color="#94a3b8" />
               </Pressable>
             </View>
 
-            {selectedReview && (
-              <>
-                <View className="mb-4">
-                  <Text className="text-gray-900 dark:text-white font-semibold text-lg mb-2">
-                    {selectedReview.task?.title}
-                  </Text>
-                  {selectedReview.task?.description && (
-                    <Text className="text-gray-600 dark:text-slate-400 text-sm">{selectedReview.task.description}</Text>
-                  )}
+            {/* Scrollable Content */}
+            <ScrollView showsVerticalScrollIndicator={true} bounces={false} className="flex-1">
+              {selectedReview && (
+                <View className="p-6">
+                  <View className="mb-4">
+                    <Text className="text-gray-900 dark:text-white font-semibold text-lg mb-2">
+                      {selectedReview.task?.title}
+                    </Text>
+                    {selectedReview.task?.description && (
+                      <Text className="text-gray-600 dark:text-slate-400 text-sm">{selectedReview.task.description}</Text>
+                    )}
+                  </View>
+
+                  {/* Notes Input */}
+                  <View className="mb-6">
+                    <Text className="text-gray-600 dark:text-slate-400 text-sm mb-2">Review Notes (Optional)</Text>
+                    <TextInput
+                      className="bg-gray-200 dark:bg-slate-800 rounded-xl px-4 py-3 text-gray-900 dark:text-white text-base min-h-[100px]"
+                      value={reviewNotes}
+                      onChangeText={setReviewNotes}
+                      placeholder="Add feedback or comments..."
+                      placeholderTextColor="#475569"
+                      multiline
+                      textAlignVertical="top"
+                    />
+                  </View>
+
+                  {/* Action Buttons */}
+                  <View className="gap-3">
+                    <Pressable
+                      onPress={() => handleSubmitReview('approved')}
+                      disabled={submitReviewMutation.isPending}
+                      className="bg-green-500 rounded-xl py-4 flex-row items-center justify-center active:opacity-70"
+                    >
+                      <ThumbsUp size={20} color="white" />
+                      <Text className="text-gray-900 dark:text-white font-bold ml-2 text-base">Approve</Text>
+                    </Pressable>
+
+                    <Pressable
+                      onPress={() => handleSubmitReview('changes_requested')}
+                      disabled={submitReviewMutation.isPending}
+                      className="bg-red-500 rounded-xl py-4 flex-row items-center justify-center active:opacity-70"
+                    >
+                      <XCircle size={20} color="white" />
+                      <Text className="text-gray-900 dark:text-white font-bold ml-2 text-base">Request Changes</Text>
+                    </Pressable>
+
+                    <Pressable
+                      onPress={() => setShowReviewModal(false)}
+                      className="bg-gray-200 dark:bg-slate-800 rounded-xl py-3 items-center active:opacity-70"
+                    >
+                      <Text className="text-gray-600 dark:text-slate-400 font-semibold">Cancel</Text>
+                    </Pressable>
+                  </View>
                 </View>
-
-                {/* Notes Input */}
-                <View className="mb-6">
-                  <Text className="text-gray-600 dark:text-slate-400 text-sm mb-2">Review Notes (Optional)</Text>
-                  <TextInput
-                    className="bg-gray-200 dark:bg-slate-800 rounded-xl px-4 py-3 text-gray-900 dark:text-white text-base min-h-[100px]"
-                    value={reviewNotes}
-                    onChangeText={setReviewNotes}
-                    placeholder="Add feedback or comments..."
-                    placeholderTextColor="#475569"
-                    multiline
-                    textAlignVertical="top"
-                  />
-                </View>
-
-                {/* Action Buttons */}
-                <View className="gap-3">
-                  <Pressable
-                    onPress={() => handleSubmitReview('approved')}
-                    disabled={submitReviewMutation.isPending}
-                    className="bg-green-500 rounded-xl py-4 flex-row items-center justify-center active:opacity-70"
-                  >
-                    <ThumbsUp size={20} color="white" />
-                    <Text className="text-gray-900 dark:text-white font-bold ml-2 text-base">Approve</Text>
-                  </Pressable>
-
-                  <Pressable
-                    onPress={() => handleSubmitReview('changes_requested')}
-                    disabled={submitReviewMutation.isPending}
-                    className="bg-red-500 rounded-xl py-4 flex-row items-center justify-center active:opacity-70"
-                  >
-                    <XCircle size={20} color="white" />
-                    <Text className="text-gray-900 dark:text-white font-bold ml-2 text-base">Request Changes</Text>
-                  </Pressable>
-
-                  <Pressable
-                    onPress={() => setShowReviewModal(false)}
-                    className="bg-gray-200 dark:bg-slate-800 rounded-xl py-3 items-center active:opacity-70"
-                  >
-                    <Text className="text-gray-600 dark:text-slate-400 font-semibold">Cancel</Text>
-                  </Pressable>
-                </View>
-              </>
-            )}
+              )}
+            </ScrollView>
           </View>
         </View>
       </Modal>
