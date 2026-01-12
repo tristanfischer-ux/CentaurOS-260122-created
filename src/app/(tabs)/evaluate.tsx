@@ -50,25 +50,162 @@ export default function ReviewsScreen() {
 
   if (!canReview) {
     return (
-      <View className="flex-1 bg-white dark:bg-slate-950 items-center justify-center p-6">
-        <AlertTriangle size={64} color="#eab308" />
-        <Text className="text-gray-900 dark:text-white text-xl font-semibold mt-4 mb-2">Access Restricted</Text>
-        <Text className="text-gray-600 dark:text-slate-400 text-center">
-          Only Fractional Executives and Founders can access the Review Queue
-        </Text>
-      </View>
+      <ScrollView className="flex-1 bg-white dark:bg-slate-950">
+        {/* Header */}
+        <View className="p-6 pb-4">
+          <Text className="text-gray-900 dark:text-white text-2xl font-bold">Review Queue</Text>
+          <Text className="text-gray-600 dark:text-slate-400 text-sm mt-1">
+            Access restricted
+          </Text>
+        </View>
+
+        <View className="px-6">
+          <View className="items-center py-8">
+            <AlertTriangle size={64} color="#eab308" />
+            <Text className="text-gray-900 dark:text-white text-xl font-semibold mt-4 mb-2">Access Restricted</Text>
+            <Text className="text-gray-600 dark:text-slate-400 text-center mb-6">
+              Only Fractional Executives and Founders can access the Review Queue
+            </Text>
+          </View>
+
+          {/* Role Explanation */}
+          <View className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-5 border border-gray-200 dark:border-slate-800">
+            <Text className="text-gray-900 dark:text-white font-bold text-lg mb-4">About Review Access</Text>
+
+            <View className="gap-4">
+              <View>
+                <Text className="text-gray-900 dark:text-white font-semibold mb-2">Who Can Review?</Text>
+                <View className="gap-2 ml-2">
+                  <View className="flex-row items-center gap-2">
+                    <View className="w-1.5 h-1.5 rounded-full bg-purple-500" />
+                    <Text className="text-gray-600 dark:text-slate-400 text-sm">Founders (full access)</Text>
+                  </View>
+                  <View className="flex-row items-center gap-2">
+                    <View className="w-1.5 h-1.5 rounded-full bg-purple-500" />
+                    <Text className="text-gray-600 dark:text-slate-400 text-sm">Fractional Executives</Text>
+                  </View>
+                </View>
+              </View>
+
+              <View>
+                <Text className="text-gray-900 dark:text-white font-semibold mb-2">Your Role</Text>
+                <Text className="text-gray-600 dark:text-slate-400 text-sm">
+                  Current role: <Text className="font-bold text-blue-600 dark:text-blue-400">{currentMembership?.role || 'Unknown'}</Text>
+                </Text>
+                <Text className="text-gray-600 dark:text-slate-400 text-sm mt-2">
+                  {currentMembership?.role === 'Apprentice'
+                    ? 'As an Apprentice, you can submit work for review but cannot review others\' work.'
+                    : 'Contact your workspace founder to adjust your permissions.'}
+                </Text>
+              </View>
+            </View>
+          </View>
+
+          {/* What You Can Do */}
+          {currentMembership?.role === 'Apprentice' && (
+            <View className="mt-4 bg-blue-50 dark:bg-blue-900/10 rounded-xl p-4 border border-blue-200 dark:border-blue-800 mb-6">
+              <View className="flex-row items-center gap-2 mb-1">
+                <CheckCircle size={18} color="#3b82f6" />
+                <Text className="text-blue-700 dark:text-blue-400 font-bold">What You Can Do</Text>
+              </View>
+              <Text className="text-blue-600 dark:text-blue-400 text-xs">
+                Go to the Work tab to view and complete tasks. When ready, you can request reviews from executives.
+              </Text>
+            </View>
+          )}
+        </View>
+      </ScrollView>
     );
   }
 
   if (pendingReviews.length === 0 && completedReviews.length === 0) {
     return (
-      <View className="flex-1 bg-white dark:bg-slate-950 items-center justify-center p-6">
-        <CheckCircle size={64} color="#10b981" />
-        <Text className="text-gray-900 dark:text-white text-xl font-semibold mt-4 mb-2">All Caught Up!</Text>
-        <Text className="text-gray-600 dark:text-slate-400 text-center">
-          No reviews pending. Check back when apprentices submit work for review.
-        </Text>
-      </View>
+      <ScrollView className="flex-1 bg-white dark:bg-slate-950">
+        {/* Header */}
+        <View className="p-6 pb-4">
+          <Text className="text-gray-900 dark:text-white text-2xl font-bold">Review Queue</Text>
+          <Text className="text-gray-600 dark:text-slate-400 text-sm mt-1">
+            No reviews pending
+          </Text>
+        </View>
+
+        {/* Empty State with Info */}
+        <View className="px-6">
+          <View className="items-center py-8">
+            <CheckCircle size={64} color="#10b981" />
+            <Text className="text-gray-900 dark:text-white text-xl font-semibold mt-4 mb-2">All Caught Up!</Text>
+            <Text className="text-gray-600 dark:text-slate-400 text-center mb-6">
+              No reviews pending. Check back when apprentices submit work for review.
+            </Text>
+          </View>
+
+          {/* How It Works */}
+          <View className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-5 border border-gray-200 dark:border-slate-800">
+            <Text className="text-gray-900 dark:text-white font-bold text-lg mb-4">How Review Queue Works</Text>
+
+            <View className="gap-4">
+              <View className="flex-row items-start gap-3">
+                <View className="w-8 h-8 bg-blue-100 dark:bg-blue-900/30 rounded-full items-center justify-center">
+                  <Text className="text-blue-600 dark:text-blue-400 font-bold text-sm">1</Text>
+                </View>
+                <View className="flex-1">
+                  <Text className="text-gray-900 dark:text-white font-semibold mb-1">Apprentices Submit Work</Text>
+                  <Text className="text-gray-600 dark:text-slate-400 text-sm">
+                    When apprentices complete tasks, they can request a review from executives
+                  </Text>
+                </View>
+              </View>
+
+              <View className="flex-row items-start gap-3">
+                <View className="w-8 h-8 bg-purple-100 dark:bg-purple-900/30 rounded-full items-center justify-center">
+                  <Text className="text-purple-600 dark:text-purple-400 font-bold text-sm">2</Text>
+                </View>
+                <View className="flex-1">
+                  <Text className="text-gray-900 dark:text-white font-semibold mb-1">Reviews Appear Here</Text>
+                  <Text className="text-gray-600 dark:text-slate-400 text-sm">
+                    All pending reviews show up in your queue, ordered by request date
+                  </Text>
+                </View>
+              </View>
+
+              <View className="flex-row items-start gap-3">
+                <View className="w-8 h-8 bg-green-100 dark:bg-green-900/30 rounded-full items-center justify-center">
+                  <Text className="text-green-600 dark:text-green-400 font-bold text-sm">3</Text>
+                </View>
+                <View className="flex-1">
+                  <Text className="text-gray-900 dark:text-white font-semibold mb-1">Approve or Request Changes</Text>
+                  <Text className="text-gray-600 dark:text-slate-400 text-sm">
+                    Review the work, add feedback notes, and either approve or request changes
+                  </Text>
+                </View>
+              </View>
+            </View>
+          </View>
+
+          {/* Quick Stats */}
+          <View className="mt-4 gap-3 pb-6">
+            <View className="bg-green-50 dark:bg-green-900/10 rounded-xl p-4 border border-green-200 dark:border-green-800">
+              <View className="flex-row items-center gap-2 mb-1">
+                <CheckCircle size={18} color="#10b981" />
+                <Text className="text-green-700 dark:text-green-400 font-bold">Fast Reviews Build Trust</Text>
+              </View>
+              <Text className="text-green-600 dark:text-green-400 text-xs">
+                Aim to review within 24 hours to keep apprentices productive and motivated
+              </Text>
+            </View>
+
+            <View className="bg-blue-50 dark:bg-blue-900/10 rounded-xl p-4 border border-blue-200 dark:border-blue-800">
+              <View className="flex-row items-center gap-2 mb-1">
+                <ThumbsUp size={18} color="#3b82f6" />
+                <Text className="text-blue-700 dark:text-blue-400 font-bold">Quality Feedback Matters</Text>
+              </View>
+              <Text className="text-blue-600 dark:text-blue-400 text-xs">
+                Detailed notes help apprentices learn and improve, even when requesting changes
+              </Text>
+            </View>
+          </View>
+        </View>
+      </ScrollView>
     );
   }
 
