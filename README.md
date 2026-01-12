@@ -40,6 +40,12 @@ Centaur OS turns OKRs into work, tracks execution, enables review workflows, and
     - Current cash balance: £600k
     - Monthly burn rate: £57.7k
     - Runway: 10.4 months with actionable recommendations
+  - **Interactive Scenario Planning**: Model different business scenarios with live calculations
+    - **Revenue Slider**: Adjust revenue increase from 0% to 100% and see immediate impact
+    - **Burn Reduction Slider**: Model burn rate reductions from 0% to 50%
+    - **Combined Impact View**: See new monthly P&L with adjusted revenue and burn
+    - **New Runway Calculation**: Real-time runway projections based on scenarios
+    - **Visual Feedback**: Color-coded cards showing positive/negative impacts
   - **Budget Setting**: Interactive modal to set targets for revenue, costs, and burn rate
   - **Budget Variance**: Real-time comparison of actual vs budget with variance amounts
   - **Visual Progress Bars**: Each cost category shown as percentage of total monthly burn
@@ -95,6 +101,8 @@ Centaur OS turns OKRs into work, tracks execution, enables review workflows, and
   - **Function-Based Filtering**: Filter by Finance, Sales, Marketing, Ops, Engineering, Admin, or Design & Manufacturing
   - **Visual Organization**: Agents grouped by function with emoji icons (💰📈📣⚙️💻📋🏭) and color coding
   - **Agent Count Badges**: See how many agents available per function at a glance
+  - **Team Member Usage Tracking**: See which team members (Founders, Executives, Apprentices) use each AI agent
+  - **Website Links**: Direct access to each AI agent's official website for more information
   - **Workflow-Oriented**: "Need marketing? Select Marketing execs, apprentices, and AI agents together"
   - **Detailed Agent Profiles**: View capabilities, integrations, usage stats, and costs per agent
   - **Onboarding Flow**: Add new AI agents with custom monthly cost tracking

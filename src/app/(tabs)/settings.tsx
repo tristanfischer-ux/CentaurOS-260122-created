@@ -190,7 +190,7 @@ export default function SettingsScreen() {
                   <View className="mb-3">
                     <Text className="text-gray-900 dark:text-white font-semibold mb-1">🤖 AI Agents</Text>
                     <Text className="text-gray-700 dark:text-slate-400 text-sm">
-                      36 AI agents organized by function (Finance, Sales, Marketing, Ops, Engineering, Admin, Design & Manufacturing). Includes specialized tools like Autodesk Fusion AI, Manufacturing GPT, Quality AI Inspector, and standard tools like ChatGPT, Midjourney, and GitHub Copilot. Total spend: £7,334/month.
+                      36 AI agents organized by function (Finance, Sales, Marketing, Ops, Engineering, Admin, Design & Manufacturing). Track which team members use which AI agents. Includes specialized tools like Autodesk Fusion AI, Manufacturing GPT, Quality AI Inspector, 11x Alice, Jasper AI, and standard tools like ChatGPT, Midjourney, and GitHub Copilot. View agent websites and usage statistics. Total spend: £7,334/month.
                     </Text>
                   </View>
 
@@ -209,9 +209,16 @@ export default function SettingsScreen() {
                   </View>
 
                   <View className="mb-3">
+                    <Text className="text-gray-900 dark:text-white font-semibold mb-1">📅 Community Events</Text>
+                    <Text className="text-gray-700 dark:text-slate-400 text-sm">
+                      Create and join networking events, workshops, and meetups. View event locations on interactive maps with markers. Invite specific team members to events and track who has joined. Support for in-person (with maps), virtual, and hybrid events.
+                    </Text>
+                  </View>
+
+                  <View className="mb-3">
                     <Text className="text-gray-900 dark:text-white font-semibold mb-1">💰 Financial Dashboard</Text>
                     <Text className="text-gray-700 dark:text-slate-400 text-sm">
-                      Founders-only view with monthly revenue, gross profit, burn rate, and runway. Tap any metric for detailed breakdowns including BOM, People, AI, and Other costs. Set budget targets and track variance.
+                      Founders-only view with monthly revenue, gross profit, burn rate, and runway. Tap any metric for detailed breakdowns including BOM, People, AI, and Other costs. Set budget targets and track variance. Interactive scenario planning with sliders to model revenue increases and burn reductions.
                     </Text>
                   </View>
 
