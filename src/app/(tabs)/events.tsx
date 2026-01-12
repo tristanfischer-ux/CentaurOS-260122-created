@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, Pressable, Modal, TextInput, Platform } from 'react-native';
+import { View, Text, ScrollView, Pressable, Modal, TextInput, Platform, Linking } from 'react-native';
 import { useState } from 'react';
 import {
   Calendar,
@@ -15,6 +15,7 @@ import {
   User,
   Mail,
   UserPlus,
+  Phone,
 } from 'lucide-react-native';
 import { useCurrentWorkspace, useCurrentMembership, useCurrentUser } from '@/lib/state/app-store';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -122,6 +123,7 @@ export default function EventsScreen() {
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [filterType, setFilterType] = useState<'all' | 'upcoming' | 'joined'>('all');
+  const [selectedMemberFromEvent, setSelectedMemberFromEvent] = useState<typeof ORGANIZATION_MEMBERS[0] | null>(null);
 
   // Create event form state
   const [newEventTitle, setNewEventTitle] = useState('');
@@ -142,7 +144,7 @@ export default function EventsScreen() {
 
   const canCreateEvent = currentMembership?.role === 'Founder' || currentMembership?.role === 'FractionalExec';
 
-  const handleCreateEvent = () => {
+  const handleCreateEvent = async () => {
     if (!currentUser || !newEventTitle.trim()) return;
 
     const newEvent: Event = {
@@ -170,6 +172,52 @@ export default function EventsScreen() {
 
     setEvents([newEvent, ...events]);
     setShowCreateModal(false);
+
+    // If team members are invited, open email client with pre-filled invitation
+    if (selectedInvitedMembers.length > 0) {
+      const invitedEmails = selectedInvitedMembers
+        .map(memberId => ORGANIZATION_MEMBERS.find(m => m.id === memberId)?.email)
+        .filter(email => email) as string[];
+
+      if (invitedEmails.length > 0) {
+        // Format the event details for email
+        const eventDate = formatDate(newEvent.startTime);
+        const eventTime = `${formatTime(newEvent.startTime)} - ${formatTime(newEvent.endTime)}`;
+
+        let locationText = '';
+        if (newEvent.location.type === 'virtual') {
+          locationText = `Virtual Event${newEvent.location.virtualLink ? `\n${newEvent.location.virtualLink}` : ''}`;
+        } else if (newEvent.location.type === 'in-person') {
+          locationText = `${newEvent.location.venue || ''}\n${newEvent.location.address || ''}`;
+        } else if (newEvent.location.type === 'hybrid') {
+          locationText = `In-person: ${newEvent.location.venue || ''}\nAddress: ${newEvent.location.address || ''}\nVirtual: ${newEvent.location.virtualLink || ''}`;
+        }
+
+        const subject = encodeURIComponent(`You're Invited: ${newEvent.title}`);
+        const body = encodeURIComponent(
+          `Hi there,\n\n` +
+          `You're invited to ${newEvent.title}!\n\n` +
+          `${newEvent.description}\n\n` +
+          `EVENT DETAILS:\n` +
+          `📅 Date: ${eventDate}\n` +
+          `🕐 Time: ${eventTime}\n` +
+          `📍 Location: ${locationText}\n` +
+          `💰 Cost: ${newEvent.cost === 0 ? 'Free' : `£${newEvent.cost}`}\n` +
+          `${newEvent.capacity ? `👥 Capacity: ${newEvent.capacity} people\n` : ''}\n` +
+          `Hosted by ${newEvent.hostName}\n\n` +
+          `We hope to see you there!\n\n` +
+          `Best regards,\n${currentUser.name}`
+        );
+
+        const mailto = `mailto:${invitedEmails.join(',')}?subject=${subject}&body=${body}`;
+
+        try {
+          await Linking.openURL(mailto);
+        } catch (error) {
+          console.error('Failed to open email client:', error);
+        }
+      }
+    }
 
     // Reset form
     setNewEventTitle('');
@@ -280,22 +328,31 @@ export default function EventsScreen() {
 
         {/* Stats */}
         <View className="flex-row gap-3 mb-4">
-          <View className="flex-1 bg-slate-900 rounded-xl p-3 border border-slate-800">
+          <Pressable
+            onPress={() => setFilterType('all')}
+            className="flex-1 bg-slate-900 rounded-xl p-3 border border-slate-800 active:opacity-70"
+          >
             <Text className="text-slate-400 text-xs mb-1">Total Events</Text>
             <Text className="text-white text-2xl font-bold">{events.length}</Text>
-          </View>
-          <View className="flex-1 bg-slate-900 rounded-xl p-3 border border-slate-800">
+          </Pressable>
+          <Pressable
+            onPress={() => setFilterType('joined')}
+            className="flex-1 bg-slate-900 rounded-xl p-3 border border-slate-800 active:opacity-70"
+          >
             <Text className="text-slate-400 text-xs mb-1">Joined</Text>
             <Text className="text-blue-400 text-2xl font-bold">
               {events.filter(e => isUserJoined(e)).length}
             </Text>
-          </View>
-          <View className="flex-1 bg-slate-900 rounded-xl p-3 border border-slate-800">
+          </Pressable>
+          <Pressable
+            onPress={() => setFilterType('upcoming')}
+            className="flex-1 bg-slate-900 rounded-xl p-3 border border-slate-800 active:opacity-70"
+          >
             <Text className="text-slate-400 text-xs mb-1">Upcoming</Text>
             <Text className="text-emerald-400 text-2xl font-bold">
               {events.filter(e => new Date(e.startTime) > new Date()).length}
             </Text>
-          </View>
+          </Pressable>
         </View>
 
         {/* Filters */}
@@ -610,7 +667,11 @@ export default function EventsScreen() {
                           const member = ORGANIZATION_MEMBERS.find(m => m.id === memberId);
                           if (!member) return null;
                           return (
-                            <View key={member.id} className="flex-row items-center p-2 bg-slate-750 rounded-lg">
+                            <Pressable
+                              key={member.id}
+                              onPress={() => setSelectedMemberFromEvent(member)}
+                              className="flex-row items-center p-2 bg-slate-750 rounded-lg active:opacity-70"
+                            >
                               <View className={`w-8 h-8 rounded-full items-center justify-center ${
                                 member.role === 'Founder'
                                   ? 'bg-purple-500/20'
@@ -637,7 +698,7 @@ export default function EventsScreen() {
                                   <Text className="text-emerald-400 text-xs font-medium">Joined</Text>
                                 </View>
                               )}
-                            </View>
+                            </Pressable>
                           );
                         })}
                       </View>
@@ -667,6 +728,62 @@ export default function EventsScreen() {
                       </>
                     )}
                   </Pressable>
+                </View>
+              </ScrollView>
+            </View>
+          )}
+        </View>
+      </Modal>
+
+      {/* Member Detail Modal (from invited list) */}
+      <Modal visible={selectedMemberFromEvent !== null} transparent animationType="fade">
+        <View className="flex-1 bg-black/70 justify-center px-6">
+          {selectedMemberFromEvent && (
+            <View className="bg-slate-900 rounded-3xl p-6" style={{ maxHeight: '80%' }}>
+              <ScrollView showsVerticalScrollIndicator={false}>
+                <View className="flex-row items-center justify-between mb-4">
+                  <Text className="text-white text-xl font-bold">{selectedMemberFromEvent.name}</Text>
+                  <Pressable onPress={() => setSelectedMemberFromEvent(null)}>
+                    <X size={24} color="#94a3b8" />
+                  </Pressable>
+                </View>
+
+                <View className="bg-slate-800 rounded-xl p-4 mb-4">
+                  <View className="flex-row justify-between mb-2">
+                    <Text className="text-slate-400 text-sm">Role:</Text>
+                    <Text className="text-white font-semibold">{selectedMemberFromEvent.role}</Text>
+                  </View>
+                  <View className="flex-row justify-between mb-2">
+                    <Text className="text-slate-400 text-sm">Function:</Text>
+                    <Text className="text-white font-semibold">{selectedMemberFromEvent.function}</Text>
+                  </View>
+                  {selectedMemberFromEvent.costPerDay && (
+                    <View className="flex-row justify-between">
+                      <Text className="text-slate-400 text-sm">Cost:</Text>
+                      <Text className="text-emerald-400 font-semibold">
+                        £{selectedMemberFromEvent.costPerDay}/day
+                      </Text>
+                    </View>
+                  )}
+                </View>
+
+                <View className="gap-3">
+                  <Pressable
+                    onPress={() => Linking.openURL(`mailto:${selectedMemberFromEvent.email}`)}
+                    className="bg-blue-500 py-3 rounded-xl flex-row items-center justify-center gap-2 active:opacity-80"
+                  >
+                    <Mail size={18} color="#fff" />
+                    <Text className="text-white font-semibold">Email</Text>
+                  </Pressable>
+                  {selectedMemberFromEvent.phone && (
+                    <Pressable
+                      onPress={() => Linking.openURL(`tel:${selectedMemberFromEvent.phone}`)}
+                      className="bg-emerald-500 py-3 rounded-xl flex-row items-center justify-center gap-2 active:opacity-80"
+                    >
+                      <Phone size={18} color="#fff" />
+                      <Text className="text-white font-semibold">Call</Text>
+                    </Pressable>
+                  )}
                 </View>
               </ScrollView>
             </View>
