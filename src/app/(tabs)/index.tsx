@@ -613,8 +613,11 @@ export default function HomeScreen() {
               </Text>
 
               <Pressable
-                onPress={() => router.push('/(tabs)/decide')}
-                className="bg-gray-100 dark:bg-slate-900 rounded-xl p-4 active:opacity-70"
+                onPress={() => router.push({
+                  pathname: '/(tabs)/decide',
+                  params: { function: EXECUTIVE_DATA.myFunction }
+                })}
+                className="bg-gray-100 dark:bg-slate-900 rounded-xl p-4 border border-gray-300 dark:border-slate-800 active:opacity-70"
               >
                 <View className="flex-row items-center mb-2">
                   <View
@@ -691,37 +694,53 @@ export default function HomeScreen() {
                 Resources in Use
               </Text>
 
-              <View className="bg-gray-100 dark:bg-slate-900 rounded-xl p-4">
-                <View className="flex-row items-center justify-between mb-3">
-                  <View className="flex-row items-center">
-                    <Bot size={20} color="#8b5cf6" />
-                    <Text className="text-gray-900 dark:text-white font-semibold ml-2">
-                      AI Tools This Week
-                    </Text>
-                  </View>
-                  <Text className="text-gray-900 dark:text-white font-bold">
-                    {EXECUTIVE_DATA.aiUsage.thisWeek}
-                  </Text>
-                </View>
-                <View className="flex-row flex-wrap gap-2 mb-3">
-                  {EXECUTIVE_DATA.aiUsage.tools.map((tool, idx) => (
-                    <View key={idx} className="bg-purple-100 dark:bg-purple-900/30 px-2 py-1 rounded">
-                      <Text className="text-purple-700 dark:text-purple-300 text-xs">{tool}</Text>
+              <View className="bg-gray-100 dark:bg-slate-900 rounded-xl border border-gray-300 dark:border-slate-800 overflow-hidden">
+                <Pressable
+                  onPress={() => router.push('/(tabs)/make')}
+                  className="p-4 active:opacity-70"
+                >
+                  <View className="flex-row items-center justify-between mb-3">
+                    <View className="flex-row items-center">
+                      <Bot size={20} color="#8b5cf6" />
+                      <Text className="text-gray-900 dark:text-white font-semibold ml-2">
+                        AI Tools This Week
+                      </Text>
                     </View>
-                  ))}
-                </View>
-
-                <View className="flex-row items-center justify-between pt-3 border-t border-gray-300 dark:border-slate-700">
-                  <View className="flex-row items-center">
-                    <Factory size={20} color="#f59e0b" />
-                    <Text className="text-gray-900 dark:text-white font-semibold ml-2">
-                      Suppliers
-                    </Text>
+                    <View className="flex-row items-center">
+                      <Text className="text-gray-900 dark:text-white font-bold mr-2">
+                        {EXECUTIVE_DATA.aiUsage.thisWeek}
+                      </Text>
+                      <ArrowRight size={16} color="#64748b" />
+                    </View>
                   </View>
-                  <Text className="text-gray-900 dark:text-white font-bold">
-                    {EXECUTIVE_DATA.suppliers.length}
-                  </Text>
-                </View>
+                  <View className="flex-row flex-wrap gap-2">
+                    {EXECUTIVE_DATA.aiUsage.tools.map((tool, idx) => (
+                      <View key={idx} className="bg-purple-100 dark:bg-purple-900/30 px-2 py-1 rounded">
+                        <Text className="text-purple-700 dark:text-purple-300 text-xs">{tool}</Text>
+                      </View>
+                    ))}
+                  </View>
+                </Pressable>
+
+                <Pressable
+                  onPress={() => router.push('/(tabs)/make')}
+                  className="p-4 border-t border-gray-300 dark:border-slate-700 active:opacity-70"
+                >
+                  <View className="flex-row items-center justify-between">
+                    <View className="flex-row items-center">
+                      <Factory size={20} color="#f59e0b" />
+                      <Text className="text-gray-900 dark:text-white font-semibold ml-2">
+                        Suppliers
+                      </Text>
+                    </View>
+                    <View className="flex-row items-center">
+                      <Text className="text-gray-900 dark:text-white font-bold mr-2">
+                        {EXECUTIVE_DATA.suppliers.length}
+                      </Text>
+                      <ArrowRight size={16} color="#64748b" />
+                    </View>
+                  </View>
+                </Pressable>
               </View>
             </View>
 
@@ -907,27 +926,35 @@ export default function HomeScreen() {
                 Working With
               </Text>
 
-              <View className="bg-gray-100 dark:bg-slate-900 rounded-xl p-4">
+              <Pressable
+                onPress={() => router.push('/(tabs)/community')}
+                className="bg-gray-100 dark:bg-slate-900 rounded-xl p-4 border border-gray-300 dark:border-slate-800 active:opacity-70"
+              >
                 {APPRENTICE_DATA.teamMembers.map((member, idx) => (
-                  <View key={idx} className={`flex-row items-center ${idx > 0 ? 'pt-3 mt-3 border-t border-gray-300 dark:border-slate-700' : ''}`}>
-                    <View className={`w-10 h-10 rounded-full items-center justify-center ${
-                      member.role === 'Executive' ? 'bg-blue-500' : 'bg-purple-500'
-                    }`}>
-                      <Text className="text-white text-xs font-bold">
-                        {member.name.split(' ').map(n => n[0]).join('')}
-                      </Text>
+                  <View key={idx} className={`flex-row items-center justify-between ${idx > 0 ? 'pt-3 mt-3 border-t border-gray-300 dark:border-slate-700' : ''}`}>
+                    <View className="flex-row items-center flex-1">
+                      <View className={`w-10 h-10 rounded-full items-center justify-center ${
+                        member.role === 'Executive' ? 'bg-blue-500' : 'bg-purple-500'
+                      }`}>
+                        <Text className="text-white text-xs font-bold">
+                          {member.name.split(' ').map(n => n[0]).join('')}
+                        </Text>
+                      </View>
+                      <View className="ml-3 flex-1">
+                        <Text className="text-gray-900 dark:text-white font-semibold text-sm">
+                          {member.name}
+                        </Text>
+                        <Text className="text-gray-600 dark:text-slate-400 text-xs">
+                          {member.role}{member.function ? ` • ${member.function}` : ''}
+                        </Text>
+                      </View>
                     </View>
-                    <View className="ml-3 flex-1">
-                      <Text className="text-gray-900 dark:text-white font-semibold text-sm">
-                        {member.name}
-                      </Text>
-                      <Text className="text-gray-600 dark:text-slate-400 text-xs">
-                        {member.role}{member.function ? ` • ${member.function}` : ''}
-                      </Text>
-                    </View>
+                    {idx === APPRENTICE_DATA.teamMembers.length - 1 && (
+                      <ArrowRight size={16} color="#64748b" />
+                    )}
                   </View>
                 ))}
-              </View>
+              </Pressable>
             </View>
 
             {/* AI Tools */}
