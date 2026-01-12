@@ -73,7 +73,7 @@ export default function TabLayout() {
         name="index"
         options={{
           title: 'Home',
-          headerTitle: currentWorkspace?.name || 'Centaur OS',
+          headerShown: false,
           tabBarIcon: ({ color }) => <TabBarIcon Icon={Home} color={color} />,
         }}
       />
@@ -83,7 +83,7 @@ export default function TabLayout() {
         name="decide"
         options={{
           title: 'Decide',
-          headerTitle: 'Decide',
+          headerShown: false,
           tabBarIcon: ({ color }) => <TabBarIcon Icon={Lightbulb} color={color} />,
         }}
       />
@@ -93,7 +93,7 @@ export default function TabLayout() {
         name="do"
         options={{
           title: 'Do',
-          headerTitle: 'Do',
+          headerShown: false,
           tabBarIcon: ({ color }) => <TabBarIcon Icon={PlayCircle} color={color} />,
         }}
       />
@@ -103,7 +103,7 @@ export default function TabLayout() {
         name="evaluate"
         options={{
           title: 'Evaluate',
-          headerTitle: 'Evaluate',
+          headerShown: false,
           tabBarIcon: ({ color }) => <TabBarIcon Icon={BarChart3} color={color} />,
         }}
       />
@@ -113,7 +113,7 @@ export default function TabLayout() {
         name="make"
         options={{
           title: 'Make',
-          headerTitle: 'Make',
+          headerShown: false,
           tabBarIcon: ({ color }) => <TabBarIcon Icon={Factory} color={color} />,
         }}
       />
@@ -123,7 +123,7 @@ export default function TabLayout() {
         name="community"
         options={{
           title: 'Community',
-          headerTitle: 'Community',
+          headerShown: false,
           tabBarIcon: ({ color }) => <TabBarIcon Icon={Users} color={color} />,
         }}
       />
@@ -133,7 +133,7 @@ export default function TabLayout() {
         name="settings"
         options={{
           title: 'Settings',
-          headerTitle: 'Settings',
+          headerShown: false,
           tabBarIcon: ({ color }) => <TabBarIcon Icon={Settings} color={color} />,
         }}
       />
