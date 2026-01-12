@@ -311,19 +311,19 @@ export default function TeamScreen() {
     name: member.name,
     role: member.role,
     email: member.email,
-    phone: member.phone,
+    phone: member.phone || undefined,
     location: '', // Not in organization data
     specialization: [member.function],
     experience: 0, // Not available
     rating: 0, // Not available
-    costPerDay: member.costPerDay,
+    costPerDay: member.costPerDay || undefined,
     availability: member.status === 'active' ? 'Active' : 'Inactive',
     bio: '',
     skills: [member.function],
     currentTasks: 0,
     completedTasks: 0,
     avatarColor: getColorForRole(member.role),
-    joinedDate: member.startDate,
+    joinedDate: member.startDate || new Date().toISOString(),
   }));
 
   const filteredTeam = teamMembers.filter((member: TeamMember) => {
@@ -591,7 +591,7 @@ export default function TeamScreen() {
                         <Text className="text-slate-400 text-xs mb-1">Rating</Text>
                         <View className="flex-row items-center">
                           <Star size={14} color="#f59e0b" fill="#f59e0b" />
-                          <Text className="text-white font-bold ml-1">{selectedMember.rating}</Text>
+                          <Text className="text-white font-bold ml-1">{selectedMember.rating.toFixed(1)}</Text>
                         </View>
                       </View>
                     )}
@@ -601,7 +601,7 @@ export default function TeamScreen() {
                         <Text className="text-white font-bold">{selectedMember.experience}y</Text>
                       </View>
                     )}
-                    {selectedMember.costPerDay && (
+                    {selectedMember.costPerDay && selectedMember.costPerDay > 0 && (
                       <View className="flex-1 bg-slate-800 rounded-xl p-3">
                         <Text className="text-slate-400 text-xs mb-1">Rate</Text>
                         <Text className="text-emerald-400 font-bold text-xs">£{selectedMember.costPerDay}/d</Text>
@@ -661,7 +661,9 @@ export default function TeamScreen() {
 
                   <View className="mb-4">
                     <Text className="text-slate-400 text-xs mb-1">Specializations</Text>
-                    <Text className="text-white text-sm">{selectedMember.specialization.join(', ')}</Text>
+                    <Text className="text-white text-sm">
+                      {selectedMember.specialization?.join(', ') || 'N/A'}
+                    </Text>
                   </View>
 
                   {selectedMember.availability && (
@@ -674,11 +676,11 @@ export default function TeamScreen() {
                   <View className="mb-4">
                     <Text className="text-slate-400 text-xs mb-1">Joined</Text>
                     <Text className="text-white text-sm">
-                      {new Date(selectedMember.joinedDate).toLocaleDateString('en-GB', {
+                      {selectedMember.joinedDate ? new Date(selectedMember.joinedDate).toLocaleDateString('en-GB', {
                         day: 'numeric',
                         month: 'long',
                         year: 'numeric'
-                      })}
+                      }) : 'N/A'}
                     </Text>
                   </View>
 
