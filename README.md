@@ -22,6 +22,11 @@ Centaur OS turns OKRs into work, tracks execution, enables review workflows, and
 - **Financial Dashboard (Founder-Only)** - Comprehensive financial tracking and budget management
   - **Key Metrics**: Monthly Revenue, Monthly Gross Profit, Monthly Burn Rate, Runway - all clearly labeled as monthly
   - **Tappable Metric Cards**: Tap any financial metric card to see detailed breakdowns
+  - **Tappable Cost Breakdown Cards**: Each cost category card (COGS, Team, AI Services, Other) is clickable
+    - **COGS Breakdown**: Materials, Manufacturing, Shipping, Other with percentages
+    - **Team Costs Breakdown**: Founders, Fractional Executives, Apprentices with headcount and percentages
+    - **AI Services Breakdown**: OpenAI, Anthropic, Google, ElevenLabs, Other with percentages
+    - **Other Costs Breakdown**: Office & Facilities, Software & Tools, Marketing, Legal & Compliance, Miscellaneous with percentages
   - **Revenue Breakdown Modal**: £45k current revenue with 15.5% growth
     - Product Sales breakdown with percentages
     - Services revenue tracking
