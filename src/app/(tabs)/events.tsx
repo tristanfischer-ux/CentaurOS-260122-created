@@ -235,8 +235,13 @@ export default function EventsScreen() {
     setSelectedInvitedMembers([]);
   };
 
-  const handleJoinEvent = (eventId: string) => {
+  const handleJoinEvent = async (eventId: string) => {
     if (!currentUser) return;
+
+    const event = events.find(e => e.id === eventId);
+    if (!event) return;
+
+    const isJoining = !event.attendees.includes(currentUser.id);
 
     setEvents(events.map(event => {
       if (event.id === eventId) {
@@ -261,6 +266,51 @@ export default function EventsScreen() {
             ? updatedEvent.attendees.filter(id => id !== currentUser.id)
             : [...updatedEvent.attendees, currentUser.id],
         });
+      }
+    }
+
+    // Send confirmation email when joining an event
+    if (isJoining) {
+      // Get event host email
+      const hostMember = ORGANIZATION_MEMBERS.find(m => m.id === event.createdBy);
+      const hostEmail = hostMember?.email;
+
+      if (hostEmail) {
+        // Format the event details for email
+        const eventDate = formatDate(event.startTime);
+        const eventTime = `${formatTime(event.startTime)} - ${formatTime(event.endTime)}`;
+
+        let locationText = '';
+        if (event.location.type === 'virtual') {
+          locationText = `Virtual Event${event.location.virtualLink ? `\n${event.location.virtualLink}` : ''}`;
+        } else if (event.location.type === 'in-person') {
+          locationText = `${event.location.venue || ''}\n${event.location.address || ''}`;
+        } else if (event.location.type === 'hybrid') {
+          locationText = `In-person: ${event.location.venue || ''}\nAddress: ${event.location.address || ''}\nVirtual: ${event.location.virtualLink || ''}`;
+        }
+
+        const subject = encodeURIComponent(`Joined: ${event.title}`);
+        const body = encodeURIComponent(
+          `Hi ${event.hostName},\n\n` +
+          `I'm confirming my attendance for ${event.title}!\n\n` +
+          `EVENT DETAILS:\n` +
+          `📅 Date: ${eventDate}\n` +
+          `🕐 Time: ${eventTime}\n` +
+          `📍 Location: ${locationText}\n` +
+          `💰 Cost: ${event.cost === 0 ? 'Free' : `£${event.cost}`}\n` +
+          `${event.capacity ? `👥 Capacity: ${event.capacity} people\n` : ''}\n` +
+          `${event.description ? `\n${event.description}\n` : ''}\n` +
+          `Looking forward to attending!\n\n` +
+          `Best regards,\n${currentUser.name}`
+        );
+
+        const mailto = `mailto:${hostEmail}?subject=${subject}&body=${body}`;
+
+        try {
+          await Linking.openURL(mailto);
+        } catch (error) {
+          console.error('Failed to open email client:', error);
+        }
       }
     }
   };

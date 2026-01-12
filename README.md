@@ -181,6 +181,11 @@ Centaur OS turns OKRs into work, tracks execution, enables review workflows, and
   - **Event Types**: Networking, Workshop, Demo Day, Office Hours, Social, and Webinar events
   - **Location Flexibility**: Support for in-person (with maps), virtual, and hybrid events
   - **RSVP Management**: Join or leave events with real-time attendee tracking
+  - **Email Integration**: Automatic email triggers when creating or joining events
+    - **Event Creation**: When inviting team members, opens email client with pre-filled invitation
+    - **Event Join Confirmation**: When joining an event, opens email client to notify host with full event details
+    - **Complete Event Details**: Emails include date, time, location (with virtual links), cost, capacity, and description
+    - **Professional Format**: Well-formatted emails with all necessary information for calendar entries
 - **Weekly Pack Generator** - One-click generation of status reports with OKR progress
 - **Templates Library** - Pre-built task templates by function (Finance, Sales, Marketing, Ops, Engineering)
 - **Global Search** - Search across all data types from anywhere in the app
