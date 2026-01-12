@@ -133,6 +133,8 @@ export const projectApi = {
 };
 
 // ============================================================================
+// WEEKLY PACK API
+// ============================================================================
 // TASK API
 // ============================================================================
 
@@ -291,6 +293,8 @@ export const taskApi = {
 };
 
 // ============================================================================
+// WEEKLY PACK API
+// ============================================================================
 // TASK COMMENT API
 // ============================================================================
 
@@ -342,6 +346,8 @@ export const taskCommentApi = {
   },
 };
 
+// ============================================================================
+// WEEKLY PACK API
 // ============================================================================
 // REVIEW API
 // ============================================================================
@@ -447,6 +453,47 @@ export const reviewApi = {
 
     return updated;
   },
+
+  /**
+   * Batch approve or reject multiple reviews at once
+   * Founder productivity feature - saves time by processing reviews in bulk
+   */
+  async batchSubmitReviews(
+    reviewIds: string[],
+    decision: 'approved' | 'changes_requested',
+    notes: string | undefined,
+    actorId: string,
+    actorRole: Role
+  ): Promise<{ successful: string[]; failed: string[] }> {
+    if (!checkPermission(actorRole, 'approve', 'review')) {
+      throw new Error('Permission denied');
+    }
+
+    const successful: string[] = [];
+    const failed: string[] = [];
+
+    for (const reviewId of reviewIds) {
+      try {
+        const result = await this.submitReview(
+          reviewId,
+          { status: decision, notes },
+          actorId,
+          actorRole
+        );
+
+        if (result) {
+          successful.push(reviewId);
+        } else {
+          failed.push(reviewId);
+        }
+      } catch (error) {
+        console.error(`Failed to process review ${reviewId}:`, error);
+        failed.push(reviewId);
+      }
+    }
+
+    return { successful, failed };
+  },
 };
 
 // ============================================================================
@@ -532,6 +579,8 @@ export const weeklyPackApi = {
 };
 
 // ============================================================================
+// WEEKLY PACK API
+// ============================================================================
 // TEMPLATE API
 // ============================================================================
 
@@ -595,6 +644,8 @@ export const templateApi = {
 };
 
 // ============================================================================
+// WEEKLY PACK API
+// ============================================================================
 // METRIC EVENT API
 // ============================================================================
 
@@ -630,6 +681,8 @@ export const metricEventApi = {
   },
 };
 
+// ============================================================================
+// WEEKLY PACK API
 // ============================================================================
 // TIME ENTRY API
 // ============================================================================
@@ -772,6 +825,8 @@ export const timeEntryApi = {
 };
 
 // ============================================================================
+// WEEKLY PACK API
+// ============================================================================
 // OKR PROGRESS AUTO-CALCULATION
 // ============================================================================
 
@@ -815,3 +870,4 @@ export async function updateOKRProgressFromTasks(objectiveId: string): Promise<v
     console.error('Failed to update OKR progress:', error);
   }
 }
+
