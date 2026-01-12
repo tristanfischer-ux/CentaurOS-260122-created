@@ -389,60 +389,76 @@ export default function HomeScreen() {
                 </Pressable>
               </View>
 
-              <LinearGradient
-                colors={['#10b981', '#14b8a6']}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 0 }}
-                style={{ borderRadius: 16, padding: 16, marginBottom: 12 }}
+              <Pressable
+                onPress={() => router.push('/financial-dashboard')}
+                className="active:opacity-80"
               >
-                <View className="flex-row items-center justify-between mb-4">
-                  <View>
-                    <Text className="text-emerald-100 text-xs font-semibold mb-1">RUNWAY</Text>
-                    <Text className="text-white text-3xl font-bold">
-                      {FOUNDER_DATA.financials.runway} months
-                    </Text>
+                <LinearGradient
+                  colors={['#10b981', '#14b8a6']}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 0 }}
+                  style={{ borderRadius: 16, padding: 16, marginBottom: 12 }}
+                >
+                  <View className="flex-row items-center justify-between mb-4">
+                    <View>
+                      <Text className="text-emerald-100 text-xs font-semibold mb-1">RUNWAY</Text>
+                      <Text className="text-white text-3xl font-bold">
+                        {FOUNDER_DATA.financials.runway} months
+                      </Text>
+                    </View>
+                    <BarChart3 size={32} color="#fff" />
                   </View>
-                  <BarChart3 size={32} color="#fff" />
-                </View>
 
-                <View className="h-px bg-white/20 mb-3" />
+                  <View className="h-px bg-white/20 mb-3" />
 
-                <View className="flex-row gap-4 mb-2">
-                  <View className="flex-1">
-                    <Text className="text-emerald-100 text-xs mb-1">Monthly Revenue</Text>
-                    <Text className="text-white text-lg font-bold">
-                      £{(FOUNDER_DATA.financials.revenue / 1000).toFixed(0)}K
-                    </Text>
+                  <View className="flex-row gap-4 mb-2">
+                    <View className="flex-1">
+                      <Text className="text-emerald-100 text-xs mb-1">Monthly Revenue</Text>
+                      <Text className="text-white text-lg font-bold">
+                        £{(FOUNDER_DATA.financials.revenue / 1000).toFixed(0)}K
+                      </Text>
+                    </View>
+                    <View className="flex-1">
+                      <Text className="text-emerald-100 text-xs mb-1">Monthly Burn</Text>
+                      <Text className="text-white text-lg font-bold">
+                        £{(FOUNDER_DATA.financials.burnRate / 1000).toFixed(0)}K
+                      </Text>
+                    </View>
                   </View>
-                  <View className="flex-1">
-                    <Text className="text-emerald-100 text-xs mb-1">Monthly Burn</Text>
-                    <Text className="text-white text-lg font-bold">
-                      £{(FOUNDER_DATA.financials.burnRate / 1000).toFixed(0)}K
-                    </Text>
-                  </View>
-                </View>
 
-                <View className="flex-row gap-4">
-                  <View className="flex-1">
-                    <Text className="text-emerald-100 text-xs mb-1">Net Cash Flow</Text>
-                    <Text className="text-white text-lg font-bold">
-                      {FOUNDER_DATA.financials.revenue - FOUNDER_DATA.financials.burnRate >= 0 ? '+' : '-'}£{Math.abs(FOUNDER_DATA.financials.revenue - FOUNDER_DATA.financials.burnRate / 1000).toFixed(0)}K
-                    </Text>
+                  <View className="flex-row gap-4 mb-2">
+                    <View className="flex-1">
+                      <Text className="text-emerald-100 text-xs mb-1">Net Cash Flow</Text>
+                      <Text className="text-white text-lg font-bold">
+                        {FOUNDER_DATA.financials.revenue - FOUNDER_DATA.financials.burnRate >= 0 ? '+' : '-'}£{Math.abs(FOUNDER_DATA.financials.revenue - FOUNDER_DATA.financials.burnRate / 1000).toFixed(0)}K
+                      </Text>
+                    </View>
+                    <View className="flex-1">
+                      <Text className="text-emerald-100 text-xs mb-1">Cash Position</Text>
+                      <Text className="text-white text-lg font-bold">
+                        £{((FOUNDER_DATA.financials.runway * FOUNDER_DATA.financials.burnRate) / 1000).toFixed(0)}K
+                      </Text>
+                    </View>
                   </View>
-                  <View className="flex-1">
-                    <Text className="text-emerald-100 text-xs mb-1">Cash Position</Text>
-                    <Text className="text-white text-lg font-bold">
-                      £{((FOUNDER_DATA.financials.runway * FOUNDER_DATA.financials.burnRate) / 1000).toFixed(0)}K
-                    </Text>
+
+                  <View className="flex-row items-center justify-center mt-2">
+                    <Text className="text-white text-sm font-semibold">Tap for detailed breakdown</Text>
+                    <ArrowRight size={16} color="#fff" className="ml-1" />
                   </View>
-                </View>
-              </LinearGradient>
+                </LinearGradient>
+              </Pressable>
 
               {/* Cost Breakdown */}
-              <View className="bg-gray-100 dark:bg-slate-900 rounded-xl p-4 border border-gray-300 dark:border-slate-800">
-                <Text className="text-gray-900 dark:text-white font-bold text-sm mb-3">
-                  Monthly Cost Breakdown
-                </Text>
+              <Pressable
+                onPress={() => router.push('/financial-dashboard')}
+                className="bg-gray-100 dark:bg-slate-900 rounded-xl p-4 border border-gray-300 dark:border-slate-800 active:opacity-70"
+              >
+                <View className="flex-row items-center justify-between mb-3">
+                  <Text className="text-gray-900 dark:text-white font-bold text-sm">
+                    Monthly Cost Breakdown
+                  </Text>
+                  <ArrowRight size={20} color="#64748b" />
+                </View>
 
                 <View className="gap-3">
                   <View className="flex-row items-center justify-between">
@@ -492,7 +508,7 @@ export default function HomeScreen() {
                     <Text className="text-gray-900 dark:text-white font-bold text-base">£85K</Text>
                   </View>
                 </View>
-              </View>
+              </Pressable>
             </View>
           </View>
         </ScrollView>
