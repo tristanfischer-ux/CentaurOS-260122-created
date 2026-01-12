@@ -620,45 +620,44 @@ export default function TeamScreen() {
 
       {/* Member Detail Modal */}
       <Modal visible={selectedMember !== null} transparent animationType="slide" onRequestClose={() => setSelectedMember(null)}>
-        <Pressable
-          className="flex-1 bg-black/70 justify-end"
-          onPress={() => setSelectedMember(null)}
-        >
-          <Pressable onPress={(e) => e.stopPropagation()}>
-            {selectedMember && (
-              <View className="bg-gray-100 dark:bg-slate-900 rounded-t-3xl" style={{ maxHeight: '90%' }}>
-                <ScrollView showsVerticalScrollIndicator={true} bounces={false}>
-                  {/* Header */}
-                  <View className="p-6 border-b border-gray-300 dark:border-slate-800">
-                  <View className="flex-row justify-between items-start mb-4">
-                    <View className="flex-1">
-                      <View
-                        className="w-16 h-16 rounded-full items-center justify-center mb-3"
-                        style={{ backgroundColor: selectedMember.avatarColor + '20' }}
-                      >
-                        <Text
-                          className="text-2xl font-bold"
-                          style={{ color: selectedMember.avatarColor }}
-                        >
-                          {selectedMember.name.charAt(0)}
-                        </Text>
-                      </View>
-                      <Text className="text-gray-900 dark:text-white text-2xl font-bold mb-1">
-                        {selectedMember.name}
-                      </Text>
-                      <View className={`self-start px-3 py-1 rounded-lg border ${getRoleBadgeColor(selectedMember.role)}`}>
-                        <Text className={`text-sm font-semibold ${getRoleTextColor(selectedMember.role)}`}>
-                          {selectedMember.role === 'FractionalExec' ? 'Fractional Executive' : selectedMember.role}
-                        </Text>
-                      </View>
-                    </View>
-                    <Pressable onPress={() => setSelectedMember(null)}>
-                      <X size={24} color="#94a3b8" />
-                    </Pressable>
+        <View className="flex-1 bg-black/70 justify-end">
+          {selectedMember && (
+            <View className="bg-gray-100 dark:bg-slate-900 rounded-t-3xl" style={{ maxHeight: '90%' }}>
+              {/* Fixed Header */}
+              <View className="px-6 pt-6 pb-4 border-b border-gray-300 dark:border-slate-800 flex-row justify-between items-center">
+                <View className="flex-1 flex-row items-center">
+                  <View
+                    className="w-14 h-14 rounded-full items-center justify-center mr-3"
+                    style={{ backgroundColor: selectedMember.avatarColor + '20' }}
+                  >
+                    <Text
+                      className="text-xl font-bold"
+                      style={{ color: selectedMember.avatarColor }}
+                    >
+                      {selectedMember.name.charAt(0)}
+                    </Text>
                   </View>
+                  <View className="flex-1">
+                    <Text className="text-gray-900 dark:text-white text-xl font-bold">
+                      {selectedMember.name}
+                    </Text>
+                    <View className={`self-start px-2 py-0.5 rounded border mt-1 ${getRoleBadgeColor(selectedMember.role)}`}>
+                      <Text className={`text-xs font-semibold ${getRoleTextColor(selectedMember.role)}`}>
+                        {selectedMember.role === 'FractionalExec' ? 'Executive' : selectedMember.role}
+                      </Text>
+                    </View>
+                  </View>
+                </View>
+                <Pressable onPress={() => setSelectedMember(null)}>
+                  <X size={24} color="#94a3b8" />
+                </Pressable>
+              </View>
 
-                  {/* Stats Row */}
-                  <View className="flex-row gap-3 mb-4">
+              {/* Scrollable Content */}
+              <ScrollView showsVerticalScrollIndicator={true} bounces={false} className="flex-1">
+                {/* Stats Row */}
+                <View className="p-6 border-b border-gray-300 dark:border-slate-800">
+                  <View className="flex-row gap-3">
                     {selectedMember.rating > 0 && (
                       <View className="flex-1 bg-gray-200 dark:bg-slate-800 rounded-xl p-3">
                         <Text className="text-gray-600 dark:text-slate-400 text-xs mb-1">Rating</Text>
@@ -820,9 +819,8 @@ export default function TeamScreen() {
                 </View>
               </ScrollView>
             </View>
-            )}
-          </Pressable>
-        </Pressable>
+          )}
+        </View>
       </Modal>
 
       {/* Assign Task Modal */}

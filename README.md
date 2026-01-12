@@ -15,7 +15,7 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
 
 ## 🚨 PRODUCTION READINESS STATUS
 
-**Last Updated**: 2026-01-12 (Org Chart Fixed - Everything Visible On Screen)
+**Last Updated**: 2026-01-12 (Team Directory Modal Fixed - All Content Scrollable)
 
 ### Current Status: ✅ **READY FOR APP STORE SUBMISSION**
 
@@ -282,6 +282,7 @@ Centaur OS turns OKRs into work, tracks execution, enables review workflows, and
   - **One-Click Communication**: Email team members with single tap
   - **Role-Based Filtering**: Filter by Founders, Executives, or Apprentices
   - **Visual Org Chart Button**: Quick access to interactive organization diagram
+  - **Scrollable Member Details**: Fixed header with fully scrollable content sections (contact info, professional details, task stats, actions)
 - **Interactive Organization Diagram** - All team members visible on screen without horizontal scrolling
   - **Smart Wrapping Layout**: Automatically wraps to multiple rows (max 3 per row) to fit screen
   - **No Horizontal Scrolling**: All content visible without left/right panning
