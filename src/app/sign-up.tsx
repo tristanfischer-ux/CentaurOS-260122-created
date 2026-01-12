@@ -70,8 +70,8 @@ export default function SignUpScreen() {
       setCurrentUser(user);
       setAuthToken(token);
 
-      // Navigate to main app
-      router.replace('/(tabs)');
+      // Navigate to onboarding for new users
+      router.replace('/onboarding');
     } catch (err) {
       console.error('Sign up error:', err);
       setError('Failed to create account. Please try again.');

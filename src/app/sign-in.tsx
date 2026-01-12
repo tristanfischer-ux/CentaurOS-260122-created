@@ -5,6 +5,7 @@ import { Building2, Mail, ArrowRight } from 'lucide-react-native';
 import { userApi } from '@/lib/api';
 import { useAppStore } from '@/lib/state/app-store';
 import { router } from 'expo-router';
+import { hasCompletedOnboarding } from '@/lib/onboarding';
 
 export default function SignInScreen() {
   const [email, setEmail] = useState('');
@@ -38,8 +39,16 @@ export default function SignInScreen() {
       setCurrentUser(user);
       setAuthToken(token);
 
-      // Navigate to main app
-      router.replace('/(tabs)');
+      // Check if user has completed onboarding
+      const completedOnboarding = await hasCompletedOnboarding(user.id);
+
+      if (completedOnboarding) {
+        // Navigate to main app
+        router.replace('/(tabs)');
+      } else {
+        // Navigate to onboarding
+        router.replace('/onboarding');
+      }
     } catch (err) {
       console.error('Sign in error:', err);
       setError('Failed to sign in. Please try again.');

@@ -1,9 +1,10 @@
 import { View, Text, Pressable, ScrollView, Modal, Alert, Linking } from 'react-native';
-import { LogOut, ChevronRight, Sun, Moon, Smartphone, FileText, Info, X, Database, Download, Upload, RefreshCw, Check, ExternalLink, Sheet } from 'lucide-react-native';
+import { LogOut, ChevronRight, Sun, Moon, Smartphone, FileText, Info, X, Database, Download, Upload, RefreshCw, Check, ExternalLink, Sheet, Play } from 'lucide-react-native';
 import { useAppStore, useCurrentUser, useCurrentMembership } from '@/lib/state/app-store';
 import { router } from 'expo-router';
 import { useState } from 'react';
 import type { ThemeMode } from '@/types';
+import { resetOnboarding } from '@/lib/onboarding';
 
 export default function SettingsScreen() {
   const currentUser = useCurrentUser();
@@ -21,6 +22,25 @@ export default function SettingsScreen() {
   const handleLogout = async () => {
     await logout();
     router.replace('/sign-in');
+  };
+
+  const handleReplayOnboarding = async () => {
+    Alert.alert(
+      'Replay Onboarding',
+      'Would you like to replay the onboarding tutorial? This will show you how to use Centaur OS based on your role.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Start Tutorial',
+          onPress: async () => {
+            if (currentUser) {
+              await resetOnboarding(currentUser.id);
+              router.push('/onboarding');
+            }
+          },
+        },
+      ]
+    );
   };
 
   const handleExportCSV = (dataType: string) => {
@@ -192,6 +212,18 @@ export default function SettingsScreen() {
           <View className="flex-row items-center">
             <FileText size={20} color="#10b981" />
             <Text className="text-gray-900 dark:text-white font-semibold ml-3">Reports</Text>
+          </View>
+          <ChevronRight size={20} color="#64748b" />
+        </Pressable>
+
+        {/* Replay Onboarding */}
+        <Pressable
+          onPress={handleReplayOnboarding}
+          className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-4 mb-4 flex-row items-center justify-between active:opacity-70"
+        >
+          <View className="flex-row items-center">
+            <Play size={20} color="#8b5cf6" />
+            <Text className="text-gray-900 dark:text-white font-semibold ml-3">Replay Tutorial</Text>
           </View>
           <ChevronRight size={20} color="#64748b" />
         </Pressable>

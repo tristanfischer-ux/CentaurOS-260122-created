@@ -23,11 +23,24 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
 ✅ **UI/UX**: A+ - Apple HIG compliant, beautiful design
 ✅ **Features**: 17 major features - Fully functional
 ✅ **RBAC**: A+ - Perfect implementation
+✅ **Onboarding**: Complete role-based system implemented
 ⚠️ **Architecture**: Requires backend for production use
 
-### 📋 Comprehensive Audit Documents:
+### 📋 Comprehensive Documentation:
 
-1. **[PRODUCTION_READINESS_SUMMARY.md](./PRODUCTION_READINESS_SUMMARY.md)** - START HERE
+1. **[ONBOARDING_IMPLEMENTATION.md](./ONBOARDING_IMPLEMENTATION.md)** - NEW! ✨
+   - Complete onboarding system details
+   - Three role-specific paths (Founder/Executive/Apprentice)
+   - Beautiful animated walkthrough
+   - Ready to test
+
+2. **[REPORT_ENHANCEMENT_PLAN.md](./REPORT_ENHANCEMENT_PLAN.md)** - NEW! 📊
+   - McKinsey-grade report recommendations
+   - Board pack enhancements
+   - Executive summary generation
+   - Strategic recommendations engine
+
+3. **[PRODUCTION_READINESS_SUMMARY.md](./PRODUCTION_READINESS_SUMMARY.md)** - START HERE
    - Executive summary of all audits
    - Deployment path recommendations
    - Critical decision point
