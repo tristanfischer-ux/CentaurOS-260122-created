@@ -52,6 +52,8 @@ export default function ReviewsScreen() {
   if (!canReview) {
     return (
       <ScrollView className="flex-1 bg-white dark:bg-slate-950">
+        <TabDescription description="Review submitted work from apprentices, provide feedback, and approve or request changes." />
+
         {/* Header */}
         <View className="p-6 pb-4">
           <Text className="text-gray-900 dark:text-white text-2xl font-bold">Review Queue</Text>
@@ -122,6 +124,8 @@ export default function ReviewsScreen() {
   if (pendingReviews.length === 0 && completedReviews.length === 0) {
     return (
       <ScrollView className="flex-1 bg-white dark:bg-slate-950">
+        <TabDescription description="Review submitted work from apprentices, provide feedback, and approve or request changes." />
+
         {/* Header */}
         <View className="p-6 pb-4">
           <Text className="text-gray-900 dark:text-white text-2xl font-bold">Review Queue</Text>
