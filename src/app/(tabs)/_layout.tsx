@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { Tabs, router } from 'expo-router';
 import { Home, Lightbulb, PlayCircle, BarChart3, Factory, Users, Settings } from 'lucide-react-native';
-import { useColorScheme } from '@/lib/useColorScheme';
+import { useColorScheme, useIsOffWhite } from '@/lib/useColorScheme';
 import { useIsAuthenticated, useCurrentWorkspace, useAppStore } from '@/lib/state/app-store';
 
 // Tab navigation layout
@@ -12,10 +12,24 @@ function TabBarIcon(props: { Icon: any; color: string }) {
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
+  const isOffWhite = useIsOffWhite();
   const isAuthenticated = useIsAuthenticated();
   const currentWorkspace = useCurrentWorkspace();
   const workspaces = useAppStore((s) => s.workspaces);
   const setCurrentWorkspace = useAppStore((s) => s.setCurrentWorkspace);
+
+  // Determine background colors based on theme
+  const backgroundColor = colorScheme === 'dark'
+    ? '#0f172a'
+    : isOffWhite
+    ? '#fafaf9' // stone-50
+    : '#ffffff';
+
+  const borderColor = colorScheme === 'dark'
+    ? '#1e293b'
+    : isOffWhite
+    ? '#e7e5e4' // stone-200
+    : '#e2e8f0';
 
   // Redirect to sign-in if not authenticated
   useEffect(() => {
@@ -44,12 +58,12 @@ export default function TabLayout() {
         tabBarActiveTintColor: '#3b82f6',
         tabBarInactiveTintColor: '#64748b',
         tabBarStyle: {
-          backgroundColor: colorScheme === 'dark' ? '#0f172a' : '#ffffff',
-          borderTopColor: colorScheme === 'dark' ? '#1e293b' : '#e2e8f0',
+          backgroundColor,
+          borderTopColor: borderColor,
           borderTopWidth: 1,
         },
         headerStyle: {
-          backgroundColor: colorScheme === 'dark' ? '#0f172a' : '#ffffff',
+          backgroundColor,
         },
         headerTintColor: colorScheme === 'dark' ? '#ffffff' : '#000000',
       }}

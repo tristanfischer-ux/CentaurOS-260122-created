@@ -1,4 +1,4 @@
-// Theme Context for managing light/dark mode
+// Theme Context for managing light/dark/off-white modes
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useColorScheme as useDeviceColorScheme } from 'react-native';
@@ -9,6 +9,7 @@ interface ThemeContextType {
   theme: 'light' | 'dark';
   themeMode: ThemeMode;
   setThemeMode: (mode: ThemeMode) => void;
+  isOffWhite: boolean; // New: to distinguish off-white from light
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
@@ -29,6 +30,9 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
       : (themeMode === 'light' || themeMode === 'off-white')
       ? 'light'
       : 'dark';
+
+  // Track if we're in off-white mode specifically
+  const isOffWhite = themeMode === 'off-white';
 
   const setThemeMode = (mode: ThemeMode) => {
     setThemeModeState(mode);
@@ -53,7 +57,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   }, [currentUser?.preferences?.themeMode]);
 
   return (
-    <ThemeContext.Provider value={{ theme, themeMode, setThemeMode }}>
+    <ThemeContext.Provider value={{ theme, themeMode, setThemeMode, isOffWhite }}>
       {children}
     </ThemeContext.Provider>
   );
