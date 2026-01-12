@@ -1,5 +1,5 @@
 import { View, Text, Pressable, ScrollView, Modal, Alert, Linking } from 'react-native';
-import { LogOut, ChevronRight, Sun, Moon, Smartphone, FileText, Info, X, Database, Download, Upload, RefreshCw, Check, ExternalLink, Sheet, Play, Library, Eye } from 'lucide-react-native';
+import { LogOut, ChevronRight, Sun, Moon, Smartphone, FileText, Info, X, Database, Download, Upload, RefreshCw, Check, ExternalLink, Sheet, Play, Library, Eye, Mail, Users, Award, Package } from 'lucide-react-native';
 import { useAppStore, useCurrentUser, useCurrentMembership } from '@/lib/state/app-store';
 import { router } from 'expo-router';
 import { useState } from 'react';
@@ -255,6 +255,64 @@ export default function SettingsScreen() {
           <View className="flex-row items-center">
             <Play size={20} color="#8b5cf6" />
             <Text className="text-gray-900 dark:text-white font-semibold ml-3">Replay Tutorial</Text>
+          </View>
+          <ChevronRight size={20} color="#64748b" />
+        </Pressable>
+
+        {/* Fractional Foundry Features Section */}
+        <Text className="text-gray-600 dark:text-slate-400 text-sm font-semibold mb-3 mt-2">
+          MARKETPLACE & COLLABORATION
+        </Text>
+
+        {/* My Invitations */}
+        <Pressable
+          onPress={() => router.push('/invitations')}
+          className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-4 mb-3 flex-row items-center justify-between active:opacity-70"
+        >
+          <View className="flex-row items-center">
+            <Mail size={20} color="#3b82f6" />
+            <View className="ml-3">
+              <Text className="text-gray-900 dark:text-white font-semibold">My Invitations</Text>
+              <Text className="text-gray-600 dark:text-slate-400 text-xs mt-0.5">
+                {currentMembership?.role === 'Founder' ? 'Sent and received invitations' : 'Invitations from companies'}
+              </Text>
+            </View>
+          </View>
+          <ChevronRight size={20} color="#64748b" />
+        </Pressable>
+
+        {/* My Engagements - For Execs/Apprentices */}
+        {(currentMembership?.role === 'FractionalExec' || currentMembership?.role === 'Apprentice') && (
+          <Pressable
+            onPress={() => router.push('/engagements')}
+            className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-4 mb-3 flex-row items-center justify-between active:opacity-70"
+          >
+            <View className="flex-row items-center">
+              <Users size={20} color="#10b981" />
+              <View className="ml-3">
+                <Text className="text-gray-900 dark:text-white font-semibold">My Engagements</Text>
+                <Text className="text-gray-600 dark:text-slate-400 text-xs mt-0.5">
+                  Active companies and capacity
+                </Text>
+              </View>
+            </View>
+            <ChevronRight size={20} color="#64748b" />
+          </Pressable>
+        )}
+
+        {/* Guilds */}
+        <Pressable
+          onPress={() => router.push('/guilds')}
+          className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-4 mb-4 flex-row items-center justify-between active:opacity-70"
+        >
+          <View className="flex-row items-center">
+            <Award size={20} color="#f59e0b" />
+            <View className="ml-3">
+              <Text className="text-gray-900 dark:text-white font-semibold">Guilds</Text>
+              <Text className="text-gray-600 dark:text-slate-400 text-xs mt-0.5">
+                Cross-company communities of practice
+              </Text>
+            </View>
           </View>
           <ChevronRight size={20} color="#64748b" />
         </Pressable>

@@ -1,5 +1,6 @@
 import { View, Text, ScrollView, Pressable, Modal, Linking } from 'react-native';
 import { useState } from 'react';
+import { router } from 'expo-router';
 import {
   Package,
   Cpu,
@@ -16,6 +17,7 @@ import {
   MapPin,
   Globe,
   BarChart3,
+  ShoppingCart,
 } from 'lucide-react-native';
 import { useCurrentMembership } from '@/lib/state/app-store';
 import {
@@ -69,6 +71,25 @@ export default function MakeScreen() {
 
       {/* Header with stats */}
       <View className="px-6 pt-4 pb-2">
+        {/* Supplier Orders CTA */}
+        <Pressable
+          onPress={() => router.push('/supplier-orders')}
+          className="bg-gradient-to-r from-emerald-500 to-blue-500 rounded-2xl p-4 mb-4 flex-row items-center justify-between active:opacity-70"
+        >
+          <View className="flex-row items-center flex-1">
+            <View className="bg-white/20 rounded-xl p-2 mr-3">
+              <ShoppingCart size={24} color="#fff" />
+            </View>
+            <View className="flex-1">
+              <Text className="text-white font-bold text-base">Supplier Orders</Text>
+              <Text className="text-white/80 text-xs mt-0.5">
+                Track manufacturing orders & quotes
+              </Text>
+            </View>
+          </View>
+          <ChevronRight size={20} color="#fff" />
+        </Pressable>
+
         <View className="flex-row gap-3 mb-4">
           <View className="flex-1 bg-gray-100 dark:bg-slate-900 rounded-xl p-3 border border-gray-300 dark:border-slate-800">
             <Text className="text-gray-600 dark:text-slate-400 text-xs mb-1">Suppliers</Text>
