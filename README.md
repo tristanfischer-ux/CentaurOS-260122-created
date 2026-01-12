@@ -119,6 +119,29 @@ Centaur OS turns OKRs into work, tracks execution, enables review workflows, and
   - **Reporting Lines**: Clear view of who reports to whom across the organization
   - **Role Breakdown**: 2 Founders, 4 Fractional Executives managing 7 Apprentices
   - **Cost Analysis**: Daily rates and total team costs at a glance
+  - **Team Performance Analytics**: Comprehensive dashboard for evaluating team effectiveness
+    - **Individual Performance Cards**: Detailed metrics for each executive and apprentice
+      - Contribution score (0-100) with color-coded ratings
+      - Productivity metrics (tasks completed, velocity, completion rates)
+      - Quality metrics (review approval rates, rework requirements, quality scores)
+      - Efficiency metrics (time to complete, on-time delivery rates)
+      - Engagement metrics (active days, consistency scores, responsiveness)
+      - Trend indicators (improving, steady, declining)
+    - **Team Summary Dashboard**: High-level overview of team performance
+      - Team size with executive/apprentice breakdown
+      - Average contribution scores and top performer counts
+      - Weekly and monthly task completion statistics
+      - Team-wide performance trends
+    - **Executive vs Apprentice Comparison**: Side-by-side benchmarking
+      - Contribution scores compared against targets
+      - Completion rate comparisons with progress bars
+      - Quality score differences (1-5 scale)
+      - Key insights and recommendations
+    - **Top Performers Recognition**: Identify highest-contributing team members
+    - **Needs Attention Alerts**: Flag team members requiring support
+    - **Role Filtering**: View all team members, executives only, or apprentices only
+    - **Expandable Details**: Tap any team member to see full metric breakdowns
+    - **Research-Backed Metrics**: Based on industry best practices from Desklog, Time Doctor, and ActivTrak
   - **Supplier Engagements**: Track all active supplier projects with costs, timelines, and deliverables
   - **Financial Tracking**: £101k total supplier spend, £33k paid to date, £68k remaining
   - **Project Management**: See which team members manage which supplier relationships

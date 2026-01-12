@@ -1,5 +1,5 @@
 import { View, Text, ScrollView, Pressable, Modal, Linking } from 'react-native';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import {
   Building2,
   Users,
@@ -20,9 +20,11 @@ import {
   MapPin,
   Map,
   Globe,
+  BarChart3,
 } from 'lucide-react-native';
 import MapView, { Marker, PROVIDER_DEFAULT } from 'react-native-maps';
 import { useCurrentWorkspace, useCurrentMembership } from '@/lib/state/app-store';
+import { useQuery } from '@tanstack/react-query';
 import {
   ORGANIZATION_MEMBERS,
   SUPPLIER_ENGAGEMENTS,
@@ -34,8 +36,14 @@ import {
   type SupplierEngagement,
   type AIAgent,
 } from '@/lib/organization-seed';
+import { TeamPerformanceDashboard } from '@/components/TeamPerformanceDashboard';
+import {
+  calculateMemberPerformance,
+  generateTeamSummary,
+  compareRolePerformance,
+} from '@/lib/performance-analytics';
 
-type OrgTab = 'structure' | 'suppliers' | 'ai';
+type OrgTab = 'structure' | 'suppliers' | 'ai' | 'performance';
 
 export default function OrganizationScreen() {
   const currentWorkspace = useCurrentWorkspace();
@@ -47,6 +55,41 @@ export default function OrganizationScreen() {
   const [selectedAI, setSelectedAI] = useState<AIAgent | null>(null);
   const [expandedExecs, setExpandedExecs] = useState<string[]>([]);
   const [showMap, setShowMap] = useState(false);
+
+  // Fetch tasks for performance analytics
+  const { data: tasks = [] } = useQuery({
+    queryKey: ['tasks', currentWorkspace?.id],
+    queryFn: async () => {
+      // In real app, fetch from API
+      // For now, return empty array (will be populated from actual task data)
+      return [];
+    },
+    enabled: !!currentWorkspace?.id,
+  });
+
+  // Calculate performance metrics
+  const performanceData = useMemo(() => {
+    if (activeTab !== 'performance') return null;
+
+    const performances = ORGANIZATION_MEMBERS
+      .filter(m => m.role === 'FractionalExec' || m.role === 'Apprentice')
+      .map(member =>
+        calculateMemberPerformance(
+          member.id,
+          member.name,
+          member.role,
+          member.function,
+          tasks,
+          [], // reviews
+          30 // last 30 days
+        )
+      );
+
+    const summary = generateTeamSummary(performances);
+    const comparisons = compareRolePerformance(performances);
+
+    return { performances, summary, comparisons };
+  }, [activeTab, tasks]);
 
   // Only founders can view this
   const canView = currentMembership?.role === 'Founder';
@@ -85,6 +128,7 @@ export default function OrganizationScreen() {
 
   const tabs: { value: OrgTab; label: string; icon: any }[] = [
     { value: 'structure', label: 'Structure', icon: Users },
+    { value: 'performance', label: 'Performance', icon: BarChart3 },
     { value: 'suppliers', label: 'Suppliers', icon: Package },
     { value: 'ai', label: 'AI Agents', icon: Cpu },
   ];
@@ -254,6 +298,15 @@ export default function OrganizationScreen() {
               </View>
             ))}
           </View>
+        )}
+
+        {/* Performance Tab */}
+        {activeTab === 'performance' && performanceData && (
+          <TeamPerformanceDashboard
+            performances={performanceData.performances}
+            summary={performanceData.summary}
+            comparisons={performanceData.comparisons}
+          />
         )}
 
         {/* Suppliers Tab */}
