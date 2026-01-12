@@ -105,8 +105,8 @@ export default function TabLayout() {
       <Tabs.Screen
         name="network"
         options={{
-          title: 'Market',
-          headerTitle: 'Market',
+          title: 'Marketplace',
+          headerTitle: 'Marketplace',
           tabBarIcon: ({ color }) => <TabBarIcon Icon={ShoppingBasket} color={color} />,
         }}
       />

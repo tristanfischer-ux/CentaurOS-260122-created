@@ -39,6 +39,7 @@ import {
   AlertTriangle,
   Shield,
   Activity,
+  Library,
 } from "lucide-react-native";
 import {
   useCurrentWorkspace,
@@ -1005,6 +1006,56 @@ export default function HomeScreen() {
               </View>
               <ArrowRight size={20} color="white" />
             </Pressable>
+
+            <Pressable
+              onPress={() => router.push("/function-hub")}
+              className="bg-gradient-to-r from-amber-600 to-amber-500 rounded-2xl p-4 flex-row items-center justify-between active:opacity-70"
+            >
+              <LinearGradient
+                colors={["#d97706", "#f59e0b"]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={{
+                  position: "absolute",
+                  left: 0,
+                  right: 0,
+                  top: 0,
+                  bottom: 0,
+                  borderRadius: 16,
+                }}
+              />
+              <View className="flex-row items-center flex-1">
+                <Library size={24} color="white" />
+                <Text className="text-gray-900 dark:text-white font-semibold ml-3">Function Library</Text>
+              </View>
+              <ArrowRight size={20} color="white" />
+            </Pressable>
+
+            {(role === "Founder" || role === "FractionalExec") && (
+              <Pressable
+                onPress={() => router.push("/reports")}
+                className="bg-gradient-to-r from-emerald-600 to-emerald-500 rounded-2xl p-4 flex-row items-center justify-between active:opacity-70"
+              >
+                <LinearGradient
+                  colors={["#059669", "#10b981"]}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 0 }}
+                  style={{
+                    position: "absolute",
+                    left: 0,
+                    right: 0,
+                    top: 0,
+                    bottom: 0,
+                    borderRadius: 16,
+                  }}
+                />
+                <View className="flex-row items-center flex-1">
+                  <FileText size={24} color="white" />
+                  <Text className="text-gray-900 dark:text-white font-semibold ml-3">Reports</Text>
+                </View>
+                <ArrowRight size={20} color="white" />
+              </Pressable>
+            )}
           </View>
         </View>
       </ScrollView>

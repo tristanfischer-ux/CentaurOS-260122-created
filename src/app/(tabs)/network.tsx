@@ -7,7 +7,7 @@ import { AI_AGENTS, type AIAgent } from '@/lib/organization-seed';
 import { router } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 
-type NetworkTab = 'suppliers' | 'companies' | 'hiring' | 'ai-agents';
+type NetworkTab = 'companies' | 'hiring';
 
 interface DisplaySupplier {
   id: string;
@@ -95,7 +95,7 @@ const DEMO_COMPANIES = [
 ];
 
 export default function NetworkScreen() {
-  const [activeTab, setActiveTab] = useState<NetworkTab>('suppliers');
+  const [activeTab, setActiveTab] = useState<NetworkTab>('companies');
   const [selectedAgent, setSelectedAgent] = useState<AIAgent | null>(null);
   const [onboardingAgent, setOnboardingAgent] = useState<AIAgent | null>(null);
   const [monthlyCost, setMonthlyCost] = useState('');
@@ -123,8 +123,6 @@ export default function NetworkScreen() {
   });
 
   const tabs = [
-    { id: 'suppliers' as NetworkTab, label: 'Suppliers', icon: Building2 },
-    { id: 'ai-agents' as NetworkTab, label: 'AI Agents', icon: Bot },
     { id: 'companies' as NetworkTab, label: 'Companies', icon: Users },
     { id: 'hiring' as NetworkTab, label: 'Hiring', icon: Award },
   ];
@@ -192,8 +190,6 @@ export default function NetworkScreen() {
 
       {/* Tab Content */}
       <ScrollView className="flex-1">
-        {activeTab === 'suppliers' && <SuppliersTab />}
-        {activeTab === 'ai-agents' && <AIAgentsTab selectedAgent={selectedAgent} setSelectedAgent={setSelectedAgent} onboardingAgent={onboardingAgent} setOnboardingAgent={setOnboardingAgent} monthlyCost={monthlyCost} setMonthlyCost={setMonthlyCost} />}
         {activeTab === 'companies' && <CompaniesTab />}
         {activeTab === 'hiring' && <HiringTab />}
       </ScrollView>
