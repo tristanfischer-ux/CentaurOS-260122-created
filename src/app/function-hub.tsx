@@ -315,14 +315,39 @@ export default function FunctionHubScreen() {
                   <Target size={24} color={currentProfile.color} />
                   <Text className="text-gray-900 dark:text-white font-bold text-lg ml-3">Suggested OKRs</Text>
                 </View>
-                <Text className="text-gray-600 dark:text-slate-400 mb-6">
-                  These are example OKRs for the {currentProfile.title} function. Adapt them to your specific context.
+                <Text className="text-gray-600 dark:text-slate-400 mb-2">
+                  These are example OKRs for the {currentProfile.title} function. Tap any OKR to add it to your OKRs tab.
                 </Text>
+                <View className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-3 mb-6">
+                  <Text className="text-blue-400 text-xs">
+                    💡 Tip: Once added, you can customize the objective and key results to fit your specific goals.
+                  </Text>
+                </View>
 
                 {currentProfile.suggestedOKRs.map((okr, index) => (
-                  <View key={index} className="mb-6 last:mb-0">
-                    <View className="bg-slate-800 rounded-xl p-4 mb-3">
-                      <Text className="text-gray-900 dark:text-white font-bold text-base mb-2">{okr.objective}</Text>
+                  <Pressable
+                    key={index}
+                    onPress={() => {
+                      router.push({
+                        pathname: '/(tabs)/okrs',
+                        params: {
+                          addOkr: 'true',
+                          objective: okr.objective,
+                          rationale: okr.rationale,
+                          keyResults: JSON.stringify(okr.keyResults),
+                          functionName: currentProfile.title,
+                        },
+                      });
+                    }}
+                    className="mb-6 last:mb-0 active:opacity-70"
+                  >
+                    <View className="bg-slate-800 rounded-xl p-4 mb-0 border-2 border-transparent active:border-blue-500">
+                      <View className="flex-row items-start justify-between mb-2">
+                        <Text className="text-gray-900 dark:text-white font-bold text-base flex-1">{okr.objective}</Text>
+                        <View className="ml-2 bg-blue-500/20 px-2 py-1 rounded-lg">
+                          <Text className="text-blue-400 text-xs font-semibold">Tap to Add</Text>
+                        </View>
+                      </View>
                       <Text className="text-gray-600 dark:text-slate-400 text-sm italic mb-3">{okr.rationale}</Text>
 
                       <Text className="text-slate-300 font-semibold text-sm mb-2">Key Results:</Text>
@@ -335,7 +360,7 @@ export default function FunctionHubScreen() {
                         </View>
                       ))}
                     </View>
-                  </View>
+                  </Pressable>
                 ))}
               </View>
             </View>

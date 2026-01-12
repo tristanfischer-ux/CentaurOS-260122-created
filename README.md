@@ -15,7 +15,7 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
 
 ## 🚨 PRODUCTION READINESS STATUS
 
-**Last Updated**: 2026-01-12 (Swipe-to-Like Feature + Liked List Added)
+**Last Updated**: 2026-01-12 (Function Library: Tap-to-Add OKRs Restored)
 
 ### Current Status: ✅ **READY FOR APP STORE SUBMISSION**
 
@@ -615,6 +615,10 @@ Centaur OS turns OKRs into work, tracks execution, enables review workflows, and
   - **Common Challenges**: Typical obstacles and how to overcome them
   - **Success Metrics**: How to measure performance in this function
   - **Suggested OKRs**: 2-3 example objectives with key results and rationale
+    - **Tap to Add**: Tap any suggested OKR to automatically add it to your OKRs tab
+    - **Pre-filled Form**: Objective title and description are pre-populated
+    - **Key Results Alert**: Shows all key results that you can add after creating the objective
+    - **Function Context**: Automatically notes which function suggested the OKR
   - **Search & Filter**: Find specific resources quickly across all categories
   - **Function-Specific View**: Pre-filtered to your current function
   - **Beautiful UI**: Gradient designs unique to each function with intuitive navigation

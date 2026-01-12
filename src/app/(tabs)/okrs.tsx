@@ -1,5 +1,5 @@
 import { View, Text, ScrollView, Pressable, ActivityIndicator, TextInput, Modal, Alert, KeyboardAvoidingView, Platform } from 'react-native';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Target, Plus, TrendingUp, AlertTriangle, XCircle, X, Download, Briefcase, CheckCircle2, Edit3, Trash2, GripVertical, Sparkles, Lightbulb, Clock, ArrowRight, CheckSquare, Shield, Activity, BookOpen } from 'lucide-react-native';
 import { useCurrentWorkspace, useCurrentMembership, useCurrentUser } from '@/lib/state/app-store';
 import { useObjectives, useTasks } from '@/lib/hooks/queries';
@@ -8,13 +8,14 @@ import { taskApi } from '@/lib/api/operations';
 import { useQueryClient } from '@tanstack/react-query';
 import { exportToCSV, formatOKRsForExport } from '@/lib/export';
 import type { KeyResult, Objective } from '@/types';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { suggestTasksForObjective, getObjectiveCoaching, calculateTotalEffort, type SuggestedTask } from '@/lib/objective-tasks';
 import { LinearGradient } from 'expo-linear-gradient';
 import { calculateObjectiveRisk, getRiskColor, getRiskLabel } from '@/lib/okr-risk-scoring';
 import { OKR_SUGGESTIONS, OKR_CATEGORIES, getOKRsByCategory, type OKRSuggestion, type OKRCategory } from '@/lib/okr-suggestions';
 
 export default function OKRsScreen() {
+  const params = useLocalSearchParams();
   const currentWorkspace = useCurrentWorkspace();
   const currentMembership = useCurrentMembership();
   const currentUser = useCurrentUser();
@@ -52,6 +53,34 @@ export default function OKRsScreen() {
   const [editObjectiveStartDate, setEditObjectiveStartDate] = useState('');
   const [editObjectiveEndDate, setEditObjectiveEndDate] = useState('');
   const [isEditing, setIsEditing] = useState(false);
+
+  // Handle incoming OKR from Function Library
+  useEffect(() => {
+    if (params.addOkr === 'true' && params.objective && params.keyResults) {
+      try {
+        const keyResults = JSON.parse(params.keyResults as string);
+        const rationale = params.rationale as string || '';
+        const functionName = params.functionName as string || '';
+
+        // Pre-fill the create modal with the suggested OKR
+        setNewObjectiveTitle(params.objective as string);
+        setNewObjectiveDescription(`${rationale}\n\nSuggested by ${functionName} Function Library`);
+        setShowCreateModal(true);
+
+        // Show alert with key results to copy
+        Alert.alert(
+          'OKR Added to Form',
+          `The objective has been added to the create form. After creating it, you can add these key results:\n\n${keyResults.map((kr: string, i: number) => `${i + 1}. ${kr}`).join('\n')}`,
+          [{ text: 'Got it', style: 'default' }]
+        );
+
+        // Clear params after handling
+        router.setParams({ addOkr: undefined, objective: undefined, keyResults: undefined, rationale: undefined, functionName: undefined });
+      } catch (error) {
+        console.error('Error parsing OKR params:', error);
+      }
+    }
+  }, [params.addOkr, params.objective, params.keyResults, params.rationale, params.functionName]);
 
   if (isLoading) {
     return (
