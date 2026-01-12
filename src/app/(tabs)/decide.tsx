@@ -1,8 +1,9 @@
 import { View, Text, ScrollView, Pressable, Modal, TextInput, Alert, KeyboardAvoidingView, Platform } from 'react-native';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Target, Plus, X, ChevronDown, ChevronRight, CheckCircle2, Circle, Clock, Users, DollarSign } from 'lucide-react-native';
 import { useCurrentWorkspace, useCurrentMembership } from '@/lib/state/app-store';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useLocalSearchParams } from 'expo-router';
 import type { Function as BusinessFunction } from '@/types';
 
 interface OKR {
@@ -155,11 +156,19 @@ export default function DecideScreen() {
   const insets = useSafeAreaInsets();
   const currentWorkspace = useCurrentWorkspace();
   const currentMembership = useCurrentMembership();
+  const params = useLocalSearchParams<{ function?: string }>();
 
   const [expandedOKRs, setExpandedOKRs] = useState<Set<string>>(new Set());
   const [selectedFunction, setSelectedFunction] = useState<BusinessFunction | 'all'>('all');
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showApprovalQueue, setShowApprovalQueue] = useState(false);
+
+  // Set initial function from params if provided
+  useEffect(() => {
+    if (params.function && params.function !== 'all') {
+      setSelectedFunction(params.function as BusinessFunction);
+    }
+  }, [params.function]);
 
   const functions: BusinessFunction[] = ['Marketing', 'Sales', 'Engineering', 'Ops', 'Finance', 'Admin'];
 

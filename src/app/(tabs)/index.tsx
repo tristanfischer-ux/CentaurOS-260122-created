@@ -259,7 +259,10 @@ export default function HomeScreen() {
                   return (
                     <Pressable
                       key={idx}
-                      onPress={() => router.push('/(tabs)/decide')}
+                      onPress={() => router.push({
+                        pathname: '/(tabs)/decide',
+                        params: { function: item.function }
+                      })}
                       className="bg-gray-100 dark:bg-slate-900 rounded-xl p-3 active:opacity-70"
                     >
                       <View className="flex-row items-center justify-between mb-2">
