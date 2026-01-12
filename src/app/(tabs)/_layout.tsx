@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { Tabs, router } from 'expo-router';
-import { Home, Target, Briefcase, CheckCircle, Settings, Users, Building2, Calendar, ShoppingBasket } from 'lucide-react-native';
+import { Home, Lightbulb, PlayCircle, BarChart3, Factory, Users, Settings } from 'lucide-react-native';
 import { useColorScheme } from '@/lib/useColorScheme';
 import { useIsAuthenticated, useCurrentWorkspace, useAppStore } from '@/lib/state/app-store';
 
@@ -54,6 +54,7 @@ export default function TabLayout() {
         headerTintColor: colorScheme === 'dark' ? '#ffffff' : '#000000',
       }}
     >
+      {/* Home - Dashboard */}
       <Tabs.Screen
         name="index"
         options={{
@@ -62,67 +63,58 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => <TabBarIcon Icon={Home} color={color} />,
         }}
       />
+
+      {/* Decide - Strategy/Founders (OKRs + Team Structure) */}
       <Tabs.Screen
-        name="okrs"
+        name="decide"
         options={{
-          title: 'OKRs',
-          headerTitle: 'Objectives & Key Results',
-          tabBarIcon: ({ color }) => <TabBarIcon Icon={Target} color={color} />,
+          title: 'Decide',
+          headerTitle: 'Decide',
+          tabBarIcon: ({ color }) => <TabBarIcon Icon={Lightbulb} color={color} />,
         }}
       />
+
+      {/* Do - Execution/Apprentices (Work/Tasks) */}
       <Tabs.Screen
-        name="work"
+        name="do"
         options={{
-          title: 'Work',
-          headerTitle: 'Work Hub',
-          tabBarIcon: ({ color }) => <TabBarIcon Icon={Briefcase} color={color} />,
+          title: 'Do',
+          headerTitle: 'Do',
+          tabBarIcon: ({ color }) => <TabBarIcon Icon={PlayCircle} color={color} />,
         }}
       />
-      {/* Team tab removed - team directory integrated into Organization tab */}
+
+      {/* Evaluate - Review/Execs */}
       <Tabs.Screen
-        name="team"
+        name="evaluate"
         options={{
-          href: null, // Hide from tab bar
+          title: 'Evaluate',
+          headerTitle: 'Evaluate',
+          tabBarIcon: ({ color }) => <TabBarIcon Icon={BarChart3} color={color} />,
         }}
       />
+
+      {/* Make - Manufacturing (Suppliers + AI) */}
       <Tabs.Screen
-        name="organization"
+        name="make"
         options={{
-          title: 'Org',
-          headerTitle: 'Organization',
-          tabBarIcon: ({ color }) => <TabBarIcon Icon={Building2} color={color} />,
+          title: 'Make',
+          headerTitle: 'Make',
+          tabBarIcon: ({ color }) => <TabBarIcon Icon={Factory} color={color} />,
         }}
       />
+
+      {/* Community - Events + Hiring */}
       <Tabs.Screen
-        name="events"
+        name="community"
         options={{
-          title: 'Events',
-          headerTitle: 'Events',
-          tabBarIcon: ({ color }) => <TabBarIcon Icon={Calendar} color={color} />,
+          title: 'Community',
+          headerTitle: 'Community',
+          tabBarIcon: ({ color }) => <TabBarIcon Icon={Users} color={color} />,
         }}
       />
-      <Tabs.Screen
-        name="network"
-        options={{
-          title: 'Marketplace',
-          headerTitle: 'Marketplace',
-          tabBarIcon: ({ color }) => <TabBarIcon Icon={ShoppingBasket} color={color} />,
-        }}
-      />
-      {/* Reviews tab removed - review functionality integrated into Work tab */}
-      <Tabs.Screen
-        name="reviews"
-        options={{
-          href: null, // Hide from tab bar
-        }}
-      />
-      {/* AI Agents tab removed - functionality moved to marketplace */}
-      <Tabs.Screen
-        name="ai-agents"
-        options={{
-          href: null, // Hide from tab bar
-        }}
-      />
+
+      {/* Settings */}
       <Tabs.Screen
         name="settings"
         options={{
@@ -131,6 +123,16 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => <TabBarIcon Icon={Settings} color={color} />,
         }}
       />
+
+      {/* Hide old tabs - keep files for backward compatibility */}
+      <Tabs.Screen name="okrs" options={{ href: null }} />
+      <Tabs.Screen name="work" options={{ href: null }} />
+      <Tabs.Screen name="team" options={{ href: null }} />
+      <Tabs.Screen name="organization" options={{ href: null }} />
+      <Tabs.Screen name="events" options={{ href: null }} />
+      <Tabs.Screen name="network" options={{ href: null }} />
+      <Tabs.Screen name="reviews" options={{ href: null }} />
+      <Tabs.Screen name="ai-agents" options={{ href: null }} />
     </Tabs>
   );
 }
