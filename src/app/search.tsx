@@ -7,13 +7,15 @@ import { ORGANIZATION_MEMBERS, AI_AGENTS, SUPPLIER_ENGAGEMENTS } from '@/lib/org
 
 export default function GlobalSearchScreen() {
   const [searchQuery, setSearchQuery] = useState('');
-  const objectives = useAppStore((s) => Object.values(s.objectives));
-  const tasks = useAppStore((s) => Object.values(s.tasks));
+  const objectivesRecord = useAppStore((s) => s.objectives);
+  const tasksRecord = useAppStore((s) => s.tasks);
 
   const searchResults = useMemo(() => {
     if (!searchQuery.trim()) return null;
 
     const query = searchQuery.toLowerCase();
+    const objectives = Object.values(objectivesRecord);
+    const tasks = Object.values(tasksRecord);
 
     return {
       tasks: tasks.filter(t =>
@@ -44,7 +46,7 @@ export default function GlobalSearchScreen() {
         a.provider.toLowerCase().includes(query)
       ).slice(0, 5),
     };
-  }, [searchQuery, tasks, objectives]);
+  }, [searchQuery, tasksRecord, objectivesRecord]);
 
   const totalResults = searchResults
     ? searchResults.tasks.length + searchResults.objectives.length +
