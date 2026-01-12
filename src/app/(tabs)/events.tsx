@@ -13,9 +13,13 @@ import {
   ChevronRight,
   Globe,
   User,
+  Mail,
+  UserPlus,
 } from 'lucide-react-native';
 import { useCurrentWorkspace, useCurrentMembership, useCurrentUser } from '@/lib/state/app-store';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import MapView, { Marker, PROVIDER_DEFAULT } from 'react-native-maps';
+import { ORGANIZATION_MEMBERS } from '@/lib/organization-seed';
 
 interface Event {
   id: string;
@@ -30,12 +34,14 @@ interface Event {
     type: 'in-person' | 'virtual' | 'hybrid';
     venue?: string;
     address?: string;
+    coordinates?: { latitude: number; longitude: number };
     virtualLink?: string;
   };
   attendeeFor: 'all' | 'founders' | 'executives' | 'apprentices';
   cost: number; // £0 for free events
   capacity?: number;
   attendees: string[]; // User IDs who have joined
+  invitedMembers: string[]; // Organization member IDs who are invited
   createdBy: string; // User ID
 }
 
@@ -54,11 +60,13 @@ const INITIAL_EVENTS: Event[] = [
       type: 'in-person',
       venue: 'Hardware Hub London',
       address: '123 Tech Street, Shoreditch, London, E1 6AN',
+      coordinates: { latitude: 51.5274, longitude: -0.0721 }, // Shoreditch
     },
     attendeeFor: 'all',
     cost: 0,
     capacity: 50,
     attendees: ['user-1', 'user-2'],
+    invitedMembers: ['exec-1', 'exec-2', 'apprentice-1', 'apprentice-2'],
     createdBy: 'founder-1',
   },
   {
@@ -78,6 +86,7 @@ const INITIAL_EVENTS: Event[] = [
     cost: 50,
     capacity: 30,
     attendees: ['user-1'],
+    invitedMembers: ['founder-1', 'founder-2'],
     createdBy: 'exec-1',
   },
   {
@@ -93,12 +102,14 @@ const INITIAL_EVENTS: Event[] = [
       type: 'hybrid',
       venue: 'Innovation Centre Manchester',
       address: '456 Innovation Way, Manchester, M1 5GD',
+      coordinates: { latitude: 53.4808, longitude: -2.2426 }, // Manchester
       virtualLink: 'https://teams.microsoft.com/l/meetup-join/...',
     },
     attendeeFor: 'all',
     cost: 0,
     capacity: 100,
     attendees: ['user-1', 'user-2', 'user-3'],
+    invitedMembers: ['exec-1', 'exec-2', 'exec-3', 'exec-4', 'apprentice-1', 'apprentice-3', 'apprentice-5'],
     createdBy: 'founder-2',
   },
 ];
@@ -127,6 +138,7 @@ export default function EventsScreen() {
   const [newEventEndDate, setNewEventEndDate] = useState(new Date(Date.now() + 3 * 60 * 60 * 1000)); // 3 hours later
   const [showStartDatePicker, setShowStartDatePicker] = useState(false);
   const [showEndDatePicker, setShowEndDatePicker] = useState(false);
+  const [selectedInvitedMembers, setSelectedInvitedMembers] = useState<string[]>([]);
 
   const canCreateEvent = currentMembership?.role === 'Founder' || currentMembership?.role === 'FractionalExec';
 
@@ -152,6 +164,7 @@ export default function EventsScreen() {
       cost: parseFloat(newEventCost) || 0,
       capacity: newEventCapacity ? parseInt(newEventCapacity) : undefined,
       attendees: [],
+      invitedMembers: selectedInvitedMembers,
       createdBy: currentUser.id,
     };
 
@@ -171,6 +184,7 @@ export default function EventsScreen() {
     setNewEventCapacity('');
     setNewEventStartDate(new Date());
     setNewEventEndDate(new Date(Date.now() + 3 * 60 * 60 * 1000));
+    setSelectedInvitedMembers([]);
   };
 
   const handleJoinEvent = (eventId: string) => {
@@ -484,14 +498,68 @@ export default function EventsScreen() {
                     {selectedEvent.location.type === 'in-person' && (
                       <View>
                         <Text className="text-slate-300 font-medium mb-1">{selectedEvent.location.venue}</Text>
-                        <Text className="text-slate-400 text-sm">{selectedEvent.location.address}</Text>
+                        <Text className="text-slate-400 text-sm mb-3">{selectedEvent.location.address}</Text>
+                        {selectedEvent.location.coordinates && (
+                          <View className="rounded-xl overflow-hidden border border-slate-700" style={{ height: 180 }}>
+                            <MapView
+                              provider={PROVIDER_DEFAULT}
+                              style={{ width: '100%', height: '100%' }}
+                              initialRegion={{
+                                latitude: selectedEvent.location.coordinates.latitude,
+                                longitude: selectedEvent.location.coordinates.longitude,
+                                latitudeDelta: 0.01,
+                                longitudeDelta: 0.01,
+                              }}
+                              scrollEnabled={false}
+                              zoomEnabled={false}
+                              pitchEnabled={false}
+                              rotateEnabled={false}
+                            >
+                              <Marker
+                                coordinate={{
+                                  latitude: selectedEvent.location.coordinates.latitude,
+                                  longitude: selectedEvent.location.coordinates.longitude,
+                                }}
+                                title={selectedEvent.location.venue}
+                                description={selectedEvent.location.address}
+                              />
+                            </MapView>
+                          </View>
+                        )}
                       </View>
                     )}
                     {selectedEvent.location.type === 'hybrid' && (
                       <View>
                         <Text className="text-slate-300 font-medium mb-1">In-person & Virtual</Text>
                         <Text className="text-slate-300">{selectedEvent.location.venue}</Text>
-                        <Text className="text-slate-400 text-sm mb-2">{selectedEvent.location.address}</Text>
+                        <Text className="text-slate-400 text-sm mb-3">{selectedEvent.location.address}</Text>
+                        {selectedEvent.location.coordinates && (
+                          <View className="rounded-xl overflow-hidden border border-slate-700 mb-3" style={{ height: 180 }}>
+                            <MapView
+                              provider={PROVIDER_DEFAULT}
+                              style={{ width: '100%', height: '100%' }}
+                              initialRegion={{
+                                latitude: selectedEvent.location.coordinates.latitude,
+                                longitude: selectedEvent.location.coordinates.longitude,
+                                latitudeDelta: 0.01,
+                                longitudeDelta: 0.01,
+                              }}
+                              scrollEnabled={false}
+                              zoomEnabled={false}
+                              pitchEnabled={false}
+                              rotateEnabled={false}
+                            >
+                              <Marker
+                                coordinate={{
+                                  latitude: selectedEvent.location.coordinates.latitude,
+                                  longitude: selectedEvent.location.coordinates.longitude,
+                                }}
+                                title={selectedEvent.location.venue}
+                                description={selectedEvent.location.address}
+                              />
+                            </MapView>
+                          </View>
+                        )}
                         {selectedEvent.location.virtualLink && (
                           <Text className="text-blue-400 text-sm">{selectedEvent.location.virtualLink}</Text>
                         )}
@@ -518,12 +586,63 @@ export default function EventsScreen() {
                   </View>
 
                   {/* Who can attend */}
-                  <View className="bg-slate-800 rounded-xl p-4 mb-6">
+                  <View className="bg-slate-800 rounded-xl p-4 mb-4">
                     <Text className="text-slate-400 text-xs mb-1">Who can attend</Text>
                     <Text className="text-white font-semibold capitalize">
                       {selectedEvent.attendeeFor === 'all' ? 'Everyone' : selectedEvent.attendeeFor}
                     </Text>
                   </View>
+
+                  {/* Invited Team Members */}
+                  {selectedEvent.invitedMembers.length > 0 && (
+                    <View className="bg-slate-800 rounded-xl p-4 mb-6">
+                      <View className="flex-row items-center mb-3">
+                        <UserPlus size={16} color="#3b82f6" />
+                        <Text className="text-white font-semibold ml-2">Invited Team Members</Text>
+                        <View className="ml-auto bg-blue-500/20 px-2 py-1 rounded-full">
+                          <Text className="text-blue-400 text-xs font-medium">
+                            {selectedEvent.invitedMembers.length}
+                          </Text>
+                        </View>
+                      </View>
+                      <View className="gap-2">
+                        {selectedEvent.invitedMembers.map((memberId) => {
+                          const member = ORGANIZATION_MEMBERS.find(m => m.id === memberId);
+                          if (!member) return null;
+                          return (
+                            <View key={member.id} className="flex-row items-center p-2 bg-slate-750 rounded-lg">
+                              <View className={`w-8 h-8 rounded-full items-center justify-center ${
+                                member.role === 'Founder'
+                                  ? 'bg-purple-500/20'
+                                  : member.role === 'FractionalExec'
+                                  ? 'bg-blue-500/20'
+                                  : 'bg-emerald-500/20'
+                              }`}>
+                                <Text className={`text-xs font-bold ${
+                                  member.role === 'Founder'
+                                    ? 'text-purple-400'
+                                    : member.role === 'FractionalExec'
+                                    ? 'text-blue-400'
+                                    : 'text-emerald-400'
+                                }`}>
+                                  {member.name.split(' ').map(n => n[0]).join('')}
+                                </Text>
+                              </View>
+                              <View className="flex-1 ml-2">
+                                <Text className="text-white text-sm font-medium">{member.name}</Text>
+                                <Text className="text-slate-400 text-xs">{member.role}</Text>
+                              </View>
+                              {selectedEvent.attendees.includes(memberId) && (
+                                <View className="bg-emerald-500/20 px-2 py-1 rounded-full">
+                                  <Text className="text-emerald-400 text-xs font-medium">Joined</Text>
+                                </View>
+                              )}
+                            </View>
+                          );
+                        })}
+                      </View>
+                    </View>
+                  )}
 
                   {/* Join Button */}
                   <Pressable
@@ -793,7 +912,7 @@ export default function EventsScreen() {
                 </View>
 
                 {/* Capacity */}
-                <View className="mb-6">
+                <View className="mb-4">
                   <Text className="text-slate-400 text-sm mb-2">Capacity (Optional)</Text>
                   <TextInput
                     value={newEventCapacity}
@@ -803,6 +922,65 @@ export default function EventsScreen() {
                     keyboardType="numeric"
                     className="bg-slate-800 text-white px-4 py-3 rounded-xl border border-slate-700"
                   />
+                </View>
+
+                {/* Invite Team Members */}
+                <View className="mb-6">
+                  <View className="flex-row items-center justify-between mb-3">
+                    <Text className="text-slate-400 text-sm">Invite Team Members</Text>
+                    <Text className="text-blue-400 text-xs font-medium">
+                      {selectedInvitedMembers.length} selected
+                    </Text>
+                  </View>
+                  <View className="bg-slate-800 rounded-xl border border-slate-700 p-3">
+                    <ScrollView style={{ maxHeight: 200 }} showsVerticalScrollIndicator={false}>
+                      {ORGANIZATION_MEMBERS.map((member) => {
+                        const isSelected = selectedInvitedMembers.includes(member.id);
+                        return (
+                          <Pressable
+                            key={member.id}
+                            onPress={() => {
+                              if (isSelected) {
+                                setSelectedInvitedMembers(selectedInvitedMembers.filter(id => id !== member.id));
+                              } else {
+                                setSelectedInvitedMembers([...selectedInvitedMembers, member.id]);
+                              }
+                            }}
+                            className={`flex-row items-center p-3 rounded-xl mb-2 ${
+                              isSelected ? 'bg-blue-500/20 border border-blue-500/50' : 'bg-slate-750'
+                            }`}
+                          >
+                            <View className={`w-10 h-10 rounded-full items-center justify-center ${
+                              member.role === 'Founder'
+                                ? 'bg-purple-500/20'
+                                : member.role === 'FractionalExec'
+                                ? 'bg-blue-500/20'
+                                : 'bg-emerald-500/20'
+                            }`}>
+                              <Text className={`text-sm font-bold ${
+                                member.role === 'Founder'
+                                  ? 'text-purple-400'
+                                  : member.role === 'FractionalExec'
+                                  ? 'text-blue-400'
+                                  : 'text-emerald-400'
+                              }`}>
+                                {member.name.split(' ').map(n => n[0]).join('')}
+                              </Text>
+                            </View>
+                            <View className="flex-1 ml-3">
+                              <Text className="text-white font-medium text-sm">{member.name}</Text>
+                              <Text className="text-slate-400 text-xs">{member.role}</Text>
+                            </View>
+                            {isSelected && (
+                              <View className="w-5 h-5 rounded-full bg-blue-500 items-center justify-center">
+                                <Check size={14} color="white" />
+                              </View>
+                            )}
+                          </Pressable>
+                        );
+                      })}
+                    </ScrollView>
+                  </View>
                 </View>
 
                 {/* Action Buttons */}

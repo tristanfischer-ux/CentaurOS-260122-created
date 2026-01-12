@@ -151,6 +151,13 @@ Centaur OS turns OKRs into work, tracks execution, enables review workflows, and
   - **Search & Filter**: Find suppliers by capability, location, and certifications
 - **Company Discovery** - Connect with other companies using Centaur OS
 - **Community Events** - Schedule and RSVP to cross-company meetups, workshops, and networking events
+  - **Interactive Map Visualization**: See event locations on interactive maps with markers
+  - **Team Member Invitations**: Select and invite specific team members when creating events
+  - **Invited Member Tracking**: View who was invited and who has joined in event details
+  - **Address Geocoding Support**: Event locations stored with coordinates for map display
+  - **Event Types**: Networking, Workshop, Demo Day, Office Hours, Social, and Webinar events
+  - **Location Flexibility**: Support for in-person (with maps), virtual, and hybrid events
+  - **RSVP Management**: Join or leave events with real-time attendee tracking
 - **Weekly Pack Generator** - One-click generation of status reports with OKR progress
 - **Templates Library** - Pre-built task templates by function (Finance, Sales, Marketing, Ops, Engineering)
 - **Dark/Light Mode** - Full theme support with system preference option
