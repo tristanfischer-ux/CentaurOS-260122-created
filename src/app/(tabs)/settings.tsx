@@ -1,5 +1,5 @@
 import { View, Text, Pressable, ScrollView, Modal, Alert, Linking } from 'react-native';
-import { LogOut, ChevronRight, Sun, Moon, Smartphone, FileText, Info, X, Database, Download, Upload, RefreshCw, Check, ExternalLink, Sheet, Play, Library, Eye, Mail, Users, Award, Package } from 'lucide-react-native';
+import { LogOut, ChevronRight, Sun, Moon, Smartphone, FileText, Info, X, Database, Download, Upload, RefreshCw, Check, ExternalLink, Sheet, Play, Library, Eye, Mail, Users, Award, Package, Building2 } from 'lucide-react-native';
 import { useAppStore, useCurrentUser, useCurrentMembership } from '@/lib/state/app-store';
 import { router } from 'expo-router';
 import { useState } from 'react';
@@ -276,8 +276,25 @@ export default function SettingsScreen() {
 
         {/* Fractional Foundry Features Section */}
         <Text className="text-gray-600 dark:text-slate-400 text-sm font-semibold mb-3 mt-2">
-          MARKETPLACE & COLLABORATION
+          TEAM & COLLABORATION
         </Text>
+
+        {/* Organization Structure */}
+        <Pressable
+          onPress={() => router.push('/org-diagram')}
+          className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-4 mb-3 flex-row items-center justify-between active:opacity-70"
+        >
+          <View className="flex-row items-center">
+            <Building2 size={20} color="#3b82f6" />
+            <View className="ml-3">
+              <Text className="text-gray-900 dark:text-white font-semibold">Organization Structure</Text>
+              <Text className="text-gray-600 dark:text-slate-400 text-xs mt-0.5">
+                View team hierarchy and reporting lines
+              </Text>
+            </View>
+          </View>
+          <ChevronRight size={20} color="#64748b" />
+        </Pressable>
 
         {/* My Invitations */}
         <Pressable

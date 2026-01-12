@@ -15,6 +15,7 @@ import {
   Zap,
   Award,
   Sparkles,
+  Building2,
 } from 'lucide-react-native';
 import { useCurrentWorkspace, useCurrentMembership, useCurrentUser } from '@/lib/state/app-store';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -379,6 +380,17 @@ export default function HomeScreen() {
                   <ArrowRight size={20} color="#f59e0b" />
                 </Pressable>
               </View>
+
+              {/* View Org Chart Button */}
+              <Pressable
+                onPress={() => router.push('/org-diagram')}
+                className="bg-blue-500 rounded-xl py-3 mt-3 items-center active:opacity-80"
+              >
+                <View className="flex-row items-center">
+                  <Building2 size={18} color="#fff" />
+                  <Text className="text-white font-bold ml-2">View Organization Chart</Text>
+                </View>
+              </Pressable>
             </View>
 
             {/* Financial Overview */}

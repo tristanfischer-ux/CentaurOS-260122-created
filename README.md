@@ -15,7 +15,7 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
 
 ## 🚨 PRODUCTION READINESS STATUS
 
-**Last Updated**: 2026-01-12 (**COMMUNITY TAB ENHANCED** - Added AI Agents marketplace, Guilds and Events quick access buttons, comprehensive financial dashboard with cost management)
+**Last Updated**: 2026-01-12 (**ORGANIZATION STRUCTURE RESTORED** - Added org chart access in Settings and Home tab, enhanced Community tab with AI Agents/Guilds/Events, comprehensive financial dashboard with cost management)
 
 ### Current Status: ✅ **READY FOR APP STORE SUBMISSION**
 
@@ -74,13 +74,13 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
 - SafeArea handling on all screens
 
 **✅ Feature Completeness:**
-- Home tab: **Role-specific dashboards** (Founder: command center with company oversight, Executive: function dashboard with apprentice tracking and resources, Apprentice: task-focused with OKR context and team visibility)
+- Home tab: **Role-specific dashboards** (Founder: command center with company oversight and org chart access, Executive: function dashboard with apprentice tracking and resources, Apprentice: task-focused with OKR context and team visibility)
 - Decide tab: Function-based OKRs (Marketing, Sales, Engineering, Ops, Finance, Admin), Expandable objectives, Progress tracking, Approval queue for resource requests
 - Evaluate tab: Work plan creation, OKR linking, Apprentice allocation, Progress monitoring, Submission review workflow
 - Do tab: Role-specific views (Apprentice: assigned work, Founder: all by function, Executive: their work), Progress reporting, Work submission
 - Make tab: AI tools, Suppliers, Manufacturing, BOM management (accessible to all roles)
 - Community tab: Executives/Apprentices/Suppliers/AI Agents marketplace with quick access to Guilds and Events, Search/filter, Request allocation, Apply/Join system with CV upload
-- Settings tab: Profile, Themes, About with updated documentation, Function Library, Guilds, Engagements
+- Settings tab: Profile, Themes, About with updated documentation, Function Library, Organization Structure, Guilds, Engagements
 
 ### Known Non-Issues:
 - 6 TODO comments for future backend integration (doesn't affect current functionality)
