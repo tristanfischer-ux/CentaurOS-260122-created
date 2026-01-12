@@ -1,12 +1,12 @@
 import { View, Text, ScrollView, Pressable, ActivityIndicator, TextInput, Modal, Alert, KeyboardAvoidingView, Platform } from 'react-native';
 import { useState } from 'react';
-import { Target, Plus, TrendingUp, AlertTriangle, XCircle, X, Download, Briefcase, CheckCircle2 } from 'lucide-react-native';
+import { Target, Plus, TrendingUp, AlertTriangle, XCircle, X, Download, Briefcase, CheckCircle2, Edit3, Trash2, GripVertical } from 'lucide-react-native';
 import { useCurrentWorkspace, useCurrentMembership, useCurrentUser } from '@/lib/state/app-store';
 import { useObjectives, useTasks } from '@/lib/hooks/queries';
 import { objectiveApi, keyResultApi } from '@/lib/api';
 import { useQueryClient } from '@tanstack/react-query';
 import { exportToCSV, formatOKRsForExport } from '@/lib/export';
-import type { KeyResult } from '@/types';
+import type { KeyResult, Objective } from '@/types';
 import { router } from 'expo-router';
 
 export default function OKRsScreen() {
@@ -20,7 +20,9 @@ export default function OKRsScreen() {
 
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditKRModal, setShowEditKRModal] = useState(false);
+  const [showEditObjectiveModal, setShowEditObjectiveModal] = useState(false);
   const [selectedKR, setSelectedKR] = useState<KeyResult | null>(null);
+  const [selectedObjective, setSelectedObjective] = useState<Objective | null>(null);
   const [newKRValue, setNewKRValue] = useState('');
 
   // Create objective form state
@@ -30,6 +32,13 @@ export default function OKRsScreen() {
   const [newObjectiveEndDate, setNewObjectiveEndDate] = useState('');
   const [newObjectiveTarget, setNewObjectiveTarget] = useState('');
   const [isCreating, setIsCreating] = useState(false);
+
+  // Edit objective form state
+  const [editObjectiveTitle, setEditObjectiveTitle] = useState('');
+  const [editObjectiveDescription, setEditObjectiveDescription] = useState('');
+  const [editObjectiveStartDate, setEditObjectiveStartDate] = useState('');
+  const [editObjectiveEndDate, setEditObjectiveEndDate] = useState('');
+  const [isEditing, setIsEditing] = useState(false);
 
   if (isLoading) {
     return (
@@ -120,6 +129,78 @@ export default function OKRsScreen() {
     }
   };
 
+  const handleEditObjective = async () => {
+    if (!selectedObjective || !editObjectiveTitle.trim() || !currentUser || !currentMembership) {
+      return;
+    }
+
+    setIsEditing(true);
+    try {
+      await objectiveApi.update(
+        selectedObjective.id,
+        {
+          title: editObjectiveTitle.trim(),
+          description: editObjectiveDescription.trim() || undefined,
+          startDate: editObjectiveStartDate ? new Date(editObjectiveStartDate).toISOString() : selectedObjective.startDate,
+          endDate: editObjectiveEndDate ? new Date(editObjectiveEndDate).toISOString() : selectedObjective.endDate,
+        },
+        currentUser.id,
+        currentMembership.role
+      );
+
+      queryClient.invalidateQueries({ queryKey: ['objectives', currentWorkspace?.id] });
+      setShowEditObjectiveModal(false);
+      setSelectedObjective(null);
+      setEditObjectiveTitle('');
+      setEditObjectiveDescription('');
+      setEditObjectiveStartDate('');
+      setEditObjectiveEndDate('');
+      Alert.alert('Success', 'Objective updated successfully');
+    } catch (error: any) {
+      Alert.alert('Error', error.message || 'Failed to update objective');
+    } finally {
+      setIsEditing(false);
+    }
+  };
+
+  const handleDeleteObjective = async (objective: Objective) => {
+    if (!currentUser || !currentMembership) return;
+
+    Alert.alert(
+      'Delete Objective',
+      `Are you sure you want to delete "${objective.title}"? This will also delete all associated key results.`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await objectiveApi.delete(
+                objective.id,
+                currentUser.id,
+                currentMembership.role
+              );
+              queryClient.invalidateQueries({ queryKey: ['objectives', currentWorkspace?.id] });
+              Alert.alert('Success', 'Objective deleted successfully');
+            } catch (error: any) {
+              Alert.alert('Error', error.message || 'Failed to delete objective');
+            }
+          },
+        },
+      ]
+    );
+  };
+
+  const openEditObjectiveModal = (objective: Objective) => {
+    setSelectedObjective(objective);
+    setEditObjectiveTitle(objective.title);
+    setEditObjectiveDescription(objective.description || '');
+    setEditObjectiveStartDate(new Date(objective.startDate).toISOString().split('T')[0]);
+    setEditObjectiveEndDate(new Date(objective.endDate).toISOString().split('T')[0]);
+    setShowEditObjectiveModal(true);
+  };
+
   const handleExportOKRs = async () => {
     if (!objectives || objectives.length === 0) {
       Alert.alert('No Data', 'There are no OKRs to export');
@@ -186,17 +267,35 @@ export default function OKRsScreen() {
                         <Text className="text-slate-400 text-sm">{objective.description}</Text>
                       )}
                     </View>
-                    <View className={`px-3 py-1 rounded-full ${
-                      onTrackKRs === totalKRs ? 'bg-green-500/20' :
-                      offTrackKRs > totalKRs / 2 ? 'bg-red-500/20' : 'bg-yellow-500/20'
-                    }`}>
-                      <Text className={`text-xs font-semibold ${
-                        onTrackKRs === totalKRs ? 'text-green-400' :
-                        offTrackKRs > totalKRs / 2 ? 'text-red-400' : 'text-yellow-400'
+                    <View className="flex-row items-center gap-2">
+                      <View className={`px-3 py-1 rounded-full ${
+                        onTrackKRs === totalKRs ? 'bg-green-500/20' :
+                        offTrackKRs > totalKRs / 2 ? 'bg-red-500/20' : 'bg-yellow-500/20'
                       }`}>
-                        {onTrackKRs === totalKRs ? 'On Track' :
-                         offTrackKRs > totalKRs / 2 ? 'At Risk' : 'Mixed'}
-                      </Text>
+                        <Text className={`text-xs font-semibold ${
+                          onTrackKRs === totalKRs ? 'text-green-400' :
+                          offTrackKRs > totalKRs / 2 ? 'text-red-400' : 'text-yellow-400'
+                        }`}>
+                          {onTrackKRs === totalKRs ? 'On Track' :
+                           offTrackKRs > totalKRs / 2 ? 'At Risk' : 'Mixed'}
+                        </Text>
+                      </View>
+                      {currentMembership?.role === 'Founder' && (
+                        <View className="flex-row gap-2">
+                          <Pressable
+                            onPress={() => openEditObjectiveModal(objective)}
+                            className="w-8 h-8 bg-slate-800 rounded-lg items-center justify-center active:opacity-70"
+                          >
+                            <Edit3 size={16} color="#3b82f6" />
+                          </Pressable>
+                          <Pressable
+                            onPress={() => handleDeleteObjective(objective)}
+                            className="w-8 h-8 bg-slate-800 rounded-lg items-center justify-center active:opacity-70"
+                          >
+                            <Trash2 size={16} color="#ef4444" />
+                          </Pressable>
+                        </View>
+                      )}
                     </View>
                   </View>
 
@@ -520,6 +619,97 @@ export default function OKRsScreen() {
                     <ActivityIndicator size="small" color="white" />
                   ) : (
                     <Text className="text-white font-semibold">Create</Text>
+                  )}
+                </Pressable>
+              </View>
+            </View>
+          </View>
+        </KeyboardAvoidingView>
+      </Modal>
+
+      {/* Edit Objective Modal */}
+      <Modal visible={showEditObjectiveModal} transparent animationType="slide">
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          className="flex-1"
+        >
+          <View className="flex-1 bg-black/50 justify-end">
+            <View className="bg-slate-900 rounded-t-3xl p-6">
+              <View className="flex-row items-center justify-between mb-6">
+                <Text className="text-white text-xl font-bold">Edit Objective</Text>
+                <Pressable onPress={() => setShowEditObjectiveModal(false)}>
+                  <X size={24} color="#94a3b8" />
+                </Pressable>
+              </View>
+
+              <View className="mb-4">
+                <Text className="text-slate-400 text-sm mb-2">Title *</Text>
+                <TextInput
+                  className="bg-slate-800 rounded-xl px-4 py-3 text-white text-base"
+                  value={editObjectiveTitle}
+                  onChangeText={setEditObjectiveTitle}
+                  placeholder="Enter objective title"
+                  placeholderTextColor="#475569"
+                  editable={!isEditing}
+                />
+              </View>
+
+              <View className="mb-6">
+                <Text className="text-slate-400 text-sm mb-2">Description (Optional)</Text>
+                <TextInput
+                  className="bg-slate-800 rounded-xl px-4 py-3 text-white text-base"
+                  value={editObjectiveDescription}
+                  onChangeText={setEditObjectiveDescription}
+                  placeholder="Add details about this objective"
+                  placeholderTextColor="#475569"
+                  multiline
+                  numberOfLines={3}
+                  textAlignVertical="top"
+                  editable={!isEditing}
+                />
+              </View>
+
+              <View className="mb-4">
+                <Text className="text-slate-400 text-sm mb-2">Start Date</Text>
+                <TextInput
+                  className="bg-slate-800 rounded-xl px-4 py-3 text-white text-base"
+                  value={editObjectiveStartDate}
+                  onChangeText={setEditObjectiveStartDate}
+                  placeholder="YYYY-MM-DD"
+                  placeholderTextColor="#475569"
+                  editable={!isEditing}
+                />
+              </View>
+
+              <View className="mb-6">
+                <Text className="text-slate-400 text-sm mb-2">End Date</Text>
+                <TextInput
+                  className="bg-slate-800 rounded-xl px-4 py-3 text-white text-base"
+                  value={editObjectiveEndDate}
+                  onChangeText={setEditObjectiveEndDate}
+                  placeholder="YYYY-MM-DD"
+                  placeholderTextColor="#475569"
+                  editable={!isEditing}
+                />
+              </View>
+
+              <View className="flex-row gap-3">
+                <Pressable
+                  onPress={() => setShowEditObjectiveModal(false)}
+                  className="flex-1 bg-slate-800 rounded-xl py-3 items-center active:opacity-80"
+                  disabled={isEditing}
+                >
+                  <Text className="text-slate-400 font-semibold">Cancel</Text>
+                </Pressable>
+                <Pressable
+                  onPress={handleEditObjective}
+                  className="flex-1 bg-blue-500 rounded-xl py-3 items-center active:opacity-80"
+                  disabled={isEditing || !editObjectiveTitle.trim()}
+                >
+                  {isEditing ? (
+                    <ActivityIndicator size="small" color="white" />
+                  ) : (
+                    <Text className="text-white font-semibold">Save</Text>
                   )}
                 </Pressable>
               </View>

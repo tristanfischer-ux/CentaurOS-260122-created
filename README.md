@@ -113,14 +113,22 @@ Centaur OS turns OKRs into work, tracks execution, enables review workflows, and
   - **Onboarding Flow**: Add new AI agents with custom monthly cost tracking
   - **Search & Filter**: Find agents by name, purpose, or capability across all functions
   - **Modal Views Fixed**: Tappable AI agent and supplier cards now display full details in properly positioned bottom-sheet modals
-- **OKR Management** - Create objectives, track key results with real-time progress
+- **OKR Management** - Create, edit, and delete objectives with real-time progress tracking
+  - **Full Objective Management (Founder-Only)**:
+    - Create new objectives with title, description, and date ranges
+    - Edit existing objectives by tapping the blue edit icon on each objective card
+    - Delete objectives with confirmation (also removes all associated key results)
+  - **Interactive Objective Cards**: Each objective displays edit and delete buttons for easy management
   - **Custom Date Ranges**: Set specific start and end dates for objectives (defaults to today and 90 days if not specified)
   - **Target Numbers**: Add numeric targets or metrics to objectives (e.g., "100 units", "£50k revenue") for reference tracking
+  - **Key Result Updates**: Tap any key result to update its current value
+  - **Health Status Indicators**: Visual indicators showing objective health (On Track, At Risk, Mixed)
   - **Link Tasks to Objectives**: Connect work directly to strategic goals when creating tasks
   - **Visual Task Integration**: See related tasks directly on objective cards with completion metrics
   - **Bidirectional Navigation**: Jump between tasks and objectives seamlessly
   - **Progress Tracking**: Task completion counts displayed on each objective (e.g., "5/12 tasks completed")
   - **Quick Access**: "View All" link to see all tasks for a specific objective in Work Hub
+  - **Export to CSV**: Download all OKRs and key results for reporting
 - **Work Hub** - All work subordinated to strategic objectives
   - **Comprehensive Task Editing**: Tap any task to edit all properties in one place
     - Title and Description
