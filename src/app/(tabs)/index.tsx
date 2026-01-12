@@ -356,7 +356,7 @@ export default function HomeScreen() {
 
               <View className="bg-gray-100 dark:bg-slate-900 rounded-xl p-4 border border-gray-300 dark:border-slate-800">
                 <Pressable
-                  onPress={() => router.push('/(tabs)/community')}
+                  onPress={() => router.push('/org-diagram')}
                   className="flex-row items-center justify-between mb-3 active:opacity-70"
                 >
                   <View className="flex-row items-center">
@@ -369,7 +369,7 @@ export default function HomeScreen() {
                 </Pressable>
 
                 <Pressable
-                  onPress={() => router.push('/(tabs)/community')}
+                  onPress={() => router.push('/org-diagram')}
                   className="flex-row items-center justify-between mb-3 active:opacity-70"
                 >
                   <View className="flex-row items-center">
