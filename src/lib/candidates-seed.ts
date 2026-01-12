@@ -1,4 +1,5 @@
 import type { Role, Function as BusinessFunction } from '@/types';
+import { generateExecutives, generateApprentices } from './generate-candidates';
 
 export interface Candidate {
   id: string;
@@ -22,7 +23,8 @@ export interface Candidate {
   linkedIn?: string;
 }
 
-export const fractionalExecutives: Candidate[] = [
+// First 30 handcrafted executive profiles (keeping existing high-quality data)
+const baseExecutives: Candidate[] = [
   {
     id: 'exec-1',
     name: 'Sarah Mitchell',
@@ -655,7 +657,8 @@ export const fractionalExecutives: Candidate[] = [
   },
 ];
 
-export const apprentices: Candidate[] = [
+// First 30 handcrafted apprentice profiles
+const baseApprentices: Candidate[] = [
   {
     id: 'app-1',
     name: 'Emily Carter',
@@ -1229,3 +1232,11 @@ export const apprentices: Candidate[] = [
     achievements: ['Automated 8 manual tasks', 'Learned Docker and Kubernetes basics', 'Managed Linux servers for startup'],
   },
 ];
+
+// Generate additional profiles to reach 100+ each
+const generatedExecutives = generateExecutives(31, 70); // Generate 70 more executives (31-100)
+const generatedApprentices = generateApprentices(31, 70); // Generate 70 more apprentices (31-100)
+
+// Export combined arrays with 100+ profiles each
+export const fractionalExecutives: Candidate[] = [...baseExecutives, ...generatedExecutives];
+export const apprentices: Candidate[] = [...baseApprentices, ...generatedApprentices];

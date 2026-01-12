@@ -14,6 +14,8 @@ import {
   Building2,
   Briefcase,
   Star,
+  Filter,
+  ChevronDown,
 } from 'lucide-react-native';
 import { router } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -80,6 +82,34 @@ export default function CommunityScreen() {
   const [showCreateEventModal, setShowCreateEventModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedFunction, setSelectedFunction] = useState<string>('all');
+  const [selectedAvailability, setSelectedAvailability] = useState<string>('all');
+  const [showFilters, setShowFilters] = useState(false);
+
+  // Filter executives
+  const filteredExecutives = fractionalExecutives.filter((exec) => {
+    const matchesSearch = searchQuery === '' ||
+      exec.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      exec.skills.some(skill => skill.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      exec.specialization.some(spec => spec.toLowerCase().includes(searchQuery.toLowerCase()));
+
+    const matchesFunction = selectedFunction === 'all' || exec.specialization.includes(selectedFunction as any);
+    const matchesAvailability = selectedAvailability === 'all' || exec.availability === selectedAvailability;
+
+    return matchesSearch && matchesFunction && matchesAvailability;
+  });
+
+  // Filter apprentices
+  const filteredApprentices = apprentices.filter((apprentice) => {
+    const matchesSearch = searchQuery === '' ||
+      apprentice.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      apprentice.skills.some(skill => skill.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      apprentice.specialization.some(spec => spec.toLowerCase().includes(searchQuery.toLowerCase()));
+
+    const matchesFunction = selectedFunction === 'all' || apprentice.specialization.includes(selectedFunction as any);
+    const matchesAvailability = selectedAvailability === 'all' || apprentice.availability === selectedAvailability;
+
+    return matchesSearch && matchesFunction && matchesAvailability;
+  });
 
   const tabs: { value: CommunityTab; label: string; icon: any }[] = [
     { value: 'executives', label: 'Executives', icon: Briefcase },
@@ -197,7 +227,7 @@ export default function CommunityScreen() {
           <View className="px-6 pb-6">
             <View className="flex-row items-center justify-between mb-4">
               <Text className="text-gray-900 dark:text-white text-lg font-semibold">
-                Fractional Executives ({fractionalExecutives.length})
+                Executives ({filteredExecutives.length})
               </Text>
               <Pressable
                 onPress={() => router.push('/swipe')}
@@ -208,7 +238,7 @@ export default function CommunityScreen() {
             </View>
 
             {/* Search Bar */}
-            <View className="mb-4">
+            <View className="mb-3">
               <TextInput
                 value={searchQuery}
                 onChangeText={setSearchQuery}
@@ -218,7 +248,67 @@ export default function CommunityScreen() {
               />
             </View>
 
-            {fractionalExecutives.map((exec) => (
+            {/* Filters Row */}
+            <View className="flex-row gap-2 mb-4">
+              <Pressable
+                onPress={() => setShowFilters(!showFilters)}
+                className="flex-row items-center bg-gray-100 dark:bg-slate-900 border border-gray-300 dark:border-slate-800 rounded-xl px-3 py-2 active:opacity-70"
+              >
+                <Filter size={16} color={showFilters ? '#8b5cf6' : '#64748b'} />
+                <Text className={`ml-2 text-sm font-medium ${showFilters ? 'text-purple-500' : 'text-gray-600 dark:text-slate-400'}`}>
+                  Filters
+                </Text>
+              </Pressable>
+
+              {(selectedFunction !== 'all' || selectedAvailability !== 'all') && (
+                <Pressable
+                  onPress={() => {
+                    setSelectedFunction('all');
+                    setSelectedAvailability('all');
+                  }}
+                  className="bg-purple-500/20 border border-purple-500/30 rounded-xl px-3 py-2 active:opacity-70"
+                >
+                  <Text className="text-purple-500 text-sm font-medium">Clear</Text>
+                </Pressable>
+              )}
+            </View>
+
+            {/* Filter Options */}
+            {showFilters && (
+              <View className="bg-gray-100 dark:bg-slate-900 border border-gray-300 dark:border-slate-800 rounded-xl p-4 mb-4">
+                <Text className="text-gray-900 dark:text-white font-semibold mb-2">Function</Text>
+                <View className="flex-row flex-wrap gap-2 mb-4">
+                  {['all', 'Sales', 'Marketing', 'Finance', 'Engineering', 'Ops', 'Admin'].map((func) => (
+                    <Pressable
+                      key={func}
+                      onPress={() => setSelectedFunction(func)}
+                      className={`px-3 py-1.5 rounded-lg ${selectedFunction === func ? 'bg-purple-500' : 'bg-gray-200 dark:bg-slate-800'}`}
+                    >
+                      <Text className={`text-sm font-medium ${selectedFunction === func ? 'text-white' : 'text-gray-600 dark:text-slate-400'}`}>
+                        {func === 'all' ? 'All' : func}
+                      </Text>
+                    </Pressable>
+                  ))}
+                </View>
+
+                <Text className="text-gray-900 dark:text-white font-semibold mb-2">Availability</Text>
+                <View className="flex-row flex-wrap gap-2">
+                  {['all', 'Available Now', 'Available from Jan 20', 'Available from Feb 1'].map((avail) => (
+                    <Pressable
+                      key={avail}
+                      onPress={() => setSelectedAvailability(avail)}
+                      className={`px-3 py-1.5 rounded-lg ${selectedAvailability === avail ? 'bg-purple-500' : 'bg-gray-200 dark:bg-slate-800'}`}
+                    >
+                      <Text className={`text-sm font-medium ${selectedAvailability === avail ? 'text-white' : 'text-gray-600 dark:text-slate-400'}`}>
+                        {avail === 'all' ? 'All' : avail}
+                      </Text>
+                    </Pressable>
+                  ))}
+                </View>
+              </View>
+            )}
+
+            {filteredExecutives.map((exec) => (
               <Pressable
                 key={exec.id}
                 onPress={() => setSelectedCandidate(exec)}
@@ -269,7 +359,7 @@ export default function CommunityScreen() {
           <View className="px-6 pb-6">
             <View className="flex-row items-center justify-between mb-4">
               <Text className="text-gray-900 dark:text-white text-lg font-semibold">
-                Apprentices ({apprentices.length})
+                Apprentices ({filteredApprentices.length})
               </Text>
               <Pressable
                 onPress={() => router.push('/swipe')}
@@ -280,7 +370,7 @@ export default function CommunityScreen() {
             </View>
 
             {/* Search Bar */}
-            <View className="mb-4">
+            <View className="mb-3">
               <TextInput
                 value={searchQuery}
                 onChangeText={setSearchQuery}
@@ -290,7 +380,67 @@ export default function CommunityScreen() {
               />
             </View>
 
-            {apprentices.map((apprentice) => (
+            {/* Filters Row */}
+            <View className="flex-row gap-2 mb-4">
+              <Pressable
+                onPress={() => setShowFilters(!showFilters)}
+                className="flex-row items-center bg-gray-100 dark:bg-slate-900 border border-gray-300 dark:border-slate-800 rounded-xl px-3 py-2 active:opacity-70"
+              >
+                <Filter size={16} color={showFilters ? '#10b981' : '#64748b'} />
+                <Text className={`ml-2 text-sm font-medium ${showFilters ? 'text-emerald-500' : 'text-gray-600 dark:text-slate-400'}`}>
+                  Filters
+                </Text>
+              </Pressable>
+
+              {(selectedFunction !== 'all' || selectedAvailability !== 'all') && (
+                <Pressable
+                  onPress={() => {
+                    setSelectedFunction('all');
+                    setSelectedAvailability('all');
+                  }}
+                  className="bg-emerald-500/20 border border-emerald-500/30 rounded-xl px-3 py-2 active:opacity-70"
+                >
+                  <Text className="text-emerald-500 text-sm font-medium">Clear</Text>
+                </Pressable>
+              )}
+            </View>
+
+            {/* Filter Options */}
+            {showFilters && (
+              <View className="bg-gray-100 dark:bg-slate-900 border border-gray-300 dark:border-slate-800 rounded-xl p-4 mb-4">
+                <Text className="text-gray-900 dark:text-white font-semibold mb-2">Function</Text>
+                <View className="flex-row flex-wrap gap-2 mb-4">
+                  {['all', 'Sales', 'Marketing', 'Finance', 'Engineering', 'Ops', 'Admin'].map((func) => (
+                    <Pressable
+                      key={func}
+                      onPress={() => setSelectedFunction(func)}
+                      className={`px-3 py-1.5 rounded-lg ${selectedFunction === func ? 'bg-emerald-500' : 'bg-gray-200 dark:bg-slate-800'}`}
+                    >
+                      <Text className={`text-sm font-medium ${selectedFunction === func ? 'text-white' : 'text-gray-600 dark:text-slate-400'}`}>
+                        {func === 'all' ? 'All' : func}
+                      </Text>
+                    </Pressable>
+                  ))}
+                </View>
+
+                <Text className="text-gray-900 dark:text-white font-semibold mb-2">Availability</Text>
+                <View className="flex-row flex-wrap gap-2">
+                  {['all', 'Available Now', 'Available from Jan 20', 'Available from Feb 1'].map((avail) => (
+                    <Pressable
+                      key={avail}
+                      onPress={() => setSelectedAvailability(avail)}
+                      className={`px-3 py-1.5 rounded-lg ${selectedAvailability === avail ? 'bg-emerald-500' : 'bg-gray-200 dark:bg-slate-800'}`}
+                    >
+                      <Text className={`text-sm font-medium ${selectedAvailability === avail ? 'text-white' : 'text-gray-600 dark:text-slate-400'}`}>
+                        {avail === 'all' ? 'All' : avail}
+                      </Text>
+                    </Pressable>
+                  ))}
+                </View>
+              </View>
+            )}
+
+            {filteredApprentices.map((apprentice) => (
               <Pressable
                 key={apprentice.id}
                 onPress={() => setSelectedCandidate(apprentice)}
@@ -505,11 +655,28 @@ export default function CommunityScreen() {
                   <Pressable
                     onPress={() => {
                       setSelectedCandidate(null);
-                      // Handle hiring interest logic here
+                      router.push({
+                        pathname: '/send-invitation',
+                        params: {
+                          candidateId: selectedCandidate.id,
+                          candidateName: selectedCandidate.name,
+                          candidateRole: selectedCandidate.role,
+                          candidateRate: selectedCandidate.costPerDay.toString(),
+                        },
+                      });
                     }}
-                    className="bg-blue-500 py-4 rounded-xl active:opacity-70"
+                    className="bg-blue-500 py-4 rounded-xl active:opacity-70 mb-2"
                   >
-                    <Text className="text-white text-center font-bold">Express Interest</Text>
+                    <Text className="text-white text-center font-bold">Send Invitation</Text>
+                  </Pressable>
+
+                  <Pressable
+                    onPress={() => {
+                      Linking.openURL(`mailto:${selectedCandidate.email}`);
+                    }}
+                    className="bg-gray-200 dark:bg-slate-800 py-4 rounded-xl active:opacity-70"
+                  >
+                    <Text className="text-gray-900 dark:text-white text-center font-semibold">Contact Directly</Text>
                   </Pressable>
                 </View>
               </ScrollView>
