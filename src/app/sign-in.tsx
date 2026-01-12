@@ -59,7 +59,40 @@ export default function SignInScreen() {
 
   const quickSignIn = async (demoEmail: string) => {
     setEmail(demoEmail);
-    setTimeout(() => handleSignIn(), 100);
+    setIsLoading(true);
+    setError('');
+
+    try {
+      const user = await userApi.getByEmail(demoEmail.toLowerCase());
+
+      if (!user) {
+        setError('No account found with this email. Please sign up or use a demo account.');
+        setIsLoading(false);
+        return;
+      }
+
+      // Mock auth token
+      const token = `token_${user.id}_${Date.now()}`;
+
+      setCurrentUser(user);
+      setAuthToken(token);
+
+      // Check if user has completed onboarding
+      const completedOnboarding = await hasCompletedOnboarding(user.id);
+
+      if (completedOnboarding) {
+        // Navigate to main app
+        router.replace('/(tabs)');
+      } else {
+        // Navigate to onboarding
+        router.replace('/onboarding');
+      }
+    } catch (err) {
+      console.error('Sign in error:', err);
+      setError('Failed to sign in. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
