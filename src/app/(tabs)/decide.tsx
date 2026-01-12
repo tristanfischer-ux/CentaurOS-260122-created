@@ -1,6 +1,6 @@
 import { View, Text, ScrollView, Pressable, ActivityIndicator, TextInput, Modal, Alert, KeyboardAvoidingView, Platform } from 'react-native';
-import { useState, useEffect } from 'react';
-import { Target, Plus, TrendingUp, AlertTriangle, XCircle, X, Download, Briefcase, CheckCircle2, Edit3, Trash2, GripVertical, Sparkles, Lightbulb, Clock, ArrowRight, CheckSquare, Shield, Activity, BookOpen } from 'lucide-react-native';
+import { useState, useEffect, useMemo } from 'react';
+import { Target, Plus, X, Download, Briefcase, CheckCircle2, Edit3, Trash2, Sparkles, Lightbulb, Clock, ArrowRight, CheckSquare, AlertTriangle, BookOpen } from 'lucide-react-native';
 import { useCurrentWorkspace, useCurrentMembership, useCurrentUser } from '@/lib/state/app-store';
 import { useObjectives, useTasks } from '@/lib/hooks/queries';
 import { objectiveApi, keyResultApi } from '@/lib/api';
@@ -23,6 +23,20 @@ export default function OKRsScreen() {
 
   const { data: objectives, isLoading } = useObjectives(currentWorkspace?.id ?? null);
   const { data: tasks } = useTasks(currentWorkspace?.id ?? null);
+
+  // Memoize task filtering by objective ID for performance
+  const tasksByObjective = useMemo(() => {
+    if (!tasks) return {};
+    return tasks.reduce((acc, task) => {
+      if (task.objectiveId) {
+        if (!acc[task.objectiveId]) {
+          acc[task.objectiveId] = [];
+        }
+        acc[task.objectiveId].push(task);
+      }
+      return acc;
+    }, {} as Record<string, typeof tasks>);
+  }, [tasks]);
 
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showOKRLibraryModal, setShowOKRLibraryModal] = useState(false);
@@ -367,157 +381,76 @@ export default function OKRsScreen() {
 
       {/* Objectives List */}
       <View className="px-6 pb-6">
-        <View className="gap-6">
+        <View className="gap-4">
           {objectives.map((objective) => {
             const totalKRs = objective.keyResults.length;
             const onTrackKRs = objective.keyResults.filter((kr) => kr.healthStatus === 'on_track').length;
-            const atRiskKRs = objective.keyResults.filter((kr) => kr.healthStatus === 'at_risk').length;
             const offTrackKRs = objective.keyResults.filter((kr) => kr.healthStatus === 'off_track').length;
 
-            // Calculate risk score
-            const linkedTasks = tasks?.filter(t => t.objectiveId === objective.id) || [];
+            // Get related tasks from memoized data
+            const linkedTasks = tasksByObjective[objective.id] || [];
             const completedTasks = linkedTasks.filter(t => t.status === 'done');
             const riskScore = calculateObjectiveRisk(objective, linkedTasks.length, completedTasks.length);
-            const riskColor = getRiskColor(riskScore.level);
+
+            // Overall health status
+            const overallStatus = onTrackKRs === totalKRs ? 'on_track' :
+                                 offTrackKRs > totalKRs / 2 ? 'off_track' : 'at_risk';
 
             return (
-              <View key={objective.id} className="bg-gray-100 dark:bg-slate-900 rounded-3xl p-5 border border-gray-300 dark:border-slate-800">
+              <View key={objective.id} className="bg-white dark:bg-slate-900 rounded-2xl p-4 border border-gray-200 dark:border-slate-800">
                 {/* Objective Header */}
-                <View className="mb-4">
-                  <View className="flex-row items-start justify-between mb-2">
-                    <View className="flex-1 mr-3">
-                      <Text className="text-gray-900 dark:text-white text-lg font-bold mb-1">{objective.title}</Text>
-                      {objective.description && (
-                        <Text className="text-gray-600 dark:text-slate-400 text-sm">{objective.description}</Text>
-                      )}
+                <View className="flex-row items-start justify-between mb-3">
+                  <View className="flex-1 mr-2">
+                    <View className="flex-row items-center gap-2 mb-1">
+                      <View className={`w-2 h-2 rounded-full ${
+                        overallStatus === 'on_track' ? 'bg-green-500' :
+                        overallStatus === 'off_track' ? 'bg-red-500' : 'bg-yellow-500'
+                      }`} />
+                      <Text className="text-gray-900 dark:text-white text-base font-bold flex-1">
+                        {objective.title}
+                      </Text>
                     </View>
-                    <View className="flex-row items-center gap-2">
-                      <View className={`px-3 py-1 rounded-full ${
-                        onTrackKRs === totalKRs ? 'bg-green-500/20' :
-                        offTrackKRs > totalKRs / 2 ? 'bg-red-500/20' : 'bg-yellow-500/20'
-                      }`}>
-                        <Text className={`text-xs font-semibold ${
-                          onTrackKRs === totalKRs ? 'text-green-400' :
-                          offTrackKRs > totalKRs / 2 ? 'text-red-400' : 'text-yellow-400'
-                        }`}>
-                          {onTrackKRs === totalKRs ? 'On Track' :
-                           offTrackKRs > totalKRs / 2 ? 'At Risk' : 'Mixed'}
-                        </Text>
-                      </View>
-                      {currentMembership?.role === 'Founder' && (
-                        <View className="flex-row gap-2">
-                          <Pressable
-                            onPress={() => openEditObjectiveModal(objective)}
-                            className="w-8 h-8 bg-gray-200 dark:bg-slate-800 rounded-lg items-center justify-center active:opacity-70"
-                          >
-                            <Edit3 size={16} color="#3b82f6" />
-                          </Pressable>
-                          <Pressable
-                            onPress={() => handleDeleteObjective(objective)}
-                            className="w-8 h-8 bg-gray-200 dark:bg-slate-800 rounded-lg items-center justify-center active:opacity-70"
-                          >
-                            <Trash2 size={16} color="#ef4444" />
-                          </Pressable>
-                        </View>
-                      )}
-                    </View>
-                  </View>
-
-                  <View className="flex-row items-center gap-2">
-                    <Text className="text-gray-600 dark:text-slate-500 text-xs">
-                      {new Date(objective.startDate).toLocaleDateString()} - {new Date(objective.endDate).toLocaleDateString()}
-                    </Text>
-                    <Text className="text-gray-700 dark:text-slate-600">•</Text>
-                    <Text className="text-gray-600 dark:text-slate-500 text-xs">{objective.owner?.name}</Text>
-                  </View>
-
-                  {/* KR Health Summary */}
-                  <View className="flex-row gap-2 mt-3">
-                    {onTrackKRs > 0 && (
-                      <View className="flex-row items-center bg-green-500/10 px-2 py-1 rounded-lg">
-                        <TrendingUp size={12} color="#10b981" />
-                        <Text className="text-green-400 text-xs ml-1">{onTrackKRs} on track</Text>
-                      </View>
-                    )}
-                    {atRiskKRs > 0 && (
-                      <View className="flex-row items-center bg-yellow-500/10 px-2 py-1 rounded-lg">
-                        <AlertTriangle size={12} color="#eab308" />
-                        <Text className="text-yellow-400 text-xs ml-1">{atRiskKRs} at risk</Text>
-                      </View>
-                    )}
-                    {offTrackKRs > 0 && (
-                      <View className="flex-row items-center bg-red-500/10 px-2 py-1 rounded-lg">
-                        <XCircle size={12} color="#ef4444" />
-                        <Text className="text-red-400 text-xs ml-1">{offTrackKRs} off track</Text>
-                      </View>
+                    {objective.description && (
+                      <Text className="text-gray-600 dark:text-slate-400 text-xs mt-1" numberOfLines={2}>
+                        {objective.description}
+                      </Text>
                     )}
                   </View>
-
-                  {/* Risk Score Indicator */}
-                  <View className={`mt-3 ${riskColor.bg} border border-${riskScore.level === 'low' ? 'green' : riskScore.level === 'medium' ? 'yellow' : riskScore.level === 'high' ? 'orange' : 'red'}-500/30 rounded-xl p-3`}>
-                    <View className="flex-row items-center justify-between mb-2">
-                      <View className="flex-row items-center gap-2">
-                        <Shield size={16} color={riskColor.hex} />
-                        <Text className={`${riskColor.text} font-semibold text-sm`}>
-                          {getRiskLabel(riskScore.level)}
-                        </Text>
-                      </View>
-                      <Text className={`${riskColor.text} text-xl font-bold`}>
-                        {riskScore.score}/100
-                      </Text>
-                    </View>
-
-                    <View className="flex-row items-center justify-between mb-2">
-                      <Text className="text-gray-600 dark:text-slate-400 text-xs">
-                        Progress: {riskScore.factors.taskProgress.toFixed(0)}%
-                      </Text>
-                      <Text className="text-gray-600 dark:text-slate-400 text-xs">
-                        Time: {riskScore.factors.timeProgress.toFixed(0)}%
-                      </Text>
-                      <Text className="text-gray-600 dark:text-slate-400 text-xs">
-                        {riskScore.factors.daysRemaining}d left
-                      </Text>
-                    </View>
-
-                    <View className={`bg-${riskScore.level === 'low' ? 'green' : riskScore.level === 'medium' ? 'yellow' : riskScore.level === 'high' ? 'orange' : 'red'}-500/10 rounded-lg p-2 mt-1`}>
-                      <Text className={`${riskColor.text} text-xs`}>
-                        💡 {riskScore.recommendations[0]}
-                      </Text>
-                    </View>
-                  </View>
-
-                  {/* AI Task Suggestions Button */}
                   {currentMembership?.role === 'Founder' && (
-                    <Pressable
-                      onPress={() => openSuggestTasksModal(objective)}
-                      className="mt-3 bg-gradient-to-r from-purple-600 to-blue-600 rounded-xl p-3 active:opacity-70"
-                    >
-                      <LinearGradient
-                        colors={['#7c3aed', '#2563eb']}
-                        start={{ x: 0, y: 0 }}
-                        end={{ x: 1, y: 0 }}
-                        style={{
-                          position: 'absolute',
-                          left: 0,
-                          right: 0,
-                          top: 0,
-                          bottom: 0,
-                          borderRadius: 12,
-                        }}
-                      />
-                      <View className="flex-row items-center justify-between">
-                        <View className="flex-row items-center gap-2 flex-1">
-                          <Sparkles size={18} color="#fff" />
-                          <Text className="text-gray-900 dark:text-white font-semibold">Get AI Task Suggestions</Text>
-                        </View>
-                        <ArrowRight size={18} color="#fff" />
-                      </View>
-                    </Pressable>
+                    <View className="flex-row gap-1">
+                      <Pressable
+                        onPress={() => openEditObjectiveModal(objective)}
+                        className="w-8 h-8 bg-gray-100 dark:bg-slate-800 rounded-lg items-center justify-center active:opacity-70"
+                      >
+                        <Edit3 size={14} color="#3b82f6" />
+                      </Pressable>
+                      <Pressable
+                        onPress={() => handleDeleteObjective(objective)}
+                        className="w-8 h-8 bg-gray-100 dark:bg-slate-800 rounded-lg items-center justify-center active:opacity-70"
+                      >
+                        <Trash2 size={14} color="#ef4444" />
+                      </Pressable>
+                    </View>
                   )}
                 </View>
 
+                {/* Meta Info */}
+                <View className="flex-row items-center gap-3 mb-3">
+                  <Text className="text-gray-600 dark:text-slate-500 text-xs">
+                    {new Date(objective.endDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                  </Text>
+                  <Text className="text-gray-700 dark:text-slate-600">•</Text>
+                  <Text className="text-gray-600 dark:text-slate-500 text-xs">
+                    {riskScore.factors.daysRemaining}d left
+                  </Text>
+                  <Text className="text-gray-700 dark:text-slate-600">•</Text>
+                  <Text className="text-gray-600 dark:text-slate-500 text-xs">
+                    {onTrackKRs}/{totalKRs} on track
+                  </Text>
+                </View>
+
                 {/* Key Results */}
-                <View className="gap-3">
+                <View className="gap-2 mb-3">
                   {objective.keyResults.map((kr) => {
                     const progress = kr.targetValue > 0 ? (kr.currentValue / kr.targetValue) * 100 : 0;
                     const healthColor =
@@ -532,116 +465,59 @@ export default function OKRsScreen() {
                           setNewKRValue(kr.currentValue.toString());
                           setShowEditKRModal(true);
                         }}
-                        className="bg-gray-200 dark:bg-slate-800 rounded-xl p-3 active:opacity-70"
+                        className="bg-gray-50 dark:bg-slate-800/50 rounded-xl p-3 active:opacity-70"
                       >
-                        <View className="flex-row items-start justify-between mb-2">
-                          <Text className="text-gray-900 dark:text-white font-medium flex-1 mr-2">{kr.title}</Text>
-                          <View className="flex-row items-center">
-                            <Text className="text-gray-900 dark:text-white font-bold mr-1">
-                              {kr.currentValue}{kr.unit}
-                            </Text>
-                            <Text className="text-gray-600 dark:text-slate-400 text-sm">/ {kr.targetValue}{kr.unit}</Text>
-                          </View>
+                        <View className="flex-row items-center justify-between mb-2">
+                          <Text className="text-gray-900 dark:text-white text-sm font-medium flex-1 mr-2">
+                            {kr.title}
+                          </Text>
+                          <Text className="text-gray-900 dark:text-white text-xs font-bold">
+                            {kr.currentValue}/{kr.targetValue}{kr.unit}
+                          </Text>
                         </View>
 
-                        <View className="bg-slate-700 h-2 rounded-full overflow-hidden">
+                        <View className="bg-gray-200 dark:bg-slate-700 h-1.5 rounded-full overflow-hidden">
                           <View
                             style={{
                               width: `${Math.min(progress, 100)}%`,
                               height: '100%',
                               backgroundColor: healthColor,
-                              borderRadius: 9999,
                             }}
                           />
-                        </View>
-
-                        <View className="flex-row items-center justify-between mt-2">
-                          <Text className="text-gray-600 dark:text-slate-400 text-xs">{Math.round(progress)}% complete</Text>
-                          <View className="flex-row items-center">
-                            <View
-                              style={{
-                                width: 6,
-                                height: 6,
-                                borderRadius: 3,
-                                backgroundColor: healthColor,
-                                marginRight: 4,
-                              }}
-                            />
-                            <Text className="text-gray-600 dark:text-slate-400 text-xs capitalize">
-                              {kr.healthStatus.replace('_', ' ')}
-                            </Text>
-                          </View>
                         </View>
                       </Pressable>
                     );
                   })}
                 </View>
 
-                {/* Related Tasks */}
-                {(() => {
-                  const relatedTasks = tasks?.filter(t => t.objectiveId === objective.id) || [];
-                  const completedTasks = relatedTasks.filter(t => t.status === 'done').length;
-
-                  if (relatedTasks.length > 0) {
-                    return (
-                      <View className="mt-4 pt-4 border-t border-gray-300 dark:border-slate-800">
-                        <View className="flex-row items-center justify-between mb-3">
-                          <View className="flex-row items-center gap-2">
-                            <Briefcase size={16} color="#3b82f6" />
-                            <Text className="text-gray-900 dark:text-white font-semibold text-sm">Related Tasks</Text>
-                            <View className="bg-gray-200 dark:bg-slate-800 px-2 py-0.5 rounded-full">
-                              <Text className="text-gray-600 dark:text-slate-400 text-xs">{completedTasks}/{relatedTasks.length}</Text>
-                            </View>
-                          </View>
-                          <Pressable
-                            onPress={() => router.push('/(tabs)/work')}
-                            className="active:opacity-70"
-                          >
-                            <Text className="text-blue-400 text-xs font-medium">View All</Text>
-                          </Pressable>
-                        </View>
-
-                        <View className="gap-2">
-                          {relatedTasks.slice(0, 3).map((task) => (
-                            <View
-                              key={task.id}
-                              className="bg-gray-200 dark:bg-slate-800 rounded-lg p-3 flex-row items-center justify-between"
-                            >
-                              <View className="flex-1">
-                                <Text className="text-gray-900 dark:text-white text-sm font-medium mb-1">
-                                  {task.title}
-                                </Text>
-                                <View className="flex-row items-center gap-2">
-                                  <Text className="text-gray-600 dark:text-slate-500 text-xs capitalize">
-                                    {task.status.replace('_', ' ')}
-                                  </Text>
-                                  {task.assignee && (
-                                    <>
-                                      <Text className="text-gray-700 dark:text-slate-600">•</Text>
-                                      <Text className="text-gray-600 dark:text-slate-500 text-xs">
-                                        {task.assignee.name}
-                                      </Text>
-                                    </>
-                                  )}
-                                </View>
-                              </View>
-                              {task.status === 'done' && (
-                                <CheckCircle2 size={16} color="#10b981" />
-                              )}
-                            </View>
-                          ))}
-                        </View>
-
-                        {relatedTasks.length > 3 && (
-                          <Text className="text-gray-600 dark:text-slate-500 text-xs mt-2 text-center">
-                            +{relatedTasks.length - 3} more tasks
-                          </Text>
-                        )}
+                {/* Quick Actions */}
+                <View className="flex-row gap-2">
+                  {linkedTasks.length > 0 && (
+                    <Pressable
+                      onPress={() => router.push('/(tabs)/work')}
+                      className="flex-1 bg-blue-50 dark:bg-blue-900/20 rounded-xl p-3 flex-row items-center justify-between active:opacity-70"
+                    >
+                      <View className="flex-row items-center gap-2">
+                        <Briefcase size={14} color="#3b82f6" />
+                        <Text className="text-blue-600 dark:text-blue-400 text-xs font-medium">
+                          {completedTasks.length}/{linkedTasks.length} Tasks
+                        </Text>
                       </View>
-                    );
-                  }
-                  return null;
-                })()}
+                      <ArrowRight size={14} color="#3b82f6" />
+                    </Pressable>
+                  )}
+                  {currentMembership?.role === 'Founder' && (
+                    <Pressable
+                      onPress={() => openSuggestTasksModal(objective)}
+                      className="flex-1 bg-purple-50 dark:bg-purple-900/20 rounded-xl p-3 flex-row items-center justify-center gap-2 active:opacity-70"
+                    >
+                      <Sparkles size={14} color="#8b5cf6" />
+                      <Text className="text-purple-600 dark:text-purple-400 text-xs font-medium">
+                        AI Tasks
+                      </Text>
+                    </Pressable>
+                  )}
+                </View>
               </View>
             );
           })}
