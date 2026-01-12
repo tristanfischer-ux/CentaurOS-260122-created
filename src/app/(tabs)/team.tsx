@@ -505,10 +505,12 @@ export default function TeamScreen() {
                 <View className="flex-1">
                   <View className="flex-row items-center justify-between mb-1">
                     <Text className="text-white font-bold text-base">{member.name}</Text>
-                    <View className="flex-row items-center">
-                      <Star size={12} color="#f59e0b" fill="#f59e0b" />
-                      <Text className="text-slate-300 text-xs ml-1">{member.rating}</Text>
-                    </View>
+                    {member.rating > 0 && (
+                      <View className="flex-row items-center">
+                        <Star size={12} color="#f59e0b" fill="#f59e0b" />
+                        <Text className="text-slate-300 text-xs ml-1">{member.rating}</Text>
+                      </View>
+                    )}
                   </View>
 
                   <View className={`self-start px-2 py-0.5 rounded border mb-2 ${getRoleBadgeColor(member.role)}`}>
@@ -518,7 +520,8 @@ export default function TeamScreen() {
                   </View>
 
                   <Text className="text-slate-400 text-xs mb-2">
-                    {member.specialization.join(' • ')} • {member.experience}y exp
+                    {member.specialization.join(' • ')}
+                    {member.experience > 0 && ` • ${member.experience}y exp`}
                   </Text>
 
                   <View className="flex-row items-center justify-between">
@@ -581,17 +584,21 @@ export default function TeamScreen() {
 
                   {/* Stats Row */}
                   <View className="flex-row gap-3 mb-4">
-                    <View className="flex-1 bg-slate-800 rounded-xl p-3">
-                      <Text className="text-slate-400 text-xs mb-1">Rating</Text>
-                      <View className="flex-row items-center">
-                        <Star size={14} color="#f59e0b" fill="#f59e0b" />
-                        <Text className="text-white font-bold ml-1">{selectedMember.rating}</Text>
+                    {selectedMember.rating > 0 && (
+                      <View className="flex-1 bg-slate-800 rounded-xl p-3">
+                        <Text className="text-slate-400 text-xs mb-1">Rating</Text>
+                        <View className="flex-row items-center">
+                          <Star size={14} color="#f59e0b" fill="#f59e0b" />
+                          <Text className="text-white font-bold ml-1">{selectedMember.rating}</Text>
+                        </View>
                       </View>
-                    </View>
-                    <View className="flex-1 bg-slate-800 rounded-xl p-3">
-                      <Text className="text-slate-400 text-xs mb-1">Experience</Text>
-                      <Text className="text-white font-bold">{selectedMember.experience}y</Text>
-                    </View>
+                    )}
+                    {selectedMember.experience > 0 && (
+                      <View className="flex-1 bg-slate-800 rounded-xl p-3">
+                        <Text className="text-slate-400 text-xs mb-1">Experience</Text>
+                        <Text className="text-white font-bold">{selectedMember.experience}y</Text>
+                      </View>
+                    )}
                     {selectedMember.costPerDay && (
                       <View className="flex-1 bg-slate-800 rounded-xl p-3">
                         <Text className="text-slate-400 text-xs mb-1">Rate</Text>
@@ -618,28 +625,32 @@ export default function TeamScreen() {
                     </View>
                   </Pressable>
 
-                  <Pressable
-                    onPress={() => handlePhonePress(selectedMember.phone)}
-                    className="flex-row items-center mb-3 active:opacity-70"
-                  >
-                    <View className="w-10 h-10 bg-emerald-500/20 rounded-lg items-center justify-center mr-3">
-                      <Phone size={18} color="#10b981" />
-                    </View>
-                    <View className="flex-1">
-                      <Text className="text-slate-400 text-xs">Phone</Text>
-                      <Text className="text-white text-sm">{selectedMember.phone}</Text>
-                    </View>
-                  </Pressable>
+                  {selectedMember.phone && (
+                    <Pressable
+                      onPress={() => handlePhonePress(selectedMember.phone)}
+                      className="flex-row items-center mb-3 active:opacity-70"
+                    >
+                      <View className="w-10 h-10 bg-emerald-500/20 rounded-lg items-center justify-center mr-3">
+                        <Phone size={18} color="#10b981" />
+                      </View>
+                      <View className="flex-1">
+                        <Text className="text-slate-400 text-xs">Phone</Text>
+                        <Text className="text-white text-sm">{selectedMember.phone}</Text>
+                      </View>
+                    </Pressable>
+                  )}
 
-                  <View className="flex-row items-center">
-                    <View className="w-10 h-10 bg-purple-500/20 rounded-lg items-center justify-center mr-3">
-                      <MapPin size={18} color="#8b5cf6" />
+                  {selectedMember.location && (
+                    <View className="flex-row items-center">
+                      <View className="w-10 h-10 bg-purple-500/20 rounded-lg items-center justify-center mr-3">
+                        <MapPin size={18} color="#8b5cf6" />
+                      </View>
+                      <View className="flex-1">
+                        <Text className="text-slate-400 text-xs">Location</Text>
+                        <Text className="text-white text-sm">{selectedMember.location}</Text>
+                      </View>
                     </View>
-                    <View className="flex-1">
-                      <Text className="text-slate-400 text-xs">Location</Text>
-                      <Text className="text-white text-sm">{selectedMember.location}</Text>
-                    </View>
-                  </View>
+                  )}
                 </View>
 
                 {/* Professional Info */}
@@ -651,10 +662,12 @@ export default function TeamScreen() {
                     <Text className="text-white text-sm">{selectedMember.specialization.join(', ')}</Text>
                   </View>
 
-                  <View className="mb-4">
-                    <Text className="text-slate-400 text-xs mb-1">Availability</Text>
-                    <Text className="text-white text-sm">{selectedMember.availability}</Text>
-                  </View>
+                  {selectedMember.availability && (
+                    <View className="mb-4">
+                      <Text className="text-slate-400 text-xs mb-1">Availability</Text>
+                      <Text className="text-white text-sm">{selectedMember.availability}</Text>
+                    </View>
+                  )}
 
                   <View className="mb-4">
                     <Text className="text-slate-400 text-xs mb-1">Joined</Text>
@@ -667,21 +680,25 @@ export default function TeamScreen() {
                     </Text>
                   </View>
 
-                  <View className="mb-4">
-                    <Text className="text-slate-400 text-xs mb-1">About</Text>
-                    <Text className="text-slate-300 text-sm leading-5">{selectedMember.bio}</Text>
-                  </View>
-
-                  <View>
-                    <Text className="text-slate-400 text-xs mb-2">Skills</Text>
-                    <View className="flex-row flex-wrap gap-2">
-                      {selectedMember.skills.map((skill: string, idx: number) => (
-                        <View key={idx} className="bg-blue-500/20 px-3 py-1.5 rounded-lg">
-                          <Text className="text-blue-400 text-xs font-medium">{skill}</Text>
-                        </View>
-                      ))}
+                  {selectedMember.bio && (
+                    <View className="mb-4">
+                      <Text className="text-slate-400 text-xs mb-1">About</Text>
+                      <Text className="text-slate-300 text-sm leading-5">{selectedMember.bio}</Text>
                     </View>
-                  </View>
+                  )}
+
+                  {selectedMember.skills && selectedMember.skills.length > 0 && (
+                    <View>
+                      <Text className="text-slate-400 text-xs mb-2">Skills</Text>
+                      <View className="flex-row flex-wrap gap-2">
+                        {selectedMember.skills.map((skill: string, idx: number) => (
+                          <View key={idx} className="bg-blue-500/20 px-3 py-1.5 rounded-lg">
+                            <Text className="text-blue-400 text-xs font-medium">{skill}</Text>
+                          </View>
+                        ))}
+                      </View>
+                    </View>
+                  )}
                 </View>
 
                 {/* Task Stats */}
