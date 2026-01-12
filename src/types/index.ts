@@ -9,6 +9,10 @@ export type ReviewStatus = 'pending' | 'approved' | 'changes_requested';
 export type KRHealthStatus = 'on_track' | 'at_risk' | 'off_track';
 export type ThemeMode = 'light' | 'dark' | 'system';
 export type WorkflowItemStatus = 'suggested' | 'allocated' | 'structured' | 'assigned' | 'in_progress' | 'submitted' | 'verified' | 'completed';
+export type InvitationStatus = 'pending' | 'accepted' | 'declined' | 'counter-offered';
+export type EngagementStatus = 'active' | 'paused' | 'ended';
+export type Availability = '1-day' | '2-day' | '3-day' | 'full-time' | 'part-time';
+export type SkillLevel = 'beginner' | 'intermediate' | 'advanced' | 'expert';
 
 // Manufacturing capabilities
 export type ManufacturingCapability =
@@ -64,6 +68,106 @@ export interface User {
   preferences?: {
     themeMode: ThemeMode;
   };
+  // Extended profile data for different roles
+  executiveProfile?: ExecutiveProfile;
+  apprenticeProfile?: ApprenticeProfile;
+}
+
+// Executive Profile (for fractional executives offering services)
+export interface ExecutiveProfile {
+  userId: string;
+  primaryFunction: Function;
+  secondaryFunctions?: Function[];
+  yearsOfExperience: number;
+  availability: Availability;
+  dayRate: number;
+  currency: string;
+  skills: string[];
+  bio: string;
+  linkedInUrl?: string;
+  portfolioUrl?: string;
+  currentEngagements: string[]; // companyIds/workspaceIds
+  maxEngagements: number;
+  isAvailable: boolean;
+  completedEngagements?: number;
+  rating?: number; // 1-5 stars
+  reviewCount?: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// Apprentice Profile (for apprentices seeking work opportunities)
+export interface ApprenticeProfile {
+  userId: string;
+  functionInterest: Function;
+  secondaryFunctionInterests?: Function[];
+  education?: {
+    degree?: string;
+    institution?: string;
+    graduationYear?: number;
+  };
+  technicalSkills: {
+    name: string;
+    level: SkillLevel;
+  }[];
+  softSkills: string[];
+  learningGoals: string;
+  portfolioUrl?: string;
+  githubUrl?: string;
+  linkedInUrl?: string;
+  availability: Availability;
+  dayRate: number;
+  currency: string;
+  isAvailable: boolean;
+  currentEngagement?: string; // workspaceId
+  completedTasks?: number;
+  rating?: number; // 1-5 stars
+  reviewCount?: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// Invitation (from founder to executive/apprentice)
+export interface Invitation {
+  id: string;
+  fromWorkspaceId: string;
+  fromUserId: string; // Founder who sent invitation
+  toUserId: string; // Executive or Apprentice
+  role: Role;
+  function: Function;
+  roleName: string; // e.g., "VP of Sales", "Marketing Apprentice"
+  commitment: string; // e.g., "2 days/week", "Full-time"
+  proposedRate: number;
+  currency: string;
+  message?: string;
+  status: InvitationStatus;
+  counterOffer?: {
+    rate: number;
+    commitment: string;
+    message: string;
+  };
+  respondedAt?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// Engagement (accepted invitation becomes an engagement)
+export interface Engagement {
+  id: string;
+  invitationId: string;
+  workspaceId: string;
+  userId: string;
+  role: Role;
+  function: Function;
+  roleName: string;
+  commitment: string;
+  rate: number;
+  currency: string;
+  startDate: string;
+  endDate?: string;
+  status: EngagementStatus;
+  createdAt: string;
+  updatedAt: string;
 }
 
 // Workspace

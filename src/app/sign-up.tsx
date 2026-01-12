@@ -70,8 +70,8 @@ export default function SignUpScreen() {
       setCurrentUser(user);
       setAuthToken(token);
 
-      // Navigate to onboarding for new users
-      router.replace('/onboarding');
+      // Navigate to welcome screen for role selection
+      router.replace('/welcome');
     } catch (err) {
       console.error('Sign up error:', err);
       setError('Failed to create account. Please try again.');

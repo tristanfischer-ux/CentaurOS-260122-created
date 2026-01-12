@@ -28,13 +28,22 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
 
 ### 📋 Comprehensive Documentation:
 
-1. **[ONBOARDING_IMPLEMENTATION.md](./ONBOARDING_IMPLEMENTATION.md)** - NEW! ✨
-   - Complete onboarding system details
+1. **[ONBOARDING_ECOSYSTEM_PLAN.md](./ONBOARDING_ECOSYSTEM_PLAN.md)** - 🚀 PHASE 1 IN PROGRESS
+   - Multi-role onboarding system (Founder/Executive/Apprentice)
+   - Welcome screen with role selection
+   - Role-specific onboarding flows with profile setup
+   - Executive profile: Function, experience, availability, day rate
+   - Apprentice profile: Skills, education, learning goals
+   - Phase 1 (Welcome & Onboarding) - IMPLEMENTED ✅
+   - Phase 2-5 (Marketplace, Invitations, Multi-Company) - PLANNED
+
+2. **[ONBOARDING_IMPLEMENTATION.md](./ONBOARDING_IMPLEMENTATION.md)** - LEGACY SYSTEM
+   - Original onboarding system details
    - Three role-specific paths (Founder/Executive/Apprentice)
    - Beautiful animated walkthrough
-   - Ready to test
+   - Being replaced by ecosystem onboarding
 
-2. **[REPORT_ENHANCEMENT_PLAN.md](./REPORT_ENHANCEMENT_PLAN.md)** - ✅ COMPLETE! 📊
+3. **[REPORT_ENHANCEMENT_PLAN.md](./REPORT_ENHANCEMENT_PLAN.md)** - ✅ COMPLETE! 📊
    - McKinsey-grade report recommendations - IMPLEMENTED
    - Board pack enhancements - LIVE
    - Executive summary generation - WORKING
