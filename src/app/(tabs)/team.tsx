@@ -11,12 +11,16 @@ import {
   CheckCircle2,
   Network,
   GraduationCap,
+  AlertTriangle,
+  Users,
 } from 'lucide-react-native';
 import { useCurrentWorkspace, useCurrentMembership } from '@/lib/state/app-store';
-import { useCreateTask } from '@/lib/hooks/queries';
+import { useCreateTask, useTasks, useWorkspaceMembers } from '@/lib/hooks/queries';
 import type { TaskPriority, Function as TaskFunction } from '@/types';
 import { router } from 'expo-router';
 import { ORGANIZATION_MEMBERS } from '@/lib/organization-seed';
+import { analyzeTeamCapacity, getCapacityHealthColor, getAlertColor, getCapacitySummary } from '@/lib/team-capacity-alerts';
+import { LinearGradient } from 'expo-linear-gradient';
 
 // Mock team members data - in a real app this would come from the database
 interface TeamMember {
@@ -297,13 +301,33 @@ export default function TeamScreen() {
   const currentMembership = useCurrentMembership();
   const createTaskMutation = useCreateTask();
 
+  // Fetch real data for capacity analysis
+  const { data: tasks } = useTasks(currentWorkspace?.id ?? null);
+  const { data: members } = useWorkspaceMembers(currentWorkspace?.id ?? null);
+
   const [selectedMember, setSelectedMember] = useState<TeamMember | null>(null);
   const [filterRole, setFilterRole] = useState<'all' | 'Founder' | 'FractionalExec' | 'Apprentice'>('all');
   const [showTaskModal, setShowTaskModal] = useState(false);
+  const [showCapacityModal, setShowCapacityModal] = useState(false);
   const [taskTitle, setTaskTitle] = useState('');
   const [taskDescription, setTaskDescription] = useState('');
   const [taskPriority, setTaskPriority] = useState<TaskPriority>('medium');
   const [taskFunction, setTaskFunction] = useState<TaskFunction>('Ops');
+
+  // Calculate team capacity
+  const capacityReport = (tasks && members)
+    ? analyzeTeamCapacity(
+        tasks,
+        members.map((m: any) => ({ userId: m.user?.id || m.userId, ...m })),
+        members.reduce((acc: any, m: any) => {
+          const userId = m.user?.id || m.userId;
+          acc[userId] = m.user || { name: 'Unknown' };
+          return acc;
+        }, {})
+      )
+    : null;
+
+  const capacityColor = capacityReport ? getCapacityHealthColor(capacityReport.healthStatus) : null;
 
   // Convert organization members to team member format for display
   const teamMembers: TeamMember[] = ORGANIZATION_MEMBERS.map(member => ({
@@ -450,6 +474,51 @@ export default function TeamScreen() {
             <Text className="text-emerald-400 text-2xl font-bold">{roleStats.apprentices}</Text>
           </View>
         </View>
+
+        {/* Team Capacity Alert - Founders Only */}
+        {currentMembership?.role === 'Founder' && capacityReport && capacityColor && (
+          <Pressable
+            onPress={() => setShowCapacityModal(true)}
+            className="mb-4 active:opacity-70"
+          >
+            <LinearGradient
+              colors={
+                capacityReport.healthStatus === 'critical'
+                  ? ['#ef4444', '#dc2626']
+                  : capacityReport.healthStatus === 'warning'
+                  ? ['#f59e0b', '#d97706']
+                  : ['#10b981', '#059669']
+              }
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={{
+                borderRadius: 16,
+                padding: 16,
+              }}
+            >
+              <View className="flex-row items-center justify-between mb-2">
+                <View className="flex-row items-center gap-2">
+                  <Users size={20} color="white" />
+                  <Text className="text-white font-bold text-base">Team Capacity</Text>
+                </View>
+                {capacityReport.healthStatus !== 'healthy' && (
+                  <AlertTriangle size={20} color="white" />
+                )}
+              </View>
+              <Text className="text-white text-sm mb-2">
+                {getCapacitySummary(capacityReport)}
+              </Text>
+              <View className="flex-row items-center justify-between">
+                <Text className="text-white/80 text-xs">
+                  {capacityReport.alerts.length} alert{capacityReport.alerts.length !== 1 ? 's' : ''}
+                </Text>
+                <Text className="text-white/80 text-xs">
+                  Tap for details →
+                </Text>
+              </View>
+            </LinearGradient>
+          </Pressable>
+        )}
 
         {/* Role Filter */}
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ flexGrow: 0 }}>
@@ -871,6 +940,93 @@ export default function TeamScreen() {
                   <Text className="text-gray-600 dark:text-slate-400 text-center font-semibold">Cancel</Text>
                 </Pressable>
               </View>
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Team Capacity Details Modal */}
+      <Modal visible={showCapacityModal} transparent animationType="slide">
+        <View className="flex-1 bg-black/50">
+          <View className="flex-1 mt-20 bg-white dark:bg-slate-950 rounded-t-3xl">
+            <View className="p-6 border-b border-slate-800">
+              <View className="flex-row items-center justify-between">
+                <Text className="text-gray-900 dark:text-white text-xl font-bold">Team Capacity Report</Text>
+                <Pressable onPress={() => setShowCapacityModal(false)} className="active:opacity-70">
+                  <X size={24} color="#64748b" />
+                </Pressable>
+              </View>
+            </View>
+
+            <ScrollView className="flex-1 p-6">
+              {capacityReport && (
+                <>
+                  {/* Summary */}
+                  <View className={`${capacityColor?.bg} border border-${capacityReport.healthStatus === 'healthy' ? 'green' : capacityReport.healthStatus === 'warning' ? 'yellow' : 'red'}-500/30 rounded-xl p-4 mb-6`}>
+                    <Text className={`${capacityColor?.text} font-bold text-lg mb-2`}>
+                      {capacityReport.healthStatus === 'healthy' ? '✓ Healthy' : capacityReport.healthStatus === 'warning' ? '⚠ Warning' : '⚠ Critical'}
+                    </Text>
+                    <Text className="text-gray-900 dark:text-white text-sm mb-3">
+                      {getCapacitySummary(capacityReport)}
+                    </Text>
+                    <View className="flex-row items-center justify-between">
+                      <Text className="text-gray-600 dark:text-slate-400 text-xs">
+                        {capacityReport.totalMembers} team members
+                      </Text>
+                      <Text className="text-gray-600 dark:text-slate-400 text-xs">
+                        {capacityReport.averageTasksPerMember.toFixed(1)} avg tasks/person
+                      </Text>
+                    </View>
+                  </View>
+
+                  {/* Individual Alerts */}
+                  {capacityReport.alerts.length > 0 ? (
+                    <>
+                      <Text className="text-gray-900 dark:text-white font-semibold text-base mb-3">
+                        Individual Alerts ({capacityReport.alerts.length})
+                      </Text>
+                      {capacityReport.alerts.map((alert, idx) => {
+                        const alertColor = getAlertColor(alert.level);
+                        return (
+                          <View key={idx} className={`${alertColor.bg} border border-${alert.level === 'info' ? 'blue' : alert.level === 'warning' ? 'yellow' : 'red'}-500/30 rounded-xl p-4 mb-3`}>
+                            <View className="flex-row items-center justify-between mb-2">
+                              <Text className="text-gray-900 dark:text-white font-bold">
+                                {alert.memberName}
+                              </Text>
+                              <View className="flex-row items-center gap-1">
+                                <Text className={`${alertColor.text} text-xl font-bold`}>
+                                  {alert.tasksCount}
+                                </Text>
+                                <Text className="text-gray-600 dark:text-slate-400 text-xs">
+                                  tasks
+                                </Text>
+                              </View>
+                            </View>
+                            <Text className="text-gray-900 dark:text-white text-sm mb-2">
+                              {alert.message}
+                            </Text>
+                            <View className={`bg-${alert.level === 'info' ? 'blue' : alert.level === 'warning' ? 'yellow' : 'red'}-500/10 rounded-lg p-2`}>
+                              <Text className={`${alertColor.text} text-xs`}>
+                                💡 {alert.recommendation}
+                              </Text>
+                            </View>
+                          </View>
+                        );
+                      })}
+                    </>
+                  ) : (
+                    <View className="bg-green-500/20 border border-green-500/30 rounded-xl p-6 items-center">
+                      <CheckCircle2 size={48} color="#10b981" />
+                      <Text className="text-green-400 font-bold text-lg mt-3 mb-2">
+                        All Clear!
+                      </Text>
+                      <Text className="text-green-300 text-sm text-center">
+                        No capacity concerns. Team workload is well-distributed.
+                      </Text>
+                    </View>
+                  )}
+                </>
+              )}
             </ScrollView>
           </View>
         </View>
