@@ -411,7 +411,7 @@ function CompaniesTab() {
       </View>
 
       {/* Company Detail Modal */}
-      <Modal visible={selectedCompany !== null} transparent animationType="slide">
+      <Modal visible={selectedCompany !== null} transparent animationType="slide" onRequestClose={() => setSelectedCompany(null)}>
         <View className="flex-1 bg-black/70 justify-center px-6">
           {selectedCompany && (
             <View className="bg-gray-100 dark:bg-slate-900 rounded-3xl p-6" style={{ maxHeight: '90%' }}>

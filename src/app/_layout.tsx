@@ -10,6 +10,7 @@ import { View, ActivityIndicator } from 'react-native';
 import { useEffect, useState } from 'react';
 import { useInitializeApp } from '@/lib/hooks/useInitializeApp';
 import { WelcomeSplash } from '@/components/WelcomeSplash';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 
 export const unstable_settings = {
   initialRouteName: 'sign-in',
@@ -138,13 +139,15 @@ export default function RootLayout() {
   const colorScheme = useColorScheme();
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <GestureHandlerRootView style={{ flex: 1 }}>
-        <KeyboardProvider>
-          <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
-          <RootLayoutNav colorScheme={colorScheme} />
-        </KeyboardProvider>
-      </GestureHandlerRootView>
-    </QueryClientProvider>
+    <ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <GestureHandlerRootView style={{ flex: 1 }}>
+          <KeyboardProvider>
+            <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
+            <RootLayoutNav colorScheme={colorScheme} />
+          </KeyboardProvider>
+        </GestureHandlerRootView>
+      </QueryClientProvider>
+    </ErrorBoundary>
   );
 }

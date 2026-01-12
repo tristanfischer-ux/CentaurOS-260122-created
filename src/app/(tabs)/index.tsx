@@ -1010,7 +1010,7 @@ export default function HomeScreen() {
       </ScrollView>
 
       {/* Budget Setting Modal */}
-      <Modal visible={showBudgetModal} transparent animationType="slide">
+      <Modal visible={showBudgetModal} transparent animationType="slide" onRequestClose={() => setShowBudgetModal(false)}>
         <View className="flex-1 bg-black/70 justify-end">
           <View
             className="bg-gray-100 dark:bg-slate-900 rounded-t-3xl"
@@ -1199,7 +1199,7 @@ export default function HomeScreen() {
       </Modal>
 
       {/* Financial Details Modal */}
-      <Modal visible={showDetailsModal} transparent animationType="slide">
+      <Modal visible={showDetailsModal} transparent animationType="slide" onRequestClose={() => setShowDetailsModal(false)}>
         <View className="flex-1 bg-black/70 justify-end">
           <View
             className="bg-gray-100 dark:bg-slate-900 rounded-t-3xl"
@@ -2353,7 +2353,7 @@ export default function HomeScreen() {
       </Modal>
 
       {/* Scenario Planning Modal */}
-      <Modal visible={showScenarioPlanningModal} transparent animationType="slide">
+      <Modal visible={showScenarioPlanningModal} transparent animationType="slide" onRequestClose={() => setShowScenarioPlanningModal(false)}>
         <View className="flex-1 bg-black/70 justify-end">
           <View className="bg-gray-100 dark:bg-slate-900 rounded-t-3xl" style={{ maxHeight: "90%" }}>
             <View className="flex-row items-center justify-between p-6 pb-4 border-b border-slate-800">

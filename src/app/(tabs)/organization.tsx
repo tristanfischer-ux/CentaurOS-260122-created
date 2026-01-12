@@ -952,7 +952,7 @@ export default function OrganizationScreen() {
       </Modal>
 
       {/* Supplier Map Modal */}
-      <Modal visible={showMap} transparent animationType="slide">
+      <Modal visible={showMap} transparent animationType="slide" onRequestClose={() => setShowMap(false)}>
         <View className="flex-1 bg-white dark:bg-slate-950">
           {/* Map Header */}
           <View className="p-6 pb-4 border-b border-slate-800">

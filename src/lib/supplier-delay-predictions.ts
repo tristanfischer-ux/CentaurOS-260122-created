@@ -27,22 +27,24 @@ export function predictSupplierDelay(supplier: Supplier): DelayPrediction {
 
   // Factor 1: Historical Performance (40% weight)
   // Lower rating = higher risk
-  const performanceScore = ((5 - (supplier.rating || 3)) / 5) * 40;
+  const rating = supplier.rating ?? 3;
+  const performanceScore = ((5 - rating) / 5) * 40;
   riskScore += performanceScore;
 
-  if (supplier.rating < 3.5) {
+  if (rating < 3.5) {
     recommendations.push('Low historical rating - consider backup supplier');
-  } else if (supplier.rating < 4.0) {
+  } else if (rating < 4.0) {
     recommendations.push('Average rating - monitor delivery closely');
   }
 
   // Factor 2: Lead Time (30% weight)
   // Longer lead time = higher risk of delays
-  const leadTimeRisk = Math.min((supplier.leadTimeWeeks / 12) * 30, 30);
+  const leadTime = supplier.leadTimeWeeks ?? 4;
+  const leadTimeRisk = Math.min((leadTime / 12) * 30, 30);
   riskScore += leadTimeRisk;
 
-  if (supplier.leadTimeWeeks > 8) {
-    recommendations.push(`Long lead time (${supplier.leadTimeWeeks}w) - order early`);
+  if (leadTime > 8) {
+    recommendations.push(`Long lead time (${leadTime}w) - order early`);
   }
 
   // Factor 3: Certifications (15% weight)
@@ -56,10 +58,10 @@ export function predictSupplierDelay(supplier: Supplier): DelayPrediction {
   }
 
   // Factor 4: Status (15% weight)
-  if (supplier.status === 'pending') {
+  if (supplier.status === 'pending_approval') {
     riskScore += 15;
     recommendations.push('Unverified supplier - conduct due diligence');
-  } else if (supplier.status === 'flagged') {
+  } else if (supplier.status === 'suspended' || supplier.status === 'rejected') {
     riskScore += 25;
     recommendations.push('Flagged supplier - investigate issues before ordering');
   }
@@ -73,7 +75,7 @@ export function predictSupplierDelay(supplier: Supplier): DelayPrediction {
 
   // Estimate delay probability and days
   const delayProbability = Math.min(riskScore, 100);
-  const estimatedDelayDays = Math.round((riskScore / 100) * supplier.leadTimeWeeks * 7 * 0.3);
+  const estimatedDelayDays = Math.round((riskScore / 100) * leadTime * 7 * 0.3);
 
   // Positive recommendations for low-risk suppliers
   if (riskLevel === 'low') {
@@ -87,8 +89,8 @@ export function predictSupplierDelay(supplier: Supplier): DelayPrediction {
     delayProbability,
     estimatedDelayDays,
     factors: {
-      historicalPerformance: supplier.rating || 0,
-      leadTime: supplier.leadTimeWeeks,
+      historicalPerformance: rating,
+      leadTime: leadTime,
       region: supplier.region,
       certifications: certCount,
     },

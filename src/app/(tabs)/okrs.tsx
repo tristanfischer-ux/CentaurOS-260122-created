@@ -610,7 +610,7 @@ export default function OKRsScreen() {
 
     {/* Modals - Outside ScrollView */}
     {/* Update KR Modal */}
-    <Modal visible={showEditKRModal} transparent animationType="slide">
+    <Modal visible={showEditKRModal} transparent animationType="slide" onRequestClose={() => setShowEditKRModal(false)}>
         <View className="flex-1 bg-black/70 justify-end">
           <View className="bg-gray-100 dark:bg-slate-900 rounded-t-3xl p-6">
             <View className="flex-row items-center justify-between mb-4">
@@ -663,7 +663,7 @@ export default function OKRsScreen() {
       </Modal>
 
       {/* Create Objective Modal */}
-      <Modal visible={showCreateModal} transparent animationType="slide">
+      <Modal visible={showCreateModal} transparent animationType="slide" onRequestClose={() => setShowCreateModal(false)}>
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
           className="flex-1"
@@ -773,7 +773,7 @@ export default function OKRsScreen() {
       </Modal>
 
       {/* Edit Objective Modal */}
-      <Modal visible={showEditObjectiveModal} transparent animationType="slide">
+      <Modal visible={showEditObjectiveModal} transparent animationType="slide" onRequestClose={() => setShowEditObjectiveModal(false)}>
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
           className="flex-1"
@@ -864,7 +864,7 @@ export default function OKRsScreen() {
       </Modal>
 
       {/* Suggest Tasks Modal */}
-      <Modal visible={showSuggestTasksModal} transparent animationType="slide">
+      <Modal visible={showSuggestTasksModal} transparent animationType="slide" onRequestClose={() => setShowSuggestTasksModal(false)}>
         <View className="flex-1 bg-black/70">
           {selectedObjectiveForTasks && (
             <View className="mt-auto bg-gray-100 dark:bg-slate-900 rounded-t-3xl" style={{ maxHeight: '90%' }}>

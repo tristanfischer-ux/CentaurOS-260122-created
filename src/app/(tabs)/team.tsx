@@ -826,7 +826,7 @@ export default function TeamScreen() {
       </Modal>
 
       {/* Assign Task Modal */}
-      <Modal visible={showTaskModal} transparent animationType="slide">
+      <Modal visible={showTaskModal} transparent animationType="slide" onRequestClose={() => setShowTaskModal(false)}>
         <View className="flex-1 bg-black/70 justify-center px-6">
           <View className="bg-gray-100 dark:bg-slate-900 rounded-3xl p-6" style={{ maxHeight: '90%' }}>
             <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled" style={{ flex: 1 }}>
@@ -946,7 +946,7 @@ export default function TeamScreen() {
       </Modal>
 
       {/* Team Capacity Details Modal */}
-      <Modal visible={showCapacityModal} transparent animationType="slide">
+      <Modal visible={showCapacityModal} transparent animationType="slide" onRequestClose={() => setShowCapacityModal(false)}>
         <View className="flex-1 bg-black/50">
           <View className="flex-1 mt-20 bg-white dark:bg-slate-950 rounded-t-3xl">
             <View className="p-6 border-b border-slate-800">

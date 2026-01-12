@@ -603,7 +603,7 @@ export default function WorkScreen() {
       </ScrollView>
 
       {/* Edit Task Modal */}
-      <Modal visible={showEditModal} transparent animationType="slide">
+      <Modal visible={showEditModal} transparent animationType="slide" onRequestClose={() => setShowEditModal(false)}>
         <View className="flex-1 bg-black/70 justify-end">
           <KeyboardAvoidingView
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -858,7 +858,7 @@ export default function WorkScreen() {
       </Modal>
 
       {/* Assign Task Modal */}
-      <Modal visible={showAssignModal} transparent animationType="slide">
+      <Modal visible={showAssignModal} transparent animationType="slide" onRequestClose={() => setShowAssignModal(false)}>
         <View className="flex-1 bg-black/70 justify-end">
           <View className="bg-gray-100 dark:bg-slate-900 rounded-t-3xl p-6">
             <View className="flex-row items-center justify-between mb-4">
@@ -955,7 +955,7 @@ export default function WorkScreen() {
       </Modal>
 
       {/* Create Task Modal */}
-      <Modal visible={showCreateModal} transparent animationType="slide">
+      <Modal visible={showCreateModal} transparent animationType="slide" onRequestClose={() => setShowCreateModal(false)}>
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
           className="flex-1"
