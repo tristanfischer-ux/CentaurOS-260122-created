@@ -616,7 +616,7 @@ export default function HomeScreen() {
                   Your Tasks
                 </Text>
                 <Pressable
-                  onPress={() => router.push("/work")}
+                  onPress={() => router.push("/(tabs)/work")}
                   className="active:opacity-70"
                 >
                   <Text className="text-blue-500 text-sm">View all</Text>
@@ -643,7 +643,7 @@ export default function HomeScreen() {
                   return (
                     <Pressable
                       key={task.id}
-                      onPress={() => router.push("/work")}
+                      onPress={() => router.push("/(tabs)/work")}
                       className="bg-slate-900 rounded-2xl p-4 border border-slate-800 active:opacity-70"
                     >
                       <View className="flex-row items-start justify-between">
@@ -746,7 +746,7 @@ export default function HomeScreen() {
             </Pressable>
 
             <Pressable
-              onPress={() => router.push("/work")}
+              onPress={() => router.push("/(tabs)/work")}
               className="bg-gradient-to-r from-purple-600 to-purple-500 rounded-2xl p-4 flex-row items-center justify-between active:opacity-80"
             >
               <LinearGradient

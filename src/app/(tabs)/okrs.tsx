@@ -266,7 +266,7 @@ export default function OKRsScreen() {
         'Tasks Created!',
         `${tasksToCreate.length} task${tasksToCreate.length !== 1 ? 's' : ''} created successfully. View them in the Work tab.`,
         [
-          { text: 'View Tasks', onPress: () => router.push('/work') },
+          { text: 'View Tasks', onPress: () => router.push('/(tabs)/work') },
           { text: 'Stay Here', style: 'cancel' }
         ]
       );
@@ -513,7 +513,7 @@ export default function OKRsScreen() {
                             </View>
                           </View>
                           <Pressable
-                            onPress={() => router.push('/work')}
+                            onPress={() => router.push('/(tabs)/work')}
                             className="active:opacity-70"
                           >
                             <Text className="text-blue-400 text-xs font-medium">View All</Text>

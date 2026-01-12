@@ -938,7 +938,7 @@ export default function WorkScreen() {
                           <Pressable
                             onPress={() => {
                               setShowCreateModal(false);
-                              router.push('/okrs');
+                              router.push('/(tabs)/okrs');
                             }}
                             className="bg-amber-500 rounded-lg py-2 px-3 active:opacity-80"
                           >
