@@ -234,8 +234,8 @@ export default function NetworkScreen() {
         }}
       >
         <View className="flex-1 bg-black/50 justify-end">
-          <View className="bg-white dark:bg-slate-900 rounded-t-3xl p-6" style={{ maxHeight: '85%' }}>
-            <View className="flex-row items-center justify-between mb-6">
+          <View className="bg-white dark:bg-slate-900 rounded-t-3xl" style={{ maxHeight: '80%' }}>
+            <View className="px-6 pt-6 pb-4 border-b border-gray-200 dark:border-slate-800 flex-row items-center justify-between">
               <Text className="text-gray-900 dark:text-white text-2xl font-bold">List Yourself</Text>
               <Pressable onPress={() => {
                 setShowListYourselfModal(false);
@@ -246,12 +246,11 @@ export default function NetworkScreen() {
             </View>
 
             {!listingType ? (
-              <>
-                <Text className="text-gray-600 dark:text-slate-400 mb-6">
-                  Choose how you want to be listed in the marketplace:
-                </Text>
-
-                <ScrollView showsVerticalScrollIndicator={false}>
+              <ScrollView showsVerticalScrollIndicator={false} className="flex-1">
+                <View className="p-6">
+                  <Text className="text-gray-600 dark:text-slate-400 mb-6">
+                    Choose how you want to be listed in the marketplace:
+                  </Text>
                   {/* Fractional Executive */}
                   <Pressable
                     onPress={() => setListingType('executive')}
@@ -344,15 +343,15 @@ export default function NetworkScreen() {
                       </View>
                     </View>
                   </Pressable>
-                </ScrollView>
-              </>
+                </View>
+              </ScrollView>
             ) : (
               <KeyboardAvoidingView
                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
                 className="flex-1"
               >
-                <ScrollView showsVerticalScrollIndicator={false}>
-                  <View className="mb-6">
+                <ScrollView showsVerticalScrollIndicator={false} className="flex-1">
+                  <View className="p-6">
                     <View className={`${
                       listingType === 'executive' ? 'bg-purple-500/10 border-purple-500/30' :
                       listingType === 'apprentice' ? 'bg-blue-500/10 border-blue-500/30' :
@@ -648,7 +647,6 @@ export default function NetworkScreen() {
                         </View>
                       </View>
                     )}
-                  </View>
 
                   <View className="gap-3 mt-6 mb-4">
                     <Pressable
@@ -708,6 +706,7 @@ export default function NetworkScreen() {
                     >
                       <Text className="text-gray-700 dark:text-slate-300 text-center font-semibold">Back</Text>
                     </Pressable>
+                  </View>
                   </View>
                 </ScrollView>
               </KeyboardAvoidingView>
