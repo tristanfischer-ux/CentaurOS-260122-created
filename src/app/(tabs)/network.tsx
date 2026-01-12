@@ -557,10 +557,10 @@ function HiringTab() {
 
       {/* Candidate Detail Modal */}
       <Modal visible={selectedCandidate !== null} transparent animationType="slide">
-        <View className="flex-1 bg-black/70">
+        <View className="flex-1 bg-black/70 justify-end">
           {selectedCandidate && (
-            <View className="mt-auto bg-slate-900 rounded-t-3xl" style={{ maxHeight: '90%' }}>
-              <ScrollView showsVerticalScrollIndicator={false} style={{ flex: 1 }}>
+            <View className="bg-slate-900 rounded-t-3xl" style={{ maxHeight: '90%' }}>
+              <ScrollView showsVerticalScrollIndicator={false}>
                 <View className="p-6">
                   {/* Header */}
                   <View className="flex-row items-start justify-between mb-6">
