@@ -380,7 +380,7 @@ export default function SettingsScreen() {
                 <View>
                   <Text className="text-gray-900 dark:text-white text-lg font-bold mb-2">What is Centaur OS?</Text>
                   <Text className="text-gray-700 dark:text-slate-300 leading-6">
-                    The operating system for lean hardware startups. Run your business efficiently with a small team: founders who decide, fractional executives who evaluate, and apprentices who execute—augmented by AI and manufacturing partners.
+                    The operating system for lean hardware startups. Run your business efficiently with a small team: founders who decide, fractional executives who evaluate, and apprentices who execute—augmented by AI and manufacturing partners. Built on function-based OKRs and work plan allocation across Marketing, Sales, Engineering, Ops, Finance, and Admin.
                   </Text>
                 </View>
 
@@ -389,16 +389,16 @@ export default function SettingsScreen() {
                   <Text className="text-gray-900 dark:text-white text-lg font-bold mb-2">Core Features</Text>
 
                   <View className="mb-3">
-                    <Text className="text-gray-900 dark:text-white font-semibold mb-1">🎯 OKR Management</Text>
+                    <Text className="text-gray-900 dark:text-white font-semibold mb-1">🎯 Function-Based OKRs (Decide Tab)</Text>
                     <Text className="text-gray-700 dark:text-slate-400 text-sm">
-                      Set objectives, track key results, monitor health indicators. AI Task Advisor suggests proven tasks based on your goals across 6 categories (revenue, PMF, customer acquisition, team building, ops, fundraising). Get founder-level coaching on impact and execution.
+                      Strategic objectives organized by business function (Marketing, Sales, Engineering, Ops, Finance, Admin). Each OKR includes high-level objectives that expand to show detailed key results with progress tracking. Founders set OKRs, executives create work plans against them, and apprentices execute. Approval queue for resource allocation requests from Community tab.
                     </Text>
                   </View>
 
                   <View className="mb-3">
-                    <Text className="text-gray-900 dark:text-white font-semibold mb-1">✅ Task Management</Text>
+                    <Text className="text-gray-900 dark:text-white font-semibold mb-1">📋 Work Plans & Execution (Evaluate & Do Tabs)</Text>
                     <Text className="text-gray-700 dark:text-slate-400 text-sm">
-                      Priority-based workflow (Urgent → High → Medium → Low). Full task editing, strategic alignment warnings, time tracking. Filter by status or objective. Assign to team members with one tap.
+                      Evaluate: Executives create work plans linked to OKRs, assign to apprentices, and monitor progress. Review submissions with approve/request changes workflow. Founders see all work plans by function. Do: Apprentices view assigned work, report progress, and submit completed work. Founders see work plans organized by function/OKR. Executives see only their responsible work plans.
                     </Text>
                   </View>
 
@@ -410,9 +410,9 @@ export default function SettingsScreen() {
                   </View>
 
                   <View className="mb-3">
-                    <Text className="text-gray-900 dark:text-white font-semibold mb-1">🔍 Review Workflow</Text>
+                    <Text className="text-gray-900 dark:text-white font-semibold mb-1">🤝 Fractional Foundry Marketplace</Text>
                     <Text className="text-gray-700 dark:text-slate-400 text-sm">
-                      Executives review apprentice work with approve/reject actions. Feedback loops ensure quality. Track status: pending, approved, changes requested.
+                      Multi-company workflows for fractional executives and apprentices. Send/receive invitations, manage engagements across multiple companies, track capacity (days/week). Guilds: cross-company communities of practice (Sales, Marketing, Finance, Ops, Engineering, Design, Founders, Apprentices). Workspace switcher for seamless multi-company context switching.
                     </Text>
                   </View>
 
@@ -438,9 +438,9 @@ export default function SettingsScreen() {
                   </View>
 
                   <View className="mb-3">
-                    <Text className="text-gray-900 dark:text-white font-semibold mb-1">🌐 Network & Hiring</Text>
+                    <Text className="text-gray-900 dark:text-white font-semibold mb-1">🌐 Community Marketplace (Community Tab)</Text>
                     <Text className="text-gray-700 dark:text-slate-400 text-sm">
-                      Browse and hire 30 Fractional Executives and 30 Apprentices. View experience, ratings, availability, and skills. Tinder-style discovery with detail views. One-click hiring adds candidates to your team.
+                      Search and connect with 100+ fractional executives, 100+ apprentices, and suppliers/manufacturers. Filter by function, skills, and availability. Request allocation sends approval to founder via Decide tab. Apply/Join tab: submit applications as executive, apprentice, or supplier with CV upload (coming soon). Onboarding system for all marketplace participants.
                     </Text>
                   </View>
 
@@ -466,9 +466,9 @@ export default function SettingsScreen() {
                   </View>
 
                   <View className="mb-3">
-                    <Text className="text-gray-900 dark:text-white font-semibold mb-1">📅 Community Events</Text>
+                    <Text className="text-gray-900 dark:text-white font-semibold mb-1">🏭 AI, Suppliers & Manufacturing (Make Tab)</Text>
                     <Text className="text-gray-700 dark:text-slate-400 text-sm">
-                      Create and join hardware startup events: networking, workshops, office hours, showcases. Interactive map with locations. RSVP tracking and attendee lists. Foster ecosystem connections.
+                      AI tools and factories accessible to all roles (Founder, Executive, Apprentice). Track supplier engagements, manage BOM (Bill of Materials) with cost analysis, monitor manufacturing timelines. Search and onboard suppliers/manufacturers through Community tab. Link suppliers to work plans and track component costs.
                     </Text>
                   </View>
 
@@ -491,17 +491,17 @@ export default function SettingsScreen() {
                 <View>
                   <Text className="text-gray-900 dark:text-white text-lg font-bold mb-2">Decide • Evaluate • Do</Text>
                   <Text className="text-gray-700 dark:text-slate-300 leading-6 mb-2">
-                    Centaur OS is built around a three-tier organizational model:
+                    Centaur OS is built around a three-tier organizational model with function-based workflows:
                   </Text>
                   <View className="ml-3">
-                    <Text className="text-gray-700 dark:text-slate-300 mb-1">
-                      <Text className="font-semibold">Founders (Decide):</Text> Set strategy, make key decisions, manage finances.
+                    <Text className="text-gray-700 dark:text-slate-300 mb-2">
+                      <Text className="font-semibold">Decide (Founders):</Text> Set function-based OKRs (Marketing, Sales, Engineering, Ops, Finance, Admin). Approve resource allocation requests. View all work plans by function. Manage strategy and finances.
                     </Text>
-                    <Text className="text-gray-700 dark:text-slate-300 mb-1">
-                      <Text className="font-semibold">Fractional Execs (Evaluate):</Text> Review work, provide expertise, ensure quality.
+                    <Text className="text-gray-700 dark:text-slate-300 mb-2">
+                      <Text className="font-semibold">Evaluate (Fractional Executives):</Text> Create work plans linked to OKRs. Assign work to apprentices. Monitor progress and review submissions. Provide expertise and feedback. See only their function's work plans.
                     </Text>
                     <Text className="text-gray-700 dark:text-slate-300">
-                      <Text className="font-semibold">Apprentices (Do):</Text> Execute tasks, learn from feedback, deliver results.
+                      <Text className="font-semibold">Do (Apprentices):</Text> Execute assigned work plans. Report progress to executives. Submit completed work for review. Learn from feedback. Build skills in their function.
                     </Text>
                   </View>
                 </View>

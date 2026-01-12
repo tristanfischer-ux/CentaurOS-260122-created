@@ -15,7 +15,7 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
 
 ## 🚨 PRODUCTION READINESS STATUS
 
-**Last Updated**: 2026-01-12 (**FRACTIONAL FOUNDRY COMPLETE** - All 5 Phases Implemented: Marketplace, Invitations, Guilds, Multi-Company, Supplier Orders)
+**Last Updated**: 2026-01-12 (**FULL WORKFLOW RESTRUCTURE COMPLETE** - Function-based OKRs, Work Plan System, Role-specific views, Community Onboarding)
 
 ### Current Status: ✅ **READY FOR APP STORE SUBMISSION**
 
@@ -74,12 +74,12 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
 - SafeArea handling on all screens
 
 **✅ Feature Completeness:**
-- Decide tab: OKRs, Objectives, Key Results, AI Task Advisor, OKR Library
-- Do tab: Work Hub, Task management, Filtering, Assignment, Time tracking
-- Evaluate tab: Reviews, Approvals, Performance tracking
-- Make tab: Suppliers, AI Tools, Manufacturing operations
-- Community tab: Events, Hiring, Networking
-- Settings tab: Profile, Themes, About, Function Library
+- Decide tab: Function-based OKRs (Marketing, Sales, Engineering, Ops, Finance, Admin), Expandable objectives, Progress tracking, Approval queue for resource requests
+- Evaluate tab: Work plan creation, OKR linking, Apprentice allocation, Progress monitoring, Submission review workflow
+- Do tab: Role-specific views (Apprentice: assigned work, Founder: all by function, Executive: their work), Progress reporting, Work submission
+- Make tab: AI tools, Suppliers, Manufacturing, BOM management (accessible to all roles)
+- Community tab: Executives/Apprentices/Suppliers marketplace, Search/filter, Request allocation, Apply/Join system with CV upload
+- Settings tab: Profile, Themes, About with updated documentation, Function Library, Guilds, Engagements
 
 ### Known Non-Issues:
 - 6 TODO comments for future backend integration (doesn't affect current functionality)
