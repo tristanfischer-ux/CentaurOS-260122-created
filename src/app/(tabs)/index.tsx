@@ -1014,7 +1014,7 @@ export default function HomeScreen() {
         <View className="flex-1 bg-black/70 justify-end">
           <View
             className="bg-gray-100 dark:bg-slate-900 rounded-t-3xl"
-            style={{ maxHeight: "90%" }}
+            style={{ maxHeight: "90%", minHeight: "60%" }}
           >
             <View className="flex-row items-center justify-between p-6 pb-4 border-b border-gray-300 dark:border-slate-800">
               <Text className="text-gray-900 dark:text-white text-xl font-bold">
@@ -1203,7 +1203,7 @@ export default function HomeScreen() {
         <View className="flex-1 bg-black/70 justify-end">
           <View
             className="bg-gray-100 dark:bg-slate-900 rounded-t-3xl"
-            style={{ maxHeight: "90%" }}
+            style={{ maxHeight: "90%", minHeight: "60%" }}
           >
             <View className="flex-row items-center justify-between p-6 pb-4 border-b border-gray-300 dark:border-slate-800">
               <Text className="text-gray-900 dark:text-white text-xl font-bold">
@@ -2355,7 +2355,7 @@ export default function HomeScreen() {
       {/* Scenario Planning Modal */}
       <Modal visible={showScenarioPlanningModal} transparent animationType="slide" onRequestClose={() => setShowScenarioPlanningModal(false)}>
         <View className="flex-1 bg-black/70 justify-end">
-          <View className="bg-gray-100 dark:bg-slate-900 rounded-t-3xl" style={{ maxHeight: "90%" }}>
+          <View className="bg-gray-100 dark:bg-slate-900 rounded-t-3xl" style={{ maxHeight: "90%", minHeight: "60%" }}>
             <View className="flex-row items-center justify-between p-6 pb-4 border-b border-gray-300 dark:border-slate-800">
               <View className="flex-row items-center gap-2">
                 <Sparkles size={24} color="#3b82f6" />

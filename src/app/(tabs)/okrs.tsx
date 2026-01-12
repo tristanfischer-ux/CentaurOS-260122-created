@@ -908,7 +908,7 @@ export default function OKRsScreen() {
       <Modal visible={showSuggestTasksModal} transparent animationType="slide" onRequestClose={() => setShowSuggestTasksModal(false)}>
         <View className="flex-1 bg-black/70">
           {selectedObjectiveForTasks && (
-            <View className="mt-auto bg-gray-100 dark:bg-slate-900 rounded-t-3xl" style={{ maxHeight: '90%' }}>
+            <View className="mt-auto bg-gray-100 dark:bg-slate-900 rounded-t-3xl" style={{ maxHeight: '90%', minHeight: '60%' }}>
               <ScrollView showsVerticalScrollIndicator={true}>
                 {/* Header */}
                 <LinearGradient

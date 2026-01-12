@@ -622,7 +622,7 @@ export default function TeamScreen() {
       <Modal visible={selectedMember !== null} transparent animationType="slide" onRequestClose={() => setSelectedMember(null)}>
         <View className="flex-1 bg-black/70 justify-end">
           {selectedMember && (
-            <View className="bg-gray-100 dark:bg-slate-900 rounded-t-3xl" style={{ maxHeight: '90%' }}>
+            <View className="bg-gray-100 dark:bg-slate-900 rounded-t-3xl" style={{ maxHeight: '90%', minHeight: '60%' }}>
               {/* Fixed Header */}
               <View className="px-6 pt-6 pb-4 border-b border-gray-300 dark:border-slate-800 flex-row justify-between items-center">
                 <View className="flex-1 flex-row items-center">
@@ -826,7 +826,7 @@ export default function TeamScreen() {
       {/* Assign Task Modal */}
       <Modal visible={showTaskModal} transparent animationType="slide" onRequestClose={() => setShowTaskModal(false)}>
         <View className="flex-1 bg-black/70 justify-center px-6">
-          <View className="bg-gray-100 dark:bg-slate-900 rounded-3xl p-6" style={{ maxHeight: '90%' }}>
+          <View className="bg-gray-100 dark:bg-slate-900 rounded-3xl p-6" style={{ maxHeight: '90%', minHeight: '60%' }}>
             <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled" style={{ flex: 1 }}>
               <Text className="text-gray-900 dark:text-white text-2xl font-bold mb-1">Assign Task</Text>
               {selectedMember && (

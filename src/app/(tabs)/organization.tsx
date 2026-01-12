@@ -561,7 +561,7 @@ export default function OrganizationScreen() {
       <Modal visible={selectedMember !== null} transparent animationType="slide" onRequestClose={() => setSelectedMember(null)}>
         <View className="flex-1 bg-black/70 justify-center px-6">
           {selectedMember && (
-            <View className="bg-gray-100 dark:bg-slate-900 rounded-3xl" style={{ maxHeight: '90%' }}>
+            <View className="bg-gray-100 dark:bg-slate-900 rounded-3xl" style={{ maxHeight: '90%', minHeight: '60%' }}>
               {/* Fixed Header */}
               <View className="px-6 pt-6 pb-4 border-b border-gray-300 dark:border-slate-800 flex-row items-center justify-between">
                 <Text className="text-gray-900 dark:text-white text-xl font-bold">{selectedMember.name}</Text>
@@ -655,7 +655,7 @@ export default function OrganizationScreen() {
       <Modal visible={selectedSupplier !== null} transparent animationType="slide" onRequestClose={() => setSelectedSupplier(null)}>
         <View className="flex-1 bg-black/70 justify-end">
           {selectedSupplier && (
-            <View className="bg-gray-100 dark:bg-slate-900 rounded-t-3xl" style={{ maxHeight: '90%' }}>
+            <View className="bg-gray-100 dark:bg-slate-900 rounded-t-3xl" style={{ maxHeight: '90%', minHeight: '60%' }}>
               {/* Fixed Header */}
               <View className="px-6 pt-6 pb-4 border-b border-gray-300 dark:border-slate-800">
                 <View className="flex-row items-center justify-between mb-2">
@@ -768,7 +768,7 @@ export default function OrganizationScreen() {
       <Modal visible={selectedAI !== null} transparent animationType="slide" onRequestClose={() => setSelectedAI(null)}>
         <View className="flex-1 bg-black/70 justify-end">
           {selectedAI && (
-            <View className="bg-gray-100 dark:bg-slate-900 rounded-t-3xl" style={{ maxHeight: '90%' }}>
+            <View className="bg-gray-100 dark:bg-slate-900 rounded-t-3xl" style={{ maxHeight: '90%', minHeight: '60%' }}>
               {/* Fixed Header */}
               <View className="px-6 pt-6 pb-4 border-b border-gray-300 dark:border-slate-800">
                 <View className="flex-row items-center justify-between mb-2">

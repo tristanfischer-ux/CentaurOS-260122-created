@@ -609,7 +609,7 @@ export default function WorkScreen() {
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
             className="flex-1 justify-end"
           >
-            <View className="bg-gray-100 dark:bg-slate-900 rounded-t-3xl" style={{ maxHeight: '90%' }}>
+            <View className="bg-gray-100 dark:bg-slate-900 rounded-t-3xl" style={{ maxHeight: '90%', minHeight: '60%' }}>
               <View className="flex-row items-center justify-between p-6 pb-4 border-b border-gray-300 dark:border-slate-800">
                 <Text className="text-gray-900 dark:text-white text-xl font-bold">Edit Task</Text>
                 <Pressable onPress={() => setShowEditModal(false)}>
@@ -962,7 +962,7 @@ export default function WorkScreen() {
           keyboardVerticalOffset={0}
         >
           <View className="flex-1 bg-black/70 justify-end">
-            <View className="bg-gray-100 dark:bg-slate-900 rounded-t-3xl" style={{ maxHeight: '90%' }}>
+            <View className="bg-gray-100 dark:bg-slate-900 rounded-t-3xl" style={{ maxHeight: '90%', minHeight: '60%' }}>
               <View className="flex-row items-center justify-between px-6 pt-6 pb-4 border-b border-gray-300 dark:border-slate-800">
                 <Text className="text-gray-900 dark:text-white text-2xl font-bold">Create Task</Text>
                 <Pressable onPress={() => setShowCreateModal(false)}>

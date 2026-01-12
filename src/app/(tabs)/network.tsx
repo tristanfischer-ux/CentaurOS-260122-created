@@ -951,7 +951,7 @@ function CompaniesTab() {
       <Modal visible={selectedCompany !== null} transparent animationType="slide" onRequestClose={() => setSelectedCompany(null)}>
         <View className="flex-1 bg-black/70 justify-center px-6">
           {selectedCompany && (
-            <View className="bg-gray-100 dark:bg-slate-900 rounded-3xl p-6" style={{ maxHeight: '90%' }}>
+            <View className="bg-gray-100 dark:bg-slate-900 rounded-3xl p-6" style={{ maxHeight: '90%', minHeight: '60%' }}>
               <ScrollView showsVerticalScrollIndicator={false}>
                 <View className="flex-row items-center justify-between mb-4">
                   <Text className="text-gray-900 dark:text-white text-xl font-bold">{selectedCompany.name}</Text>
@@ -1503,7 +1503,7 @@ function HiringTab() {
       <Modal visible={selectedCandidate !== null} transparent animationType="slide" onRequestClose={() => setSelectedCandidate(null)}>
         <View className="flex-1 bg-black/70 justify-end">
           {selectedCandidate && (
-            <View className="bg-gray-100 dark:bg-slate-900 rounded-t-3xl" style={{ maxHeight: '90%' }}>
+            <View className="bg-gray-100 dark:bg-slate-900 rounded-t-3xl" style={{ maxHeight: '90%', minHeight: '60%' }}>
               {/* Fixed Header */}
               <View className="px-6 pt-6 pb-4 border-b border-gray-300 dark:border-slate-800 flex-row justify-between items-center">
                 <View className="flex-1 flex-row items-center">
@@ -2019,7 +2019,7 @@ function AIAgentsTab({ selectedAgent, setSelectedAgent, onboardingAgent, setOnbo
       <Modal visible={selectedAgent !== null} transparent animationType="slide">
         <View className="flex-1 bg-black/70 justify-end">
           {selectedAgent && (
-            <View className="bg-gray-100 dark:bg-slate-900 rounded-t-3xl" style={{ maxHeight: '90%' }}>
+            <View className="bg-gray-100 dark:bg-slate-900 rounded-t-3xl" style={{ maxHeight: '90%', minHeight: '60%' }}>
               <View className="flex-row items-center justify-between p-6 pb-4 border-b border-gray-300 dark:border-slate-800">
                 <Text className="text-gray-900 dark:text-white text-xl font-bold">AI Agent Details</Text>
                 <Pressable onPress={() => setSelectedAgent(null)}>
