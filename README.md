@@ -168,6 +168,16 @@ Centaur OS turns OKRs into work, tracks execution, enables review workflows, and
   - **RSVP Management**: Join or leave events with real-time attendee tracking
 - **Weekly Pack Generator** - One-click generation of status reports with OKR progress
 - **Templates Library** - Pre-built task templates by function (Finance, Sales, Marketing, Ops, Engineering)
+- **Data Management (Founder-Only)** - Bulk import and export with Google Sheets integration
+  - **Google Sheets Sync**: Two-way synchronization with Google Sheets for automatic data updates
+  - **CSV Import/Export**: Import and export all data types as CSV files
+  - **Supported Data Types**: Tasks, OKRs, Team Members, Suppliers, AI Agents, Financial Data
+  - **Template Downloads**: Download CSV templates with correct format for each data type
+  - **Bulk Operations**: Import hundreds of records at once instead of manual entry
+  - **Excel Compatible**: Works with Microsoft Excel, Google Sheets, and any CSV editor
+  - **Automatic Sync**: Google Sheets sync runs automatically every hour
+  - **Format Guidance**: Built-in tips for date formats, required fields, and data validation
+  - **Update Existing Data**: Use IDs to update existing records during import
 - **Dark/Light Mode** - Full theme support with system preference option
 - **About Section** - Comprehensive in-app documentation explaining Centaur OS features
   - **What is Centaur OS**: Overview of the operating system for lean hardware startups
