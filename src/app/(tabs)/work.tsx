@@ -276,7 +276,7 @@ export default function WorkScreen() {
           </View>
           <Pressable
             onPress={() => setShowCreateModal(true)}
-            className="bg-blue-500 rounded-xl px-4 py-2 active:opacity-80"
+            className="bg-blue-500 rounded-xl px-4 py-2 active:opacity-70"
           >
             <Plus size={20} color="white" />
           </Pressable>
@@ -546,7 +546,7 @@ export default function WorkScreen() {
 
       {/* Edit Task Modal */}
       <Modal visible={showEditModal} transparent animationType="slide">
-        <View className="flex-1 bg-black/50 justify-end">
+        <View className="flex-1 bg-black/70 justify-end">
           <KeyboardAvoidingView
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
             className="flex-1 justify-end"
@@ -769,7 +769,7 @@ export default function WorkScreen() {
                         className={`rounded-xl py-4 items-center ${
                           updateTaskMutation.isPending || !editTitle.trim()
                             ? 'bg-slate-700'
-                            : 'bg-blue-500 active:opacity-80'
+                            : 'bg-blue-500 active:opacity-70'
                         }`}
                       >
                         <Text className="text-white font-bold text-base">
@@ -780,7 +780,7 @@ export default function WorkScreen() {
                       {selectedTask && (currentMembership?.role === 'Founder' || currentMembership?.role === 'FractionalExec') && (
                         <Pressable
                           onPress={() => handleDeleteTask(selectedTask)}
-                          className="rounded-xl py-4 items-center bg-red-500/10 border border-red-500/30 active:opacity-80"
+                          className="rounded-xl py-4 items-center bg-red-500/10 border border-red-500/30 active:opacity-70"
                         >
                           <View className="flex-row items-center gap-2">
                             <Trash2 size={18} color="#ef4444" />
@@ -801,7 +801,7 @@ export default function WorkScreen() {
 
       {/* Assign Task Modal */}
       <Modal visible={showAssignModal} transparent animationType="slide">
-        <View className="flex-1 bg-black/50 justify-end">
+        <View className="flex-1 bg-black/70 justify-end">
           <View className="bg-slate-900 rounded-t-3xl p-6">
             <View className="flex-row items-center justify-between mb-4">
               <Text className="text-white text-xl font-bold">Assign Task</Text>
@@ -886,7 +886,7 @@ export default function WorkScreen() {
 
                 <Pressable
                   onPress={() => setShowAssignModal(false)}
-                  className="bg-slate-800 rounded-xl py-3 items-center active:opacity-80"
+                  className="bg-slate-800 rounded-xl py-3 items-center active:opacity-70"
                 >
                   <Text className="text-slate-400 font-semibold">Cancel</Text>
                 </Pressable>
@@ -903,7 +903,7 @@ export default function WorkScreen() {
           className="flex-1"
           keyboardVerticalOffset={0}
         >
-          <View className="flex-1 bg-black/50 justify-end">
+          <View className="flex-1 bg-black/70 justify-end">
             <View className="bg-slate-900 rounded-t-3xl p-6" style={{ maxHeight: '90%' }}>
               <View className="flex-row items-center justify-between mb-6">
                 <Text className="text-white text-2xl font-bold">Create Task</Text>
@@ -940,7 +940,7 @@ export default function WorkScreen() {
                               setShowCreateModal(false);
                               router.push('/(tabs)/okrs');
                             }}
-                            className="bg-amber-500 rounded-lg py-2 px-3 active:opacity-80"
+                            className="bg-amber-500 rounded-lg py-2 px-3 active:opacity-70"
                           >
                             <Text className="text-white text-xs font-semibold text-center">Create Objectives First</Text>
                           </Pressable>
@@ -1125,7 +1125,7 @@ export default function WorkScreen() {
                       !newTaskTitle.trim() || createTaskMutation.isPending
                         ? 'bg-slate-700'
                         : 'bg-blue-500'
-                    } active:opacity-80`}
+                    } active:opacity-70`}
                   >
                     {createTaskMutation.isPending ? (
                       <ActivityIndicator size="small" color="#fff" />
@@ -1136,7 +1136,7 @@ export default function WorkScreen() {
 
                   <Pressable
                     onPress={() => setShowCreateModal(false)}
-                    className="bg-slate-800 rounded-xl py-3 items-center active:opacity-80"
+                    className="bg-slate-800 rounded-xl py-3 items-center active:opacity-70"
                   >
                     <Text className="text-slate-400 font-semibold">Cancel</Text>
                   </Pressable>

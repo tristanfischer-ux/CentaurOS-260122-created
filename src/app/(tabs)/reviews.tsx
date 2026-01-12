@@ -201,7 +201,7 @@ export default function ReviewsScreen() {
 
       {/* Review Modal */}
       <Modal visible={showReviewModal} transparent animationType="slide">
-        <View className="flex-1 bg-black/50 justify-end">
+        <View className="flex-1 bg-black/70 justify-end">
           <View className="bg-slate-900 rounded-t-3xl p-6">
             <View className="flex-row items-center justify-between mb-4">
               <Text className="text-white text-xl font-bold">Review Task</Text>
@@ -240,7 +240,7 @@ export default function ReviewsScreen() {
                   <Pressable
                     onPress={() => handleSubmitReview('approved')}
                     disabled={submitReviewMutation.isPending}
-                    className="bg-green-500 rounded-xl py-4 flex-row items-center justify-center active:opacity-80"
+                    className="bg-green-500 rounded-xl py-4 flex-row items-center justify-center active:opacity-70"
                   >
                     <ThumbsUp size={20} color="white" />
                     <Text className="text-white font-bold ml-2 text-base">Approve</Text>
@@ -249,7 +249,7 @@ export default function ReviewsScreen() {
                   <Pressable
                     onPress={() => handleSubmitReview('changes_requested')}
                     disabled={submitReviewMutation.isPending}
-                    className="bg-red-500 rounded-xl py-4 flex-row items-center justify-center active:opacity-80"
+                    className="bg-red-500 rounded-xl py-4 flex-row items-center justify-center active:opacity-70"
                   >
                     <XCircle size={20} color="white" />
                     <Text className="text-white font-bold ml-2 text-base">Request Changes</Text>
@@ -257,7 +257,7 @@ export default function ReviewsScreen() {
 
                   <Pressable
                     onPress={() => setShowReviewModal(false)}
-                    className="bg-slate-800 rounded-xl py-3 items-center active:opacity-80"
+                    className="bg-slate-800 rounded-xl py-3 items-center active:opacity-70"
                   >
                     <Text className="text-slate-400 font-semibold">Cancel</Text>
                   </Pressable>

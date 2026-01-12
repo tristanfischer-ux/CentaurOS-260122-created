@@ -368,7 +368,7 @@ export default function EventsScreen() {
           {canCreateEvent && (
             <Pressable
               onPress={() => setShowCreateModal(true)}
-              className="bg-blue-500 px-4 py-2 rounded-xl flex-row items-center active:opacity-80"
+              className="bg-blue-500 px-4 py-2 rounded-xl flex-row items-center active:opacity-70"
             >
               <Plus size={16} color="white" />
               <Text className="text-white text-sm font-semibold ml-2">Create Event</Text>
@@ -520,7 +520,7 @@ export default function EventsScreen() {
 
           {filteredEvents.length === 0 && (
             <View className="bg-slate-900 rounded-2xl p-8 border border-slate-800 items-center">
-              <Calendar size={48} color="#475569" />
+              <Calendar size={64} color="#475569" />
               <Text className="text-slate-400 text-center mt-4">
                 {filterType === 'joined' ? 'You haven\'t joined any events yet' : 'No events found'}
               </Text>
@@ -762,7 +762,7 @@ export default function EventsScreen() {
                       isUserJoined(selectedEvent)
                         ? 'bg-slate-800 border border-slate-700'
                         : 'bg-blue-500'
-                    } active:opacity-80`}
+                    } active:opacity-70`}
                   >
                     {isUserJoined(selectedEvent) ? (
                       <>
@@ -786,10 +786,10 @@ export default function EventsScreen() {
       </Modal>
 
       {/* Member Detail Modal (from invited list) */}
-      <Modal visible={selectedMemberFromEvent !== null} transparent animationType="fade">
+      <Modal visible={selectedMemberFromEvent !== null} transparent animationType="slide">
         <View className="flex-1 bg-black/70 justify-center px-6">
           {selectedMemberFromEvent && (
-            <View className="bg-slate-900 rounded-3xl p-6" style={{ maxHeight: '80%' }}>
+            <View className="bg-slate-900 rounded-3xl p-6" style={{ maxHeight: '90%' }}>
               <ScrollView showsVerticalScrollIndicator={false}>
                 <View className="flex-row items-center justify-between mb-4">
                   <Text className="text-white text-xl font-bold">{selectedMemberFromEvent.name}</Text>
@@ -820,7 +820,7 @@ export default function EventsScreen() {
                 <View className="gap-3">
                   <Pressable
                     onPress={() => Linking.openURL(`mailto:${selectedMemberFromEvent.email}`)}
-                    className="bg-blue-500 py-3 rounded-xl flex-row items-center justify-center gap-2 active:opacity-80"
+                    className="bg-blue-500 py-3 rounded-xl flex-row items-center justify-center gap-2 active:opacity-70"
                   >
                     <Mail size={18} color="#fff" />
                     <Text className="text-white font-semibold">Email</Text>
@@ -828,7 +828,7 @@ export default function EventsScreen() {
                   {selectedMemberFromEvent.phone && (
                     <Pressable
                       onPress={() => Linking.openURL(`tel:${selectedMemberFromEvent.phone}`)}
-                      className="bg-emerald-500 py-3 rounded-xl flex-row items-center justify-center gap-2 active:opacity-80"
+                      className="bg-emerald-500 py-3 rounded-xl flex-row items-center justify-center gap-2 active:opacity-70"
                     >
                       <Phone size={18} color="#fff" />
                       <Text className="text-white font-semibold">Call</Text>
@@ -1159,13 +1159,13 @@ export default function EventsScreen() {
                       !newEventTitle.trim() || !newEventDescription.trim()
                         ? 'bg-slate-700'
                         : 'bg-blue-500'
-                    } active:opacity-80`}
+                    } active:opacity-70`}
                   >
                     <Text className="text-white text-center font-bold text-base">Create Event</Text>
                   </Pressable>
                   <Pressable
                     onPress={() => setShowCreateModal(false)}
-                    className="bg-slate-800 py-3 rounded-xl active:opacity-80"
+                    className="bg-slate-800 py-3 rounded-xl active:opacity-70"
                   >
                     <Text className="text-slate-400 text-center font-semibold">Cancel</Text>
                   </Pressable>

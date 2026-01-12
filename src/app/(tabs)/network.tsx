@@ -113,7 +113,7 @@ export default function NetworkScreen() {
       <View className="px-6 pt-4 pb-2">
         <Pressable
           onPress={() => router.push('/swipe')}
-          className="active:opacity-80"
+          className="active:opacity-70"
         >
           <LinearGradient
             colors={['#ec4899', '#d946ef']}
@@ -290,7 +290,7 @@ function SuppliersTab() {
       <View className="gap-4">
         {filteredSuppliers.length === 0 ? (
           <View className="bg-slate-900 rounded-2xl p-8 border border-slate-800 items-center">
-            <Search size={48} color="#64748b" />
+            <Search size={64} color="#64748b" />
             <Text className="text-white text-lg font-semibold mt-4 mb-2">
               No suppliers found
             </Text>
@@ -333,7 +333,7 @@ function SuppliersTab() {
 
               <Pressable
                 onPress={() => handleVisitWebsite(supplier.website)}
-                className="flex-row items-center justify-center bg-blue-500 rounded-xl py-2.5 active:opacity-80"
+                className="flex-row items-center justify-center bg-blue-500 rounded-xl py-2.5 active:opacity-70"
               >
                 <ExternalLink size={16} color="white" />
                 <Text className="text-white font-semibold ml-2 text-sm">Visit Website</Text>
@@ -411,10 +411,10 @@ function CompaniesTab() {
       </View>
 
       {/* Company Detail Modal */}
-      <Modal visible={selectedCompany !== null} transparent animationType="fade">
+      <Modal visible={selectedCompany !== null} transparent animationType="slide">
         <View className="flex-1 bg-black/70 justify-center px-6">
           {selectedCompany && (
-            <View className="bg-slate-900 rounded-3xl p-6" style={{ maxHeight: '80%' }}>
+            <View className="bg-slate-900 rounded-3xl p-6" style={{ maxHeight: '90%' }}>
               <ScrollView showsVerticalScrollIndicator={false}>
                 <View className="flex-row items-center justify-between mb-4">
                   <Text className="text-white text-xl font-bold">{selectedCompany.name}</Text>
@@ -459,21 +459,21 @@ function CompaniesTab() {
                 <View className="gap-3">
                   <Pressable
                     onPress={() => Linking.openURL(selectedCompany.website)}
-                    className="bg-blue-500 py-3 rounded-xl flex-row items-center justify-center gap-2 active:opacity-80"
+                    className="bg-blue-500 py-3 rounded-xl flex-row items-center justify-center gap-2 active:opacity-70"
                   >
                     <Globe size={18} color="#fff" />
                     <Text className="text-white font-semibold">Visit Website</Text>
                   </Pressable>
                   <Pressable
                     onPress={() => Linking.openURL(`mailto:${selectedCompany.email}`)}
-                    className="bg-slate-800 py-3 rounded-xl flex-row items-center justify-center gap-2 border border-slate-700 active:opacity-80"
+                    className="bg-slate-800 py-3 rounded-xl flex-row items-center justify-center gap-2 border border-slate-700 active:opacity-70"
                   >
                     <Mail size={18} color="#fff" />
                     <Text className="text-white font-semibold">Send Email</Text>
                   </Pressable>
                   <Pressable
                     onPress={() => Linking.openURL(`tel:${selectedCompany.phone}`)}
-                    className="bg-slate-800 py-3 rounded-xl flex-row items-center justify-center gap-2 border border-slate-700 active:opacity-80"
+                    className="bg-slate-800 py-3 rounded-xl flex-row items-center justify-center gap-2 border border-slate-700 active:opacity-70"
                   >
                     <Phone size={18} color="#fff" />
                     <Text className="text-white font-semibold">Call</Text>
@@ -670,7 +670,7 @@ function HiringTab() {
 
         {filteredCandidates.length === 0 && (
           <View className="items-center justify-center py-12">
-            <Users size={48} color="#475569" />
+            <Users size={64} color="#475569" />
             <Text className="text-slate-400 text-center mt-4">
               No candidates match your filters
             </Text>
@@ -849,7 +849,7 @@ function HiringTab() {
                   <View className="gap-3">
                     <Pressable
                       onPress={() => handleHireCandidate(selectedCandidate)}
-                      className="bg-blue-500 py-4 rounded-xl active:opacity-80"
+                      className="bg-blue-500 py-4 rounded-xl active:opacity-70"
                     >
                       <Text className="text-white text-center font-bold text-base">
                         Add to Team
@@ -857,7 +857,7 @@ function HiringTab() {
                     </Pressable>
                     <Pressable
                       onPress={() => setSelectedCandidate(null)}
-                      className="bg-slate-800 py-3 rounded-xl active:opacity-80"
+                      className="bg-slate-800 py-3 rounded-xl active:opacity-70"
                     >
                       <Text className="text-slate-400 text-center font-semibold">Close</Text>
                     </Pressable>
@@ -1307,7 +1307,7 @@ function AIAgentsTab({ selectedAgent, setSelectedAgent, onboardingAgent, setOnbo
                         setOnboardingAgent(selectedAgent);
                         setSelectedAgent(null);
                       }}
-                      className="bg-blue-500 py-4 rounded-xl active:opacity-80"
+                      className="bg-blue-500 py-4 rounded-xl active:opacity-70"
                     >
                       <Text className="text-white text-center font-bold text-base">
                         Onboard This Agent
@@ -1315,7 +1315,7 @@ function AIAgentsTab({ selectedAgent, setSelectedAgent, onboardingAgent, setOnbo
                     </Pressable>
                     <Pressable
                       onPress={() => setSelectedAgent(null)}
-                      className="bg-slate-800 py-3 rounded-xl active:opacity-80"
+                      className="bg-slate-800 py-3 rounded-xl active:opacity-70"
                     >
                       <Text className="text-slate-400 text-center font-semibold">Close</Text>
                     </Pressable>
@@ -1328,7 +1328,7 @@ function AIAgentsTab({ selectedAgent, setSelectedAgent, onboardingAgent, setOnbo
       </Modal>
 
       {/* Onboarding Modal */}
-      <Modal visible={onboardingAgent !== null} transparent animationType="fade">
+      <Modal visible={onboardingAgent !== null} transparent animationType="slide">
         <View className="flex-1 bg-black/70 justify-center px-6">
           {onboardingAgent && (
             <View className="bg-slate-900 rounded-3xl p-6">
@@ -1372,7 +1372,7 @@ function AIAgentsTab({ selectedAgent, setSelectedAgent, onboardingAgent, setOnbo
                   disabled={!monthlyCost.trim()}
                   className={`py-4 rounded-xl ${
                     !monthlyCost.trim() ? 'bg-slate-700' : 'bg-blue-500'
-                  } active:opacity-80`}
+                  } active:opacity-70`}
                 >
                   <Text className="text-white text-center font-bold text-base">
                     Confirm Onboarding
@@ -1383,7 +1383,7 @@ function AIAgentsTab({ selectedAgent, setSelectedAgent, onboardingAgent, setOnbo
                     setOnboardingAgent(null);
                     setMonthlyCost('');
                   }}
-                  className="bg-slate-800 py-3 rounded-xl active:opacity-80"
+                  className="bg-slate-800 py-3 rounded-xl active:opacity-70"
                 >
                   <Text className="text-slate-400 text-center font-semibold">Cancel</Text>
                 </Pressable>

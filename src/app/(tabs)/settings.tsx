@@ -187,7 +187,7 @@ export default function SettingsScreen() {
         {/* Reports */}
         <Pressable
           onPress={() => router.push('/reports')}
-          className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-4 mb-4 flex-row items-center justify-between active:opacity-80"
+          className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-4 mb-4 flex-row items-center justify-between active:opacity-70"
         >
           <View className="flex-row items-center">
             <FileText size={20} color="#10b981" />
@@ -200,7 +200,7 @@ export default function SettingsScreen() {
         {currentMembership?.role === 'Founder' && (
           <Pressable
             onPress={() => setShowDataManagement(true)}
-            className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-4 mb-4 border-2 border-blue-500/30 active:opacity-80"
+            className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-4 mb-4 border-2 border-blue-500/30 active:opacity-70"
           >
             <View className="flex-row items-center justify-between">
               <View className="flex-row items-center flex-1">
@@ -222,7 +222,7 @@ export default function SettingsScreen() {
         {/* About */}
         <Pressable
           onPress={() => setShowAbout(true)}
-          className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-4 mb-4 flex-row items-center justify-between active:opacity-80"
+          className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-4 mb-4 flex-row items-center justify-between active:opacity-70"
         >
           <View className="flex-row items-center">
             <Info size={20} color="#3b82f6" />
@@ -233,7 +233,7 @@ export default function SettingsScreen() {
 
         <Pressable
           onPress={handleLogout}
-          className="bg-red-500/10 border border-red-500/30 rounded-2xl p-4 flex-row items-center active:opacity-80"
+          className="bg-red-500/10 border border-red-500/30 rounded-2xl p-4 flex-row items-center active:opacity-70"
         >
           <LogOut size={20} color="#ef4444" />
           <Text className="text-red-500 font-semibold ml-3">Sign Out</Text>
@@ -242,7 +242,7 @@ export default function SettingsScreen() {
 
       {/* About Modal */}
       <Modal visible={showAbout} transparent animationType="slide">
-        <View className="flex-1 bg-black/50 justify-end">
+        <View className="flex-1 bg-black/70 justify-end">
           <View className="bg-white dark:bg-slate-900 rounded-t-3xl" style={{ maxHeight: '90%' }}>
             <View className="p-6 border-b border-gray-200 dark:border-slate-800">
               <View className="flex-row items-center justify-between">

@@ -66,7 +66,7 @@ export default function OKRsScreen() {
         </Text>
         <Pressable
           onPress={() => setShowCreateModal(true)}
-          className="bg-blue-500 rounded-xl px-6 py-3 active:opacity-80"
+          className="bg-blue-500 rounded-xl px-6 py-3 active:opacity-70"
         >
           <Text className="text-white font-semibold">Create Objective</Text>
         </Pressable>
@@ -307,14 +307,14 @@ export default function OKRsScreen() {
           <View className="flex-row gap-2">
             <Pressable
               onPress={handleExportOKRs}
-              className="bg-slate-800 rounded-xl px-4 py-2 active:opacity-80"
+              className="bg-slate-800 rounded-xl px-4 py-2 active:opacity-70"
             >
               <Download size={20} color="#94a3b8" />
             </Pressable>
             {currentMembership?.role === 'Founder' && (
               <Pressable
                 onPress={() => setShowCreateModal(true)}
-                className="bg-blue-500 rounded-xl px-4 py-2 active:opacity-80"
+                className="bg-blue-500 rounded-xl px-4 py-2 active:opacity-70"
               >
                 <Plus size={20} color="white" />
               </Pressable>
@@ -571,7 +571,7 @@ export default function OKRsScreen() {
     {/* Modals - Outside ScrollView */}
     {/* Update KR Modal */}
     <Modal visible={showEditKRModal} transparent animationType="slide">
-        <View className="flex-1 bg-black/50 justify-end">
+        <View className="flex-1 bg-black/70 justify-end">
           <View className="bg-slate-900 rounded-t-3xl p-6">
             <View className="flex-row items-center justify-between mb-4">
               <Text className="text-white text-xl font-bold">Update Key Result</Text>
@@ -605,13 +605,13 @@ export default function OKRsScreen() {
                 <View className="flex-row gap-3">
                   <Pressable
                     onPress={() => setShowEditKRModal(false)}
-                    className="flex-1 bg-slate-800 rounded-xl py-3 items-center active:opacity-80"
+                    className="flex-1 bg-slate-800 rounded-xl py-3 items-center active:opacity-70"
                   >
                     <Text className="text-slate-400 font-semibold">Cancel</Text>
                   </Pressable>
                   <Pressable
                     onPress={handleUpdateKR}
-                    className="flex-1 bg-blue-500 rounded-xl py-3 items-center active:opacity-80"
+                    className="flex-1 bg-blue-500 rounded-xl py-3 items-center active:opacity-70"
                   >
                     <Text className="text-white font-semibold">Update</Text>
                   </Pressable>
@@ -628,7 +628,7 @@ export default function OKRsScreen() {
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
           className="flex-1"
         >
-          <View className="flex-1 bg-black/50 justify-end">
+          <View className="flex-1 bg-black/70 justify-end">
             <View className="bg-slate-900 rounded-t-3xl p-6">
               <View className="flex-row items-center justify-between mb-6">
                 <Text className="text-white text-xl font-bold">Create Objective</Text>
@@ -710,14 +710,14 @@ export default function OKRsScreen() {
               <View className="flex-row gap-3">
                 <Pressable
                   onPress={() => setShowCreateModal(false)}
-                  className="flex-1 bg-slate-800 rounded-xl py-3 items-center active:opacity-80"
+                  className="flex-1 bg-slate-800 rounded-xl py-3 items-center active:opacity-70"
                   disabled={isCreating}
                 >
                   <Text className="text-slate-400 font-semibold">Cancel</Text>
                 </Pressable>
                 <Pressable
                   onPress={handleCreateObjective}
-                  className="flex-1 bg-blue-500 rounded-xl py-3 items-center active:opacity-80"
+                  className="flex-1 bg-blue-500 rounded-xl py-3 items-center active:opacity-70"
                   disabled={isCreating || !newObjectiveTitle.trim()}
                 >
                   {isCreating ? (
@@ -738,7 +738,7 @@ export default function OKRsScreen() {
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
           className="flex-1"
         >
-          <View className="flex-1 bg-black/50 justify-end">
+          <View className="flex-1 bg-black/70 justify-end">
             <View className="bg-slate-900 rounded-t-3xl p-6">
               <View className="flex-row items-center justify-between mb-6">
                 <Text className="text-white text-xl font-bold">Edit Objective</Text>
@@ -801,14 +801,14 @@ export default function OKRsScreen() {
               <View className="flex-row gap-3">
                 <Pressable
                   onPress={() => setShowEditObjectiveModal(false)}
-                  className="flex-1 bg-slate-800 rounded-xl py-3 items-center active:opacity-80"
+                  className="flex-1 bg-slate-800 rounded-xl py-3 items-center active:opacity-70"
                   disabled={isEditing}
                 >
                   <Text className="text-slate-400 font-semibold">Cancel</Text>
                 </Pressable>
                 <Pressable
                   onPress={handleEditObjective}
-                  className="flex-1 bg-blue-500 rounded-xl py-3 items-center active:opacity-80"
+                  className="flex-1 bg-blue-500 rounded-xl py-3 items-center active:opacity-70"
                   disabled={isEditing || !editObjectiveTitle.trim()}
                 >
                   {isEditing ? (
@@ -825,7 +825,7 @@ export default function OKRsScreen() {
 
       {/* Suggest Tasks Modal */}
       <Modal visible={showSuggestTasksModal} transparent animationType="slide">
-        <View className="flex-1 bg-black/90">
+        <View className="flex-1 bg-black/70">
           {selectedObjectiveForTasks && (
             <View className="mt-auto bg-slate-900 rounded-t-3xl" style={{ maxHeight: '90%' }}>
               <ScrollView showsVerticalScrollIndicator={false}>
@@ -858,7 +858,7 @@ export default function OKRsScreen() {
                 {suggestedTasks.length === 0 ? (
                   <View className="p-6">
                     <View className="bg-slate-800 rounded-2xl p-6 items-center">
-                      <Target size={48} color="#64748b" />
+                      <Target size={64} color="#64748b" />
                       <Text className="text-white text-lg font-bold mt-4 mb-2">No Specific Suggestions Yet</Text>
                       <Text className="text-slate-400 text-center text-sm">
                         Try adding keywords like "revenue", "customer acquisition", "product market fit", "hire team", or "fundraising" to your objective title.
@@ -1032,14 +1032,14 @@ export default function OKRsScreen() {
                     <View className="flex-row gap-3">
                       <Pressable
                         onPress={() => setShowSuggestTasksModal(false)}
-                        className="flex-1 bg-slate-800 rounded-xl py-4 items-center active:opacity-80"
+                        className="flex-1 bg-slate-800 rounded-xl py-4 items-center active:opacity-70"
                         disabled={isCreatingTasks}
                       >
                         <Text className="text-slate-400 font-semibold">Cancel</Text>
                       </Pressable>
                       <Pressable
                         onPress={handleCreateSuggestedTasks}
-                        className="flex-[2] bg-blue-500 rounded-xl py-4 items-center active:opacity-80"
+                        className="flex-[2] bg-blue-500 rounded-xl py-4 items-center active:opacity-70"
                         disabled={isCreatingTasks || selectedTaskIds.size === 0}
                       >
                         {isCreatingTasks ? (

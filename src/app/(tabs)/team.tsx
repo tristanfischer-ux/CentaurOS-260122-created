@@ -413,7 +413,7 @@ export default function TeamScreen() {
             {(currentMembership?.role === 'Founder' || currentMembership?.role === 'FractionalExec') && (
               <Pressable
                 onPress={() => router.push('/learning')}
-                className="bg-emerald-500 px-4 py-2 rounded-xl flex-row items-center active:opacity-80"
+                className="bg-emerald-500 px-4 py-2 rounded-xl flex-row items-center active:opacity-70"
               >
                 <GraduationCap size={16} color="white" />
                 <Text className="text-white text-sm font-semibold ml-2">Learning</Text>
@@ -423,7 +423,7 @@ export default function TeamScreen() {
             {/* Org Chart Button */}
             <Pressable
               onPress={() => router.push('/org-diagram')}
-              className="bg-blue-500 px-4 py-2 rounded-xl flex-row items-center active:opacity-80"
+              className="bg-blue-500 px-4 py-2 rounded-xl flex-row items-center active:opacity-70"
             >
               <Network size={16} color="white" />
               <Text className="text-white text-sm font-semibold ml-2">Org Chart</Text>
@@ -729,7 +729,7 @@ export default function TeamScreen() {
                       onPress={() => {
                         setShowTaskModal(true);
                       }}
-                      className="bg-blue-500 py-4 rounded-xl flex-row items-center justify-center active:opacity-80"
+                      className="bg-blue-500 py-4 rounded-xl flex-row items-center justify-center active:opacity-70"
                     >
                       <Plus size={20} color="white" />
                       <Text className="text-white font-bold text-base ml-2">
@@ -740,7 +740,7 @@ export default function TeamScreen() {
 
                   <Pressable
                     onPress={() => setSelectedMember(null)}
-                    className="bg-slate-800 py-3 rounded-xl active:opacity-80"
+                    className="bg-slate-800 py-3 rounded-xl active:opacity-70"
                   >
                     <Text className="text-slate-400 text-center font-semibold">Close</Text>
                   </Pressable>
@@ -752,9 +752,9 @@ export default function TeamScreen() {
       </Modal>
 
       {/* Assign Task Modal */}
-      <Modal visible={showTaskModal} transparent animationType="fade">
+      <Modal visible={showTaskModal} transparent animationType="slide">
         <View className="flex-1 bg-black/70 justify-center px-6">
-          <View className="bg-slate-900 rounded-3xl p-6" style={{ maxHeight: '80%' }}>
+          <View className="bg-slate-900 rounded-3xl p-6" style={{ maxHeight: '90%' }}>
             <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled" style={{ flex: 1 }}>
               <Text className="text-white text-2xl font-bold mb-1">Assign Task</Text>
               {selectedMember && (
@@ -849,7 +849,7 @@ export default function TeamScreen() {
                     !taskTitle.trim() || createTaskMutation.isPending
                       ? 'bg-slate-700'
                       : 'bg-blue-500'
-                  } active:opacity-80`}
+                  } active:opacity-70`}
                 >
                   <Text className="text-white text-center font-bold text-base">
                     {createTaskMutation.isPending ? 'Assigning...' : 'Assign Task'}
@@ -861,7 +861,7 @@ export default function TeamScreen() {
                     setTaskTitle('');
                     setTaskDescription('');
                   }}
-                  className="bg-slate-800 py-3 rounded-xl active:opacity-80"
+                  className="bg-slate-800 py-3 rounded-xl active:opacity-70"
                 >
                   <Text className="text-slate-400 text-center font-semibold">Cancel</Text>
                 </Pressable>

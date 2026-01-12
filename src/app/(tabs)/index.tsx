@@ -473,7 +473,7 @@ export default function HomeScreen() {
             {/* Weekly Report Card */}
             <Pressable
               onPress={() => router.push("/reports?period=week")}
-              className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-2xl p-4 active:opacity-80"
+              className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-2xl p-4 active:opacity-70"
             >
               <LinearGradient
                 colors={["#2563eb", "#1d4ed8"]}
@@ -501,7 +501,7 @@ export default function HomeScreen() {
             <View className="flex-row gap-3">
               <Pressable
                 onPress={() => router.push("/reports?period=month")}
-                className="flex-1 bg-slate-900 rounded-2xl p-4 border border-slate-800 active:opacity-80"
+                className="flex-1 bg-slate-900 rounded-2xl p-4 border border-slate-800 active:opacity-70"
               >
                 <BarChart3 size={24} color="#10b981" />
                 <Text className="text-white font-semibold mt-2 mb-1">
@@ -512,7 +512,7 @@ export default function HomeScreen() {
 
               <Pressable
                 onPress={() => router.push("/reports?period=quarter")}
-                className="flex-1 bg-slate-900 rounded-2xl p-4 border border-slate-800 active:opacity-80"
+                className="flex-1 bg-slate-900 rounded-2xl p-4 border border-slate-800 active:opacity-70"
               >
                 <PieChart size={24} color="#f59e0b" />
                 <Text className="text-white font-semibold mt-2 mb-1">
@@ -528,7 +528,7 @@ export default function HomeScreen() {
                 onPress={() =>
                   router.push("/reports?period=month&export=boardpack")
                 }
-                className="bg-slate-900 rounded-2xl p-4 border border-emerald-800 active:opacity-80"
+                className="bg-slate-900 rounded-2xl p-4 border border-emerald-800 active:opacity-70"
               >
                 <View className="flex-row items-center justify-between">
                   <View className="flex-1">
@@ -723,7 +723,7 @@ export default function HomeScreen() {
           <View className="gap-3">
             <Pressable
               onPress={() => router.push("/(tabs)/okrs")}
-              className="bg-gradient-to-r from-blue-600 to-blue-500 rounded-2xl p-4 flex-row items-center justify-between active:opacity-80"
+              className="bg-gradient-to-r from-blue-600 to-blue-500 rounded-2xl p-4 flex-row items-center justify-between active:opacity-70"
             >
               <LinearGradient
                 colors={["#2563eb", "#3b82f6"]}
@@ -747,7 +747,7 @@ export default function HomeScreen() {
 
             <Pressable
               onPress={() => router.push("/(tabs)/work")}
-              className="bg-gradient-to-r from-purple-600 to-purple-500 rounded-2xl p-4 flex-row items-center justify-between active:opacity-80"
+              className="bg-gradient-to-r from-purple-600 to-purple-500 rounded-2xl p-4 flex-row items-center justify-between active:opacity-70"
             >
               <LinearGradient
                 colors={["#7c3aed", "#8b5cf6"]}
@@ -774,7 +774,7 @@ export default function HomeScreen() {
 
       {/* Budget Setting Modal */}
       <Modal visible={showBudgetModal} transparent animationType="slide">
-        <View className="flex-1 bg-black/50 justify-end">
+        <View className="flex-1 bg-black/70 justify-end">
           <View
             className="bg-slate-900 rounded-t-3xl"
             style={{ maxHeight: "90%" }}
@@ -939,7 +939,7 @@ export default function HomeScreen() {
                     "Budget targets updated successfully!",
                   );
                 }}
-                className="active:opacity-80"
+                className="active:opacity-70"
               >
                 <LinearGradient
                   colors={["#2563eb", "#3b82f6"]}
@@ -963,7 +963,7 @@ export default function HomeScreen() {
 
       {/* Financial Details Modal */}
       <Modal visible={showDetailsModal} transparent animationType="slide">
-        <View className="flex-1 bg-black/50 justify-end">
+        <View className="flex-1 bg-black/70 justify-end">
           <View
             className="bg-slate-900 rounded-t-3xl"
             style={{ maxHeight: "90%" }}
@@ -2006,7 +2006,7 @@ export default function HomeScreen() {
 
       {/* Scenario Planning Modal */}
       <Modal visible={showScenarioPlanningModal} transparent animationType="slide">
-        <View className="flex-1 bg-black/50 justify-end">
+        <View className="flex-1 bg-black/70 justify-end">
           <View className="bg-slate-900 rounded-t-3xl" style={{ maxHeight: "90%" }}>
             <View className="flex-row items-center justify-between p-6 pb-4 border-b border-slate-800">
               <View className="flex-row items-center gap-2">

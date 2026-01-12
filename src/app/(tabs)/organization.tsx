@@ -211,7 +211,7 @@ export default function OrganizationScreen() {
               <View key={founder.id} className="mb-4">
                 <Pressable
                   onPress={() => setSelectedMember(founder)}
-                  className="bg-gradient-to-r from-purple-900/40 to-purple-800/40 rounded-2xl p-4 border border-purple-700/50 mb-2 active:opacity-80"
+                  className="bg-gradient-to-r from-purple-900/40 to-purple-800/40 rounded-2xl p-4 border border-purple-700/50 mb-2 active:opacity-70"
                 >
                   <View className="flex-row items-center justify-between">
                     <View className="flex-1">
@@ -239,7 +239,7 @@ export default function OrganizationScreen() {
                         <View className="bg-slate-900 rounded-xl p-3 border border-slate-800 mb-2">
                           <Pressable
                             onPress={() => toggleExecExpansion(exec.id)}
-                            className="active:opacity-80"
+                            className="active:opacity-70"
                           >
                             <View className="flex-row items-center justify-between">
                               <Pressable
@@ -279,7 +279,7 @@ export default function OrganizationScreen() {
 
                                 <Pressable
                                   onPress={() => setSelectedMember(apprentice)}
-                                  className="flex-1 bg-slate-800 rounded-lg p-3 border border-slate-700 active:opacity-80"
+                                  className="flex-1 bg-slate-800 rounded-lg p-3 border border-slate-700 active:opacity-70"
                                 >
                                   <Text className="text-white text-sm font-medium mb-0.5">
                                     {apprentice.name}
@@ -337,7 +337,7 @@ export default function OrganizationScreen() {
             {/* Map View Button */}
             <Pressable
               onPress={() => setShowMap(true)}
-              className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl p-4 mb-4 flex-row items-center justify-between active:opacity-80"
+              className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl p-4 mb-4 flex-row items-center justify-between active:opacity-70"
             >
               <View className="flex-row items-center gap-2">
                 <Map size={20} color="#fff" />
@@ -372,7 +372,7 @@ export default function OrganizationScreen() {
                 <Pressable
                   key={engagement.id}
                   onPress={() => setSelectedSupplier(engagement)}
-                  className="bg-slate-900 rounded-2xl p-4 border border-slate-800 mb-3 active:opacity-80"
+                  className="bg-slate-900 rounded-2xl p-4 border border-slate-800 mb-3 active:opacity-70"
                 >
                   <View className="flex-row items-start justify-between mb-2">
                     <View className="flex-1">
@@ -490,7 +490,7 @@ export default function OrganizationScreen() {
                 <Pressable
                   key={agent.id}
                   onPress={() => setSelectedAI(agent)}
-                  className="bg-slate-900 rounded-2xl p-4 border border-slate-800 mb-3 active:opacity-80"
+                  className="bg-slate-900 rounded-2xl p-4 border border-slate-800 mb-3 active:opacity-70"
                 >
                   <View className="flex-row items-start justify-between mb-2">
                     <View className="flex-1">
@@ -557,10 +557,10 @@ export default function OrganizationScreen() {
       </ScrollView>
 
       {/* Member Detail Modal */}
-      <Modal visible={selectedMember !== null} transparent animationType="fade">
+      <Modal visible={selectedMember !== null} transparent animationType="slide">
         <View className="flex-1 bg-black/70 justify-center px-6">
           {selectedMember && (
-            <View className="bg-slate-900 rounded-3xl p-6" style={{ maxHeight: '80%' }}>
+            <View className="bg-slate-900 rounded-3xl p-6" style={{ maxHeight: '90%' }}>
               <ScrollView showsVerticalScrollIndicator={false} style={{ flex: 1 }}>
                 <View className="flex-row items-center justify-between mb-4">
                   <Text className="text-white text-xl font-bold">{selectedMember.name}</Text>
@@ -623,7 +623,7 @@ export default function OrganizationScreen() {
                   {selectedMember.email && (
                     <Pressable
                       onPress={() => Linking.openURL(`mailto:${selectedMember.email}`)}
-                      className="bg-blue-500 py-3 rounded-xl flex-row items-center justify-center gap-2 active:opacity-80"
+                      className="bg-blue-500 py-3 rounded-xl flex-row items-center justify-center gap-2 active:opacity-70"
                     >
                       <Mail size={18} color="#fff" />
                       <Text className="text-white font-semibold">Email</Text>
@@ -632,7 +632,7 @@ export default function OrganizationScreen() {
                   {selectedMember.phone && (
                     <Pressable
                       onPress={() => Linking.openURL(`tel:${selectedMember.phone}`)}
-                      className="bg-emerald-500 py-3 rounded-xl flex-row items-center justify-center gap-2 active:opacity-80"
+                      className="bg-emerald-500 py-3 rounded-xl flex-row items-center justify-center gap-2 active:opacity-70"
                     >
                       <Phone size={18} color="#fff" />
                       <Text className="text-white font-semibold">Call</Text>
@@ -647,7 +647,7 @@ export default function OrganizationScreen() {
 
       {/* Supplier Detail Modal */}
       <Modal visible={selectedSupplier !== null} transparent animationType="slide">
-        <View className="flex-1 bg-black/50 justify-end">
+        <View className="flex-1 bg-black/70 justify-end">
           <View className="bg-slate-900 rounded-t-3xl" style={{ maxHeight: '90%' }}>
             {selectedSupplier && (
               <>
@@ -758,7 +758,7 @@ export default function OrganizationScreen() {
 
       {/* AI Agent Detail Modal */}
       <Modal visible={selectedAI !== null} transparent animationType="slide">
-        <View className="flex-1 bg-black/50 justify-end">
+        <View className="flex-1 bg-black/70 justify-end">
           <View className="bg-slate-900 rounded-t-3xl" style={{ maxHeight: '90%' }}>
             {selectedAI && (
               <>
