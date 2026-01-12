@@ -40,8 +40,8 @@ export default function MakeScreen() {
   const [selectedSupplier, setSelectedSupplier] = useState<SupplierEngagement | null>(null);
   const [selectedAI, setSelectedAI] = useState<AIAgent | null>(null);
 
-  // Only founders can view this
-  const canView = currentMembership?.role === 'Founder';
+  // All roles can view this tab (Founder, FractionalExec, Apprentice)
+  const canView = true; // Everyone has access now
 
   if (!canView) {
     return (
@@ -67,7 +67,7 @@ export default function MakeScreen() {
 
   return (
     <View className="flex-1 bg-white dark:bg-slate-950">
-      <TabDescription description="Connect with verified suppliers and manage AI tools to streamline your hardware manufacturing process." />
+      <TabDescription description="AI tools, suppliers, manufacturers, and bill of materials (BOM) tracking for your hardware product." />
 
       {/* Header with stats */}
       <View className="px-6 pt-4 pb-2">
