@@ -131,8 +131,8 @@ export default function NetworkScreen() {
 
   return (
     <View className="flex-1 bg-white dark:bg-slate-950">
-      {/* Header Buttons */}
-      <View className="px-6 pt-4 pb-2 gap-3">
+      {/* Header Button */}
+      <View className="px-6 pt-4 pb-2">
         {/* List Yourself Button */}
         <Pressable
           onPress={() => setShowListYourselfModal(true)}
@@ -154,31 +154,6 @@ export default function NetworkScreen() {
             <UserPlus size={20} color="#fff" />
             <Text className="text-white font-bold text-base">
               List Yourself in Marketplace
-            </Text>
-          </LinearGradient>
-        </Pressable>
-
-        {/* Discover Button */}
-        <Pressable
-          onPress={() => router.push('/swipe')}
-          className="active:opacity-70"
-        >
-          <LinearGradient
-            colors={['#ec4899', '#d946ef']}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 0 }}
-            style={{
-              borderRadius: 16,
-              padding: 16,
-              flexDirection: 'row',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: 8,
-            }}
-          >
-            <Heart size={20} color="#fff" fill="#fff" />
-            <Text className="text-white font-bold text-base">
-              Discover People, AI & Suppliers
             </Text>
           </LinearGradient>
         </Pressable>
