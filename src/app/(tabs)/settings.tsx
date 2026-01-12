@@ -161,12 +161,21 @@ export default function SettingsScreen() {
   ];
 
   return (
-    <ScrollView className="flex-1 bg-white dark:bg-slate-950" style={{ paddingTop: insets.top }}>
-      <TabDescription description="Manage your account preferences, theme settings, workspace controls, and app information." />
+    <View className="flex-1 bg-white dark:bg-slate-950" style={{ paddingTop: insets.top }}>
+      {/* Header */}
+      <View className="px-6 py-4 border-b border-gray-300 dark:border-slate-800">
+        <View className="flex-row items-center justify-between mb-3">
+          <View className="flex-1">
+            <Text className="text-gray-900 dark:text-white text-2xl font-bold">Settings</Text>
+            <Text className="text-gray-600 dark:text-slate-400 text-sm mt-0.5">
+              Account preferences, theme, and workspace controls
+            </Text>
+          </View>
+        </View>
 
-      <View className="p-4">
-        <View className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-6 mb-4">
-          <Text className="text-gray-600 dark:text-slate-400 text-sm mb-2">Logged in as</Text>
+        {/* User Info Card */}
+        <View className="bg-gray-100 dark:bg-slate-900 rounded-xl p-4 border border-gray-300 dark:border-slate-800">
+          <Text className="text-gray-600 dark:text-slate-400 text-xs mb-1">Logged in as</Text>
           <Text className="text-gray-900 dark:text-white text-lg font-semibold">{currentUser?.name}</Text>
           <Text className="text-gray-600 dark:text-slate-400 text-sm">{currentUser?.email}</Text>
           {currentMembership && (
@@ -175,6 +184,10 @@ export default function SettingsScreen() {
             </View>
           )}
         </View>
+      </View>
+
+      <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
+        <View className="p-4">
 
         {/* Theme Selection */}
         <View className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-4 mb-4">
@@ -693,6 +706,7 @@ export default function SettingsScreen() {
           </View>
         </View>
       </Modal>
-    </ScrollView>
+      </ScrollView>
+    </View>
   );
 }
