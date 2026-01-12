@@ -1,6 +1,6 @@
 import { View, Text, ScrollView, Pressable, Linking, TextInput, Modal, Alert } from 'react-native';
 import { useState } from 'react';
-import { Building2, Users, Calendar, ExternalLink, MapPin, Package, ChevronRight, Search, X, Star, DollarSign, CalendarCheck, Award, Mail, Phone, Bot, Zap, CheckCircle, Globe, Heart } from 'lucide-react-native';
+import { Building2, Users, Calendar, ExternalLink, MapPin, Package, ChevronRight, Search, X, Star, DollarSign, CalendarCheck, Award, Mail, Phone, Bot, Zap, CheckCircle, Globe, Heart, UserPlus } from 'lucide-react-native';
 import { UK_SUPPLIERS } from '@/lib/suppliers-seed';
 import { fractionalExecutives, apprentices, type Candidate } from '@/lib/candidates-seed';
 import { AI_AGENTS, type AIAgent } from '@/lib/organization-seed';
@@ -99,6 +99,8 @@ export default function NetworkScreen() {
   const [selectedAgent, setSelectedAgent] = useState<AIAgent | null>(null);
   const [onboardingAgent, setOnboardingAgent] = useState<AIAgent | null>(null);
   const [monthlyCost, setMonthlyCost] = useState('');
+  const [showListYourselfModal, setShowListYourselfModal] = useState(false);
+  const [listingType, setListingType] = useState<'executive' | 'apprentice' | 'supplier' | null>(null);
 
   const tabs = [
     { id: 'suppliers' as NetworkTab, label: 'Suppliers', icon: Building2 },
@@ -109,8 +111,34 @@ export default function NetworkScreen() {
 
   return (
     <View className="flex-1 bg-white dark:bg-slate-950">
-      {/* Discover Button */}
-      <View className="px-6 pt-4 pb-2">
+      {/* Header Buttons */}
+      <View className="px-6 pt-4 pb-2 gap-3">
+        {/* List Yourself Button */}
+        <Pressable
+          onPress={() => setShowListYourselfModal(true)}
+          className="active:opacity-70"
+        >
+          <LinearGradient
+            colors={['#3b82f6', '#2563eb']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+            style={{
+              borderRadius: 16,
+              padding: 16,
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 8,
+            }}
+          >
+            <UserPlus size={20} color="#fff" />
+            <Text className="text-white font-bold text-base">
+              List Yourself in Marketplace
+            </Text>
+          </LinearGradient>
+        </Pressable>
+
+        {/* Discover Button */}
         <Pressable
           onPress={() => router.push('/swipe')}
           className="active:opacity-70"
@@ -174,6 +202,266 @@ export default function NetworkScreen() {
         {activeTab === 'companies' && <CompaniesTab />}
         {activeTab === 'hiring' && <HiringTab />}
       </ScrollView>
+
+      {/* List Yourself Modal */}
+      <Modal
+        visible={showListYourselfModal}
+        transparent
+        animationType="slide"
+        onRequestClose={() => {
+          setShowListYourselfModal(false);
+          setListingType(null);
+        }}
+      >
+        <View className="flex-1 bg-black/50 justify-end">
+          <View className="bg-white dark:bg-slate-900 rounded-t-3xl p-6" style={{ maxHeight: '85%' }}>
+            <View className="flex-row items-center justify-between mb-6">
+              <Text className="text-gray-900 dark:text-white text-2xl font-bold">List Yourself</Text>
+              <Pressable onPress={() => {
+                setShowListYourselfModal(false);
+                setListingType(null);
+              }}>
+                <X size={24} color="#94a3b8" />
+              </Pressable>
+            </View>
+
+            {!listingType ? (
+              <>
+                <Text className="text-gray-600 dark:text-slate-400 mb-6">
+                  Choose how you want to be listed in the marketplace:
+                </Text>
+
+                <ScrollView showsVerticalScrollIndicator={false}>
+                  {/* Fractional Executive */}
+                  <Pressable
+                    onPress={() => setListingType('executive')}
+                    className="bg-purple-500/10 border-2 border-purple-500/30 rounded-2xl p-5 mb-4 active:opacity-70"
+                  >
+                    <View className="flex-row items-center gap-3 mb-3">
+                      <View className="bg-purple-500/20 rounded-xl p-3">
+                        <Award size={28} color="#a78bfa" />
+                      </View>
+                      <View className="flex-1">
+                        <Text className="text-gray-900 dark:text-white font-bold text-lg">Fractional Executive</Text>
+                        <Text className="text-purple-500 text-sm font-semibold">Senior Leadership Role</Text>
+                      </View>
+                      <ChevronRight size={24} color="#a78bfa" />
+                    </View>
+                    <Text className="text-gray-700 dark:text-slate-300 leading-6">
+                      Offer your expertise as a fractional executive. Perfect for experienced leaders who want to advise multiple startups.
+                    </Text>
+                    <View className="mt-3 flex-row flex-wrap gap-2">
+                      <View className="bg-purple-500/20 rounded-lg px-3 py-1">
+                        <Text className="text-purple-400 text-xs">£500-2000/day</Text>
+                      </View>
+                      <View className="bg-purple-500/20 rounded-lg px-3 py-1">
+                        <Text className="text-purple-400 text-xs">Part-time</Text>
+                      </View>
+                      <View className="bg-purple-500/20 rounded-lg px-3 py-1">
+                        <Text className="text-purple-400 text-xs">Strategic</Text>
+                      </View>
+                    </View>
+                  </Pressable>
+
+                  {/* Apprentice */}
+                  <Pressable
+                    onPress={() => setListingType('apprentice')}
+                    className="bg-blue-500/10 border-2 border-blue-500/30 rounded-2xl p-5 mb-4 active:opacity-70"
+                  >
+                    <View className="flex-row items-center gap-3 mb-3">
+                      <View className="bg-blue-500/20 rounded-xl p-3">
+                        <Users size={28} color="#60a5fa" />
+                      </View>
+                      <View className="flex-1">
+                        <Text className="text-gray-900 dark:text-white font-bold text-lg">Apprentice</Text>
+                        <Text className="text-blue-500 text-sm font-semibold">Hands-on Contributor</Text>
+                      </View>
+                      <ChevronRight size={24} color="#60a5fa" />
+                    </View>
+                    <Text className="text-gray-700 dark:text-slate-300 leading-6">
+                      Join startups as an apprentice to learn and execute. Great for early-career professionals or career changers.
+                    </Text>
+                    <View className="mt-3 flex-row flex-wrap gap-2">
+                      <View className="bg-blue-500/20 rounded-lg px-3 py-1">
+                        <Text className="text-blue-400 text-xs">£25-75/day</Text>
+                      </View>
+                      <View className="bg-blue-500/20 rounded-lg px-3 py-1">
+                        <Text className="text-blue-400 text-xs">Full/Part-time</Text>
+                      </View>
+                      <View className="bg-blue-500/20 rounded-lg px-3 py-1">
+                        <Text className="text-blue-400 text-xs">Execution</Text>
+                      </View>
+                    </View>
+                  </Pressable>
+
+                  {/* Supplier */}
+                  <Pressable
+                    onPress={() => setListingType('supplier')}
+                    className="bg-emerald-500/10 border-2 border-emerald-500/30 rounded-2xl p-5 mb-4 active:opacity-70"
+                  >
+                    <View className="flex-row items-center gap-3 mb-3">
+                      <View className="bg-emerald-500/20 rounded-xl p-3">
+                        <Building2 size={28} color="#34d399" />
+                      </View>
+                      <View className="flex-1">
+                        <Text className="text-gray-900 dark:text-white font-bold text-lg">Supplier</Text>
+                        <Text className="text-emerald-500 text-sm font-semibold">Manufacturing Partner</Text>
+                      </View>
+                      <ChevronRight size={24} color="#34d399" />
+                    </View>
+                    <Text className="text-gray-700 dark:text-slate-300 leading-6">
+                      List your manufacturing or supply capabilities. Connect with hardware startups looking for reliable partners.
+                    </Text>
+                    <View className="mt-3 flex-row flex-wrap gap-2">
+                      <View className="bg-emerald-500/20 rounded-lg px-3 py-1">
+                        <Text className="text-emerald-400 text-xs">Contract-based</Text>
+                      </View>
+                      <View className="bg-emerald-500/20 rounded-lg px-3 py-1">
+                        <Text className="text-emerald-400 text-xs">B2B</Text>
+                      </View>
+                      <View className="bg-emerald-500/20 rounded-lg px-3 py-1">
+                        <Text className="text-emerald-400 text-xs">Long-term</Text>
+                      </View>
+                    </View>
+                  </Pressable>
+                </ScrollView>
+              </>
+            ) : (
+              <ScrollView showsVerticalScrollIndicator={false}>
+                <View className="mb-6">
+                  <View className={`${
+                    listingType === 'executive' ? 'bg-purple-500/10 border-purple-500/30' :
+                    listingType === 'apprentice' ? 'bg-blue-500/10 border-blue-500/30' :
+                    'bg-emerald-500/10 border-emerald-500/30'
+                  } border rounded-xl p-4 mb-6`}>
+                    <Text className={`${
+                      listingType === 'executive' ? 'text-purple-500' :
+                      listingType === 'apprentice' ? 'text-blue-500' :
+                      'text-emerald-500'
+                    } font-bold text-lg mb-1`}>
+                      {listingType === 'executive' ? 'Fractional Executive' :
+                       listingType === 'apprentice' ? 'Apprentice' : 'Supplier'} Listing
+                    </Text>
+                    <Text className="text-gray-600 dark:text-slate-400 text-sm">
+                      Complete your profile to appear in the marketplace
+                    </Text>
+                  </View>
+
+                  <View className="bg-blue-500/10 border border-blue-500/30 rounded-xl p-4 mb-6">
+                    <View className="flex-row items-start gap-3">
+                      <Zap size={20} color="#60a5fa" />
+                      <View className="flex-1">
+                        <Text className="text-blue-400 font-semibold mb-1">Coming Soon</Text>
+                        <Text className="text-gray-600 dark:text-slate-400 text-sm">
+                          This feature is currently in development. You'll be able to create your listing with a full profile form including:
+                        </Text>
+                      </View>
+                    </View>
+                  </View>
+
+                  {listingType === 'executive' && (
+                    <View className="gap-3">
+                      <View className="flex-row items-center gap-2">
+                        <CheckCircle size={18} color="#10b981" />
+                        <Text className="text-gray-700 dark:text-slate-300">Your name and professional bio</Text>
+                      </View>
+                      <View className="flex-row items-center gap-2">
+                        <CheckCircle size={18} color="#10b981" />
+                        <Text className="text-gray-700 dark:text-slate-300">Specialization (Sales, Marketing, Finance, etc.)</Text>
+                      </View>
+                      <View className="flex-row items-center gap-2">
+                        <CheckCircle size={18} color="#10b981" />
+                        <Text className="text-gray-700 dark:text-slate-300">Years of experience and previous companies</Text>
+                      </View>
+                      <View className="flex-row items-center gap-2">
+                        <CheckCircle size={18} color="#10b981" />
+                        <Text className="text-gray-700 dark:text-slate-300">Daily rate and availability</Text>
+                      </View>
+                      <View className="flex-row items-center gap-2">
+                        <CheckCircle size={18} color="#10b981" />
+                        <Text className="text-gray-700 dark:text-slate-300">Skills and certifications</Text>
+                      </View>
+                    </View>
+                  )}
+
+                  {listingType === 'apprentice' && (
+                    <View className="gap-3">
+                      <View className="flex-row items-center gap-2">
+                        <CheckCircle size={18} color="#10b981" />
+                        <Text className="text-gray-700 dark:text-slate-300">Your name and background</Text>
+                      </View>
+                      <View className="flex-row items-center gap-2">
+                        <CheckCircle size={18} color="#10b981" />
+                        <Text className="text-gray-700 dark:text-slate-300">Area of interest (Engineering, Design, etc.)</Text>
+                      </View>
+                      <View className="flex-row items-center gap-2">
+                        <CheckCircle size={18} color="#10b981" />
+                        <Text className="text-gray-700 dark:text-slate-300">Education and relevant experience</Text>
+                      </View>
+                      <View className="flex-row items-center gap-2">
+                        <CheckCircle size={18} color="#10b981" />
+                        <Text className="text-gray-700 dark:text-slate-300">Expected daily rate and availability</Text>
+                      </View>
+                      <View className="flex-row items-center gap-2">
+                        <CheckCircle size={18} color="#10b981" />
+                        <Text className="text-gray-700 dark:text-slate-300">Portfolio or GitHub link</Text>
+                      </View>
+                    </View>
+                  )}
+
+                  {listingType === 'supplier' && (
+                    <View className="gap-3">
+                      <View className="flex-row items-center gap-2">
+                        <CheckCircle size={18} color="#10b981" />
+                        <Text className="text-gray-700 dark:text-slate-300">Company name and description</Text>
+                      </View>
+                      <View className="flex-row items-center gap-2">
+                        <CheckCircle size={18} color="#10b981" />
+                        <Text className="text-gray-700 dark:text-slate-300">Manufacturing capabilities</Text>
+                      </View>
+                      <View className="flex-row items-center gap-2">
+                        <CheckCircle size={18} color="#10b981" />
+                        <Text className="text-gray-700 dark:text-slate-300">Location and certifications</Text>
+                      </View>
+                      <View className="flex-row items-center gap-2">
+                        <CheckCircle size={18} color="#10b981" />
+                        <Text className="text-gray-700 dark:text-slate-300">Minimum order quantities and lead times</Text>
+                      </View>
+                      <View className="flex-row items-center gap-2">
+                        <CheckCircle size={18} color="#10b981" />
+                        <Text className="text-gray-700 dark:text-slate-300">Contact information and pricing</Text>
+                      </View>
+                    </View>
+                  )}
+                </View>
+
+                <View className="gap-3 mt-6">
+                  <Pressable
+                    onPress={() => {
+                      Alert.alert(
+                        'Coming Soon',
+                        'Marketplace listings are currently in development. You will be notified when this feature launches!',
+                        [{ text: 'OK' }]
+                      );
+                    }}
+                    className="bg-blue-500 py-4 rounded-xl active:opacity-70"
+                  >
+                    <Text className="text-white text-center font-bold text-lg">
+                      Notify Me When Available
+                    </Text>
+                  </Pressable>
+                  <Pressable
+                    onPress={() => setListingType(null)}
+                    className="bg-gray-200 dark:bg-slate-800 py-4 rounded-xl active:opacity-70"
+                  >
+                    <Text className="text-gray-700 dark:text-slate-300 text-center font-semibold">Back</Text>
+                  </Pressable>
+                </View>
+              </ScrollView>
+            )}
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }

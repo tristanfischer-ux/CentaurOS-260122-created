@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { Tabs, router } from 'expo-router';
-import { Home, Target, Briefcase, CheckCircle, Settings, Network, Users, Building2, Calendar, Bot } from 'lucide-react-native';
+import { Home, Target, Briefcase, CheckCircle, Settings, Users, Building2, Calendar, ShoppingBasket } from 'lucide-react-native';
 import { useColorScheme } from '@/lib/useColorScheme';
 import { useIsAuthenticated, useCurrentWorkspace, useAppStore } from '@/lib/state/app-store';
 
@@ -105,22 +105,21 @@ export default function TabLayout() {
       <Tabs.Screen
         name="network"
         options={{
-          title: 'Network',
-          headerTitle: 'Network',
-          tabBarIcon: ({ color }) => <TabBarIcon Icon={Network} color={color} />,
-        }}
-      />
-      <Tabs.Screen
-        name="ai-agents"
-        options={{
-          title: 'AI Agents',
-          headerTitle: 'AI Agents',
-          tabBarIcon: ({ color }) => <TabBarIcon Icon={Bot} color={color} />,
+          title: 'Market',
+          headerTitle: 'Market',
+          tabBarIcon: ({ color }) => <TabBarIcon Icon={ShoppingBasket} color={color} />,
         }}
       />
       {/* Reviews tab removed - review functionality integrated into Work tab */}
       <Tabs.Screen
         name="reviews"
+        options={{
+          href: null, // Hide from tab bar
+        }}
+      />
+      {/* AI Agents tab removed - functionality moved to marketplace */}
+      <Tabs.Screen
+        name="ai-agents"
         options={{
           href: null, // Hide from tab bar
         }}
