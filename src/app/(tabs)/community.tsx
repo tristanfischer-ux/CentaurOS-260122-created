@@ -15,6 +15,9 @@ import {
   Star,
   Filter,
   Send,
+  Bot,
+  Calendar,
+  BookOpen,
 } from 'lucide-react-native';
 import { router } from 'expo-router';
 import { fractionalExecutives, apprentices, type Candidate } from '@/lib/candidates-seed';
@@ -22,7 +25,7 @@ import { TabDescription } from '@/components/TabDescription';
 import { useCurrentMembership } from '@/lib/state/app-store';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-type CommunityTab = 'executives' | 'apprentices' | 'suppliers' | 'apply';
+type CommunityTab = 'executives' | 'apprentices' | 'suppliers' | 'ai-agents' | 'apply';
 
 interface Supplier {
   id: string;
@@ -187,6 +190,7 @@ export default function CommunityScreen() {
     { value: 'executives', label: 'Executives', icon: Briefcase },
     { value: 'apprentices', label: 'Apprentices', icon: Award },
     { value: 'suppliers', label: 'Suppliers', icon: Factory },
+    { value: 'ai-agents', label: 'AI Agents', icon: Bot },
     { value: 'apply', label: 'Apply/Join', icon: Upload },
   ];
 
@@ -198,9 +202,31 @@ export default function CommunityScreen() {
           <View className="flex-1">
             <Text className="text-gray-900 dark:text-white text-2xl font-bold">Community</Text>
             <Text className="text-gray-600 dark:text-slate-400 text-sm mt-0.5">
-              Find executives, apprentices, suppliers, and apply to join
+              People, AI agents, suppliers, guilds, and events
             </Text>
           </View>
+        </View>
+
+        {/* Quick Action Buttons */}
+        <View className="flex-row gap-3 mb-3">
+          <Pressable
+            onPress={() => router.push('/guilds')}
+            className="flex-1 bg-purple-500 rounded-xl py-3 items-center active:opacity-80"
+          >
+            <View className="flex-row items-center">
+              <BookOpen size={18} color="#fff" />
+              <Text className="text-white font-bold ml-2">Guilds</Text>
+            </View>
+          </Pressable>
+          <Pressable
+            onPress={() => router.push('/events')}
+            className="flex-1 bg-emerald-500 rounded-xl py-3 items-center active:opacity-80"
+          >
+            <View className="flex-row items-center">
+              <Calendar size={18} color="#fff" />
+              <Text className="text-white font-bold ml-2">Events</Text>
+            </View>
+          </Pressable>
         </View>
 
         {/* Summary Stats */}
@@ -251,7 +277,7 @@ export default function CommunityScreen() {
       </View>
 
       {/* Search & Filter */}
-      {(activeTab === 'executives' || activeTab === 'apprentices' || activeTab === 'suppliers') && (
+      {(activeTab === 'executives' || activeTab === 'apprentices' || activeTab === 'suppliers' || activeTab === 'ai-agents') && (
         <View className="px-6 py-3 border-b border-gray-300 dark:border-slate-800">
           <TextInput
             className="bg-gray-100 dark:bg-slate-900 rounded-xl px-4 py-3 text-gray-900 dark:text-white text-base border border-gray-300 dark:border-slate-800"
@@ -427,6 +453,137 @@ export default function CommunityScreen() {
                 </View>
               </Pressable>
             ))}
+          </View>
+        )}
+
+        {/* AI Agents Tab */}
+        {activeTab === 'ai-agents' && (
+          <View className="px-6 pb-6">
+            <View className="bg-cyan-50 dark:bg-cyan-900/20 border border-cyan-200 dark:border-cyan-800 rounded-xl p-4 mb-4">
+              <Text className="text-cyan-900 dark:text-cyan-100 font-bold text-lg mb-2">
+                AI Agents Marketplace
+              </Text>
+              <Text className="text-cyan-800 dark:text-cyan-200 text-sm">
+                Discover AI agents to automate tasks, enhance productivity, and scale your operations. Browse by function and capability.
+              </Text>
+            </View>
+
+            {/* Quick Action Buttons */}
+            <View className="flex-row gap-3 mb-4">
+              <Pressable
+                onPress={() => router.push('/ai-agents')}
+                className="flex-1 bg-cyan-500 rounded-xl py-3 items-center active:opacity-80"
+              >
+                <View className="flex-row items-center">
+                  <Bot size={18} color="#fff" />
+                  <Text className="text-white font-bold ml-2">Browse AI Library</Text>
+                </View>
+              </Pressable>
+            </View>
+
+            {/* AI Agent Categories */}
+            <Text className="text-gray-900 dark:text-white text-base font-semibold mb-3">
+              Popular AI Agent Categories
+            </Text>
+
+            <Pressable
+              onPress={() => router.push('/ai-agents')}
+              className="bg-blue-100 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-xl p-4 mb-3 active:opacity-70"
+            >
+              <View className="flex-row items-center mb-2">
+                <Bot size={24} color="#3b82f6" />
+                <Text className="text-blue-900 dark:text-blue-100 font-bold text-base ml-3">
+                  Engineering Agents (6)
+                </Text>
+              </View>
+              <Text className="text-blue-800 dark:text-blue-200 text-sm mb-2">
+                Frontend Dev, Backend Architect, Mobile Builder, AI Engineer, DevOps, Rapid Prototyper
+              </Text>
+              <Text className="text-blue-600 dark:text-blue-400 text-xs font-semibold">
+                From £0.20 per task →
+              </Text>
+            </Pressable>
+
+            <Pressable
+              onPress={() => router.push('/ai-agents')}
+              className="bg-pink-100 dark:bg-pink-900/30 border border-pink-200 dark:border-pink-800 rounded-xl p-4 mb-3 active:opacity-70"
+            >
+              <View className="flex-row items-center mb-2">
+                <Bot size={24} color="#ec4899" />
+                <Text className="text-pink-900 dark:text-pink-100 font-bold text-base ml-3">
+                  Marketing Agents (7)
+                </Text>
+              </View>
+              <Text className="text-pink-800 dark:text-pink-200 text-sm mb-2">
+                TikTok Strategist, Instagram Curator, Twitter Engager, Reddit Builder, ASO, Content Creator, Growth Hacker
+              </Text>
+              <Text className="text-pink-600 dark:text-pink-400 text-xs font-semibold">
+                From £1.50 per task →
+              </Text>
+            </Pressable>
+
+            <Pressable
+              onPress={() => router.push('/ai-agents')}
+              className="bg-purple-100 dark:bg-purple-900/30 border border-purple-200 dark:border-purple-800 rounded-xl p-4 mb-3 active:opacity-70"
+            >
+              <View className="flex-row items-center mb-2">
+                <Bot size={24} color="#a855f7" />
+                <Text className="text-purple-900 dark:text-purple-100 font-bold text-base ml-3">
+                  Design Agents (5)
+                </Text>
+              </View>
+              <Text className="text-purple-800 dark:text-purple-200 text-sm mb-2">
+                UI Designer, UX Researcher, Brand Guardian, Visual Storyteller, Whimsy Injector
+              </Text>
+              <Text className="text-purple-600 dark:text-purple-400 text-xs font-semibold">
+                From £2.00 per task →
+              </Text>
+            </Pressable>
+
+            <Pressable
+              onPress={() => router.push('/ai-agents')}
+              className="bg-emerald-100 dark:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-800 rounded-xl p-4 mb-3 active:opacity-70"
+            >
+              <View className="flex-row items-center mb-2">
+                <Bot size={24} color="#10b981" />
+                <Text className="text-emerald-900 dark:text-emerald-100 font-bold text-base ml-3">
+                  Product Agents (3)
+                </Text>
+              </View>
+              <Text className="text-emerald-800 dark:text-emerald-200 text-sm mb-2">
+                Trend Researcher, Feedback Synthesizer, Sprint Prioritizer
+              </Text>
+              <Text className="text-emerald-600 dark:text-emerald-400 text-xs font-semibold">
+                From £1.00 per task →
+              </Text>
+            </Pressable>
+
+            <Pressable
+              onPress={() => router.push('/ai-agents')}
+              className="bg-amber-100 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-800 rounded-xl p-4 mb-3 active:opacity-70"
+            >
+              <View className="flex-row items-center mb-2">
+                <Bot size={24} color="#f59e0b" />
+                <Text className="text-amber-900 dark:text-amber-100 font-bold text-base ml-3">
+                  All Other Categories (16+ agents)
+                </Text>
+              </View>
+              <Text className="text-amber-800 dark:text-amber-200 text-sm mb-2">
+                Project Management, Studio Operations, Testing, and more specialized agents
+              </Text>
+              <Text className="text-amber-600 dark:text-amber-400 text-xs font-semibold">
+                View full library →
+              </Text>
+            </Pressable>
+
+            <View className="bg-gray-100 dark:bg-slate-900 border border-gray-300 dark:border-slate-800 rounded-xl p-4 mt-4">
+              <Text className="text-gray-900 dark:text-white font-semibold mb-2">
+                💡 How AI Agents Work
+              </Text>
+              <Text className="text-gray-700 dark:text-slate-300 text-sm leading-5">
+                AI agents are specialized tools that automate specific tasks in your workflow. Each agent has defined expertise, tools, and output formats. Some require human approval for quality control. Browse the full library to deploy agents to your workspace.
+              </Text>
+            </View>
           </View>
         )}
 

@@ -15,7 +15,7 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
 
 ## 🚨 PRODUCTION READINESS STATUS
 
-**Last Updated**: 2026-01-12 (**HOME SCREEN REDESIGNED** - Role-specific views for Founder/Executive/Apprentice with clear perspective identification)
+**Last Updated**: 2026-01-12 (**COMMUNITY TAB ENHANCED** - Added AI Agents marketplace, Guilds and Events quick access buttons, comprehensive financial dashboard with cost management)
 
 ### Current Status: ✅ **READY FOR APP STORE SUBMISSION**
 
@@ -79,7 +79,7 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
 - Evaluate tab: Work plan creation, OKR linking, Apprentice allocation, Progress monitoring, Submission review workflow
 - Do tab: Role-specific views (Apprentice: assigned work, Founder: all by function, Executive: their work), Progress reporting, Work submission
 - Make tab: AI tools, Suppliers, Manufacturing, BOM management (accessible to all roles)
-- Community tab: Executives/Apprentices/Suppliers marketplace, Search/filter, Request allocation, Apply/Join system with CV upload
+- Community tab: Executives/Apprentices/Suppliers/AI Agents marketplace with quick access to Guilds and Events, Search/filter, Request allocation, Apply/Join system with CV upload
 - Settings tab: Profile, Themes, About with updated documentation, Function Library, Guilds, Engagements
 
 ### Known Non-Issues:
