@@ -205,39 +205,39 @@ export default function OrganizationScreen() {
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
         {/* Organization Structure Tab */}
         {activeTab === 'structure' && (
-          <View className="px-6 pb-6">
+          <View className="px-4 pb-6">
             {/* Founders Level */}
-            <Text className="text-gray-900 dark:text-white text-base font-semibold mb-3">Founders</Text>
+            <Text className="text-gray-900 dark:text-white text-sm font-semibold mb-2">Founders</Text>
             {founders.map(founder => (
-              <View key={founder.id} className="mb-4">
+              <View key={founder.id} className="mb-3">
                 <Pressable
                   onPress={() => setSelectedMember(founder)}
-                  className="bg-gradient-to-r from-purple-900/40 to-purple-800/40 rounded-2xl p-4 border border-purple-700/50 mb-2 active:opacity-70"
+                  className="bg-gradient-to-r from-purple-900/40 to-purple-800/40 rounded-xl p-3 border border-purple-700/50 mb-1.5 active:opacity-70"
                 >
                   <View className="flex-row items-center justify-between">
                     <View className="flex-1">
-                      <Text className="text-gray-900 dark:text-white font-bold text-base mb-1">
+                      <Text className="text-gray-900 dark:text-white font-bold text-sm mb-0.5">
                         {founder.name}
                       </Text>
                       <Text className="text-purple-300 text-xs">{founder.function}</Text>
                     </View>
-                    <View className="bg-purple-500/30 px-3 py-1 rounded-lg">
-                      <Text className="text-purple-200 text-xs font-semibold">FOUNDER</Text>
+                    <View className="bg-purple-500/30 px-2 py-0.5 rounded-lg">
+                      <Text className="text-purple-200 text-[10px] font-semibold">FOUNDER</Text>
                     </View>
                   </View>
                 </Pressable>
 
                 {/* Executives reporting to this founder */}
                 {getReports(founder.id).filter(m => m.role === 'FractionalExec').map(exec => (
-                  <View key={exec.id} className="ml-4 mb-2">
+                  <View key={exec.id} className="ml-3 mb-1.5">
                     <View className="flex-row items-start">
-                      <View className="w-8 h-8 items-center mt-2">
-                        <View className="w-px h-4 bg-slate-700 mb-1" />
-                        <View className="w-4 h-px bg-slate-700" />
+                      <View className="w-6 h-6 items-center mt-1.5">
+                        <View className="w-px h-3 bg-slate-700 mb-0.5" />
+                        <View className="w-3 h-px bg-slate-700" />
                       </View>
 
                       <View className="flex-1">
-                        <View className="bg-gray-100 dark:bg-slate-900 rounded-xl p-3 border border-gray-300 dark:border-slate-800 mb-2">
+                        <View className="bg-gray-100 dark:bg-slate-900 rounded-lg p-2.5 border border-gray-300 dark:border-slate-800 mb-1">
                           <Pressable
                             onPress={() => toggleExecExpansion(exec.id)}
                             className="active:opacity-70"
@@ -247,21 +247,21 @@ export default function OrganizationScreen() {
                                 onPress={() => setSelectedMember(exec)}
                                 className="flex-1 active:opacity-70"
                               >
-                                <Text className="text-gray-900 dark:text-white font-semibold text-sm mb-1">
+                                <Text className="text-gray-900 dark:text-white font-semibold text-xs mb-0.5">
                                   {exec.name}
                                 </Text>
-                                <Text className="text-blue-400 text-xs mb-1">
+                                <Text className="text-blue-400 text-[10px] mb-0.5">
                                   {exec.function} • £{exec.costPerDay}/day
                                 </Text>
-                                <Text className="text-gray-600 dark:text-slate-500 text-[10px]">
+                                <Text className="text-gray-600 dark:text-slate-500 text-[9px]">
                                   Managing {getReports(exec.id).length} apprentices
                                 </Text>
                               </Pressable>
                               <View className="ml-2">
                                 {expandedExecs.includes(exec.id) ? (
-                                  <ChevronDown size={20} color="#94a3b8" />
+                                  <ChevronDown size={16} color="#94a3b8" />
                                 ) : (
-                                  <ChevronRight size={20} color="#94a3b8" />
+                                  <ChevronRight size={16} color="#94a3b8" />
                                 )}
                               </View>
                             </View>
@@ -271,21 +271,21 @@ export default function OrganizationScreen() {
                         {/* Apprentices reporting to this exec */}
                         {expandedExecs.includes(exec.id) &&
                           getReports(exec.id).map(apprentice => (
-                            <View key={apprentice.id} className="ml-4 mb-2">
+                            <View key={apprentice.id} className="ml-3 mb-1.5">
                               <View className="flex-row items-start">
-                                <View className="w-6 h-6 items-center mt-1.5">
-                                  <View className="w-px h-3 bg-slate-700 mb-0.5" />
-                                  <View className="w-3 h-px bg-slate-700" />
+                                <View className="w-5 h-5 items-center mt-1">
+                                  <View className="w-px h-2 bg-slate-700 mb-0.5" />
+                                  <View className="w-2.5 h-px bg-slate-700" />
                                 </View>
 
                                 <Pressable
                                   onPress={() => setSelectedMember(apprentice)}
-                                  className="flex-1 bg-gray-200 dark:bg-slate-800 rounded-lg p-3 border border-gray-400 dark:border-slate-700 active:opacity-70"
+                                  className="flex-1 bg-gray-200 dark:bg-slate-800 rounded-lg p-2 border border-gray-400 dark:border-slate-700 active:opacity-70"
                                 >
-                                  <Text className="text-gray-900 dark:text-white text-sm font-medium mb-0.5">
+                                  <Text className="text-gray-900 dark:text-white text-xs font-medium mb-0.5">
                                     {apprentice.name}
                                   </Text>
-                                  <Text className="text-emerald-400 text-xs">
+                                  <Text className="text-emerald-400 text-[10px]">
                                     {apprentice.function} • £{apprentice.costPerDay}/day
                                   </Text>
                                 </Pressable>
