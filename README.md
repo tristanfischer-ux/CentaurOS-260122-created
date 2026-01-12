@@ -15,7 +15,7 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
 
 ## 🚨 PRODUCTION READINESS STATUS
 
-**Last Updated**: 2026-01-12 (Comprehensive Pre-Submission Audit Complete)
+**Last Updated**: 2026-01-12 (Org Chart Fixed - Everything Visible On Screen)
 
 ### Current Status: ✅ **READY FOR APP STORE SUBMISSION**
 
@@ -282,16 +282,17 @@ Centaur OS turns OKRs into work, tracks execution, enables review workflows, and
   - **One-Click Communication**: Email team members with single tap
   - **Role-Based Filtering**: Filter by Founders, Executives, or Apprentices
   - **Visual Org Chart Button**: Quick access to interactive organization diagram
-- **Interactive Organization Diagram** - Compact hierarchical visualization of team structure
-  - **Simple Hierarchical Layout**: Founders at top → Executives → AI Agents → Apprentices in rows
-  - **Compact Design**: Tighter spacing with smaller nodes for easy viewing without excessive scrolling
-  - **Column-Based Layout**: Shows team members in organized columns that fit on screen
-  - **Reporting Lines**: Lines show who reports to whom across the hierarchy
-  - **Interactive Nodes**: Tap any team member to see full details
+- **Interactive Organization Diagram** - All team members visible on screen without horizontal scrolling
+  - **Smart Wrapping Layout**: Automatically wraps to multiple rows (max 3 per row) to fit screen
+  - **No Horizontal Scrolling**: All content visible without left/right panning
+  - **Vertical Scrolling Only**: Easy navigation with natural up/down scrolling
+  - **Compact Design**: Smaller nodes (90px wide) and tighter spacing (12px) for better visibility
+  - **Clear Hierarchy**: Founders → Executives → AI Agents → Apprentices in wrapped rows
+  - **Reporting Lines**: Lines connect team members across rows showing reporting structure
+  - **Interactive Nodes**: Tap any team member to see full details in scrollable modal
   - **Color-Coded Roles**: Blue (Founders), Purple (Executives), Gray (AI), Green (Apprentices)
   - **Decide • Evaluate • Do Framework**: Visual explanation of organizational philosophy
   - **Team Member Details**: Full profiles with contact info, reporting structure, and cost data
-  - **Minimal Scrolling**: Optimized spacing to view the entire org chart with minimal panning
   - **Legend**: Clear indication of what each node type represents
 - **Team Hiring System (Founder-Only)** - Browse and hire talent to build your team (Located in Network tab)
   - **30 Fractional Executives**: Senior leaders in Sales, Marketing, Finance, Engineering, and Operations

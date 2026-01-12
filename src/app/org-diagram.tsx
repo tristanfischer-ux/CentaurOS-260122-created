@@ -7,10 +7,11 @@ import { ORGANIZATION_MEMBERS, AI_AGENTS, type OrganizationMember } from '@/lib/
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 // Hierarchical layout: Founders → Executives → AI Agents → Apprentices
-const NODE_WIDTH = 100;
+const NODE_WIDTH = 90;
 const NODE_HEIGHT = 70;
-const VERTICAL_SPACING = 100;
-const HORIZONTAL_SPACING = 16;
+const VERTICAL_SPACING = 90;
+const HORIZONTAL_SPACING = 12;
+const MAX_ITEMS_PER_ROW = 3; // Maximum 3 items per row to fit on screen
 
 export default function OrgDiagramScreen() {
   const [selectedMember, setSelectedMember] = useState<OrganizationMember | null>(null);
@@ -20,43 +21,34 @@ export default function OrgDiagramScreen() {
   const execs = ORGANIZATION_MEMBERS.filter(m => m.role === 'FractionalExec');
   const apprentices = ORGANIZATION_MEMBERS.filter(m => m.role === 'Apprentice');
 
-  // Calculate diagram dimensions - use columns approach
-  const COLUMNS_PER_ROW = 4; // Show 4 items per row max
+  // Calculate how many rows we need for each group
+  const foundersRows = Math.ceil(founders.length / MAX_ITEMS_PER_ROW);
+  const execsRows = Math.ceil(execs.length / MAX_ITEMS_PER_ROW);
+  const agentsRows = Math.ceil(AI_AGENTS.length / MAX_ITEMS_PER_ROW);
+  const apprenticesRows = Math.ceil(apprentices.length / MAX_ITEMS_PER_ROW);
 
-  const foundersPerRow = Math.min(founders.length, COLUMNS_PER_ROW);
-  const execsPerRow = Math.min(execs.length, COLUMNS_PER_ROW);
-  const agentsPerRow = Math.min(AI_AGENTS.length, COLUMNS_PER_ROW);
-  const apprenticesPerRow = Math.min(apprentices.length, COLUMNS_PER_ROW);
+  // Calculate diagram dimensions to fit on screen
+  const DIAGRAM_WIDTH = SCREEN_WIDTH - 20; // Full width minus padding
+  const totalRows = foundersRows + execsRows + agentsRows + apprenticesRows;
+  const DIAGRAM_HEIGHT = (totalRows + 1) * VERTICAL_SPACING + 100;
 
-  const maxRowWidth = Math.max(
-    foundersPerRow,
-    execsPerRow,
-    agentsPerRow,
-    apprenticesPerRow
-  ) * (NODE_WIDTH + HORIZONTAL_SPACING);
+  // Calculate positions for wrapped layout (max 3 per row)
+  const getWrappedPosition = (index: number, total: number, startRowIndex: number) => {
+    const row = Math.floor(index / MAX_ITEMS_PER_ROW);
+    const col = index % MAX_ITEMS_PER_ROW;
+    const itemsInThisRow = Math.min(MAX_ITEMS_PER_ROW, total - row * MAX_ITEMS_PER_ROW);
 
-  const DIAGRAM_WIDTH = Math.max(maxRowWidth + 60, SCREEN_WIDTH - 40);
-  const DIAGRAM_HEIGHT = VERTICAL_SPACING * 5 + 100;
-
-  // Calculate positions for hierarchical layout
-  const getHierarchicalPosition = (member: OrganizationMember, index: number, total: number, rowIndex: number) => {
-    const rowWidth = total * NODE_WIDTH + (total - 1) * HORIZONTAL_SPACING;
+    const rowWidth = itemsInThisRow * NODE_WIDTH + (itemsInThisRow - 1) * HORIZONTAL_SPACING;
     const startX = (DIAGRAM_WIDTH - rowWidth) / 2;
 
     return {
-      x: startX + index * (NODE_WIDTH + HORIZONTAL_SPACING) + NODE_WIDTH / 2,
-      y: 60 + rowIndex * VERTICAL_SPACING,
+      x: startX + col * (NODE_WIDTH + HORIZONTAL_SPACING) + NODE_WIDTH / 2,
+      y: 60 + (startRowIndex + row) * VERTICAL_SPACING,
     };
   };
 
-  const getAIAgentPosition = (agentIndex: number, total: number) => {
-    const rowWidth = total * NODE_WIDTH + (total - 1) * HORIZONTAL_SPACING;
-    const startX = (DIAGRAM_WIDTH - rowWidth) / 2;
-
-    return {
-      x: startX + agentIndex * (NODE_WIDTH + HORIZONTAL_SPACING) + NODE_WIDTH / 2,
-      y: 60 + 2 * VERTICAL_SPACING, // Row 3 (0-indexed row 2)
-    };
+  const getAIAgentPosition = (index: number, total: number, startRowIndex: number) => {
+    return getWrappedPosition(index, total, startRowIndex);
   };
 
   const getRoleColor = (role: string) => {
@@ -74,10 +66,10 @@ export default function OrgDiagramScreen() {
         {/* Info Banner */}
         <View className="p-4 bg-blue-500/10 border-b border-blue-500/20">
           <Text className="text-blue-400 text-sm font-medium mb-1">
-            Compact Organization Chart
+            Organization Chart - No Horizontal Scrolling
           </Text>
           <Text className="text-gray-600 dark:text-slate-400 text-xs">
-            Simple hierarchy: Founders → Executives → AI Agents → Apprentices. Tap any node for details.
+            All team members visible on screen. Hierarchy wraps into rows (max 3 per row). Tap any node for details.
           </Text>
         </View>
 
@@ -116,17 +108,16 @@ export default function OrgDiagramScreen() {
         <View className="p-4">
           <View className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-4 border border-slate-800">
             <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={true}
+              showsVerticalScrollIndicator={true}
               contentContainerStyle={{ paddingVertical: 20 }}
             >
               <View style={{ width: DIAGRAM_WIDTH, height: DIAGRAM_HEIGHT, position: 'relative' }}>
                 <Svg width={DIAGRAM_WIDTH} height={DIAGRAM_HEIGHT}>
                   {/* Draw lines from Founders to Executives */}
                   {founders.map((founder, founderIdx) => {
-                    const founderPos = getHierarchicalPosition(founder, founderIdx, founders.length, 0);
+                    const founderPos = getWrappedPosition(founderIdx, founders.length, 0);
                     return execs.map((exec, execIdx) => {
-                      const execPos = getHierarchicalPosition(exec, execIdx, execs.length, 1);
+                      const execPos = getWrappedPosition(execIdx, execs.length, foundersRows);
                       return (
                         <Line
                           key={`founder-exec-${founder.id}-${exec.id}`}
@@ -143,10 +134,10 @@ export default function OrgDiagramScreen() {
 
                   {/* Draw lines from Executives to AI Agents */}
                   {execs.map((exec, execIdx) => {
-                    const execPos = getHierarchicalPosition(exec, execIdx, execs.length, 1);
+                    const execPos = getWrappedPosition(execIdx, execs.length, foundersRows);
                     return AI_AGENTS.map((agent, agentIdx) => {
                       if (agent.usedBy.includes(exec.id) || agent.usedBy.includes('All team members')) {
-                        const agentPos = getAIAgentPosition(agentIdx, AI_AGENTS.length);
+                        const agentPos = getAIAgentPosition(agentIdx, AI_AGENTS.length, foundersRows + execsRows);
                         return (
                           <Line
                             key={`exec-ai-${exec.id}-${agent.id}`}
@@ -166,11 +157,11 @@ export default function OrgDiagramScreen() {
 
                   {/* Draw lines from Executives to their Apprentices */}
                   {execs.map((exec, execIdx) => {
-                    const execPos = getHierarchicalPosition(exec, execIdx, execs.length, 1);
+                    const execPos = getWrappedPosition(execIdx, execs.length, foundersRows);
                     const managedApprentices = apprentices.filter(a => a.reportsTo === exec.id);
                     return managedApprentices.map(apprentice => {
                       const apprenticeIdx = apprentices.indexOf(apprentice);
-                      const apprenticePos = getHierarchicalPosition(apprentice, apprenticeIdx, apprentices.length, 3);
+                      const apprenticePos = getWrappedPosition(apprenticeIdx, apprentices.length, foundersRows + execsRows + agentsRows);
                       return (
                         <Line
                           key={`exec-apprentice-${exec.id}-${apprentice.id}`}
@@ -187,7 +178,7 @@ export default function OrgDiagramScreen() {
 
                   {/* ROW 1: Founders */}
                   {founders.map((founder, index) => {
-                    const position = getHierarchicalPosition(founder, index, founders.length, 0);
+                    const position = getWrappedPosition(index, founders.length, 0);
                     return (
                       <React.Fragment key={founder.id}>
                         <Circle
@@ -233,7 +224,7 @@ export default function OrgDiagramScreen() {
 
                   {/* ROW 2: Executives */}
                   {execs.map((exec, index) => {
-                    const position = getHierarchicalPosition(exec, index, execs.length, 1);
+                    const position = getWrappedPosition(index, execs.length, foundersRows);
                     return (
                       <React.Fragment key={exec.id}>
                         <Circle
@@ -279,7 +270,7 @@ export default function OrgDiagramScreen() {
 
                   {/* ROW 3: AI Agents */}
                   {AI_AGENTS.map((agent, index) => {
-                    const position = getAIAgentPosition(index, AI_AGENTS.length);
+                    const position = getAIAgentPosition(index, AI_AGENTS.length, foundersRows + execsRows);
                     return (
                       <React.Fragment key={agent.id}>
                         <Circle
@@ -325,7 +316,7 @@ export default function OrgDiagramScreen() {
 
                   {/* ROW 4: Apprentices */}
                   {apprentices.map((apprentice, index) => {
-                    const position = getHierarchicalPosition(apprentice, index, apprentices.length, 3);
+                    const position = getWrappedPosition(index, apprentices.length, foundersRows + execsRows + agentsRows);
                     return (
                       <React.Fragment key={apprentice.id}>
                         <Circle
@@ -375,13 +366,13 @@ export default function OrgDiagramScreen() {
                   let position;
                   if (member.role === 'Founder') {
                     const index = founders.indexOf(member);
-                    position = getHierarchicalPosition(member, index, founders.length, 0);
+                    position = getWrappedPosition(index, founders.length, 0);
                   } else if (member.role === 'FractionalExec') {
                     const index = execs.indexOf(member);
-                    position = getHierarchicalPosition(member, index, execs.length, 1);
+                    position = getWrappedPosition(index, execs.length, foundersRows);
                   } else {
                     const index = apprentices.indexOf(member);
-                    position = getHierarchicalPosition(member, index, apprentices.length, 3);
+                    position = getWrappedPosition(index, apprentices.length, foundersRows + execsRows + agentsRows);
                   }
 
                   const touchRadius = 40;
