@@ -48,6 +48,7 @@ function RootLayoutNav({ colorScheme }: { colorScheme: 'light' | 'dark' | null |
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="sign-in" options={{ headerShown: false }} />
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen name="search" options={{ headerShown: false }} />
         <Stack.Screen
           name="utilization"
           options={{
@@ -71,6 +72,25 @@ function RootLayoutNav({ colorScheme }: { colorScheme: 'light' | 'dark' | null |
           options={{
             headerShown: true,
             title: 'Organization Chart',
+            headerStyle: { backgroundColor: '#020617' },
+            headerTintColor: '#fff',
+            headerShadowVisible: false,
+          }}
+        />
+        <Stack.Screen
+          name="kpi-details"
+          options={{
+            headerShown: true,
+            headerStyle: { backgroundColor: '#020617' },
+            headerTintColor: '#fff',
+            headerShadowVisible: false,
+          }}
+        />
+        <Stack.Screen
+          name="learning"
+          options={{
+            headerShown: true,
+            title: 'Learning & Development',
             headerStyle: { backgroundColor: '#020617' },
             headerTintColor: '#fff',
             headerShadowVisible: false,
