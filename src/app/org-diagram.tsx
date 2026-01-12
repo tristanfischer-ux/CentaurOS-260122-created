@@ -582,63 +582,67 @@ export default function OrgDiagramScreen() {
 
       {/* Member Detail Modal */}
       <Modal visible={selectedMember !== null} transparent animationType="slide" onRequestClose={() => setSelectedMember(null)}>
-        <Pressable
-          className="flex-1 bg-black/70 justify-end"
-          onPress={() => setSelectedMember(null)}
-        >
-          <Pressable onPress={(e) => e.stopPropagation()}>
-            {selectedMember && (
-              <View className="bg-gray-100 dark:bg-slate-900 rounded-t-3xl" style={{ maxHeight: '80%' }}>
-                <ScrollView showsVerticalScrollIndicator={false} bounces={false}>
-                  {/* Header */}
-                  <View className="p-6 border-b border-slate-800">
-                    <View className="flex-row justify-between items-start mb-4">
-                      <View className="flex-1">
-                        <View
-                          className="w-16 h-16 rounded-full items-center justify-center mb-3 border-4"
-                          style={{
-                            backgroundColor: getRoleColor(selectedMember.role) + '20',
-                            borderColor: getRoleColor(selectedMember.role),
-                          }}
-                        >
-                          <Text
-                            className="text-2xl font-bold"
-                            style={{ color: getRoleColor(selectedMember.role) }}
-                          >
-                            {selectedMember.name.charAt(0)}
-                          </Text>
-                        </View>
-                        <Text className="text-gray-900 dark:text-white text-2xl font-bold mb-1">
-                          {selectedMember.name}
-                        </Text>
-                        <View className="flex-row items-center gap-2">
-                          <View
-                            className="px-3 py-1 rounded-lg border-2"
-                            style={{
-                              backgroundColor: getRoleColor(selectedMember.role) + '20',
-                              borderColor: getRoleColor(selectedMember.role),
-                            }}
-                          >
-                            <Text
-                              className="text-sm font-semibold"
-                              style={{ color: getRoleColor(selectedMember.role) }}
-                            >
-                              {selectedMember.role === 'FractionalExec' ? 'Executive' : selectedMember.role}
-                            </Text>
-                          </View>
-                          <View className="bg-slate-800 px-3 py-1 rounded-lg">
-                            <Text className="text-slate-300 text-sm">{selectedMember.function}</Text>
-                          </View>
-                        </View>
-                      </View>
-                      <Pressable onPress={() => setSelectedMember(null)}>
-                        <X size={24} color="#94a3b8" />
-                      </Pressable>
-                    </View>
+        <View className="flex-1 bg-black/70 justify-end">
+          {selectedMember && (
+            <View className="bg-gray-100 dark:bg-slate-900 rounded-t-3xl" style={{ maxHeight: '85%' }}>
+              {/* Header - Fixed at top */}
+              <View className="px-6 pt-6 pb-4 border-b border-slate-800 flex-row justify-between items-center">
+                <View>
+                  <Text className="text-gray-900 dark:text-white text-2xl font-bold">
+                    {selectedMember.name}
+                  </Text>
+                  <Text className="text-gray-600 dark:text-slate-400 text-sm mt-1">
+                    {selectedMember.role === 'FractionalExec' ? 'Executive' : selectedMember.role} • {selectedMember.function}
+                  </Text>
+                </View>
+                <Pressable onPress={() => setSelectedMember(null)}>
+                  <X size={24} color="#94a3b8" />
+                </Pressable>
+              </View>
 
-                    {/* Reporting Structure */}
-                    {(selectedMember.reportsTo || selectedMember.manages) && (
-                      <View className="bg-slate-800 rounded-xl p-4">
+              {/* Scrollable Content */}
+              <ScrollView showsVerticalScrollIndicator={true} bounces={false} className="flex-1">
+                {/* Profile Section */}
+                <View className="p-6 border-b border-slate-800">
+                  <View
+                    className="w-16 h-16 rounded-full items-center justify-center mb-3 border-4"
+                    style={{
+                      backgroundColor: getRoleColor(selectedMember.role) + '20',
+                      borderColor: getRoleColor(selectedMember.role),
+                    }}
+                  >
+                    <Text
+                      className="text-2xl font-bold"
+                      style={{ color: getRoleColor(selectedMember.role) }}
+                    >
+                      {selectedMember.name.charAt(0)}
+                    </Text>
+                  </View>
+                  <View className="flex-row items-center gap-2">
+                    <View
+                      className="px-3 py-1 rounded-lg border-2"
+                      style={{
+                        backgroundColor: getRoleColor(selectedMember.role) + '20',
+                        borderColor: getRoleColor(selectedMember.role),
+                      }}
+                    >
+                      <Text
+                        className="text-sm font-semibold"
+                        style={{ color: getRoleColor(selectedMember.role) }}
+                      >
+                        {selectedMember.role === 'FractionalExec' ? 'Executive' : selectedMember.role}
+                      </Text>
+                    </View>
+                    <View className="bg-slate-800 px-3 py-1 rounded-lg">
+                      <Text className="text-slate-300 text-sm">{selectedMember.function}</Text>
+                    </View>
+                  </View>
+                </View>
+
+                {/* Reporting Structure */}
+                {(selectedMember.reportsTo || selectedMember.manages) && (
+                  <View className="p-6 border-b border-slate-800">
+                    <View className="bg-slate-800 rounded-xl p-4">
                         {selectedMember.reportsTo && (
                           <View className="mb-3">
                             <Text className="text-gray-600 dark:text-slate-400 text-xs mb-1">Reports To</Text>
@@ -662,12 +666,12 @@ export default function OrgDiagramScreen() {
                             </View>
                           </View>
                         )}
-                      </View>
-                    )}
+                    </View>
                   </View>
+                )}
 
-                  {/* Contact Info */}
-                  <View className="p-6 border-b border-slate-800">
+                {/* Contact Info */}
+                <View className="p-6 border-b border-slate-800">
                     <Text className="text-gray-900 dark:text-white font-semibold mb-3">Contact Information</Text>
 
                     <View className="flex-row items-center mb-3">
@@ -787,10 +791,9 @@ export default function OrgDiagramScreen() {
                     </Pressable>
                   </View>
                 </ScrollView>
-              </View>
-            )}
-          </Pressable>
-        </Pressable>
+            </View>
+          )}
+        </View>
       </Modal>
     </View>
   );
