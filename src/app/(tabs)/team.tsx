@@ -550,13 +550,17 @@ export default function TeamScreen() {
       </ScrollView>
 
       {/* Member Detail Modal */}
-      <Modal visible={selectedMember !== null} transparent animationType="slide">
-        <View className="flex-1 bg-black/70">
-          {selectedMember && (
-            <View className="mt-auto bg-slate-900 rounded-t-3xl" style={{ maxHeight: '90%' }}>
-              <ScrollView showsVerticalScrollIndicator={false} style={{ flex: 1 }}>
-                {/* Header */}
-                <View className="p-6 border-b border-slate-800">
+      <Modal visible={selectedMember !== null} transparent animationType="slide" onRequestClose={() => setSelectedMember(null)}>
+        <Pressable
+          className="flex-1 bg-black/70 justify-end"
+          onPress={() => setSelectedMember(null)}
+        >
+          <Pressable onPress={(e) => e.stopPropagation()}>
+            {selectedMember && (
+              <View className="bg-slate-900 rounded-t-3xl" style={{ maxHeight: '90%' }}>
+                <ScrollView showsVerticalScrollIndicator={false} bounces={false}>
+                  {/* Header */}
+                  <View className="p-6 border-b border-slate-800">
                   <View className="flex-row justify-between items-start mb-4">
                     <View className="flex-1">
                       <View
@@ -747,8 +751,9 @@ export default function TeamScreen() {
                 </View>
               </ScrollView>
             </View>
-          )}
-        </View>
+            )}
+          </Pressable>
+        </Pressable>
       </Modal>
 
       {/* Assign Task Modal */}

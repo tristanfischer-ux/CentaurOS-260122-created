@@ -786,11 +786,15 @@ export default function EventsScreen() {
       </Modal>
 
       {/* Member Detail Modal (from invited list) */}
-      <Modal visible={selectedMemberFromEvent !== null} transparent animationType="slide">
-        <View className="flex-1 bg-black/70 justify-center px-6">
-          {selectedMemberFromEvent && (
-            <View className="bg-slate-900 rounded-3xl p-6" style={{ maxHeight: '90%' }}>
-              <ScrollView showsVerticalScrollIndicator={false}>
+      <Modal visible={selectedMemberFromEvent !== null} transparent animationType="slide" onRequestClose={() => setSelectedMemberFromEvent(null)}>
+        <Pressable
+          className="flex-1 bg-black/70 justify-center px-6"
+          onPress={() => setSelectedMemberFromEvent(null)}
+        >
+          <Pressable onPress={(e) => e.stopPropagation()}>
+            {selectedMemberFromEvent && (
+              <View className="bg-slate-900 rounded-3xl p-6" style={{ maxHeight: '90%' }}>
+                <ScrollView showsVerticalScrollIndicator={false} bounces={false}>
                 <View className="flex-row items-center justify-between mb-4">
                   <Text className="text-white text-xl font-bold">{selectedMemberFromEvent.name}</Text>
                   <Pressable onPress={() => setSelectedMemberFromEvent(null)}>
@@ -837,8 +841,9 @@ export default function EventsScreen() {
                 </View>
               </ScrollView>
             </View>
-          )}
-        </View>
+            )}
+          </Pressable>
+        </Pressable>
       </Modal>
 
       {/* Create Event Modal */}

@@ -557,11 +557,15 @@ export default function OrganizationScreen() {
       </ScrollView>
 
       {/* Member Detail Modal */}
-      <Modal visible={selectedMember !== null} transparent animationType="slide">
-        <View className="flex-1 bg-black/70 justify-center px-6">
-          {selectedMember && (
-            <View className="bg-slate-900 rounded-3xl p-6" style={{ maxHeight: '90%' }}>
-              <ScrollView showsVerticalScrollIndicator={false} style={{ flex: 1 }}>
+      <Modal visible={selectedMember !== null} transparent animationType="slide" onRequestClose={() => setSelectedMember(null)}>
+        <Pressable
+          className="flex-1 bg-black/70 justify-center px-6"
+          onPress={() => setSelectedMember(null)}
+        >
+          <Pressable onPress={(e) => e.stopPropagation()}>
+            {selectedMember && (
+              <View className="bg-slate-900 rounded-3xl p-6" style={{ maxHeight: '90%' }}>
+                <ScrollView showsVerticalScrollIndicator={false} bounces={false}>
                 <View className="flex-row items-center justify-between mb-4">
                   <Text className="text-white text-xl font-bold">{selectedMember.name}</Text>
                   <Pressable onPress={() => setSelectedMember(null)}>
@@ -641,14 +645,19 @@ export default function OrganizationScreen() {
                 </View>
               </ScrollView>
             </View>
-          )}
-        </View>
+            )}
+          </Pressable>
+        </Pressable>
       </Modal>
 
       {/* Supplier Detail Modal */}
-      <Modal visible={selectedSupplier !== null} transparent animationType="slide">
-        <View className="flex-1 bg-black/70 justify-end">
-          <View className="bg-slate-900 rounded-t-3xl" style={{ maxHeight: '90%' }}>
+      <Modal visible={selectedSupplier !== null} transparent animationType="slide" onRequestClose={() => setSelectedSupplier(null)}>
+        <Pressable
+          className="flex-1 bg-black/70 justify-end"
+          onPress={() => setSelectedSupplier(null)}
+        >
+          <Pressable onPress={(e) => e.stopPropagation()}>
+            <View className="bg-slate-900 rounded-t-3xl" style={{ maxHeight: '90%' }}>
             {selectedSupplier && (
               <>
                 <View className="p-6 border-b border-slate-800">
@@ -753,13 +762,18 @@ export default function OrganizationScreen() {
               </>
             )}
           </View>
-        </View>
+          </Pressable>
+        </Pressable>
       </Modal>
 
       {/* AI Agent Detail Modal */}
-      <Modal visible={selectedAI !== null} transparent animationType="slide">
-        <View className="flex-1 bg-black/70 justify-end">
-          <View className="bg-slate-900 rounded-t-3xl" style={{ maxHeight: '90%' }}>
+      <Modal visible={selectedAI !== null} transparent animationType="slide" onRequestClose={() => setSelectedAI(null)}>
+        <Pressable
+          className="flex-1 bg-black/70 justify-end"
+          onPress={() => setSelectedAI(null)}
+        >
+          <Pressable onPress={(e) => e.stopPropagation()}>
+            <View className="bg-slate-900 rounded-t-3xl" style={{ maxHeight: '90%' }}>
             {selectedAI && (
               <>
                 <View className="p-6 border-b border-slate-800">
@@ -933,7 +947,8 @@ export default function OrganizationScreen() {
               </>
             )}
           </View>
-        </View>
+          </Pressable>
+        </Pressable>
       </Modal>
 
       {/* Supplier Map Modal */}
