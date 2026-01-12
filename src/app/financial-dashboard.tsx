@@ -294,20 +294,20 @@ export default function FinancialDashboardScreen() {
           <View className="flex-row gap-3 mb-4">
             <Pressable
               onPress={() => setShowScenario(!showScenario)}
-              className="flex-1 bg-blue-500 rounded-xl py-3 items-center active:opacity-80"
+              className="flex-1 bg-blue-500 rounded-xl py-2 items-center active:opacity-80"
             >
               <View className="flex-row items-center">
-                <Calculator size={18} color="#fff" />
-                <Text className="text-white font-bold ml-2">Scenarios</Text>
+                <Calculator size={16} color="#fff" />
+                <Text className="text-white font-semibold text-sm ml-2">Scenarios</Text>
               </View>
             </Pressable>
             <Pressable
               onPress={resetToDefaults}
-              className="flex-1 bg-gray-300 dark:bg-slate-700 rounded-xl py-3 items-center active:opacity-80"
+              className="flex-1 bg-gray-300 dark:bg-slate-700 rounded-xl py-2 items-center active:opacity-80"
             >
               <View className="flex-row items-center">
-                <RotateCcw size={18} color="#64748b" />
-                <Text className="text-gray-700 dark:text-slate-300 font-bold ml-2">Reset</Text>
+                <RotateCcw size={16} color="#64748b" />
+                <Text className="text-gray-700 dark:text-slate-300 font-semibold text-sm ml-2">Reset</Text>
               </View>
             </Pressable>
           </View>
