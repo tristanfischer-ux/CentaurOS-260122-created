@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, Pressable, Linking, TextInput, Modal, Alert } from 'react-native';
+import { View, Text, ScrollView, Pressable, Linking, TextInput, Modal, Alert, KeyboardAvoidingView, Platform } from 'react-native';
 import { useState } from 'react';
 import { Building2, Users, Calendar, ExternalLink, MapPin, Package, ChevronRight, Search, X, Star, DollarSign, CalendarCheck, Award, Mail, Phone, Bot, Zap, CheckCircle, Globe, Heart, UserPlus } from 'lucide-react-native';
 import { UK_SUPPLIERS } from '@/lib/suppliers-seed';
@@ -101,6 +101,26 @@ export default function NetworkScreen() {
   const [monthlyCost, setMonthlyCost] = useState('');
   const [showListYourselfModal, setShowListYourselfModal] = useState(false);
   const [listingType, setListingType] = useState<'executive' | 'apprentice' | 'supplier' | null>(null);
+
+  // Form state for listings
+  const [formData, setFormData] = useState({
+    name: '',
+    bio: '',
+    specialization: '',
+    experience: '',
+    dailyRate: '',
+    availability: '',
+    skills: '',
+    education: '',
+    portfolio: '',
+    companyName: '',
+    capabilities: '',
+    location: '',
+    certifications: '',
+    minOrder: '',
+    leadTime: '',
+    contact: '',
+  });
 
   const tabs = [
     { id: 'suppliers' as NetworkTab, label: 'Suppliers', icon: Building2 },
@@ -327,137 +347,370 @@ export default function NetworkScreen() {
                 </ScrollView>
               </>
             ) : (
-              <ScrollView showsVerticalScrollIndicator={false}>
-                <View className="mb-6">
-                  <View className={`${
-                    listingType === 'executive' ? 'bg-purple-500/10 border-purple-500/30' :
-                    listingType === 'apprentice' ? 'bg-blue-500/10 border-blue-500/30' :
-                    'bg-emerald-500/10 border-emerald-500/30'
-                  } border rounded-xl p-4 mb-6`}>
-                    <Text className={`${
-                      listingType === 'executive' ? 'text-purple-500' :
-                      listingType === 'apprentice' ? 'text-blue-500' :
-                      'text-emerald-500'
-                    } font-bold text-lg mb-1`}>
-                      {listingType === 'executive' ? 'Fractional Executive' :
-                       listingType === 'apprentice' ? 'Apprentice' : 'Supplier'} Listing
-                    </Text>
-                    <Text className="text-gray-600 dark:text-slate-400 text-sm">
-                      Complete your profile to appear in the marketplace
-                    </Text>
+              <KeyboardAvoidingView
+                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+                className="flex-1"
+              >
+                <ScrollView showsVerticalScrollIndicator={false}>
+                  <View className="mb-6">
+                    <View className={`${
+                      listingType === 'executive' ? 'bg-purple-500/10 border-purple-500/30' :
+                      listingType === 'apprentice' ? 'bg-blue-500/10 border-blue-500/30' :
+                      'bg-emerald-500/10 border-emerald-500/30'
+                    } border rounded-xl p-4 mb-6`}>
+                      <Text className={`${
+                        listingType === 'executive' ? 'text-purple-500' :
+                        listingType === 'apprentice' ? 'text-blue-500' :
+                        'text-emerald-500'
+                      } font-bold text-lg mb-1`}>
+                        {listingType === 'executive' ? 'Fractional Executive' :
+                         listingType === 'apprentice' ? 'Apprentice' : 'Supplier'} Listing
+                      </Text>
+                      <Text className="text-gray-600 dark:text-slate-400 text-sm">
+                        Complete your profile to appear in the marketplace
+                      </Text>
+                    </View>
+
+                    {/* Executive Form */}
+                    {listingType === 'executive' && (
+                      <View className="gap-4">
+                        <View>
+                          <Text className="text-gray-900 dark:text-white font-semibold mb-2">Full Name *</Text>
+                          <TextInput
+                            value={formData.name}
+                            onChangeText={(text) => setFormData({ ...formData, name: text })}
+                            placeholder="John Smith"
+                            placeholderTextColor="#94a3b8"
+                            className="bg-gray-100 dark:bg-slate-800 rounded-xl p-4 text-gray-900 dark:text-white border border-gray-300 dark:border-slate-700"
+                          />
+                        </View>
+
+                        <View>
+                          <Text className="text-gray-900 dark:text-white font-semibold mb-2">Professional Bio *</Text>
+                          <TextInput
+                            value={formData.bio}
+                            onChangeText={(text) => setFormData({ ...formData, bio: text })}
+                            placeholder="Tell us about your experience and what makes you unique..."
+                            placeholderTextColor="#94a3b8"
+                            multiline
+                            numberOfLines={4}
+                            className="bg-gray-100 dark:bg-slate-800 rounded-xl p-4 text-gray-900 dark:text-white border border-gray-300 dark:border-slate-700"
+                            style={{ minHeight: 100, textAlignVertical: 'top' }}
+                          />
+                        </View>
+
+                        <View>
+                          <Text className="text-gray-900 dark:text-white font-semibold mb-2">Specialization *</Text>
+                          <TextInput
+                            value={formData.specialization}
+                            onChangeText={(text) => setFormData({ ...formData, specialization: text })}
+                            placeholder="e.g., Sales, Marketing, Finance, Operations"
+                            placeholderTextColor="#94a3b8"
+                            className="bg-gray-100 dark:bg-slate-800 rounded-xl p-4 text-gray-900 dark:text-white border border-gray-300 dark:border-slate-700"
+                          />
+                        </View>
+
+                        <View>
+                          <Text className="text-gray-900 dark:text-white font-semibold mb-2">Years of Experience *</Text>
+                          <TextInput
+                            value={formData.experience}
+                            onChangeText={(text) => setFormData({ ...formData, experience: text })}
+                            placeholder="e.g., 15 years, worked at Apple, Google, etc."
+                            placeholderTextColor="#94a3b8"
+                            className="bg-gray-100 dark:bg-slate-800 rounded-xl p-4 text-gray-900 dark:text-white border border-gray-300 dark:border-slate-700"
+                          />
+                        </View>
+
+                        <View>
+                          <Text className="text-gray-900 dark:text-white font-semibold mb-2">Daily Rate (£) *</Text>
+                          <TextInput
+                            value={formData.dailyRate}
+                            onChangeText={(text) => setFormData({ ...formData, dailyRate: text })}
+                            placeholder="e.g., 1500"
+                            placeholderTextColor="#94a3b8"
+                            keyboardType="numeric"
+                            className="bg-gray-100 dark:bg-slate-800 rounded-xl p-4 text-gray-900 dark:text-white border border-gray-300 dark:border-slate-700"
+                          />
+                        </View>
+
+                        <View>
+                          <Text className="text-gray-900 dark:text-white font-semibold mb-2">Availability *</Text>
+                          <TextInput
+                            value={formData.availability}
+                            onChangeText={(text) => setFormData({ ...formData, availability: text })}
+                            placeholder="e.g., 2 days per week, flexible"
+                            placeholderTextColor="#94a3b8"
+                            className="bg-gray-100 dark:bg-slate-800 rounded-xl p-4 text-gray-900 dark:text-white border border-gray-300 dark:border-slate-700"
+                          />
+                        </View>
+
+                        <View>
+                          <Text className="text-gray-900 dark:text-white font-semibold mb-2">Key Skills</Text>
+                          <TextInput
+                            value={formData.skills}
+                            onChangeText={(text) => setFormData({ ...formData, skills: text })}
+                            placeholder="e.g., Strategy, Team Building, P&L Management"
+                            placeholderTextColor="#94a3b8"
+                            multiline
+                            numberOfLines={3}
+                            className="bg-gray-100 dark:bg-slate-800 rounded-xl p-4 text-gray-900 dark:text-white border border-gray-300 dark:border-slate-700"
+                            style={{ minHeight: 80, textAlignVertical: 'top' }}
+                          />
+                        </View>
+                      </View>
+                    )}
+
+                    {/* Apprentice Form */}
+                    {listingType === 'apprentice' && (
+                      <View className="gap-4">
+                        <View>
+                          <Text className="text-gray-900 dark:text-white font-semibold mb-2">Full Name *</Text>
+                          <TextInput
+                            value={formData.name}
+                            onChangeText={(text) => setFormData({ ...formData, name: text })}
+                            placeholder="Jane Doe"
+                            placeholderTextColor="#94a3b8"
+                            className="bg-gray-100 dark:bg-slate-800 rounded-xl p-4 text-gray-900 dark:text-white border border-gray-300 dark:border-slate-700"
+                          />
+                        </View>
+
+                        <View>
+                          <Text className="text-gray-900 dark:text-white font-semibold mb-2">Background *</Text>
+                          <TextInput
+                            value={formData.bio}
+                            onChangeText={(text) => setFormData({ ...formData, bio: text })}
+                            placeholder="Tell us about your background and what you're passionate about..."
+                            placeholderTextColor="#94a3b8"
+                            multiline
+                            numberOfLines={4}
+                            className="bg-gray-100 dark:bg-slate-800 rounded-xl p-4 text-gray-900 dark:text-white border border-gray-300 dark:border-slate-700"
+                            style={{ minHeight: 100, textAlignVertical: 'top' }}
+                          />
+                        </View>
+
+                        <View>
+                          <Text className="text-gray-900 dark:text-white font-semibold mb-2">Area of Interest *</Text>
+                          <TextInput
+                            value={formData.specialization}
+                            onChangeText={(text) => setFormData({ ...formData, specialization: text })}
+                            placeholder="e.g., Engineering, Design, Marketing, Product"
+                            placeholderTextColor="#94a3b8"
+                            className="bg-gray-100 dark:bg-slate-800 rounded-xl p-4 text-gray-900 dark:text-white border border-gray-300 dark:border-slate-700"
+                          />
+                        </View>
+
+                        <View>
+                          <Text className="text-gray-900 dark:text-white font-semibold mb-2">Education *</Text>
+                          <TextInput
+                            value={formData.education}
+                            onChangeText={(text) => setFormData({ ...formData, education: text })}
+                            placeholder="e.g., BSc Computer Science, Oxford University"
+                            placeholderTextColor="#94a3b8"
+                            className="bg-gray-100 dark:bg-slate-800 rounded-xl p-4 text-gray-900 dark:text-white border border-gray-300 dark:border-slate-700"
+                          />
+                        </View>
+
+                        <View>
+                          <Text className="text-gray-900 dark:text-white font-semibold mb-2">Expected Daily Rate (£) *</Text>
+                          <TextInput
+                            value={formData.dailyRate}
+                            onChangeText={(text) => setFormData({ ...formData, dailyRate: text })}
+                            placeholder="e.g., 50"
+                            placeholderTextColor="#94a3b8"
+                            keyboardType="numeric"
+                            className="bg-gray-100 dark:bg-slate-800 rounded-xl p-4 text-gray-900 dark:text-white border border-gray-300 dark:border-slate-700"
+                          />
+                        </View>
+
+                        <View>
+                          <Text className="text-gray-900 dark:text-white font-semibold mb-2">Availability *</Text>
+                          <TextInput
+                            value={formData.availability}
+                            onChangeText={(text) => setFormData({ ...formData, availability: text })}
+                            placeholder="e.g., Full-time, Part-time (3 days/week)"
+                            placeholderTextColor="#94a3b8"
+                            className="bg-gray-100 dark:bg-slate-800 rounded-xl p-4 text-gray-900 dark:text-white border border-gray-300 dark:border-slate-700"
+                          />
+                        </View>
+
+                        <View>
+                          <Text className="text-gray-900 dark:text-white font-semibold mb-2">Portfolio / GitHub</Text>
+                          <TextInput
+                            value={formData.portfolio}
+                            onChangeText={(text) => setFormData({ ...formData, portfolio: text })}
+                            placeholder="https://github.com/yourname or portfolio link"
+                            placeholderTextColor="#94a3b8"
+                            keyboardType="url"
+                            autoCapitalize="none"
+                            className="bg-gray-100 dark:bg-slate-800 rounded-xl p-4 text-gray-900 dark:text-white border border-gray-300 dark:border-slate-700"
+                          />
+                        </View>
+                      </View>
+                    )}
+
+                    {/* Supplier Form */}
+                    {listingType === 'supplier' && (
+                      <View className="gap-4">
+                        <View>
+                          <Text className="text-gray-900 dark:text-white font-semibold mb-2">Company Name *</Text>
+                          <TextInput
+                            value={formData.companyName}
+                            onChangeText={(text) => setFormData({ ...formData, companyName: text })}
+                            placeholder="ABC Manufacturing Ltd"
+                            placeholderTextColor="#94a3b8"
+                            className="bg-gray-100 dark:bg-slate-800 rounded-xl p-4 text-gray-900 dark:text-white border border-gray-300 dark:border-slate-700"
+                          />
+                        </View>
+
+                        <View>
+                          <Text className="text-gray-900 dark:text-white font-semibold mb-2">Company Description *</Text>
+                          <TextInput
+                            value={formData.bio}
+                            onChangeText={(text) => setFormData({ ...formData, bio: text })}
+                            placeholder="Describe your company and what sets you apart..."
+                            placeholderTextColor="#94a3b8"
+                            multiline
+                            numberOfLines={4}
+                            className="bg-gray-100 dark:bg-slate-800 rounded-xl p-4 text-gray-900 dark:text-white border border-gray-300 dark:border-slate-700"
+                            style={{ minHeight: 100, textAlignVertical: 'top' }}
+                          />
+                        </View>
+
+                        <View>
+                          <Text className="text-gray-900 dark:text-white font-semibold mb-2">Manufacturing Capabilities *</Text>
+                          <TextInput
+                            value={formData.capabilities}
+                            onChangeText={(text) => setFormData({ ...formData, capabilities: text })}
+                            placeholder="e.g., CNC Machining, Injection Molding, Sheet Metal"
+                            placeholderTextColor="#94a3b8"
+                            multiline
+                            numberOfLines={3}
+                            className="bg-gray-100 dark:bg-slate-800 rounded-xl p-4 text-gray-900 dark:text-white border border-gray-300 dark:border-slate-700"
+                            style={{ minHeight: 80, textAlignVertical: 'top' }}
+                          />
+                        </View>
+
+                        <View>
+                          <Text className="text-gray-900 dark:text-white font-semibold mb-2">Location *</Text>
+                          <TextInput
+                            value={formData.location}
+                            onChangeText={(text) => setFormData({ ...formData, location: text })}
+                            placeholder="e.g., Birmingham, UK"
+                            placeholderTextColor="#94a3b8"
+                            className="bg-gray-100 dark:bg-slate-800 rounded-xl p-4 text-gray-900 dark:text-white border border-gray-300 dark:border-slate-700"
+                          />
+                        </View>
+
+                        <View>
+                          <Text className="text-gray-900 dark:text-white font-semibold mb-2">Certifications</Text>
+                          <TextInput
+                            value={formData.certifications}
+                            onChangeText={(text) => setFormData({ ...formData, certifications: text })}
+                            placeholder="e.g., ISO 9001, ISO 14001"
+                            placeholderTextColor="#94a3b8"
+                            className="bg-gray-100 dark:bg-slate-800 rounded-xl p-4 text-gray-900 dark:text-white border border-gray-300 dark:border-slate-700"
+                          />
+                        </View>
+
+                        <View>
+                          <Text className="text-gray-900 dark:text-white font-semibold mb-2">Minimum Order Quantity *</Text>
+                          <TextInput
+                            value={formData.minOrder}
+                            onChangeText={(text) => setFormData({ ...formData, minOrder: text })}
+                            placeholder="e.g., 100 units"
+                            placeholderTextColor="#94a3b8"
+                            className="bg-gray-100 dark:bg-slate-800 rounded-xl p-4 text-gray-900 dark:text-white border border-gray-300 dark:border-slate-700"
+                          />
+                        </View>
+
+                        <View>
+                          <Text className="text-gray-900 dark:text-white font-semibold mb-2">Lead Time *</Text>
+                          <TextInput
+                            value={formData.leadTime}
+                            onChangeText={(text) => setFormData({ ...formData, leadTime: text })}
+                            placeholder="e.g., 4-6 weeks"
+                            placeholderTextColor="#94a3b8"
+                            className="bg-gray-100 dark:bg-slate-800 rounded-xl p-4 text-gray-900 dark:text-white border border-gray-300 dark:border-slate-700"
+                          />
+                        </View>
+
+                        <View>
+                          <Text className="text-gray-900 dark:text-white font-semibold mb-2">Contact Email *</Text>
+                          <TextInput
+                            value={formData.contact}
+                            onChangeText={(text) => setFormData({ ...formData, contact: text })}
+                            placeholder="contact@company.com"
+                            placeholderTextColor="#94a3b8"
+                            keyboardType="email-address"
+                            autoCapitalize="none"
+                            className="bg-gray-100 dark:bg-slate-800 rounded-xl p-4 text-gray-900 dark:text-white border border-gray-300 dark:border-slate-700"
+                          />
+                        </View>
+                      </View>
+                    )}
                   </View>
 
-                  <View className="bg-blue-500/10 border border-blue-500/30 rounded-xl p-4 mb-6">
-                    <View className="flex-row items-start gap-3">
-                      <Zap size={20} color="#60a5fa" />
-                      <View className="flex-1">
-                        <Text className="text-blue-400 font-semibold mb-1">Coming Soon</Text>
-                        <Text className="text-gray-600 dark:text-slate-400 text-sm">
-                          This feature is currently in development. You'll be able to create your listing with a full profile form including:
-                        </Text>
-                      </View>
-                    </View>
+                  <View className="gap-3 mt-6 mb-4">
+                    <Pressable
+                      onPress={() => {
+                        const requiredFields = listingType === 'executive'
+                          ? [formData.name, formData.bio, formData.specialization, formData.experience, formData.dailyRate, formData.availability]
+                          : listingType === 'apprentice'
+                          ? [formData.name, formData.bio, formData.specialization, formData.education, formData.dailyRate, formData.availability]
+                          : [formData.companyName, formData.bio, formData.capabilities, formData.location, formData.minOrder, formData.leadTime, formData.contact];
+
+                        if (requiredFields.some(field => !field.trim())) {
+                          Alert.alert('Missing Information', 'Please fill in all required fields marked with *');
+                          return;
+                        }
+
+                        Alert.alert(
+                          'Listing Submitted!',
+                          'Your listing has been submitted successfully. Our team will review it and get back to you within 24 hours.',
+                          [
+                            {
+                              text: 'OK',
+                              onPress: () => {
+                                setShowListYourselfModal(false);
+                                setListingType(null);
+                                setFormData({
+                                  name: '',
+                                  bio: '',
+                                  specialization: '',
+                                  experience: '',
+                                  dailyRate: '',
+                                  availability: '',
+                                  skills: '',
+                                  education: '',
+                                  portfolio: '',
+                                  companyName: '',
+                                  capabilities: '',
+                                  location: '',
+                                  certifications: '',
+                                  minOrder: '',
+                                  leadTime: '',
+                                  contact: '',
+                                });
+                              }
+                            }
+                          ]
+                        );
+                      }}
+                      className="bg-blue-500 py-4 rounded-xl active:opacity-70"
+                    >
+                      <Text className="text-white text-center font-bold text-lg">
+                        Submit Listing
+                      </Text>
+                    </Pressable>
+                    <Pressable
+                      onPress={() => setListingType(null)}
+                      className="bg-gray-200 dark:bg-slate-800 py-4 rounded-xl active:opacity-70"
+                    >
+                      <Text className="text-gray-700 dark:text-slate-300 text-center font-semibold">Back</Text>
+                    </Pressable>
                   </View>
-
-                  {listingType === 'executive' && (
-                    <View className="gap-3">
-                      <View className="flex-row items-center gap-2">
-                        <CheckCircle size={18} color="#10b981" />
-                        <Text className="text-gray-700 dark:text-slate-300">Your name and professional bio</Text>
-                      </View>
-                      <View className="flex-row items-center gap-2">
-                        <CheckCircle size={18} color="#10b981" />
-                        <Text className="text-gray-700 dark:text-slate-300">Specialization (Sales, Marketing, Finance, etc.)</Text>
-                      </View>
-                      <View className="flex-row items-center gap-2">
-                        <CheckCircle size={18} color="#10b981" />
-                        <Text className="text-gray-700 dark:text-slate-300">Years of experience and previous companies</Text>
-                      </View>
-                      <View className="flex-row items-center gap-2">
-                        <CheckCircle size={18} color="#10b981" />
-                        <Text className="text-gray-700 dark:text-slate-300">Daily rate and availability</Text>
-                      </View>
-                      <View className="flex-row items-center gap-2">
-                        <CheckCircle size={18} color="#10b981" />
-                        <Text className="text-gray-700 dark:text-slate-300">Skills and certifications</Text>
-                      </View>
-                    </View>
-                  )}
-
-                  {listingType === 'apprentice' && (
-                    <View className="gap-3">
-                      <View className="flex-row items-center gap-2">
-                        <CheckCircle size={18} color="#10b981" />
-                        <Text className="text-gray-700 dark:text-slate-300">Your name and background</Text>
-                      </View>
-                      <View className="flex-row items-center gap-2">
-                        <CheckCircle size={18} color="#10b981" />
-                        <Text className="text-gray-700 dark:text-slate-300">Area of interest (Engineering, Design, etc.)</Text>
-                      </View>
-                      <View className="flex-row items-center gap-2">
-                        <CheckCircle size={18} color="#10b981" />
-                        <Text className="text-gray-700 dark:text-slate-300">Education and relevant experience</Text>
-                      </View>
-                      <View className="flex-row items-center gap-2">
-                        <CheckCircle size={18} color="#10b981" />
-                        <Text className="text-gray-700 dark:text-slate-300">Expected daily rate and availability</Text>
-                      </View>
-                      <View className="flex-row items-center gap-2">
-                        <CheckCircle size={18} color="#10b981" />
-                        <Text className="text-gray-700 dark:text-slate-300">Portfolio or GitHub link</Text>
-                      </View>
-                    </View>
-                  )}
-
-                  {listingType === 'supplier' && (
-                    <View className="gap-3">
-                      <View className="flex-row items-center gap-2">
-                        <CheckCircle size={18} color="#10b981" />
-                        <Text className="text-gray-700 dark:text-slate-300">Company name and description</Text>
-                      </View>
-                      <View className="flex-row items-center gap-2">
-                        <CheckCircle size={18} color="#10b981" />
-                        <Text className="text-gray-700 dark:text-slate-300">Manufacturing capabilities</Text>
-                      </View>
-                      <View className="flex-row items-center gap-2">
-                        <CheckCircle size={18} color="#10b981" />
-                        <Text className="text-gray-700 dark:text-slate-300">Location and certifications</Text>
-                      </View>
-                      <View className="flex-row items-center gap-2">
-                        <CheckCircle size={18} color="#10b981" />
-                        <Text className="text-gray-700 dark:text-slate-300">Minimum order quantities and lead times</Text>
-                      </View>
-                      <View className="flex-row items-center gap-2">
-                        <CheckCircle size={18} color="#10b981" />
-                        <Text className="text-gray-700 dark:text-slate-300">Contact information and pricing</Text>
-                      </View>
-                    </View>
-                  )}
-                </View>
-
-                <View className="gap-3 mt-6">
-                  <Pressable
-                    onPress={() => {
-                      Alert.alert(
-                        'Coming Soon',
-                        'Marketplace listings are currently in development. You will be notified when this feature launches!',
-                        [{ text: 'OK' }]
-                      );
-                    }}
-                    className="bg-blue-500 py-4 rounded-xl active:opacity-70"
-                  >
-                    <Text className="text-white text-center font-bold text-lg">
-                      Notify Me When Available
-                    </Text>
-                  </Pressable>
-                  <Pressable
-                    onPress={() => setListingType(null)}
-                    className="bg-gray-200 dark:bg-slate-800 py-4 rounded-xl active:opacity-70"
-                  >
-                    <Text className="text-gray-700 dark:text-slate-300 text-center font-semibold">Back</Text>
-                  </Pressable>
-                </View>
-              </ScrollView>
+                </ScrollView>
+              </KeyboardAvoidingView>
             )}
           </View>
         </View>
