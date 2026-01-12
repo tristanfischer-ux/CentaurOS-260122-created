@@ -36,13 +36,16 @@ import {
   BarChart,
   Search,
   Store,
+  AlertTriangle,
+  Shield,
+  Activity,
 } from "lucide-react-native";
 import {
   useCurrentWorkspace,
   useCurrentMembership,
   useCurrentUser,
 } from "@/lib/state/app-store";
-import { useDashboardStats } from "@/lib/hooks/queries";
+import { useDashboardStats, useObjectives, useWorkspaceMembers } from "@/lib/hooks/queries";
 import { router } from "expo-router";
 import {
   CURRENT_FINANCIALS,
@@ -65,6 +68,8 @@ export default function HomeScreen() {
     currentWorkspace?.id ?? null,
   );
   const { data: tasks } = useTasks(currentWorkspace?.id ?? null);
+  const { data: objectives } = useObjectives(currentWorkspace?.id ?? null);
+  const { data: teamMembers } = useWorkspaceMembers(currentWorkspace?.id ?? null);
 
   // Financial dashboard state
   const [showBudgetModal, setShowBudgetModal] = useState(false);
@@ -106,6 +111,44 @@ export default function HomeScreen() {
   }
 
   const role = currentMembership.role;
+
+  // Command Center Metrics - Founders Only
+  const commandCenterMetrics = role === 'Founder' ? {
+    okrHealth: (() => {
+      if (!objectives || objectives.length === 0) return { value: 0, status: 'warning', label: 'No OKRs' };
+      const activeObjectives = objectives.filter((obj: any) => obj.status === 'active');
+      if (activeObjectives.length === 0) return { value: 0, status: 'warning', label: 'No Active OKRs' };
+
+      const totalProgress = activeObjectives.reduce((sum: number, obj: any) => {
+        return sum + (obj.calculatedProgress || 0);
+      }, 0);
+      const avgProgress = totalProgress / activeObjectives.length;
+
+      const status = avgProgress >= 70 ? 'healthy' : avgProgress >= 40 ? 'warning' : 'critical';
+      return { value: Math.round(avgProgress), status, label: `${activeObjectives.length} Active` };
+    })(),
+
+    financialRunway: (() => {
+      const runway = financials.cashBalance / financials.burnRate;
+      const status = runway >= 12 ? 'healthy' : runway >= 6 ? 'warning' : 'critical';
+      return { value: runway.toFixed(1), status, label: 'Months' };
+    })(),
+
+    teamCapacity: (() => {
+      if (!tasks || !teamMembers || teamMembers.length === 0) return { value: 0, status: 'healthy', label: 'No Data' };
+      const activeTasks = tasks.filter((t: any) => t.status !== 'done');
+      const tasksPerPerson = activeTasks.length / teamMembers.length;
+
+      const status = tasksPerPerson <= 5 ? 'healthy' : tasksPerPerson <= 10 ? 'warning' : 'critical';
+      return { value: tasksPerPerson.toFixed(1), status, label: `Tasks/Person` };
+    })(),
+
+    supplierHealth: (() => {
+      // Placeholder - will be enhanced with actual supplier data in future feature
+      const verifiedSuppliers = 28; // Based on seed data
+      return { value: verifiedSuppliers, status: 'healthy', label: 'Verified' };
+    })(),
+  } : null;
 
   return (
     <View className="flex-1 bg-white dark:bg-slate-950">
@@ -176,6 +219,175 @@ export default function HomeScreen() {
             })}
           </View>
         </View>
+
+        {/* Command Center - Founders Only */}
+        {role === "Founder" && commandCenterMetrics && (
+          <View className="px-6 pb-4">
+            <View className="flex-row items-center justify-between mb-3">
+              <View>
+                <Text className="text-gray-900 dark:text-white text-lg font-semibold">
+                  Command Center
+                </Text>
+                <Text className="text-gray-600 dark:text-slate-400 text-sm mt-0.5">
+                  Critical metrics at a glance
+                </Text>
+              </View>
+              <View className="bg-blue-500/20 px-3 py-1.5 rounded-lg">
+                <Text className="text-blue-400 text-xs font-bold uppercase tracking-wide">Live</Text>
+              </View>
+            </View>
+
+            <View className="flex-row flex-wrap gap-3">
+              {/* OKR Health */}
+              <Pressable
+                onPress={() => router.push('/(tabs)/okrs')}
+                className="flex-1 min-w-[155px] active:opacity-70"
+              >
+                <LinearGradient
+                  colors={
+                    commandCenterMetrics.okrHealth.status === 'healthy'
+                      ? ['#10b981', '#059669']
+                      : commandCenterMetrics.okrHealth.status === 'warning'
+                      ? ['#f59e0b', '#d97706']
+                      : ['#ef4444', '#dc2626']
+                  }
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  style={{
+                    padding: 16,
+                    borderRadius: 16,
+                    minHeight: 100,
+                  }}
+                >
+                  <View className="flex-row items-center justify-between mb-2">
+                    <Target size={20} color="white" />
+                    {commandCenterMetrics.okrHealth.status === 'critical' && (
+                      <AlertTriangle size={16} color="white" />
+                    )}
+                  </View>
+                  <Text className="text-white text-xs font-semibold mb-1">
+                    OKR Health
+                  </Text>
+                  <Text className="text-white text-2xl font-bold">
+                    {commandCenterMetrics.okrHealth.value}%
+                  </Text>
+                  <Text className="text-white/80 text-xs mt-1">
+                    {commandCenterMetrics.okrHealth.label}
+                  </Text>
+                </LinearGradient>
+              </Pressable>
+
+              {/* Financial Runway */}
+              <Pressable
+                onPress={() => {/* Scroll to financial section */}}
+                className="flex-1 min-w-[155px] active:opacity-70"
+              >
+                <LinearGradient
+                  colors={
+                    commandCenterMetrics.financialRunway.status === 'healthy'
+                      ? ['#3b82f6', '#2563eb']
+                      : commandCenterMetrics.financialRunway.status === 'warning'
+                      ? ['#f59e0b', '#d97706']
+                      : ['#ef4444', '#dc2626']
+                  }
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  style={{
+                    padding: 16,
+                    borderRadius: 16,
+                    minHeight: 100,
+                  }}
+                >
+                  <View className="flex-row items-center justify-between mb-2">
+                    <DollarSign size={20} color="white" />
+                    {commandCenterMetrics.financialRunway.status === 'critical' && (
+                      <AlertTriangle size={16} color="white" />
+                    )}
+                  </View>
+                  <Text className="text-white text-xs font-semibold mb-1">
+                    Cash Runway
+                  </Text>
+                  <Text className="text-white text-2xl font-bold">
+                    {commandCenterMetrics.financialRunway.value}
+                  </Text>
+                  <Text className="text-white/80 text-xs mt-1">
+                    {commandCenterMetrics.financialRunway.label}
+                  </Text>
+                </LinearGradient>
+              </Pressable>
+
+              {/* Team Capacity */}
+              <Pressable
+                onPress={() => router.push('/(tabs)/work')}
+                className="flex-1 min-w-[155px] active:opacity-70"
+              >
+                <LinearGradient
+                  colors={
+                    commandCenterMetrics.teamCapacity.status === 'healthy'
+                      ? ['#8b5cf6', '#7c3aed']
+                      : commandCenterMetrics.teamCapacity.status === 'warning'
+                      ? ['#f59e0b', '#d97706']
+                      : ['#ef4444', '#dc2626']
+                  }
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  style={{
+                    padding: 16,
+                    borderRadius: 16,
+                    minHeight: 100,
+                  }}
+                >
+                  <View className="flex-row items-center justify-between mb-2">
+                    <Users size={20} color="white" />
+                    {commandCenterMetrics.teamCapacity.status === 'critical' && (
+                      <AlertTriangle size={16} color="white" />
+                    )}
+                  </View>
+                  <Text className="text-white text-xs font-semibold mb-1">
+                    Team Capacity
+                  </Text>
+                  <Text className="text-white text-2xl font-bold">
+                    {commandCenterMetrics.teamCapacity.value}
+                  </Text>
+                  <Text className="text-white/80 text-xs mt-1">
+                    {commandCenterMetrics.teamCapacity.label}
+                  </Text>
+                </LinearGradient>
+              </Pressable>
+
+              {/* Supplier Health */}
+              <Pressable
+                onPress={() => router.push('/(tabs)/network')}
+                className="flex-1 min-w-[155px] active:opacity-70"
+              >
+                <LinearGradient
+                  colors={['#ec4899', '#db2777']}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  style={{
+                    padding: 16,
+                    borderRadius: 16,
+                    minHeight: 100,
+                  }}
+                >
+                  <View className="flex-row items-center justify-between mb-2">
+                    <Package size={20} color="white" />
+                    <Shield size={16} color="white" />
+                  </View>
+                  <Text className="text-white text-xs font-semibold mb-1">
+                    Supplier Network
+                  </Text>
+                  <Text className="text-white text-2xl font-bold">
+                    {commandCenterMetrics.supplierHealth.value}
+                  </Text>
+                  <Text className="text-white/80 text-xs mt-1">
+                    {commandCenterMetrics.supplierHealth.label}
+                  </Text>
+                </LinearGradient>
+              </Pressable>
+            </View>
+          </View>
+        )}
 
         {/* Financial Dashboard - Founders Only */}
         {role === "Founder" && (
