@@ -1,6 +1,6 @@
 import { View, Text, ScrollView, Pressable, Linking, TextInput, Modal, Alert } from 'react-native';
 import { useState } from 'react';
-import { Building2, Users, Calendar, ExternalLink, MapPin, Package, ChevronRight, Search, X, Star, DollarSign, CalendarCheck, Award, Mail, Phone, Bot, Zap, CheckCircle } from 'lucide-react-native';
+import { Building2, Users, Calendar, ExternalLink, MapPin, Package, ChevronRight, Search, X, Star, DollarSign, CalendarCheck, Award, Mail, Phone, Bot, Zap, CheckCircle, Globe } from 'lucide-react-native';
 import { UK_SUPPLIERS } from '@/lib/suppliers-seed';
 import { fractionalExecutives, apprentices, type Candidate } from '@/lib/candidates-seed';
 import { AI_AGENTS, type AIAgent } from '@/lib/organization-seed';
@@ -38,6 +38,9 @@ const DEMO_COMPANIES = [
     industry: 'Medical Devices',
     description: 'Brain-computer interfaces for neurological rehabilitation',
     lookingFor: ['Co-founders', 'Advisors', 'Investors'],
+    website: 'https://neuropulselabs.com',
+    email: 'hello@neuropulselabs.com',
+    phone: '+44 1223 123456',
   },
   {
     id: '2',
@@ -47,6 +50,9 @@ const DEMO_COMPANIES = [
     industry: 'Climate Tech',
     description: 'Integrated solar + battery systems for commercial buildings',
     lookingFor: ['Suppliers', 'Partnerships'],
+    website: 'https://greenchargeenergy.co.uk',
+    email: 'partnerships@greencharge.co.uk',
+    phone: '+44 117 456 7890',
   },
   {
     id: '3',
@@ -56,6 +62,9 @@ const DEMO_COMPANIES = [
     industry: 'AgTech',
     description: 'Autonomous farming robots for precision agriculture',
     lookingFor: ['Co-founders', 'Suppliers', 'Customers'],
+    website: 'https://robofarmsystems.com',
+    email: 'contact@robofarmsystems.com',
+    phone: '+44 131 789 0123',
   },
   {
     id: '4',
@@ -65,6 +74,9 @@ const DEMO_COMPANIES = [
     industry: 'Consumer Electronics',
     description: 'Next-generation hearing aids with AI noise cancellation',
     lookingFor: ['Advisors', 'Investors'],
+    website: 'https://sonicwaveaudio.com',
+    email: 'info@sonicwaveaudio.com',
+    phone: '+44 161 234 5678',
   },
   {
     id: '5',
@@ -74,6 +86,9 @@ const DEMO_COMPANIES = [
     industry: 'Industrial IoT',
     description: 'Edge computing sensors for predictive maintenance',
     lookingFor: ['Customers', 'Partnerships'],
+    website: 'https://edgesenseiot.com',
+    email: 'sales@edgesenseiot.com',
+    phone: '+44 121 567 8901',
   },
 ];
 
@@ -305,63 +320,143 @@ function SuppliersTab() {
 
 // Companies Tab - Company Discovery & Networking
 function CompaniesTab() {
+  const [selectedCompany, setSelectedCompany] = useState<typeof DEMO_COMPANIES[0] | null>(null);
+
   return (
-    <View className="p-6">
-      <View className="mb-6">
-        <Text className="text-white text-2xl font-bold mb-2">Company Directory</Text>
-        <Text className="text-slate-400 text-sm">
-          Connect with {DEMO_COMPANIES.length} hardware startups using Centaur OS
-        </Text>
-      </View>
+    <>
+      <View className="p-6">
+        <View className="mb-6">
+          <Text className="text-white text-2xl font-bold mb-2">Company Directory</Text>
+          <Text className="text-slate-400 text-sm">
+            Connect with {DEMO_COMPANIES.length} hardware startups using Centaur OS
+          </Text>
+        </View>
 
-      <View className="gap-4">
-        {DEMO_COMPANIES.map((company) => (
-          <View
-            key={company.id}
-            className="bg-slate-900 rounded-2xl p-4 border border-slate-800"
-          >
-            <View className="flex-row items-start justify-between mb-3">
-              <View className="flex-1 mr-3">
-                <View className="flex-row items-center gap-2 mb-1">
-                  <Text className="text-white text-lg font-semibold">{company.name}</Text>
-                  <View className="bg-emerald-950 px-2 py-0.5 rounded-full">
-                    <Text className="text-emerald-400 text-[10px] font-semibold">{company.stage.toUpperCase()}</Text>
+        <View className="gap-4">
+          {DEMO_COMPANIES.map((company) => (
+            <Pressable
+              key={company.id}
+              onPress={() => setSelectedCompany(company)}
+              className="bg-slate-900 rounded-2xl p-4 border border-slate-800 active:opacity-70"
+            >
+              <View className="flex-row items-start justify-between mb-3">
+                <View className="flex-1 mr-3">
+                  <View className="flex-row items-center gap-2 mb-1">
+                    <Text className="text-white text-lg font-semibold">{company.name}</Text>
+                    <View className="bg-emerald-950 px-2 py-0.5 rounded-full">
+                      <Text className="text-emerald-400 text-[10px] font-semibold">{company.stage.toUpperCase()}</Text>
+                    </View>
+                  </View>
+                  <Text className="text-slate-400 text-sm mb-2">{company.description}</Text>
+                  <View className="flex-row items-center gap-3 mb-2">
+                    <View className="flex-row items-center gap-1">
+                      <MapPin size={14} color="#64748b" />
+                      <Text className="text-slate-500 text-xs">{company.location}</Text>
+                    </View>
+                    <View className="flex-row items-center gap-1">
+                      <Package size={14} color="#64748b" />
+                      <Text className="text-slate-500 text-xs">{company.industry}</Text>
+                    </View>
                   </View>
                 </View>
-                <Text className="text-slate-400 text-sm mb-2">{company.description}</Text>
-                <View className="flex-row items-center gap-3 mb-2">
-                  <View className="flex-row items-center gap-1">
-                    <MapPin size={14} color="#64748b" />
-                    <Text className="text-slate-500 text-xs">{company.location}</Text>
-                  </View>
-                  <View className="flex-row items-center gap-1">
-                    <Package size={14} color="#64748b" />
-                    <Text className="text-slate-500 text-xs">{company.industry}</Text>
-                  </View>
+                <Users size={24} color="#64748b" />
+              </View>
+
+              <View className="mb-3">
+                <Text className="text-slate-500 text-xs mb-2">Looking for:</Text>
+                <View className="flex-row flex-wrap gap-2">
+                  {company.lookingFor.map((item, idx) => (
+                    <View key={idx} className="bg-slate-800 px-3 py-1 rounded-full">
+                      <Text className="text-slate-300 text-xs">{item}</Text>
+                    </View>
+                  ))}
                 </View>
               </View>
-              <Users size={24} color="#64748b" />
-            </View>
 
-            <View className="mb-3">
-              <Text className="text-slate-500 text-xs mb-2">Looking for:</Text>
-              <View className="flex-row flex-wrap gap-2">
-                {company.lookingFor.map((item, idx) => (
-                  <View key={idx} className="bg-slate-800 px-3 py-1 rounded-full">
-                    <Text className="text-slate-300 text-xs">{item}</Text>
-                  </View>
-                ))}
+              <View className="flex-row items-center justify-center bg-slate-800 rounded-xl py-2.5 border border-slate-700">
+                <Text className="text-white font-semibold text-sm">View Details</Text>
+                <ChevronRight size={16} color="white" className="ml-1" />
               </View>
-            </View>
-
-            <Pressable className="flex-row items-center justify-center bg-slate-800 rounded-xl py-2.5 border border-slate-700 active:opacity-80">
-              <Text className="text-white font-semibold text-sm">Connect</Text>
-              <ChevronRight size={16} color="white" className="ml-1" />
             </Pressable>
-          </View>
-        ))}
+          ))}
+        </View>
       </View>
-    </View>
+
+      {/* Company Detail Modal */}
+      <Modal visible={selectedCompany !== null} transparent animationType="fade">
+        <View className="flex-1 bg-black/70 justify-center px-6">
+          {selectedCompany && (
+            <View className="bg-slate-900 rounded-3xl p-6" style={{ maxHeight: '80%' }}>
+              <ScrollView showsVerticalScrollIndicator={false}>
+                <View className="flex-row items-center justify-between mb-4">
+                  <Text className="text-white text-xl font-bold">{selectedCompany.name}</Text>
+                  <Pressable onPress={() => setSelectedCompany(null)}>
+                    <X size={24} color="#94a3b8" />
+                  </Pressable>
+                </View>
+
+                <View className="bg-slate-800 rounded-xl p-4 mb-4">
+                  <View className="flex-row justify-between mb-2">
+                    <Text className="text-slate-400 text-sm">Industry:</Text>
+                    <Text className="text-white font-semibold">{selectedCompany.industry}</Text>
+                  </View>
+                  <View className="flex-row justify-between mb-2">
+                    <Text className="text-slate-400 text-sm">Stage:</Text>
+                    <Text className="text-emerald-400 font-semibold">{selectedCompany.stage}</Text>
+                  </View>
+                  <View className="flex-row justify-between">
+                    <Text className="text-slate-400 text-sm">Location:</Text>
+                    <Text className="text-white font-semibold">{selectedCompany.location}</Text>
+                  </View>
+                </View>
+
+                <View className="mb-4">
+                  <Text className="text-slate-400 text-sm mb-2">About</Text>
+                  <Text className="text-slate-300">{selectedCompany.description}</Text>
+                </View>
+
+                <View className="mb-4">
+                  <Text className="text-slate-400 text-sm mb-2">Looking for:</Text>
+                  <View className="flex-row flex-wrap gap-2">
+                    {selectedCompany.lookingFor.map((item, idx) => (
+                      <View key={idx} className="bg-blue-500/20 px-3 py-1.5 rounded-lg">
+                        <Text className="text-blue-400 text-xs font-medium">{item}</Text>
+                      </View>
+                    ))}
+                  </View>
+                </View>
+
+                <Text className="text-white font-semibold mb-3">Contact</Text>
+
+                <View className="gap-3">
+                  <Pressable
+                    onPress={() => Linking.openURL(selectedCompany.website)}
+                    className="bg-blue-500 py-3 rounded-xl flex-row items-center justify-center gap-2 active:opacity-80"
+                  >
+                    <Globe size={18} color="#fff" />
+                    <Text className="text-white font-semibold">Visit Website</Text>
+                  </Pressable>
+                  <Pressable
+                    onPress={() => Linking.openURL(`mailto:${selectedCompany.email}`)}
+                    className="bg-slate-800 py-3 rounded-xl flex-row items-center justify-center gap-2 border border-slate-700 active:opacity-80"
+                  >
+                    <Mail size={18} color="#fff" />
+                    <Text className="text-white font-semibold">Send Email</Text>
+                  </Pressable>
+                  <Pressable
+                    onPress={() => Linking.openURL(`tel:${selectedCompany.phone}`)}
+                    className="bg-slate-800 py-3 rounded-xl flex-row items-center justify-center gap-2 border border-slate-700 active:opacity-80"
+                  >
+                    <Phone size={18} color="#fff" />
+                    <Text className="text-white font-semibold">Call</Text>
+                  </Pressable>
+                </View>
+              </ScrollView>
+            </View>
+          )}
+        </View>
+      </Modal>
+    </>
   );
 }
 
