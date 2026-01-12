@@ -589,7 +589,9 @@ export default function OrganizationScreen() {
                   <View className="flex-row justify-between">
                     <Text className="text-slate-400 text-sm">Started:</Text>
                     <Text className="text-white font-semibold">
-                      {new Date(selectedMember.startDate).toLocaleDateString()}
+                      {selectedMember.startDate
+                        ? new Date(selectedMember.startDate).toLocaleDateString()
+                        : 'N/A'}
                     </Text>
                   </View>
                 </View>
@@ -618,13 +620,15 @@ export default function OrganizationScreen() {
                 )}
 
                 <View className="gap-3">
-                  <Pressable
-                    onPress={() => Linking.openURL(`mailto:${selectedMember.email}`)}
-                    className="bg-blue-500 py-3 rounded-xl flex-row items-center justify-center gap-2 active:opacity-80"
-                  >
-                    <Mail size={18} color="#fff" />
-                    <Text className="text-white font-semibold">Email</Text>
-                  </Pressable>
+                  {selectedMember.email && (
+                    <Pressable
+                      onPress={() => Linking.openURL(`mailto:${selectedMember.email}`)}
+                      className="bg-blue-500 py-3 rounded-xl flex-row items-center justify-center gap-2 active:opacity-80"
+                    >
+                      <Mail size={18} color="#fff" />
+                      <Text className="text-white font-semibold">Email</Text>
+                    </Pressable>
+                  )}
                   {selectedMember.phone && (
                     <Pressable
                       onPress={() => Linking.openURL(`tel:${selectedMember.phone}`)}
