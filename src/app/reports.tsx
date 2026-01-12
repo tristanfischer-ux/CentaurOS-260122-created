@@ -7,6 +7,7 @@ import { FileText, Download, TrendingUp, Users, Target, AlertTriangle, Lightbulb
 import { useAppStore } from '@/lib/state/app-store';
 import { generateReport } from '@/lib/reports/generator';
 import { exportBoardPack, exportReportAsCSV, exportReportAsJSON } from '@/lib/reports/export-board-pack';
+import { exportReportAsPDF } from '@/lib/reports/export-pdf';
 import type { Report, ReportPeriod, FounderReportData, ExecutiveReportData, ApprenticeReportData } from '@/types';
 import { cn } from '@/lib/cn';
 
@@ -113,6 +114,21 @@ export default function ReportsScreen() {
     },
     onSuccess: () => {
       Alert.alert('Success', 'JSON exported successfully');
+    },
+    onError: (error: Error) => {
+      Alert.alert('Error', error.message);
+    },
+  });
+
+  const exportPDFMutation = useMutation({
+    mutationFn: async () => {
+      if (!generatedReport || !currentWorkspace || !currentUser) {
+        throw new Error('No report to export or missing user/workspace data');
+      }
+      await exportReportAsPDF(generatedReport, currentWorkspace.name, currentUser.name);
+    },
+    onSuccess: () => {
+      Alert.alert('Success', 'PDF exported successfully');
     },
     onError: (error: Error) => {
       Alert.alert('Error', error.message);
@@ -226,6 +242,23 @@ export default function ReportsScreen() {
             <View className="px-6 pt-4 pb-6">
               <Text className="text-white font-bold text-lg mb-4">Export Options</Text>
               <View className="gap-3">
+                {/* PDF Export - Available for all roles */}
+                <Pressable
+                  onPress={() => exportPDFMutation.mutate()}
+                  disabled={exportPDFMutation.isPending}
+                  className="bg-gradient-to-r from-blue-600 to-blue-500 py-4 rounded-xl flex-row items-center justify-center active:opacity-80"
+                  style={{ backgroundColor: '#3b82f6' }}
+                >
+                  {exportPDFMutation.isPending ? (
+                    <ActivityIndicator size="small" color="#fff" />
+                  ) : (
+                    <>
+                      <FileText size={20} color="#fff" />
+                      <Text className="text-white font-bold ml-3">Export as PDF</Text>
+                    </>
+                  )}
+                </Pressable>
+
                 {role === 'Founder' && (
                   <Pressable
                     onPress={() => exportBoardPackMutation.mutate()}

@@ -351,7 +351,14 @@ Centaur OS turns OKRs into work, tracks execution, enables review workflows, and
 - **Time Tracking** - Apprentices log hours on tasks with notes and date tracking
 - **Team Utilization Dashboard** - Executives and Founders view team capacity and productivity
 - **Automated Reports** - Professional, board-ready reports with beautiful design
-  - **McKinsey-Grade Enhancements** (NEW! ✨):
+  - **PDF Export** (NEW! 📄): One-click professional PDF reports with stunning layout
+    - **Beautiful Styling**: Professional gradient headers, metric cards, and tables
+    - **Company Branding**: Includes company name, producer name, and report date
+    - **Comprehensive Data**: Full financial overview, OKR progress, team performance, risks
+    - **Share Anywhere**: Export and share via email, messages, or cloud storage
+    - **Available for All Roles**: Founders, Executives, and Apprentices can export their reports
+    - **Print-Ready**: Optimized formatting for printing or digital distribution
+  - **McKinsey-Grade Enhancements**:
     - **Executive Summary**: Pyramid Principle format with overall health status (🟢 Green / 🟡 Yellow / 🔴 Red)
       - One-sentence headline answer
       - Exactly 3 key insights (Financial / Execution / Team) with trend indicators
