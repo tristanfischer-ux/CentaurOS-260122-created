@@ -255,8 +255,8 @@ export const taskApi = {
     });
 
     // Auto-calculate OKR progress if task is linked to an objective
-    if (updated.linkedObjectiveId) {
-      await updateOKRProgressFromTasks(updated.linkedObjectiveId);
+    if (updated.objectiveId) {
+      await updateOKRProgressFromTasks(updated.objectiveId);
     }
 
     return updated;
@@ -271,7 +271,7 @@ export const taskApi = {
     const task = tasks[taskId];
     if (!task) return;
 
-    const linkedObjectiveId = task.linkedObjectiveId; // Save before deletion
+    const linkedObjectiveId = task.objectiveId; // Save before deletion
 
     delete tasks[taskId];
     await db.setTasks(tasks);
@@ -837,7 +837,7 @@ export const timeEntryApi = {
 export async function calculateOKRProgress(objectiveId: string): Promise<number> {
   const tasks = await db.getTasks();
   const linkedTasks = Object.values(tasks).filter(
-    (t: any) => t.linkedObjectiveId === objectiveId
+    (t: any) => t.objectiveId === objectiveId
   );
 
   if (linkedTasks.length === 0) {

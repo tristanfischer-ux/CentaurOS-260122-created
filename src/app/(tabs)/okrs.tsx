@@ -1,6 +1,6 @@
 import { View, Text, ScrollView, Pressable, ActivityIndicator, TextInput, Modal, Alert, KeyboardAvoidingView, Platform } from 'react-native';
 import { useState } from 'react';
-import { Target, Plus, TrendingUp, AlertTriangle, XCircle, X, Download, Briefcase, CheckCircle2, Edit3, Trash2, GripVertical, Sparkles, Lightbulb, Clock, ArrowRight, CheckSquare } from 'lucide-react-native';
+import { Target, Plus, TrendingUp, AlertTriangle, XCircle, X, Download, Briefcase, CheckCircle2, Edit3, Trash2, GripVertical, Sparkles, Lightbulb, Clock, ArrowRight, CheckSquare, Shield, Activity } from 'lucide-react-native';
 import { useCurrentWorkspace, useCurrentMembership, useCurrentUser } from '@/lib/state/app-store';
 import { useObjectives, useTasks } from '@/lib/hooks/queries';
 import { objectiveApi, keyResultApi } from '@/lib/api';
@@ -11,6 +11,7 @@ import type { KeyResult, Objective } from '@/types';
 import { router } from 'expo-router';
 import { suggestTasksForObjective, getObjectiveCoaching, calculateTotalEffort, type SuggestedTask } from '@/lib/objective-tasks';
 import { LinearGradient } from 'expo-linear-gradient';
+import { calculateObjectiveRisk, getRiskColor, getRiskLabel } from '@/lib/okr-risk-scoring';
 
 export default function OKRsScreen() {
   const currentWorkspace = useCurrentWorkspace();
@@ -332,6 +333,12 @@ export default function OKRsScreen() {
             const atRiskKRs = objective.keyResults.filter((kr) => kr.healthStatus === 'at_risk').length;
             const offTrackKRs = objective.keyResults.filter((kr) => kr.healthStatus === 'off_track').length;
 
+            // Calculate risk score
+            const linkedTasks = tasks?.filter(t => t.objectiveId === objective.id) || [];
+            const completedTasks = linkedTasks.filter(t => t.status === 'done');
+            const riskScore = calculateObjectiveRisk(objective, linkedTasks.length, completedTasks.length);
+            const riskColor = getRiskColor(riskScore.level);
+
             return (
               <View key={objective.id} className="bg-gray-100 dark:bg-slate-900 rounded-3xl p-5 border border-slate-800">
                 {/* Objective Header */}
@@ -403,6 +410,39 @@ export default function OKRsScreen() {
                         <Text className="text-red-400 text-xs ml-1">{offTrackKRs} off track</Text>
                       </View>
                     )}
+                  </View>
+
+                  {/* Risk Score Indicator */}
+                  <View className={`mt-3 ${riskColor.bg} border border-${riskScore.level === 'low' ? 'green' : riskScore.level === 'medium' ? 'yellow' : riskScore.level === 'high' ? 'orange' : 'red'}-500/30 rounded-xl p-3`}>
+                    <View className="flex-row items-center justify-between mb-2">
+                      <View className="flex-row items-center gap-2">
+                        <Shield size={16} color={riskColor.hex} />
+                        <Text className={`${riskColor.text} font-semibold text-sm`}>
+                          {getRiskLabel(riskScore.level)}
+                        </Text>
+                      </View>
+                      <Text className={`${riskColor.text} text-xl font-bold`}>
+                        {riskScore.score}/100
+                      </Text>
+                    </View>
+
+                    <View className="flex-row items-center justify-between mb-2">
+                      <Text className="text-gray-600 dark:text-slate-400 text-xs">
+                        Progress: {riskScore.factors.taskProgress.toFixed(0)}%
+                      </Text>
+                      <Text className="text-gray-600 dark:text-slate-400 text-xs">
+                        Time: {riskScore.factors.timeProgress.toFixed(0)}%
+                      </Text>
+                      <Text className="text-gray-600 dark:text-slate-400 text-xs">
+                        {riskScore.factors.daysRemaining}d left
+                      </Text>
+                    </View>
+
+                    <View className={`bg-${riskScore.level === 'low' ? 'green' : riskScore.level === 'medium' ? 'yellow' : riskScore.level === 'high' ? 'orange' : 'red'}-500/10 rounded-lg p-2 mt-1`}>
+                      <Text className={`${riskColor.text} text-xs`}>
+                        💡 {riskScore.recommendations[0]}
+                      </Text>
+                    </View>
                   </View>
 
                   {/* AI Task Suggestions Button */}
