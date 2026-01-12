@@ -126,6 +126,14 @@ export const useAppStore = create<AppState>((set, get) => ({
         )
       : null;
 
+    console.log('setCurrentWorkspace:', {
+      workspaceId,
+      userId: state.currentUser?.id,
+      foundMembership: membership,
+      membershipRole: membership?.role,
+      totalMemberships: Object.keys(state.memberships).length,
+    });
+
     set({
       currentWorkspaceId: workspaceId,
       currentWorkspace: workspace ?? null,

@@ -16,6 +16,7 @@ export default function TabLayout() {
   const isAuthenticated = useIsAuthenticated();
   const currentWorkspace = useCurrentWorkspace();
   const workspaces = useAppStore((s) => s.workspaces);
+  const memberships = useAppStore((s) => s.memberships);
   const setCurrentWorkspace = useAppStore((s) => s.setCurrentWorkspace);
 
   // Determine background colors based on theme
@@ -40,13 +41,14 @@ export default function TabLayout() {
 
   // Auto-select first workspace if none selected
   useEffect(() => {
-    if (isAuthenticated && !currentWorkspace) {
+    if (isAuthenticated && !currentWorkspace && Object.keys(workspaces).length > 0 && Object.keys(memberships).length > 0) {
       const firstWorkspace = Object.values(workspaces)[0];
       if (firstWorkspace) {
+        console.log('Setting workspace:', firstWorkspace.id);
         setCurrentWorkspace(firstWorkspace.id);
       }
     }
-  }, [isAuthenticated, currentWorkspace, workspaces]);
+  }, [isAuthenticated, currentWorkspace, workspaces, memberships]);
 
   if (!isAuthenticated) {
     return null;
