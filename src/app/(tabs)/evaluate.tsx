@@ -4,6 +4,7 @@ import { CheckCircle, XCircle, Clock, X, ThumbsUp, AlertTriangle } from 'lucide-
 import { useCurrentWorkspace, useCurrentMembership } from '@/lib/state/app-store';
 import { useReviews, useSubmitReview } from '@/lib/hooks/queries';
 import type { ReviewStatus } from '@/types';
+import { TabDescription } from '@/components/TabDescription';
 
 export default function ReviewsScreen() {
   const currentWorkspace = useCurrentWorkspace();
@@ -211,6 +212,8 @@ export default function ReviewsScreen() {
 
   return (
     <ScrollView className="flex-1 bg-white dark:bg-slate-950">
+      <TabDescription description="Review submitted work from apprentices, provide feedback, and approve or request changes." />
+
       {/* Header */}
       <View className="p-6 pb-4">
         <Text className="text-gray-900 dark:text-white text-2xl font-bold">Review Queue</Text>

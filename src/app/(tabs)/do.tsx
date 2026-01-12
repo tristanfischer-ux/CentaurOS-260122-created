@@ -9,6 +9,7 @@ import { router } from 'expo-router';
 import { taskApi } from '@/lib/api/operations';
 import { useQueryClient } from '@tanstack/react-query';
 import { recordCompletion, addActivity } from '@/lib/engagement-tracking';
+import { TabDescription } from '@/components/TabDescription';
 
 export default function WorkScreen() {
   const currentWorkspace = useCurrentWorkspace();
@@ -265,6 +266,8 @@ export default function WorkScreen() {
 
   return (
     <View className="flex-1 bg-white dark:bg-slate-950">
+      <TabDescription description="Manage your tasks, track progress, and coordinate work across your team with filters and assignment tools." />
+
       {/* Header with Filters */}
       <View className="p-6 pb-4">
         <View className="flex-row items-center justify-between mb-4">

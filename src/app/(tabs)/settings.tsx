@@ -5,6 +5,7 @@ import { router } from 'expo-router';
 import { useState } from 'react';
 import type { ThemeMode } from '@/types';
 import { resetOnboarding } from '@/lib/onboarding';
+import { TabDescription } from '@/components/TabDescription';
 
 export default function SettingsScreen() {
   const currentUser = useCurrentUser();
@@ -159,6 +160,8 @@ export default function SettingsScreen() {
 
   return (
     <ScrollView className="flex-1 bg-white dark:bg-slate-950">
+      <TabDescription description="Manage your account preferences, theme settings, workspace controls, and app information." />
+
       <View className="p-4">
         <View className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-6 mb-4">
           <Text className="text-gray-600 dark:text-slate-400 text-sm mb-2">Logged in as</Text>

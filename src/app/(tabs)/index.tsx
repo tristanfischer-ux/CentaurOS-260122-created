@@ -58,6 +58,7 @@ import {
 } from "@/lib/financial-seed";
 import { EngagementSections } from "@/components/EngagementSections";
 import { useTasks } from "@/lib/hooks/queries";
+import { TabDescription } from "@/components/TabDescription";
 
 export default function HomeScreen() {
   // Home screen with dashboard
@@ -154,6 +155,8 @@ export default function HomeScreen() {
   return (
     <View className="flex-1 bg-white dark:bg-slate-950">
       <ScrollView className="flex-1">
+        <TabDescription description="Your command center for workspace insights, key metrics, and daily focus areas." />
+
         {/* Header Section */}
         <View className="p-6 pb-4">
           <View className="flex-row items-center justify-between mb-2">

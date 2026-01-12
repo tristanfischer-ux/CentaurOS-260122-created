@@ -19,6 +19,7 @@ import { router } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { fractionalExecutives, apprentices, type Candidate } from '@/lib/candidates-seed';
 import MapView, { Marker, PROVIDER_DEFAULT } from 'react-native-maps';
+import { TabDescription } from '@/components/TabDescription';
 
 type CommunityTab = 'events' | 'hiring';
 
@@ -85,6 +86,8 @@ export default function CommunityScreen() {
 
   return (
     <View className="flex-1 bg-white dark:bg-slate-950">
+      <TabDescription description="Attend startup events and discover talented fractional executives and apprentices to join your team." />
+
       {/* Tab Selector */}
       <View className="px-6 pt-4 pb-2">
         <View className="flex-row bg-gray-100 dark:bg-slate-900 rounded-xl p-1 border border-gray-300 dark:border-slate-800">

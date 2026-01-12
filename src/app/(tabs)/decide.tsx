@@ -13,6 +13,7 @@ import { suggestTasksForObjective, getObjectiveCoaching, calculateTotalEffort, t
 import { LinearGradient } from 'expo-linear-gradient';
 import { calculateObjectiveRisk, getRiskColor, getRiskLabel } from '@/lib/okr-risk-scoring';
 import { OKR_SUGGESTIONS, OKR_CATEGORIES, getOKRsByCategory, type OKRSuggestion, type OKRCategory } from '@/lib/okr-suggestions';
+import { TabDescription } from '@/components/TabDescription';
 
 export default function OKRsScreen() {
   const params = useLocalSearchParams();
@@ -343,6 +344,8 @@ export default function OKRsScreen() {
   return (
     <>
     <ScrollView className="flex-1 bg-white dark:bg-slate-950">
+      <TabDescription description="Set strategic objectives and track measurable key results to align your team and measure progress." />
+
       {/* Header */}
       <View className="p-6 pb-4">
         <View className="flex-row items-center justify-between">

@@ -27,6 +27,7 @@ import {
   type SupplierEngagement,
   type AIAgent,
 } from '@/lib/organization-seed';
+import { TabDescription } from '@/components/TabDescription';
 
 type MakeTab = 'suppliers' | 'ai';
 
@@ -64,6 +65,8 @@ export default function MakeScreen() {
 
   return (
     <View className="flex-1 bg-white dark:bg-slate-950">
+      <TabDescription description="Connect with verified suppliers and manage AI tools to streamline your hardware manufacturing process." />
+
       {/* Header with stats */}
       <View className="px-6 pt-4 pb-2">
         <View className="flex-row gap-3 mb-4">
