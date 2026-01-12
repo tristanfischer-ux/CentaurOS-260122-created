@@ -308,130 +308,109 @@ export default function SettingsScreen() {
                 <View>
                   <Text className="text-gray-900 dark:text-white text-lg font-bold mb-2">What is Centaur OS?</Text>
                   <Text className="text-gray-700 dark:text-slate-300 leading-6">
-                    Centaur OS is the operating system for lean hardware startups. It helps you run your business efficiently with a small team: 2 founders, apprentices (doers), and fractional executives (reviewers), augmented by AI agents and manufacturing partners.
+                    The operating system for lean hardware startups. Run your business efficiently with a small team: founders who decide, fractional executives who evaluate, and apprentices who execute—augmented by AI and manufacturing partners.
                   </Text>
                 </View>
 
                 {/* Key Features */}
                 <View>
-                  <Text className="text-gray-900 dark:text-white text-lg font-bold mb-2">Key Features</Text>
+                  <Text className="text-gray-900 dark:text-white text-lg font-bold mb-2">Core Features</Text>
 
                   <View className="mb-3">
-                    <Text className="text-gray-900 dark:text-white font-semibold mb-1">🏠 Dashboard & Daily Engagement</Text>
+                    <Text className="text-gray-900 dark:text-white font-semibold mb-1">🎯 OKR Management</Text>
                     <Text className="text-gray-700 dark:text-slate-400 text-sm">
-                      Role-specific dashboards with streak tracking, today's focus (top 3 priority tasks), quick win counter, and recent activity feed. See OKRs, upcoming tasks, and pending reviews at a glance. Push notifications for assignments, completions, and reviews.
+                      Set objectives, track key results, monitor health indicators. AI Task Advisor suggests proven tasks based on your goals across 6 categories (revenue, PMF, customer acquisition, team building, ops, fundraising). Get founder-level coaching on impact and execution.
                     </Text>
                   </View>
 
                   <View className="mb-3">
-                    <Text className="text-gray-900 dark:text-white font-semibold mb-1">🎯 OKR Management & AI Task Advisor</Text>
+                    <Text className="text-gray-900 dark:text-white font-semibold mb-1">✅ Task Management</Text>
                     <Text className="text-gray-700 dark:text-slate-400 text-sm">
-                      Create objectives and track key results with health indicators. NEW: AI Task Advisor suggests proven tasks based on your objectives (revenue growth, PMF, customer acquisition, team building, operations, fundraising). Get founder-level coaching on "Why This Matters" and expected impact for each suggested task. 42 research-backed tasks across 6 categories.
+                      Priority-based workflow (Urgent → High → Medium → Low). Full task editing, strategic alignment warnings, time tracking. Filter by status or objective. Assign to team members with one tap.
                     </Text>
                   </View>
 
                   <View className="mb-3">
-                    <Text className="text-gray-900 dark:text-white font-semibold mb-1">✅ Work Hub</Text>
+                    <Text className="text-gray-900 dark:text-white font-semibold mb-1">👥 Team Performance</Text>
                     <Text className="text-gray-700 dark:text-slate-400 text-sm">
-                      Comprehensive task management with priority-based sorting (Urgent → High → Medium → Low). Full editing: title, description, status, priority, function, assignee, linked objective, and due date. Filter by status or objective. Strategic alignment warnings for unlinked tasks. Time tracking available.
+                      Interactive org chart showing reporting lines. Team Performance Analytics with contribution scores (0-100), productivity metrics, quality ratings, and efficiency tracking. Compare executives vs apprentices. Skills matrix and performance reviews for apprentice development.
                     </Text>
                   </View>
 
                   <View className="mb-3">
-                    <Text className="text-gray-900 dark:text-white font-semibold mb-1">👥 Team Directory & Performance</Text>
+                    <Text className="text-gray-900 dark:text-white font-semibold mb-1">🔍 Review Workflow</Text>
                     <Text className="text-gray-700 dark:text-slate-400 text-sm">
-                      Live workspace members with real user IDs. Contact info, roles, specializations, and task metrics. Assign tasks directly from profiles. Interactive org chart with circular layout showing reporting lines. Team Performance Analytics with contribution scores (0-100), productivity, quality, efficiency, and engagement metrics. Compare executives vs apprentices.
+                      Executives review apprentice work with approve/reject actions. Feedback loops ensure quality. Track status: pending, approved, changes requested.
                     </Text>
                   </View>
 
                   <View className="mb-3">
-                    <Text className="text-gray-900 dark:text-white font-semibold mb-1">🔍 Reviews Workflow</Text>
+                    <Text className="text-gray-900 dark:text-white font-semibold mb-1">📚 Function Library</Text>
                     <Text className="text-gray-700 dark:text-slate-400 text-sm">
-                      Executives review apprentice work with approve/reject actions. Feedback loops ensure quality. Track review status (pending, approved, changes requested). Activity feed shows review requests and approvals.
+                      Complete resource hub for all business functions (Finance, Sales, Marketing, Ops, Engineering, Admin). Each function includes: people to hire, recommended tools, AI assistants, templates, guides, checklists, suggested OKRs, and role-specific advice for founders, executives, and apprentices.
                     </Text>
                   </View>
 
                   <View className="mb-3">
-                    <Text className="text-gray-900 dark:text-white font-semibold mb-1">🤖 AI Agents Ecosystem</Text>
+                    <Text className="text-gray-900 dark:text-white font-semibold mb-1">🤖 AI Agents</Text>
                     <Text className="text-gray-700 dark:text-slate-400 text-sm">
-                      36 AI agents organized by 7 functions: Finance (Vic AI, Digits AI), Sales (11x Alice, Gong AI), Marketing (Jasper, Midjourney, DALL-E 3), Ops (Hebbia, Zapier, Harvey), Engineering (GitHub Copilot, Cursor), Admin (ChatGPT Enterprise, Notion AI), Design & Manufacturing (Autodesk Fusion AI, Manufacturing GPT, Quality AI Inspector). Track team usage and costs (£7,334/month total).
+                      36 AI agents organized by function: Finance, Sales, Marketing, Operations, Engineering, Admin, Design & Manufacturing. Track team usage and costs. Directory includes GPT-4, Claude, Midjourney, GitHub Copilot, and specialized tools.
                     </Text>
                   </View>
 
                   <View className="mb-3">
-                    <Text className="text-gray-900 dark:text-white font-semibold mb-1">🏭 Supplier Management</Text>
+                    <Text className="text-gray-900 dark:text-white font-semibold mb-1">🏭 Manufacturing & Suppliers</Text>
                     <Text className="text-gray-700 dark:text-slate-400 text-sm">
-                      Track 5 active supplier engagements with project names, costs (£101k total, £33k paid), delivery timelines, and task breakdowns. Interactive UK map shows supplier locations (Birmingham, Leeds, Manchester, 2x London). Contact managers and monitor delivery status.
+                      Track supplier engagements with costs, delivery timelines, and task breakdowns. Interactive map shows locations. Contact managers and monitor delivery status. Built for hardware startups managing multiple manufacturing partners.
                     </Text>
                   </View>
 
                   <View className="mb-3">
                     <Text className="text-gray-900 dark:text-white font-semibold mb-1">🌐 Network & Hiring</Text>
                     <Text className="text-gray-700 dark:text-slate-400 text-sm">
-                      Browse and hire from 30 Fractional Executives and 30 Apprentices. View experience, ratings, daily rates (£200-800), availability, skills, and previous companies. Search and filter by specialization. Tinder-style discovery interface with detail views and LinkedIn profile links. One-click hiring adds candidates to your team.
+                      Browse and hire 30 Fractional Executives and 30 Apprentices. View experience, ratings, availability, and skills. Tinder-style discovery with detail views. One-click hiring adds candidates to your team.
+                    </Text>
+                  </View>
+
+                  <View className="mb-3">
+                    <Text className="text-gray-900 dark:text-white font-semibold mb-1">💰 Financial Dashboard</Text>
+                    <Text className="text-gray-700 dark:text-slate-400 text-sm">
+                      Monitor revenue, gross profit, burn rate (BOM, people, AI, other costs), and runway. Interactive scenario planning with sliders to model changes. Budget setting with variance tracking. Tap any metric for detailed breakdowns.
+                    </Text>
+                  </View>
+
+                  <View className="mb-3">
+                    <Text className="text-gray-900 dark:text-white font-semibold mb-1">📊 Reports & Analytics</Text>
+                    <Text className="text-gray-700 dark:text-slate-400 text-sm">
+                      Generate Weekly Packs and Board Packs. Export to CSV. Role-based reports (Founder/Executive/Apprentice). Professional summaries of progress, risks, and decisions. McKinsey-grade reporting with trend analysis and recommendations.
+                    </Text>
+                  </View>
+
+                  <View className="mb-3">
+                    <Text className="text-gray-900 dark:text-white font-semibold mb-1">💾 Data Management</Text>
+                    <Text className="text-gray-700 dark:text-slate-400 text-sm">
+                      Bulk import/export with CSV templates. Two-way sync with Google Sheets. Import: tasks, OKRs, team members, suppliers, financial data. Works with Excel and any spreadsheet tool.
                     </Text>
                   </View>
 
                   <View className="mb-3">
                     <Text className="text-gray-900 dark:text-white font-semibold mb-1">📅 Community Events</Text>
                     <Text className="text-gray-700 dark:text-slate-400 text-sm">
-                      Create and join hardware startup events: networking mixers, workshops, office hours, product showcases. Interactive map shows event locations with markers. RSVP tracking, attendee lists, and event types (in-person, virtual, hybrid). Foster ecosystem connections.
+                      Create and join hardware startup events: networking, workshops, office hours, showcases. Interactive map with locations. RSVP tracking and attendee lists. Foster ecosystem connections.
                     </Text>
                   </View>
 
                   <View className="mb-3">
-                    <Text className="text-gray-900 dark:text-white font-semibold mb-1">💰 Financial Dashboard (Founders)</Text>
+                    <Text className="text-gray-900 dark:text-white font-semibold mb-1">🔔 Smart Notifications</Text>
                     <Text className="text-gray-700 dark:text-slate-400 text-sm">
-                      Tap any metric for detailed breakdowns: Monthly Revenue (£45k), Gross Profit (£26.5k, 58.8% margin), Burn Rate (£57.7k) with BOM (32%), People (49.5%), AI (3.8%), Other (14.7%), and Runway (10.4 months). Interactive scenario planning with sliders to model revenue increases and burn reductions. Budget setting with variance tracking. Visual progress bars for each cost category.
+                      Task assignments, completions, review requests, OKR updates, milestones. Daily 9 AM reminder for priorities. Weekly Monday digest. Granular controls for each notification type.
                     </Text>
                   </View>
 
                   <View className="mb-3">
-                    <Text className="text-gray-900 dark:text-white font-semibold mb-1">📊 Organization Structure (Founders)</Text>
+                    <Text className="text-gray-900 dark:text-white font-semibold mb-1">🎨 Beautiful Design</Text>
                     <Text className="text-gray-700 dark:text-slate-400 text-sm">
-                      Complete operational overview: 2 Founders, 4 Fractional Executives managing 7 Apprentices. View hierarchical org chart with reporting lines and role breakdown. Monitor team costs and performance. Access Team Performance Analytics with contribution scores, productivity metrics, quality ratings, and efficiency tracking.
-                    </Text>
-                  </View>
-
-                  <View className="mb-3">
-                    <Text className="text-gray-900 dark:text-white font-semibold mb-1">📈 Reports & Exports</Text>
-                    <Text className="text-gray-700 dark:text-slate-400 text-sm">
-                      Generate Weekly Packs, Board Packs, and custom reports. Export OKRs and tasks to CSV. Financial metrics automatically included. Professional summaries of progress, risks, decisions, and blockers. Role-based data views (Founder/Executive/Apprentice).
-                    </Text>
-                  </View>
-
-                  <View className="mb-3">
-                    <Text className="text-gray-900 dark:text-white font-semibold mb-1">💾 Data Management (Founders)</Text>
-                    <Text className="text-gray-700 dark:text-slate-400 text-sm">
-                      Bulk import/export system with CSV templates. Two-way sync with Google Sheets for automatic updates. Import/export: Tasks, OKRs, Team Members, Suppliers, AI Agents, Financial Data. Works with Excel, Google Sheets, and any CSV editor. Templates include all required columns with example data.
-                    </Text>
-                  </View>
-
-                  <View className="mb-3">
-                    <Text className="text-gray-900 dark:text-white font-semibold mb-1">🎓 Learning & Development</Text>
-                    <Text className="text-gray-700 dark:text-slate-400 text-sm">
-                      Track apprentice growth with skills matrix (6 proficiency levels: Beginner → Expert). Training modules with course links and completion tracking. Quarterly performance reviews with 5-category ratings: Technical Skills, Communication, Problem Solving, Reliability, Initiative. Document strengths, areas for growth, and career goals. Available to Founders and Executives.
-                    </Text>
-                  </View>
-
-                  <View className="mb-3">
-                    <Text className="text-gray-900 dark:text-white font-semibold mb-1">🔔 Push Notifications</Text>
-                    <Text className="text-gray-700 dark:text-slate-400 text-sm">
-                      Smart notifications for task assignments (with priority), task completions, review requests, review approvals, OKR updates, and milestone achievements. Daily reminder at 9 AM for priority tasks. Weekly digest every Monday with progress summary. Granular settings to enable/disable specific notification types. Badge counts for pending items.
-                    </Text>
-                  </View>
-
-                  <View className="mb-3">
-                    <Text className="text-gray-900 dark:text-white font-semibold mb-1">🎨 Design System</Text>
-                    <Text className="text-gray-700 dark:text-slate-400 text-sm">
-                      Apple Human Interface Guidelines compliant design with consistent typography, spacing, colors, and interactive feedback. Unified button styles, card patterns, and modal presentations. Professional polish throughout.
-                    </Text>
-                  </View>
-
-                  <View className="mb-3">
-                    <Text className="text-gray-900 dark:text-white font-semibold mb-1">🔐 Authentication & Security</Text>
-                    <Text className="text-gray-700 dark:text-slate-400 text-sm">
-                      Email-based sign-in and sign-up. Create new accounts with automatic workspace setup. Token-based authentication. Role-based access control (RBAC) enforces permissions on all operations. Audit logging tracks all significant actions. Persistent sessions with AsyncStorage.
+                      Apple Human Interface Guidelines compliant. Consistent typography, spacing, and interactions. Professional polish throughout. Dark mode support.
                     </Text>
                   </View>
                 </View>

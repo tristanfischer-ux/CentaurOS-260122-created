@@ -18,6 +18,10 @@ import type {
   User,
   Membership,
 } from '@/types';
+import { generateExecutiveSummary, type ReportDataForSummary } from './board-executive-summary';
+import { identifyRisks, type RiskAssessmentData } from './risk-assessment';
+import { generateRecommendations, type RecommendationContext } from './recommendations-engine';
+import { analyzeTrend } from './trend-analysis';
 
 // Helper to get date range for report period
 export function getDateRange(period: ReportPeriod, customStart?: string, customEnd?: string): { startDate: string; endDate: string } {
@@ -247,6 +251,109 @@ export async function generateFounderReport(
     weeklyHighlights.push(`✓ ${completedWorkflowItems} workflow items completed`);
   }
 
+  // ============================================================================
+  // McKINSEY-GRADE ENHANCEMENTS
+  // ============================================================================
+
+  // Calculate metrics for McKinsey modules
+  const avgUtilization = apprenticeUtilization.length > 0
+    ? Math.round(apprenticeUtilization.reduce((sum, a) => sum + a.utilizationRate, 0) / apprenticeUtilization.length)
+    : 0;
+
+  const overutilizedCount = apprenticeUtilization.filter((a) => a.utilizationRate > 90).length;
+  const underutilizedCount = apprenticeUtilization.filter((a) => a.utilizationRate < 60).length;
+
+  const avgOKRProgress = okrProgress.length > 0
+    ? Math.round(okrProgress.reduce((sum, okr) => sum + okr.progress, 0) / okrProgress.length)
+    : 0;
+
+  const atRiskOKRs = okrProgress.filter((okr) => okr.healthStatus === 'at_risk' || okr.healthStatus === 'off_track').length;
+
+  // Mock financial data (would come from actual finance module in production)
+  const mockRevenue = 45; // £45k/month
+  const mockBurn = 75; // £75k/month
+  const mockCashBalance = 450; // £450k
+  const mockRunway = mockCashBalance / mockBurn;
+
+  // 1. Executive Summary (McKinsey Pyramid Principle)
+  const executiveSummaryData: ReportDataForSummary = {
+    revenue: mockRevenue,
+    previousRevenue: null,
+    burn: mockBurn,
+    previousBurn: null,
+    runway: mockRunway,
+    previousRunway: null,
+    okrProgress: avgOKRProgress,
+    previousOKRProgress: null,
+    completionRate,
+    previousCompletionRate: null,
+    tasksCompleted: completedTasks.length,
+    previousTasksCompleted: null,
+    teamSize: workspaceMemberships.length,
+    utilization: avgUtilization,
+    previousUtilization: null,
+    overutilizedCount,
+    underutilizedCount,
+    atRiskOKRs,
+    criticalTasks: periodTasks.filter((t) => t.priority === 'urgent' && t.status !== 'done').length,
+    period: period === 'week' ? 'Last 7 Days' : period === 'month' ? 'Last 30 Days' : 'Last 90 Days',
+  };
+
+  const executiveSummary = generateExecutiveSummary(executiveSummaryData);
+
+  // 2. Enhanced Risk Assessment
+  const riskAssessmentData: RiskAssessmentData = {
+    revenue: mockRevenue,
+    burn: mockBurn,
+    runway: mockRunway,
+    previousRunway: undefined,
+    burnToRevenue: mockBurn / mockRevenue,
+    okrProgress: avgOKRProgress,
+    atRiskOKRs,
+    totalOKRs: okrProgress.length,
+    completionRate,
+    tasksCompleted: completedTasks.length,
+    previousTasksCompleted: undefined,
+    teamSize: workspaceMemberships.length,
+    utilization: avgUtilization,
+    overutilizedMembers: overutilizedCount,
+    underutilizedMembers: underutilizedCount,
+    executives: executives.length,
+    apprentices: apprentices.length,
+    monthlyRevenue: mockRevenue,
+    monthlyBurn: mockBurn,
+    cashBalance: mockCashBalance,
+  };
+
+  const enhancedRisks = identifyRisks(riskAssessmentData);
+
+  // 3. Strategic Recommendations
+  const recommendationContext: RecommendationContext = {
+    revenue: mockRevenue,
+    burn: mockBurn,
+    runway: mockRunway,
+    burnToRevenue: mockBurn / mockRevenue,
+    cashBalance: mockCashBalance,
+    okrProgress: avgOKRProgress,
+    atRiskOKRs,
+    totalOKRs: okrProgress.length,
+    completionRate,
+    tasksCompleted: completedTasks.length,
+    velocity: completedTasks.length / 7, // tasks per week
+    teamSize: workspaceMemberships.length,
+    utilization: avgUtilization,
+    overutilizedMembers: overutilizedCount,
+    underutilizedMembers: underutilizedCount,
+    executives: executives.length,
+    apprentices: apprentices.length,
+    previousRevenue: undefined,
+    previousBurn: undefined,
+    previousRunway: undefined,
+    quarterProgress: 50, // Mid-quarter assumption
+  };
+
+  const recommendations = generateRecommendations(recommendationContext);
+
   const reportData: FounderReportData = {
     overview: {
       totalTasks: periodTasks.length,
@@ -264,6 +371,10 @@ export async function generateFounderReport(
     projectStatus,
     risks,
     weeklyHighlights,
+    // McKinsey-grade enhancements
+    executiveSummary,
+    enhancedRisks,
+    recommendations,
   };
 
   return {

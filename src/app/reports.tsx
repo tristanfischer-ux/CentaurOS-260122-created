@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { View, Text, ScrollView, Pressable, ActivityIndicator, Alert } from 'react-native';
 import { useMutation } from '@tanstack/react-query';
 import { useLocalSearchParams } from 'expo-router';
-import { FileText, Download, TrendingUp, Users, Target, AlertTriangle } from 'lucide-react-native';
+import { FileText, Download, TrendingUp, Users, Target, AlertTriangle, Lightbulb, CheckCircle, TrendingDown, Info } from 'lucide-react-native';
 import { useAppStore } from '@/lib/state/app-store';
 import { generateReport } from '@/lib/reports/generator';
 import { exportBoardPack, exportReportAsCSV, exportReportAsJSON } from '@/lib/reports/export-board-pack';
@@ -288,6 +288,189 @@ function FounderReportView({ report }: { report: Report }) {
 
   return (
     <View className="px-6 pt-2 pb-4 gap-6">
+      {/* Executive Summary (McKinsey Pyramid Principle) */}
+      {data.executiveSummary && (
+        <View>
+          <Text className="text-white font-bold text-2xl mb-4">Executive Summary</Text>
+          <View className={cn(
+            'p-6 rounded-2xl border-2',
+            data.executiveSummary.overallStatus === 'green' && 'bg-emerald-500/10 border-emerald-500/40',
+            data.executiveSummary.overallStatus === 'yellow' && 'bg-amber-500/10 border-amber-500/40',
+            data.executiveSummary.overallStatus === 'red' && 'bg-red-500/10 border-red-500/40'
+          )}>
+            <View className="flex-row items-center mb-4">
+              <View className={cn(
+                'w-3 h-3 rounded-full mr-3',
+                data.executiveSummary.overallStatus === 'green' && 'bg-emerald-500',
+                data.executiveSummary.overallStatus === 'yellow' && 'bg-amber-500',
+                data.executiveSummary.overallStatus === 'red' && 'bg-red-500'
+              )} />
+              <Text className="text-white font-bold text-lg">{data.executiveSummary.statusLabel}</Text>
+            </View>
+
+            <Text className="text-white text-base leading-6 mb-5">{data.executiveSummary.headline}</Text>
+
+            {/* Key Insights */}
+            <View className="gap-4 mt-4">
+              {data.executiveSummary.keyInsights.map((insight: any, idx: number) => (
+                <View key={idx} className="bg-slate-900/50 p-4 rounded-xl border border-slate-700">
+                  <View className="flex-row items-start justify-between mb-2">
+                    <Text className="text-white font-semibold text-base flex-1">{insight.title}</Text>
+                    <View className={cn(
+                      'ml-2 px-2 py-1 rounded',
+                      insight.status === 'green' && 'bg-emerald-500/20',
+                      insight.status === 'yellow' && 'bg-amber-500/20',
+                      insight.status === 'red' && 'bg-red-500/20'
+                    )}>
+                      <Text className={cn(
+                        'text-xs font-bold',
+                        insight.status === 'green' && 'text-emerald-400',
+                        insight.status === 'yellow' && 'text-amber-400',
+                        insight.status === 'red' && 'text-red-400'
+                      )}>{insight.trend}</Text>
+                    </View>
+                  </View>
+
+                  <Text className="text-slate-300 text-sm mb-2">{insight.metric}</Text>
+                  <Text className="text-slate-400 text-sm leading-5">{insight.soWhat}</Text>
+                </View>
+              ))}
+            </View>
+
+            {data.executiveSummary.boardDecisionRequired && (
+              <View className="mt-5 p-4 bg-amber-500/20 border border-amber-500/40 rounded-xl flex-row items-start">
+                <Info size={20} color="#f59e0b" />
+                <View className="flex-1 ml-3">
+                  <Text className="text-amber-400 font-bold text-sm mb-1">Board Decision Required</Text>
+                  <Text className="text-amber-300 text-sm leading-5">{data.executiveSummary.boardDecisionRequired}</Text>
+                </View>
+              </View>
+            )}
+          </View>
+        </View>
+      )}
+
+      {/* Strategic Recommendations */}
+      {data.recommendations && data.recommendations.length > 0 && (
+        <View>
+          <Text className="text-white font-bold text-2xl mb-4">Strategic Recommendations</Text>
+          <View className="gap-3">
+            {data.recommendations.slice(0, 5).map((rec: any) => (
+              <View
+                key={rec.id}
+                className={cn(
+                  'p-5 rounded-xl border',
+                  rec.priority === 1 && 'bg-red-500/10 border-red-500/30',
+                  rec.priority === 2 && 'bg-amber-500/10 border-amber-500/30',
+                  rec.priority === 3 && 'bg-emerald-500/10 border-emerald-500/30'
+                )}
+              >
+                <View className="flex-row items-start justify-between mb-3">
+                  <View className="flex-1">
+                    <Text className={cn(
+                      'text-xs font-bold uppercase mb-2',
+                      rec.priority === 1 && 'text-red-400',
+                      rec.priority === 2 && 'text-amber-400',
+                      rec.priority === 3 && 'text-emerald-400'
+                    )}>{rec.priorityLabel}</Text>
+                    <Text className="text-white font-semibold text-base">{rec.title}</Text>
+                  </View>
+                  <Lightbulb
+                    size={24}
+                    color={rec.priority === 1 ? '#ef4444' : rec.priority === 2 ? '#f59e0b' : '#10b981'}
+                  />
+                </View>
+
+                <View className="mb-3">
+                  <Text className="text-slate-400 text-xs font-bold uppercase mb-1">Why</Text>
+                  <Text className="text-slate-300 text-sm leading-5">{rec.rationale}</Text>
+                </View>
+
+                <View className="mb-3">
+                  <Text className="text-slate-400 text-xs font-bold uppercase mb-1">Impact</Text>
+                  <Text className={cn(
+                    'text-sm font-medium leading-5',
+                    rec.priority === 1 && 'text-red-300',
+                    rec.priority === 2 && 'text-amber-300',
+                    rec.priority === 3 && 'text-emerald-300'
+                  )}>{rec.expectedImpact}</Text>
+                </View>
+
+                <View className="flex-row justify-between pt-3 border-t border-slate-700">
+                  <View>
+                    <Text className="text-slate-500 text-xs mb-1">Owner</Text>
+                    <Text className="text-white font-medium text-sm">{rec.owner}</Text>
+                  </View>
+                  <View>
+                    <Text className="text-slate-500 text-xs mb-1">Timeline</Text>
+                    <Text className="text-white font-medium text-sm">{rec.timeline}</Text>
+                  </View>
+                </View>
+              </View>
+            ))}
+          </View>
+        </View>
+      )}
+
+      {/* Enhanced Risks (McKinsey Impact × Probability) */}
+      {data.enhancedRisks && data.enhancedRisks.length > 0 && (
+        <View>
+          <Text className="text-white font-bold text-2xl mb-4">Risk Assessment</Text>
+          <View className="gap-3">
+            {data.enhancedRisks.slice(0, 5).map((risk: any, idx: number) => (
+              <View
+                key={idx}
+                className={cn(
+                  'p-5 rounded-xl border',
+                  risk.severity === 'high' && 'bg-red-500/10 border-red-500/30',
+                  risk.severity === 'medium' && 'bg-amber-500/10 border-amber-500/30',
+                  risk.severity === 'low' && 'bg-slate-800/50 border-slate-700'
+                )}
+              >
+                <View className="flex-row items-start justify-between mb-3">
+                  <View className="flex-1">
+                    <Text className="text-white font-semibold text-base mb-2">{risk.message}</Text>
+                    <View className="flex-row items-center gap-3">
+                      <View className="bg-slate-900/70 px-3 py-1.5 rounded-lg">
+                        <Text className="text-slate-400 text-xs">
+                          Risk Score: <Text className={cn(
+                            'font-bold',
+                            risk.severity === 'high' && 'text-red-400',
+                            risk.severity === 'medium' && 'text-amber-400',
+                            risk.severity === 'low' && 'text-slate-400'
+                          )}>{risk.overallRiskScore}/100</Text>
+                        </Text>
+                      </View>
+                      <Text className="text-slate-500 text-xs">{risk.affectedArea}</Text>
+                    </View>
+                  </View>
+                  <AlertTriangle
+                    size={24}
+                    color={risk.severity === 'high' ? '#ef4444' : risk.severity === 'medium' ? '#f59e0b' : '#94a3b8'}
+                  />
+                </View>
+
+                <View className="mb-3 pt-3 border-t border-slate-800">
+                  <Text className="text-slate-400 text-xs font-bold uppercase mb-1">Mitigation Plan</Text>
+                  <Text className="text-slate-300 text-sm leading-5">{risk.mitigation}</Text>
+                </View>
+
+                <View className="flex-row justify-between pt-3 border-t border-slate-800">
+                  <View>
+                    <Text className="text-slate-500 text-xs mb-1">Owner</Text>
+                    <Text className="text-white font-medium text-sm">{risk.owner}</Text>
+                  </View>
+                  <View>
+                    <Text className="text-slate-500 text-xs mb-1">Timeline</Text>
+                    <Text className="text-white font-medium text-sm">{risk.timeline}</Text>
+                  </View>
+                </View>
+              </View>
+            ))}
+          </View>
+        </View>
+      )}
+
       {/* Overview Cards */}
       <View>
         <Text className="text-white font-bold text-xl mb-4">Key Metrics</Text>

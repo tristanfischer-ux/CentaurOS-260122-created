@@ -576,6 +576,15 @@ export interface FounderReportData {
     affectedArea: Function | 'general';
   }[];
   weeklyHighlights: string[];
+  // McKinsey-grade enhancements
+  executiveSummary?: any; // ExecutiveSummary from board-executive-summary.ts
+  enhancedRisks?: any[]; // EnhancedRisk[] from risk-assessment.ts
+  recommendations?: any[]; // Recommendation[] from recommendations-engine.ts
+  previousPeriodData?: {
+    completionRate?: number;
+    totalTimeLogged?: number;
+    totalTasks?: number;
+  };
 }
 
 // Executive Report - Function-specific performance
