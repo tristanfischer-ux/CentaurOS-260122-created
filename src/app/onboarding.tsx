@@ -127,17 +127,6 @@ export default function OnboardingScreen() {
     router.replace('/(tabs)');
   };
 
-  const handleAction = () => {
-    if (currentStep.route) {
-      if (currentUser) {
-        markOnboardingComplete(currentUser.id);
-      }
-      router.replace(currentStep.route as any);
-    } else {
-      handleNext();
-    }
-  };
-
   const IconComponent = currentStep.illustration ? ICON_MAP[currentStep.illustration] : Rocket;
 
   // Role-specific gradient colors
@@ -199,18 +188,6 @@ export default function OnboardingScreen() {
                   {currentStep.description}
                 </Text>
               </View>
-
-              {/* Action Button (if step has specific action) */}
-              {currentStep.action && (
-                <Pressable
-                  onPress={handleAction}
-                  className="mb-6 bg-white rounded-2xl py-5 px-8 active:opacity-80 shadow-lg mx-6"
-                >
-                  <Text className="text-slate-900 font-bold text-center text-lg">
-                    {currentStep.action}
-                  </Text>
-                </Pressable>
-              )}
             </Animated.View>
 
             {/* Progress Dots */}

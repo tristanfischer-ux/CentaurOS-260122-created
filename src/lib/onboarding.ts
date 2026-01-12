@@ -46,7 +46,6 @@ export const FOUNDER_ONBOARDING: OnboardingFlow = {
       description: 'Create Objectives and Key Results to align your team. Use the AI Task Advisor to break objectives into actionable tasks. Track progress with real-time health indicators.',
       route: '/(tabs)/okrs',
       illustration: 'target',
-      action: 'Create Your First OKR',
     },
     {
       id: 'work',
@@ -96,7 +95,6 @@ export const FOUNDER_ONBOARDING: OnboardingFlow = {
       description: 'Access financial dashboard (founder-only!), export data, manage notifications, and generate board-ready reports.',
       route: '/(tabs)/settings',
       illustration: 'settings',
-      action: 'View Financial Dashboard',
     },
     {
       id: 'complete',
@@ -141,7 +139,6 @@ export const EXECUTIVE_ONBOARDING: OnboardingFlow = {
       description: 'This is your primary workspace. Create tasks for your function, assign them to Apprentices, and track completion. You\'re the taskmaster!',
       route: '/(tabs)/work',
       illustration: 'clipboard',
-      action: 'Create Your First Task',
     },
     {
       id: 'team',
@@ -156,14 +153,12 @@ export const EXECUTIVE_ONBOARDING: OnboardingFlow = {
       description: 'This is critical! Apprentices submit work here for your approval. Review submissions, provide feedback, approve or request changes. Quality control is your job.',
       route: '/(tabs)/reviews',
       illustration: 'check-circle',
-      action: 'Review Pending Work',
     },
     {
       id: 'reports',
       title: 'Your Performance Dashboard',
       description: 'Generate reports to see your function\'s performance: tasks created, work verified, team productivity. Share these with the Founder.',
       illustration: 'bar-chart',
-      action: 'View My Report',
     },
     {
       id: 'events',
@@ -201,7 +196,6 @@ export const APPRENTICE_ONBOARDING: OnboardingFlow = {
       description: 'The Home tab shows YOUR focus tasks for today, your completion streak, and recent activity. Start here every morning to know what to work on.',
       route: '/(tabs)',
       illustration: 'home',
-      action: 'See My Tasks',
     },
     {
       id: 'work',
@@ -209,7 +203,6 @@ export const APPRENTICE_ONBOARDING: OnboardingFlow = {
       description: 'This is where you live! See all tasks assigned to YOU, filter by status, and complete them one by one. Tap a task to add time, update status, or mark as done.',
       route: '/(tabs)/work',
       illustration: 'clipboard',
-      action: 'View My Tasks',
     },
     {
       id: 'completing-tasks',
@@ -243,7 +236,6 @@ export const APPRENTICE_ONBOARDING: OnboardingFlow = {
       title: 'Track Your Progress',
       description: 'Generate your personal performance report to see: tasks completed, hours logged, achievements unlocked, and areas to improve.',
       illustration: 'trending-up',
-      action: 'View My Report',
     },
     {
       id: 'events',
