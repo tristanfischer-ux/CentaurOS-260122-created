@@ -15,7 +15,7 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
 
 ## 🚨 PRODUCTION READINESS STATUS
 
-**Last Updated**: 2026-01-12 (Light Theme Fix)
+**Last Updated**: 2026-01-12 (Org Chart Improved + List Yourself Modal Fixed)
 
 ### Current Status: ✅ **READY FOR APP STORE SUBMISSION**
 
@@ -245,14 +245,16 @@ Centaur OS turns OKRs into work, tracks execution, enables review workflows, and
   - **One-Click Communication**: Email team members with single tap
   - **Role-Based Filtering**: Filter by Founders, Executives, or Apprentices
   - **Visual Org Chart Button**: Quick access to interactive organization diagram
-- **Interactive Organization Diagram** - Visual representation of team structure
-  - **Circular Layout**: Founders in center, executives in middle ring, apprentices in outer ring
-  - **Reporting Lines**: Dashed lines show who reports to whom
+- **Interactive Organization Diagram** - Compact hierarchical visualization of team structure
+  - **Simple Hierarchical Layout**: Founders at top → Executives → AI Agents → Apprentices in rows
+  - **Compact Design**: Tighter spacing with smaller nodes for easy viewing without excessive scrolling
+  - **Column-Based Layout**: Shows team members in organized columns that fit on screen
+  - **Reporting Lines**: Lines show who reports to whom across the hierarchy
   - **Interactive Nodes**: Tap any team member to see full details
-  - **Color-Coded Roles**: Blue (Founders), Purple (Executives), Green (Apprentices)
+  - **Color-Coded Roles**: Blue (Founders), Purple (Executives), Gray (AI), Green (Apprentices)
   - **Decide • Evaluate • Do Framework**: Visual explanation of organizational philosophy
   - **Team Member Details**: Full profiles with contact info, reporting structure, and cost data
-  - **Scrollable Canvas**: Pan to explore the full diagram
+  - **Minimal Scrolling**: Optimized spacing to view the entire org chart with minimal panning
   - **Legend**: Clear indication of what each node type represents
 - **Team Hiring System (Founder-Only)** - Browse and hire talent to build your team (Located in Network tab)
   - **30 Fractional Executives**: Senior leaders in Sales, Marketing, Finance, Engineering, and Operations

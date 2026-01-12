@@ -7,10 +7,10 @@ import { ORGANIZATION_MEMBERS, AI_AGENTS, type OrganizationMember } from '@/lib/
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 // Hierarchical layout: Founders → Executives → AI Agents → Apprentices
-const NODE_WIDTH = 140;
-const NODE_HEIGHT = 80;
-const VERTICAL_SPACING = 120;
-const HORIZONTAL_SPACING = 20;
+const NODE_WIDTH = 100;
+const NODE_HEIGHT = 70;
+const VERTICAL_SPACING = 100;
+const HORIZONTAL_SPACING = 16;
 
 export default function OrgDiagramScreen() {
   const [selectedMember, setSelectedMember] = useState<OrganizationMember | null>(null);
@@ -20,15 +20,23 @@ export default function OrgDiagramScreen() {
   const execs = ORGANIZATION_MEMBERS.filter(m => m.role === 'FractionalExec');
   const apprentices = ORGANIZATION_MEMBERS.filter(m => m.role === 'Apprentice');
 
-  // Calculate diagram dimensions
+  // Calculate diagram dimensions - use columns approach
+  const COLUMNS_PER_ROW = 4; // Show 4 items per row max
+
+  const foundersPerRow = Math.min(founders.length, COLUMNS_PER_ROW);
+  const execsPerRow = Math.min(execs.length, COLUMNS_PER_ROW);
+  const agentsPerRow = Math.min(AI_AGENTS.length, COLUMNS_PER_ROW);
+  const apprenticesPerRow = Math.min(apprentices.length, COLUMNS_PER_ROW);
+
   const maxRowWidth = Math.max(
-    founders.length * (NODE_WIDTH + HORIZONTAL_SPACING),
-    execs.length * (NODE_WIDTH + HORIZONTAL_SPACING),
-    AI_AGENTS.length * (NODE_WIDTH + HORIZONTAL_SPACING),
-    apprentices.length * (NODE_WIDTH + HORIZONTAL_SPACING)
-  );
-  const DIAGRAM_WIDTH = Math.max(maxRowWidth + 100, SCREEN_WIDTH);
-  const DIAGRAM_HEIGHT = VERTICAL_SPACING * 5 + 100; // 4 rows + padding
+    foundersPerRow,
+    execsPerRow,
+    agentsPerRow,
+    apprenticesPerRow
+  ) * (NODE_WIDTH + HORIZONTAL_SPACING);
+
+  const DIAGRAM_WIDTH = Math.max(maxRowWidth + 60, SCREEN_WIDTH - 40);
+  const DIAGRAM_HEIGHT = VERTICAL_SPACING * 5 + 100;
 
   // Calculate positions for hierarchical layout
   const getHierarchicalPosition = (member: OrganizationMember, index: number, total: number, rowIndex: number) => {
@@ -66,10 +74,10 @@ export default function OrgDiagramScreen() {
         {/* Info Banner */}
         <View className="p-4 bg-blue-500/10 border-b border-blue-500/20">
           <Text className="text-blue-400 text-sm font-medium mb-1">
-            Organization Hierarchy
+            Compact Organization Chart
           </Text>
           <Text className="text-gray-600 dark:text-slate-400 text-xs">
-            Standard org chart: Founders → Executives → AI Agents → Apprentices. Tap any member to see details.
+            Simple hierarchy: Founders → Executives → AI Agents → Apprentices. Tap any node for details.
           </Text>
         </View>
 
@@ -193,7 +201,7 @@ export default function OrgDiagramScreen() {
                         <SvgText
                           x={position.x}
                           y={position.y + 6}
-                          fontSize="18"
+                          fontSize="16"
                           fontWeight="bold"
                           fill="#3b82f6"
                           textAnchor="middle"
@@ -202,8 +210,8 @@ export default function OrgDiagramScreen() {
                         </SvgText>
                         <SvgText
                           x={position.x}
-                          y={position.y + 50}
-                          fontSize="11"
+                          y={position.y + 46}
+                          fontSize="10"
                           fill="#e2e8f0"
                           textAnchor="middle"
                           fontWeight="600"
@@ -212,8 +220,8 @@ export default function OrgDiagramScreen() {
                         </SvgText>
                         <SvgText
                           x={position.x}
-                          y={position.y + 64}
-                          fontSize="9"
+                          y={position.y + 58}
+                          fontSize="8"
                           fill="#94a3b8"
                           textAnchor="middle"
                         >
@@ -231,7 +239,7 @@ export default function OrgDiagramScreen() {
                         <Circle
                           cx={position.x}
                           cy={position.y}
-                          r="28"
+                          r="26"
                           fill="#8b5cf620"
                           stroke="#8b5cf6"
                           strokeWidth="3"
@@ -239,7 +247,7 @@ export default function OrgDiagramScreen() {
                         <SvgText
                           x={position.x}
                           y={position.y + 5}
-                          fontSize="16"
+                          fontSize="14"
                           fontWeight="bold"
                           fill="#8b5cf6"
                           textAnchor="middle"
@@ -248,8 +256,8 @@ export default function OrgDiagramScreen() {
                         </SvgText>
                         <SvgText
                           x={position.x}
-                          y={position.y + 46}
-                          fontSize="11"
+                          y={position.y + 42}
+                          fontSize="10"
                           fill="#e2e8f0"
                           textAnchor="middle"
                           fontWeight="600"
@@ -258,8 +266,8 @@ export default function OrgDiagramScreen() {
                         </SvgText>
                         <SvgText
                           x={position.x}
-                          y={position.y + 60}
-                          fontSize="9"
+                          y={position.y + 54}
+                          fontSize="8"
                           fill="#94a3b8"
                           textAnchor="middle"
                         >
@@ -277,7 +285,7 @@ export default function OrgDiagramScreen() {
                         <Circle
                           cx={position.x}
                           cy={position.y}
-                          r="24"
+                          r="22"
                           fill="#64748b20"
                           stroke="#64748b"
                           strokeWidth="2"
@@ -285,7 +293,7 @@ export default function OrgDiagramScreen() {
                         <SvgText
                           x={position.x}
                           y={position.y + 5}
-                          fontSize="14"
+                          fontSize="12"
                           fontWeight="bold"
                           fill="#64748b"
                           textAnchor="middle"
@@ -294,8 +302,8 @@ export default function OrgDiagramScreen() {
                         </SvgText>
                         <SvgText
                           x={position.x}
-                          y={position.y + 42}
-                          fontSize="10"
+                          y={position.y + 38}
+                          fontSize="9"
                           fill="#94a3b8"
                           textAnchor="middle"
                           fontWeight="600"
@@ -304,8 +312,8 @@ export default function OrgDiagramScreen() {
                         </SvgText>
                         <SvgText
                           x={position.x}
-                          y={position.y + 56}
-                          fontSize="8"
+                          y={position.y + 50}
+                          fontSize="7"
                           fill="#64748b"
                           textAnchor="middle"
                         >
@@ -323,7 +331,7 @@ export default function OrgDiagramScreen() {
                         <Circle
                           cx={position.x}
                           cy={position.y}
-                          r="28"
+                          r="26"
                           fill="#10b98120"
                           stroke="#10b981"
                           strokeWidth="3"
@@ -331,7 +339,7 @@ export default function OrgDiagramScreen() {
                         <SvgText
                           x={position.x}
                           y={position.y + 5}
-                          fontSize="16"
+                          fontSize="14"
                           fontWeight="bold"
                           fill="#10b981"
                           textAnchor="middle"
@@ -340,8 +348,8 @@ export default function OrgDiagramScreen() {
                         </SvgText>
                         <SvgText
                           x={position.x}
-                          y={position.y + 46}
-                          fontSize="11"
+                          y={position.y + 42}
+                          fontSize="10"
                           fill="#e2e8f0"
                           textAnchor="middle"
                           fontWeight="600"
@@ -350,8 +358,8 @@ export default function OrgDiagramScreen() {
                         </SvgText>
                         <SvgText
                           x={position.x}
-                          y={position.y + 60}
-                          fontSize="9"
+                          y={position.y + 54}
+                          fontSize="8"
                           fill="#94a3b8"
                           textAnchor="middle"
                         >
