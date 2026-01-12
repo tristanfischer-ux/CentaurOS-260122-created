@@ -62,12 +62,12 @@ export class ErrorBoundary extends Component<Props, State> {
             </View>
 
             {__DEV__ && this.state.error && (
-              <ScrollView className="bg-slate-900 rounded-lg p-3 mb-4 max-h-40">
+              <ScrollView className="bg-gray-100 dark:bg-slate-900 rounded-lg p-3 mb-4 max-h-40">
                 <Text className="text-red-400 text-xs font-mono">
                   {this.state.error.toString()}
                 </Text>
                 {this.state.errorInfo && (
-                  <Text className="text-slate-400 text-xs font-mono mt-2">
+                  <Text className="text-gray-600 dark:text-slate-400 text-xs font-mono mt-2">
                     {this.state.errorInfo.componentStack}
                   </Text>
                 )}

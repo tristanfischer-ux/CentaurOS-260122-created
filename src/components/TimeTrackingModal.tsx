@@ -88,12 +88,12 @@ export function TimeTrackingModal({ visible, task, onClose }: TimeTrackingModalP
   return (
     <Modal visible={visible} animationType="slide" transparent presentationStyle="pageSheet">
       <View className="flex-1 bg-black/50">
-        <View className="flex-1 mt-16 bg-gray-900 rounded-t-3xl">
+        <View className="flex-1 mt-16 bg-gray-100 dark:bg-gray-900 rounded-t-3xl">
           {/* Header */}
-          <View className="flex-row items-center justify-between px-6 py-4 border-b border-gray-800">
+          <View className="flex-row items-center justify-between px-6 py-4 border-b border-gray-300 dark:border-gray-800">
             <View className="flex-1">
               <Text className="text-gray-900 dark:text-white text-lg font-semibold">Time Tracking</Text>
-              <Text className="text-gray-400 text-sm" numberOfLines={1}>
+              <Text className="text-gray-600 dark:text-gray-400 text-sm" numberOfLines={1}>
                 {task.title}
               </Text>
             </View>
@@ -113,26 +113,26 @@ export function TimeTrackingModal({ visible, task, onClose }: TimeTrackingModalP
             </View>
 
             {/* Log Time Form */}
-            <View className="bg-gray-800/50 border border-gray-700 rounded-xl p-4 mb-6">
+            <View className="bg-gray-800/50 border border-gray-400 dark:border-gray-700 rounded-xl p-4 mb-6">
               <Text className="text-gray-900 dark:text-white text-base font-semibold mb-3">Log Time</Text>
 
               {/* Hours Input */}
               <View className="mb-3">
-                <Text className="text-gray-400 text-sm mb-1">Hours</Text>
+                <Text className="text-gray-600 dark:text-gray-400 text-sm mb-1">Hours</Text>
                 <TextInput
                   value={hours}
                   onChangeText={setHours}
                   placeholder="e.g., 2.5"
                   placeholderTextColor="#6B7280"
                   keyboardType="decimal-pad"
-                  className="bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-gray-900 dark:text-white"
+                  className="bg-gray-100 dark:bg-gray-900 border border-gray-400 dark:border-gray-700 rounded-lg px-3 py-2 text-gray-900 dark:text-white"
                 />
               </View>
 
               {/* Date Input */}
               <View className="mb-3">
-                <Text className="text-gray-400 text-sm mb-1">Date</Text>
-                <View className="bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 flex-row items-center">
+                <Text className="text-gray-600 dark:text-gray-400 text-sm mb-1">Date</Text>
+                <View className="bg-gray-100 dark:bg-gray-900 border border-gray-400 dark:border-gray-700 rounded-lg px-3 py-2 flex-row items-center">
                   <Calendar size={16} color="#6B7280" />
                   <TextInput
                     value={date}
@@ -146,7 +146,7 @@ export function TimeTrackingModal({ visible, task, onClose }: TimeTrackingModalP
 
               {/* Note Input */}
               <View className="mb-4">
-                <Text className="text-gray-400 text-sm mb-1">Note (optional)</Text>
+                <Text className="text-gray-600 dark:text-gray-400 text-sm mb-1">Note (optional)</Text>
                 <TextInput
                   value={note}
                   onChangeText={setNote}
@@ -154,7 +154,7 @@ export function TimeTrackingModal({ visible, task, onClose }: TimeTrackingModalP
                   placeholderTextColor="#6B7280"
                   multiline
                   numberOfLines={2}
-                  className="bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-gray-900 dark:text-white"
+                  className="bg-gray-100 dark:bg-gray-900 border border-gray-400 dark:border-gray-700 rounded-lg px-3 py-2 text-gray-900 dark:text-white"
                 />
               </View>
 
@@ -186,11 +186,11 @@ export function TimeTrackingModal({ visible, task, onClose }: TimeTrackingModalP
                         <Text className="text-gray-900 dark:text-white text-base font-medium">
                           {entry.hours}h
                         </Text>
-                        <Text className="text-gray-400 text-sm">
+                        <Text className="text-gray-600 dark:text-gray-400 text-sm">
                           {new Date(entry.date).toLocaleDateString()}
                         </Text>
                         {entry.note && (
-                          <Text className="text-gray-400 text-sm mt-1">{entry.note}</Text>
+                          <Text className="text-gray-600 dark:text-gray-400 text-sm mt-1">{entry.note}</Text>
                         )}
                       </View>
                       {currentUser?.id === entry.userId && (

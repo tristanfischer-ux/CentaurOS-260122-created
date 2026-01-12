@@ -128,7 +128,7 @@ export function CompletedTasksView({ tasks, workspaceId, onClose, members = [] }
   return (
     <View className="flex-1 bg-slate-950">
       {/* Header */}
-      <View className="px-6 pt-6 pb-4 border-b border-slate-800">
+      <View className="px-6 pt-6 pb-4 border-b border-gray-300 dark:border-slate-800">
         <View className="flex-row items-center justify-between mb-4">
           <Pressable onPress={onClose} className="active:opacity-70">
             <View className="flex-row items-center gap-2">
@@ -150,22 +150,22 @@ export function CompletedTasksView({ tasks, workspaceId, onClose, members = [] }
         </View>
 
         <Text className="text-gray-900 dark:text-white text-2xl font-bold mb-2">Completed Tasks</Text>
-        <Text className="text-slate-400">
+        <Text className="text-gray-600 dark:text-slate-400">
           Your achievement history. Keep as reference or delete permanently.
         </Text>
       </View>
 
       {/* Stats Cards */}
       <View className="px-6 py-4 flex-row gap-3">
-        <View className="flex-1 bg-slate-900 rounded-xl p-3 border border-slate-800">
+        <View className="flex-1 bg-gray-100 dark:bg-slate-900 rounded-xl p-3 border border-gray-300 dark:border-slate-800">
           <Text className="text-emerald-400 text-xs mb-1">Today</Text>
           <Text className="text-gray-900 dark:text-white text-2xl font-bold">{todayCompleted.length}</Text>
         </View>
-        <View className="flex-1 bg-slate-900 rounded-xl p-3 border border-slate-800">
+        <View className="flex-1 bg-gray-100 dark:bg-slate-900 rounded-xl p-3 border border-gray-300 dark:border-slate-800">
           <Text className="text-blue-400 text-xs mb-1">This Week</Text>
           <Text className="text-gray-900 dark:text-white text-2xl font-bold">{thisWeekCompleted.length}</Text>
         </View>
-        <View className="flex-1 bg-slate-900 rounded-xl p-3 border border-slate-800">
+        <View className="flex-1 bg-gray-100 dark:bg-slate-900 rounded-xl p-3 border border-gray-300 dark:border-slate-800">
           <Text className="text-purple-400 text-xs mb-1">This Month</Text>
           <Text className="text-gray-900 dark:text-white text-2xl font-bold">{thisMonthCompleted.length}</Text>
         </View>
@@ -176,7 +176,7 @@ export function CompletedTasksView({ tasks, workspaceId, onClose, members = [] }
         {completedTasks.length === 0 ? (
           <View className="items-center justify-center py-12">
             <Archive size={48} color="#475569" />
-            <Text className="text-slate-400 text-center mt-4">
+            <Text className="text-gray-600 dark:text-slate-400 text-center mt-4">
               No completed tasks yet.{'\n'}Complete your first task to see it here!
             </Text>
           </View>
@@ -215,7 +215,7 @@ export function CompletedTasksView({ tasks, workspaceId, onClose, members = [] }
 
                       {/* Description */}
                       {task.description && (
-                        <Text className="text-slate-400 text-sm mb-2" numberOfLines={2}>
+                        <Text className="text-gray-600 dark:text-slate-400 text-sm mb-2" numberOfLines={2}>
                           {task.description}
                         </Text>
                       )}
@@ -224,7 +224,7 @@ export function CompletedTasksView({ tasks, workspaceId, onClose, members = [] }
                       <View className="flex-row flex-wrap gap-2">
                         <View className="flex-row items-center gap-1">
                           <Calendar size={14} color="#64748b" />
-                          <Text className="text-slate-500 text-xs">
+                          <Text className="text-gray-600 dark:text-slate-500 text-xs">
                             {formatDate(task.completedAt)}
                           </Text>
                         </View>
@@ -243,14 +243,14 @@ export function CompletedTasksView({ tasks, workspaceId, onClose, members = [] }
                           </Text>
                         </View>
 
-                        <View className="bg-slate-800 px-2 py-0.5 rounded">
-                          <Text className="text-slate-400 text-xs">{task.function}</Text>
+                        <View className="bg-gray-200 dark:bg-slate-800 px-2 py-0.5 rounded">
+                          <Text className="text-gray-600 dark:text-slate-400 text-xs">{task.function}</Text>
                         </View>
 
                         {getAssigneeName(task.assigneeId) && (
                           <View className="flex-row items-center gap-1">
                             <User size={12} color="#64748b" />
-                            <Text className="text-slate-500 text-xs">{getAssigneeName(task.assigneeId)}</Text>
+                            <Text className="text-gray-600 dark:text-slate-500 text-xs">{getAssigneeName(task.assigneeId)}</Text>
                           </View>
                         )}
                       </View>
@@ -265,8 +265,8 @@ export function CompletedTasksView({ tasks, workspaceId, onClose, members = [] }
 
       {/* Selection Hint */}
       {completedTasks.length > 0 && selectedTasks.size === 0 && (
-        <View className="px-6 py-4 bg-slate-900 border-t border-slate-800">
-          <Text className="text-slate-400 text-center text-sm">
+        <View className="px-6 py-4 bg-gray-100 dark:bg-slate-900 border-t border-gray-300 dark:border-slate-800">
+          <Text className="text-gray-600 dark:text-slate-400 text-center text-sm">
             Tap tasks to select, then delete permanently or keep as reference
           </Text>
         </View>

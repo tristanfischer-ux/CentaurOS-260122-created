@@ -164,7 +164,7 @@ export default function HomeScreen() {
             </View>
             <Pressable
               onPress={() => router.push('/search')}
-              className="w-10 h-10 bg-gray-100 dark:bg-slate-900 rounded-xl items-center justify-center border border-slate-800 active:opacity-70"
+              className="w-10 h-10 bg-gray-100 dark:bg-slate-900 rounded-xl items-center justify-center border border-gray-300 dark:border-slate-800 active:opacity-70"
             >
               <Search size={20} color="#3b82f6" />
             </Pressable>
@@ -205,7 +205,7 @@ export default function HomeScreen() {
                 <Pressable
                   key={index}
                   onPress={() => route && router.push(route)}
-                  className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-4 border border-slate-800 active:opacity-70"
+                  className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-4 border border-gray-300 dark:border-slate-800 active:opacity-70"
                   style={{ width: "48%" }}
                 >
                   <Text className="text-gray-600 dark:text-slate-400 text-xs mb-1">
@@ -429,7 +429,7 @@ export default function HomeScreen() {
                   setDetailsType("revenue");
                   setShowDetailsModal(true);
                 }}
-                className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-4 border border-slate-800 active:opacity-70"
+                className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-4 border border-gray-300 dark:border-slate-800 active:opacity-70"
                 style={{ width: "48%" }}
               >
                 <View className="flex-row items-center gap-2 mb-2">
@@ -455,7 +455,7 @@ export default function HomeScreen() {
                   setDetailsType("profit");
                   setShowDetailsModal(true);
                 }}
-                className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-4 border border-slate-800 active:opacity-70"
+                className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-4 border border-gray-300 dark:border-slate-800 active:opacity-70"
                 style={{ width: "48%" }}
               >
                 <View className="flex-row items-center gap-2 mb-2">
@@ -467,7 +467,7 @@ export default function HomeScreen() {
                 <Text className="text-gray-900 dark:text-white text-2xl font-bold">
                   £{(ratios.grossProfit / 1000).toFixed(0)}k
                 </Text>
-                <Text className="text-slate-500 text-xs mt-1">
+                <Text className="text-gray-600 dark:text-slate-500 text-xs mt-1">
                   {ratios.grossMargin.toFixed(1)}% margin
                 </Text>
               </Pressable>
@@ -478,7 +478,7 @@ export default function HomeScreen() {
                   setDetailsType("burn");
                   setShowDetailsModal(true);
                 }}
-                className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-4 border border-slate-800 active:opacity-70"
+                className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-4 border border-gray-300 dark:border-slate-800 active:opacity-70"
                 style={{ width: "48%" }}
               >
                 <View className="flex-row items-center gap-2 mb-2">
@@ -488,7 +488,7 @@ export default function HomeScreen() {
                 <Text className="text-gray-900 dark:text-white text-2xl font-bold">
                   £{(financials.burnRate / 1000).toFixed(0)}k
                 </Text>
-                <Text className="text-slate-500 text-xs mt-1">
+                <Text className="text-gray-600 dark:text-slate-500 text-xs mt-1">
                   {variance.burnRate.variance > 0 ? "+" : ""}
                   {(variance.burnRate.variance / 1000).toFixed(1)}k vs budget
                 </Text>
@@ -500,7 +500,7 @@ export default function HomeScreen() {
                   setDetailsType("runway");
                   setShowDetailsModal(true);
                 }}
-                className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-4 border border-slate-800 active:opacity-70"
+                className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-4 border border-gray-300 dark:border-slate-800 active:opacity-70"
                 style={{ width: "48%" }}
               >
                 <View className="flex-row items-center gap-2 mb-2">
@@ -510,12 +510,12 @@ export default function HomeScreen() {
                 <Text className="text-gray-900 dark:text-white text-2xl font-bold">
                   {financials.runway.toFixed(1)}
                 </Text>
-                <Text className="text-slate-500 text-xs mt-1">months</Text>
+                <Text className="text-gray-600 dark:text-slate-500 text-xs mt-1">months</Text>
               </Pressable>
             </View>
 
             {/* Cost Breakdown */}
-            <View className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-4 border border-slate-800 mb-3">
+            <View className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-4 border border-gray-300 dark:border-slate-800 mb-3">
               <Text className="text-gray-900 dark:text-white font-semibold mb-3">
                 Cost Breakdown
               </Text>
@@ -531,13 +531,13 @@ export default function HomeScreen() {
                 <View className="flex-row items-center justify-between mb-1">
                   <View className="flex-row items-center gap-2">
                     <Package size={16} color="#8b5cf6" />
-                    <Text className="text-slate-300 text-sm">COGS</Text>
+                    <Text className="text-gray-700 dark:text-slate-300 text-sm">COGS</Text>
                   </View>
                   <Text className="text-gray-900 dark:text-white font-semibold">
                     £{(financials.cogs.total / 1000).toFixed(1)}k
                   </Text>
                 </View>
-                <View className="bg-slate-800 h-2 rounded-full overflow-hidden">
+                <View className="bg-gray-200 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
                   <View
                     className="bg-purple-500 h-full rounded-full"
                     style={{
@@ -545,7 +545,7 @@ export default function HomeScreen() {
                     }}
                   />
                 </View>
-                <Text className="text-slate-500 text-xs mt-1">
+                <Text className="text-gray-600 dark:text-slate-500 text-xs mt-1">
                   {(
                     (financials.cogs.total / financials.burnRate) *
                     100
@@ -565,19 +565,19 @@ export default function HomeScreen() {
                 <View className="flex-row items-center justify-between mb-1">
                   <View className="flex-row items-center gap-2">
                     <Users size={16} color="#3b82f6" />
-                    <Text className="text-slate-300 text-sm">Team</Text>
+                    <Text className="text-gray-700 dark:text-slate-300 text-sm">Team</Text>
                   </View>
                   <Text className="text-gray-900 dark:text-white font-semibold">
                     £{(financials.teamCosts.total / 1000).toFixed(1)}k
                   </Text>
                 </View>
-                <View className="bg-slate-800 h-2 rounded-full overflow-hidden">
+                <View className="bg-gray-200 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
                   <View
                     className="bg-blue-500 h-full rounded-full"
                     style={{ width: `${ratios.teamBurnPercentage}%` }}
                   />
                 </View>
-                <Text className="text-slate-500 text-xs mt-1">
+                <Text className="text-gray-600 dark:text-slate-500 text-xs mt-1">
                   {ratios.teamBurnPercentage.toFixed(1)}% of burn •{" "}
                   {financials.teamCosts.headcount.fractionalExecs} execs,{" "}
                   {financials.teamCosts.headcount.apprentices} apprentices
@@ -595,19 +595,19 @@ export default function HomeScreen() {
                 <View className="flex-row items-center justify-between mb-1">
                   <View className="flex-row items-center gap-2">
                     <Bot size={16} color="#10b981" />
-                    <Text className="text-slate-300 text-sm">AI Services</Text>
+                    <Text className="text-gray-700 dark:text-slate-300 text-sm">AI Services</Text>
                   </View>
                   <Text className="text-gray-900 dark:text-white font-semibold">
                     £{(financials.aiCosts.total / 1000).toFixed(1)}k
                   </Text>
                 </View>
-                <View className="bg-slate-800 h-2 rounded-full overflow-hidden">
+                <View className="bg-gray-200 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
                   <View
                     className="bg-emerald-500 h-full rounded-full"
                     style={{ width: `${ratios.aiBurnPercentage}%` }}
                   />
                 </View>
-                <Text className="text-slate-500 text-xs mt-1">
+                <Text className="text-gray-600 dark:text-slate-500 text-xs mt-1">
                   {ratios.aiBurnPercentage.toFixed(1)}% of burn
                 </Text>
               </Pressable>
@@ -623,13 +623,13 @@ export default function HomeScreen() {
                 <View className="flex-row items-center justify-between mb-1">
                   <View className="flex-row items-center gap-2">
                     <Briefcase size={16} color="#f59e0b" />
-                    <Text className="text-slate-300 text-sm">Other</Text>
+                    <Text className="text-gray-700 dark:text-slate-300 text-sm">Other</Text>
                   </View>
                   <Text className="text-gray-900 dark:text-white font-semibold">
                     £{(financials.otherCosts.total / 1000).toFixed(1)}k
                   </Text>
                 </View>
-                <View className="bg-slate-800 h-2 rounded-full overflow-hidden">
+                <View className="bg-gray-200 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
                   <View
                     className="bg-amber-500 h-full rounded-full"
                     style={{
@@ -637,7 +637,7 @@ export default function HomeScreen() {
                     }}
                   />
                 </View>
-                <Text className="text-slate-500 text-xs mt-1">
+                <Text className="text-gray-600 dark:text-slate-500 text-xs mt-1">
                   {(
                     (financials.otherCosts.total / financials.burnRate) *
                     100
@@ -653,7 +653,7 @@ export default function HomeScreen() {
                 setDetailsType("profit");
                 setShowDetailsModal(true);
               }}
-              className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-4 border border-slate-800 active:opacity-70"
+              className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-4 border border-gray-300 dark:border-slate-800 active:opacity-70"
             >
               <View className="flex-row items-center justify-between">
                 <Text className="text-gray-600 dark:text-slate-400 text-sm">Net Profit/Loss</Text>
@@ -670,7 +670,7 @@ export default function HomeScreen() {
                   )}
                 </View>
               </View>
-              <Text className="text-slate-500 text-xs mt-1">
+              <Text className="text-gray-600 dark:text-slate-500 text-xs mt-1">
                 {ratios.netMargin.toFixed(1)}% net margin
               </Text>
             </Pressable>
@@ -714,7 +714,7 @@ export default function HomeScreen() {
             <View className="flex-row gap-3">
               <Pressable
                 onPress={() => router.push("/reports?period=month")}
-                className="flex-1 bg-gray-100 dark:bg-slate-900 rounded-2xl p-4 border border-slate-800 active:opacity-70"
+                className="flex-1 bg-gray-100 dark:bg-slate-900 rounded-2xl p-4 border border-gray-300 dark:border-slate-800 active:opacity-70"
               >
                 <BarChart3 size={24} color="#10b981" />
                 <Text className="text-gray-900 dark:text-white font-semibold mt-2 mb-1">
@@ -725,7 +725,7 @@ export default function HomeScreen() {
 
               <Pressable
                 onPress={() => router.push("/reports?period=quarter")}
-                className="flex-1 bg-gray-100 dark:bg-slate-900 rounded-2xl p-4 border border-slate-800 active:opacity-70"
+                className="flex-1 bg-gray-100 dark:bg-slate-900 rounded-2xl p-4 border border-gray-300 dark:border-slate-800 active:opacity-70"
               >
                 <PieChart size={24} color="#f59e0b" />
                 <Text className="text-gray-900 dark:text-white font-semibold mt-2 mb-1">
@@ -795,7 +795,7 @@ export default function HomeScreen() {
                   <Pressable
                     key={kr.krId}
                     onPress={() => router.push("/(tabs)/okrs")}
-                    className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-4 border border-slate-800 active:opacity-70"
+                    className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-4 border border-gray-300 dark:border-slate-800 active:opacity-70"
                   >
                     <View className="flex-row items-start justify-between mb-2">
                       <Text className="text-gray-900 dark:text-white font-medium flex-1 mr-2">
@@ -803,7 +803,7 @@ export default function HomeScreen() {
                       </Text>
                       <View className={`w-2 h-2 rounded-full ${healthColor}`} />
                     </View>
-                    <View className="bg-slate-800 h-2 rounded-full overflow-hidden">
+                    <View className="bg-gray-200 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
                       <View
                         className="bg-blue-500 h-full rounded-full"
                         style={{ width: `${percentage}%` }}
@@ -857,7 +857,7 @@ export default function HomeScreen() {
                     <Pressable
                       key={task.id}
                       onPress={() => router.push("/(tabs)/work")}
-                      className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-4 border border-slate-800 active:opacity-70"
+                      className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-4 border border-gray-300 dark:border-slate-800 active:opacity-70"
                     >
                       <View className="flex-row items-start justify-between">
                         <View className="flex-1 mr-2">
@@ -872,7 +872,7 @@ export default function HomeScreen() {
                               {task.function}
                             </Text>
                             {task.dueDate && (
-                              <Text className="text-slate-500 text-xs">
+                              <Text className="text-gray-600 dark:text-slate-500 text-xs">
                                 • {new Date(task.dueDate).toLocaleDateString()}
                               </Text>
                             )}
@@ -908,7 +908,7 @@ export default function HomeScreen() {
                   <Pressable
                     key={review.id}
                     onPress={() => router.push("/(tabs)/reviews")}
-                    className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-4 border border-slate-800 active:opacity-70"
+                    className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-4 border border-gray-300 dark:border-slate-800 active:opacity-70"
                   >
                     <View className="flex-row items-center justify-between">
                       <View className="flex-1">
@@ -1016,7 +1016,7 @@ export default function HomeScreen() {
             className="bg-gray-100 dark:bg-slate-900 rounded-t-3xl"
             style={{ maxHeight: "90%" }}
           >
-            <View className="flex-row items-center justify-between p-6 pb-4 border-b border-slate-800">
+            <View className="flex-row items-center justify-between p-6 pb-4 border-b border-gray-300 dark:border-slate-800">
               <Text className="text-gray-900 dark:text-white text-xl font-bold">
                 Budget Targets
               </Text>
@@ -1037,7 +1037,7 @@ export default function HomeScreen() {
                 <Text className="text-gray-600 dark:text-slate-400 text-sm mb-2">
                   Monthly Revenue Target
                 </Text>
-                <View className="flex-row items-center bg-slate-800 rounded-xl px-4 py-3">
+                <View className="flex-row items-center bg-gray-200 dark:bg-slate-800 rounded-xl px-4 py-3">
                   <Text className="text-gray-900 dark:text-white mr-2">£</Text>
                   <TextInput
                     value={editingBudget.monthlyRevenue.toString()}
@@ -1060,7 +1060,7 @@ export default function HomeScreen() {
                 <Text className="text-gray-600 dark:text-slate-400 text-sm mb-2">
                   Max Team Cost
                 </Text>
-                <View className="flex-row items-center bg-slate-800 rounded-xl px-4 py-3">
+                <View className="flex-row items-center bg-gray-200 dark:bg-slate-800 rounded-xl px-4 py-3">
                   <Text className="text-gray-900 dark:text-white mr-2">£</Text>
                   <TextInput
                     value={editingBudget.maxTeamCost.toString()}
@@ -1081,7 +1081,7 @@ export default function HomeScreen() {
               {/* Max AI Cost */}
               <View className="mb-4">
                 <Text className="text-gray-600 dark:text-slate-400 text-sm mb-2">Max AI Cost</Text>
-                <View className="flex-row items-center bg-slate-800 rounded-xl px-4 py-3">
+                <View className="flex-row items-center bg-gray-200 dark:bg-slate-800 rounded-xl px-4 py-3">
                   <Text className="text-gray-900 dark:text-white mr-2">£</Text>
                   <TextInput
                     value={editingBudget.maxAICost.toString()}
@@ -1102,7 +1102,7 @@ export default function HomeScreen() {
               {/* Max COGS */}
               <View className="mb-4">
                 <Text className="text-gray-600 dark:text-slate-400 text-sm mb-2">Max COGS</Text>
-                <View className="flex-row items-center bg-slate-800 rounded-xl px-4 py-3">
+                <View className="flex-row items-center bg-gray-200 dark:bg-slate-800 rounded-xl px-4 py-3">
                   <Text className="text-gray-900 dark:text-white mr-2">£</Text>
                   <TextInput
                     value={editingBudget.maxCOGS.toString()}
@@ -1125,7 +1125,7 @@ export default function HomeScreen() {
                 <Text className="text-gray-600 dark:text-slate-400 text-sm mb-2">
                   Max Other Costs
                 </Text>
-                <View className="flex-row items-center bg-slate-800 rounded-xl px-4 py-3">
+                <View className="flex-row items-center bg-gray-200 dark:bg-slate-800 rounded-xl px-4 py-3">
                   <Text className="text-gray-900 dark:text-white mr-2">£</Text>
                   <TextInput
                     value={editingBudget.maxOtherCosts.toString()}
@@ -1148,7 +1148,7 @@ export default function HomeScreen() {
                 <Text className="text-gray-600 dark:text-slate-400 text-sm mb-2">
                   Target Burn Rate
                 </Text>
-                <View className="flex-row items-center bg-slate-800 rounded-xl px-4 py-3">
+                <View className="flex-row items-center bg-gray-200 dark:bg-slate-800 rounded-xl px-4 py-3">
                   <Text className="text-gray-900 dark:text-white mr-2">£</Text>
                   <TextInput
                     value={editingBudget.targetBurnRate.toString()}
@@ -1205,7 +1205,7 @@ export default function HomeScreen() {
             className="bg-gray-100 dark:bg-slate-900 rounded-t-3xl"
             style={{ maxHeight: "90%" }}
           >
-            <View className="flex-row items-center justify-between p-6 pb-4 border-b border-slate-800">
+            <View className="flex-row items-center justify-between p-6 pb-4 border-b border-gray-300 dark:border-slate-800">
               <Text className="text-gray-900 dark:text-white text-xl font-bold">
                 {detailsType === "revenue" && "Revenue Breakdown"}
                 {detailsType === "profit" && "Profit Breakdown"}
@@ -1249,7 +1249,7 @@ export default function HomeScreen() {
                           k
                         </Text>
                       </View>
-                      <View className="bg-slate-800 h-2 rounded-full overflow-hidden">
+                      <View className="bg-gray-200 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
                         <View
                           className="bg-emerald-500 h-full rounded-full"
                           style={{
@@ -1257,7 +1257,7 @@ export default function HomeScreen() {
                           }}
                         />
                       </View>
-                      <Text className="text-slate-500 text-xs mt-1">
+                      <Text className="text-gray-600 dark:text-slate-500 text-xs mt-1">
                         {(
                           (financials.revenue.breakdown.productSales /
                             financials.revenue.total) *
@@ -1279,7 +1279,7 @@ export default function HomeScreen() {
                           k
                         </Text>
                       </View>
-                      <View className="bg-slate-800 h-2 rounded-full overflow-hidden">
+                      <View className="bg-gray-200 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
                         <View
                           className="bg-blue-500 h-full rounded-full"
                           style={{
@@ -1287,7 +1287,7 @@ export default function HomeScreen() {
                           }}
                         />
                       </View>
-                      <Text className="text-slate-500 text-xs mt-1">
+                      <Text className="text-gray-600 dark:text-slate-500 text-xs mt-1">
                         {(
                           (financials.revenue.breakdown.services /
                             financials.revenue.total) *
@@ -1311,7 +1311,7 @@ export default function HomeScreen() {
                           k
                         </Text>
                       </View>
-                      <View className="bg-slate-800 h-2 rounded-full overflow-hidden">
+                      <View className="bg-gray-200 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
                         <View
                           className="bg-purple-500 h-full rounded-full"
                           style={{
@@ -1319,7 +1319,7 @@ export default function HomeScreen() {
                           }}
                         />
                       </View>
-                      <Text className="text-slate-500 text-xs mt-1">
+                      <Text className="text-gray-600 dark:text-slate-500 text-xs mt-1">
                         {(
                           (financials.revenue.breakdown.recurring /
                             financials.revenue.total) *
@@ -1341,7 +1341,7 @@ export default function HomeScreen() {
                           k
                         </Text>
                       </View>
-                      <View className="bg-slate-800 h-2 rounded-full overflow-hidden">
+                      <View className="bg-gray-200 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
                         <View
                           className="bg-amber-500 h-full rounded-full"
                           style={{
@@ -1349,7 +1349,7 @@ export default function HomeScreen() {
                           }}
                         />
                       </View>
-                      <Text className="text-slate-500 text-xs mt-1">
+                      <Text className="text-gray-600 dark:text-slate-500 text-xs mt-1">
                         {(
                           (financials.revenue.breakdown.other /
                             financials.revenue.total) *
@@ -1406,7 +1406,7 @@ export default function HomeScreen() {
                           <Text className="text-gray-600 dark:text-slate-400 text-sm">
                             Materials
                           </Text>
-                          <Text className="text-slate-300 text-sm">
+                          <Text className="text-gray-700 dark:text-slate-300 text-sm">
                             £
                             {(
                               financials.cogs.breakdown.materials / 1000
@@ -1418,7 +1418,7 @@ export default function HomeScreen() {
                           <Text className="text-gray-600 dark:text-slate-400 text-sm">
                             Manufacturing
                           </Text>
-                          <Text className="text-slate-300 text-sm">
+                          <Text className="text-gray-700 dark:text-slate-300 text-sm">
                             £
                             {(
                               financials.cogs.breakdown.manufacturing / 1000
@@ -1430,7 +1430,7 @@ export default function HomeScreen() {
                           <Text className="text-gray-600 dark:text-slate-400 text-sm">
                             Shipping
                           </Text>
-                          <Text className="text-slate-300 text-sm">
+                          <Text className="text-gray-700 dark:text-slate-300 text-sm">
                             £
                             {(
                               financials.cogs.breakdown.shipping / 1000
@@ -1440,7 +1440,7 @@ export default function HomeScreen() {
                         </View>
                         <View className="flex-row items-center justify-between">
                           <Text className="text-gray-600 dark:text-slate-400 text-sm">Other</Text>
-                          <Text className="text-slate-300 text-sm">
+                          <Text className="text-gray-700 dark:text-slate-300 text-sm">
                             £
                             {(financials.cogs.breakdown.other / 1000).toFixed(
                               1,
@@ -1486,7 +1486,7 @@ export default function HomeScreen() {
                           £{(financials.cogs.total / 1000).toFixed(1)}k
                         </Text>
                       </View>
-                      <View className="bg-slate-800 h-2 rounded-full overflow-hidden">
+                      <View className="bg-gray-200 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
                         <View
                           className="bg-purple-500 h-full rounded-full"
                           style={{
@@ -1494,7 +1494,7 @@ export default function HomeScreen() {
                           }}
                         />
                       </View>
-                      <Text className="text-slate-500 text-xs mt-1">
+                      <Text className="text-gray-600 dark:text-slate-500 text-xs mt-1">
                         {(
                           (financials.cogs.total / financials.burnRate) *
                           100
@@ -1511,13 +1511,13 @@ export default function HomeScreen() {
                           £{(financials.teamCosts.total / 1000).toFixed(1)}k
                         </Text>
                       </View>
-                      <View className="bg-slate-800 h-2 rounded-full overflow-hidden">
+                      <View className="bg-gray-200 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
                         <View
                           className="bg-blue-500 h-full rounded-full"
                           style={{ width: `${ratios.teamBurnPercentage}%` }}
                         />
                       </View>
-                      <Text className="text-slate-500 text-xs mt-1">
+                      <Text className="text-gray-600 dark:text-slate-500 text-xs mt-1">
                         {ratios.teamBurnPercentage.toFixed(1)}% of burn
                       </Text>
                       <View className="ml-4 mt-2">
@@ -1525,7 +1525,7 @@ export default function HomeScreen() {
                           <Text className="text-gray-600 dark:text-slate-400 text-sm">
                             Founders
                           </Text>
-                          <Text className="text-slate-300 text-sm">
+                          <Text className="text-gray-700 dark:text-slate-300 text-sm">
                             £
                             {(
                               financials.teamCosts.breakdown.founders / 1000
@@ -1537,7 +1537,7 @@ export default function HomeScreen() {
                           <Text className="text-gray-600 dark:text-slate-400 text-sm">
                             Fractional Execs
                           </Text>
-                          <Text className="text-slate-300 text-sm">
+                          <Text className="text-gray-700 dark:text-slate-300 text-sm">
                             £
                             {(
                               financials.teamCosts.breakdown.fractionalExecs /
@@ -1550,7 +1550,7 @@ export default function HomeScreen() {
                           <Text className="text-gray-600 dark:text-slate-400 text-sm">
                             Apprentices
                           </Text>
-                          <Text className="text-slate-300 text-sm">
+                          <Text className="text-gray-700 dark:text-slate-300 text-sm">
                             £
                             {(
                               financials.teamCosts.breakdown.apprentices / 1000
@@ -1571,19 +1571,19 @@ export default function HomeScreen() {
                           £{(financials.aiCosts.total / 1000).toFixed(1)}k
                         </Text>
                       </View>
-                      <View className="bg-slate-800 h-2 rounded-full overflow-hidden">
+                      <View className="bg-gray-200 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
                         <View
                           className="bg-emerald-500 h-full rounded-full"
                           style={{ width: `${ratios.aiBurnPercentage}%` }}
                         />
                       </View>
-                      <Text className="text-slate-500 text-xs mt-1">
+                      <Text className="text-gray-600 dark:text-slate-500 text-xs mt-1">
                         {ratios.aiBurnPercentage.toFixed(1)}% of burn
                       </Text>
                       <View className="ml-4 mt-2">
                         <View className="flex-row items-center justify-between mb-1">
                           <Text className="text-gray-600 dark:text-slate-400 text-sm">OpenAI</Text>
-                          <Text className="text-slate-300 text-sm">
+                          <Text className="text-gray-700 dark:text-slate-300 text-sm">
                             £
                             {(
                               financials.aiCosts.breakdown.openai / 1000
@@ -1595,7 +1595,7 @@ export default function HomeScreen() {
                           <Text className="text-gray-600 dark:text-slate-400 text-sm">
                             Anthropic
                           </Text>
-                          <Text className="text-slate-300 text-sm">
+                          <Text className="text-gray-700 dark:text-slate-300 text-sm">
                             £
                             {(
                               financials.aiCosts.breakdown.anthropic / 1000
@@ -1605,7 +1605,7 @@ export default function HomeScreen() {
                         </View>
                         <View className="flex-row items-center justify-between mb-1">
                           <Text className="text-gray-600 dark:text-slate-400 text-sm">Google</Text>
-                          <Text className="text-slate-300 text-sm">
+                          <Text className="text-gray-700 dark:text-slate-300 text-sm">
                             £
                             {(
                               financials.aiCosts.breakdown.google / 1000
@@ -1617,7 +1617,7 @@ export default function HomeScreen() {
                           <Text className="text-gray-600 dark:text-slate-400 text-sm">
                             ElevenLabs
                           </Text>
-                          <Text className="text-slate-300 text-sm">
+                          <Text className="text-gray-700 dark:text-slate-300 text-sm">
                             £
                             {(
                               financials.aiCosts.breakdown.elevenlabs / 1000
@@ -1627,7 +1627,7 @@ export default function HomeScreen() {
                         </View>
                         <View className="flex-row items-center justify-between">
                           <Text className="text-gray-600 dark:text-slate-400 text-sm">Other</Text>
-                          <Text className="text-slate-300 text-sm">
+                          <Text className="text-gray-700 dark:text-slate-300 text-sm">
                             £
                             {(
                               financials.aiCosts.breakdown.other / 1000
@@ -1648,7 +1648,7 @@ export default function HomeScreen() {
                           £{(financials.otherCosts.total / 1000).toFixed(1)}k
                         </Text>
                       </View>
-                      <View className="bg-slate-800 h-2 rounded-full overflow-hidden">
+                      <View className="bg-gray-200 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
                         <View
                           className="bg-amber-500 h-full rounded-full"
                           style={{
@@ -1656,7 +1656,7 @@ export default function HomeScreen() {
                           }}
                         />
                       </View>
-                      <Text className="text-slate-500 text-xs mt-1">
+                      <Text className="text-gray-600 dark:text-slate-500 text-xs mt-1">
                         {(
                           (financials.otherCosts.total / financials.burnRate) *
                           100
@@ -1666,7 +1666,7 @@ export default function HomeScreen() {
                       <View className="ml-4 mt-2">
                         <View className="flex-row items-center justify-between mb-1">
                           <Text className="text-gray-600 dark:text-slate-400 text-sm">Office</Text>
-                          <Text className="text-slate-300 text-sm">
+                          <Text className="text-gray-700 dark:text-slate-300 text-sm">
                             £
                             {(
                               financials.otherCosts.breakdown.office / 1000
@@ -1678,7 +1678,7 @@ export default function HomeScreen() {
                           <Text className="text-gray-600 dark:text-slate-400 text-sm">
                             Software
                           </Text>
-                          <Text className="text-slate-300 text-sm">
+                          <Text className="text-gray-700 dark:text-slate-300 text-sm">
                             £
                             {(
                               financials.otherCosts.breakdown.software / 1000
@@ -1690,7 +1690,7 @@ export default function HomeScreen() {
                           <Text className="text-gray-600 dark:text-slate-400 text-sm">
                             Marketing
                           </Text>
-                          <Text className="text-slate-300 text-sm">
+                          <Text className="text-gray-700 dark:text-slate-300 text-sm">
                             £
                             {(
                               financials.otherCosts.breakdown.marketing / 1000
@@ -1700,7 +1700,7 @@ export default function HomeScreen() {
                         </View>
                         <View className="flex-row items-center justify-between mb-1">
                           <Text className="text-gray-600 dark:text-slate-400 text-sm">Legal</Text>
-                          <Text className="text-slate-300 text-sm">
+                          <Text className="text-gray-700 dark:text-slate-300 text-sm">
                             £
                             {(
                               financials.otherCosts.breakdown.legal / 1000
@@ -1710,7 +1710,7 @@ export default function HomeScreen() {
                         </View>
                         <View className="flex-row items-center justify-between">
                           <Text className="text-gray-600 dark:text-slate-400 text-sm">Other</Text>
-                          <Text className="text-slate-300 text-sm">
+                          <Text className="text-gray-700 dark:text-slate-300 text-sm">
                             £
                             {(
                               financials.otherCosts.breakdown.other / 1000
@@ -1825,7 +1825,7 @@ export default function HomeScreen() {
                                   £{(m.balance / 1000).toFixed(0)}k
                                 </Text>
                               </View>
-                              <View className="bg-slate-800 h-2 rounded-full overflow-hidden">
+                              <View className="bg-gray-200 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
                                 <View
                                   className={`h-full rounded-full ${
                                     m.balance === 0
@@ -1917,7 +1917,7 @@ export default function HomeScreen() {
                           £{(financials.cogs.breakdown.materials / 1000).toFixed(1)}k
                         </Text>
                       </View>
-                      <View className="bg-slate-800 h-2 rounded-full overflow-hidden">
+                      <View className="bg-gray-200 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
                         <View
                           className="bg-purple-500 h-full rounded-full"
                           style={{
@@ -1925,7 +1925,7 @@ export default function HomeScreen() {
                           }}
                         />
                       </View>
-                      <Text className="text-slate-500 text-xs mt-1">
+                      <Text className="text-gray-600 dark:text-slate-500 text-xs mt-1">
                         {((financials.cogs.breakdown.materials / financials.cogs.total) * 100).toFixed(1)}% of COGS
                       </Text>
                     </View>
@@ -1938,7 +1938,7 @@ export default function HomeScreen() {
                           £{(financials.cogs.breakdown.manufacturing / 1000).toFixed(1)}k
                         </Text>
                       </View>
-                      <View className="bg-slate-800 h-2 rounded-full overflow-hidden">
+                      <View className="bg-gray-200 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
                         <View
                           className="bg-purple-400 h-full rounded-full"
                           style={{
@@ -1946,7 +1946,7 @@ export default function HomeScreen() {
                           }}
                         />
                       </View>
-                      <Text className="text-slate-500 text-xs mt-1">
+                      <Text className="text-gray-600 dark:text-slate-500 text-xs mt-1">
                         {((financials.cogs.breakdown.manufacturing / financials.cogs.total) * 100).toFixed(1)}% of COGS
                       </Text>
                     </View>
@@ -1959,7 +1959,7 @@ export default function HomeScreen() {
                           £{(financials.cogs.breakdown.shipping / 1000).toFixed(1)}k
                         </Text>
                       </View>
-                      <View className="bg-slate-800 h-2 rounded-full overflow-hidden">
+                      <View className="bg-gray-200 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
                         <View
                           className="bg-purple-300 h-full rounded-full"
                           style={{
@@ -1967,7 +1967,7 @@ export default function HomeScreen() {
                           }}
                         />
                       </View>
-                      <Text className="text-slate-500 text-xs mt-1">
+                      <Text className="text-gray-600 dark:text-slate-500 text-xs mt-1">
                         {((financials.cogs.breakdown.shipping / financials.cogs.total) * 100).toFixed(1)}% of COGS
                       </Text>
                     </View>
@@ -1980,7 +1980,7 @@ export default function HomeScreen() {
                           £{(financials.cogs.breakdown.other / 1000).toFixed(1)}k
                         </Text>
                       </View>
-                      <View className="bg-slate-800 h-2 rounded-full overflow-hidden">
+                      <View className="bg-gray-200 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
                         <View
                           className="bg-purple-600 h-full rounded-full"
                           style={{
@@ -1988,7 +1988,7 @@ export default function HomeScreen() {
                           }}
                         />
                       </View>
-                      <Text className="text-slate-500 text-xs mt-1">
+                      <Text className="text-gray-600 dark:text-slate-500 text-xs mt-1">
                         {((financials.cogs.breakdown.other / financials.cogs.total) * 100).toFixed(1)}% of COGS
                       </Text>
                     </View>
@@ -2021,7 +2021,7 @@ export default function HomeScreen() {
                           £{(financials.teamCosts.breakdown.founders / 1000).toFixed(1)}k
                         </Text>
                       </View>
-                      <View className="bg-slate-800 h-2 rounded-full overflow-hidden">
+                      <View className="bg-gray-200 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
                         <View
                           className="bg-blue-500 h-full rounded-full"
                           style={{
@@ -2029,7 +2029,7 @@ export default function HomeScreen() {
                           }}
                         />
                       </View>
-                      <Text className="text-slate-500 text-xs mt-1">
+                      <Text className="text-gray-600 dark:text-slate-500 text-xs mt-1">
                         {((financials.teamCosts.breakdown.founders / financials.teamCosts.total) * 100).toFixed(1)}% of team costs • {financials.teamCosts.headcount.founders} people
                       </Text>
                     </View>
@@ -2042,7 +2042,7 @@ export default function HomeScreen() {
                           £{(financials.teamCosts.breakdown.fractionalExecs / 1000).toFixed(1)}k
                         </Text>
                       </View>
-                      <View className="bg-slate-800 h-2 rounded-full overflow-hidden">
+                      <View className="bg-gray-200 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
                         <View
                           className="bg-blue-400 h-full rounded-full"
                           style={{
@@ -2050,7 +2050,7 @@ export default function HomeScreen() {
                           }}
                         />
                       </View>
-                      <Text className="text-slate-500 text-xs mt-1">
+                      <Text className="text-gray-600 dark:text-slate-500 text-xs mt-1">
                         {((financials.teamCosts.breakdown.fractionalExecs / financials.teamCosts.total) * 100).toFixed(1)}% of team costs • {financials.teamCosts.headcount.fractionalExecs} people
                       </Text>
                     </View>
@@ -2063,7 +2063,7 @@ export default function HomeScreen() {
                           £{(financials.teamCosts.breakdown.apprentices / 1000).toFixed(1)}k
                         </Text>
                       </View>
-                      <View className="bg-slate-800 h-2 rounded-full overflow-hidden">
+                      <View className="bg-gray-200 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
                         <View
                           className="bg-blue-300 h-full rounded-full"
                           style={{
@@ -2071,7 +2071,7 @@ export default function HomeScreen() {
                           }}
                         />
                       </View>
-                      <Text className="text-slate-500 text-xs mt-1">
+                      <Text className="text-gray-600 dark:text-slate-500 text-xs mt-1">
                         {((financials.teamCosts.breakdown.apprentices / financials.teamCosts.total) * 100).toFixed(1)}% of team costs • {financials.teamCosts.headcount.apprentices} people
                       </Text>
                     </View>
@@ -2107,7 +2107,7 @@ export default function HomeScreen() {
                           £{(financials.aiCosts.breakdown.openai / 1000).toFixed(1)}k
                         </Text>
                       </View>
-                      <View className="bg-slate-800 h-2 rounded-full overflow-hidden">
+                      <View className="bg-gray-200 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
                         <View
                           className="bg-emerald-500 h-full rounded-full"
                           style={{
@@ -2115,7 +2115,7 @@ export default function HomeScreen() {
                           }}
                         />
                       </View>
-                      <Text className="text-slate-500 text-xs mt-1">
+                      <Text className="text-gray-600 dark:text-slate-500 text-xs mt-1">
                         {((financials.aiCosts.breakdown.openai / financials.aiCosts.total) * 100).toFixed(1)}% of AI costs
                       </Text>
                     </View>
@@ -2128,7 +2128,7 @@ export default function HomeScreen() {
                           £{(financials.aiCosts.breakdown.anthropic / 1000).toFixed(1)}k
                         </Text>
                       </View>
-                      <View className="bg-slate-800 h-2 rounded-full overflow-hidden">
+                      <View className="bg-gray-200 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
                         <View
                           className="bg-emerald-400 h-full rounded-full"
                           style={{
@@ -2136,7 +2136,7 @@ export default function HomeScreen() {
                           }}
                         />
                       </View>
-                      <Text className="text-slate-500 text-xs mt-1">
+                      <Text className="text-gray-600 dark:text-slate-500 text-xs mt-1">
                         {((financials.aiCosts.breakdown.anthropic / financials.aiCosts.total) * 100).toFixed(1)}% of AI costs
                       </Text>
                     </View>
@@ -2149,7 +2149,7 @@ export default function HomeScreen() {
                           £{(financials.aiCosts.breakdown.google / 1000).toFixed(1)}k
                         </Text>
                       </View>
-                      <View className="bg-slate-800 h-2 rounded-full overflow-hidden">
+                      <View className="bg-gray-200 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
                         <View
                           className="bg-emerald-300 h-full rounded-full"
                           style={{
@@ -2157,7 +2157,7 @@ export default function HomeScreen() {
                           }}
                         />
                       </View>
-                      <Text className="text-slate-500 text-xs mt-1">
+                      <Text className="text-gray-600 dark:text-slate-500 text-xs mt-1">
                         {((financials.aiCosts.breakdown.google / financials.aiCosts.total) * 100).toFixed(1)}% of AI costs
                       </Text>
                     </View>
@@ -2170,7 +2170,7 @@ export default function HomeScreen() {
                           £{(financials.aiCosts.breakdown.elevenlabs / 1000).toFixed(1)}k
                         </Text>
                       </View>
-                      <View className="bg-slate-800 h-2 rounded-full overflow-hidden">
+                      <View className="bg-gray-200 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
                         <View
                           className="bg-emerald-600 h-full rounded-full"
                           style={{
@@ -2178,7 +2178,7 @@ export default function HomeScreen() {
                           }}
                         />
                       </View>
-                      <Text className="text-slate-500 text-xs mt-1">
+                      <Text className="text-gray-600 dark:text-slate-500 text-xs mt-1">
                         {((financials.aiCosts.breakdown.elevenlabs / financials.aiCosts.total) * 100).toFixed(1)}% of AI costs
                       </Text>
                     </View>
@@ -2191,7 +2191,7 @@ export default function HomeScreen() {
                           £{(financials.aiCosts.breakdown.other / 1000).toFixed(1)}k
                         </Text>
                       </View>
-                      <View className="bg-slate-800 h-2 rounded-full overflow-hidden">
+                      <View className="bg-gray-200 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
                         <View
                           className="bg-emerald-700 h-full rounded-full"
                           style={{
@@ -2199,7 +2199,7 @@ export default function HomeScreen() {
                           }}
                         />
                       </View>
-                      <Text className="text-slate-500 text-xs mt-1">
+                      <Text className="text-gray-600 dark:text-slate-500 text-xs mt-1">
                         {((financials.aiCosts.breakdown.other / financials.aiCosts.total) * 100).toFixed(1)}% of AI costs
                       </Text>
                     </View>
@@ -2235,7 +2235,7 @@ export default function HomeScreen() {
                           £{(financials.otherCosts.breakdown.office / 1000).toFixed(1)}k
                         </Text>
                       </View>
-                      <View className="bg-slate-800 h-2 rounded-full overflow-hidden">
+                      <View className="bg-gray-200 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
                         <View
                           className="bg-amber-500 h-full rounded-full"
                           style={{
@@ -2243,7 +2243,7 @@ export default function HomeScreen() {
                           }}
                         />
                       </View>
-                      <Text className="text-slate-500 text-xs mt-1">
+                      <Text className="text-gray-600 dark:text-slate-500 text-xs mt-1">
                         {((financials.otherCosts.breakdown.office / financials.otherCosts.total) * 100).toFixed(1)}% of other costs
                       </Text>
                     </View>
@@ -2256,7 +2256,7 @@ export default function HomeScreen() {
                           £{(financials.otherCosts.breakdown.software / 1000).toFixed(1)}k
                         </Text>
                       </View>
-                      <View className="bg-slate-800 h-2 rounded-full overflow-hidden">
+                      <View className="bg-gray-200 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
                         <View
                           className="bg-amber-400 h-full rounded-full"
                           style={{
@@ -2264,7 +2264,7 @@ export default function HomeScreen() {
                           }}
                         />
                       </View>
-                      <Text className="text-slate-500 text-xs mt-1">
+                      <Text className="text-gray-600 dark:text-slate-500 text-xs mt-1">
                         {((financials.otherCosts.breakdown.software / financials.otherCosts.total) * 100).toFixed(1)}% of other costs
                       </Text>
                     </View>
@@ -2277,7 +2277,7 @@ export default function HomeScreen() {
                           £{(financials.otherCosts.breakdown.marketing / 1000).toFixed(1)}k
                         </Text>
                       </View>
-                      <View className="bg-slate-800 h-2 rounded-full overflow-hidden">
+                      <View className="bg-gray-200 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
                         <View
                           className="bg-amber-300 h-full rounded-full"
                           style={{
@@ -2285,7 +2285,7 @@ export default function HomeScreen() {
                           }}
                         />
                       </View>
-                      <Text className="text-slate-500 text-xs mt-1">
+                      <Text className="text-gray-600 dark:text-slate-500 text-xs mt-1">
                         {((financials.otherCosts.breakdown.marketing / financials.otherCosts.total) * 100).toFixed(1)}% of other costs
                       </Text>
                     </View>
@@ -2298,7 +2298,7 @@ export default function HomeScreen() {
                           £{(financials.otherCosts.breakdown.legal / 1000).toFixed(1)}k
                         </Text>
                       </View>
-                      <View className="bg-slate-800 h-2 rounded-full overflow-hidden">
+                      <View className="bg-gray-200 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
                         <View
                           className="bg-amber-600 h-full rounded-full"
                           style={{
@@ -2306,7 +2306,7 @@ export default function HomeScreen() {
                           }}
                         />
                       </View>
-                      <Text className="text-slate-500 text-xs mt-1">
+                      <Text className="text-gray-600 dark:text-slate-500 text-xs mt-1">
                         {((financials.otherCosts.breakdown.legal / financials.otherCosts.total) * 100).toFixed(1)}% of other costs
                       </Text>
                     </View>
@@ -2319,7 +2319,7 @@ export default function HomeScreen() {
                           £{(financials.otherCosts.breakdown.other / 1000).toFixed(1)}k
                         </Text>
                       </View>
-                      <View className="bg-slate-800 h-2 rounded-full overflow-hidden">
+                      <View className="bg-gray-200 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
                         <View
                           className="bg-amber-700 h-full rounded-full"
                           style={{
@@ -2327,7 +2327,7 @@ export default function HomeScreen() {
                           }}
                         />
                       </View>
-                      <Text className="text-slate-500 text-xs mt-1">
+                      <Text className="text-gray-600 dark:text-slate-500 text-xs mt-1">
                         {((financials.otherCosts.breakdown.other / financials.otherCosts.total) * 100).toFixed(1)}% of other costs
                       </Text>
                     </View>
@@ -2356,7 +2356,7 @@ export default function HomeScreen() {
       <Modal visible={showScenarioPlanningModal} transparent animationType="slide" onRequestClose={() => setShowScenarioPlanningModal(false)}>
         <View className="flex-1 bg-black/70 justify-end">
           <View className="bg-gray-100 dark:bg-slate-900 rounded-t-3xl" style={{ maxHeight: "90%" }}>
-            <View className="flex-row items-center justify-between p-6 pb-4 border-b border-slate-800">
+            <View className="flex-row items-center justify-between p-6 pb-4 border-b border-gray-300 dark:border-slate-800">
               <View className="flex-row items-center gap-2">
                 <Sparkles size={24} color="#3b82f6" />
                 <Text className="text-gray-900 dark:text-white text-xl font-bold">Interactive Scenario Planning</Text>
@@ -2381,7 +2381,7 @@ export default function HomeScreen() {
               showsVerticalScrollIndicator={false}
             >
               {/* Current Situation - Compact */}
-              <View className="mb-6 bg-slate-800 rounded-xl p-4">
+              <View className="mb-6 bg-gray-200 dark:bg-slate-800 rounded-xl p-4">
                 <Text className="text-gray-900 dark:text-white font-semibold mb-3">Current Financials</Text>
                 <View className="flex-row justify-between flex-wrap gap-y-2">
                   <View className="w-[48%]">
@@ -2423,8 +2423,8 @@ export default function HomeScreen() {
                   thumbTintColor="#10b981"
                 />
                 <View className="flex-row justify-between mt-1">
-                  <Text className="text-slate-500 text-xs">0%</Text>
-                  <Text className="text-slate-500 text-xs">100%</Text>
+                  <Text className="text-gray-600 dark:text-slate-500 text-xs">0%</Text>
+                  <Text className="text-gray-600 dark:text-slate-500 text-xs">100%</Text>
                 </View>
 
                 {revenueIncrease > 0 && (
@@ -2436,13 +2436,13 @@ export default function HomeScreen() {
                       </Text>
                     </View>
                     <View className="flex-row items-center justify-between mb-2">
-                      <Text className="text-slate-300 text-sm">Additional Revenue</Text>
+                      <Text className="text-gray-700 dark:text-slate-300 text-sm">Additional Revenue</Text>
                       <Text className="text-emerald-400 font-semibold">
                         +£{((financials.revenue.total * (revenueIncrease / 100)) / 1000).toFixed(1)}k/mo
                       </Text>
                     </View>
                     <View className="flex-row items-center justify-between">
-                      <Text className="text-slate-300 text-sm">Impact on Runway</Text>
+                      <Text className="text-gray-700 dark:text-slate-300 text-sm">Impact on Runway</Text>
                       <Text className="text-emerald-400 font-bold">
                         +{(((financials.cashBalance / (financials.burnRate - financials.revenue.total * (revenueIncrease / 100))) - financials.runway) || 0).toFixed(1)}m
                       </Text>
@@ -2471,8 +2471,8 @@ export default function HomeScreen() {
                   thumbTintColor="#3b82f6"
                 />
                 <View className="flex-row justify-between mt-1">
-                  <Text className="text-slate-500 text-xs">0%</Text>
-                  <Text className="text-slate-500 text-xs">50%</Text>
+                  <Text className="text-gray-600 dark:text-slate-500 text-xs">0%</Text>
+                  <Text className="text-gray-600 dark:text-slate-500 text-xs">50%</Text>
                 </View>
 
                 {burnReduction > 0 && (
@@ -2484,13 +2484,13 @@ export default function HomeScreen() {
                       </Text>
                     </View>
                     <View className="flex-row items-center justify-between mb-2">
-                      <Text className="text-slate-300 text-sm">Monthly Savings</Text>
+                      <Text className="text-gray-700 dark:text-slate-300 text-sm">Monthly Savings</Text>
                       <Text className="text-blue-400 font-semibold">
                         £{((financials.burnRate * (burnReduction / 100)) / 1000).toFixed(1)}k/mo
                       </Text>
                     </View>
                     <View className="flex-row items-center justify-between">
-                      <Text className="text-slate-300 text-sm">Impact on Runway</Text>
+                      <Text className="text-gray-700 dark:text-slate-300 text-sm">Impact on Runway</Text>
                       <Text className="text-blue-400 font-bold">
                         +{((financials.cashBalance / (financials.burnRate * (1 - burnReduction / 100))) - financials.runway).toFixed(1)}m
                       </Text>
@@ -2631,27 +2631,27 @@ export default function HomeScreen() {
                     }}
                     className="flex-1 bg-slate-700 border border-slate-600 rounded-xl p-3 active:opacity-70"
                   >
-                    <Text className="text-slate-300 font-semibold text-center text-sm">Reset</Text>
+                    <Text className="text-gray-700 dark:text-slate-300 font-semibold text-center text-sm">Reset</Text>
                     <Text className="text-gray-600 dark:text-slate-400 text-center text-xs mt-1">Clear All</Text>
                   </Pressable>
                 </View>
               </View>
 
               {/* Break-even Calculator */}
-              <View className="mb-4 bg-slate-800 rounded-xl p-4">
+              <View className="mb-4 bg-gray-200 dark:bg-slate-800 rounded-xl p-4">
                 <Text className="text-gray-900 dark:text-white font-semibold mb-2">Path to Break-even</Text>
-                <Text className="text-slate-300 text-sm mb-3">
+                <Text className="text-gray-700 dark:text-slate-300 text-sm mb-3">
                   To reach break-even (£0 net burn):
                 </Text>
                 <View className="bg-emerald-500/10 border border-emerald-500/30 rounded-lg p-3">
                   <View className="flex-row items-center justify-between mb-1">
-                    <Text className="text-slate-300 text-sm">Revenue needed:</Text>
+                    <Text className="text-gray-700 dark:text-slate-300 text-sm">Revenue needed:</Text>
                     <Text className="text-emerald-400 font-bold">
                       £{(financials.burnRate / 1000).toFixed(1)}k/mo
                     </Text>
                   </View>
                   <View className="flex-row items-center justify-between">
-                    <Text className="text-slate-300 text-sm">Growth required:</Text>
+                    <Text className="text-gray-700 dark:text-slate-300 text-sm">Growth required:</Text>
                     <Text className="text-emerald-400 font-bold">
                       {((financials.burnRate / financials.revenue.total - 1) * 100).toFixed(0)}%
                     </Text>

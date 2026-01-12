@@ -425,7 +425,7 @@ export default function WorkScreen() {
                     setEditDueDate(task.dueDate || '');
                     setShowEditModal(true);
                   }}
-                  className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-4 border border-slate-800 active:opacity-70"
+                  className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-4 border border-gray-300 dark:border-slate-800 active:opacity-70"
                 >
                   {/* Task Header */}
                   <View className="flex-row items-start justify-between mb-3">
@@ -482,7 +482,7 @@ export default function WorkScreen() {
                       )}
                       {task.dueDate && (
                         <>
-                          <Text className="text-slate-600">•</Text>
+                          <Text className="text-gray-700 dark:text-slate-600">•</Text>
                           <Text className="text-gray-600 dark:text-slate-400 text-xs">
                             {new Date(task.dueDate).toLocaleDateString()}
                           </Text>
@@ -498,7 +498,7 @@ export default function WorkScreen() {
                           setSelectedTask(task);
                           setShowAssignModal(true);
                         }}
-                        className="bg-slate-800 px-3 py-1 rounded-lg active:opacity-70"
+                        className="bg-gray-200 dark:bg-slate-800 px-3 py-1 rounded-lg active:opacity-70"
                       >
                         <User size={14} color="#94a3b8" />
                       </Pressable>
@@ -511,7 +511,7 @@ export default function WorkScreen() {
                             setTimeTrackingTask(task);
                             setShowTimeModal(true);
                           }}
-                          className="bg-slate-800 px-3 py-1 rounded-lg active:opacity-70"
+                          className="bg-gray-200 dark:bg-slate-800 px-3 py-1 rounded-lg active:opacity-70"
                         >
                           <Clock size={14} color="#94a3b8" />
                         </Pressable>
@@ -589,8 +589,8 @@ export default function WorkScreen() {
                   </View>
 
                   {task.project && (
-                    <View className="mt-2 pt-2 border-t border-slate-800">
-                      <Text className="text-slate-500 text-xs">
+                    <View className="mt-2 pt-2 border-t border-gray-300 dark:border-slate-800">
+                      <Text className="text-gray-600 dark:text-slate-500 text-xs">
                         Project: {task.project.title}
                       </Text>
                     </View>
@@ -610,7 +610,7 @@ export default function WorkScreen() {
             className="flex-1 justify-end"
           >
             <View className="bg-gray-100 dark:bg-slate-900 rounded-t-3xl" style={{ maxHeight: '90%' }}>
-              <View className="flex-row items-center justify-between p-6 pb-4 border-b border-slate-800">
+              <View className="flex-row items-center justify-between p-6 pb-4 border-b border-gray-300 dark:border-slate-800">
                 <Text className="text-gray-900 dark:text-white text-xl font-bold">Edit Task</Text>
                 <Pressable onPress={() => setShowEditModal(false)}>
                   <X size={24} color="#94a3b8" />
@@ -628,7 +628,7 @@ export default function WorkScreen() {
                         onChangeText={setEditTitle}
                         placeholder="Task title"
                         placeholderTextColor="#64748b"
-                        className="bg-slate-800 text-gray-900 dark:text-white rounded-xl px-4 py-3 border border-slate-700"
+                        className="bg-gray-200 dark:bg-slate-800 text-gray-900 dark:text-white rounded-xl px-4 py-3 border border-gray-400 dark:border-slate-700"
                       />
                     </View>
 
@@ -643,7 +643,7 @@ export default function WorkScreen() {
                         multiline
                         numberOfLines={4}
                         textAlignVertical="top"
-                        className="bg-slate-800 text-gray-900 dark:text-white rounded-xl px-4 py-3 border border-slate-700"
+                        className="bg-gray-200 dark:bg-slate-800 text-gray-900 dark:text-white rounded-xl px-4 py-3 border border-gray-400 dark:border-slate-700"
                       />
                     </View>
 
@@ -928,7 +928,7 @@ export default function WorkScreen() {
                               }`}>
                                 {member.user?.name || 'Unknown'}
                               </Text>
-                              <Text className="text-slate-500 text-xs">{member.role}</Text>
+                              <Text className="text-gray-600 dark:text-slate-500 text-xs">{member.role}</Text>
                             </View>
                           </View>
                           {selectedTask.assigneeId === member.userId && (
@@ -944,7 +944,7 @@ export default function WorkScreen() {
 
                 <Pressable
                   onPress={() => setShowAssignModal(false)}
-                  className="bg-slate-800 rounded-xl py-3 items-center active:opacity-70"
+                  className="bg-gray-200 dark:bg-slate-800 rounded-xl py-3 items-center active:opacity-70"
                 >
                   <Text className="text-gray-600 dark:text-slate-400 font-semibold">Cancel</Text>
                 </Pressable>
@@ -1015,7 +1015,7 @@ export default function WorkScreen() {
                       onChangeText={setNewTaskTitle}
                       placeholder="Enter task title"
                       placeholderTextColor="#64748b"
-                      className="bg-slate-800 text-gray-900 dark:text-white px-4 py-3 rounded-xl border border-slate-700"
+                      className="bg-gray-200 dark:bg-slate-800 text-gray-900 dark:text-white px-4 py-3 rounded-xl border border-gray-400 dark:border-slate-700"
                       autoFocus
                     />
                   </View>
@@ -1030,7 +1030,7 @@ export default function WorkScreen() {
                       placeholderTextColor="#64748b"
                       multiline
                       numberOfLines={3}
-                      className="bg-slate-800 text-gray-900 dark:text-white px-4 py-3 rounded-xl border border-slate-700"
+                      className="bg-gray-200 dark:bg-slate-800 text-gray-900 dark:text-white px-4 py-3 rounded-xl border border-gray-400 dark:border-slate-700"
                       style={{ minHeight: 80, textAlignVertical: 'top' }}
                     />
                   </View>
@@ -1194,7 +1194,7 @@ export default function WorkScreen() {
 
                   <Pressable
                     onPress={() => setShowCreateModal(false)}
-                    className="bg-slate-800 rounded-xl py-3 items-center active:opacity-70"
+                    className="bg-gray-200 dark:bg-slate-800 rounded-xl py-3 items-center active:opacity-70"
                   >
                     <Text className="text-gray-600 dark:text-slate-400 font-semibold">Cancel</Text>
                   </Pressable>

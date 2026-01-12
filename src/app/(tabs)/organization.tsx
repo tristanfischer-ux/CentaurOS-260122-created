@@ -144,7 +144,7 @@ export default function OrganizationScreen() {
 
         {/* Key Metrics */}
         <View className="flex-row gap-3">
-          <View className="flex-1 bg-gray-100 dark:bg-slate-900 rounded-xl p-3 border border-slate-800">
+          <View className="flex-1 bg-gray-100 dark:bg-slate-900 rounded-xl p-3 border border-gray-300 dark:border-slate-800">
             <Text className="text-gray-600 dark:text-slate-400 text-xs mb-1">Team</Text>
             <Text className="text-gray-900 dark:text-white text-xl font-bold">{ORGANIZATION_MEMBERS.length}</Text>
             <Text className="text-blue-400 text-[10px] mt-0.5 font-semibold">
@@ -152,22 +152,22 @@ export default function OrganizationScreen() {
             </Text>
           </View>
 
-          <View className="flex-1 bg-gray-100 dark:bg-slate-900 rounded-xl p-3 border border-slate-800">
+          <View className="flex-1 bg-gray-100 dark:bg-slate-900 rounded-xl p-3 border border-gray-300 dark:border-slate-800">
             <Text className="text-gray-600 dark:text-slate-400 text-xs mb-1">Suppliers</Text>
             <Text className="text-emerald-400 text-xl font-bold">
               £{(supplierSpend.total / 1000).toFixed(0)}k
             </Text>
-            <Text className="text-slate-500 text-[10px] mt-0.5">
+            <Text className="text-gray-600 dark:text-slate-500 text-[10px] mt-0.5">
               £{(supplierSpend.paid / 1000).toFixed(0)}k paid
             </Text>
           </View>
 
-          <View className="flex-1 bg-gray-100 dark:bg-slate-900 rounded-xl p-3 border border-slate-800">
+          <View className="flex-1 bg-gray-100 dark:bg-slate-900 rounded-xl p-3 border border-gray-300 dark:border-slate-800">
             <Text className="text-gray-600 dark:text-slate-400 text-xs mb-1">AI/Month</Text>
             <Text className="text-blue-400 text-xl font-bold">
               £{aiSpend.toLocaleString()}
             </Text>
-            <Text className="text-slate-500 text-[10px] mt-0.5">
+            <Text className="text-gray-600 dark:text-slate-500 text-[10px] mt-0.5">
               {AI_AGENTS.filter(a => a.status === 'active').length} active
             </Text>
           </View>
@@ -236,7 +236,7 @@ export default function OrganizationScreen() {
                       </View>
 
                       <View className="flex-1">
-                        <View className="bg-gray-100 dark:bg-slate-900 rounded-xl p-3 border border-slate-800 mb-2">
+                        <View className="bg-gray-100 dark:bg-slate-900 rounded-xl p-3 border border-gray-300 dark:border-slate-800 mb-2">
                           <Pressable
                             onPress={() => toggleExecExpansion(exec.id)}
                             className="active:opacity-70"
@@ -252,7 +252,7 @@ export default function OrganizationScreen() {
                                 <Text className="text-blue-400 text-xs mb-1">
                                   {exec.function} • £{exec.costPerDay}/day
                                 </Text>
-                                <Text className="text-slate-500 text-[10px]">
+                                <Text className="text-gray-600 dark:text-slate-500 text-[10px]">
                                   Managing {getReports(exec.id).length} apprentices
                                 </Text>
                               </Pressable>
@@ -279,7 +279,7 @@ export default function OrganizationScreen() {
 
                                 <Pressable
                                   onPress={() => setSelectedMember(apprentice)}
-                                  className="flex-1 bg-slate-800 rounded-lg p-3 border border-slate-700 active:opacity-70"
+                                  className="flex-1 bg-gray-200 dark:bg-slate-800 rounded-lg p-3 border border-gray-400 dark:border-slate-700 active:opacity-70"
                                 >
                                   <Text className="text-gray-900 dark:text-white text-sm font-medium mb-0.5">
                                     {apprentice.name}
@@ -312,7 +312,7 @@ export default function OrganizationScreen() {
         {/* Suppliers Tab */}
         {activeTab === 'suppliers' && (
           <View className="px-6 pb-6">
-            <View className="bg-gray-100 dark:bg-slate-900 rounded-xl p-4 border border-slate-800 mb-4">
+            <View className="bg-gray-100 dark:bg-slate-900 rounded-xl p-4 border border-gray-300 dark:border-slate-800 mb-4">
               <Text className="text-gray-900 dark:text-white font-semibold mb-2">Financial Summary</Text>
               <View className="flex-row justify-between mb-2">
                 <Text className="text-gray-600 dark:text-slate-400 text-sm">Total Committed:</Text>
@@ -372,7 +372,7 @@ export default function OrganizationScreen() {
                 <Pressable
                   key={engagement.id}
                   onPress={() => setSelectedSupplier(engagement)}
-                  className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-4 border border-slate-800 mb-3 active:opacity-70"
+                  className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-4 border border-gray-300 dark:border-slate-800 mb-3 active:opacity-70"
                 >
                   <View className="flex-row items-start justify-between mb-2">
                     <View className="flex-1">
@@ -393,24 +393,24 @@ export default function OrganizationScreen() {
                     </View>
                   </View>
 
-                  <Text className="text-slate-300 text-sm mb-3" numberOfLines={2}>
+                  <Text className="text-gray-700 dark:text-slate-300 text-sm mb-3" numberOfLines={2}>
                     {engagement.description}
                   </Text>
 
                   <View className="flex-row gap-3 mb-3">
-                    <View className="flex-1 bg-slate-800 rounded-lg p-2">
+                    <View className="flex-1 bg-gray-200 dark:bg-slate-800 rounded-lg p-2">
                       <Text className="text-gray-600 dark:text-slate-400 text-[10px] mb-0.5">Cost</Text>
                       <Text className="text-gray-900 dark:text-white text-sm font-semibold">
                         £{engagement.totalCost.toLocaleString()}
                       </Text>
                     </View>
-                    <View className="flex-1 bg-slate-800 rounded-lg p-2">
+                    <View className="flex-1 bg-gray-200 dark:bg-slate-800 rounded-lg p-2">
                       <Text className="text-gray-600 dark:text-slate-400 text-[10px] mb-0.5">Paid</Text>
                       <Text className="text-emerald-400 text-sm font-semibold">
                         £{engagement.paidToDate.toLocaleString()}
                       </Text>
                     </View>
-                    <View className="flex-1 bg-slate-800 rounded-lg p-2">
+                    <View className="flex-1 bg-gray-200 dark:bg-slate-800 rounded-lg p-2">
                       <Text className="text-gray-600 dark:text-slate-400 text-[10px] mb-0.5">Delivery</Text>
                       <Text className="text-blue-400 text-sm font-semibold">
                         {new Date(engagement.deliveryDate).toLocaleDateString('en-GB', {
@@ -444,7 +444,7 @@ export default function OrganizationScreen() {
                 <Sparkles size={20} color="#60a5fa" />
                 <Text className="text-gray-900 dark:text-white font-semibold ml-2">AI Infrastructure</Text>
               </View>
-              <Text className="text-slate-300 text-sm mb-3">
+              <Text className="text-gray-700 dark:text-slate-300 text-sm mb-3">
                 {AI_AGENTS.filter(a => a.status === 'active').length} active agents costing £
                 {aiSpend}/month
               </Text>
@@ -490,7 +490,7 @@ export default function OrganizationScreen() {
                 <Pressable
                   key={agent.id}
                   onPress={() => setSelectedAI(agent)}
-                  className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-4 border border-slate-800 mb-3 active:opacity-70"
+                  className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-4 border border-gray-300 dark:border-slate-800 mb-3 active:opacity-70"
                 >
                   <View className="flex-row items-start justify-between mb-2">
                     <View className="flex-1">
@@ -502,18 +502,18 @@ export default function OrganizationScreen() {
                         <View className={`${statusColors[agent.status]} w-2 h-2 rounded-full`} />
                       </View>
                     </View>
-                    <View className="bg-slate-800 px-3 py-1 rounded-lg">
+                    <View className="bg-gray-200 dark:bg-slate-800 px-3 py-1 rounded-lg">
                       <Text className="text-blue-400 text-sm font-bold">
                         £{agent.costPerMonth}/mo
                       </Text>
                     </View>
                   </View>
 
-                  <Text className="text-slate-300 text-sm mb-3">{agent.purpose}</Text>
+                  <Text className="text-gray-700 dark:text-slate-300 text-sm mb-3">{agent.purpose}</Text>
 
                   <View className="flex-row flex-wrap gap-1 mb-3">
                     {agent.functions.slice(0, 3).map((func, idx) => (
-                      <View key={idx} className="bg-slate-800 px-2 py-1 rounded">
+                      <View key={idx} className="bg-gray-200 dark:bg-slate-800 px-2 py-1 rounded">
                         <Text className="text-gray-600 dark:text-slate-400 text-[10px]">{func}</Text>
                       </View>
                     ))}
@@ -521,19 +521,19 @@ export default function OrganizationScreen() {
 
                   {agent.usageStats && (
                     <View className="flex-row gap-2 mb-3">
-                      <View className="flex-1 bg-slate-800 rounded-lg p-2">
+                      <View className="flex-1 bg-gray-200 dark:bg-slate-800 rounded-lg p-2">
                         <Text className="text-gray-600 dark:text-slate-400 text-[10px] mb-0.5">Requests</Text>
                         <Text className="text-gray-900 dark:text-white text-xs font-semibold">
                           {agent.usageStats.requestsThisMonth.toLocaleString()}
                         </Text>
                       </View>
-                      <View className="flex-1 bg-slate-800 rounded-lg p-2">
+                      <View className="flex-1 bg-gray-200 dark:bg-slate-800 rounded-lg p-2">
                         <Text className="text-gray-600 dark:text-slate-400 text-[10px] mb-0.5">Avg Time</Text>
                         <Text className="text-gray-900 dark:text-white text-xs font-semibold">
                           {agent.usageStats.averageResponseTime}
                         </Text>
                       </View>
-                      <View className="flex-1 bg-slate-800 rounded-lg p-2">
+                      <View className="flex-1 bg-gray-200 dark:bg-slate-800 rounded-lg p-2">
                         <Text className="text-gray-600 dark:text-slate-400 text-[10px] mb-0.5">Success</Text>
                         <Text className="text-emerald-400 text-xs font-semibold">
                           {agent.usageStats.successRate}%
@@ -573,7 +573,7 @@ export default function OrganizationScreen() {
                   </Pressable>
                 </View>
 
-                <View className="bg-slate-800 rounded-xl p-4 mb-4">
+                <View className="bg-gray-200 dark:bg-slate-800 rounded-xl p-4 mb-4">
                   <View className="flex-row justify-between mb-2">
                     <Text className="text-gray-600 dark:text-slate-400 text-sm">Role:</Text>
                     <Text className="text-gray-900 dark:text-white font-semibold">{selectedMember.role}</Text>
@@ -660,7 +660,7 @@ export default function OrganizationScreen() {
             <View className="bg-gray-100 dark:bg-slate-900 rounded-t-3xl" style={{ maxHeight: '90%' }}>
             {selectedSupplier && (
               <>
-                <View className="p-6 border-b border-slate-800">
+                <View className="p-6 border-b border-gray-300 dark:border-slate-800">
                   <View className="flex-row items-center justify-between mb-2">
                     <Text className="text-gray-900 dark:text-white text-xl font-bold flex-1">
                       {selectedSupplier.projectName}
@@ -678,7 +678,7 @@ export default function OrganizationScreen() {
                     <Text className="text-gray-900 dark:text-white">{selectedSupplier.description}</Text>
                   </View>
 
-                  <View className="bg-slate-800 rounded-xl p-4 mb-4">
+                  <View className="bg-gray-200 dark:bg-slate-800 rounded-xl p-4 mb-4">
                     <Text className="text-gray-900 dark:text-white font-semibold mb-3">Financial Details</Text>
                     <View className="flex-row justify-between mb-2">
                       <Text className="text-gray-600 dark:text-slate-400">Total Cost:</Text>
@@ -723,14 +723,14 @@ export default function OrganizationScreen() {
                         <View className="w-5 h-5 bg-slate-700 rounded-full items-center justify-center mr-2 mt-0.5">
                           <Text className="text-gray-600 dark:text-slate-400 text-xs">{idx + 1}</Text>
                         </View>
-                        <Text className="text-slate-300 flex-1">{task}</Text>
+                        <Text className="text-gray-700 dark:text-slate-300 flex-1">{task}</Text>
                       </View>
                     ))}
                   </View>
 
                   <View className="mb-4">
                     <Text className="text-gray-900 dark:text-white font-semibold mb-2">Contact</Text>
-                    <Text className="text-slate-300 mb-1">{selectedSupplier.contactPerson}</Text>
+                    <Text className="text-gray-700 dark:text-slate-300 mb-1">{selectedSupplier.contactPerson}</Text>
                     <Pressable
                       onPress={() => Linking.openURL(`mailto:${selectedSupplier.contactEmail}`)}
                     >
@@ -776,7 +776,7 @@ export default function OrganizationScreen() {
             <View className="bg-gray-100 dark:bg-slate-900 rounded-t-3xl" style={{ maxHeight: '90%' }}>
             {selectedAI && (
               <>
-                <View className="p-6 border-b border-slate-800">
+                <View className="p-6 border-b border-gray-300 dark:border-slate-800">
                   <View className="flex-row items-center justify-between mb-2">
                     <Text className="text-gray-900 dark:text-white text-xl font-bold flex-1">{selectedAI.name}</Text>
                     <Pressable onPress={() => setSelectedAI(null)}>
@@ -785,13 +785,13 @@ export default function OrganizationScreen() {
                   </View>
                   <View className="flex-row items-center gap-2">
                     <Text className="text-blue-400 text-sm">{selectedAI.provider}</Text>
-                    <Text className="text-slate-500">•</Text>
+                    <Text className="text-gray-600 dark:text-slate-500">•</Text>
                     <Text className="text-gray-600 dark:text-slate-400 text-sm">{selectedAI.model}</Text>
                   </View>
                 </View>
 
                 <ScrollView className="px-6 py-4" showsVerticalScrollIndicator={false}>
-                  <View className="bg-slate-800 rounded-xl p-4 mb-4">
+                  <View className="bg-gray-200 dark:bg-slate-800 rounded-xl p-4 mb-4">
                     <View className="flex-row justify-between items-center">
                       <Text className="text-gray-600 dark:text-slate-400">Monthly Cost:</Text>
                       <Text className="text-blue-400 text-xl font-bold">
@@ -824,7 +824,7 @@ export default function OrganizationScreen() {
                   {selectedAI.usedBy && selectedAI.usedBy.length > 0 && (
                     <View className="mb-4">
                       <Text className="text-gray-900 dark:text-white font-semibold mb-2">Used By Team</Text>
-                      <View className="bg-slate-800 rounded-xl p-3">
+                      <View className="bg-gray-200 dark:bg-slate-800 rounded-xl p-3">
                         <View className="gap-2">
                           {selectedAI.usedBy.map((userId, idx) => {
                             const member = ORGANIZATION_MEMBERS.find(m => m.id === userId);
@@ -882,7 +882,7 @@ export default function OrganizationScreen() {
                     {selectedAI.capabilities.map((cap, idx) => (
                       <View key={idx} className="flex-row items-start mb-2">
                         <CheckCircle2 size={16} color="#10b981" style={{ marginTop: 2 }} />
-                        <Text className="text-slate-300 ml-2 flex-1">{cap}</Text>
+                        <Text className="text-gray-700 dark:text-slate-300 ml-2 flex-1">{cap}</Text>
                       </View>
                     ))}
                   </View>
@@ -902,15 +902,15 @@ export default function OrganizationScreen() {
                     <Text className="text-gray-900 dark:text-white font-semibold mb-2">Integrations</Text>
                     <View className="flex-row flex-wrap gap-2">
                       {selectedAI.integrations.map((integration, idx) => (
-                        <View key={idx} className="bg-slate-800 px-3 py-1.5 rounded-lg">
-                          <Text className="text-slate-300 text-sm">{integration}</Text>
+                        <View key={idx} className="bg-gray-200 dark:bg-slate-800 px-3 py-1.5 rounded-lg">
+                          <Text className="text-gray-700 dark:text-slate-300 text-sm">{integration}</Text>
                         </View>
                       ))}
                     </View>
                   </View>
 
                   {selectedAI.usageStats && (
-                    <View className="bg-slate-800 rounded-xl p-4 mb-4">
+                    <View className="bg-gray-200 dark:bg-slate-800 rounded-xl p-4 mb-4">
                       <Text className="text-gray-900 dark:text-white font-semibold mb-3">Usage Statistics</Text>
                       <View className="flex-row justify-between mb-2">
                         <Text className="text-gray-600 dark:text-slate-400">Requests This Month:</Text>
@@ -955,7 +955,7 @@ export default function OrganizationScreen() {
       <Modal visible={showMap} transparent animationType="slide" onRequestClose={() => setShowMap(false)}>
         <View className="flex-1 bg-white dark:bg-slate-950">
           {/* Map Header */}
-          <View className="p-6 pb-4 border-b border-slate-800">
+          <View className="p-6 pb-4 border-b border-gray-300 dark:border-slate-800">
             <View className="flex-row items-center justify-between">
               <View>
                 <Text className="text-gray-900 dark:text-white text-xl font-bold mb-1">Supplier Locations</Text>
@@ -1000,7 +1000,7 @@ export default function OrganizationScreen() {
           </MapView>
 
           {/* Map Legend */}
-          <View className="absolute bottom-6 left-6 right-6 bg-slate-900/95 rounded-2xl p-4 border border-slate-800">
+          <View className="absolute bottom-6 left-6 right-6 bg-slate-900/95 rounded-2xl p-4 border border-gray-300 dark:border-slate-800">
             <Text className="text-gray-900 dark:text-white font-semibold mb-2">Locations</Text>
             {SUPPLIER_ENGAGEMENTS.map((engagement, idx) => (
               <Pressable

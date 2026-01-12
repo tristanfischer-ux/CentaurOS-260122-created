@@ -159,18 +159,18 @@ export function WelcomeSplash({ onComplete }: WelcomeSplashProps) {
           <Text className="text-gray-900 dark:text-white text-3xl font-bold mb-2 text-center">
             Welcome to Centaur OS
           </Text>
-          <Text className="text-slate-300 text-base mb-12 text-center">
+          <Text className="text-gray-700 dark:text-slate-300 text-base mb-12 text-center">
             Your Operating System for Hardware Startups
           </Text>
 
           {/* Quote Section */}
           <View className="bg-white/5 backdrop-blur-xl rounded-2xl p-6 border border-white/10">
             <View className="mb-4">
-              <Text className="text-slate-100 text-lg font-medium text-center leading-7 italic">
+              <Text className="text-gray-800 dark:text-slate-100 text-lg font-medium text-center leading-7 italic">
                 "{randomQuote.quote}"
               </Text>
             </View>
-            <Text className="text-slate-400 text-sm text-center">
+            <Text className="text-gray-600 dark:text-slate-400 text-sm text-center">
               — {randomQuote.author}
             </Text>
           </View>

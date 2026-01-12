@@ -132,7 +132,7 @@ export function EngagementSections({ role, tasks = [], userName }: EngagementSec
               <Text className="text-gray-900 dark:text-white text-3xl font-bold">
                 {streakData?.currentStreak || 0}
               </Text>
-              <Text className="text-slate-400 text-xs mt-1">
+              <Text className="text-gray-600 dark:text-slate-400 text-xs mt-1">
                 Best: {streakData?.longestStreak || 0} days
               </Text>
             </View>
@@ -147,14 +147,14 @@ export function EngagementSections({ role, tasks = [], userName }: EngagementSec
         {/* Quick Win Counter */}
         <Pressable
           onPress={() => router.push('/(tabs)/work')}
-          className="flex-1 bg-slate-900 rounded-2xl p-4 border border-slate-800 active:opacity-70"
+          className="flex-1 bg-gray-100 dark:bg-slate-900 rounded-2xl p-4 border border-gray-300 dark:border-slate-800 active:opacity-70"
         >
           <View className="flex-row items-center gap-2 mb-1">
             <Zap size={20} color="#eab308" />
-            <Text className="text-slate-400 text-xs font-semibold">Today</Text>
+            <Text className="text-gray-600 dark:text-slate-400 text-xs font-semibold">Today</Text>
           </View>
           <Text className="text-gray-900 dark:text-white text-3xl font-bold">{completedToday}</Text>
-          <Text className="text-slate-400 text-xs mt-1">
+          <Text className="text-gray-600 dark:text-slate-400 text-xs mt-1">
             {pendingCount} pending
           </Text>
         </Pressable>
@@ -195,7 +195,7 @@ export function EngagementSections({ role, tasks = [], userName }: EngagementSec
                             {task.priority}
                           </Text>
                         </View>
-                        <Text className="text-slate-500 text-xs">{task.function}</Text>
+                        <Text className="text-gray-600 dark:text-slate-500 text-xs">{task.function}</Text>
                       </View>
                       <Text className="text-gray-900 dark:text-white font-medium" numberOfLines={1}>
                         {task.title}
@@ -217,11 +217,11 @@ export function EngagementSections({ role, tasks = [], userName }: EngagementSec
             <Text className="text-gray-900 dark:text-white text-lg font-semibold">Recent Activity</Text>
             <View className="flex-row items-center gap-1">
               <Activity size={16} color="#64748b" />
-              <Text className="text-slate-400 text-sm">Live</Text>
+              <Text className="text-gray-600 dark:text-slate-400 text-sm">Live</Text>
             </View>
           </View>
 
-          <View className="bg-slate-900 rounded-2xl border border-slate-800 overflow-hidden">
+          <View className="bg-gray-100 dark:bg-slate-900 rounded-2xl border border-gray-300 dark:border-slate-800 overflow-hidden">
             {activityFeed.map((item, index) => (
               <View
                 key={item.id}
@@ -234,10 +234,10 @@ export function EngagementSections({ role, tasks = [], userName }: EngagementSec
                   <Text className={`${getActivityColor(item.type)} font-medium text-sm mb-0.5`}>
                     {item.title}
                   </Text>
-                  <Text className="text-slate-400 text-xs" numberOfLines={1}>
+                  <Text className="text-gray-600 dark:text-slate-400 text-xs" numberOfLines={1}>
                     {item.description}
                   </Text>
-                  <Text className="text-slate-500 text-xs mt-1">
+                  <Text className="text-gray-600 dark:text-slate-500 text-xs mt-1">
                     {item.userName} • {formatActivityTime(item.timestamp)}
                   </Text>
                 </View>
@@ -275,9 +275,9 @@ export function EngagementSections({ role, tasks = [], userName }: EngagementSec
           onPress={() => router.push('/(tabs)/okrs')}
           className="flex-1 active:opacity-70"
         >
-          <View className="bg-slate-900 rounded-2xl p-4 border border-slate-800 flex-row items-center justify-center gap-2">
+          <View className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-4 border border-gray-300 dark:border-slate-800 flex-row items-center justify-center gap-2">
             <Target size={20} color="#8b5cf6" />
-            <Text className="text-slate-300 font-bold">Update OKRs</Text>
+            <Text className="text-gray-700 dark:text-slate-300 font-bold">Update OKRs</Text>
           </View>
         </Pressable>
       </View>

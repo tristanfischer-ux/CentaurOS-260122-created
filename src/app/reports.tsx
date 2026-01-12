@@ -181,7 +181,7 @@ export default function ReportsScreen() {
 
         {/* Period Selector */}
         <View className="px-6 pb-6">
-          <Text className="text-gray-900 dark:text-white font-semibold text-sm uppercase tracking-wider mb-3 text-gray-600 dark:text-slate-400">Report Period</Text>
+          <Text className="text-gray-600 dark:text-slate-400 font-semibold text-sm uppercase tracking-wider mb-3">Report Period</Text>
           <View className="flex-row gap-2">
             {periods.map((p) => (
               <Pressable

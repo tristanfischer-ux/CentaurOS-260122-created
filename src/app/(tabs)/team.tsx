@@ -457,19 +457,19 @@ export default function TeamScreen() {
 
         {/* Stats Cards */}
         <View className="flex-row gap-3 mb-4">
-          <View className="flex-1 bg-gray-100 dark:bg-slate-900 rounded-xl p-3 border border-slate-800">
+          <View className="flex-1 bg-gray-100 dark:bg-slate-900 rounded-xl p-3 border border-gray-300 dark:border-slate-800">
             <Text className="text-gray-600 dark:text-slate-400 text-xs mb-1">Total</Text>
             <Text className="text-gray-900 dark:text-white text-2xl font-bold">{roleStats.total}</Text>
           </View>
-          <View className="flex-1 bg-gray-100 dark:bg-slate-900 rounded-xl p-3 border border-slate-800">
+          <View className="flex-1 bg-gray-100 dark:bg-slate-900 rounded-xl p-3 border border-gray-300 dark:border-slate-800">
             <Text className="text-gray-600 dark:text-slate-400 text-xs mb-1">Founders</Text>
             <Text className="text-blue-400 text-2xl font-bold">{roleStats.founders}</Text>
           </View>
-          <View className="flex-1 bg-gray-100 dark:bg-slate-900 rounded-xl p-3 border border-slate-800">
+          <View className="flex-1 bg-gray-100 dark:bg-slate-900 rounded-xl p-3 border border-gray-300 dark:border-slate-800">
             <Text className="text-gray-600 dark:text-slate-400 text-xs mb-1">Execs</Text>
             <Text className="text-purple-400 text-2xl font-bold">{roleStats.execs}</Text>
           </View>
-          <View className="flex-1 bg-gray-100 dark:bg-slate-900 rounded-xl p-3 border border-slate-800">
+          <View className="flex-1 bg-gray-100 dark:bg-slate-900 rounded-xl p-3 border border-gray-300 dark:border-slate-800">
             <Text className="text-gray-600 dark:text-slate-400 text-xs mb-1">Apprentices</Text>
             <Text className="text-emerald-400 text-2xl font-bold">{roleStats.apprentices}</Text>
           </View>
@@ -556,7 +556,7 @@ export default function TeamScreen() {
             <Pressable
               key={member.id}
               onPress={() => setSelectedMember(member)}
-              className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-4 border border-slate-800 active:opacity-70"
+              className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-4 border border-gray-300 dark:border-slate-800 active:opacity-70"
             >
               <View className="flex-row items-start">
                 {/* Avatar */}
@@ -579,7 +579,7 @@ export default function TeamScreen() {
                     {member.rating > 0 && (
                       <View className="flex-row items-center">
                         <Star size={12} color="#f59e0b" fill="#f59e0b" />
-                        <Text className="text-slate-300 text-xs ml-1">{member.rating}</Text>
+                        <Text className="text-gray-700 dark:text-slate-300 text-xs ml-1">{member.rating}</Text>
                       </View>
                     )}
                   </View>
@@ -629,7 +629,7 @@ export default function TeamScreen() {
               <View className="bg-gray-100 dark:bg-slate-900 rounded-t-3xl" style={{ maxHeight: '90%' }}>
                 <ScrollView showsVerticalScrollIndicator={false} bounces={false}>
                   {/* Header */}
-                  <View className="p-6 border-b border-slate-800">
+                  <View className="p-6 border-b border-gray-300 dark:border-slate-800">
                   <View className="flex-row justify-between items-start mb-4">
                     <View className="flex-1">
                       <View
@@ -660,7 +660,7 @@ export default function TeamScreen() {
                   {/* Stats Row */}
                   <View className="flex-row gap-3 mb-4">
                     {selectedMember.rating > 0 && (
-                      <View className="flex-1 bg-slate-800 rounded-xl p-3">
+                      <View className="flex-1 bg-gray-200 dark:bg-slate-800 rounded-xl p-3">
                         <Text className="text-gray-600 dark:text-slate-400 text-xs mb-1">Rating</Text>
                         <View className="flex-row items-center">
                           <Star size={14} color="#f59e0b" fill="#f59e0b" />
@@ -669,13 +669,13 @@ export default function TeamScreen() {
                       </View>
                     )}
                     {selectedMember.experience > 0 && (
-                      <View className="flex-1 bg-slate-800 rounded-xl p-3">
+                      <View className="flex-1 bg-gray-200 dark:bg-slate-800 rounded-xl p-3">
                         <Text className="text-gray-600 dark:text-slate-400 text-xs mb-1">Experience</Text>
                         <Text className="text-gray-900 dark:text-white font-bold">{selectedMember.experience}y</Text>
                       </View>
                     )}
                     {selectedMember.costPerDay && selectedMember.costPerDay > 0 && (
-                      <View className="flex-1 bg-slate-800 rounded-xl p-3">
+                      <View className="flex-1 bg-gray-200 dark:bg-slate-800 rounded-xl p-3">
                         <Text className="text-gray-600 dark:text-slate-400 text-xs mb-1">Rate</Text>
                         <Text className="text-emerald-400 font-bold text-xs">£{selectedMember.costPerDay}/d</Text>
                       </View>
@@ -684,7 +684,7 @@ export default function TeamScreen() {
                 </View>
 
                 {/* Contact Info */}
-                <View className="p-6 border-b border-slate-800">
+                <View className="p-6 border-b border-gray-300 dark:border-slate-800">
                   <Text className="text-gray-900 dark:text-white font-semibold mb-3">Contact Information</Text>
 
                   <Pressable
@@ -729,7 +729,7 @@ export default function TeamScreen() {
                 </View>
 
                 {/* Professional Info */}
-                <View className="p-6 border-b border-slate-800">
+                <View className="p-6 border-b border-gray-300 dark:border-slate-800">
                   <Text className="text-gray-900 dark:text-white font-semibold mb-3">Professional Details</Text>
 
                   <View className="mb-4">
@@ -760,7 +760,7 @@ export default function TeamScreen() {
                   {selectedMember.bio && (
                     <View className="mb-4">
                       <Text className="text-gray-600 dark:text-slate-400 text-xs mb-1">About</Text>
-                      <Text className="text-slate-300 text-sm leading-5">{selectedMember.bio}</Text>
+                      <Text className="text-gray-700 dark:text-slate-300 text-sm leading-5">{selectedMember.bio}</Text>
                     </View>
                   )}
 
@@ -779,15 +779,15 @@ export default function TeamScreen() {
                 </View>
 
                 {/* Task Stats */}
-                <View className="p-6 border-b border-slate-800">
+                <View className="p-6 border-b border-gray-300 dark:border-slate-800">
                   <Text className="text-gray-900 dark:text-white font-semibold mb-3">Task Performance</Text>
                   <View className="flex-row gap-3">
-                    <View className="flex-1 bg-slate-800 rounded-xl p-4">
+                    <View className="flex-1 bg-gray-200 dark:bg-slate-800 rounded-xl p-4">
                       <Briefcase size={20} color="#3b82f6" />
                       <Text className="text-gray-900 dark:text-white text-2xl font-bold mt-2">{selectedMember.currentTasks}</Text>
                       <Text className="text-gray-600 dark:text-slate-400 text-xs">Active Tasks</Text>
                     </View>
-                    <View className="flex-1 bg-slate-800 rounded-xl p-4">
+                    <View className="flex-1 bg-gray-200 dark:bg-slate-800 rounded-xl p-4">
                       <CheckCircle2 size={20} color="#10b981" />
                       <Text className="text-gray-900 dark:text-white text-2xl font-bold mt-2">{selectedMember.completedTasks}</Text>
                       <Text className="text-gray-600 dark:text-slate-400 text-xs">Completed</Text>
@@ -813,7 +813,7 @@ export default function TeamScreen() {
 
                   <Pressable
                     onPress={() => setSelectedMember(null)}
-                    className="bg-slate-800 py-3 rounded-xl active:opacity-70"
+                    className="bg-gray-200 dark:bg-slate-800 py-3 rounded-xl active:opacity-70"
                   >
                     <Text className="text-gray-600 dark:text-slate-400 text-center font-semibold">Close</Text>
                   </Pressable>
@@ -845,7 +845,7 @@ export default function TeamScreen() {
                   onChangeText={setTaskTitle}
                   placeholder="Enter task title"
                   placeholderTextColor="#64748b"
-                  className="bg-slate-800 text-gray-900 dark:text-white px-4 py-3 rounded-xl border border-slate-700"
+                  className="bg-gray-200 dark:bg-slate-800 text-gray-900 dark:text-white px-4 py-3 rounded-xl border border-gray-400 dark:border-slate-700"
                 />
               </View>
 
@@ -859,7 +859,7 @@ export default function TeamScreen() {
                   placeholderTextColor="#64748b"
                   multiline
                   numberOfLines={3}
-                  className="bg-slate-800 text-gray-900 dark:text-white px-4 py-3 rounded-xl border border-slate-700"
+                  className="bg-gray-200 dark:bg-slate-800 text-gray-900 dark:text-white px-4 py-3 rounded-xl border border-gray-400 dark:border-slate-700"
                   style={{ minHeight: 80, textAlignVertical: 'top' }}
                 />
               </View>
@@ -935,7 +935,7 @@ export default function TeamScreen() {
                     setTaskTitle('');
                     setTaskDescription('');
                   }}
-                  className="bg-slate-800 py-3 rounded-xl active:opacity-70"
+                  className="bg-gray-200 dark:bg-slate-800 py-3 rounded-xl active:opacity-70"
                 >
                   <Text className="text-gray-600 dark:text-slate-400 text-center font-semibold">Cancel</Text>
                 </Pressable>
@@ -949,7 +949,7 @@ export default function TeamScreen() {
       <Modal visible={showCapacityModal} transparent animationType="slide" onRequestClose={() => setShowCapacityModal(false)}>
         <View className="flex-1 bg-black/50">
           <View className="flex-1 mt-20 bg-white dark:bg-slate-950 rounded-t-3xl">
-            <View className="p-6 border-b border-slate-800">
+            <View className="p-6 border-b border-gray-300 dark:border-slate-800">
               <View className="flex-row items-center justify-between">
                 <Text className="text-gray-900 dark:text-white text-xl font-bold">Team Capacity Report</Text>
                 <Pressable onPress={() => setShowCapacityModal(false)} className="active:opacity-70">

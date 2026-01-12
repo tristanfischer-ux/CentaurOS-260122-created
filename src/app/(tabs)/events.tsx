@@ -380,14 +380,14 @@ export default function EventsScreen() {
         <View className="flex-row gap-3 mb-4">
           <Pressable
             onPress={() => setFilterType('all')}
-            className="flex-1 bg-gray-100 dark:bg-slate-900 rounded-xl p-3 border border-slate-800 active:opacity-70"
+            className="flex-1 bg-gray-100 dark:bg-slate-900 rounded-xl p-3 border border-gray-300 dark:border-slate-800 active:opacity-70"
           >
             <Text className="text-gray-600 dark:text-slate-400 text-xs mb-1">Total Events</Text>
             <Text className="text-gray-900 dark:text-white text-2xl font-bold">{events.length}</Text>
           </Pressable>
           <Pressable
             onPress={() => setFilterType('joined')}
-            className="flex-1 bg-gray-100 dark:bg-slate-900 rounded-xl p-3 border border-slate-800 active:opacity-70"
+            className="flex-1 bg-gray-100 dark:bg-slate-900 rounded-xl p-3 border border-gray-300 dark:border-slate-800 active:opacity-70"
           >
             <Text className="text-gray-600 dark:text-slate-400 text-xs mb-1">Joined</Text>
             <Text className="text-blue-400 text-2xl font-bold">
@@ -396,7 +396,7 @@ export default function EventsScreen() {
           </Pressable>
           <Pressable
             onPress={() => setFilterType('upcoming')}
-            className="flex-1 bg-gray-100 dark:bg-slate-900 rounded-xl p-3 border border-slate-800 active:opacity-70"
+            className="flex-1 bg-gray-100 dark:bg-slate-900 rounded-xl p-3 border border-gray-300 dark:border-slate-800 active:opacity-70"
           >
             <Text className="text-gray-600 dark:text-slate-400 text-xs mb-1">Upcoming</Text>
             <Text className="text-emerald-400 text-2xl font-bold">
@@ -440,7 +440,7 @@ export default function EventsScreen() {
             <Pressable
               key={event.id}
               onPress={() => setSelectedEvent(event)}
-              className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-4 border border-slate-800 active:opacity-70"
+              className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-4 border border-gray-300 dark:border-slate-800 active:opacity-70"
             >
               {/* Event Type Badge */}
               <View className="flex-row items-center justify-between mb-3">
@@ -519,7 +519,7 @@ export default function EventsScreen() {
           ))}
 
           {filteredEvents.length === 0 && (
-            <View className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-8 border border-slate-800 items-center">
+            <View className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-8 border border-gray-300 dark:border-slate-800 items-center">
               <Calendar size={64} color="#475569" />
               <Text className="text-gray-600 dark:text-slate-400 text-center mt-4">
                 {filterType === 'joined' ? 'You haven\'t joined any events yet' : 'No events found'}
@@ -536,7 +536,7 @@ export default function EventsScreen() {
             <View className="bg-gray-100 dark:bg-slate-900 rounded-t-3xl" style={{ maxHeight: '90%' }}>
               <ScrollView showsVerticalScrollIndicator={false}>
                 {/* Header */}
-                <View className="p-6 border-b border-slate-800">
+                <View className="p-6 border-b border-gray-300 dark:border-slate-800">
                   <View className="flex-row items-start justify-between mb-3">
                     <View className="flex-1 mr-4">
                       <View className={`self-start px-3 py-1 rounded-lg mb-2 ${getEventTypeColor(selectedEvent.eventType)}`}>
@@ -552,7 +552,7 @@ export default function EventsScreen() {
                   </View>
 
                   {/* Host Info */}
-                  <View className="bg-slate-800 rounded-xl p-3 flex-row items-center">
+                  <View className="bg-gray-200 dark:bg-slate-800 rounded-xl p-3 flex-row items-center">
                     <View className="w-10 h-10 rounded-full bg-blue-500/20 items-center justify-center mr-3">
                       <User size={20} color="#3b82f6" />
                     </View>
@@ -569,23 +569,23 @@ export default function EventsScreen() {
                   {/* Description */}
                   <View className="mb-6">
                     <Text className="text-gray-600 dark:text-slate-400 text-sm mb-2">About</Text>
-                    <Text className="text-slate-300 leading-6">{selectedEvent.description}</Text>
+                    <Text className="text-gray-700 dark:text-slate-300 leading-6">{selectedEvent.description}</Text>
                   </View>
 
                   {/* Date & Time */}
-                  <View className="bg-slate-800 rounded-xl p-4 mb-4">
+                  <View className="bg-gray-200 dark:bg-slate-800 rounded-xl p-4 mb-4">
                     <View className="flex-row items-center mb-3">
                       <Calendar size={20} color="#3b82f6" />
                       <Text className="text-gray-900 dark:text-white font-semibold ml-3">Date & Time</Text>
                     </View>
-                    <Text className="text-slate-300">{formatDate(selectedEvent.startTime)}</Text>
-                    <Text className="text-slate-300">
+                    <Text className="text-gray-700 dark:text-slate-300">{formatDate(selectedEvent.startTime)}</Text>
+                    <Text className="text-gray-700 dark:text-slate-300">
                       {formatTime(selectedEvent.startTime)} - {formatTime(selectedEvent.endTime)}
                     </Text>
                   </View>
 
                   {/* Location */}
-                  <View className="bg-slate-800 rounded-xl p-4 mb-4">
+                  <View className="bg-gray-200 dark:bg-slate-800 rounded-xl p-4 mb-4">
                     <View className="flex-row items-center mb-3">
                       {selectedEvent.location.type === 'virtual' ? (
                         <Video size={20} color="#3b82f6" />
@@ -596,7 +596,7 @@ export default function EventsScreen() {
                     </View>
                     {selectedEvent.location.type === 'virtual' && (
                       <View>
-                        <Text className="text-slate-300 mb-2">Virtual Event</Text>
+                        <Text className="text-gray-700 dark:text-slate-300 mb-2">Virtual Event</Text>
                         {selectedEvent.location.virtualLink && (
                           <Text className="text-blue-400 text-sm">{selectedEvent.location.virtualLink}</Text>
                         )}
@@ -604,10 +604,10 @@ export default function EventsScreen() {
                     )}
                     {selectedEvent.location.type === 'in-person' && (
                       <View>
-                        <Text className="text-slate-300 font-medium mb-1">{selectedEvent.location.venue}</Text>
+                        <Text className="text-gray-700 dark:text-slate-300 font-medium mb-1">{selectedEvent.location.venue}</Text>
                         <Text className="text-gray-600 dark:text-slate-400 text-sm mb-3">{selectedEvent.location.address}</Text>
                         {selectedEvent.location.coordinates && (
-                          <View className="rounded-xl overflow-hidden border border-slate-700" style={{ height: 180 }}>
+                          <View className="rounded-xl overflow-hidden border border-gray-400 dark:border-slate-700" style={{ height: 180 }}>
                             <MapView
                               provider={PROVIDER_DEFAULT}
                               style={{ width: '100%', height: '100%' }}
@@ -637,11 +637,11 @@ export default function EventsScreen() {
                     )}
                     {selectedEvent.location.type === 'hybrid' && (
                       <View>
-                        <Text className="text-slate-300 font-medium mb-1">In-person & Virtual</Text>
-                        <Text className="text-slate-300">{selectedEvent.location.venue}</Text>
+                        <Text className="text-gray-700 dark:text-slate-300 font-medium mb-1">In-person & Virtual</Text>
+                        <Text className="text-gray-700 dark:text-slate-300">{selectedEvent.location.venue}</Text>
                         <Text className="text-gray-600 dark:text-slate-400 text-sm mb-3">{selectedEvent.location.address}</Text>
                         {selectedEvent.location.coordinates && (
-                          <View className="rounded-xl overflow-hidden border border-slate-700 mb-3" style={{ height: 180 }}>
+                          <View className="rounded-xl overflow-hidden border border-gray-400 dark:border-slate-700 mb-3" style={{ height: 180 }}>
                             <MapView
                               provider={PROVIDER_DEFAULT}
                               style={{ width: '100%', height: '100%' }}
@@ -676,14 +676,14 @@ export default function EventsScreen() {
 
                   {/* Cost & Capacity */}
                   <View className="flex-row gap-3 mb-4">
-                    <View className="flex-1 bg-slate-800 rounded-xl p-4">
+                    <View className="flex-1 bg-gray-200 dark:bg-slate-800 rounded-xl p-4">
                       <Text className="text-gray-600 dark:text-slate-400 text-xs mb-1">Cost</Text>
                       <Text className="text-gray-900 dark:text-white text-xl font-bold">
                         {selectedEvent.cost === 0 ? 'Free' : `£${selectedEvent.cost}`}
                       </Text>
                     </View>
                     {selectedEvent.capacity && (
-                      <View className="flex-1 bg-slate-800 rounded-xl p-4">
+                      <View className="flex-1 bg-gray-200 dark:bg-slate-800 rounded-xl p-4">
                         <Text className="text-gray-600 dark:text-slate-400 text-xs mb-1">Capacity</Text>
                         <Text className="text-gray-900 dark:text-white text-xl font-bold">
                           {selectedEvent.attendees.length} / {selectedEvent.capacity}
@@ -693,7 +693,7 @@ export default function EventsScreen() {
                   </View>
 
                   {/* Who can attend */}
-                  <View className="bg-slate-800 rounded-xl p-4 mb-4">
+                  <View className="bg-gray-200 dark:bg-slate-800 rounded-xl p-4 mb-4">
                     <Text className="text-gray-600 dark:text-slate-400 text-xs mb-1">Who can attend</Text>
                     <Text className="text-gray-900 dark:text-white font-semibold capitalize">
                       {selectedEvent.attendeeFor === 'all' ? 'Everyone' : selectedEvent.attendeeFor}
@@ -702,7 +702,7 @@ export default function EventsScreen() {
 
                   {/* Invited Team Members */}
                   {selectedEvent.invitedMembers.length > 0 && (
-                    <View className="bg-slate-800 rounded-xl p-4 mb-6">
+                    <View className="bg-gray-200 dark:bg-slate-800 rounded-xl p-4 mb-6">
                       <View className="flex-row items-center mb-3">
                         <UserPlus size={16} color="#3b82f6" />
                         <Text className="text-gray-900 dark:text-white font-semibold ml-2">Invited Team Members</Text>
@@ -802,7 +802,7 @@ export default function EventsScreen() {
                   </Pressable>
                 </View>
 
-                <View className="bg-slate-800 rounded-xl p-4 mb-4">
+                <View className="bg-gray-200 dark:bg-slate-800 rounded-xl p-4 mb-4">
                   <View className="flex-row justify-between mb-2">
                     <Text className="text-gray-600 dark:text-slate-400 text-sm">Role:</Text>
                     <Text className="text-gray-900 dark:text-white font-semibold">{selectedMemberFromEvent.role}</Text>
@@ -867,7 +867,7 @@ export default function EventsScreen() {
                     onChangeText={setNewEventTitle}
                     placeholder="e.g., Hardware Networking Meetup"
                     placeholderTextColor="#64748b"
-                    className="bg-slate-800 text-gray-900 dark:text-white px-4 py-3 rounded-xl border border-slate-700"
+                    className="bg-gray-200 dark:bg-slate-800 text-gray-900 dark:text-white px-4 py-3 rounded-xl border border-gray-400 dark:border-slate-700"
                   />
                 </View>
 
@@ -881,7 +881,7 @@ export default function EventsScreen() {
                     placeholderTextColor="#64748b"
                     multiline
                     numberOfLines={4}
-                    className="bg-slate-800 text-gray-900 dark:text-white px-4 py-3 rounded-xl border border-slate-700"
+                    className="bg-gray-200 dark:bg-slate-800 text-gray-900 dark:text-white px-4 py-3 rounded-xl border border-gray-400 dark:border-slate-700"
                     style={{ minHeight: 100, textAlignVertical: 'top' }}
                   />
                 </View>
@@ -946,7 +946,7 @@ export default function EventsScreen() {
                         onChangeText={setNewEventVenue}
                         placeholder="e.g., Hardware Hub London"
                         placeholderTextColor="#64748b"
-                        className="bg-slate-800 text-gray-900 dark:text-white px-4 py-3 rounded-xl border border-slate-700"
+                        className="bg-gray-200 dark:bg-slate-800 text-gray-900 dark:text-white px-4 py-3 rounded-xl border border-gray-400 dark:border-slate-700"
                       />
                     </View>
                     <View className="mb-4">
@@ -956,7 +956,7 @@ export default function EventsScreen() {
                         onChangeText={setNewEventAddress}
                         placeholder="Full address"
                         placeholderTextColor="#64748b"
-                        className="bg-slate-800 text-gray-900 dark:text-white px-4 py-3 rounded-xl border border-slate-700"
+                        className="bg-gray-200 dark:bg-slate-800 text-gray-900 dark:text-white px-4 py-3 rounded-xl border border-gray-400 dark:border-slate-700"
                       />
                     </View>
                   </>
@@ -971,7 +971,7 @@ export default function EventsScreen() {
                       onChangeText={setNewEventVirtualLink}
                       placeholder="Zoom, Teams, or Meet link"
                       placeholderTextColor="#64748b"
-                      className="bg-slate-800 text-gray-900 dark:text-white px-4 py-3 rounded-xl border border-slate-700"
+                      className="bg-gray-200 dark:bg-slate-800 text-gray-900 dark:text-white px-4 py-3 rounded-xl border border-gray-400 dark:border-slate-700"
                     />
                   </View>
                 )}
@@ -981,7 +981,7 @@ export default function EventsScreen() {
                   <Text className="text-gray-600 dark:text-slate-400 text-sm mb-2">Start Date & Time</Text>
                   <Pressable
                     onPress={() => setShowStartDatePicker(true)}
-                    className="bg-slate-800 px-4 py-3 rounded-xl border border-slate-700"
+                    className="bg-gray-200 dark:bg-slate-800 px-4 py-3 rounded-xl border border-gray-400 dark:border-slate-700"
                   >
                     <Text className="text-gray-900 dark:text-white">
                       {newEventStartDate.toLocaleString('en-GB', {
@@ -1019,7 +1019,7 @@ export default function EventsScreen() {
                   <Text className="text-gray-600 dark:text-slate-400 text-sm mb-2">End Date & Time</Text>
                   <Pressable
                     onPress={() => setShowEndDatePicker(true)}
-                    className="bg-slate-800 px-4 py-3 rounded-xl border border-slate-700"
+                    className="bg-gray-200 dark:bg-slate-800 px-4 py-3 rounded-xl border border-gray-400 dark:border-slate-700"
                   >
                     <Text className="text-gray-900 dark:text-white">
                       {newEventEndDate.toLocaleString('en-GB', {
@@ -1079,7 +1079,7 @@ export default function EventsScreen() {
                     placeholder="0 for free events"
                     placeholderTextColor="#64748b"
                     keyboardType="numeric"
-                    className="bg-slate-800 text-gray-900 dark:text-white px-4 py-3 rounded-xl border border-slate-700"
+                    className="bg-gray-200 dark:bg-slate-800 text-gray-900 dark:text-white px-4 py-3 rounded-xl border border-gray-400 dark:border-slate-700"
                   />
                 </View>
 
@@ -1092,7 +1092,7 @@ export default function EventsScreen() {
                     placeholder="Leave empty for unlimited"
                     placeholderTextColor="#64748b"
                     keyboardType="numeric"
-                    className="bg-slate-800 text-gray-900 dark:text-white px-4 py-3 rounded-xl border border-slate-700"
+                    className="bg-gray-200 dark:bg-slate-800 text-gray-900 dark:text-white px-4 py-3 rounded-xl border border-gray-400 dark:border-slate-700"
                   />
                 </View>
 
@@ -1104,7 +1104,7 @@ export default function EventsScreen() {
                       {selectedInvitedMembers.length} selected
                     </Text>
                   </View>
-                  <View className="bg-slate-800 rounded-xl border border-slate-700 p-3">
+                  <View className="bg-gray-200 dark:bg-slate-800 rounded-xl border border-gray-400 dark:border-slate-700 p-3">
                     <ScrollView style={{ maxHeight: 200 }} showsVerticalScrollIndicator={false}>
                       {ORGANIZATION_MEMBERS.map((member) => {
                         const isSelected = selectedInvitedMembers.includes(member.id);
@@ -1170,7 +1170,7 @@ export default function EventsScreen() {
                   </Pressable>
                   <Pressable
                     onPress={() => setShowCreateModal(false)}
-                    className="bg-slate-800 py-3 rounded-xl active:opacity-70"
+                    className="bg-gray-200 dark:bg-slate-800 py-3 rounded-xl active:opacity-70"
                   >
                     <Text className="text-gray-600 dark:text-slate-400 text-center font-semibold">Cancel</Text>
                   </Pressable>

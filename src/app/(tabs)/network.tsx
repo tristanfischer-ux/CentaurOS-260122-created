@@ -137,7 +137,7 @@ export default function NetworkScreen() {
       </View>
 
       {/* Tab Selector */}
-      <View className="flex-row border-b border-slate-800 bg-slate-950">{tabs.map((tab) => {
+      <View className="flex-row border-b border-gray-300 dark:border-slate-800 bg-slate-950">{tabs.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
           return (
@@ -218,7 +218,7 @@ function SuppliersTab() {
 
       {/* Search Bar */}
       <View className="mb-4">
-        <View className="bg-gray-100 dark:bg-slate-900 rounded-xl flex-row items-center px-4 py-3 border border-slate-800">
+        <View className="bg-gray-100 dark:bg-slate-900 rounded-xl flex-row items-center px-4 py-3 border border-gray-300 dark:border-slate-800">
           <Search size={20} color="#64748b" />
           <TextInput
             className="flex-1 text-gray-900 dark:text-white ml-3 text-base"
@@ -282,14 +282,14 @@ function SuppliersTab() {
       </View>
 
       {/* Results Count */}
-      <Text className="text-slate-500 text-sm mb-4">
+      <Text className="text-gray-600 dark:text-slate-500 text-sm mb-4">
         {filteredSuppliers.length} {filteredSuppliers.length === 1 ? 'supplier' : 'suppliers'} found
       </Text>
 
       {/* Suppliers List */}
       <View className="gap-4">
         {filteredSuppliers.length === 0 ? (
-          <View className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-8 border border-slate-800 items-center">
+          <View className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-8 border border-gray-300 dark:border-slate-800 items-center">
             <Search size={64} color="#64748b" />
             <Text className="text-gray-900 dark:text-white text-lg font-semibold mt-4 mb-2">
               No suppliers found
@@ -302,7 +302,7 @@ function SuppliersTab() {
           filteredSuppliers.map((supplier) => (
             <View
               key={supplier.id}
-              className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-4 border border-slate-800"
+              className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-4 border border-gray-300 dark:border-slate-800"
             >
               <View className="flex-row items-start justify-between mb-3">
                 <View className="flex-1 mr-3">
@@ -317,7 +317,7 @@ function SuppliersTab() {
                   <Text className="text-gray-600 dark:text-slate-400 text-sm mb-2">{supplier.description}</Text>
                   <View className="flex-row items-center gap-1">
                     <MapPin size={14} color="#64748b" />
-                    <Text className="text-slate-500 text-xs">{supplier.location}</Text>
+                    <Text className="text-gray-600 dark:text-slate-500 text-xs">{supplier.location}</Text>
                   </View>
                 </View>
                 <Building2 size={24} color="#64748b" />
@@ -325,8 +325,8 @@ function SuppliersTab() {
 
               <View className="flex-row flex-wrap gap-2 mb-3">
                 {supplier.capabilities.map((capability, idx) => (
-                  <View key={idx} className="bg-slate-800 px-3 py-1 rounded-full">
-                    <Text className="text-slate-300 text-xs">{capability}</Text>
+                  <View key={idx} className="bg-gray-200 dark:bg-slate-800 px-3 py-1 rounded-full">
+                    <Text className="text-gray-700 dark:text-slate-300 text-xs">{capability}</Text>
                   </View>
                 ))}
               </View>
@@ -365,7 +365,7 @@ function CompaniesTab() {
             <Pressable
               key={company.id}
               onPress={() => setSelectedCompany(company)}
-              className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-4 border border-slate-800 active:opacity-70"
+              className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-4 border border-gray-300 dark:border-slate-800 active:opacity-70"
             >
               <View className="flex-row items-start justify-between mb-3">
                 <View className="flex-1 mr-3">
@@ -379,11 +379,11 @@ function CompaniesTab() {
                   <View className="flex-row items-center gap-3 mb-2">
                     <View className="flex-row items-center gap-1">
                       <MapPin size={14} color="#64748b" />
-                      <Text className="text-slate-500 text-xs">{company.location}</Text>
+                      <Text className="text-gray-600 dark:text-slate-500 text-xs">{company.location}</Text>
                     </View>
                     <View className="flex-row items-center gap-1">
                       <Package size={14} color="#64748b" />
-                      <Text className="text-slate-500 text-xs">{company.industry}</Text>
+                      <Text className="text-gray-600 dark:text-slate-500 text-xs">{company.industry}</Text>
                     </View>
                   </View>
                 </View>
@@ -391,17 +391,17 @@ function CompaniesTab() {
               </View>
 
               <View className="mb-3">
-                <Text className="text-slate-500 text-xs mb-2">Looking for:</Text>
+                <Text className="text-gray-600 dark:text-slate-500 text-xs mb-2">Looking for:</Text>
                 <View className="flex-row flex-wrap gap-2">
                   {company.lookingFor.map((item, idx) => (
-                    <View key={idx} className="bg-slate-800 px-3 py-1 rounded-full">
-                      <Text className="text-slate-300 text-xs">{item}</Text>
+                    <View key={idx} className="bg-gray-200 dark:bg-slate-800 px-3 py-1 rounded-full">
+                      <Text className="text-gray-700 dark:text-slate-300 text-xs">{item}</Text>
                     </View>
                   ))}
                 </View>
               </View>
 
-              <View className="flex-row items-center justify-center bg-slate-800 rounded-xl py-2.5 border border-slate-700">
+              <View className="flex-row items-center justify-center bg-gray-200 dark:bg-slate-800 rounded-xl py-2.5 border border-gray-400 dark:border-slate-700">
                 <Text className="text-gray-900 dark:text-white font-semibold text-sm">View Details</Text>
                 <ChevronRight size={16} color="white" className="ml-1" />
               </View>
@@ -423,7 +423,7 @@ function CompaniesTab() {
                   </Pressable>
                 </View>
 
-                <View className="bg-slate-800 rounded-xl p-4 mb-4">
+                <View className="bg-gray-200 dark:bg-slate-800 rounded-xl p-4 mb-4">
                   <View className="flex-row justify-between mb-2">
                     <Text className="text-gray-600 dark:text-slate-400 text-sm">Industry:</Text>
                     <Text className="text-gray-900 dark:text-white font-semibold">{selectedCompany.industry}</Text>
@@ -440,7 +440,7 @@ function CompaniesTab() {
 
                 <View className="mb-4">
                   <Text className="text-gray-600 dark:text-slate-400 text-sm mb-2">About</Text>
-                  <Text className="text-slate-300">{selectedCompany.description}</Text>
+                  <Text className="text-gray-700 dark:text-slate-300">{selectedCompany.description}</Text>
                 </View>
 
                 <View className="mb-4">
@@ -466,14 +466,14 @@ function CompaniesTab() {
                   </Pressable>
                   <Pressable
                     onPress={() => Linking.openURL(`mailto:${selectedCompany.email}`)}
-                    className="bg-slate-800 py-3 rounded-xl flex-row items-center justify-center gap-2 border border-slate-700 active:opacity-70"
+                    className="bg-gray-200 dark:bg-slate-800 py-3 rounded-xl flex-row items-center justify-center gap-2 border border-gray-400 dark:border-slate-700 active:opacity-70"
                   >
                     <Mail size={18} color="#fff" />
                     <Text className="text-gray-900 dark:text-white font-semibold">Send Email</Text>
                   </Pressable>
                   <Pressable
                     onPress={() => Linking.openURL(`tel:${selectedCompany.phone}`)}
-                    className="bg-slate-800 py-3 rounded-xl flex-row items-center justify-center gap-2 border border-slate-700 active:opacity-70"
+                    className="bg-gray-200 dark:bg-slate-800 py-3 rounded-xl flex-row items-center justify-center gap-2 border border-gray-400 dark:border-slate-700 active:opacity-70"
                   >
                     <Phone size={18} color="#fff" />
                     <Text className="text-gray-900 dark:text-white font-semibold">Call</Text>
@@ -557,7 +557,7 @@ function HiringTab() {
 
       {/* Search */}
       <View className="mb-4">
-        <View className="bg-gray-100 dark:bg-slate-900 rounded-xl flex-row items-center px-4 py-3 border border-slate-800">
+        <View className="bg-gray-100 dark:bg-slate-900 rounded-xl flex-row items-center px-4 py-3 border border-gray-300 dark:border-slate-800">
           <Search size={20} color="#64748b" />
           <TextInput
             className="flex-1 text-gray-900 dark:text-white ml-3 text-base"
@@ -603,7 +603,7 @@ function HiringTab() {
       </View>
 
       {/* Results Count */}
-      <Text className="text-slate-500 text-sm mb-4">
+      <Text className="text-gray-600 dark:text-slate-500 text-sm mb-4">
         {filteredCandidates.length} {filteredCandidates.length === 1 ? 'candidate' : 'candidates'} found
       </Text>
 
@@ -613,7 +613,7 @@ function HiringTab() {
           <Pressable
             key={candidate.id}
             onPress={() => setSelectedCandidate(candidate)}
-            className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-4 border border-slate-800 active:opacity-70"
+            className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-4 border border-gray-300 dark:border-slate-800 active:opacity-70"
           >
             <View className="flex-row items-start">
               {/* Avatar */}
@@ -635,7 +635,7 @@ function HiringTab() {
                   <Text className="text-gray-900 dark:text-white font-bold text-base">{candidate.name}</Text>
                   <View className="flex-row items-center">
                     <Star size={14} color="#f59e0b" fill="#f59e0b" />
-                    <Text className="text-slate-300 text-sm ml-1">{candidate.rating}</Text>
+                    <Text className="text-gray-700 dark:text-slate-300 text-sm ml-1">{candidate.rating}</Text>
                   </View>
                 </View>
 
@@ -643,7 +643,7 @@ function HiringTab() {
                   {candidate.specialization.join(' • ')} • {candidate.experience}y exp
                 </Text>
 
-                <Text className="text-slate-300 text-sm mb-3" numberOfLines={2}>
+                <Text className="text-gray-700 dark:text-slate-300 text-sm mb-3" numberOfLines={2}>
                   {candidate.bio}
                 </Text>
 
@@ -707,7 +707,7 @@ function HiringTab() {
                       </Text>
                       <View className="flex-row items-center">
                         <Star size={16} color="#f59e0b" fill="#f59e0b" />
-                        <Text className="text-slate-300 text-base ml-1 font-semibold">
+                        <Text className="text-gray-700 dark:text-slate-300 text-base ml-1 font-semibold">
                           {selectedCandidate.rating} rating
                         </Text>
                       </View>
@@ -719,15 +719,15 @@ function HiringTab() {
 
                   {/* Stats */}
                   <View className="flex-row gap-3 mb-6">
-                    <View className="flex-1 bg-slate-800 rounded-xl p-3">
+                    <View className="flex-1 bg-gray-200 dark:bg-slate-800 rounded-xl p-3">
                       <Text className="text-gray-600 dark:text-slate-400 text-xs mb-1">Experience</Text>
                       <Text className="text-gray-900 dark:text-white font-bold">{selectedCandidate.experience} years</Text>
                     </View>
-                    <View className="flex-1 bg-slate-800 rounded-xl p-3">
+                    <View className="flex-1 bg-gray-200 dark:bg-slate-800 rounded-xl p-3">
                       <Text className="text-gray-600 dark:text-slate-400 text-xs mb-1">Daily Rate</Text>
                       <Text className="text-emerald-400 font-bold">£{selectedCandidate.costPerDay}</Text>
                     </View>
-                    <View className="flex-1 bg-slate-800 rounded-xl p-3">
+                    <View className="flex-1 bg-gray-200 dark:bg-slate-800 rounded-xl p-3">
                       <Text className="text-gray-600 dark:text-slate-400 text-xs mb-1">Available</Text>
                       <Text className="text-blue-400 font-bold text-xs">
                         {selectedCandidate.availability.replace('Available ', '')}
@@ -779,7 +779,7 @@ function HiringTab() {
                   {/* Bio */}
                   <View className="mb-6">
                     <Text className="text-gray-900 dark:text-white font-semibold mb-2">About</Text>
-                    <Text className="text-slate-300 text-sm leading-5">
+                    <Text className="text-gray-700 dark:text-slate-300 text-sm leading-5">
                       {selectedCandidate.bio}
                     </Text>
                   </View>
@@ -788,7 +788,7 @@ function HiringTab() {
                   {selectedCandidate.education && (
                     <View className="mb-6">
                       <Text className="text-gray-900 dark:text-white font-semibold mb-2">Education</Text>
-                      <Text className="text-slate-300 text-sm">{selectedCandidate.education}</Text>
+                      <Text className="text-gray-700 dark:text-slate-300 text-sm">{selectedCandidate.education}</Text>
                     </View>
                   )}
 
@@ -826,7 +826,7 @@ function HiringTab() {
                         {selectedCandidate.achievements.map((achievement, idx) => (
                           <View key={idx} className="flex-row items-start">
                             <Text className="text-emerald-400 mr-2">•</Text>
-                            <Text className="text-slate-300 text-sm flex-1">{achievement}</Text>
+                            <Text className="text-gray-700 dark:text-slate-300 text-sm flex-1">{achievement}</Text>
                           </View>
                         ))}
                       </View>
@@ -838,8 +838,8 @@ function HiringTab() {
                     <Text className="text-gray-900 dark:text-white font-semibold mb-2">Previous Experience</Text>
                     <View className="flex-row flex-wrap gap-2">
                       {selectedCandidate.previousCompanies.map((company, idx) => (
-                        <View key={idx} className="bg-slate-800 px-3 py-1.5 rounded-lg">
-                          <Text className="text-slate-300 text-xs font-medium">{company}</Text>
+                        <View key={idx} className="bg-gray-200 dark:bg-slate-800 px-3 py-1.5 rounded-lg">
+                          <Text className="text-gray-700 dark:text-slate-300 text-xs font-medium">{company}</Text>
                         </View>
                       ))}
                     </View>
@@ -857,7 +857,7 @@ function HiringTab() {
                     </Pressable>
                     <Pressable
                       onPress={() => setSelectedCandidate(null)}
-                      className="bg-slate-800 py-3 rounded-xl active:opacity-70"
+                      className="bg-gray-200 dark:bg-slate-800 py-3 rounded-xl active:opacity-70"
                     >
                       <Text className="text-gray-600 dark:text-slate-400 text-center font-semibold">Close</Text>
                     </Pressable>
@@ -910,7 +910,7 @@ function AgentCard({ agent, onPress, getFunctionColor }: {
   return (
     <Pressable
       onPress={onPress}
-      className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-4 border border-slate-800 active:opacity-70"
+      className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-4 border border-gray-300 dark:border-slate-800 active:opacity-70"
     >
       <View className="flex-row items-start justify-between mb-3">
         <View className="flex-1">
@@ -930,17 +930,17 @@ function AgentCard({ agent, onPress, getFunctionColor }: {
                 {agent.provider}
               </Text>
             </View>
-            <Text className="text-slate-500 text-xs">•</Text>
+            <Text className="text-gray-600 dark:text-slate-500 text-xs">•</Text>
             <Text className="text-gray-600 dark:text-slate-400 text-xs">{agent.model}</Text>
           </View>
         </View>
         <View className="items-end">
           <Text className="text-emerald-400 text-xl font-bold">£{agent.costPerMonth}</Text>
-          <Text className="text-slate-500 text-xs">per month</Text>
+          <Text className="text-gray-600 dark:text-slate-500 text-xs">per month</Text>
         </View>
       </View>
 
-      <Text className="text-slate-300 text-sm mb-3">{agent.purpose}</Text>
+      <Text className="text-gray-700 dark:text-slate-300 text-sm mb-3">{agent.purpose}</Text>
 
       <View className="flex-row items-center justify-between">
         <View className="flex-row items-center gap-2">
@@ -1072,7 +1072,7 @@ function AIAgentsTab({ selectedAgent, setSelectedAgent, onboardingAgent, setOnbo
   return (
     <View className="flex-1">
       {/* Header */}
-      <View className="p-6 border-b border-slate-800">
+      <View className="p-6 border-b border-gray-300 dark:border-slate-800">
         <Text className="text-gray-900 dark:text-white text-2xl font-bold mb-2">AI Agents Directory</Text>
         <Text className="text-gray-600 dark:text-slate-400 text-sm">
           Browse AI agents by function - Finance, Sales, Marketing, Ops, Engineering, Admin
@@ -1080,8 +1080,8 @@ function AIAgentsTab({ selectedAgent, setSelectedAgent, onboardingAgent, setOnbo
       </View>
 
       {/* Search */}
-      <View className="p-6 pb-4 border-b border-slate-800">
-        <View className="flex-row items-center bg-gray-100 dark:bg-slate-900 rounded-xl px-4 py-3 border border-slate-800">
+      <View className="p-6 pb-4 border-b border-gray-300 dark:border-slate-800">
+        <View className="flex-row items-center bg-gray-100 dark:bg-slate-900 rounded-xl px-4 py-3 border border-gray-300 dark:border-slate-800">
           <Search size={20} color="#64748b" />
           <TextInput
             value={searchQuery}
@@ -1136,7 +1136,7 @@ function AIAgentsTab({ selectedAgent, setSelectedAgent, onboardingAgent, setOnbo
               <View className="flex-row items-center gap-2 mb-4">
                 <Text className="text-3xl">{getFunctionIcon(selectedFunction)}</Text>
                 <Text className="text-gray-900 dark:text-white text-xl font-bold">{selectedFunction}</Text>
-                <View className="bg-slate-800 px-3 py-1 rounded-full">
+                <View className="bg-gray-200 dark:bg-slate-800 px-3 py-1 rounded-full">
                   <Text className="text-gray-600 dark:text-slate-400 text-xs font-semibold">
                     {filteredAgents.length} agent{filteredAgents.length !== 1 ? 's' : ''}
                   </Text>
@@ -1166,7 +1166,7 @@ function AIAgentsTab({ selectedAgent, setSelectedAgent, onboardingAgent, setOnbo
                   <View className="flex-row items-center gap-2 mb-4">
                     <Text className="text-3xl">{getFunctionIcon(func)}</Text>
                     <Text className="text-gray-900 dark:text-white text-xl font-bold">{func}</Text>
-                    <View className="bg-slate-800 px-3 py-1 rounded-full">
+                    <View className="bg-gray-200 dark:bg-slate-800 px-3 py-1 rounded-full">
                       <Text className="text-gray-600 dark:text-slate-400 text-xs font-semibold">
                         {funcAgents.length} agent{funcAgents.length !== 1 ? 's' : ''}
                       </Text>
@@ -1194,7 +1194,7 @@ function AIAgentsTab({ selectedAgent, setSelectedAgent, onboardingAgent, setOnbo
         <View className="flex-1 bg-black/70 justify-end">
           {selectedAgent && (
             <View className="bg-gray-100 dark:bg-slate-900 rounded-t-3xl" style={{ maxHeight: '90%' }}>
-              <View className="flex-row items-center justify-between p-6 pb-4 border-b border-slate-800">
+              <View className="flex-row items-center justify-between p-6 pb-4 border-b border-gray-300 dark:border-slate-800">
                 <Text className="text-gray-900 dark:text-white text-xl font-bold">AI Agent Details</Text>
                 <Pressable onPress={() => setSelectedAgent(null)}>
                   <X size={24} color="#94a3b8" />
@@ -1237,7 +1237,7 @@ function AIAgentsTab({ selectedAgent, setSelectedAgent, onboardingAgent, setOnbo
                   {/* Purpose */}
                   <View>
                     <Text className="text-gray-900 dark:text-white font-semibold mb-2">Purpose</Text>
-                    <Text className="text-slate-300 text-sm leading-5">{selectedAgent.purpose}</Text>
+                    <Text className="text-gray-700 dark:text-slate-300 text-sm leading-5">{selectedAgent.purpose}</Text>
                   </View>
 
                   {/* Capabilities */}
@@ -1247,7 +1247,7 @@ function AIAgentsTab({ selectedAgent, setSelectedAgent, onboardingAgent, setOnbo
                       {selectedAgent.capabilities.map((capability, idx) => (
                         <View key={idx} className="flex-row items-start">
                           <CheckCircle size={16} color="#10b981" style={{ marginTop: 2 }} />
-                          <Text className="text-slate-300 text-sm flex-1 ml-2">{capability}</Text>
+                          <Text className="text-gray-700 dark:text-slate-300 text-sm flex-1 ml-2">{capability}</Text>
                         </View>
                       ))}
                     </View>
@@ -1270,8 +1270,8 @@ function AIAgentsTab({ selectedAgent, setSelectedAgent, onboardingAgent, setOnbo
                     <Text className="text-gray-900 dark:text-white font-semibold mb-2">Integrations</Text>
                     <View className="flex-row flex-wrap gap-2">
                       {selectedAgent.integrations.map((integration, idx) => (
-                        <View key={idx} className="bg-slate-800 px-3 py-1.5 rounded-lg">
-                          <Text className="text-slate-300 text-xs font-medium">{integration}</Text>
+                        <View key={idx} className="bg-gray-200 dark:bg-slate-800 px-3 py-1.5 rounded-lg">
+                          <Text className="text-gray-700 dark:text-slate-300 text-xs font-medium">{integration}</Text>
                         </View>
                       ))}
                     </View>
@@ -1282,17 +1282,17 @@ function AIAgentsTab({ selectedAgent, setSelectedAgent, onboardingAgent, setOnbo
                     <View>
                       <Text className="text-gray-900 dark:text-white font-semibold mb-3">Usage Statistics</Text>
                       <View className="flex-row gap-3">
-                        <View className="flex-1 bg-slate-800 rounded-xl p-3">
+                        <View className="flex-1 bg-gray-200 dark:bg-slate-800 rounded-xl p-3">
                           <Text className="text-gray-600 dark:text-slate-400 text-xs mb-1">Requests</Text>
                           <Text className="text-gray-900 dark:text-white font-bold">{selectedAgent.usageStats.requestsThisMonth.toLocaleString()}</Text>
-                          <Text className="text-slate-500 text-xs">this month</Text>
+                          <Text className="text-gray-600 dark:text-slate-500 text-xs">this month</Text>
                         </View>
-                        <View className="flex-1 bg-slate-800 rounded-xl p-3">
+                        <View className="flex-1 bg-gray-200 dark:bg-slate-800 rounded-xl p-3">
                           <Text className="text-gray-600 dark:text-slate-400 text-xs mb-1">Response Time</Text>
                           <Text className="text-gray-900 dark:text-white font-bold">{selectedAgent.usageStats.averageResponseTime}</Text>
-                          <Text className="text-slate-500 text-xs">average</Text>
+                          <Text className="text-gray-600 dark:text-slate-500 text-xs">average</Text>
                         </View>
-                        <View className="flex-1 bg-slate-800 rounded-xl p-3">
+                        <View className="flex-1 bg-gray-200 dark:bg-slate-800 rounded-xl p-3">
                           <Text className="text-gray-600 dark:text-slate-400 text-xs mb-1">Success Rate</Text>
                           <Text className="text-emerald-400 font-bold">{selectedAgent.usageStats.successRate}%</Text>
                         </View>
@@ -1315,7 +1315,7 @@ function AIAgentsTab({ selectedAgent, setSelectedAgent, onboardingAgent, setOnbo
                     </Pressable>
                     <Pressable
                       onPress={() => setSelectedAgent(null)}
-                      className="bg-slate-800 py-3 rounded-xl active:opacity-70"
+                      className="bg-gray-200 dark:bg-slate-800 py-3 rounded-xl active:opacity-70"
                     >
                       <Text className="text-gray-600 dark:text-slate-400 text-center font-semibold">Close</Text>
                     </Pressable>
@@ -1337,7 +1337,7 @@ function AIAgentsTab({ selectedAgent, setSelectedAgent, onboardingAgent, setOnbo
                 Set up {onboardingAgent.name} for your team
               </Text>
 
-              <View className="bg-slate-800 rounded-xl p-4 mb-6">
+              <View className="bg-gray-200 dark:bg-slate-800 rounded-xl p-4 mb-6">
                 <View className="flex-row items-center gap-3 mb-2">
                   <Bot size={20} color={getProviderColor(onboardingAgent.provider)} />
                   <Text className="text-gray-900 dark:text-white font-semibold text-lg">{onboardingAgent.name}</Text>
@@ -1348,7 +1348,7 @@ function AIAgentsTab({ selectedAgent, setSelectedAgent, onboardingAgent, setOnbo
               {/* Cost Input */}
               <View className="mb-6">
                 <Text className="text-gray-600 dark:text-slate-400 text-sm font-medium mb-2">Monthly Cost (£)</Text>
-                <View className="flex-row items-center bg-slate-800 rounded-xl px-4 py-3 border border-slate-700">
+                <View className="flex-row items-center bg-gray-200 dark:bg-slate-800 rounded-xl px-4 py-3 border border-gray-400 dark:border-slate-700">
                   <DollarSign size={20} color="#64748b" />
                   <TextInput
                     value={monthlyCost}
@@ -1360,7 +1360,7 @@ function AIAgentsTab({ selectedAgent, setSelectedAgent, onboardingAgent, setOnbo
                   />
                   <Text className="text-gray-600 dark:text-slate-400">/month</Text>
                 </View>
-                <Text className="text-slate-500 text-xs mt-2">
+                <Text className="text-gray-600 dark:text-slate-500 text-xs mt-2">
                   Suggested: £{onboardingAgent.costPerMonth}/month
                 </Text>
               </View>
@@ -1383,7 +1383,7 @@ function AIAgentsTab({ selectedAgent, setSelectedAgent, onboardingAgent, setOnbo
                     setOnboardingAgent(null);
                     setMonthlyCost('');
                   }}
-                  className="bg-slate-800 py-3 rounded-xl active:opacity-70"
+                  className="bg-gray-200 dark:bg-slate-800 py-3 rounded-xl active:opacity-70"
                 >
                   <Text className="text-gray-600 dark:text-slate-400 text-center font-semibold">Cancel</Text>
                 </Pressable>

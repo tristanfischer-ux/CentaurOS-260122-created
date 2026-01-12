@@ -92,7 +92,7 @@ export function TeamPerformanceDashboard({
   const ProgressBar = ({ value, max = 100, color }: { value: number; max?: number; color: string }) => {
     const percentage = Math.min((value / max) * 100, 100);
     return (
-      <View className="h-2 bg-slate-800 rounded-full overflow-hidden">
+      <View className="h-2 bg-gray-200 dark:bg-slate-800 rounded-full overflow-hidden">
         <View
           className="h-full rounded-full"
           style={{ width: `${percentage}%`, backgroundColor: color }}
@@ -113,39 +113,39 @@ export function TeamPerformanceDashboard({
 
         {/* Summary Stats */}
         <View className="flex-row gap-2 mb-4">
-          <View className="flex-1 bg-slate-900 rounded-xl p-3 border border-slate-800">
+          <View className="flex-1 bg-gray-100 dark:bg-slate-900 rounded-xl p-3 border border-gray-300 dark:border-slate-800">
             <View className="flex-row items-center mb-1">
               <Users size={14} color="#64748b" />
-              <Text className="text-slate-400 text-xs ml-1">Team Size</Text>
+              <Text className="text-gray-600 dark:text-slate-400 text-xs ml-1">Team Size</Text>
             </View>
             <Text className="text-gray-900 dark:text-white text-xl font-bold">{summary.totalMembers}</Text>
-            <Text className="text-slate-500 text-[10px] mt-0.5">
+            <Text className="text-gray-600 dark:text-slate-500 text-[10px] mt-0.5">
               {executivesCount} execs, {apprenticesCount} apprentices
             </Text>
           </View>
 
-          <View className="flex-1 bg-slate-900 rounded-xl p-3 border border-slate-800">
+          <View className="flex-1 bg-gray-100 dark:bg-slate-900 rounded-xl p-3 border border-gray-300 dark:border-slate-800">
             <View className="flex-row items-center mb-1">
               <Target size={14} color="#64748b" />
-              <Text className="text-slate-400 text-xs ml-1">Avg Score</Text>
+              <Text className="text-gray-600 dark:text-slate-400 text-xs ml-1">Avg Score</Text>
             </View>
             <Text className={`${getScoreColor(averageContributionScore)} text-xl font-bold`}>
               {averageContributionScore.toFixed(0)}
             </Text>
-            <Text className="text-slate-500 text-[10px] mt-0.5">
+            <Text className="text-gray-600 dark:text-slate-500 text-[10px] mt-0.5">
               {highPerformersCount} top performers
             </Text>
           </View>
 
-          <View className="flex-1 bg-slate-900 rounded-xl p-3 border border-slate-800">
+          <View className="flex-1 bg-gray-100 dark:bg-slate-900 rounded-xl p-3 border border-gray-300 dark:border-slate-800">
             <View className="flex-row items-center mb-1">
               <CheckCircle2 size={14} color="#64748b" />
-              <Text className="text-slate-400 text-xs ml-1">Tasks/Week</Text>
+              <Text className="text-gray-600 dark:text-slate-400 text-xs ml-1">Tasks/Week</Text>
             </View>
             <Text className="text-blue-400 text-xl font-bold">
               {totalTasksCompletedThisWeek}
             </Text>
-            <Text className="text-slate-500 text-[10px] mt-0.5">
+            <Text className="text-gray-600 dark:text-slate-500 text-[10px] mt-0.5">
               {averageTasksPerWeek.toFixed(1)} avg/person
             </Text>
           </View>
@@ -163,12 +163,12 @@ export function TeamPerformanceDashboard({
             {contributionComparison && (
               <View>
                 <View className="flex-row justify-between mb-1">
-                  <Text className="text-slate-300 text-xs">Contribution Score</Text>
+                  <Text className="text-gray-700 dark:text-slate-300 text-xs">Contribution Score</Text>
                   <View className="flex-row items-center gap-2">
                     <Text className="text-blue-400 text-xs font-semibold">
                       Exec: {contributionComparison.executives.toFixed(0)}
                     </Text>
-                    <Text className="text-slate-600">|</Text>
+                    <Text className="text-gray-700 dark:text-slate-600">|</Text>
                     <Text className="text-emerald-400 text-xs font-semibold">
                       App: {contributionComparison.apprentices.toFixed(0)}
                     </Text>
@@ -189,12 +189,12 @@ export function TeamPerformanceDashboard({
             {qualityComparison && (
               <View>
                 <View className="flex-row justify-between mb-1">
-                  <Text className="text-slate-300 text-xs">Quality Score</Text>
+                  <Text className="text-gray-700 dark:text-slate-300 text-xs">Quality Score</Text>
                   <View className="flex-row items-center gap-2">
                     <Text className="text-blue-400 text-xs font-semibold">
                       {qualityComparison.executives.toFixed(1)}/5
                     </Text>
-                    <Text className="text-slate-600">|</Text>
+                    <Text className="text-gray-700 dark:text-slate-600">|</Text>
                     <Text className="text-emerald-400 text-xs font-semibold">
                       {qualityComparison.apprentices.toFixed(1)}/5
                     </Text>
@@ -219,7 +219,7 @@ export function TeamPerformanceDashboard({
               {comparisons.slice(0, 3).map((comp: PerformanceComparison, idx: number) => (
                 <View key={idx} className="flex-row items-start mb-1">
                   <Text className="text-blue-400 text-xs mr-1">•</Text>
-                  <Text className="text-slate-300 text-xs flex-1">{comp.insight}</Text>
+                  <Text className="text-gray-700 dark:text-slate-300 text-xs flex-1">{comp.insight}</Text>
                 </View>
               ))}
             </View>
@@ -323,9 +323,9 @@ export function TeamPerformanceDashboard({
         <Text className="text-gray-900 dark:text-white font-semibold mb-3">Individual Performance</Text>
 
         {filteredPerformances.length === 0 ? (
-          <View className="bg-slate-900 rounded-xl p-6 border border-slate-800 items-center">
+          <View className="bg-gray-100 dark:bg-slate-900 rounded-xl p-6 border border-gray-300 dark:border-slate-800 items-center">
             <Users size={32} color="#475569" />
-            <Text className="text-slate-400 text-center mt-2">
+            <Text className="text-gray-600 dark:text-slate-400 text-center mt-2">
               No team members in this category
             </Text>
           </View>
@@ -342,7 +342,7 @@ export function TeamPerformanceDashboard({
                     onPress={() => toggleMemberExpansion(member.userId)}
                     className="active:opacity-80"
                   >
-                    <View className="bg-slate-900 rounded-xl border border-slate-800 overflow-hidden">
+                    <View className="bg-gray-100 dark:bg-slate-900 rounded-xl border border-gray-300 dark:border-slate-800 overflow-hidden">
                       {/* Header with Gradient Score */}
                       <LinearGradient
                         colors={scoreColors}
@@ -387,25 +387,25 @@ export function TeamPerformanceDashboard({
                       {/* Quick Stats Bar */}
                       <View className="bg-slate-800/50 px-4 py-2 flex-row justify-between">
                         <View className="items-center">
-                          <Text className="text-slate-400 text-[10px] mb-0.5">Tasks</Text>
+                          <Text className="text-gray-600 dark:text-slate-400 text-[10px] mb-0.5">Tasks</Text>
                           <Text className="text-gray-900 dark:text-white text-sm font-semibold">
                             {member.tasksCompletedThisWeek}
                           </Text>
                         </View>
                         <View className="items-center">
-                          <Text className="text-slate-400 text-[10px] mb-0.5">Completion</Text>
+                          <Text className="text-gray-600 dark:text-slate-400 text-[10px] mb-0.5">Completion</Text>
                           <Text className="text-blue-400 text-sm font-semibold">
                             {(member.taskCompletionRate * 100).toFixed(0)}%
                           </Text>
                         </View>
                         <View className="items-center">
-                          <Text className="text-slate-400 text-[10px] mb-0.5">Quality</Text>
+                          <Text className="text-gray-600 dark:text-slate-400 text-[10px] mb-0.5">Quality</Text>
                           <Text className="text-emerald-400 text-sm font-semibold">
                             {member.avgReviewScore.toFixed(1)}/5
                           </Text>
                         </View>
                         <View className="items-center">
-                          <Text className="text-slate-400 text-[10px] mb-0.5">On-Time</Text>
+                          <Text className="text-gray-600 dark:text-slate-400 text-[10px] mb-0.5">On-Time</Text>
                           <Text className="text-purple-400 text-sm font-semibold">
                             {(member.onTimeDeliveryRate * 100).toFixed(0)}%
                           </Text>
@@ -414,7 +414,7 @@ export function TeamPerformanceDashboard({
 
                       {/* Expanded Details */}
                       {isExpanded && (
-                        <View className="p-4 bg-slate-900">
+                        <View className="p-4 bg-gray-100 dark:bg-slate-900">
                           {/* Productivity Metrics */}
                           <View className="mb-4">
                             <View className="flex-row items-center mb-2">
@@ -423,27 +423,27 @@ export function TeamPerformanceDashboard({
                                 Productivity
                               </Text>
                             </View>
-                            <View className="bg-slate-800 rounded-lg p-3 gap-2">
+                            <View className="bg-gray-200 dark:bg-slate-800 rounded-lg p-3 gap-2">
                               <View className="flex-row justify-between">
-                                <Text className="text-slate-400 text-xs">Tasks Completed (Total):</Text>
+                                <Text className="text-gray-600 dark:text-slate-400 text-xs">Tasks Completed (Total):</Text>
                                 <Text className="text-gray-900 dark:text-white text-xs font-semibold">
                                   {member.tasksCompleted}
                                 </Text>
                               </View>
                               <View className="flex-row justify-between">
-                                <Text className="text-slate-400 text-xs">This Month:</Text>
+                                <Text className="text-gray-600 dark:text-slate-400 text-xs">This Month:</Text>
                                 <Text className="text-gray-900 dark:text-white text-xs font-semibold">
                                   {member.tasksCompletedThisMonth}
                                 </Text>
                               </View>
                               <View className="flex-row justify-between">
-                                <Text className="text-slate-400 text-xs">Avg per Week:</Text>
+                                <Text className="text-gray-600 dark:text-slate-400 text-xs">Avg per Week:</Text>
                                 <Text className="text-gray-900 dark:text-white text-xs font-semibold">
                                   {member.avgTasksPerWeek.toFixed(1)}
                                 </Text>
                               </View>
                               <View className="flex-row justify-between">
-                                <Text className="text-slate-400 text-xs">Velocity Trend:</Text>
+                                <Text className="text-gray-600 dark:text-slate-400 text-xs">Velocity Trend:</Text>
                                 <View className="flex-row items-center">
                                   <Text className="text-gray-900 dark:text-white text-xs font-semibold mr-1">
                                     {member.velocity.toFixed(1)} tasks/week
@@ -462,27 +462,27 @@ export function TeamPerformanceDashboard({
                                 Quality
                               </Text>
                             </View>
-                            <View className="bg-slate-800 rounded-lg p-3 gap-2">
+                            <View className="bg-gray-200 dark:bg-slate-800 rounded-lg p-3 gap-2">
                               <View className="flex-row justify-between">
-                                <Text className="text-slate-400 text-xs">Review Approval Rate:</Text>
+                                <Text className="text-gray-600 dark:text-slate-400 text-xs">Review Approval Rate:</Text>
                                 <Text className="text-emerald-400 text-xs font-semibold">
                                   {(member.reviewApprovalRate * 100).toFixed(0)}%
                                 </Text>
                               </View>
                               <View className="flex-row justify-between">
-                                <Text className="text-slate-400 text-xs">Tasks Requiring Rework:</Text>
+                                <Text className="text-gray-600 dark:text-slate-400 text-xs">Tasks Requiring Rework:</Text>
                                 <Text className="text-gray-900 dark:text-white text-xs font-semibold">
                                   {member.tasksRequiringRework}
                                 </Text>
                               </View>
                               <View className="flex-row justify-between">
-                                <Text className="text-slate-400 text-xs">Avg Review Score:</Text>
+                                <Text className="text-gray-600 dark:text-slate-400 text-xs">Avg Review Score:</Text>
                                 <Text className="text-emerald-400 text-xs font-semibold">
                                   {member.avgReviewScore.toFixed(2)}/5.00
                                 </Text>
                               </View>
                               <View className="flex-row justify-between">
-                                <Text className="text-slate-400 text-xs">Priority Tasks:</Text>
+                                <Text className="text-gray-600 dark:text-slate-400 text-xs">Priority Tasks:</Text>
                                 <Text className="text-gray-900 dark:text-white text-xs font-semibold">
                                   {member.urgentTaskCompletion} urgent, {member.highPriorityCompletion} high
                                 </Text>
@@ -498,15 +498,15 @@ export function TeamPerformanceDashboard({
                                 Efficiency
                               </Text>
                             </View>
-                            <View className="bg-slate-800 rounded-lg p-3 gap-2">
+                            <View className="bg-gray-200 dark:bg-slate-800 rounded-lg p-3 gap-2">
                               <View className="flex-row justify-between">
-                                <Text className="text-slate-400 text-xs">Avg Time to Complete:</Text>
+                                <Text className="text-gray-600 dark:text-slate-400 text-xs">Avg Time to Complete:</Text>
                                 <Text className="text-gray-900 dark:text-white text-xs font-semibold">
                                   {member.avgTimeToComplete.toFixed(1)} hours
                                 </Text>
                               </View>
                               <View className="flex-row justify-between">
-                                <Text className="text-slate-400 text-xs">On-Time Delivery:</Text>
+                                <Text className="text-gray-600 dark:text-slate-400 text-xs">On-Time Delivery:</Text>
                                 <Text className="text-purple-400 text-xs font-semibold">
                                   {(member.onTimeDeliveryRate * 100).toFixed(0)}%
                                 </Text>
@@ -522,21 +522,21 @@ export function TeamPerformanceDashboard({
                                 Engagement
                               </Text>
                             </View>
-                            <View className="bg-slate-800 rounded-lg p-3 gap-2">
+                            <View className="bg-gray-200 dark:bg-slate-800 rounded-lg p-3 gap-2">
                               <View className="flex-row justify-between">
-                                <Text className="text-slate-400 text-xs">Days Active:</Text>
+                                <Text className="text-gray-600 dark:text-slate-400 text-xs">Days Active:</Text>
                                 <Text className="text-gray-900 dark:text-white text-xs font-semibold">
                                   {member.daysActive}
                                 </Text>
                               </View>
                               <View className="flex-row justify-between">
-                                <Text className="text-slate-400 text-xs">Consistency Score:</Text>
+                                <Text className="text-gray-600 dark:text-slate-400 text-xs">Consistency Score:</Text>
                                 <Text className="text-blue-400 text-xs font-semibold">
                                   {member.consistencyScore.toFixed(0)}/100
                                 </Text>
                               </View>
                               <View className="flex-row justify-between">
-                                <Text className="text-slate-400 text-xs">Responsiveness:</Text>
+                                <Text className="text-gray-600 dark:text-slate-400 text-xs">Responsiveness:</Text>
                                 <Text className="text-gray-900 dark:text-white text-xs font-semibold">
                                   {member.responsiveness.toFixed(1)} hours
                                 </Text>
