@@ -21,7 +21,7 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
 
 ✅ **Code Quality**: A+ (96/100) - Production-ready
 ✅ **UI/UX**: A+ - Apple HIG compliant, beautiful design
-✅ **Features**: 17 major features - Fully functional
+✅ **Features**: 18 major features - Fully functional
 ✅ **RBAC**: A+ - Perfect implementation
 ✅ **Onboarding**: Complete role-based system implemented
 ⚠️ **Architecture**: Requires backend for production use
@@ -408,6 +408,24 @@ Centaur OS turns OKRs into work, tracks execution, enables review workflows, and
   - **Career Development**: Visual skill progression and growth paths
   - **Multi-View Interface**: Toggle between Skills, Training, and Reviews
   - **Accessible from Team Tab**: Green "Learning" button for Founders and Executives
+- **Function Library** - Comprehensive resource hub for all business functions
+  - **6 Complete Function Profiles**: Finance, Sales, Marketing, Operations, Engineering, Admin
+  - **Role-Specific Resources**: Each function includes:
+    - **People**: Fractional executives and apprentices specialized in the function
+    - **Suppliers & Tools**: Recommended software, platforms, and services with pricing
+    - **AI Tools**: Function-specific AI assistants and automation tools
+    - **Templates**: Spreadsheets, dashboards, and documents for common tasks
+    - **Guides**: Educational resources and best practices
+    - **Checklists**: Process checklists for recurring activities
+  - **Role-Based Advice**: Personalized guidance for Founders, Executives, and Apprentices
+  - **Key Responsibilities**: What this function is responsible for
+  - **Common Challenges**: Typical obstacles and how to overcome them
+  - **Success Metrics**: How to measure performance in this function
+  - **Suggested OKRs**: 2-3 example objectives with key results and rationale
+  - **Search & Filter**: Find specific resources quickly across all categories
+  - **Function-Specific View**: Pre-filtered to your current function
+  - **Beautiful UI**: Gradient designs unique to each function with intuitive navigation
+  - **Accessible from Settings**: "Function Library" button with quick access
 - **Data Management (Founder-Only)** - Bulk import and export with Google Sheets integration
   - **Google Sheets Sync**: Two-way synchronization with Google Sheets for automatic data updates
   - **CSV Import/Export**: Import and export all data types as CSV files

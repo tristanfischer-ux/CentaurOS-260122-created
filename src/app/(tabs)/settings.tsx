@@ -1,5 +1,5 @@
 import { View, Text, Pressable, ScrollView, Modal, Alert, Linking } from 'react-native';
-import { LogOut, ChevronRight, Sun, Moon, Smartphone, FileText, Info, X, Database, Download, Upload, RefreshCw, Check, ExternalLink, Sheet, Play } from 'lucide-react-native';
+import { LogOut, ChevronRight, Sun, Moon, Smartphone, FileText, Info, X, Database, Download, Upload, RefreshCw, Check, ExternalLink, Sheet, Play, Library } from 'lucide-react-native';
 import { useAppStore, useCurrentUser, useCurrentMembership } from '@/lib/state/app-store';
 import { router } from 'expo-router';
 import { useState } from 'react';
@@ -212,6 +212,23 @@ export default function SettingsScreen() {
           <View className="flex-row items-center">
             <FileText size={20} color="#10b981" />
             <Text className="text-gray-900 dark:text-white font-semibold ml-3">Reports</Text>
+          </View>
+          <ChevronRight size={20} color="#64748b" />
+        </Pressable>
+
+        {/* Function Hub */}
+        <Pressable
+          onPress={() => router.push('/function-hub')}
+          className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-4 mb-4 flex-row items-center justify-between active:opacity-70"
+        >
+          <View className="flex-row items-center">
+            <Library size={20} color="#f59e0b" />
+            <View className="ml-3">
+              <Text className="text-gray-900 dark:text-white font-semibold">Function Library</Text>
+              <Text className="text-gray-600 dark:text-slate-400 text-xs mt-0.5">
+                Resources, tools, and advice for your function
+              </Text>
+            </View>
           </View>
           <ChevronRight size={20} color="#64748b" />
         </Pressable>

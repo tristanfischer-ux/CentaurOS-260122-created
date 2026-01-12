@@ -99,6 +99,12 @@ function RootLayoutNav({ colorScheme }: { colorScheme: 'light' | 'dark' | null |
             headerShadowVisible: false,
           }}
         />
+        <Stack.Screen
+          name="function-hub"
+          options={{
+            headerShown: false,
+          }}
+        />
       </Stack>
     </ThemeProvider>
   );
