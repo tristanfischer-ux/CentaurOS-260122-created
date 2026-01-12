@@ -13,9 +13,10 @@ import {
   GraduationCap,
 } from 'lucide-react-native';
 import { useCurrentWorkspace, useCurrentMembership } from '@/lib/state/app-store';
-import { useCreateTask, useWorkspaceMembers } from '@/lib/hooks/queries';
+import { useCreateTask } from '@/lib/hooks/queries';
 import type { TaskPriority, Function as TaskFunction } from '@/types';
 import { router } from 'expo-router';
+import { ORGANIZATION_MEMBERS } from '@/lib/organization-seed';
 
 // Mock team members data - in a real app this would come from the database
 interface TeamMember {
@@ -295,9 +296,8 @@ export default function TeamScreen() {
   const currentWorkspace = useCurrentWorkspace();
   const currentMembership = useCurrentMembership();
   const createTaskMutation = useCreateTask();
-  const { data: memberships = [] } = useWorkspaceMembers(currentWorkspace?.id ?? null);
 
-  const [selectedMember, setSelectedMember] = useState<any>(null);
+  const [selectedMember, setSelectedMember] = useState<TeamMember | null>(null);
   const [filterRole, setFilterRole] = useState<'all' | 'Founder' | 'FractionalExec' | 'Apprentice'>('all');
   const [showTaskModal, setShowTaskModal] = useState(false);
   const [taskTitle, setTaskTitle] = useState('');
@@ -305,37 +305,37 @@ export default function TeamScreen() {
   const [taskPriority, setTaskPriority] = useState<TaskPriority>('medium');
   const [taskFunction, setTaskFunction] = useState<TaskFunction>('Ops');
 
-  // Convert memberships to team member format for display
-  const teamMembers = memberships.map(membership => ({
-    id: membership.userId,
-    name: membership.user?.name || 'Unknown',
-    role: membership.role,
-    email: membership.user?.email || '',
-    phone: '', // Not available in current data model
-    location: '', // Not available
-    specialization: [membership.function],
+  // Convert organization members to team member format for display
+  const teamMembers: TeamMember[] = ORGANIZATION_MEMBERS.map(member => ({
+    id: member.id,
+    name: member.name,
+    role: member.role,
+    email: member.email,
+    phone: member.phone,
+    location: '', // Not in organization data
+    specialization: [member.function],
     experience: 0, // Not available
     rating: 0, // Not available
-    costPerDay: undefined,
-    availability: 'Active',
+    costPerDay: member.costPerDay,
+    availability: member.status === 'active' ? 'Active' : 'Inactive',
     bio: '',
-    skills: [membership.function],
+    skills: [member.function],
     currentTasks: 0,
     completedTasks: 0,
-    avatarColor: getColorForRole(membership.role),
-    joinedDate: membership.joinedAt || new Date().toISOString(),
+    avatarColor: getColorForRole(member.role),
+    joinedDate: member.startDate,
   }));
 
-  const filteredTeam = teamMembers.filter(member => {
+  const filteredTeam = teamMembers.filter((member: TeamMember) => {
     if (filterRole === 'all') return true;
     return member.role === filterRole;
   });
 
   const roleStats = {
     total: teamMembers.length,
-    founders: teamMembers.filter(m => m.role === 'Founder').length,
-    execs: teamMembers.filter(m => m.role === 'FractionalExec').length,
-    apprentices: teamMembers.filter(m => m.role === 'Apprentice').length,
+    founders: teamMembers.filter((m: TeamMember) => m.role === 'Founder').length,
+    execs: teamMembers.filter((m: TeamMember) => m.role === 'FractionalExec').length,
+    apprentices: teamMembers.filter((m: TeamMember) => m.role === 'Apprentice').length,
   };
 
   function getColorForRole(role: string) {
@@ -481,7 +481,7 @@ export default function TeamScreen() {
       {/* Team List */}
       <ScrollView className="flex-1 px-6">
         <View className="gap-3 pb-6">
-          {filteredTeam.map((member) => (
+          {filteredTeam.map((member: TeamMember) => (
             <Pressable
               key={member.id}
               onPress={() => setSelectedMember(member)}
