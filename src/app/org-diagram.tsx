@@ -1,19 +1,19 @@
 import { View, Text, ScrollView, Pressable, Modal, Dimensions } from 'react-native';
 import React, { useState } from 'react';
-import { X, Mail, Phone, Users, ChevronRight } from 'lucide-react-native';
+import { X, Mail, Phone, Users, ChevronRight, Bot, Sparkles } from 'lucide-react-native';
 import Svg, { Circle, Line, Text as SvgText } from 'react-native-svg';
-import { ORGANIZATION_MEMBERS, type OrganizationMember } from '@/lib/organization-seed';
+import { ORGANIZATION_MEMBERS, AI_AGENTS, type OrganizationMember } from '@/lib/organization-seed';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
-const DIAGRAM_WIDTH = Math.max(SCREEN_WIDTH * 1.5, 600); // Make it wider and scrollable
-const DIAGRAM_HEIGHT = 800; // Taller for better spacing
+const DIAGRAM_WIDTH = Math.max(SCREEN_WIDTH * 2, 800); // Make it much wider
+const DIAGRAM_HEIGHT = 1000; // Taller for better vertical spacing
 const CENTER_X = DIAGRAM_WIDTH / 2;
 const CENTER_Y = DIAGRAM_HEIGHT / 2;
 
-// Layout configuration for circular org diagram
+// Layout configuration for circular org diagram - IMPROVED SPACING
 const FOUNDER_RADIUS = 60;
-const EXEC_DISTANCE = 220; // Increased spacing
-const APPRENTICE_DISTANCE = 360; // Increased spacing
+const EXEC_DISTANCE = 280; // Increased from 220
+const APPRENTICE_DISTANCE = 480; // Increased from 360
 
 export default function OrgDiagramScreen() {
   const [selectedMember, setSelectedMember] = useState<OrganizationMember | null>(null);
@@ -57,7 +57,7 @@ export default function OrgDiagramScreen() {
       const apprenticeCount = siblingApprentices.length;
 
       // Spread apprentices in an arc around their manager
-      const arcSpread = Math.PI / 6;
+      const arcSpread = Math.PI / 4; // Increased from PI/6 for wider spread
       const apprenticeAngle = execAngle + (apprenticeIndex - (apprenticeCount - 1) / 2) * arcSpread / Math.max(apprenticeCount - 1, 1);
 
       return {
@@ -97,7 +97,7 @@ export default function OrgDiagramScreen() {
             Interactive Organization Diagram
           </Text>
           <Text className="text-slate-400 text-xs">
-            Tap any member to see details. Lines show reporting relationships.
+            Tap any member to see details and AI agents used. Blue badges show AI agent count. Scroll horizontally to see all members.
           </Text>
         </View>
 
@@ -109,22 +109,30 @@ export default function OrgDiagramScreen() {
               <View className="w-8 h-8 rounded-full bg-blue-500/20 border-2 border-blue-500 items-center justify-center mr-2">
                 <Text className="text-blue-400 text-xs font-bold">SC</Text>
               </View>
-              <Text className="text-slate-300 text-sm">Founder (Initials)</Text>
+              <Text className="text-slate-300 text-sm">Founder</Text>
             </View>
             <View className="flex-row items-center">
               <View className="w-8 h-8 rounded-full bg-purple-500/20 border-2 border-purple-500 items-center justify-center mr-2">
                 <Text className="text-purple-400 text-xs font-bold">JM</Text>
               </View>
-              <Text className="text-slate-300 text-sm">Executive (Initials)</Text>
+              <Text className="text-slate-300 text-sm">Executive</Text>
             </View>
             <View className="flex-row items-center">
               <View className="w-8 h-8 rounded-full bg-emerald-500/20 border-2 border-emerald-500 items-center justify-center mr-2">
                 <Text className="text-emerald-400 text-xs font-bold">AL</Text>
               </View>
-              <Text className="text-slate-300 text-sm">Apprentice (Initials)</Text>
+              <Text className="text-slate-300 text-sm">Apprentice</Text>
+            </View>
+            <View className="flex-row items-center">
+              <View className="w-5 h-5 rounded-full bg-blue-500 items-center justify-center mr-2">
+                <Text className="text-white text-xs font-bold">5</Text>
+              </View>
+              <Text className="text-slate-300 text-sm">AI Agents</Text>
             </View>
           </View>
-          <Text className="text-slate-400 text-xs mt-3">Tip: Scroll horizontally to see the full diagram. Tap any circle to view details.</Text>
+          <Text className="text-slate-400 text-xs mt-3">
+            Tip: Larger diagram with better spacing. Scroll horizontally to see the full org chart. Tap any circle to view member details and their AI agents.
+          </Text>
         </View>
 
         {/* Org Diagram */}
@@ -180,6 +188,13 @@ export default function OrgDiagramScreen() {
                     const color = getRoleColor(member.role);
                     const nodeRadius = member.role === 'Founder' ? 40 : 32;
 
+                    // Count AI agents for this member
+                    const aiAgentCount = AI_AGENTS.filter(agent =>
+                      Array.isArray(agent.usedBy) &&
+                      (agent.usedBy.includes(member.id) ||
+                       agent.usedBy.includes('All team members'))
+                    ).length;
+
                     return (
                       <React.Fragment key={member.id}>
                         {/* Node circle */}
@@ -224,6 +239,28 @@ export default function OrgDiagramScreen() {
                         >
                           {member.function}
                         </SvgText>
+
+                        {/* AI Agent Indicator */}
+                        {aiAgentCount > 0 && (
+                          <>
+                            <Circle
+                              cx={position.x}
+                              cy={position.y + nodeRadius + 52}
+                              r="10"
+                              fill="#3b82f6"
+                            />
+                            <SvgText
+                              x={position.x}
+                              y={position.y + nodeRadius + 57}
+                              fontSize="10"
+                              fontWeight="bold"
+                              fill="#ffffff"
+                              textAnchor="middle"
+                            >
+                              {aiAgentCount}
+                            </SvgText>
+                          </>
+                        )}
                       </React.Fragment>
                     );
                   })}
@@ -313,26 +350,41 @@ export default function OrgDiagramScreen() {
           <View className="mb-4">
             <Text className="text-blue-400 font-semibold mb-2">Founders ({founders.length})</Text>
             <View className="gap-2">
-              {founders.map(member => (
-                <Pressable
-                  key={member.id}
-                  onPress={() => setSelectedMember(member)}
-                  className="bg-slate-900 rounded-xl p-3 border border-slate-800 flex-row items-center justify-between active:opacity-70"
-                >
-                  <View className="flex-row items-center flex-1">
-                    <View className="w-10 h-10 rounded-full bg-blue-500/20 border-2 border-blue-500 items-center justify-center mr-3">
-                      <Text className="text-blue-400 font-bold">
-                        {member.name.charAt(0)}
-                      </Text>
+              {founders.map(member => {
+                const aiAgentCount = AI_AGENTS.filter(agent =>
+                  Array.isArray(agent.usedBy) &&
+                  (agent.usedBy.includes(member.id) ||
+                   agent.usedBy.includes('All team members'))
+                ).length;
+
+                return (
+                  <Pressable
+                    key={member.id}
+                    onPress={() => setSelectedMember(member)}
+                    className="bg-slate-900 rounded-xl p-3 border border-slate-800 flex-row items-center justify-between active:opacity-70"
+                  >
+                    <View className="flex-row items-center flex-1">
+                      <View className="w-10 h-10 rounded-full bg-blue-500/20 border-2 border-blue-500 items-center justify-center mr-3">
+                        <Text className="text-blue-400 font-bold">
+                          {member.name.charAt(0)}
+                        </Text>
+                      </View>
+                      <View className="flex-1">
+                        <View className="flex-row items-center gap-2 mb-1">
+                          <Text className="text-white font-semibold">{member.name}</Text>
+                          {aiAgentCount > 0 && (
+                            <View className="bg-blue-500 rounded-full w-5 h-5 items-center justify-center">
+                              <Text className="text-white text-[10px] font-bold">{aiAgentCount}</Text>
+                            </View>
+                          )}
+                        </View>
+                        <Text className="text-slate-400 text-xs">{member.function}</Text>
+                      </View>
                     </View>
-                    <View className="flex-1">
-                      <Text className="text-white font-semibold">{member.name}</Text>
-                      <Text className="text-slate-400 text-xs">{member.function}</Text>
-                    </View>
-                  </View>
-                  <ChevronRight size={20} color="#64748b" />
-                </Pressable>
-              ))}
+                    <ChevronRight size={20} color="#64748b" />
+                  </Pressable>
+                );
+              })}
             </View>
           </View>
 
@@ -340,28 +392,43 @@ export default function OrgDiagramScreen() {
           <View className="mb-4">
             <Text className="text-purple-400 font-semibold mb-2">Executives ({execs.length})</Text>
             <View className="gap-2">
-              {execs.map(member => (
-                <Pressable
-                  key={member.id}
-                  onPress={() => setSelectedMember(member)}
-                  className="bg-slate-900 rounded-xl p-3 border border-slate-800 flex-row items-center justify-between active:opacity-70"
-                >
-                  <View className="flex-row items-center flex-1">
-                    <View className="w-10 h-10 rounded-full bg-purple-500/20 border-2 border-purple-500 items-center justify-center mr-3">
-                      <Text className="text-purple-400 font-bold">
-                        {member.name.charAt(0)}
-                      </Text>
+              {execs.map(member => {
+                const aiAgentCount = AI_AGENTS.filter(agent =>
+                  Array.isArray(agent.usedBy) &&
+                  (agent.usedBy.includes(member.id) ||
+                   agent.usedBy.includes('All team members'))
+                ).length;
+
+                return (
+                  <Pressable
+                    key={member.id}
+                    onPress={() => setSelectedMember(member)}
+                    className="bg-slate-900 rounded-xl p-3 border border-slate-800 flex-row items-center justify-between active:opacity-70"
+                  >
+                    <View className="flex-row items-center flex-1">
+                      <View className="w-10 h-10 rounded-full bg-purple-500/20 border-2 border-purple-500 items-center justify-center mr-3">
+                        <Text className="text-purple-400 font-bold">
+                          {member.name.charAt(0)}
+                        </Text>
+                      </View>
+                      <View className="flex-1">
+                        <View className="flex-row items-center gap-2 mb-1">
+                          <Text className="text-white font-semibold">{member.name}</Text>
+                          {aiAgentCount > 0 && (
+                            <View className="bg-blue-500 rounded-full w-5 h-5 items-center justify-center">
+                              <Text className="text-white text-[10px] font-bold">{aiAgentCount}</Text>
+                            </View>
+                          )}
+                        </View>
+                        <Text className="text-slate-400 text-xs">
+                          {member.function} • {member.manages?.length || 0} reports
+                        </Text>
+                      </View>
                     </View>
-                    <View className="flex-1">
-                      <Text className="text-white font-semibold">{member.name}</Text>
-                      <Text className="text-slate-400 text-xs">
-                        {member.function} • {member.manages?.length || 0} reports
-                      </Text>
-                    </View>
-                  </View>
-                  <ChevronRight size={20} color="#64748b" />
-                </Pressable>
-              ))}
+                    <ChevronRight size={20} color="#64748b" />
+                  </Pressable>
+                );
+              })}
             </View>
           </View>
 
@@ -371,6 +438,12 @@ export default function OrgDiagramScreen() {
             <View className="gap-2">
               {apprentices.map(member => {
                 const manager = ORGANIZATION_MEMBERS.find(m => m.id === member.reportsTo);
+                const aiAgentCount = AI_AGENTS.filter(agent =>
+                  Array.isArray(agent.usedBy) &&
+                  (agent.usedBy.includes(member.id) ||
+                   agent.usedBy.includes('All team members'))
+                ).length;
+
                 return (
                   <Pressable
                     key={member.id}
@@ -384,7 +457,14 @@ export default function OrgDiagramScreen() {
                         </Text>
                       </View>
                       <View className="flex-1">
-                        <Text className="text-white font-semibold">{member.name}</Text>
+                        <View className="flex-row items-center gap-2 mb-1">
+                          <Text className="text-white font-semibold">{member.name}</Text>
+                          {aiAgentCount > 0 && (
+                            <View className="bg-blue-500 rounded-full w-5 h-5 items-center justify-center">
+                              <Text className="text-white text-[10px] font-bold">{aiAgentCount}</Text>
+                            </View>
+                          )}
+                        </View>
                         <Text className="text-slate-400 text-xs">
                           {member.function} • Reports to {manager?.name.split(' ')[0]}
                         </Text>
@@ -505,6 +585,80 @@ export default function OrgDiagramScreen() {
                     </View>
                   </View>
                 </View>
+
+                {/* AI Agents Used */}
+                {(() => {
+                  const memberAIAgents = AI_AGENTS.filter(agent =>
+                    Array.isArray(agent.usedBy) &&
+                    (agent.usedBy.includes(selectedMember.id) ||
+                     agent.usedBy.includes('All team members'))
+                  );
+
+                  if (memberAIAgents.length > 0) {
+                    return (
+                      <View className="p-6 border-b border-slate-800">
+                        <View className="flex-row items-center justify-between mb-3">
+                          <View className="flex-row items-center gap-2">
+                            <Bot size={20} color="#3b82f6" />
+                            <Text className="text-white font-semibold">AI Agents Used</Text>
+                          </View>
+                          <View className="bg-blue-500/20 px-2 py-1 rounded-full">
+                            <Text className="text-blue-400 text-xs font-medium">
+                              {memberAIAgents.length}
+                            </Text>
+                          </View>
+                        </View>
+
+                        <View className="gap-2">
+                          {memberAIAgents.map(agent => (
+                            <View
+                              key={agent.id}
+                              className="bg-slate-800 rounded-xl p-3 border border-slate-700"
+                            >
+                              <View className="flex-row items-start justify-between mb-1">
+                                <View className="flex-1">
+                                  <Text className="text-white font-medium text-sm mb-1">
+                                    {agent.name}
+                                  </Text>
+                                  <Text className="text-slate-400 text-xs mb-2">
+                                    {agent.purpose}
+                                  </Text>
+                                  <View className="flex-row items-center gap-2">
+                                    <View className="bg-purple-500/20 px-2 py-1 rounded">
+                                      <Text className="text-purple-400 text-[10px] font-medium">
+                                        {agent.provider}
+                                      </Text>
+                                    </View>
+                                    {agent.functions.slice(0, 2).map((func, idx) => (
+                                      <View key={idx} className="bg-slate-700 px-2 py-1 rounded">
+                                        <Text className="text-slate-300 text-[10px]">{func}</Text>
+                                      </View>
+                                    ))}
+                                  </View>
+                                </View>
+                                <View className="ml-2">
+                                  <Text className="text-blue-400 text-xs font-bold">
+                                    £{agent.costPerMonth}/mo
+                                  </Text>
+                                </View>
+                              </View>
+                            </View>
+                          ))}
+                        </View>
+
+                        <View className="mt-3 bg-blue-500/10 border border-blue-500/30 rounded-xl p-3">
+                          <View className="flex-row items-center justify-between">
+                            <Text className="text-slate-300 text-sm">Total AI Cost:</Text>
+                            <Text className="text-blue-400 font-bold text-lg">
+                              £{memberAIAgents.reduce((sum, agent) => sum + agent.costPerMonth, 0)}/mo
+                            </Text>
+                          </View>
+                        </View>
+                      </View>
+                    );
+                  }
+                  return null;
+                })()}
 
                 {/* Cost Info */}
                 {selectedMember.costPerDay && (
