@@ -15,7 +15,7 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
 
 ## 🚨 PRODUCTION READINESS STATUS
 
-**Last Updated**: 2026-01-12 (Team Directory Modal Fixed - All Content Scrollable)
+**Last Updated**: 2026-01-12 (Discovery Resources Enhanced - Full CV Cards)
 
 ### Current Status: ✅ **READY FOR APP STORE SUBMISSION**
 
@@ -297,6 +297,19 @@ Centaur OS turns OKRs into work, tracks execution, enables review workflows, and
   - **Legend**: Clear indication of what each node type represents
 - **Team Hiring System (Founder-Only)** - Browse and hire talent to build your team (Located in Network tab)
   - **30 Fractional Executives**: Senior leaders in Sales, Marketing, Finance, Engineering, and Operations
+  - **30 Apprentices**: Junior talent across all functions ready to execute
+  - **Full CV-Style Cards**: Comprehensive information displayed directly in browsable cards
+    - **Header Section**: Large avatar, name, star rating (4.0-5.0), specializations
+    - **Quick Stats Bar**: Daily rate (£400-£1200), availability (immediate/1-2 weeks)
+    - **Professional Summary**: Detailed bio with 3-4 sentences about expertise and background
+    - **Education**: Degree, institution, and field of study
+    - **Key Skills**: Up to 8 skills displayed as tags (with +X more indicator)
+    - **Certifications**: Professional certifications with colored badges
+    - **Key Achievements**: Bullet points of major accomplishments with checkmarks
+    - **Previous Companies**: Work history shown with building icons
+    - **Contact Information**: Email, phone, and location with colored icon badges
+  - **Detailed Modal View**: Tap any card to see full profile with scrollable content
+  - **Fixed Header Modal**: Name, avatar, and rating stay visible while scrolling details
   - **30 Apprentices**: Junior talent eager to learn and execute across all business functions
   - **Detailed Profiles**: View experience, ratings, daily rates, availability, skills, and previous companies
   - **Search & Filter**: Find candidates by name, specialization, or skills

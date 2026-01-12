@@ -1148,61 +1148,165 @@ function HiringTab() {
       </Text>
 
       {/* Candidates List */}
-      <View className="gap-3 pb-6">
+      <View className="gap-4 pb-6">
         {filteredCandidates.map((candidate) => (
           <Pressable
             key={candidate.id}
             onPress={() => setSelectedCandidate(candidate)}
-            className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-4 border border-gray-300 dark:border-slate-800 active:opacity-70"
+            className="bg-gray-100 dark:bg-slate-900 rounded-2xl border border-gray-300 dark:border-slate-800 overflow-hidden active:opacity-70"
           >
-            <View className="flex-row items-start">
-              {/* Avatar */}
-              <View
-                className="w-14 h-14 rounded-full items-center justify-center mr-3"
-                style={{ backgroundColor: candidate.avatarColor + '20' }}
-              >
-                <Text
-                  className="text-xl font-bold"
-                  style={{ color: candidate.avatarColor }}
+            {/* Header Section */}
+            <View className="p-4 border-b border-gray-300 dark:border-slate-800">
+              <View className="flex-row items-start">
+                {/* Avatar */}
+                <View
+                  className="w-16 h-16 rounded-full items-center justify-center mr-3"
+                  style={{ backgroundColor: candidate.avatarColor + '20' }}
                 >
-                  {candidate.name.charAt(0)}
-                </Text>
-              </View>
-
-              {/* Info */}
-              <View className="flex-1">
-                <View className="flex-row items-center justify-between mb-1">
-                  <Text className="text-gray-900 dark:text-white font-bold text-base">{candidate.name}</Text>
-                  <View className="flex-row items-center">
-                    <Star size={14} color="#f59e0b" fill="#f59e0b" />
-                    <Text className="text-gray-700 dark:text-slate-300 text-sm ml-1">{candidate.rating}</Text>
-                  </View>
+                  <Text
+                    className="text-2xl font-bold"
+                    style={{ color: candidate.avatarColor }}
+                  >
+                    {candidate.name.charAt(0)}
+                  </Text>
                 </View>
 
-                <Text className="text-gray-600 dark:text-slate-400 text-xs mb-2">
-                  {candidate.specialization.join(' • ')} • {candidate.experience}y exp
-                </Text>
+                {/* Header Info */}
+                <View className="flex-1">
+                  <View className="flex-row items-center justify-between mb-1">
+                    <Text className="text-gray-900 dark:text-white font-bold text-lg">{candidate.name}</Text>
+                    <View className="flex-row items-center">
+                      <Star size={16} color="#f59e0b" fill="#f59e0b" />
+                      <Text className="text-gray-700 dark:text-slate-300 text-base ml-1 font-semibold">{candidate.rating}</Text>
+                    </View>
+                  </View>
 
-                <Text className="text-gray-700 dark:text-slate-300 text-sm mb-3" numberOfLines={2}>
-                  {candidate.bio}
-                </Text>
+                  <Text className="text-gray-600 dark:text-slate-400 text-sm mb-2">
+                    {candidate.specialization.join(' • ')}
+                  </Text>
 
-                <View className="flex-row items-center justify-between">
                   <View className="flex-row items-center gap-3">
                     <View className="flex-row items-center">
-                      <DollarSign size={14} color="#10b981" />
-                      <Text className="text-emerald-400 text-sm font-semibold">
-                        £{candidate.costPerDay}/day
-                      </Text>
-                    </View>
-                    <View className="flex-row items-center">
-                      <CalendarCheck size={14} color="#3b82f6" />
-                      <Text className="text-blue-400 text-xs ml-1">
-                        {candidate.availability}
+                      <Award size={14} color="#64748b" />
+                      <Text className="text-gray-600 dark:text-slate-400 text-xs ml-1">
+                        {candidate.experience}y experience
                       </Text>
                     </View>
                   </View>
                 </View>
+              </View>
+            </View>
+
+            {/* Quick Stats Bar */}
+            <View className="flex-row bg-gray-200 dark:bg-slate-950 border-b border-gray-300 dark:border-slate-800">
+              <View className="flex-1 p-3 border-r border-gray-300 dark:border-slate-800">
+                <Text className="text-gray-600 dark:text-slate-500 text-[10px] mb-0.5 uppercase font-semibold">Rate</Text>
+                <Text className="text-emerald-400 text-sm font-bold">£{candidate.costPerDay}/day</Text>
+              </View>
+              <View className="flex-1 p-3">
+                <Text className="text-gray-600 dark:text-slate-500 text-[10px] mb-0.5 uppercase font-semibold">Available</Text>
+                <Text className="text-blue-400 text-xs font-semibold">{candidate.availability}</Text>
+              </View>
+            </View>
+
+            {/* Professional Summary */}
+            <View className="p-4 border-b border-gray-300 dark:border-slate-800">
+              <Text className="text-gray-900 dark:text-white font-semibold text-sm mb-2">Professional Summary</Text>
+              <Text className="text-gray-700 dark:text-slate-300 text-sm leading-5">
+                {candidate.bio}
+              </Text>
+            </View>
+
+            {/* Education */}
+            {candidate.education && (
+              <View className="p-4 border-b border-gray-300 dark:border-slate-800">
+                <Text className="text-gray-900 dark:text-white font-semibold text-sm mb-2">Education</Text>
+                <Text className="text-gray-700 dark:text-slate-300 text-sm">{candidate.education}</Text>
+              </View>
+            )}
+
+            {/* Key Skills */}
+            <View className="p-4 border-b border-gray-300 dark:border-slate-800">
+              <Text className="text-gray-900 dark:text-white font-semibold text-sm mb-2">Key Skills</Text>
+              <View className="flex-row flex-wrap gap-2">
+                {candidate.skills.slice(0, 8).map((skill, idx) => (
+                  <View key={idx} className="bg-blue-500/20 px-2.5 py-1 rounded-lg">
+                    <Text className="text-blue-400 text-xs font-medium">{skill}</Text>
+                  </View>
+                ))}
+                {candidate.skills.length > 8 && (
+                  <View className="bg-gray-300 dark:bg-slate-800 px-2.5 py-1 rounded-lg">
+                    <Text className="text-gray-600 dark:text-slate-400 text-xs font-medium">+{candidate.skills.length - 8} more</Text>
+                  </View>
+                )}
+              </View>
+            </View>
+
+            {/* Certifications */}
+            {candidate.certifications && candidate.certifications.length > 0 && (
+              <View className="p-4 border-b border-gray-300 dark:border-slate-800">
+                <Text className="text-gray-900 dark:text-white font-semibold text-sm mb-2">Certifications</Text>
+                <View className="flex-row flex-wrap gap-2">
+                  {candidate.certifications.map((cert, idx) => (
+                    <View key={idx} className="bg-purple-500/20 px-2.5 py-1 rounded-lg">
+                      <Text className="text-purple-400 text-xs font-medium">{cert}</Text>
+                    </View>
+                  ))}
+                </View>
+              </View>
+            )}
+
+            {/* Key Achievements */}
+            {candidate.achievements && candidate.achievements.length > 0 && (
+              <View className="p-4 border-b border-gray-300 dark:border-slate-800">
+                <Text className="text-gray-900 dark:text-white font-semibold text-sm mb-2">Key Achievements</Text>
+                <View className="gap-2">
+                  {candidate.achievements.map((achievement, idx) => (
+                    <View key={idx} className="flex-row items-start">
+                      <CheckCircle size={14} color="#10b981" style={{ marginTop: 2, marginRight: 6 }} />
+                      <Text className="text-gray-700 dark:text-slate-300 text-sm flex-1 leading-5">{achievement}</Text>
+                    </View>
+                  ))}
+                </View>
+              </View>
+            )}
+
+            {/* Previous Experience */}
+            <View className="p-4 border-b border-gray-300 dark:border-slate-800">
+              <Text className="text-gray-900 dark:text-white font-semibold text-sm mb-2">Previous Companies</Text>
+              <View className="flex-row flex-wrap gap-2">
+                {candidate.previousCompanies.map((company, idx) => (
+                  <View key={idx} className="bg-gray-300 dark:bg-slate-800 px-3 py-1.5 rounded-lg flex-row items-center">
+                    <Building2 size={12} color="#64748b" />
+                    <Text className="text-gray-700 dark:text-slate-300 text-xs font-medium ml-1.5">{company}</Text>
+                  </View>
+                ))}
+              </View>
+            </View>
+
+            {/* Contact Info */}
+            <View className="p-4 bg-gray-50 dark:bg-slate-950">
+              <Text className="text-gray-900 dark:text-white font-semibold text-sm mb-3">Contact Information</Text>
+
+              <View className="flex-row items-center mb-2">
+                <View className="w-8 h-8 bg-blue-500/20 rounded-lg items-center justify-center mr-2">
+                  <Mail size={14} color="#3b82f6" />
+                </View>
+                <Text className="text-gray-700 dark:text-slate-300 text-sm flex-1">{candidate.email}</Text>
+              </View>
+
+              <View className="flex-row items-center mb-2">
+                <View className="w-8 h-8 bg-emerald-500/20 rounded-lg items-center justify-center mr-2">
+                  <Phone size={14} color="#10b981" />
+                </View>
+                <Text className="text-gray-700 dark:text-slate-300 text-sm flex-1">{candidate.phone}</Text>
+              </View>
+
+              <View className="flex-row items-center">
+                <View className="w-8 h-8 bg-purple-500/20 rounded-lg items-center justify-center mr-2">
+                  <MapPin size={14} color="#8b5cf6" />
+                </View>
+                <Text className="text-gray-700 dark:text-slate-300 text-sm flex-1">{candidate.location}</Text>
               </View>
             </View>
           </Pressable>
@@ -1219,43 +1323,48 @@ function HiringTab() {
       </View>
 
       {/* Candidate Detail Modal */}
-      <Modal visible={selectedCandidate !== null} transparent animationType="slide">
+      <Modal visible={selectedCandidate !== null} transparent animationType="slide" onRequestClose={() => setSelectedCandidate(null)}>
         <View className="flex-1 bg-black/70 justify-end">
           {selectedCandidate && (
             <View className="bg-gray-100 dark:bg-slate-900 rounded-t-3xl" style={{ maxHeight: '90%' }}>
-              <ScrollView showsVerticalScrollIndicator={false}>
-                <View className="p-6">
-                  {/* Header */}
-                  <View className="flex-row items-start justify-between mb-6">
-                    <View className="flex-1">
-                      <View
-                        className="w-20 h-20 rounded-full items-center justify-center mb-3"
-                        style={{ backgroundColor: selectedCandidate.avatarColor + '20' }}
-                      >
-                        <Text
-                          className="text-3xl font-bold"
-                          style={{ color: selectedCandidate.avatarColor }}
-                        >
-                          {selectedCandidate.name.charAt(0)}
-                        </Text>
-                      </View>
-                      <Text className="text-gray-900 dark:text-white text-2xl font-bold mb-1">
-                        {selectedCandidate.name}
-                      </Text>
-                      <Text className="text-gray-600 dark:text-slate-400 text-sm mb-2">
-                        {selectedCandidate.specialization.join(' • ')}
-                      </Text>
-                      <View className="flex-row items-center">
-                        <Star size={16} color="#f59e0b" fill="#f59e0b" />
-                        <Text className="text-gray-700 dark:text-slate-300 text-base ml-1 font-semibold">
-                          {selectedCandidate.rating} rating
-                        </Text>
-                      </View>
-                    </View>
-                    <Pressable onPress={() => setSelectedCandidate(null)}>
-                      <X size={24} color="#94a3b8" />
-                    </Pressable>
+              {/* Fixed Header */}
+              <View className="px-6 pt-6 pb-4 border-b border-gray-300 dark:border-slate-800 flex-row justify-between items-center">
+                <View className="flex-1 flex-row items-center">
+                  <View
+                    className="w-14 h-14 rounded-full items-center justify-center mr-3"
+                    style={{ backgroundColor: selectedCandidate.avatarColor + '20' }}
+                  >
+                    <Text
+                      className="text-xl font-bold"
+                      style={{ color: selectedCandidate.avatarColor }}
+                    >
+                      {selectedCandidate.name.charAt(0)}
+                    </Text>
                   </View>
+                  <View className="flex-1">
+                    <Text className="text-gray-900 dark:text-white text-xl font-bold mb-1">
+                      {selectedCandidate.name}
+                    </Text>
+                    <View className="flex-row items-center">
+                      <Star size={14} color="#f59e0b" fill="#f59e0b" />
+                      <Text className="text-gray-700 dark:text-slate-300 text-sm ml-1 font-semibold">
+                        {selectedCandidate.rating} rating
+                      </Text>
+                    </View>
+                  </View>
+                </View>
+                <Pressable onPress={() => setSelectedCandidate(null)}>
+                  <X size={24} color="#94a3b8" />
+                </Pressable>
+              </View>
+
+              {/* Scrollable Content */}
+              <ScrollView showsVerticalScrollIndicator={true} bounces={false} className="flex-1">
+                <View className="p-6">
+                  {/* Specialization */}
+                  <Text className="text-gray-600 dark:text-slate-400 text-sm mb-4">
+                    {selectedCandidate.specialization.join(' • ')}
+                  </Text>
 
                   {/* Stats */}
                   <View className="flex-row gap-3 mb-6">
