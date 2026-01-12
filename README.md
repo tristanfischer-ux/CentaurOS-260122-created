@@ -23,7 +23,7 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
 ✅ **TypeScript**: Perfect (0 errors) - All type-safe
 ✅ **UI/UX**: A+ (98/100) - Apple HIG compliant, beautiful design
 ✅ **Themes**: 4 modes (Dark, Light, Off-White, System) - Complete support
-✅ **Features**: 19 major features - Fully functional
+✅ **Features**: 20 major features - Fully functional
 ✅ **RBAC**: A+ (100/100) - Perfect implementation
 ✅ **Navigation**: A+ (100/100) - 27 screens, all working perfectly
 ✅ **Onboarding**: Complete role-based system implemented
@@ -298,7 +298,24 @@ Centaur OS turns OKRs into work, tracks execution, enables review workflows, and
   - **Location Details**: See exact addresses and cities (Birmingham, Leeds, Manchester, 2x London)
   - **Map Markers**: Tap any supplier on the map to view full engagement details
   - **Geographic Overview**: Visual understanding of supply chain distribution across the country
-- **AI Agents by Function** - 36 AI agents organized by business function (£7,334/month total)
+- **AI Agents Library (Founder-Only)** - 37 specialized AI agents for business automation
+  - **7 Categories**: Engineering, Product, Marketing, Design, Project Management, Studio Operations, Testing
+  - **Engineering (6 agents)**: Frontend Developer, Backend Architect, Mobile App Builder, AI Engineer, DevOps Automator, Rapid Prototyper
+  - **Product (3 agents)**: Trend Researcher, Feedback Synthesizer, Sprint Prioritizer
+  - **Marketing (7 agents)**: TikTok Strategist, Instagram Curator, Twitter Engager, Reddit Community Builder, App Store Optimizer, Content Creator, Growth Hacker
+  - **Design (5 agents)**: UI Designer, UX Researcher, Brand Guardian, Visual Storyteller, Whimsy Injector
+  - **Project Management (3 agents)**: Experiment Tracker, Project Shipper, Studio Producer
+  - **Studio Operations (5 agents)**: Support Responder, Analytics Reporter, Infrastructure Maintainer, Legal Compliance Checker, Finance Tracker
+  - **Testing (5 agents)**: Tool Evaluator, API Tester, Workflow Optimizer, Performance Benchmarker, Test Results Analyzer
+  - **Agent Details**: Each agent shows expertise, tools, output format, approval requirements, and estimated cost per task
+  - **Category Filtering**: Browse all agents or filter by specific category
+  - **Detailed Profiles**: View full agent capabilities, expertise areas, available tools, and output formats
+  - **Deployment Interface**: Configure agent goals, constraints, and API requirements before deployment
+  - **Cost Transparency**: Clear cost estimates ranging from £0.20 to £8.00 per task depending on complexity
+  - **Approval Workflow**: Some agents require human approval for quality and safety (clearly marked)
+  - **API Integration**: Agents that need API access link to API configuration tab
+  - **Visual Organization**: Color-coded categories with unique icons for easy navigation
+- **Legacy AI Agents by Function** - 36 third-party AI tools organized by business function (£7,334/month total)
   - **Finance (3 agents - £1,000/mo)**: Vic AI (invoice processing), Digits AI (bookkeeping), Gemini Pro (analysis)
   - **Sales (4 agents - £1,649/mo)**: 11x Alice (AI SDR), Gong AI (call analysis), Clay AI (lead enrichment), ElevenLabs (voiceovers)
   - **Marketing (6 agents - £890/mo)**: Jasper AI (content), Copy.ai (copy), Midjourney (imagery), DALL-E 3 (graphics), Perplexity (research), Runway (video)
@@ -308,14 +325,7 @@ Centaur OS turns OKRs into work, tracks execution, enables review workflows, and
   - **Design & Manufacturing (6 agents - £1,580/mo)**: Autodesk Fusion AI (generative CAD design), Monolith AI (FEA simulation), Diagram AI (PCB design), Manufacturing GPT (DFM optimization), Spline AI (3D visualization), Quality AI Inspector (quality control)
   - **Function-Based Filtering**: Filter by Finance, Sales, Marketing, Ops, Engineering, Admin, or Design & Manufacturing
   - **Visual Organization**: Agents grouped by function with emoji icons (💰📈📣⚙️💻📋🏭) and color coding
-  - **Agent Count Badges**: See how many agents available per function at a glance
-  - **Team Member Usage Tracking**: See which team members (Founders, Executives, Apprentices) use each AI agent
-  - **Website Links**: Direct access to each AI agent's official website for more information
-  - **Workflow-Oriented**: "Need marketing? Select Marketing execs, apprentices, and AI agents together"
-  - **Detailed Agent Profiles**: View capabilities, integrations, usage stats, and costs per agent
-  - **Onboarding Flow**: Add new AI agents with custom monthly cost tracking
-  - **Search & Filter**: Find agents by name, purpose, or capability across all functions
-  - **Modal Views Fixed**: Tappable AI agent and supplier cards now display full details in properly positioned bottom-sheet modals
+  - **Modal Views**: Tappable AI agent and supplier cards display full details in properly positioned bottom-sheet modals
 - **OKR Management** - Create, edit, and delete objectives with real-time progress tracking
   - **Full Objective Management (Founder-Only)**:
     - Create new objectives with title, description, and date ranges
