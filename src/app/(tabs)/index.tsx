@@ -28,6 +28,8 @@ import {
   Package,
   Settings,
   X,
+  Lightbulb,
+  Zap,
 } from "lucide-react-native";
 import {
   useCurrentWorkspace,
@@ -64,6 +66,7 @@ export default function HomeScreen() {
   const [detailsType, setDetailsType] = useState<
     "revenue" | "profit" | "burn" | "runway" | null
   >(null);
+  const [showScenarioPlanningModal, setShowScenarioPlanningModal] = useState(false);
 
   const financials = CURRENT_FINANCIALS;
   const ratios = calculateFinancialRatios(financials);
@@ -130,18 +133,29 @@ export default function HomeScreen() {
               <Text className="text-white text-lg font-semibold">
                 Financial Dashboard
               </Text>
-              <Pressable
-                onPress={() => {
-                  setEditingBudget(budget);
-                  setShowBudgetModal(true);
-                }}
-                className="active:opacity-70"
-              >
-                <View className="flex-row items-center gap-1">
-                  <Settings size={16} color="#3b82f6" />
-                  <Text className="text-blue-500 text-sm">Budget</Text>
-                </View>
-              </Pressable>
+              <View className="flex-row items-center gap-3">
+                <Pressable
+                  onPress={() => setShowScenarioPlanningModal(true)}
+                  className="active:opacity-70"
+                >
+                  <View className="flex-row items-center gap-1 bg-blue-500/20 px-3 py-1.5 rounded-lg">
+                    <Lightbulb size={16} color="#3b82f6" />
+                    <Text className="text-blue-400 text-sm font-semibold">Planning</Text>
+                  </View>
+                </Pressable>
+                <Pressable
+                  onPress={() => {
+                    setEditingBudget(budget);
+                    setShowBudgetModal(true);
+                  }}
+                  className="active:opacity-70"
+                >
+                  <View className="flex-row items-center gap-1">
+                    <Settings size={16} color="#64748b" />
+                    <Text className="text-slate-400 text-sm">Budget</Text>
+                  </View>
+                </Pressable>
+              </View>
             </View>
 
             {/* Key Metrics Grid */}
@@ -697,7 +711,6 @@ export default function HomeScreen() {
             </View>
 
             <ScrollView
-              style={{ flex: 1 }}
               className="px-6 py-4"
               showsVerticalScrollIndicator={false}
             >
@@ -890,7 +903,6 @@ export default function HomeScreen() {
             </View>
 
             <ScrollView
-              style={{ flex: 1 }}
               className="px-6 py-4"
               showsVerticalScrollIndicator={false}
             >
@@ -1456,6 +1468,225 @@ export default function HomeScreen() {
                   </View>
                 </View>
               )}
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Scenario Planning Modal */}
+      <Modal visible={showScenarioPlanningModal} transparent animationType="slide">
+        <View className="flex-1 bg-black/50 justify-end">
+          <View className="bg-slate-900 rounded-t-3xl" style={{ maxHeight: "90%" }}>
+            <View className="flex-row items-center justify-between p-6 pb-4 border-b border-slate-800">
+              <View className="flex-row items-center gap-2">
+                <Lightbulb size={24} color="#3b82f6" />
+                <Text className="text-white text-xl font-bold">Scenario Planning</Text>
+              </View>
+              <Pressable
+                onPress={() => setShowScenarioPlanningModal(false)}
+                className="active:opacity-70"
+              >
+                <X size={24} color="#64748b" />
+              </Pressable>
+            </View>
+
+            <ScrollView
+              className="px-6 py-4"
+              showsVerticalScrollIndicator={false}
+            >
+              {/* Current Situation */}
+              <View className="mb-6">
+                <Text className="text-white text-lg font-semibold mb-3">Current Situation</Text>
+                <View className="bg-slate-800 rounded-xl p-4">
+                  <View className="flex-row justify-between mb-2">
+                    <Text className="text-slate-400">Monthly Revenue</Text>
+                    <Text className="text-white font-semibold">£{(financials.revenue.total / 1000).toFixed(0)}k</Text>
+                  </View>
+                  <View className="flex-row justify-between mb-2">
+                    <Text className="text-slate-400">Monthly Burn Rate</Text>
+                    <Text className="text-white font-semibold">£{(financials.burnRate / 1000).toFixed(1)}k</Text>
+                  </View>
+                  <View className="flex-row justify-between mb-2">
+                    <Text className="text-slate-400">Cash Balance</Text>
+                    <Text className="text-white font-semibold">£{(financials.cashBalance / 1000).toFixed(0)}k</Text>
+                  </View>
+                  <View className="flex-row justify-between">
+                    <Text className="text-slate-400">Current Runway</Text>
+                    <Text className="text-amber-400 font-bold">{financials.runway.toFixed(1)} months</Text>
+                  </View>
+                </View>
+              </View>
+
+              {/* Scenario 1: Increase Revenue */}
+              <View className="mb-6">
+                <View className="flex-row items-center gap-2 mb-3">
+                  <View className="w-8 h-8 rounded-full bg-emerald-500/20 items-center justify-center">
+                    <Text className="text-emerald-400 font-bold">1</Text>
+                  </View>
+                  <Text className="text-white text-lg font-semibold">Increase Revenue by 30%</Text>
+                </View>
+                <View className="bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-4">
+                  <View className="mb-3">
+                    <Text className="text-emerald-400 font-semibold mb-2">Target: £{((financials.revenue.total * 1.3) / 1000).toFixed(0)}k/month</Text>
+                    <Text className="text-slate-300 text-sm mb-3">
+                      Increase from £{(financials.revenue.total / 1000).toFixed(0)}k to £{((financials.revenue.total * 1.3) / 1000).toFixed(0)}k per month
+                    </Text>
+                  </View>
+
+                  <View className="bg-slate-900 rounded-lg p-3 mb-3">
+                    <Text className="text-white font-semibold mb-2">Impact:</Text>
+                    <View className="flex-row items-center gap-2 mb-1">
+                      <Zap size={14} color="#10b981" />
+                      <Text className="text-slate-300 text-sm">New Runway: {((financials.cashBalance + (financials.revenue.total * 1.3 - financials.revenue.total)) / financials.burnRate).toFixed(1)} months (+{(((financials.cashBalance + (financials.revenue.total * 1.3 - financials.revenue.total)) / financials.burnRate) - financials.runway).toFixed(1)} months)</Text>
+                    </View>
+                    <View className="flex-row items-center gap-2">
+                      <DollarSign size={14} color="#10b981" />
+                      <Text className="text-slate-300 text-sm">Additional £{((financials.revenue.total * 0.3) / 1000).toFixed(1)}k/month</Text>
+                    </View>
+                  </View>
+
+                  <Text className="text-slate-400 text-sm font-semibold mb-2">How to achieve:</Text>
+                  <View className="gap-2">
+                    <View className="flex-row items-start gap-2">
+                      <Text className="text-emerald-400 mt-0.5">•</Text>
+                      <Text className="text-slate-300 text-sm flex-1">Increase sales team capacity (hire 2 more sales reps)</Text>
+                    </View>
+                    <View className="flex-row items-start gap-2">
+                      <Text className="text-emerald-400 mt-0.5">•</Text>
+                      <Text className="text-slate-300 text-sm flex-1">Launch new product line with higher margins</Text>
+                    </View>
+                    <View className="flex-row items-start gap-2">
+                      <Text className="text-emerald-400 mt-0.5">•</Text>
+                      <Text className="text-slate-300 text-sm flex-1">Increase prices by 10-15% for existing customers</Text>
+                    </View>
+                    <View className="flex-row items-start gap-2">
+                      <Text className="text-emerald-400 mt-0.5">•</Text>
+                      <Text className="text-slate-300 text-sm flex-1">Expand into 2 new geographic markets</Text>
+                    </View>
+                  </View>
+                </View>
+              </View>
+
+              {/* Scenario 2: Reduce Burn Rate */}
+              <View className="mb-6">
+                <View className="flex-row items-center gap-2 mb-3">
+                  <View className="w-8 h-8 rounded-full bg-blue-500/20 items-center justify-center">
+                    <Text className="text-blue-400 font-bold">2</Text>
+                  </View>
+                  <Text className="text-white text-lg font-semibold">Reduce Burn Rate by 20%</Text>
+                </View>
+                <View className="bg-blue-500/10 border border-blue-500/30 rounded-xl p-4">
+                  <View className="mb-3">
+                    <Text className="text-blue-400 font-semibold mb-2">Target: £{((financials.burnRate * 0.8) / 1000).toFixed(1)}k/month</Text>
+                    <Text className="text-slate-300 text-sm mb-3">
+                      Reduce from £{(financials.burnRate / 1000).toFixed(1)}k to £{((financials.burnRate * 0.8) / 1000).toFixed(1)}k per month
+                    </Text>
+                  </View>
+
+                  <View className="bg-slate-900 rounded-lg p-3 mb-3">
+                    <Text className="text-white font-semibold mb-2">Impact:</Text>
+                    <View className="flex-row items-center gap-2 mb-1">
+                      <Zap size={14} color="#3b82f6" />
+                      <Text className="text-slate-300 text-sm">New Runway: {(financials.cashBalance / (financials.burnRate * 0.8)).toFixed(1)} months (+{((financials.cashBalance / (financials.burnRate * 0.8)) - financials.runway).toFixed(1)} months)</Text>
+                    </View>
+                    <View className="flex-row items-center gap-2">
+                      <DollarSign size={14} color="#3b82f6" />
+                      <Text className="text-slate-300 text-sm">Save £{((financials.burnRate * 0.2) / 1000).toFixed(1)}k/month</Text>
+                    </View>
+                  </View>
+
+                  <Text className="text-slate-400 text-sm font-semibold mb-2">How to achieve:</Text>
+                  <View className="gap-2">
+                    <View className="flex-row items-start gap-2">
+                      <Text className="text-blue-400 mt-0.5">•</Text>
+                      <Text className="text-slate-300 text-sm flex-1">Negotiate better rates with suppliers (-£5k/month)</Text>
+                    </View>
+                    <View className="flex-row items-start gap-2">
+                      <Text className="text-blue-400 mt-0.5">•</Text>
+                      <Text className="text-slate-300 text-sm flex-1">Reduce AI agent costs by consolidating tools (-£1.5k/month)</Text>
+                    </View>
+                    <View className="flex-row items-start gap-2">
+                      <Text className="text-blue-400 mt-0.5">•</Text>
+                      <Text className="text-slate-300 text-sm flex-1">Optimize team structure (move 1 exec to part-time) (-£4k/month)</Text>
+                    </View>
+                    <View className="flex-row items-start gap-2">
+                      <Text className="text-blue-400 mt-0.5">•</Text>
+                      <Text className="text-slate-300 text-sm flex-1">Reduce office/software expenses (-£2k/month)</Text>
+                    </View>
+                  </View>
+                </View>
+              </View>
+
+              {/* Scenario 3: Combined Approach */}
+              <View className="mb-6">
+                <View className="flex-row items-center gap-2 mb-3">
+                  <View className="w-8 h-8 rounded-full bg-purple-500/20 items-center justify-center">
+                    <Text className="text-purple-400 font-bold">3</Text>
+                  </View>
+                  <Text className="text-white text-lg font-semibold">Combined: +15% Revenue, -10% Burn</Text>
+                </View>
+                <View className="bg-purple-500/10 border border-purple-500/30 rounded-xl p-4">
+                  <View className="mb-3">
+                    <Text className="text-purple-400 font-semibold mb-2">Balanced Growth Strategy</Text>
+                    <Text className="text-slate-300 text-sm mb-3">
+                      Revenue: £{((financials.revenue.total * 1.15) / 1000).toFixed(0)}k/month | Burn: £{((financials.burnRate * 0.9) / 1000).toFixed(1)}k/month
+                    </Text>
+                  </View>
+
+                  <View className="bg-slate-900 rounded-lg p-3 mb-3">
+                    <Text className="text-white font-semibold mb-2">Impact:</Text>
+                    <View className="flex-row items-center gap-2 mb-1">
+                      <Zap size={14} color="#a855f7" />
+                      <Text className="text-slate-300 text-sm">New Runway: {((financials.cashBalance + (financials.revenue.total * 0.15)) / (financials.burnRate * 0.9)).toFixed(1)} months (+{(((financials.cashBalance + (financials.revenue.total * 0.15)) / (financials.burnRate * 0.9)) - financials.runway).toFixed(1)} months)</Text>
+                    </View>
+                    <View className="flex-row items-center gap-2">
+                      <DollarSign size={14} color="#a855f7" />
+                      <Text className="text-slate-300 text-sm">Net improvement: £{(((financials.revenue.total * 0.15) + (financials.burnRate * 0.1)) / 1000).toFixed(1)}k/month</Text>
+                    </View>
+                  </View>
+
+                  <Text className="text-slate-400 text-sm font-semibold mb-2">Recommended actions:</Text>
+                  <View className="gap-2">
+                    <View className="flex-row items-start gap-2">
+                      <Text className="text-purple-400 mt-0.5">•</Text>
+                      <Text className="text-slate-300 text-sm flex-1">Focus on existing customers for upsells (quick wins)</Text>
+                    </View>
+                    <View className="flex-row items-start gap-2">
+                      <Text className="text-purple-400 mt-0.5">•</Text>
+                      <Text className="text-slate-300 text-sm flex-1">Optimize supplier contracts and AI tools</Text>
+                    </View>
+                    <View className="flex-row items-start gap-2">
+                      <Text className="text-purple-400 mt-0.5">•</Text>
+                      <Text className="text-slate-300 text-sm flex-1">Hire 1 sales rep instead of 2 (balanced growth)</Text>
+                    </View>
+                    <View className="flex-row items-start gap-2">
+                      <Text className="text-purple-400 mt-0.5">•</Text>
+                      <Text className="text-slate-300 text-sm flex-1">Implement cost controls while maintaining quality</Text>
+                    </View>
+                  </View>
+                </View>
+              </View>
+
+              {/* Break-even Analysis */}
+              <View className="mb-4">
+                <Text className="text-white text-lg font-semibold mb-3">Break-even Target</Text>
+                <View className="bg-slate-800 rounded-xl p-4">
+                  <Text className="text-slate-300 text-sm mb-3">
+                    To reach break-even (£0 net burn), you need:
+                  </Text>
+                  <View className="bg-emerald-500/10 border border-emerald-500/30 rounded-lg p-3 mb-2">
+                    <Text className="text-emerald-400 font-bold text-lg mb-1">
+                      £{((financials.burnRate) / 1000).toFixed(1)}k/month revenue
+                    </Text>
+                    <Text className="text-slate-300 text-xs">
+                      This is {((financials.burnRate / financials.revenue.total - 1) * 100).toFixed(0)}% more than current revenue
+                    </Text>
+                  </View>
+                  <Text className="text-slate-400 text-xs mt-2">
+                    💡 Tip: Most hardware startups reach break-even 18-24 months after product launch. Focus on unit economics and customer acquisition cost.
+                  </Text>
+                </View>
+              </View>
             </ScrollView>
           </View>
         </View>
