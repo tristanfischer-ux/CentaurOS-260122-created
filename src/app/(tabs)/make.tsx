@@ -30,10 +30,12 @@ import {
   type AIAgent,
 } from '@/lib/organization-seed';
 import { TabDescription } from '@/components/TabDescription';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 type MakeTab = 'suppliers' | 'ai';
 
 export default function MakeScreen() {
+  const insets = useSafeAreaInsets();
   const currentMembership = useCurrentMembership();
 
   const [activeTab, setActiveTab] = useState<MakeTab>('suppliers');
@@ -66,7 +68,7 @@ export default function MakeScreen() {
   ];
 
   return (
-    <View className="flex-1 bg-white dark:bg-slate-950">
+    <View className="flex-1 bg-white dark:bg-slate-950" style={{ paddingTop: insets.top }}>
       <TabDescription description="AI tools, suppliers, manufacturers, and bill of materials (BOM) tracking for your hardware product." />
 
       {/* Header with stats */}

@@ -6,8 +6,10 @@ import { useState } from 'react';
 import type { ThemeMode } from '@/types';
 import { resetOnboarding } from '@/lib/onboarding';
 import { TabDescription } from '@/components/TabDescription';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function SettingsScreen() {
+  const insets = useSafeAreaInsets();
   const currentUser = useCurrentUser();
   const currentMembership = useCurrentMembership();
   const logout = useAppStore((s) => s.logout);
@@ -159,7 +161,7 @@ export default function SettingsScreen() {
   ];
 
   return (
-    <ScrollView className="flex-1 bg-white dark:bg-slate-950">
+    <ScrollView className="flex-1 bg-white dark:bg-slate-950" style={{ paddingTop: insets.top }}>
       <TabDescription description="Manage your account preferences, theme settings, workspace controls, and app information." />
 
       <View className="p-4">
