@@ -1251,6 +1251,34 @@ export const getTotalAISpend = (): number => {
   );
 };
 
+// Calculate total team cost
+export const getTotalTeamCost = (): {
+  total: number;
+  founders: number;
+  execs: number;
+  apprentices: number;
+} => {
+  const founders = ORGANIZATION_MEMBERS.filter(m => m.role === 'Founder' && m.status === 'active');
+  const execs = ORGANIZATION_MEMBERS.filter(m => m.role === 'FractionalExec' && m.status === 'active');
+  const apprentices = ORGANIZATION_MEMBERS.filter(m => m.role === 'Apprentice' && m.status === 'active');
+
+  // Founders typically don't have daily costs in this model
+  const foundersTotal = 0;
+
+  // Execs are calculated per day - assume 2-3 days/week, so roughly 10 days/month
+  const execsTotal = execs.reduce((sum, m) => sum + (m.costPerDay || 0) * 10, 0);
+
+  // Apprentices are full-time - assume 20 working days/month
+  const apprenticesTotal = apprentices.reduce((sum, m) => sum + (m.costPerDay || 0) * 20, 0);
+
+  return {
+    total: foundersTotal + execsTotal + apprenticesTotal,
+    founders: foundersTotal,
+    execs: execsTotal,
+    apprentices: apprenticesTotal,
+  };
+};
+
 // Calculate total supplier spend
 export const getTotalSupplierSpend = (): {
   total: number;

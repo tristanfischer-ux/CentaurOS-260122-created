@@ -29,6 +29,7 @@ import {
   AI_AGENTS,
   getTotalAISpend,
   getTotalSupplierSpend,
+  getTotalTeamCost,
   type OrganizationMember,
   type SupplierEngagement,
   type AIAgent,
@@ -80,6 +81,7 @@ export default function OrganizationScreen() {
 
   const supplierSpend = getTotalSupplierSpend();
   const aiSpend = getTotalAISpend();
+  const teamCost = getTotalTeamCost();
 
   const tabs: { value: OrgTab; label: string; icon: any }[] = [
     { value: 'structure', label: 'Structure', icon: Users },
@@ -101,8 +103,8 @@ export default function OrganizationScreen() {
           <View className="flex-1 bg-slate-900 rounded-xl p-3 border border-slate-800">
             <Text className="text-slate-400 text-xs mb-1">Team</Text>
             <Text className="text-white text-xl font-bold">{ORGANIZATION_MEMBERS.length}</Text>
-            <Text className="text-slate-500 text-[10px] mt-0.5">
-              {founders.length}F • {execs.length}E • {apprentices.length}A
+            <Text className="text-blue-400 text-[10px] mt-0.5 font-semibold">
+              £{(teamCost.total / 1000).toFixed(0)}k/mo
             </Text>
           </View>
 
@@ -190,29 +192,36 @@ export default function OrganizationScreen() {
                       </View>
 
                       <View className="flex-1">
-                        <Pressable
-                          onPress={() => toggleExecExpansion(exec.id)}
-                          className="bg-slate-900 rounded-xl p-3 border border-slate-800 mb-2 active:opacity-80"
-                        >
-                          <View className="flex-row items-center justify-between">
-                            <View className="flex-1">
-                              <Text className="text-white font-semibold text-sm mb-1">
-                                {exec.name}
-                              </Text>
-                              <Text className="text-blue-400 text-xs mb-1">
-                                {exec.function} • £{exec.costPerDay}/day
-                              </Text>
-                              <Text className="text-slate-500 text-[10px]">
-                                Managing {getReports(exec.id).length} apprentices
-                              </Text>
+                        <View className="bg-slate-900 rounded-xl p-3 border border-slate-800 mb-2">
+                          <Pressable
+                            onPress={() => toggleExecExpansion(exec.id)}
+                            className="active:opacity-80"
+                          >
+                            <View className="flex-row items-center justify-between">
+                              <Pressable
+                                onPress={() => setSelectedMember(exec)}
+                                className="flex-1 active:opacity-70"
+                              >
+                                <Text className="text-white font-semibold text-sm mb-1">
+                                  {exec.name}
+                                </Text>
+                                <Text className="text-blue-400 text-xs mb-1">
+                                  {exec.function} • £{exec.costPerDay}/day
+                                </Text>
+                                <Text className="text-slate-500 text-[10px]">
+                                  Managing {getReports(exec.id).length} apprentices
+                                </Text>
+                              </Pressable>
+                              <View className="ml-2">
+                                {expandedExecs.includes(exec.id) ? (
+                                  <ChevronDown size={20} color="#94a3b8" />
+                                ) : (
+                                  <ChevronRight size={20} color="#94a3b8" />
+                                )}
+                              </View>
                             </View>
-                            {expandedExecs.includes(exec.id) ? (
-                              <ChevronDown size={20} color="#94a3b8" />
-                            ) : (
-                              <ChevronRight size={20} color="#94a3b8" />
-                            )}
-                          </View>
-                        </Pressable>
+                          </Pressable>
+                        </View>
 
                         {/* Apprentices reporting to this exec */}
                         {expandedExecs.includes(exec.id) &&
@@ -563,13 +572,15 @@ export default function OrganizationScreen() {
                     <Mail size={18} color="#fff" />
                     <Text className="text-white font-semibold">Email</Text>
                   </Pressable>
-                  <Pressable
-                    onPress={() => Linking.openURL(`tel:${selectedMember.phone}`)}
-                    className="bg-emerald-500 py-3 rounded-xl flex-row items-center justify-center gap-2 active:opacity-80"
-                  >
-                    <Phone size={18} color="#fff" />
-                    <Text className="text-white font-semibold">Call</Text>
-                  </Pressable>
+                  {selectedMember.phone && (
+                    <Pressable
+                      onPress={() => Linking.openURL(`tel:${selectedMember.phone}`)}
+                      className="bg-emerald-500 py-3 rounded-xl flex-row items-center justify-center gap-2 active:opacity-80"
+                    >
+                      <Phone size={18} color="#fff" />
+                      <Text className="text-white font-semibold">Call</Text>
+                    </Pressable>
+                  )}
                 </View>
               </ScrollView>
             </View>
