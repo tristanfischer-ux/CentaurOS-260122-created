@@ -43,7 +43,7 @@ import {
   compareRolePerformance,
 } from '@/lib/performance-analytics';
 
-type OrgTab = 'structure' | 'suppliers' | 'ai' | 'performance';
+type OrgTab = 'structure' | 'team' | 'suppliers' | 'ai' | 'performance';
 
 export default function OrganizationScreen() {
   const currentWorkspace = useCurrentWorkspace();
@@ -128,6 +128,7 @@ export default function OrganizationScreen() {
 
   const tabs: { value: OrgTab; label: string; icon: any }[] = [
     { value: 'structure', label: 'Structure', icon: Users },
+    { value: 'team', label: 'Team', icon: Users },
     { value: 'performance', label: 'Performance', icon: BarChart3 },
     { value: 'suppliers', label: 'Suppliers', icon: Package },
     { value: 'ai', label: 'AI Agents', icon: Cpu },
@@ -297,6 +298,127 @@ export default function OrganizationScreen() {
                   </View>
                 ))}
               </View>
+            ))}
+          </View>
+        )}
+
+        {/* Team Directory Tab */}
+        {activeTab === 'team' && (
+          <View className="px-6 pb-6">
+            <Text className="text-gray-900 dark:text-white text-base font-semibold mb-4">
+              Team Directory ({ORGANIZATION_MEMBERS.length})
+            </Text>
+
+            {/* Founders */}
+            <Text className="text-gray-600 dark:text-slate-400 text-sm font-semibold mb-2 mt-4">
+              Founders ({ORGANIZATION_MEMBERS.filter(m => m.role === 'Founder').length})
+            </Text>
+            {ORGANIZATION_MEMBERS.filter(m => m.role === 'Founder').map(member => (
+              <Pressable
+                key={member.id}
+                onPress={() => setSelectedMember(member)}
+                className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-4 border border-gray-300 dark:border-slate-800 mb-3 active:opacity-70"
+              >
+                <View className="flex-row items-center justify-between">
+                  <View className="flex-1">
+                    <Text className="text-gray-900 dark:text-white font-bold text-base mb-1">
+                      {member.name}
+                    </Text>
+                    <Text className="text-gray-600 dark:text-slate-400 text-sm">
+                      {member.function}
+                    </Text>
+                  </View>
+                  <View className="bg-blue-500/20 px-3 py-1 rounded-lg">
+                    <Text className="text-blue-400 text-xs font-semibold">Founder</Text>
+                  </View>
+                </View>
+                <View className="flex-row items-center mt-2 gap-3">
+                  <Mail size={14} color="#64748b" />
+                  <Text className="text-gray-600 dark:text-slate-400 text-xs flex-1">
+                    {member.email}
+                  </Text>
+                </View>
+              </Pressable>
+            ))}
+
+            {/* Fractional Executives */}
+            <Text className="text-gray-600 dark:text-slate-400 text-sm font-semibold mb-2 mt-4">
+              Fractional Executives ({ORGANIZATION_MEMBERS.filter(m => m.role === 'FractionalExec').length})
+            </Text>
+            {ORGANIZATION_MEMBERS.filter(m => m.role === 'FractionalExec').map(member => (
+              <Pressable
+                key={member.id}
+                onPress={() => setSelectedMember(member)}
+                className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-4 border border-gray-300 dark:border-slate-800 mb-3 active:opacity-70"
+              >
+                <View className="flex-row items-center justify-between">
+                  <View className="flex-1">
+                    <Text className="text-gray-900 dark:text-white font-bold text-base mb-1">
+                      {member.name}
+                    </Text>
+                    <Text className="text-gray-600 dark:text-slate-400 text-sm">
+                      {member.function}
+                    </Text>
+                  </View>
+                  <View className="bg-purple-500/20 px-3 py-1 rounded-lg">
+                    <Text className="text-purple-400 text-xs font-semibold">Executive</Text>
+                  </View>
+                </View>
+                <View className="flex-row items-center mt-2 gap-3">
+                  <Mail size={14} color="#64748b" />
+                  <Text className="text-gray-600 dark:text-slate-400 text-xs flex-1">
+                    {member.email}
+                  </Text>
+                </View>
+                {member.costPerDay && (
+                  <View className="flex-row items-center mt-1 gap-3">
+                    <DollarSign size={14} color="#10b981" />
+                    <Text className="text-emerald-400 text-xs">
+                      £{member.costPerDay}/day
+                    </Text>
+                  </View>
+                )}
+              </Pressable>
+            ))}
+
+            {/* Apprentices */}
+            <Text className="text-gray-600 dark:text-slate-400 text-sm font-semibold mb-2 mt-4">
+              Apprentices ({ORGANIZATION_MEMBERS.filter(m => m.role === 'Apprentice').length})
+            </Text>
+            {ORGANIZATION_MEMBERS.filter(m => m.role === 'Apprentice').map(member => (
+              <Pressable
+                key={member.id}
+                onPress={() => setSelectedMember(member)}
+                className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-4 border border-gray-300 dark:border-slate-800 mb-3 active:opacity-70"
+              >
+                <View className="flex-row items-center justify-between">
+                  <View className="flex-1">
+                    <Text className="text-gray-900 dark:text-white font-bold text-base mb-1">
+                      {member.name}
+                    </Text>
+                    <Text className="text-gray-600 dark:text-slate-400 text-sm">
+                      {member.function}
+                    </Text>
+                  </View>
+                  <View className="bg-emerald-500/20 px-3 py-1 rounded-lg">
+                    <Text className="text-emerald-400 text-xs font-semibold">Apprentice</Text>
+                  </View>
+                </View>
+                <View className="flex-row items-center mt-2 gap-3">
+                  <Mail size={14} color="#64748b" />
+                  <Text className="text-gray-600 dark:text-slate-400 text-xs flex-1">
+                    {member.email}
+                  </Text>
+                </View>
+                {member.costPerDay && (
+                  <View className="flex-row items-center mt-1 gap-3">
+                    <DollarSign size={14} color="#10b981" />
+                    <Text className="text-emerald-400 text-xs">
+                      £{member.costPerDay}/day
+                    </Text>
+                  </View>
+                )}
+              </Pressable>
             ))}
           </View>
         )}

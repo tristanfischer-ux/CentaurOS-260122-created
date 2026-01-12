@@ -78,12 +78,11 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => <TabBarIcon Icon={Briefcase} color={color} />,
         }}
       />
+      {/* Team tab removed - team directory integrated into Organization tab */}
       <Tabs.Screen
         name="team"
         options={{
-          title: 'Team',
-          headerTitle: 'Team Directory',
-          tabBarIcon: ({ color }) => <TabBarIcon Icon={Users} color={color} />,
+          href: null, // Hide from tab bar
         }}
       />
       <Tabs.Screen
