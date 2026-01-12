@@ -177,6 +177,20 @@ Centaur OS turns OKRs into work, tracks execution, enables review workflows, and
   - **Quick Navigation**: Tap any result to jump to the relevant screen
   - **Smart Filtering**: Searches across names, descriptions, emails, and more
   - **Top 5 per Category**: Shows most relevant 5 results per data type
+- **Learning & Onboarding (Founder/Exec-Only)** - Track apprentice growth and development
+  - **Skills Matrix**: Track proficiency levels across technical, soft, and domain skills
+  - **Skill Levels**: Beginner, Intermediate, Advanced, Expert with progress tracking (0-100%)
+  - **Skill Categories**: Technical (CAD, Python, etc.), Soft Skills (Communication, PM), Domain Knowledge (Hardware Design)
+  - **Training Modules**: Assign and track completion of courses and certifications
+  - **Training Categories**: Design, Engineering, Management courses
+  - **Course Links**: Direct links to learning platforms (Autodesk, Python.org, etc.)
+  - **Performance Reviews**: Quarterly reviews with 5-category ratings (Quality, Speed, Communication, Initiative, Learning)
+  - **Review Components**: Strengths, Areas for Growth, Next Quarter Goals, Reviewer Notes
+  - **Star Ratings**: 1-5 star ratings per category with overall average
+  - **Progress Tracking**: Tasks completed, average rating, join date
+  - **Career Development**: Visual skill progression and growth paths
+  - **Multi-View Interface**: Toggle between Skills, Training, and Reviews
+  - **Accessible from Team Tab**: Green "Learning" button for Founders and Executives
 - **Data Management (Founder-Only)** - Bulk import and export with Google Sheets integration
   - **Google Sheets Sync**: Two-way synchronization with Google Sheets for automatic data updates
   - **CSV Import/Export**: Import and export all data types as CSV files

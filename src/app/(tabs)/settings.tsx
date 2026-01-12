@@ -309,6 +309,13 @@ export default function SettingsScreen() {
                       Founder-only bulk import and export system. Two-way sync with Google Sheets for automatic data updates. Import/export Tasks, OKRs, Team Members, Suppliers, AI Agents, and Financial Data as CSV files. Works with Excel, Google Sheets, and any CSV editor.
                     </Text>
                   </View>
+
+                  <View className="mb-3">
+                    <Text className="text-gray-900 dark:text-white font-semibold mb-1">🎓 Learning & Onboarding</Text>
+                    <Text className="text-gray-700 dark:text-slate-400 text-sm">
+                      Track apprentice growth and development. Skills matrix with proficiency levels (Beginner to Expert). Training modules with course links and completion tracking. Quarterly performance reviews with 5-category ratings, strengths, areas for growth, and career goals. Available to Founders and Executives from Team tab.
+                    </Text>
+                  </View>
                 </View>
 
                 {/* Organizational Philosophy */}

@@ -10,6 +10,7 @@ import {
   X,
   CheckCircle2,
   Network,
+  GraduationCap,
 } from 'lucide-react-native';
 import { useCurrentWorkspace, useCurrentMembership } from '@/lib/state/app-store';
 import { useCreateTask, useWorkspaceMembers } from '@/lib/hooks/queries';
@@ -404,14 +405,28 @@ export default function TeamScreen() {
         <View className="flex-row justify-between items-center mb-4">
           <Text className="text-white text-2xl font-bold">Team Directory</Text>
 
-          {/* Org Diagram Button */}
-          <Pressable
-            onPress={() => router.push('/org-diagram')}
-            className="bg-blue-500 px-4 py-2 rounded-xl flex-row items-center active:opacity-80"
-          >
-            <Network size={16} color="white" />
-            <Text className="text-white text-sm font-semibold ml-2">Org Chart</Text>
-          </Pressable>
+          {/* Action Buttons */}
+          <View className="flex-row gap-2">
+            {/* Learning Button - Founders/Execs Only */}
+            {(currentMembership?.role === 'Founder' || currentMembership?.role === 'FractionalExec') && (
+              <Pressable
+                onPress={() => router.push('/learning')}
+                className="bg-emerald-500 px-4 py-2 rounded-xl flex-row items-center active:opacity-80"
+              >
+                <GraduationCap size={16} color="white" />
+                <Text className="text-white text-sm font-semibold ml-2">Learning</Text>
+              </Pressable>
+            )}
+
+            {/* Org Chart Button */}
+            <Pressable
+              onPress={() => router.push('/org-diagram')}
+              className="bg-blue-500 px-4 py-2 rounded-xl flex-row items-center active:opacity-80"
+            >
+              <Network size={16} color="white" />
+              <Text className="text-white text-sm font-semibold ml-2">Org Chart</Text>
+            </Pressable>
+          </View>
         </View>
 
         {/* Stats Cards */}
