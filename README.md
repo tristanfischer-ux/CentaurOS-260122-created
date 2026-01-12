@@ -17,6 +17,19 @@ Centaur OS turns OKRs into work, tracks execution, enables review workflows, and
 
 ### Key Features
 
+- **Authentication System** - Simple and secure user authentication
+  - **Sign Up**: Create a new account with name, email, and workspace name
+    - Email validation to ensure proper format
+    - Duplicate email detection
+    - Automatically creates user and workspace
+    - Sets user as Founder with Admin function
+  - **Sign In**: Email-based authentication for existing users
+    - Works with newly created accounts
+    - Demo accounts for quick testing (Founder, Apprentice, Exec)
+    - Clear error messages for invalid credentials
+  - **Navigation**: Seamless flow between sign in and sign up screens
+  - **Mock Authentication**: Uses token-based auth for demo purposes
+  - **Persistent Session**: State stored in AsyncStorage (via Zustand)
 - **Daily Engagement & Motivation** - Built to drive daily active usage with compelling features
   - **Streak Tracking**: Track consecutive days of task completion with visual fire emoji indicator
     - Shows current streak and personal best (longest streak)

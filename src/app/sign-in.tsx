@@ -24,11 +24,10 @@ export default function SignInScreen() {
     setError('');
 
     try {
-      // Simulate magic link auth - in a real app, this would send an email
       const user = await userApi.getByEmail(email.toLowerCase());
 
       if (!user) {
-        setError('No account found with this email. Please check the demo accounts.');
+        setError('No account found with this email. Please sign up or use a demo account.');
         setIsLoading(false);
         return;
       }
@@ -147,6 +146,18 @@ export default function SignInScreen() {
                 <Text className="text-slate-400 text-xs">exec@fractional.com</Text>
               </Pressable>
             </View>
+          </View>
+
+          {/* Sign Up Link */}
+          <View className="mt-6 flex-row items-center justify-center">
+            <Text className="text-slate-400 text-sm">Don't have an account? </Text>
+            <Pressable
+              onPress={() => router.push('/sign-up')}
+              disabled={isLoading}
+              className="active:opacity-70"
+            >
+              <Text className="text-blue-400 font-semibold text-sm">Sign Up</Text>
+            </Pressable>
           </View>
         </View>
       </LinearGradient>
