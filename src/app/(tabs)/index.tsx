@@ -196,10 +196,10 @@ export default function HomeScreen() {
             {stats.kpiTiles?.map((tile, index) => {
               // Determine route based on tile label
               const getRouteForTile = (label: string) => {
-                if (label === 'Active Objectives') return '/(tabs)/okrs';
+                if (label === 'Active Objectives') return '/(tabs)/decide';
                 if (label === 'Completed This Week') return '/kpi-details?type=completed';
                 if (label === 'In Progress') return '/kpi-details?type=in_progress';
-                if (label === 'Pending Reviews') return '/(tabs)/reviews';
+                if (label === 'Pending Reviews') return '/(tabs)/evaluate';
                 return null;
               };
 
@@ -244,7 +244,7 @@ export default function HomeScreen() {
             <View className="flex-row flex-wrap gap-3">
               {/* OKR Health */}
               <Pressable
-                onPress={() => router.push('/(tabs)/okrs')}
+                onPress={() => router.push('/(tabs)/decide')}
                 className="flex-1 min-w-[155px] active:opacity-70"
               >
                 <LinearGradient
@@ -322,7 +322,7 @@ export default function HomeScreen() {
 
               {/* Team Capacity */}
               <Pressable
-                onPress={() => router.push('/(tabs)/work')}
+                onPress={() => router.push('/(tabs)/do')}
                 className="flex-1 min-w-[155px] active:opacity-70"
               >
                 <LinearGradient
@@ -361,7 +361,7 @@ export default function HomeScreen() {
 
               {/* Supplier Health */}
               <Pressable
-                onPress={() => router.push('/(tabs)/network')}
+                onPress={() => router.push('/(tabs)/make')}
                 className="flex-1 min-w-[155px] active:opacity-70"
               >
                 <LinearGradient
@@ -779,7 +779,7 @@ export default function HomeScreen() {
                 Key Results
               </Text>
               <Pressable
-                onPress={() => router.push("/(tabs)/okrs")}
+                onPress={() => router.push("/(tabs)/decide")}
                 className="active:opacity-70"
               >
                 <Text className="text-blue-500 text-sm">View all</Text>
@@ -798,7 +798,7 @@ export default function HomeScreen() {
                 return (
                   <Pressable
                     key={kr.krId}
-                    onPress={() => router.push("/(tabs)/okrs")}
+                    onPress={() => router.push("/(tabs)/decide")}
                     className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-4 border border-gray-300 dark:border-slate-800 active:opacity-70"
                   >
                     <View className="flex-row items-start justify-between mb-2">
@@ -833,7 +833,7 @@ export default function HomeScreen() {
                   Your Tasks
                 </Text>
                 <Pressable
-                  onPress={() => router.push("/(tabs)/work")}
+                  onPress={() => router.push("/(tabs)/do")}
                   className="active:opacity-70"
                 >
                   <Text className="text-blue-500 text-sm">View all</Text>
@@ -860,7 +860,7 @@ export default function HomeScreen() {
                   return (
                     <Pressable
                       key={task.id}
-                      onPress={() => router.push("/(tabs)/work")}
+                      onPress={() => router.push("/(tabs)/do")}
                       className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-4 border border-gray-300 dark:border-slate-800 active:opacity-70"
                     >
                       <View className="flex-row items-start justify-between">
@@ -901,7 +901,7 @@ export default function HomeScreen() {
                   Review Queue
                 </Text>
                 <Pressable
-                  onPress={() => router.push("/(tabs)/reviews")}
+                  onPress={() => router.push("/(tabs)/evaluate")}
                   className="active:opacity-70"
                 >
                   <Text className="text-blue-500 text-sm">View all</Text>
@@ -911,7 +911,7 @@ export default function HomeScreen() {
                 {stats.reviewQueue.slice(0, 3).map((review: any) => (
                   <Pressable
                     key={review.id}
-                    onPress={() => router.push("/(tabs)/reviews")}
+                    onPress={() => router.push("/(tabs)/evaluate")}
                     className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-4 border border-gray-300 dark:border-slate-800 active:opacity-70"
                   >
                     <View className="flex-row items-center justify-between">
@@ -939,7 +939,7 @@ export default function HomeScreen() {
           </Text>
           <View className="gap-3">
             <Pressable
-              onPress={() => router.push("/(tabs)/okrs")}
+              onPress={() => router.push("/(tabs)/decide")}
               className="bg-gradient-to-r from-blue-600 to-blue-500 rounded-2xl p-4 flex-row items-center justify-between active:opacity-70"
             >
               <LinearGradient
@@ -963,7 +963,7 @@ export default function HomeScreen() {
             </Pressable>
 
             <Pressable
-              onPress={() => router.push("/(tabs)/work")}
+              onPress={() => router.push("/(tabs)/do")}
               className="bg-gradient-to-r from-purple-600 to-purple-500 rounded-2xl p-4 flex-row items-center justify-between active:opacity-70"
             >
               <LinearGradient

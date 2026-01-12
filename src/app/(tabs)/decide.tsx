@@ -313,9 +313,9 @@ export default function OKRsScreen() {
 
       Alert.alert(
         'Tasks Created!',
-        `${tasksToCreate.length} task${tasksToCreate.length !== 1 ? 's' : ''} created successfully. View them in the Work tab.`,
+        `${tasksToCreate.length} task${tasksToCreate.length !== 1 ? 's' : ''} created successfully. View them in the Do tab.`,
         [
-          { text: 'View Tasks', onPress: () => router.push('/(tabs)/work') },
+          { text: 'View Tasks', onPress: () => router.push('/(tabs)/do') },
           { text: 'Stay Here', style: 'cancel' }
         ]
       );
@@ -497,7 +497,7 @@ export default function OKRsScreen() {
                 <View className="flex-row gap-2">
                   {linkedTasks.length > 0 && (
                     <Pressable
-                      onPress={() => router.push('/(tabs)/work')}
+                      onPress={() => router.push('/(tabs)/do')}
                       className="flex-1 bg-blue-50 dark:bg-blue-900/20 rounded-xl p-3 flex-row items-center justify-between active:opacity-70"
                     >
                       <View className="flex-row items-center gap-2">
