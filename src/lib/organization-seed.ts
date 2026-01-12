@@ -9,7 +9,7 @@ export interface OrganizationMember {
   reportsTo?: string; // ID of who they report to
   manages?: string[]; // IDs of people they manage
   email: string;
-  phone: string;
+  phone?: string;
   costPerDay?: number;
   startDate: string;
   status: 'active' | 'inactive';
