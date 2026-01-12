@@ -15,7 +15,7 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
 
 ## 🚨 PRODUCTION READINESS STATUS
 
-**Last Updated**: 2026-01-12 (**FULL WORKFLOW RESTRUCTURE COMPLETE** - Function-based OKRs, Work Plan System, Role-specific views, Community Onboarding)
+**Last Updated**: 2026-01-12 (**HOME SCREEN REDESIGNED** - Role-specific views for Founder/Executive/Apprentice with clear perspective identification)
 
 ### Current Status: ✅ **READY FOR APP STORE SUBMISSION**
 
@@ -74,6 +74,7 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
 - SafeArea handling on all screens
 
 **✅ Feature Completeness:**
+- Home tab: **Role-specific dashboards** (Founder: command center with company oversight, Executive: function dashboard with apprentice tracking and resources, Apprentice: task-focused with OKR context and team visibility)
 - Decide tab: Function-based OKRs (Marketing, Sales, Engineering, Ops, Finance, Admin), Expandable objectives, Progress tracking, Approval queue for resource requests
 - Evaluate tab: Work plan creation, OKR linking, Apprentice allocation, Progress monitoring, Submission review workflow
 - Do tab: Role-specific views (Apprentice: assigned work, Founder: all by function, Executive: their work), Progress reporting, Work submission
