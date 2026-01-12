@@ -27,7 +27,16 @@ export default function SettingsScreen() {
     // Simulate export
     Alert.alert(
       'Export Successful',
-      `${dataType} data exported to Downloads folder as ${dataType.toLowerCase()}_export.csv`,
+      `${dataType} data exported to Downloads folder as ${dataType.toLowerCase().replace(/ /g, '_')}_export.csv`,
+      [{ text: 'OK' }]
+    );
+  };
+
+  const handleDownloadTemplate = (dataType: string) => {
+    // Simulate template download
+    Alert.alert(
+      'Template Downloaded',
+      `${dataType} CSV template downloaded to Downloads folder as ${dataType.toLowerCase().replace(/ /g, '_')}_template.csv\n\nThis template includes all required columns with example data to help you format your import file correctly.`,
       [{ text: 'OK' }]
     );
   };
@@ -40,6 +49,10 @@ export default function SettingsScreen() {
       [
         { text: 'Cancel', style: 'cancel' },
         {
+          text: 'Download Template',
+          onPress: () => handleDownloadTemplate(dataType),
+        },
+        {
           text: 'Select File',
           onPress: () => {
             Alert.alert('Success', `${dataType} data imported successfully. 15 records added.`);
@@ -51,17 +64,38 @@ export default function SettingsScreen() {
 
   const handleGoogleSheetsSync = async () => {
     setSyncStatus('syncing');
-    // Simulate sync
+
+    // Simulate real sync process
     setTimeout(() => {
+      // In a real app, this would:
+      // 1. Authenticate with Google Sheets API
+      // 2. Upload all data from the app to specified sheets
+      // 3. Download any updates from sheets back to app
+      // 4. Resolve conflicts if any
+
       setSyncStatus('success');
-      setTimeout(() => setSyncStatus('idle'), 2000);
-    }, 1500);
+      Alert.alert(
+        'Sync Complete',
+        'All data synchronized with Google Sheets:\n\n' +
+        '✓ Tasks (234 records)\n' +
+        '✓ OKRs (12 objectives, 45 key results)\n' +
+        '✓ Team Members (13 people)\n' +
+        '✓ Suppliers (30 companies)\n' +
+        '✓ AI Agents (36 tools)\n' +
+        '✓ Financial Data (12 months)',
+        [{ text: 'OK', onPress: () => setTimeout(() => setSyncStatus('idle'), 500) }]
+      );
+    }, 2000);
   };
 
   const handleOpenGoogleSheets = () => {
     Alert.alert(
-      'Connect Google Sheets',
-      'To connect Google Sheets:\n\n1. Create a new Google Sheet\n2. Share it with centauros@workspace.com\n3. Paste the sheet URL in the sync settings\n\nWould you like to open Google Sheets now?',
+      'Google Sheets Integration',
+      'To sync your data with Google Sheets:\n\n' +
+      '1. Create a new Google Sheet or use an existing one\n' +
+      '2. The sheet will be automatically populated with your data\n' +
+      '3. Any changes in the sheet will sync back to Centaur OS\n\n' +
+      'Would you like to open Google Sheets now?',
       [
         { text: 'Cancel', style: 'cancel' },
         {
@@ -434,6 +468,35 @@ export default function SettingsScreen() {
                 <Text className="text-gray-600 dark:text-slate-400 text-sm mb-4">
                   Import and export data as CSV files. Perfect for Excel, Google Sheets, or any spreadsheet tool.
                 </Text>
+
+                {/* Download Templates Section */}
+                <View className="bg-blue-500/10 border-2 border-blue-500/30 rounded-xl p-4 mb-4">
+                  <View className="flex-row items-center gap-2 mb-2">
+                    <Download size={18} color="#3b82f6" />
+                    <Text className="text-gray-900 dark:text-white font-semibold">Download CSV Templates</Text>
+                  </View>
+                  <Text className="text-gray-600 dark:text-slate-400 text-xs mb-3">
+                    Get pre-formatted templates with all required columns and example data
+                  </Text>
+                  <View className="flex-row flex-wrap gap-2">
+                    {[
+                      'Tasks',
+                      'OKRs',
+                      'Team Members',
+                      'Suppliers',
+                      'AI Agents',
+                      'Financial Data',
+                    ].map((type) => (
+                      <Pressable
+                        key={type}
+                        onPress={() => handleDownloadTemplate(type)}
+                        className="bg-blue-500 px-3 py-2 rounded-lg active:opacity-70"
+                      >
+                        <Text className="text-white text-xs font-semibold">{type}</Text>
+                      </Pressable>
+                    ))}
+                  </View>
+                </View>
 
                 {/* Data Type Cards */}
                 {[
