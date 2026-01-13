@@ -5,35 +5,23 @@ import { router } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import {
   X,
-  Sword,
-  Shield,
-  Wrench,
-  Heart,
-  Zap,
   Users,
   Plus,
   Crown,
   ChevronRight,
-  Sparkles,
-  Target,
+  DollarSign,
+  Trash2,
 } from 'lucide-react-native';
 import { useAppStore } from '@/lib/state/app-store';
 import { useOrganizationStore } from '@/lib/state/organization-store';
 import { useArmoryStore, useSquadsByWorkspace } from '@/lib/state/armory-store';
 import type { OrganizationMember, AIAgent } from '@/lib/organization-seed';
 import type { EquipmentSlot } from '@/types';
-import { getRecommendedToolsForMember, calculateTotalPower } from '@/lib/armory/recommendations';
+import { getRecommendedToolsForMember } from '@/lib/armory/recommendations';
 import { getToolEffects } from '@/lib/armory/tool-effects';
 import { cn } from '@/lib/cn';
 
 type TabType = 'loadouts' | 'squads';
-
-const SLOT_INFO = {
-  weapon: { icon: Sword, label: 'Weapon', description: 'Primary AI tool' },
-  armor: { icon: Shield, label: 'Armor', description: 'Quality & verification' },
-  utility: { icon: Wrench, label: 'Utility', description: 'Automation & ops' },
-  support: { icon: Heart, label: 'Support', description: 'Communication & docs' },
-};
 
 export default function ArmoryScreen() {
   const [activeTab, setActiveTab] = useState<TabType>('loadouts');
@@ -179,7 +167,7 @@ function LoadoutsTab({
           .filter((t): t is AIAgent => t !== undefined)
       : [];
 
-    const totalPower = calculateTotalPower(member, equippedTools);
+    const totalCost = equippedTools.reduce((sum, tool) => sum + tool.costPerMonth, 0);
 
     const roleColor = member.role === 'Founder' ? '#3b82f6' : member.role === 'FractionalExec' ? '#8b5cf6' : '#10b981';
 
@@ -215,10 +203,10 @@ function LoadoutsTab({
           </View>
           <View className="items-end">
             <View className="flex-row items-center gap-1 mb-1">
-              <Zap size={14} color="#fbbf24" />
-              <Text className="text-amber-300 font-black">{totalPower}</Text>
+              <DollarSign size={14} color="#60a5fa" />
+              <Text className="text-blue-300 font-black">£{totalCost}</Text>
             </View>
-            <Text className="text-white/40 text-xs">{equippedCount}/4 equipped</Text>
+            <Text className="text-white/40 text-xs">{equippedCount}/4 tools</Text>
           </View>
         </View>
       </Pressable>
@@ -271,42 +259,42 @@ function CharacterSheetModal({
   canManage: boolean;
   onClose: () => void;
 }) {
-  const [showEquipModal, setShowEquipModal] = useState(false);
-  const [selectedSlot, setSelectedSlot] = useState<EquipmentSlot | null>(null);
+  const [showAddTool, setShowAddTool] = useState(false);
 
   const loadout = useArmoryStore((s) => s.getLoadoutForMember(member.id));
   const setEquippedTool = useArmoryStore((s) => s.setEquippedTool);
   const autoEquipStarterKit = useArmoryStore((s) => s.autoEquipStarterKit);
   const clearLoadout = useArmoryStore((s) => s.clearLoadout);
 
+  // Get all equipped tools across all slots
   const equippedTools = loadout
-    ? Object.entries(loadout.slots)
-        .filter(([_, id]) => id !== null)
-        .map(([slot, id]) => ({
-          slot: slot as EquipmentSlot,
-          tool: aiAgents.find((a) => a.id === id),
-        }))
-        .filter((item): item is { slot: EquipmentSlot; tool: AIAgent } => item.tool !== undefined)
+    ? Object.values(loadout.slots)
+        .filter((id) => id !== null)
+        .map((id) => aiAgents.find((a) => a.id === id))
+        .filter((t): t is AIAgent => t !== undefined)
     : [];
 
-  const totalPower = calculateTotalPower(member, equippedTools.map((e) => e.tool));
+  const totalCost = equippedTools.reduce((sum, tool) => sum + tool.costPerMonth, 0);
   const roleColor = member.role === 'Founder' ? '#3b82f6' : member.role === 'FractionalExec' ? '#8b5cf6' : '#10b981';
 
-  const handleEquipSlot = (slot: EquipmentSlot) => {
-    setSelectedSlot(slot);
-    setShowEquipModal(true);
-  };
+  const handleAddTool = async (toolId: string) => {
+    // Find first empty slot
+    const emptySlot = (['weapon', 'armor', 'utility', 'support'] as EquipmentSlot[]).find(
+      (slot) => !loadout?.slots[slot]
+    );
 
-  const handleEquipTool = async (toolId: string) => {
-    if (selectedSlot) {
-      await setEquippedTool(member.id, selectedSlot, toolId);
-      setShowEquipModal(false);
-      setSelectedSlot(null);
+    if (emptySlot) {
+      await setEquippedTool(member.id, emptySlot, toolId);
+      setShowAddTool(false);
     }
   };
 
-  const handleUnequip = async (slot: EquipmentSlot) => {
-    await setEquippedTool(member.id, slot, null);
+  const handleRemoveTool = async (toolId: string) => {
+    // Find and clear the slot with this tool
+    const slotToRemove = Object.entries(loadout?.slots || {}).find(([_, id]) => id === toolId)?.[0] as EquipmentSlot | undefined;
+    if (slotToRemove) {
+      await setEquippedTool(member.id, slotToRemove, null);
+    }
   };
 
   const handleAutoEquip = async () => {
@@ -317,13 +305,15 @@ function CharacterSheetModal({
     await clearLoadout(member.id);
   };
 
+  const hasEmptySlots = loadout ? Object.values(loadout.slots).some((id) => id === null) : true;
+
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose} statusBarTranslucent>
       <View className="flex-1 bg-black/80 justify-end">
         <View className="bg-slate-900 rounded-t-3xl max-h-[90%]">
           {/* Header */}
           <View className="px-6 py-5 border-b border-white/10 flex-row items-center justify-between">
-            <Text className="text-white text-xl font-black">Character Sheet</Text>
+            <Text className="text-white text-xl font-black">AI Tools</Text>
             <Pressable onPress={onClose} className="w-10 h-10 items-center justify-center rounded-full bg-white/10 active:opacity-70">
               <X size={24} color="white" />
             </Pressable>
@@ -332,17 +322,21 @@ function CharacterSheetModal({
           <ScrollView className="px-6 py-6" showsVerticalScrollIndicator={false}>
             {/* Avatar & Stats */}
             <View className="items-center mb-6">
-              <View className="w-24 h-24 rounded-full items-center justify-center mb-4" style={{ backgroundColor: roleColor }}>
-                <Text className="text-white text-3xl font-black">{member.name.split(' ').map((n) => n[0]).join('')}</Text>
+              <View className="w-20 h-20 rounded-full items-center justify-center mb-3" style={{ backgroundColor: roleColor }}>
+                <Text className="text-white text-2xl font-black">{member.name.split(' ').map((n) => n[0]).join('')}</Text>
               </View>
-              <Text className="text-white text-2xl font-black mb-1">{member.name}</Text>
-              <Text className="text-white/60 text-base mb-3">
+              <Text className="text-white text-xl font-black mb-1">{member.name}</Text>
+              <Text className="text-white/60 text-sm mb-4">
                 {member.role === 'FractionalExec' ? 'Fractional Executive' : member.role} • {member.function}
               </Text>
-              <View className="flex-row items-center gap-2">
-                <Zap size={20} color="#fbbf24" />
-                <Text className="text-amber-300 text-2xl font-black">{totalPower}</Text>
-                <Text className="text-white/40 text-sm">Power</Text>
+
+              {/* Total Cost */}
+              <View className="bg-blue-500/20 border border-blue-500/30 rounded-2xl px-6 py-3">
+                <View className="flex-row items-center gap-2">
+                  <DollarSign size={20} color="#60a5fa" />
+                  <Text className="text-blue-300 text-2xl font-black">£{totalCost}</Text>
+                  <Text className="text-white/40 text-sm">/month</Text>
+                </View>
               </View>
             </View>
 
@@ -350,89 +344,86 @@ function CharacterSheetModal({
             {canManage && (
               <View className="flex-row gap-2 mb-6">
                 <Pressable onPress={handleAutoEquip} className="flex-1 bg-blue-500 rounded-xl py-3 active:opacity-80">
-                  <Text className="text-white font-bold text-center">Auto-Equip Starter Kit</Text>
+                  <Text className="text-white font-bold text-center">Auto-Equip</Text>
                 </Pressable>
-                <Pressable onPress={handleClear} className="bg-red-500/20 rounded-xl px-4 py-3 active:opacity-80">
-                  <Text className="text-red-400 font-bold">Clear</Text>
-                </Pressable>
+                {equippedTools.length > 0 && (
+                  <Pressable onPress={handleClear} className="bg-red-500/20 rounded-xl px-4 py-3 active:opacity-80">
+                    <Text className="text-red-400 font-bold">Clear All</Text>
+                  </Pressable>
+                )}
               </View>
             )}
 
-            {/* Equipment Slots */}
-            <Text className="text-white text-lg font-black mb-3">Equipment Slots</Text>
-            {(['weapon', 'armor', 'utility', 'support'] as EquipmentSlot[]).map((slot) => {
-              const slotInfo = SLOT_INFO[slot];
-              const Icon = slotInfo.icon;
-              const equippedToolId = loadout?.slots[slot];
-              const equippedTool = equippedToolId ? aiAgents.find((a) => a.id === equippedToolId) : null;
-              const toolEffects = equippedTool ? getToolEffects(equippedTool.id) : null;
+            {/* AI Tools List */}
+            <View className="flex-row items-center justify-between mb-3">
+              <Text className="text-white text-lg font-black">AI Tools ({equippedTools.length}/4)</Text>
+              {canManage && hasEmptySlots && (
+                <Pressable onPress={() => setShowAddTool(true)} className="bg-blue-500 rounded-lg px-3 py-2 active:opacity-80">
+                  <Text className="text-white font-bold text-sm">+ Add</Text>
+                </Pressable>
+              )}
+            </View>
 
-              return (
-                <Pressable
-                  key={slot}
-                  onPress={() => canManage && handleEquipSlot(slot)}
-                  disabled={!canManage}
-                  className={cn('bg-white/5 border border-white/10 rounded-2xl p-4 mb-3', canManage && 'active:opacity-70')}
-                >
-                  <View className="flex-row items-center mb-2">
-                    <View className="w-10 h-10 bg-white/10 rounded-xl items-center justify-center mr-3">
-                      <Icon size={20} color="white" />
-                    </View>
-                    <View className="flex-1">
-                      <Text className="text-white font-bold">{slotInfo.label}</Text>
-                      <Text className="text-white/40 text-xs">{slotInfo.description}</Text>
-                    </View>
-                    {canManage && <ChevronRight size={20} color="rgba(255,255,255,0.4)" />}
-                  </View>
-
-                  {equippedTool ? (
-                    <View className="bg-white/5 rounded-xl p-3 mt-2">
-                      <View className="flex-row items-start justify-between mb-2">
-                        <View className="flex-1">
-                          <Text className="text-white font-bold">{equippedTool.name}</Text>
-                          <Text className="text-white/60 text-xs mt-1">{equippedTool.purpose}</Text>
+            {equippedTools.length === 0 ? (
+              <View className="bg-white/5 rounded-2xl p-8 items-center">
+                <Text className="text-white/40 text-center">No AI tools equipped yet</Text>
+                {canManage && (
+                  <Pressable onPress={() => setShowAddTool(true)} className="bg-blue-500 rounded-xl px-6 py-3 mt-4 active:opacity-80">
+                    <Text className="text-white font-bold">Add First Tool</Text>
+                  </Pressable>
+                )}
+              </View>
+            ) : (
+              equippedTools.map((tool) => {
+                const toolEffects = getToolEffects(tool.id);
+                return (
+                  <View key={tool.id} className="bg-white/5 border border-white/10 rounded-2xl p-4 mb-3">
+                    <View className="flex-row items-start justify-between mb-2">
+                      <View className="flex-1 mr-3">
+                        <Text className="text-white font-black text-base">{tool.name}</Text>
+                        <Text className="text-white/60 text-sm mt-1">{tool.purpose}</Text>
+                      </View>
+                      <View className="items-end">
+                        <View className="bg-blue-500/20 px-3 py-1 rounded-lg mb-2">
+                          <Text className="text-blue-300 text-xs font-bold">£{tool.costPerMonth}/mo</Text>
                         </View>
                         {canManage && (
-                          <Pressable onPress={() => handleUnequip(slot)} className="bg-red-500/20 px-3 py-1 rounded-lg active:opacity-70">
-                            <Text className="text-red-400 text-xs font-bold">Unequip</Text>
+                          <Pressable
+                            onPress={() => handleRemoveTool(tool.id)}
+                            className="bg-red-500/20 p-2 rounded-lg active:opacity-70"
+                          >
+                            <Trash2 size={16} color="#f87171" />
                           </Pressable>
                         )}
                       </View>
-                      {toolEffects && (
-                        <View className="flex-row flex-wrap gap-1 mt-2">
-                          {toolEffects.effectTags.map((tag, idx) => (
-                            <View key={idx} className="bg-emerald-500/20 px-2 py-1 rounded">
-                              <Text className="text-emerald-300 text-xs font-bold">{tag}</Text>
-                            </View>
-                          ))}
-                        </View>
-                      )}
                     </View>
-                  ) : (
-                    <View className="bg-white/5 rounded-xl p-3 mt-2 items-center">
-                      <Text className="text-white/40 text-sm">Empty Slot</Text>
-                    </View>
-                  )}
-                </Pressable>
-              );
-            })}
+                    {toolEffects && (
+                      <View className="flex-row flex-wrap gap-1 mt-2">
+                        {toolEffects.effectTags.map((tag, idx) => (
+                          <View key={idx} className="bg-emerald-500/20 px-2 py-1 rounded">
+                            <Text className="text-emerald-300 text-xs font-bold">{tag}</Text>
+                          </View>
+                        ))}
+                      </View>
+                    )}
+                  </View>
+                );
+              })
+            )}
 
             <View className="h-20" />
           </ScrollView>
         </View>
 
-        {/* Equip Tool Modal */}
-        {showEquipModal && selectedSlot && (
-          <EquipToolModal
-            visible={showEquipModal}
-            slot={selectedSlot}
+        {/* Add Tool Modal */}
+        {showAddTool && (
+          <AddToolModal
+            visible={showAddTool}
             member={member}
             aiAgents={aiAgents}
-            onEquip={handleEquipTool}
-            onClose={() => {
-              setShowEquipModal(false);
-              setSelectedSlot(null);
-            }}
+            equippedToolIds={equippedTools.map((t) => t.id)}
+            onAdd={handleAddTool}
+            onClose={() => setShowAddTool(false)}
           />
         )}
       </View>
@@ -440,37 +431,41 @@ function CharacterSheetModal({
   );
 }
 
-// ========== EQUIP TOOL MODAL ==========
+// ========== ADD TOOL MODAL ==========
 
-function EquipToolModal({
+function AddToolModal({
   visible,
-  slot,
   member,
   aiAgents,
-  onEquip,
+  equippedToolIds,
+  onAdd,
   onClose,
 }: {
   visible: boolean;
-  slot: EquipmentSlot;
   member: OrganizationMember;
   aiAgents: AIAgent[];
-  onEquip: (toolId: string) => void;
+  equippedToolIds: string[];
+  onAdd: (toolId: string) => void;
   onClose: () => void;
 }) {
   const [showAllTools, setShowAllTools] = useState(false);
 
   const recommended = getRecommendedToolsForMember(member, aiAgents);
-  const recommendedForSlot = recommended.filter((r) => r.suggestedSlot === slot).slice(0, 5);
-  const allToolsForSlot = aiAgents.filter((t) => t.status === 'active');
+  const availableTools = aiAgents.filter((t) => t.status === 'active' && !equippedToolIds.includes(t.id));
 
-  const toolsToShow = showAllTools ? allToolsForSlot : recommendedForSlot.map((r) => r.tool);
+  const recommendedAvailable = recommended
+    .map((r) => r.tool)
+    .filter((t) => !equippedToolIds.includes(t.id))
+    .slice(0, 5);
+
+  const toolsToShow = showAllTools ? availableTools : recommendedAvailable;
 
   return (
     <Modal visible={visible} transparent animationType="slide" statusBarTranslucent>
       <View className="flex-1 bg-black/90 justify-end">
         <View className="bg-slate-900 rounded-t-3xl max-h-[80%]">
           <View className="px-6 py-5 border-b border-white/10 flex-row items-center justify-between">
-            <Text className="text-white text-xl font-black">Equip {SLOT_INFO[slot].label}</Text>
+            <Text className="text-white text-xl font-black">Add AI Tool</Text>
             <Pressable onPress={onClose} className="w-10 h-10 items-center justify-center rounded-full bg-white/10 active:opacity-70">
               <X size={24} color="white" />
             </Pressable>
@@ -483,35 +478,41 @@ function EquipToolModal({
           </View>
 
           <ScrollView className="px-6 py-2" showsVerticalScrollIndicator={false}>
-            {toolsToShow.map((tool) => {
-              const toolEffects = getToolEffects(tool.id);
-              return (
-                <Pressable
-                  key={tool.id}
-                  onPress={() => onEquip(tool.id)}
-                  className="bg-white/5 border border-white/10 rounded-2xl p-4 mb-3 active:bg-white/10"
-                >
-                  <View className="flex-row items-start justify-between mb-2">
-                    <View className="flex-1">
-                      <Text className="text-white font-black text-base">{tool.name}</Text>
-                      <Text className="text-white/60 text-sm mt-1">{tool.purpose}</Text>
+            {toolsToShow.length === 0 ? (
+              <View className="py-12 items-center">
+                <Text className="text-white/40 text-center">No more tools available</Text>
+              </View>
+            ) : (
+              toolsToShow.map((tool) => {
+                const toolEffects = getToolEffects(tool.id);
+                return (
+                  <Pressable
+                    key={tool.id}
+                    onPress={() => onAdd(tool.id)}
+                    className="bg-white/5 border border-white/10 rounded-2xl p-4 mb-3 active:bg-white/10"
+                  >
+                    <View className="flex-row items-start justify-between mb-2">
+                      <View className="flex-1">
+                        <Text className="text-white font-black text-base">{tool.name}</Text>
+                        <Text className="text-white/60 text-sm mt-1">{tool.purpose}</Text>
+                      </View>
+                      <View className="bg-blue-500/20 px-3 py-1 rounded-lg">
+                        <Text className="text-blue-300 text-xs font-bold">£{tool.costPerMonth}/mo</Text>
+                      </View>
                     </View>
-                    <View className="bg-blue-500/20 px-3 py-1 rounded-lg">
-                      <Text className="text-blue-300 text-xs font-bold">£{tool.costPerMonth}/mo</Text>
-                    </View>
-                  </View>
-                  {toolEffects && (
-                    <View className="flex-row flex-wrap gap-1 mt-2">
-                      {toolEffects.effectTags.map((tag, idx) => (
-                        <View key={idx} className="bg-emerald-500/20 px-2 py-1 rounded">
-                          <Text className="text-emerald-300 text-xs font-bold">{tag}</Text>
-                        </View>
-                      ))}
-                    </View>
-                  )}
-                </Pressable>
-              );
-            })}
+                    {toolEffects && (
+                      <View className="flex-row flex-wrap gap-1 mt-2">
+                        {toolEffects.effectTags.map((tag, idx) => (
+                          <View key={idx} className="bg-emerald-500/20 px-2 py-1 rounded">
+                            <Text className="text-emerald-300 text-xs font-bold">{tag}</Text>
+                          </View>
+                        ))}
+                      </View>
+                    )}
+                  </Pressable>
+                );
+              })
+            )}
             <View className="h-20" />
           </ScrollView>
         </View>
