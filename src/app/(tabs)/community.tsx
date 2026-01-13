@@ -1531,31 +1531,41 @@ export default function CommunityScreen() {
       <Modal visible={selectedAIAgent !== null} transparent animationType="fade" onRequestClose={() => setSelectedAIAgent(null)}>
         <View className="flex-1 bg-black/70 justify-center items-center px-6">
           {selectedAIAgent && (
-            <View className="bg-gray-100 dark:bg-slate-900 rounded-3xl w-full" style={{ maxHeight: '85%' }}>
+            <View className="bg-gray-100 dark:bg-slate-900 rounded-3xl w-full" style={{ maxHeight: '90%' }}>
               {/* Header */}
               <View className="px-6 pt-6 pb-4 border-b border-gray-300 dark:border-slate-800">
                 <View className="flex-row items-center justify-between mb-2">
-                  <Text className="text-gray-900 dark:text-white text-xl font-bold flex-1">{selectedAIAgent.name}</Text>
+                  <Text className="text-gray-900 dark:text-white text-2xl font-bold flex-1">{selectedAIAgent.name}</Text>
                   <Pressable onPress={() => setSelectedAIAgent(null)}>
-                    <X size={24} color="#94a3b8" />
+                    <X size={28} color="#94a3b8" />
                   </Pressable>
                 </View>
-                <View className="flex-row items-center gap-2">
-                  <View className="bg-blue-100 dark:bg-blue-900/30 px-2 py-1 rounded">
-                    <Text className="text-blue-700 dark:text-blue-300 text-xs capitalize">
+                <View className="flex-row items-center gap-2 mb-2">
+                  <View className="bg-blue-100 dark:bg-blue-900/30 px-3 py-1.5 rounded-lg">
+                    <Text className="text-blue-700 dark:text-blue-300 text-sm font-semibold capitalize">
                       {selectedAIAgent.category.replace('-', ' ')}
                     </Text>
                   </View>
-                  <View className="bg-purple-100 dark:bg-purple-900/30 px-2 py-1 rounded">
-                    <Text className="text-purple-700 dark:text-purple-300 text-xs">
+                  <View className="bg-purple-100 dark:bg-purple-900/30 px-3 py-1.5 rounded-lg">
+                    <Text className="text-purple-700 dark:text-purple-300 text-sm font-semibold">
                       {selectedAIAgent.provider}
                     </Text>
                   </View>
                 </View>
+                <View className="bg-blue-50 dark:bg-blue-900/20 rounded-lg px-3 py-2">
+                  <Text className="text-blue-600 dark:text-blue-400 text-xs text-center">
+                    ⬇️ Scroll down for pricing, reviews, setup info & more
+                  </Text>
+                </View>
               </View>
 
               {/* Scrollable Content */}
-              <ScrollView showsVerticalScrollIndicator={true} bounces={false} className="flex-1">
+              <ScrollView
+                showsVerticalScrollIndicator={true}
+                bounces={true}
+                className="flex-1"
+                persistentScrollbar={true}
+              >
                 <View className="px-6 py-4">
                   {/* Cost and Rating Section */}
                   <View className="flex-row gap-3 mb-4">
@@ -1584,8 +1594,8 @@ export default function CommunityScreen() {
 
                   {/* Description */}
                   {selectedAIAgent.description && (
-                    <View className="mb-4">
-                      <Text className="text-gray-600 dark:text-slate-400 text-sm font-semibold mb-2">Description</Text>
+                    <View className="mb-6">
+                      <Text className="text-gray-900 dark:text-white text-lg font-bold mb-3">📝 Description</Text>
                       <Text className="text-gray-900 dark:text-white text-base leading-6">
                         {selectedAIAgent.description}
                       </Text>
@@ -1594,8 +1604,8 @@ export default function CommunityScreen() {
 
                   {/* Purpose (if no description) */}
                   {!selectedAIAgent.description && (
-                    <View className="mb-4">
-                      <Text className="text-gray-600 dark:text-slate-400 text-sm font-semibold mb-2">Purpose</Text>
+                    <View className="mb-6">
+                      <Text className="text-gray-900 dark:text-white text-lg font-bold mb-3">📝 Purpose</Text>
                       <Text className="text-gray-900 dark:text-white text-base leading-6">
                         {selectedAIAgent.purpose}
                       </Text>
@@ -1603,8 +1613,8 @@ export default function CommunityScreen() {
                   )}
 
                   {/* Business Functions */}
-                  <View className="mb-4">
-                    <Text className="text-gray-900 dark:text-white font-semibold mb-2">Business Functions</Text>
+                  <View className="mb-6">
+                    <Text className="text-gray-900 dark:text-white text-lg font-bold mb-3">🎯 Business Functions</Text>
                     <View className="flex-row flex-wrap gap-2">
                       {selectedAIAgent.functions.map((func, idx) => (
                         <View key={idx} className="bg-blue-100 dark:bg-blue-900/30 px-3 py-2 rounded-lg border border-blue-200 dark:border-blue-800">
@@ -1616,8 +1626,8 @@ export default function CommunityScreen() {
 
                   {/* Key Features */}
                   {selectedAIAgent.keyFeatures && selectedAIAgent.keyFeatures.length > 0 && (
-                    <View className="mb-4">
-                      <Text className="text-gray-900 dark:text-white font-semibold mb-2">Key Features</Text>
+                    <View className="mb-6">
+                      <Text className="text-gray-900 dark:text-white text-lg font-bold mb-3">✨ Key Features</Text>
                       <View className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4">
                         {selectedAIAgent.keyFeatures.map((feature, idx) => (
                           <View key={idx} className="flex-row items-start mb-2">
@@ -1631,8 +1641,8 @@ export default function CommunityScreen() {
 
                   {/* Use Cases */}
                   {selectedAIAgent.useCases && selectedAIAgent.useCases.length > 0 && (
-                    <View className="mb-4">
-                      <Text className="text-gray-900 dark:text-white font-semibold mb-2">Use Cases</Text>
+                    <View className="mb-6">
+                      <Text className="text-gray-900 dark:text-white text-lg font-bold mb-3">💡 Use Cases</Text>
                       <View className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-xl p-4">
                         {selectedAIAgent.useCases.map((useCase, idx) => (
                           <View key={idx} className="flex-row items-start mb-2">
@@ -1645,8 +1655,8 @@ export default function CommunityScreen() {
                   )}
 
                   {/* Capabilities */}
-                  <View className="mb-4">
-                    <Text className="text-gray-900 dark:text-white font-semibold mb-2">Capabilities</Text>
+                  <View className="mb-6">
+                    <Text className="text-gray-900 dark:text-white text-lg font-bold mb-3">⚡ Capabilities</Text>
                     <View className="bg-gray-200 dark:bg-slate-800 rounded-xl p-4">
                       {selectedAIAgent.capabilities.map((capability, idx) => (
                         <View key={idx} className="flex-row items-start mb-2">
@@ -1658,8 +1668,8 @@ export default function CommunityScreen() {
                   </View>
 
                   {/* Integrations */}
-                  <View className="mb-4">
-                    <Text className="text-gray-900 dark:text-white font-semibold mb-2">Integrations</Text>
+                  <View className="mb-6">
+                    <Text className="text-gray-900 dark:text-white text-lg font-bold mb-3">🔗 Integrations</Text>
                     <View className="flex-row flex-wrap gap-2">
                       {selectedAIAgent.integrations.map((integration, idx) => (
                         <View key={idx} className="bg-gray-200 dark:bg-slate-800 px-3 py-2 rounded-lg">
@@ -1671,8 +1681,8 @@ export default function CommunityScreen() {
 
                   {/* Pricing Details */}
                   {selectedAIAgent.pricing && (
-                    <View className="mb-4">
-                      <Text className="text-gray-900 dark:text-white font-semibold mb-2">Pricing Plans</Text>
+                    <View className="mb-6">
+                      <Text className="text-gray-900 dark:text-white text-lg font-bold mb-3">💰 Pricing Plans</Text>
                       <View className="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-xl p-4">
                         {selectedAIAgent.pricing.starter && (
                           <View className="mb-2">
@@ -1703,8 +1713,8 @@ export default function CommunityScreen() {
 
                   {/* Setup Information */}
                   {selectedAIAgent.setup && (
-                    <View className="mb-4">
-                      <Text className="text-gray-900 dark:text-white font-semibold mb-2">Setup & Requirements</Text>
+                    <View className="mb-6">
+                      <Text className="text-gray-900 dark:text-white text-lg font-bold mb-3">⚙️ Setup & Requirements</Text>
                       <View className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-4">
                         {selectedAIAgent.setup.difficulty && (
                           <View className="mb-2">
@@ -1732,8 +1742,8 @@ export default function CommunityScreen() {
 
                   {/* Support */}
                   {selectedAIAgent.support && (
-                    <View className="mb-4">
-                      <Text className="text-gray-900 dark:text-white font-semibold mb-2">Support</Text>
+                    <View className="mb-6">
+                      <Text className="text-gray-900 dark:text-white text-lg font-bold mb-3">📞 Support</Text>
                       <View className="bg-cyan-50 dark:bg-cyan-900/20 border border-cyan-200 dark:border-cyan-800 rounded-xl p-4">
                         <View className="flex-row justify-between mb-2">
                           <Text className="text-gray-700 dark:text-slate-300">Email Support</Text>
@@ -1765,8 +1775,8 @@ export default function CommunityScreen() {
 
                   {/* User Reviews */}
                   {selectedAIAgent.reviews && (selectedAIAgent.reviews.pros || selectedAIAgent.reviews.cons) && (
-                    <View className="mb-4">
-                      <Text className="text-gray-900 dark:text-white font-semibold mb-2">User Feedback</Text>
+                    <View className="mb-6">
+                      <Text className="text-gray-900 dark:text-white text-lg font-bold mb-3">⭐ User Feedback</Text>
                       <View className="bg-gray-100 dark:bg-slate-800 rounded-xl p-4">
                         {selectedAIAgent.reviews.pros && selectedAIAgent.reviews.pros.length > 0 && (
                           <View className="mb-3">
