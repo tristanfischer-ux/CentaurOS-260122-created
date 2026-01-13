@@ -833,12 +833,7 @@ export type EffectTag = '+Speed' | '+Quality' | '+Automation' | '+Revenue' | '+R
 export interface PersonLoadout {
   workspaceId: string;
   memberId: string; // OrganizationMember id
-  slots: {
-    weapon: string | null; // AI Agent id
-    armor: string | null;
-    utility: string | null;
-    support: string | null;
-  };
+  aiToolIds: string[]; // Array of AI Agent ids (unlimited)
   updatedAt: string;
 }
 

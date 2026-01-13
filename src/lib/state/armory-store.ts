@@ -23,6 +23,8 @@ interface ArmoryState {
 
   // Loadout management
   getLoadoutForMember: (memberId: string) => PersonLoadout | undefined;
+  addAITool: (memberId: string, aiToolId: string) => Promise<void>;
+  removeAITool: (memberId: string, aiToolId: string) => Promise<void>;
   setEquippedTool: (memberId: string, slot: EquipmentSlot, aiToolId: string | null) => Promise<void>;
   autoEquipStarterKit: (memberId: string, member: OrganizationMember, allTools: AIAgent[]) => Promise<void>;
   clearLoadout: (memberId: string) => Promise<void>;
@@ -71,12 +73,7 @@ export const useArmoryStore = create<ArmoryState>((set, get) => ({
         newLoadouts.push({
           workspaceId,
           memberId: member.id,
-          slots: {
-            weapon: null,
-            armor: null,
-            utility: null,
-            support: null,
-          },
+          aiToolIds: [],
           updatedAt: new Date().toISOString(),
         });
       }
@@ -125,7 +122,29 @@ export const useArmoryStore = create<ArmoryState>((set, get) => ({
     return get().personLoadouts.find((l) => l.memberId === memberId);
   },
 
-  setEquippedTool: async (memberId: string, slot: EquipmentSlot, aiToolId: string | null) => {
+  addAITool: async (memberId: string, aiToolId: string) => {
+    set((state) => {
+      const loadouts = [...state.personLoadouts];
+      const loadoutIndex = loadouts.findIndex((l) => l.memberId === memberId);
+
+      if (loadoutIndex >= 0) {
+        // Add tool if not already present
+        if (!loadouts[loadoutIndex].aiToolIds.includes(aiToolId)) {
+          loadouts[loadoutIndex] = {
+            ...loadouts[loadoutIndex],
+            aiToolIds: [...loadouts[loadoutIndex].aiToolIds, aiToolId],
+            updatedAt: new Date().toISOString(),
+          };
+        }
+      }
+
+      return { personLoadouts: loadouts };
+    });
+
+    await get().saveToStorage();
+  },
+
+  removeAITool: async (memberId: string, aiToolId: string) => {
     set((state) => {
       const loadouts = [...state.personLoadouts];
       const loadoutIndex = loadouts.findIndex((l) => l.memberId === memberId);
@@ -133,10 +152,7 @@ export const useArmoryStore = create<ArmoryState>((set, get) => ({
       if (loadoutIndex >= 0) {
         loadouts[loadoutIndex] = {
           ...loadouts[loadoutIndex],
-          slots: {
-            ...loadouts[loadoutIndex].slots,
-            [slot]: aiToolId,
-          },
+          aiToolIds: loadouts[loadoutIndex].aiToolIds.filter((id) => id !== aiToolId),
           updatedAt: new Date().toISOString(),
         };
       }
@@ -147,8 +163,18 @@ export const useArmoryStore = create<ArmoryState>((set, get) => ({
     await get().saveToStorage();
   },
 
+  // Legacy method for backward compatibility - now just adds to array
+  setEquippedTool: async (memberId: string, slot: EquipmentSlot, aiToolId: string | null) => {
+    if (aiToolId) {
+      await get().addAITool(memberId, aiToolId);
+    }
+  },
+
   autoEquipStarterKit: async (memberId: string, member: OrganizationMember, allTools: AIAgent[]) => {
     const starterKit = getStarterKit(member, allTools);
+    const toolIds = Object.values(starterKit)
+      .filter((tool): tool is AIAgent => tool !== null)
+      .map((tool) => tool.id);
 
     set((state) => {
       const loadouts = [...state.personLoadouts];
@@ -157,12 +183,7 @@ export const useArmoryStore = create<ArmoryState>((set, get) => ({
       if (loadoutIndex >= 0) {
         loadouts[loadoutIndex] = {
           ...loadouts[loadoutIndex],
-          slots: {
-            weapon: starterKit.weapon?.id || null,
-            armor: starterKit.armor?.id || null,
-            utility: starterKit.utility?.id || null,
-            support: starterKit.support?.id || null,
-          },
+          aiToolIds: toolIds,
           updatedAt: new Date().toISOString(),
         };
       }
@@ -181,12 +202,7 @@ export const useArmoryStore = create<ArmoryState>((set, get) => ({
       if (loadoutIndex >= 0) {
         loadouts[loadoutIndex] = {
           ...loadouts[loadoutIndex],
-          slots: {
-            weapon: null,
-            armor: null,
-            utility: null,
-            support: null,
-          },
+          aiToolIds: [],
           updatedAt: new Date().toISOString(),
         };
       }

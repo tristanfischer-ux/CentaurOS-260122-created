@@ -158,11 +158,10 @@ function LoadoutsTab({
 
   const renderMember = (member: OrganizationMember) => {
     const loadout = loadouts.find((l) => l.memberId === member.id);
-    const equippedCount = loadout ? Object.values(loadout.slots).filter((slot) => slot !== null).length : 0;
+    const equippedCount = loadout ? loadout.aiToolIds.length : 0;
 
     const equippedTools = loadout
-      ? Object.values(loadout.slots)
-          .filter((id) => id !== null)
+      ? loadout.aiToolIds
           .map((id) => aiAgents.find((a) => a.id === id))
           .filter((t): t is AIAgent => t !== undefined)
       : [];
@@ -206,7 +205,7 @@ function LoadoutsTab({
               <DollarSign size={14} color="#60a5fa" />
               <Text className="text-blue-300 font-black">£{totalCost}</Text>
             </View>
-            <Text className="text-white/40 text-xs">{equippedCount}/4 tools</Text>
+            <Text className="text-white/40 text-xs">{equippedCount} {equippedCount === 1 ? 'tool' : 'tools'}</Text>
           </View>
         </View>
       </Pressable>
@@ -262,14 +261,14 @@ function CharacterSheetModal({
   const [showAddTool, setShowAddTool] = useState(false);
 
   const loadout = useArmoryStore((s) => s.getLoadoutForMember(member.id));
-  const setEquippedTool = useArmoryStore((s) => s.setEquippedTool);
+  const addAITool = useArmoryStore((s) => s.addAITool);
+  const removeAITool = useArmoryStore((s) => s.removeAITool);
   const autoEquipStarterKit = useArmoryStore((s) => s.autoEquipStarterKit);
   const clearLoadout = useArmoryStore((s) => s.clearLoadout);
 
-  // Get all equipped tools across all slots
+  // Get all equipped tools
   const equippedTools = loadout
-    ? Object.values(loadout.slots)
-        .filter((id) => id !== null)
+    ? loadout.aiToolIds
         .map((id) => aiAgents.find((a) => a.id === id))
         .filter((t): t is AIAgent => t !== undefined)
     : [];
@@ -278,23 +277,12 @@ function CharacterSheetModal({
   const roleColor = member.role === 'Founder' ? '#3b82f6' : member.role === 'FractionalExec' ? '#8b5cf6' : '#10b981';
 
   const handleAddTool = async (toolId: string) => {
-    // Find first empty slot
-    const emptySlot = (['weapon', 'armor', 'utility', 'support'] as EquipmentSlot[]).find(
-      (slot) => !loadout?.slots[slot]
-    );
-
-    if (emptySlot) {
-      await setEquippedTool(member.id, emptySlot, toolId);
-      setShowAddTool(false);
-    }
+    await addAITool(member.id, toolId);
+    setShowAddTool(false);
   };
 
   const handleRemoveTool = async (toolId: string) => {
-    // Find and clear the slot with this tool
-    const slotToRemove = Object.entries(loadout?.slots || {}).find(([_, id]) => id === toolId)?.[0] as EquipmentSlot | undefined;
-    if (slotToRemove) {
-      await setEquippedTool(member.id, slotToRemove, null);
-    }
+    await removeAITool(member.id, toolId);
   };
 
   const handleAutoEquip = async () => {
@@ -304,8 +292,6 @@ function CharacterSheetModal({
   const handleClear = async () => {
     await clearLoadout(member.id);
   };
-
-  const hasEmptySlots = loadout ? Object.values(loadout.slots).some((id) => id === null) : true;
 
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose} statusBarTranslucent>
@@ -356,8 +342,8 @@ function CharacterSheetModal({
 
             {/* AI Tools List */}
             <View className="flex-row items-center justify-between mb-3">
-              <Text className="text-white text-lg font-black">AI Tools ({equippedTools.length}/4)</Text>
-              {canManage && hasEmptySlots && (
+              <Text className="text-white text-lg font-black">AI Tools ({equippedTools.length})</Text>
+              {canManage && (
                 <Pressable onPress={() => setShowAddTool(true)} className="bg-blue-500 rounded-lg px-3 py-2 active:opacity-80">
                   <Text className="text-white font-bold text-sm">+ Add</Text>
                 </Pressable>
