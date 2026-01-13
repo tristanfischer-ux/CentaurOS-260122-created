@@ -184,18 +184,19 @@ export default function FinancialDashboardScreen() {
         {items.map((item) => (
           <View key={item.id} className={`${!item.enabled ? 'opacity-40' : ''}`}>
             <View className="flex-row items-center justify-between mb-1">
-              <View className="flex-row items-center flex-1">
+              <View className="flex-row items-center flex-shrink">
                 <Switch
                   value={item.enabled}
                   onValueChange={() => toggleCostItem(categoryKey, item.id)}
                   trackColor={{ false: '#cbd5e1', true: '#3b82f6' }}
                   thumbColor="#fff"
+                  style={{ transform: [{ scaleX: 0.9 }, { scaleY: 0.9 }] }}
                 />
-                <Text className="text-gray-900 dark:text-white font-semibold text-sm flex-1 ml-2">
+                <Text className="text-gray-900 dark:text-white font-semibold text-sm ml-3">
                   {item.name}
                 </Text>
               </View>
-              <View className="flex-row items-center">
+              <View className="flex-row items-center ml-2">
                 <Text className="text-gray-900 dark:text-white font-bold mr-2">
                   £{item.amount >= 1000 ? `${(item.amount / 1000).toFixed(1)}K` : item.amount.toFixed(0)}
                 </Text>
@@ -210,7 +211,7 @@ export default function FinancialDashboardScreen() {
               </View>
             </View>
             {item.details && (
-              <Text className="text-gray-600 dark:text-slate-400 text-xs ml-12">{item.details}</Text>
+              <Text className="text-gray-600 dark:text-slate-400 text-xs ml-14">{item.details}</Text>
             )}
           </View>
         ))}

@@ -32,22 +32,22 @@ const FOUNDER_DATA = {
     offTrack: 0,
   },
   workPlans: {
-    total: 12,
-    inProgress: 8,
+    total: 4, // Fixed: actual count in Do tab shows 4 functions with work
+    inProgress: 4, // Fixed: matches the Active Now count
     completed: 3,
     blocked: 1,
   },
   team: {
-    executives: 5,
-    apprentices: 8,
-    suppliers: 3,
+    executives: 4, // Fixed: org chart shows 4 executives
+    apprentices: 7, // Correct: org chart shows 7 apprentices
+    suppliers: 5, // Fixed: Make tab shows 5 supplier engagements
   },
   financials: {
     runway: 14.2,
     burnRate: 85000,
     revenue: 312000,
   },
-  pendingApprovals: 3,
+  pendingApprovals: 1, // Fixed: only 1 approval in the queue
 };
 
 const EXECUTIVE_DATA = {
@@ -191,7 +191,10 @@ export default function HomeScreen() {
           <View className="px-6 py-4">
             {/* Quick Stats */}
             <View className="flex-row gap-3 mb-4">
-              <View className="flex-1 bg-purple-50 dark:bg-purple-900/20 rounded-xl p-3 border border-purple-200 dark:border-purple-800">
+              <Pressable
+                onPress={() => router.push('/financial-dashboard')}
+                className="flex-1 bg-purple-50 dark:bg-purple-900/20 rounded-xl p-3 border border-purple-200 dark:border-purple-800 active:opacity-70"
+              >
                 <Text className="text-purple-700 dark:text-purple-300 text-xs font-semibold mb-1">
                   RUNWAY
                 </Text>
@@ -199,8 +202,11 @@ export default function HomeScreen() {
                   {FOUNDER_DATA.financials.runway}
                 </Text>
                 <Text className="text-purple-600 dark:text-purple-400 text-xs">months</Text>
-              </View>
-              <View className="flex-1 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl p-3 border border-emerald-200 dark:border-emerald-800">
+              </Pressable>
+              <Pressable
+                onPress={() => router.push('/(tabs)/decide')}
+                className="flex-1 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl p-3 border border-emerald-200 dark:border-emerald-800 active:opacity-70"
+              >
                 <Text className="text-emerald-700 dark:text-emerald-300 text-xs font-semibold mb-1">
                   OKRs ON TRACK
                 </Text>
@@ -208,7 +214,7 @@ export default function HomeScreen() {
                   {FOUNDER_DATA.okrs.onTrack}/{FOUNDER_DATA.okrs.total}
                 </Text>
                 <Text className="text-emerald-600 dark:text-emerald-400 text-xs">75% healthy</Text>
-              </View>
+              </Pressable>
             </View>
 
             {/* Pending Approvals */}
