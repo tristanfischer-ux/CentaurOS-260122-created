@@ -1,15 +1,24 @@
 import { View, Text, ScrollView, Pressable, Modal, TextInput, Alert, KeyboardAvoidingView, Platform } from 'react-native';
 import { useState, useEffect } from 'react';
-import { Target, Plus, X, ChevronDown, ChevronRight, CheckCircle2, Circle, Clock, Users, DollarSign } from 'lucide-react-native';
+import { Target, Plus, X, ChevronDown, ChevronRight, CheckCircle2, Circle, Clock, Users, DollarSign, Lightbulb, ChevronUp } from 'lucide-react-native';
 import { useCurrentWorkspace, useCurrentMembership } from '@/lib/state/app-store';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams } from 'expo-router';
 import type { Function as BusinessFunction } from '@/types';
 import { useOKRStore, type OKR, type Objective } from '@/lib/state/okr-store';
+import { OKR_CATEGORIES, OKR_SUGGESTIONS, type OKRSuggestion, type OKRCategory } from '@/lib/okr-suggestions';
+import { fractionalExecutives, apprentices, type Candidate } from '@/lib/candidates-seed';
 
 // Initialize OKR store once
 if (useOKRStore.getState().okrs.length === 0) {
   useOKRStore.getState().initializeOKRs();
+}
+
+interface WorkPlanItem {
+  id: string;
+  title: string;
+  assignedTo: string;
+  assignedRole: 'Founder' | 'FractionalExec' | 'Apprentice';
 }
 
 export default function DecideScreen() {
@@ -25,13 +34,24 @@ export default function DecideScreen() {
 
   const [selectedFunction, setSelectedFunction] = useState<BusinessFunction | 'all'>('all');
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showIdeasModal, setShowIdeasModal] = useState(false);
   const [showApprovalQueue, setShowApprovalQueue] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<OKRCategory | 'all'>('all');
+  const [selectedSuggestion, setSelectedSuggestion] = useState<OKRSuggestion | null>(null);
+
+  // Dropdown states
+  const [showOwnerDropdown, setShowOwnerDropdown] = useState(false);
 
   // Form state for creating OKR
   const [newOKRTitle, setNewOKRTitle] = useState('');
   const [newOKRDescription, setNewOKRDescription] = useState('');
   const [newOKRFunction, setNewOKRFunction] = useState<BusinessFunction>('Marketing');
   const [newOKROwner, setNewOKROwner] = useState('');
+  const [newOKROwnerRole, setNewOKROwnerRole] = useState<'Founder' | 'FractionalExec' | 'Apprentice'>('Founder');
+
+  // Work plan state
+  const [workPlanItems, setWorkPlanItems] = useState<WorkPlanItem[]>([]);
+  const [showWorkPlanSection, setShowWorkPlanSection] = useState(false);
 
   // Set initial function from params if provided
   useEffect(() => {
@@ -41,6 +61,21 @@ export default function DecideScreen() {
   }, [params.function]);
 
   const functions: BusinessFunction[] = ['Marketing', 'Sales', 'Engineering', 'Ops', 'Finance', 'Admin'];
+
+  // Get all available team members
+  const allTeamMembers: Array<{ name: string; role: 'Founder' | 'FractionalExec' | 'Apprentice'; info?: string }> = [
+    { name: 'Founder', role: 'Founder' },
+    ...fractionalExecutives.slice(0, 10).map(exec => ({
+      name: exec.name,
+      role: 'FractionalExec' as const,
+      info: exec.specialization.join(', ')
+    })),
+    ...apprentices.slice(0, 10).map(app => ({
+      name: app.name,
+      role: 'Apprentice' as const,
+      info: app.specialization.join(', ')
+    })),
+  ];
 
   // DECIDE tab shows all OKRs for strategic decision-making
   // Filter by selected function only (workspace filtering handled by store initialization)
@@ -103,6 +138,41 @@ export default function DecideScreen() {
   const offTrackOKRs = filteredOKRs.filter((okr: OKR) => okr.status === 'off-track').length;
   const approvalQueueCount = 3; // In real app, this would be dynamic
 
+  // Filter suggestions by category
+  const filteredSuggestions = selectedCategory === 'all'
+    ? OKR_SUGGESTIONS
+    : OKR_SUGGESTIONS.filter(s => s.category === selectedCategory);
+
+  const handleSelectSuggestion = (suggestion: OKRSuggestion) => {
+    setNewOKRTitle(suggestion.title);
+    setNewOKRDescription(suggestion.description);
+    setSelectedSuggestion(suggestion);
+    setShowIdeasModal(false);
+    setShowCreateModal(true);
+  };
+
+  const handleAddWorkPlanItem = () => {
+    const newItem: WorkPlanItem = {
+      id: `wpi-${Date.now()}`,
+      title: '',
+      assignedTo: 'Founder',
+      assignedRole: 'Founder',
+    };
+    setWorkPlanItems([...workPlanItems, newItem]);
+  };
+
+  const handleUpdateWorkPlanItem = (id: string, field: keyof WorkPlanItem, value: string) => {
+    setWorkPlanItems(items =>
+      items.map(item =>
+        item.id === id ? { ...item, [field]: value } : item
+      )
+    );
+  };
+
+  const handleRemoveWorkPlanItem = (id: string) => {
+    setWorkPlanItems(items => items.filter(item => item.id !== id));
+  };
+
   const handleCreateOKR = () => {
     if (!newOKRTitle.trim()) {
       Alert.alert('Error', 'Please enter an OKR title');
@@ -113,9 +183,21 @@ export default function DecideScreen() {
       return;
     }
     if (!newOKROwner.trim()) {
-      Alert.alert('Error', 'Please enter an owner name');
+      Alert.alert('Error', 'Please select an owner');
       return;
     }
+
+    // Create objectives from key results if using suggestion
+    const objectives: Objective[] = selectedSuggestion
+      ? selectedSuggestion.keyResults.map((kr, index) => ({
+          id: `kr-${Date.now()}-${index}`,
+          title: kr.title,
+          target: `${kr.targetValue} ${kr.unit}`,
+          current: '0',
+          progress: 0,
+          status: 'on-track' as const,
+        }))
+      : [];
 
     const newOKR: OKR = {
       id: `okr-${Date.now()}`,
@@ -127,20 +209,29 @@ export default function DecideScreen() {
       startDate: 'Q1 2026',
       endDate: 'Q4 2026',
       status: 'on-track',
-      objectives: [],
+      objectives,
       isExpanded: false,
     };
 
     addOKR(newOKR);
+
+    // Show work plan success message
+    const workPlanMessage = workPlanItems.length > 0
+      ? `\n\n${workPlanItems.length} work items have been created and assigned to the team.`
+      : '';
 
     // Reset form
     setNewOKRTitle('');
     setNewOKRDescription('');
     setNewOKRFunction('Marketing');
     setNewOKROwner('');
+    setNewOKROwnerRole('Founder');
+    setWorkPlanItems([]);
+    setShowWorkPlanSection(false);
+    setSelectedSuggestion(null);
     setShowCreateModal(false);
 
-    Alert.alert('Success', 'OKR created successfully!');
+    Alert.alert('Success', `OKR created successfully!${workPlanMessage}`);
   };
 
   return (
@@ -154,12 +245,20 @@ export default function DecideScreen() {
               OKRs requiring decisions and pending approvals
             </Text>
           </View>
-          <Pressable
-            onPress={() => setShowCreateModal(true)}
-            className="bg-blue-500 rounded-xl p-2 active:opacity-70"
-          >
-            <Plus size={24} color="#fff" />
-          </Pressable>
+          <View className="flex-row gap-2">
+            <Pressable
+              onPress={() => setShowIdeasModal(true)}
+              className="bg-violet-500 rounded-xl p-2 active:opacity-70"
+            >
+              <Lightbulb size={24} color="#fff" />
+            </Pressable>
+            <Pressable
+              onPress={() => setShowCreateModal(true)}
+              className="bg-blue-500 rounded-xl p-2 active:opacity-70"
+            >
+              <Plus size={24} color="#fff" />
+            </Pressable>
+          </View>
         </View>
 
         {/* Summary Stats */}
@@ -352,23 +451,121 @@ export default function DecideScreen() {
         )}
       </ScrollView>
 
-      {/* Create OKR Modal (Simplified) */}
+      {/* OKR Ideas Modal */}
+      <Modal visible={showIdeasModal} transparent animationType="fade" onRequestClose={() => setShowIdeasModal(false)}>
+        <View className="flex-1 bg-black/70 justify-center items-center px-6">
+          <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} className="w-full">
+            <View className="bg-gray-100 dark:bg-slate-900 rounded-3xl w-full" style={{ maxHeight: '85%' }}>
+              <View className="px-6 pt-6 pb-4 border-b border-gray-300 dark:border-slate-800">
+                <View className="flex-row items-center justify-between">
+                  <View className="flex-row items-center">
+                    <Lightbulb size={24} color="#8b5cf6" />
+                    <Text className="text-gray-900 dark:text-white text-xl font-bold ml-2">OKR Ideas</Text>
+                  </View>
+                  <Pressable onPress={() => setShowIdeasModal(false)}>
+                    <X size={24} color="#94a3b8" />
+                  </Pressable>
+                </View>
+                <Text className="text-gray-600 dark:text-slate-400 text-sm mt-2">
+                  Browse proven OKR templates for startups across different business functions
+                </Text>
+              </View>
+
+              <ScrollView showsVerticalScrollIndicator={true} className="px-6 py-4">
+                {/* Category Filter */}
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} className="mb-4">
+                  <View className="flex-row gap-2">
+                    <Pressable
+                      onPress={() => setSelectedCategory('all')}
+                      className={`px-3 py-2 rounded-lg ${selectedCategory === 'all' ? 'bg-violet-500' : 'bg-gray-200 dark:bg-slate-800'}`}
+                    >
+                      <Text className={`text-xs font-semibold ${selectedCategory === 'all' ? 'text-white' : 'text-gray-600 dark:text-slate-400'}`}>
+                        All
+                      </Text>
+                    </Pressable>
+                    {OKR_CATEGORIES.map((cat) => (
+                      <Pressable
+                        key={cat.id}
+                        onPress={() => setSelectedCategory(cat.id as OKRCategory)}
+                        className={`px-3 py-2 rounded-lg ${selectedCategory === cat.id ? 'bg-violet-500' : 'bg-gray-200 dark:bg-slate-800'}`}
+                      >
+                        <Text className={`text-xs font-semibold ${selectedCategory === cat.id ? 'text-white' : 'text-gray-600 dark:text-slate-400'}`}>
+                          {cat.icon} {cat.name}
+                        </Text>
+                      </Pressable>
+                    ))}
+                  </View>
+                </ScrollView>
+
+                {/* Suggestion Cards */}
+                {filteredSuggestions.map((suggestion) => (
+                  <Pressable
+                    key={suggestion.id}
+                    onPress={() => handleSelectSuggestion(suggestion)}
+                    className="bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-2xl p-4 mb-3 active:opacity-70"
+                  >
+                    <Text className="text-gray-900 dark:text-white font-bold text-base mb-2">
+                      {suggestion.title}
+                    </Text>
+                    <Text className="text-gray-600 dark:text-slate-400 text-sm mb-3">
+                      {suggestion.description}
+                    </Text>
+                    <View className="flex-row items-center gap-2 mb-2">
+                      <View className="bg-violet-100 dark:bg-violet-900/30 px-2 py-1 rounded">
+                        <Text className="text-violet-700 dark:text-violet-300 text-xs font-semibold">
+                          {suggestion.keyResults.length} Key Results
+                        </Text>
+                      </View>
+                      <View className="bg-blue-100 dark:bg-blue-900/30 px-2 py-1 rounded">
+                        <Text className="text-blue-700 dark:text-blue-300 text-xs font-semibold">
+                          {suggestion.suggestedDuration} days
+                        </Text>
+                      </View>
+                    </View>
+                    <Text className="text-violet-600 dark:text-violet-400 text-xs font-semibold">
+                      Tap to use this template →
+                    </Text>
+                  </Pressable>
+                ))}
+              </ScrollView>
+            </View>
+          </KeyboardAvoidingView>
+        </View>
+      </Modal>
+
+      {/* Create OKR Modal */}
       <Modal visible={showCreateModal} transparent animationType="fade" onRequestClose={() => setShowCreateModal(false)}>
         <View className="flex-1 bg-black/70 justify-center items-center px-6">
           <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} className="w-full">
-            <View className="bg-gray-100 dark:bg-slate-900 rounded-3xl w-full" style={{ maxHeight: '80%' }}>
+            <View className="bg-gray-100 dark:bg-slate-900 rounded-3xl w-full" style={{ maxHeight: '85%' }}>
               <View className="px-6 pt-6 pb-4 border-b border-gray-300 dark:border-slate-800">
                 <View className="flex-row items-center justify-between">
                   <Text className="text-gray-900 dark:text-white text-xl font-bold">Create OKR</Text>
-                  <Pressable onPress={() => setShowCreateModal(false)}>
+                  <Pressable onPress={() => {
+                    setShowCreateModal(false);
+                    setSelectedSuggestion(null);
+                    setWorkPlanItems([]);
+                    setShowWorkPlanSection(false);
+                  }}>
                     <X size={24} color="#94a3b8" />
                   </Pressable>
                 </View>
               </View>
 
               <ScrollView showsVerticalScrollIndicator={true} className="px-6 py-4">
+                {selectedSuggestion && (
+                  <View className="bg-violet-50 dark:bg-violet-900/20 border border-violet-200 dark:border-violet-800 rounded-xl p-4 mb-4">
+                    <Text className="text-violet-900 dark:text-violet-100 font-semibold mb-1">
+                      Using template: {selectedSuggestion.title}
+                    </Text>
+                    <Text className="text-violet-700 dark:text-violet-300 text-xs">
+                      {selectedSuggestion.keyResults.length} key results will be auto-generated
+                    </Text>
+                  </View>
+                )}
+
                 <Text className="text-blue-700 dark:text-blue-300 text-sm mb-4">
-                  Create a new OKR and assign it to a function. Executives will create work plans based on these OKRs.
+                  Create a new OKR and assign it to a team member. You can also create initial work items.
                 </Text>
 
                 {/* Title Input */}
@@ -394,15 +591,74 @@ export default function DecideScreen() {
                   style={{ minHeight: 80, textAlignVertical: 'top' }}
                 />
 
-                {/* Owner Input */}
+                {/* Owner Selection with Dropdown */}
                 <Text className="text-gray-900 dark:text-white font-semibold mb-2">Owner</Text>
-                <TextInput
-                  value={newOKROwner}
-                  onChangeText={setNewOKROwner}
-                  placeholder="e.g., Sarah Mitchell"
-                  placeholderTextColor="#94a3b8"
-                  className="bg-gray-200 dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-xl px-4 py-3 text-gray-900 dark:text-white mb-4"
-                />
+                <Pressable
+                  onPress={() => setShowOwnerDropdown(!showOwnerDropdown)}
+                  className="bg-gray-200 dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-xl px-4 py-3 flex-row items-center justify-between mb-2"
+                >
+                  <Text className={`text-base ${newOKROwner ? 'text-gray-900 dark:text-white' : 'text-gray-500'}`}>
+                    {newOKROwner || 'Select an owner...'}
+                  </Text>
+                  {showOwnerDropdown ? (
+                    <ChevronUp size={20} color="#94a3b8" />
+                  ) : (
+                    <ChevronDown size={20} color="#94a3b8" />
+                  )}
+                </Pressable>
+
+                {/* Dropdown */}
+                {showOwnerDropdown && (
+                  <View className="bg-gray-200 dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-xl mb-4 max-h-60">
+                    <ScrollView>
+                      {allTeamMembers.map((member, index) => (
+                        <Pressable
+                          key={index}
+                          onPress={() => {
+                            setNewOKROwner(member.name);
+                            setNewOKROwnerRole(member.role);
+                            setShowOwnerDropdown(false);
+                          }}
+                          className="px-4 py-3 border-b border-gray-300 dark:border-slate-700 active:bg-gray-300 dark:active:bg-slate-700"
+                        >
+                          <View className="flex-row items-center justify-between">
+                            <View className="flex-1">
+                              <Text className="text-gray-900 dark:text-white font-semibold text-sm">
+                                {member.name}
+                              </Text>
+                              {member.info && (
+                                <Text className="text-gray-600 dark:text-slate-400 text-xs mt-0.5">
+                                  {member.info}
+                                </Text>
+                              )}
+                            </View>
+                            <View
+                              className={`px-2 py-1 rounded ${
+                                member.role === 'Founder'
+                                  ? 'bg-blue-100 dark:bg-blue-900/30'
+                                  : member.role === 'FractionalExec'
+                                  ? 'bg-violet-100 dark:bg-violet-900/30'
+                                  : 'bg-emerald-100 dark:bg-emerald-900/30'
+                              }`}
+                            >
+                              <Text
+                                className={`text-xs font-semibold ${
+                                  member.role === 'Founder'
+                                    ? 'text-blue-700 dark:text-blue-300'
+                                    : member.role === 'FractionalExec'
+                                    ? 'text-violet-700 dark:text-violet-300'
+                                    : 'text-emerald-700 dark:text-emerald-300'
+                                }`}
+                              >
+                                {member.role === 'FractionalExec' ? 'Executive' : member.role}
+                              </Text>
+                            </View>
+                          </View>
+                        </Pressable>
+                      ))}
+                    </ScrollView>
+                  </View>
+                )}
 
                 {/* Function Selection */}
                 <Text className="text-gray-900 dark:text-white font-semibold mb-2">Function</Text>
@@ -427,6 +683,80 @@ export default function DecideScreen() {
                     </Pressable>
                   ))}
                 </View>
+
+                {/* Work Plan Section */}
+                <Pressable
+                  onPress={() => setShowWorkPlanSection(!showWorkPlanSection)}
+                  className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-4 mb-4 flex-row items-center justify-between"
+                >
+                  <View className="flex-1">
+                    <Text className="text-amber-900 dark:text-amber-100 font-semibold mb-1">
+                      Create Initial Work Plan (Optional)
+                    </Text>
+                    <Text className="text-amber-700 dark:text-amber-300 text-xs">
+                      Add tasks and assign them to team members
+                    </Text>
+                  </View>
+                  {showWorkPlanSection ? (
+                    <ChevronUp size={20} color="#d97706" />
+                  ) : (
+                    <ChevronDown size={20} color="#d97706" />
+                  )}
+                </Pressable>
+
+                {showWorkPlanSection && (
+                  <View className="mb-4">
+                    {workPlanItems.map((item, index) => (
+                      <View key={item.id} className="bg-gray-200 dark:bg-slate-800 rounded-xl p-3 mb-2">
+                        <View className="flex-row items-center justify-between mb-2">
+                          <Text className="text-gray-900 dark:text-white font-semibold text-sm">
+                            Work Item {index + 1}
+                          </Text>
+                          <Pressable onPress={() => handleRemoveWorkPlanItem(item.id)}>
+                            <X size={18} color="#ef4444" />
+                          </Pressable>
+                        </View>
+                        <TextInput
+                          value={item.title}
+                          onChangeText={(val) => handleUpdateWorkPlanItem(item.id, 'title', val)}
+                          placeholder="e.g., Create social media strategy"
+                          placeholderTextColor="#94a3b8"
+                          className="bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-700 rounded-lg px-3 py-2 text-gray-900 dark:text-white mb-2 text-sm"
+                        />
+                        <Text className="text-gray-700 dark:text-slate-300 text-xs mb-1">Assign to:</Text>
+                        <View className="flex-row flex-wrap gap-2">
+                          {allTeamMembers.slice(0, 5).map((member) => (
+                            <Pressable
+                              key={member.name}
+                              onPress={() => {
+                                handleUpdateWorkPlanItem(item.id, 'assignedTo', member.name);
+                                handleUpdateWorkPlanItem(item.id, 'assignedRole', member.role);
+                              }}
+                              className={`px-2 py-1 rounded ${
+                                item.assignedTo === member.name
+                                  ? 'bg-blue-500'
+                                  : 'bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-700'
+                              }`}
+                            >
+                              <Text className={`text-xs ${item.assignedTo === member.name ? 'text-white font-semibold' : 'text-gray-700 dark:text-slate-300'}`}>
+                                {member.name}
+                              </Text>
+                            </Pressable>
+                          ))}
+                        </View>
+                      </View>
+                    ))}
+                    <Pressable
+                      onPress={handleAddWorkPlanItem}
+                      className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-3 flex-row items-center justify-center active:opacity-70"
+                    >
+                      <Plus size={18} color="#3b82f6" />
+                      <Text className="text-blue-700 dark:text-blue-300 font-semibold ml-2 text-sm">
+                        Add Work Item
+                      </Text>
+                    </Pressable>
+                  </View>
+                )}
 
                 <Pressable
                   onPress={handleCreateOKR}
