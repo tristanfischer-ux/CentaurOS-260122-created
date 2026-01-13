@@ -57,13 +57,13 @@ export default function AboutScreen() {
     {
       icon: Factory,
       title: 'Manufacturing Network',
-      description: 'Access 31+ UK manufacturers for prototyping, PCB assembly, injection molding, and more.',
+      description: 'Access 30+ UK manufacturers for prototyping, PCB assembly, injection molding, and more.',
       color: '#f59e0b',
     },
     {
       icon: Cpu,
       title: 'AI Tools Library',
-      description: 'Browse 24 third-party AI tools organized by business function - Finance, Sales, Marketing, Ops, Engineering, and Admin.',
+      description: 'Browse 25+ third-party AI tools organized by business function - Finance, Sales, Marketing, Ops, Engineering, and Admin.',
       color: '#a855f7',
     },
     {

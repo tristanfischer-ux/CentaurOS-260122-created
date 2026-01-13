@@ -259,10 +259,10 @@ export default function TemplatesScreen() {
         </View>
 
         {/* Search (placeholder) */}
-        <Pressable className="flex-row items-center bg-gray-100 dark:bg-slate-900 rounded-xl px-4 py-3 mb-3">
+        <View className="flex-row items-center bg-gray-100 dark:bg-slate-900 rounded-xl px-4 py-3 mb-3">
           <Search size={20} color="#94a3b8" />
           <Text className="text-gray-500 dark:text-slate-400 ml-3">Search templates...</Text>
-        </Pressable>
+        </View>
 
         {/* Function Filter */}
         <ScrollView horizontal showsHorizontalScrollIndicator={false} className="gap-2">
