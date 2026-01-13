@@ -130,6 +130,13 @@ function RootLayoutNav({ colorScheme }: { colorScheme: 'light' | 'dark' | null |
               headerShadowVisible: false,
             }}
           />
+          <Stack.Screen name="guilds" options={{ headerShown: false }} />
+          <Stack.Screen name="events" options={{ headerShown: false }} />
+          <Stack.Screen name="invitations" options={{ headerShown: false }} />
+          <Stack.Screen name="supplier-orders" options={{ headerShown: false }} />
+          <Stack.Screen name="send-invitation" options={{ headerShown: false }} />
+          <Stack.Screen name="engagements" options={{ headerShown: false }} />
+          <Stack.Screen name="financial-dashboard" options={{ headerShown: false }} />
         </Stack>
       </ThemeProvider>
 

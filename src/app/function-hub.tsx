@@ -329,7 +329,7 @@ export default function FunctionHubScreen() {
                     key={index}
                     onPress={() => {
                       router.push({
-                        pathname: '/(tabs)/okrs',
+                        pathname: '/(tabs)/decide',
                         params: {
                           addOkr: 'true',
                           objective: okr.objective,

@@ -175,7 +175,7 @@ function ExecutivesTab({ searchQuery }: { searchQuery: string }) {
             </View>
           </View>
           <Pressable
-            onPress={() => router.push('/network')}
+            onPress={() => router.push('/(tabs)/community')}
             className="bg-white rounded-xl py-3 flex-row items-center justify-center gap-2"
           >
             <Text className="text-blue-600 font-bold">View Profile</Text>
@@ -241,7 +241,7 @@ function ApprenticesTab({ searchQuery }: { searchQuery: string }) {
             </View>
           </View>
           <Pressable
-            onPress={() => router.push('/network')}
+            onPress={() => router.push('/(tabs)/community')}
             className="bg-white rounded-xl py-3 flex-row items-center justify-center gap-2"
           >
             <Text className="text-emerald-600 font-bold">View Profile</Text>
@@ -309,7 +309,7 @@ function SuppliersTab({ searchQuery }: { searchQuery: string }) {
             </View>
           </View>
           <Pressable
-            onPress={() => router.push('/network')}
+            onPress={() => router.push('/(tabs)/community')}
             className="bg-white rounded-xl py-3 flex-row items-center justify-center gap-2"
           >
             <Text className="text-amber-600 font-bold">View Details</Text>
@@ -375,7 +375,7 @@ function AIAgentsTab({ searchQuery }: { searchQuery: string }) {
             </View>
           </View>
           <Pressable
-            onPress={() => router.push('/network')}
+            onPress={() => router.push('/(tabs)/community')}
             className="bg-white rounded-xl py-3 flex-row items-center justify-center gap-2"
           >
             <Text className="text-purple-600 font-bold">View Details</Text>

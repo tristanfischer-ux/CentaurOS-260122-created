@@ -117,7 +117,7 @@ export default function GlobalSearchScreen() {
                 {searchResults.tasks.map((task) => (
                   <Pressable
                     key={task.id}
-                    onPress={() => router.push('/work')}
+                    onPress={() => router.push('/(tabs)/do')}
                     className="bg-gray-100 dark:bg-slate-900 rounded-xl p-3 mb-2 border border-slate-800 active:opacity-70"
                   >
                     <Text className="text-gray-900 dark:text-white font-medium mb-1">{task.title}</Text>
@@ -159,7 +159,7 @@ export default function GlobalSearchScreen() {
                 {searchResults.objectives.map((okr) => (
                   <Pressable
                     key={okr.id}
-                    onPress={() => router.push('/okrs')}
+                    onPress={() => router.push('/(tabs)/decide')}
                     className="bg-gray-100 dark:bg-slate-900 rounded-xl p-3 mb-2 border border-slate-800 active:opacity-70"
                   >
                     <Text className="text-gray-900 dark:text-white font-medium mb-1">{okr.title}</Text>
@@ -181,7 +181,7 @@ export default function GlobalSearchScreen() {
                 {searchResults.people.map((person) => (
                   <Pressable
                     key={person.id}
-                    onPress={() => router.push('/team')}
+                    onPress={() => router.push('/org-diagram')}
                     className="bg-gray-100 dark:bg-slate-900 rounded-xl p-3 mb-2 border border-slate-800 flex-row items-center active:opacity-70"
                   >
                     <View className={`w-10 h-10 rounded-full items-center justify-center mr-3 ${
@@ -214,7 +214,7 @@ export default function GlobalSearchScreen() {
                 {searchResults.suppliers.map((supplier) => (
                   <Pressable
                     key={supplier.id}
-                    onPress={() => router.push('/organization')}
+                    onPress={() => router.push('/(tabs)/make')}
                     className="bg-gray-100 dark:bg-slate-900 rounded-xl p-3 mb-2 border border-slate-800 active:opacity-70"
                   >
                     <Text className="text-gray-900 dark:text-white font-medium mb-1">{supplier.supplierName}</Text>
@@ -236,7 +236,7 @@ export default function GlobalSearchScreen() {
                 {searchResults.aiAgents.map((agent) => (
                   <Pressable
                     key={agent.id}
-                    onPress={() => router.push('/organization')}
+                    onPress={() => router.push('/(tabs)/make')}
                     className="bg-gray-100 dark:bg-slate-900 rounded-xl p-3 mb-2 border border-slate-800 active:opacity-70"
                   >
                     <View className="flex-row items-center justify-between">

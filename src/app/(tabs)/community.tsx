@@ -471,7 +471,7 @@ export default function CommunityScreen() {
             {/* Quick Action Buttons */}
             <View className="flex-row gap-3 mb-4">
               <Pressable
-                onPress={() => router.push('/ai-agents')}
+                onPress={() => router.push({ pathname: '/(tabs)/make', params: { tab: 'ai' } })}
                 className="flex-1 bg-cyan-500 rounded-xl py-3 items-center active:opacity-80"
               >
                 <View className="flex-row items-center">
@@ -487,7 +487,7 @@ export default function CommunityScreen() {
             </Text>
 
             <Pressable
-              onPress={() => router.push('/ai-agents')}
+              onPress={() => router.push({ pathname: '/(tabs)/make', params: { tab: 'ai' } })}
               className="bg-blue-100 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-xl p-4 mb-3 active:opacity-70"
             >
               <View className="flex-row items-center mb-2">
@@ -505,7 +505,7 @@ export default function CommunityScreen() {
             </Pressable>
 
             <Pressable
-              onPress={() => router.push('/ai-agents')}
+              onPress={() => router.push({ pathname: '/(tabs)/make', params: { tab: 'ai' } })}
               className="bg-pink-100 dark:bg-pink-900/30 border border-pink-200 dark:border-pink-800 rounded-xl p-4 mb-3 active:opacity-70"
             >
               <View className="flex-row items-center mb-2">
@@ -523,7 +523,7 @@ export default function CommunityScreen() {
             </Pressable>
 
             <Pressable
-              onPress={() => router.push('/ai-agents')}
+              onPress={() => router.push({ pathname: '/(tabs)/make', params: { tab: 'ai' } })}
               className="bg-purple-100 dark:bg-purple-900/30 border border-purple-200 dark:border-purple-800 rounded-xl p-4 mb-3 active:opacity-70"
             >
               <View className="flex-row items-center mb-2">
@@ -541,7 +541,7 @@ export default function CommunityScreen() {
             </Pressable>
 
             <Pressable
-              onPress={() => router.push('/ai-agents')}
+              onPress={() => router.push({ pathname: '/(tabs)/make', params: { tab: 'ai' } })}
               className="bg-emerald-100 dark:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-800 rounded-xl p-4 mb-3 active:opacity-70"
             >
               <View className="flex-row items-center mb-2">
@@ -559,7 +559,7 @@ export default function CommunityScreen() {
             </Pressable>
 
             <Pressable
-              onPress={() => router.push('/ai-agents')}
+              onPress={() => router.push({ pathname: '/(tabs)/make', params: { tab: 'ai' } })}
               className="bg-amber-100 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-800 rounded-xl p-4 mb-3 active:opacity-70"
             >
               <View className="flex-row items-center mb-2">

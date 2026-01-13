@@ -142,7 +142,7 @@ export default function KPIDetailsScreen() {
                 return (
                   <Pressable
                     key={task.id}
-                    onPress={() => router.push("/work")}
+                    onPress={() => router.push("/(tabs)/do")}
                     className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-4 border border-slate-800 active:opacity-70"
                   >
                     <View className="flex-row items-start justify-between mb-2">

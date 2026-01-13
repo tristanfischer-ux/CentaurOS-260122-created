@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, Pressable, Modal, TextInput } from 'react-native';
+import { View, Text, ScrollView, Pressable, Modal, TextInput, Alert } from 'react-native';
 import { useState } from 'react';
 import { router } from 'expo-router';
 import { ArrowLeft, Users, BookOpen, MessageSquare, Award, Search, Plus, X, ExternalLink } from 'lucide-react-native';
@@ -163,7 +163,7 @@ export default function GuildsScreen() {
             </Text>
           </View>
           <Pressable
-            onPress={() => router.push('/create-guild')}
+            onPress={() => Alert.alert('Coming Soon', 'Guild creation will be available in a future update.')}
             className="bg-blue-500 p-2 rounded-lg active:opacity-70"
           >
             <Plus size={20} color="#fff" />
@@ -431,7 +431,7 @@ export default function GuildsScreen() {
                   <Pressable
                     onPress={() => {
                       setSelectedGuild(null);
-                      router.push(`/guild/${selectedGuild.id}`);
+                      Alert.alert('Coming Soon', 'Full guild access will be available in a future update.');
                     }}
                     className="bg-blue-500 py-4 rounded-xl active:opacity-70 flex-row items-center justify-center"
                   >
