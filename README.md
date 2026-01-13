@@ -288,9 +288,10 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
 **✅ Architecture Excellence:**
 - **Authentication Flow**: Sign in/up with onboarding → Welcome → Role-specific onboarding
 - **State Management**: Zustand for global state + React Query for server state
-- **RBAC System**: Founder (full access), FractionalExec (review/approve), Apprentice (execute)
+- **RBAC System**: Founder (full access), FractionalExec (review/approve), Apprentice (execute), Government (read-only across all workspaces)
 - **Navigation**: Expo Router file-based routing with proper auth guards
 - **Data Layer**: AsyncStorage simulation with audit logging and permission checks
+- **Multi-Tenancy Architecture**: Two-layer data model (marketplace + company-specific) - See detailed section below
 
 **✅ Code Quality Metrics:**
 - **0 console.logs** - Production-ready (console.error only for error handling)
@@ -926,6 +927,229 @@ Centaur OS turns OKRs into work, tracks execution, enables review workflows, and
   - **Organizational Philosophy**: Decide • Evaluate • Do framework with role descriptions
   - **Version Information**: Current app version and technical stack details
 - **Audit Logging** - Full audit trail of all actions across the workspace
+
+---
+
+## 🏗️ Multi-Tenancy Architecture
+
+### Overview
+
+Centaur OS implements a sophisticated **two-layer data architecture** that separates public marketplace resources from private company data. This enables both a global marketplace where anyone can browse resources, and private workspaces where companies manage their internal operations.
+
+### Two-Layer Data Model
+
+#### Layer 1: Public Marketplace (No workspaceId)
+Global resources available to all users for browsing and hiring:
+
+- **31 UK Suppliers** (`/src/lib/marketplace-suppliers.ts`)
+  - Manufacturing partners (Proto Labs, Omega Plastics, Tharsus, etc.)
+  - Capabilities, certifications, pricing, case studies
+  - Accessible via Community tab → Suppliers
+
+- **24 AI Tools** (`/src/lib/marketplace-ai-tools.ts`)
+  - Third-party AI services organized by function
+  - Finance (3), Sales (4), Marketing (6), Ops (3), Engineering (4), Admin (4)
+  - Full details: pricing, setup instructions, integrations, reviews
+
+- **60 Fractional Executives & Apprentices** (`/src/lib/marketplace-executives.ts`)
+  - 15+ Fractional Executives (£700-1000/day)
+  - 15+ Apprentices (£180-220/day)
+  - Full profiles: experience, skills, certifications, education, portfolio
+  - Filterable by function, role, availability
+
+**Key Characteristic**: No `workspaceId` field - these are platform-wide catalogs
+
+#### Layer 2: Private Company Data (With workspaceId)
+Company-specific operational data isolated by workspace:
+
+- **OKRs** (`/src/lib/state/okr-store.ts`)
+  - Strategic objectives and key results
+  - Each OKR has `workspaceId` for company isolation
+  - Methods: `getOKRsByWorkspace(workspaceId)`, `getAllOKRs()` (Government only)
+
+- **Work Plans** (`/src/lib/state/work-plan-store.ts`)
+  - Tasks and execution plans
+  - Filtered by `workspaceId`
+  - Role-specific access (Founder, Executive, Apprentice)
+
+- **Organization Members** (`/src/lib/state/organization-store.ts`)
+  - Team members hired from marketplace executives
+  - AI agent subscriptions
+  - Supplier engagements (contracts with marketplace suppliers)
+  - All filtered by `workspaceId`
+
+**Key Characteristic**: Every record includes `workspaceId` for multi-tenant filtering
+
+### Multi-Tenancy Implementation
+
+#### Workspace Isolation
+
+```typescript
+// Example: OKR Store with workspace filtering
+interface OKR {
+  id: string;
+  workspaceId: string; // 🔑 Multi-tenancy key
+  function: BusinessFunction;
+  title: string;
+  // ... other fields
+}
+
+// Workspace-specific methods
+getOKRsByWorkspace: (workspaceId: string) => {
+  return get().okrs.filter(okr => okr.workspaceId === workspaceId);
+}
+
+// Government users see all workspaces
+getAllOKRs: () => {
+  return get().okrs; // No filter
+}
+```
+
+#### RBAC Integration
+
+The system supports 4 roles with distinct permissions:
+
+1. **Founder** (Full Access)
+   - Create/read/update/delete all resources in their workspace
+   - Access financial dashboards
+   - Hire from marketplace (creates workspace-specific records)
+
+2. **Fractional Executive** (Review & Approve)
+   - Read all workspace data
+   - Update OKRs and work plans
+   - Approve reviews and submissions
+
+3. **Apprentice** (Execute)
+   - Read assigned tasks
+   - Update own work
+   - Request reviews
+
+4. **Government** (Read-Only Across All Workspaces) - **NEW**
+   - View all data across all workspaces
+   - No create/update/delete permissions
+   - Used for regulatory oversight and compliance
+
+```typescript
+// RBAC permissions in /src/lib/api/index.ts
+const permissions: Record<Role, Record<string, string[]>> = {
+  Founder: { '*': ['*'] },
+  FractionalExec: {
+    okr: ['read', 'update'],
+    workPlan: ['read', 'update', 'approve']
+  },
+  Apprentice: {
+    task: ['read', 'create', 'update_own', 'request_review']
+  },
+  Government: {
+    '*': ['read', 'view_all_workspaces'] // Read-only across all workspaces
+  }
+};
+```
+
+### Data Flow
+
+#### Browsing Marketplace (Layer 1)
+```
+User → Community Tab → Browse Suppliers/Executives/AI Tools
+     → View detailed profiles
+     → Request to hire/onboard
+```
+
+#### Hiring Process (Layer 1 → Layer 2)
+```
+1. User browses marketplace executive (Layer 1, no workspaceId)
+2. User requests to hire executive
+3. System creates OrganizationMember record (Layer 2, with workspaceId)
+4. Executive now appears in company's team directory
+```
+
+#### Workspace Operations (Layer 2)
+```
+User → Home/Decide/Do/Evaluate Tabs
+     → All data filtered by user's workspaceId
+     → Complete workspace isolation
+     → No cross-workspace data leakage
+```
+
+#### Government Oversight (Layer 2, All Workspaces)
+```
+Government User → Access any tab
+                → See aggregated data across all companies
+                → Read-only access (no modifications)
+                → Used for compliance monitoring
+```
+
+### Store Architecture
+
+All centralized stores follow this pattern:
+
+```typescript
+// /src/lib/state/{entity}-store.ts
+interface EntityState {
+  entities: Entity[];
+
+  // Initialization
+  initializeEntities: () => void;
+
+  // Single-tenant methods (filtered by workspaceId)
+  getEntitiesByWorkspace: (workspaceId: string) => Entity[];
+
+  // Multi-tenant methods (Government users)
+  getAllEntities: () => Entity[];
+
+  // CRUD operations
+  addEntity: (entity: Entity) => void;
+  updateEntity: (id: string, updates: Partial<Entity>) => void;
+  deleteEntity: (id: string) => void;
+}
+```
+
+### Benefits of This Architecture
+
+1. **Clear Separation**: Public marketplace vs private workspace data
+2. **Platform Scalability**: Marketplace grows independently of individual companies
+3. **Data Isolation**: Companies can't see each other's operational data
+4. **Government Oversight**: Regulatory compliance with read-only access
+5. **Type Safety**: TypeScript interfaces enforce workspaceId where required
+6. **Performance**: Zustand selectors prevent unnecessary re-renders
+7. **Maintainability**: Single source of truth for all data types
+8. **Flexibility**: Easy to add new marketplace catalogs or workspace entities
+
+### Files Reference
+
+#### Marketplace Catalogs (Layer 1)
+- `/src/lib/marketplace-suppliers.ts` - 31 UK suppliers
+- `/src/lib/marketplace-ai-tools.ts` - 24 AI tools
+- `/src/lib/marketplace-executives.ts` - 60 executives & apprentices
+
+#### Workspace Stores (Layer 2)
+- `/src/lib/state/okr-store.ts` - OKRs with workspace filtering
+- `/src/lib/state/work-plan-store.ts` - Work plans with workspace filtering
+- `/src/lib/state/organization-store.ts` - Team, AI agents, suppliers with workspace filtering
+- `/src/lib/state/supplier-store.ts` - Centralized supplier state (marketplace catalog)
+
+#### RBAC & Permissions
+- `/src/lib/api/index.ts` - Role-based access control with Government role
+- `/src/types/index.ts` - Role type definition including Government
+
+### Migration to Production Backend
+
+When moving to a real backend (Firebase, Supabase, etc.):
+
+1. **Marketplace tables** (no workspaceId):
+   - `suppliers` - Public catalog
+   - `ai_tools` - Public catalog
+   - `marketplace_executives` - Public catalog
+
+2. **Workspace tables** (with workspaceId):
+   - `okrs` - Private, filtered by workspaceId
+   - `work_plans` - Private, filtered by workspaceId
+   - `organization_members` - Private, filtered by workspaceId
+   - Row-level security (RLS) enforces workspace isolation
+
+3. **Government access**:
+   - Special RLS policies allow Government role to read across workspaces
+   - Audit logging for all Government user actions
 
 ---
 

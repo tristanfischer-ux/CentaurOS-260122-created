@@ -15,17 +15,8 @@ export default function WelcomeScreen() {
   const router = useRouter();
 
   const handleRoleSelect = (role: Role | 'Manufacturer') => {
-    if (role === 'Manufacturer') {
-      // TODO: Implement manufacturer onboarding in Phase 5
-      router.push('/onboarding' as any);
-    } else if (role === 'FractionalExec') {
-      router.push('/onboarding-executive' as any);
-    } else if (role === 'Apprentice') {
-      router.push('/onboarding-apprentice' as any);
-    } else {
-      // Founder uses existing onboarding
-      router.push('/onboarding' as any);
-    }
+    // Go to tutorial first, which will then route to appropriate onboarding
+    router.push('/tutorial' as any);
   };
 
   return (
