@@ -52,9 +52,9 @@ export default function OrgDiagramScreen() {
   const founders = ORGANIZATION_MEMBERS.filter(m => m.role === 'Founder');
 
   return (
-    <View className="flex-1 bg-white dark:bg-slate-950" style={{ paddingTop: insets.top }}>
+    <View className="flex-1 bg-white dark:bg-slate-950">
       {/* Header */}
-      <View className="px-6 py-4 border-b border-gray-300 dark:border-slate-800">
+      <View className="px-6 pt-3 pb-4 border-b border-gray-300 dark:border-slate-800" style={{ paddingTop: insets.top + 12 }}>
         <View className="flex-row items-center justify-between mb-2">
           <View className="flex-1">
             <Text className="text-gray-900 dark:text-white text-2xl font-bold">Organization</Text>
@@ -94,7 +94,7 @@ export default function OrgDiagramScreen() {
       </View>
 
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
-        <View className="px-6 py-4">
+        <View className="px-6 py-3">
           {/* Founders Section */}
           <View className="mb-6">
             <Text className="text-gray-900 dark:text-white text-lg font-bold mb-3">Founders</Text>
