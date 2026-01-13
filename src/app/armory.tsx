@@ -166,7 +166,9 @@ function LoadoutsTab({
           .filter((t): t is AIAgent => t !== undefined)
       : [];
 
-    const totalCost = equippedTools.reduce((sum, tool) => sum + tool.costPerMonth, 0);
+    const aiToolsCost = equippedTools.reduce((sum, tool) => sum + tool.costPerMonth, 0);
+    const personCostPerMonth = member.costPerDay ? member.costPerDay * 22 : 0; // 22 working days/month
+    const totalCost = personCostPerMonth + aiToolsCost;
 
     const roleColor = member.role === 'Founder' ? '#3b82f6' : member.role === 'FractionalExec' ? '#8b5cf6' : '#10b981';
 
@@ -203,9 +205,12 @@ function LoadoutsTab({
           <View className="items-end">
             <View className="flex-row items-center gap-1 mb-1">
               <DollarSign size={14} color="#60a5fa" />
-              <Text className="text-blue-300 font-black">£{totalCost}</Text>
+              <Text className="text-blue-300 font-black">£{totalCost.toLocaleString()}</Text>
             </View>
-            <Text className="text-white/40 text-xs">{equippedCount} {equippedCount === 1 ? 'tool' : 'tools'}</Text>
+            <Text className="text-white/40 text-xs">
+              {personCostPerMonth > 0 && `£${personCostPerMonth.toLocaleString()} + `}
+              £{aiToolsCost} AI
+            </Text>
           </View>
         </View>
       </Pressable>
@@ -273,7 +278,9 @@ function CharacterSheetModal({
         .filter((t): t is AIAgent => t !== undefined)
     : [];
 
-  const totalCost = equippedTools.reduce((sum, tool) => sum + tool.costPerMonth, 0);
+  const aiToolsCost = equippedTools.reduce((sum, tool) => sum + tool.costPerMonth, 0);
+  const personCostPerMonth = member.costPerDay ? member.costPerDay * 22 : 0; // 22 working days/month
+  const totalCost = personCostPerMonth + aiToolsCost;
   const roleColor = member.role === 'Founder' ? '#3b82f6' : member.role === 'FractionalExec' ? '#8b5cf6' : '#10b981';
 
   const handleAddTool = async (toolId: string) => {
@@ -317,11 +324,25 @@ function CharacterSheetModal({
               </Text>
 
               {/* Total Cost */}
-              <View className="bg-blue-500/20 border border-blue-500/30 rounded-2xl px-6 py-3">
-                <View className="flex-row items-center gap-2">
-                  <DollarSign size={20} color="#60a5fa" />
-                  <Text className="text-blue-300 text-2xl font-black">£{totalCost}</Text>
+              <View className="bg-blue-500/20 border border-blue-500/30 rounded-2xl px-6 py-4">
+                <View className="flex-row items-center justify-center gap-2 mb-3">
+                  <DollarSign size={24} color="#60a5fa" />
+                  <Text className="text-blue-300 text-3xl font-black">£{totalCost.toLocaleString()}</Text>
                   <Text className="text-white/40 text-sm">/month</Text>
+                </View>
+
+                {/* Cost Breakdown */}
+                <View className="border-t border-blue-500/20 pt-3 space-y-1">
+                  {personCostPerMonth > 0 && (
+                    <View className="flex-row justify-between">
+                      <Text className="text-white/60 text-sm">Person Cost:</Text>
+                      <Text className="text-white/80 text-sm font-bold">£{personCostPerMonth.toLocaleString()}</Text>
+                    </View>
+                  )}
+                  <View className="flex-row justify-between">
+                    <Text className="text-white/60 text-sm">AI Tools Cost:</Text>
+                    <Text className="text-white/80 text-sm font-bold">£{aiToolsCost.toLocaleString()}</Text>
+                  </View>
                 </View>
               </View>
             </View>
