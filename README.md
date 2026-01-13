@@ -90,13 +90,14 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
 - SafeArea handling on all screens
 
 **✅ Feature Completeness:**
-- Home tab: **Role-specific dashboards** (Founder: command center with company oversight and org chart access, Executive: function dashboard with apprentice tracking and resources, Apprentice: task-focused with OKR context and team visibility)
+- Home tab: **Role-specific dashboards** (Founder: command center with company oversight and org chart access, Executive: function dashboard with apprentice profiles via org chart, Apprentice: task-focused with OKR context and team visibility) - **ALL roles have quick access to Organization Chart**
 - Decide tab: Function-based OKRs (Marketing, Sales, Engineering, Ops, Finance, Admin), Expandable objectives, Progress tracking, Approval queue for resource requests
 - Evaluate tab: Work plan creation, OKR linking, Apprentice allocation, Progress monitoring, Submission review workflow
 - Do tab: Role-specific views (Apprentice: assigned work, Founder: all by function, Executive: their work), Progress reporting, Work submission
 - Make tab: AI tools, Suppliers (31 UK manufacturers including Proto Labs, Omega Plastics, Tharsus, and more), Manufacturing, BOM management (accessible to all roles, with proper tab parameter handling for AI view)
 - Community tab: Executives/Apprentices/Suppliers (31 UK manufacturers)/AI Agents marketplace with quick access to Guilds and Events, Search/filter, Request allocation, Apply/Join system with CV upload, Browse AI Library links to Make tab AI view
 - Settings tab: Profile, Themes, About with updated documentation, Function Library, Organization Structure, Guilds, Engagements
+- Organization Chart: Complete team structure by function, Member profiles with contact/cost/skills, AI agents overview (accessible from Home tab for all roles)
 
 ### Known Non-Issues:
 - 6 TODO comments for future backend integration (doesn't affect current functionality)

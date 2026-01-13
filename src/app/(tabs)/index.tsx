@@ -662,8 +662,8 @@ export default function HomeScreen() {
                 <Text className="text-gray-900 dark:text-white text-lg font-bold">
                   My Apprentices
                 </Text>
-                <Pressable onPress={() => router.push('/(tabs)/do')}>
-                  <Text className="text-blue-500 text-sm font-semibold">View Work</Text>
+                <Pressable onPress={() => router.push('/org-diagram')}>
+                  <Text className="text-blue-500 text-sm font-semibold">View All</Text>
                 </Pressable>
               </View>
 
@@ -671,7 +671,7 @@ export default function HomeScreen() {
                 {EXECUTIVE_DATA.apprentices.map((apprentice, idx) => (
                   <Pressable
                     key={idx}
-                    onPress={() => router.push('/(tabs)/do')}
+                    onPress={() => router.push('/org-diagram')}
                     className="bg-gray-100 dark:bg-slate-900 rounded-xl p-3 active:opacity-70"
                   >
                     <View className="flex-row items-center justify-between mb-2">
@@ -760,6 +760,17 @@ export default function HomeScreen() {
                 </Pressable>
               </View>
             </View>
+
+            {/* View Org Chart Button */}
+            <Pressable
+              onPress={() => router.push('/org-diagram')}
+              className="bg-blue-500 rounded-xl py-3 mb-4 items-center active:opacity-80"
+            >
+              <View className="flex-row items-center">
+                <Building2 size={18} color="#fff" />
+                <Text className="text-white font-bold ml-2">View Organization Chart</Text>
+              </View>
+            </Pressable>
 
             {/* Quick Actions */}
             <View className="flex-row gap-3 mb-4">
@@ -944,7 +955,7 @@ export default function HomeScreen() {
               </Text>
 
               <Pressable
-                onPress={() => router.push('/(tabs)/community')}
+                onPress={() => router.push('/org-diagram')}
                 className="bg-gray-100 dark:bg-slate-900 rounded-xl p-4 border border-gray-300 dark:border-slate-800 active:opacity-70"
               >
                 {APPRENTICE_DATA.teamMembers.map((member, idx) => (
@@ -973,6 +984,17 @@ export default function HomeScreen() {
                 ))}
               </Pressable>
             </View>
+
+            {/* View Org Chart Button */}
+            <Pressable
+              onPress={() => router.push('/org-diagram')}
+              className="bg-blue-500 rounded-xl py-3 mb-4 items-center active:opacity-80"
+            >
+              <View className="flex-row items-center">
+                <Building2 size={18} color="#fff" />
+                <Text className="text-white font-bold ml-2">View Organization Chart</Text>
+              </View>
+            </Pressable>
 
             {/* AI Tools */}
             <View className="mb-4">
