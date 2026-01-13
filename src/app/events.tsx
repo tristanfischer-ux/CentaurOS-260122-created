@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, Pressable, Modal, TextInput, Platform, Linking } from 'react-native';
+import { View, Text, ScrollView, Pressable, Modal, TextInput, Platform, Linking, KeyboardAvoidingView } from 'react-native';
 import { useState } from 'react';
 import {
   Calendar,
@@ -850,18 +850,22 @@ export default function EventsScreen() {
 
       {/* Create Event Modal */}
       <Modal visible={showCreateModal} transparent animationType="fade" onRequestClose={() => setShowCreateModal(false)}>
-        <View className="flex-1 bg-black/70 justify-center items-center px-6">
-          <View className="bg-gray-100 dark:bg-slate-900 rounded-3xl w-full" style={{ maxHeight: '90%', minHeight: '60%' }}>
-            {/* Fixed Header */}
-            <View className="px-6 pt-6 pb-4 border-b border-gray-300 dark:border-slate-800 flex-row items-center justify-between">
-              <Text className="text-gray-900 dark:text-white text-xl font-bold">Create Event</Text>
-              <Pressable onPress={() => setShowCreateModal(false)}>
-                <X size={24} color="#94a3b8" />
-              </Pressable>
-            </View>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          className="flex-1"
+        >
+          <View className="flex-1 bg-black/70 justify-center items-center px-6">
+            <View className="bg-gray-100 dark:bg-slate-900 rounded-3xl w-full" style={{ maxHeight: '90%', minHeight: '60%' }}>
+              {/* Fixed Header */}
+              <View className="px-6 pt-6 pb-4 border-b border-gray-300 dark:border-slate-800 flex-row items-center justify-between">
+                <Text className="text-gray-900 dark:text-white text-xl font-bold">Create Event</Text>
+                <Pressable onPress={() => setShowCreateModal(false)}>
+                  <X size={24} color="#94a3b8" />
+                </Pressable>
+              </View>
 
-            {/* Scrollable Content */}
-            <ScrollView showsVerticalScrollIndicator={true} keyboardShouldPersistTaps="handled" className="flex-1">
+              {/* Scrollable Content */}
+              <ScrollView showsVerticalScrollIndicator={true} keyboardShouldPersistTaps="handled" className="flex-1">
               <View className="p-6">
 
                 {/* Title */}
@@ -1184,6 +1188,7 @@ export default function EventsScreen() {
             </ScrollView>
           </View>
         </View>
+        </KeyboardAvoidingView>
       </Modal>
     </View>
   );

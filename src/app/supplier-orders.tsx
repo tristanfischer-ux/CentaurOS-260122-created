@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, Pressable, Modal, TextInput, Alert } from 'react-native';
+import { View, Text, ScrollView, Pressable, Modal, TextInput, Alert, KeyboardAvoidingView, Platform } from 'react-native';
 import { useState } from 'react';
 import { router, useLocalSearchParams } from 'expo-router';
 import { ArrowLeft, Package, DollarSign, Calendar, Truck, FileText, X, Plus } from 'lucide-react-native';
@@ -358,20 +358,24 @@ export default function SupplierOrdersScreen() {
 
       {/* Create Order Modal */}
       <Modal visible={showCreateModal} transparent animationType="fade" onRequestClose={() => setShowCreateModal(false)}>
-        <View className="flex-1 bg-black/70 justify-center items-center px-6">
-          <View className="bg-gray-100 dark:bg-slate-900 rounded-3xl w-full" style={{ maxHeight: '80%' }}>
-            <View className="px-6 pt-6 pb-4 border-b border-gray-300 dark:border-slate-800">
-              <View className="flex-row items-center justify-between">
-                <Text className="text-gray-900 dark:text-white text-xl font-bold">
-                  Request Quote
-                </Text>
-                <Pressable onPress={() => setShowCreateModal(false)}>
-                  <X size={24} color="#94a3b8" />
-                </Pressable>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          className="flex-1"
+        >
+          <View className="flex-1 bg-black/70 justify-center items-center px-6">
+            <View className="bg-gray-100 dark:bg-slate-900 rounded-3xl w-full" style={{ maxHeight: '80%' }}>
+              <View className="px-6 pt-6 pb-4 border-b border-gray-300 dark:border-slate-800">
+                <View className="flex-row items-center justify-between">
+                  <Text className="text-gray-900 dark:text-white text-xl font-bold">
+                    Request Quote
+                  </Text>
+                  <Pressable onPress={() => setShowCreateModal(false)}>
+                    <X size={24} color="#94a3b8" />
+                  </Pressable>
+                </View>
               </View>
-            </View>
 
-            <ScrollView showsVerticalScrollIndicator={true} className="flex-1 px-6 py-4">
+              <ScrollView showsVerticalScrollIndicator={true} className="flex-1 px-6 py-4" keyboardShouldPersistTaps="handled">
               <View className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4 mb-4">
                 <Text className="text-blue-900 dark:text-blue-100 text-sm">
                   Fill out the form below to request a quote from your supplier. They'll respond with pricing and lead times.
@@ -421,6 +425,7 @@ export default function SupplierOrdersScreen() {
             </ScrollView>
           </View>
         </View>
+        </KeyboardAvoidingView>
       </Modal>
     </View>
   );

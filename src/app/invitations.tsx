@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, Pressable, Modal, TextInput, Alert } from 'react-native';
+import { View, Text, ScrollView, Pressable, Modal, TextInput, Alert, KeyboardAvoidingView, Platform } from 'react-native';
 import { useState } from 'react';
 import { router } from 'expo-router';
 import { ArrowLeft, Clock, DollarSign, Calendar, X, Check, MessageSquare } from 'lucide-react-native';
@@ -483,20 +483,24 @@ export default function InvitationsScreen() {
 
       {/* Counter Offer Modal */}
       <Modal visible={showCounterOfferModal} transparent animationType="fade" onRequestClose={() => setShowCounterOfferModal(false)}>
-        <View className="flex-1 bg-black/70 justify-center items-center px-6">
-          <View className="bg-gray-100 dark:bg-slate-900 rounded-3xl w-full" style={{ maxHeight: '70%' }}>
-            <View className="px-6 pt-6 pb-4 border-b border-gray-300 dark:border-slate-800">
-              <View className="flex-row items-center justify-between">
-                <Text className="text-gray-900 dark:text-white text-xl font-bold">
-                  Send Counter Offer
-                </Text>
-                <Pressable onPress={() => setShowCounterOfferModal(false)}>
-                  <X size={24} color="#94a3b8" />
-                </Pressable>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          className="flex-1"
+        >
+          <View className="flex-1 bg-black/70 justify-center items-center px-6">
+            <View className="bg-gray-100 dark:bg-slate-900 rounded-3xl w-full" style={{ maxHeight: '70%' }}>
+              <View className="px-6 pt-6 pb-4 border-b border-gray-300 dark:border-slate-800">
+                <View className="flex-row items-center justify-between">
+                  <Text className="text-gray-900 dark:text-white text-xl font-bold">
+                    Send Counter Offer
+                  </Text>
+                  <Pressable onPress={() => setShowCounterOfferModal(false)}>
+                    <X size={24} color="#94a3b8" />
+                  </Pressable>
+                </View>
               </View>
-            </View>
 
-            <ScrollView showsVerticalScrollIndicator={true} className="flex-1 px-6 py-4">
+              <ScrollView showsVerticalScrollIndicator={true} className="flex-1 px-6 py-4" keyboardShouldPersistTaps="handled">
               <View className="mb-4">
                 <Text className="text-gray-900 dark:text-white font-semibold mb-2">Your Day Rate (£)</Text>
                 <TextInput
@@ -543,6 +547,7 @@ export default function InvitationsScreen() {
             </ScrollView>
           </View>
         </View>
+        </KeyboardAvoidingView>
       </Modal>
     </View>
   );

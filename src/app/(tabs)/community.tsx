@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, Pressable, Modal, TextInput, Alert } from 'react-native';
+import { View, Text, ScrollView, Pressable, Modal, TextInput, Alert, KeyboardAvoidingView, Platform } from 'react-native';
 import { useState } from 'react';
 import {
   Users,
@@ -931,18 +931,22 @@ export default function CommunityScreen() {
 
       {/* Allocation Request Modal */}
       <Modal visible={showRequestModal} transparent animationType="fade" onRequestClose={() => setShowRequestModal(false)}>
-        <View className="flex-1 bg-black/70 justify-center items-center px-6">
-          <View className="bg-gray-100 dark:bg-slate-900 rounded-3xl w-full" style={{ maxHeight: '70%' }}>
-            <View className="px-6 pt-6 pb-4 border-b border-gray-300 dark:border-slate-800">
-              <View className="flex-row items-center justify-between">
-                <Text className="text-gray-900 dark:text-white text-xl font-bold">Request Allocation</Text>
-                <Pressable onPress={() => setShowRequestModal(false)}>
-                  <X size={24} color="#94a3b8" />
-                </Pressable>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          className="flex-1"
+        >
+          <View className="flex-1 bg-black/70 justify-center items-center px-6">
+            <View className="bg-gray-100 dark:bg-slate-900 rounded-3xl w-full" style={{ maxHeight: '70%' }}>
+              <View className="px-6 pt-6 pb-4 border-b border-gray-300 dark:border-slate-800">
+                <View className="flex-row items-center justify-between">
+                  <Text className="text-gray-900 dark:text-white text-xl font-bold">Request Allocation</Text>
+                  <Pressable onPress={() => setShowRequestModal(false)}>
+                    <X size={24} color="#94a3b8" />
+                  </Pressable>
+                </View>
               </View>
-            </View>
 
-            <ScrollView showsVerticalScrollIndicator={true} className="px-6 py-4">
+              <ScrollView showsVerticalScrollIndicator={true} className="px-6 py-4" keyboardShouldPersistTaps="handled">
               <View className="mb-4">
                 <Text className="text-gray-900 dark:text-white font-bold text-base mb-1">
                   {requestType === 'supplier' ? selectedSupplier?.name : selectedCandidate?.name}
@@ -979,24 +983,29 @@ export default function CommunityScreen() {
             </ScrollView>
           </View>
         </View>
+        </KeyboardAvoidingView>
       </Modal>
 
       {/* Application Modal */}
       <Modal visible={showApplicationModal} transparent animationType="fade" onRequestClose={() => setShowApplicationModal(false)}>
-        <View className="flex-1 bg-black/70 justify-center items-center px-6">
-          <View className="bg-gray-100 dark:bg-slate-900 rounded-3xl w-full" style={{ maxHeight: '85%' }}>
-            <View className="px-6 pt-6 pb-4 border-b border-gray-300 dark:border-slate-800">
-              <View className="flex-row items-center justify-between">
-                <Text className="text-gray-900 dark:text-white text-xl font-bold">
-                  Apply as {applicationType === 'executive' ? 'Executive' : applicationType === 'apprentice' ? 'Apprentice' : 'Supplier'}
-                </Text>
-                <Pressable onPress={() => setShowApplicationModal(false)}>
-                  <X size={24} color="#94a3b8" />
-                </Pressable>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          className="flex-1"
+        >
+          <View className="flex-1 bg-black/70 justify-center items-center px-6">
+            <View className="bg-gray-100 dark:bg-slate-900 rounded-3xl w-full" style={{ maxHeight: '85%' }}>
+              <View className="px-6 pt-6 pb-4 border-b border-gray-300 dark:border-slate-800">
+                <View className="flex-row items-center justify-between">
+                  <Text className="text-gray-900 dark:text-white text-xl font-bold">
+                    Apply as {applicationType === 'executive' ? 'Executive' : applicationType === 'apprentice' ? 'Apprentice' : 'Supplier'}
+                  </Text>
+                  <Pressable onPress={() => setShowApplicationModal(false)}>
+                    <X size={24} color="#94a3b8" />
+                  </Pressable>
+                </View>
               </View>
-            </View>
 
-            <ScrollView showsVerticalScrollIndicator={true} className="px-6 py-4">
+              <ScrollView showsVerticalScrollIndicator={true} className="px-6 py-4" keyboardShouldPersistTaps="handled">
               <Text className="text-blue-700 dark:text-blue-300 text-sm mb-4">
                 Submit your application to join the marketplace. Our team will review and contact you if there's a match.
               </Text>
@@ -1085,6 +1094,7 @@ export default function CommunityScreen() {
             </ScrollView>
           </View>
         </View>
+        </KeyboardAvoidingView>
       </Modal>
     </View>
   );
