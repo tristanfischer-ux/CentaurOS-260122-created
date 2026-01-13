@@ -1,5 +1,6 @@
 import { View, Text, ScrollView, Pressable, Modal, TextInput, Alert, KeyboardAvoidingView, Platform } from 'react-native';
 import { useState } from 'react';
+import * as DocumentPicker from 'expo-document-picker';
 import {
   Users,
   Briefcase,
@@ -22,6 +23,7 @@ import {
 import { router } from 'expo-router';
 import { fractionalExecutives, apprentices, type Candidate } from '@/lib/candidates-seed';
 import { UK_SUPPLIERS } from '@/lib/suppliers-seed';
+import { AI_AGENTS, getAgentsByCategory, type AIAgent, type AgentCategory } from '@/lib/ai-agents-data';
 import { TabDescription } from '@/components/TabDescription';
 import { useCurrentMembership } from '@/lib/state/app-store';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -58,9 +60,12 @@ export default function CommunityScreen() {
   const [activeTab, setActiveTab] = useState<CommunityTab>('executives');
   const [selectedCandidate, setSelectedCandidate] = useState<Candidate | null>(null);
   const [selectedSupplier, setSelectedSupplier] = useState<Supplier | null>(null);
+  const [selectedAIAgent, setSelectedAIAgent] = useState<AIAgent | null>(null);
+  const [selectedAICategory, setSelectedAICategory] = useState<AgentCategory | null>(null);
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedFunction, setSelectedFunction] = useState<string>('all');
+  const [selectedSupplierType, setSelectedSupplierType] = useState<string>('all');
   const [showFilters, setShowFilters] = useState(false);
   const [showRequestModal, setShowRequestModal] = useState(false);
   const [requestType, setRequestType] = useState<'executive' | 'apprentice' | 'supplier' | null>(null);
@@ -74,6 +79,7 @@ export default function CommunityScreen() {
   const [applicationPhone, setApplicationPhone] = useState('');
   const [applicationSpecialization, setApplicationSpecialization] = useState('');
   const [applicationExperience, setApplicationExperience] = useState('');
+  const [applicationCV, setApplicationCV] = useState<{ name: string; uri: string; size: number } | null>(null);
 
   const isFounder = currentMembership?.role === 'Founder';
 
@@ -108,7 +114,9 @@ export default function CommunityScreen() {
       supplier.specialization.some(spec => spec.toLowerCase().includes(searchQuery.toLowerCase())) ||
       supplier.location.toLowerCase().includes(searchQuery.toLowerCase());
 
-    return matchesSearch;
+    const matchesType = selectedSupplierType === 'all' || supplier.type === selectedSupplierType;
+
+    return matchesSearch && matchesType;
   });
 
   const handleRequestAllocation = (type: 'executive' | 'apprentice' | 'supplier', item: any) => {
@@ -150,9 +158,13 @@ export default function CommunityScreen() {
       return;
     }
 
+    const cvInfo = applicationCV
+      ? `\n\nCV/Resume: ${applicationCV.name} (${(applicationCV.size / 1024).toFixed(1)} KB)`
+      : '';
+
     Alert.alert(
       'Application Submitted',
-      `Your ${applicationType} application has been submitted successfully. You'll be contacted if there's a match.`,
+      `Your ${applicationType} application has been submitted successfully${cvInfo ? ' with your CV/resume' : ''}. You'll be contacted if there's a match.`,
       [{ text: 'OK' }]
     );
 
@@ -162,7 +174,28 @@ export default function CommunityScreen() {
     setApplicationPhone('');
     setApplicationSpecialization('');
     setApplicationExperience('');
+    setApplicationCV(null);
     setShowApplicationModal(false);
+  };
+
+  const handlePickDocument = async () => {
+    try {
+      const result = await DocumentPicker.getDocumentAsync({
+        type: ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'],
+        copyToCacheDirectory: true,
+      });
+
+      if (!result.canceled && result.assets && result.assets.length > 0) {
+        const file = result.assets[0];
+        setApplicationCV({
+          name: file.name,
+          uri: file.uri,
+          size: file.size || 0,
+        });
+      }
+    } catch (error) {
+      Alert.alert('Error', 'Failed to pick document. Please try again.');
+    }
   };
 
   const tabs: { value: CommunityTab; label: string; icon: any }[] = [
@@ -272,9 +305,60 @@ export default function CommunityScreen() {
         {/* Executives Tab */}
         {activeTab === 'executives' && (
           <View className="px-6 pb-6">
-            <Text className="text-gray-900 dark:text-white text-sm mb-3">
-              {filteredExecutives.length} fractional executives available
-            </Text>
+            <View className="flex-row items-center justify-between mb-3">
+              <Text className="text-gray-900 dark:text-white text-sm">
+                {filteredExecutives.length} fractional executives available
+              </Text>
+            </View>
+
+            {/* Function Filter Chips */}
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              className="mb-4"
+              contentContainerStyle={{ gap: 8 }}
+            >
+              <Pressable
+                onPress={() => setSelectedFunction('all')}
+                className={`px-4 py-2 rounded-full ${
+                  selectedFunction === 'all'
+                    ? 'bg-blue-500'
+                    : 'bg-gray-200 dark:bg-slate-800'
+                } active:opacity-70`}
+              >
+                <Text
+                  className={`text-sm font-semibold ${
+                    selectedFunction === 'all'
+                      ? 'text-white'
+                      : 'text-gray-700 dark:text-slate-300'
+                  }`}
+                >
+                  All
+                </Text>
+              </Pressable>
+              {['Sales', 'Marketing', 'Finance', 'Ops', 'Engineering'].map((func) => (
+                <Pressable
+                  key={func}
+                  onPress={() => setSelectedFunction(func)}
+                  className={`px-4 py-2 rounded-full ${
+                    selectedFunction === func
+                      ? 'bg-blue-500'
+                      : 'bg-gray-200 dark:bg-slate-800'
+                  } active:opacity-70`}
+                >
+                  <Text
+                    className={`text-sm font-semibold ${
+                      selectedFunction === func
+                        ? 'text-white'
+                        : 'text-gray-700 dark:text-slate-300'
+                    }`}
+                  >
+                    {func}
+                  </Text>
+                </Pressable>
+              ))}
+            </ScrollView>
+
             {filteredExecutives.map((exec) => (
               <Pressable
                 key={exec.id}
@@ -327,9 +411,60 @@ export default function CommunityScreen() {
         {/* Apprentices Tab */}
         {activeTab === 'apprentices' && (
           <View className="px-6 pb-6">
-            <Text className="text-gray-900 dark:text-white text-sm mb-3">
-              {filteredApprentices.length} apprentices available
-            </Text>
+            <View className="flex-row items-center justify-between mb-3">
+              <Text className="text-gray-900 dark:text-white text-sm">
+                {filteredApprentices.length} apprentices available
+              </Text>
+            </View>
+
+            {/* Skill Filter Chips */}
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              className="mb-4"
+              contentContainerStyle={{ gap: 8 }}
+            >
+              <Pressable
+                onPress={() => setSelectedFunction('all')}
+                className={`px-4 py-2 rounded-full ${
+                  selectedFunction === 'all'
+                    ? 'bg-purple-500'
+                    : 'bg-gray-200 dark:bg-slate-800'
+                } active:opacity-70`}
+              >
+                <Text
+                  className={`text-sm font-semibold ${
+                    selectedFunction === 'all'
+                      ? 'text-white'
+                      : 'text-gray-700 dark:text-slate-300'
+                  }`}
+                >
+                  All
+                </Text>
+              </Pressable>
+              {['Sales', 'Marketing', 'Finance', 'Ops', 'Engineering'].map((func) => (
+                <Pressable
+                  key={func}
+                  onPress={() => setSelectedFunction(func)}
+                  className={`px-4 py-2 rounded-full ${
+                    selectedFunction === func
+                      ? 'bg-purple-500'
+                      : 'bg-gray-200 dark:bg-slate-800'
+                  } active:opacity-70`}
+                >
+                  <Text
+                    className={`text-sm font-semibold ${
+                      selectedFunction === func
+                        ? 'text-white'
+                        : 'text-gray-700 dark:text-slate-300'
+                    }`}
+                  >
+                    {func}
+                  </Text>
+                </Pressable>
+              ))}
+            </ScrollView>
+
             {filteredApprentices.map((apprentice) => (
               <Pressable
                 key={apprentice.id}
@@ -382,9 +517,64 @@ export default function CommunityScreen() {
         {/* Suppliers Tab */}
         {activeTab === 'suppliers' && (
           <View className="px-6 pb-6">
-            <Text className="text-gray-900 dark:text-white text-sm mb-3">
-              {filteredSuppliers.length} suppliers and manufacturers
-            </Text>
+            <View className="flex-row items-center justify-between mb-3">
+              <Text className="text-gray-900 dark:text-white text-sm">
+                {filteredSuppliers.length} suppliers and manufacturers
+              </Text>
+            </View>
+
+            {/* Type Filter Chips */}
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              className="mb-4"
+              contentContainerStyle={{ gap: 8 }}
+            >
+              <Pressable
+                onPress={() => setSelectedSupplierType('all')}
+                className={`px-4 py-2 rounded-full ${
+                  selectedSupplierType === 'all'
+                    ? 'bg-amber-500'
+                    : 'bg-gray-200 dark:bg-slate-800'
+                } active:opacity-70`}
+              >
+                <Text
+                  className={`text-sm font-semibold ${
+                    selectedSupplierType === 'all'
+                      ? 'text-white'
+                      : 'text-gray-700 dark:text-slate-300'
+                  }`}
+                >
+                  All
+                </Text>
+              </Pressable>
+              {[
+                { value: 'contract-manufacturer', label: 'Manufacturers' },
+                { value: 'component-supplier', label: 'Component Suppliers' },
+                { value: 'fulfillment', label: 'Fulfillment' }
+              ].map((type) => (
+                <Pressable
+                  key={type.value}
+                  onPress={() => setSelectedSupplierType(type.value)}
+                  className={`px-4 py-2 rounded-full ${
+                    selectedSupplierType === type.value
+                      ? 'bg-amber-500'
+                      : 'bg-gray-200 dark:bg-slate-800'
+                  } active:opacity-70`}
+                >
+                  <Text
+                    className={`text-sm font-semibold ${
+                      selectedSupplierType === type.value
+                        ? 'text-white'
+                        : 'text-gray-700 dark:text-slate-300'
+                    }`}
+                  >
+                    {type.label}
+                  </Text>
+                </Pressable>
+              ))}
+            </ScrollView>
+
             {filteredSuppliers.map((supplier) => (
               <Pressable
                 key={supplier.id}
@@ -443,115 +633,138 @@ export default function CommunityScreen() {
                 AI Agents Marketplace
               </Text>
               <Text className="text-cyan-800 dark:text-cyan-200 text-sm">
-                Discover AI agents to automate tasks, enhance productivity, and scale your operations. Browse by function and capability.
+                Discover AI agents to automate tasks, enhance productivity, and scale your operations. Browse by category to see detailed agent capabilities.
               </Text>
             </View>
 
-            {/* Quick Action Buttons */}
-            <View className="flex-row gap-3 mb-4">
-              <Pressable
-                onPress={() => router.push({ pathname: '/(tabs)/make', params: { tab: 'ai' } })}
-                className="flex-1 bg-cyan-500 rounded-xl py-3 items-center active:opacity-80"
-              >
-                <View className="flex-row items-center">
-                  <Bot size={18} color="#fff" />
-                  <Text className="text-white font-bold ml-2">Browse AI Library</Text>
-                </View>
-              </Pressable>
-            </View>
-
-            {/* AI Agent Categories */}
+            {/* AI Agent Categories - Now show details instead of navigating */}
             <Text className="text-gray-900 dark:text-white text-base font-semibold mb-3">
-              Popular AI Agent Categories
+              Browse by Category
             </Text>
 
             <Pressable
-              onPress={() => router.push({ pathname: '/(tabs)/make', params: { tab: 'ai' } })}
+              onPress={() => setSelectedAICategory('engineering')}
               className="bg-blue-100 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-xl p-4 mb-3 active:opacity-70"
             >
               <View className="flex-row items-center mb-2">
                 <Bot size={24} color="#3b82f6" />
                 <Text className="text-blue-900 dark:text-blue-100 font-bold text-base ml-3">
-                  Engineering Agents (6)
+                  Engineering Agents ({getAgentsByCategory('engineering').length})
                 </Text>
               </View>
               <Text className="text-blue-800 dark:text-blue-200 text-sm mb-2">
                 Frontend Dev, Backend Architect, Mobile Builder, AI Engineer, DevOps, Rapid Prototyper
               </Text>
               <Text className="text-blue-600 dark:text-blue-400 text-xs font-semibold">
-                From £0.20 per task →
+                From £0.20 per task • Tap to view agents
               </Text>
             </Pressable>
 
             <Pressable
-              onPress={() => router.push({ pathname: '/(tabs)/make', params: { tab: 'ai' } })}
+              onPress={() => setSelectedAICategory('marketing')}
               className="bg-pink-100 dark:bg-pink-900/30 border border-pink-200 dark:border-pink-800 rounded-xl p-4 mb-3 active:opacity-70"
             >
               <View className="flex-row items-center mb-2">
                 <Bot size={24} color="#ec4899" />
                 <Text className="text-pink-900 dark:text-pink-100 font-bold text-base ml-3">
-                  Marketing Agents (7)
+                  Marketing Agents ({getAgentsByCategory('marketing').length})
                 </Text>
               </View>
               <Text className="text-pink-800 dark:text-pink-200 text-sm mb-2">
                 TikTok Strategist, Instagram Curator, Twitter Engager, Reddit Builder, ASO, Content Creator, Growth Hacker
               </Text>
               <Text className="text-pink-600 dark:text-pink-400 text-xs font-semibold">
-                From £1.50 per task →
+                From £1.50 per task • Tap to view agents
               </Text>
             </Pressable>
 
             <Pressable
-              onPress={() => router.push({ pathname: '/(tabs)/make', params: { tab: 'ai' } })}
+              onPress={() => setSelectedAICategory('design')}
               className="bg-purple-100 dark:bg-purple-900/30 border border-purple-200 dark:border-purple-800 rounded-xl p-4 mb-3 active:opacity-70"
             >
               <View className="flex-row items-center mb-2">
                 <Bot size={24} color="#a855f7" />
                 <Text className="text-purple-900 dark:text-purple-100 font-bold text-base ml-3">
-                  Design Agents (5)
+                  Design Agents ({getAgentsByCategory('design').length})
                 </Text>
               </View>
               <Text className="text-purple-800 dark:text-purple-200 text-sm mb-2">
                 UI Designer, UX Researcher, Brand Guardian, Visual Storyteller, Whimsy Injector
               </Text>
               <Text className="text-purple-600 dark:text-purple-400 text-xs font-semibold">
-                From £2.00 per task →
+                From £2.00 per task • Tap to view agents
               </Text>
             </Pressable>
 
             <Pressable
-              onPress={() => router.push({ pathname: '/(tabs)/make', params: { tab: 'ai' } })}
+              onPress={() => setSelectedAICategory('product')}
               className="bg-emerald-100 dark:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-800 rounded-xl p-4 mb-3 active:opacity-70"
             >
               <View className="flex-row items-center mb-2">
                 <Bot size={24} color="#10b981" />
                 <Text className="text-emerald-900 dark:text-emerald-100 font-bold text-base ml-3">
-                  Product Agents (3)
+                  Product Agents ({getAgentsByCategory('product').length})
                 </Text>
               </View>
               <Text className="text-emerald-800 dark:text-emerald-200 text-sm mb-2">
                 Trend Researcher, Feedback Synthesizer, Sprint Prioritizer
               </Text>
               <Text className="text-emerald-600 dark:text-emerald-400 text-xs font-semibold">
-                From £1.00 per task →
+                From £1.00 per task • Tap to view agents
               </Text>
             </Pressable>
 
             <Pressable
-              onPress={() => router.push({ pathname: '/(tabs)/make', params: { tab: 'ai' } })}
-              className="bg-amber-100 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-800 rounded-xl p-4 mb-3 active:opacity-70"
+              onPress={() => setSelectedAICategory('project-management')}
+              className="bg-green-100 dark:bg-green-900/30 border border-green-200 dark:border-green-800 rounded-xl p-4 mb-3 active:opacity-70"
             >
               <View className="flex-row items-center mb-2">
-                <Bot size={24} color="#f59e0b" />
-                <Text className="text-amber-900 dark:text-amber-100 font-bold text-base ml-3">
-                  All Other Categories (16+ agents)
+                <Bot size={24} color="#22c55e" />
+                <Text className="text-green-900 dark:text-green-100 font-bold text-base ml-3">
+                  Project Management Agents ({getAgentsByCategory('project-management').length})
                 </Text>
               </View>
-              <Text className="text-amber-800 dark:text-amber-200 text-sm mb-2">
-                Project Management, Studio Operations, Testing, and more specialized agents
+              <Text className="text-green-800 dark:text-green-200 text-sm mb-2">
+                Experiment Tracker, Project Shipper, Studio Producer
               </Text>
-              <Text className="text-amber-600 dark:text-amber-400 text-xs font-semibold">
-                View full library →
+              <Text className="text-green-600 dark:text-green-400 text-xs font-semibold">
+                From £0.60 per task • Tap to view agents
+              </Text>
+            </Pressable>
+
+            <Pressable
+              onPress={() => setSelectedAICategory('studio-operations')}
+              className="bg-slate-100 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl p-4 mb-3 active:opacity-70"
+            >
+              <View className="flex-row items-center mb-2">
+                <Bot size={24} color="#64748b" />
+                <Text className="text-slate-900 dark:text-slate-100 font-bold text-base ml-3">
+                  Studio Operations Agents ({getAgentsByCategory('studio-operations').length})
+                </Text>
+              </View>
+              <Text className="text-slate-800 dark:text-slate-200 text-sm mb-2">
+                Support Responder, Analytics Reporter, Infrastructure Maintainer, Legal Compliance, Finance Tracker
+              </Text>
+              <Text className="text-slate-600 dark:text-slate-400 text-xs font-semibold">
+                From £0.20 per task • Tap to view agents
+              </Text>
+            </Pressable>
+
+            <Pressable
+              onPress={() => setSelectedAICategory('testing')}
+              className="bg-cyan-100 dark:bg-cyan-900/30 border border-cyan-200 dark:border-cyan-800 rounded-xl p-4 mb-3 active:opacity-70"
+            >
+              <View className="flex-row items-center mb-2">
+                <Bot size={24} color="#06b6d4" />
+                <Text className="text-cyan-900 dark:text-cyan-100 font-bold text-base ml-3">
+                  Testing Agents ({getAgentsByCategory('testing').length})
+                </Text>
+              </View>
+              <Text className="text-cyan-800 dark:text-cyan-200 text-sm mb-2">
+                Tool Evaluator, API Tester, Workflow Optimizer, Performance Benchmarker, Test Results Analyzer
+              </Text>
+              <Text className="text-cyan-600 dark:text-cyan-400 text-xs font-semibold">
+                From £0.50 per task • Tap to view agents
               </Text>
             </Pressable>
 
@@ -560,7 +773,7 @@ export default function CommunityScreen() {
                 💡 How AI Agents Work
               </Text>
               <Text className="text-gray-700 dark:text-slate-300 text-sm leading-5">
-                AI agents are specialized tools that automate specific tasks in your workflow. Each agent has defined expertise, tools, and output formats. Some require human approval for quality control. Browse the full library to deploy agents to your workspace.
+                AI agents are specialized tools that automate specific tasks in your workflow. Each agent has defined expertise, tools, and output formats. Some require human approval for quality control. Tap any category above to see detailed agent capabilities and pricing.
               </Text>
             </View>
           </View>
@@ -1052,17 +1265,63 @@ export default function CommunityScreen() {
                 />
               </View>
 
-              <View className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3 mb-4">
-                <View className="flex-row items-center mb-1">
-                  <Upload size={16} color="#3b82f6" />
-                  <Text className="text-blue-700 dark:text-blue-300 text-xs font-semibold ml-2">
-                    CV/Resume Upload (Coming Soon)
+              {/* CV/Resume Upload - Now functional */}
+              {applicationType !== 'supplier' && (
+                <View className="mb-4">
+                  <Text className="text-gray-600 dark:text-slate-400 text-sm mb-2">
+                    CV/Resume {applicationType === 'apprentice' ? '*' : '(Optional)'}
+                  </Text>
+                  {!applicationCV ? (
+                    <Pressable
+                      onPress={handlePickDocument}
+                      className="bg-blue-50 dark:bg-blue-900/20 border-2 border-dashed border-blue-300 dark:border-blue-700 rounded-xl p-4 active:opacity-70"
+                    >
+                      <View className="flex-row items-center justify-center">
+                        <Upload size={20} color="#3b82f6" />
+                        <Text className="text-blue-600 dark:text-blue-400 text-sm font-semibold ml-2">
+                          Upload PDF or Word Document
+                        </Text>
+                      </View>
+                      <Text className="text-blue-500 dark:text-blue-500 text-xs text-center mt-2">
+                        Tap to select your CV/Resume
+                      </Text>
+                    </Pressable>
+                  ) : (
+                    <View className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-xl p-4">
+                      <View className="flex-row items-center justify-between">
+                        <View className="flex-1">
+                          <View className="flex-row items-center mb-1">
+                            <CheckCircle2 size={16} color="#10b981" />
+                            <Text className="text-emerald-700 dark:text-emerald-300 font-semibold ml-2">
+                              Document Uploaded
+                            </Text>
+                          </View>
+                          <Text className="text-emerald-600 dark:text-emerald-400 text-sm" numberOfLines={1}>
+                            {applicationCV.name}
+                          </Text>
+                          <Text className="text-emerald-500 dark:text-emerald-500 text-xs mt-1">
+                            {(applicationCV.size / 1024).toFixed(1)} KB
+                          </Text>
+                        </View>
+                        <Pressable
+                          onPress={() => setApplicationCV(null)}
+                          className="ml-3 w-8 h-8 bg-red-100 dark:bg-red-900/30 rounded-full items-center justify-center active:opacity-70"
+                        >
+                          <X size={18} color="#ef4444" />
+                        </Pressable>
+                      </View>
+                    </View>
+                  )}
+                </View>
+              )}
+
+              {applicationType === 'supplier' && (
+                <View className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-3 mb-4">
+                  <Text className="text-amber-700 dark:text-amber-300 text-xs">
+                    💡 For suppliers, please include company brochures or capability statements in your description above.
                   </Text>
                 </View>
-                <Text className="text-blue-600 dark:text-blue-400 text-xs">
-                  For now, please include your LinkedIn profile or relevant links in your experience summary.
-                </Text>
-              </View>
+              )}
 
               <Pressable
                 onPress={handleSubmitApplication}
@@ -1074,6 +1333,195 @@ export default function CommunityScreen() {
           </View>
         </View>
         </KeyboardAvoidingView>
+      </Modal>
+
+      {/* AI Category Agents List Modal */}
+      <Modal visible={selectedAICategory !== null} transparent animationType="slide" onRequestClose={() => setSelectedAICategory(null)}>
+        <View className="flex-1 bg-black/70">
+          <View className="flex-1 bg-white dark:bg-slate-950 mt-16 rounded-t-3xl">
+            {/* Header */}
+            <View className="px-6 pt-6 pb-4 border-b border-gray-300 dark:border-slate-800">
+              <View className="flex-row items-center justify-between">
+                <Text className="text-gray-900 dark:text-white text-2xl font-bold">
+                  {selectedAICategory && selectedAICategory.charAt(0).toUpperCase() + selectedAICategory.slice(1).replace('-', ' ')} Agents
+                </Text>
+                <Pressable
+                  onPress={() => setSelectedAICategory(null)}
+                  className="w-10 h-10 items-center justify-center rounded-full bg-gray-100 dark:bg-slate-900 active:opacity-70"
+                >
+                  <X size={24} color="#64748b" />
+                </Pressable>
+              </View>
+              <Text className="text-gray-600 dark:text-slate-400 text-sm mt-1">
+                {selectedAICategory && getAgentsByCategory(selectedAICategory).length} agents in this category
+              </Text>
+            </View>
+
+            <ScrollView className="flex-1 px-6 py-4" showsVerticalScrollIndicator={false}>
+              {selectedAICategory && getAgentsByCategory(selectedAICategory).map((agent) => (
+                <Pressable
+                  key={agent.id}
+                  onPress={() => {
+                    setSelectedAIAgent(agent);
+                  }}
+                  className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-4 mb-3 border border-gray-300 dark:border-slate-800 active:opacity-70"
+                >
+                  <View className="flex-row items-start justify-between mb-2">
+                    <View className="flex-1">
+                      <Text className="text-gray-900 dark:text-white font-bold text-base mb-1">
+                        {agent.name}
+                      </Text>
+                      <Text className="text-gray-600 dark:text-slate-400 text-sm mb-2">
+                        {agent.description}
+                      </Text>
+                    </View>
+                  </View>
+
+                  <View className="flex-row flex-wrap gap-1 mb-3">
+                    {agent.expertise.slice(0, 3).map((exp, idx) => (
+                      <View key={idx} className="bg-blue-100 dark:bg-blue-900/30 px-2 py-1 rounded">
+                        <Text className="text-blue-700 dark:text-blue-300 text-xs">{exp}</Text>
+                      </View>
+                    ))}
+                    {agent.expertise.length > 3 && (
+                      <View className="bg-gray-200 dark:bg-slate-800 px-2 py-1 rounded">
+                        <Text className="text-gray-600 dark:text-slate-400 text-xs">+{agent.expertise.length - 3} more</Text>
+                      </View>
+                    )}
+                  </View>
+
+                  <View className="flex-row items-center justify-between pt-2 border-t border-gray-300 dark:border-slate-700">
+                    <Text className="text-emerald-600 dark:text-emerald-400 font-semibold">
+                      {agent.estimatedCostPerTask}
+                    </Text>
+                    {agent.approvalRequired && (
+                      <View className="bg-amber-100 dark:bg-amber-900/30 px-2 py-1 rounded">
+                        <Text className="text-amber-700 dark:text-amber-300 text-xs">Approval Required</Text>
+                      </View>
+                    )}
+                    <Text className="text-blue-600 dark:text-blue-400 text-xs font-semibold">View Details →</Text>
+                  </View>
+                </Pressable>
+              ))}
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
+
+      {/* AI Agent Detail Modal */}
+      <Modal visible={selectedAIAgent !== null} transparent animationType="fade" onRequestClose={() => setSelectedAIAgent(null)}>
+        <View className="flex-1 bg-black/70 justify-center items-center px-6">
+          {selectedAIAgent && (
+            <View className="bg-gray-100 dark:bg-slate-900 rounded-3xl w-full" style={{ maxHeight: '85%' }}>
+              {/* Header */}
+              <View className="px-6 pt-6 pb-4 border-b border-gray-300 dark:border-slate-800">
+                <View className="flex-row items-center justify-between mb-2">
+                  <Text className="text-gray-900 dark:text-white text-xl font-bold flex-1">{selectedAIAgent.name}</Text>
+                  <Pressable onPress={() => setSelectedAIAgent(null)}>
+                    <X size={24} color="#94a3b8" />
+                  </Pressable>
+                </View>
+                <View className="flex-row items-center gap-2">
+                  <View className="bg-blue-100 dark:bg-blue-900/30 px-2 py-1 rounded">
+                    <Text className="text-blue-700 dark:text-blue-300 text-xs capitalize">
+                      {selectedAIAgent.category.replace('-', ' ')}
+                    </Text>
+                  </View>
+                  {selectedAIAgent.approvalRequired && (
+                    <View className="bg-amber-100 dark:bg-amber-900/30 px-2 py-1 rounded">
+                      <Text className="text-amber-700 dark:text-amber-300 text-xs">Approval Required</Text>
+                    </View>
+                  )}
+                </View>
+              </View>
+
+              {/* Scrollable Content */}
+              <ScrollView showsVerticalScrollIndicator={true} bounces={false} className="flex-1">
+                <View className="px-6 py-4">
+                  <View className="bg-gray-200 dark:bg-slate-800 rounded-xl p-4 mb-4">
+                    <View className="flex-row justify-between items-center">
+                      <Text className="text-gray-600 dark:text-slate-400">Estimated Cost:</Text>
+                      <Text className="text-emerald-600 dark:text-emerald-400 text-lg font-bold">
+                        {selectedAIAgent.estimatedCostPerTask}
+                      </Text>
+                    </View>
+                  </View>
+
+                  <View className="mb-4">
+                    <Text className="text-gray-600 dark:text-slate-400 text-sm mb-1">Description</Text>
+                    <Text className="text-gray-900 dark:text-white text-base leading-6">
+                      {selectedAIAgent.description}
+                    </Text>
+                  </View>
+
+                  <View className="mb-4">
+                    <Text className="text-gray-900 dark:text-white font-semibold mb-2">Expertise</Text>
+                    <View className="flex-row flex-wrap gap-2">
+                      {selectedAIAgent.expertise.map((exp, idx) => (
+                        <View key={idx} className="bg-blue-100 dark:bg-blue-900/30 px-3 py-2 rounded-lg border border-blue-200 dark:border-blue-800">
+                          <Text className="text-blue-700 dark:text-blue-300 font-semibold">{exp}</Text>
+                        </View>
+                      ))}
+                    </View>
+                  </View>
+
+                  <View className="mb-4">
+                    <Text className="text-gray-900 dark:text-white font-semibold mb-2">Tools & Integrations</Text>
+                    <View className="flex-row flex-wrap gap-2">
+                      {selectedAIAgent.tools.map((tool, idx) => (
+                        <View key={idx} className="bg-gray-200 dark:bg-slate-800 px-3 py-2 rounded-lg">
+                          <Text className="text-gray-700 dark:text-slate-300">{tool}</Text>
+                        </View>
+                      ))}
+                    </View>
+                  </View>
+
+                  <View className="mb-4">
+                    <Text className="text-gray-900 dark:text-white font-semibold mb-2">Output Format</Text>
+                    <View className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-xl p-4">
+                      <Text className="text-emerald-700 dark:text-emerald-300 font-medium">
+                        {selectedAIAgent.outputFormat}
+                      </Text>
+                    </View>
+                  </View>
+
+                  {selectedAIAgent.approvalRequired && (
+                    <View className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-4 mb-4">
+                      <Text className="text-amber-700 dark:text-amber-300 font-semibold mb-1">⚠️ Human Approval Required</Text>
+                      <Text className="text-amber-600 dark:text-amber-400 text-sm">
+                        This agent requires human review before outputs are deployed to production. This ensures quality control for critical operations.
+                      </Text>
+                    </View>
+                  )}
+
+                  <View className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4">
+                    <Text className="text-blue-700 dark:text-blue-300 text-sm font-semibold mb-2">💡 How to Deploy</Text>
+                    <Text className="text-blue-600 dark:text-blue-400 text-sm">
+                      To deploy this agent to your workspace, request allocation from the founder. Once approved, the agent will be available in the Make tab for task execution.
+                    </Text>
+                  </View>
+                </View>
+              </ScrollView>
+
+              {/* Action Button */}
+              <View className="px-6 py-4 border-t border-gray-300 dark:border-slate-800">
+                <Pressable
+                  onPress={() => {
+                    setSelectedAIAgent(null);
+                    Alert.alert(
+                      'Request Sent',
+                      `Your request to deploy ${selectedAIAgent?.name} has been sent to the founder for approval.`,
+                      [{ text: 'OK' }]
+                    );
+                  }}
+                  className="bg-blue-500 rounded-xl py-4 items-center active:opacity-70"
+                >
+                  <Text className="text-white font-bold text-base">Request to Deploy</Text>
+                </Pressable>
+              </View>
+            </View>
+          )}
+        </View>
       </Modal>
     </View>
   );
