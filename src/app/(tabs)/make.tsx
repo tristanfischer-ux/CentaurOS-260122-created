@@ -1,6 +1,6 @@
 import { View, Text, ScrollView, Pressable, Modal, Linking } from 'react-native';
-import { useState } from 'react';
-import { router } from 'expo-router';
+import { useState, useEffect } from 'react';
+import { router, useLocalSearchParams } from 'expo-router';
 import {
   Package,
   Cpu,
@@ -37,8 +37,16 @@ type MakeTab = 'suppliers' | 'ai';
 export default function MakeScreen() {
   const insets = useSafeAreaInsets();
   const currentMembership = useCurrentMembership();
+  const params = useLocalSearchParams();
 
   const [activeTab, setActiveTab] = useState<MakeTab>('suppliers');
+
+  // Handle tab parameter from navigation
+  useEffect(() => {
+    if (params.tab === 'ai') {
+      setActiveTab('ai');
+    }
+  }, [params.tab]);
   const [selectedSupplier, setSelectedSupplier] = useState<SupplierEngagement | null>(null);
   const [selectedAI, setSelectedAI] = useState<AIAgent | null>(null);
 

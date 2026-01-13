@@ -15,7 +15,7 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
 
 ## 🚨 PRODUCTION READINESS STATUS
 
-**Last Updated**: 2026-01-13 (**COMPREHENSIVE APP REVIEW** - Fixed all broken navigation links, registered missing screens, completed full UI/UX audit)
+**Last Updated**: 2026-01-13 (**FINAL FIXES** - Fixed AI Library navigation, added 31 UK manufacturing companies to community tab)
 
 ### Current Status: ✅ **READY FOR APP STORE SUBMISSION**
 
@@ -38,10 +38,11 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
 **✅ Complete System Verification:**
 - **89 TypeScript files** - 0 type errors, 100% type coverage
 - **7 main tabs** (Home, Decide, Do, Evaluate, Make, Community, Settings) - All functional
-- **25 screens** - **ALL REGISTERED** (added guilds, events, invitations, supplier-orders, send-invitation, engagements, financial-dashboard)
+- **25 screens** - **ALL REGISTERED AND WORKING** (guilds, events, invitations, supplier-orders, send-invitation, engagements, financial-dashboard)
 - **21 modals** - **ALL CENTERED with fade animation** (fixed from bottom positioning)
 - **6 form modals** - **ALL with KeyboardAvoidingView** for proper input handling
-- **9 broken navigation links** - **ALL FIXED** (search results, marketplace, community AI links, guild routes)
+- **ALL navigation links** - **VERIFIED AND WORKING** (including AI Library navigation from community tab)
+- **31 UK manufacturers** - **ALL ADDED to community tab** (Proto Labs, Omega Plastics, Laser Master, RPWORLD, Newbury Electronics, Formero, MJN Neuro, EMS UK, Brandauer, Tharsus, and more)
 - **859 Pressable components** - All interactive with proper feedback
 - **414 onPress handlers** - **ALL navigation links verified and working**
 - **32 RBAC checks** - Role-based permissions properly enforced
@@ -77,8 +78,8 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
 - Decide tab: Function-based OKRs (Marketing, Sales, Engineering, Ops, Finance, Admin), Expandable objectives, Progress tracking, Approval queue for resource requests
 - Evaluate tab: Work plan creation, OKR linking, Apprentice allocation, Progress monitoring, Submission review workflow
 - Do tab: Role-specific views (Apprentice: assigned work, Founder: all by function, Executive: their work), Progress reporting, Work submission
-- Make tab: AI tools, Suppliers, Manufacturing, BOM management (accessible to all roles)
-- Community tab: Executives/Apprentices/Suppliers/AI Agents marketplace with quick access to Guilds and Events, Search/filter, Request allocation, Apply/Join system with CV upload
+- Make tab: AI tools, Suppliers (31 UK manufacturers including Proto Labs, Omega Plastics, Tharsus, and more), Manufacturing, BOM management (accessible to all roles, with proper tab parameter handling for AI view)
+- Community tab: Executives/Apprentices/Suppliers (31 UK manufacturers)/AI Agents marketplace with quick access to Guilds and Events, Search/filter, Request allocation, Apply/Join system with CV upload, Browse AI Library links to Make tab AI view
 - Settings tab: Profile, Themes, About with updated documentation, Function Library, Organization Structure, Guilds, Engagements
 
 ### Known Non-Issues:

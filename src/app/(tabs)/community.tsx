@@ -21,6 +21,7 @@ import {
 } from 'lucide-react-native';
 import { router } from 'expo-router';
 import { fractionalExecutives, apprentices, type Candidate } from '@/lib/candidates-seed';
+import { UK_SUPPLIERS } from '@/lib/suppliers-seed';
 import { TabDescription } from '@/components/TabDescription';
 import { useCurrentMembership } from '@/lib/state/app-store';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -38,39 +39,17 @@ interface Supplier {
   certifications: string[];
 }
 
-// Demo suppliers
-const DEMO_SUPPLIERS: Supplier[] = [
-  {
-    id: 'sup-1',
-    name: 'TechFab Manufacturing',
-    type: 'contract-manufacturer',
-    location: 'Shenzhen, China',
-    specialization: ['PCB Assembly', 'Enclosure Manufacturing', 'Quality Testing'],
-    minOrderQuantity: '500 units',
-    leadTime: '4-6 weeks',
-    certifications: ['ISO 9001', 'RoHS', 'CE'],
-  },
-  {
-    id: 'sup-2',
-    name: 'UK Electronics Supply',
-    type: 'component-supplier',
-    location: 'Manchester, UK',
-    specialization: ['ICs', 'Resistors', 'Capacitors', 'Connectors'],
-    minOrderQuantity: '100 units',
-    leadTime: '1-2 weeks',
-    certifications: ['ISO 9001', 'RoHS'],
-  },
-  {
-    id: 'sup-3',
-    name: 'GlobalShip Fulfillment',
-    type: 'fulfillment',
-    location: 'London, UK',
-    specialization: ['Warehousing', 'Pick & Pack', 'Last-Mile Delivery'],
-    minOrderQuantity: 'N/A',
-    leadTime: '1-3 days',
-    certifications: ['ISO 9001'],
-  },
-];
+// Convert UK_SUPPLIERS to community tab format
+const DEMO_SUPPLIERS: Supplier[] = UK_SUPPLIERS.map((supplier, index) => ({
+  id: `sup-${index + 1}`,
+  name: supplier.name,
+  type: 'contract-manufacturer' as const,
+  location: `${supplier.location.city}, ${supplier.location.country}`,
+  specialization: supplier.capabilities,
+  minOrderQuantity: `${supplier.minimumOrderQuantity} units`,
+  leadTime: `${supplier.leadTimeWeeks} weeks`,
+  certifications: supplier.certifications,
+}));
 
 export default function CommunityScreen() {
   const insets = useSafeAreaInsets();
