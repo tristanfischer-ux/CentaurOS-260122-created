@@ -542,21 +542,28 @@ Centaur OS turns OKRs into work, tracks execution, enables review workflows, and
   - **Navigation**: Seamless flow between sign in and sign up screens
   - **Mock Authentication**: Uses token-based auth for demo purposes
   - **Persistent Session**: State stored in AsyncStorage (via Zustand)
-- **Team Building & Management** - Comprehensive team creation and AI equipment workflow
-  - **Create Team Screen**: Centralized interface for building and managing teams (`/create-team`)
-    - **Recommended Tab**: View AI-recommended people waiting for approval
+- **Team Building & Management** - Unified team management, hiring, and squad organization
+  - **Team Management Screen**: All-in-one interface for building and managing teams (`/create-team`)
+    - **Organization Tab**: View and manage current team members
+      - List all executives with role badges, days/week, monthly cost, and AI tool count
+      - List all apprentices with role badges, monthly cost, and AI tool count
+      - Quick actions: "Add People" and "Equip AI" buttons
+      - Remove people from organization with confirmation
+      - Direct "Equip AI" link for each member to Armory
+      - Real-time cost calculations based on days per week
+    - **Recommended Tab**: AI-recommended people waiting for approval
       - Shows executives and apprentices matched to your needs
       - Displays ratings, experience, specialty, and cost breakdown
       - Approve or reject recommendations with visual feedback
-    - **Marketplace Tab**: Browse and hire from the talent marketplace
-      - Links to Community tab for full marketplace experience
-      - Clear workflow explanation for hiring process
-    - **My Team Tab**: View and manage current team members
-      - Executives section with cost per month and AI tool count
-      - Apprentices section with cost per month and AI tool count
-      - Quick "Equip AI" button linking to Armory for each member
-      - Real-time cost calculations based on days per week
-    - **From Home Screen**: Prominent "Create Team" button on founder home view
+      - "Browse More in Marketplace" button linking to Community tab
+    - **Squads Tab**: Create and manage named squads
+      - Create squads with name, function, and executive leader
+      - Add/remove apprentices to squads
+      - View squad structure: leader + team members
+      - Delete entire squads
+      - Shows member count per squad
+    - **Summary Stats**: Real-time counts of executives, apprentices, AI agents, and squads
+    - **From Home Screen**: Prominent "Manage Team & Squads" button on founder home view
     - **Integration**: Seamlessly connects with Armory for AI tool management
 - **Daily Engagement & Motivation** - Built to drive daily active usage with compelling features
   - **Streak Tracking**: Track consecutive days of task completion with visual fire emoji indicator
