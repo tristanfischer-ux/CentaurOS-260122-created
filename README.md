@@ -13,6 +13,45 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
 
 ---
 
+## 📚 Documentation Hub
+
+### For Users
+- **[README.md](README.md)** (this file) - Feature overview, status, roadmap
+- **In-App Help** - Comprehensive help system in Settings tab → Help & Support
+
+### For Developers ⭐
+- **[DEVELOPER_ONBOARDING.md](DEVELOPER_ONBOARDING.md)** - **START HERE** - Complete guide for new developers
+  - Quick start guide
+  - Project structure explained
+  - Core concepts (multi-tenancy, RBAC, business functions)
+  - Architecture deep dive
+  - Key features implementation
+  - State management patterns
+  - Common code patterns
+  - Adding new features guide
+
+- **[API_REFERENCE.md](API_REFERENCE.md)** - Complete API documentation
+  - All Zustand stores (methods, state, selectors)
+  - API layer functions
+  - Marketplace data structures
+  - Utilities and helpers
+  - TypeScript type definitions
+  - Usage examples for every API
+
+- **[PRODUCTION_READINESS_AUDIT_2026.md](PRODUCTION_READINESS_AUDIT_2026.md)** - Production deployment guide
+  - Authentication migration strategy
+  - Database schema design
+  - Backend integration steps
+  - Security considerations
+  - Environment configuration
+  - Migration checklist
+  - 4-6 week deployment timeline
+
+### For AI Assistants
+- **[CLAUDE.md](CLAUDE.md)** - System instructions for Claude AI development
+
+---
+
 ## 🚨 PRODUCTION READINESS STATUS
 
 **Last Updated**: 2026-01-13 (**COMPREHENSIVE AUDIT COMPLETE** + **SUPPLIER DATABASE ENHANCEMENT** + **CENTRALIZED DATA SYSTEM** - Single source of truth for all app data)
