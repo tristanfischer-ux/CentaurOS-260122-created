@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, Pressable, Modal, TextInput, Switch } from 'react-native';
+import { View, Text, ScrollView, Pressable, Modal, TextInput, Switch, KeyboardAvoidingView, Platform } from 'react-native';
 import { router } from 'expo-router';
 import { useState } from 'react';
 import { X, TrendingUp, TrendingDown, DollarSign, Users, Cpu, Factory, Zap, ShoppingCart, BarChart3, AlertCircle, Edit2, Plus, Minus, Save, RotateCcw, Building, Shield, Phone, Wifi, Laptop, FileText, Calculator } from 'lucide-react-native';
@@ -456,52 +456,54 @@ export default function FinancialDashboardScreen() {
       </ScrollView>
 
       {/* Edit Cost Modal */}
-      <Modal visible={showEditModal} transparent animationType="slide">
-        <View className="flex-1 bg-black/70 justify-center items-center px-6">
-          <View className="bg-white dark:bg-slate-900 rounded-2xl p-6 w-full">
-            <Text className="text-gray-900 dark:text-white text-xl font-bold mb-4">
-              Edit Cost Amount
-            </Text>
+      <Modal visible={showEditModal} transparent animationType="slide" onRequestClose={() => setShowEditModal(false)}>
+        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} className="flex-1">
+          <View className="flex-1 bg-black/70 justify-center items-center px-6">
+            <View className="bg-white dark:bg-slate-900 rounded-2xl p-6 w-full">
+              <Text className="text-gray-900 dark:text-white text-xl font-bold mb-4">
+                Edit Cost Amount
+              </Text>
 
-            {editingItem && (
-              <>
-                <Text className="text-gray-600 dark:text-slate-400 text-sm mb-2">
-                  {editingItem.item.name}
-                </Text>
+              {editingItem && (
+                <>
+                  <Text className="text-gray-600 dark:text-slate-400 text-sm mb-2">
+                    {editingItem.item.name}
+                  </Text>
 
-                <View className="bg-gray-100 dark:bg-slate-800 rounded-xl p-4 mb-4">
-                  <Text className="text-gray-600 dark:text-slate-400 text-xs mb-2">Monthly Amount (£)</Text>
-                  <TextInput
-                    value={editAmount}
-                    onChangeText={setEditAmount}
-                    keyboardType="numeric"
-                    className="text-gray-900 dark:text-white text-2xl font-bold"
-                    placeholder="0"
-                    placeholderTextColor="#9ca3af"
-                  />
-                </View>
+                  <View className="bg-gray-100 dark:bg-slate-800 rounded-xl p-4 mb-4">
+                    <Text className="text-gray-600 dark:text-slate-400 text-xs mb-2">Monthly Amount (£)</Text>
+                    <TextInput
+                      value={editAmount}
+                      onChangeText={setEditAmount}
+                      keyboardType="numeric"
+                      className="text-gray-900 dark:text-white text-2xl font-bold"
+                      placeholder="0"
+                      placeholderTextColor="#9ca3af"
+                    />
+                  </View>
 
-                <View className="flex-row gap-3">
-                  <Pressable
-                    onPress={() => setShowEditModal(false)}
-                    className="flex-1 bg-gray-300 dark:bg-slate-700 rounded-xl py-3 items-center active:opacity-80"
-                  >
-                    <Text className="text-gray-700 dark:text-slate-300 font-bold">Cancel</Text>
-                  </Pressable>
-                  <Pressable
-                    onPress={saveEdit}
-                    className="flex-1 bg-blue-500 rounded-xl py-3 items-center active:opacity-80"
-                  >
-                    <View className="flex-row items-center">
-                      <Save size={18} color="#fff" />
-                      <Text className="text-white font-bold ml-2">Save</Text>
-                    </View>
-                  </Pressable>
-                </View>
-              </>
-            )}
+                  <View className="flex-row gap-3">
+                    <Pressable
+                      onPress={() => setShowEditModal(false)}
+                      className="flex-1 bg-gray-300 dark:bg-slate-700 rounded-xl py-3 items-center active:opacity-80"
+                    >
+                      <Text className="text-gray-700 dark:text-slate-300 font-bold">Cancel</Text>
+                    </Pressable>
+                    <Pressable
+                      onPress={saveEdit}
+                      className="flex-1 bg-blue-500 rounded-xl py-3 items-center active:opacity-80"
+                    >
+                      <View className="flex-row items-center">
+                        <Save size={18} color="#fff" />
+                        <Text className="text-white font-bold ml-2">Save</Text>
+                      </View>
+                    </Pressable>
+                  </View>
+                </>
+              )}
+            </View>
           </View>
-        </View>
+        </KeyboardAvoidingView>
       </Modal>
     </View>
   );

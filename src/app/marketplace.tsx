@@ -186,8 +186,8 @@ function ExecutivesTab({ searchQuery }: { searchQuery: string }) {
 
       {/* Call to Action */}
       <Pressable
-        onPress={() => router.push('/network')}
-        className="bg-gray-100 dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-2xl p-6 items-center"
+        onPress={() => router.push('/(tabs)/community')}
+        className="bg-gray-100 dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-2xl p-6 items-center active:opacity-70"
       >
         <Users size={48} color="#64748b" />
         <Text className="text-gray-900 dark:text-white text-lg font-bold mt-4 mb-2">Browse All Executives</Text>
@@ -195,7 +195,7 @@ function ExecutivesTab({ searchQuery }: { searchQuery: string }) {
           View 30+ fractional executives across all business functions
         </Text>
         <View className="bg-blue-500 rounded-xl px-6 py-3 flex-row items-center gap-2">
-          <Text className="text-white font-bold">View Network</Text>
+          <Text className="text-white font-bold">View Community</Text>
           <ChevronRight size={16} color="#fff" />
         </View>
       </Pressable>
@@ -252,8 +252,8 @@ function ApprenticesTab({ searchQuery }: { searchQuery: string }) {
 
       {/* Call to Action */}
       <Pressable
-        onPress={() => router.push('/network')}
-        className="bg-gray-100 dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-2xl p-6 items-center"
+        onPress={() => router.push('/(tabs)/community')}
+        className="bg-gray-100 dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-2xl p-6 items-center active:opacity-70"
       >
         <GraduationCap size={48} color="#64748b" />
         <Text className="text-gray-900 dark:text-white text-lg font-bold mt-4 mb-2">Browse All Apprentices</Text>
@@ -261,7 +261,7 @@ function ApprenticesTab({ searchQuery }: { searchQuery: string }) {
           Discover 30+ talented apprentices across all specializations
         </Text>
         <View className="bg-emerald-500 rounded-xl px-6 py-3 flex-row items-center gap-2">
-          <Text className="text-white font-bold">View Network</Text>
+          <Text className="text-white font-bold">View Community</Text>
           <ChevronRight size={16} color="#fff" />
         </View>
       </Pressable>
@@ -320,8 +320,8 @@ function SuppliersTab({ searchQuery }: { searchQuery: string }) {
 
       {/* Call to Action */}
       <Pressable
-        onPress={() => router.push('/network')}
-        className="bg-gray-100 dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-2xl p-6 items-center"
+        onPress={() => router.push('/(tabs)/community')}
+        className="bg-gray-100 dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-2xl p-6 items-center active:opacity-70"
       >
         <Building2 size={48} color="#64748b" />
         <Text className="text-gray-900 dark:text-white text-lg font-bold mt-4 mb-2">Browse All Suppliers</Text>
@@ -329,7 +329,7 @@ function SuppliersTab({ searchQuery }: { searchQuery: string }) {
           Explore UK supplier network with full manufacturing capabilities
         </Text>
         <View className="bg-amber-500 rounded-xl px-6 py-3 flex-row items-center gap-2">
-          <Text className="text-white font-bold">View Network</Text>
+          <Text className="text-white font-bold">View Community</Text>
           <ChevronRight size={16} color="#fff" />
         </View>
       </Pressable>
@@ -386,8 +386,8 @@ function AIAgentsTab({ searchQuery }: { searchQuery: string }) {
 
       {/* Call to Action */}
       <Pressable
-        onPress={() => router.push('/network')}
-        className="bg-gray-100 dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-2xl p-6 items-center"
+        onPress={() => router.push({ pathname: '/(tabs)/make', params: { tab: 'ai' } })}
+        className="bg-gray-100 dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-2xl p-6 items-center active:opacity-70"
       >
         <Bot size={48} color="#64748b" />
         <Text className="text-gray-900 dark:text-white text-lg font-bold mt-4 mb-2">Browse All AI Agents</Text>
@@ -395,7 +395,7 @@ function AIAgentsTab({ searchQuery }: { searchQuery: string }) {
           Discover 50+ AI agents organized by business function
         </Text>
         <View className="bg-purple-500 rounded-xl px-6 py-3 flex-row items-center gap-2">
-          <Text className="text-white font-bold">View Network</Text>
+          <Text className="text-white font-bold">View AI Library</Text>
           <ChevronRight size={16} color="#fff" />
         </View>
       </Pressable>

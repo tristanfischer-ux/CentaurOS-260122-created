@@ -323,7 +323,7 @@ export default function OrgDiagramScreen() {
       </ScrollView>
 
       {/* Member Detail Modal */}
-      <Modal visible={showMemberModal} transparent animationType="fade">
+      <Modal visible={showMemberModal} transparent animationType="fade" onRequestClose={() => setShowMemberModal(false)}>
         <View className="flex-1 bg-black/70 justify-center items-center px-6">
           <View className="bg-white dark:bg-slate-950 rounded-3xl w-full" style={{ maxHeight: '85%' }}>
             {/* Header */}

@@ -374,7 +374,7 @@ export default function SettingsScreen() {
 
         {/* About */}
         <Pressable
-          onPress={() => setShowAbout(true)}
+          onPress={() => router.push('/settings/about')}
           className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-4 mb-4 flex-row items-center justify-between active:opacity-70"
         >
           <View className="flex-row items-center">
