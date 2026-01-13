@@ -89,13 +89,15 @@ export function calculateMonthlyBurn(costs: typeof FINANCIAL_DATA.costs = FINANC
 
 /**
  * Calculate runway in months - SINGLE SOURCE OF TRUTH
+ * Returns runway rounded to 1 decimal place
  */
 export function calculateRunway(
   cashPosition: number = FINANCIAL_DATA.cashPosition,
   costs: typeof FINANCIAL_DATA.costs = FINANCIAL_DATA.costs
 ): number {
   const monthlyBurn = calculateMonthlyBurn(costs);
-  return cashPosition / monthlyBurn;
+  const runway = cashPosition / monthlyBurn;
+  return Math.round(runway * 10) / 10; // Round to 1 decimal place
 }
 
 /**
