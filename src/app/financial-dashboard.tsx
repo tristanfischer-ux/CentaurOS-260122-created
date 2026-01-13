@@ -4,16 +4,7 @@ import { useState } from 'react';
 import { X, TrendingUp, TrendingDown, DollarSign, Users, Cpu, Factory, Zap, ShoppingCart, BarChart3, AlertCircle, Edit2, Plus, Minus, Save, RotateCcw, Building, Shield, Phone, Wifi, Laptop, FileText, Calculator } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-
-// Cost item interface
-interface CostItem {
-  id: string;
-  name: string;
-  amount: number;
-  enabled: boolean;
-  details?: string;
-  editable: boolean;
-}
+import { FINANCIAL_DATA, type CostItem } from '@/lib/financial-calculations';
 
 // Initial financial data with all operating costs
 const INITIAL_DATA = {

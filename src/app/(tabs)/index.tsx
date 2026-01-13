@@ -22,6 +22,10 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import type { Function as BusinessFunction } from '@/types';
+import { getFinancialMetrics } from '@/lib/financial-calculations';
+
+// Get real-time financial metrics - SINGLE SOURCE OF TRUTH
+const financialMetrics = getFinancialMetrics();
 
 // Demo data for the dashboard
 const FOUNDER_DATA = {
@@ -43,9 +47,9 @@ const FOUNDER_DATA = {
     suppliers: 5, // Fixed: Make tab shows 5 supplier engagements
   },
   financials: {
-    runway: 14.2,
-    burnRate: 85000,
-    revenue: 312000,
+    runway: financialMetrics.runway, // Real-time calculation from actual costs
+    burnRate: financialMetrics.burnRate, // Real monthly burn
+    revenue: financialMetrics.monthlyRevenue, // Actual monthly revenue
   },
   pendingApprovals: 1, // Fixed: only 1 approval in the queue
 };
