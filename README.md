@@ -151,16 +151,15 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
     - Single source for all team structure data (founders, execs, apprentices)
     - Actions: `initializeOrganization`, `getMemberById`, `getMembersByRole`, `getAIAgentsByFunction`, `getTotalAISpend`
     - Multi-tenancy support with workspace filtering
-  - **Armory System** (`src/lib/state/armory-store.ts`) - **NEW 2026-01-13**:
-    - RPG-style equipment system for AI tools ("loadouts" and "squads")
-    - Loadout management: Equip AI tools in 4 slots per person (weapon/armor/utility/support)
-    - Squad management: Create teams with executive leaders and apprentice members
-    - Auto-equip starter kits based on member function
-    - Capacity management: Track executive capacity (3 apprentices max per exec)
-    - Deployment tracking: Assign squads to OKRs or work plans
+  - **Armory System** (`src/lib/state/armory-store.ts`) - **UPDATED 2026-01-13**:
+    - AI tool equipment management system for organization members
+    - Loadout management: Unlimited AI tools per person (no slot restrictions)
+    - Cost tracking: Shows clear breakdown of person cost + AI tools cost
+    - Auto-initialization with demo loadouts
     - Persistence: Full AsyncStorage support with state restoration
-    - Actions: `setEquippedTool`, `autoEquipStarterKit`, `createSquad`, `assignLeader`, `deploySquadToOKR`
-    - Selectors: `usePersonLoadouts`, `useSquads`, `useLoadoutForMember`, `useSquadsByWorkspace`
+    - Actions: `addAITool`, `removeAITool`, `initializeArmory`, `reset`
+    - Selectors: `usePersonLoadouts`, `useLoadoutForMember`
+    - Note: Squad/team management moved to org chart section (to be implemented in marketplace flow)
   - **Benefits**:
     - Zero data inconsistencies (no more hardcoded data in 12 different places)
     - Single update point for any data changes
