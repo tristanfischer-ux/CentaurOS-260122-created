@@ -232,12 +232,14 @@ function CharacterSheetModal({
   onClose: () => void;
 }) {
   const [showAddTool, setShowAddTool] = useState(false);
+  const [showRemoveConfirm, setShowRemoveConfirm] = useState(false);
 
   const loadout = useArmoryStore((s) => s.getLoadoutForMember(member.id));
   const addAITool = useArmoryStore((s) => s.addAITool);
   const removeAITool = useArmoryStore((s) => s.removeAITool);
   const autoEquipStarterKit = useArmoryStore((s) => s.autoEquipStarterKit);
   const clearLoadout = useArmoryStore((s) => s.clearLoadout);
+  const removePersonLoadout = useArmoryStore((s) => s.removePersonLoadout);
 
   // Get all equipped tools
   const equippedTools = loadout
@@ -266,6 +268,12 @@ function CharacterSheetModal({
 
   const handleClear = async () => {
     await clearLoadout(member.id);
+  };
+
+  const handleRemovePerson = async () => {
+    await removePersonLoadout(member.id);
+    setShowRemoveConfirm(false);
+    onClose();
   };
 
   return (
@@ -386,6 +394,21 @@ function CharacterSheetModal({
               })
             )}
 
+            {/* Remove from Armory */}
+            {canManage && (
+              <View className="mt-8 pt-6 border-t border-white/10">
+                <Pressable
+                  onPress={() => setShowRemoveConfirm(true)}
+                  className="bg-red-500/20 border border-red-500/30 rounded-xl py-3 px-4 active:opacity-70"
+                >
+                  <Text className="text-red-400 font-bold text-center">Remove from Armory</Text>
+                </Pressable>
+                <Text className="text-white/40 text-xs text-center mt-2">
+                  This will remove this person from the Armory. They will still exist in your organization.
+                </Text>
+              </View>
+            )}
+
             <View className="h-20" />
           </ScrollView>
         </View>
@@ -400,6 +423,34 @@ function CharacterSheetModal({
             onAdd={handleAddTool}
             onClose={() => setShowAddTool(false)}
           />
+        )}
+
+        {/* Remove Confirmation Modal */}
+        {showRemoveConfirm && (
+          <Modal visible={showRemoveConfirm} transparent animationType="fade" onRequestClose={() => setShowRemoveConfirm(false)}>
+            <View className="flex-1 bg-black/90 items-center justify-center px-6">
+              <View className="bg-slate-900 rounded-2xl p-6 w-full max-w-sm border border-red-500/30">
+                <Text className="text-white text-xl font-black mb-3">Remove from Armory?</Text>
+                <Text className="text-white/60 text-sm mb-6">
+                  This will remove {member.name} from the Armory. All equipped AI tools will be unassigned. This person will still exist in your organization chart.
+                </Text>
+                <View className="flex-row gap-3">
+                  <Pressable
+                    onPress={() => setShowRemoveConfirm(false)}
+                    className="flex-1 bg-white/10 rounded-xl py-3 active:opacity-70"
+                  >
+                    <Text className="text-white font-bold text-center">Cancel</Text>
+                  </Pressable>
+                  <Pressable
+                    onPress={handleRemovePerson}
+                    className="flex-1 bg-red-500 rounded-xl py-3 active:opacity-70"
+                  >
+                    <Text className="text-white font-bold text-center">Remove</Text>
+                  </Pressable>
+                </View>
+              </View>
+            </View>
+          </Modal>
         )}
       </View>
     </Modal>

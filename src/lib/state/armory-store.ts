@@ -28,6 +28,7 @@ interface ArmoryState {
   setEquippedTool: (memberId: string, slot: EquipmentSlot, aiToolId: string | null) => Promise<void>;
   autoEquipStarterKit: (memberId: string, member: OrganizationMember, allTools: AIAgent[]) => Promise<void>;
   clearLoadout: (memberId: string) => Promise<void>;
+  removePersonLoadout: (memberId: string) => Promise<void>;
 
   // Squad management
   createSquad: (payload: Omit<Squad, 'id' | 'createdAt' | 'updatedAt'>) => Promise<Squad>;
@@ -241,6 +242,14 @@ export const useArmoryStore = create<ArmoryState>((set, get) => ({
 
       return { personLoadouts: loadouts };
     });
+
+    await get().saveToStorage();
+  },
+
+  removePersonLoadout: async (memberId: string) => {
+    set((state) => ({
+      personLoadouts: state.personLoadouts.filter((l) => l.memberId !== memberId),
+    }));
 
     await get().saveToStorage();
   },

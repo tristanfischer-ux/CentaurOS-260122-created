@@ -157,8 +157,13 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
     - Cost tracking: Shows clear breakdown of person cost + AI tools cost
     - Auto-initialization with demo loadouts
     - Persistence: Full AsyncStorage support with state restoration
-    - Actions: `addAITool`, `removeAITool`, `initializeArmory`, `reset`
+    - Actions: `addAITool`, `removeAITool`, `clearLoadout`, `removePersonLoadout`, `initializeArmory`, `reset`
     - Selectors: `usePersonLoadouts`, `useLoadoutForMember`
+    - UI Features:
+      - Remove individual AI tools with trash icon
+      - "Clear All" button to remove all AI tools at once
+      - "Remove from Armory" button to completely remove a person's loadout
+      - Confirmation modal for removing people to prevent accidents
     - Note: Squad/team management moved to org chart section (to be implemented in marketplace flow)
   - **Benefits**:
     - Zero data inconsistencies (no more hardcoded data in 12 different places)
