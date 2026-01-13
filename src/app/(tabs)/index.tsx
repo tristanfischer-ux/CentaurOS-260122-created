@@ -1,5 +1,5 @@
 import { View, Text, ScrollView, Pressable, ActivityIndicator } from 'react-native';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import {
   Target,
   Users,
@@ -47,10 +47,32 @@ export default function HomeScreen() {
   const currentMembership = useCurrentMembership();
   const currentUser = useCurrentUser();
 
-  // Use centralized stores
-  const okrCounts = useOKRStore(s => s.getCounts());
-  const workPlanCounts = useWorkPlanStore(s => s.getCounts());
-  const orgCounts = useOrganizationStore(s => s.getCounts());
+  // Use centralized stores - select primitive values to avoid infinite loops
+  const okrs = useOKRStore(s => s.okrs);
+  const workPlans = useWorkPlanStore(s => s.workPlans);
+  const members = useOrganizationStore(s => s.members);
+  const engagements = useOrganizationStore(s => s.supplierEngagements);
+
+  // Memoize counts to prevent re-renders
+  const okrCounts = useMemo(() => ({
+    total: okrs.length,
+    onTrack: okrs.filter(o => o.status === 'on-track').length,
+    atRisk: okrs.filter(o => o.status === 'at-risk').length,
+    offTrack: okrs.filter(o => o.status === 'off-track').length,
+  }), [okrs]);
+
+  const workPlanCounts = useMemo(() => ({
+    total: workPlans.length,
+    inProgress: workPlans.filter(wp => wp.status === 'in-progress').length,
+    completed: workPlans.filter(wp => wp.status === 'completed').length,
+    blocked: workPlans.filter(wp => wp.status === 'blocked').length,
+  }), [workPlans]);
+
+  const orgCounts = useMemo(() => ({
+    executives: members.filter(m => m.role === 'FractionalExec' && m.status === 'active').length,
+    apprentices: members.filter(m => m.role === 'Apprentice' && m.status === 'active').length,
+    activeEngagements: engagements.filter(e => e.status === 'in_progress' || e.status === 'planning').length,
+  }), [members, engagements]);
 
   // Demo data for the dashboard - now using centralized stores
   const FOUNDER_DATA = {
