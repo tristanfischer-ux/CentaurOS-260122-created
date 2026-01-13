@@ -242,18 +242,22 @@ export default function CommunityScreen() {
         </View>
 
         {/* Summary Stats */}
-        <View className="flex-row gap-3 mb-3">
+        <View className="flex-row gap-2 mb-3">
           <View className="flex-1 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl p-3 border border-emerald-200 dark:border-emerald-800">
             <Text className="text-emerald-700 dark:text-emerald-300 text-xs mb-1">Executives</Text>
-            <Text className="text-emerald-600 dark:text-emerald-400 text-2xl font-bold">{filteredExecutives.length}</Text>
+            <Text className="text-emerald-600 dark:text-emerald-400 text-xl font-bold">{filteredExecutives.length}</Text>
           </View>
           <View className="flex-1 bg-purple-50 dark:bg-purple-900/20 rounded-xl p-3 border border-purple-200 dark:border-purple-800">
             <Text className="text-purple-700 dark:text-purple-300 text-xs mb-1">Apprentices</Text>
-            <Text className="text-purple-600 dark:text-purple-400 text-2xl font-bold">{filteredApprentices.length}</Text>
+            <Text className="text-purple-600 dark:text-purple-400 text-xl font-bold">{filteredApprentices.length}</Text>
+          </View>
+          <View className="flex-1 bg-cyan-50 dark:bg-cyan-900/20 rounded-xl p-3 border border-cyan-200 dark:border-cyan-800">
+            <Text className="text-cyan-700 dark:text-cyan-300 text-xs mb-1">AI Agents</Text>
+            <Text className="text-cyan-600 dark:text-cyan-400 text-xl font-bold">{getTotalAIToolsCount()}</Text>
           </View>
           <View className="flex-1 bg-amber-50 dark:bg-amber-900/20 rounded-xl p-3 border border-amber-200 dark:border-amber-800">
             <Text className="text-amber-700 dark:text-amber-300 text-xs mb-1">Suppliers</Text>
-            <Text className="text-amber-600 dark:text-amber-400 text-2xl font-bold">{filteredSuppliers.length}</Text>
+            <Text className="text-amber-600 dark:text-amber-400 text-xl font-bold">{filteredSuppliers.length}</Text>
           </View>
         </View>
 
@@ -1286,79 +1290,6 @@ export default function CommunityScreen() {
         </KeyboardAvoidingView>
       </Modal>
 
-      {/* AI Category Agents List Modal */}
-      <Modal visible={selectedAICategory !== null} transparent animationType="slide" onRequestClose={() => setSelectedAICategory(null)}>
-        <View className="flex-1 bg-black/70">
-          <View className="flex-1 bg-white dark:bg-slate-950 mt-16 rounded-t-3xl">
-            {/* Header */}
-            <View className="px-6 pt-6 pb-4 border-b border-gray-300 dark:border-slate-800">
-              <View className="flex-row items-center justify-between">
-                <Text className="text-gray-900 dark:text-white text-2xl font-bold">
-                  {selectedAICategory && selectedAICategory.charAt(0).toUpperCase() + selectedAICategory.slice(1).replace('-', ' ')} Agents
-                </Text>
-                <Pressable
-                  onPress={() => setSelectedAICategory(null)}
-                  className="w-10 h-10 items-center justify-center rounded-full bg-gray-100 dark:bg-slate-900 active:opacity-70"
-                >
-                  <X size={24} color="#64748b" />
-                </Pressable>
-              </View>
-              <Text className="text-gray-600 dark:text-slate-400 text-sm mt-1">
-                {selectedAICategory && getAgentsByCategory(selectedAICategory).length} agents in this category
-              </Text>
-            </View>
-
-            <ScrollView className="flex-1 px-6 py-4" showsVerticalScrollIndicator={false}>
-              {selectedAICategory && getAgentsByCategory(selectedAICategory).map((agent) => (
-                <Pressable
-                  key={agent.id}
-                  onPress={() => {
-                    setSelectedAIAgent(agent);
-                  }}
-                  className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-4 mb-3 border border-gray-300 dark:border-slate-800 active:opacity-70"
-                >
-                  <View className="flex-row items-start justify-between mb-2">
-                    <View className="flex-1">
-                      <Text className="text-gray-900 dark:text-white font-bold text-base mb-1">
-                        {agent.name}
-                      </Text>
-                      <Text className="text-gray-600 dark:text-slate-400 text-sm mb-2">
-                        {agent.description}
-                      </Text>
-                    </View>
-                  </View>
-
-                  <View className="flex-row flex-wrap gap-1 mb-3">
-                    {agent.expertise.slice(0, 3).map((exp, idx) => (
-                      <View key={idx} className="bg-blue-100 dark:bg-blue-900/30 px-2 py-1 rounded">
-                        <Text className="text-blue-700 dark:text-blue-300 text-xs">{exp}</Text>
-                      </View>
-                    ))}
-                    {agent.expertise.length > 3 && (
-                      <View className="bg-gray-200 dark:bg-slate-800 px-2 py-1 rounded">
-                        <Text className="text-gray-600 dark:text-slate-400 text-xs">+{agent.expertise.length - 3} more</Text>
-                      </View>
-                    )}
-                  </View>
-
-                  <View className="flex-row items-center justify-between pt-2 border-t border-gray-300 dark:border-slate-700">
-                    <Text className="text-emerald-600 dark:text-emerald-400 font-semibold">
-                      {agent.estimatedCostPerTask}
-                    </Text>
-                    {agent.approvalRequired && (
-                      <View className="bg-amber-100 dark:bg-amber-900/30 px-2 py-1 rounded">
-                        <Text className="text-amber-700 dark:text-amber-300 text-xs">Approval Required</Text>
-                      </View>
-                    )}
-                    <Text className="text-blue-600 dark:text-blue-400 text-xs font-semibold">View Details →</Text>
-                  </View>
-                </Pressable>
-              ))}
-            </ScrollView>
-          </View>
-        </View>
-      </Modal>
-
       {/* AI Agent Detail Modal */}
       <Modal visible={selectedAIAgent !== null} transparent animationType="fade" onRequestClose={() => setSelectedAIAgent(null)}>
         <View className="flex-1 bg-black/70 justify-center items-center px-6">
@@ -1378,11 +1309,11 @@ export default function CommunityScreen() {
                       {selectedAIAgent.category.replace('-', ' ')}
                     </Text>
                   </View>
-                  {selectedAIAgent.approvalRequired && (
-                    <View className="bg-amber-100 dark:bg-amber-900/30 px-2 py-1 rounded">
-                      <Text className="text-amber-700 dark:text-amber-300 text-xs">Approval Required</Text>
-                    </View>
-                  )}
+                  <View className="bg-purple-100 dark:bg-purple-900/30 px-2 py-1 rounded">
+                    <Text className="text-purple-700 dark:text-purple-300 text-xs">
+                      {selectedAIAgent.provider}
+                    </Text>
+                  </View>
                 </View>
               </View>
 
@@ -1391,64 +1322,65 @@ export default function CommunityScreen() {
                 <View className="px-6 py-4">
                   <View className="bg-gray-200 dark:bg-slate-800 rounded-xl p-4 mb-4">
                     <View className="flex-row justify-between items-center">
-                      <Text className="text-gray-600 dark:text-slate-400">Estimated Cost:</Text>
+                      <Text className="text-gray-600 dark:text-slate-400">Monthly Cost:</Text>
                       <Text className="text-emerald-600 dark:text-emerald-400 text-lg font-bold">
-                        {selectedAIAgent.estimatedCostPerTask}
+                        £{selectedAIAgent.costPerMonth}/mo
                       </Text>
                     </View>
                   </View>
 
                   <View className="mb-4">
-                    <Text className="text-gray-600 dark:text-slate-400 text-sm mb-1">Description</Text>
+                    <Text className="text-gray-600 dark:text-slate-400 text-sm mb-1">Purpose</Text>
                     <Text className="text-gray-900 dark:text-white text-base leading-6">
-                      {selectedAIAgent.description}
+                      {selectedAIAgent.purpose}
                     </Text>
                   </View>
 
                   <View className="mb-4">
-                    <Text className="text-gray-900 dark:text-white font-semibold mb-2">Expertise</Text>
+                    <Text className="text-gray-900 dark:text-white font-semibold mb-2">Business Functions</Text>
                     <View className="flex-row flex-wrap gap-2">
-                      {selectedAIAgent.expertise.map((exp, idx) => (
+                      {selectedAIAgent.functions.map((func, idx) => (
                         <View key={idx} className="bg-blue-100 dark:bg-blue-900/30 px-3 py-2 rounded-lg border border-blue-200 dark:border-blue-800">
-                          <Text className="text-blue-700 dark:text-blue-300 font-semibold">{exp}</Text>
+                          <Text className="text-blue-700 dark:text-blue-300 font-semibold">{func}</Text>
                         </View>
                       ))}
                     </View>
                   </View>
 
                   <View className="mb-4">
-                    <Text className="text-gray-900 dark:text-white font-semibold mb-2">Tools & Integrations</Text>
+                    <Text className="text-gray-900 dark:text-white font-semibold mb-2">Capabilities</Text>
+                    <View className="bg-gray-200 dark:bg-slate-800 rounded-xl p-4">
+                      {selectedAIAgent.capabilities.map((capability, idx) => (
+                        <View key={idx} className="flex-row items-start mb-2">
+                          <Text className="text-emerald-600 dark:text-emerald-400 mr-2">•</Text>
+                          <Text className="text-gray-700 dark:text-slate-300 flex-1">{capability}</Text>
+                        </View>
+                      ))}
+                    </View>
+                  </View>
+
+                  <View className="mb-4">
+                    <Text className="text-gray-900 dark:text-white font-semibold mb-2">Integrations</Text>
                     <View className="flex-row flex-wrap gap-2">
-                      {selectedAIAgent.tools.map((tool, idx) => (
+                      {selectedAIAgent.integrations.map((integration, idx) => (
                         <View key={idx} className="bg-gray-200 dark:bg-slate-800 px-3 py-2 rounded-lg">
-                          <Text className="text-gray-700 dark:text-slate-300">{tool}</Text>
+                          <Text className="text-gray-700 dark:text-slate-300">{integration}</Text>
                         </View>
                       ))}
                     </View>
                   </View>
 
-                  <View className="mb-4">
-                    <Text className="text-gray-900 dark:text-white font-semibold mb-2">Output Format</Text>
-                    <View className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-xl p-4">
-                      <Text className="text-emerald-700 dark:text-emerald-300 font-medium">
-                        {selectedAIAgent.outputFormat}
-                      </Text>
-                    </View>
+                  <View className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4 mb-4">
+                    <Text className="text-blue-700 dark:text-blue-300 text-sm font-semibold mb-2">🌐 Website</Text>
+                    <Text className="text-blue-600 dark:text-blue-400 text-sm">
+                      {selectedAIAgent.website}
+                    </Text>
                   </View>
 
-                  {selectedAIAgent.approvalRequired && (
-                    <View className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-4 mb-4">
-                      <Text className="text-amber-700 dark:text-amber-300 font-semibold mb-1">⚠️ Human Approval Required</Text>
-                      <Text className="text-amber-600 dark:text-amber-400 text-sm">
-                        This agent requires human review before outputs are deployed to production. This ensures quality control for critical operations.
-                      </Text>
-                    </View>
-                  )}
-
-                  <View className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4">
-                    <Text className="text-blue-700 dark:text-blue-300 text-sm font-semibold mb-2">💡 How to Deploy</Text>
-                    <Text className="text-blue-600 dark:text-blue-400 text-sm">
-                      To deploy this agent to your workspace, request allocation from the founder. Once approved, the agent will be available in the Make tab for task execution.
+                  <View className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-xl p-4">
+                    <Text className="text-emerald-700 dark:text-emerald-300 text-sm font-semibold mb-2">💡 Get Started</Text>
+                    <Text className="text-emerald-600 dark:text-emerald-400 text-sm">
+                      Visit the website to sign up for this tool. Most tools offer free trials to get started. Add your API key in the Settings tab to integrate with Centaur OS.
                     </Text>
                   </View>
                 </View>
@@ -1460,14 +1392,14 @@ export default function CommunityScreen() {
                   onPress={() => {
                     setSelectedAIAgent(null);
                     Alert.alert(
-                      'Request Sent',
-                      `Your request to deploy ${selectedAIAgent?.name} has been sent to the founder for approval.`,
+                      'Opening Website',
+                      `Visit ${selectedAIAgent?.website} to learn more and sign up for ${selectedAIAgent?.name}.`,
                       [{ text: 'OK' }]
                     );
                   }}
                   className="bg-blue-500 rounded-xl py-4 items-center active:opacity-70"
                 >
-                  <Text className="text-white font-bold text-base">Request to Deploy</Text>
+                  <Text className="text-white font-bold text-base">Learn More</Text>
                 </Pressable>
               </View>
             </View>

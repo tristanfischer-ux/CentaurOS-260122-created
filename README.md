@@ -37,6 +37,7 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
 ✅ **Performance**: Clean bundle - No warnings, no console.logs
 ✅ **Error Handling**: Comprehensive validation and error messages
 ✅ **Accessibility**: All modals support back button/swipe-to-dismiss (Android/iOS)
+✅ **Community Tab**: Third-party AI tools organized by business function (24 tools across 6 functions)
 
 ### Final Comprehensive Audit Results (2026-01-13)
 
@@ -588,6 +589,18 @@ Centaur OS turns OKRs into work, tracks execution, enables review workflows, and
   - **Function-Based Filtering**: Filter by Finance, Sales, Marketing, Ops, Engineering, Admin, or Design & Manufacturing
   - **Visual Organization**: Agents grouped by function with emoji icons (💰📈📣⚙️💻📋🏭) and color coding
   - **Modal Views**: Tappable AI agent and supplier cards display full details in properly positioned bottom-sheet modals
+- **Third-Party AI Tools** - 24 external AI tools for team productivity in Community tab
+  - **Finance (3 tools - £1,000/mo)**: Vic AI, Digits AI, Gemini Pro
+  - **Sales (4 tools - £1,649/mo)**: 11x Alice, Gong AI, Clay AI, ElevenLabs
+  - **Marketing (6 tools - £890/mo)**: Jasper AI, Copy.ai, Midjourney, DALL-E 3, Perplexity Pro, Runway Gen-2
+  - **Operations (3 tools - £1,050/mo)**: Hebbia AI, Zapier AI, Harvey AI
+  - **Engineering (4 tools - £270/mo)**: GitHub Copilot, Cursor AI, Replit Ghostwriter, Tabnine
+  - **Admin (4 tools - £895/mo)**: ChatGPT Enterprise, Notion AI, Otter.ai, Grammarly Business
+  - **Detailed Tool Cards**: Each tool shows name, provider, purpose, monthly cost, capabilities, and integrations
+  - **Function-Based Filtering**: Filter by Sales, Marketing, Finance, Ops, Engineering, or Admin
+  - **Color-Coded Categories**: Visual organization with category-specific colors (productivity, sales, marketing, finance, engineering, operations)
+  - **Modal Detail View**: Tap any tool to see full capabilities, business functions, integrations, website, and sign-up instructions
+  - **Summary Statistics**: Header shows total count of AI Agents (24) alongside Executives, Apprentices, and Suppliers
 - **OKR Management** - Create, edit, and delete objectives with real-time progress tracking
   - **OKR Library (NEW - Founder-Only)** - Browse and add pre-built OKRs from comprehensive library
     - **30+ Pre-Built OKR Templates**: Research-backed objectives for common startup goals
