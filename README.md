@@ -15,7 +15,7 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
 
 ## 🚨 PRODUCTION READINESS STATUS
 
-**Last Updated**: 2026-01-13 (**COMPREHENSIVE REVIEW COMPLETE** - Fixed all broken navigation, enhanced modals, created About page, updated onboarding)
+**Last Updated**: 2026-01-13 (**NAVIGATION LOGIC AUDIT** - Fixed tab parameter navigation for Make tab AI/Suppliers sections, updated Home tab for all roles)
 
 ### Current Status: ✅ **READY FOR APP STORE SUBMISSION**
 
@@ -37,10 +37,19 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
 ### Final Comprehensive Audit Results (2026-01-13)
 
 **✅ Navigation Excellence:**
-- **0 broken links** - All 98 router.push() calls verified and working
-- **9 navigation fixes** - marketplace.tsx (4), EngagementSections.tsx (5)
-- **Consistent routing** - All tabs use correct paths (Decide, Do, Evaluate, Make, Community)
-- **AI Library navigation** - Fixed from community tab to Make tab with proper parameters
+- **0 broken links** - All router.push() calls verified and working
+- **Tab parameters fixed** - Make tab now correctly routes to AI (tab=ai) or Suppliers (tab=suppliers) views
+- **7 navigation fixes applied**:
+  - Executive Home: AI Tools card now navigates to Make tab AI view (was defaulting to suppliers)
+  - Executive Home: Suppliers card explicitly navigates to Make tab Suppliers view
+  - Executive Home: AI Tools quick action button navigates to AI view
+  - Apprentice Home: AI Tools card navigates to AI view
+  - Founder Home: Suppliers card navigates to Suppliers view
+  - Search: Suppliers results navigate to Suppliers view
+  - Search: AI Agents results navigate to AI view
+- **Apprentice navigation fixed** - Executive Home apprentice cards now navigate to org-diagram (was incorrectly going to Do tab)
+- **Organization Chart access** - All roles (Founder, Executive, Apprentice) now have prominent "View Organization Chart" button on Home tab
+- **Consistent routing** - All tabs use correct paths (Decide, Do, Evaluate, Make, Community) with proper parameters
 
 **✅ Modal & Keyboard Perfection:**
 - **26 modals total** - All functional with proper dismiss handlers

@@ -373,7 +373,7 @@ export default function HomeScreen() {
                 </Pressable>
 
                 <Pressable
-                  onPress={() => router.push('/(tabs)/make')}
+                  onPress={() => router.push({ pathname: '/(tabs)/make', params: { tab: 'suppliers' } })}
                   className="flex-row items-center justify-between active:opacity-70"
                 >
                   <View className="flex-row items-center">
@@ -713,7 +713,7 @@ export default function HomeScreen() {
 
               <View className="bg-gray-100 dark:bg-slate-900 rounded-xl border border-gray-300 dark:border-slate-800 overflow-hidden">
                 <Pressable
-                  onPress={() => router.push('/(tabs)/make')}
+                  onPress={() => router.push({ pathname: '/(tabs)/make', params: { tab: 'ai' } })}
                   className="p-4 active:opacity-70"
                 >
                   <View className="flex-row items-center justify-between mb-3">
@@ -740,7 +740,7 @@ export default function HomeScreen() {
                 </Pressable>
 
                 <Pressable
-                  onPress={() => router.push('/(tabs)/make')}
+                  onPress={() => router.push({ pathname: '/(tabs)/make', params: { tab: 'suppliers' } })}
                   className="p-4 border-t border-gray-300 dark:border-slate-700 active:opacity-70"
                 >
                   <View className="flex-row items-center justify-between">
@@ -782,7 +782,7 @@ export default function HomeScreen() {
                 <Text className="text-white font-bold text-sm mt-2">Create Work Plan</Text>
               </Pressable>
               <Pressable
-                onPress={() => router.push('/(tabs)/make')}
+                onPress={() => router.push({ pathname: '/(tabs)/make', params: { tab: 'ai' } })}
                 className="flex-1 bg-purple-500 rounded-xl p-4 active:opacity-70"
               >
                 <Sparkles size={24} color="#fff" />
@@ -1003,7 +1003,7 @@ export default function HomeScreen() {
               </Text>
 
               <Pressable
-                onPress={() => router.push('/(tabs)/make')}
+                onPress={() => router.push({ pathname: '/(tabs)/make', params: { tab: 'ai' } })}
                 className="bg-gradient-to-r from-purple-500 to-indigo-500 rounded-xl active:opacity-70"
               >
                 <LinearGradient

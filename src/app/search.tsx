@@ -214,7 +214,7 @@ export default function GlobalSearchScreen() {
                 {searchResults.suppliers.map((supplier) => (
                   <Pressable
                     key={supplier.id}
-                    onPress={() => router.push('/(tabs)/make')}
+                    onPress={() => router.push({ pathname: '/(tabs)/make', params: { tab: 'suppliers' } })}
                     className="bg-gray-100 dark:bg-slate-900 rounded-xl p-3 mb-2 border border-slate-800 active:opacity-70"
                   >
                     <Text className="text-gray-900 dark:text-white font-medium mb-1">{supplier.supplierName}</Text>
@@ -236,7 +236,7 @@ export default function GlobalSearchScreen() {
                 {searchResults.aiAgents.map((agent) => (
                   <Pressable
                     key={agent.id}
-                    onPress={() => router.push('/(tabs)/make')}
+                    onPress={() => router.push({ pathname: '/(tabs)/make', params: { tab: 'ai' } })}
                     className="bg-gray-100 dark:bg-slate-900 rounded-xl p-3 mb-2 border border-slate-800 active:opacity-70"
                   >
                     <View className="flex-row items-center justify-between">
