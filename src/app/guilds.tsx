@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { router } from 'expo-router';
 import { ArrowLeft, Users, BookOpen, MessageSquare, Award, Search, Plus, X, ExternalLink } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { LinearGradient } from 'expo-linear-gradient';
 import type { Function as BusinessFunction } from '@/types';
 
 interface Guild {
@@ -390,36 +391,53 @@ export default function GuildsScreen() {
                   {selectedGuild.description}
                 </Text>
 
+                {/* Member Count Card */}
+                <LinearGradient
+                  colors={['#3b82f6', '#8b5cf6']}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 0 }}
+                  style={{ borderRadius: 16, padding: 20, marginBottom: 24 }}
+                >
+                  <View className="flex-row items-center justify-between">
+                    <View>
+                      <Text className="text-white/80 text-sm mb-1">Community Size</Text>
+                      <Text className="text-white text-4xl font-bold">{selectedGuild.memberCount}</Text>
+                      <Text className="text-white/80 text-sm mt-1">Active Members</Text>
+                    </View>
+                    <Users size={48} color="rgba(255,255,255,0.3)" />
+                  </View>
+                </LinearGradient>
+
                 {/* Stats Grid */}
-                <View className="flex-row gap-3 mb-4">
-                  <View className="flex-1 bg-gray-200 dark:bg-slate-800 rounded-xl p-3">
-                    <BookOpen size={20} color={selectedGuild.coverColor} />
-                    <Text className="text-gray-900 dark:text-white text-lg font-bold mt-2">
+                <View className="flex-row gap-3 mb-6">
+                  <View className="flex-1 bg-gray-200 dark:bg-slate-800 rounded-2xl p-5">
+                    <BookOpen size={28} color={selectedGuild.coverColor} />
+                    <Text className="text-gray-900 dark:text-white text-3xl font-bold mt-3">
                       {selectedGuild.resourceCount}
                     </Text>
-                    <Text className="text-gray-600 dark:text-slate-400 text-xs">Resources</Text>
+                    <Text className="text-gray-600 dark:text-slate-400 text-sm mt-1">Resources Shared</Text>
                   </View>
-                  <View className="flex-1 bg-gray-200 dark:bg-slate-800 rounded-xl p-3">
-                    <MessageSquare size={20} color={selectedGuild.coverColor} />
-                    <Text className="text-gray-900 dark:text-white text-lg font-bold mt-2">
+                  <View className="flex-1 bg-gray-200 dark:bg-slate-800 rounded-2xl p-5">
+                    <MessageSquare size={28} color={selectedGuild.coverColor} />
+                    <Text className="text-gray-900 dark:text-white text-3xl font-bold mt-3">
                       {selectedGuild.postCount}
                     </Text>
-                    <Text className="text-gray-600 dark:text-slate-400 text-xs">Discussions</Text>
+                    <Text className="text-gray-600 dark:text-slate-400 text-sm mt-1">Discussions</Text>
                   </View>
                 </View>
 
                 {/* Recent Activity Preview */}
-                <Text className="text-gray-900 dark:text-white font-semibold mb-3">Recent Activity</Text>
-                <View className="bg-gray-200 dark:bg-slate-800 rounded-xl p-4 mb-3">
-                  <Text className="text-gray-900 dark:text-white font-semibold mb-1">
+                <Text className="text-gray-900 dark:text-white font-bold text-lg mb-4">Recent Activity</Text>
+                <View className="bg-gray-200 dark:bg-slate-800 rounded-2xl p-5 mb-4">
+                  <Text className="text-gray-900 dark:text-white font-bold text-base mb-2">
                     Best Practices: PCB Design Review Checklist
                   </Text>
                   <Text className="text-gray-600 dark:text-slate-400 text-sm">
                     Shared by Marcus Rodriguez • 2 days ago
                   </Text>
                 </View>
-                <View className="bg-gray-200 dark:bg-slate-800 rounded-xl p-4 mb-3">
-                  <Text className="text-gray-900 dark:text-white font-semibold mb-1">
+                <View className="bg-gray-200 dark:bg-slate-800 rounded-2xl p-5 mb-6">
+                  <Text className="text-gray-900 dark:text-white font-bold text-base mb-2">
                     Discussion: Sourcing UK vs China Manufacturers
                   </Text>
                   <Text className="text-gray-600 dark:text-slate-400 text-sm">
