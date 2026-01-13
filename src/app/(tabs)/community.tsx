@@ -23,7 +23,7 @@ import {
 import { router } from 'expo-router';
 import { fractionalExecutives, apprentices, type Candidate } from '@/lib/candidates-seed';
 import { UK_SUPPLIERS } from '@/lib/suppliers-seed';
-import { AI_AGENTS, getAgentsByCategory, type AIAgent, type AgentCategory } from '@/lib/ai-agents-data';
+import { THIRD_PARTY_AI_TOOLS, getAIToolsByFunction, getTotalAIToolsCount, getCategoryColor, type ThirdPartyAITool, type BusinessFunction } from '@/lib/third-party-ai-tools';
 import { TabDescription } from '@/components/TabDescription';
 import { useCurrentMembership } from '@/lib/state/app-store';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -60,8 +60,8 @@ export default function CommunityScreen() {
   const [activeTab, setActiveTab] = useState<CommunityTab>('executives');
   const [selectedCandidate, setSelectedCandidate] = useState<Candidate | null>(null);
   const [selectedSupplier, setSelectedSupplier] = useState<Supplier | null>(null);
-  const [selectedAIAgent, setSelectedAIAgent] = useState<AIAgent | null>(null);
-  const [selectedAICategory, setSelectedAICategory] = useState<AgentCategory | null>(null);
+  const [selectedAIAgent, setSelectedAIAgent] = useState<ThirdPartyAITool | null>(null);
+  const [selectedAIFunction, setSelectedAIFunction] = useState<BusinessFunction | 'all'>('all');
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedFunction, setSelectedFunction] = useState<string>('all');
@@ -628,154 +628,105 @@ export default function CommunityScreen() {
         {/* AI Agents Tab */}
         {activeTab === 'ai-agents' && (
           <View className="px-6 pb-6">
-            <View className="bg-cyan-50 dark:bg-cyan-900/20 border border-cyan-200 dark:border-cyan-800 rounded-xl p-4 mb-4">
-              <Text className="text-cyan-900 dark:text-cyan-100 font-bold text-lg mb-2">
-                AI Agents Marketplace
-              </Text>
-              <Text className="text-cyan-800 dark:text-cyan-200 text-sm">
-                Discover AI agents to automate tasks, enhance productivity, and scale your operations. Browse by category to see detailed agent capabilities.
+            <View className="flex-row items-center justify-between mb-3">
+              <Text className="text-gray-900 dark:text-white text-sm">
+                {getAIToolsByFunction(selectedAIFunction).length} AI tools available
               </Text>
             </View>
 
-            {/* AI Agent Categories - Now show details instead of navigating */}
-            <Text className="text-gray-900 dark:text-white text-base font-semibold mb-3">
-              Browse by Category
-            </Text>
-
-            <Pressable
-              onPress={() => setSelectedAICategory('engineering')}
-              className="bg-blue-100 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-xl p-4 mb-3 active:opacity-70"
+            {/* Function Filter Chips */}
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              className="mb-4"
+              contentContainerStyle={{ gap: 8 }}
             >
-              <View className="flex-row items-center mb-2">
-                <Bot size={24} color="#3b82f6" />
-                <Text className="text-blue-900 dark:text-blue-100 font-bold text-base ml-3">
-                  Engineering Agents ({getAgentsByCategory('engineering').length})
+              <Pressable
+                onPress={() => setSelectedAIFunction('all')}
+                className={`px-4 py-2 rounded-full ${
+                  selectedAIFunction === 'all'
+                    ? 'bg-cyan-500'
+                    : 'bg-gray-200 dark:bg-slate-800'
+                } active:opacity-70`}
+              >
+                <Text
+                  className={`text-sm font-semibold ${
+                    selectedAIFunction === 'all'
+                      ? 'text-white'
+                      : 'text-gray-700 dark:text-slate-300'
+                  }`}
+                >
+                  All
                 </Text>
-              </View>
-              <Text className="text-blue-800 dark:text-blue-200 text-sm mb-2">
-                Frontend Dev, Backend Architect, Mobile Builder, AI Engineer, DevOps, Rapid Prototyper
-              </Text>
-              <Text className="text-blue-600 dark:text-blue-400 text-xs font-semibold">
-                From £0.20 per task • Tap to view agents
-              </Text>
-            </Pressable>
+              </Pressable>
+              {(['Sales', 'Marketing', 'Finance', 'Ops', 'Engineering', 'Admin'] as BusinessFunction[]).map((func) => (
+                <Pressable
+                  key={func}
+                  onPress={() => setSelectedAIFunction(func)}
+                  className={`px-4 py-2 rounded-full ${
+                    selectedAIFunction === func
+                      ? 'bg-cyan-500'
+                      : 'bg-gray-200 dark:bg-slate-800'
+                  } active:opacity-70`}
+                >
+                  <Text
+                    className={`text-sm font-semibold ${
+                      selectedAIFunction === func
+                        ? 'text-white'
+                        : 'text-gray-700 dark:text-slate-300'
+                    }`}
+                  >
+                    {func}
+                  </Text>
+                </Pressable>
+              ))}
+            </ScrollView>
 
-            <Pressable
-              onPress={() => setSelectedAICategory('marketing')}
-              className="bg-pink-100 dark:bg-pink-900/30 border border-pink-200 dark:border-pink-800 rounded-xl p-4 mb-3 active:opacity-70"
-            >
-              <View className="flex-row items-center mb-2">
-                <Bot size={24} color="#ec4899" />
-                <Text className="text-pink-900 dark:text-pink-100 font-bold text-base ml-3">
-                  Marketing Agents ({getAgentsByCategory('marketing').length})
-                </Text>
-              </View>
-              <Text className="text-pink-800 dark:text-pink-200 text-sm mb-2">
-                TikTok Strategist, Instagram Curator, Twitter Engager, Reddit Builder, ASO, Content Creator, Growth Hacker
-              </Text>
-              <Text className="text-pink-600 dark:text-pink-400 text-xs font-semibold">
-                From £1.50 per task • Tap to view agents
-              </Text>
-            </Pressable>
+            {getAIToolsByFunction(selectedAIFunction).map((tool) => {
+              const colorScheme = getCategoryColor(tool.category);
+              return (
+                <Pressable
+                  key={tool.id}
+                  onPress={() => {
+                    setSelectedAIAgent(tool);
+                  }}
+                  className={`${colorScheme.bg} border ${colorScheme.border} rounded-2xl p-4 mb-3 active:opacity-70`}
+                >
+                  <View className="flex-row items-start justify-between mb-2">
+                    <View className="flex-1">
+                      <Text className={`${colorScheme.text} font-bold text-base mb-1`}>
+                        {tool.name}
+                      </Text>
+                      <Text className="text-gray-600 dark:text-slate-400 text-sm mb-2">
+                        {tool.purpose}
+                      </Text>
+                    </View>
+                  </View>
 
-            <Pressable
-              onPress={() => setSelectedAICategory('design')}
-              className="bg-purple-100 dark:bg-purple-900/30 border border-purple-200 dark:border-purple-800 rounded-xl p-4 mb-3 active:opacity-70"
-            >
-              <View className="flex-row items-center mb-2">
-                <Bot size={24} color="#a855f7" />
-                <Text className="text-purple-900 dark:text-purple-100 font-bold text-base ml-3">
-                  Design Agents ({getAgentsByCategory('design').length})
-                </Text>
-              </View>
-              <Text className="text-purple-800 dark:text-purple-200 text-sm mb-2">
-                UI Designer, UX Researcher, Brand Guardian, Visual Storyteller, Whimsy Injector
-              </Text>
-              <Text className="text-purple-600 dark:text-purple-400 text-xs font-semibold">
-                From £2.00 per task • Tap to view agents
-              </Text>
-            </Pressable>
+                  <View className="flex-row flex-wrap gap-1 mb-2">
+                    {tool.capabilities.slice(0, 3).map((capability, idx) => (
+                      <View key={idx} className="bg-gray-200 dark:bg-slate-800 px-2 py-1 rounded">
+                        <Text className="text-gray-700 dark:text-slate-300 text-xs">{capability}</Text>
+                      </View>
+                    ))}
+                    {tool.capabilities.length > 3 && (
+                      <View className="bg-gray-200 dark:bg-slate-800 px-2 py-1 rounded">
+                        <Text className="text-gray-600 dark:text-slate-400 text-xs">+{tool.capabilities.length - 3} more</Text>
+                      </View>
+                    )}
+                  </View>
 
-            <Pressable
-              onPress={() => setSelectedAICategory('product')}
-              className="bg-emerald-100 dark:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-800 rounded-xl p-4 mb-3 active:opacity-70"
-            >
-              <View className="flex-row items-center mb-2">
-                <Bot size={24} color="#10b981" />
-                <Text className="text-emerald-900 dark:text-emerald-100 font-bold text-base ml-3">
-                  Product Agents ({getAgentsByCategory('product').length})
-                </Text>
-              </View>
-              <Text className="text-emerald-800 dark:text-emerald-200 text-sm mb-2">
-                Trend Researcher, Feedback Synthesizer, Sprint Prioritizer
-              </Text>
-              <Text className="text-emerald-600 dark:text-emerald-400 text-xs font-semibold">
-                From £1.00 per task • Tap to view agents
-              </Text>
-            </Pressable>
-
-            <Pressable
-              onPress={() => setSelectedAICategory('project-management')}
-              className="bg-green-100 dark:bg-green-900/30 border border-green-200 dark:border-green-800 rounded-xl p-4 mb-3 active:opacity-70"
-            >
-              <View className="flex-row items-center mb-2">
-                <Bot size={24} color="#22c55e" />
-                <Text className="text-green-900 dark:text-green-100 font-bold text-base ml-3">
-                  Project Management Agents ({getAgentsByCategory('project-management').length})
-                </Text>
-              </View>
-              <Text className="text-green-800 dark:text-green-200 text-sm mb-2">
-                Experiment Tracker, Project Shipper, Studio Producer
-              </Text>
-              <Text className="text-green-600 dark:text-green-400 text-xs font-semibold">
-                From £0.60 per task • Tap to view agents
-              </Text>
-            </Pressable>
-
-            <Pressable
-              onPress={() => setSelectedAICategory('studio-operations')}
-              className="bg-slate-100 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl p-4 mb-3 active:opacity-70"
-            >
-              <View className="flex-row items-center mb-2">
-                <Bot size={24} color="#64748b" />
-                <Text className="text-slate-900 dark:text-slate-100 font-bold text-base ml-3">
-                  Studio Operations Agents ({getAgentsByCategory('studio-operations').length})
-                </Text>
-              </View>
-              <Text className="text-slate-800 dark:text-slate-200 text-sm mb-2">
-                Support Responder, Analytics Reporter, Infrastructure Maintainer, Legal Compliance, Finance Tracker
-              </Text>
-              <Text className="text-slate-600 dark:text-slate-400 text-xs font-semibold">
-                From £0.20 per task • Tap to view agents
-              </Text>
-            </Pressable>
-
-            <Pressable
-              onPress={() => setSelectedAICategory('testing')}
-              className="bg-cyan-100 dark:bg-cyan-900/30 border border-cyan-200 dark:border-cyan-800 rounded-xl p-4 mb-3 active:opacity-70"
-            >
-              <View className="flex-row items-center mb-2">
-                <Bot size={24} color="#06b6d4" />
-                <Text className="text-cyan-900 dark:text-cyan-100 font-bold text-base ml-3">
-                  Testing Agents ({getAgentsByCategory('testing').length})
-                </Text>
-              </View>
-              <Text className="text-cyan-800 dark:text-cyan-200 text-sm mb-2">
-                Tool Evaluator, API Tester, Workflow Optimizer, Performance Benchmarker, Test Results Analyzer
-              </Text>
-              <Text className="text-cyan-600 dark:text-cyan-400 text-xs font-semibold">
-                From £0.50 per task • Tap to view agents
-              </Text>
-            </Pressable>
-
-            <View className="bg-gray-100 dark:bg-slate-900 border border-gray-300 dark:border-slate-800 rounded-xl p-4 mt-4">
-              <Text className="text-gray-900 dark:text-white font-semibold mb-2">
-                💡 How AI Agents Work
-              </Text>
-              <Text className="text-gray-700 dark:text-slate-300 text-sm leading-5">
-                AI agents are specialized tools that automate specific tasks in your workflow. Each agent has defined expertise, tools, and output formats. Some require human approval for quality control. Tap any category above to see detailed agent capabilities and pricing.
-              </Text>
-            </View>
+                  <View className="flex-row items-center justify-between pt-2 border-t border-gray-300 dark:border-slate-700">
+                    <Text className="text-emerald-600 dark:text-emerald-400 font-semibold">
+                      £{tool.costPerMonth}/mo
+                    </Text>
+                    <Text className="text-gray-500 dark:text-slate-500 text-xs">
+                      {tool.provider}
+                    </Text>
+                  </View>
+                </Pressable>
+              );
+            })}
           </View>
         )}
 
