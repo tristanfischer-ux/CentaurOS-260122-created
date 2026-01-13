@@ -51,6 +51,7 @@ export default function HomeScreen() {
   const okrs = useOKRStore(s => s.okrs);
   const workPlans = useWorkPlanStore(s => s.workPlans);
   const members = useOrganizationStore(s => s.members);
+  const aiAgents = useOrganizationStore(s => s.aiAgents);
   const engagements = useOrganizationStore(s => s.supplierEngagements);
 
   // Memoize counts to prevent re-renders
@@ -71,8 +72,8 @@ export default function HomeScreen() {
   const orgCounts = useMemo(() => ({
     executives: members.filter(m => m.role === 'FractionalExec' && m.status === 'active').length,
     apprentices: members.filter(m => m.role === 'Apprentice' && m.status === 'active').length,
-    activeEngagements: engagements.filter(e => e.status === 'in_progress' || e.status === 'planning').length,
-  }), [members, engagements]);
+    activeAI: (aiAgents || []).filter(a => a.status === 'active').length,
+  }), [members, aiAgents]);
 
   // Demo data for the dashboard - now using centralized stores
   const FOUNDER_DATA = {
@@ -86,7 +87,7 @@ export default function HomeScreen() {
     team: {
       executives: orgCounts.executives,
       apprentices: orgCounts.apprentices,
-      suppliers: orgCounts.activeEngagements,
+      aiAgents: orgCounts.activeAI,
     },
     financials: {
       runway: financialMetrics.runway,
@@ -113,8 +114,10 @@ const EXECUTIVE_DATA = {
     thisWeek: 12,
     tools: ['ChatGPT', 'Midjourney', 'Claude'],
   },
-  suppliers: [
-    { name: 'TechFab Manufacturing', status: 'active' },
+  aiAgents: [
+    { name: 'ChatGPT Enterprise', status: 'active' },
+    { name: 'Claude Pro', status: 'active' },
+    { name: 'Midjourney', status: 'active' },
   ],
 };
 
@@ -419,16 +422,16 @@ const APPRENTICE_DATA = {
                 </Pressable>
 
                 <Pressable
-                  onPress={() => router.push({ pathname: '/(tabs)/make', params: { tab: 'suppliers' } })}
+                  onPress={() => router.push({ pathname: '/(tabs)/make', params: { tab: 'ai' } })}
                   className="flex-row items-center justify-between active:opacity-70"
                 >
                   <View className="flex-row items-center">
-                    <Factory size={20} color="#f59e0b" />
+                    <Bot size={20} color="#8b5cf6" />
                     <Text className="text-gray-900 dark:text-white font-semibold ml-2">
-                      {FOUNDER_DATA.team.suppliers} Suppliers
+                      {FOUNDER_DATA.team.aiAgents} AI Agents
                     </Text>
                   </View>
-                  <ArrowRight size={20} color="#f59e0b" />
+                  <ArrowRight size={20} color="#8b5cf6" />
                 </Pressable>
               </View>
 
@@ -786,19 +789,19 @@ const APPRENTICE_DATA = {
                 </Pressable>
 
                 <Pressable
-                  onPress={() => router.push({ pathname: '/(tabs)/make', params: { tab: 'suppliers' } })}
+                  onPress={() => router.push({ pathname: '/(tabs)/make', params: { tab: 'ai' } })}
                   className="p-4 border-t border-gray-300 dark:border-slate-700 active:opacity-70"
                 >
                   <View className="flex-row items-center justify-between">
                     <View className="flex-row items-center">
-                      <Factory size={20} color="#f59e0b" />
+                      <Bot size={20} color="#8b5cf6" />
                       <Text className="text-gray-900 dark:text-white font-semibold ml-2">
-                        Suppliers
+                        AI Agents
                       </Text>
                     </View>
                     <View className="flex-row items-center">
                       <Text className="text-gray-900 dark:text-white font-bold mr-2">
-                        {EXECUTIVE_DATA.suppliers.length}
+                        {EXECUTIVE_DATA.aiAgents.length}
                       </Text>
                       <ArrowRight size={16} color="#64748b" />
                     </View>
