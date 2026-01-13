@@ -172,7 +172,9 @@ export default function DecideScreen() {
 
   const functions: BusinessFunction[] = ['Marketing', 'Sales', 'Engineering', 'Ops', 'Finance', 'Admin'];
 
-  // Filter OKRs that need decisions (at-risk or off-track status)
+  // DECIDE tab should show items that require decision-making:
+  // For now, we'll show the approval queue prominently and keep at-risk items
+  // that may need strategic decisions or resource reallocation
   const okrsNeedingDecisions = selectedFunction === 'all'
     ? FUNCTION_OKRS.filter(okr => okr.status === 'at-risk' || okr.status === 'off-track')
     : FUNCTION_OKRS.filter(okr =>

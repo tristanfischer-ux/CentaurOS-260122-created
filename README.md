@@ -237,9 +237,21 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
 
 **✅ Feature Completeness:**
 - Home tab: **Role-specific dashboards** (Founder: command center with company oversight and org chart access, Executive: function dashboard with apprentice profiles via org chart, Apprentice: task-focused with OKR context and team visibility) - **ALL roles have quick access to Organization Chart**
-- Decide tab: Function-based OKRs (Marketing, Sales, Engineering, Ops, Finance, Admin), Expandable objectives, Progress tracking, Approval queue for resource requests
-- Evaluate tab: Work plan creation, OKR linking, Apprentice allocation, Progress monitoring, Submission review workflow
-- Do tab: Role-specific views (Apprentice: assigned work, Founder: all by function, Executive: their work), Progress reporting, Work submission
+- **Decide tab**: Items requiring strategic decisions and approvals
+  - At-risk and off-track OKRs requiring intervention
+  - Resource allocation approval queue (3 pending)
+  - Strategic decision-making for at-risk objectives
+  - Function-based filtering (Marketing, Sales, Engineering, Ops, Finance, Admin)
+- **Do tab**: Active work that needs to be done
+  - Apprentices see only their active work plans (in-progress, not-started, blocked)
+  - Founders see all active work organized by function
+  - Executives see their active responsibilities
+  - Filters out completed work to focus on actionable items
+- **Evaluate tab**: Work submissions requiring evaluation and review
+  - Shows only work plans with pending submissions
+  - Founders/Executives review and approve apprentice work
+  - Detailed submission history and feedback system
+  - Function-based filtering for targeted reviews
 - Make tab: AI tools, Suppliers (31 UK manufacturers including Proto Labs, Omega Plastics, Tharsus, and more), Manufacturing, BOM management (accessible to all roles, with proper tab parameter handling for AI view)
 - Community tab: Executives/Apprentices/Suppliers (31 UK manufacturers)/AI Agents marketplace with quick access to Guilds and Events, Search/filter, Request allocation, Apply/Join system with CV upload, Browse AI Library links to Make tab AI view
 - Settings tab: Profile, Themes, About with updated documentation, Function Library, Organization Structure, Guilds, Engagements
