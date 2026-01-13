@@ -8,6 +8,7 @@ import type { Function as BusinessFunction } from '@/types';
 
 export interface WorkPlan {
   id: string;
+  workspaceId: string; // 🔑 Multi-tenancy key - links work plan to specific company
   title: string;
   description: string;
   function: BusinessFunction;
@@ -44,13 +45,23 @@ interface WorkPlanState {
     completed: number;
     blocked: number;
   };
+
+  // Multi-tenancy methods
+  getWorkPlansByWorkspace: (workspaceId: string) => WorkPlan[];
+  getAllWorkPlans: () => WorkPlan[]; // For government users
+  getWorkPlansByWorkspaceAndFunction: (workspaceId: string, func: BusinessFunction) => WorkPlan[];
+  getWorkPlansByWorkspaceAndStatus: (workspaceId: string, status: WorkPlan['status']) => WorkPlan[];
 }
 
 // Initial work plan data - SINGLE SOURCE OF TRUTH
+// Default workspaceId for demo company
+const DEFAULT_WORKSPACE_ID = 'workspace-demo-company';
+
 const INITIAL_WORK_PLANS: WorkPlan[] = [
   // Apprentice work plans
   {
     id: 'wp-a1',
+    workspaceId: DEFAULT_WORKSPACE_ID,
     title: 'Create Social Media Content Calendar',
     description: 'Develop a 30-day content calendar for LinkedIn, Twitter, and Instagram with daily posts',
     function: 'Marketing',
@@ -64,6 +75,7 @@ const INITIAL_WORK_PLANS: WorkPlan[] = [
   },
   {
     id: 'wp-a2',
+    workspaceId: DEFAULT_WORKSPACE_ID,
     title: 'Research Competitor Pricing',
     description: 'Analyze pricing strategies of 10 direct competitors and create comparison spreadsheet',
     function: 'Sales',
@@ -76,6 +88,7 @@ const INITIAL_WORK_PLANS: WorkPlan[] = [
   },
   {
     id: 'wp-a3',
+    workspaceId: DEFAULT_WORKSPACE_ID,
     title: 'BOM Component Sourcing Research',
     description: 'Find 3 alternative suppliers for PCB components with cost and lead time analysis',
     function: 'Engineering',
@@ -91,6 +104,7 @@ const INITIAL_WORK_PLANS: WorkPlan[] = [
   // Founder/Executive work plans
   {
     id: 'wp-f1',
+    workspaceId: DEFAULT_WORKSPACE_ID,
     title: 'Launch Social Media Campaign',
     description: 'Execute 30-day social media campaign across all platforms',
     function: 'Marketing',
@@ -103,6 +117,7 @@ const INITIAL_WORK_PLANS: WorkPlan[] = [
   },
   {
     id: 'wp-f2',
+    workspaceId: DEFAULT_WORKSPACE_ID,
     title: 'Build Customer Outreach List',
     description: 'Compile 500 qualified leads with contact information',
     function: 'Sales',
@@ -115,6 +130,7 @@ const INITIAL_WORK_PLANS: WorkPlan[] = [
   },
   {
     id: 'wp-f3',
+    workspaceId: DEFAULT_WORKSPACE_ID,
     title: 'Component Cost Analysis',
     description: 'Analyze BOM and find alternative suppliers',
     function: 'Engineering',
@@ -127,6 +143,7 @@ const INITIAL_WORK_PLANS: WorkPlan[] = [
   },
   {
     id: 'wp-f4',
+    workspaceId: DEFAULT_WORKSPACE_ID,
     title: 'Manufacturing Lead Time Optimization',
     description: 'Reduce lead time from 6 to 4 weeks',
     function: 'Ops',
@@ -139,6 +156,7 @@ const INITIAL_WORK_PLANS: WorkPlan[] = [
   },
   {
     id: 'wp-f5',
+    workspaceId: DEFAULT_WORKSPACE_ID,
     title: 'Investor Deck Update',
     description: 'Update pitch deck with Q4 metrics',
     function: 'Finance',
@@ -215,6 +233,23 @@ export const useWorkPlanStore = create<WorkPlanState>((set, get) => ({
       completed: workPlans.filter(wp => wp.status === 'completed').length,
       blocked: workPlans.filter(wp => wp.status === 'blocked').length,
     };
+  },
+
+  // Multi-tenancy methods
+  getWorkPlansByWorkspace: (workspaceId: string) => {
+    return get().workPlans.filter(wp => wp.workspaceId === workspaceId);
+  },
+
+  getAllWorkPlans: () => {
+    return get().workPlans; // No filter - for government users
+  },
+
+  getWorkPlansByWorkspaceAndFunction: (workspaceId: string, func: BusinessFunction) => {
+    return get().workPlans.filter(wp => wp.workspaceId === workspaceId && wp.function === func);
+  },
+
+  getWorkPlansByWorkspaceAndStatus: (workspaceId: string, status: WorkPlan['status']) => {
+    return get().workPlans.filter(wp => wp.workspaceId === workspaceId && wp.status === status);
   },
 }));
 

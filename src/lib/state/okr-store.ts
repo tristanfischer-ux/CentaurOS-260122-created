@@ -17,6 +17,7 @@ export interface Objective {
 
 export interface OKR {
   id: string;
+  workspaceId: string; // 🔑 Multi-tenancy key - links OKR to specific company
   function: BusinessFunction;
   title: string;
   description: string;
@@ -49,12 +50,22 @@ interface OKRState {
     atRisk: number;
     offTrack: number;
   };
+
+  // Multi-tenancy methods
+  getOKRsByWorkspace: (workspaceId: string) => OKR[];
+  getAllOKRs: () => OKR[]; // For government users
+  getOKRsByWorkspaceAndFunction: (workspaceId: string, func: BusinessFunction) => OKR[];
+  getOKRsByWorkspaceAndStatus: (workspaceId: string, status: 'on-track' | 'at-risk' | 'off-track') => OKR[];
 }
 
 // Initial OKR data - SINGLE SOURCE OF TRUTH
+// Default workspaceId for demo company
+const DEFAULT_WORKSPACE_ID = 'workspace-demo-company';
+
 const INITIAL_OKRS: OKR[] = [
   {
     id: 'okr-marketing-1',
+    workspaceId: DEFAULT_WORKSPACE_ID,
     function: 'Marketing',
     title: 'Build Brand Awareness & Generate Leads',
     description: 'Establish market presence and create demand for our hardware product',
@@ -70,6 +81,7 @@ const INITIAL_OKRS: OKR[] = [
   },
   {
     id: 'okr-sales-1',
+    workspaceId: DEFAULT_WORKSPACE_ID,
     function: 'Sales',
     title: 'Achieve Product-Market Fit with 100 Customers',
     description: 'Validate product-market fit through customer acquisition and revenue',
@@ -85,6 +97,7 @@ const INITIAL_OKRS: OKR[] = [
   },
   {
     id: 'okr-bom-1',
+    workspaceId: DEFAULT_WORKSPACE_ID,
     function: 'Engineering',
     title: 'Finalize Bill of Materials & Reduce COGS by 20%',
     description: 'Optimize product design and supply chain to hit target unit economics',
@@ -100,6 +113,7 @@ const INITIAL_OKRS: OKR[] = [
   },
   {
     id: 'okr-engineering-1',
+    workspaceId: DEFAULT_WORKSPACE_ID,
     function: 'Engineering',
     title: 'Ship Production-Ready Hardware v1.0',
     description: 'Complete product development and pass all quality certifications',
@@ -115,6 +129,7 @@ const INITIAL_OKRS: OKR[] = [
   },
   {
     id: 'okr-ops-1',
+    workspaceId: DEFAULT_WORKSPACE_ID,
     function: 'Ops',
     title: 'Scale Manufacturing to 1000 Units/Month',
     description: 'Build operational capacity to meet initial market demand',
@@ -130,6 +145,7 @@ const INITIAL_OKRS: OKR[] = [
   },
   {
     id: 'okr-finance-1',
+    workspaceId: DEFAULT_WORKSPACE_ID,
     function: 'Finance',
     title: 'Raise £2M Seed Round & Extend Runway to 18 Months',
     description: 'Secure funding and manage burn rate to reach profitability',
@@ -145,6 +161,7 @@ const INITIAL_OKRS: OKR[] = [
   },
   {
     id: 'okr-finance-2',
+    workspaceId: DEFAULT_WORKSPACE_ID,
     function: 'Finance',
     title: 'Achieve Unit Economics Profitability',
     description: 'Ensure positive unit economics before scaling production',
@@ -160,6 +177,7 @@ const INITIAL_OKRS: OKR[] = [
   },
   {
     id: 'okr-legal-1',
+    workspaceId: DEFAULT_WORKSPACE_ID,
     function: 'Admin',
     title: 'Complete Legal & Compliance Foundation',
     description: 'Establish legal structure and protect intellectual property',
@@ -235,6 +253,23 @@ export const useOKRStore = create<OKRState>((set, get) => ({
       atRisk: okrs.filter(o => o.status === 'at-risk').length,
       offTrack: okrs.filter(o => o.status === 'off-track').length,
     };
+  },
+
+  // Multi-tenancy methods
+  getOKRsByWorkspace: (workspaceId: string) => {
+    return get().okrs.filter(okr => okr.workspaceId === workspaceId);
+  },
+
+  getAllOKRs: () => {
+    return get().okrs; // No filter - for government users
+  },
+
+  getOKRsByWorkspaceAndFunction: (workspaceId: string, func: BusinessFunction) => {
+    return get().okrs.filter(okr => okr.workspaceId === workspaceId && okr.function === func);
+  },
+
+  getOKRsByWorkspaceAndStatus: (workspaceId: string, status: 'on-track' | 'at-risk' | 'off-track') => {
+    return get().okrs.filter(okr => okr.workspaceId === workspaceId && okr.status === status);
   },
 }));
 

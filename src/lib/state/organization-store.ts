@@ -52,6 +52,14 @@ interface OrganizationState {
     activeAIAgents: number;
     activeEngagements: number;
   };
+
+  // Multi-tenancy methods
+  getMembersByWorkspace: (workspaceId: string) => OrganizationMember[];
+  getAIAgentsByWorkspace: (workspaceId: string) => AIAgent[];
+  getEngagementsByWorkspace: (workspaceId: string) => SupplierEngagement[];
+  getAllMembers: () => OrganizationMember[]; // For government users
+  getAllAIAgents: () => AIAgent[]; // For government users
+  getAllEngagements: () => SupplierEngagement[]; // For government users
 }
 
 export const useOrganizationStore = create<OrganizationState>((set, get) => ({
@@ -132,6 +140,31 @@ export const useOrganizationStore = create<OrganizationState>((set, get) => ({
       activeAIAgents: aiAgents.filter(a => a.status === 'active').length,
       activeEngagements: engagements.filter(e => e.status === 'in_progress' || e.status === 'planning').length,
     };
+  },
+
+  // Multi-tenancy methods
+  getMembersByWorkspace: (workspaceId: string) => {
+    return get().members.filter(m => m.workspaceId === workspaceId);
+  },
+
+  getAIAgentsByWorkspace: (workspaceId: string) => {
+    return get().aiAgents.filter(a => a.workspaceId === workspaceId);
+  },
+
+  getEngagementsByWorkspace: (workspaceId: string) => {
+    return get().supplierEngagements.filter(e => e.workspaceId === workspaceId);
+  },
+
+  getAllMembers: () => {
+    return get().members; // No filter - for government users
+  },
+
+  getAllAIAgents: () => {
+    return get().aiAgents; // No filter - for government users
+  },
+
+  getAllEngagements: () => {
+    return get().supplierEngagements; // No filter - for government users
   },
 }));
 

@@ -1,8 +1,12 @@
 // Organization structure seed data
 // Shows reporting lines, supplier engagements, and AI agent assignments
 
+// Default workspaceId for demo company
+const DEFAULT_WORKSPACE_ID = 'workspace-demo-company';
+
 export interface OrganizationMember {
   id: string;
+  workspaceId: string; // 🔑 Multi-tenancy key - links member to specific company
   name: string;
   role: 'Founder' | 'FractionalExec' | 'Apprentice';
   function: string;
@@ -19,6 +23,7 @@ export interface OrganizationMember {
 
 export interface SupplierEngagement {
   id: string;
+  workspaceId: string; // 🔑 Multi-tenancy key - links engagement to specific company
   supplierName: string;
   supplierId: string; // Reference to UK_SUPPLIERS
   projectName: string;
@@ -44,6 +49,7 @@ export interface SupplierEngagement {
 
 export interface AIAgent {
   id: string;
+  workspaceId: string; // 🔑 Multi-tenancy key - links AI agent to specific company
   name: string;
   provider: 'OpenAI' | 'Anthropic' | 'Google' | 'ElevenLabs' | 'Vibecode' | 'Other';
   model: string;
@@ -69,6 +75,7 @@ export interface AIAgent {
 export const ORGANIZATION_MEMBERS: OrganizationMember[] = [
   // Founders (no reports to anyone)
   {
+    workspaceId: DEFAULT_WORKSPACE_ID,
     id: 'founder-1',
     name: 'Sarah Chen',
     role: 'Founder',
@@ -82,6 +89,7 @@ export const ORGANIZATION_MEMBERS: OrganizationMember[] = [
     bio: 'Serial entrepreneur with 15+ years in hardware startups. Previously founded two successful IoT companies. Passionate about lean operations and fractional teams.',
   },
   {
+    workspaceId: DEFAULT_WORKSPACE_ID,
     id: 'founder-2',
     name: 'Marcus Thompson',
     role: 'Founder',
@@ -97,6 +105,7 @@ export const ORGANIZATION_MEMBERS: OrganizationMember[] = [
 
   // Fractional Executives
   {
+    workspaceId: DEFAULT_WORKSPACE_ID,
     id: 'exec-1',
     name: 'Jordan Martinez',
     role: 'FractionalExec',
@@ -112,6 +121,7 @@ export const ORGANIZATION_MEMBERS: OrganizationMember[] = [
     bio: 'Fractional CFO with 12 years experience. Helped 20+ startups raise Series A funding. Expert in financial modeling and unit economics.',
   },
   {
+    workspaceId: DEFAULT_WORKSPACE_ID,
     id: 'exec-2',
     name: 'Emma Richardson',
     role: 'FractionalExec',
@@ -127,6 +137,7 @@ export const ORGANIZATION_MEMBERS: OrganizationMember[] = [
     bio: 'Enterprise sales leader with £50M+ closed. Built sales teams from 0 to 15. Specializes in B2B manufacturing and industrial markets.',
   },
   {
+    workspaceId: DEFAULT_WORKSPACE_ID,
     id: 'exec-3',
     name: 'David Park',
     role: 'FractionalExec',
@@ -142,6 +153,7 @@ export const ORGANIZATION_MEMBERS: OrganizationMember[] = [
     bio: 'Former CTO at Series B hardware startup. 18 years in embedded systems and IoT. Led teams of 30+ engineers. Expert in manufacturing scale-up.',
   },
   {
+    workspaceId: DEFAULT_WORKSPACE_ID,
     id: 'exec-4',
     name: 'Sophie Adams',
     role: 'FractionalExec',
@@ -159,6 +171,7 @@ export const ORGANIZATION_MEMBERS: OrganizationMember[] = [
 
   // Apprentices
   {
+    workspaceId: DEFAULT_WORKSPACE_ID,
     id: 'apprentice-1',
     name: 'Alex Rivera',
     role: 'Apprentice',
@@ -173,6 +186,7 @@ export const ORGANIZATION_MEMBERS: OrganizationMember[] = [
     bio: 'Finance graduate eager to learn startup financial operations. Strong Excel skills and quick learner. Passionate about building unit economics models.',
   },
   {
+    workspaceId: DEFAULT_WORKSPACE_ID,
     id: 'apprentice-2',
     name: 'Priya Sharma',
     role: 'Apprentice',
@@ -187,6 +201,7 @@ export const ORGANIZATION_MEMBERS: OrganizationMember[] = [
     bio: 'Accounting background with interest in startup finance. Detail-oriented and methodical. Learning financial modeling and fundraising processes.',
   },
   {
+    workspaceId: DEFAULT_WORKSPACE_ID,
     id: 'apprentice-3',
     name: 'James Wilson',
     role: 'Apprentice',
@@ -201,6 +216,7 @@ export const ORGANIZATION_MEMBERS: OrganizationMember[] = [
     bio: 'Natural communicator with 2 years in B2B sales. Consistently exceeds outreach targets. Learning enterprise sales methodology.',
   },
   {
+    workspaceId: DEFAULT_WORKSPACE_ID,
     id: 'apprentice-4',
     name: 'Lily Chen',
     role: 'Apprentice',
@@ -215,6 +231,7 @@ export const ORGANIZATION_MEMBERS: OrganizationMember[] = [
     bio: 'Business development enthusiast with strong relationship-building skills. Previous experience in customer success. Learning complex sales cycles.',
   },
   {
+    workspaceId: DEFAULT_WORKSPACE_ID,
     id: 'apprentice-5',
     name: 'Omar Hassan',
     role: 'Apprentice',
@@ -229,6 +246,7 @@ export const ORGANIZATION_MEMBERS: OrganizationMember[] = [
     bio: 'Computer engineering graduate with embedded systems interest. Strong C++ and Python skills. Learning hardware-software integration.',
   },
   {
+    workspaceId: DEFAULT_WORKSPACE_ID,
     id: 'apprentice-6',
     name: 'Maya Patel',
     role: 'Apprentice',
@@ -243,6 +261,7 @@ export const ORGANIZATION_MEMBERS: OrganizationMember[] = [
     bio: 'Electronics engineering background. Experienced with PCB design and microcontrollers. Learning manufacturing processes and DFM principles.',
   },
   {
+    workspaceId: DEFAULT_WORKSPACE_ID,
     id: 'apprentice-7',
     name: 'Lucas Silva',
     role: 'Apprentice',
@@ -261,6 +280,7 @@ export const ORGANIZATION_MEMBERS: OrganizationMember[] = [
 // Active supplier engagements
 export const SUPPLIER_ENGAGEMENTS: SupplierEngagement[] = [
   {
+    workspaceId: DEFAULT_WORKSPACE_ID,
     id: 'eng-1',
     supplierName: 'Precision Components Ltd',
     supplierId: '1',
@@ -291,6 +311,7 @@ export const SUPPLIER_ENGAGEMENTS: SupplierEngagement[] = [
     },
   },
   {
+    workspaceId: DEFAULT_WORKSPACE_ID,
     id: 'eng-2',
     supplierName: 'UK Plastics Manufacturing',
     supplierId: '4',
@@ -321,6 +342,7 @@ export const SUPPLIER_ENGAGEMENTS: SupplierEngagement[] = [
     },
   },
   {
+    workspaceId: DEFAULT_WORKSPACE_ID,
     id: 'eng-3',
     supplierName: 'Manchester Metal Works',
     supplierId: '2',
@@ -351,6 +373,7 @@ export const SUPPLIER_ENGAGEMENTS: SupplierEngagement[] = [
     },
   },
   {
+    workspaceId: DEFAULT_WORKSPACE_ID,
     id: 'eng-4',
     supplierName: 'British Assembly Solutions',
     supplierId: '7',
@@ -382,6 +405,7 @@ export const SUPPLIER_ENGAGEMENTS: SupplierEngagement[] = [
     },
   },
   {
+    workspaceId: DEFAULT_WORKSPACE_ID,
     id: 'eng-5',
     supplierName: 'London Logistics Ltd',
     supplierId: '15',
@@ -418,6 +442,7 @@ export const SUPPLIER_ENGAGEMENTS: SupplierEngagement[] = [
 export const AI_AGENTS: AIAgent[] = [
   // ========== FINANCE (3 agents) ==========
   {
+    workspaceId: DEFAULT_WORKSPACE_ID,
     id: 'ai-finance-1',
     name: 'Vic AI',
     provider: 'Other',
@@ -446,6 +471,7 @@ export const AI_AGENTS: AIAgent[] = [
     },
   },
   {
+    workspaceId: DEFAULT_WORKSPACE_ID,
     id: 'ai-finance-2',
     name: 'Digits AI',
     provider: 'Other',
@@ -474,6 +500,7 @@ export const AI_AGENTS: AIAgent[] = [
     },
   },
   {
+    workspaceId: DEFAULT_WORKSPACE_ID,
     id: 'ai-finance-3',
     name: 'Gemini Pro',
     provider: 'Google',
@@ -504,6 +531,7 @@ export const AI_AGENTS: AIAgent[] = [
 
   // ========== SALES (4 agents) ==========
   {
+    workspaceId: DEFAULT_WORKSPACE_ID,
     id: 'ai-sales-1',
     name: '11x Alice',
     provider: 'Other',
@@ -532,6 +560,7 @@ export const AI_AGENTS: AIAgent[] = [
     },
   },
   {
+    workspaceId: DEFAULT_WORKSPACE_ID,
     id: 'ai-sales-2',
     name: 'Gong AI',
     provider: 'Other',
@@ -560,6 +589,7 @@ export const AI_AGENTS: AIAgent[] = [
     },
   },
   {
+    workspaceId: DEFAULT_WORKSPACE_ID,
     id: 'ai-sales-3',
     name: 'Clay AI',
     provider: 'Other',
@@ -588,6 +618,7 @@ export const AI_AGENTS: AIAgent[] = [
     },
   },
   {
+    workspaceId: DEFAULT_WORKSPACE_ID,
     id: 'ai-sales-4',
     name: 'ElevenLabs Voice AI',
     provider: 'ElevenLabs',
@@ -618,6 +649,7 @@ export const AI_AGENTS: AIAgent[] = [
 
   // ========== MARKETING (6 agents) ==========
   {
+    workspaceId: DEFAULT_WORKSPACE_ID,
     id: 'ai-marketing-1',
     name: 'Jasper AI',
     provider: 'Other',
@@ -646,6 +678,7 @@ export const AI_AGENTS: AIAgent[] = [
     },
   },
   {
+    workspaceId: DEFAULT_WORKSPACE_ID,
     id: 'ai-marketing-2',
     name: 'Copy.ai',
     provider: 'Other',
@@ -674,6 +707,7 @@ export const AI_AGENTS: AIAgent[] = [
     },
   },
   {
+    workspaceId: DEFAULT_WORKSPACE_ID,
     id: 'ai-marketing-3',
     name: 'Midjourney',
     provider: 'Other',
@@ -702,6 +736,7 @@ export const AI_AGENTS: AIAgent[] = [
     },
   },
   {
+    workspaceId: DEFAULT_WORKSPACE_ID,
     id: 'ai-marketing-4',
     name: 'DALL-E 3',
     provider: 'OpenAI',
@@ -730,6 +765,7 @@ export const AI_AGENTS: AIAgent[] = [
     },
   },
   {
+    workspaceId: DEFAULT_WORKSPACE_ID,
     id: 'ai-marketing-5',
     name: 'Perplexity Pro',
     provider: 'Other',
@@ -758,6 +794,7 @@ export const AI_AGENTS: AIAgent[] = [
     },
   },
   {
+    workspaceId: DEFAULT_WORKSPACE_ID,
     id: 'ai-marketing-6',
     name: 'Runway Gen-2',
     provider: 'Other',
@@ -788,6 +825,7 @@ export const AI_AGENTS: AIAgent[] = [
 
   // ========== OPS (3 agents) ==========
   {
+    workspaceId: DEFAULT_WORKSPACE_ID,
     id: 'ai-ops-1',
     name: 'Hebbia AI',
     provider: 'Other',
@@ -816,6 +854,7 @@ export const AI_AGENTS: AIAgent[] = [
     },
   },
   {
+    workspaceId: DEFAULT_WORKSPACE_ID,
     id: 'ai-ops-2',
     name: 'Zapier AI',
     provider: 'Other',
@@ -844,6 +883,7 @@ export const AI_AGENTS: AIAgent[] = [
     },
   },
   {
+    workspaceId: DEFAULT_WORKSPACE_ID,
     id: 'ai-ops-3',
     name: 'Harvey AI',
     provider: 'Other',
@@ -874,6 +914,7 @@ export const AI_AGENTS: AIAgent[] = [
 
   // ========== ENGINEERING (4 agents) ==========
   {
+    workspaceId: DEFAULT_WORKSPACE_ID,
     id: 'ai-eng-1',
     name: 'GitHub Copilot',
     provider: 'OpenAI',
@@ -902,6 +943,7 @@ export const AI_AGENTS: AIAgent[] = [
     },
   },
   {
+    workspaceId: DEFAULT_WORKSPACE_ID,
     id: 'ai-eng-2',
     name: 'Cursor AI',
     provider: 'Other',
@@ -930,6 +972,7 @@ export const AI_AGENTS: AIAgent[] = [
     },
   },
   {
+    workspaceId: DEFAULT_WORKSPACE_ID,
     id: 'ai-eng-3',
     name: 'Replit Ghostwriter',
     provider: 'Other',
@@ -958,6 +1001,7 @@ export const AI_AGENTS: AIAgent[] = [
     },
   },
   {
+    workspaceId: DEFAULT_WORKSPACE_ID,
     id: 'ai-eng-4',
     name: 'Tabnine',
     provider: 'Other',
@@ -988,6 +1032,7 @@ export const AI_AGENTS: AIAgent[] = [
 
   // ========== ADMIN/ALL (4 agents) ==========
   {
+    workspaceId: DEFAULT_WORKSPACE_ID,
     id: 'ai-admin-1',
     name: 'ChatGPT Enterprise',
     provider: 'OpenAI',
@@ -1016,6 +1061,7 @@ export const AI_AGENTS: AIAgent[] = [
     },
   },
   {
+    workspaceId: DEFAULT_WORKSPACE_ID,
     id: 'ai-admin-2',
     name: 'Notion AI',
     provider: 'Other',
@@ -1044,6 +1090,7 @@ export const AI_AGENTS: AIAgent[] = [
     },
   },
   {
+    workspaceId: DEFAULT_WORKSPACE_ID,
     id: 'ai-admin-3',
     name: 'Otter.ai',
     provider: 'Other',
@@ -1072,6 +1119,7 @@ export const AI_AGENTS: AIAgent[] = [
     },
   },
   {
+    workspaceId: DEFAULT_WORKSPACE_ID,
     id: 'ai-admin-4',
     name: 'Grammarly Business',
     provider: 'Other',
@@ -1102,6 +1150,7 @@ export const AI_AGENTS: AIAgent[] = [
 
   // ===== DESIGN & MANUFACTURING AGENTS (6 agents - £1,580/mo) =====
   {
+    workspaceId: DEFAULT_WORKSPACE_ID,
     id: 'ai-design-1',
     name: 'Autodesk Fusion AI',
     provider: 'Other',
@@ -1130,6 +1179,7 @@ export const AI_AGENTS: AIAgent[] = [
     },
   },
   {
+    workspaceId: DEFAULT_WORKSPACE_ID,
     id: 'ai-design-2',
     name: 'Monolith AI',
     provider: 'Other',
@@ -1158,6 +1208,7 @@ export const AI_AGENTS: AIAgent[] = [
     },
   },
   {
+    workspaceId: DEFAULT_WORKSPACE_ID,
     id: 'ai-design-3',
     name: 'Diagram AI',
     provider: 'Other',
@@ -1186,6 +1237,7 @@ export const AI_AGENTS: AIAgent[] = [
     },
   },
   {
+    workspaceId: DEFAULT_WORKSPACE_ID,
     id: 'ai-design-4',
     name: 'Manufacturing GPT',
     provider: 'OpenAI',
@@ -1214,6 +1266,7 @@ export const AI_AGENTS: AIAgent[] = [
     },
   },
   {
+    workspaceId: DEFAULT_WORKSPACE_ID,
     id: 'ai-design-5',
     name: 'Spline AI',
     provider: 'Other',
@@ -1242,6 +1295,7 @@ export const AI_AGENTS: AIAgent[] = [
     },
   },
   {
+    workspaceId: DEFAULT_WORKSPACE_ID,
     id: 'ai-design-6',
     name: 'Quality AI Inspector',
     provider: 'Other',
