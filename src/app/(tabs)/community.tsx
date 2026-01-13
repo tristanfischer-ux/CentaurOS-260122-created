@@ -1529,18 +1529,18 @@ export default function CommunityScreen() {
 
       {/* AI Agent Detail Modal */}
       <Modal visible={selectedAIAgent !== null} transparent animationType="fade" onRequestClose={() => setSelectedAIAgent(null)}>
-        <View className="flex-1 bg-black/70 justify-center items-center px-6">
+        <View className="flex-1 bg-black/70 justify-center items-center px-4">
           {selectedAIAgent && (
-            <View className="bg-gray-100 dark:bg-slate-900 rounded-3xl w-full" style={{ maxHeight: '90%' }}>
+            <View className="bg-gray-100 dark:bg-slate-900 rounded-3xl w-full" style={{ maxHeight: '95%', height: '95%' }}>
               {/* Header */}
               <View className="px-6 pt-6 pb-4 border-b border-gray-300 dark:border-slate-800">
                 <View className="flex-row items-center justify-between mb-2">
-                  <Text className="text-gray-900 dark:text-white text-2xl font-bold flex-1">{selectedAIAgent.name}</Text>
-                  <Pressable onPress={() => setSelectedAIAgent(null)}>
+                  <Text className="text-gray-900 dark:text-white text-2xl font-bold flex-1" numberOfLines={2}>{selectedAIAgent.name}</Text>
+                  <Pressable onPress={() => setSelectedAIAgent(null)} className="ml-2">
                     <X size={28} color="#94a3b8" />
                   </Pressable>
                 </View>
-                <View className="flex-row items-center gap-2 mb-2">
+                <View className="flex-row items-center gap-2 mb-3">
                   <View className="bg-blue-100 dark:bg-blue-900/30 px-3 py-1.5 rounded-lg">
                     <Text className="text-blue-700 dark:text-blue-300 text-sm font-semibold capitalize">
                       {selectedAIAgent.category.replace('-', ' ')}
@@ -1553,8 +1553,8 @@ export default function CommunityScreen() {
                   </View>
                 </View>
                 <View className="bg-blue-50 dark:bg-blue-900/20 rounded-lg px-3 py-2">
-                  <Text className="text-blue-600 dark:text-blue-400 text-xs text-center">
-                    ⬇️ Scroll down for pricing, reviews, setup info & more
+                  <Text className="text-blue-600 dark:text-blue-400 text-xs text-center font-semibold">
+                    ⬇️ Scroll down - 10+ sections of detailed info below
                   </Text>
                 </View>
               </View>
@@ -1565,6 +1565,7 @@ export default function CommunityScreen() {
                 bounces={true}
                 className="flex-1"
                 persistentScrollbar={true}
+                contentContainerStyle={{ paddingBottom: 20 }}
               >
                 <View className="px-6 py-4">
                   {/* Cost and Rating Section */}
