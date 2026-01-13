@@ -21,6 +21,7 @@ import { useCurrentWorkspace, useCurrentMembership, useCurrentUser } from '@/lib
 import DateTimePicker from '@react-native-community/datetimepicker';
 import MapView, { Marker, PROVIDER_DEFAULT } from 'react-native-maps';
 import { ORGANIZATION_MEMBERS } from '@/lib/organization-seed';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 interface Event {
   id: string;
@@ -116,6 +117,7 @@ const INITIAL_EVENTS: Event[] = [
 ];
 
 export default function EventsScreen() {
+  const insets = useSafeAreaInsets();
   const currentWorkspace = useCurrentWorkspace();
   const currentMembership = useCurrentMembership();
   const currentUser = useCurrentUser();
@@ -360,7 +362,7 @@ export default function EventsScreen() {
   };
 
   return (
-    <View className="flex-1 bg-white dark:bg-slate-950">
+    <View className="flex-1 bg-white dark:bg-slate-950" style={{ paddingTop: insets.top }}>
       {/* Header */}
       <View className="p-6 pb-4">
         <View className="flex-row items-center justify-between mb-4">
