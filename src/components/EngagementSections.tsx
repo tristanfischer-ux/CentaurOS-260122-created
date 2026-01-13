@@ -22,7 +22,7 @@ import { router } from 'expo-router';
 import type { Task } from '@/types';
 
 interface EngagementSectionsProps {
-  role: 'Founder' | 'FractionalExec' | 'Apprentice';
+  role: 'Founder' | 'FractionalExec' | 'Apprentice' | 'Government';
   tasks?: Task[];
   userName?: string;
 }

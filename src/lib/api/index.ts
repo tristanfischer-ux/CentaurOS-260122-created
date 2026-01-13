@@ -54,6 +54,10 @@ export function checkPermission(
       comment: ['create', 'read'],
       timeEntry: ['read'],
     },
+    Government: {
+      // Government users have read-only access across all workspaces
+      '*': ['read', 'view_all_workspaces'],
+    },
   };
 
   const rolePerms = permissions[role];
