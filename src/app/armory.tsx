@@ -540,6 +540,7 @@ function SquadsTab({
   canManage: boolean;
 }) {
   const [showCreateSquad, setShowCreateSquad] = useState(false);
+  const [selectedSquadForAddMember, setSelectedSquadForAddMember] = useState<string | null>(null);
 
   const currentMembership = useAppStore((s) => s.currentMembership);
   const allSquads = useArmoryStore((s) => s.squads);
@@ -619,14 +620,35 @@ function SquadsTab({
                 </View>
 
                 {apprenticeMembers.length > 0 && (
-                  <View className="bg-white/5 rounded-xl p-3">
+                  <View className="bg-white/5 rounded-xl p-3 mb-3">
                     <Text className="text-white/60 text-xs font-bold mb-2">TEAM MEMBERS</Text>
                     {apprenticeMembers.map((apprentice) => (
-                      <Text key={apprentice.id} className="text-white text-sm mb-1">
-                        • {apprentice.name}
-                      </Text>
+                      <View key={apprentice.id} className="flex-row items-center justify-between mb-1">
+                        <Text className="text-white text-sm">• {apprentice.name}</Text>
+                        {canManage && (
+                          <Pressable
+                            onPress={async () => {
+                              const armoryStore = useArmoryStore.getState();
+                              await armoryStore.removeApprentice(squad.id, apprentice.id);
+                            }}
+                            className="bg-red-500/20 px-2 py-1 rounded active:opacity-70"
+                          >
+                            <Text className="text-red-400 text-xs font-bold">Remove</Text>
+                          </Pressable>
+                        )}
+                      </View>
                     ))}
                   </View>
+                )}
+
+                {canManage && (
+                  <Pressable
+                    onPress={() => setSelectedSquadForAddMember(squad.id)}
+                    className="bg-blue-500/20 border border-blue-500/30 rounded-xl py-3 px-4 flex-row items-center justify-center active:opacity-70 mb-3"
+                  >
+                    <Plus size={16} color="#60a5fa" strokeWidth={3} />
+                    <Text className="text-blue-300 font-bold text-sm ml-2">Add Member</Text>
+                  </Pressable>
                 )}
 
                 {squad.deployedOKRId && (
@@ -648,6 +670,17 @@ function SquadsTab({
           visible={showCreateSquad}
           members={members}
           onClose={() => setShowCreateSquad(false)}
+        />
+      )}
+
+      {/* Add Member Modal */}
+      {selectedSquadForAddMember && (
+        <AddMemberToSquadModal
+          visible={!!selectedSquadForAddMember}
+          squadId={selectedSquadForAddMember}
+          members={members}
+          squads={squads}
+          onClose={() => setSelectedSquadForAddMember(null)}
         />
       )}
     </View>
@@ -760,6 +793,91 @@ function CreateSquadModal({
             </Pressable>
 
             <View className="h-40" />
+          </ScrollView>
+        </View>
+      </View>
+    </Modal>
+  );
+}
+
+// ========== ADD MEMBER TO SQUAD MODAL ==========
+
+function AddMemberToSquadModal({
+  visible,
+  squadId,
+  members,
+  squads,
+  onClose,
+}: {
+  visible: boolean;
+  squadId: string;
+  members: OrganizationMember[];
+  squads: any[];
+  onClose: () => void;
+}) {
+  const assignApprentice = useArmoryStore((s) => s.assignApprentice);
+
+  const squad = squads.find((s) => s.id === squadId);
+  if (!squad) return null;
+
+  // Get all active apprentices
+  const allApprentices = members.filter((m) => m.role === 'Apprentice' && m.status === 'active');
+
+  // Filter out apprentices already in this squad
+  const availableApprentices = allApprentices.filter(
+    (apprentice) => !squad.apprenticeMemberIds.includes(apprentice.id)
+  );
+
+  const handleAddMember = async (apprenticeId: string) => {
+    await assignApprentice(squadId, apprenticeId);
+    onClose();
+  };
+
+  return (
+    <Modal visible={visible} transparent animationType="slide" statusBarTranslucent>
+      <View className="flex-1 bg-black/90 justify-end">
+        <View className="bg-slate-900 rounded-t-3xl max-h-[80%]">
+          <View className="px-6 py-5 border-b border-white/10 flex-row items-center justify-between">
+            <Text className="text-white text-xl font-black">Add Member to {squad.name}</Text>
+            <Pressable onPress={onClose} className="w-10 h-10 items-center justify-center rounded-full bg-white/10 active:opacity-70">
+              <X size={24} color="white" />
+            </Pressable>
+          </View>
+
+          <ScrollView className="px-6 py-6" showsVerticalScrollIndicator={false}>
+            {availableApprentices.length === 0 ? (
+              <View className="py-12 items-center">
+                <Users size={48} color="rgba(255,255,255,0.2)" />
+                <Text className="text-white/40 text-center mt-4">
+                  No available apprentices to add
+                </Text>
+              </View>
+            ) : (
+              <>
+                <Text className="text-white/60 text-sm mb-4">
+                  Select an apprentice to add to the squad:
+                </Text>
+                {availableApprentices.map((apprentice) => (
+                  <Pressable
+                    key={apprentice.id}
+                    onPress={() => handleAddMember(apprentice.id)}
+                    className="bg-white/5 border border-white/10 rounded-xl p-4 mb-3 active:bg-white/10"
+                  >
+                    <View className="flex-row items-center justify-between">
+                      <View className="flex-1">
+                        <Text className="text-white font-bold text-base">{apprentice.name}</Text>
+                        <Text className="text-white/60 text-sm mt-1">{apprentice.function}</Text>
+                      </View>
+                      <View className="bg-emerald-500/20 px-3 py-1 rounded-lg">
+                        <Text className="text-emerald-300 text-xs font-bold">{apprentice.role}</Text>
+                      </View>
+                    </View>
+                  </Pressable>
+                ))}
+              </>
+            )}
+
+            <View className="h-20" />
           </ScrollView>
         </View>
       </View>
