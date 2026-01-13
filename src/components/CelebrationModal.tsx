@@ -123,7 +123,7 @@ export function CelebrationModal({
   if (!visible) return null;
 
   return (
-    <Modal visible={visible} transparent animationType="fade">
+    <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
       <View className="flex-1 bg-black/80 items-center justify-center p-6">
         {/* Confetti Background Effect */}
         <ConfettiAnimation visible={visible} />

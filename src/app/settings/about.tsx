@@ -63,7 +63,7 @@ export default function AboutScreen() {
     {
       icon: Cpu,
       title: 'AI Tools Library',
-      description: 'Integrate 50+ AI agents across all business functions to automate and accelerate your operations.',
+      description: 'Browse 24 third-party AI tools organized by business function - Finance, Sales, Marketing, Ops, Engineering, and Admin.',
       color: '#a855f7',
     },
     {
@@ -71,21 +71,20 @@ export default function AboutScreen() {
       title: 'In-App Messaging',
       description: 'Direct and group messaging with file attachments, read receipts, and typing indicators.',
       color: '#06b6d4',
-      badge: 'NEW',
     },
     {
       icon: FileText,
       title: 'Template Library',
-      description: 'Pre-built templates for work plans, OKRs, and reports to accelerate your team\'s productivity.',
+      description: 'Pre-built work plan templates across Marketing, Engineering, Sales, and Product functions to accelerate productivity.',
       color: '#f43f5e',
-      badge: 'COMING SOON',
+      badge: 'NEW',
     },
     {
       icon: BarChart3,
-      title: 'Analytics Dashboard',
-      description: 'Real-time insights on team velocity, OKR health, resource utilization, and AI tool usage.',
+      title: 'Analytics & Benchmarking',
+      description: 'Real-time team velocity, OKR health tracking, resource utilization, AI usage analytics, and industry benchmarking.',
       color: '#14b8a6',
-      badge: 'COMING SOON',
+      badge: 'NEW',
     },
     {
       icon: Smile,

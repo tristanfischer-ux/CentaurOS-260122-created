@@ -1,7 +1,7 @@
 // Time Tracking Modal for logging hours on tasks
 
 import { useState } from 'react';
-import { View, Text, Modal, Pressable, TextInput, ScrollView, Alert } from 'react-native';
+import { View, Text, Modal, Pressable, TextInput, ScrollView, Alert, KeyboardAvoidingView, Platform } from 'react-native';
 import { X, Clock, Calendar } from 'lucide-react-native';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { timeEntryApi } from '@/lib/api/operations';
@@ -87,8 +87,12 @@ export function TimeTrackingModal({ visible, task, onClose }: TimeTrackingModalP
 
   return (
     <Modal visible={visible} animationType="slide" transparent presentationStyle="pageSheet" onRequestClose={onClose}>
-      <View className="flex-1 bg-black/50">
-        <View className="flex-1 mt-16 bg-gray-100 dark:bg-gray-900 rounded-t-3xl">
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={{ flex: 1 }}
+      >
+        <View className="flex-1 bg-black/50">
+          <View className="flex-1 mt-16 bg-gray-100 dark:bg-gray-900 rounded-t-3xl">
           {/* Header */}
           <View className="flex-row items-center justify-between px-6 py-4 border-b border-gray-300 dark:border-gray-800">
             <View className="flex-1">
@@ -210,6 +214,7 @@ export function TimeTrackingModal({ visible, task, onClose }: TimeTrackingModalP
           </ScrollView>
         </View>
       </View>
+      </KeyboardAvoidingView>
     </Modal>
   );
 }
