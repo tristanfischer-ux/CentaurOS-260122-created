@@ -6,11 +6,11 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { FINANCIAL_DATA, type CostItem } from '@/lib/financial-calculations';
 
-// Initial financial data with all operating costs
+// Use centralized financial data
 const INITIAL_DATA = {
   runway: 14.2,
-  cashPosition: 1207000,
-  monthlyRevenue: 312000,
+  cashPosition: FINANCIAL_DATA.cashPosition,
+  monthlyRevenue: FINANCIAL_DATA.monthlyRevenue,
 
   revenueStreams: [
     { name: 'Product Sales', amount: 185000, growth: 12 },
@@ -19,59 +19,7 @@ const INITIAL_DATA = {
     { name: 'Licensing', amount: 12000, growth: 5 },
   ],
 
-  costs: {
-    team: [
-      { id: 't1', name: 'Fractional Executives (5)', amount: 35000, enabled: true, details: '£7K each/month', editable: true },
-      { id: 't2', name: 'Apprentices (8)', amount: 16000, enabled: true, details: '£2K each/month', editable: true },
-      { id: 't3', name: 'Founder Salary', amount: 1000, enabled: true, details: 'Minimal draw', editable: true },
-    ],
-    manufacturing: [
-      { id: 'm1', name: 'TechFab Manufacturing', amount: 12000, enabled: true, details: 'Primary manufacturer', editable: true },
-      { id: 'm2', name: 'UK Electronics Supply', amount: 4500, enabled: true, details: 'Component supplier', editable: true },
-      { id: 'm3', name: 'GlobalShip Fulfillment', amount: 1500, enabled: true, details: 'Shipping & logistics', editable: true },
-    ],
-    aiTools: [
-      { id: 'ai1', name: 'OpenAI API', amount: 1200, enabled: true, details: '~40K requests/month', editable: true },
-      { id: 'ai2', name: 'Anthropic Claude', amount: 800, enabled: true, details: '~25K requests/month', editable: true },
-      { id: 'ai3', name: 'Midjourney Pro', amount: 600, enabled: true, details: 'Unlimited generations', editable: true },
-      { id: 'ai4', name: 'ElevenLabs', amount: 400, enabled: true, details: '500K characters/month', editable: true },
-    ],
-    infrastructure: [
-      { id: 'i1', name: 'AWS Cloud Hosting', amount: 3200, enabled: true, details: 'Production + staging', editable: true },
-      { id: 'i2', name: 'Software Licenses', amount: 1200, enabled: true, details: 'Figma, Linear, Notion, etc.', editable: true },
-      { id: 'i3', name: 'Communication Tools', amount: 600, enabled: true, details: 'Slack, Zoom, Google Workspace', editable: true },
-    ],
-    marketing: [
-      { id: 'mk1', name: 'Digital Advertising', amount: 2500, enabled: true, details: 'Google Ads, LinkedIn', editable: true },
-      { id: 'mk2', name: 'Content Creation', amount: 1200, enabled: true, details: '~8 pieces/month', editable: true },
-      { id: 'mk3', name: 'Events & Conferences', amount: 800, enabled: true, details: '2 events/quarter', editable: true },
-      { id: 'mk4', name: 'SEO Tools & Services', amount: 500, enabled: true, details: 'Semrush, Ahrefs', editable: true },
-    ],
-    facilities: [
-      { id: 'f1', name: 'Office Rent', amount: 2000, enabled: true, details: '4 hot desks, coworking space', editable: true },
-      { id: 'f2', name: 'Internet & Connectivity', amount: 300, enabled: true, details: 'Fiber internet + backup', editable: true },
-      { id: 'f3', name: 'Utilities', amount: 200, enabled: true, details: 'Electricity, water', editable: true },
-      { id: 'f4', name: 'Office Supplies', amount: 150, enabled: true, details: 'Paper, pens, misc.', editable: true },
-    ],
-    equipment: [
-      { id: 'e1', name: 'Laptops & Computers', amount: 800, enabled: true, details: 'Amortized: £9.6K/yr', editable: true },
-      { id: 'e2', name: 'Monitors & Peripherals', amount: 200, enabled: true, details: 'Keyboards, mice, displays', editable: true },
-      { id: 'e3', name: 'Mobile Phones', amount: 400, enabled: true, details: '5 phones @ £80/mo each', editable: true },
-      { id: 'e4', name: 'Equipment Maintenance', amount: 150, enabled: true, details: 'Repairs & replacements', editable: true },
-    ],
-    insurance: [
-      { id: 'in1', name: 'Business Liability Insurance', amount: 350, enabled: true, details: '£1M coverage', editable: true },
-      { id: 'in2', name: 'Professional Indemnity', amount: 250, enabled: true, details: 'PI insurance', editable: true },
-      { id: 'in3', name: 'Equipment Insurance', amount: 100, enabled: true, details: 'Covers all tech equipment', editable: true },
-      { id: 'in4', name: 'Cyber Insurance', amount: 200, enabled: true, details: 'Data breach coverage', editable: true },
-    ],
-    professional: [
-      { id: 'p1', name: 'Legal Services', amount: 800, enabled: true, details: 'Contracts, compliance', editable: true },
-      { id: 'p2', name: 'Accounting & Bookkeeping', amount: 600, enabled: true, details: 'Monthly bookkeeping + tax', editable: true },
-      { id: 'p3', name: 'Banking Fees', amount: 150, enabled: true, details: 'Business account fees', editable: true },
-      { id: 'p4', name: 'Payment Processing', amount: 450, enabled: true, details: '~1.5% of revenue', editable: true },
-    ],
-  },
+  costs: FINANCIAL_DATA.costs,
 
   metrics: {
     cac: 125,

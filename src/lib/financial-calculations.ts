@@ -3,6 +3,8 @@
  * Single source of truth for all financial metrics across the app
  */
 
+import { ORGANIZATION_MEMBERS } from './organization-seed';
+
 // Cost item interface
 export interface CostItem {
   id: string;
@@ -13,17 +15,57 @@ export interface CostItem {
   editable: boolean;
 }
 
-// Centralized financial data - SINGLE SOURCE OF TRUTH
-export const FINANCIAL_DATA = {
-  cashPosition: 1207000,
-  monthlyRevenue: 312000,
+// Calculate actual team costs from organization data
+function calculateTeamCosts() {
+  const executives = ORGANIZATION_MEMBERS.filter(m => m.role === 'FractionalExec' && m.status === 'active');
+  const apprentices = ORGANIZATION_MEMBERS.filter(m => m.role === 'Apprentice' && m.status === 'active');
 
-  costs: {
-    team: [
-      { id: 't1', name: 'Fractional Executives (5)', amount: 35000, enabled: true, details: '£7K each/month', editable: true },
-      { id: 't2', name: 'Apprentices (8)', amount: 16000, enabled: true, details: '£2K each/month', editable: true },
-      { id: 't3', name: 'Founder Salary', amount: 1000, enabled: true, details: 'Minimal draw', editable: true },
-    ],
+  const execCost = executives.reduce((sum, exec) => {
+    if (!exec.costPerDay) return sum;
+    const daysPerWeek = exec.daysPerWeek || 5;
+    return sum + (exec.costPerDay * daysPerWeek * 4.33);
+  }, 0);
+
+  const apprenticeCost = apprentices.reduce((sum, app) => {
+    if (!app.costPerDay) return sum;
+    const daysPerWeek = app.daysPerWeek || 5;
+    return sum + (app.costPerDay * daysPerWeek * 4.33);
+  }, 0);
+
+  return {
+    executives: { count: executives.length, cost: Math.round(execCost) },
+    apprentices: { count: apprentices.length, cost: Math.round(apprenticeCost) },
+  };
+}
+
+// Centralized financial data - SINGLE SOURCE OF TRUTH
+export const FINANCIAL_DATA = (() => {
+  const teamCosts = calculateTeamCosts();
+
+  return {
+    cashPosition: 1207000,
+    monthlyRevenue: 312000,
+
+    costs: {
+      team: [
+        {
+          id: 't1',
+          name: `Fractional Executives (${teamCosts.executives.count})`,
+          amount: teamCosts.executives.cost,
+          enabled: true,
+          details: 'Calculated from organization data',
+          editable: false
+        },
+        {
+          id: 't2',
+          name: `Apprentices (${teamCosts.apprentices.count})`,
+          amount: teamCosts.apprentices.cost,
+          enabled: true,
+          details: 'Calculated from organization data',
+          editable: false
+        },
+        { id: 't3', name: 'Founder Salary', amount: 1000, enabled: true, details: 'Minimal draw', editable: true },
+      ],
     manufacturing: [
       { id: 'm1', name: 'TechFab Manufacturing', amount: 12000, enabled: true, details: 'Primary manufacturer', editable: true },
       { id: 'm2', name: 'UK Electronics Supply', amount: 4500, enabled: true, details: 'Component supplier', editable: true },
@@ -60,8 +102,9 @@ export const FINANCIAL_DATA = {
       { id: 'p1', name: 'Legal Retainer', amount: 1800, enabled: true, details: 'Corporate counsel', editable: true },
       { id: 'p2', name: 'Accounting & Tax', amount: 1200, enabled: true, details: 'Bookkeeping, CFO services', editable: true },
     ],
-  },
-};
+    },
+  };
+})();
 
 /**
  * Calculate total for a cost category

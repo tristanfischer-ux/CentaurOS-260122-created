@@ -57,6 +57,11 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
 **Last Updated**: 2026-01-13 (**COMPREHENSIVE AUDIT COMPLETE** + **ALL FIXES APPLIED** - Perfect 100/100 score)
 
 ### Latest Update (2026-01-13):
+✅ **Financial Data Consistency Fixed** - Fixed data inconsistency where UI showed 4 executives + 7 apprentices but financial breakdown showed 5 executives + 8 apprentices. Now uses organization-seed.ts as the single source of truth. Financial calculations now dynamically compute team costs based on actual organization data:
+  - 4 Executives: £44,035/month (calculated from costPerDay × daysPerWeek × 4.33)
+  - 7 Apprentices: £22,236/month (calculated from costPerDay × 5 days × 4.33)
+  - All financial dashboards now show consistent counts and costs
+
 ✅ **Home Tab Header Fixed** - The gradient ribbon now extends edge-to-edge to the top of the screen without clashing with the iOS status bar (time, WiFi, battery). Applied to all three role views (Founder Command Center, Executive Dashboard, Apprentice Workspace). The header gradient now properly sits behind the status bar while content remains appropriately spaced.
 
 ### Current Status: ✅ **PERFECT - SUBMIT TO APP STORE NOW**
