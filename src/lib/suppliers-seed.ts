@@ -8,6 +8,7 @@ export const UK_SUPPLIERS: Omit<Supplier, 'id' | 'createdAt' | 'updatedAt'>[] = 
   {
     name: 'Proto Labs UK',
     description: 'Digital manufacturing for custom prototypes and low-volume production parts',
+    detailedDescription: 'Proto Labs is the world\'s fastest digital manufacturing source for custom prototypes and on-demand production parts. Our automated quoting and manufacturing systems transform your digital designs into custom parts in as fast as 1 day. We offer CNC machining, injection molding, 3D printing, and sheet metal fabrication with no minimum order quantities.',
     capabilities: [
       'CNC Machining',
       'Injection Molding',
@@ -38,6 +39,113 @@ export const UK_SUPPLIERS: Omit<Supplier, 'id' | 'createdAt' | 'updatedAt'>[] = 
       yearEstablished: 1999,
       employeeCount: '500-1000',
       priceRange: 'premium',
+    },
+    specialties: [
+      'Rapid prototyping (1-3 day turnaround)',
+      'Bridge tooling for injection molding',
+      'Complex 5-axis CNC machining',
+      'Metal 3D printing (DMLS)',
+    ],
+    materials: [
+      'Aluminium alloys (6061, 7075)',
+      'Stainless steel (303, 316)',
+      'Engineering plastics (ABS, PC, Nylon)',
+      'Medical-grade materials (PEEK, PPSU)',
+    ],
+    industries: [
+      'Medical devices',
+      'Aerospace',
+      'Consumer electronics',
+      'Automotive',
+      'Robotics',
+    ],
+    caseStudies: [
+      {
+        title: 'Medical Ventilator Component Rapid Production',
+        client: 'UK Medical Device Startup',
+        challenge: 'Needed 500 ventilator housing components produced in 2 weeks during COVID-19 pandemic',
+        solution: 'Used rapid injection molding with aluminum tooling to produce parts in 10 days',
+        results: [
+          'Parts delivered in 10 days vs 8-week industry standard',
+          '100% first-article inspection pass rate',
+          'Saved £50,000 in tooling costs vs steel tooling',
+        ],
+      },
+      {
+        title: 'Aerospace Bracket Lightweighting',
+        client: 'Drone Manufacturer',
+        challenge: 'Aluminum brackets too heavy, needed 40% weight reduction',
+        solution: 'Redesigned for CNC machining with topology optimization, produced in 2 days',
+        results: [
+          '42% weight reduction achieved',
+          '3x faster than traditional machining',
+          'Met all strength requirements',
+        ],
+      },
+    ],
+    pricing: {
+      setup: 'Free instant online quotes',
+      perUnit: 'Varies by geometry - typically £50-500/part for CNC',
+      minimumProject: '£100',
+      notes: 'Volume discounts available. No tooling costs for prototypes.',
+    },
+    qualityControl: {
+      processes: [
+        'First article inspection (FAI)',
+        'In-process quality checks',
+        'CMM measurement',
+        'Material certification',
+      ],
+      certifications: ['ISO 9001:2015', 'ISO 13485', 'AS9100'],
+      defectRate: '< 0.5% defect rate',
+    },
+    equipment: {
+      machines: [
+        '100+ CNC mills and lathes',
+        '50+ injection molding presses',
+        '30+ industrial 3D printers (SLS, SLA, DMLS)',
+      ],
+      capacity: '10,000+ parts per day',
+      technology: [
+        '5-axis CNC machining',
+        'Aluminum tooling for injection molding',
+        'Direct metal laser sintering (DMLS)',
+      ],
+    },
+    support: {
+      designAssistance: true,
+      prototyping: true,
+      engineering: true,
+      logistics: true,
+    },
+    customerReviews: {
+      rating: 4.5,
+      totalReviews: 127,
+      pros: [
+        'Incredibly fast turnaround times',
+        'High quality parts',
+        'Easy online quoting system',
+        'Great customer service',
+      ],
+      cons: [
+        'Premium pricing',
+        'Limited to their material selection',
+        'Not cost-effective for high volumes',
+      ],
+      testimonials: [
+        {
+          company: 'MedTech Innovations Ltd',
+          quote: 'Proto Labs saved our product launch. We got injection molded parts in 5 days that would have taken 8 weeks elsewhere.',
+          author: 'Sarah Chen',
+          role: 'CEO',
+        },
+        {
+          company: 'Robotics UK',
+          quote: 'The quality is excellent and the speed is unmatched. Perfect for rapid iteration during product development.',
+          author: 'James Miller',
+          role: 'Chief Engineer',
+        },
+      ],
     },
   },
   {

@@ -26,40 +26,22 @@ import { UK_SUPPLIERS } from '@/lib/suppliers-seed';
 import { THIRD_PARTY_AI_TOOLS, getAIToolsByFunction, getTotalAIToolsCount, getCategoryColor, type ThirdPartyAITool, type BusinessFunction } from '@/lib/third-party-ai-tools';
 import { TabDescription } from '@/components/TabDescription';
 import { useCurrentMembership } from '@/lib/state/app-store';
+import { useSupplierStore } from '@/lib/state/supplier-store';
+import type { Supplier } from '@/types';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 type CommunityTab = 'executives' | 'apprentices' | 'suppliers' | 'ai-agents' | 'apply';
 
-interface Supplier {
-  id: string;
-  name: string;
-  type: 'contract-manufacturer' | 'component-supplier' | 'fulfillment';
-  location: string;
-  specialization: string[];
-  minOrderQuantity: string;
-  leadTime: string;
-  certifications: string[];
-}
-
-// Convert UK_SUPPLIERS to community tab format
-const DEMO_SUPPLIERS: Supplier[] = UK_SUPPLIERS.map((supplier, index) => ({
-  id: `sup-${index + 1}`,
-  name: supplier.name,
-  type: 'contract-manufacturer' as const,
-  location: `${supplier.location.city}, ${supplier.location.country}`,
-  specialization: supplier.capabilities,
-  minOrderQuantity: `${supplier.minimumOrderQuantity} units`,
-  leadTime: `${supplier.leadTimeWeeks} weeks`,
-  certifications: supplier.certifications,
-}));
-
 export default function CommunityScreen() {
   const insets = useSafeAreaInsets();
   const currentMembership = useCurrentMembership();
+  const suppliers = useSupplierStore((s) => s.suppliers);
+  const selectSupplier = useSupplierStore((s) => s.selectSupplier);
+  const selectedSupplierFromStore = useSupplierStore((s) => s.selectedSupplier);
+  const searchSuppliers = useSupplierStore((s) => s.searchSuppliers);
 
   const [activeTab, setActiveTab] = useState<CommunityTab>('executives');
   const [selectedCandidate, setSelectedCandidate] = useState<Candidate | null>(null);
-  const [selectedSupplier, setSelectedSupplier] = useState<Supplier | null>(null);
   const [selectedAIAgent, setSelectedAIAgent] = useState<ThirdPartyAITool | null>(null);
   const [selectedAIFunction, setSelectedAIFunction] = useState<BusinessFunction | 'all'>('all');
   const [showProfileModal, setShowProfileModal] = useState(false);
@@ -108,13 +90,13 @@ export default function CommunityScreen() {
   });
 
   // Filter suppliers
-  const filteredSuppliers = DEMO_SUPPLIERS.filter((supplier) => {
+  const filteredSuppliers = suppliers.filter((supplier) => {
     const matchesSearch = searchQuery === '' ||
       supplier.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      supplier.specialization.some(spec => spec.toLowerCase().includes(searchQuery.toLowerCase())) ||
-      supplier.location.toLowerCase().includes(searchQuery.toLowerCase());
+      supplier.capabilities.some(spec => spec.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      `${supplier.location.city}, ${supplier.location.country}`.toLowerCase().includes(searchQuery.toLowerCase());
 
-    const matchesType = selectedSupplierType === 'all' || supplier.type === selectedSupplierType;
+    const matchesType = selectedSupplierType === 'all' || true; // All suppliers for now
 
     return matchesSearch && matchesType;
   });
@@ -126,7 +108,7 @@ export default function CommunityScreen() {
     if (type === 'executive' || type === 'apprentice') {
       setSelectedCandidate(item);
     } else {
-      setSelectedSupplier(item);
+      selectSupplier(item);
     }
 
     setShowRequestModal(true);
@@ -136,7 +118,7 @@ export default function CommunityScreen() {
     if (!requestType) return;
 
     const resourceName = requestType === 'supplier'
-      ? selectedSupplier?.name
+      ? selectedSupplierFromStore?.name
       : selectedCandidate?.name;
 
     Alert.alert(
@@ -149,7 +131,7 @@ export default function CommunityScreen() {
     setRequestType(null);
     setRequestNotes('');
     setSelectedCandidate(null);
-    setSelectedSupplier(null);
+    selectSupplier(null);
   };
 
   const handleSubmitApplication = () => {
@@ -583,7 +565,7 @@ export default function CommunityScreen() {
               <Pressable
                 key={supplier.id}
                 onPress={() => {
-                  setSelectedSupplier(supplier);
+                  selectSupplier(supplier);
                   setShowProfileModal(true);
                 }}
                 className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-4 mb-3 border border-gray-300 dark:border-slate-800 active:opacity-70"
@@ -594,22 +576,27 @@ export default function CommunityScreen() {
                       {supplier.name}
                     </Text>
                     <Text className="text-gray-600 dark:text-slate-400 text-sm mb-2">
-                      {supplier.type.replace('-', ' ')} • {supplier.location}
+                      {supplier.description}
                     </Text>
                   </View>
                 </View>
 
                 <View className="flex-row flex-wrap gap-1 mb-2">
-                  {supplier.specialization.map((spec, idx) => (
+                  {supplier.capabilities.slice(0, 3).map((spec, idx) => (
                     <View key={idx} className="bg-amber-100 dark:bg-amber-900/30 px-2 py-1 rounded">
                       <Text className="text-amber-700 dark:text-amber-300 text-xs">{spec}</Text>
                     </View>
                   ))}
+                  {supplier.capabilities.length > 3 && (
+                    <View className="bg-gray-200 dark:bg-slate-800 px-2 py-1 rounded">
+                      <Text className="text-gray-600 dark:text-slate-400 text-xs">+{supplier.capabilities.length - 3} more</Text>
+                    </View>
+                  )}
                 </View>
 
                 <View className="bg-gray-200 dark:bg-slate-800 rounded-lg p-2 mb-2">
                   <Text className="text-gray-700 dark:text-slate-300 text-xs">
-                    MOQ: {supplier.minOrderQuantity} • Lead time: {supplier.leadTime}
+                    MOQ: {supplier.minimumOrderQuantity} units • Lead time: {supplier.leadTimeWeeks} weeks
                   </Text>
                 </View>
 
@@ -818,7 +805,7 @@ export default function CommunityScreen() {
                   onPress={() => {
                     setShowProfileModal(false);
                     setSelectedCandidate(null);
-                    setSelectedSupplier(null);
+                    selectSupplier(null);
                   }}
                   className="w-10 h-10 items-center justify-center rounded-full bg-gray-100 dark:bg-slate-900 active:opacity-70"
                 >
@@ -953,9 +940,9 @@ export default function CommunityScreen() {
                 </View>
               )}
 
-              {selectedSupplier && (
+              {selectedSupplierFromStore && (
                 <View className="px-6 py-6">
-                  {/* Name and Type */}
+                  {/* Name and Header */}
                   <View className="mb-6">
                     <View className="flex-row items-center mb-3">
                       <View className="w-16 h-16 bg-amber-500 rounded-full items-center justify-center">
@@ -963,59 +950,270 @@ export default function CommunityScreen() {
                       </View>
                       <View className="ml-4 flex-1">
                         <Text className="text-gray-900 dark:text-white text-2xl font-bold">
-                          {selectedSupplier.name}
+                          {selectedSupplierFromStore.name}
                         </Text>
                         <Text className="text-gray-600 dark:text-slate-400 text-base">
-                          {selectedSupplier.type.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}
+                          {selectedSupplierFromStore.region} Region
                         </Text>
                       </View>
                     </View>
                     <View className="flex-row items-center">
                       <Building2 size={16} color="#64748b" />
                       <Text className="text-gray-600 dark:text-slate-400 text-sm ml-2">
-                        {selectedSupplier.location}
+                        {selectedSupplierFromStore.location.city}, {selectedSupplierFromStore.location.country}
                       </Text>
                     </View>
                   </View>
 
-                  {/* Specialization */}
-                  <View className="mb-6">
-                    <Text className="text-gray-900 dark:text-white font-bold text-lg mb-3">
-                      Capabilities
-                    </Text>
+                  {/* Rating and Lead Time */}
+                  {selectedSupplierFromStore.customerReviews && (
+                    <View className="flex-row gap-3 mb-4">
+                      <View className="flex-1 bg-gray-200 dark:bg-slate-800 rounded-xl p-4">
+                        <Text className="text-gray-600 dark:text-slate-400 text-xs mb-1">Customer Rating</Text>
+                        <View className="flex-row items-center">
+                          <Text className="text-amber-500 dark:text-amber-400 text-2xl font-bold">
+                            {selectedSupplierFromStore.customerReviews.rating}
+                          </Text>
+                          <Text className="text-gray-500 dark:text-slate-500 text-sm ml-1">/5</Text>
+                        </View>
+                        <Text className="text-gray-500 dark:text-slate-500 text-xs">
+                          {selectedSupplierFromStore.customerReviews.totalReviews} reviews
+                        </Text>
+                      </View>
+                      <View className="flex-1 bg-gray-200 dark:bg-slate-800 rounded-xl p-4">
+                        <Text className="text-gray-600 dark:text-slate-400 text-xs mb-1">Lead Time</Text>
+                        <Text className="text-emerald-600 dark:text-emerald-400 text-2xl font-bold">
+                          {selectedSupplierFromStore.leadTimeWeeks}
+                        </Text>
+                        <Text className="text-gray-500 dark:text-slate-500 text-xs">weeks</Text>
+                      </View>
+                    </View>
+                  )}
+
+                  {/* Description */}
+                  {selectedSupplierFromStore.detailedDescription && (
+                    <View className="mb-4">
+                      <Text className="text-gray-900 dark:text-white font-semibold mb-2">About</Text>
+                      <Text className="text-gray-700 dark:text-slate-300 text-base leading-6">
+                        {selectedSupplierFromStore.detailedDescription}
+                      </Text>
+                    </View>
+                  )}
+
+                  {/* Capabilities */}
+                  <View className="mb-4">
+                    <Text className="text-gray-900 dark:text-white font-semibold mb-2">Capabilities</Text>
                     <View className="flex-row flex-wrap gap-2">
-                      {selectedSupplier.specialization.map((spec, idx) => (
+                      {selectedSupplierFromStore.capabilities.map((cap, idx) => (
                         <View key={idx} className="bg-amber-100 dark:bg-amber-900/30 px-3 py-2 rounded-lg">
-                          <Text className="text-amber-700 dark:text-amber-300 font-semibold">{spec}</Text>
+                          <Text className="text-amber-700 dark:text-amber-300 font-semibold">{cap}</Text>
                         </View>
                       ))}
                     </View>
                   </View>
 
-                  {/* Order Info */}
-                  <View className="mb-6">
-                    <Text className="text-gray-900 dark:text-white font-bold text-lg mb-3">
-                      Order Information
-                    </Text>
+                  {/* Specialties */}
+                  {selectedSupplierFromStore.specialties && selectedSupplierFromStore.specialties.length > 0 && (
+                    <View className="mb-4">
+                      <Text className="text-gray-900 dark:text-white font-semibold mb-2">Specialties</Text>
+                      <View className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4">
+                        {selectedSupplierFromStore.specialties.map((specialty, idx) => (
+                          <View key={idx} className="flex-row items-start mb-2">
+                            <Text className="text-blue-600 dark:text-blue-400 mr-2">✓</Text>
+                            <Text className="text-gray-900 dark:text-white flex-1 font-medium">{specialty}</Text>
+                          </View>
+                        ))}
+                      </View>
+                    </View>
+                  )}
+
+                  {/* Materials */}
+                  {selectedSupplierFromStore.materials && selectedSupplierFromStore.materials.length > 0 && (
+                    <View className="mb-4">
+                      <Text className="text-gray-900 dark:text-white font-semibold mb-2">Materials</Text>
+                      <View className="flex-row flex-wrap gap-2">
+                        {selectedSupplierFromStore.materials.map((material, idx) => (
+                          <View key={idx} className="bg-gray-200 dark:bg-slate-800 px-3 py-2 rounded-lg">
+                            <Text className="text-gray-700 dark:text-slate-300">{material}</Text>
+                          </View>
+                        ))}
+                      </View>
+                    </View>
+                  )}
+
+                  {/* Industries Served */}
+                  {selectedSupplierFromStore.industries && selectedSupplierFromStore.industries.length > 0 && (
+                    <View className="mb-4">
+                      <Text className="text-gray-900 dark:text-white font-semibold mb-2">Industries Served</Text>
+                      <View className="flex-row flex-wrap gap-2">
+                        {selectedSupplierFromStore.industries.map((industry, idx) => (
+                          <View key={idx} className="bg-purple-100 dark:bg-purple-900/30 px-3 py-2 rounded-lg border border-purple-200 dark:border-purple-800">
+                            <Text className="text-purple-700 dark:text-purple-300 font-semibold">{industry}</Text>
+                          </View>
+                        ))}
+                      </View>
+                    </View>
+                  )}
+
+                  {/* Case Studies */}
+                  {selectedSupplierFromStore.caseStudies && selectedSupplierFromStore.caseStudies.length > 0 && (
+                    <View className="mb-4">
+                      <Text className="text-gray-900 dark:text-white font-semibold mb-2">Case Studies</Text>
+                      {selectedSupplierFromStore.caseStudies.map((caseStudy, idx) => (
+                        <View key={idx} className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-xl p-4 mb-3">
+                          <Text className="text-emerald-900 dark:text-emerald-100 font-bold text-base mb-1">{caseStudy.title}</Text>
+                          <Text className="text-emerald-700 dark:text-emerald-300 text-sm mb-2">{caseStudy.client}</Text>
+
+                          <Text className="text-gray-700 dark:text-slate-300 text-sm font-semibold mt-2">Challenge:</Text>
+                          <Text className="text-gray-600 dark:text-slate-400 text-sm mb-2">{caseStudy.challenge}</Text>
+
+                          <Text className="text-gray-700 dark:text-slate-300 text-sm font-semibold">Solution:</Text>
+                          <Text className="text-gray-600 dark:text-slate-400 text-sm mb-2">{caseStudy.solution}</Text>
+
+                          <Text className="text-gray-700 dark:text-slate-300 text-sm font-semibold">Results:</Text>
+                          {caseStudy.results.map((result, ridx) => (
+                            <Text key={ridx} className="text-gray-600 dark:text-slate-400 text-sm">• {result}</Text>
+                          ))}
+                        </View>
+                      ))}
+                    </View>
+                  )}
+
+                  {/* Equipment & Technology */}
+                  {selectedSupplierFromStore.equipment && (
+                    <View className="mb-4">
+                      <Text className="text-gray-900 dark:text-white font-semibold mb-2">Equipment & Technology</Text>
+                      <View className="bg-cyan-50 dark:bg-cyan-900/20 border border-cyan-200 dark:border-cyan-800 rounded-xl p-4">
+                        <View className="mb-3">
+                          <Text className="text-cyan-700 dark:text-cyan-300 font-semibold mb-1">Capacity</Text>
+                          <Text className="text-gray-700 dark:text-slate-300 text-sm">{selectedSupplierFromStore.equipment.capacity}</Text>
+                        </View>
+                        <View className="mb-3">
+                          <Text className="text-cyan-700 dark:text-cyan-300 font-semibold mb-1">Machines</Text>
+                          {selectedSupplierFromStore.equipment.machines.map((machine, idx) => (
+                            <Text key={idx} className="text-gray-700 dark:text-slate-300 text-sm">• {machine}</Text>
+                          ))}
+                        </View>
+                        <View>
+                          <Text className="text-cyan-700 dark:text-cyan-300 font-semibold mb-1">Technology</Text>
+                          <View className="flex-row flex-wrap gap-2 mt-1">
+                            {selectedSupplierFromStore.equipment.technology.map((tech, idx) => (
+                              <View key={idx} className="bg-cyan-100 dark:bg-cyan-900/40 px-2 py-1 rounded">
+                                <Text className="text-cyan-800 dark:text-cyan-200 text-xs">{tech}</Text>
+                              </View>
+                            ))}
+                          </View>
+                        </View>
+                      </View>
+                    </View>
+                  )}
+
+                  {/* Quality Control */}
+                  {selectedSupplierFromStore.qualityControl && (
+                    <View className="mb-4">
+                      <Text className="text-gray-900 dark:text-white font-semibold mb-2">Quality Control</Text>
+                      <View className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-xl p-4">
+                        {selectedSupplierFromStore.qualityControl.defectRate && (
+                          <View className="mb-3">
+                            <Text className="text-emerald-700 dark:text-emerald-300 font-semibold">Defect Rate</Text>
+                            <Text className="text-emerald-600 dark:text-emerald-400 text-lg font-bold">{selectedSupplierFromStore.qualityControl.defectRate}</Text>
+                          </View>
+                        )}
+                        <View className="mb-3">
+                          <Text className="text-emerald-700 dark:text-emerald-300 font-semibold mb-1">Processes</Text>
+                          {selectedSupplierFromStore.qualityControl.processes.map((process, idx) => (
+                            <Text key={idx} className="text-gray-700 dark:text-slate-300 text-sm">• {process}</Text>
+                          ))}
+                        </View>
+                      </View>
+                    </View>
+                  )}
+
+                  {/* Pricing */}
+                  {selectedSupplierFromStore.pricing && (
+                    <View className="mb-4">
+                      <Text className="text-gray-900 dark:text-white font-semibold mb-2">Pricing</Text>
+                      <View className="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-xl p-4">
+                        {selectedSupplierFromStore.pricing.setup && (
+                          <View className="mb-2">
+                            <Text className="text-purple-700 dark:text-purple-300 font-semibold">Setup Fee</Text>
+                            <Text className="text-gray-700 dark:text-slate-300">{selectedSupplierFromStore.pricing.setup}</Text>
+                          </View>
+                        )}
+                        {selectedSupplierFromStore.pricing.perUnit && (
+                          <View className="mb-2">
+                            <Text className="text-purple-700 dark:text-purple-300 font-semibold">Per Unit Cost</Text>
+                            <Text className="text-gray-700 dark:text-slate-300">{selectedSupplierFromStore.pricing.perUnit}</Text>
+                          </View>
+                        )}
+                        {selectedSupplierFromStore.pricing.minimumProject && (
+                          <View className="mb-2">
+                            <Text className="text-purple-700 dark:text-purple-300 font-semibold">Minimum Project</Text>
+                            <Text className="text-gray-700 dark:text-slate-300">{selectedSupplierFromStore.pricing.minimumProject}</Text>
+                          </View>
+                        )}
+                        {selectedSupplierFromStore.pricing.notes && (
+                          <Text className="text-gray-600 dark:text-slate-400 text-sm mt-2 italic">
+                            {selectedSupplierFromStore.pricing.notes}
+                          </Text>
+                        )}
+                      </View>
+                    </View>
+                  )}
+
+                  {/* Order Information */}
+                  <View className="mb-4">
+                    <Text className="text-gray-900 dark:text-white font-semibold mb-2">Order Information</Text>
                     <View className="bg-gray-100 dark:bg-slate-900 rounded-xl p-4 border border-gray-300 dark:border-slate-800">
                       <View className="flex-row justify-between mb-3">
                         <Text className="text-gray-600 dark:text-slate-400">Min. Order Quantity</Text>
-                        <Text className="text-gray-900 dark:text-white font-semibold">{selectedSupplier.minOrderQuantity}</Text>
+                        <Text className="text-gray-900 dark:text-white font-semibold">{selectedSupplierFromStore.minimumOrderQuantity} units</Text>
                       </View>
                       <View className="flex-row justify-between">
                         <Text className="text-gray-600 dark:text-slate-400">Lead Time</Text>
-                        <Text className="text-gray-900 dark:text-white font-semibold">{selectedSupplier.leadTime}</Text>
+                        <Text className="text-gray-900 dark:text-white font-semibold">{selectedSupplierFromStore.leadTimeWeeks} weeks</Text>
                       </View>
                     </View>
                   </View>
 
+                  {/* Support Services */}
+                  {selectedSupplierFromStore.support && (
+                    <View className="mb-4">
+                      <Text className="text-gray-900 dark:text-white font-semibold mb-2">Support Services</Text>
+                      <View className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4">
+                        <View className="flex-row justify-between mb-2">
+                          <Text className="text-gray-700 dark:text-slate-300">Design Assistance</Text>
+                          <Text className="text-blue-700 dark:text-blue-300 font-semibold">
+                            {selectedSupplierFromStore.support.designAssistance ? '✓ Yes' : '✗ No'}
+                          </Text>
+                        </View>
+                        <View className="flex-row justify-between mb-2">
+                          <Text className="text-gray-700 dark:text-slate-300">Prototyping</Text>
+                          <Text className="text-blue-700 dark:text-blue-300 font-semibold">
+                            {selectedSupplierFromStore.support.prototyping ? '✓ Yes' : '✗ No'}
+                          </Text>
+                        </View>
+                        <View className="flex-row justify-between mb-2">
+                          <Text className="text-gray-700 dark:text-slate-300">Engineering Support</Text>
+                          <Text className="text-blue-700 dark:text-blue-300 font-semibold">
+                            {selectedSupplierFromStore.support.engineering ? '✓ Yes' : '✗ No'}
+                          </Text>
+                        </View>
+                        <View className="flex-row justify-between">
+                          <Text className="text-gray-700 dark:text-slate-300">Logistics</Text>
+                          <Text className="text-blue-700 dark:text-blue-300 font-semibold">
+                            {selectedSupplierFromStore.support.logistics ? '✓ Yes' : '✗ No'}
+                          </Text>
+                        </View>
+                      </View>
+                    </View>
+                  )}
+
                   {/* Certifications */}
-                  <View className="mb-6">
-                    <Text className="text-gray-900 dark:text-white font-bold text-lg mb-3">
-                      Certifications
-                    </Text>
+                  <View className="mb-4">
+                    <Text className="text-gray-900 dark:text-white font-semibold mb-2">Certifications</Text>
                     <View className="flex-row flex-wrap gap-2">
-                      {selectedSupplier.certifications.map((cert, idx) => (
+                      {selectedSupplierFromStore.certifications.map((cert, idx) => (
                         <View key={idx} className="bg-emerald-100 dark:bg-emerald-900/30 px-3 py-2 rounded-lg border border-emerald-200 dark:border-emerald-800">
                           <View className="flex-row items-center">
                             <CheckCircle2 size={14} color="#10b981" />
@@ -1026,13 +1224,52 @@ export default function CommunityScreen() {
                     </View>
                   </View>
 
-                  {/* Additional Info */}
-                  <View className="mb-6">
-                    <Text className="text-gray-900 dark:text-white font-bold text-lg mb-2">
-                      About
-                    </Text>
-                    <Text className="text-gray-700 dark:text-slate-300 text-base leading-6">
-                      {selectedSupplier.name} is a trusted {selectedSupplier.type.split('-').join(' ')} based in {selectedSupplier.location}. They specialize in {selectedSupplier.specialization.join(', ')} and hold certifications including {selectedSupplier.certifications.join(', ')}.
+                  {/* Customer Reviews */}
+                  {selectedSupplierFromStore.customerReviews && (selectedSupplierFromStore.customerReviews.pros || selectedSupplierFromStore.customerReviews.cons) && (
+                    <View className="mb-4">
+                      <Text className="text-gray-900 dark:text-white font-semibold mb-2">Customer Feedback</Text>
+                      <View className="bg-gray-100 dark:bg-slate-800 rounded-xl p-4">
+                        {selectedSupplierFromStore.customerReviews.pros && selectedSupplierFromStore.customerReviews.pros.length > 0 && (
+                          <View className="mb-3">
+                            <Text className="text-emerald-700 dark:text-emerald-300 font-semibold mb-2">👍 Pros</Text>
+                            {selectedSupplierFromStore.customerReviews.pros.map((pro, idx) => (
+                              <Text key={idx} className="text-gray-700 dark:text-slate-300 text-sm mb-1">• {pro}</Text>
+                            ))}
+                          </View>
+                        )}
+                        {selectedSupplierFromStore.customerReviews.cons && selectedSupplierFromStore.customerReviews.cons.length > 0 && (
+                          <View>
+                            <Text className="text-red-700 dark:text-red-300 font-semibold mb-2">👎 Cons</Text>
+                            {selectedSupplierFromStore.customerReviews.cons.map((con, idx) => (
+                              <Text key={idx} className="text-gray-700 dark:text-slate-300 text-sm mb-1">• {con}</Text>
+                            ))}
+                          </View>
+                        )}
+                      </View>
+                    </View>
+                  )}
+
+                  {/* Testimonials */}
+                  {selectedSupplierFromStore.customerReviews?.testimonials && selectedSupplierFromStore.customerReviews.testimonials.length > 0 && (
+                    <View className="mb-4">
+                      <Text className="text-gray-900 dark:text-white font-semibold mb-2">Testimonials</Text>
+                      {selectedSupplierFromStore.customerReviews.testimonials.map((testimonial, idx) => (
+                        <View key={idx} className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4 mb-3">
+                          <Text className="text-gray-700 dark:text-slate-300 text-sm italic mb-3">"{testimonial.quote}"</Text>
+                          <View>
+                            <Text className="text-blue-900 dark:text-blue-100 font-semibold text-sm">{testimonial.author}</Text>
+                            <Text className="text-blue-700 dark:text-blue-300 text-xs">{testimonial.role}, {testimonial.company}</Text>
+                          </View>
+                        </View>
+                      ))}
+                    </View>
+                  )}
+
+                  {/* Website */}
+                  <View className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-4">
+                    <Text className="text-amber-700 dark:text-amber-300 text-sm font-semibold mb-2">🌐 Website</Text>
+                    <Text className="text-amber-600 dark:text-amber-400 text-sm">
+                      {selectedSupplierFromStore.contact.website || 'Not provided'}
                     </Text>
                   </View>
                 </View>
@@ -1046,8 +1283,8 @@ export default function CommunityScreen() {
                   onPress={() => {
                     setShowProfileModal(false);
                     setTimeout(() => {
-                      if (selectedSupplier) {
-                        handleRequestAllocation('supplier', selectedSupplier);
+                      if (selectedSupplierFromStore) {
+                        handleRequestAllocation('supplier', selectedSupplierFromStore);
                       } else if (selectedCandidate) {
                         handleRequestAllocation(
                           selectedCandidate.role === 'FractionalExec' ? 'executive' : 'apprentice',
@@ -1064,7 +1301,7 @@ export default function CommunityScreen() {
                   onPress={() => {
                     setShowProfileModal(false);
                     setSelectedCandidate(null);
-                    setSelectedSupplier(null);
+                    selectSupplier(null);
                   }}
                   className="px-6 py-4 bg-gray-200 dark:bg-slate-800 rounded-xl items-center justify-center active:opacity-70"
                 >
@@ -1096,7 +1333,7 @@ export default function CommunityScreen() {
               <ScrollView showsVerticalScrollIndicator={true} className="px-6 py-4" keyboardShouldPersistTaps="handled">
               <View className="mb-4">
                 <Text className="text-gray-900 dark:text-white font-bold text-base mb-1">
-                  {requestType === 'supplier' ? selectedSupplier?.name : selectedCandidate?.name}
+                  {requestType === 'supplier' ? selectedSupplierFromStore?.name : selectedCandidate?.name}
                 </Text>
                 <Text className="text-gray-600 dark:text-slate-400 text-sm">
                   This request will be sent to the founder for approval in the Decide tab.

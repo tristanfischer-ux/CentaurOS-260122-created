@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useAppStore } from '../state/app-store';
+import { useSupplierStore } from '../state/supplier-store';
 import { db } from '../storage';
 import { seedDemoData } from '../api/seed';
 
@@ -9,6 +10,7 @@ export function useInitializeApp() {
   const [isInitialized, setIsInitialized] = useState(false);
   const [isSeeded, setIsSeeded] = useState(false);
   const initialize = useAppStore((s) => s.initialize);
+  const initializeSuppliers = useSupplierStore((s) => s.initializeSuppliers);
   const setWorkspaces = useAppStore((s) => s.setWorkspaces);
   const setMemberships = useAppStore((s) => s.setMemberships);
   const setUsers = useAppStore((s) => s.setUsers);
@@ -29,6 +31,9 @@ export function useInitializeApp() {
       try {
         // Initialize auth state
         await initialize();
+
+        // Initialize suppliers (from seed data)
+        initializeSuppliers();
 
         // Load all data from storage
         const [

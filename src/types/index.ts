@@ -538,6 +538,52 @@ export interface Supplier {
     employeeCount?: string;
     priceRange?: 'budget' | 'mid-range' | 'premium';
   };
+  // Enhanced detailed fields (matching AI tools)
+  detailedDescription?: string; // Long-form description
+  specialties?: string[]; // What they're best known for
+  materials?: string[]; // Materials they work with
+  industries?: string[]; // Industries they serve
+  caseStudies?: {
+    title: string;
+    client: string;
+    challenge: string;
+    solution: string;
+    results: string[];
+  }[];
+  pricing?: {
+    setup?: string;
+    perUnit?: string;
+    minimumProject?: string;
+    notes?: string;
+  };
+  qualityControl?: {
+    processes: string[];
+    certifications: string[];
+    defectRate?: string;
+  };
+  equipment?: {
+    machines: string[];
+    capacity: string;
+    technology: string[];
+  };
+  support?: {
+    designAssistance: boolean;
+    prototyping: boolean;
+    engineering: boolean;
+    logistics: boolean;
+  };
+  customerReviews?: {
+    rating: number;
+    totalReviews: number;
+    pros: string[];
+    cons: string[];
+    testimonials?: {
+      company: string;
+      quote: string;
+      author: string;
+      role: string;
+    }[];
+  };
 }
 
 // Supplier Recommendation (when someone suggests a new supplier)
