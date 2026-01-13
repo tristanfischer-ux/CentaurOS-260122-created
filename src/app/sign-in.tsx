@@ -1,11 +1,19 @@
 import { View, Text, Pressable, TextInput, ActivityIndicator } from 'react-native';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Building2, Mail, ArrowRight } from 'lucide-react-native';
+import { Building2, Mail, ArrowRight, Zap, Sparkles, TrendingUp, Rocket } from 'lucide-react-native';
 import { userApi } from '@/lib/api';
 import { useAppStore } from '@/lib/state/app-store';
 import { router } from 'expo-router';
 import { hasCompletedOnboarding } from '@/lib/onboarding';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withRepeat,
+  withTiming,
+  withSequence,
+  Easing,
+} from 'react-native-reanimated';
 
 export default function SignInScreen() {
   const [email, setEmail] = useState('');
@@ -14,6 +22,44 @@ export default function SignInScreen() {
 
   const setCurrentUser = useAppStore((s) => s.setCurrentUser);
   const setAuthToken = useAppStore((s) => s.setAuthToken);
+
+  // Animated values for floating elements
+  const float1 = useSharedValue(0);
+  const float2 = useSharedValue(0);
+  const pulse = useSharedValue(1);
+
+  useEffect(() => {
+    float1.value = withRepeat(
+      withTiming(20, { duration: 3000, easing: Easing.inOut(Easing.ease) }),
+      -1,
+      true
+    );
+    float2.value = withRepeat(
+      withTiming(-15, { duration: 2500, easing: Easing.inOut(Easing.ease) }),
+      -1,
+      true
+    );
+    pulse.value = withRepeat(
+      withSequence(
+        withTiming(1.1, { duration: 1500, easing: Easing.inOut(Easing.ease) }),
+        withTiming(1, { duration: 1500, easing: Easing.inOut(Easing.ease) })
+      ),
+      -1,
+      false
+    );
+  }, []);
+
+  const float1Style = useAnimatedStyle(() => ({
+    transform: [{ translateY: float1.value }],
+  }));
+
+  const float2Style = useAnimatedStyle(() => ({
+    transform: [{ translateY: float2.value }],
+  }));
+
+  const pulseStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: pulse.value }],
+  }));
 
   const handleSignIn = async () => {
     if (!email.trim()) {
@@ -98,35 +144,108 @@ export default function SignInScreen() {
   return (
     <View className="flex-1">
       <LinearGradient
-        colors={['#0f172a', '#1e293b', '#334155']}
+        colors={['#0ea5e9', '#3b82f6', '#6366f1', '#8b5cf6']}
         style={{ flex: 1 }}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
       >
+        {/* Floating decorative elements */}
+        <View className="absolute inset-0 overflow-hidden">
+          <Animated.View
+            style={[
+              {
+                position: 'absolute',
+                top: 100,
+                right: 30,
+                width: 120,
+                height: 120,
+                borderRadius: 60,
+                backgroundColor: 'rgba(255, 255, 255, 0.15)',
+              },
+              float1Style,
+            ]}
+          />
+          <Animated.View
+            style={[
+              {
+                position: 'absolute',
+                top: 200,
+                left: -20,
+                width: 100,
+                height: 100,
+                borderRadius: 50,
+                backgroundColor: 'rgba(255, 255, 255, 0.1)',
+              },
+              float2Style,
+            ]}
+          />
+          <Animated.View
+            style={[
+              {
+                position: 'absolute',
+                bottom: 150,
+                right: -30,
+                width: 150,
+                height: 150,
+                borderRadius: 75,
+                backgroundColor: 'rgba(255, 255, 255, 0.08)',
+              },
+              float1Style,
+            ]}
+          />
+        </View>
+
         <View className="flex-1 px-6 justify-center">
           {/* Logo and Title */}
-          <View className="items-center mb-12">
-            <View className="w-20 h-20 bg-blue-500 rounded-2xl items-center justify-center mb-6">
-              <Building2 size={40} color="white" />
-            </View>
-            <Text className="text-4xl font-bold text-gray-900 dark:text-white mb-2">Centaur OS</Text>
-            <Text className="text-gray-600 dark:text-slate-400 text-center text-base">
-              The operating system for lean hardware startups
+          <View className="items-center mb-10">
+            <Animated.View style={pulseStyle}>
+              <LinearGradient
+                colors={['#fbbf24', '#f59e0b', '#ea580c']}
+                style={{
+                  width: 90,
+                  height: 90,
+                  borderRadius: 28,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  marginBottom: 20,
+                  shadowColor: '#f59e0b',
+                  shadowOffset: { width: 0, height: 8 },
+                  shadowOpacity: 0.5,
+                  shadowRadius: 16,
+                }}
+              >
+                <Rocket size={48} color="white" strokeWidth={2.5} />
+              </LinearGradient>
+            </Animated.View>
+            <Text className="text-5xl font-black text-white mb-3 tracking-tight">
+              Centaur OS
             </Text>
+            <View className="bg-white/20 backdrop-blur-xl px-5 py-2.5 rounded-full border border-white/30">
+              <Text className="text-white text-base font-bold">
+                The Operating System for Lean Startups
+              </Text>
+            </View>
           </View>
 
           {/* Sign In Form */}
-          <View className="bg-slate-800/50 rounded-3xl p-6 border border-slate-700">
-            <Text className="text-gray-900 dark:text-white text-xl font-semibold mb-4">Sign In</Text>
+          <View className="bg-white rounded-3xl p-7 shadow-2xl border-2 border-white/50">
+            <View className="flex-row items-center mb-6">
+              <Text className="text-gray-900 text-2xl font-black flex-1">Welcome Back</Text>
+              <View className="bg-blue-500 p-2 rounded-full">
+                <Sparkles size={20} color="white" />
+              </View>
+            </View>
 
-            <View className="mb-4">
-              <Text className="text-gray-600 dark:text-slate-400 mb-2 text-sm">Email</Text>
-              <View className="flex-row items-center bg-slate-900/50 rounded-xl px-4 py-3 border border-slate-700">
-                <Mail size={20} color="#94a3b8" />
+            <View className="mb-5">
+              <Text className="text-gray-700 mb-2 text-sm font-semibold">Email Address</Text>
+              <View className="flex-row items-center bg-gray-100 rounded-2xl px-4 py-4 border-2 border-gray-200">
+                <View className="bg-blue-500 p-2 rounded-lg mr-3">
+                  <Mail size={18} color="white" />
+                </View>
                 <TextInput
-                  className="flex-1 ml-3 text-gray-900 dark:text-white text-base"
+                  className="flex-1 text-gray-900 text-base font-medium"
                   placeholder="you@example.com"
-                  placeholderTextColor="#64748b"
+                  placeholderTextColor="#94a3b8"
                   value={email}
                   onChangeText={setEmail}
                   keyboardType="email-address"
@@ -138,20 +257,35 @@ export default function SignInScreen() {
             </View>
 
             {error ? (
-              <Text className="text-red-400 text-sm mb-4">{error}</Text>
+              <View className="bg-red-50 border-2 border-red-200 rounded-xl p-3 mb-5">
+                <Text className="text-red-700 text-sm font-semibold">{error}</Text>
+              </View>
             ) : null}
 
             <Pressable
               onPress={handleSignIn}
               disabled={isLoading}
-              className="bg-blue-500 rounded-xl py-4 flex-row items-center justify-center active:opacity-80"
+              className="rounded-2xl py-5 flex-row items-center justify-center active:scale-[0.98] shadow-lg"
             >
+              <LinearGradient
+                colors={['#3b82f6', '#2563eb', '#1d4ed8']}
+                style={{
+                  position: 'absolute',
+                  left: 0,
+                  right: 0,
+                  top: 0,
+                  bottom: 0,
+                  borderRadius: 16,
+                }}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+              />
               {isLoading ? (
                 <ActivityIndicator color="white" />
               ) : (
                 <>
-                  <Text className="text-gray-900 dark:text-white font-semibold text-base mr-2">Continue</Text>
-                  <ArrowRight size={20} color="white" />
+                  <Text className="text-white font-black text-lg mr-2">Sign In</Text>
+                  <ArrowRight size={24} color="white" strokeWidth={3} />
                 </>
               )}
             </Pressable>
@@ -159,46 +293,75 @@ export default function SignInScreen() {
 
           {/* Demo Accounts */}
           <View className="mt-8">
-            <Text className="text-gray-600 dark:text-slate-400 text-center mb-4 text-sm">Demo Accounts</Text>
+            <View className="flex-row items-center justify-center mb-5">
+              <View className="flex-1 h-px bg-white/30" />
+              <Text className="text-white font-bold text-sm mx-4">Quick Demo Access</Text>
+              <View className="flex-1 h-px bg-white/30" />
+            </View>
+
             <View className="gap-3">
               <Pressable
                 onPress={() => quickSignIn('founder@fractional.com')}
                 disabled={isLoading}
-                className="bg-slate-800/30 border border-slate-700 rounded-xl p-4 active:opacity-80"
+                className="bg-white/95 border-2 border-white rounded-2xl p-5 active:scale-[0.98] shadow-lg"
               >
-                <Text className="text-gray-900 dark:text-white font-medium mb-1">Founder (Sarah Chen)</Text>
-                <Text className="text-gray-600 dark:text-slate-400 text-xs">founder@fractional.com</Text>
-              </Pressable>
-
-              <Pressable
-                onPress={() => quickSignIn('apprentice@fractional.com')}
-                disabled={isLoading}
-                className="bg-slate-800/30 border border-slate-700 rounded-xl p-4 active:opacity-80"
-              >
-                <Text className="text-gray-900 dark:text-white font-medium mb-1">Apprentice (Alex Rivera)</Text>
-                <Text className="text-gray-600 dark:text-slate-400 text-xs">apprentice@fractional.com</Text>
+                <View className="flex-row items-center">
+                  <View className="bg-gradient-to-br from-blue-500 to-blue-600 p-3 rounded-xl mr-4">
+                    <Building2 size={24} color="white" />
+                  </View>
+                  <View className="flex-1">
+                    <Text className="text-gray-900 font-black text-base mb-0.5">Founder Account</Text>
+                    <Text className="text-gray-600 text-sm font-semibold">Sarah Chen • founder@fractional.com</Text>
+                  </View>
+                  <ArrowRight size={20} color="#3b82f6" />
+                </View>
               </Pressable>
 
               <Pressable
                 onPress={() => quickSignIn('exec@fractional.com')}
                 disabled={isLoading}
-                className="bg-slate-800/30 border border-slate-700 rounded-xl p-4 active:opacity-80"
+                className="bg-white/95 border-2 border-white rounded-2xl p-5 active:scale-[0.98] shadow-lg"
               >
-                <Text className="text-gray-900 dark:text-white font-medium mb-1">Fractional Exec (Jordan Martinez)</Text>
-                <Text className="text-gray-600 dark:text-slate-400 text-xs">exec@fractional.com</Text>
+                <View className="flex-row items-center">
+                  <View className="bg-gradient-to-br from-violet-500 to-violet-600 p-3 rounded-xl mr-4">
+                    <TrendingUp size={24} color="white" />
+                  </View>
+                  <View className="flex-1">
+                    <Text className="text-gray-900 font-black text-base mb-0.5">Executive Account</Text>
+                    <Text className="text-gray-600 text-sm font-semibold">Jordan Martinez • exec@fractional.com</Text>
+                  </View>
+                  <ArrowRight size={20} color="#8b5cf6" />
+                </View>
+              </Pressable>
+
+              <Pressable
+                onPress={() => quickSignIn('apprentice@fractional.com')}
+                disabled={isLoading}
+                className="bg-white/95 border-2 border-white rounded-2xl p-5 active:scale-[0.98] shadow-lg"
+              >
+                <View className="flex-row items-center">
+                  <View className="bg-gradient-to-br from-emerald-500 to-emerald-600 p-3 rounded-xl mr-4">
+                    <Zap size={24} color="white" />
+                  </View>
+                  <View className="flex-1">
+                    <Text className="text-gray-900 font-black text-base mb-0.5">Apprentice Account</Text>
+                    <Text className="text-gray-600 text-sm font-semibold">Alex Rivera • apprentice@fractional.com</Text>
+                  </View>
+                  <ArrowRight size={20} color="#10b981" />
+                </View>
               </Pressable>
             </View>
           </View>
 
           {/* Sign Up Link */}
-          <View className="mt-6 flex-row items-center justify-center">
-            <Text className="text-gray-600 dark:text-slate-400 text-sm">Don't have an account? </Text>
+          <View className="mt-8 flex-row items-center justify-center bg-white/15 backdrop-blur-xl rounded-2xl py-4 px-6 border border-white/30">
+            <Text className="text-white text-base font-semibold">Don't have an account? </Text>
             <Pressable
               onPress={() => router.push('/sign-up')}
               disabled={isLoading}
               className="active:opacity-70"
             >
-              <Text className="text-blue-400 font-semibold text-sm">Sign Up</Text>
+              <Text className="text-white font-black text-base underline">Sign Up Free</Text>
             </Pressable>
           </View>
         </View>
