@@ -4,6 +4,10 @@ import { useAppStore } from './state/app-store';
 import { useEffect } from 'react';
 import type { ThemeMode } from '@/types';
 
+/**
+ * Get the effective color scheme (light or dark)
+ * Takes into account user preference and system settings
+ */
 export function useColorScheme(): 'light' | 'dark' {
   const systemColorScheme = useRNColorScheme();
   const { setColorScheme } = useNWColorScheme();
@@ -32,14 +36,19 @@ export function useColorScheme(): 'light' | 'dark' {
   return effectiveScheme;
 }
 
-// Helper to get the exact theme mode (including off-white)
+/**
+ * Get the exact theme mode (including off-white)
+ */
 export function useThemeMode(): ThemeMode {
   const currentUser = useAppStore((s) => s.currentUser);
   return currentUser?.preferences?.themeMode || 'system';
 }
 
-// Helper to check if using off-white theme
+/**
+ * Check if using off-white theme
+ */
 export function useIsOffWhite(): boolean {
-  const themeMode = useThemeMode();
+  const currentUser = useAppStore((s) => s.currentUser);
+  const themeMode = currentUser?.preferences?.themeMode || 'system';
   return themeMode === 'off-white';
 }
