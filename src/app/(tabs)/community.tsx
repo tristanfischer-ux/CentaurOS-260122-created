@@ -223,55 +223,64 @@ export default function CommunityScreen() {
           </Pressable>
         </View>
 
-        {/* Summary Stats */}
+        {/* Summary Stats - Tappable */}
         <View className="flex-row gap-2 mb-3">
-          <View className="flex-1 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl p-3 border border-emerald-200 dark:border-emerald-800">
+          <Pressable
+            onPress={() => setActiveTab('executives')}
+            className={`flex-1 rounded-xl p-3 border active:opacity-70 ${
+              activeTab === 'executives'
+                ? 'bg-emerald-100 dark:bg-emerald-800/40 border-emerald-400 dark:border-emerald-600'
+                : 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800'
+            }`}
+          >
             <Text className="text-emerald-700 dark:text-emerald-300 text-xs mb-1">Executives</Text>
             <Text className="text-emerald-600 dark:text-emerald-400 text-xl font-bold">{filteredExecutives.length}</Text>
-          </View>
-          <View className="flex-1 bg-purple-50 dark:bg-purple-900/20 rounded-xl p-3 border border-purple-200 dark:border-purple-800">
+          </Pressable>
+          <Pressable
+            onPress={() => setActiveTab('apprentices')}
+            className={`flex-1 rounded-xl p-3 border active:opacity-70 ${
+              activeTab === 'apprentices'
+                ? 'bg-purple-100 dark:bg-purple-800/40 border-purple-400 dark:border-purple-600'
+                : 'bg-purple-50 dark:bg-purple-900/20 border-purple-200 dark:border-purple-800'
+            }`}
+          >
             <Text className="text-purple-700 dark:text-purple-300 text-xs mb-1">Apprentices</Text>
             <Text className="text-purple-600 dark:text-purple-400 text-xl font-bold">{filteredApprentices.length}</Text>
-          </View>
-          <View className="flex-1 bg-cyan-50 dark:bg-cyan-900/20 rounded-xl p-3 border border-cyan-200 dark:border-cyan-800">
+          </Pressable>
+          <Pressable
+            onPress={() => setActiveTab('ai-agents')}
+            className={`flex-1 rounded-xl p-3 border active:opacity-70 ${
+              activeTab === 'ai-agents'
+                ? 'bg-cyan-100 dark:bg-cyan-800/40 border-cyan-400 dark:border-cyan-600'
+                : 'bg-cyan-50 dark:bg-cyan-900/20 border-cyan-200 dark:border-cyan-800'
+            }`}
+          >
             <Text className="text-cyan-700 dark:text-cyan-300 text-xs mb-1">AI Agents</Text>
             <Text className="text-cyan-600 dark:text-cyan-400 text-xl font-bold">{getTotalAIToolsCount()}</Text>
-          </View>
-          <View className="flex-1 bg-amber-50 dark:bg-amber-900/20 rounded-xl p-3 border border-amber-200 dark:border-amber-800">
+          </Pressable>
+          <Pressable
+            onPress={() => setActiveTab('suppliers')}
+            className={`flex-1 rounded-xl p-3 border active:opacity-70 ${
+              activeTab === 'suppliers'
+                ? 'bg-amber-100 dark:bg-amber-800/40 border-amber-400 dark:border-amber-600'
+                : 'bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800'
+            }`}
+          >
             <Text className="text-amber-700 dark:text-amber-300 text-xs mb-1">Suppliers</Text>
             <Text className="text-amber-600 dark:text-amber-400 text-xl font-bold">{filteredSuppliers.length}</Text>
-          </View>
+          </Pressable>
         </View>
 
-        {/* Tab Selector */}
-        <View className="flex-row bg-gray-100 dark:bg-slate-900 rounded-xl p-1 border border-gray-300 dark:border-slate-800">
-          {tabs.map((tab) => {
-            const Icon = tab.icon;
-            const isActive = activeTab === tab.value;
-            return (
-              <Pressable
-                key={tab.value}
-                onPress={() => setActiveTab(tab.value)}
-                className={`flex-1 py-2 rounded-lg items-center active:opacity-70 ${
-                  isActive ? 'bg-blue-500' : ''
-                }`}
-              >
-                <Icon
-                  size={16}
-                  color={isActive ? '#ffffff' : '#64748b'}
-                  strokeWidth={2}
-                />
-                <Text
-                  className={`text-xs mt-1 font-medium ${
-                    isActive ? 'text-white' : 'text-gray-600 dark:text-slate-400'
-                  }`}
-                >
-                  {tab.label}
-                </Text>
-              </Pressable>
-            );
-          })}
-        </View>
+        {/* Apply/Join Button */}
+        <Pressable
+          onPress={() => setActiveTab('apply')}
+          className="bg-blue-500 rounded-xl py-3 items-center active:opacity-80"
+        >
+          <View className="flex-row items-center">
+            <Upload size={18} color="#fff" />
+            <Text className="text-white font-bold ml-2">Apply / Join</Text>
+          </View>
+        </Pressable>
       </View>
 
       {/* Search & Filter */}
