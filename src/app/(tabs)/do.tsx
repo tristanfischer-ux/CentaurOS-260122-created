@@ -263,10 +263,10 @@ export default function DoScreen() {
     );
   };
 
-  // Render for Apprentices
+  // Render for Apprentices - only show active work that needs to be done
   if (isApprentice) {
     const myWorkPlans = APPRENTICE_WORK_PLANS;
-    const activePlans = myWorkPlans.filter(p => p.status !== 'completed');
+    const activePlans = myWorkPlans.filter(p => p.status === 'in-progress' || p.status === 'not-started' || p.status === 'blocked');
     const completedPlans = myWorkPlans.filter(p => p.status === 'completed');
 
     return (
@@ -275,7 +275,7 @@ export default function DoScreen() {
         <View className="px-6 py-4 border-b border-gray-300 dark:border-slate-800">
           <Text className="text-gray-900 dark:text-white text-2xl font-bold">Do</Text>
           <Text className="text-gray-600 dark:text-slate-400 text-sm mt-0.5">
-            Your assigned work plans
+            Active work plans requiring your attention
           </Text>
 
           {/* Summary Stats */}
@@ -292,11 +292,20 @@ export default function DoScreen() {
         </View>
 
         <ScrollView className="flex-1 px-6 py-4">
-          {/* Active Work Plans */}
-          {activePlans.length > 0 && (
+          {activePlans.length === 0 ? (
+            <View className="items-center justify-center py-12">
+              <CheckCircle2 size={48} color="#10b981" />
+              <Text className="text-emerald-600 dark:text-emerald-400 text-center font-semibold text-lg mt-4">
+                All Work Complete!
+              </Text>
+              <Text className="text-gray-500 dark:text-slate-400 text-center mt-2">
+                No active work plans at the moment
+              </Text>
+            </View>
+          ) : (
             <>
               <Text className="text-gray-900 dark:text-white text-base font-semibold mb-3">
-                Active Work Plans ({activePlans.length})
+                Work That Needs Doing ({activePlans.length})
               </Text>
 
               {activePlans.map((plan) => {
@@ -418,54 +427,6 @@ export default function DoScreen() {
               })}
             </>
           )}
-
-          {/* Completed Work Plans */}
-          {completedPlans.length > 0 && (
-            <>
-              <Text className="text-gray-900 dark:text-white text-base font-semibold mb-3 mt-4">
-                Completed ({completedPlans.length})
-              </Text>
-
-              {completedPlans.map((plan) => {
-                const functionColor = getFunctionColor(plan.function);
-
-                return (
-                  <View
-                    key={plan.id}
-                    className="bg-gray-100 dark:bg-slate-900 border border-gray-300 dark:border-slate-800 rounded-2xl p-4 mb-3 opacity-70"
-                  >
-                    <View
-                      className="self-start px-2 py-1 rounded mb-2"
-                      style={{ backgroundColor: functionColor + '20' }}
-                    >
-                      <Text className="text-xs font-semibold" style={{ color: functionColor }}>
-                        {plan.function}
-                      </Text>
-                    </View>
-
-                    <Text className="text-gray-900 dark:text-white font-bold text-base mb-1">
-                      {plan.title}
-                    </Text>
-
-                    <View className="flex-row items-center justify-between">
-                      <Text className="text-gray-600 dark:text-slate-400 text-xs">
-                        Completed {plan.lastSubmittedAt}
-                      </Text>
-                      <CheckCircle2 size={16} color="#10b981" />
-                    </View>
-
-                    {plan.feedback && (
-                      <View className="mt-2 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-lg p-2">
-                        <Text className="text-emerald-700 dark:text-emerald-300 text-xs">
-                          {plan.feedback}
-                        </Text>
-                      </View>
-                    )}
-                  </View>
-                );
-              })}
-            </>
-          )}
         </ScrollView>
 
         {/* Submit Work Modal */}
@@ -521,11 +482,21 @@ export default function DoScreen() {
     );
   }
 
-  // Render for Founders - organized by function/OKR
+  // Render for Founders - organized by function, showing only active work
   if (isFounder) {
     const filteredFunctions = selectedFunction === 'all'
       ? functions
       : [selectedFunction];
+
+    // Filter to show only active work plans (not completed)
+    const activeWorkPlansByFunction: Record<BusinessFunction, WorkPlan[]> = {
+      Marketing: FOUNDER_WORK_PLANS_BY_FUNCTION.Marketing.filter(p => p.status !== 'completed'),
+      Sales: FOUNDER_WORK_PLANS_BY_FUNCTION.Sales.filter(p => p.status !== 'completed'),
+      Engineering: FOUNDER_WORK_PLANS_BY_FUNCTION.Engineering.filter(p => p.status !== 'completed'),
+      Ops: FOUNDER_WORK_PLANS_BY_FUNCTION.Ops.filter(p => p.status !== 'completed'),
+      Finance: FOUNDER_WORK_PLANS_BY_FUNCTION.Finance.filter(p => p.status !== 'completed'),
+      Admin: FOUNDER_WORK_PLANS_BY_FUNCTION.Admin.filter(p => p.status !== 'completed'),
+    };
 
     return (
       <View className="flex-1 bg-white dark:bg-slate-950" style={{ paddingTop: insets.top }}>
@@ -533,7 +504,7 @@ export default function DoScreen() {
         <View className="px-6 py-4 border-b border-gray-300 dark:border-slate-800">
           <Text className="text-gray-900 dark:text-white text-2xl font-bold">Do</Text>
           <Text className="text-gray-600 dark:text-slate-400 text-sm mt-0.5">
-            All work plans organized by function
+            Active work plans that need to be done
           </Text>
 
           {/* Function Filter */}
@@ -562,7 +533,7 @@ export default function DoScreen() {
 
         <ScrollView className="flex-1 px-6 py-4">
           {filteredFunctions.map((func) => {
-            const plansForFunction = FOUNDER_WORK_PLANS_BY_FUNCTION[func] || [];
+            const plansForFunction = activeWorkPlansByFunction[func] || [];
             if (plansForFunction.length === 0) return null;
 
             const functionColor = getFunctionColor(func);
@@ -608,9 +579,9 @@ export default function DoScreen() {
     );
   }
 
-  // Render for Executives - only their work plans
+  // Render for Executives - only their active work plans
   if (isExecutive) {
-    const myWorkPlans = EXECUTIVE_WORK_PLANS;
+    const myWorkPlans = EXECUTIVE_WORK_PLANS.filter(p => p.status !== 'completed');
 
     return (
       <View className="flex-1 bg-white dark:bg-slate-950" style={{ paddingTop: insets.top }}>
@@ -618,7 +589,7 @@ export default function DoScreen() {
         <View className="px-6 py-4 border-b border-gray-300 dark:border-slate-800">
           <Text className="text-gray-900 dark:text-white text-2xl font-bold">Do</Text>
           <Text className="text-gray-600 dark:text-slate-400 text-sm mt-0.5">
-            Work plans you're responsible for
+            Active work plans you're responsible for
           </Text>
         </View>
 

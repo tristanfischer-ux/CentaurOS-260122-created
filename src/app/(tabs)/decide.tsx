@@ -172,9 +172,13 @@ export default function DecideScreen() {
 
   const functions: BusinessFunction[] = ['Marketing', 'Sales', 'Engineering', 'Ops', 'Finance', 'Admin'];
 
-  const filteredOKRs = selectedFunction === 'all'
-    ? FUNCTION_OKRS
-    : FUNCTION_OKRS.filter(okr => okr.function === selectedFunction);
+  // Filter OKRs that need decisions (at-risk or off-track status)
+  const okrsNeedingDecisions = selectedFunction === 'all'
+    ? FUNCTION_OKRS.filter(okr => okr.status === 'at-risk' || okr.status === 'off-track')
+    : FUNCTION_OKRS.filter(okr =>
+        (okr.status === 'at-risk' || okr.status === 'off-track') &&
+        okr.function === selectedFunction
+      );
 
   const toggleOKR = (okrId: string) => {
     const newExpanded = new Set(expandedOKRs);
@@ -231,10 +235,11 @@ export default function DecideScreen() {
     }
   };
 
-  // Calculate summary stats
-  const totalOKRs = filteredOKRs.length;
-  const onTrackOKRs = filteredOKRs.filter(okr => okr.status === 'on-track').length;
-  const atRiskOKRs = filteredOKRs.filter(okr => okr.status === 'at-risk').length;
+  // Calculate summary stats for items needing decisions
+  const totalOKRs = okrsNeedingDecisions.length;
+  const atRiskOKRs = okrsNeedingDecisions.filter(okr => okr.status === 'at-risk').length;
+  const offTrackOKRs = okrsNeedingDecisions.filter(okr => okr.status === 'off-track').length;
+  const approvalQueueCount = 3; // In real app, this would be dynamic
 
   return (
     <View className="flex-1 bg-white dark:bg-slate-950" style={{ paddingTop: insets.top }}>
@@ -244,7 +249,7 @@ export default function DecideScreen() {
           <View className="flex-1">
             <Text className="text-gray-900 dark:text-white text-2xl font-bold">Decide</Text>
             <Text className="text-gray-600 dark:text-slate-400 text-sm mt-0.5">
-              Strategic objectives and key results by function
+              OKRs requiring decisions and pending approvals
             </Text>
           </View>
           <Pressable
@@ -257,17 +262,17 @@ export default function DecideScreen() {
 
         {/* Summary Stats */}
         <View className="flex-row gap-3 mb-3">
-          <View className="flex-1 bg-gray-100 dark:bg-slate-900 rounded-xl p-3 border border-gray-300 dark:border-slate-800">
-            <Text className="text-gray-600 dark:text-slate-400 text-xs mb-1">Total OKRs</Text>
-            <Text className="text-gray-900 dark:text-white text-2xl font-bold">{totalOKRs}</Text>
-          </View>
-          <View className="flex-1 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl p-3 border border-emerald-200 dark:border-emerald-800">
-            <Text className="text-emerald-700 dark:text-emerald-300 text-xs mb-1">On Track</Text>
-            <Text className="text-emerald-600 dark:text-emerald-400 text-2xl font-bold">{onTrackOKRs}</Text>
+          <View className="flex-1 bg-purple-50 dark:bg-purple-900/20 rounded-xl p-3 border border-purple-200 dark:border-purple-800">
+            <Text className="text-purple-700 dark:text-purple-300 text-xs mb-1">Approvals</Text>
+            <Text className="text-purple-600 dark:text-purple-400 text-2xl font-bold">{approvalQueueCount}</Text>
           </View>
           <View className="flex-1 bg-amber-50 dark:bg-amber-900/20 rounded-xl p-3 border border-amber-200 dark:border-amber-800">
             <Text className="text-amber-700 dark:text-amber-300 text-xs mb-1">At Risk</Text>
             <Text className="text-amber-600 dark:text-amber-400 text-2xl font-bold">{atRiskOKRs}</Text>
+          </View>
+          <View className="flex-1 bg-red-50 dark:bg-red-900/20 rounded-xl p-3 border border-red-200 dark:border-red-800">
+            <Text className="text-red-700 dark:text-red-300 text-xs mb-1">Off Track</Text>
+            <Text className="text-red-600 dark:text-red-400 text-2xl font-bold">{offTrackOKRs}</Text>
           </View>
         </View>
 
@@ -312,21 +317,22 @@ export default function DecideScreen() {
       </View>
 
       <ScrollView className="flex-1 px-6 py-4">
-        {filteredOKRs.length === 0 ? (
+        {okrsNeedingDecisions.length === 0 ? (
           <View className="items-center justify-center py-12">
-            <Target size={48} color="#94a3b8" />
-            <Text className="text-gray-500 dark:text-slate-400 text-center mt-4">
-              No OKRs for {selectedFunction === 'all' ? 'any function' : selectedFunction}
+            <Target size={48} color="#10b981" />
+            <Text className="text-emerald-600 dark:text-emerald-400 text-center font-semibold text-lg mt-4">
+              All OKRs on Track!
             </Text>
-            <Pressable
-              onPress={() => setShowCreateModal(true)}
-              className="mt-4 bg-blue-500 px-6 py-3 rounded-xl active:opacity-70"
-            >
-              <Text className="text-white font-semibold">Create First OKR</Text>
-            </Pressable>
+            <Text className="text-gray-500 dark:text-slate-400 text-center mt-2">
+              No decisions needed for {selectedFunction === 'all' ? 'any function' : selectedFunction}
+            </Text>
           </View>
         ) : (
-          filteredOKRs.map((okr) => {
+          <>
+            <Text className="text-gray-900 dark:text-white text-base font-semibold mb-3">
+              OKRs Requiring Attention ({okrsNeedingDecisions.length})
+            </Text>
+            {okrsNeedingDecisions.map((okr) => {
             const isExpanded = expandedOKRs.has(okr.id);
             const functionColor = getFunctionColor(okr.function);
 
@@ -439,7 +445,8 @@ export default function DecideScreen() {
                 )}
               </View>
             );
-          })
+          })}
+          </>
         )}
       </ScrollView>
 

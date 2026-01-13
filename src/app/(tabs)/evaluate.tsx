@@ -156,19 +156,21 @@ export default function EvaluateScreen() {
   const isExecutive = currentMembership?.role === 'FractionalExec';
   const canCreatePlans = isFounder || isExecutive;
 
-  // Filter work plans
-  let filteredPlans = DEMO_WORK_PLANS;
+  // Filter work plans to show only those needing evaluation (with pending submissions)
+  let workPlansNeedingEvaluation = DEMO_WORK_PLANS.filter(plan =>
+    plan.submissions.some(s => s.status === 'pending')
+  );
 
   // Filter by function
   if (selectedFunction !== 'all') {
-    filteredPlans = filteredPlans.filter(plan => plan.function === selectedFunction);
+    workPlansNeedingEvaluation = workPlansNeedingEvaluation.filter(plan => plan.function === selectedFunction);
   }
 
   // Filter by role permissions (executives only see their work plans)
   if (isExecutive && !isFounder) {
     // In real app, this would filter by current user's name
     // For now, show all plans to executives
-    // filteredPlans = filteredPlans.filter(plan => plan.owner === currentUser?.name);
+    // workPlansNeedingEvaluation = workPlansNeedingEvaluation.filter(plan => plan.owner === currentUser?.name);
   }
 
   const togglePlan = (planId: string) => {
@@ -246,12 +248,13 @@ export default function EvaluateScreen() {
     setReviewNotes('');
   };
 
-  // Calculate summary stats
-  const totalPlans = filteredPlans.length;
-  const inProgressPlans = filteredPlans.filter(p => p.status === 'in-progress').length;
-  const completedPlans = filteredPlans.filter(p => p.status === 'completed').length;
-  const pendingSubmissions = filteredPlans.reduce((total, plan) =>
+  // Calculate summary stats for items needing evaluation
+  const totalPlans = workPlansNeedingEvaluation.length;
+  const pendingSubmissions = workPlansNeedingEvaluation.reduce((total, plan) =>
     total + plan.submissions.filter(s => s.status === 'pending').length, 0
+  );
+  const totalSubmissions = workPlansNeedingEvaluation.reduce((total, plan) =>
+    total + plan.submissions.length, 0
   );
 
   return (
@@ -262,12 +265,7 @@ export default function EvaluateScreen() {
           <View className="flex-1">
             <Text className="text-gray-900 dark:text-white text-2xl font-bold">Evaluate</Text>
             <Text className="text-gray-600 dark:text-slate-400 text-sm mt-0.5">
-              {isFounder
-                ? 'Create work plans and monitor progress across all functions'
-                : isExecutive
-                ? 'Create work plans for your function and evaluate submissions'
-                : 'View work plans assigned to you'
-              }
+              Work submissions that need evaluation
             </Text>
           </View>
           {canCreatePlans && (
@@ -282,17 +280,17 @@ export default function EvaluateScreen() {
 
         {/* Summary Stats */}
         <View className="flex-row gap-3 mb-3">
-          <View className="flex-1 bg-gray-100 dark:bg-slate-900 rounded-xl p-3 border border-gray-300 dark:border-slate-800">
-            <Text className="text-gray-600 dark:text-slate-400 text-xs mb-1">Work Plans</Text>
-            <Text className="text-gray-900 dark:text-white text-2xl font-bold">{totalPlans}</Text>
-          </View>
-          <View className="flex-1 bg-blue-50 dark:bg-blue-900/20 rounded-xl p-3 border border-blue-200 dark:border-blue-800">
-            <Text className="text-blue-700 dark:text-blue-300 text-xs mb-1">In Progress</Text>
-            <Text className="text-blue-600 dark:text-blue-400 text-2xl font-bold">{inProgressPlans}</Text>
-          </View>
           <View className="flex-1 bg-purple-50 dark:bg-purple-900/20 rounded-xl p-3 border border-purple-200 dark:border-purple-800">
             <Text className="text-purple-700 dark:text-purple-300 text-xs mb-1">Pending</Text>
             <Text className="text-purple-600 dark:text-purple-400 text-2xl font-bold">{pendingSubmissions}</Text>
+          </View>
+          <View className="flex-1 bg-blue-50 dark:bg-blue-900/20 rounded-xl p-3 border border-blue-200 dark:border-blue-800">
+            <Text className="text-blue-700 dark:text-blue-300 text-xs mb-1">Total Submissions</Text>
+            <Text className="text-blue-600 dark:text-blue-400 text-2xl font-bold">{totalSubmissions}</Text>
+          </View>
+          <View className="flex-1 bg-gray-100 dark:bg-slate-900 rounded-xl p-3 border border-gray-300 dark:border-slate-800">
+            <Text className="text-gray-600 dark:text-slate-400 text-xs mb-1">Work Plans</Text>
+            <Text className="text-gray-900 dark:text-white text-2xl font-bold">{totalPlans}</Text>
           </View>
         </View>
 
@@ -321,187 +319,187 @@ export default function EvaluateScreen() {
       </View>
 
       <ScrollView className="flex-1 px-6 py-4">
-        {filteredPlans.length === 0 ? (
+        {workPlansNeedingEvaluation.length === 0 ? (
           <View className="items-center justify-center py-12">
-            <Briefcase size={48} color="#94a3b8" />
-            <Text className="text-gray-500 dark:text-slate-400 text-center mt-4">
-              No work plans for {selectedFunction === 'all' ? 'any function' : selectedFunction}
+            <CheckCircle2 size={48} color="#10b981" />
+            <Text className="text-emerald-600 dark:text-emerald-400 text-center font-semibold text-lg mt-4">
+              All Caught Up!
             </Text>
-            {canCreatePlans && (
-              <Pressable
-                onPress={() => setShowCreateModal(true)}
-                className="mt-4 bg-blue-500 px-6 py-3 rounded-xl active:opacity-70"
-              >
-                <Text className="text-white font-semibold">Create First Work Plan</Text>
-              </Pressable>
-            )}
+            <Text className="text-gray-500 dark:text-slate-400 text-center mt-2">
+              No submissions waiting for evaluation
+            </Text>
           </View>
         ) : (
-          filteredPlans.map((plan) => {
-            const isExpanded = expandedPlans.has(plan.id);
-            const functionColor = getFunctionColor(plan.function);
-            const pendingSubmissionsForPlan = plan.submissions.filter(s => s.status === 'pending');
+          <>
+            <Text className="text-gray-900 dark:text-white text-base font-semibold mb-3">
+              Work Plans with Pending Submissions ({workPlansNeedingEvaluation.length})
+            </Text>
+            {workPlansNeedingEvaluation.map((plan) => {
+              const isExpanded = expandedPlans.has(plan.id);
+              const functionColor = getFunctionColor(plan.function);
+              const pendingSubmissionsForPlan = plan.submissions.filter(s => s.status === 'pending');
 
-            return (
-              <View key={plan.id} className="mb-3">
-                {/* Work Plan Card */}
-                <Pressable
-                  onPress={() => togglePlan(plan.id)}
-                  className="bg-gray-100 dark:bg-slate-900 border border-gray-300 dark:border-slate-800 rounded-2xl p-4 active:opacity-70"
-                >
-                  <View className="flex-row items-start justify-between mb-2">
-                    <View className="flex-1">
-                      {/* Function Badge */}
-                      <View
-                        className="self-start px-2 py-1 rounded mb-2"
-                        style={{ backgroundColor: functionColor + '20' }}
-                      >
-                        <Text className="text-xs font-semibold" style={{ color: functionColor }}>
-                          {plan.function}
-                        </Text>
-                      </View>
-
-                      <Text className="text-gray-900 dark:text-white font-bold text-base mb-1">
-                        {plan.title}
-                      </Text>
-                      <Text className="text-gray-600 dark:text-slate-400 text-sm mb-2" numberOfLines={2}>
-                        {plan.description}
-                      </Text>
-
-                      {/* Linked OKR */}
-                      <View className="flex-row items-center mb-2">
-                        <Target size={12} color="#8b5cf6" />
-                        <Text className="text-purple-600 dark:text-purple-400 text-xs ml-1">
-                          {plan.linkedOKRTitle}
-                        </Text>
-                      </View>
-
-                      <View className="flex-row items-center gap-3">
-                        <View className="flex-row items-center">
-                          <Users size={12} color="#64748b" />
-                          <Text className="text-gray-600 dark:text-slate-400 text-xs ml-1">
-                            {plan.assignedTo.length} assigned
+              return (
+                <View key={plan.id} className="mb-3">
+                  {/* Work Plan Card */}
+                  <Pressable
+                    onPress={() => togglePlan(plan.id)}
+                    className="bg-gray-100 dark:bg-slate-900 border border-gray-300 dark:border-slate-800 rounded-2xl p-4 active:opacity-70"
+                  >
+                    <View className="flex-row items-start justify-between mb-2">
+                      <View className="flex-1">
+                        {/* Function Badge */}
+                        <View
+                          className="self-start px-2 py-1 rounded mb-2"
+                          style={{ backgroundColor: functionColor + '20' }}
+                        >
+                          <Text className="text-xs font-semibold" style={{ color: functionColor }}>
+                            {plan.function}
                           </Text>
                         </View>
-                        <View className="flex-row items-center">
-                          <Clock size={12} color="#64748b" />
-                          <Text className="text-gray-600 dark:text-slate-400 text-xs ml-1">
-                            Due {new Date(plan.dueDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+
+                        <Text className="text-gray-900 dark:text-white font-bold text-base mb-1">
+                          {plan.title}
+                        </Text>
+                        <Text className="text-gray-600 dark:text-slate-400 text-sm mb-2" numberOfLines={2}>
+                          {plan.description}
+                        </Text>
+
+                        {/* Linked OKR */}
+                        <View className="flex-row items-center mb-2">
+                          <Target size={12} color="#8b5cf6" />
+                          <Text className="text-purple-600 dark:text-purple-400 text-xs ml-1">
+                            {plan.linkedOKRTitle}
                           </Text>
                         </View>
+
+                        <View className="flex-row items-center gap-3">
+                          <View className="flex-row items-center">
+                            <Users size={12} color="#64748b" />
+                            <Text className="text-gray-600 dark:text-slate-400 text-xs ml-1">
+                              {plan.assignedTo.length} assigned
+                            </Text>
+                          </View>
+                          <View className="flex-row items-center">
+                            <Clock size={12} color="#64748b" />
+                            <Text className="text-gray-600 dark:text-slate-400 text-xs ml-1">
+                              Due {new Date(plan.dueDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                            </Text>
+                          </View>
+                        </View>
+                      </View>
+
+                      <View className="items-end ml-2">
+                        <View className={`px-2 py-1 rounded mb-2 ${getStatusColor(plan.status)}`}>
+                          <Text className="text-xs font-semibold">{getStatusText(plan.status)}</Text>
+                        </View>
+                        {isExpanded ? (
+                          <ChevronDown size={20} color="#64748b" />
+                        ) : (
+                          <ChevronRight size={20} color="#64748b" />
+                        )}
                       </View>
                     </View>
 
-                    <View className="items-end ml-2">
-                      <View className={`px-2 py-1 rounded mb-2 ${getStatusColor(plan.status)}`}>
-                        <Text className="text-xs font-semibold">{getStatusText(plan.status)}</Text>
-                      </View>
-                      {isExpanded ? (
-                        <ChevronDown size={20} color="#64748b" />
-                      ) : (
-                        <ChevronRight size={20} color="#64748b" />
+                    {/* Progress Bar */}
+                    <View className="bg-gray-200 dark:bg-slate-700 rounded-full h-2 overflow-hidden mb-2">
+                      <View
+                        className={`h-full ${
+                          plan.status === 'completed' ? 'bg-emerald-500' :
+                          plan.status === 'blocked' ? 'bg-red-500' :
+                          'bg-blue-500'
+                        }`}
+                        style={{ width: `${plan.progress}%` }}
+                      />
+                    </View>
+
+                    {/* Quick Stats */}
+                    <View className="flex-row items-center gap-2 pt-2 border-t border-gray-300 dark:border-slate-700">
+                      <Text className="text-gray-600 dark:text-slate-400 text-xs">
+                        {plan.progress}% complete
+                      </Text>
+                      {pendingSubmissionsForPlan.length > 0 && (
+                        <>
+                          <Text className="text-gray-400 dark:text-slate-600 text-xs">•</Text>
+                          <Text className="text-purple-500 text-xs font-semibold">
+                            {pendingSubmissionsForPlan.length} pending review
+                          </Text>
+                        </>
                       )}
                     </View>
-                  </View>
+                  </Pressable>
 
-                  {/* Progress Bar */}
-                  <View className="bg-gray-200 dark:bg-slate-700 rounded-full h-2 overflow-hidden mb-2">
-                    <View
-                      className={`h-full ${
-                        plan.status === 'completed' ? 'bg-emerald-500' :
-                        plan.status === 'blocked' ? 'bg-red-500' :
-                        'bg-blue-500'
-                      }`}
-                      style={{ width: `${plan.progress}%` }}
-                    />
-                  </View>
-
-                  {/* Quick Stats */}
-                  <View className="flex-row items-center gap-2 pt-2 border-t border-gray-300 dark:border-slate-700">
-                    <Text className="text-gray-600 dark:text-slate-400 text-xs">
-                      {plan.progress}% complete
-                    </Text>
-                    {pendingSubmissionsForPlan.length > 0 && (
-                      <>
-                        <Text className="text-gray-400 dark:text-slate-600 text-xs">•</Text>
-                        <Text className="text-purple-500 text-xs font-semibold">
-                          {pendingSubmissionsForPlan.length} pending review
-                        </Text>
-                      </>
-                    )}
-                  </View>
-                </Pressable>
-
-                {/* Expanded Details */}
-                {isExpanded && (
-                  <View className="mt-2 ml-4">
-                    {/* Assigned Apprentices */}
-                    <View className="bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl p-3 mb-2">
-                      <Text className="text-gray-900 dark:text-white font-semibold text-sm mb-2">
-                        Assigned Apprentices
-                      </Text>
-                      <View className="gap-1">
-                        {plan.assignedTo.map((name, idx) => (
-                          <View key={idx} className="flex-row items-center">
-                            <Circle size={8} color="#64748b" />
-                            <Text className="text-gray-700 dark:text-slate-300 text-sm ml-2">{name}</Text>
-                          </View>
-                        ))}
-                      </View>
-                    </View>
-
-                    {/* Submissions */}
-                    {plan.submissions.length > 0 && (
-                      <View className="bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl p-3">
+                  {/* Expanded Details */}
+                  {isExpanded && (
+                    <View className="mt-2 ml-4">
+                      {/* Assigned Apprentices */}
+                      <View className="bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl p-3 mb-2">
                         <Text className="text-gray-900 dark:text-white font-semibold text-sm mb-2">
-                          Work Submissions ({plan.submissions.length})
+                          Assigned Apprentices
                         </Text>
-                        <View className="gap-2">
-                          {plan.submissions.map((submission) => (
-                            <Pressable
-                              key={submission.id}
-                              onPress={() => {
-                                if (canCreatePlans && submission.status === 'pending') {
-                                  setSelectedSubmission({ plan, submission });
-                                  setShowSubmissionModal(true);
-                                }
-                              }}
-                              className={`bg-white dark:bg-slate-900 rounded-lg p-2 border ${
-                                submission.status === 'pending'
-                                  ? 'border-purple-300 dark:border-purple-700'
-                                  : submission.status === 'approved'
-                                  ? 'border-emerald-300 dark:border-emerald-700'
-                                  : 'border-red-300 dark:border-red-700'
-                              } ${submission.status === 'pending' && canCreatePlans ? 'active:opacity-70' : ''}`}
-                            >
-                              <View className="flex-row items-center justify-between">
-                                <View className="flex-1">
-                                  <Text className="text-gray-900 dark:text-white text-sm font-medium">
-                                    {submission.apprenticeName}
-                                  </Text>
-                                  <Text className="text-gray-600 dark:text-slate-400 text-xs">
-                                    {submission.submittedAt}
-                                  </Text>
-                                </View>
-                                {submission.status === 'pending' && <AlertCircle size={16} color="#a855f7" />}
-                                {submission.status === 'approved' && <CheckCircle2 size={16} color="#10b981" />}
-                                {submission.status === 'changes-requested' && <AlertCircle size={16} color="#ef4444" />}
-                              </View>
-                              {submission.notes && (
-                                <Text className="text-gray-600 dark:text-slate-400 text-xs mt-1">
-                                  {submission.notes}
-                                </Text>
-                              )}
-                            </Pressable>
+                        <View className="gap-1">
+                          {plan.assignedTo.map((name, idx) => (
+                            <View key={idx} className="flex-row items-center">
+                              <Circle size={8} color="#64748b" />
+                              <Text className="text-gray-700 dark:text-slate-300 text-sm ml-2">{name}</Text>
+                            </View>
                           ))}
                         </View>
                       </View>
-                    )}
-                  </View>
-                )}
-              </View>
-            );
-          })
+
+                      {/* Submissions */}
+                      {plan.submissions.length > 0 && (
+                        <View className="bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl p-3">
+                          <Text className="text-gray-900 dark:text-white font-semibold text-sm mb-2">
+                            Work Submissions ({plan.submissions.length})
+                          </Text>
+                          <View className="gap-2">
+                            {plan.submissions.map((submission) => (
+                              <Pressable
+                                key={submission.id}
+                                onPress={() => {
+                                  if (canCreatePlans && submission.status === 'pending') {
+                                    setSelectedSubmission({ plan, submission });
+                                    setShowSubmissionModal(true);
+                                  }
+                                }}
+                                className={`bg-white dark:bg-slate-900 rounded-lg p-2 border ${
+                                  submission.status === 'pending'
+                                    ? 'border-purple-300 dark:border-purple-700'
+                                    : submission.status === 'approved'
+                                    ? 'border-emerald-300 dark:border-emerald-700'
+                                    : 'border-red-300 dark:border-red-700'
+                                } ${submission.status === 'pending' && canCreatePlans ? 'active:opacity-70' : ''}`}
+                              >
+                                <View className="flex-row items-center justify-between">
+                                  <View className="flex-1">
+                                    <Text className="text-gray-900 dark:text-white text-sm font-medium">
+                                      {submission.apprenticeName}
+                                    </Text>
+                                    <Text className="text-gray-600 dark:text-slate-400 text-xs">
+                                      {submission.submittedAt}
+                                    </Text>
+                                  </View>
+                                  {submission.status === 'pending' && <AlertCircle size={16} color="#a855f7" />}
+                                  {submission.status === 'approved' && <CheckCircle2 size={16} color="#10b981" />}
+                                  {submission.status === 'changes-requested' && <AlertCircle size={16} color="#ef4444" />}
+                                </View>
+                                {submission.notes && (
+                                  <Text className="text-gray-600 dark:text-slate-400 text-xs mt-1">
+                                    {submission.notes}
+                                  </Text>
+                                )}
+                              </Pressable>
+                            ))}
+                          </View>
+                        </View>
+                      )}
+                    </View>
+                  )}
+                </View>
+              );
+            })}
+          </>
         )}
       </ScrollView>
 
