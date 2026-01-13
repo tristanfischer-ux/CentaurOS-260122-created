@@ -11,6 +11,7 @@ import { useEffect, useState } from 'react';
 import { useInitializeApp } from '@/lib/hooks/useInitializeApp';
 import { WelcomeSplash } from '@/components/WelcomeSplash';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { ToastContainer } from '@/components/ToastContainer';
 
 export const unstable_settings = {
   initialRouteName: 'sign-in',
@@ -158,6 +159,7 @@ export default function RootLayout() {
           <KeyboardProvider>
             <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
             <RootLayoutNav colorScheme={colorScheme} />
+            <ToastContainer />
           </KeyboardProvider>
         </GestureHandlerRootView>
       </QueryClientProvider>
