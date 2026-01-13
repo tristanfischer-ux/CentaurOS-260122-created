@@ -323,12 +323,25 @@ export default function OrgDiagramScreen() {
       </ScrollView>
 
       {/* Member Detail Modal */}
-      <Modal visible={showMemberModal} transparent animationType="fade" onRequestClose={() => setShowMemberModal(false)}>
-        <View className="flex-1 bg-black/70 justify-center items-center px-6">
-          <View className="bg-white dark:bg-slate-950 rounded-3xl w-full" style={{ maxHeight: '85%' }}>
+      <Modal
+        visible={showMemberModal}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setShowMemberModal(false)}
+        statusBarTranslucent
+      >
+        <Pressable
+          className="flex-1 bg-black/70 justify-end"
+          onPress={() => setShowMemberModal(false)}
+        >
+          <Pressable
+            className="bg-white dark:bg-slate-950 rounded-t-3xl"
+            style={{ maxHeight: '90%' }}
+            onPress={(e) => e.stopPropagation()}
+          >
             {/* Header */}
-            <View className="px-6 py-4 border-b border-gray-300 dark:border-slate-800 flex-row items-center justify-between">
-              <Text className="text-gray-900 dark:text-white text-xl font-bold">Team Member</Text>
+            <View className="px-6 py-5 border-b border-gray-200 dark:border-slate-800 flex-row items-center justify-between">
+              <Text className="text-gray-900 dark:text-white text-xl font-black">Team Member</Text>
               <Pressable
                 onPress={() => setShowMemberModal(false)}
                 className="w-10 h-10 items-center justify-center rounded-full bg-gray-100 dark:bg-slate-900 active:opacity-70"
@@ -337,7 +350,11 @@ export default function OrgDiagramScreen() {
               </Pressable>
             </View>
 
-            <ScrollView className="flex-1 px-6 py-6">
+            <ScrollView
+              className="px-6 py-6"
+              showsVerticalScrollIndicator={false}
+              bounces={false}
+            >
               {selectedMember && (() => {
                 const marketplaceData = getMarketplaceData(selectedMember);
                 const roleColor = selectedMember.role === 'Founder' ? '#3b82f6' :
@@ -480,8 +497,8 @@ export default function OrgDiagramScreen() {
                 );
               })()}
             </ScrollView>
-          </View>
-        </View>
+          </Pressable>
+        </Pressable>
       </Modal>
     </View>
   );
