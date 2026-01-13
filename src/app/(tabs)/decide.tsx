@@ -35,14 +35,13 @@ export default function DecideScreen() {
 
   const functions: BusinessFunction[] = ['Marketing', 'Sales', 'Engineering', 'Ops', 'Finance', 'Admin'];
 
-  // DECIDE tab should show items that require decision-making:
-  // For now, we'll show the approval queue prominently and keep at-risk items
-  // that may need strategic decisions or resource reallocation
-  const okrsNeedingDecisions = selectedFunction === 'all'
-    ? okrs.filter(okr => okr.status === 'at-risk' || okr.status === 'off-track')
+  // DECIDE tab shows all OKRs for strategic decision-making
+  // Filter by current workspace and selected function
+  const filteredOKRs = selectedFunction === 'all'
+    ? okrs.filter(okr => currentWorkspace ? okr.workspaceId === currentWorkspace.id : true)
     : okrs.filter(okr =>
-        (okr.status === 'at-risk' || okr.status === 'off-track') &&
-        okr.function === selectedFunction
+        okr.function === selectedFunction &&
+        (currentWorkspace ? okr.workspaceId === currentWorkspace.id : true)
       );
 
   const toggleOKR = (okrId: string) => {
@@ -94,10 +93,10 @@ export default function DecideScreen() {
     }
   };
 
-  // Calculate summary stats for items needing decisions
-  const totalOKRs = okrsNeedingDecisions.length;
-  const atRiskOKRs = okrsNeedingDecisions.filter(okr => okr.status === 'at-risk').length;
-  const offTrackOKRs = okrsNeedingDecisions.filter(okr => okr.status === 'off-track').length;
+  // Calculate summary stats
+  const totalOKRs = filteredOKRs.length;
+  const atRiskOKRs = filteredOKRs.filter((okr: OKR) => okr.status === 'at-risk').length;
+  const offTrackOKRs = filteredOKRs.filter((okr: OKR) => okr.status === 'off-track').length;
   const approvalQueueCount = 3; // In real app, this would be dynamic
 
   return (
@@ -176,22 +175,22 @@ export default function DecideScreen() {
       </View>
 
       <ScrollView className="flex-1 px-6 py-4">
-        {okrsNeedingDecisions.length === 0 ? (
+        {filteredOKRs.length === 0 ? (
           <View className="items-center justify-center py-12">
-            <Target size={48} color="#10b981" />
-            <Text className="text-emerald-600 dark:text-emerald-400 text-center font-semibold text-lg mt-4">
-              All OKRs on Track!
+            <Target size={48} color="#64748b" />
+            <Text className="text-gray-600 dark:text-slate-400 text-center font-semibold text-lg mt-4">
+              No OKRs Found
             </Text>
             <Text className="text-gray-500 dark:text-slate-400 text-center mt-2">
-              No decisions needed for {selectedFunction === 'all' ? 'any function' : selectedFunction}
+              {selectedFunction === 'all' ? 'No OKRs created yet' : `No OKRs for ${selectedFunction}`}
             </Text>
           </View>
         ) : (
           <>
             <Text className="text-gray-900 dark:text-white text-base font-semibold mb-3">
-              OKRs Requiring Attention ({okrsNeedingDecisions.length})
+              All OKRs ({filteredOKRs.length})
             </Text>
-            {okrsNeedingDecisions.map((okr) => {
+            {filteredOKRs.map((okr: OKR) => {
             const isExpanded = okr.isExpanded || false;
             const functionColor = getFunctionColor(okr.function);
 
@@ -256,13 +255,13 @@ export default function DecideScreen() {
                     </Text>
                     <Text className="text-gray-400 dark:text-slate-600 text-xs">•</Text>
                     <Text className="text-emerald-500 text-xs font-semibold">
-                      {okr.objectives.filter(o => o.status === 'on-track').length} on track
+                      {okr.objectives.filter((o: Objective) => o.status === 'on-track').length} on track
                     </Text>
-                    {okr.objectives.filter(o => o.status === 'at-risk').length > 0 && (
+                    {okr.objectives.filter((o: Objective) => o.status === 'at-risk').length > 0 && (
                       <>
                         <Text className="text-gray-400 dark:text-slate-600 text-xs">•</Text>
                         <Text className="text-amber-500 text-xs font-semibold">
-                          {okr.objectives.filter(o => o.status === 'at-risk').length} at risk
+                          {okr.objectives.filter((o: Objective) => o.status === 'at-risk').length} at risk
                         </Text>
                       </>
                     )}
@@ -272,7 +271,7 @@ export default function DecideScreen() {
                 {/* Expanded Objectives */}
                 {isExpanded && (
                   <View className="mt-2 ml-4 space-y-2">
-                    {okr.objectives.map((objective) => (
+                    {okr.objectives.map((objective: Objective) => (
                       <View
                         key={objective.id}
                         className="bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl p-3"
