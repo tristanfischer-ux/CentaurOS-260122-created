@@ -88,9 +88,9 @@ export function WorkspaceSwitcher({ currentWorkspace, onWorkspaceChange }: Works
       </Pressable>
 
       {/* Workspace Switcher Modal */}
-      <Modal visible={showModal} transparent animationType="slide" onRequestClose={() => setShowModal(false)}>
-        <View className="flex-1 bg-black/70 justify-end">
-          <View className="bg-gray-100 dark:bg-slate-900 rounded-t-3xl" style={{ maxHeight: '70%' }}>
+      <Modal visible={showModal} transparent animationType="fade" onRequestClose={() => setShowModal(false)}>
+        <View className="flex-1 bg-black/70 justify-center items-center px-6">
+          <View className="bg-gray-100 dark:bg-slate-900 rounded-3xl w-full" style={{ maxHeight: '70%' }}>
             <View className="px-6 pt-6 pb-4 border-b border-gray-300 dark:border-slate-800">
               <View className="flex-row items-center justify-between">
                 <Text className="text-gray-900 dark:text-white text-xl font-bold">

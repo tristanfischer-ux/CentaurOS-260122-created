@@ -530,10 +530,10 @@ export default function EventsScreen() {
       </ScrollView>
 
       {/* Event Detail Modal */}
-      <Modal visible={selectedEvent !== null} transparent animationType="slide" onRequestClose={() => setSelectedEvent(null)}>
-        <View className="flex-1 bg-black/70 justify-end">
+      <Modal visible={selectedEvent !== null} transparent animationType="fade" onRequestClose={() => setSelectedEvent(null)}>
+        <View className="flex-1 bg-black/70 justify-center items-center px-6">
           {selectedEvent && (
-            <View className="bg-gray-100 dark:bg-slate-900 rounded-t-3xl" style={{ maxHeight: '90%', minHeight: '60%' }}>
+            <View className="bg-gray-100 dark:bg-slate-900 rounded-3xl w-full" style={{ maxHeight: '90%', minHeight: '60%' }}>
               {/* Fixed Header */}
               <View className="px-6 pt-6 pb-4 border-b border-gray-300 dark:border-slate-800">
                 <View className="flex-row items-start justify-between mb-3">
@@ -847,9 +847,9 @@ export default function EventsScreen() {
       </Modal>
 
       {/* Create Event Modal */}
-      <Modal visible={showCreateModal} transparent animationType="slide" onRequestClose={() => setShowCreateModal(false)}>
-        <View className="flex-1 bg-black/70 justify-end">
-          <View className="bg-gray-100 dark:bg-slate-900 rounded-t-3xl" style={{ maxHeight: '90%', minHeight: '60%' }}>
+      <Modal visible={showCreateModal} transparent animationType="fade" onRequestClose={() => setShowCreateModal(false)}>
+        <View className="flex-1 bg-black/70 justify-center items-center px-6">
+          <View className="bg-gray-100 dark:bg-slate-900 rounded-3xl w-full" style={{ maxHeight: '90%', minHeight: '60%' }}>
             {/* Fixed Header */}
             <View className="px-6 pt-6 pb-4 border-b border-gray-300 dark:border-slate-800 flex-row items-center justify-between">
               <Text className="text-gray-900 dark:text-white text-xl font-bold">Create Event</Text>

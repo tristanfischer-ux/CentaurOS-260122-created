@@ -444,10 +444,10 @@ export default function DecideScreen() {
       </ScrollView>
 
       {/* Create OKR Modal (Simplified) */}
-      <Modal visible={showCreateModal} transparent animationType="slide" onRequestClose={() => setShowCreateModal(false)}>
-        <View className="flex-1 bg-black/70 justify-end">
-          <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-            <View className="bg-gray-100 dark:bg-slate-900 rounded-t-3xl" style={{ maxHeight: '80%' }}>
+      <Modal visible={showCreateModal} transparent animationType="fade" onRequestClose={() => setShowCreateModal(false)}>
+        <View className="flex-1 bg-black/70 justify-center items-center px-6">
+          <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} className="w-full">
+            <View className="bg-gray-100 dark:bg-slate-900 rounded-3xl w-full" style={{ maxHeight: '80%' }}>
               <View className="px-6 pt-6 pb-4 border-b border-gray-300 dark:border-slate-800">
                 <View className="flex-row items-center justify-between">
                   <Text className="text-gray-900 dark:text-white text-xl font-bold">Create OKR</Text>
@@ -490,9 +490,9 @@ export default function DecideScreen() {
       </Modal>
 
       {/* Approval Queue Modal */}
-      <Modal visible={showApprovalQueue} transparent animationType="slide" onRequestClose={() => setShowApprovalQueue(false)}>
-        <View className="flex-1 bg-black/70 justify-end">
-          <View className="bg-gray-100 dark:bg-slate-900 rounded-t-3xl" style={{ maxHeight: '85%' }}>
+      <Modal visible={showApprovalQueue} transparent animationType="fade" onRequestClose={() => setShowApprovalQueue(false)}>
+        <View className="flex-1 bg-black/70 justify-center items-center px-6">
+          <View className="bg-gray-100 dark:bg-slate-900 rounded-3xl w-full" style={{ maxHeight: '85%' }}>
             <View className="px-6 pt-6 pb-4 border-b border-gray-300 dark:border-slate-800">
               <View className="flex-row items-center justify-between">
                 <Text className="text-gray-900 dark:text-white text-xl font-bold">Approval Queue</Text>

@@ -263,10 +263,10 @@ export default function SupplierOrdersScreen() {
       </ScrollView>
 
       {/* Order Detail Modal */}
-      <Modal visible={selectedOrder !== null} transparent animationType="slide" onRequestClose={() => setSelectedOrder(null)}>
-        <View className="flex-1 bg-black/70 justify-end">
+      <Modal visible={selectedOrder !== null} transparent animationType="fade" onRequestClose={() => setSelectedOrder(null)}>
+        <View className="flex-1 bg-black/70 justify-center items-center px-6">
           {selectedOrder && (
-            <View className="bg-gray-100 dark:bg-slate-900 rounded-t-3xl" style={{ maxHeight: '85%' }}>
+            <View className="bg-gray-100 dark:bg-slate-900 rounded-3xl w-full" style={{ maxHeight: '85%' }}>
               <View className="px-6 pt-6 pb-4 border-b border-gray-300 dark:border-slate-800">
                 <View className="flex-row items-center justify-between mb-2">
                   <View className="flex-1">
@@ -357,9 +357,9 @@ export default function SupplierOrdersScreen() {
       </Modal>
 
       {/* Create Order Modal */}
-      <Modal visible={showCreateModal} transparent animationType="slide" onRequestClose={() => setShowCreateModal(false)}>
-        <View className="flex-1 bg-black/70 justify-end">
-          <View className="bg-gray-100 dark:bg-slate-900 rounded-t-3xl" style={{ maxHeight: '80%' }}>
+      <Modal visible={showCreateModal} transparent animationType="fade" onRequestClose={() => setShowCreateModal(false)}>
+        <View className="flex-1 bg-black/70 justify-center items-center px-6">
+          <View className="bg-gray-100 dark:bg-slate-900 rounded-3xl w-full" style={{ maxHeight: '80%' }}>
             <View className="px-6 pt-6 pb-4 border-b border-gray-300 dark:border-slate-800">
               <View className="flex-row items-center justify-between">
                 <Text className="text-gray-900 dark:text-white text-xl font-bold">

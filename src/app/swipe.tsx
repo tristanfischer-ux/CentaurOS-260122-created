@@ -538,10 +538,10 @@ export default function SwipeScreen() {
       )}
 
       {/* Person Detail Modal */}
-      <Modal visible={selectedPerson !== null} transparent animationType="slide" onRequestClose={() => setSelectedPerson(null)}>
-        <View className="flex-1 bg-black/80">
+      <Modal visible={selectedPerson !== null} transparent animationType="fade" onRequestClose={() => setSelectedPerson(null)}>
+        <View className="flex-1 bg-black/80 justify-center items-center px-6">
           {selectedPerson && (
-            <View className="mt-auto bg-gray-100 dark:bg-slate-900 rounded-t-3xl" style={{ maxHeight: '85%' }}>
+            <View className="bg-gray-100 dark:bg-slate-900 rounded-3xl w-full" style={{ maxHeight: '85%' }}>
               <ScrollView showsVerticalScrollIndicator={false}>
                 {/* Header */}
                 <LinearGradient

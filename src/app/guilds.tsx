@@ -362,10 +362,10 @@ export default function GuildsScreen() {
       </ScrollView>
 
       {/* Guild Detail Modal */}
-      <Modal visible={selectedGuild !== null} transparent animationType="slide" onRequestClose={() => setSelectedGuild(null)}>
-        <View className="flex-1 bg-black/70 justify-end">
+      <Modal visible={selectedGuild !== null} transparent animationType="fade" onRequestClose={() => setSelectedGuild(null)}>
+        <View className="flex-1 bg-black/70 justify-center items-center px-6">
           {selectedGuild && (
-            <View className="bg-gray-100 dark:bg-slate-900 rounded-t-3xl" style={{ maxHeight: '85%' }}>
+            <View className="bg-gray-100 dark:bg-slate-900 rounded-3xl w-full" style={{ maxHeight: '85%' }}>
               <View className="px-6 pt-6 pb-4 border-b border-gray-300 dark:border-slate-800">
                 <View className="flex-row items-center justify-between mb-2">
                   <View className="flex-1">

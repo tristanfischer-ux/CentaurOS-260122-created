@@ -323,9 +323,9 @@ export default function OrgDiagramScreen() {
       </ScrollView>
 
       {/* Member Detail Modal */}
-      <Modal visible={showMemberModal} transparent animationType="slide">
-        <View className="flex-1 bg-black/70">
-          <View className="flex-1 bg-white dark:bg-slate-950 mt-16 rounded-t-3xl">
+      <Modal visible={showMemberModal} transparent animationType="fade">
+        <View className="flex-1 bg-black/70 justify-center items-center px-6">
+          <View className="bg-white dark:bg-slate-950 rounded-3xl w-full" style={{ maxHeight: '85%' }}>
             {/* Header */}
             <View className="px-6 py-4 border-b border-gray-300 dark:border-slate-800 flex-row items-center justify-between">
               <Text className="text-gray-900 dark:text-white text-xl font-bold">Team Member</Text>

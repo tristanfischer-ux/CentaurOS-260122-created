@@ -356,10 +356,10 @@ export default function InvitationsScreen() {
       </ScrollView>
 
       {/* Invitation Detail Modal */}
-      <Modal visible={selectedInvitation !== null} transparent animationType="slide" onRequestClose={() => setSelectedInvitation(null)}>
-        <View className="flex-1 bg-black/70 justify-end">
+      <Modal visible={selectedInvitation !== null} transparent animationType="fade" onRequestClose={() => setSelectedInvitation(null)}>
+        <View className="flex-1 bg-black/70 justify-center items-center px-6">
           {selectedInvitation && (
-            <View className="bg-gray-100 dark:bg-slate-900 rounded-t-3xl" style={{ maxHeight: '85%' }}>
+            <View className="bg-gray-100 dark:bg-slate-900 rounded-3xl w-full" style={{ maxHeight: '85%' }}>
               <View className="px-6 pt-6 pb-4 border-b border-gray-300 dark:border-slate-800">
                 <View className="flex-row items-center justify-between mb-2">
                   <View className="flex-1">
@@ -482,9 +482,9 @@ export default function InvitationsScreen() {
       </Modal>
 
       {/* Counter Offer Modal */}
-      <Modal visible={showCounterOfferModal} transparent animationType="slide" onRequestClose={() => setShowCounterOfferModal(false)}>
-        <View className="flex-1 bg-black/70 justify-end">
-          <View className="bg-gray-100 dark:bg-slate-900 rounded-t-3xl" style={{ maxHeight: '70%' }}>
+      <Modal visible={showCounterOfferModal} transparent animationType="fade" onRequestClose={() => setShowCounterOfferModal(false)}>
+        <View className="flex-1 bg-black/70 justify-center items-center px-6">
+          <View className="bg-gray-100 dark:bg-slate-900 rounded-3xl w-full" style={{ maxHeight: '70%' }}>
             <View className="px-6 pt-6 pb-4 border-b border-gray-300 dark:border-slate-800">
               <View className="flex-row items-center justify-between">
                 <Text className="text-gray-900 dark:text-white text-xl font-bold">
