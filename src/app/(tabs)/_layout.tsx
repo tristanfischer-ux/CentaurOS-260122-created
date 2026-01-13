@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { Tabs, router } from 'expo-router';
 import { Home, Lightbulb, PlayCircle, BarChart3, Factory, Users, Settings } from 'lucide-react-native';
-import { useColorScheme, useIsOffWhite } from '@/lib/useColorScheme';
+import { useColorScheme } from '@/lib/useColorScheme';
 import { useIsAuthenticated, useCurrentWorkspace, useAppStore } from '@/lib/state/app-store';
 
 // Tab navigation layout
@@ -12,7 +12,8 @@ function TabBarIcon(props: { Icon: any; color: string }) {
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
-  const isOffWhite = useIsOffWhite();
+  const currentUser = useAppStore((s) => s.currentUser);
+  const isOffWhite = currentUser?.preferences?.themeMode === 'off-white';
   const isAuthenticated = useIsAuthenticated();
   const currentWorkspace = useCurrentWorkspace();
   const workspaces = useAppStore((s) => s.workspaces);
