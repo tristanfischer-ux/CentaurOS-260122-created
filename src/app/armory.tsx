@@ -135,7 +135,8 @@ function LoadoutsTab({
       : [];
 
     const aiToolsCost = equippedTools.reduce((sum, tool) => sum + tool.costPerMonth, 0);
-    const personCostPerMonth = member.costPerDay ? member.costPerDay * 22 : 0; // 22 working days/month
+    const daysPerWeek = member.daysPerWeek || 5; // Default to 5 days/week for full-time
+    const personCostPerMonth = member.costPerDay ? member.costPerDay * daysPerWeek * 4.33 : 0; // 4.33 weeks/month average
     const totalCost = personCostPerMonth + aiToolsCost;
 
     const roleColor = member.role === 'Founder' ? '#3b82f6' : member.role === 'FractionalExec' ? '#8b5cf6' : '#10b981';
@@ -240,6 +241,7 @@ function CharacterSheetModal({
   const autoEquipStarterKit = useArmoryStore((s) => s.autoEquipStarterKit);
   const clearLoadout = useArmoryStore((s) => s.clearLoadout);
   const removePersonLoadout = useArmoryStore((s) => s.removePersonLoadout);
+  const updateMember = useOrganizationStore((s) => s.updateMember);
 
   // Get all equipped tools
   const equippedTools = loadout
@@ -249,7 +251,8 @@ function CharacterSheetModal({
     : [];
 
   const aiToolsCost = equippedTools.reduce((sum, tool) => sum + tool.costPerMonth, 0);
-  const personCostPerMonth = member.costPerDay ? member.costPerDay * 22 : 0; // 22 working days/month
+  const daysPerWeek = member.daysPerWeek || 5; // Default to 5 days/week for full-time
+  const personCostPerMonth = member.costPerDay ? member.costPerDay * daysPerWeek * 4.33 : 0; // 4.33 weeks/month average
   const totalCost = personCostPerMonth + aiToolsCost;
   const roleColor = member.role === 'Founder' ? '#3b82f6' : member.role === 'FractionalExec' ? '#8b5cf6' : '#10b981';
 
@@ -274,6 +277,10 @@ function CharacterSheetModal({
     await removePersonLoadout(member.id);
     setShowRemoveConfirm(false);
     onClose();
+  };
+
+  const handleDaysPerWeekChange = (days: number) => {
+    updateMember(member.id, { daysPerWeek: days });
   };
 
   return (
@@ -322,6 +329,39 @@ function CharacterSheetModal({
                 </View>
               </View>
             </View>
+
+            {/* Days Per Week Selector (for executives only) */}
+            {member.role === 'FractionalExec' && canManage && (
+              <View className="mb-6">
+                <Text className="text-white text-sm font-bold mb-2">Days Per Week</Text>
+                <View className="flex-row gap-2">
+                  {[1, 2, 3, 4, 5].map((days) => (
+                    <Pressable
+                      key={days}
+                      onPress={() => handleDaysPerWeekChange(days)}
+                      className={cn(
+                        'flex-1 rounded-xl py-3 border',
+                        daysPerWeek === days
+                          ? 'bg-blue-500 border-blue-500'
+                          : 'bg-white/5 border-white/20'
+                      )}
+                    >
+                      <Text
+                        className={cn(
+                          'text-center font-bold',
+                          daysPerWeek === days ? 'text-white' : 'text-white/60'
+                        )}
+                      >
+                        {days}
+                      </Text>
+                    </Pressable>
+                  ))}
+                </View>
+                <Text className="text-white/40 text-xs mt-2">
+                  {member.costPerDay && `£${member.costPerDay}/day × ${daysPerWeek} days × 4.33 weeks = £${Math.round(personCostPerMonth).toLocaleString()}/month`}
+                </Text>
+              </View>
+            )}
 
             {/* Quick Actions */}
             {canManage && (

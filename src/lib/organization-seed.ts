@@ -15,6 +15,7 @@ export interface OrganizationMember {
   email: string;
   phone?: string;
   costPerDay?: number;
+  daysPerWeek?: number; // Number of days per week they work (defaults to 5 for full-time, fractional execs can work 1-5)
   startDate: string;
   status: 'active' | 'inactive';
   linkedIn?: string; // LinkedIn profile URL
@@ -115,6 +116,7 @@ export const ORGANIZATION_MEMBERS: OrganizationMember[] = [
     email: 'jordan@fractional.com',
     phone: '+44 7700 900201',
     costPerDay: 850,
+    daysPerWeek: 3,
     startDate: '2024-02-01',
     status: 'active',
     linkedIn: 'https://www.linkedin.com/in/jordanmartinez',
@@ -131,6 +133,7 @@ export const ORGANIZATION_MEMBERS: OrganizationMember[] = [
     email: 'emma.richardson@fractional.com',
     phone: '+44 7700 900202',
     costPerDay: 920,
+    daysPerWeek: 3,
     startDate: '2024-02-15',
     status: 'active',
     linkedIn: 'https://www.linkedin.com/in/emmarichardson',
@@ -147,6 +150,7 @@ export const ORGANIZATION_MEMBERS: OrganizationMember[] = [
     email: 'david.park@fractional.com',
     phone: '+44 7700 900203',
     costPerDay: 1100,
+    daysPerWeek: 3,
     startDate: '2024-03-01',
     status: 'active',
     linkedIn: 'https://www.linkedin.com/in/davidpark',
@@ -163,6 +167,7 @@ export const ORGANIZATION_MEMBERS: OrganizationMember[] = [
     email: 'sophie.adams@fractional.com',
     phone: '+44 7700 900204',
     costPerDay: 780,
+    daysPerWeek: 2,
     startDate: '2024-03-15',
     status: 'active',
     linkedIn: 'https://www.linkedin.com/in/sophieadams',

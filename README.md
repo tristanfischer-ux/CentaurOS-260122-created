@@ -155,6 +155,8 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
     - AI tool equipment management system for organization members
     - Loadout management: Unlimited AI tools per person (no slot restrictions)
     - Cost tracking: Shows clear breakdown of person cost + AI tools cost
+    - Configurable days per week for fractional executives (1-5 days)
+    - Dynamic cost calculation: `costPerDay × daysPerWeek × 4.33 weeks/month`
     - Auto-initialization with demo loadouts
     - Persistence: Full AsyncStorage support with state restoration
     - Actions: `addAITool`, `removeAITool`, `clearLoadout`, `removePersonLoadout`, `initializeArmory`, `reset`
@@ -164,6 +166,8 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
       - "Clear All" button to remove all AI tools at once
       - "Remove from Armory" button to completely remove a person's loadout
       - Confirmation modal for removing people to prevent accidents
+      - Days per week selector for fractional executives (updates costs in real-time)
+      - Visual cost breakdown showing calculation formula
     - Note: Squad/team management moved to org chart section (to be implemented in marketplace flow)
   - **Benefits**:
     - Zero data inconsistencies (no more hardcoded data in 12 different places)
