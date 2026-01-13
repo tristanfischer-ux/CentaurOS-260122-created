@@ -46,9 +46,10 @@ export function useThemeMode(): ThemeMode {
 
 /**
  * Check if using off-white theme
+ * Returns true if the user has selected the off-white theme mode
  */
 export function useIsOffWhite(): boolean {
   const currentUser = useAppStore((s) => s.currentUser);
-  const themeMode = currentUser?.preferences?.themeMode || 'system';
+  const themeMode: ThemeMode = currentUser?.preferences?.themeMode ?? 'system';
   return themeMode === 'off-white';
 }
