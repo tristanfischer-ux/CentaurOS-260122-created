@@ -203,13 +203,13 @@ const APPRENTICE_DATA = {
   // Founder View
   if (isFounder) {
     return (
-      <View className="flex-1 bg-white dark:bg-slate-950" style={{ paddingTop: insets.top }}>
+      <View className="flex-1 bg-white dark:bg-slate-950">
         {/* Role Header */}
         <LinearGradient
           colors={getRoleGradient()}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 0 }}
-          style={{ paddingHorizontal: 24, paddingVertical: 20 }}
+          style={{ paddingHorizontal: 24, paddingTop: insets.top + 20, paddingBottom: 20 }}
         >
           <View className="flex-row items-center justify-between mb-2">
             <View className="flex-1">
@@ -587,13 +587,13 @@ const APPRENTICE_DATA = {
     const functionColor = getFunctionColor(EXECUTIVE_DATA.myFunction);
 
     return (
-      <View className="flex-1 bg-white dark:bg-slate-950" style={{ paddingTop: insets.top }}>
+      <View className="flex-1 bg-white dark:bg-slate-950">
         {/* Role Header */}
         <LinearGradient
           colors={getRoleGradient()}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 0 }}
-          style={{ paddingHorizontal: 24, paddingVertical: 20 }}
+          style={{ paddingHorizontal: 24, paddingTop: insets.top + 20, paddingBottom: 20 }}
         >
           <View className="flex-row items-center justify-between mb-2">
             <View className="flex-1">
@@ -846,13 +846,13 @@ const APPRENTICE_DATA = {
     const functionColor = getFunctionColor(APPRENTICE_DATA.linkedOKR.function);
 
     return (
-      <View className="flex-1 bg-white dark:bg-slate-950" style={{ paddingTop: insets.top }}>
+      <View className="flex-1 bg-white dark:bg-slate-950">
         {/* Role Header */}
         <LinearGradient
           colors={getRoleGradient()}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 0 }}
-          style={{ paddingHorizontal: 24, paddingVertical: 20 }}
+          style={{ paddingHorizontal: 24, paddingTop: insets.top + 20, paddingBottom: 20 }}
         >
           <View className="flex-row items-center justify-between mb-2">
             <View className="flex-1">
