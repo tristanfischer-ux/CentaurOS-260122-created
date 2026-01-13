@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, Pressable, ScrollView, Dimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -22,7 +22,18 @@ import {
   ChevronRight,
   X,
 } from 'lucide-react-native';
-import Animated, { FadeIn, FadeInDown, FadeInUp, SlideInRight } from 'react-native-reanimated';
+import Animated, {
+  FadeIn,
+  FadeInDown,
+  FadeInUp,
+  SlideInRight,
+  useSharedValue,
+  useAnimatedStyle,
+  withRepeat,
+  withTiming,
+  withSpring,
+  Easing,
+} from 'react-native-reanimated';
 
 const { width } = Dimensions.get('window');
 
@@ -315,6 +326,27 @@ export default function TutorialScreen() {
   const slides = TUTORIAL_SLIDES[selectedRole];
   const slide = slides[currentSlide];
 
+  // Floating animation
+  const floatY = useSharedValue(0);
+  const scale = useSharedValue(1);
+
+  useEffect(() => {
+    floatY.value = withRepeat(
+      withTiming(8, { duration: 2500, easing: Easing.inOut(Easing.ease) }),
+      -1,
+      true
+    );
+    scale.value = withRepeat(
+      withTiming(1.05, { duration: 3000, easing: Easing.inOut(Easing.ease) }),
+      -1,
+      true
+    );
+  }, []);
+
+  const floatingStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: floatY.value }, { scale: scale.value }],
+  }));
+
   const handleNext = () => {
     if (currentSlide < slides.length - 1) {
       setCurrentSlide(currentSlide + 1);
@@ -350,17 +382,56 @@ export default function TutorialScreen() {
   return (
     <View className="flex-1 bg-slate-950">
       <LinearGradient
-        colors={slide.gradient}
+        colors={[...slide.gradient, '#0f172a']}
         style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 }}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
       />
+
+      {/* Decorative Gradient Orbs */}
+      <View className="absolute inset-0 overflow-hidden">
+        <Animated.View
+          style={[
+            {
+              position: 'absolute',
+              top: -50,
+              right: -50,
+              width: 200,
+              height: 200,
+              borderRadius: 100,
+              backgroundColor: 'rgba(139, 92, 246, 0.15)',
+            },
+            floatingStyle,
+          ]}
+        />
+        <Animated.View
+          style={[
+            {
+              position: 'absolute',
+              bottom: -80,
+              left: -60,
+              width: 250,
+              height: 250,
+              borderRadius: 125,
+              backgroundColor: 'rgba(59, 130, 246, 0.12)',
+            },
+            floatingStyle,
+          ]}
+        />
+      </View>
 
       <SafeAreaView className="flex-1">
         {/* Header - Role Selector */}
-        <View className="px-6 pt-4 pb-6">
-          <View className="flex-row justify-between items-center mb-6">
-            <Text className="text-white/60 text-sm">Interactive Demo</Text>
-            <Pressable onPress={handleSkip}>
-              <Text className="text-white/60 text-sm font-semibold">Skip</Text>
+        <Animated.View
+          entering={FadeInDown.duration(600)}
+          className="px-6 pt-2 pb-4"
+        >
+          <View className="flex-row justify-between items-center mb-4">
+            <View className="bg-white/10 px-3 py-1.5 rounded-full">
+              <Text className="text-white/80 text-xs font-semibold">Interactive Demo</Text>
+            </View>
+            <Pressable onPress={handleSkip} className="bg-white/10 px-3 py-1.5 rounded-full">
+              <Text className="text-white/80 text-xs font-bold">Skip</Text>
             </Pressable>
           </View>
 
@@ -369,12 +440,14 @@ export default function TutorialScreen() {
               <Pressable
                 key={role}
                 onPress={() => handleRoleChange(role)}
-                className={`flex-1 px-4 py-3 rounded-xl ${
-                  selectedRole === role ? 'bg-white/20' : 'bg-white/5'
+                className={`flex-1 px-4 py-3.5 rounded-2xl border-2 ${
+                  selectedRole === role
+                    ? 'bg-white/20 border-white/40'
+                    : 'bg-white/5 border-white/10'
                 }`}
               >
                 <Text
-                  className={`text-center text-sm font-semibold ${
+                  className={`text-center text-sm font-bold ${
                     selectedRole === role ? 'text-white' : 'text-white/50'
                   }`}
                 >
@@ -383,42 +456,53 @@ export default function TutorialScreen() {
               </Pressable>
             ))}
           </View>
-        </View>
+        </Animated.View>
 
         <ScrollView
           className="flex-1 px-6"
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingBottom: 100 }}
+          contentContainerStyle={{ paddingBottom: 120 }}
         >
           {/* Icon */}
-          <Animated.View entering={FadeIn.duration(600)} className="items-center mb-6">
-            <View className="bg-white/10 p-6 rounded-3xl">
-              <Icon size={64} color="white" />
+          <Animated.View
+            key={`icon-${currentSlide}`}
+            entering={FadeIn.duration(800).springify()}
+            className="items-center mb-8 mt-4"
+          >
+            <View className="bg-white/15 p-8 rounded-[32px] shadow-2xl border-2 border-white/20">
+              <Icon size={72} color="white" strokeWidth={2} />
             </View>
           </Animated.View>
 
           {/* Title */}
-          <Animated.View entering={FadeInUp.delay(200).duration(600)}>
-            <Text className="text-white text-4xl font-bold mb-3 leading-tight">
+          <Animated.View
+            key={`title-${currentSlide}`}
+            entering={FadeInUp.delay(200).duration(700).springify()}
+          >
+            <Text className="text-white text-5xl font-black mb-3 leading-tight">
               {slide.title}
             </Text>
-            <Text className="text-white/80 text-xl mb-6">{slide.subtitle}</Text>
+            <Text className="text-white/90 text-2xl font-bold mb-8">{slide.subtitle}</Text>
           </Animated.View>
 
           {/* Content */}
-          <Animated.View entering={FadeInUp.delay(400).duration(600)} className="mb-8">
+          <Animated.View
+            key={`content-${currentSlide}`}
+            entering={FadeInUp.delay(400).duration(700).springify()}
+            className="mb-6"
+          >
             {/* Stats */}
             {slide.stats && (
-              <View className="bg-white/10 rounded-2xl p-6 mb-6">
+              <View className="bg-white/10 backdrop-blur-xl rounded-3xl p-7 mb-7 border border-white/20 shadow-xl">
                 {slide.stats.map((stat, index) => (
                   <View
                     key={index}
                     className={`flex-row justify-between items-center ${
-                      index < slide.stats!.length - 1 ? 'mb-4 pb-4 border-b border-white/10' : ''
+                      index < slide.stats!.length - 1 ? 'mb-5 pb-5 border-b border-white/15' : ''
                     }`}
                   >
-                    <Text className="text-white/80 text-base">{stat.label}</Text>
-                    <Text className="text-2xl font-bold" style={{ color: stat.color }}>
+                    <Text className="text-white/90 text-base font-semibold flex-1">{stat.label}</Text>
+                    <Text className="text-3xl font-black ml-4" style={{ color: stat.color }}>
                       {stat.value}
                     </Text>
                   </View>
@@ -428,25 +512,25 @@ export default function TutorialScreen() {
 
             {/* Features for Executives */}
             {slide.features && (
-              <View className="gap-3 mb-6">
+              <View className="gap-4 mb-7">
                 {slide.features.map((feature, index) => {
                   if (typeof feature === 'string') {
                     return (
-                      <View key={index} className="flex-row items-start">
-                        <CheckCircle2 size={20} color="#10b981" style={{ marginRight: 12, marginTop: 2 }} />
-                        <Text className="text-white/80 text-base flex-1">{feature}</Text>
+                      <View key={index} className="flex-row items-start bg-white/5 rounded-2xl p-4 border border-white/10">
+                        <CheckCircle2 size={22} color="#10b981" style={{ marginRight: 12, marginTop: 2 }} />
+                        <Text className="text-white/90 text-base flex-1 font-medium">{feature}</Text>
                       </View>
                     );
                   }
                   return (
-                    <View key={index} className="bg-white/10 rounded-xl p-4">
-                      <Text className="text-white text-lg font-semibold mb-1">
+                    <View key={index} className="bg-white/10 backdrop-blur-xl rounded-3xl p-6 border border-white/20 shadow-xl">
+                      <Text className="text-white text-xl font-black mb-2">
                         {feature.title}
                       </Text>
-                      <Text className="text-white/60 text-sm mb-2">{feature.detail}</Text>
+                      <Text className="text-white/70 text-sm mb-4">{feature.detail}</Text>
                       <View className="flex-row justify-between items-center">
-                        <Text className="text-white/80 text-base">{feature.value}</Text>
-                        <Text className="text-white/40 text-xs">{feature.fullTime}</Text>
+                        <Text className="text-white/90 text-lg font-bold">{feature.value}</Text>
+                        <Text className="text-white/50 text-xs">{feature.fullTime}</Text>
                       </View>
                     </View>
                   );
@@ -456,20 +540,20 @@ export default function TutorialScreen() {
 
             {/* Real Example */}
             {slide.realExample && (
-              <View className="bg-white/10 rounded-2xl p-6 mb-6">
-                <Text className="text-white text-lg font-bold mb-4">
+              <View className="bg-white/10 backdrop-blur-xl rounded-3xl p-7 mb-7 border border-white/20 shadow-xl">
+                <Text className="text-white text-xl font-black mb-5">
                   {slide.realExample.task}
                 </Text>
-                <View className="bg-red-500/20 rounded-xl p-4 mb-3">
-                  <Text className="text-red-200 text-sm font-semibold mb-1">Before:</Text>
-                  <Text className="text-white/80 text-sm">{slide.realExample.before}</Text>
+                <View className="bg-red-500/25 rounded-2xl p-5 mb-4 border border-red-400/30">
+                  <Text className="text-red-200 text-sm font-bold mb-2">Before:</Text>
+                  <Text className="text-white/90 text-base">{slide.realExample.before}</Text>
                 </View>
-                <View className="bg-green-500/20 rounded-xl p-4">
-                  <Text className="text-green-200 text-sm font-semibold mb-2">After:</Text>
+                <View className="bg-emerald-500/25 rounded-2xl p-5 border border-emerald-400/30">
+                  <Text className="text-emerald-200 text-sm font-bold mb-3">After:</Text>
                   {slide.realExample.after.map((item, index) => (
                     <View key={index} className="flex-row items-start mb-2">
-                      <CheckCircle2 size={16} color="#10b981" style={{ marginRight: 8, marginTop: 2 }} />
-                      <Text className="text-white/80 text-sm flex-1">{item}</Text>
+                      <CheckCircle2 size={18} color="#10b981" style={{ marginRight: 10, marginTop: 2 }} />
+                      <Text className="text-white/90 text-base flex-1">{item}</Text>
                     </View>
                   ))}
                 </View>
@@ -478,17 +562,19 @@ export default function TutorialScreen() {
 
             {/* Dashboard Preview */}
             {slide.dashboard && (
-              <View className="gap-3 mb-6">
+              <View className="gap-3 mb-7">
                 {slide.dashboard.map((item, index) => {
                   const ItemIcon = item.icon;
                   return (
-                    <View key={index} className="bg-white/10 rounded-xl p-4 flex-row items-center">
-                      <ItemIcon size={24} color="white" />
-                      <View className="ml-4 flex-1">
-                        <Text className="text-white text-base font-semibold">{item.label}</Text>
-                        <Text className="text-white/60 text-sm">{item.status}</Text>
+                    <View key={index} className="bg-white/10 backdrop-blur-xl rounded-2xl p-5 flex-row items-center border border-white/20 shadow-lg">
+                      <View className="bg-white/20 p-3 rounded-xl mr-4">
+                        <ItemIcon size={24} color="white" />
                       </View>
-                      <ChevronRight size={20} color="rgba(255,255,255,0.4)" />
+                      <View className="flex-1">
+                        <Text className="text-white text-base font-bold">{item.label}</Text>
+                        <Text className="text-white/70 text-sm">{item.status}</Text>
+                      </View>
+                      <ChevronRight size={20} color="rgba(255,255,255,0.5)" />
                     </View>
                   );
                 })}
@@ -497,17 +583,19 @@ export default function TutorialScreen() {
 
             {/* Suppliers */}
             {slide.suppliers && (
-              <View className="gap-3 mb-6">
+              <View className="gap-4 mb-7">
                 {slide.suppliers.map((supplier, index) => (
-                  <View key={index} className="bg-white/10 rounded-xl p-4">
-                    <Text className="text-white text-lg font-semibold mb-2">
+                  <View key={index} className="bg-white/10 backdrop-blur-xl rounded-3xl p-6 border border-white/20 shadow-xl">
+                    <Text className="text-white text-xl font-black mb-3">
                       {supplier.name}
                     </Text>
-                    <View className="flex-row justify-between">
-                      <Text className="text-white/60 text-sm">{supplier.capability}</Text>
-                      <Text className="text-emerald-400 text-sm font-semibold">
-                        {supplier.lead} lead time
-                      </Text>
+                    <View className="flex-row justify-between items-center">
+                      <Text className="text-white/70 text-base">{supplier.capability}</Text>
+                      <View className="bg-emerald-500/30 px-3 py-1.5 rounded-full">
+                        <Text className="text-emerald-300 text-sm font-bold">
+                          {supplier.lead}
+                        </Text>
+                      </View>
                     </View>
                   </View>
                 ))}
@@ -516,15 +604,15 @@ export default function TutorialScreen() {
 
             {/* Testimonials */}
             {slide.testimonials && (
-              <View className="gap-4 mb-6">
+              <View className="gap-5 mb-7">
                 {slide.testimonials.map((testimonial, index) => (
-                  <View key={index} className="bg-white/10 rounded-2xl p-6">
-                    <Text className="text-white text-base italic mb-4">
+                  <View key={index} className="bg-white/10 backdrop-blur-xl rounded-3xl p-7 border border-white/20 shadow-xl">
+                    <Text className="text-white text-lg italic mb-5 leading-7">
                       "{testimonial.quote}"
                     </Text>
-                    <Text className="text-white/60 text-sm mb-2">{testimonial.founder}</Text>
-                    <View className="bg-emerald-500/20 rounded-lg px-3 py-2 self-start">
-                      <Text className="text-emerald-300 text-sm font-bold">
+                    <Text className="text-white/70 text-sm mb-3">{testimonial.founder}</Text>
+                    <View className="bg-emerald-500/30 rounded-2xl px-4 py-3 self-start border border-emerald-400/30">
+                      <Text className="text-emerald-200 text-base font-black">
                         {testimonial.metric}
                       </Text>
                     </View>
@@ -535,13 +623,13 @@ export default function TutorialScreen() {
 
             {/* Matching Process */}
             {slide.matchingProcess && (
-              <View className="bg-white/10 rounded-2xl p-6 mb-6">
+              <View className="bg-white/10 backdrop-blur-xl rounded-3xl p-7 mb-7 border border-white/20 shadow-xl">
                 {slide.matchingProcess.map((step, index) => (
-                  <View key={index} className="flex-row items-start mb-4">
-                    <View className="bg-white/20 rounded-full w-8 h-8 items-center justify-center mr-3">
-                      <Text className="text-white font-bold">{index + 1}</Text>
+                  <View key={index} className="flex-row items-start mb-5 last:mb-0">
+                    <View className="bg-white/30 rounded-full w-10 h-10 items-center justify-center mr-4">
+                      <Text className="text-white font-black text-base">{index + 1}</Text>
                     </View>
-                    <Text className="text-white/80 text-base flex-1 pt-1">{step}</Text>
+                    <Text className="text-white/90 text-base flex-1 pt-2 leading-6">{step}</Text>
                   </View>
                 ))}
               </View>
@@ -549,34 +637,34 @@ export default function TutorialScreen() {
 
             {/* Workflow */}
             {slide.workflow && (
-              <View className="gap-3 mb-6">
-                <View className="bg-violet-500/20 rounded-xl p-4">
-                  <Text className="text-violet-300 text-sm font-semibold mb-1">You</Text>
+              <View className="gap-4 mb-7">
+                <View className="bg-violet-500/25 backdrop-blur-xl rounded-2xl p-5 border border-violet-400/30">
+                  <Text className="text-violet-200 text-sm font-bold mb-2">You</Text>
                   <Text className="text-white text-base">{slide.workflow.you}</Text>
                 </View>
-                <View className="bg-blue-500/20 rounded-xl p-4">
-                  <Text className="text-blue-300 text-sm font-semibold mb-1">AI Agents</Text>
+                <View className="bg-blue-500/25 backdrop-blur-xl rounded-2xl p-5 border border-blue-400/30">
+                  <Text className="text-blue-200 text-sm font-bold mb-2">AI Agents</Text>
                   <Text className="text-white text-base">{slide.workflow.aiAgent}</Text>
                 </View>
-                <View className="bg-emerald-500/20 rounded-xl p-4">
-                  <Text className="text-emerald-300 text-sm font-semibold mb-1">Apprentice</Text>
+                <View className="bg-emerald-500/25 backdrop-blur-xl rounded-2xl p-5 border border-emerald-400/30">
+                  <Text className="text-emerald-200 text-sm font-bold mb-2">Apprentice</Text>
                   <Text className="text-white text-base">{slide.workflow.apprentice}</Text>
                 </View>
-                <View className="bg-amber-500/20 rounded-xl p-4">
-                  <Text className="text-amber-300 text-sm font-semibold mb-1">Result</Text>
-                  <Text className="text-white text-lg font-bold">{slide.workflow.result}</Text>
+                <View className="bg-amber-500/25 backdrop-blur-xl rounded-2xl p-5 border border-amber-400/30">
+                  <Text className="text-amber-200 text-sm font-bold mb-2">Result</Text>
+                  <Text className="text-white text-xl font-black">{slide.workflow.result}</Text>
                 </View>
               </View>
             )}
 
             {/* Learning Examples */}
             {slide.learning && (
-              <View className="gap-4 mb-6">
+              <View className="gap-4 mb-7">
                 {slide.learning.map((item, index) => (
-                  <View key={index} className="bg-white/10 rounded-xl p-4">
-                    <Text className="text-white text-base font-bold mb-2">{item.exec}</Text>
-                    <Text className="text-emerald-300 text-sm mb-2">Teaches: {item.teaches}</Text>
-                    <Text className="text-white/60 text-sm">Your Tasks: {item.yourTasks}</Text>
+                  <View key={index} className="bg-white/10 backdrop-blur-xl rounded-3xl p-6 border border-white/20 shadow-xl">
+                    <Text className="text-white text-lg font-black mb-3">{item.exec}</Text>
+                    <Text className="text-emerald-300 text-sm mb-2 font-semibold">Teaches: {item.teaches}</Text>
+                    <Text className="text-white/70 text-sm">Your Tasks: {item.yourTasks}</Text>
                   </View>
                 ))}
               </View>
@@ -584,11 +672,11 @@ export default function TutorialScreen() {
 
             {/* Portfolio */}
             {slide.portfolio && (
-              <View className="bg-white/10 rounded-2xl p-6 mb-6">
+              <View className="bg-white/10 backdrop-blur-xl rounded-3xl p-7 mb-7 border border-white/20 shadow-xl">
                 {slide.portfolio.map((item, index) => (
-                  <View key={index} className="flex-row items-start mb-3">
-                    <CheckCircle2 size={20} color="#10b981" style={{ marginRight: 12, marginTop: 2 }} />
-                    <Text className="text-white text-base flex-1">{item}</Text>
+                  <View key={index} className="flex-row items-start mb-4 last:mb-0">
+                    <CheckCircle2 size={22} color="#10b981" style={{ marginRight: 12, marginTop: 2 }} />
+                    <Text className="text-white text-base flex-1 font-medium">{item}</Text>
                   </View>
                 ))}
               </View>
@@ -596,21 +684,21 @@ export default function TutorialScreen() {
 
             {/* Work Plan */}
             {slide.workPlan && (
-              <View className="bg-white/10 rounded-2xl p-6 mb-6">
+              <View className="bg-white/10 backdrop-blur-xl rounded-3xl p-7 mb-7 border border-white/20 shadow-xl">
                 {Object.entries(slide.workPlan).map(([day, task], index) => {
                   if (day === 'feedback') {
                     return (
-                      <View key={day} className="bg-violet-500/20 rounded-xl p-4 mt-4">
-                        <Text className="text-violet-300 text-sm font-semibold mb-1">
+                      <View key={day} className="bg-violet-500/25 rounded-2xl p-5 mt-4 border border-violet-400/30">
+                        <Text className="text-violet-200 text-sm font-bold mb-2">
                           Weekly Feedback
                         </Text>
-                        <Text className="text-white text-sm">{task}</Text>
+                        <Text className="text-white text-base">{task}</Text>
                       </View>
                     );
                   }
                   return (
-                    <View key={day} className="mb-3">
-                      <Text className="text-white/60 text-xs font-semibold uppercase mb-1">
+                    <View key={day} className="mb-4 last:mb-0">
+                      <Text className="text-white/60 text-xs font-black uppercase mb-2 tracking-wider">
                         {day}
                       </Text>
                       <Text className="text-white text-base">{task}</Text>
@@ -622,31 +710,31 @@ export default function TutorialScreen() {
 
             {/* Comparison */}
             {slide.comparison && (
-              <View className="gap-3 mb-6">
-                <View className="bg-red-500/20 rounded-xl p-4">
-                  <Text className="text-red-300 text-sm font-semibold mb-2">Traditional Path</Text>
-                  <Text className="text-white/80 text-base">{slide.comparison.traditional}</Text>
+              <View className="gap-4 mb-7">
+                <View className="bg-red-500/25 backdrop-blur-xl rounded-2xl p-5 border border-red-400/30">
+                  <Text className="text-red-200 text-sm font-bold mb-3">Traditional Path</Text>
+                  <Text className="text-white/90 text-base">{slide.comparison.traditional}</Text>
                 </View>
-                <View className="bg-emerald-500/20 rounded-xl p-4">
-                  <Text className="text-emerald-300 text-sm font-semibold mb-2">Centaur OS</Text>
-                  <Text className="text-white text-base">{slide.comparison.centaurOS}</Text>
+                <View className="bg-emerald-500/25 backdrop-blur-xl rounded-2xl p-5 border border-emerald-400/30">
+                  <Text className="text-emerald-200 text-sm font-bold mb-3">Centaur OS</Text>
+                  <Text className="text-white text-base font-semibold">{slide.comparison.centaurOS}</Text>
                 </View>
               </View>
             )}
 
             {/* Description */}
-            <Text className="text-white/70 text-base leading-7">{slide.description}</Text>
+            <Text className="text-white/80 text-lg leading-8 font-medium">{slide.description}</Text>
           </Animated.View>
         </ScrollView>
 
         {/* Footer - Progress & CTA */}
-        <View className="px-6 pb-6 pt-4 bg-gradient-to-t from-black/50">
-          <View className="flex-row justify-center mb-4">
+        <View className="absolute bottom-0 left-0 right-0 px-6 pb-8 pt-6 bg-gradient-to-t from-black/80 via-black/60 to-transparent backdrop-blur-xl">
+          <View className="flex-row justify-center mb-5">
             {slides.map((_, index) => (
               <View
                 key={index}
-                className={`h-2 rounded-full mx-1 ${
-                  index === currentSlide ? 'bg-white w-8' : 'bg-white/20 w-2'
+                className={`h-2.5 rounded-full mx-1 ${
+                  index === currentSlide ? 'bg-white w-10' : 'bg-white/30 w-2.5'
                 }`}
               />
             ))}
@@ -654,12 +742,12 @@ export default function TutorialScreen() {
 
           <Pressable
             onPress={handleNext}
-            className="bg-white rounded-2xl py-4 flex-row items-center justify-center active:opacity-80"
+            className="bg-white rounded-3xl py-5 flex-row items-center justify-center active:scale-[0.98] shadow-2xl"
           >
-            <Text className="text-slate-900 text-lg font-bold mr-2">
+            <Text className="text-slate-900 text-xl font-black mr-2">
               {currentSlide === slides.length - 1 ? "Let's Get Started" : 'Next'}
             </Text>
-            <ArrowRight size={24} color="#0f172a" />
+            <ArrowRight size={28} color="#0f172a" strokeWidth={3} />
           </Pressable>
         </View>
       </SafeAreaView>
