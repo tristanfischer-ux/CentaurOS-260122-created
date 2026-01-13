@@ -15,11 +15,18 @@ const DEFAULT_WORKSPACE_ID = 'workspace-demo-company';
 export async function seedArmoryDemo() {
   const armoryStore = useArmoryStore.getState();
 
-  // Check if already seeded
-  if (armoryStore.personLoadouts.length > 0 || armoryStore.squads.length > 0) {
+  // Check if already seeded - look for loadouts with aiToolIds array
+  const hasValidLoadouts = armoryStore.personLoadouts.some(
+    (l) => Array.isArray(l.aiToolIds) && l.aiToolIds.length > 0
+  );
+
+  if (hasValidLoadouts || armoryStore.squads.length > 0) {
     console.log('[Armory] Demo data already seeded, skipping');
     return;
   }
+
+  // Reset to clear any corrupted/old format data
+  await armoryStore.reset();
 
   console.log('[Armory] Seeding demo data...');
 

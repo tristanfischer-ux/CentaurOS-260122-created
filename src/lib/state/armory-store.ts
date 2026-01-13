@@ -95,11 +95,40 @@ export const useArmoryStore = create<ArmoryState>((set, get) => ({
       const json = await AsyncStorage.getItem(ARMORY_STORAGE_KEY);
       if (json) {
         const data = JSON.parse(json);
+
+        // Migrate old slot-based loadouts to new aiToolIds array format
+        const migratedLoadouts = (data.personLoadouts || []).map((loadout: any) => {
+          // If already has aiToolIds, use it; otherwise migrate from slots
+          if (loadout.aiToolIds) {
+            return loadout;
+          }
+          // Migrate from old slots structure
+          const aiToolIds: string[] = [];
+          if (loadout.slots) {
+            Object.values(loadout.slots).forEach((toolId) => {
+              if (toolId && typeof toolId === 'string') {
+                aiToolIds.push(toolId);
+              }
+            });
+          }
+          return {
+            workspaceId: loadout.workspaceId,
+            memberId: loadout.memberId,
+            aiToolIds,
+            updatedAt: loadout.updatedAt || new Date().toISOString(),
+          };
+        });
+
         set({
-          personLoadouts: data.personLoadouts || [],
+          personLoadouts: migratedLoadouts,
           squads: data.squads || [],
           isInitialized: true,
         });
+
+        // Save migrated data back to storage
+        if (migratedLoadouts.some((l: any) => !data.personLoadouts?.find((o: any) => o.aiToolIds && o.memberId === l.memberId))) {
+          await get().saveToStorage();
+        }
       }
     } catch (error) {
       console.error('Failed to load armory from storage:', error);
@@ -128,11 +157,13 @@ export const useArmoryStore = create<ArmoryState>((set, get) => ({
       const loadoutIndex = loadouts.findIndex((l) => l.memberId === memberId);
 
       if (loadoutIndex >= 0) {
+        // Ensure aiToolIds exists (migration from old slot structure)
+        const currentToolIds = loadouts[loadoutIndex].aiToolIds || [];
         // Add tool if not already present
-        if (!loadouts[loadoutIndex].aiToolIds.includes(aiToolId)) {
+        if (!currentToolIds.includes(aiToolId)) {
           loadouts[loadoutIndex] = {
             ...loadouts[loadoutIndex],
-            aiToolIds: [...loadouts[loadoutIndex].aiToolIds, aiToolId],
+            aiToolIds: [...currentToolIds, aiToolId],
             updatedAt: new Date().toISOString(),
           };
         }
@@ -150,9 +181,10 @@ export const useArmoryStore = create<ArmoryState>((set, get) => ({
       const loadoutIndex = loadouts.findIndex((l) => l.memberId === memberId);
 
       if (loadoutIndex >= 0) {
+        const currentToolIds = loadouts[loadoutIndex].aiToolIds || [];
         loadouts[loadoutIndex] = {
           ...loadouts[loadoutIndex],
-          aiToolIds: loadouts[loadoutIndex].aiToolIds.filter((id) => id !== aiToolId),
+          aiToolIds: currentToolIds.filter((id) => id !== aiToolId),
           updatedAt: new Date().toISOString(),
         };
       }
