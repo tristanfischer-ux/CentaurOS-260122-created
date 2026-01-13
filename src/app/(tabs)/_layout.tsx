@@ -44,7 +44,6 @@ export default function TabLayout() {
     if (isAuthenticated && !currentWorkspace && Object.keys(workspaces).length > 0 && Object.keys(memberships).length > 0) {
       const firstWorkspace = Object.values(workspaces)[0];
       if (firstWorkspace) {
-        console.log('Setting workspace:', firstWorkspace.id);
         setCurrentWorkspace(firstWorkspace.id);
       }
     }

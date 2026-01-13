@@ -129,15 +129,6 @@ export default function HomeScreen() {
   const isExecutive = role === 'FractionalExec';
   const isApprentice = role === 'Apprentice';
 
-  console.log('Home Tab - User Role Check:', {
-    userName: currentUser?.name,
-    userEmail: currentUser?.email,
-    membershipRole: currentMembership.role,
-    isFounder,
-    isExecutive,
-    isApprentice,
-  });
-
   const getRoleColor = () => {
     if (isFounder) return '#8b5cf6';
     if (isExecutive) return '#3b82f6';
