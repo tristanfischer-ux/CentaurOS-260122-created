@@ -83,32 +83,38 @@ export default function MakeScreen() {
           <View className="flex-1">
             <Text className="text-gray-900 dark:text-white text-2xl font-bold">Make</Text>
             <Text className="text-gray-600 dark:text-slate-400 text-sm mt-0.5">
-              AI tools, suppliers, manufacturers, and BOM tracking
+              Currently used AI tools and active supplier engagements
             </Text>
           </View>
         </View>
 
-        {/* Summary Stats */}
+        {/* Summary Stats - Now Clickable */}
         <View className="flex-row gap-3 mb-3">
-          <View className="flex-1 bg-gray-100 dark:bg-slate-900 rounded-xl p-3 border border-gray-300 dark:border-slate-800">
+          <Pressable
+            onPress={() => setActiveTab('suppliers')}
+            className="flex-1 bg-gray-100 dark:bg-slate-900 rounded-xl p-3 border border-gray-300 dark:border-slate-800 active:opacity-70"
+          >
             <Text className="text-gray-600 dark:text-slate-400 text-xs mb-1">Suppliers</Text>
             <Text className="text-emerald-400 text-xl font-bold">
               £{(supplierSpend.total / 1000).toFixed(0)}k
             </Text>
             <Text className="text-gray-600 dark:text-slate-500 text-[10px] mt-0.5">
-              £{(supplierSpend.paid / 1000).toFixed(0)}k paid
+              £{(supplierSpend.paid / 1000).toFixed(0)}k paid • Tap to view
             </Text>
-          </View>
+          </Pressable>
 
-          <View className="flex-1 bg-gray-100 dark:bg-slate-900 rounded-xl p-3 border border-gray-300 dark:border-slate-800">
+          <Pressable
+            onPress={() => setActiveTab('ai')}
+            className="flex-1 bg-gray-100 dark:bg-slate-900 rounded-xl p-3 border border-gray-300 dark:border-slate-800 active:opacity-70"
+          >
             <Text className="text-gray-600 dark:text-slate-400 text-xs mb-1">AI/Month</Text>
             <Text className="text-blue-400 text-xl font-bold">
               £{aiSpend.toLocaleString()}
             </Text>
             <Text className="text-gray-600 dark:text-slate-500 text-[10px] mt-0.5">
-              {AI_AGENTS.filter(a => a.status === 'active').length} active
+              {AI_AGENTS.filter(a => a.status === 'active').length} active • Tap to view
             </Text>
-          </View>
+          </Pressable>
         </View>
 
         {/* Tab Selector */}
