@@ -21,10 +21,17 @@ export default function DecideScreen() {
   // Use centralized OKR store
   const okrs = useOKRStore(s => s.okrs);
   const toggleOKRExpanded = useOKRStore(s => s.toggleOKRExpanded);
+  const addOKR = useOKRStore(s => s.addOKR);
 
   const [selectedFunction, setSelectedFunction] = useState<BusinessFunction | 'all'>('all');
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showApprovalQueue, setShowApprovalQueue] = useState(false);
+
+  // Form state for creating OKR
+  const [newOKRTitle, setNewOKRTitle] = useState('');
+  const [newOKRDescription, setNewOKRDescription] = useState('');
+  const [newOKRFunction, setNewOKRFunction] = useState<BusinessFunction>('Marketing');
+  const [newOKROwner, setNewOKROwner] = useState('');
 
   // Set initial function from params if provided
   useEffect(() => {
@@ -95,6 +102,46 @@ export default function DecideScreen() {
   const atRiskOKRs = filteredOKRs.filter((okr: OKR) => okr.status === 'at-risk').length;
   const offTrackOKRs = filteredOKRs.filter((okr: OKR) => okr.status === 'off-track').length;
   const approvalQueueCount = 3; // In real app, this would be dynamic
+
+  const handleCreateOKR = () => {
+    if (!newOKRTitle.trim()) {
+      Alert.alert('Error', 'Please enter an OKR title');
+      return;
+    }
+    if (!newOKRDescription.trim()) {
+      Alert.alert('Error', 'Please enter an OKR description');
+      return;
+    }
+    if (!newOKROwner.trim()) {
+      Alert.alert('Error', 'Please enter an owner name');
+      return;
+    }
+
+    const newOKR: OKR = {
+      id: `okr-${Date.now()}`,
+      workspaceId: currentWorkspace?.id || 'workspace-demo-company',
+      function: newOKRFunction,
+      title: newOKRTitle,
+      description: newOKRDescription,
+      owner: newOKROwner,
+      startDate: 'Q1 2026',
+      endDate: 'Q4 2026',
+      status: 'on-track',
+      objectives: [],
+      isExpanded: false,
+    };
+
+    addOKR(newOKR);
+
+    // Reset form
+    setNewOKRTitle('');
+    setNewOKRDescription('');
+    setNewOKRFunction('Marketing');
+    setNewOKROwner('');
+    setShowCreateModal(false);
+
+    Alert.alert('Success', 'OKR created successfully!');
+  };
 
   return (
     <View className="flex-1 bg-white dark:bg-slate-950" style={{ paddingTop: insets.top }}>
@@ -324,23 +371,65 @@ export default function DecideScreen() {
                   Create a new OKR and assign it to a function. Executives will create work plans based on these OKRs.
                 </Text>
 
+                {/* Title Input */}
+                <Text className="text-gray-900 dark:text-white font-semibold mb-2">Title</Text>
+                <TextInput
+                  value={newOKRTitle}
+                  onChangeText={setNewOKRTitle}
+                  placeholder="e.g., Achieve Product-Market Fit"
+                  placeholderTextColor="#94a3b8"
+                  className="bg-gray-200 dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-xl px-4 py-3 text-gray-900 dark:text-white mb-4"
+                />
+
+                {/* Description Input */}
+                <Text className="text-gray-900 dark:text-white font-semibold mb-2">Description</Text>
+                <TextInput
+                  value={newOKRDescription}
+                  onChangeText={setNewOKRDescription}
+                  placeholder="Describe the objective and why it matters"
+                  placeholderTextColor="#94a3b8"
+                  multiline
+                  numberOfLines={3}
+                  className="bg-gray-200 dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-xl px-4 py-3 text-gray-900 dark:text-white mb-4"
+                  style={{ minHeight: 80, textAlignVertical: 'top' }}
+                />
+
+                {/* Owner Input */}
+                <Text className="text-gray-900 dark:text-white font-semibold mb-2">Owner</Text>
+                <TextInput
+                  value={newOKROwner}
+                  onChangeText={setNewOKROwner}
+                  placeholder="e.g., Sarah Mitchell"
+                  placeholderTextColor="#94a3b8"
+                  className="bg-gray-200 dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-xl px-4 py-3 text-gray-900 dark:text-white mb-4"
+                />
+
+                {/* Function Selection */}
                 <Text className="text-gray-900 dark:text-white font-semibold mb-2">Function</Text>
-                <View className="flex-row flex-wrap gap-2 mb-4">
+                <View className="flex-row flex-wrap gap-2 mb-6">
                   {functions.map((func) => (
                     <Pressable
                       key={func}
-                      className="px-3 py-2 rounded-lg bg-gray-200 dark:bg-slate-800"
+                      onPress={() => setNewOKRFunction(func)}
+                      className={`px-3 py-2 rounded-lg ${
+                        newOKRFunction === func
+                          ? 'bg-blue-500'
+                          : 'bg-gray-200 dark:bg-slate-800'
+                      }`}
                     >
-                      <Text className="text-gray-700 dark:text-slate-300 text-sm">{func}</Text>
+                      <Text className={`text-sm font-semibold ${
+                        newOKRFunction === func
+                          ? 'text-white'
+                          : 'text-gray-700 dark:text-slate-300'
+                      }`}>
+                        {func}
+                      </Text>
                     </Pressable>
                   ))}
                 </View>
 
                 <Pressable
-                  onPress={() => {
-                    setShowCreateModal(false);
-                    Alert.alert('Success', 'OKR created successfully!');
-                  }}
+                  onPress={handleCreateOKR}
                   className="bg-blue-500 py-4 rounded-xl active:opacity-70"
                 >
                   <Text className="text-white text-center font-bold">Create OKR</Text>
