@@ -19,7 +19,7 @@ import {
 } from 'lucide-react-native';
 import { useAppStore } from '@/lib/state/app-store';
 import { useOrganizationStore } from '@/lib/state/organization-store';
-import { useArmoryStore } from '@/lib/state/armory-store';
+import { useArmoryStore, useSquadsByWorkspace } from '@/lib/state/armory-store';
 import type { OrganizationMember, AIAgent } from '@/lib/organization-seed';
 import type { EquipmentSlot } from '@/types';
 import { getRecommendedToolsForMember, calculateTotalPower } from '@/lib/armory/recommendations';
@@ -534,7 +534,7 @@ function SquadsTab({
   const [showCreateSquad, setShowCreateSquad] = useState(false);
 
   const currentMembership = useAppStore((s) => s.currentMembership);
-  const squads = useArmoryStore((s) => s.getSquadsByWorkspace(currentMembership?.workspaceId || ''));
+  const squads = useSquadsByWorkspace(currentMembership?.workspaceId || '');
 
   return (
     <View className="flex-1">
