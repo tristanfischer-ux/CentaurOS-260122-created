@@ -1,5 +1,5 @@
 import { View, Text, Pressable, ScrollView, Modal, TextInput } from 'react-native';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -14,7 +14,7 @@ import {
 } from 'lucide-react-native';
 import { useAppStore } from '@/lib/state/app-store';
 import { useOrganizationStore } from '@/lib/state/organization-store';
-import { useArmoryStore, useSquadsByWorkspace } from '@/lib/state/armory-store';
+import { useArmoryStore } from '@/lib/state/armory-store';
 import type { OrganizationMember, AIAgent } from '@/lib/organization-seed';
 import type { EquipmentSlot } from '@/types';
 import { getRecommendedToolsForMember } from '@/lib/armory/recommendations';
@@ -535,7 +535,12 @@ function SquadsTab({
   const [showCreateSquad, setShowCreateSquad] = useState(false);
 
   const currentMembership = useAppStore((s) => s.currentMembership);
-  const squads = useSquadsByWorkspace(currentMembership?.workspaceId || '');
+  const allSquads = useArmoryStore((s) => s.squads);
+
+  // Memoize the filtered squads to prevent infinite re-renders
+  const squads = useMemo(() => {
+    return allSquads.filter((squad) => squad.workspaceId === (currentMembership?.workspaceId || ''));
+  }, [allSquads, currentMembership?.workspaceId]);
 
   return (
     <View className="flex-1">

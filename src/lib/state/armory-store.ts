@@ -315,4 +315,5 @@ export const useArmoryStore = create<ArmoryState>((set, get) => ({
 export const usePersonLoadouts = () => useArmoryStore((s) => s.personLoadouts);
 export const useSquads = () => useArmoryStore((s) => s.squads);
 export const useLoadoutForMember = (memberId: string) => useArmoryStore((s) => s.getLoadoutForMember(memberId));
-export const useSquadsByWorkspace = (workspaceId: string) => useArmoryStore((s) => s.getSquadsByWorkspace(workspaceId));
+export const useSquadsByWorkspace = (workspaceId: string) =>
+  useArmoryStore((s) => s.squads.filter((squad) => squad.workspaceId === workspaceId));
