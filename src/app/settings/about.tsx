@@ -19,6 +19,10 @@ import {
   Sparkles,
   Building2,
   Book,
+  MessageSquare,
+  FileText,
+  BarChart3,
+  Smile,
 } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -61,6 +65,34 @@ export default function AboutScreen() {
       title: 'AI Tools Library',
       description: 'Integrate 50+ AI agents across all business functions to automate and accelerate your operations.',
       color: '#a855f7',
+    },
+    {
+      icon: MessageSquare,
+      title: 'In-App Messaging',
+      description: 'Direct and group messaging with file attachments, read receipts, and typing indicators.',
+      color: '#06b6d4',
+      badge: 'NEW',
+    },
+    {
+      icon: FileText,
+      title: 'Template Library',
+      description: 'Pre-built templates for work plans, OKRs, and reports to accelerate your team\'s productivity.',
+      color: '#f43f5e',
+      badge: 'COMING SOON',
+    },
+    {
+      icon: BarChart3,
+      title: 'Analytics Dashboard',
+      description: 'Real-time insights on team velocity, OKR health, resource utilization, and AI tool usage.',
+      color: '#14b8a6',
+      badge: 'COMING SOON',
+    },
+    {
+      icon: Smile,
+      title: 'Haptic Feedback',
+      description: 'iOS-grade tactile feedback on every interaction for a native, delightful user experience.',
+      color: '#8b5cf6',
+      badge: 'NEW',
     },
   ];
 
@@ -155,9 +187,16 @@ export default function AboutScreen() {
                       <Icon size={24} color={feature.color} strokeWidth={2} />
                     </View>
                     <View className="flex-1">
-                      <Text className="text-gray-900 dark:text-white text-lg font-bold mb-1">
-                        {feature.title}
-                      </Text>
+                      <View className="flex-row items-center gap-2 mb-1">
+                        <Text className="text-gray-900 dark:text-white text-lg font-bold">
+                          {feature.title}
+                        </Text>
+                        {feature.badge && (
+                          <View className={`px-2 py-0.5 rounded ${feature.badge === 'NEW' ? 'bg-emerald-500' : 'bg-amber-500'}`}>
+                            <Text className="text-white text-xs font-bold">{feature.badge}</Text>
+                          </View>
+                        )}
+                      </View>
                       <Text className="text-gray-600 dark:text-slate-400 text-sm leading-6">
                         {feature.description}
                       </Text>
