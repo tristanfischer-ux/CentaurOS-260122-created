@@ -147,10 +147,26 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
     - Actions: `addWorkPlan`, `updateWorkPlan`, `deleteWorkPlan`, `getCounts`
     - Selectors: `useWorkPlans`, `useSelectedWorkPlan`, `useWorkPlanCounts`, `useApprenticeWorkPlans`, `useWorkPlansByFunction`
   - **Organization Store** (`src/lib/state/organization-store.ts`):
-    - Centralized management of team members, AI agents, and supplier engagements
-    - Wraps existing organization-seed data with Zustand store pattern
-    - Functions: `initializeOrganization`, `getMemberById`, `getMembersByRole`, `getMembersByFunction`
-    - AI agent functions: `getAIAgentById`, `getAIAgentsByFunction`, `getActiveAIAgents`
+    - Centralized management of organization members, AI agents, and supplier engagements
+    - Single source for all team structure data (founders, execs, apprentices)
+    - Actions: `initializeOrganization`, `getMemberById`, `getMembersByRole`, `getAIAgentsByFunction`, `getTotalAISpend`
+    - Multi-tenancy support with workspace filtering
+  - **Armory System** (`src/lib/state/armory-store.ts`) - **NEW 2026-01-13**:
+    - RPG-style equipment system for AI tools ("loadouts" and "squads")
+    - Loadout management: Equip AI tools in 4 slots per person (weapon/armor/utility/support)
+    - Squad management: Create teams with executive leaders and apprentice members
+    - Auto-equip starter kits based on member function
+    - Capacity management: Track executive capacity (3 apprentices max per exec)
+    - Deployment tracking: Assign squads to OKRs or work plans
+    - Persistence: Full AsyncStorage support with state restoration
+    - Actions: `setEquippedTool`, `autoEquipStarterKit`, `createSquad`, `assignLeader`, `deploySquadToOKR`
+    - Selectors: `usePersonLoadouts`, `useSquads`, `useLoadoutForMember`, `useSquadsByWorkspace`
+  - **Benefits**:
+    - Zero data inconsistencies (no more hardcoded data in 12 different places)
+    - Single update point for any data changes
+    - Easy to extend with new OKRs, work plans, or organization members
+    - Automatic initialization from seed data
+    - Type-safe access to all data throughout the app
     - Supplier engagement functions: `getEngagementById`, `getEngagementsByStatus`, `getEngagementsByAssignee`
     - Calculated metrics: `getTotalAISpend`, `getTotalTeamCost`, `getTotalSupplierSpend`, `getCounts`
     - Selectors: `useOrganizationMembers`, `useAIAgents`, `useSupplierEngagements`, `useOrganizationCounts`

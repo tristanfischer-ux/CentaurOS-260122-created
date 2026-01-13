@@ -822,3 +822,43 @@ export interface ApprenticeReportData {
   }[];
   achievements: string[];
 }
+
+// ==================== ARMORY SYSTEM ====================
+// RPG-style equipment system for AI tools
+
+export type EquipmentSlot = 'weapon' | 'armor' | 'utility' | 'support';
+export type GearRarity = 'common' | 'rare' | 'epic';
+export type EffectTag = '+Speed' | '+Quality' | '+Automation' | '+Revenue' | '+RiskControl' | '+Analysis' | '+Creative';
+
+export interface PersonLoadout {
+  workspaceId: string;
+  memberId: string; // OrganizationMember id
+  slots: {
+    weapon: string | null; // AI Agent id
+    armor: string | null;
+    utility: string | null;
+    support: string | null;
+  };
+  updatedAt: string;
+}
+
+export interface Squad {
+  id: string;
+  workspaceId: string;
+  name: string;
+  function: Function;
+  leaderMemberId: string; // Executive id
+  apprenticeMemberIds: string[];
+  deployedOKRId?: string;
+  deployedWorkPlanId?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface AIToolEffects {
+  aiToolId: string;
+  suggestedSlot: EquipmentSlot;
+  effectTags: EffectTag[];
+  rarity: GearRarity;
+  category: 'sales' | 'marketing' | 'engineering' | 'operations' | 'finance' | 'productivity' | 'design';
+}

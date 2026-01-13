@@ -3,14 +3,17 @@
 import { useEffect, useState } from 'react';
 import { useAppStore } from '../state/app-store';
 import { useSupplierStore } from '../state/supplier-store';
+import { useOrganizationStore } from '../state/organization-store';
 import { db } from '../storage';
 import { seedDemoData } from '../api/seed';
+import { seedArmoryDemo } from '../armory/seed-demo';
 
 export function useInitializeApp() {
   const [isInitialized, setIsInitialized] = useState(false);
   const [isSeeded, setIsSeeded] = useState(false);
   const initialize = useAppStore((s) => s.initialize);
   const initializeSuppliers = useSupplierStore((s) => s.initializeSuppliers);
+  const initializeOrganization = useOrganizationStore((s) => s.initializeOrganization);
   const setWorkspaces = useAppStore((s) => s.setWorkspaces);
   const setMemberships = useAppStore((s) => s.setMemberships);
   const setUsers = useAppStore((s) => s.setUsers);
@@ -34,6 +37,9 @@ export function useInitializeApp() {
 
         // Initialize suppliers (from seed data)
         initializeSuppliers();
+
+        // Initialize organization (from seed data)
+        initializeOrganization();
 
         // Load all data from storage
         const [
@@ -138,6 +144,14 @@ export function useInitializeApp() {
           setWeeklyPacks(weeklyPacks);
           setTemplates(templates);
           setAuditLogs(auditLogs);
+        }
+
+        // Initialize Armory with demo loadouts and squads
+        try {
+          await seedArmoryDemo();
+        } catch (armoryError) {
+          console.error('Failed to seed armory demo:', armoryError);
+          // Don't fail initialization if armory seeding fails
         }
 
         setIsInitialized(true);

@@ -1,11 +1,12 @@
 import { View, Text, ScrollView, Pressable, Modal } from 'react-native';
 import React, { useState } from 'react';
-import { X, Mail, Phone, Bot, Briefcase, Award, Building2, DollarSign, Clock, Star } from 'lucide-react-native';
+import { X, Mail, Phone, Bot, Briefcase, Award, Building2, DollarSign, Clock, Star, Sword } from 'lucide-react-native';
 import { ORGANIZATION_MEMBERS, AI_AGENTS, type OrganizationMember } from '@/lib/organization-seed';
 import { fractionalExecutives, apprentices, type Candidate } from '@/lib/candidates-seed';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import type { Function as BusinessFunction } from '@/types';
+import { LinearGradient } from 'expo-linear-gradient';
 
 const BUSINESS_FUNCTIONS: BusinessFunction[] = ['Marketing', 'Sales', 'Engineering', 'Ops', 'Finance', 'Admin'];
 
@@ -91,6 +92,34 @@ export default function OrgDiagramScreen() {
             </Text>
           </View>
         </View>
+
+        {/* Armory Access Button */}
+        <Pressable
+          onPress={() => router.push('/armory')}
+          className="mt-4 active:opacity-80"
+        >
+          <LinearGradient
+            colors={['#8b5cf6', '#6d28d9']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+            style={{ borderRadius: 16, padding: 16 }}
+          >
+            <View className="flex-row items-center justify-between">
+              <View className="flex-row items-center flex-1">
+                <View className="w-12 h-12 bg-white/20 rounded-xl items-center justify-center mr-4">
+                  <Sword size={24} color="white" strokeWidth={2.5} />
+                </View>
+                <View className="flex-1">
+                  <Text className="text-white text-lg font-black">Armory</Text>
+                  <Text className="text-white/80 text-sm">Equip AI tools & manage squads</Text>
+                </View>
+              </View>
+              <View className="w-8 h-8 bg-white/20 rounded-full items-center justify-center">
+                <Text className="text-white font-bold">→</Text>
+              </View>
+            </View>
+          </LinearGradient>
+        </Pressable>
       </View>
 
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
