@@ -15,7 +15,7 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
 
 ## 🚨 PRODUCTION READINESS STATUS
 
-**Last Updated**: 2026-01-13 (**COMPREHENSIVE AUDIT COMPLETE** + **SUPPLIER DATABASE ENHANCEMENT** - Centralized supplier management with detailed information)
+**Last Updated**: 2026-01-13 (**COMPREHENSIVE AUDIT COMPLETE** + **SUPPLIER DATABASE ENHANCEMENT** + **CENTRALIZED DATA SYSTEM** - Single source of truth for all app data)
 
 ### Current Status: ✅ **READY FOR APP STORE SUBMISSION**
 
@@ -33,7 +33,8 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
 ✅ **Onboarding**: Role-specific flows - **UPDATED** with accurate routes
 ✅ **Authentication**: Sign in/up flows - Working with demo accounts
 ✅ **RBAC**: 32 permission checks - Properly enforced across all features
-✅ **State Management**: Zustand + React Query - Optimized, **Centralized Supplier Store Added**
+✅ **State Management**: Zustand + React Query - Optimized, **Centralized Data Stores for OKRs, Work Plans, Organization**
+✅ **Data Architecture**: **NEW** - Single source of truth eliminates hardcoded data inconsistencies
 ✅ **Performance**: Clean bundle - No warnings, no console.logs
 ✅ **Error Handling**: Comprehensive validation and error messages
 ✅ **Accessibility**: All modals support back button/swipe-to-dismiss (Android/iOS)
@@ -87,6 +88,47 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
   - Request to onboard suppliers (sent to Decide tab for founder approval)
   - Make tab continues to show contracted supplier engagements (different from marketplace)
   - All supplier cards show consistent information across the app
+
+**✅ Centralized Data System (NEW - 2026-01-13):**
+- **Single Source of Truth Architecture** - Eliminated all hardcoded data inconsistencies:
+  - **OKR Store** (`src/lib/state/okr-store.ts`):
+    - Centralized management of all OKRs and objectives
+    - 8 OKRs across 6 business functions initialized from single source
+    - Functions: `initializeOKRs`, `getOKRById`, `getOKRsByFunction`, `getOKRsByStatus`, `getOKRsNeedingDecisions`
+    - Actions: `addOKR`, `updateOKR`, `deleteOKR`, `toggleOKRExpanded`, `getCounts`
+    - Selectors: `useOKRs`, `useSelectedOKR`, `useOKRCounts`, `useOKRsByFunction`, `useOKRsNeedingDecisions`
+  - **Work Plan Store** (`src/lib/state/work-plan-store.ts`):
+    - Centralized management of all work plans across all roles
+    - 8 work plans (apprentice, founder, executive) initialized from single source
+    - Functions: `initializeWorkPlans`, `getWorkPlanById`, `getWorkPlansByFunction`, `getWorkPlansByStatus`
+    - Role-specific getters: `getApprenticeWorkPlans`, `getFounderWorkPlansByFunction`, `getExecutiveWorkPlans`
+    - Actions: `addWorkPlan`, `updateWorkPlan`, `deleteWorkPlan`, `getCounts`
+    - Selectors: `useWorkPlans`, `useSelectedWorkPlan`, `useWorkPlanCounts`, `useApprenticeWorkPlans`, `useWorkPlansByFunction`
+  - **Organization Store** (`src/lib/state/organization-store.ts`):
+    - Centralized management of team members, AI agents, and supplier engagements
+    - Wraps existing organization-seed data with Zustand store pattern
+    - Functions: `initializeOrganization`, `getMemberById`, `getMembersByRole`, `getMembersByFunction`
+    - AI agent functions: `getAIAgentById`, `getAIAgentsByFunction`, `getActiveAIAgents`
+    - Supplier engagement functions: `getEngagementById`, `getEngagementsByStatus`, `getEngagementsByAssignee`
+    - Calculated metrics: `getTotalAISpend`, `getTotalTeamCost`, `getTotalSupplierSpend`, `getCounts`
+    - Selectors: `useOrganizationMembers`, `useAIAgents`, `useSupplierEngagements`, `useOrganizationCounts`
+  - **Financial Calculations** (`src/lib/financial-calculations.ts`):
+    - Single source of truth for all financial data and calculations
+    - Centralized `FINANCIAL_DATA` constant with all cost categories
+    - Functions: `calculateMonthlyBurn`, `calculateRunway`, `getFinancialMetrics`, `getCostBreakdown`
+    - Ensures consistent runway calculations across Home tab (13.7 months) and Financial Dashboard (13.7 months)
+- **Component Integration** - All components now reference centralized stores:
+  - **Home tab** (`src/app/(tabs)/index.tsx`): Uses `useOKRStore`, `useWorkPlanStore`, `useOrganizationStore` for real-time counts
+  - **Decide tab** (`src/app/(tabs)/decide.tsx`): Uses `useOKRStore` for OKR filtering and display
+  - **Do tab** (`src/app/(tabs)/do.tsx`): Uses `useWorkPlanStore` for role-specific work plan retrieval
+  - **Financial calculations**: All tabs use `getFinancialMetrics()` for consistent runway/burn/revenue
+- **Benefits of Centralized Data System**:
+  - **No more inconsistencies**: Home tab runway = Financial Dashboard runway (was 14.2 vs 13.4)
+  - **Single update point**: Change data once, reflects everywhere instantly
+  - **Type-safe**: All stores use TypeScript interfaces ensuring data consistency
+  - **Performance optimized**: Zustand selectors prevent unnecessary re-renders
+  - **Maintainable**: Clear separation of data (stores) from presentation (components)
+  - **Scalable**: Easy to add new data entities following established store pattern
 
 **✅ Phase 1 UX Enhancements (NEW):**
 - **Haptic Feedback System** - iOS-grade haptic patterns for all interactions:

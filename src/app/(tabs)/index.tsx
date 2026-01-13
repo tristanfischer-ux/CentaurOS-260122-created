@@ -1,5 +1,5 @@
 import { View, Text, ScrollView, Pressable, ActivityIndicator } from 'react-native';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Target,
   Users,
@@ -23,36 +23,56 @@ import { router } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import type { Function as BusinessFunction } from '@/types';
 import { getFinancialMetrics } from '@/lib/financial-calculations';
+import { useOKRStore } from '@/lib/state/okr-store';
+import { useWorkPlanStore } from '@/lib/state/work-plan-store';
+import { useOrganizationStore } from '@/lib/state/organization-store';
+
+// Initialize stores once
+if (useOKRStore.getState().okrs.length === 0) {
+  useOKRStore.getState().initializeOKRs();
+}
+if (useWorkPlanStore.getState().workPlans.length === 0) {
+  useWorkPlanStore.getState().initializeWorkPlans();
+}
+if (useOrganizationStore.getState().members.length === 0) {
+  useOrganizationStore.getState().initializeOrganization();
+}
 
 // Get real-time financial metrics - SINGLE SOURCE OF TRUTH
 const financialMetrics = getFinancialMetrics();
 
-// Demo data for the dashboard
-const FOUNDER_DATA = {
-  okrs: {
-    total: 8,
-    onTrack: 6,
-    atRisk: 2,
-    offTrack: 0,
-  },
-  workPlans: {
-    total: 4, // Fixed: actual count in Do tab shows 4 functions with work
-    inProgress: 4, // Fixed: matches the Active Now count
-    completed: 3,
-    blocked: 1,
-  },
-  team: {
-    executives: 4, // Fixed: org chart shows 4 executives
-    apprentices: 7, // Correct: org chart shows 7 apprentices
-    suppliers: 5, // Fixed: Make tab shows 5 supplier engagements
-  },
-  financials: {
-    runway: financialMetrics.runway, // Real-time calculation from actual costs
-    burnRate: financialMetrics.burnRate, // Real monthly burn
-    revenue: financialMetrics.monthlyRevenue, // Actual monthly revenue
-  },
-  pendingApprovals: 1, // Fixed: only 1 approval in the queue
-};
+export default function HomeScreen() {
+  const insets = useSafeAreaInsets();
+  const currentWorkspace = useCurrentWorkspace();
+  const currentMembership = useCurrentMembership();
+  const currentUser = useCurrentUser();
+
+  // Use centralized stores
+  const okrCounts = useOKRStore(s => s.getCounts());
+  const workPlanCounts = useWorkPlanStore(s => s.getCounts());
+  const orgCounts = useOrganizationStore(s => s.getCounts());
+
+  // Demo data for the dashboard - now using centralized stores
+  const FOUNDER_DATA = {
+    okrs: okrCounts,
+    workPlans: {
+      total: workPlanCounts.total,
+      inProgress: workPlanCounts.inProgress,
+      completed: workPlanCounts.completed,
+      blocked: workPlanCounts.blocked,
+    },
+    team: {
+      executives: orgCounts.executives,
+      apprentices: orgCounts.apprentices,
+      suppliers: orgCounts.activeEngagements,
+    },
+    financials: {
+      runway: financialMetrics.runway,
+      burnRate: financialMetrics.burnRate,
+      revenue: financialMetrics.monthlyRevenue,
+    },
+    pendingApprovals: 1, // This would need a separate approval store in the future
+  };
 
 const EXECUTIVE_DATA = {
   myWorkPlans: {
@@ -101,12 +121,6 @@ const APPRENTICE_DATA = {
     { name: 'Sarah Johnson', role: 'Founder' },
   ],
 };
-
-export default function HomeScreen() {
-  const insets = useSafeAreaInsets();
-  const currentWorkspace = useCurrentWorkspace();
-  const currentMembership = useCurrentMembership();
-  const currentUser = useCurrentUser();
 
   const [isLoading] = useState(false);
 

@@ -5,27 +5,11 @@ import { useCurrentWorkspace, useCurrentMembership } from '@/lib/state/app-store
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams } from 'expo-router';
 import type { Function as BusinessFunction } from '@/types';
+import { useOKRStore, type OKR, type Objective } from '@/lib/state/okr-store';
 
-interface OKR {
-  id: string;
-  function: BusinessFunction;
-  title: string;
-  description: string;
-  owner: string;
-  startDate: string;
-  endDate: string;
-  status: 'on-track' | 'at-risk' | 'off-track';
-  objectives: Objective[];
-  isExpanded?: boolean;
-}
-
-interface Objective {
-  id: string;
-  title: string;
-  target: string;
-  current: string;
-  progress: number;
-  status: 'on-track' | 'at-risk' | 'off-track';
+// Initialize OKR store once
+if (useOKRStore.getState().okrs.length === 0) {
+  useOKRStore.getState().initializeOKRs();
 }
 
 // Demo OKRs organized by function
@@ -158,7 +142,10 @@ export default function DecideScreen() {
   const currentMembership = useCurrentMembership();
   const params = useLocalSearchParams<{ function?: string }>();
 
-  const [expandedOKRs, setExpandedOKRs] = useState<Set<string>>(new Set());
+  // Use centralized OKR store
+  const okrs = useOKRStore(s => s.okrs);
+  const toggleOKRExpanded = useOKRStore(s => s.toggleOKRExpanded);
+
   const [selectedFunction, setSelectedFunction] = useState<BusinessFunction | 'all'>('all');
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showApprovalQueue, setShowApprovalQueue] = useState(false);
@@ -176,20 +163,14 @@ export default function DecideScreen() {
   // For now, we'll show the approval queue prominently and keep at-risk items
   // that may need strategic decisions or resource reallocation
   const okrsNeedingDecisions = selectedFunction === 'all'
-    ? FUNCTION_OKRS.filter(okr => okr.status === 'at-risk' || okr.status === 'off-track')
-    : FUNCTION_OKRS.filter(okr =>
+    ? okrs.filter(okr => okr.status === 'at-risk' || okr.status === 'off-track')
+    : okrs.filter(okr =>
         (okr.status === 'at-risk' || okr.status === 'off-track') &&
         okr.function === selectedFunction
       );
 
   const toggleOKR = (okrId: string) => {
-    const newExpanded = new Set(expandedOKRs);
-    if (newExpanded.has(okrId)) {
-      newExpanded.delete(okrId);
-    } else {
-      newExpanded.add(okrId);
-    }
-    setExpandedOKRs(newExpanded);
+    toggleOKRExpanded(okrId);
   };
 
   const getStatusColor = (status: string) => {
@@ -335,7 +316,7 @@ export default function DecideScreen() {
               OKRs Requiring Attention ({okrsNeedingDecisions.length})
             </Text>
             {okrsNeedingDecisions.map((okr) => {
-            const isExpanded = expandedOKRs.has(okr.id);
+            const isExpanded = okr.isExpanded || false;
             const functionColor = getFunctionColor(okr.function);
 
             return (

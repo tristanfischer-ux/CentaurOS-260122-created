@@ -4,20 +4,11 @@ import { Briefcase, Plus, X, Clock, Target, CheckCircle2, Circle, AlertCircle, C
 import { useCurrentWorkspace, useCurrentMembership } from '@/lib/state/app-store';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { Function as BusinessFunction } from '@/types';
+import { useWorkPlanStore, type WorkPlan } from '@/lib/state/work-plan-store';
 
-interface WorkPlan {
-  id: string;
-  title: string;
-  description: string;
-  function: BusinessFunction;
-  linkedOKRTitle: string;
-  dueDate: string;
-  status: 'not-started' | 'in-progress' | 'completed' | 'blocked';
-  progress: number;
-  assignedBy: string;
-  needsSubmission: boolean;
-  lastSubmittedAt?: string;
-  feedback?: string;
+// Initialize work plan store once
+if (useWorkPlanStore.getState().workPlans.length === 0) {
+  useWorkPlanStore.getState().initializeWorkPlans();
 }
 
 // Demo work plans for apprentices
@@ -171,6 +162,11 @@ export default function DoScreen() {
   const currentWorkspace = useCurrentWorkspace();
   const currentMembership = useCurrentMembership();
 
+  // Use centralized work plan store
+  const getApprenticeWorkPlans = useWorkPlanStore(s => s.getApprenticeWorkPlans);
+  const getFounderWorkPlansByFunction = useWorkPlanStore(s => s.getFounderWorkPlansByFunction);
+  const getExecutiveWorkPlans = useWorkPlanStore(s => s.getExecutiveWorkPlans);
+
   const [selectedFunction, setSelectedFunction] = useState<BusinessFunction | 'all'>('all');
   const [expandedPlans, setExpandedPlans] = useState<Set<string>>(new Set());
   const [showSubmitModal, setShowSubmitModal] = useState(false);
@@ -265,7 +261,7 @@ export default function DoScreen() {
 
   // Render for Apprentices - only show active work that needs to be done
   if (isApprentice) {
-    const myWorkPlans = APPRENTICE_WORK_PLANS;
+    const myWorkPlans = getApprenticeWorkPlans();
     const activePlans = myWorkPlans.filter(p => p.status === 'in-progress' || p.status === 'not-started' || p.status === 'blocked');
     const completedPlans = myWorkPlans.filter(p => p.status === 'completed');
 
@@ -490,12 +486,12 @@ export default function DoScreen() {
 
     // Filter to show only active work plans (not completed)
     const activeWorkPlansByFunction: Record<BusinessFunction, WorkPlan[]> = {
-      Marketing: FOUNDER_WORK_PLANS_BY_FUNCTION.Marketing.filter(p => p.status !== 'completed'),
-      Sales: FOUNDER_WORK_PLANS_BY_FUNCTION.Sales.filter(p => p.status !== 'completed'),
-      Engineering: FOUNDER_WORK_PLANS_BY_FUNCTION.Engineering.filter(p => p.status !== 'completed'),
-      Ops: FOUNDER_WORK_PLANS_BY_FUNCTION.Ops.filter(p => p.status !== 'completed'),
-      Finance: FOUNDER_WORK_PLANS_BY_FUNCTION.Finance.filter(p => p.status !== 'completed'),
-      Admin: FOUNDER_WORK_PLANS_BY_FUNCTION.Admin.filter(p => p.status !== 'completed'),
+      Marketing: getFounderWorkPlansByFunction('Marketing').filter(p => p.status !== 'completed'),
+      Sales: getFounderWorkPlansByFunction('Sales').filter(p => p.status !== 'completed'),
+      Engineering: getFounderWorkPlansByFunction('Engineering').filter(p => p.status !== 'completed'),
+      Ops: getFounderWorkPlansByFunction('Ops').filter(p => p.status !== 'completed'),
+      Finance: getFounderWorkPlansByFunction('Finance').filter(p => p.status !== 'completed'),
+      Admin: getFounderWorkPlansByFunction('Admin').filter(p => p.status !== 'completed'),
     };
 
     return (
@@ -581,7 +577,8 @@ export default function DoScreen() {
 
   // Render for Executives - only their active work plans
   if (isExecutive) {
-    const myWorkPlans = EXECUTIVE_WORK_PLANS.filter(p => p.status !== 'completed');
+    const execFunction = currentMembership?.function || 'Marketing';
+    const myWorkPlans = getExecutiveWorkPlans(execFunction as BusinessFunction).filter(p => p.status !== 'completed');
 
     return (
       <View className="flex-1 bg-white dark:bg-slate-950" style={{ paddingTop: insets.top }}>
