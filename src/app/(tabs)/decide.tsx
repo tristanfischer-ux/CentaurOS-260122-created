@@ -36,13 +36,10 @@ export default function DecideScreen() {
   const functions: BusinessFunction[] = ['Marketing', 'Sales', 'Engineering', 'Ops', 'Finance', 'Admin'];
 
   // DECIDE tab shows all OKRs for strategic decision-making
-  // Filter by current workspace and selected function
+  // Filter by selected function only (workspace filtering handled by store initialization)
   const filteredOKRs = selectedFunction === 'all'
-    ? okrs.filter(okr => currentWorkspace ? okr.workspaceId === currentWorkspace.id : true)
-    : okrs.filter(okr =>
-        okr.function === selectedFunction &&
-        (currentWorkspace ? okr.workspaceId === currentWorkspace.id : true)
-      );
+    ? okrs
+    : okrs.filter(okr => okr.function === selectedFunction);
 
   const toggleOKR = (okrId: string) => {
     toggleOKRExpanded(okrId);
