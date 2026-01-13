@@ -1320,22 +1320,52 @@ export default function CommunityScreen() {
               {/* Scrollable Content */}
               <ScrollView showsVerticalScrollIndicator={true} bounces={false} className="flex-1">
                 <View className="px-6 py-4">
-                  <View className="bg-gray-200 dark:bg-slate-800 rounded-xl p-4 mb-4">
-                    <View className="flex-row justify-between items-center">
-                      <Text className="text-gray-600 dark:text-slate-400">Monthly Cost:</Text>
-                      <Text className="text-emerald-600 dark:text-emerald-400 text-lg font-bold">
-                        £{selectedAIAgent.costPerMonth}/mo
+                  {/* Cost and Rating Section */}
+                  <View className="flex-row gap-3 mb-4">
+                    <View className="flex-1 bg-gray-200 dark:bg-slate-800 rounded-xl p-4">
+                      <Text className="text-gray-600 dark:text-slate-400 text-xs mb-1">Monthly Cost</Text>
+                      <Text className="text-emerald-600 dark:text-emerald-400 text-2xl font-bold">
+                        £{selectedAIAgent.costPerMonth}
+                      </Text>
+                      <Text className="text-gray-500 dark:text-slate-500 text-xs">/month</Text>
+                    </View>
+                    {selectedAIAgent.reviews && (
+                      <View className="flex-1 bg-gray-200 dark:bg-slate-800 rounded-xl p-4">
+                        <Text className="text-gray-600 dark:text-slate-400 text-xs mb-1">User Rating</Text>
+                        <View className="flex-row items-center">
+                          <Text className="text-amber-500 dark:text-amber-400 text-2xl font-bold">
+                            {selectedAIAgent.reviews.rating}
+                          </Text>
+                          <Text className="text-gray-500 dark:text-slate-500 text-sm ml-1">/5</Text>
+                        </View>
+                        <Text className="text-gray-500 dark:text-slate-500 text-xs">
+                          {selectedAIAgent.reviews.totalReviews} reviews
+                        </Text>
+                      </View>
+                    )}
+                  </View>
+
+                  {/* Description */}
+                  {selectedAIAgent.description && (
+                    <View className="mb-4">
+                      <Text className="text-gray-600 dark:text-slate-400 text-sm font-semibold mb-2">Description</Text>
+                      <Text className="text-gray-900 dark:text-white text-base leading-6">
+                        {selectedAIAgent.description}
                       </Text>
                     </View>
-                  </View>
+                  )}
 
-                  <View className="mb-4">
-                    <Text className="text-gray-600 dark:text-slate-400 text-sm mb-1">Purpose</Text>
-                    <Text className="text-gray-900 dark:text-white text-base leading-6">
-                      {selectedAIAgent.purpose}
-                    </Text>
-                  </View>
+                  {/* Purpose (if no description) */}
+                  {!selectedAIAgent.description && (
+                    <View className="mb-4">
+                      <Text className="text-gray-600 dark:text-slate-400 text-sm font-semibold mb-2">Purpose</Text>
+                      <Text className="text-gray-900 dark:text-white text-base leading-6">
+                        {selectedAIAgent.purpose}
+                      </Text>
+                    </View>
+                  )}
 
+                  {/* Business Functions */}
                   <View className="mb-4">
                     <Text className="text-gray-900 dark:text-white font-semibold mb-2">Business Functions</Text>
                     <View className="flex-row flex-wrap gap-2">
@@ -1347,18 +1377,50 @@ export default function CommunityScreen() {
                     </View>
                   </View>
 
+                  {/* Key Features */}
+                  {selectedAIAgent.keyFeatures && selectedAIAgent.keyFeatures.length > 0 && (
+                    <View className="mb-4">
+                      <Text className="text-gray-900 dark:text-white font-semibold mb-2">Key Features</Text>
+                      <View className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4">
+                        {selectedAIAgent.keyFeatures.map((feature, idx) => (
+                          <View key={idx} className="flex-row items-start mb-2">
+                            <Text className="text-blue-600 dark:text-blue-400 mr-2">✓</Text>
+                            <Text className="text-gray-900 dark:text-white flex-1 font-medium">{feature}</Text>
+                          </View>
+                        ))}
+                      </View>
+                    </View>
+                  )}
+
+                  {/* Use Cases */}
+                  {selectedAIAgent.useCases && selectedAIAgent.useCases.length > 0 && (
+                    <View className="mb-4">
+                      <Text className="text-gray-900 dark:text-white font-semibold mb-2">Use Cases</Text>
+                      <View className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-xl p-4">
+                        {selectedAIAgent.useCases.map((useCase, idx) => (
+                          <View key={idx} className="flex-row items-start mb-2">
+                            <Text className="text-emerald-600 dark:text-emerald-400 mr-2">→</Text>
+                            <Text className="text-gray-900 dark:text-white flex-1">{useCase}</Text>
+                          </View>
+                        ))}
+                      </View>
+                    </View>
+                  )}
+
+                  {/* Capabilities */}
                   <View className="mb-4">
                     <Text className="text-gray-900 dark:text-white font-semibold mb-2">Capabilities</Text>
                     <View className="bg-gray-200 dark:bg-slate-800 rounded-xl p-4">
                       {selectedAIAgent.capabilities.map((capability, idx) => (
                         <View key={idx} className="flex-row items-start mb-2">
-                          <Text className="text-emerald-600 dark:text-emerald-400 mr-2">•</Text>
+                          <Text className="text-gray-600 dark:text-slate-400 mr-2">•</Text>
                           <Text className="text-gray-700 dark:text-slate-300 flex-1">{capability}</Text>
                         </View>
                       ))}
                     </View>
                   </View>
 
+                  {/* Integrations */}
                   <View className="mb-4">
                     <Text className="text-gray-900 dark:text-white font-semibold mb-2">Integrations</Text>
                     <View className="flex-row flex-wrap gap-2">
@@ -1370,6 +1432,126 @@ export default function CommunityScreen() {
                     </View>
                   </View>
 
+                  {/* Pricing Details */}
+                  {selectedAIAgent.pricing && (
+                    <View className="mb-4">
+                      <Text className="text-gray-900 dark:text-white font-semibold mb-2">Pricing Plans</Text>
+                      <View className="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-xl p-4">
+                        {selectedAIAgent.pricing.starter && (
+                          <View className="mb-2">
+                            <Text className="text-purple-700 dark:text-purple-300 font-semibold">Starter</Text>
+                            <Text className="text-gray-700 dark:text-slate-300">{selectedAIAgent.pricing.starter}</Text>
+                          </View>
+                        )}
+                        {selectedAIAgent.pricing.professional && (
+                          <View className="mb-2">
+                            <Text className="text-purple-700 dark:text-purple-300 font-semibold">Professional</Text>
+                            <Text className="text-gray-700 dark:text-slate-300">{selectedAIAgent.pricing.professional}</Text>
+                          </View>
+                        )}
+                        {selectedAIAgent.pricing.enterprise && (
+                          <View className="mb-2">
+                            <Text className="text-purple-700 dark:text-purple-300 font-semibold">Enterprise</Text>
+                            <Text className="text-gray-700 dark:text-slate-300">{selectedAIAgent.pricing.enterprise}</Text>
+                          </View>
+                        )}
+                        {selectedAIAgent.pricing.notes && (
+                          <Text className="text-gray-600 dark:text-slate-400 text-sm mt-2 italic">
+                            {selectedAIAgent.pricing.notes}
+                          </Text>
+                        )}
+                      </View>
+                    </View>
+                  )}
+
+                  {/* Setup Information */}
+                  {selectedAIAgent.setup && (
+                    <View className="mb-4">
+                      <Text className="text-gray-900 dark:text-white font-semibold mb-2">Setup & Requirements</Text>
+                      <View className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-4">
+                        {selectedAIAgent.setup.difficulty && (
+                          <View className="mb-2">
+                            <Text className="text-amber-700 dark:text-amber-300 font-semibold">Difficulty</Text>
+                            <Text className="text-gray-700 dark:text-slate-300">{selectedAIAgent.setup.difficulty}</Text>
+                          </View>
+                        )}
+                        {selectedAIAgent.setup.timeToValue && (
+                          <View className="mb-2">
+                            <Text className="text-amber-700 dark:text-amber-300 font-semibold">Time to Value</Text>
+                            <Text className="text-gray-700 dark:text-slate-300">{selectedAIAgent.setup.timeToValue}</Text>
+                          </View>
+                        )}
+                        {selectedAIAgent.setup.requirements && selectedAIAgent.setup.requirements.length > 0 && (
+                          <View>
+                            <Text className="text-amber-700 dark:text-amber-300 font-semibold mb-1">Requirements</Text>
+                            {selectedAIAgent.setup.requirements.map((req, idx) => (
+                              <Text key={idx} className="text-gray-700 dark:text-slate-300 text-sm">• {req}</Text>
+                            ))}
+                          </View>
+                        )}
+                      </View>
+                    </View>
+                  )}
+
+                  {/* Support */}
+                  {selectedAIAgent.support && (
+                    <View className="mb-4">
+                      <Text className="text-gray-900 dark:text-white font-semibold mb-2">Support</Text>
+                      <View className="bg-cyan-50 dark:bg-cyan-900/20 border border-cyan-200 dark:border-cyan-800 rounded-xl p-4">
+                        <View className="flex-row justify-between mb-2">
+                          <Text className="text-gray-700 dark:text-slate-300">Email Support</Text>
+                          <Text className="text-cyan-700 dark:text-cyan-300 font-semibold">
+                            {selectedAIAgent.support.email ? '✓ Yes' : '✗ No'}
+                          </Text>
+                        </View>
+                        <View className="flex-row justify-between mb-2">
+                          <Text className="text-gray-700 dark:text-slate-300">Phone Support</Text>
+                          <Text className="text-cyan-700 dark:text-cyan-300 font-semibold">
+                            {selectedAIAgent.support.phone ? '✓ Yes' : '✗ No'}
+                          </Text>
+                        </View>
+                        {selectedAIAgent.support.documentation && (
+                          <View className="mb-2">
+                            <Text className="text-cyan-700 dark:text-cyan-300 font-semibold">Documentation</Text>
+                            <Text className="text-gray-700 dark:text-slate-300 text-sm">{selectedAIAgent.support.documentation}</Text>
+                          </View>
+                        )}
+                        {selectedAIAgent.support.community && (
+                          <View>
+                            <Text className="text-cyan-700 dark:text-cyan-300 font-semibold">Community</Text>
+                            <Text className="text-gray-700 dark:text-slate-300 text-sm">{selectedAIAgent.support.community}</Text>
+                          </View>
+                        )}
+                      </View>
+                    </View>
+                  )}
+
+                  {/* User Reviews */}
+                  {selectedAIAgent.reviews && (selectedAIAgent.reviews.pros || selectedAIAgent.reviews.cons) && (
+                    <View className="mb-4">
+                      <Text className="text-gray-900 dark:text-white font-semibold mb-2">User Feedback</Text>
+                      <View className="bg-gray-100 dark:bg-slate-800 rounded-xl p-4">
+                        {selectedAIAgent.reviews.pros && selectedAIAgent.reviews.pros.length > 0 && (
+                          <View className="mb-3">
+                            <Text className="text-emerald-700 dark:text-emerald-300 font-semibold mb-2">👍 Pros</Text>
+                            {selectedAIAgent.reviews.pros.map((pro, idx) => (
+                              <Text key={idx} className="text-gray-700 dark:text-slate-300 text-sm mb-1">• {pro}</Text>
+                            ))}
+                          </View>
+                        )}
+                        {selectedAIAgent.reviews.cons && selectedAIAgent.reviews.cons.length > 0 && (
+                          <View>
+                            <Text className="text-red-700 dark:text-red-300 font-semibold mb-2">👎 Cons</Text>
+                            {selectedAIAgent.reviews.cons.map((con, idx) => (
+                              <Text key={idx} className="text-gray-700 dark:text-slate-300 text-sm mb-1">• {con}</Text>
+                            ))}
+                          </View>
+                        )}
+                      </View>
+                    </View>
+                  )}
+
+                  {/* Website Link */}
                   <View className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4 mb-4">
                     <Text className="text-blue-700 dark:text-blue-300 text-sm font-semibold mb-2">🌐 Website</Text>
                     <Text className="text-blue-600 dark:text-blue-400 text-sm">
@@ -1377,6 +1559,7 @@ export default function CommunityScreen() {
                     </Text>
                   </View>
 
+                  {/* Getting Started */}
                   <View className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-xl p-4">
                     <Text className="text-emerald-700 dark:text-emerald-300 text-sm font-semibold mb-2">💡 Get Started</Text>
                     <Text className="text-emerald-600 dark:text-emerald-400 text-sm">

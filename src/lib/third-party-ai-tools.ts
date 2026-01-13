@@ -15,7 +15,34 @@ export interface ThirdPartyAITool {
   website: string;
   capabilities: string[];
   integrations: string[];
-  category: 'productivity' | 'sales' | 'marketing' | 'finance' | 'engineering' | 'operations';
+  category: 'productivity' | 'sales' | 'marketing' | 'finance' | 'engineering' | 'operations' | 'manufacturing';
+  // Optional detailed fields for enhanced modal
+  description?: string;
+  useCases?: string[];
+  keyFeatures?: string[];
+  pricing?: {
+    starter?: string;
+    professional?: string;
+    enterprise?: string;
+    notes?: string;
+  };
+  setup?: {
+    difficulty?: 'Easy' | 'Moderate' | 'Advanced';
+    timeToValue?: string;
+    requirements?: string[];
+  };
+  support?: {
+    documentation?: string;
+    community?: string;
+    email?: boolean;
+    phone?: boolean;
+  };
+  reviews?: {
+    rating?: number;
+    totalReviews?: number;
+    pros?: string[];
+    cons?: string[];
+  };
 }
 
 export const THIRD_PARTY_AI_TOOLS: ThirdPartyAITool[] = [
@@ -331,82 +358,212 @@ export const THIRD_PARTY_AI_TOOLS: ThirdPartyAITool[] = [
     category: 'operations',
   },
 
-  // ========== ENGINEERING (4 agents) ==========
+  // ========== ENGINEERING - Manufacturing AI (4 agents) ==========
   {
-    id: 'ai-eng-1',
-    name: 'GitHub Copilot',
-    provider: 'OpenAI',
-    purpose: 'Real-time code completion and suggestions',
+    id: 'ai-mfg-1',
+    name: 'Autodesk Fusion AI',
+    provider: 'Autodesk',
+    purpose: 'Generative design and AI-powered CAD for manufacturing optimization',
+    description: 'Autodesk Fusion 360 with AI capabilities enables engineers to create optimized designs by defining goals and constraints. The AI explores thousands of design alternatives, generating lightweight, manufacturable parts.',
     functions: ['Engineering'],
-    costPerMonth: 60,
-    website: 'https://github.com/features/copilot',
+    costPerMonth: 680,
+    website: 'https://autodesk.com/products/fusion-360',
     capabilities: [
-      'Code autocomplete',
-      'Function generation',
-      'Refactoring suggestions',
-      'Test generation',
-      'Documentation writing',
-      'Multi-language support',
+      'Generative design with manufacturing constraints',
+      'Topology optimization for weight reduction',
+      'DFM (Design for Manufacturing) analysis',
+      'Material selection optimization',
+      'Cost estimation and simulation',
+      'Multi-physics simulation',
     ],
-    integrations: ['VS Code', 'JetBrains IDEs', 'Neovim', 'GitHub'],
-    category: 'engineering',
+    integrations: ['SolidWorks', 'Inventor', 'STEP/IGES', 'CAM software', '3D printers'],
+    category: 'manufacturing',
+    useCases: [
+      'Optimize bracket designs for aerospace components',
+      'Reduce material costs while maintaining structural integrity',
+      'Generate multiple design alternatives for rapid prototyping',
+    ],
+    keyFeatures: [
+      'AI-driven generative design engine',
+      'Cloud-based collaboration',
+      'Integrated CAM and simulation',
+    ],
+    pricing: {
+      professional: '£680/month (includes AI features)',
+      enterprise: 'Custom pricing for teams',
+    },
+    setup: {
+      difficulty: 'Advanced',
+      timeToValue: '2-4 weeks',
+      requirements: ['Windows 10/11 or macOS', '8GB RAM minimum', 'GPU recommended'],
+    },
+    support: {
+      documentation: 'Extensive tutorials and API docs',
+      community: 'Active forums with 1M+ users',
+      email: true,
+      phone: true,
+    },
+    reviews: {
+      rating: 4.6,
+      totalReviews: 3200,
+      pros: ['Industry-leading generative design', 'Seamless CAD to CAM workflow', 'Cloud collaboration'],
+      cons: ['Steep learning curve', 'Requires powerful hardware'],
+    },
   },
   {
-    id: 'ai-eng-2',
-    name: 'Cursor AI',
-    provider: 'Cursor',
-    purpose: 'AI code editor with advanced IDE features',
+    id: 'ai-mfg-2',
+    name: 'Monolith AI',
+    provider: 'Monolith',
+    purpose: 'AI-powered FEA simulation that learns from your engineering data',
+    description: 'Monolith uses machine learning to dramatically speed up finite element analysis (FEA) simulations. Instead of waiting hours or days for traditional FEA results, Monolith provides near-instant predictions.',
     functions: ['Engineering'],
-    costPerMonth: 80,
-    website: 'https://cursor.sh',
+    costPerMonth: 850,
+    website: 'https://monolith.ai',
     capabilities: [
-      'Natural language code editing',
-      'Codebase understanding',
-      'Refactoring assistance',
-      'Bug detection',
-      'Code generation',
-      'Context-aware suggestions',
+      'Instant FEA predictions using ML',
+      'Multi-physics simulation acceleration',
+      'Design space exploration',
+      'Sensitivity analysis automation',
+      'Integration with CAE tools',
+      'Uncertainty quantification',
     ],
-    integrations: ['VS Code fork', 'GitHub', 'GitLab', 'Terminal'],
-    category: 'engineering',
+    integrations: ['ANSYS', 'Abaqus', 'LS-DYNA', 'Python', 'Excel'],
+    category: 'manufacturing',
+    useCases: [
+      'Reduce simulation time from days to minutes',
+      'Run thousands of design variations quickly',
+      'Predict structural failures before physical testing',
+    ],
+    keyFeatures: [
+      'Self-learning AI that improves over time',
+      'No simulation knowledge required',
+      'Explainable AI predictions',
+    ],
+    pricing: {
+      professional: '£850/month per user',
+      enterprise: 'Custom pricing',
+      notes: 'ROI typically within 3 months',
+    },
+    setup: {
+      difficulty: 'Moderate',
+      timeToValue: '1-2 weeks',
+      requirements: ['Historical FEA data', 'Python 3.7+', '16GB RAM'],
+    },
+    support: {
+      documentation: 'Comprehensive guides and case studies',
+      community: 'Slack workspace with engineers',
+      email: true,
+      phone: false,
+    },
+    reviews: {
+      rating: 4.8,
+      totalReviews: 180,
+      pros: ['Dramatic time savings (10-100x faster)', 'Accurate predictions', 'Easy integration'],
+      cons: ['Requires historical data', 'Premium pricing'],
+    },
   },
   {
-    id: 'ai-eng-3',
-    name: 'Replit Ghostwriter',
-    provider: 'Replit',
-    purpose: 'Code generation and debugging assistance',
-    functions: ['Engineering'],
-    costPerMonth: 40,
-    website: 'https://replit.com',
+    id: 'ai-mfg-3',
+    name: 'Paperless Parts',
+    provider: 'Paperless Parts',
+    purpose: 'AI-powered quoting and RFQ management for manufacturing',
+    description: 'Paperless Parts uses AI to automatically generate accurate quotes for CNC machining, sheet metal, and 3D printing. Upload CAD files and receive instant pricing, lead times, and DFM feedback.',
+    functions: ['Engineering', 'Ops'],
+    costPerMonth: 500,
+    website: 'https://paperlessparts.com',
     capabilities: [
-      'Code completion',
-      'Error explanation',
-      'Code generation',
-      'Debugging assistance',
-      'Terminal command suggestions',
-      'Package recommendations',
+      'Instant automated quoting from CAD',
+      'DFM analysis and recommendations',
+      'Material and finish selection',
+      'Lead time estimation',
+      'ERP/CRM integration',
+      'Customer portal for quotes',
     ],
-    integrations: ['Replit IDE', 'GitHub import', 'NPM', 'PyPI'],
-    category: 'engineering',
+    integrations: ['SolidWorks', 'Fusion 360', 'QuickBooks', 'Salesforce', 'NetSuite'],
+    category: 'manufacturing',
+    useCases: [
+      'Generate quotes in minutes instead of hours',
+      'Identify manufacturing issues before production',
+      'Track RFQs through entire lifecycle',
+    ],
+    keyFeatures: [
+      'Geometric analysis AI',
+      'Automated pricing algorithms',
+      'Customer self-service portal',
+    ],
+    pricing: {
+      professional: '£500/month + transaction fees',
+      enterprise: 'Custom pricing for high volume',
+    },
+    setup: {
+      difficulty: 'Easy',
+      timeToValue: '1 week',
+      requirements: ['CAD files in STEP/IGES', 'Pricing data', 'Web browser'],
+    },
+    support: {
+      documentation: 'Video tutorials and setup guides',
+      community: 'User forum and webinars',
+      email: true,
+      phone: true,
+    },
+    reviews: {
+      rating: 4.7,
+      totalReviews: 420,
+      pros: ['Massive time savings on quoting', 'Improved accuracy', 'Easy to implement'],
+      cons: ['Transaction fees can add up', 'Limited customization'],
+    },
   },
   {
-    id: 'ai-eng-4',
-    name: 'Tabnine',
-    provider: 'Tabnine',
-    purpose: 'Private code completion for sensitive codebases',
-    functions: ['Engineering'],
-    costPerMonth: 90,
-    website: 'https://tabnine.com',
+    id: 'ai-mfg-4',
+    name: 'Instrumental',
+    provider: 'Instrumental',
+    purpose: 'AI-powered manufacturing quality inspection and root cause analysis',
+    description: 'Instrumental uses computer vision and AI to automatically inspect products on manufacturing lines. Detects defects faster than human inspection and traces issues back to root causes.',
+    functions: ['Engineering', 'Ops'],
+    costPerMonth: 1200,
+    website: 'https://instrumental.com',
     capabilities: [
-      'On-premise code completion',
-      'Team model training',
-      'Context-aware suggestions',
-      'Code pattern learning',
-      'Security compliance',
-      'No data sharing',
+      'Automated optical inspection (AOI)',
+      'Defect detection and classification',
+      'Root cause analysis automation',
+      'Predictive quality analytics',
+      'Yield improvement tracking',
+      'Supplier quality monitoring',
     ],
-    integrations: ['VS Code', 'IntelliJ', 'PyCharm', 'WebStorm'],
-    category: 'engineering',
+    integrations: ['Custom cameras', 'MES systems', 'Slack', 'Jira', 'Webhooks'],
+    category: 'manufacturing',
+    useCases: [
+      'Catch defects early in production',
+      'Reduce scrap and rework costs',
+      'Improve first-pass yield rates',
+    ],
+    keyFeatures: [
+      'Computer vision AI for manufacturing',
+      'Real-time defect alerts',
+      'Trace defects to specific processes',
+    ],
+    pricing: {
+      professional: '£1,200/month per production line',
+      enterprise: 'Custom pricing for multiple facilities',
+      notes: 'Includes hardware and software',
+    },
+    setup: {
+      difficulty: 'Moderate',
+      timeToValue: '4-6 weeks',
+      requirements: ['Production line access', 'Network connectivity', 'Training data'],
+    },
+    support: {
+      documentation: 'Implementation guides and API docs',
+      community: 'Private customer Slack',
+      email: true,
+      phone: true,
+    },
+    reviews: {
+      rating: 4.5,
+      totalReviews: 95,
+      pros: ['Significantly improves quality metrics', 'Fast detection', 'Great analytics'],
+      cons: ['High initial investment', 'Requires good lighting'],
+    },
   },
 
   // ========== ADMIN/ALL (4 agents) ==========
@@ -508,6 +665,7 @@ export function getCategoryColor(category: string): { bg: string; text: string; 
     finance: { bg: 'bg-purple-100 dark:bg-purple-900/30', text: 'text-purple-900 dark:text-purple-100', border: 'border-purple-200 dark:border-purple-800', iconColor: '#a855f7' },
     engineering: { bg: 'bg-cyan-100 dark:bg-cyan-900/30', text: 'text-cyan-900 dark:text-cyan-100', border: 'border-cyan-200 dark:border-cyan-800', iconColor: '#06b6d4' },
     operations: { bg: 'bg-amber-100 dark:bg-amber-900/30', text: 'text-amber-900 dark:text-amber-100', border: 'border-amber-200 dark:border-amber-800', iconColor: '#f59e0b' },
+    manufacturing: { bg: 'bg-orange-100 dark:bg-orange-900/30', text: 'text-orange-900 dark:text-orange-100', border: 'border-orange-200 dark:border-orange-800', iconColor: '#f97316' },
   };
   return colors[category] || colors.productivity;
 }
