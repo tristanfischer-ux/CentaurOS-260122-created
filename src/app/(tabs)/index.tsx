@@ -435,16 +435,28 @@ const APPRENTICE_DATA = {
                 </Pressable>
               </View>
 
-              {/* View Org Chart Button */}
-              <Pressable
-                onPress={() => router.push('/org-diagram')}
-                className="bg-blue-500 rounded-xl py-3 mt-3 items-center active:opacity-80"
-              >
-                <View className="flex-row items-center">
-                  <Building2 size={18} color="#fff" />
-                  <Text className="text-white font-bold ml-2">View Organization Chart</Text>
-                </View>
-              </Pressable>
+              {/* Action Buttons */}
+              <View className="flex-row gap-2 mt-3">
+                <Pressable
+                  onPress={() => router.push('/org-diagram')}
+                  className="flex-1 bg-blue-500 rounded-xl py-3 items-center active:opacity-80"
+                >
+                  <View className="flex-row items-center">
+                    <Building2 size={18} color="#fff" />
+                    <Text className="text-white font-bold ml-2">Org Chart</Text>
+                  </View>
+                </Pressable>
+
+                <Pressable
+                  onPress={() => router.push('/create-team')}
+                  className="flex-1 bg-emerald-500 rounded-xl py-3 items-center active:opacity-80"
+                >
+                  <View className="flex-row items-center">
+                    <Users size={18} color="#fff" />
+                    <Text className="text-white font-bold ml-2">Create Team</Text>
+                  </View>
+                </Pressable>
+              </View>
             </View>
 
             {/* Financial Overview */}
