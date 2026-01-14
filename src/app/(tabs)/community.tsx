@@ -131,6 +131,7 @@ export default function CommunityScreen() {
   // Compare mode
   const [compareMode, setCompareMode] = useState(false);
   const [compareIds, setCompareIds] = useState<string[]>([]);
+  const [showCompareModal, setShowCompareModal] = useState(false);
 
   // Application state
   const [showApplicationModal, setShowApplicationModal] = useState(false);
@@ -1259,7 +1260,7 @@ export default function CommunityScreen() {
               </Pressable>
               {compareIds.length >= 2 && (
                 <Pressable
-                  onPress={() => Alert.alert('Compare', 'Comparison view coming soon!')}
+                  onPress={() => setShowCompareModal(true)}
                   className="bg-white px-4 py-2 rounded-lg active:opacity-70"
                 >
                   <Text className="text-blue-500 font-bold">Compare</Text>
@@ -1947,6 +1948,363 @@ export default function CommunityScreen() {
               </View>
             </View>
           )}
+        </View>
+      </Modal>
+
+      {/* Candidate Comparison Modal */}
+      <Modal
+        visible={showCompareModal}
+        transparent
+        animationType="slide"
+        presentationStyle="pageSheet"
+        onRequestClose={() => setShowCompareModal(false)}
+      >
+        <View className="flex-1 bg-black/70 justify-end">
+          <View className="bg-white dark:bg-slate-950 rounded-t-3xl flex-1" style={{ maxHeight: '95%' }}>
+            {/* Header */}
+            <View className="px-6 pt-6 pb-4 border-b border-gray-200 dark:border-slate-800">
+              <View className="flex-row items-center justify-between">
+                <View>
+                  <Text className="text-gray-900 dark:text-white text-2xl font-bold">
+                    Compare Candidates
+                  </Text>
+                  <Text className="text-gray-500 dark:text-slate-400 text-sm mt-1">
+                    Side-by-side talent comparison
+                  </Text>
+                </View>
+                <Pressable
+                  onPress={() => setShowCompareModal(false)}
+                  hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                  className="w-10 h-10 items-center justify-center rounded-full bg-gray-100 dark:bg-slate-900 active:opacity-70"
+                >
+                  <X size={24} color="#64748b" />
+                </Pressable>
+              </View>
+            </View>
+
+            <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
+              {(() => {
+                const candidatesToCompare = compareIds.map(id => {
+                  const exec = scoredExecutives.find(e => e.id === id);
+                  if (exec) return exec;
+                  return scoredApprentices.find(a => a.id === id);
+                }).filter(Boolean) as (typeof scoredExecutives[0] | typeof scoredApprentices[0])[];
+
+                if (candidatesToCompare.length < 2) {
+                  return (
+                    <View className="flex-1 items-center justify-center py-20">
+                      <Scale size={48} color="#64748b" />
+                      <Text className="text-gray-500 dark:text-slate-400 text-center mt-4">
+                        Select at least 2 candidates to compare
+                      </Text>
+                    </View>
+                  );
+                }
+
+                const getBestValue = (field: 'overall' | 'experience' | 'costPerDay' | 'rating', higherIsBetter = true) => {
+                  if (field === 'overall') {
+                    const values = candidatesToCompare.map(c => c.score.overall);
+                    return higherIsBetter ? Math.max(...values) : Math.min(...values);
+                  }
+                  const values = candidatesToCompare.map(c => c[field as keyof typeof c] as number);
+                  return higherIsBetter ? Math.max(...values) : Math.min(...values);
+                };
+
+                const bestOverall = getBestValue('overall', true);
+                const bestExperience = getBestValue('experience', true);
+                const bestCost = getBestValue('costPerDay', false);
+                const bestRating = getBestValue('rating', true);
+
+                return (
+                  <View className="px-4 py-6">
+                    {/* Candidate Headers */}
+                    <View className="flex-row gap-2 mb-6">
+                      {candidatesToCompare.map((candidate, idx) => (
+                        <View key={candidate.id} className="flex-1">
+                          <View className={`rounded-xl p-4 ${
+                            candidate.role === 'FractionalExec'
+                              ? 'bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800'
+                              : 'bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800'
+                          }`}>
+                            <View className={`w-12 h-12 rounded-full items-center justify-center mb-2 ${
+                              candidate.role === 'FractionalExec' ? 'bg-emerald-500' : 'bg-purple-500'
+                            }`}>
+                              <Text className="text-white text-lg font-bold">
+                                {candidate.name.split(' ').map(n => n[0]).join('')}
+                              </Text>
+                            </View>
+                            <Text className="text-gray-900 dark:text-white font-bold text-sm" numberOfLines={1}>
+                              {candidate.name}
+                            </Text>
+                            <Text className={`text-xs font-medium ${
+                              candidate.role === 'FractionalExec'
+                                ? 'text-emerald-600 dark:text-emerald-400'
+                                : 'text-purple-600 dark:text-purple-400'
+                            }`}>
+                              {candidate.role === 'FractionalExec' ? 'Executive' : 'Apprentice'}
+                            </Text>
+                          </View>
+                        </View>
+                      ))}
+                    </View>
+
+                    {/* Match Score Comparison */}
+                    <View className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4 mb-4">
+                      <View className="flex-row items-center mb-3">
+                        <Target size={18} color="#3b82f6" />
+                        <Text className="text-blue-700 dark:text-blue-300 font-bold ml-2">Match Score</Text>
+                      </View>
+                      <View className="flex-row gap-2">
+                        {candidatesToCompare.map((candidate) => (
+                          <View key={candidate.id} className="flex-1 items-center">
+                            <View className={`w-16 h-16 rounded-full items-center justify-center ${
+                              candidate.score.overall === bestOverall
+                                ? 'bg-blue-500'
+                                : 'bg-gray-300 dark:bg-slate-600'
+                            }`}>
+                              <Text className="text-white text-xl font-bold">{candidate.score.overall}</Text>
+                            </View>
+                            {candidate.score.overall === bestOverall && (
+                              <View className="flex-row items-center mt-1">
+                                <Crown size={12} color="#f59e0b" />
+                                <Text className="text-amber-600 dark:text-amber-400 text-xs font-semibold ml-1">Best</Text>
+                              </View>
+                            )}
+                          </View>
+                        ))}
+                      </View>
+                    </View>
+
+                    {/* Experience Comparison */}
+                    <View className="bg-gray-100 dark:bg-slate-800 rounded-xl p-4 mb-4">
+                      <View className="flex-row items-center mb-3">
+                        <Briefcase size={18} color="#64748b" />
+                        <Text className="text-gray-700 dark:text-slate-300 font-bold ml-2">Experience</Text>
+                      </View>
+                      <View className="flex-row gap-2">
+                        {candidatesToCompare.map((candidate) => (
+                          <View key={candidate.id} className={`flex-1 rounded-lg p-3 ${
+                            candidate.experience === bestExperience
+                              ? 'bg-emerald-100 dark:bg-emerald-900/30 border border-emerald-300 dark:border-emerald-700'
+                              : 'bg-white dark:bg-slate-700'
+                          }`}>
+                            <Text className={`text-2xl font-bold text-center ${
+                              candidate.experience === bestExperience
+                                ? 'text-emerald-700 dark:text-emerald-300'
+                                : 'text-gray-900 dark:text-white'
+                            }`}>
+                              {candidate.experience}
+                            </Text>
+                            <Text className="text-gray-500 dark:text-slate-400 text-xs text-center">years</Text>
+                          </View>
+                        ))}
+                      </View>
+                    </View>
+
+                    {/* Cost Comparison */}
+                    <View className="bg-gray-100 dark:bg-slate-800 rounded-xl p-4 mb-4">
+                      <View className="flex-row items-center mb-3">
+                        <DollarSign size={18} color="#64748b" />
+                        <Text className="text-gray-700 dark:text-slate-300 font-bold ml-2">Daily Rate</Text>
+                      </View>
+                      <View className="flex-row gap-2">
+                        {candidatesToCompare.map((candidate) => (
+                          <View key={candidate.id} className={`flex-1 rounded-lg p-3 ${
+                            candidate.costPerDay === bestCost
+                              ? 'bg-emerald-100 dark:bg-emerald-900/30 border border-emerald-300 dark:border-emerald-700'
+                              : 'bg-white dark:bg-slate-700'
+                          }`}>
+                            <Text className={`text-xl font-bold text-center ${
+                              candidate.costPerDay === bestCost
+                                ? 'text-emerald-700 dark:text-emerald-300'
+                                : 'text-gray-900 dark:text-white'
+                            }`}>
+                              £{candidate.costPerDay}
+                            </Text>
+                            <Text className="text-gray-500 dark:text-slate-400 text-xs text-center">per day</Text>
+                            {candidate.costPerDay === bestCost && (
+                              <Text className="text-emerald-600 dark:text-emerald-400 text-xs text-center font-semibold mt-1">Best Value</Text>
+                            )}
+                          </View>
+                        ))}
+                      </View>
+                    </View>
+
+                    {/* Rating Comparison */}
+                    <View className="bg-gray-100 dark:bg-slate-800 rounded-xl p-4 mb-4">
+                      <View className="flex-row items-center mb-3">
+                        <Star size={18} color="#f59e0b" fill="#f59e0b" />
+                        <Text className="text-gray-700 dark:text-slate-300 font-bold ml-2">Rating</Text>
+                      </View>
+                      <View className="flex-row gap-2">
+                        {candidatesToCompare.map((candidate) => (
+                          <View key={candidate.id} className={`flex-1 rounded-lg p-3 ${
+                            candidate.rating === bestRating
+                              ? 'bg-amber-100 dark:bg-amber-900/30 border border-amber-300 dark:border-amber-700'
+                              : 'bg-white dark:bg-slate-700'
+                          }`}>
+                            <View className="flex-row items-center justify-center">
+                              <Star size={16} color="#f59e0b" fill="#f59e0b" />
+                              <Text className={`text-xl font-bold ml-1 ${
+                                candidate.rating === bestRating
+                                  ? 'text-amber-700 dark:text-amber-300'
+                                  : 'text-gray-900 dark:text-white'
+                              }`}>
+                                {candidate.rating}
+                              </Text>
+                            </View>
+                          </View>
+                        ))}
+                      </View>
+                    </View>
+
+                    {/* Availability Comparison */}
+                    <View className="bg-gray-100 dark:bg-slate-800 rounded-xl p-4 mb-4">
+                      <View className="flex-row items-center mb-3">
+                        <Clock size={18} color="#64748b" />
+                        <Text className="text-gray-700 dark:text-slate-300 font-bold ml-2">Availability</Text>
+                      </View>
+                      <View className="flex-row gap-2">
+                        {candidatesToCompare.map((candidate) => {
+                          const isAvailableNow = candidate.availability.toLowerCase().includes('now');
+                          return (
+                            <View key={candidate.id} className={`flex-1 rounded-lg p-3 ${
+                              isAvailableNow
+                                ? 'bg-emerald-100 dark:bg-emerald-900/30 border border-emerald-300 dark:border-emerald-700'
+                                : 'bg-amber-100 dark:bg-amber-900/30 border border-amber-300 dark:border-amber-700'
+                            }`}>
+                              <Text className={`text-sm font-semibold text-center ${
+                                isAvailableNow
+                                  ? 'text-emerald-700 dark:text-emerald-300'
+                                  : 'text-amber-700 dark:text-amber-300'
+                              }`} numberOfLines={2}>
+                                {candidate.availability}
+                              </Text>
+                            </View>
+                          );
+                        })}
+                      </View>
+                    </View>
+
+                    {/* Skills Comparison */}
+                    <View className="bg-gray-100 dark:bg-slate-800 rounded-xl p-4 mb-4">
+                      <View className="flex-row items-center mb-3">
+                        <Layers size={18} color="#64748b" />
+                        <Text className="text-gray-700 dark:text-slate-300 font-bold ml-2">Top Skills</Text>
+                      </View>
+                      <View className="flex-row gap-2">
+                        {candidatesToCompare.map((candidate) => (
+                          <View key={candidate.id} className="flex-1">
+                            {candidate.skills.slice(0, 4).map((skill, idx) => (
+                              <View key={idx} className="bg-white dark:bg-slate-700 rounded-lg px-2 py-1.5 mb-1">
+                                <Text className="text-gray-700 dark:text-slate-300 text-xs text-center" numberOfLines={1}>
+                                  {skill}
+                                </Text>
+                              </View>
+                            ))}
+                          </View>
+                        ))}
+                      </View>
+                    </View>
+
+                    {/* Specialization Comparison */}
+                    <View className="bg-gray-100 dark:bg-slate-800 rounded-xl p-4 mb-4">
+                      <View className="flex-row items-center mb-3">
+                        <Award size={18} color="#64748b" />
+                        <Text className="text-gray-700 dark:text-slate-300 font-bold ml-2">Specialization</Text>
+                      </View>
+                      <View className="flex-row gap-2">
+                        {candidatesToCompare.map((candidate) => (
+                          <View key={candidate.id} className="flex-1">
+                            {candidate.specialization.map((spec, idx) => (
+                              <View key={idx} className="bg-blue-100 dark:bg-blue-900/30 rounded-lg px-2 py-1.5 mb-1">
+                                <Text className="text-blue-700 dark:text-blue-300 text-xs text-center font-medium" numberOfLines={1}>
+                                  {spec}
+                                </Text>
+                              </View>
+                            ))}
+                          </View>
+                        ))}
+                      </View>
+                    </View>
+
+                    {/* Location Comparison */}
+                    <View className="bg-gray-100 dark:bg-slate-800 rounded-xl p-4 mb-6">
+                      <View className="flex-row items-center mb-3">
+                        <MapPin size={18} color="#64748b" />
+                        <Text className="text-gray-700 dark:text-slate-300 font-bold ml-2">Location</Text>
+                      </View>
+                      <View className="flex-row gap-2">
+                        {candidatesToCompare.map((candidate) => (
+                          <View key={candidate.id} className="flex-1 bg-white dark:bg-slate-700 rounded-lg p-3">
+                            <Text className="text-gray-700 dark:text-slate-300 text-sm text-center" numberOfLines={2}>
+                              {candidate.location}
+                            </Text>
+                          </View>
+                        ))}
+                      </View>
+                    </View>
+
+                    {/* Summary Card */}
+                    <View className="bg-gradient-to-r from-blue-50 to-emerald-50 dark:from-blue-900/20 dark:to-emerald-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4 mb-6">
+                      <View className="flex-row items-center mb-3">
+                        <Sparkles size={18} color="#3b82f6" />
+                        <Text className="text-blue-700 dark:text-blue-300 font-bold ml-2">Quick Recommendation</Text>
+                      </View>
+                      {(() => {
+                        const topCandidate = candidatesToCompare.reduce((best, current) =>
+                          current.score.overall > best.score.overall ? current : best
+                        );
+                        return (
+                          <View className="flex-row items-center">
+                            <View className={`w-10 h-10 rounded-full items-center justify-center ${
+                              topCandidate.role === 'FractionalExec' ? 'bg-emerald-500' : 'bg-purple-500'
+                            }`}>
+                              <Text className="text-white font-bold">
+                                {topCandidate.name.split(' ').map(n => n[0]).join('')}
+                              </Text>
+                            </View>
+                            <View className="ml-3 flex-1">
+                              <Text className="text-gray-900 dark:text-white font-bold">
+                                {topCandidate.name}
+                              </Text>
+                              <Text className="text-gray-600 dark:text-slate-400 text-sm">
+                                Highest match score ({topCandidate.score.overall}/100)
+                              </Text>
+                            </View>
+                            <Crown size={24} color="#f59e0b" />
+                          </View>
+                        );
+                      })()}
+                    </View>
+
+                    {/* Action Buttons */}
+                    <View className="flex-row gap-3">
+                      {candidatesToCompare.map((candidate) => (
+                        <Pressable
+                          key={candidate.id}
+                          onPress={() => {
+                            setShowCompareModal(false);
+                            setSelectedCandidate(candidate);
+                            setShowProfileModal(true);
+                          }}
+                          className={`flex-1 py-3 rounded-xl items-center active:opacity-70 ${
+                            candidate.role === 'FractionalExec'
+                              ? 'bg-emerald-500'
+                              : 'bg-purple-500'
+                          }`}
+                        >
+                          <Text className="text-white font-bold text-sm" numberOfLines={1}>
+                            View {candidate.name.split(' ')[0]}
+                          </Text>
+                        </Pressable>
+                      ))}
+                    </View>
+                  </View>
+                );
+              })()}
+            </ScrollView>
+          </View>
         </View>
       </Modal>
     </View>
