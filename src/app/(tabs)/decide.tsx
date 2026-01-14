@@ -251,6 +251,51 @@ export default function DecideScreen() {
       .filter((m): m is OrganizationMember => m !== undefined);
   };
 
+  // Calculate task costs based on assigned members and squares
+  const calculateTaskCost = (workPlan: WorkPlan) => {
+    const assignedMembers = getAssignedMembers(workPlan);
+    const totalSquares = workPlan.estimatedTimeUnits;
+    const allocatedPerWeek = workPlan.allocatedTimeUnitsPerWeek || 2; // Default 2□/week
+    const remainingSquares = Math.ceil(totalSquares * (1 - workPlan.progress / 100));
+
+    // Calculate average cost per square from assigned members
+    // Cost per square = costPerDay / 2 (since 1 day = 2 squares)
+    let avgCostPerSquare = 0;
+    if (assignedMembers.length > 0) {
+      const totalCostPerSquare = assignedMembers.reduce((sum, member) => {
+        const costPerSquare = (member.costPerDay || 0) / 2;
+        return sum + costPerSquare;
+      }, 0);
+      avgCostPerSquare = totalCostPerSquare / assignedMembers.length;
+    } else {
+      // Default estimate if no members assigned (use apprentice rate)
+      avgCostPerSquare = 75; // £150/day / 2
+    }
+
+    // Cumulative cost = total squares × average cost per square
+    const cumulativeCost = Math.round(totalSquares * avgCostPerSquare);
+
+    // Remaining cost = remaining squares × average cost per square
+    const remainingCost = Math.round(remainingSquares * avgCostPerSquare);
+
+    // Cost per week = allocated squares per week × average cost per square
+    const costPerWeek = Math.round(allocatedPerWeek * avgCostPerSquare);
+
+    // Weeks to complete = remaining squares / allocated per week
+    const weeksToComplete = allocatedPerWeek > 0 ? Math.ceil(remainingSquares / allocatedPerWeek) : 0;
+
+    return {
+      cumulativeCost,
+      remainingCost,
+      costPerWeek,
+      weeksToComplete,
+      avgCostPerSquare,
+      allocatedPerWeek,
+      totalSquares,
+      remainingSquares,
+    };
+  };
+
   // Handle hiring a new team member
   const handleHireNewMember = () => {
     if (!hireName.trim()) {
@@ -1082,7 +1127,7 @@ export default function DecideScreen() {
                               {okr.title}
                             </Text>
 
-                            <View className="flex-row items-center mt-1 gap-3">
+                            <View className="flex-row items-center mt-1 gap-3 flex-wrap">
                               <Text className="text-emerald-600 dark:text-emerald-400 text-xs font-medium">
                                 {linkedPlans.length} task{linkedPlans.length !== 1 ? 's' : ''}
                               </Text>
@@ -1090,25 +1135,33 @@ export default function DecideScreen() {
                                 {okr.objectives.length} KRs
                               </Text>
                               {linkedPlans.length > 0 && (
-                                <View className="flex-row items-center">
-                                  <View className="flex-row items-center gap-0.5">
-                                    {Array.from({ length: Math.min(linkedPlans.reduce((sum, p) => sum + p.estimatedTimeUnits, 0), 5) }).map((_, i) => {
-                                      const completedSquares = linkedPlans.reduce((sum, p) => sum + Math.round((p.progress / 100) * p.estimatedTimeUnits), 0);
-                                      return (
-                                        <View
-                                          key={i}
-                                          className="w-2 h-2 rounded-sm"
-                                          style={{
-                                            backgroundColor: i < completedSquares ? '#10b981' : '#d1d5db',
-                                          }}
-                                        />
-                                      );
-                                    })}
+                                <>
+                                  <View className="flex-row items-center">
+                                    <View className="flex-row items-center gap-0.5">
+                                      {Array.from({ length: Math.min(linkedPlans.reduce((sum, p) => sum + p.estimatedTimeUnits, 0), 5) }).map((_, i) => {
+                                        const completedSquares = linkedPlans.reduce((sum, p) => sum + Math.round((p.progress / 100) * p.estimatedTimeUnits), 0);
+                                        return (
+                                          <View
+                                            key={i}
+                                            className="w-2 h-2 rounded-sm"
+                                            style={{
+                                              backgroundColor: i < completedSquares ? '#10b981' : '#d1d5db',
+                                            }}
+                                          />
+                                        );
+                                      })}
+                                    </View>
+                                    <Text className="text-gray-500 dark:text-slate-400 text-[10px] ml-1">
+                                      {linkedPlans.reduce((sum, p) => sum + p.estimatedTimeUnits, 0)}□
+                                    </Text>
                                   </View>
-                                  <Text className="text-gray-500 dark:text-slate-400 text-[10px] ml-1">
-                                    {linkedPlans.reduce((sum, p) => sum + p.estimatedTimeUnits, 0)}□
-                                  </Text>
-                                </View>
+                                  {/* OKR Total Cost */}
+                                  <View className="bg-emerald-50 dark:bg-emerald-900/20 px-1.5 py-0.5 rounded">
+                                    <Text className="text-emerald-700 dark:text-emerald-300 text-[10px] font-semibold">
+                                      £{linkedPlans.reduce((sum, p) => sum + calculateTaskCost(p).cumulativeCost, 0).toLocaleString()}
+                                    </Text>
+                                  </View>
+                                </>
                               )}
                             </View>
                           </View>
@@ -1127,6 +1180,7 @@ export default function DecideScreen() {
                         {/* Work Plans (Tasks) with Assigned Members - Draggable */}
                         {linkedPlans.map((plan) => {
                           const assignedMembers = getAssignedMembers(plan);
+                          const taskCost = calculateTaskCost(plan);
                           return (
                             <DraggableTaskCard
                               key={plan.id}
@@ -1216,18 +1270,47 @@ export default function DecideScreen() {
                                   />
                                 </View>
 
-                                {/* Squares Display */}
-                                <View className="mt-2">
-                                  <SquaresDisplay
-                                    totalSquares={plan.estimatedTimeUnits}
-                                    completedSquares={Math.round((plan.progress / 100) * plan.estimatedTimeUnits)}
-                                    variant="compact"
-                                    statusColor={
-                                      plan.status === 'completed' ? '#10b981' :
-                                      plan.status === 'blocked' ? '#ef4444' : '#3b82f6'
-                                    }
-                                  />
+                                {/* Squares & Cost Display */}
+                                <View className="mt-2 flex-row items-center justify-between">
+                                  <View className="flex-row items-center gap-2">
+                                    <SquaresDisplay
+                                      totalSquares={plan.estimatedTimeUnits}
+                                      completedSquares={Math.round((plan.progress / 100) * plan.estimatedTimeUnits)}
+                                      variant="compact"
+                                      statusColor={
+                                        plan.status === 'completed' ? '#10b981' :
+                                        plan.status === 'blocked' ? '#ef4444' : '#3b82f6'
+                                      }
+                                    />
+                                    <Text className="text-gray-400 dark:text-slate-500 text-[10px]">
+                                      {taskCost.allocatedPerWeek}□/wk
+                                    </Text>
+                                  </View>
+
+                                  {/* Cost Information */}
+                                  <View className="flex-row items-center gap-2">
+                                    <View className="bg-emerald-50 dark:bg-emerald-900/20 px-1.5 py-0.5 rounded">
+                                      <Text className="text-emerald-700 dark:text-emerald-300 text-[10px] font-semibold">
+                                        £{taskCost.cumulativeCost.toLocaleString()} total
+                                      </Text>
+                                    </View>
+                                    <View className="bg-blue-50 dark:bg-blue-900/20 px-1.5 py-0.5 rounded">
+                                      <Text className="text-blue-700 dark:text-blue-300 text-[10px] font-semibold">
+                                        £{taskCost.costPerWeek}/wk
+                                      </Text>
+                                    </View>
+                                  </View>
                                 </View>
+
+                                {/* Time to complete estimate */}
+                                {plan.progress < 100 && taskCost.weeksToComplete > 0 && (
+                                  <View className="mt-1.5 flex-row items-center">
+                                    <Clock size={10} color="#9ca3af" />
+                                    <Text className="text-gray-400 dark:text-slate-500 text-[10px] ml-1">
+                                      {taskCost.weeksToComplete} wk{taskCost.weeksToComplete !== 1 ? 's' : ''} remaining • £{taskCost.remainingCost.toLocaleString()} left
+                                    </Text>
+                                  </View>
+                                )}
                               </View>
                             </DraggableTaskCard>
                           );

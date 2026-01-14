@@ -93,9 +93,23 @@ AI tools provide a multiplier effect that reduces effort:
 
 ### Task Cost Calculation
 
+Each task displays:
+- **Cumulative Cost (£X total)**: Total squares × Average cost per square of assigned members
+- **Weekly Cost (£X/wk)**: Allocated squares per week × Average cost per square
+- **Time Remaining**: Weeks to complete based on current allocation
+- **Remaining Cost**: Cost to finish the remaining work
+
 ```
-Task Cost = (Person Squares × Person Cost/Square × Weeks) + (Effective Squares × AI Cost/Square)
+Cost per Square = Person's Day Rate ÷ 2 (since 1 day = 2 squares)
+Cumulative Cost = Total Squares × Average Cost per Square
+Cost per Week = Allocated Squares/Week × Average Cost per Square
 ```
+
+**Example**: A task with 10□ at 2□/week, assigned to an apprentice at £150/day:
+- Cost per □ = £150 ÷ 2 = £75
+- Cumulative Cost = 10 × £75 = £750 total
+- Cost per Week = 2 × £75 = £150/wk
+- Weeks to complete = 10 ÷ 2 = 5 weeks
 
 ### Visual Indicators
 
