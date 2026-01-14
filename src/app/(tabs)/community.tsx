@@ -1,6 +1,7 @@
-import { View, Text, ScrollView, Pressable, Modal, TextInput, Alert, KeyboardAvoidingView, Platform } from 'react-native';
-import { useState } from 'react';
+import { View, Text, ScrollView, Pressable, Modal, TextInput, Alert, KeyboardAvoidingView, Platform, Dimensions } from 'react-native';
+import { useState, useMemo } from 'react';
 import * as DocumentPicker from 'expo-document-picker';
+import Animated, { FadeInDown, FadeInRight, useAnimatedStyle, withSpring, useSharedValue, withTiming } from 'react-native-reanimated';
 import {
   Users,
   Briefcase,
@@ -19,6 +20,23 @@ import {
   Bot,
   Calendar,
   BookOpen,
+  Search,
+  TrendingUp,
+  Clock,
+  DollarSign,
+  ChevronRight,
+  Crown,
+  Zap,
+  Target,
+  Sparkles,
+  ArrowUpRight,
+  Heart,
+  Scale,
+  MapPin,
+  GraduationCap,
+  BadgeCheck,
+  Layers,
+  SlidersHorizontal,
 } from 'lucide-react-native';
 import { router } from 'expo-router';
 import { fractionalExecutives, apprentices, type Candidate } from '@/lib/candidates-seed';
@@ -30,7 +48,56 @@ import { useSupplierStore } from '@/lib/state/supplier-store';
 import type { Supplier } from '@/types';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-type CommunityTab = 'executives' | 'apprentices' | 'suppliers' | 'ai-agents' | 'apply';
+type CommunityTab = 'discover' | 'executives' | 'apprentices' | 'suppliers' | 'ai-agents' | 'shortlist' | 'apply';
+
+// Talent scoring algorithm - headhunter-grade matching
+interface TalentScore {
+  overall: number;
+  experienceScore: number;
+  availabilityScore: number;
+  valueScore: number; // cost vs experience ratio
+  skillMatch: number;
+}
+
+function calculateTalentScore(candidate: Candidate, searchQuery: string, desiredSkills: string[]): TalentScore {
+  // Experience score (0-25 points)
+  const experienceScore = Math.min(25, (candidate.experience / 20) * 25);
+
+  // Availability score (0-25 points)
+  const availabilityScore = candidate.availability.toLowerCase().includes('now') ? 25 :
+    candidate.availability.toLowerCase().includes('jan') ? 18 : 12;
+
+  // Value score - cost efficiency (0-25 points)
+  const avgCost = candidate.role === 'FractionalExec' ? 850 : 350;
+  const valueScore = Math.max(0, 25 - ((candidate.costPerDay - avgCost) / avgCost) * 15);
+
+  // Skill match (0-25 points)
+  let skillMatch = 0;
+  if (desiredSkills.length > 0) {
+    const matchedSkills = candidate.skills.filter(s =>
+      desiredSkills.some(ds => s.toLowerCase().includes(ds.toLowerCase()))
+    );
+    skillMatch = (matchedSkills.length / Math.max(desiredSkills.length, 1)) * 25;
+  } else if (searchQuery) {
+    const queryLower = searchQuery.toLowerCase();
+    const matchesName = candidate.name.toLowerCase().includes(queryLower);
+    const matchesSkills = candidate.skills.some(s => s.toLowerCase().includes(queryLower));
+    const matchesSpec = candidate.specialization.some(s => s.toLowerCase().includes(queryLower));
+    skillMatch = (matchesName ? 10 : 0) + (matchesSkills ? 10 : 0) + (matchesSpec ? 5 : 0);
+  } else {
+    skillMatch = 15; // Base score when no filter
+  }
+
+  return {
+    overall: Math.round(experienceScore + availabilityScore + valueScore + skillMatch),
+    experienceScore: Math.round(experienceScore),
+    availabilityScore: Math.round(availabilityScore),
+    valueScore: Math.round(valueScore),
+    skillMatch: Math.round(skillMatch),
+  };
+}
+
+const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
 export default function CommunityScreen() {
   const insets = useSafeAreaInsets();
@@ -40,7 +107,7 @@ export default function CommunityScreen() {
   const selectedSupplierFromStore = useSupplierStore((s) => s.selectedSupplier);
   const searchSuppliers = useSupplierStore((s) => s.searchSuppliers);
 
-  const [activeTab, setActiveTab] = useState<CommunityTab>('executives');
+  const [activeTab, setActiveTab] = useState<CommunityTab>('discover');
   const [selectedCandidate, setSelectedCandidate] = useState<Candidate | null>(null);
   const [selectedAIAgent, setSelectedAIAgent] = useState<ThirdPartyAITool | null>(null);
   const [selectedAIFunction, setSelectedAIFunction] = useState<BusinessFunction | 'all'>('all');
@@ -52,6 +119,18 @@ export default function CommunityScreen() {
   const [showRequestModal, setShowRequestModal] = useState(false);
   const [requestType, setRequestType] = useState<'executive' | 'apprentice' | 'supplier' | null>(null);
   const [requestNotes, setRequestNotes] = useState('');
+
+  // Advanced filters
+  const [minExperience, setMinExperience] = useState(0);
+  const [maxCost, setMaxCost] = useState(2000);
+  const [availabilityFilter, setAvailabilityFilter] = useState<'all' | 'now' | 'soon'>('all');
+
+  // Shortlist functionality
+  const [shortlistedIds, setShortlistedIds] = useState<Set<string>>(new Set());
+
+  // Compare mode
+  const [compareMode, setCompareMode] = useState(false);
+  const [compareIds, setCompareIds] = useState<string[]>([]);
 
   // Application state
   const [showApplicationModal, setShowApplicationModal] = useState(false);
@@ -65,29 +144,52 @@ export default function CommunityScreen() {
 
   const isFounder = currentMembership?.role === 'Founder';
 
-  // Filter executives
-  const filteredExecutives = fractionalExecutives.filter((exec) => {
-    const matchesSearch = searchQuery === '' ||
-      exec.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      exec.skills.some(skill => skill.toLowerCase().includes(searchQuery.toLowerCase())) ||
-      exec.specialization.some(spec => spec.toLowerCase().includes(searchQuery.toLowerCase()));
+  // Scored and filtered executives
+  const scoredExecutives = useMemo(() => {
+    const desiredSkills = searchQuery.split(',').map(s => s.trim()).filter(Boolean);
+    return fractionalExecutives
+      .map(exec => ({
+        ...exec,
+        score: calculateTalentScore(exec, searchQuery, desiredSkills),
+      }))
+      .filter(exec => {
+        const matchesSearch = searchQuery === '' ||
+          exec.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          exec.skills.some(skill => skill.toLowerCase().includes(searchQuery.toLowerCase())) ||
+          exec.specialization.some(spec => spec.toLowerCase().includes(searchQuery.toLowerCase()));
 
-    const matchesFunction = selectedFunction === 'all' || exec.specialization.includes(selectedFunction as any);
+        const matchesFunction = selectedFunction === 'all' || exec.specialization.includes(selectedFunction as any);
+        const matchesExperience = exec.experience >= minExperience;
+        const matchesCost = exec.costPerDay <= maxCost;
+        const matchesAvailability = availabilityFilter === 'all' ||
+          (availabilityFilter === 'now' && exec.availability.toLowerCase().includes('now')) ||
+          (availabilityFilter === 'soon' && !exec.availability.toLowerCase().includes('now'));
 
-    return matchesSearch && matchesFunction;
-  });
+        return matchesSearch && matchesFunction && matchesExperience && matchesCost && matchesAvailability;
+      })
+      .sort((a, b) => b.score.overall - a.score.overall);
+  }, [searchQuery, selectedFunction, minExperience, maxCost, availabilityFilter]);
 
-  // Filter apprentices
-  const filteredApprentices = apprentices.filter((apprentice) => {
-    const matchesSearch = searchQuery === '' ||
-      apprentice.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      apprentice.skills.some(skill => skill.toLowerCase().includes(searchQuery.toLowerCase())) ||
-      apprentice.specialization.some(spec => spec.toLowerCase().includes(searchQuery.toLowerCase()));
+  // Scored and filtered apprentices
+  const scoredApprentices = useMemo(() => {
+    const desiredSkills = searchQuery.split(',').map(s => s.trim()).filter(Boolean);
+    return apprentices
+      .map(app => ({
+        ...app,
+        score: calculateTalentScore(app, searchQuery, desiredSkills),
+      }))
+      .filter(app => {
+        const matchesSearch = searchQuery === '' ||
+          app.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          app.skills.some(skill => skill.toLowerCase().includes(searchQuery.toLowerCase())) ||
+          app.specialization.some(spec => spec.toLowerCase().includes(searchQuery.toLowerCase()));
 
-    const matchesFunction = selectedFunction === 'all' || apprentice.specialization.includes(selectedFunction as any);
+        const matchesFunction = selectedFunction === 'all' || app.specialization.includes(selectedFunction as any);
 
-    return matchesSearch && matchesFunction;
-  });
+        return matchesSearch && matchesFunction;
+      })
+      .sort((a, b) => b.score.overall - a.score.overall);
+  }, [searchQuery, selectedFunction]);
 
   // Filter suppliers
   const filteredSuppliers = suppliers.filter((supplier) => {
@@ -96,10 +198,47 @@ export default function CommunityScreen() {
       supplier.capabilities.some(spec => spec.toLowerCase().includes(searchQuery.toLowerCase())) ||
       `${supplier.location.city}, ${supplier.location.country}`.toLowerCase().includes(searchQuery.toLowerCase());
 
-    const matchesType = selectedSupplierType === 'all' || true; // All suppliers for now
+    const matchesType = selectedSupplierType === 'all' || true;
 
     return matchesSearch && matchesType;
   });
+
+  // Top picks - best matches across all categories
+  const topPicks = useMemo(() => {
+    const topExecs = scoredExecutives.slice(0, 3);
+    const topApprentices = scoredApprentices.slice(0, 2);
+    const topAI = getAIToolsByFunction('all').slice(0, 2);
+    return { topExecs, topApprentices, topAI };
+  }, [scoredExecutives, scoredApprentices]);
+
+  // Shortlisted items
+  const shortlistedExecutives = scoredExecutives.filter(e => shortlistedIds.has(e.id));
+  const shortlistedApprentices = scoredApprentices.filter(a => shortlistedIds.has(a.id));
+
+  const toggleShortlist = (id: string) => {
+    setShortlistedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  };
+
+  const toggleCompare = (id: string) => {
+    setCompareIds(prev => {
+      if (prev.includes(id)) {
+        return prev.filter(i => i !== id);
+      }
+      if (prev.length >= 3) {
+        Alert.alert('Compare Limit', 'You can compare up to 3 candidates at a time.');
+        return prev;
+      }
+      return [...prev, id];
+    });
+  };
 
   const handleRequestAllocation = (type: 'executive' | 'apprentice' | 'supplier', item: any) => {
     setRequestType(type);
@@ -112,6 +251,23 @@ export default function CommunityScreen() {
     }
 
     setShowRequestModal(true);
+  };
+
+  const handleQuickOnboard = (type: 'executive' | 'apprentice' | 'supplier', item: any) => {
+    const name = type === 'supplier' ? item.name : item.name;
+    Alert.alert(
+      'Quick Onboard Request',
+      `Request ${name} for your team?\n\nThis will be sent to the founder for fast-track approval.`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Send Request',
+          onPress: () => {
+            Alert.alert('Request Sent', `Your request for ${name} has been sent for approval.`);
+          },
+        },
+      ]
+    );
   };
 
   const handleSubmitRequest = () => {
@@ -180,373 +336,582 @@ export default function CommunityScreen() {
     }
   };
 
-  const tabs: { value: CommunityTab; label: string; icon: any }[] = [
-    { value: 'executives', label: 'Executives', icon: Briefcase },
-    { value: 'apprentices', label: 'Apprentices', icon: Award },
-    { value: 'suppliers', label: 'Suppliers', icon: Factory },
-    { value: 'ai-agents', label: 'AI Agents', icon: Bot },
-    { value: 'apply', label: 'Apply/Join', icon: Upload },
-  ];
+  // Score badge component
+  const ScoreBadge = ({ score, size = 'md' }: { score: number; size?: 'sm' | 'md' | 'lg' }) => {
+    const bgColor = score >= 80 ? 'bg-emerald-500' : score >= 60 ? 'bg-blue-500' : score >= 40 ? 'bg-amber-500' : 'bg-gray-500';
+    const sizeClass = size === 'sm' ? 'w-8 h-8' : size === 'lg' ? 'w-14 h-14' : 'w-10 h-10';
+    const textSize = size === 'sm' ? 'text-xs' : size === 'lg' ? 'text-xl' : 'text-sm';
+
+    return (
+      <View className={`${sizeClass} ${bgColor} rounded-full items-center justify-center`}>
+        <Text className={`text-white font-bold ${textSize}`}>{score}</Text>
+      </View>
+    );
+  };
+
+  // Talent card component - optimized for quick scanning
+  const TalentCard = ({
+    candidate,
+    type,
+    index,
+    showScore = true,
+    compact = false,
+  }: {
+    candidate: typeof scoredExecutives[0];
+    type: 'executive' | 'apprentice';
+    index: number;
+    showScore?: boolean;
+    compact?: boolean;
+  }) => {
+    const isShortlisted = shortlistedIds.has(candidate.id);
+    const isComparing = compareIds.includes(candidate.id);
+    const accentColor = type === 'executive' ? 'emerald' : 'purple';
+
+    return (
+      <Animated.View entering={FadeInDown.delay(index * 50).duration(300)}>
+        <Pressable
+          onPress={() => {
+            setSelectedCandidate(candidate);
+            setShowProfileModal(true);
+          }}
+          className={`bg-white dark:bg-slate-900 rounded-2xl mb-3 border ${
+            isComparing ? 'border-blue-500 border-2' : 'border-gray-200 dark:border-slate-800'
+          } overflow-hidden active:opacity-90`}
+        >
+          {/* Top Row - Name, Score, Actions */}
+          <View className="p-4">
+            <View className="flex-row items-start justify-between mb-2">
+              <View className="flex-row items-center flex-1">
+                {/* Avatar with initials */}
+                <View className={`w-12 h-12 rounded-full bg-${accentColor}-500 items-center justify-center mr-3`}>
+                  <Text className="text-white text-lg font-bold">
+                    {candidate.name.split(' ').map(n => n[0]).join('')}
+                  </Text>
+                </View>
+                <View className="flex-1">
+                  <View className="flex-row items-center">
+                    <Text className="text-gray-900 dark:text-white font-bold text-base" numberOfLines={1}>
+                      {candidate.name}
+                    </Text>
+                    {candidate.rating >= 4.8 && (
+                      <View className="ml-2 bg-amber-100 dark:bg-amber-900/30 px-1.5 py-0.5 rounded">
+                        <Text className="text-amber-700 dark:text-amber-300 text-[10px] font-bold">TOP RATED</Text>
+                      </View>
+                    )}
+                  </View>
+                  <Text className="text-gray-500 dark:text-slate-400 text-sm">
+                    {candidate.specialization.join(' • ')}
+                  </Text>
+                </View>
+              </View>
+
+              {/* Score badge */}
+              {showScore && <ScoreBadge score={candidate.score.overall} />}
+            </View>
+
+            {/* Quick Stats Row */}
+            <View className="flex-row items-center gap-4 mb-3">
+              <View className="flex-row items-center">
+                <Clock size={14} color="#64748b" />
+                <Text className="text-gray-600 dark:text-slate-400 text-xs ml-1">{candidate.experience}y exp</Text>
+              </View>
+              <View className="flex-row items-center">
+                <DollarSign size={14} color="#64748b" />
+                <Text className="text-gray-600 dark:text-slate-400 text-xs ml-1">£{candidate.costPerDay}/day</Text>
+              </View>
+              <View className={`flex-row items-center px-2 py-0.5 rounded-full ${
+                candidate.availability.toLowerCase().includes('now')
+                  ? 'bg-emerald-100 dark:bg-emerald-900/30'
+                  : 'bg-amber-100 dark:bg-amber-900/30'
+              }`}>
+                <View className={`w-1.5 h-1.5 rounded-full mr-1 ${
+                  candidate.availability.toLowerCase().includes('now') ? 'bg-emerald-500' : 'bg-amber-500'
+                }`} />
+                <Text className={`text-xs font-medium ${
+                  candidate.availability.toLowerCase().includes('now')
+                    ? 'text-emerald-700 dark:text-emerald-300'
+                    : 'text-amber-700 dark:text-amber-300'
+                }`}>
+                  {candidate.availability.toLowerCase().includes('now') ? 'Available' : 'Soon'}
+                </Text>
+              </View>
+            </View>
+
+            {/* Top Skills */}
+            {!compact && (
+              <View className="flex-row flex-wrap gap-1 mb-3">
+                {candidate.skills.slice(0, 4).map((skill, idx) => (
+                  <View key={idx} className="bg-gray-100 dark:bg-slate-800 px-2 py-1 rounded">
+                    <Text className="text-gray-700 dark:text-slate-300 text-xs">{skill}</Text>
+                  </View>
+                ))}
+                {candidate.skills.length > 4 && (
+                  <View className="bg-gray-100 dark:bg-slate-800 px-2 py-1 rounded">
+                    <Text className="text-gray-500 dark:text-slate-500 text-xs">+{candidate.skills.length - 4}</Text>
+                  </View>
+                )}
+              </View>
+            )}
+
+            {/* Action Buttons */}
+            <View className="flex-row items-center gap-2">
+              <Pressable
+                onPress={() => handleQuickOnboard(type, candidate)}
+                className={`flex-1 bg-${accentColor}-500 rounded-xl py-2.5 items-center active:opacity-80`}
+              >
+                <View className="flex-row items-center">
+                  <Zap size={16} color="#fff" />
+                  <Text className="text-white font-semibold text-sm ml-1.5">Quick Onboard</Text>
+                </View>
+              </Pressable>
+
+              <Pressable
+                onPress={() => toggleShortlist(candidate.id)}
+                className={`w-10 h-10 rounded-xl items-center justify-center ${
+                  isShortlisted
+                    ? 'bg-red-100 dark:bg-red-900/30'
+                    : 'bg-gray-100 dark:bg-slate-800'
+                } active:opacity-70`}
+              >
+                <Heart
+                  size={20}
+                  color={isShortlisted ? '#ef4444' : '#64748b'}
+                  fill={isShortlisted ? '#ef4444' : 'none'}
+                />
+              </Pressable>
+
+              {compareMode && (
+                <Pressable
+                  onPress={() => toggleCompare(candidate.id)}
+                  className={`w-10 h-10 rounded-xl items-center justify-center ${
+                    isComparing
+                      ? 'bg-blue-100 dark:bg-blue-900/30'
+                      : 'bg-gray-100 dark:bg-slate-800'
+                  } active:opacity-70`}
+                >
+                  <Scale size={20} color={isComparing ? '#3b82f6' : '#64748b'} />
+                </Pressable>
+              )}
+            </View>
+          </View>
+
+          {/* Score Breakdown (expandable) */}
+          {showScore && candidate.score.overall >= 70 && (
+            <View className={`px-4 py-2 bg-${accentColor}-50 dark:bg-${accentColor}-900/20 border-t border-gray-100 dark:border-slate-800`}>
+              <View className="flex-row items-center justify-between">
+                <View className="flex-row items-center">
+                  <Target size={14} color="#10b981" />
+                  <Text className="text-emerald-700 dark:text-emerald-300 text-xs font-medium ml-1">
+                    High Match Score
+                  </Text>
+                </View>
+                <View className="flex-row gap-3">
+                  <Text className="text-gray-500 dark:text-slate-500 text-[10px]">
+                    Exp: {candidate.score.experienceScore}
+                  </Text>
+                  <Text className="text-gray-500 dark:text-slate-500 text-[10px]">
+                    Value: {candidate.score.valueScore}
+                  </Text>
+                  <Text className="text-gray-500 dark:text-slate-500 text-[10px]">
+                    Avail: {candidate.score.availabilityScore}
+                  </Text>
+                </View>
+              </View>
+            </View>
+          )}
+        </Pressable>
+      </Animated.View>
+    );
+  };
 
   return (
-    <View className="flex-1 bg-white dark:bg-slate-950" style={{ paddingTop: insets.top }}>
+    <View className="flex-1 bg-gray-50 dark:bg-slate-950" style={{ paddingTop: insets.top }}>
       {/* Header */}
-      <View className="px-6 py-4 border-b border-gray-300 dark:border-slate-800">
+      <View className="px-5 pt-4 pb-3 bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-800">
         <View className="flex-row items-center justify-between mb-3">
-          <View className="flex-1">
-            <Text className="text-gray-900 dark:text-white text-2xl font-bold">Community</Text>
-            <Text className="text-gray-600 dark:text-slate-400 text-sm mt-0.5">
-              People, AI agents, suppliers, guilds, and events
+          <View>
+            <Text className="text-gray-900 dark:text-white text-2xl font-bold">Talent Hub</Text>
+            <Text className="text-gray-500 dark:text-slate-400 text-sm">
+              Find the perfect match for your team
             </Text>
           </View>
-        </View>
-
-        {/* Quick Action Buttons */}
-        <View className="flex-row gap-3 mb-3">
-          <Pressable
-            onPress={() => router.push('/guilds')}
-            className="flex-1 bg-purple-500 rounded-xl py-3 items-center active:opacity-80"
-          >
-            <View className="flex-row items-center">
-              <BookOpen size={18} color="#fff" />
-              <Text className="text-white font-bold ml-2">Guilds</Text>
-            </View>
-          </Pressable>
-          <Pressable
-            onPress={() => router.push('/events')}
-            className="flex-1 bg-emerald-500 rounded-xl py-3 items-center active:opacity-80"
-          >
-            <View className="flex-row items-center">
-              <Calendar size={18} color="#fff" />
-              <Text className="text-white font-bold ml-2">Events</Text>
-            </View>
-          </Pressable>
-        </View>
-
-        {/* Summary Stats - Tappable */}
-        <View className="flex-row gap-2 mb-3">
-          <Pressable
-            onPress={() => setActiveTab('executives')}
-            className={`flex-1 rounded-xl p-3 border active:opacity-70 ${
-              activeTab === 'executives'
-                ? 'bg-emerald-100 dark:bg-emerald-800/40 border-emerald-400 dark:border-emerald-600'
-                : 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800'
-            }`}
-          >
-            <Text className="text-emerald-700 dark:text-emerald-300 text-xs mb-1">Executives</Text>
-            <Text className="text-emerald-600 dark:text-emerald-400 text-xl font-bold">{filteredExecutives.length}</Text>
-          </Pressable>
-          <Pressable
-            onPress={() => setActiveTab('apprentices')}
-            className={`flex-1 rounded-xl p-3 border active:opacity-70 ${
-              activeTab === 'apprentices'
-                ? 'bg-purple-100 dark:bg-purple-800/40 border-purple-400 dark:border-purple-600'
-                : 'bg-purple-50 dark:bg-purple-900/20 border-purple-200 dark:border-purple-800'
-            }`}
-          >
-            <Text className="text-purple-700 dark:text-purple-300 text-xs mb-1">Apprentices</Text>
-            <Text className="text-purple-600 dark:text-purple-400 text-xl font-bold">{filteredApprentices.length}</Text>
-          </Pressable>
-          <Pressable
-            onPress={() => setActiveTab('ai-agents')}
-            className={`flex-1 rounded-xl p-3 border active:opacity-70 ${
-              activeTab === 'ai-agents'
-                ? 'bg-cyan-100 dark:bg-cyan-800/40 border-cyan-400 dark:border-cyan-600'
-                : 'bg-cyan-50 dark:bg-cyan-900/20 border-cyan-200 dark:border-cyan-800'
-            }`}
-          >
-            <Text className="text-cyan-700 dark:text-cyan-300 text-xs mb-1">AI Agents</Text>
-            <Text className="text-cyan-600 dark:text-cyan-400 text-xl font-bold">{getTotalAIToolsCount()}</Text>
-          </Pressable>
-          <Pressable
-            onPress={() => setActiveTab('suppliers')}
-            className={`flex-1 rounded-xl p-3 border active:opacity-70 ${
-              activeTab === 'suppliers'
-                ? 'bg-amber-100 dark:bg-amber-800/40 border-amber-400 dark:border-amber-600'
-                : 'bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800'
-            }`}
-          >
-            <Text className="text-amber-700 dark:text-amber-300 text-xs mb-1">Suppliers</Text>
-            <Text className="text-amber-600 dark:text-amber-400 text-xl font-bold">{filteredSuppliers.length}</Text>
-          </Pressable>
-        </View>
-
-        {/* Apply/Join Button */}
-        <Pressable
-          onPress={() => setActiveTab('apply')}
-          className="bg-blue-500 rounded-xl py-3 items-center active:opacity-80"
-        >
-          <View className="flex-row items-center">
-            <Upload size={18} color="#fff" />
-            <Text className="text-white font-bold ml-2">Apply / Join</Text>
+          <View className="flex-row gap-2">
+            {shortlistedIds.size > 0 && (
+              <Pressable
+                onPress={() => setActiveTab('shortlist')}
+                className="bg-red-100 dark:bg-red-900/30 px-3 py-2 rounded-xl flex-row items-center active:opacity-70"
+              >
+                <Heart size={16} color="#ef4444" fill="#ef4444" />
+                <Text className="text-red-600 dark:text-red-400 font-bold ml-1">{shortlistedIds.size}</Text>
+              </Pressable>
+            )}
+            <Pressable
+              onPress={() => setCompareMode(!compareMode)}
+              className={`px-3 py-2 rounded-xl flex-row items-center active:opacity-70 ${
+                compareMode ? 'bg-blue-500' : 'bg-gray-100 dark:bg-slate-800'
+              }`}
+            >
+              <Scale size={16} color={compareMode ? '#fff' : '#64748b'} />
+            </Pressable>
           </View>
-        </Pressable>
+        </View>
+
+        {/* Quick Nav Pills */}
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={{ gap: 8, paddingRight: 16 }}
+        >
+          {[
+            { value: 'discover', label: 'Discover', icon: Sparkles },
+            { value: 'executives', label: 'Executives', icon: Crown, count: scoredExecutives.length },
+            { value: 'apprentices', label: 'Apprentices', icon: GraduationCap, count: scoredApprentices.length },
+            { value: 'suppliers', label: 'Suppliers', icon: Factory, count: filteredSuppliers.length },
+            { value: 'ai-agents', label: 'AI Agents', icon: Bot, count: getTotalAIToolsCount() },
+            { value: 'apply', label: 'Apply', icon: Upload },
+          ].map((tab) => (
+            <Pressable
+              key={tab.value}
+              onPress={() => setActiveTab(tab.value as CommunityTab)}
+              className={`flex-row items-center px-4 py-2 rounded-full ${
+                activeTab === tab.value
+                  ? 'bg-blue-500'
+                  : 'bg-gray-100 dark:bg-slate-800'
+              } active:opacity-70`}
+            >
+              <tab.icon size={16} color={activeTab === tab.value ? '#fff' : '#64748b'} />
+              <Text className={`ml-2 font-semibold text-sm ${
+                activeTab === tab.value ? 'text-white' : 'text-gray-700 dark:text-slate-300'
+              }`}>
+                {tab.label}
+              </Text>
+              {tab.count !== undefined && (
+                <View className={`ml-1.5 px-1.5 py-0.5 rounded ${
+                  activeTab === tab.value ? 'bg-white/20' : 'bg-gray-200 dark:bg-slate-700'
+                }`}>
+                  <Text className={`text-xs font-bold ${
+                    activeTab === tab.value ? 'text-white' : 'text-gray-600 dark:text-slate-400'
+                  }`}>
+                    {tab.count}
+                  </Text>
+                </View>
+              )}
+            </Pressable>
+          ))}
+        </ScrollView>
       </View>
 
-      {/* Search & Filter */}
+      {/* Search Bar - Contextual */}
       {(activeTab === 'executives' || activeTab === 'apprentices' || activeTab === 'suppliers' || activeTab === 'ai-agents') && (
-        <View className="px-6 py-3 border-b border-gray-300 dark:border-slate-800">
-          <TextInput
-            className="bg-gray-100 dark:bg-slate-900 rounded-xl px-4 py-3 text-gray-900 dark:text-white text-base border border-gray-300 dark:border-slate-800"
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-            placeholder={`Search ${activeTab}...`}
-            placeholderTextColor="#64748b"
-          />
+        <View className="px-5 py-3 bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-800">
+          <View className="flex-row items-center gap-2">
+            <View className="flex-1 flex-row items-center bg-gray-100 dark:bg-slate-800 rounded-xl px-4 py-2.5">
+              <Search size={18} color="#64748b" />
+              <TextInput
+                className="flex-1 ml-2 text-gray-900 dark:text-white text-base"
+                value={searchQuery}
+                onChangeText={setSearchQuery}
+                placeholder={`Search by name, skills, or expertise...`}
+                placeholderTextColor="#64748b"
+              />
+              {searchQuery.length > 0 && (
+                <Pressable onPress={() => setSearchQuery('')}>
+                  <X size={18} color="#64748b" />
+                </Pressable>
+              )}
+            </View>
+            <Pressable
+              onPress={() => setShowFilters(!showFilters)}
+              className={`w-11 h-11 rounded-xl items-center justify-center ${
+                showFilters ? 'bg-blue-500' : 'bg-gray-100 dark:bg-slate-800'
+              } active:opacity-70`}
+            >
+              <SlidersHorizontal size={20} color={showFilters ? '#fff' : '#64748b'} />
+            </Pressable>
+          </View>
+
+          {/* Advanced Filters Panel */}
+          {showFilters && (activeTab === 'executives' || activeTab === 'apprentices') && (
+            <Animated.View
+              entering={FadeInDown.duration(200)}
+              className="mt-3 pt-3 border-t border-gray-200 dark:border-slate-700"
+            >
+              <View className="flex-row flex-wrap gap-2 mb-3">
+                <Text className="text-gray-500 dark:text-slate-400 text-xs w-full mb-1">Function</Text>
+                {['all', 'Sales', 'Marketing', 'Finance', 'Ops', 'Engineering'].map((func) => (
+                  <Pressable
+                    key={func}
+                    onPress={() => setSelectedFunction(func)}
+                    className={`px-3 py-1.5 rounded-full ${
+                      selectedFunction === func
+                        ? 'bg-blue-500'
+                        : 'bg-gray-200 dark:bg-slate-700'
+                    } active:opacity-70`}
+                  >
+                    <Text className={`text-xs font-semibold ${
+                      selectedFunction === func ? 'text-white' : 'text-gray-700 dark:text-slate-300'
+                    }`}>
+                      {func === 'all' ? 'All' : func}
+                    </Text>
+                  </Pressable>
+                ))}
+              </View>
+
+              {activeTab === 'executives' && (
+                <View className="flex-row gap-4">
+                  <View className="flex-1">
+                    <Text className="text-gray-500 dark:text-slate-400 text-xs mb-1">Availability</Text>
+                    <View className="flex-row gap-2">
+                      {[
+                        { value: 'all', label: 'Any' },
+                        { value: 'now', label: 'Now' },
+                        { value: 'soon', label: 'Soon' },
+                      ].map((opt) => (
+                        <Pressable
+                          key={opt.value}
+                          onPress={() => setAvailabilityFilter(opt.value as any)}
+                          className={`flex-1 py-1.5 rounded-lg items-center ${
+                            availabilityFilter === opt.value
+                              ? 'bg-emerald-500'
+                              : 'bg-gray-200 dark:bg-slate-700'
+                          } active:opacity-70`}
+                        >
+                          <Text className={`text-xs font-semibold ${
+                            availabilityFilter === opt.value ? 'text-white' : 'text-gray-700 dark:text-slate-300'
+                          }`}>
+                            {opt.label}
+                          </Text>
+                        </Pressable>
+                      ))}
+                    </View>
+                  </View>
+                </View>
+              )}
+            </Animated.View>
+          )}
         </View>
       )}
 
-      <ScrollView className="flex-1">
-        {/* Executives Tab */}
+      <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
+        {/* DISCOVER TAB - Smart recommendations */}
+        {activeTab === 'discover' && (
+          <View className="px-5 py-4">
+            {/* Quick Stats */}
+            <View className="flex-row gap-3 mb-5">
+              <Pressable
+                onPress={() => setActiveTab('executives')}
+                className="flex-1 bg-emerald-500 rounded-2xl p-4 active:opacity-90"
+              >
+                <Crown size={24} color="#fff" />
+                <Text className="text-white/80 text-xs mt-2">Executives</Text>
+                <Text className="text-white text-2xl font-bold">{fractionalExecutives.length}</Text>
+              </Pressable>
+              <Pressable
+                onPress={() => setActiveTab('apprentices')}
+                className="flex-1 bg-purple-500 rounded-2xl p-4 active:opacity-90"
+              >
+                <GraduationCap size={24} color="#fff" />
+                <Text className="text-white/80 text-xs mt-2">Apprentices</Text>
+                <Text className="text-white text-2xl font-bold">{apprentices.length}</Text>
+              </Pressable>
+              <Pressable
+                onPress={() => setActiveTab('ai-agents')}
+                className="flex-1 bg-cyan-500 rounded-2xl p-4 active:opacity-90"
+              >
+                <Bot size={24} color="#fff" />
+                <Text className="text-white/80 text-xs mt-2">AI Agents</Text>
+                <Text className="text-white text-2xl font-bold">{getTotalAIToolsCount()}</Text>
+              </Pressable>
+            </View>
+
+            {/* Top Executives Picks */}
+            <View className="mb-5">
+              <View className="flex-row items-center justify-between mb-3">
+                <View className="flex-row items-center">
+                  <Crown size={20} color="#10b981" />
+                  <Text className="text-gray-900 dark:text-white font-bold text-lg ml-2">Top Executives</Text>
+                </View>
+                <Pressable
+                  onPress={() => setActiveTab('executives')}
+                  className="flex-row items-center active:opacity-70"
+                >
+                  <Text className="text-blue-500 font-semibold text-sm mr-1">See All</Text>
+                  <ChevronRight size={16} color="#3b82f6" />
+                </Pressable>
+              </View>
+              {topPicks.topExecs.map((exec, idx) => (
+                <TalentCard key={exec.id} candidate={exec} type="executive" index={idx} />
+              ))}
+            </View>
+
+            {/* Top Apprentices */}
+            <View className="mb-5">
+              <View className="flex-row items-center justify-between mb-3">
+                <View className="flex-row items-center">
+                  <GraduationCap size={20} color="#a855f7" />
+                  <Text className="text-gray-900 dark:text-white font-bold text-lg ml-2">Rising Apprentices</Text>
+                </View>
+                <Pressable
+                  onPress={() => setActiveTab('apprentices')}
+                  className="flex-row items-center active:opacity-70"
+                >
+                  <Text className="text-blue-500 font-semibold text-sm mr-1">See All</Text>
+                  <ChevronRight size={16} color="#3b82f6" />
+                </Pressable>
+              </View>
+              {topPicks.topApprentices.map((app, idx) => (
+                <TalentCard key={app.id} candidate={app} type="apprentice" index={idx} />
+              ))}
+            </View>
+
+            {/* AI Agent Recommendations */}
+            <View className="mb-5">
+              <View className="flex-row items-center justify-between mb-3">
+                <View className="flex-row items-center">
+                  <Bot size={20} color="#06b6d4" />
+                  <Text className="text-gray-900 dark:text-white font-bold text-lg ml-2">AI Productivity Boosters</Text>
+                </View>
+                <Pressable
+                  onPress={() => setActiveTab('ai-agents')}
+                  className="flex-row items-center active:opacity-70"
+                >
+                  <Text className="text-blue-500 font-semibold text-sm mr-1">See All</Text>
+                  <ChevronRight size={16} color="#3b82f6" />
+                </Pressable>
+              </View>
+              {topPicks.topAI.map((tool, idx) => (
+                <Animated.View key={tool.id} entering={FadeInDown.delay(idx * 50).duration(300)}>
+                  <Pressable
+                    onPress={() => setSelectedAIAgent(tool)}
+                    className="bg-white dark:bg-slate-900 rounded-2xl p-4 mb-3 border border-gray-200 dark:border-slate-800 active:opacity-90"
+                  >
+                    <View className="flex-row items-start justify-between mb-2">
+                      <View className="flex-1">
+                        <Text className="text-gray-900 dark:text-white font-bold text-base">{tool.name}</Text>
+                        <Text className="text-gray-500 dark:text-slate-400 text-sm">{tool.purpose}</Text>
+                      </View>
+                      <View className="bg-cyan-100 dark:bg-cyan-900/30 px-2 py-1 rounded">
+                        <Text className="text-cyan-700 dark:text-cyan-300 text-xs font-bold">£{tool.costPerMonth}/mo</Text>
+                      </View>
+                    </View>
+                    <View className="flex-row flex-wrap gap-1">
+                      {tool.functions.map((func, i) => (
+                        <View key={i} className="bg-gray-100 dark:bg-slate-800 px-2 py-1 rounded">
+                          <Text className="text-gray-600 dark:text-slate-400 text-xs">{func}</Text>
+                        </View>
+                      ))}
+                    </View>
+                  </Pressable>
+                </Animated.View>
+              ))}
+            </View>
+
+            {/* Quick Actions */}
+            <View className="flex-row gap-3 mb-4">
+              <Pressable
+                onPress={() => router.push('/guilds')}
+                className="flex-1 bg-purple-500 rounded-xl py-4 items-center active:opacity-80"
+              >
+                <BookOpen size={20} color="#fff" />
+                <Text className="text-white font-bold mt-1">Guilds</Text>
+              </Pressable>
+              <Pressable
+                onPress={() => router.push('/events')}
+                className="flex-1 bg-emerald-500 rounded-xl py-4 items-center active:opacity-80"
+              >
+                <Calendar size={20} color="#fff" />
+                <Text className="text-white font-bold mt-1">Events</Text>
+              </Pressable>
+              <Pressable
+                onPress={() => setActiveTab('apply')}
+                className="flex-1 bg-blue-500 rounded-xl py-4 items-center active:opacity-80"
+              >
+                <Upload size={20} color="#fff" />
+                <Text className="text-white font-bold mt-1">Join Us</Text>
+              </Pressable>
+            </View>
+          </View>
+        )}
+
+        {/* EXECUTIVES TAB */}
         {activeTab === 'executives' && (
-          <View className="px-6 pb-6">
+          <View className="px-5 py-4">
+            {/* Results Header */}
             <View className="flex-row items-center justify-between mb-3">
-              <Text className="text-gray-900 dark:text-white text-sm">
-                {filteredExecutives.length} fractional executives available
+              <Text className="text-gray-600 dark:text-slate-400 text-sm">
+                {scoredExecutives.length} executives • Sorted by match score
               </Text>
             </View>
 
-            {/* Function Filter Chips */}
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              className="mb-4"
-              contentContainerStyle={{ gap: 8 }}
-            >
-              <Pressable
-                onPress={() => setSelectedFunction('all')}
-                className={`px-4 py-2 rounded-full ${
-                  selectedFunction === 'all'
-                    ? 'bg-blue-500'
-                    : 'bg-gray-200 dark:bg-slate-800'
-                } active:opacity-70`}
-              >
-                <Text
-                  className={`text-sm font-semibold ${
-                    selectedFunction === 'all'
-                      ? 'text-white'
-                      : 'text-gray-700 dark:text-slate-300'
-                  }`}
-                >
-                  All
-                </Text>
-              </Pressable>
-              {['Sales', 'Marketing', 'Finance', 'Ops', 'Engineering'].map((func) => (
-                <Pressable
-                  key={func}
-                  onPress={() => setSelectedFunction(func)}
-                  className={`px-4 py-2 rounded-full ${
-                    selectedFunction === func
-                      ? 'bg-blue-500'
-                      : 'bg-gray-200 dark:bg-slate-800'
-                  } active:opacity-70`}
-                >
-                  <Text
-                    className={`text-sm font-semibold ${
-                      selectedFunction === func
-                        ? 'text-white'
-                        : 'text-gray-700 dark:text-slate-300'
-                    }`}
-                  >
-                    {func}
-                  </Text>
-                </Pressable>
-              ))}
-            </ScrollView>
-
-            {filteredExecutives.map((exec) => (
-              <Pressable
-                key={exec.id}
-                onPress={() => {
-                  setSelectedCandidate(exec);
-                  setShowProfileModal(true);
-                }}
-                className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-4 mb-3 border border-gray-300 dark:border-slate-800 active:opacity-70"
-              >
-                <View className="flex-row items-start justify-between mb-2">
-                  <View className="flex-1">
-                    <Text className="text-gray-900 dark:text-white font-bold text-base mb-1">
-                      {exec.name}
-                    </Text>
-                    <Text className="text-gray-600 dark:text-slate-400 text-sm mb-2">
-                      {exec.specialization.join(', ')}
-                    </Text>
-                  </View>
-                  <View className="bg-emerald-100 dark:bg-emerald-900/30 px-2 py-1 rounded">
-                    <Text className="text-emerald-700 dark:text-emerald-300 text-xs font-semibold">
-                      {exec.availability}
-                    </Text>
-                  </View>
-                </View>
-
-                <View className="flex-row flex-wrap gap-1 mb-2">
-                  {exec.skills.slice(0, 4).map((skill, idx) => (
-                    <View key={idx} className="bg-blue-100 dark:bg-blue-900/30 px-2 py-1 rounded">
-                      <Text className="text-blue-700 dark:text-blue-300 text-xs">{skill}</Text>
-                    </View>
-                  ))}
-                </View>
-
-                <View className="flex-row items-center justify-between pt-2 border-t border-gray-300 dark:border-slate-800">
-                  <Text className="text-gray-600 dark:text-slate-400 text-xs">
-                    {exec.experience}
-                  </Text>
-                  <Pressable
-                    onPress={() => handleRequestAllocation('executive', exec)}
-                    className="bg-blue-500 px-3 py-1 rounded-lg active:opacity-70"
-                  >
-                    <Text className="text-white text-xs font-semibold">Request</Text>
-                  </Pressable>
-                </View>
-              </Pressable>
+            {scoredExecutives.map((exec, idx) => (
+              <TalentCard key={exec.id} candidate={exec} type="executive" index={idx} />
             ))}
+
+            {scoredExecutives.length === 0 && (
+              <View className="items-center py-12">
+                <Users size={48} color="#64748b" />
+                <Text className="text-gray-500 dark:text-slate-400 text-base mt-4">No executives match your criteria</Text>
+                <Pressable
+                  onPress={() => {
+                    setSearchQuery('');
+                    setSelectedFunction('all');
+                    setAvailabilityFilter('all');
+                  }}
+                  className="mt-4 bg-blue-500 px-6 py-2 rounded-xl active:opacity-80"
+                >
+                  <Text className="text-white font-semibold">Clear Filters</Text>
+                </Pressable>
+              </View>
+            )}
           </View>
         )}
 
-        {/* Apprentices Tab */}
+        {/* APPRENTICES TAB */}
         {activeTab === 'apprentices' && (
-          <View className="px-6 pb-6">
+          <View className="px-5 py-4">
             <View className="flex-row items-center justify-between mb-3">
-              <Text className="text-gray-900 dark:text-white text-sm">
-                {filteredApprentices.length} apprentices available
+              <Text className="text-gray-600 dark:text-slate-400 text-sm">
+                {scoredApprentices.length} apprentices • Sorted by match score
               </Text>
             </View>
 
-            {/* Skill Filter Chips */}
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              className="mb-4"
-              contentContainerStyle={{ gap: 8 }}
-            >
-              <Pressable
-                onPress={() => setSelectedFunction('all')}
-                className={`px-4 py-2 rounded-full ${
-                  selectedFunction === 'all'
-                    ? 'bg-purple-500'
-                    : 'bg-gray-200 dark:bg-slate-800'
-                } active:opacity-70`}
-              >
-                <Text
-                  className={`text-sm font-semibold ${
-                    selectedFunction === 'all'
-                      ? 'text-white'
-                      : 'text-gray-700 dark:text-slate-300'
-                  }`}
-                >
-                  All
-                </Text>
-              </Pressable>
-              {['Sales', 'Marketing', 'Finance', 'Ops', 'Engineering'].map((func) => (
-                <Pressable
-                  key={func}
-                  onPress={() => setSelectedFunction(func)}
-                  className={`px-4 py-2 rounded-full ${
-                    selectedFunction === func
-                      ? 'bg-purple-500'
-                      : 'bg-gray-200 dark:bg-slate-800'
-                  } active:opacity-70`}
-                >
-                  <Text
-                    className={`text-sm font-semibold ${
-                      selectedFunction === func
-                        ? 'text-white'
-                        : 'text-gray-700 dark:text-slate-300'
-                    }`}
-                  >
-                    {func}
-                  </Text>
-                </Pressable>
-              ))}
-            </ScrollView>
-
-            {filteredApprentices.map((apprentice) => (
-              <Pressable
-                key={apprentice.id}
-                onPress={() => {
-                  setSelectedCandidate(apprentice);
-                  setShowProfileModal(true);
-                }}
-                className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-4 mb-3 border border-gray-300 dark:border-slate-800 active:opacity-70"
-              >
-                <View className="flex-row items-start justify-between mb-2">
-                  <View className="flex-1">
-                    <Text className="text-gray-900 dark:text-white font-bold text-base mb-1">
-                      {apprentice.name}
-                    </Text>
-                    <Text className="text-gray-600 dark:text-slate-400 text-sm mb-2">
-                      {apprentice.specialization.join(', ')}
-                    </Text>
-                  </View>
-                  <View className="bg-purple-100 dark:bg-purple-900/30 px-2 py-1 rounded">
-                    <Text className="text-purple-700 dark:text-purple-300 text-xs font-semibold">
-                      {apprentice.availability}
-                    </Text>
-                  </View>
-                </View>
-
-                <View className="flex-row flex-wrap gap-1 mb-2">
-                  {apprentice.skills.slice(0, 4).map((skill, idx) => (
-                    <View key={idx} className="bg-purple-100 dark:bg-purple-900/30 px-2 py-1 rounded">
-                      <Text className="text-purple-700 dark:text-purple-300 text-xs">{skill}</Text>
-                    </View>
-                  ))}
-                </View>
-
-                <View className="flex-row items-center justify-between pt-2 border-t border-gray-300 dark:border-slate-800">
-                  <Text className="text-gray-600 dark:text-slate-400 text-xs">
-                    {apprentice.experience}
-                  </Text>
-                  <Pressable
-                    onPress={() => handleRequestAllocation('apprentice', apprentice)}
-                    className="bg-purple-500 px-3 py-1 rounded-lg active:opacity-70"
-                  >
-                    <Text className="text-white text-xs font-semibold">Request</Text>
-                  </Pressable>
-                </View>
-              </Pressable>
+            {scoredApprentices.map((app, idx) => (
+              <TalentCard key={app.id} candidate={app} type="apprentice" index={idx} />
             ))}
+
+            {scoredApprentices.length === 0 && (
+              <View className="items-center py-12">
+                <GraduationCap size={48} color="#64748b" />
+                <Text className="text-gray-500 dark:text-slate-400 text-base mt-4">No apprentices match your criteria</Text>
+                <Pressable
+                  onPress={() => {
+                    setSearchQuery('');
+                    setSelectedFunction('all');
+                  }}
+                  className="mt-4 bg-purple-500 px-6 py-2 rounded-xl active:opacity-80"
+                >
+                  <Text className="text-white font-semibold">Clear Filters</Text>
+                </Pressable>
+              </View>
+            )}
           </View>
         )}
 
-        {/* Suppliers Tab */}
+        {/* SUPPLIERS TAB */}
         {activeTab === 'suppliers' && (
-          <View className="px-6 pb-6">
-            <View className="flex-row items-center justify-between mb-3">
-              <Text className="text-gray-900 dark:text-white text-sm">
-                {filteredSuppliers.length} suppliers and manufacturers
-              </Text>
-            </View>
-
-            {/* Type Filter Chips */}
+          <View className="px-5 py-4">
+            {/* Type Filter */}
             <ScrollView
               horizontal
               showsHorizontalScrollIndicator={false}
               className="mb-4"
               contentContainerStyle={{ gap: 8 }}
             >
-              <Pressable
-                onPress={() => setSelectedSupplierType('all')}
-                className={`px-4 py-2 rounded-full ${
-                  selectedSupplierType === 'all'
-                    ? 'bg-amber-500'
-                    : 'bg-gray-200 dark:bg-slate-800'
-                } active:opacity-70`}
-              >
-                <Text
-                  className={`text-sm font-semibold ${
-                    selectedSupplierType === 'all'
-                      ? 'text-white'
-                      : 'text-gray-700 dark:text-slate-300'
-                  }`}
-                >
-                  All
-                </Text>
-              </Pressable>
               {[
+                { value: 'all', label: 'All Suppliers' },
                 { value: 'contract-manufacturer', label: 'Manufacturers' },
-                { value: 'component-supplier', label: 'Component Suppliers' },
-                { value: 'fulfillment', label: 'Fulfillment' }
+                { value: 'component-supplier', label: 'Components' },
+                { value: 'fulfillment', label: 'Fulfillment' },
               ].map((type) => (
                 <Pressable
                   key={type.value}
@@ -557,84 +922,89 @@ export default function CommunityScreen() {
                       : 'bg-gray-200 dark:bg-slate-800'
                   } active:opacity-70`}
                 >
-                  <Text
-                    className={`text-sm font-semibold ${
-                      selectedSupplierType === type.value
-                        ? 'text-white'
-                        : 'text-gray-700 dark:text-slate-300'
-                    }`}
-                  >
+                  <Text className={`text-sm font-semibold ${
+                    selectedSupplierType === type.value
+                      ? 'text-white'
+                      : 'text-gray-700 dark:text-slate-300'
+                  }`}>
                     {type.label}
                   </Text>
                 </Pressable>
               ))}
             </ScrollView>
 
-            {filteredSuppliers.map((supplier) => (
-              <Pressable
-                key={supplier.id}
-                onPress={() => {
-                  selectSupplier(supplier);
-                  setShowProfileModal(true);
-                }}
-                className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-4 mb-3 border border-gray-300 dark:border-slate-800 active:opacity-70"
-              >
-                <View className="flex-row items-start justify-between mb-2">
-                  <View className="flex-1">
-                    <Text className="text-gray-900 dark:text-white font-bold text-base mb-1">
-                      {supplier.name}
-                    </Text>
-                    <Text className="text-gray-600 dark:text-slate-400 text-sm mb-2">
-                      {supplier.description}
-                    </Text>
+            {filteredSuppliers.map((supplier, idx) => (
+              <Animated.View key={supplier.id} entering={FadeInDown.delay(idx * 50).duration(300)}>
+                <Pressable
+                  onPress={() => {
+                    selectSupplier(supplier);
+                    setShowProfileModal(true);
+                  }}
+                  className="bg-white dark:bg-slate-900 rounded-2xl p-4 mb-3 border border-gray-200 dark:border-slate-800 active:opacity-90"
+                >
+                  <View className="flex-row items-start justify-between mb-2">
+                    <View className="flex-1">
+                      <Text className="text-gray-900 dark:text-white font-bold text-base">{supplier.name}</Text>
+                      <View className="flex-row items-center mt-1">
+                        <MapPin size={12} color="#64748b" />
+                        <Text className="text-gray-500 dark:text-slate-400 text-sm ml-1">
+                          {supplier.location.city}, {supplier.location.country}
+                        </Text>
+                      </View>
+                    </View>
+                    {supplier.customerReviews && (
+                      <View className="flex-row items-center bg-amber-100 dark:bg-amber-900/30 px-2 py-1 rounded">
+                        <Star size={12} color="#f59e0b" fill="#f59e0b" />
+                        <Text className="text-amber-700 dark:text-amber-300 text-xs font-bold ml-1">
+                          {supplier.customerReviews.rating}
+                        </Text>
+                      </View>
+                    )}
                   </View>
-                </View>
 
-                <View className="flex-row flex-wrap gap-1 mb-2">
-                  {supplier.capabilities.slice(0, 3).map((spec, idx) => (
-                    <View key={idx} className="bg-amber-100 dark:bg-amber-900/30 px-2 py-1 rounded">
-                      <Text className="text-amber-700 dark:text-amber-300 text-xs">{spec}</Text>
-                    </View>
-                  ))}
-                  {supplier.capabilities.length > 3 && (
-                    <View className="bg-gray-200 dark:bg-slate-800 px-2 py-1 rounded">
-                      <Text className="text-gray-600 dark:text-slate-400 text-xs">+{supplier.capabilities.length - 3} more</Text>
-                    </View>
-                  )}
-                </View>
-
-                <View className="bg-gray-200 dark:bg-slate-800 rounded-lg p-2 mb-2">
-                  <Text className="text-gray-700 dark:text-slate-300 text-xs">
-                    MOQ: {supplier.minimumOrderQuantity} units • Lead time: {supplier.leadTimeWeeks} weeks
+                  <Text className="text-gray-600 dark:text-slate-400 text-sm mb-3" numberOfLines={2}>
+                    {supplier.description}
                   </Text>
-                </View>
 
-                <View className="flex-row items-center justify-between pt-2 border-t border-gray-300 dark:border-slate-800">
-                  <Text className="text-gray-600 dark:text-slate-400 text-xs">
-                    {supplier.certifications.join(', ')}
-                  </Text>
-                  <Pressable
-                    onPress={() => handleRequestAllocation('supplier', supplier)}
-                    className="bg-amber-500 px-3 py-1 rounded-lg active:opacity-70"
-                  >
-                    <Text className="text-white text-xs font-semibold">Request</Text>
-                  </Pressable>
-                </View>
-              </Pressable>
+                  <View className="flex-row flex-wrap gap-1 mb-3">
+                    {supplier.capabilities.slice(0, 3).map((cap, i) => (
+                      <View key={i} className="bg-amber-100 dark:bg-amber-900/30 px-2 py-1 rounded">
+                        <Text className="text-amber-700 dark:text-amber-300 text-xs">{cap}</Text>
+                      </View>
+                    ))}
+                    {supplier.capabilities.length > 3 && (
+                      <View className="bg-gray-100 dark:bg-slate-800 px-2 py-1 rounded">
+                        <Text className="text-gray-500 dark:text-slate-500 text-xs">+{supplier.capabilities.length - 3}</Text>
+                      </View>
+                    )}
+                  </View>
+
+                  <View className="flex-row items-center justify-between pt-3 border-t border-gray-100 dark:border-slate-800">
+                    <View className="flex-row gap-4">
+                      <Text className="text-gray-500 dark:text-slate-500 text-xs">
+                        MOQ: {supplier.minimumOrderQuantity}
+                      </Text>
+                      <Text className="text-gray-500 dark:text-slate-500 text-xs">
+                        Lead: {supplier.leadTimeWeeks}w
+                      </Text>
+                    </View>
+                    <Pressable
+                      onPress={() => handleQuickOnboard('supplier', supplier)}
+                      className="bg-amber-500 px-4 py-2 rounded-lg active:opacity-80"
+                    >
+                      <Text className="text-white text-xs font-bold">Request</Text>
+                    </Pressable>
+                  </View>
+                </Pressable>
+              </Animated.View>
             ))}
           </View>
         )}
 
-        {/* AI Agents Tab */}
+        {/* AI AGENTS TAB */}
         {activeTab === 'ai-agents' && (
-          <View className="px-6 pb-6">
-            <View className="flex-row items-center justify-between mb-3">
-              <Text className="text-gray-900 dark:text-white text-sm">
-                {getAIToolsByFunction(selectedAIFunction).length} AI tools available
-              </Text>
-            </View>
-
-            {/* Function Filter Chips */}
+          <View className="px-5 py-4">
+            {/* Function Filter */}
             <ScrollView
               horizontal
               showsHorizontalScrollIndicator={false}
@@ -649,13 +1019,11 @@ export default function CommunityScreen() {
                     : 'bg-gray-200 dark:bg-slate-800'
                 } active:opacity-70`}
               >
-                <Text
-                  className={`text-sm font-semibold ${
-                    selectedAIFunction === 'all'
-                      ? 'text-white'
-                      : 'text-gray-700 dark:text-slate-300'
-                  }`}
-                >
+                <Text className={`text-sm font-semibold ${
+                  selectedAIFunction === 'all'
+                    ? 'text-white'
+                    : 'text-gray-700 dark:text-slate-300'
+                }`}>
                   All
                 </Text>
               </Pressable>
@@ -669,96 +1037,154 @@ export default function CommunityScreen() {
                       : 'bg-gray-200 dark:bg-slate-800'
                   } active:opacity-70`}
                 >
-                  <Text
-                    className={`text-sm font-semibold ${
-                      selectedAIFunction === func
-                        ? 'text-white'
-                        : 'text-gray-700 dark:text-slate-300'
-                    }`}
-                  >
+                  <Text className={`text-sm font-semibold ${
+                    selectedAIFunction === func
+                      ? 'text-white'
+                      : 'text-gray-700 dark:text-slate-300'
+                  }`}>
                     {func}
                   </Text>
                 </Pressable>
               ))}
             </ScrollView>
 
-            {getAIToolsByFunction(selectedAIFunction).map((tool) => {
+            {getAIToolsByFunction(selectedAIFunction).map((tool, idx) => {
               const colorScheme = getCategoryColor(tool.category);
               return (
-                <Pressable
-                  key={tool.id}
-                  onPress={() => {
-                    setSelectedAIAgent(tool);
-                  }}
-                  className={`${colorScheme.bg} border ${colorScheme.border} rounded-2xl p-4 mb-3 active:opacity-70`}
-                >
-                  <View className="flex-row items-start justify-between mb-2">
-                    <View className="flex-1">
-                      <Text className={`${colorScheme.text} font-bold text-base mb-1`}>
-                        {tool.name}
-                      </Text>
-                      <Text className="text-gray-600 dark:text-slate-400 text-sm mb-2">
-                        {tool.purpose}
-                      </Text>
+                <Animated.View key={tool.id} entering={FadeInDown.delay(idx * 50).duration(300)}>
+                  <Pressable
+                    onPress={() => setSelectedAIAgent(tool)}
+                    className="bg-white dark:bg-slate-900 rounded-2xl p-4 mb-3 border border-gray-200 dark:border-slate-800 active:opacity-90"
+                  >
+                    <View className="flex-row items-start justify-between mb-2">
+                      <View className="flex-row items-center flex-1">
+                        <View className="w-10 h-10 bg-cyan-500 rounded-xl items-center justify-center mr-3">
+                          <Bot size={20} color="#fff" />
+                        </View>
+                        <View className="flex-1">
+                          <Text className="text-gray-900 dark:text-white font-bold text-base">{tool.name}</Text>
+                          <Text className="text-gray-500 dark:text-slate-400 text-xs">{tool.provider}</Text>
+                        </View>
+                      </View>
+                      {tool.reviews && (
+                        <View className="flex-row items-center bg-amber-100 dark:bg-amber-900/30 px-2 py-1 rounded">
+                          <Star size={12} color="#f59e0b" fill="#f59e0b" />
+                          <Text className="text-amber-700 dark:text-amber-300 text-xs font-bold ml-1">
+                            {tool.reviews.rating}
+                          </Text>
+                        </View>
+                      )}
                     </View>
-                  </View>
 
-                  <View className="flex-row flex-wrap gap-1 mb-2">
-                    {tool.capabilities.slice(0, 3).map((capability, idx) => (
-                      <View key={idx} className="bg-gray-200 dark:bg-slate-800 px-2 py-1 rounded">
-                        <Text className="text-gray-700 dark:text-slate-300 text-xs">{capability}</Text>
-                      </View>
-                    ))}
-                    {tool.capabilities.length > 3 && (
-                      <View className="bg-gray-200 dark:bg-slate-800 px-2 py-1 rounded">
-                        <Text className="text-gray-600 dark:text-slate-400 text-xs">+{tool.capabilities.length - 3} more</Text>
-                      </View>
-                    )}
-                  </View>
+                    <Text className="text-gray-600 dark:text-slate-400 text-sm mb-3" numberOfLines={2}>
+                      {tool.purpose}
+                    </Text>
 
-                  <View className="flex-row items-center justify-between pt-2 border-t border-gray-300 dark:border-slate-800">
-                    <Text className="text-emerald-600 dark:text-emerald-400 font-semibold">
-                      £{tool.costPerMonth}/mo
-                    </Text>
-                    <Text className="text-gray-500 dark:text-slate-500 text-xs">
-                      {tool.provider}
-                    </Text>
-                  </View>
-                </Pressable>
+                    <View className="flex-row flex-wrap gap-1 mb-3">
+                      {tool.capabilities.slice(0, 3).map((cap, i) => (
+                        <View key={i} className="bg-cyan-50 dark:bg-cyan-900/30 px-2 py-1 rounded">
+                          <Text className="text-cyan-700 dark:text-cyan-300 text-xs">{cap}</Text>
+                        </View>
+                      ))}
+                    </View>
+
+                    <View className="flex-row items-center justify-between pt-3 border-t border-gray-100 dark:border-slate-800">
+                      <View className="flex-row items-center">
+                        <Text className="text-emerald-600 dark:text-emerald-400 font-bold">£{tool.costPerMonth}</Text>
+                        <Text className="text-gray-500 dark:text-slate-500 text-xs ml-1">/month</Text>
+                      </View>
+                      <View className="flex-row items-center">
+                        <Text className="text-gray-500 dark:text-slate-500 text-xs mr-2">
+                          {tool.setup?.timeToValue || 'Quick setup'}
+                        </Text>
+                        <ChevronRight size={16} color="#64748b" />
+                      </View>
+                    </View>
+                  </Pressable>
+                </Animated.View>
               );
             })}
           </View>
         )}
 
-        {/* Apply/Join Tab */}
+        {/* SHORTLIST TAB */}
+        {activeTab === 'shortlist' && (
+          <View className="px-5 py-4">
+            {shortlistedIds.size === 0 ? (
+              <View className="items-center py-16">
+                <Heart size={64} color="#ef4444" />
+                <Text className="text-gray-900 dark:text-white text-xl font-bold mt-4">Your Shortlist is Empty</Text>
+                <Text className="text-gray-500 dark:text-slate-400 text-center mt-2 px-8">
+                  Tap the heart icon on any candidate to add them to your shortlist for quick comparison
+                </Text>
+                <Pressable
+                  onPress={() => setActiveTab('discover')}
+                  className="mt-6 bg-blue-500 px-8 py-3 rounded-xl active:opacity-80"
+                >
+                  <Text className="text-white font-bold">Browse Talent</Text>
+                </Pressable>
+              </View>
+            ) : (
+              <>
+                <Text className="text-gray-900 dark:text-white font-bold text-lg mb-3">
+                  {shortlistedIds.size} Saved Candidates
+                </Text>
+
+                {shortlistedExecutives.length > 0 && (
+                  <View className="mb-4">
+                    <Text className="text-gray-500 dark:text-slate-400 text-sm mb-2">Executives</Text>
+                    {shortlistedExecutives.map((exec, idx) => (
+                      <TalentCard key={exec.id} candidate={exec} type="executive" index={idx} />
+                    ))}
+                  </View>
+                )}
+
+                {shortlistedApprentices.length > 0 && (
+                  <View className="mb-4">
+                    <Text className="text-gray-500 dark:text-slate-400 text-sm mb-2">Apprentices</Text>
+                    {shortlistedApprentices.map((app, idx) => (
+                      <TalentCard key={app.id} candidate={app} type="apprentice" index={idx} />
+                    ))}
+                  </View>
+                )}
+              </>
+            )}
+          </View>
+        )}
+
+        {/* APPLY TAB */}
         {activeTab === 'apply' && (
-          <View className="px-6 pb-6">
+          <View className="px-5 py-4">
             <View className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4 mb-4">
               <Text className="text-blue-900 dark:text-blue-100 font-bold text-lg mb-2">
-                Join the Marketplace
+                Join the Talent Network
               </Text>
               <Text className="text-blue-800 dark:text-blue-200 text-sm">
-                Are you a fractional executive, apprentice looking to learn, or a supplier/manufacturer? Join our marketplace to connect with hardware startups.
+                Connect with hardware startups looking for fractional talent, eager apprentices, and reliable suppliers.
               </Text>
             </View>
 
-            {/* Application Types */}
             <Pressable
               onPress={() => {
                 setApplicationType('executive');
                 setShowApplicationModal(true);
               }}
-              className="bg-emerald-100 dark:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-800 rounded-xl p-4 mb-3 active:opacity-70"
+              className="bg-emerald-100 dark:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-800 rounded-xl p-5 mb-3 active:opacity-80"
             >
               <View className="flex-row items-center mb-2">
-                <Briefcase size={24} color="#10b981" />
-                <Text className="text-emerald-900 dark:text-emerald-100 font-bold text-base ml-3">
-                  Apply as Fractional Executive
-                </Text>
+                <View className="w-12 h-12 bg-emerald-500 rounded-xl items-center justify-center">
+                  <Crown size={24} color="#fff" />
+                </View>
+                <View className="ml-4 flex-1">
+                  <Text className="text-emerald-900 dark:text-emerald-100 font-bold text-base">
+                    Fractional Executive
+                  </Text>
+                  <Text className="text-emerald-700 dark:text-emerald-300 text-sm">
+                    1-3 days/week engagements
+                  </Text>
+                </View>
+                <ChevronRight size={20} color="#10b981" />
               </View>
-              <Text className="text-emerald-800 dark:text-emerald-200 text-sm">
-                Join as an experienced executive offering 1-3 days/week of your expertise to hardware startups
-              </Text>
             </Pressable>
 
             <Pressable
@@ -766,17 +1192,22 @@ export default function CommunityScreen() {
                 setApplicationType('apprentice');
                 setShowApplicationModal(true);
               }}
-              className="bg-purple-100 dark:bg-purple-900/30 border border-purple-200 dark:border-purple-800 rounded-xl p-4 mb-3 active:opacity-70"
+              className="bg-purple-100 dark:bg-purple-900/30 border border-purple-200 dark:border-purple-800 rounded-xl p-5 mb-3 active:opacity-80"
             >
               <View className="flex-row items-center mb-2">
-                <Award size={24} color="#a855f7" />
-                <Text className="text-purple-900 dark:text-purple-100 font-bold text-base ml-3">
-                  Apply as Apprentice
-                </Text>
+                <View className="w-12 h-12 bg-purple-500 rounded-xl items-center justify-center">
+                  <GraduationCap size={24} color="#fff" />
+                </View>
+                <View className="ml-4 flex-1">
+                  <Text className="text-purple-900 dark:text-purple-100 font-bold text-base">
+                    Apprentice
+                  </Text>
+                  <Text className="text-purple-700 dark:text-purple-300 text-sm">
+                    Learn from experienced executives
+                  </Text>
+                </View>
+                <ChevronRight size={20} color="#a855f7" />
               </View>
-              <Text className="text-purple-800 dark:text-purple-200 text-sm">
-                Learn from experienced executives while contributing to real hardware startup projects
-              </Text>
             </Pressable>
 
             <Pressable
@@ -784,21 +1215,60 @@ export default function CommunityScreen() {
                 setApplicationType('supplier');
                 setShowApplicationModal(true);
               }}
-              className="bg-amber-100 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-800 rounded-xl p-4 active:opacity-70"
+              className="bg-amber-100 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-800 rounded-xl p-5 active:opacity-80"
             >
               <View className="flex-row items-center mb-2">
-                <Factory size={24} color="#f59e0b" />
-                <Text className="text-amber-900 dark:text-amber-100 font-bold text-base ml-3">
-                  Register as Supplier/Manufacturer
-                </Text>
+                <View className="w-12 h-12 bg-amber-500 rounded-xl items-center justify-center">
+                  <Factory size={24} color="#fff" />
+                </View>
+                <View className="ml-4 flex-1">
+                  <Text className="text-amber-900 dark:text-amber-100 font-bold text-base">
+                    Supplier / Manufacturer
+                  </Text>
+                  <Text className="text-amber-700 dark:text-amber-300 text-sm">
+                    Connect with hardware startups
+                  </Text>
+                </View>
+                <ChevronRight size={20} color="#f59e0b" />
               </View>
-              <Text className="text-amber-800 dark:text-amber-200 text-sm">
-                Connect with hardware startups looking for reliable manufacturing and component suppliers
-              </Text>
             </Pressable>
           </View>
         )}
+
+        {/* Bottom padding for tabs */}
+        <View className="h-24" />
       </ScrollView>
+
+      {/* Compare Mode Banner */}
+      {compareMode && compareIds.length > 0 && (
+        <Animated.View
+          entering={FadeInDown.duration(200)}
+          className="absolute bottom-24 left-5 right-5"
+        >
+          <View className="bg-blue-500 rounded-2xl p-4 flex-row items-center justify-between shadow-lg">
+            <View>
+              <Text className="text-white font-bold">{compareIds.length} selected for comparison</Text>
+              <Text className="text-white/70 text-xs">Select up to 3 candidates</Text>
+            </View>
+            <View className="flex-row gap-2">
+              <Pressable
+                onPress={() => setCompareIds([])}
+                className="bg-white/20 px-4 py-2 rounded-lg active:opacity-70"
+              >
+                <Text className="text-white font-semibold">Clear</Text>
+              </Pressable>
+              {compareIds.length >= 2 && (
+                <Pressable
+                  onPress={() => Alert.alert('Compare', 'Comparison view coming soon!')}
+                  className="bg-white px-4 py-2 rounded-lg active:opacity-70"
+                >
+                  <Text className="text-blue-500 font-bold">Compare</Text>
+                </Pressable>
+              )}
+            </View>
+          </View>
+        </Animated.View>
+      )}
 
       {/* Profile Detail Modal */}
       <Modal
@@ -811,7 +1281,7 @@ export default function CommunityScreen() {
         <View className="flex-1 bg-black/70 justify-end">
           <View className="bg-white dark:bg-slate-950 rounded-t-3xl flex-1" style={{ maxHeight: '90%' }}>
             {/* Header */}
-            <View className="px-6 pt-6 pb-4 border-b border-gray-300 dark:border-slate-800">
+            <View className="px-6 pt-6 pb-4 border-b border-gray-200 dark:border-slate-800">
               <View className="flex-row items-center justify-between">
                 <Text className="text-gray-900 dark:text-white text-2xl font-bold">
                   {selectedCandidate ? 'Profile Details' : 'Supplier Details'}
@@ -853,12 +1323,12 @@ export default function CommunityScreen() {
                       </View>
                     </View>
                     <View className={`self-start px-3 py-1.5 rounded-full ${
-                      selectedCandidate.availability === 'Available now'
+                      selectedCandidate.availability === 'Available now' || selectedCandidate.availability.toLowerCase().includes('now')
                         ? 'bg-emerald-100 dark:bg-emerald-900/30'
                         : 'bg-amber-100 dark:bg-amber-900/30'
                     }`}>
                       <Text className={`text-sm font-semibold ${
-                        selectedCandidate.availability === 'Available now'
+                        selectedCandidate.availability === 'Available now' || selectedCandidate.availability.toLowerCase().includes('now')
                           ? 'text-emerald-700 dark:text-emerald-300'
                           : 'text-amber-700 dark:text-amber-300'
                       }`}>
@@ -866,6 +1336,39 @@ export default function CommunityScreen() {
                       </Text>
                     </View>
                   </View>
+
+                  {/* Match Score Card */}
+                  {'score' in selectedCandidate && (
+                    <View className="bg-gradient-to-r from-blue-50 to-emerald-50 dark:from-blue-900/20 dark:to-emerald-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4 mb-6">
+                      <View className="flex-row items-center justify-between mb-3">
+                        <View className="flex-row items-center">
+                          <Target size={20} color="#3b82f6" />
+                          <Text className="text-blue-700 dark:text-blue-300 font-bold text-lg ml-2">Match Score</Text>
+                        </View>
+                        <View className="w-14 h-14 bg-blue-500 rounded-full items-center justify-center">
+                          <Text className="text-white text-xl font-bold">{(selectedCandidate as typeof scoredExecutives[0]).score.overall}</Text>
+                        </View>
+                      </View>
+                      <View className="flex-row gap-2">
+                        <View className="flex-1 bg-white/50 dark:bg-slate-800/50 rounded-lg p-2 items-center">
+                          <Text className="text-gray-500 dark:text-slate-500 text-[10px]">Experience</Text>
+                          <Text className="text-gray-900 dark:text-white font-bold">{(selectedCandidate as typeof scoredExecutives[0]).score.experienceScore}</Text>
+                        </View>
+                        <View className="flex-1 bg-white/50 dark:bg-slate-800/50 rounded-lg p-2 items-center">
+                          <Text className="text-gray-500 dark:text-slate-500 text-[10px]">Availability</Text>
+                          <Text className="text-gray-900 dark:text-white font-bold">{(selectedCandidate as typeof scoredExecutives[0]).score.availabilityScore}</Text>
+                        </View>
+                        <View className="flex-1 bg-white/50 dark:bg-slate-800/50 rounded-lg p-2 items-center">
+                          <Text className="text-gray-500 dark:text-slate-500 text-[10px]">Value</Text>
+                          <Text className="text-gray-900 dark:text-white font-bold">{(selectedCandidate as typeof scoredExecutives[0]).score.valueScore}</Text>
+                        </View>
+                        <View className="flex-1 bg-white/50 dark:bg-slate-800/50 rounded-lg p-2 items-center">
+                          <Text className="text-gray-500 dark:text-slate-500 text-[10px]">Skill Match</Text>
+                          <Text className="text-gray-900 dark:text-white font-bold">{(selectedCandidate as typeof scoredExecutives[0]).score.skillMatch}</Text>
+                        </View>
+                      </View>
+                    </View>
+                  )}
 
                   {/* Specialization */}
                   <View className="mb-6">
@@ -887,7 +1390,7 @@ export default function CommunityScreen() {
                       Experience
                     </Text>
                     <Text className="text-gray-700 dark:text-slate-300 text-base">
-                      {selectedCandidate.experience}
+                      {selectedCandidate.experience} years of experience
                     </Text>
                   </View>
 
@@ -898,7 +1401,7 @@ export default function CommunityScreen() {
                     </Text>
                     <View className="flex-row flex-wrap gap-2">
                       {selectedCandidate.skills.map((skill, idx) => (
-                        <View key={idx} className="bg-gray-200 dark:bg-slate-800 px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-800">
+                        <View key={idx} className="bg-gray-200 dark:bg-slate-800 px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-700">
                           <Text className="text-gray-800 dark:text-slate-200 text-sm">{skill}</Text>
                         </View>
                       ))}
@@ -913,8 +1416,8 @@ export default function CommunityScreen() {
                       </Text>
                       <View className="gap-3">
                         {selectedCandidate.previousCompanies.map((company, idx) => (
-                          <View key={idx} className="bg-gray-100 dark:bg-slate-900 rounded-xl p-4 border border-gray-300 dark:border-slate-800">
-                            <View className="flex-row items-center mb-2">
+                          <View key={idx} className="bg-gray-100 dark:bg-slate-900 rounded-xl p-4 border border-gray-200 dark:border-slate-800">
+                            <View className="flex-row items-center">
                               <Building2 size={18} color="#3b82f6" />
                               <Text className="text-gray-900 dark:text-white font-semibold ml-2">{company}</Text>
                             </View>
@@ -941,16 +1444,16 @@ export default function CommunityScreen() {
                     </View>
                   )}
 
-                  {/* Bio / Additional Info */}
+                  {/* Bio */}
                   <View className="mb-6">
                     <Text className="text-gray-900 dark:text-white font-bold text-lg mb-2">
                       About
                     </Text>
                     <Text className="text-gray-700 dark:text-slate-300 text-base leading-6">
-                      {selectedCandidate.role === 'FractionalExec'
+                      {selectedCandidate.bio || (selectedCandidate.role === 'FractionalExec'
                         ? `${selectedCandidate.name} is an experienced ${selectedCandidate.specialization.join(' and ')} professional with ${selectedCandidate.experience} years of experience. They bring deep expertise in ${selectedCandidate.skills.slice(0, 3).join(', ')}, and have worked with leading companies in the hardware and technology sectors.`
                         : `${selectedCandidate.name} is an apprentice specializing in ${selectedCandidate.specialization.join(' and ')}. With ${selectedCandidate.experience} years of experience, they are eager to learn and contribute to innovative hardware projects while developing their skills under experienced executives.`
-                      }
+                      )}
                     </Text>
                   </View>
                 </View>
@@ -958,7 +1461,7 @@ export default function CommunityScreen() {
 
               {selectedSupplierFromStore && (
                 <View className="px-6 py-6">
-                  {/* Name and Header */}
+                  {/* Supplier Header */}
                   <View className="mb-6">
                     <View className="flex-row items-center mb-3">
                       <View className="w-16 h-16 bg-amber-500 rounded-full items-center justify-center">
@@ -968,57 +1471,59 @@ export default function CommunityScreen() {
                         <Text className="text-gray-900 dark:text-white text-2xl font-bold">
                           {selectedSupplierFromStore.name}
                         </Text>
-                        <Text className="text-gray-600 dark:text-slate-400 text-base">
-                          {selectedSupplierFromStore.region} Region
-                        </Text>
+                        <View className="flex-row items-center mt-1">
+                          <MapPin size={14} color="#64748b" />
+                          <Text className="text-gray-600 dark:text-slate-400 text-sm ml-1">
+                            {selectedSupplierFromStore.location.city}, {selectedSupplierFromStore.location.country}
+                          </Text>
+                        </View>
                       </View>
-                    </View>
-                    <View className="flex-row items-center">
-                      <Building2 size={16} color="#64748b" />
-                      <Text className="text-gray-600 dark:text-slate-400 text-sm ml-2">
-                        {selectedSupplierFromStore.location.city}, {selectedSupplierFromStore.location.country}
-                      </Text>
                     </View>
                   </View>
 
                   {/* Rating and Lead Time */}
                   {selectedSupplierFromStore.customerReviews && (
-                    <View className="flex-row gap-3 mb-4">
-                      <View className="flex-1 bg-gray-200 dark:bg-slate-800 rounded-xl p-4">
-                        <Text className="text-gray-600 dark:text-slate-400 text-xs mb-1">Customer Rating</Text>
+                    <View className="flex-row gap-3 mb-6">
+                      <View className="flex-1 bg-gray-100 dark:bg-slate-800 rounded-xl p-4">
+                        <Text className="text-gray-500 dark:text-slate-400 text-xs mb-1">Rating</Text>
                         <View className="flex-row items-center">
-                          <Text className="text-amber-500 dark:text-amber-400 text-2xl font-bold">
+                          <Star size={16} color="#f59e0b" fill="#f59e0b" />
+                          <Text className="text-amber-600 dark:text-amber-400 text-xl font-bold ml-1">
                             {selectedSupplierFromStore.customerReviews.rating}
                           </Text>
-                          <Text className="text-gray-500 dark:text-slate-500 text-sm ml-1">/5</Text>
                         </View>
                         <Text className="text-gray-500 dark:text-slate-500 text-xs">
                           {selectedSupplierFromStore.customerReviews.totalReviews} reviews
                         </Text>
                       </View>
-                      <View className="flex-1 bg-gray-200 dark:bg-slate-800 rounded-xl p-4">
-                        <Text className="text-gray-600 dark:text-slate-400 text-xs mb-1">Lead Time</Text>
-                        <Text className="text-emerald-600 dark:text-emerald-400 text-2xl font-bold">
+                      <View className="flex-1 bg-gray-100 dark:bg-slate-800 rounded-xl p-4">
+                        <Text className="text-gray-500 dark:text-slate-400 text-xs mb-1">Lead Time</Text>
+                        <Text className="text-emerald-600 dark:text-emerald-400 text-xl font-bold">
                           {selectedSupplierFromStore.leadTimeWeeks}
                         </Text>
                         <Text className="text-gray-500 dark:text-slate-500 text-xs">weeks</Text>
+                      </View>
+                      <View className="flex-1 bg-gray-100 dark:bg-slate-800 rounded-xl p-4">
+                        <Text className="text-gray-500 dark:text-slate-400 text-xs mb-1">Min Order</Text>
+                        <Text className="text-blue-600 dark:text-blue-400 text-xl font-bold">
+                          {selectedSupplierFromStore.minimumOrderQuantity}
+                        </Text>
+                        <Text className="text-gray-500 dark:text-slate-500 text-xs">units</Text>
                       </View>
                     </View>
                   )}
 
                   {/* Description */}
-                  {selectedSupplierFromStore.detailedDescription && (
-                    <View className="mb-4">
-                      <Text className="text-gray-900 dark:text-white font-semibold mb-2">About</Text>
-                      <Text className="text-gray-700 dark:text-slate-300 text-base leading-6">
-                        {selectedSupplierFromStore.detailedDescription}
-                      </Text>
-                    </View>
-                  )}
+                  <View className="mb-6">
+                    <Text className="text-gray-900 dark:text-white font-bold text-lg mb-2">About</Text>
+                    <Text className="text-gray-700 dark:text-slate-300 text-base leading-6">
+                      {selectedSupplierFromStore.detailedDescription || selectedSupplierFromStore.description}
+                    </Text>
+                  </View>
 
                   {/* Capabilities */}
-                  <View className="mb-4">
-                    <Text className="text-gray-900 dark:text-white font-semibold mb-2">Capabilities</Text>
+                  <View className="mb-6">
+                    <Text className="text-gray-900 dark:text-white font-bold text-lg mb-3">Capabilities</Text>
                     <View className="flex-row flex-wrap gap-2">
                       {selectedSupplierFromStore.capabilities.map((cap, idx) => (
                         <View key={idx} className="bg-amber-100 dark:bg-amber-900/30 px-3 py-2 rounded-lg">
@@ -1028,281 +1533,33 @@ export default function CommunityScreen() {
                     </View>
                   </View>
 
-                  {/* Specialties */}
-                  {selectedSupplierFromStore.specialties && selectedSupplierFromStore.specialties.length > 0 && (
-                    <View className="mb-4">
-                      <Text className="text-gray-900 dark:text-white font-semibold mb-2">Specialties</Text>
-                      <View className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4">
-                        {selectedSupplierFromStore.specialties.map((specialty, idx) => (
-                          <View key={idx} className="flex-row items-start mb-2">
-                            <Text className="text-blue-600 dark:text-blue-400 mr-2">✓</Text>
-                            <Text className="text-gray-900 dark:text-white flex-1 font-medium">{specialty}</Text>
-                          </View>
-                        ))}
-                      </View>
-                    </View>
-                  )}
-
-                  {/* Materials */}
-                  {selectedSupplierFromStore.materials && selectedSupplierFromStore.materials.length > 0 && (
-                    <View className="mb-4">
-                      <Text className="text-gray-900 dark:text-white font-semibold mb-2">Materials</Text>
-                      <View className="flex-row flex-wrap gap-2">
-                        {selectedSupplierFromStore.materials.map((material, idx) => (
-                          <View key={idx} className="bg-gray-200 dark:bg-slate-800 px-3 py-2 rounded-lg">
-                            <Text className="text-gray-700 dark:text-slate-300">{material}</Text>
-                          </View>
-                        ))}
-                      </View>
-                    </View>
-                  )}
-
-                  {/* Industries Served */}
-                  {selectedSupplierFromStore.industries && selectedSupplierFromStore.industries.length > 0 && (
-                    <View className="mb-4">
-                      <Text className="text-gray-900 dark:text-white font-semibold mb-2">Industries Served</Text>
-                      <View className="flex-row flex-wrap gap-2">
-                        {selectedSupplierFromStore.industries.map((industry, idx) => (
-                          <View key={idx} className="bg-purple-100 dark:bg-purple-900/30 px-3 py-2 rounded-lg border border-purple-200 dark:border-purple-800">
-                            <Text className="text-purple-700 dark:text-purple-300 font-semibold">{industry}</Text>
-                          </View>
-                        ))}
-                      </View>
-                    </View>
-                  )}
-
-                  {/* Case Studies */}
-                  {selectedSupplierFromStore.caseStudies && selectedSupplierFromStore.caseStudies.length > 0 && (
-                    <View className="mb-4">
-                      <Text className="text-gray-900 dark:text-white font-semibold mb-2">Case Studies</Text>
-                      {selectedSupplierFromStore.caseStudies.map((caseStudy, idx) => (
-                        <View key={idx} className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-xl p-4 mb-3">
-                          <Text className="text-emerald-900 dark:text-emerald-100 font-bold text-base mb-1">{caseStudy.title}</Text>
-                          <Text className="text-emerald-700 dark:text-emerald-300 text-sm mb-2">{caseStudy.client}</Text>
-
-                          <Text className="text-gray-700 dark:text-slate-300 text-sm font-semibold mt-2">Challenge:</Text>
-                          <Text className="text-gray-600 dark:text-slate-400 text-sm mb-2">{caseStudy.challenge}</Text>
-
-                          <Text className="text-gray-700 dark:text-slate-300 text-sm font-semibold">Solution:</Text>
-                          <Text className="text-gray-600 dark:text-slate-400 text-sm mb-2">{caseStudy.solution}</Text>
-
-                          <Text className="text-gray-700 dark:text-slate-300 text-sm font-semibold">Results:</Text>
-                          {caseStudy.results.map((result, ridx) => (
-                            <Text key={ridx} className="text-gray-600 dark:text-slate-400 text-sm">• {result}</Text>
-                          ))}
-                        </View>
-                      ))}
-                    </View>
-                  )}
-
-                  {/* Equipment & Technology */}
-                  {selectedSupplierFromStore.equipment && (
-                    <View className="mb-4">
-                      <Text className="text-gray-900 dark:text-white font-semibold mb-2">Equipment & Technology</Text>
-                      <View className="bg-cyan-50 dark:bg-cyan-900/20 border border-cyan-200 dark:border-cyan-800 rounded-xl p-4">
-                        <View className="mb-3">
-                          <Text className="text-cyan-700 dark:text-cyan-300 font-semibold mb-1">Capacity</Text>
-                          <Text className="text-gray-700 dark:text-slate-300 text-sm">{selectedSupplierFromStore.equipment.capacity}</Text>
-                        </View>
-                        <View className="mb-3">
-                          <Text className="text-cyan-700 dark:text-cyan-300 font-semibold mb-1">Machines</Text>
-                          {selectedSupplierFromStore.equipment.machines.map((machine, idx) => (
-                            <Text key={idx} className="text-gray-700 dark:text-slate-300 text-sm">• {machine}</Text>
-                          ))}
-                        </View>
-                        <View>
-                          <Text className="text-cyan-700 dark:text-cyan-300 font-semibold mb-1">Technology</Text>
-                          <View className="flex-row flex-wrap gap-2 mt-1">
-                            {selectedSupplierFromStore.equipment.technology.map((tech, idx) => (
-                              <View key={idx} className="bg-cyan-100 dark:bg-cyan-900/40 px-2 py-1 rounded">
-                                <Text className="text-cyan-800 dark:text-cyan-200 text-xs">{tech}</Text>
-                              </View>
-                            ))}
-                          </View>
-                        </View>
-                      </View>
-                    </View>
-                  )}
-
-                  {/* Quality Control */}
-                  {selectedSupplierFromStore.qualityControl && (
-                    <View className="mb-4">
-                      <Text className="text-gray-900 dark:text-white font-semibold mb-2">Quality Control</Text>
-                      <View className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-xl p-4">
-                        {selectedSupplierFromStore.qualityControl.defectRate && (
-                          <View className="mb-3">
-                            <Text className="text-emerald-700 dark:text-emerald-300 font-semibold">Defect Rate</Text>
-                            <Text className="text-emerald-600 dark:text-emerald-400 text-lg font-bold">{selectedSupplierFromStore.qualityControl.defectRate}</Text>
-                          </View>
-                        )}
-                        <View className="mb-3">
-                          <Text className="text-emerald-700 dark:text-emerald-300 font-semibold mb-1">Processes</Text>
-                          {selectedSupplierFromStore.qualityControl.processes.map((process, idx) => (
-                            <Text key={idx} className="text-gray-700 dark:text-slate-300 text-sm">• {process}</Text>
-                          ))}
-                        </View>
-                      </View>
-                    </View>
-                  )}
-
-                  {/* Pricing */}
-                  {selectedSupplierFromStore.pricing && (
-                    <View className="mb-4">
-                      <Text className="text-gray-900 dark:text-white font-semibold mb-2">Pricing</Text>
-                      <View className="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-xl p-4">
-                        {selectedSupplierFromStore.pricing.setup && (
-                          <View className="mb-2">
-                            <Text className="text-purple-700 dark:text-purple-300 font-semibold">Setup Fee</Text>
-                            <Text className="text-gray-700 dark:text-slate-300">{selectedSupplierFromStore.pricing.setup}</Text>
-                          </View>
-                        )}
-                        {selectedSupplierFromStore.pricing.perUnit && (
-                          <View className="mb-2">
-                            <Text className="text-purple-700 dark:text-purple-300 font-semibold">Per Unit Cost</Text>
-                            <Text className="text-gray-700 dark:text-slate-300">{selectedSupplierFromStore.pricing.perUnit}</Text>
-                          </View>
-                        )}
-                        {selectedSupplierFromStore.pricing.minimumProject && (
-                          <View className="mb-2">
-                            <Text className="text-purple-700 dark:text-purple-300 font-semibold">Minimum Project</Text>
-                            <Text className="text-gray-700 dark:text-slate-300">{selectedSupplierFromStore.pricing.minimumProject}</Text>
-                          </View>
-                        )}
-                        {selectedSupplierFromStore.pricing.notes && (
-                          <Text className="text-gray-600 dark:text-slate-400 text-sm mt-2 italic">
-                            {selectedSupplierFromStore.pricing.notes}
-                          </Text>
-                        )}
-                      </View>
-                    </View>
-                  )}
-
-                  {/* Order Information */}
-                  <View className="mb-4">
-                    <Text className="text-gray-900 dark:text-white font-semibold mb-2">Order Information</Text>
-                    <View className="bg-gray-100 dark:bg-slate-900 rounded-xl p-4 border border-gray-300 dark:border-slate-800">
-                      <View className="flex-row justify-between mb-3">
-                        <Text className="text-gray-600 dark:text-slate-400">Min. Order Quantity</Text>
-                        <Text className="text-gray-900 dark:text-white font-semibold">{selectedSupplierFromStore.minimumOrderQuantity} units</Text>
-                      </View>
-                      <View className="flex-row justify-between">
-                        <Text className="text-gray-600 dark:text-slate-400">Lead Time</Text>
-                        <Text className="text-gray-900 dark:text-white font-semibold">{selectedSupplierFromStore.leadTimeWeeks} weeks</Text>
-                      </View>
-                    </View>
-                  </View>
-
-                  {/* Support Services */}
-                  {selectedSupplierFromStore.support && (
-                    <View className="mb-4">
-                      <Text className="text-gray-900 dark:text-white font-semibold mb-2">Support Services</Text>
-                      <View className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4">
-                        <View className="flex-row justify-between mb-2">
-                          <Text className="text-gray-700 dark:text-slate-300">Design Assistance</Text>
-                          <Text className="text-blue-700 dark:text-blue-300 font-semibold">
-                            {selectedSupplierFromStore.support.designAssistance ? '✓ Yes' : '✗ No'}
-                          </Text>
-                        </View>
-                        <View className="flex-row justify-between mb-2">
-                          <Text className="text-gray-700 dark:text-slate-300">Prototyping</Text>
-                          <Text className="text-blue-700 dark:text-blue-300 font-semibold">
-                            {selectedSupplierFromStore.support.prototyping ? '✓ Yes' : '✗ No'}
-                          </Text>
-                        </View>
-                        <View className="flex-row justify-between mb-2">
-                          <Text className="text-gray-700 dark:text-slate-300">Engineering Support</Text>
-                          <Text className="text-blue-700 dark:text-blue-300 font-semibold">
-                            {selectedSupplierFromStore.support.engineering ? '✓ Yes' : '✗ No'}
-                          </Text>
-                        </View>
-                        <View className="flex-row justify-between">
-                          <Text className="text-gray-700 dark:text-slate-300">Logistics</Text>
-                          <Text className="text-blue-700 dark:text-blue-300 font-semibold">
-                            {selectedSupplierFromStore.support.logistics ? '✓ Yes' : '✗ No'}
-                          </Text>
-                        </View>
-                      </View>
-                    </View>
-                  )}
-
                   {/* Certifications */}
-                  <View className="mb-4">
-                    <Text className="text-gray-900 dark:text-white font-semibold mb-2">Certifications</Text>
+                  <View className="mb-6">
+                    <Text className="text-gray-900 dark:text-white font-bold text-lg mb-3">Certifications</Text>
                     <View className="flex-row flex-wrap gap-2">
                       {selectedSupplierFromStore.certifications.map((cert, idx) => (
-                        <View key={idx} className="bg-emerald-100 dark:bg-emerald-900/30 px-3 py-2 rounded-lg border border-emerald-200 dark:border-emerald-800">
-                          <View className="flex-row items-center">
-                            <CheckCircle2 size={14} color="#10b981" />
-                            <Text className="text-emerald-700 dark:text-emerald-300 font-semibold ml-1">{cert}</Text>
-                          </View>
+                        <View key={idx} className="bg-emerald-100 dark:bg-emerald-900/30 px-3 py-2 rounded-lg flex-row items-center">
+                          <BadgeCheck size={14} color="#10b981" />
+                          <Text className="text-emerald-700 dark:text-emerald-300 font-semibold ml-1">{cert}</Text>
                         </View>
                       ))}
                     </View>
-                  </View>
-
-                  {/* Customer Reviews */}
-                  {selectedSupplierFromStore.customerReviews && (selectedSupplierFromStore.customerReviews.pros || selectedSupplierFromStore.customerReviews.cons) && (
-                    <View className="mb-4">
-                      <Text className="text-gray-900 dark:text-white font-semibold mb-2">Customer Feedback</Text>
-                      <View className="bg-gray-100 dark:bg-slate-800 rounded-xl p-4">
-                        {selectedSupplierFromStore.customerReviews.pros && selectedSupplierFromStore.customerReviews.pros.length > 0 && (
-                          <View className="mb-3">
-                            <Text className="text-emerald-700 dark:text-emerald-300 font-semibold mb-2">👍 Pros</Text>
-                            {selectedSupplierFromStore.customerReviews.pros.map((pro, idx) => (
-                              <Text key={idx} className="text-gray-700 dark:text-slate-300 text-sm mb-1">• {pro}</Text>
-                            ))}
-                          </View>
-                        )}
-                        {selectedSupplierFromStore.customerReviews.cons && selectedSupplierFromStore.customerReviews.cons.length > 0 && (
-                          <View>
-                            <Text className="text-red-700 dark:text-red-300 font-semibold mb-2">👎 Cons</Text>
-                            {selectedSupplierFromStore.customerReviews.cons.map((con, idx) => (
-                              <Text key={idx} className="text-gray-700 dark:text-slate-300 text-sm mb-1">• {con}</Text>
-                            ))}
-                          </View>
-                        )}
-                      </View>
-                    </View>
-                  )}
-
-                  {/* Testimonials */}
-                  {selectedSupplierFromStore.customerReviews?.testimonials && selectedSupplierFromStore.customerReviews.testimonials.length > 0 && (
-                    <View className="mb-4">
-                      <Text className="text-gray-900 dark:text-white font-semibold mb-2">Testimonials</Text>
-                      {selectedSupplierFromStore.customerReviews.testimonials.map((testimonial, idx) => (
-                        <View key={idx} className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4 mb-3">
-                          <Text className="text-gray-700 dark:text-slate-300 text-sm italic mb-3">"{testimonial.quote}"</Text>
-                          <View>
-                            <Text className="text-blue-900 dark:text-blue-100 font-semibold text-sm">{testimonial.author}</Text>
-                            <Text className="text-blue-700 dark:text-blue-300 text-xs">{testimonial.role}, {testimonial.company}</Text>
-                          </View>
-                        </View>
-                      ))}
-                    </View>
-                  )}
-
-                  {/* Website */}
-                  <View className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-4">
-                    <Text className="text-amber-700 dark:text-amber-300 text-sm font-semibold mb-2">🌐 Website</Text>
-                    <Text className="text-amber-600 dark:text-amber-400 text-sm">
-                      {selectedSupplierFromStore.contact.website || 'Not provided'}
-                    </Text>
                   </View>
                 </View>
               )}
             </ScrollView>
 
             {/* Action Buttons */}
-            <View className="px-6 py-4 border-t border-gray-300 dark:border-slate-800 bg-white dark:bg-slate-950">
+            <View className="px-6 py-4 border-t border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-950">
               <View className="flex-row gap-3">
                 <Pressable
                   onPress={() => {
                     setShowProfileModal(false);
                     setTimeout(() => {
                       if (selectedSupplierFromStore) {
-                        handleRequestAllocation('supplier', selectedSupplierFromStore);
+                        handleQuickOnboard('supplier', selectedSupplierFromStore);
                       } else if (selectedCandidate) {
-                        handleRequestAllocation(
+                        handleQuickOnboard(
                           selectedCandidate.role === 'FractionalExec' ? 'executive' : 'apprentice',
                           selectedCandidate
                         );
@@ -1311,25 +1568,34 @@ export default function CommunityScreen() {
                   }}
                   className="flex-1 bg-blue-500 rounded-xl py-4 items-center active:opacity-70"
                 >
-                  <Text className="text-white font-bold text-base">Request to Onboard</Text>
+                  <View className="flex-row items-center">
+                    <Zap size={20} color="#fff" />
+                    <Text className="text-white font-bold text-base ml-2">Quick Onboard</Text>
+                  </View>
                 </Pressable>
-                <Pressable
-                  onPress={() => {
-                    setShowProfileModal(false);
-                    setSelectedCandidate(null);
-                    selectSupplier(null);
-                  }}
-                  className="px-6 py-4 bg-gray-200 dark:bg-slate-800 rounded-xl items-center justify-center active:opacity-70"
-                >
-                  <Text className="text-gray-700 dark:text-slate-300 font-semibold">Close</Text>
-                </Pressable>
+                {selectedCandidate && (
+                  <Pressable
+                    onPress={() => toggleShortlist(selectedCandidate.id)}
+                    className={`w-14 h-14 rounded-xl items-center justify-center ${
+                      shortlistedIds.has(selectedCandidate.id)
+                        ? 'bg-red-100 dark:bg-red-900/30'
+                        : 'bg-gray-100 dark:bg-slate-800'
+                    } active:opacity-70`}
+                  >
+                    <Heart
+                      size={24}
+                      color={shortlistedIds.has(selectedCandidate.id) ? '#ef4444' : '#64748b'}
+                      fill={shortlistedIds.has(selectedCandidate.id) ? '#ef4444' : 'none'}
+                    />
+                  </Pressable>
+                )}
               </View>
             </View>
           </View>
         </View>
       </Modal>
 
-      {/* Allocation Request Modal */}
+      {/* Request Modal */}
       <Modal
         visible={showRequestModal}
         transparent
@@ -1339,56 +1605,53 @@ export default function CommunityScreen() {
       >
         <View className="flex-1 bg-black/70 justify-end">
           <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} className="flex-1">
-            <View className="bg-gray-100 dark:bg-slate-900 rounded-t-3xl flex-1" style={{ maxHeight: '90%' }}>
-              <View className="px-6 pt-6 pb-4 border-b border-gray-300 dark:border-slate-800">
+            <View className="bg-white dark:bg-slate-900 rounded-t-3xl" style={{ maxHeight: '60%' }}>
+              <View className="px-6 pt-6 pb-4 border-b border-gray-200 dark:border-slate-800">
                 <View className="flex-row items-center justify-between">
                   <Text className="text-gray-900 dark:text-white text-xl font-bold">Request Allocation</Text>
                   <Pressable
                     onPress={() => setShowRequestModal(false)}
-                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                    className="w-10 h-10 items-center justify-center rounded-full bg-gray-200 dark:bg-slate-800 active:opacity-70"
+                    className="w-10 h-10 items-center justify-center rounded-full bg-gray-100 dark:bg-slate-800 active:opacity-70"
                   >
                     <X size={24} color="#64748b" />
                   </Pressable>
                 </View>
               </View>
 
-              <ScrollView showsVerticalScrollIndicator={true} className="px-6 py-4" keyboardShouldPersistTaps="handled">
-              <View className="mb-4">
-                <Text className="text-gray-900 dark:text-white font-bold text-base mb-1">
-                  {requestType === 'supplier' ? selectedSupplierFromStore?.name : selectedCandidate?.name}
-                </Text>
-                <Text className="text-gray-600 dark:text-slate-400 text-sm">
-                  This request will be sent to the founder for approval in the Decide tab.
-                </Text>
-              </View>
-
-              <View className="mb-4">
-                <Text className="text-gray-600 dark:text-slate-400 text-sm mb-2">
-                  Request Notes (Optional)
-                </Text>
-                <TextInput
-                  className="bg-gray-200 dark:bg-slate-800 rounded-xl px-4 py-3 text-gray-900 dark:text-white text-base min-h-[100px]"
-                  value={requestNotes}
-                  onChangeText={setRequestNotes}
-                  placeholder="Explain why this resource would benefit the project..."
-                  placeholderTextColor="#475569"
-                  multiline
-                  textAlignVertical="top"
-                />
-              </View>
-
-              <Pressable
-                onPress={handleSubmitRequest}
-                className="bg-blue-500 py-4 rounded-xl active:opacity-70"
-              >
-                <View className="flex-row items-center justify-center">
-                  <Send size={20} color="#fff" />
-                  <Text className="text-white text-center font-bold ml-2">Submit Request</Text>
+              <ScrollView className="px-6 py-4" keyboardShouldPersistTaps="handled">
+                <View className="mb-4">
+                  <Text className="text-gray-900 dark:text-white font-bold text-base mb-1">
+                    {requestType === 'supplier' ? selectedSupplierFromStore?.name : selectedCandidate?.name}
+                  </Text>
+                  <Text className="text-gray-500 dark:text-slate-400 text-sm">
+                    This request will be sent for founder approval.
+                  </Text>
                 </View>
-              </Pressable>
-            </ScrollView>
-          </View>
+
+                <View className="mb-4">
+                  <Text className="text-gray-500 dark:text-slate-400 text-sm mb-2">Notes (Optional)</Text>
+                  <TextInput
+                    className="bg-gray-100 dark:bg-slate-800 rounded-xl px-4 py-3 text-gray-900 dark:text-white text-base min-h-[100px]"
+                    value={requestNotes}
+                    onChangeText={setRequestNotes}
+                    placeholder="Why do you need this resource?"
+                    placeholderTextColor="#64748b"
+                    multiline
+                    textAlignVertical="top"
+                  />
+                </View>
+
+                <Pressable
+                  onPress={handleSubmitRequest}
+                  className="bg-blue-500 py-4 rounded-xl active:opacity-70 mb-4"
+                >
+                  <View className="flex-row items-center justify-center">
+                    <Send size={20} color="#fff" />
+                    <Text className="text-white text-center font-bold ml-2">Submit Request</Text>
+                  </View>
+                </Pressable>
+              </ScrollView>
+            </View>
           </KeyboardAvoidingView>
         </View>
       </Modal>
@@ -1403,156 +1666,134 @@ export default function CommunityScreen() {
       >
         <View className="flex-1 bg-black/70 justify-end">
           <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} className="flex-1">
-            <View className="bg-gray-100 dark:bg-slate-900 rounded-t-3xl flex-1" style={{ maxHeight: '90%' }}>
-              <View className="px-6 pt-6 pb-4 border-b border-gray-300 dark:border-slate-800">
+            <View className="bg-white dark:bg-slate-900 rounded-t-3xl flex-1" style={{ maxHeight: '90%' }}>
+              <View className="px-6 pt-6 pb-4 border-b border-gray-200 dark:border-slate-800">
                 <View className="flex-row items-center justify-between">
                   <Text className="text-gray-900 dark:text-white text-xl font-bold">
                     Apply as {applicationType === 'executive' ? 'Executive' : applicationType === 'apprentice' ? 'Apprentice' : 'Supplier'}
                   </Text>
                   <Pressable
                     onPress={() => setShowApplicationModal(false)}
-                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                    className="w-10 h-10 items-center justify-center rounded-full bg-gray-200 dark:bg-slate-800 active:opacity-70"
+                    className="w-10 h-10 items-center justify-center rounded-full bg-gray-100 dark:bg-slate-800 active:opacity-70"
                   >
                     <X size={24} color="#64748b" />
                   </Pressable>
                 </View>
               </View>
 
-              <ScrollView showsVerticalScrollIndicator={true} className="px-6 py-4" keyboardShouldPersistTaps="handled">
-              <Text className="text-blue-700 dark:text-blue-300 text-sm mb-4">
-                Submit your application to join the marketplace. Our team will review and contact you if there's a match.
-              </Text>
-
-              <View className="mb-3">
-                <Text className="text-gray-600 dark:text-slate-400 text-sm mb-2">Full Name *</Text>
-                <TextInput
-                  className="bg-gray-200 dark:bg-slate-800 rounded-xl px-4 py-3 text-gray-900 dark:text-white text-base"
-                  value={applicationName}
-                  onChangeText={setApplicationName}
-                  placeholder="Your name"
-                  placeholderTextColor="#475569"
-                />
-              </View>
-
-              <View className="mb-3">
-                <Text className="text-gray-600 dark:text-slate-400 text-sm mb-2">Email *</Text>
-                <TextInput
-                  className="bg-gray-200 dark:bg-slate-800 rounded-xl px-4 py-3 text-gray-900 dark:text-white text-base"
-                  value={applicationEmail}
-                  onChangeText={setApplicationEmail}
-                  placeholder="your.email@example.com"
-                  placeholderTextColor="#475569"
-                  keyboardType="email-address"
-                />
-              </View>
-
-              <View className="mb-3">
-                <Text className="text-gray-600 dark:text-slate-400 text-sm mb-2">Phone</Text>
-                <TextInput
-                  className="bg-gray-200 dark:bg-slate-800 rounded-xl px-4 py-3 text-gray-900 dark:text-white text-base"
-                  value={applicationPhone}
-                  onChangeText={setApplicationPhone}
-                  placeholder="+44 7XXX XXXXXX"
-                  placeholderTextColor="#475569"
-                  keyboardType="phone-pad"
-                />
-              </View>
-
-              <View className="mb-3">
-                <Text className="text-gray-600 dark:text-slate-400 text-sm mb-2">
-                  {applicationType === 'supplier' ? 'Specialization/Services' : 'Area of Expertise'}
+              <ScrollView className="px-6 py-4" keyboardShouldPersistTaps="handled">
+                <Text className="text-blue-700 dark:text-blue-300 text-sm mb-4">
+                  Join our talent network. We'll contact you when there's a match.
                 </Text>
-                <TextInput
-                  className="bg-gray-200 dark:bg-slate-800 rounded-xl px-4 py-3 text-gray-900 dark:text-white text-base"
-                  value={applicationSpecialization}
-                  onChangeText={setApplicationSpecialization}
-                  placeholder={applicationType === 'supplier' ? 'e.g., PCB Assembly, Enclosures' : 'e.g., Marketing, Sales, Engineering'}
-                  placeholderTextColor="#475569"
-                />
-              </View>
 
-              <View className="mb-4">
-                <Text className="text-gray-600 dark:text-slate-400 text-sm mb-2">
-                  {applicationType === 'supplier' ? 'Company Description' : 'Experience Summary'}
-                </Text>
-                <TextInput
-                  className="bg-gray-200 dark:bg-slate-800 rounded-xl px-4 py-3 text-gray-900 dark:text-white text-base min-h-[100px]"
-                  value={applicationExperience}
-                  onChangeText={setApplicationExperience}
-                  placeholder="Tell us about your background..."
-                  placeholderTextColor="#475569"
-                  multiline
-                  textAlignVertical="top"
-                />
-              </View>
+                <View className="mb-3">
+                  <Text className="text-gray-500 dark:text-slate-400 text-sm mb-2">Full Name *</Text>
+                  <TextInput
+                    className="bg-gray-100 dark:bg-slate-800 rounded-xl px-4 py-3 text-gray-900 dark:text-white text-base"
+                    value={applicationName}
+                    onChangeText={setApplicationName}
+                    placeholder="Your name"
+                    placeholderTextColor="#64748b"
+                  />
+                </View>
 
-              {/* CV/Resume Upload - Now functional */}
-              {applicationType !== 'supplier' && (
-                <View className="mb-4">
-                  <Text className="text-gray-600 dark:text-slate-400 text-sm mb-2">
-                    CV/Resume {applicationType === 'apprentice' ? '*' : '(Optional)'}
+                <View className="mb-3">
+                  <Text className="text-gray-500 dark:text-slate-400 text-sm mb-2">Email *</Text>
+                  <TextInput
+                    className="bg-gray-100 dark:bg-slate-800 rounded-xl px-4 py-3 text-gray-900 dark:text-white text-base"
+                    value={applicationEmail}
+                    onChangeText={setApplicationEmail}
+                    placeholder="your.email@example.com"
+                    placeholderTextColor="#64748b"
+                    keyboardType="email-address"
+                  />
+                </View>
+
+                <View className="mb-3">
+                  <Text className="text-gray-500 dark:text-slate-400 text-sm mb-2">Phone</Text>
+                  <TextInput
+                    className="bg-gray-100 dark:bg-slate-800 rounded-xl px-4 py-3 text-gray-900 dark:text-white text-base"
+                    value={applicationPhone}
+                    onChangeText={setApplicationPhone}
+                    placeholder="+44 7XXX XXXXXX"
+                    placeholderTextColor="#64748b"
+                    keyboardType="phone-pad"
+                  />
+                </View>
+
+                <View className="mb-3">
+                  <Text className="text-gray-500 dark:text-slate-400 text-sm mb-2">
+                    {applicationType === 'supplier' ? 'Services' : 'Area of Expertise'}
                   </Text>
-                  {!applicationCV ? (
-                    <Pressable
-                      onPress={handlePickDocument}
-                      className="bg-blue-50 dark:bg-blue-900/20 border-2 border-dashed border-blue-300 dark:border-blue-700 rounded-xl p-4 active:opacity-70"
-                    >
-                      <View className="flex-row items-center justify-center">
-                        <Upload size={20} color="#3b82f6" />
-                        <Text className="text-blue-600 dark:text-blue-400 text-sm font-semibold ml-2">
-                          Upload PDF or Word Document
-                        </Text>
-                      </View>
-                      <Text className="text-blue-500 dark:text-blue-500 text-xs text-center mt-2">
-                        Tap to select your CV/Resume
-                      </Text>
-                    </Pressable>
-                  ) : (
-                    <View className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-xl p-4">
-                      <View className="flex-row items-center justify-between">
+                  <TextInput
+                    className="bg-gray-100 dark:bg-slate-800 rounded-xl px-4 py-3 text-gray-900 dark:text-white text-base"
+                    value={applicationSpecialization}
+                    onChangeText={setApplicationSpecialization}
+                    placeholder={applicationType === 'supplier' ? 'e.g., PCB Assembly' : 'e.g., Sales, Marketing'}
+                    placeholderTextColor="#64748b"
+                  />
+                </View>
+
+                <View className="mb-4">
+                  <Text className="text-gray-500 dark:text-slate-400 text-sm mb-2">
+                    {applicationType === 'supplier' ? 'Company Description' : 'Experience Summary'}
+                  </Text>
+                  <TextInput
+                    className="bg-gray-100 dark:bg-slate-800 rounded-xl px-4 py-3 text-gray-900 dark:text-white text-base min-h-[100px]"
+                    value={applicationExperience}
+                    onChangeText={setApplicationExperience}
+                    placeholder="Tell us about your background..."
+                    placeholderTextColor="#64748b"
+                    multiline
+                    textAlignVertical="top"
+                  />
+                </View>
+
+                {applicationType !== 'supplier' && (
+                  <View className="mb-4">
+                    <Text className="text-gray-500 dark:text-slate-400 text-sm mb-2">CV/Resume</Text>
+                    {!applicationCV ? (
+                      <Pressable
+                        onPress={handlePickDocument}
+                        className="bg-blue-50 dark:bg-blue-900/20 border-2 border-dashed border-blue-300 dark:border-blue-700 rounded-xl p-4 active:opacity-70"
+                      >
+                        <View className="flex-row items-center justify-center">
+                          <Upload size={20} color="#3b82f6" />
+                          <Text className="text-blue-600 dark:text-blue-400 font-semibold ml-2">
+                            Upload PDF or Word
+                          </Text>
+                        </View>
+                      </Pressable>
+                    ) : (
+                      <View className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-xl p-4 flex-row items-center justify-between">
                         <View className="flex-1">
-                          <View className="flex-row items-center mb-1">
+                          <View className="flex-row items-center">
                             <CheckCircle2 size={16} color="#10b981" />
-                            <Text className="text-emerald-700 dark:text-emerald-300 font-semibold ml-2">
-                              Document Uploaded
-                            </Text>
+                            <Text className="text-emerald-700 dark:text-emerald-300 font-semibold ml-2">Uploaded</Text>
                           </View>
                           <Text className="text-emerald-600 dark:text-emerald-400 text-sm" numberOfLines={1}>
                             {applicationCV.name}
                           </Text>
-                          <Text className="text-emerald-500 dark:text-emerald-500 text-xs mt-1">
-                            {(applicationCV.size / 1024).toFixed(1)} KB
-                          </Text>
                         </View>
                         <Pressable
                           onPress={() => setApplicationCV(null)}
-                          className="ml-3 w-8 h-8 bg-red-100 dark:bg-red-900/30 rounded-full items-center justify-center active:opacity-70"
+                          className="w-8 h-8 bg-red-100 dark:bg-red-900/30 rounded-full items-center justify-center active:opacity-70"
                         >
-                          <X size={18} color="#ef4444" />
+                          <X size={16} color="#ef4444" />
                         </Pressable>
                       </View>
-                    </View>
-                  )}
-                </View>
-              )}
+                    )}
+                  </View>
+                )}
 
-              {applicationType === 'supplier' && (
-                <View className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-3 mb-4">
-                  <Text className="text-amber-700 dark:text-amber-300 text-xs">
-                    💡 For suppliers, please include company brochures or capability statements in your description above.
-                  </Text>
-                </View>
-              )}
-
-              <Pressable
-                onPress={handleSubmitApplication}
-                className="bg-blue-500 py-4 rounded-xl active:opacity-70 mb-4"
-              >
-                <Text className="text-white text-center font-bold">Submit Application</Text>
-              </Pressable>
-            </ScrollView>
-          </View>
+                <Pressable
+                  onPress={handleSubmitApplication}
+                  className="bg-blue-500 py-4 rounded-xl active:opacity-70 mb-8"
+                >
+                  <Text className="text-white text-center font-bold">Submit Application</Text>
+                </Pressable>
+              </ScrollView>
+            </View>
           </KeyboardAvoidingView>
         </View>
       </Modal>
@@ -1567,64 +1808,46 @@ export default function CommunityScreen() {
       >
         <View className="flex-1 bg-black/70 justify-end">
           {selectedAIAgent && (
-            <View className="bg-gray-100 dark:bg-slate-900 rounded-t-3xl" style={{ maxHeight: '90%' }}>
+            <View className="bg-white dark:bg-slate-900 rounded-t-3xl" style={{ maxHeight: '90%' }}>
               {/* Header */}
-              <View className="px-6 pt-6 pb-4 border-b border-gray-300 dark:border-slate-800">
+              <View className="px-6 pt-6 pb-4 border-b border-gray-200 dark:border-slate-800">
                 <View className="flex-row items-center justify-between mb-2">
-                  <Text className="text-gray-900 dark:text-white text-2xl font-bold flex-1" numberOfLines={2}>{selectedAIAgent.name}</Text>
+                  <View className="flex-row items-center flex-1">
+                    <View className="w-12 h-12 bg-cyan-500 rounded-xl items-center justify-center mr-3">
+                      <Bot size={24} color="#fff" />
+                    </View>
+                    <View className="flex-1">
+                      <Text className="text-gray-900 dark:text-white text-xl font-bold" numberOfLines={1}>{selectedAIAgent.name}</Text>
+                      <Text className="text-gray-500 dark:text-slate-400 text-sm">{selectedAIAgent.provider}</Text>
+                    </View>
+                  </View>
                   <Pressable
                     onPress={() => setSelectedAIAgent(null)}
-                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                    className="w-10 h-10 items-center justify-center rounded-full bg-gray-200 dark:bg-slate-800 active:opacity-70 ml-2"
+                    className="w-10 h-10 items-center justify-center rounded-full bg-gray-100 dark:bg-slate-800 active:opacity-70"
                   >
                     <X size={24} color="#64748b" />
                   </Pressable>
                 </View>
-                <View className="flex-row items-center gap-2 mb-3">
-                  <View className="bg-blue-100 dark:bg-blue-900/30 px-3 py-1.5 rounded-lg">
-                    <Text className="text-blue-700 dark:text-blue-300 text-sm font-semibold capitalize">
-                      {selectedAIAgent.category.replace('-', ' ')}
-                    </Text>
-                  </View>
-                  <View className="bg-purple-100 dark:bg-purple-900/30 px-3 py-1.5 rounded-lg">
-                    <Text className="text-purple-700 dark:text-purple-300 text-sm font-semibold">
-                      {selectedAIAgent.provider}
-                    </Text>
-                  </View>
-                </View>
-                <View className="bg-blue-50 dark:bg-blue-900/20 rounded-lg px-3 py-2">
-                  <Text className="text-blue-600 dark:text-blue-400 text-xs text-center font-semibold">
-                    ⬇️ Scroll down - 10+ sections of detailed info below
-                  </Text>
-                </View>
               </View>
 
-              {/* Scrollable Content */}
-              <ScrollView
-                showsVerticalScrollIndicator={true}
-                bounces={true}
-                className="flex-1"
-                persistentScrollbar={true}
-                contentContainerStyle={{ paddingBottom: 20 }}
-              >
+              <ScrollView className="flex-1" showsVerticalScrollIndicator={true}>
                 <View className="px-6 py-4">
-                  {/* Cost and Rating Section */}
-                  <View className="flex-row gap-3 mb-4">
-                    <View className="flex-1 bg-gray-200 dark:bg-slate-800 rounded-xl p-4">
-                      <Text className="text-gray-600 dark:text-slate-400 text-xs mb-1">Monthly Cost</Text>
+                  {/* Cost and Rating */}
+                  <View className="flex-row gap-3 mb-6">
+                    <View className="flex-1 bg-gray-100 dark:bg-slate-800 rounded-xl p-4">
+                      <Text className="text-gray-500 dark:text-slate-400 text-xs mb-1">Monthly Cost</Text>
                       <Text className="text-emerald-600 dark:text-emerald-400 text-2xl font-bold">
                         £{selectedAIAgent.costPerMonth}
                       </Text>
-                      <Text className="text-gray-500 dark:text-slate-500 text-xs">/month</Text>
                     </View>
                     {selectedAIAgent.reviews && (
-                      <View className="flex-1 bg-gray-200 dark:bg-slate-800 rounded-xl p-4">
-                        <Text className="text-gray-600 dark:text-slate-400 text-xs mb-1">User Rating</Text>
+                      <View className="flex-1 bg-gray-100 dark:bg-slate-800 rounded-xl p-4">
+                        <Text className="text-gray-500 dark:text-slate-400 text-xs mb-1">Rating</Text>
                         <View className="flex-row items-center">
-                          <Text className="text-amber-500 dark:text-amber-400 text-2xl font-bold">
+                          <Star size={16} color="#f59e0b" fill="#f59e0b" />
+                          <Text className="text-amber-600 dark:text-amber-400 text-2xl font-bold ml-1">
                             {selectedAIAgent.reviews.rating}
                           </Text>
-                          <Text className="text-gray-500 dark:text-slate-500 text-sm ml-1">/5</Text>
                         </View>
                         <Text className="text-gray-500 dark:text-slate-500 text-xs">
                           {selectedAIAgent.reviews.totalReviews} reviews
@@ -1634,75 +1857,33 @@ export default function CommunityScreen() {
                   </View>
 
                   {/* Description */}
-                  {selectedAIAgent.description && (
-                    <View className="mb-6">
-                      <Text className="text-gray-900 dark:text-white text-lg font-bold mb-3">📝 Description</Text>
-                      <Text className="text-gray-900 dark:text-white text-base leading-6">
-                        {selectedAIAgent.description}
-                      </Text>
-                    </View>
-                  )}
-
-                  {/* Purpose (if no description) */}
-                  {!selectedAIAgent.description && (
-                    <View className="mb-6">
-                      <Text className="text-gray-900 dark:text-white text-lg font-bold mb-3">📝 Purpose</Text>
-                      <Text className="text-gray-900 dark:text-white text-base leading-6">
-                        {selectedAIAgent.purpose}
-                      </Text>
-                    </View>
-                  )}
+                  <View className="mb-6">
+                    <Text className="text-gray-900 dark:text-white font-bold text-lg mb-2">About</Text>
+                    <Text className="text-gray-700 dark:text-slate-300 text-base leading-6">
+                      {selectedAIAgent.description || selectedAIAgent.purpose}
+                    </Text>
+                  </View>
 
                   {/* Business Functions */}
                   <View className="mb-6">
-                    <Text className="text-gray-900 dark:text-white text-lg font-bold mb-3">🎯 Business Functions</Text>
+                    <Text className="text-gray-900 dark:text-white font-bold text-lg mb-3">Functions</Text>
                     <View className="flex-row flex-wrap gap-2">
                       {selectedAIAgent.functions.map((func, idx) => (
-                        <View key={idx} className="bg-blue-100 dark:bg-blue-900/30 px-3 py-2 rounded-lg border border-blue-200 dark:border-blue-800">
+                        <View key={idx} className="bg-blue-100 dark:bg-blue-900/30 px-3 py-2 rounded-lg">
                           <Text className="text-blue-700 dark:text-blue-300 font-semibold">{func}</Text>
                         </View>
                       ))}
                     </View>
                   </View>
 
-                  {/* Key Features */}
-                  {selectedAIAgent.keyFeatures && selectedAIAgent.keyFeatures.length > 0 && (
-                    <View className="mb-6">
-                      <Text className="text-gray-900 dark:text-white text-lg font-bold mb-3">✨ Key Features</Text>
-                      <View className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4">
-                        {selectedAIAgent.keyFeatures.map((feature, idx) => (
-                          <View key={idx} className="flex-row items-start mb-2">
-                            <Text className="text-blue-600 dark:text-blue-400 mr-2">✓</Text>
-                            <Text className="text-gray-900 dark:text-white flex-1 font-medium">{feature}</Text>
-                          </View>
-                        ))}
-                      </View>
-                    </View>
-                  )}
-
-                  {/* Use Cases */}
-                  {selectedAIAgent.useCases && selectedAIAgent.useCases.length > 0 && (
-                    <View className="mb-6">
-                      <Text className="text-gray-900 dark:text-white text-lg font-bold mb-3">💡 Use Cases</Text>
-                      <View className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-xl p-4">
-                        {selectedAIAgent.useCases.map((useCase, idx) => (
-                          <View key={idx} className="flex-row items-start mb-2">
-                            <Text className="text-emerald-600 dark:text-emerald-400 mr-2">→</Text>
-                            <Text className="text-gray-900 dark:text-white flex-1">{useCase}</Text>
-                          </View>
-                        ))}
-                      </View>
-                    </View>
-                  )}
-
                   {/* Capabilities */}
                   <View className="mb-6">
-                    <Text className="text-gray-900 dark:text-white text-lg font-bold mb-3">⚡ Capabilities</Text>
-                    <View className="bg-gray-200 dark:bg-slate-800 rounded-xl p-4">
-                      {selectedAIAgent.capabilities.map((capability, idx) => (
+                    <Text className="text-gray-900 dark:text-white font-bold text-lg mb-3">Capabilities</Text>
+                    <View className="bg-gray-100 dark:bg-slate-800 rounded-xl p-4">
+                      {selectedAIAgent.capabilities.map((cap, idx) => (
                         <View key={idx} className="flex-row items-start mb-2">
-                          <Text className="text-gray-600 dark:text-slate-400 mr-2">•</Text>
-                          <Text className="text-gray-700 dark:text-slate-300 flex-1">{capability}</Text>
+                          <CheckCircle2 size={14} color="#10b981" />
+                          <Text className="text-gray-700 dark:text-slate-300 flex-1 ml-2">{cap}</Text>
                         </View>
                       ))}
                     </View>
@@ -1710,129 +1891,31 @@ export default function CommunityScreen() {
 
                   {/* Integrations */}
                   <View className="mb-6">
-                    <Text className="text-gray-900 dark:text-white text-lg font-bold mb-3">🔗 Integrations</Text>
+                    <Text className="text-gray-900 dark:text-white font-bold text-lg mb-3">Integrations</Text>
                     <View className="flex-row flex-wrap gap-2">
-                      {selectedAIAgent.integrations.map((integration, idx) => (
-                        <View key={idx} className="bg-gray-200 dark:bg-slate-800 px-3 py-2 rounded-lg">
-                          <Text className="text-gray-700 dark:text-slate-300">{integration}</Text>
+                      {selectedAIAgent.integrations.map((int, idx) => (
+                        <View key={idx} className="bg-gray-200 dark:bg-slate-700 px-3 py-2 rounded-lg">
+                          <Text className="text-gray-700 dark:text-slate-300">{int}</Text>
                         </View>
                       ))}
                     </View>
                   </View>
 
-                  {/* Pricing Details */}
-                  {selectedAIAgent.pricing && (
-                    <View className="mb-6">
-                      <Text className="text-gray-900 dark:text-white text-lg font-bold mb-3">💰 Pricing Plans</Text>
-                      <View className="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-xl p-4">
-                        {selectedAIAgent.pricing.starter && (
-                          <View className="mb-2">
-                            <Text className="text-purple-700 dark:text-purple-300 font-semibold">Starter</Text>
-                            <Text className="text-gray-700 dark:text-slate-300">{selectedAIAgent.pricing.starter}</Text>
-                          </View>
-                        )}
-                        {selectedAIAgent.pricing.professional && (
-                          <View className="mb-2">
-                            <Text className="text-purple-700 dark:text-purple-300 font-semibold">Professional</Text>
-                            <Text className="text-gray-700 dark:text-slate-300">{selectedAIAgent.pricing.professional}</Text>
-                          </View>
-                        )}
-                        {selectedAIAgent.pricing.enterprise && (
-                          <View className="mb-2">
-                            <Text className="text-purple-700 dark:text-purple-300 font-semibold">Enterprise</Text>
-                            <Text className="text-gray-700 dark:text-slate-300">{selectedAIAgent.pricing.enterprise}</Text>
-                          </View>
-                        )}
-                        {selectedAIAgent.pricing.notes && (
-                          <Text className="text-gray-600 dark:text-slate-400 text-sm mt-2 italic">
-                            {selectedAIAgent.pricing.notes}
-                          </Text>
-                        )}
-                      </View>
-                    </View>
-                  )}
-
-                  {/* Setup Information */}
+                  {/* Setup Info */}
                   {selectedAIAgent.setup && (
                     <View className="mb-6">
-                      <Text className="text-gray-900 dark:text-white text-lg font-bold mb-3">⚙️ Setup & Requirements</Text>
+                      <Text className="text-gray-900 dark:text-white font-bold text-lg mb-3">Setup</Text>
                       <View className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-4">
                         {selectedAIAgent.setup.difficulty && (
-                          <View className="mb-2">
-                            <Text className="text-amber-700 dark:text-amber-300 font-semibold">Difficulty</Text>
-                            <Text className="text-gray-700 dark:text-slate-300">{selectedAIAgent.setup.difficulty}</Text>
+                          <View className="flex-row justify-between mb-2">
+                            <Text className="text-gray-600 dark:text-slate-400">Difficulty</Text>
+                            <Text className="text-amber-700 dark:text-amber-300 font-semibold">{selectedAIAgent.setup.difficulty}</Text>
                           </View>
                         )}
                         {selectedAIAgent.setup.timeToValue && (
-                          <View className="mb-2">
-                            <Text className="text-amber-700 dark:text-amber-300 font-semibold">Time to Value</Text>
-                            <Text className="text-gray-700 dark:text-slate-300">{selectedAIAgent.setup.timeToValue}</Text>
-                          </View>
-                        )}
-                        {selectedAIAgent.setup.requirements && selectedAIAgent.setup.requirements.length > 0 && (
-                          <View>
-                            <Text className="text-amber-700 dark:text-amber-300 font-semibold mb-1">Requirements</Text>
-                            {selectedAIAgent.setup.requirements.map((req, idx) => (
-                              <Text key={idx} className="text-gray-700 dark:text-slate-300 text-sm">• {req}</Text>
-                            ))}
-                          </View>
-                        )}
-                      </View>
-                    </View>
-                  )}
-
-                  {/* Support */}
-                  {selectedAIAgent.support && (
-                    <View className="mb-6">
-                      <Text className="text-gray-900 dark:text-white text-lg font-bold mb-3">📞 Support</Text>
-                      <View className="bg-cyan-50 dark:bg-cyan-900/20 border border-cyan-200 dark:border-cyan-800 rounded-xl p-4">
-                        <View className="flex-row justify-between mb-2">
-                          <Text className="text-gray-700 dark:text-slate-300">Email Support</Text>
-                          <Text className="text-cyan-700 dark:text-cyan-300 font-semibold">
-                            {selectedAIAgent.support.email ? '✓ Yes' : '✗ No'}
-                          </Text>
-                        </View>
-                        <View className="flex-row justify-between mb-2">
-                          <Text className="text-gray-700 dark:text-slate-300">Phone Support</Text>
-                          <Text className="text-cyan-700 dark:text-cyan-300 font-semibold">
-                            {selectedAIAgent.support.phone ? '✓ Yes' : '✗ No'}
-                          </Text>
-                        </View>
-                        {selectedAIAgent.support.documentation && (
-                          <View className="mb-2">
-                            <Text className="text-cyan-700 dark:text-cyan-300 font-semibold">Documentation</Text>
-                            <Text className="text-gray-700 dark:text-slate-300 text-sm">{selectedAIAgent.support.documentation}</Text>
-                          </View>
-                        )}
-                        {selectedAIAgent.support.community && (
-                          <View>
-                            <Text className="text-cyan-700 dark:text-cyan-300 font-semibold">Community</Text>
-                            <Text className="text-gray-700 dark:text-slate-300 text-sm">{selectedAIAgent.support.community}</Text>
-                          </View>
-                        )}
-                      </View>
-                    </View>
-                  )}
-
-                  {/* User Reviews */}
-                  {selectedAIAgent.reviews && (selectedAIAgent.reviews.pros || selectedAIAgent.reviews.cons) && (
-                    <View className="mb-6">
-                      <Text className="text-gray-900 dark:text-white text-lg font-bold mb-3">⭐ User Feedback</Text>
-                      <View className="bg-gray-100 dark:bg-slate-800 rounded-xl p-4">
-                        {selectedAIAgent.reviews.pros && selectedAIAgent.reviews.pros.length > 0 && (
-                          <View className="mb-3">
-                            <Text className="text-emerald-700 dark:text-emerald-300 font-semibold mb-2">👍 Pros</Text>
-                            {selectedAIAgent.reviews.pros.map((pro, idx) => (
-                              <Text key={idx} className="text-gray-700 dark:text-slate-300 text-sm mb-1">• {pro}</Text>
-                            ))}
-                          </View>
-                        )}
-                        {selectedAIAgent.reviews.cons && selectedAIAgent.reviews.cons.length > 0 && (
-                          <View>
-                            <Text className="text-red-700 dark:text-red-300 font-semibold mb-2">👎 Cons</Text>
-                            {selectedAIAgent.reviews.cons.map((con, idx) => (
-                              <Text key={idx} className="text-gray-700 dark:text-slate-300 text-sm mb-1">• {con}</Text>
-                            ))}
+                          <View className="flex-row justify-between">
+                            <Text className="text-gray-600 dark:text-slate-400">Time to Value</Text>
+                            <Text className="text-amber-700 dark:text-amber-300 font-semibold">{selectedAIAgent.setup.timeToValue}</Text>
                           </View>
                         )}
                       </View>
@@ -1840,37 +1923,26 @@ export default function CommunityScreen() {
                   )}
 
                   {/* Website Link */}
-                  <View className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4 mb-4">
-                    <Text className="text-blue-700 dark:text-blue-300 text-sm font-semibold mb-2">🌐 Website</Text>
-                    <Text className="text-blue-600 dark:text-blue-400 text-sm">
-                      {selectedAIAgent.website}
-                    </Text>
-                  </View>
-
-                  {/* Getting Started */}
-                  <View className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-xl p-4">
-                    <Text className="text-emerald-700 dark:text-emerald-300 text-sm font-semibold mb-2">💡 Get Started</Text>
-                    <Text className="text-emerald-600 dark:text-emerald-400 text-sm">
-                      Visit the website to sign up for this tool. Most tools offer free trials to get started. Add your API key in the Settings tab to integrate with Centaur OS.
-                    </Text>
+                  <View className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4 mb-6">
+                    <Text className="text-blue-700 dark:text-blue-300 font-semibold mb-1">Website</Text>
+                    <Text className="text-blue-600 dark:text-blue-400">{selectedAIAgent.website}</Text>
                   </View>
                 </View>
               </ScrollView>
 
               {/* Action Button */}
-              <View className="px-6 py-4 border-t border-gray-300 dark:border-slate-800">
+              <View className="px-6 py-4 border-t border-gray-200 dark:border-slate-800">
                 <Pressable
                   onPress={() => {
+                    Alert.alert('Learn More', `Visit ${selectedAIAgent.website} to get started with ${selectedAIAgent.name}.`);
                     setSelectedAIAgent(null);
-                    Alert.alert(
-                      'Opening Website',
-                      `Visit ${selectedAIAgent?.website} to learn more and sign up for ${selectedAIAgent?.name}.`,
-                      [{ text: 'OK' }]
-                    );
                   }}
-                  className="bg-blue-500 rounded-xl py-4 items-center active:opacity-70"
+                  className="bg-cyan-500 rounded-xl py-4 items-center active:opacity-70"
                 >
-                  <Text className="text-white font-bold text-base">Learn More</Text>
+                  <View className="flex-row items-center">
+                    <ArrowUpRight size={20} color="#fff" />
+                    <Text className="text-white font-bold text-base ml-2">Visit Website</Text>
+                  </View>
                 </Pressable>
               </View>
             </View>
