@@ -1,6 +1,6 @@
 import { View, Text, ScrollView, Pressable, Modal, TextInput, Alert, KeyboardAvoidingView, Platform } from 'react-native';
 import { useState, useEffect, useMemo } from 'react';
-import { Target, Plus, X, ChevronDown, ChevronRight, CheckCircle2, Circle, Clock, Users, DollarSign, Lightbulb, ChevronUp, UserPlus, Zap, AlertTriangle, AlertCircle, TrendingDown, CalendarClock, ArrowRight, Layers, Activity, HelpCircle } from 'lucide-react-native';
+import { Target, Plus, X, ChevronDown, ChevronRight, CheckCircle2, Circle, Clock, Users, DollarSign, Lightbulb, ChevronUp, UserPlus, Zap, AlertTriangle, AlertCircle, TrendingDown, CalendarClock, ArrowRight, Activity, HelpCircle } from 'lucide-react-native';
 import { useCurrentWorkspace, useCurrentMembership } from '@/lib/state/app-store';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -74,10 +74,8 @@ export default function DecideScreen() {
   const rejectRequest = useMarketplaceRequestsStore((s) => s.rejectRequest);
   const addMember = useOrganizationStore((s) => s.addMember);
 
-  // Queue store
-  const getQueueSummary = useQueueStore((s) => s.getQueueSummary);
+  // Queue store - only need initializeQueue for syncing statuses
   const initializeQueue = useQueueStore((s) => s.initializeQueue);
-  const queueSummary = useMemo(() => getQueueSummary(currentWorkspace?.id ?? DEFAULT_WORKSPACE_ID), [currentWorkspace?.id]);
 
   // Filter pending requests with useMemo
   const pendingRequests = useMemo(() => {
@@ -176,6 +174,30 @@ export default function DecideScreen() {
   const filteredOKRs = selectedFunction === 'all'
     ? okrs
     : okrs.filter(okr => okr.function === selectedFunction);
+
+  // Split OKRs into active (has resources allocated) and queued (no resources)
+  const { activeOKRs, queuedOKRs } = useMemo(() => {
+    const active: OKR[] = [];
+    const queued: OKR[] = [];
+
+    filteredOKRs.forEach(okr => {
+      const linkedPlans = workPlans.filter(wp => wp.linkedOKRTitle === okr.title);
+      if (linkedPlans.length > 0) {
+        active.push(okr);
+      } else {
+        queued.push(okr);
+      }
+    });
+
+    // Sort active OKRs by priority (off-track first, then at-risk, then on-track)
+    const priorityOrder = { 'off-track': 0, 'at-risk': 1, 'on-track': 2 };
+    active.sort((a, b) => priorityOrder[a.status] - priorityOrder[b.status]);
+
+    // Sort queued OKRs by status as well
+    queued.sort((a, b) => priorityOrder[a.status] - priorityOrder[b.status]);
+
+    return { activeOKRs: active, queuedOKRs: queued };
+  }, [filteredOKRs, workPlans]);
 
   const toggleOKR = (okrId: string) => {
     toggleOKRExpanded(okrId);
@@ -404,12 +426,6 @@ export default function DecideScreen() {
           <View className="flex-row gap-2">
             <HelpButton onPress={() => setShowHelp(true)} />
             <Pressable
-              onPress={() => router.push('/okr-queue')}
-              className="bg-white/20 rounded-xl p-2.5 active:opacity-70"
-            >
-              <Layers size={20} color="#fff" />
-            </Pressable>
-            <Pressable
               onPress={() => router.push('/capacity')}
               className="bg-white/20 rounded-xl p-2.5 active:opacity-70"
             >
@@ -431,22 +447,22 @@ export default function DecideScreen() {
         </View>
         {/* Quick Health Indicators */}
         <View className="flex-row gap-4">
-          {queueSummary.inProgress > 0 && (
-            <Pressable onPress={() => router.push('/okr-queue')} className="flex-row items-center">
+          {activeOKRs.length > 0 && (
+            <View className="flex-row items-center">
               <View className="w-2 h-2 rounded-full mr-1.5 bg-emerald-400" />
-              <Text className="text-white/90 text-xs">{queueSummary.inProgress} building</Text>
-            </Pressable>
+              <Text className="text-white/90 text-xs">{activeOKRs.length} active</Text>
+            </View>
+          )}
+          {queuedOKRs.length > 0 && (
+            <View className="flex-row items-center">
+              <View className="w-2 h-2 rounded-full mr-1.5 bg-blue-400" />
+              <Text className="text-white/90 text-xs">{queuedOKRs.length} queued</Text>
+            </View>
           )}
           {decisionItems.totalCritical > 0 && (
             <View className="flex-row items-center">
               <View className="w-2 h-2 rounded-full mr-1.5 bg-red-400" />
               <Text className="text-white/90 text-xs">{decisionItems.totalCritical} critical</Text>
-            </View>
-          )}
-          {decisionItems.totalWarning > 0 && (
-            <View className="flex-row items-center">
-              <View className="w-2 h-2 rounded-full mr-1.5 bg-amber-400" />
-              <Text className="text-white/90 text-xs">{decisionItems.totalWarning} needs review</Text>
             </View>
           )}
           <View className="flex-row items-center">
@@ -629,50 +645,42 @@ export default function DecideScreen() {
           </ScrollView>
         </View>
 
-        {/* SECTION 4: All OKRs */}
-        <View className="mb-4">
-          <Text className="text-gray-500 dark:text-slate-500 text-xs font-bold mb-2 tracking-wide">
-            ALL OKRs
-          </Text>
-
-          {filteredOKRs.length === 0 ? (
-            <View className="items-center justify-center py-8 bg-gray-100 dark:bg-slate-900 rounded-xl">
-              <Target size={32} color="#64748b" />
-              <Text className="text-gray-600 dark:text-slate-400 text-center font-semibold mt-3">
-                No OKRs Found
+        {/* SECTION 4: ACTIVE OKRs (with resources allocated) */}
+        {activeOKRs.length > 0 && (
+          <View className="mb-4">
+            <View className="flex-row items-center justify-between mb-2">
+              <Text className="text-emerald-600 dark:text-emerald-400 text-xs font-bold tracking-wide">
+                ACTIVE - RESOURCES ALLOCATED
               </Text>
-              <Text className="text-gray-500 dark:text-slate-400 text-center text-sm mt-1">
-                {selectedFunction === 'all' ? 'Create your first OKR' : `No OKRs for ${selectedFunction}`}
-              </Text>
-              <Pressable
-                onPress={() => setShowCreateModal(true)}
-                className="bg-purple-500 rounded-lg px-4 py-2 mt-3 active:opacity-70"
-              >
-                <Text className="text-white text-sm font-semibold">Create OKR</Text>
-              </Pressable>
+              <View className="bg-emerald-100 dark:bg-emerald-900/30 px-2 py-0.5 rounded">
+                <Text className="text-emerald-700 dark:text-emerald-300 text-xs font-semibold">
+                  {activeOKRs.length} OKR{activeOKRs.length !== 1 ? 's' : ''}
+                </Text>
+              </View>
             </View>
-          ) : (
+
             <View className="gap-2">
-              {filteredOKRs.map((okr: OKR) => {
+              {activeOKRs.map((okr: OKR) => {
                 const isExpanded = okr.isExpanded || false;
                 const functionColor = getFunctionColor(okr.function);
                 const linkedPlans = workPlans.filter(wp => wp.linkedOKRTitle === okr.title);
+                const totalProgress = linkedPlans.length > 0
+                  ? Math.round(linkedPlans.reduce((sum, p) => sum + p.progress, 0) / linkedPlans.length)
+                  : 0;
 
                 return (
                   <View key={okr.id}>
-                    {/* OKR Card - Compact */}
                     <Pressable
                       onPress={() => toggleOKR(okr.id)}
-                      className={`bg-gray-100 dark:bg-slate-900 border rounded-xl p-3 active:opacity-70 ${
+                      className={`bg-emerald-50 dark:bg-emerald-900/10 border rounded-xl p-3 active:opacity-70 ${
                         okr.status === 'off-track'
                           ? 'border-red-300 dark:border-red-800'
                           : okr.status === 'at-risk'
                           ? 'border-amber-300 dark:border-amber-800'
-                          : 'border-gray-200 dark:border-slate-800'
+                          : 'border-emerald-200 dark:border-emerald-800'
                       }`}
                     >
                       <View className="flex-row items-center">
-                        {/* Status Indicator */}
                         <View
                           className="w-1.5 h-12 rounded-full mr-3"
                           style={{
@@ -695,20 +703,11 @@ export default function DecideScreen() {
                             <View className={`px-1.5 py-0.5 rounded ${getStatusColor(okr.status)}`}>
                               <Text className="text-xs font-semibold">{getStatusText(okr.status)}</Text>
                             </View>
-                            {/* Queue Status Badge */}
-                            {getQueueStatusDisplay(okr.queueStatus) && (
-                              <View
-                                className={`px-1.5 py-0.5 rounded flex-row items-center ${getQueueStatusDisplay(okr.queueStatus)?.bgColor}`}
-                              >
-                                <Activity size={10} color={getQueueStatusDisplay(okr.queueStatus)?.color} />
-                                <Text
-                                  className="text-xs font-semibold ml-1"
-                                  style={{ color: getQueueStatusDisplay(okr.queueStatus)?.color }}
-                                >
-                                  {getQueueStatusDisplay(okr.queueStatus)?.label}
-                                </Text>
-                              </View>
-                            )}
+                            <View className="px-1.5 py-0.5 rounded bg-emerald-500/20">
+                              <Text className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+                                {totalProgress}% done
+                              </Text>
+                            </View>
                           </View>
 
                           <Text className="text-gray-900 dark:text-white font-semibold text-sm" numberOfLines={1}>
@@ -716,11 +715,11 @@ export default function DecideScreen() {
                           </Text>
 
                           <View className="flex-row items-center mt-1 gap-3">
-                            <Text className="text-gray-500 dark:text-slate-400 text-xs">
-                              {okr.objectives.length} KRs
+                            <Text className="text-emerald-600 dark:text-emerald-400 text-xs font-medium">
+                              {linkedPlans.length} work plan{linkedPlans.length !== 1 ? 's' : ''}
                             </Text>
                             <Text className="text-gray-500 dark:text-slate-400 text-xs">
-                              {linkedPlans.length} work plan{linkedPlans.length !== 1 ? 's' : ''}
+                              {okr.objectives.length} KRs
                             </Text>
                             <Text className="text-gray-500 dark:text-slate-400 text-xs">
                               {okr.owner}
@@ -736,10 +735,8 @@ export default function DecideScreen() {
                       </View>
                     </Pressable>
 
-                    {/* Expanded View */}
                     {isExpanded && (
                       <View className="mt-2 ml-4 gap-2">
-                        {/* Key Results */}
                         {okr.objectives.map((objective: Objective) => (
                           <View
                             key={objective.id}
@@ -765,16 +762,13 @@ export default function DecideScreen() {
                           </View>
                         ))}
 
-                        {/* Action Buttons */}
                         <View className="gap-2">
                           <Pressable
                             onPress={() => router.push(`/okr-planner?okrId=${okr.id}`)}
                             className="bg-purple-500 rounded-lg py-2.5 flex-row items-center justify-center gap-2 active:opacity-70"
                           >
                             <Zap size={16} color="#fff" />
-                            <Text className="text-white text-sm font-semibold">
-                              {linkedPlans.length === 0 ? 'Create Resource Plan' : 'View Resource Plan'}
-                            </Text>
+                            <Text className="text-white text-sm font-semibold">View Resource Plan</Text>
                           </Pressable>
 
                           <Pressable
@@ -785,9 +779,166 @@ export default function DecideScreen() {
                             className="bg-blue-500 rounded-lg py-2.5 flex-row items-center justify-center gap-2 active:opacity-70"
                           >
                             <UserPlus size={16} color="#fff" />
-                            <Text className="text-white text-sm font-semibold">
-                              Speed Up OKR
+                            <Text className="text-white text-sm font-semibold">Speed Up OKR</Text>
+                          </Pressable>
+                        </View>
+                      </View>
+                    )}
+                  </View>
+                );
+              })}
+            </View>
+          </View>
+        )}
+
+        {/* SECTION 5: QUEUED OKRs (no resources allocated yet) */}
+        <View className="mb-4">
+          <View className="flex-row items-center justify-between mb-2">
+            <Text className="text-blue-600 dark:text-blue-400 text-xs font-bold tracking-wide">
+              QUEUED - AWAITING RESOURCES
+            </Text>
+            <View className="bg-blue-100 dark:bg-blue-900/30 px-2 py-0.5 rounded">
+              <Text className="text-blue-700 dark:text-blue-300 text-xs font-semibold">
+                {queuedOKRs.length} OKR{queuedOKRs.length !== 1 ? 's' : ''}
+              </Text>
+            </View>
+          </View>
+
+          {queuedOKRs.length === 0 && activeOKRs.length === 0 ? (
+            <View className="items-center justify-center py-8 bg-gray-100 dark:bg-slate-900 rounded-xl">
+              <Target size={32} color="#64748b" />
+              <Text className="text-gray-600 dark:text-slate-400 text-center font-semibold mt-3">
+                No OKRs Found
+              </Text>
+              <Text className="text-gray-500 dark:text-slate-400 text-center text-sm mt-1">
+                {selectedFunction === 'all' ? 'Create your first OKR' : `No OKRs for ${selectedFunction}`}
+              </Text>
+              <Pressable
+                onPress={() => setShowCreateModal(true)}
+                className="bg-purple-500 rounded-lg px-4 py-2 mt-3 active:opacity-70"
+              >
+                <Text className="text-white text-sm font-semibold">Create OKR</Text>
+              </Pressable>
+            </View>
+          ) : queuedOKRs.length === 0 ? (
+            <View className="bg-blue-50 dark:bg-blue-900/10 border border-blue-200 dark:border-blue-800 rounded-xl p-4">
+              <Text className="text-blue-700 dark:text-blue-300 text-sm text-center">
+                All OKRs have resources allocated. Create a new OKR to add to the queue.
+              </Text>
+            </View>
+          ) : (
+            <View className="gap-2">
+              {queuedOKRs.map((okr: OKR, index: number) => {
+                const isExpanded = okr.isExpanded || false;
+                const functionColor = getFunctionColor(okr.function);
+
+                return (
+                  <View key={okr.id}>
+                    <Pressable
+                      onPress={() => toggleOKR(okr.id)}
+                      className={`bg-blue-50 dark:bg-blue-900/10 border rounded-xl p-3 active:opacity-70 ${
+                        okr.status === 'off-track'
+                          ? 'border-red-300 dark:border-red-800'
+                          : okr.status === 'at-risk'
+                          ? 'border-amber-300 dark:border-amber-800'
+                          : 'border-blue-200 dark:border-blue-800'
+                      }`}
+                    >
+                      <View className="flex-row items-center">
+                        {/* Queue Position */}
+                        <View className="w-8 h-8 bg-blue-500/20 rounded-lg items-center justify-center mr-3">
+                          <Text className="text-blue-600 dark:text-blue-400 text-sm font-bold">
+                            #{index + 1}
+                          </Text>
+                        </View>
+
+                        <View className="flex-1">
+                          <View className="flex-row items-center mb-1 flex-wrap gap-1">
+                            <View
+                              className="px-1.5 py-0.5 rounded"
+                              style={{ backgroundColor: functionColor + '20' }}
+                            >
+                              <Text className="text-xs font-semibold" style={{ color: functionColor }}>
+                                {okr.function}
+                              </Text>
+                            </View>
+                            <View className={`px-1.5 py-0.5 rounded ${getStatusColor(okr.status)}`}>
+                              <Text className="text-xs font-semibold">{getStatusText(okr.status)}</Text>
+                            </View>
+                            <View className="px-1.5 py-0.5 rounded bg-blue-500/20">
+                              <Text className="text-xs font-semibold text-blue-600 dark:text-blue-400">
+                                No resources
+                              </Text>
+                            </View>
+                          </View>
+
+                          <Text className="text-gray-900 dark:text-white font-semibold text-sm" numberOfLines={1}>
+                            {okr.title}
+                          </Text>
+
+                          <View className="flex-row items-center mt-1 gap-3">
+                            <Text className="text-gray-500 dark:text-slate-400 text-xs">
+                              {okr.objectives.length} KRs
                             </Text>
+                            <Text className="text-gray-500 dark:text-slate-400 text-xs">
+                              {okr.owner}
+                            </Text>
+                          </View>
+                        </View>
+
+                        {isExpanded ? (
+                          <ChevronDown size={18} color="#64748b" />
+                        ) : (
+                          <ChevronRight size={18} color="#64748b" />
+                        )}
+                      </View>
+                    </Pressable>
+
+                    {isExpanded && (
+                      <View className="mt-2 ml-4 gap-2">
+                        {okr.objectives.map((objective: Objective) => (
+                          <View
+                            key={objective.id}
+                            className="bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg p-2.5"
+                          >
+                            <View className="flex-row items-center justify-between mb-1.5">
+                              <Text className="text-gray-900 dark:text-white font-medium text-sm flex-1" numberOfLines={1}>
+                                {objective.title}
+                              </Text>
+                              <View className={`px-1.5 py-0.5 rounded ml-2 ${getStatusColor(objective.status)}`}>
+                                <Text className="text-xs font-semibold">{objective.progress}%</Text>
+                              </View>
+                            </View>
+                            <View className="bg-gray-200 dark:bg-slate-700 rounded-full h-1.5 overflow-hidden">
+                              <View
+                                className={`h-full ${
+                                  objective.status === 'on-track' ? 'bg-emerald-500' :
+                                  objective.status === 'at-risk' ? 'bg-amber-500' : 'bg-red-500'
+                                }`}
+                                style={{ width: `${objective.progress}%` }}
+                              />
+                            </View>
+                          </View>
+                        ))}
+
+                        <View className="gap-2">
+                          <Pressable
+                            onPress={() => router.push(`/okr-planner?okrId=${okr.id}`)}
+                            className="bg-purple-500 rounded-lg py-2.5 flex-row items-center justify-center gap-2 active:opacity-70"
+                          >
+                            <Zap size={16} color="#fff" />
+                            <Text className="text-white text-sm font-semibold">Create Resource Plan</Text>
+                          </Pressable>
+
+                          <Pressable
+                            onPress={() => {
+                              setSelectedOKRForHire(okr);
+                              setShowHireModal(true);
+                            }}
+                            className="bg-blue-500 rounded-lg py-2.5 flex-row items-center justify-center gap-2 active:opacity-70"
+                          >
+                            <UserPlus size={16} color="#fff" />
+                            <Text className="text-white text-sm font-semibold">Allocate Resources</Text>
                           </Pressable>
                         </View>
                       </View>
