@@ -54,8 +54,38 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
 
 ## 🚨 PRODUCTION READINESS STATUS
 
-**Last Updated**: 2026-01-14 (**CAPACITY MANAGEMENT SYSTEM** - Time units, team utilization, AI efficiency multipliers)
+**Last Updated**: 2026-01-14 (**ROLE-SPECIFIC HOME TABS** - Enhanced relevance for Founder, Executive, and Apprentice dashboards)
 **Status**: ✅ **READY FOR APP STORE** - All features complete!
+
+---
+
+## 🏠 ROLE-SPECIFIC HOME TAB ENHANCEMENTS
+
+**Latest Update**: 2026-01-14
+
+### Founder Home Tab
+The Command Center now provides comprehensive visibility:
+- **Upcoming Deadlines Section**: Shows overdue tasks, due this week, and tasks awaiting review
+- **Top Urgent Tasks**: List of the 3 most urgent tasks across all functions with due dates
+- **Team Capacity Heat Map**: 10-day rolling view of team utilization
+- **Attention Required**: Off-track OKRs, blocked plans, and pending approvals
+- **Quick Actions**: New OKR, Review, Finance, Calendar, Messages
+
+### Executive Home Tab
+Function-focused dashboard with clear workload separation:
+- **Next Action Card**: Prominent display of the highest-priority task to focus on
+- **My Tasks vs Overseeing**: Split view showing own tasks vs apprentice tasks being supervised
+- **Due Today/This Week**: Urgency indicators for time-sensitive work
+- **OKR Health Summary**: Function-specific breakdown (on-track, at-risk, off-track)
+- **Pending Reviews Alert**: Submissions awaiting executive approval
+
+### Apprentice Home Tab
+Task-focused execution view with motivation elements:
+- **Work On This Now Card**: Prominent next task with progress bar and due date
+- **Needs Attention Section**: Overdue tasks and items awaiting review
+- **Task Status Grid**: In progress, due this week, and completed counts
+- **Streak Indicator**: Visual motivation for consecutive task completions
+- **OKR Connection**: Shows linked objective with health status indicator
 
 ---
 

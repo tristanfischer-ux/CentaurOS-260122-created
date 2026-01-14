@@ -250,6 +250,54 @@ export default function HomeScreen() {
     };
   }, [okrs, workPlans]);
 
+  // Calculate tasks due soon (Founder view - across all functions)
+  const tasksDueSoon = useMemo(() => {
+    const today = new Date();
+    const activePlans = workPlans.filter(wp => wp.status !== 'completed');
+
+    const dueTodayOrOverdue = activePlans.filter(wp => {
+      const dueDate = new Date(wp.dueDate);
+      return dueDate <= today;
+    });
+
+    const dueThisWeek = activePlans.filter(wp => {
+      const dueDate = new Date(wp.dueDate);
+      const weekFromNow = new Date(today);
+      weekFromNow.setDate(weekFromNow.getDate() + 7);
+      return dueDate > today && dueDate <= weekFromNow;
+    });
+
+    // Get tasks awaiting executive review
+    const awaitingReview = workPlans.filter(wp =>
+      wp.status === 'in-progress' && wp.progress >= 90
+    );
+
+    return {
+      overdue: dueTodayOrOverdue.length,
+      thisWeek: dueThisWeek.length,
+      awaitingReview: awaitingReview.length,
+      topUrgent: [...dueTodayOrOverdue, ...dueThisWeek]
+        .sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime())
+        .slice(0, 3),
+    };
+  }, [workPlans]);
+
+  // Calculate workload by role (Founder view)
+  const workloadByRole = useMemo(() => {
+    const activePlans = workPlans.filter(wp => wp.status !== 'completed');
+
+    // Group by assignee function to estimate role distribution
+    const founderTasks = activePlans.filter(wp => wp.function === 'Admin' || !wp.function).length;
+    const execTasks = activePlans.filter(wp => ['Marketing', 'Sales', 'Finance', 'Engineering', 'Ops'].includes(wp.function || '')).length;
+    const apprenticeTasks = activePlans.length; // All tasks eventually flow to apprentices
+
+    return {
+      founder: founderTasks,
+      executives: execTasks,
+      apprentices: apprenticeTasks,
+    };
+  }, [workPlans]);
+
   // Demo data for the dashboard - now using centralized stores
   const FOUNDER_DATA = {
     okrs: okrCounts,
@@ -285,6 +333,38 @@ export default function HomeScreen() {
     const myInProgress = functionWorkPlans.filter(wp => wp.status === 'in-progress').length;
     const myCompleted = functionWorkPlans.filter(wp => wp.status === 'completed').length;
 
+    // Separate: Tasks I'm doing directly vs tasks I'm overseeing (apprentice work)
+    const myOwnTasks = functionWorkPlans.filter(wp =>
+      wp.assignedBy === currentMember?.name || wp.status === 'not-started'
+    );
+    const overseeingTasks = functionWorkPlans.filter(wp =>
+      wp.assignedBy !== currentMember?.name && wp.status !== 'not-started'
+    );
+
+    // Get my next action - highest priority task
+    const today = new Date();
+    const sortedOwnTasks = myOwnTasks
+      .filter(wp => wp.status !== 'completed')
+      .sort((a, b) => {
+        const aDue = new Date(a.dueDate).getTime();
+        const bDue = new Date(b.dueDate).getTime();
+        return aDue - bDue;
+      });
+    const nextAction = sortedOwnTasks[0] || null;
+
+    // Get tasks due today/this week for executive
+    const tasksDueToday = functionWorkPlans.filter(wp => {
+      const dueDate = new Date(wp.dueDate);
+      return dueDate <= today && wp.status !== 'completed';
+    }).length;
+
+    const tasksDueThisWeek = functionWorkPlans.filter(wp => {
+      const dueDate = new Date(wp.dueDate);
+      const weekFromNow = new Date(today);
+      weekFromNow.setDate(weekFromNow.getDate() + 7);
+      return dueDate > today && dueDate <= weekFromNow && wp.status !== 'completed';
+    }).length;
+
     // Get apprentices in my function
     const myApprentices = members
       .filter(m => m.role === 'Apprentice' && m.function === myFunction && m.status === 'active')
@@ -310,6 +390,16 @@ export default function HomeScreen() {
     // Get OKRs for my function
     const functionOKRs = okrs.filter(okr => okr.function === myFunction);
 
+    // Calculate OKR health summary
+    const okrHealth = {
+      onTrack: functionOKRs.filter(o => o.status === 'on-track').length,
+      atRisk: functionOKRs.filter(o => o.status === 'at-risk').length,
+      offTrack: functionOKRs.filter(o => o.status === 'off-track').length,
+    };
+
+    // Get my capacity from the capacity store
+    const myCapacity = memberCapacities.find(mc => mc.memberId === currentMember?.id);
+
     // Get AI tools from armory
     const myLoadout = personLoadouts.find(l => l.memberId === currentMember?.id);
     const equippedToolIds = myLoadout?.aiToolIds || [];
@@ -323,17 +413,30 @@ export default function HomeScreen() {
         inProgress: myInProgress,
         completed: myCompleted,
       },
+      myOwnTasks: {
+        total: myOwnTasks.filter(t => t.status !== 'completed').length,
+        inProgress: myOwnTasks.filter(t => t.status === 'in-progress').length,
+      },
+      overseeingTasks: {
+        total: overseeingTasks.filter(t => t.status !== 'completed').length,
+        awaitingReview: overseeingTasks.filter(t => t.progress >= 90).length,
+      },
+      nextAction,
+      tasksDueToday,
+      tasksDueThisWeek,
       apprentices: myApprentices.slice(0, 3), // Show max 3
       pendingReviews,
       myFunction: myFunction as BusinessFunction,
       linkedOKRs: functionOKRs.length,
+      okrHealth,
+      myCapacity,
       aiUsage: {
         thisWeek: equippedTools.length * 4, // Approximate usage
         tools: equippedTools.slice(0, 3),
       },
       aiAgents: aiAgents.filter(a => a.status === 'active').slice(0, 3),
     };
-  }, [members, workPlans, okrs, currentUser, personLoadouts, aiAgents]);
+  }, [members, workPlans, okrs, currentUser, personLoadouts, aiAgents, memberCapacities]);
 
   // Apprentice data - derived from stores based on current user
   const apprenticeData = useMemo(() => {
@@ -345,6 +448,35 @@ export default function HomeScreen() {
     const myWorkPlans = workPlans.filter(wp => wp.function === myFunction);
     const activeCount = myWorkPlans.filter(wp => wp.status !== 'completed').length;
     const completedCount = myWorkPlans.filter(wp => wp.status === 'completed').length;
+
+    // Tasks by status
+    const inProgress = myWorkPlans.filter(wp => wp.status === 'in-progress');
+    const awaitingReview = inProgress.filter(wp => wp.progress >= 90);
+    const readyToSubmit = inProgress.filter(wp => wp.progress >= 80 && wp.progress < 90);
+
+    // Calculate urgency - due today/soon
+    const today = new Date();
+    const dueTodayOrOverdue = myWorkPlans.filter(wp => {
+      const dueDate = new Date(wp.dueDate);
+      return dueDate <= today && wp.status !== 'completed';
+    });
+
+    const dueThisWeek = myWorkPlans.filter(wp => {
+      const dueDate = new Date(wp.dueDate);
+      const weekFromNow = new Date(today);
+      weekFromNow.setDate(weekFromNow.getDate() + 7);
+      return dueDate > today && dueDate <= weekFromNow && wp.status !== 'completed';
+    });
+
+    // Next task to work on (highest priority)
+    const nextTask = myWorkPlans
+      .filter(wp => wp.status !== 'completed')
+      .sort((a, b) => {
+        // Priority: overdue first, then by due date
+        const aDue = new Date(a.dueDate).getTime();
+        const bDue = new Date(b.dueDate).getTime();
+        return aDue - bDue;
+      })[0] || null;
 
     // Find my executive (supervisor)
     const myExecutive = members.find(m =>
@@ -368,9 +500,11 @@ export default function HomeScreen() {
       .sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime())
       .slice(0, 3)
       .map(wp => ({
+        id: wp.id,
         title: wp.title,
         progress: wp.progress,
         dueDate: wp.dueDate,
+        status: wp.status,
       }));
 
     // Get my AI tools from armory
@@ -389,11 +523,24 @@ export default function HomeScreen() {
       teamMembers.push({ name: founder.name, role: 'Founder', function: undefined });
     }
 
+    // Get my capacity from the capacity store
+    const myCapacity = memberCapacities.find(mc => mc.memberId === currentMember?.id);
+
+    // Calculate streak (consecutive completions)
+    const completedTasks = myWorkPlans.filter(wp => wp.status === 'completed');
+    const streak = Math.min(completedTasks.length, 5); // Cap at 5 for display
+
     return {
       myWorkPlans: {
         active: activeCount,
         completed: completedCount,
+        inProgress: inProgress.length,
       },
+      awaitingReview: awaitingReview.length,
+      readyToSubmit: readyToSubmit.length,
+      dueTodayOrOverdue: dueTodayOrOverdue.length,
+      dueThisWeek: dueThisWeek.length,
+      nextTask,
       assignedBy: {
         executive: myExecutive?.name || 'Not assigned',
         founder: founder?.name || 'Not assigned',
@@ -402,18 +549,22 @@ export default function HomeScreen() {
         title: myOKR.title,
         function: myOKR.function,
         progress: okrProgress,
+        status: myOKR.status,
       } : {
         title: 'No OKR assigned',
         function: myFunction as BusinessFunction,
         progress: 0,
+        status: 'on-track' as const,
       },
       recentWork: recentWork.length > 0 ? recentWork : [
-        { title: 'No active work plans', progress: 0, dueDate: new Date().toISOString().split('T')[0] }
+        { id: '0', title: 'No active work plans', progress: 0, dueDate: new Date().toISOString().split('T')[0], status: 'not-started' as const }
       ],
       aiTools: equippedTools.length > 0 ? equippedTools : ['No tools equipped'],
       teamMembers,
+      myCapacity,
+      streak,
     };
-  }, [members, workPlans, okrs, currentUser, personLoadouts]);
+  }, [members, workPlans, okrs, currentUser, personLoadouts, memberCapacities]);
 
   const [isLoading] = useState(false);
 
@@ -686,6 +837,77 @@ export default function HomeScreen() {
                 </Pressable>
               </View>
             </View>
+
+            {/* UPCOMING DEADLINES - Shows tasks due soon across the team */}
+            {(tasksDueSoon.overdue > 0 || tasksDueSoon.thisWeek > 0 || tasksDueSoon.awaitingReview > 0) && (
+              <View className="mb-4">
+                <View className="flex-row items-center justify-between mb-2">
+                  <Text className="text-gray-500 dark:text-slate-500 text-xs font-bold tracking-wide">
+                    UPCOMING DEADLINES
+                  </Text>
+                  <Pressable onPress={() => router.push('/(tabs)/do')}>
+                    <Text className="text-blue-500 text-xs font-semibold">View All</Text>
+                  </Pressable>
+                </View>
+
+                {/* Summary Row */}
+                <View className="flex-row gap-2 mb-3">
+                  {tasksDueSoon.overdue > 0 && (
+                    <View className="flex-1 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-3">
+                      <Text className="text-red-700 dark:text-red-300 text-xs font-semibold mb-1">OVERDUE</Text>
+                      <Text className="text-red-900 dark:text-red-100 text-xl font-bold">{tasksDueSoon.overdue}</Text>
+                    </View>
+                  )}
+                  <View className="flex-1 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-3">
+                    <Text className="text-amber-700 dark:text-amber-300 text-xs font-semibold mb-1">DUE THIS WEEK</Text>
+                    <Text className="text-amber-900 dark:text-amber-100 text-xl font-bold">{tasksDueSoon.thisWeek}</Text>
+                  </View>
+                  <View className="flex-1 bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-xl p-3">
+                    <Text className="text-purple-700 dark:text-purple-300 text-xs font-semibold mb-1">AWAITING REVIEW</Text>
+                    <Text className="text-purple-900 dark:text-purple-100 text-xl font-bold">{tasksDueSoon.awaitingReview}</Text>
+                  </View>
+                </View>
+
+                {/* Top Urgent Tasks */}
+                {tasksDueSoon.topUrgent.length > 0 && (
+                  <View className="bg-gray-100 dark:bg-slate-900 rounded-xl p-3 gap-2">
+                    {tasksDueSoon.topUrgent.map((task, idx) => {
+                      const dueDate = new Date(task.dueDate);
+                      const today = new Date();
+                      const isOverdue = dueDate <= today;
+                      const daysUntil = Math.ceil((dueDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+
+                      return (
+                        <Pressable
+                          key={task.id}
+                          onPress={() => router.push('/(tabs)/do')}
+                          className={`flex-row items-center p-2 rounded-lg active:opacity-70 ${
+                            isOverdue ? 'bg-red-100 dark:bg-red-900/30' : 'bg-white dark:bg-slate-800'
+                          }`}
+                        >
+                          <View className={`w-2 h-2 rounded-full mr-2 ${
+                            isOverdue ? 'bg-red-500' : 'bg-amber-500'
+                          }`} />
+                          <View className="flex-1">
+                            <Text className="text-gray-900 dark:text-white text-sm font-medium" numberOfLines={1}>
+                              {task.title}
+                            </Text>
+                            <Text className="text-gray-500 dark:text-slate-400 text-xs">
+                              {task.function} • {task.progress}% complete
+                            </Text>
+                          </View>
+                          <Text className={`text-xs font-semibold ${
+                            isOverdue ? 'text-red-600 dark:text-red-400' : 'text-amber-600 dark:text-amber-400'
+                          }`}>
+                            {isOverdue ? 'Overdue' : `${daysUntil}d`}
+                          </Text>
+                        </Pressable>
+                      );
+                    })}
+                  </View>
+                )}
+              </View>
+            )}
 
             {/* TEAM CAPACITY - 10 Day Rolling View */}
             <View className="mb-4">
@@ -1034,6 +1256,40 @@ export default function HomeScreen() {
 
         <ScrollView className="flex-1">
           <View className="px-6 py-4">
+            {/* FOCUS: Next Action - What to do right now */}
+            {executiveData.nextAction && (
+              <Pressable
+                onPress={() => router.push('/(tabs)/do')}
+                className="mb-4 active:opacity-70"
+              >
+                <LinearGradient
+                  colors={[functionColor, functionColor + 'cc']}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 0 }}
+                  style={{ borderRadius: 16, padding: 16 }}
+                >
+                  <View className="flex-row items-center mb-2">
+                    <Zap size={16} color="#fff" />
+                    <Text className="text-white/80 text-xs font-bold ml-1.5">YOUR NEXT ACTION</Text>
+                  </View>
+                  <Text className="text-white font-bold text-base mb-1" numberOfLines={2}>
+                    {executiveData.nextAction.title}
+                  </Text>
+                  <View className="flex-row items-center justify-between">
+                    <Text className="text-white/80 text-sm">
+                      {executiveData.nextAction.progress}% complete
+                    </Text>
+                    <View className="flex-row items-center">
+                      <Clock size={12} color="#fff" />
+                      <Text className="text-white/80 text-xs ml-1">
+                        Due {executiveData.nextAction.dueDate}
+                      </Text>
+                    </View>
+                  </View>
+                </LinearGradient>
+              </Pressable>
+            )}
+
             {/* Pending Reviews Alert */}
             {executiveData.pendingReviews > 0 && (
               <Pressable
@@ -1059,68 +1315,103 @@ export default function HomeScreen() {
               </Pressable>
             )}
 
-            {/* My Work Plans */}
+            {/* MY WORK vs OVERSEEING - Split View */}
             <View className="mb-4">
-              <View className="flex-row items-center justify-between mb-3">
-                <Text className="text-gray-900 dark:text-white text-lg font-bold">
-                  My Work Plans
-                </Text>
-                <Pressable onPress={() => router.push('/(tabs)/evaluate')}>
-                  <Text className="text-blue-500 text-sm font-semibold">Manage</Text>
+              <Text className="text-gray-500 dark:text-slate-500 text-xs font-bold mb-2 tracking-wide">
+                MY WORKLOAD
+              </Text>
+              <View className="flex-row gap-3">
+                {/* My Own Tasks */}
+                <Pressable
+                  onPress={() => router.push('/(tabs)/do')}
+                  className="flex-1 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-3 active:opacity-70"
+                >
+                  <View className="flex-row items-center mb-2">
+                    <Briefcase size={14} color="#3b82f6" />
+                    <Text className="text-blue-700 dark:text-blue-300 text-xs font-semibold ml-1">
+                      MY TASKS
+                    </Text>
+                  </View>
+                  <Text className="text-blue-900 dark:text-blue-100 text-2xl font-bold">
+                    {executiveData.myOwnTasks.total}
+                  </Text>
+                  <Text className="text-blue-600 dark:text-blue-400 text-xs">
+                    {executiveData.myOwnTasks.inProgress} in progress
+                  </Text>
+                </Pressable>
+
+                {/* Overseeing Tasks */}
+                <Pressable
+                  onPress={() => router.push('/(tabs)/evaluate')}
+                  className="flex-1 bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-xl p-3 active:opacity-70"
+                >
+                  <View className="flex-row items-center mb-2">
+                    <Users size={14} color="#8b5cf6" />
+                    <Text className="text-purple-700 dark:text-purple-300 text-xs font-semibold ml-1">
+                      OVERSEEING
+                    </Text>
+                  </View>
+                  <Text className="text-purple-900 dark:text-purple-100 text-2xl font-bold">
+                    {executiveData.overseeingTasks.total}
+                  </Text>
+                  <Text className="text-purple-600 dark:text-purple-400 text-xs">
+                    {executiveData.overseeingTasks.awaitingReview} need review
+                  </Text>
                 </Pressable>
               </View>
 
-              <View className="flex-row gap-3 mb-3">
-                <View className="flex-1 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-3">
-                  <Text className="text-blue-700 dark:text-blue-300 text-xs font-semibold mb-1">
-                    IN PROGRESS
-                  </Text>
-                  <Text className="text-blue-900 dark:text-blue-100 text-2xl font-bold">
-                    {executiveData.myWorkPlans.inProgress}
-                  </Text>
+              {/* Due Soon Row */}
+              {(executiveData.tasksDueToday > 0 || executiveData.tasksDueThisWeek > 0) && (
+                <View className="flex-row gap-3 mt-3">
+                  {executiveData.tasksDueToday > 0 && (
+                    <View className="flex-1 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-3">
+                      <Text className="text-red-700 dark:text-red-300 text-xs font-semibold mb-1">DUE TODAY</Text>
+                      <Text className="text-red-900 dark:text-red-100 text-xl font-bold">{executiveData.tasksDueToday}</Text>
+                    </View>
+                  )}
+                  <View className="flex-1 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-3">
+                    <Text className="text-amber-700 dark:text-amber-300 text-xs font-semibold mb-1">DUE THIS WEEK</Text>
+                    <Text className="text-amber-900 dark:text-amber-100 text-xl font-bold">{executiveData.tasksDueThisWeek}</Text>
+                  </View>
                 </View>
-                <View className="flex-1 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-xl p-3">
-                  <Text className="text-emerald-700 dark:text-emerald-300 text-xs font-semibold mb-1">
-                    COMPLETED
-                  </Text>
-                  <Text className="text-emerald-900 dark:text-emerald-100 text-2xl font-bold">
-                    {executiveData.myWorkPlans.completed}
-                  </Text>
-                </View>
-              </View>
+              )}
             </View>
 
-            {/* My OKRs */}
+            {/* OKR HEALTH - Function specific */}
             <View className="mb-4">
-              <Text className="text-gray-900 dark:text-white text-lg font-bold mb-3">
-                My Function OKRs
-              </Text>
+              <View className="flex-row items-center justify-between mb-2">
+                <Text className="text-gray-500 dark:text-slate-500 text-xs font-bold tracking-wide">
+                  {executiveData.myFunction.toUpperCase()} OKR HEALTH
+                </Text>
+                <Pressable onPress={() => router.push('/(tabs)/decide')}>
+                  <Text className="text-blue-500 text-xs font-semibold">View All</Text>
+                </Pressable>
+              </View>
 
-              <Pressable
-                onPress={() => router.push({
-                  pathname: '/(tabs)/decide',
-                  params: { function: executiveData.myFunction }
-                })}
-                className="bg-gray-100 dark:bg-slate-900 rounded-xl p-4 border border-gray-300 dark:border-slate-800 active:opacity-70"
-              >
-                <View className="flex-row items-center mb-2">
-                  <View
-                    className="w-10 h-10 rounded-lg items-center justify-center"
-                    style={{ backgroundColor: functionColor + '20' }}
-                  >
+              <View className="bg-gray-100 dark:bg-slate-900 rounded-xl p-4">
+                <View className="flex-row items-center justify-between mb-3">
+                  <View className="flex-row items-center">
                     <Target size={20} color={functionColor} />
-                  </View>
-                  <View className="ml-3 flex-1">
-                    <Text className="text-gray-900 dark:text-white font-bold text-base">
-                      {executiveData.myFunction}
-                    </Text>
-                    <Text className="text-gray-600 dark:text-slate-400 text-sm">
-                      {executiveData.linkedOKRs} linked OKRs
+                    <Text className="text-gray-900 dark:text-white font-bold ml-2">
+                      {executiveData.linkedOKRs} OKRs
                     </Text>
                   </View>
-                  <ArrowRight size={20} color="#64748b" />
                 </View>
-              </Pressable>
+                <View className="flex-row gap-2">
+                  <View className="flex-1 items-center p-2 bg-emerald-100 dark:bg-emerald-900/30 rounded-lg">
+                    <Text className="text-emerald-600 dark:text-emerald-400 font-bold text-lg">{executiveData.okrHealth.onTrack}</Text>
+                    <Text className="text-emerald-600 dark:text-emerald-400 text-xs">On Track</Text>
+                  </View>
+                  <View className="flex-1 items-center p-2 bg-amber-100 dark:bg-amber-900/30 rounded-lg">
+                    <Text className="text-amber-600 dark:text-amber-400 font-bold text-lg">{executiveData.okrHealth.atRisk}</Text>
+                    <Text className="text-amber-600 dark:text-amber-400 text-xs">At Risk</Text>
+                  </View>
+                  <View className="flex-1 items-center p-2 bg-red-100 dark:bg-red-900/30 rounded-lg">
+                    <Text className="text-red-600 dark:text-red-400 font-bold text-lg">{executiveData.okrHealth.offTrack}</Text>
+                    <Text className="text-red-600 dark:text-red-400 text-xs">Off Track</Text>
+                  </View>
+                </View>
+              </View>
             </View>
 
             {/* My Apprentices */}
@@ -1354,36 +1645,129 @@ export default function HomeScreen() {
 
         <ScrollView className="flex-1">
           <View className="px-6 py-4">
-            {/* My Active Work */}
-            <View className="mb-4">
-              <Text className="text-gray-900 dark:text-white text-lg font-bold mb-3">
-                My Active Work
-              </Text>
+            {/* FOCUS: Next Task - What to work on now */}
+            {apprenticeData.nextTask && (
+              <Pressable
+                onPress={() => router.push('/(tabs)/do')}
+                className="mb-4 active:opacity-70"
+              >
+                <LinearGradient
+                  colors={['#10b981', '#059669']}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 0 }}
+                  style={{ borderRadius: 16, padding: 16 }}
+                >
+                  <View className="flex-row items-center mb-2">
+                    <Zap size={16} color="#fff" />
+                    <Text className="text-white/80 text-xs font-bold ml-1.5">WORK ON THIS NOW</Text>
+                  </View>
+                  <Text className="text-white font-bold text-base mb-1" numberOfLines={2}>
+                    {apprenticeData.nextTask.title}
+                  </Text>
+                  <View className="flex-row items-center justify-between">
+                    <View className="flex-row items-center">
+                      <View className="bg-white/20 h-1.5 w-20 rounded-full overflow-hidden">
+                        <View
+                          className="h-full bg-white rounded-full"
+                          style={{ width: `${apprenticeData.nextTask.progress}%` }}
+                        />
+                      </View>
+                      <Text className="text-white/80 text-sm ml-2">
+                        {apprenticeData.nextTask.progress}%
+                      </Text>
+                    </View>
+                    <View className="flex-row items-center">
+                      <Clock size={12} color="#fff" />
+                      <Text className="text-white/80 text-xs ml-1">
+                        Due {apprenticeData.nextTask.dueDate}
+                      </Text>
+                    </View>
+                  </View>
+                </LinearGradient>
+              </Pressable>
+            )}
 
-              <View className="flex-row gap-3 mb-3">
-                <View className="flex-1 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-xl p-3">
-                  <Text className="text-emerald-700 dark:text-emerald-300 text-xs font-semibold mb-1">
-                    ACTIVE
-                  </Text>
-                  <Text className="text-emerald-900 dark:text-emerald-100 text-2xl font-bold">
-                    {apprenticeData.myWorkPlans.active}
-                  </Text>
-                </View>
-                <View className="flex-1 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-3">
-                  <Text className="text-blue-700 dark:text-blue-300 text-xs font-semibold mb-1">
-                    COMPLETED
-                  </Text>
-                  <Text className="text-blue-900 dark:text-blue-100 text-2xl font-bold">
-                    {apprenticeData.myWorkPlans.completed}
-                  </Text>
+            {/* URGENCY ALERTS */}
+            {(apprenticeData.dueTodayOrOverdue > 0 || apprenticeData.awaitingReview > 0) && (
+              <View className="mb-4">
+                <Text className="text-gray-500 dark:text-slate-500 text-xs font-bold mb-2 tracking-wide">
+                  NEEDS ATTENTION
+                </Text>
+                <View className="gap-2">
+                  {apprenticeData.dueTodayOrOverdue > 0 && (
+                    <Pressable
+                      onPress={() => router.push('/(tabs)/do')}
+                      className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-3 flex-row items-center active:opacity-70"
+                    >
+                      <View className="w-8 h-8 bg-red-500 rounded-lg items-center justify-center">
+                        <AlertTriangle size={16} color="#fff" />
+                      </View>
+                      <View className="ml-3 flex-1">
+                        <Text className="text-red-900 dark:text-red-100 font-bold text-sm">
+                          {apprenticeData.dueTodayOrOverdue} task{apprenticeData.dueTodayOrOverdue > 1 ? 's' : ''} overdue
+                        </Text>
+                        <Text className="text-red-700 dark:text-red-300 text-xs">
+                          Needs immediate attention
+                        </Text>
+                      </View>
+                      <ArrowRight size={16} color="#ef4444" />
+                    </Pressable>
+                  )}
+                  {apprenticeData.awaitingReview > 0 && (
+                    <View className="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-xl p-3 flex-row items-center">
+                      <View className="w-8 h-8 bg-purple-500 rounded-lg items-center justify-center">
+                        <Clock size={16} color="#fff" />
+                      </View>
+                      <View className="ml-3 flex-1">
+                        <Text className="text-purple-900 dark:text-purple-100 font-bold text-sm">
+                          {apprenticeData.awaitingReview} awaiting review
+                        </Text>
+                        <Text className="text-purple-700 dark:text-purple-300 text-xs">
+                          Submitted to executive
+                        </Text>
+                      </View>
+                    </View>
+                  )}
                 </View>
               </View>
+            )}
+
+            {/* MY TASK STATUS - Enhanced */}
+            <View className="mb-4">
+              <Text className="text-gray-500 dark:text-slate-500 text-xs font-bold mb-2 tracking-wide">
+                MY TASKS
+              </Text>
+              <View className="flex-row gap-2">
+                <View className="flex-1 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-3">
+                  <Text className="text-blue-700 dark:text-blue-300 text-xs font-semibold mb-1">IN PROGRESS</Text>
+                  <Text className="text-blue-900 dark:text-blue-100 text-xl font-bold">{apprenticeData.myWorkPlans.inProgress}</Text>
+                </View>
+                <View className="flex-1 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-3">
+                  <Text className="text-amber-700 dark:text-amber-300 text-xs font-semibold mb-1">DUE THIS WEEK</Text>
+                  <Text className="text-amber-900 dark:text-amber-100 text-xl font-bold">{apprenticeData.dueThisWeek}</Text>
+                </View>
+                <View className="flex-1 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-xl p-3">
+                  <Text className="text-emerald-700 dark:text-emerald-300 text-xs font-semibold mb-1">COMPLETED</Text>
+                  <Text className="text-emerald-900 dark:text-emerald-100 text-xl font-bold">{apprenticeData.myWorkPlans.completed}</Text>
+                </View>
+              </View>
+
+              {/* Streak indicator if they have completions */}
+              {apprenticeData.streak > 0 && (
+                <View className="mt-3 bg-gradient-to-r from-amber-100 to-orange-100 dark:from-amber-900/30 dark:to-orange-900/30 rounded-xl p-3 flex-row items-center">
+                  <Award size={20} color="#f59e0b" />
+                  <Text className="text-amber-800 dark:text-amber-200 font-semibold ml-2">
+                    {apprenticeData.streak} task streak!
+                  </Text>
+                  <Text className="text-amber-600 dark:text-amber-400 text-xs ml-auto">Keep it up!</Text>
+                </View>
+              )}
             </View>
 
-            {/* Linked OKR */}
+            {/* Linked OKR - Compact */}
             <View className="mb-4">
-              <Text className="text-gray-900 dark:text-white text-lg font-bold mb-3">
-                My Objective
+              <Text className="text-gray-500 dark:text-slate-500 text-xs font-bold mb-2 tracking-wide">
+                MY OBJECTIVE
               </Text>
 
               <Pressable
@@ -1405,8 +1789,19 @@ export default function HomeScreen() {
                       >
                         {apprenticeData.linkedOKR.function}
                       </Text>
+                      {apprenticeData.linkedOKR.status !== 'on-track' && (
+                        <View className={`ml-2 px-2 py-0.5 rounded ${
+                          apprenticeData.linkedOKR.status === 'off-track' ? 'bg-red-100 dark:bg-red-900/30' : 'bg-amber-100 dark:bg-amber-900/30'
+                        }`}>
+                          <Text className={`text-xs font-semibold ${
+                            apprenticeData.linkedOKR.status === 'off-track' ? 'text-red-600 dark:text-red-400' : 'text-amber-600 dark:text-amber-400'
+                          }`}>
+                            {apprenticeData.linkedOKR.status === 'off-track' ? 'Off Track' : 'At Risk'}
+                          </Text>
+                        </View>
+                      )}
                     </View>
-                    <Text className="text-gray-900 dark:text-white font-bold text-sm">
+                    <Text className="text-gray-900 dark:text-white font-bold text-sm" numberOfLines={1}>
                       {apprenticeData.linkedOKR.title}
                     </Text>
                   </View>
