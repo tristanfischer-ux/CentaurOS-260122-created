@@ -54,7 +54,7 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
 
 ## 🚨 PRODUCTION READINESS STATUS
 
-**Last Updated**: 2026-01-14 (**ROLE-SPECIFIC HOME TABS** - Enhanced relevance for Founder, Executive, and Apprentice dashboards)
+**Last Updated**: 2026-01-14 (**GET MORE RESOURCES** - Added ability to hire people or add AIs from the Decide tab team dock)
 **Status**: ✅ **READY FOR APP STORE** - All features complete!
 
 ---
@@ -343,6 +343,20 @@ The Decide tab now features an interactive team assignment system:
 - OKRs with work plans that have assigned members appear in "ACTIVE - RESOURCES ALLOCATED"
 - OKRs without work plans or with unassigned work plans appear in "QUEUED - AWAITING RESOURCES"
 - Queue position is shown as #1, #2, etc.
+
+### Get More Resources (Decide Tab)
+
+The Team Dock now includes a "Get More Resources" button to grow your team:
+
+**Hire People Tab**:
+- Choose between Executives (£800/day, 2 days/week) or Apprentices (£150/day, 5 days/week)
+- Enter name and select function (Marketing, Sales, Engineering, Ops, Finance, Admin)
+- New hires immediately appear in the Team Dock and can be assigned to tasks
+
+**Add AIs Tab**:
+- Browse available AI assistants from the AI Agents directory
+- Each AI shows its purpose, functions it helps with, and monthly cost
+- Select an AI to add it to your team's toolkit
 
 ### New Stores & Engines
 

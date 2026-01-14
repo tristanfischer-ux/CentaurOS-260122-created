@@ -1,6 +1,6 @@
 import { View, Text, ScrollView, Pressable, Modal, TextInput, Alert, KeyboardAvoidingView, Platform } from 'react-native';
 import { useState, useEffect, useMemo } from 'react';
-import { Target, Plus, X, ChevronDown, ChevronRight, CheckCircle2, Circle, Clock, Users, DollarSign, Lightbulb, ChevronUp, UserPlus, Zap, AlertTriangle, AlertCircle, TrendingDown, CalendarClock, ArrowRight, HelpCircle } from 'lucide-react-native';
+import { Target, Plus, X, ChevronDown, ChevronRight, CheckCircle2, Circle, Clock, Users, DollarSign, Lightbulb, ChevronUp, UserPlus, Zap, AlertTriangle, AlertCircle, TrendingDown, CalendarClock, ArrowRight, HelpCircle, Bot, Briefcase, GraduationCap, CheckCircle } from 'lucide-react-native';
 import { useCurrentWorkspace, useCurrentMembership } from '@/lib/state/app-store';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -13,7 +13,7 @@ import { fractionalExecutives, apprentices, type Candidate } from '@/lib/candida
 import { useMarketplaceRequestsStore, type MarketplaceRequest } from '@/lib/state/marketplace-requests-store';
 import { MARKETPLACE_EXECUTIVES } from '@/lib/marketplace-executives';
 import { useOrganizationStore } from '@/lib/state/organization-store';
-import { type OrganizationMember } from '@/lib/organization-seed';
+import { type OrganizationMember, type AIAgent, AI_AGENTS } from '@/lib/organization-seed';
 import { useWorkPlanStore, type WorkPlan } from '@/lib/state/work-plan-store';
 import { HelpModal, HelpButton, type HelpContent } from '@/components/HelpModal';
 import HireResourceModal from '@/components/HireResourceModal';
@@ -126,6 +126,12 @@ export default function DecideScreen() {
   const [showHelp, setShowHelp] = useState(false);
   const [showHireModal, setShowHireModal] = useState(false);
   const [selectedOKRForHire, setSelectedOKRForHire] = useState<OKR | null>(null);
+  const [showGetResourcesModal, setShowGetResourcesModal] = useState(false);
+  const [resourceTypeTab, setResourceTypeTab] = useState<'people' | 'ai'>('people');
+  const [hireName, setHireName] = useState('');
+  const [hireRole, setHireRole] = useState<'FractionalExec' | 'Apprentice'>('Apprentice');
+  const [hireFunction, setHireFunction] = useState<BusinessFunction>('Marketing');
+  const [selectedAI, setSelectedAI] = useState<AIAgent | null>(null);
 
   // Dropdown states
   const [showOwnerDropdown, setShowOwnerDropdown] = useState(false);
@@ -213,6 +219,50 @@ export default function DecideScreen() {
     return memberIds
       .map(id => orgMembers.find(m => m.id === id))
       .filter((m): m is OrganizationMember => m !== undefined);
+  };
+
+  // Handle hiring a new team member
+  const handleHireNewMember = () => {
+    if (!hireName.trim()) {
+      Alert.alert('Error', 'Please enter a name');
+      return;
+    }
+
+    const newMember: OrganizationMember = {
+      id: `member-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`,
+      workspaceId: 'workspace-demo-company',
+      name: hireName.trim(),
+      role: hireRole,
+      function: hireFunction,
+      email: `${hireName.toLowerCase().replace(/\s+/g, '.')}@company.com`,
+      costPerDay: hireRole === 'FractionalExec' ? 800 : 150,
+      daysPerWeek: hireRole === 'FractionalExec' ? 2 : 5,
+      startDate: new Date().toISOString().split('T')[0],
+      status: 'active',
+      bio: `New ${hireRole === 'FractionalExec' ? 'Executive' : 'Apprentice'} hire for ${hireFunction}`,
+    };
+
+    addMember(newMember);
+    setHireName('');
+    setShowGetResourcesModal(false);
+    Alert.alert('Success', `${newMember.name} has been added to your team!`);
+  };
+
+  // Available AI agents that aren't already active
+  const aiAgents = useOrganizationStore(s => s.aiAgents);
+  const availableAIs = useMemo(() => {
+    const activeAIIds = aiAgents.filter(a => a.status === 'active').map(a => a.id);
+    return AI_AGENTS.filter(a => !activeAIIds.includes(a.id)).slice(0, 10);
+  }, [aiAgents]);
+
+  // Handle adding an AI agent
+  const handleAddAI = () => {
+    if (!selectedAI) return;
+
+    // In a real app, this would add to organization store
+    Alert.alert('AI Agent Added', `${selectedAI.name} has been added to your team. It will help with ${selectedAI.functions.join(', ')}.`);
+    setSelectedAI(null);
+    setShowGetResourcesModal(false);
   };
 
   // Set initial function from params if provided
@@ -618,7 +668,7 @@ export default function DecideScreen() {
 
             {/* Apprentices Row */}
             {teamMembers.apprentices.length > 0 && (
-              <View>
+              <View className="mb-2">
                 <Text className="text-blue-600 dark:text-blue-400 text-[10px] font-semibold mb-1.5">APPRENTICES</Text>
                 <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                   <View className="flex-row gap-2">
@@ -643,6 +693,17 @@ export default function DecideScreen() {
                 </ScrollView>
               </View>
             )}
+
+            {/* Get More Resources Button */}
+            <Pressable
+              onPress={() => setShowGetResourcesModal(true)}
+              className="mt-2 bg-purple-500/10 dark:bg-purple-500/20 border border-purple-300 dark:border-purple-700 border-dashed rounded-xl py-2.5 px-4 flex-row items-center justify-center active:opacity-70"
+            >
+              <UserPlus size={16} color="#8b5cf6" />
+              <Text className="text-purple-600 dark:text-purple-400 font-semibold text-sm ml-2">
+                Get More Resources
+              </Text>
+            </Pressable>
           </View>
         )}
       </View>
@@ -1678,6 +1739,241 @@ export default function DecideScreen() {
           okr={selectedOKRForHire}
         />
       )}
+
+      {/* Get More Resources Modal */}
+      <Modal
+        visible={showGetResourcesModal}
+        transparent
+        animationType="slide"
+        presentationStyle="pageSheet"
+        onRequestClose={() => setShowGetResourcesModal(false)}
+      >
+        <View className="flex-1 bg-black/70 justify-end">
+          <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} className="flex-1 justify-end">
+            <View className="bg-gray-100 dark:bg-slate-900 rounded-t-3xl" style={{ maxHeight: '85%' }}>
+              {/* Header */}
+              <View className="px-6 pt-6 pb-4 border-b border-gray-300 dark:border-slate-800">
+                <View className="flex-row items-center justify-between">
+                  <View className="flex-row items-center">
+                    <UserPlus size={24} color="#8b5cf6" />
+                    <Text className="text-gray-900 dark:text-white text-xl font-bold ml-2">Get More Resources</Text>
+                  </View>
+                  <Pressable
+                    onPress={() => {
+                      setShowGetResourcesModal(false);
+                      setHireName('');
+                      setSelectedAI(null);
+                    }}
+                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                    className="w-10 h-10 items-center justify-center rounded-full bg-gray-200 dark:bg-slate-800 active:opacity-70"
+                  >
+                    <X size={24} color="#64748b" />
+                  </Pressable>
+                </View>
+                <Text className="text-gray-600 dark:text-slate-400 text-sm mt-2">
+                  Add team members or AI assistants to increase your capacity
+                </Text>
+              </View>
+
+              {/* Tab Selector */}
+              <View className="flex-row px-6 pt-4 gap-3">
+                <Pressable
+                  onPress={() => setResourceTypeTab('people')}
+                  className={`flex-1 flex-row items-center justify-center py-3 rounded-xl ${
+                    resourceTypeTab === 'people' ? 'bg-purple-500' : 'bg-gray-200 dark:bg-slate-800'
+                  }`}
+                >
+                  <Users size={18} color={resourceTypeTab === 'people' ? '#fff' : '#64748b'} />
+                  <Text className={`font-semibold ml-2 ${
+                    resourceTypeTab === 'people' ? 'text-white' : 'text-gray-600 dark:text-slate-400'
+                  }`}>Hire People</Text>
+                </Pressable>
+                <Pressable
+                  onPress={() => setResourceTypeTab('ai')}
+                  className={`flex-1 flex-row items-center justify-center py-3 rounded-xl ${
+                    resourceTypeTab === 'ai' ? 'bg-purple-500' : 'bg-gray-200 dark:bg-slate-800'
+                  }`}
+                >
+                  <Bot size={18} color={resourceTypeTab === 'ai' ? '#fff' : '#64748b'} />
+                  <Text className={`font-semibold ml-2 ${
+                    resourceTypeTab === 'ai' ? 'text-white' : 'text-gray-600 dark:text-slate-400'
+                  }`}>Add AIs</Text>
+                </Pressable>
+              </View>
+
+              <ScrollView showsVerticalScrollIndicator className="px-6 py-4">
+                {resourceTypeTab === 'people' ? (
+                  <View>
+                    {/* Role Selection */}
+                    <Text className="text-gray-900 dark:text-white font-semibold mb-2">Role</Text>
+                    <View className="flex-row gap-3 mb-4">
+                      <Pressable
+                        onPress={() => setHireRole('FractionalExec')}
+                        className={`flex-1 p-3 rounded-xl border ${
+                          hireRole === 'FractionalExec'
+                            ? 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-400 dark:border-emerald-600'
+                            : 'bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700'
+                        }`}
+                      >
+                        <View className="flex-row items-center mb-1">
+                          <Briefcase size={16} color={hireRole === 'FractionalExec' ? '#10b981' : '#64748b'} />
+                          <Text className={`font-semibold ml-2 ${
+                            hireRole === 'FractionalExec' ? 'text-emerald-700 dark:text-emerald-300' : 'text-gray-700 dark:text-slate-300'
+                          }`}>Executive</Text>
+                        </View>
+                        <Text className={`text-xs ${
+                          hireRole === 'FractionalExec' ? 'text-emerald-600 dark:text-emerald-400' : 'text-gray-500 dark:text-slate-500'
+                        }`}>£800/day • 2 days/wk</Text>
+                      </Pressable>
+                      <Pressable
+                        onPress={() => setHireRole('Apprentice')}
+                        className={`flex-1 p-3 rounded-xl border ${
+                          hireRole === 'Apprentice'
+                            ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-400 dark:border-blue-600'
+                            : 'bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700'
+                        }`}
+                      >
+                        <View className="flex-row items-center mb-1">
+                          <GraduationCap size={16} color={hireRole === 'Apprentice' ? '#3b82f6' : '#64748b'} />
+                          <Text className={`font-semibold ml-2 ${
+                            hireRole === 'Apprentice' ? 'text-blue-700 dark:text-blue-300' : 'text-gray-700 dark:text-slate-300'
+                          }`}>Apprentice</Text>
+                        </View>
+                        <Text className={`text-xs ${
+                          hireRole === 'Apprentice' ? 'text-blue-600 dark:text-blue-400' : 'text-gray-500 dark:text-slate-500'
+                        }`}>£150/day • 5 days/wk</Text>
+                      </Pressable>
+                    </View>
+
+                    {/* Name Input */}
+                    <Text className="text-gray-900 dark:text-white font-semibold mb-2">Name</Text>
+                    <TextInput
+                      value={hireName}
+                      onChangeText={setHireName}
+                      placeholder="e.g., Sarah Johnson"
+                      placeholderTextColor="#64748b"
+                      className="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-3 text-gray-900 dark:text-white mb-4"
+                    />
+
+                    {/* Function Selection */}
+                    <Text className="text-gray-900 dark:text-white font-semibold mb-2">Function</Text>
+                    <View className="flex-row flex-wrap gap-2 mb-6">
+                      {functions.map((func) => (
+                        <Pressable
+                          key={func}
+                          onPress={() => setHireFunction(func)}
+                          className={`px-3 py-2 rounded-lg ${
+                            hireFunction === func
+                              ? 'bg-purple-500'
+                              : 'bg-gray-200 dark:bg-slate-800'
+                          }`}
+                        >
+                          <Text className={`text-sm font-semibold ${
+                            hireFunction === func
+                              ? 'text-white'
+                              : 'text-gray-700 dark:text-slate-300'
+                          }`}>
+                            {func}
+                          </Text>
+                        </Pressable>
+                      ))}
+                    </View>
+
+                    {/* Hire Button */}
+                    <Pressable
+                      onPress={handleHireNewMember}
+                      disabled={!hireName.trim()}
+                      className={`py-4 rounded-xl flex-row items-center justify-center ${
+                        hireName.trim() ? 'bg-purple-500 active:opacity-70' : 'bg-gray-300 dark:bg-slate-700'
+                      }`}
+                    >
+                      <UserPlus size={20} color={hireName.trim() ? '#fff' : '#64748b'} />
+                      <Text className={`font-bold text-lg ml-2 ${
+                        hireName.trim() ? 'text-white' : 'text-gray-500'
+                      }`}>
+                        Hire {hireRole === 'FractionalExec' ? 'Executive' : 'Apprentice'}
+                      </Text>
+                    </Pressable>
+                  </View>
+                ) : (
+                  <View>
+                    <Text className="text-gray-600 dark:text-slate-400 text-sm mb-4">
+                      Select an AI assistant to help your team work faster
+                    </Text>
+
+                    {availableAIs.length === 0 ? (
+                      <View className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4">
+                        <Text className="text-blue-700 dark:text-blue-300 text-center">
+                          All available AI agents are already active in your organization.
+                        </Text>
+                      </View>
+                    ) : (
+                      <View className="gap-3 mb-4">
+                        {availableAIs.map((ai) => (
+                          <Pressable
+                            key={ai.id}
+                            onPress={() => setSelectedAI(selectedAI?.id === ai.id ? null : ai)}
+                            className={`bg-white dark:bg-slate-800 border rounded-xl p-4 ${
+                              selectedAI?.id === ai.id
+                                ? 'border-purple-400 dark:border-purple-600'
+                                : 'border-gray-200 dark:border-slate-700'
+                            }`}
+                          >
+                            <View className="flex-row items-start justify-between">
+                              <View className="flex-row items-start flex-1">
+                                <View className="w-10 h-10 rounded-full bg-purple-100 dark:bg-purple-900/30 items-center justify-center">
+                                  <Bot size={20} color="#8b5cf6" />
+                                </View>
+                                <View className="ml-3 flex-1">
+                                  <Text className="text-gray-900 dark:text-white font-bold">{ai.name}</Text>
+                                  <Text className="text-gray-600 dark:text-slate-400 text-xs mt-0.5">{ai.purpose}</Text>
+                                  <View className="flex-row items-center mt-2 gap-2 flex-wrap">
+                                    <View className="bg-purple-100 dark:bg-purple-900/30 px-2 py-0.5 rounded">
+                                      <Text className="text-purple-700 dark:text-purple-300 text-[10px] font-semibold">
+                                        {ai.functions.join(', ')}
+                                      </Text>
+                                    </View>
+                                    <Text className="text-gray-500 dark:text-slate-500 text-[10px]">
+                                      £{ai.costPerMonth}/mo
+                                    </Text>
+                                  </View>
+                                </View>
+                              </View>
+                              {selectedAI?.id === ai.id && (
+                                <View className="w-6 h-6 rounded-full bg-purple-500 items-center justify-center">
+                                  <CheckCircle size={14} color="#fff" />
+                                </View>
+                              )}
+                            </View>
+                          </Pressable>
+                        ))}
+                      </View>
+                    )}
+
+                    {/* Add AI Button */}
+                    {availableAIs.length > 0 && (
+                      <Pressable
+                        onPress={handleAddAI}
+                        disabled={!selectedAI}
+                        className={`py-4 rounded-xl flex-row items-center justify-center ${
+                          selectedAI ? 'bg-purple-500 active:opacity-70' : 'bg-gray-300 dark:bg-slate-700'
+                        }`}
+                      >
+                        <Bot size={20} color={selectedAI ? '#fff' : '#64748b'} />
+                        <Text className={`font-bold text-lg ml-2 ${
+                          selectedAI ? 'text-white' : 'text-gray-500'
+                        }`}>
+                          Add AI Assistant
+                        </Text>
+                      </Pressable>
+                    )}
+                  </View>
+                )}
+              </ScrollView>
+            </View>
+          </KeyboardAvoidingView>
+        </View>
+      </Modal>
     </View>
   );
 }
