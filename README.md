@@ -292,22 +292,39 @@ The aim is separate from OKRs and goals - it's the unchanging purpose that gives
 
 **Latest Update**: 2026-01-14
 
-### OKR Reordering
-- **Drag Handle**: Each OKR card has a grip handle on the left for dragging
-- **Reorder Within Sections**: Drag OKRs up/down to change priority within Active or Queued sections
-- **Move Between Sections**: Drag an Active OKR down past the divider to move it to Queue (unassigns all members)
-- **Visual Feedback**: Purple border highlight while dragging, smooth spring animations
+### How to Use
+1. **Long-press** (hold) on any OKR or task to start dragging
+2. **Drag** to a new position - visual feedback shows drop zones
+3. **Release** to drop - haptic feedback confirms the action
 
-### Task Merging
-- **Drag Tasks**: Tasks within expanded OKRs can be dragged
-- **Merge into OKR**: Drag one task onto another to combine them into a new OKR
-- **Rename Modal**: After merging, a modal appears to name the new OKR
-- **Automatic Key Results**: Merged tasks become key results of the new OKR
+### OKR Reordering
+- **Long-Press to Drag**: Hold an OKR card for 300ms to pick it up
+- **Reorder Within Sections**: Drag OKRs up/down to change priority within Active or Queued sections
+- **Move to Queue**: Drag an Active OKR down past the drop zone divider to pause work
+  - All assigned team members are automatically unassigned
+  - Their time becomes available for other tasks
+- **Visual Feedback**: Purple border highlight while dragging, smooth spring animations
+- **Haptic Feedback**: Vibration when pickup starts and on drop
+
+### Task Dragging
+- **Expand OKR First**: Tap an OKR to expand and see tasks inside
+- **Long-Press Task**: Hold any task for 300ms to start dragging
+- **Drop on Another Task**: Creates a new OKR combining both tasks
+  - A modal appears to name the new combined OKR
+  - Both tasks become key results of the new OKR
+- **Drop Below Divider**: Moves task to queued section
+  - Unassigns all team members from the task
+  - Task status changes to "not-started"
+
+### Drop Zone Indicator
+- **Appears When Dragging**: A dashed-border drop zone appears between Active and Queued sections
+- **Blue Highlight**: Zone turns blue when you're hovering over it
+- **Text Guidance**: Shows "Drop here to pause work & free resources" when active
 
 ### Active vs Queued Logic
 - **Active OKRs**: Have work plans with assigned team members
 - **Queued OKRs**: No work plans or work plans without assigned members
-- **Divider Line**: Visual "DRAG TO REORDER" divider separates sections
+- **Moving to Queue = Freeing Resources**: When you move an OKR or task to the queue, all assigned people are freed up and can be reallocated to other work
 
 ---
 

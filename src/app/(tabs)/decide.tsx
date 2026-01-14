@@ -148,6 +148,8 @@ export default function DecideScreen() {
   const [draggingOKRId, setDraggingOKRId] = useState<string | null>(null);
   const [draggingTaskId, setDraggingTaskId] = useState<string | null>(null);
   const [dropTargetTaskId, setDropTargetTaskId] = useState<string | null>(null);
+  const [dropZoneActive, setDropZoneActive] = useState<'active' | 'queued' | 'create-okr' | null>(null);
+  const [dragOverOKRId, setDragOverOKRId] = useState<string | null>(null);
   const [showRenameOKRModal, setShowRenameOKRModal] = useState(false);
   const [renameOKRTitle, setRenameOKRTitle] = useState('');
   const [pendingMergeTaskIds, setPendingMergeTaskIds] = useState<string[]>([]);
@@ -353,12 +355,37 @@ export default function DecideScreen() {
   }, [filteredOKRs, workPlans]);
 
   // Drag and drop handlers for OKR reordering
-  const handleOKRDragEnd = useCallback((okrId: string, translationY: number, isActive: boolean) => {
+  const handleOKRDragEnd = useCallback((okrId: string, translationY: number, absoluteY: number, isActive: boolean) => {
     const ITEM_HEIGHT = 80;
     const itemsMoved = Math.round(translationY / ITEM_HEIGHT);
 
+    // Use dropZoneActive to determine movement
+    if (dropZoneActive === 'queued' && isActive) {
+      // Move from active to queue - remove all assigned members from linked work plans
+      const okr = activeOKRs.find(o => o.id === okrId);
+      if (okr) {
+        const linkedPlans = workPlans.filter(wp => wp.linkedOKRTitle === okr.title);
+        linkedPlans.forEach(plan => {
+          updateWorkPlan(plan.id, { assignedMemberIds: [], status: 'not-started' });
+        });
+        Alert.alert('Moved to Queue', 'OKR moved to queue. All team members have been unassigned and work is paused.');
+      }
+      setDraggingOKRId(null);
+      setDropZoneActive(null);
+      return;
+    }
+
+    if (dropZoneActive === 'active' && !isActive) {
+      // Move from queue to active - prompt user to assign resources
+      Alert.alert('Activate OKR', 'Tap on the OKR to expand it, then assign team members to tasks.');
+      setDraggingOKRId(null);
+      setDropZoneActive(null);
+      return;
+    }
+
     if (Math.abs(itemsMoved) === 0) {
       setDraggingOKRId(null);
+      setDropZoneActive(null);
       return;
     }
 
@@ -367,48 +394,62 @@ export default function DecideScreen() {
 
     if (sourceIndex === -1) {
       setDraggingOKRId(null);
+      setDropZoneActive(null);
       return;
     }
 
-    // Check if moving to other section
-    const threshold = isActive
-      ? (activeOKRs.length - sourceIndex) * ITEM_HEIGHT + 50
-      : -50 - sourceIndex * ITEM_HEIGHT;
+    // Reorder within same section
+    const destIndex = Math.max(0, Math.min(sourceList.length - 1, sourceIndex + itemsMoved));
+    if (destIndex !== sourceIndex) {
+      // Build new order
+      const reorderedList = [...sourceList];
+      const [movedItem] = reorderedList.splice(sourceIndex, 1);
+      reorderedList.splice(destIndex, 0, movedItem);
 
-    if (isActive && translationY > threshold) {
-      // Move to queue - remove all assigned members from linked work plans
-      const linkedPlans = workPlans.filter(wp => wp.linkedOKRTitle === sourceList[sourceIndex]?.title);
-      linkedPlans.forEach(plan => {
-        updateWorkPlan(plan.id, { assignedMemberIds: [] });
-      });
-      Alert.alert('Moved to Queue', 'OKR moved to queue. All team members have been unassigned.');
-    } else if (!isActive && translationY < threshold) {
-      // Move to active - prompt user to assign resources
-      Alert.alert('Activate OKR', 'Tap on a task and assign team members to activate this OKR.');
-    } else {
-      // Reorder within same section
-      const destIndex = Math.max(0, Math.min(sourceList.length - 1, sourceIndex + itemsMoved));
-      if (destIndex !== sourceIndex) {
-        // Build new order
-        const reorderedList = [...sourceList];
-        const [movedItem] = reorderedList.splice(sourceIndex, 1);
-        reorderedList.splice(destIndex, 0, movedItem);
+      // Create new full order maintaining the other section
+      const otherList = isActive ? queuedOKRs : activeOKRs;
+      const newOrder = isActive
+        ? [...reorderedList.map(o => o.id), ...otherList.map(o => o.id)]
+        : [...otherList.map(o => o.id), ...reorderedList.map(o => o.id)];
 
-        // Create new full order maintaining the other section
-        const otherList = isActive ? queuedOKRs : activeOKRs;
-        const newOrder = isActive
-          ? [...reorderedList.map(o => o.id), ...otherList.map(o => o.id)]
-          : [...otherList.map(o => o.id), ...reorderedList.map(o => o.id)];
-
-        reorderOKRs(newOrder);
-      }
+      reorderOKRs(newOrder);
     }
 
     setDraggingOKRId(null);
-  }, [activeOKRs, queuedOKRs, workPlans, reorderOKRs, updateWorkPlan]);
+    setDropZoneActive(null);
+  }, [activeOKRs, queuedOKRs, workPlans, reorderOKRs, updateWorkPlan, dropZoneActive]);
 
-  // Handle task drag for merging or moving
-  const handleTaskDragEnd = useCallback((taskId: string, translationY: number, parentOKRTitle: string) => {
+  // Handle OKR drag move for drop zone detection
+  const handleOKRDragMove = useCallback((okrId: string, absoluteY: number) => {
+    // Get screen regions - simplified detection
+    const screenMidpoint = 400; // Approximate midpoint
+
+    if (draggingOKRId) {
+      const isFromActive = activeOKRs.some(o => o.id === okrId);
+      if (isFromActive && absoluteY > screenMidpoint + 100) {
+        setDropZoneActive('queued');
+      } else if (!isFromActive && absoluteY < screenMidpoint - 100) {
+        setDropZoneActive('active');
+      } else {
+        setDropZoneActive(null);
+      }
+    }
+  }, [draggingOKRId, activeOKRs]);
+
+  // Handle task drag for merging or moving between OKRs
+  const handleTaskDragEnd = useCallback((taskId: string, translationY: number, absoluteY: number, parentOKRTitle: string) => {
+    // Check if dropped on the queued drop zone
+    if (dropZoneActive === 'queued') {
+      // Unassign all members from this task
+      updateWorkPlan(taskId, { assignedMemberIds: [], status: 'not-started' });
+      Alert.alert('Task Paused', 'Team members have been unassigned and the task is now paused.');
+      setDraggingTaskId(null);
+      setDropTargetTaskId(null);
+      setDropZoneActive(null);
+      return;
+    }
+
+    // Check if dropped on another task for merging
     if (dropTargetTaskId && dropTargetTaskId !== taskId) {
       // Merging two tasks into a new OKR
       const sourceTask = workPlans.find(wp => wp.id === taskId);
@@ -416,15 +457,38 @@ export default function DecideScreen() {
 
       if (sourceTask && targetTask) {
         // Show rename modal for the new OKR
-        setRenameOKRTitle(targetTask.title);
+        setRenameOKRTitle(`${sourceTask.title} & ${targetTask.title}`);
         setPendingMergeTaskIds([taskId, dropTargetTaskId]);
         setShowRenameOKRModal(true);
       }
     }
 
+    // Check if dropped on a different OKR to move the task
+    if (dragOverOKRId) {
+      const targetOKR = okrs.find(o => o.id === dragOverOKRId);
+      if (targetOKR && targetOKR.title !== parentOKRTitle) {
+        updateWorkPlan(taskId, { linkedOKRTitle: targetOKR.title });
+        Alert.alert('Task Moved', `Task moved to "${targetOKR.title}"`);
+      }
+    }
+
     setDraggingTaskId(null);
     setDropTargetTaskId(null);
-  }, [workPlans, dropTargetTaskId]);
+    setDropZoneActive(null);
+    setDragOverOKRId(null);
+  }, [workPlans, dropTargetTaskId, dropZoneActive, dragOverOKRId, okrs, updateWorkPlan]);
+
+  // Handle task drag move for drop zone detection
+  const handleTaskDragMove = useCallback((taskId: string, absoluteY: number) => {
+    // Detect if we're over the queued section
+    const screenMidpoint = 400;
+
+    if (absoluteY > screenMidpoint + 150) {
+      setDropZoneActive('queued');
+    } else {
+      setDropZoneActive(null);
+    }
+  }, []);
 
   // Confirm merge of tasks into OKR
   const handleConfirmTaskMerge = useCallback(() => {
@@ -968,9 +1032,11 @@ export default function DecideScreen() {
                     <DraggableOKRCard
                       okrId={okr.id}
                       onDragStart={(id) => setDraggingOKRId(id)}
-                      onDragEnd={(id, translationY) => handleOKRDragEnd(id, translationY, true)}
+                      onDragEnd={(id, translationY, absoluteY) => handleOKRDragEnd(id, translationY, absoluteY, true)}
+                      onDragMove={handleOKRDragMove}
                       onPress={() => toggleOKR(okr.id)}
                       isDragging={draggingOKRId === okr.id}
+                      isDropTarget={dropZoneActive === 'active' && !activeOKRs.some(o => o.id === okr.id)}
                     >
                       <View
                         className={`bg-emerald-50 dark:bg-emerald-900/10 border rounded-xl p-3 ${
@@ -1058,100 +1124,112 @@ export default function DecideScreen() {
 
                     {isExpanded && (
                       <View className="mt-2 ml-4 gap-2">
-                        {/* Work Plans (Tasks) with Assigned Members */}
+                        {/* Work Plans (Tasks) with Assigned Members - Draggable */}
                         {linkedPlans.map((plan) => {
                           const assignedMembers = getAssignedMembers(plan);
                           return (
-                            <Pressable
+                            <DraggableTaskCard
                               key={plan.id}
+                              taskId={plan.id}
+                              onDragStart={(id) => setDraggingTaskId(id)}
+                              onDragEnd={(id, translationY, absoluteY) => handleTaskDragEnd(id, translationY, absoluteY, okr.title)}
+                              onDragMove={handleTaskDragMove}
                               onPress={() => {
                                 if (selectedMemberForAssign) {
                                   handleAssignMember(plan.id, selectedMemberForAssign);
                                 }
                               }}
-                              className={`bg-white dark:bg-slate-800 border rounded-xl p-3 ${
-                                selectedMemberForAssign
-                                  ? 'border-purple-400 dark:border-purple-600 border-2'
-                                  : 'border-gray-200 dark:border-slate-700'
-                              }`}
+                              isDragging={draggingTaskId === plan.id}
+                              isDropTarget={draggingTaskId !== null && draggingTaskId !== plan.id && dropTargetTaskId === plan.id}
+                              isBeingDraggedOver={draggingTaskId !== null && draggingTaskId !== plan.id}
                             >
-                              <View className="flex-row items-start justify-between mb-2">
-                                <View className="flex-1 mr-2">
-                                  <Text className="text-gray-900 dark:text-white font-semibold text-sm" numberOfLines={2}>
-                                    {plan.title}
-                                  </Text>
-                                  <View className="flex-row items-center mt-1 gap-2">
-                                    <View className={`px-1.5 py-0.5 rounded ${
-                                      plan.status === 'completed' ? 'bg-emerald-500/20' :
-                                      plan.status === 'in-progress' ? 'bg-blue-500/20' :
-                                      plan.status === 'blocked' ? 'bg-red-500/20' : 'bg-gray-500/20'
-                                    }`}>
-                                      <Text className={`text-[10px] font-semibold ${
-                                        plan.status === 'completed' ? 'text-emerald-600 dark:text-emerald-400' :
-                                        plan.status === 'in-progress' ? 'text-blue-600 dark:text-blue-400' :
-                                        plan.status === 'blocked' ? 'text-red-600 dark:text-red-400' : 'text-gray-600 dark:text-gray-400'
-                                      }`}>{plan.status}</Text>
+                              <View
+                                className={`bg-white dark:bg-slate-800 border rounded-xl p-3 ${
+                                  selectedMemberForAssign
+                                    ? 'border-purple-400 dark:border-purple-600 border-2'
+                                    : draggingTaskId === plan.id
+                                      ? 'border-purple-400 dark:border-purple-500'
+                                      : 'border-gray-200 dark:border-slate-700'
+                                }`}
+                              >
+                                <View className="flex-row items-start justify-between mb-2">
+                                  <View className="flex-1 mr-2">
+                                    <Text className="text-gray-900 dark:text-white font-semibold text-sm" numberOfLines={2}>
+                                      {plan.title}
+                                    </Text>
+                                    <View className="flex-row items-center mt-1 gap-2">
+                                      <View className={`px-1.5 py-0.5 rounded ${
+                                        plan.status === 'completed' ? 'bg-emerald-500/20' :
+                                        plan.status === 'in-progress' ? 'bg-blue-500/20' :
+                                        plan.status === 'blocked' ? 'bg-red-500/20' : 'bg-gray-500/20'
+                                      }`}>
+                                        <Text className={`text-[10px] font-semibold ${
+                                          plan.status === 'completed' ? 'text-emerald-600 dark:text-emerald-400' :
+                                          plan.status === 'in-progress' ? 'text-blue-600 dark:text-blue-400' :
+                                          plan.status === 'blocked' ? 'text-red-600 dark:text-red-400' : 'text-gray-600 dark:text-gray-400'
+                                        }`}>{plan.status}</Text>
+                                      </View>
+                                      <Text className="text-gray-500 dark:text-slate-400 text-[10px]">{plan.progress}%</Text>
                                     </View>
-                                    <Text className="text-gray-500 dark:text-slate-400 text-[10px]">{plan.progress}%</Text>
+                                  </View>
+
+                                  {/* Assigned Members Avatars */}
+                                  <View className="flex-row items-center">
+                                    {assignedMembers.length > 0 ? (
+                                      <View className="flex-row -space-x-2">
+                                        {assignedMembers.slice(0, 4).map((member, idx) => (
+                                          <Pressable
+                                            key={member.id}
+                                            onPress={() => handleRemoveMember(plan.id, member.id)}
+                                            style={{ marginLeft: idx > 0 ? -8 : 0, zIndex: 10 - idx }}
+                                          >
+                                            <View
+                                              className="w-8 h-8 rounded-full items-center justify-center border-2 border-white dark:border-slate-800"
+                                              style={{ backgroundColor: getRoleColor(member.role) }}
+                                            >
+                                              <Text className="text-white font-bold text-[10px]">{getInitials(member.name)}</Text>
+                                            </View>
+                                          </Pressable>
+                                        ))}
+                                        {assignedMembers.length > 4 && (
+                                          <View className="w-8 h-8 rounded-full items-center justify-center bg-gray-400 border-2 border-white dark:border-slate-800" style={{ marginLeft: -8 }}>
+                                            <Text className="text-white font-bold text-[10px]">+{assignedMembers.length - 4}</Text>
+                                          </View>
+                                        )}
+                                      </View>
+                                    ) : (
+                                      <View className="w-8 h-8 rounded-full items-center justify-center bg-gray-200 dark:bg-slate-700 border-2 border-dashed border-gray-400 dark:border-slate-500">
+                                        <Plus size={14} color="#9ca3af" />
+                                      </View>
+                                    )}
                                   </View>
                                 </View>
 
-                                {/* Assigned Members Avatars */}
-                                <View className="flex-row items-center">
-                                  {assignedMembers.length > 0 ? (
-                                    <View className="flex-row -space-x-2">
-                                      {assignedMembers.slice(0, 4).map((member, idx) => (
-                                        <Pressable
-                                          key={member.id}
-                                          onPress={() => handleRemoveMember(plan.id, member.id)}
-                                          style={{ marginLeft: idx > 0 ? -8 : 0, zIndex: 10 - idx }}
-                                        >
-                                          <View
-                                            className="w-8 h-8 rounded-full items-center justify-center border-2 border-white dark:border-slate-800"
-                                            style={{ backgroundColor: getRoleColor(member.role) }}
-                                          >
-                                            <Text className="text-white font-bold text-[10px]">{getInitials(member.name)}</Text>
-                                          </View>
-                                        </Pressable>
-                                      ))}
-                                      {assignedMembers.length > 4 && (
-                                        <View className="w-8 h-8 rounded-full items-center justify-center bg-gray-400 border-2 border-white dark:border-slate-800" style={{ marginLeft: -8 }}>
-                                          <Text className="text-white font-bold text-[10px]">+{assignedMembers.length - 4}</Text>
-                                        </View>
-                                      )}
-                                    </View>
-                                  ) : (
-                                    <View className="w-8 h-8 rounded-full items-center justify-center bg-gray-200 dark:bg-slate-700 border-2 border-dashed border-gray-400 dark:border-slate-500">
-                                      <Plus size={14} color="#9ca3af" />
-                                    </View>
-                                  )}
+                                {/* Progress Bar */}
+                                <View className="bg-gray-200 dark:bg-slate-700 rounded-full h-1.5 overflow-hidden">
+                                  <View
+                                    className={`h-full ${
+                                      plan.status === 'completed' ? 'bg-emerald-500' :
+                                      plan.status === 'blocked' ? 'bg-red-500' : 'bg-blue-500'
+                                    }`}
+                                    style={{ width: `${plan.progress}%` }}
+                                  />
+                                </View>
+
+                                {/* Squares Display */}
+                                <View className="mt-2">
+                                  <SquaresDisplay
+                                    totalSquares={plan.estimatedTimeUnits}
+                                    completedSquares={Math.round((plan.progress / 100) * plan.estimatedTimeUnits)}
+                                    variant="compact"
+                                    statusColor={
+                                      plan.status === 'completed' ? '#10b981' :
+                                      plan.status === 'blocked' ? '#ef4444' : '#3b82f6'
+                                    }
+                                  />
                                 </View>
                               </View>
-
-                              {/* Progress Bar */}
-                              <View className="bg-gray-200 dark:bg-slate-700 rounded-full h-1.5 overflow-hidden">
-                                <View
-                                  className={`h-full ${
-                                    plan.status === 'completed' ? 'bg-emerald-500' :
-                                    plan.status === 'blocked' ? 'bg-red-500' : 'bg-blue-500'
-                                  }`}
-                                  style={{ width: `${plan.progress}%` }}
-                                />
-                              </View>
-
-                              {/* Squares Display */}
-                              <View className="mt-2">
-                                <SquaresDisplay
-                                  totalSquares={plan.estimatedTimeUnits}
-                                  completedSquares={Math.round((plan.progress / 100) * plan.estimatedTimeUnits)}
-                                  variant="compact"
-                                  statusColor={
-                                    plan.status === 'completed' ? '#10b981' :
-                                    plan.status === 'blocked' ? '#ef4444' : '#3b82f6'
-                                  }
-                                />
-                              </View>
-                            </Pressable>
+                            </DraggableTaskCard>
                           );
                         })}
 
@@ -1189,16 +1267,38 @@ export default function DecideScreen() {
           </View>
         )}
 
-        {/* Divider between Active and Queued */}
+        {/* Drop Zone / Divider between Active and Queued */}
         {(activeOKRs.length > 0 || queuedOKRs.length > 0) && (
-          <View className="flex-row items-center my-3">
-            <View className="flex-1 h-0.5 bg-gray-300 dark:bg-slate-700" />
-            <View className="bg-gray-200 dark:bg-slate-800 px-3 py-1 rounded-full mx-2">
-              <Text className="text-gray-500 dark:text-slate-400 text-[10px] font-bold">
-                DRAG TO REORDER
-              </Text>
-            </View>
-            <View className="flex-1 h-0.5 bg-gray-300 dark:bg-slate-700" />
+          <View className="my-3">
+            {(draggingOKRId || draggingTaskId) ? (
+              <View
+                className={`border-2 border-dashed rounded-xl p-4 items-center justify-center ${
+                  dropZoneActive === 'queued'
+                    ? 'bg-blue-100 dark:bg-blue-900/30 border-blue-400 dark:border-blue-500'
+                    : 'bg-gray-100 dark:bg-slate-800 border-gray-300 dark:border-slate-600'
+                }`}
+              >
+                <Text className={`text-sm font-semibold ${
+                  dropZoneActive === 'queued'
+                    ? 'text-blue-600 dark:text-blue-400'
+                    : 'text-gray-500 dark:text-slate-400'
+                }`}>
+                  {dropZoneActive === 'queued'
+                    ? '↓ Drop here to pause work & free resources'
+                    : '↓ Drag below this line to queue'}
+                </Text>
+              </View>
+            ) : (
+              <View className="flex-row items-center">
+                <View className="flex-1 h-0.5 bg-gray-300 dark:bg-slate-700" />
+                <View className="bg-gray-200 dark:bg-slate-800 px-3 py-1 rounded-full mx-2">
+                  <Text className="text-gray-500 dark:text-slate-400 text-[10px] font-bold">
+                    HOLD & DRAG TO REORDER
+                  </Text>
+                </View>
+                <View className="flex-1 h-0.5 bg-gray-300 dark:bg-slate-700" />
+              </View>
+            )}
           </View>
         )}
 
@@ -1248,9 +1348,11 @@ export default function DecideScreen() {
                     <DraggableOKRCard
                       okrId={okr.id}
                       onDragStart={(id) => setDraggingOKRId(id)}
-                      onDragEnd={(id, translationY) => handleOKRDragEnd(id, translationY, false)}
+                      onDragEnd={(id, translationY, absoluteY) => handleOKRDragEnd(id, translationY, absoluteY, false)}
+                      onDragMove={handleOKRDragMove}
                       onPress={() => toggleOKR(okr.id)}
                       isDragging={draggingOKRId === okr.id}
+                      isDropTarget={dropZoneActive === 'queued' && activeOKRs.some(o => o.id === draggingOKRId)}
                     >
                       <View
                         className={`bg-blue-50 dark:bg-blue-900/10 border rounded-xl p-3 ${
