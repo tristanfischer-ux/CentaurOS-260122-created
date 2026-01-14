@@ -1,6 +1,6 @@
 import { View, Text, ScrollView, Pressable, Modal } from 'react-native';
 import { useState, useEffect, useMemo } from 'react';
-import { useRouter, Stack } from 'expo-router';
+import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   ArrowLeft,
@@ -34,7 +34,6 @@ export default function BuildQueueScreen() {
 
   // Stores
   const queueItems = useQueueStore((s) => s.items.filter((i) => i.workspaceId === workspaceId));
-  const lanes = useQueueStore((s) => s.lanes);
   const getQueueSummary = useQueueStore((s) => s.getQueueSummary);
   const startOKR = useQueueStore((s) => s.startOKR);
   const pauseOKR = useQueueStore((s) => s.pauseOKR);
@@ -60,7 +59,6 @@ export default function BuildQueueScreen() {
   // Get summary
   const summary = useMemo(() => getQueueSummary(workspaceId), [getQueueSummary, queueItems, workspaceId]);
   const runway = getRunway(workspaceId);
-  const cashBalance = getCashBalance(workspaceId);
 
   // Group items by lane
   const itemsByLane = useMemo(() => {
@@ -148,12 +146,6 @@ export default function BuildQueueScreen() {
 
   return (
     <View className="flex-1 bg-slate-950">
-      <Stack.Screen
-        options={{
-          headerShown: false,
-        }}
-      />
-
       {/* Header */}
       <LinearGradient
         colors={['#6366f1', '#8b5cf6']}
