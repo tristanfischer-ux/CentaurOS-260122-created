@@ -12,6 +12,7 @@
 
 import { create } from 'zustand';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useOKRStore } from './okr-store';
 
 const STORAGE_KEY = 'okr-queue-store-v1';
 const DEFAULT_WORKSPACE_ID = 'workspace-demo-company';
@@ -228,6 +229,24 @@ export const useQueueStore = create<QueueState>((set, get) => ({
 
   initializeQueue: async () => {
     await get().loadFromStorage();
+
+    // Sync queue status with OKR store
+    const items = get().items;
+    const okrStore = useOKRStore.getState();
+    for (const item of items) {
+      if (item.status === 'completed') {
+        okrStore.updateQueueStatus(item.okrId, 'completed');
+      } else if (item.status === 'in_progress') {
+        okrStore.updateQueueStatus(item.okrId, 'in_progress');
+      } else if (item.status === 'blocked') {
+        okrStore.updateQueueStatus(item.okrId, 'blocked');
+      } else if (item.status === 'paused') {
+        okrStore.updateQueueStatus(item.okrId, 'paused');
+      } else {
+        okrStore.updateQueueStatus(item.okrId, 'queued');
+      }
+    }
+
     set({ isInitialized: true });
   },
 
@@ -237,6 +256,9 @@ export const useQueueStore = create<QueueState>((set, get) => ({
       id: `queue-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`,
       addedAt: new Date().toISOString(),
     };
+
+    // Sync with OKR store
+    useOKRStore.getState().updateQueueStatus(itemData.okrId, 'queued');
 
     set((state) => {
       // Find the lane
@@ -263,6 +285,9 @@ export const useQueueStore = create<QueueState>((set, get) => ({
     set((state) => {
       const item = state.items.find((i) => i.id === itemId);
       if (!item) return state;
+
+      // Sync with OKR store - reset to not queued
+      useOKRStore.getState().updateQueueStatus(item.okrId, 'not_queued');
 
       // Remove from lanes
       const updatedLanes = state.lanes.map((lane) => ({
@@ -322,6 +347,9 @@ export const useQueueStore = create<QueueState>((set, get) => ({
       const item = state.items.find((i) => i.id === itemId);
       if (!item) return state;
 
+      // Sync with OKR store
+      useOKRStore.getState().updateQueueStatus(item.okrId, 'in_progress');
+
       // Move from queued to current in lane
       const updatedLanes = state.lanes.map((lane) => {
         if (lane.name === item.lane) {
@@ -347,24 +375,36 @@ export const useQueueStore = create<QueueState>((set, get) => ({
   },
 
   pauseOKR: (itemId) => {
-    set((state) => ({
-      items: state.items.map((i) =>
-        i.id === itemId
-          ? { ...i, status: 'paused' as QueueItemStatus, pausedAt: new Date().toISOString() }
-          : i
-      ),
-    }));
+    set((state) => {
+      const item = state.items.find((i) => i.id === itemId);
+      if (item) {
+        useOKRStore.getState().updateQueueStatus(item.okrId, 'paused');
+      }
+      return {
+        items: state.items.map((i) =>
+          i.id === itemId
+            ? { ...i, status: 'paused' as QueueItemStatus, pausedAt: new Date().toISOString() }
+            : i
+        ),
+      };
+    });
     get().saveToStorage();
   },
 
   resumeOKR: (itemId) => {
-    set((state) => ({
-      items: state.items.map((i) =>
-        i.id === itemId
-          ? { ...i, status: 'in_progress' as QueueItemStatus, pausedAt: undefined }
-          : i
-      ),
-    }));
+    set((state) => {
+      const item = state.items.find((i) => i.id === itemId);
+      if (item) {
+        useOKRStore.getState().updateQueueStatus(item.okrId, 'in_progress');
+      }
+      return {
+        items: state.items.map((i) =>
+          i.id === itemId
+            ? { ...i, status: 'in_progress' as QueueItemStatus, pausedAt: undefined }
+            : i
+        ),
+      };
+    });
     get().saveToStorage();
   },
 
@@ -372,6 +412,9 @@ export const useQueueStore = create<QueueState>((set, get) => ({
     set((state) => {
       const item = state.items.find((i) => i.id === itemId);
       if (!item) return state;
+
+      // Sync with OKR store
+      useOKRStore.getState().updateQueueStatus(item.okrId, 'completed');
 
       // Remove from current in lane
       const updatedLanes = state.lanes.map((lane) => ({
@@ -411,26 +454,38 @@ export const useQueueStore = create<QueueState>((set, get) => ({
   },
 
   blockOKR: (itemId, blockerOkrId) => {
-    set((state) => ({
-      items: state.items.map((i) =>
-        i.id === itemId
-          ? {
-              ...i,
-              status: 'blocked' as QueueItemStatus,
-              dependencies: [...new Set([...i.dependencies, blockerOkrId])],
-            }
-          : i
-      ),
-    }));
+    set((state) => {
+      const item = state.items.find((i) => i.id === itemId);
+      if (item) {
+        useOKRStore.getState().updateQueueStatus(item.okrId, 'blocked');
+      }
+      return {
+        items: state.items.map((i) =>
+          i.id === itemId
+            ? {
+                ...i,
+                status: 'blocked' as QueueItemStatus,
+                dependencies: [...new Set([...i.dependencies, blockerOkrId])],
+              }
+            : i
+        ),
+      };
+    });
     get().saveToStorage();
   },
 
   unblockOKR: (itemId) => {
-    set((state) => ({
-      items: state.items.map((i) =>
-        i.id === itemId ? { ...i, status: 'queued' as QueueItemStatus } : i
-      ),
-    }));
+    set((state) => {
+      const item = state.items.find((i) => i.id === itemId);
+      if (item) {
+        useOKRStore.getState().updateQueueStatus(item.okrId, 'queued');
+      }
+      return {
+        items: state.items.map((i) =>
+          i.id === itemId ? { ...i, status: 'queued' as QueueItemStatus } : i
+        ),
+      };
+    });
     get().saveToStorage();
   },
 

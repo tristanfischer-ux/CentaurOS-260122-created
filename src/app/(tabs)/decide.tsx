@@ -7,7 +7,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useQueueStore } from '@/lib/state/okr-queue-store';
 import type { Function as BusinessFunction } from '@/types';
-import { useOKRStore, type OKR, type Objective } from '@/lib/state/okr-store';
+import { useOKRStore, type OKR, type Objective, type QueueStatus } from '@/lib/state/okr-store';
 import { OKR_CATEGORIES, OKR_SUGGESTIONS, type OKRSuggestion, type OKRCategory } from '@/lib/okr-suggestions';
 import { fractionalExecutives, apprentices, type Candidate } from '@/lib/candidates-seed';
 import { useMarketplaceRequestsStore, type MarketplaceRequest } from '@/lib/state/marketplace-requests-store';
@@ -75,6 +75,7 @@ export default function DecideScreen() {
 
   // Queue store
   const getQueueSummary = useQueueStore((s) => s.getQueueSummary);
+  const initializeQueue = useQueueStore((s) => s.initializeQueue);
   const queueSummary = useMemo(() => getQueueSummary(currentWorkspace?.id ?? DEFAULT_WORKSPACE_ID), [currentWorkspace?.id]);
 
   // Filter pending requests with useMemo
@@ -145,6 +146,11 @@ export default function DecideScreen() {
     }
   }, [params.function]);
 
+  // Initialize queue to sync statuses with OKRs
+  useEffect(() => {
+    initializeQueue();
+  }, []);
+
   const functions: BusinessFunction[] = ['Marketing', 'Sales', 'Engineering', 'Ops', 'Finance', 'Admin'];
 
   // Get all available team members
@@ -195,6 +201,23 @@ export default function DecideScreen() {
         return 'Off Track';
       default:
         return 'Unknown';
+    }
+  };
+
+  const getQueueStatusDisplay = (queueStatus?: QueueStatus) => {
+    switch (queueStatus) {
+      case 'in_progress':
+        return { label: 'Active', color: '#22c55e', bgColor: 'bg-emerald-500/20' };
+      case 'queued':
+        return { label: 'Queued', color: '#3b82f6', bgColor: 'bg-blue-500/20' };
+      case 'paused':
+        return { label: 'Paused', color: '#f59e0b', bgColor: 'bg-amber-500/20' };
+      case 'blocked':
+        return { label: 'Blocked', color: '#ef4444', bgColor: 'bg-red-500/20' };
+      case 'completed':
+        return { label: 'Done', color: '#8b5cf6', bgColor: 'bg-violet-500/20' };
+      default:
+        return null;
     }
   };
 
@@ -657,9 +680,9 @@ export default function DecideScreen() {
                         />
 
                         <View className="flex-1">
-                          <View className="flex-row items-center mb-1">
+                          <View className="flex-row items-center mb-1 flex-wrap gap-1">
                             <View
-                              className="px-1.5 py-0.5 rounded mr-2"
+                              className="px-1.5 py-0.5 rounded"
                               style={{ backgroundColor: functionColor + '20' }}
                             >
                               <Text className="text-xs font-semibold" style={{ color: functionColor }}>
@@ -669,6 +692,20 @@ export default function DecideScreen() {
                             <View className={`px-1.5 py-0.5 rounded ${getStatusColor(okr.status)}`}>
                               <Text className="text-xs font-semibold">{getStatusText(okr.status)}</Text>
                             </View>
+                            {/* Queue Status Badge */}
+                            {getQueueStatusDisplay(okr.queueStatus) && (
+                              <View
+                                className={`px-1.5 py-0.5 rounded flex-row items-center ${getQueueStatusDisplay(okr.queueStatus)?.bgColor}`}
+                              >
+                                <Activity size={10} color={getQueueStatusDisplay(okr.queueStatus)?.color} />
+                                <Text
+                                  className="text-xs font-semibold ml-1"
+                                  style={{ color: getQueueStatusDisplay(okr.queueStatus)?.color }}
+                                >
+                                  {getQueueStatusDisplay(okr.queueStatus)?.label}
+                                </Text>
+                              </View>
+                            )}
                           </View>
 
                           <Text className="text-gray-900 dark:text-white font-semibold text-sm" numberOfLines={1}>

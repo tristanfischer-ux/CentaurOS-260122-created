@@ -15,6 +15,8 @@ export interface Objective {
   status: 'on-track' | 'at-risk' | 'off-track';
 }
 
+export type QueueStatus = 'not_queued' | 'queued' | 'in_progress' | 'blocked' | 'completed' | 'paused';
+
 export interface OKR {
   id: string;
   workspaceId: string; // 🔑 Multi-tenancy key - links OKR to specific company
@@ -25,6 +27,7 @@ export interface OKR {
   startDate: string;
   endDate: string;
   status: 'on-track' | 'at-risk' | 'off-track';
+  queueStatus?: QueueStatus; // Build queue status
   objectives: Objective[];
   isExpanded?: boolean;
 }
@@ -43,6 +46,7 @@ interface OKRState {
   toggleOKRExpanded: (okrId: string) => void;
   addOKR: (okr: OKR) => void;
   updateOKR: (id: string, updates: Partial<OKR>) => void;
+  updateQueueStatus: (okrId: string, queueStatus: QueueStatus) => void;
   deleteOKR: (id: string) => void;
   getCounts: () => {
     total: number;
@@ -236,6 +240,14 @@ export const useOKRStore = create<OKRState>((set, get) => ({
   updateOKR: (id: string, updates: Partial<OKR>) => {
     set(state => ({
       okrs: state.okrs.map(okr => (okr.id === id ? { ...okr, ...updates } : okr)),
+    }));
+  },
+
+  updateQueueStatus: (okrId: string, queueStatus: QueueStatus) => {
+    set(state => ({
+      okrs: state.okrs.map(okr =>
+        okr.id === okrId ? { ...okr, queueStatus } : okr
+      ),
     }));
   },
 

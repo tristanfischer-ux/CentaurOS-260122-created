@@ -65,6 +65,14 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
 
 The app now includes a comprehensive planning system that treats OKRs like a Homeworld build queue, with people-hours as resource units and cash as the only currency.
 
+### Queue ↔ OKR Sync
+
+The Build Queue now **syncs with OKRs**:
+- Starting an OKR in the queue marks it as "Active" on the Decide tab
+- Pausing, blocking, or completing queue items updates the OKR's queue status
+- Queue status badges appear on OKR cards showing: Active, Queued, Paused, Blocked, Done
+- Changes flow both ways - the queue controls OKR work status
+
 ### Core Concepts
 
 1. **OKRs as Build Queue Items** - Each OKR sits in a queue, some running in parallel, some serial
