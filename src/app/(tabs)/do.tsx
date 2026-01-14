@@ -484,91 +484,106 @@ export default function DoScreen() {
     const criticalCount = filteredPlans.filter(p => p.priority === 'critical').length;
 
     return (
-      <View className="flex-1 bg-white dark:bg-slate-950" style={{ paddingTop: insets.top }}>
-        {/* Header with Gradient */}
-        <LinearGradient
-          colors={blockedCount > 0 ? ['#ef4444', '#dc2626'] : criticalCount > 0 ? ['#f59e0b', '#d97706'] : ['#3b82f6', '#2563eb']}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 0 }}
-          style={{ paddingHorizontal: 24, paddingTop: 20, paddingBottom: 20 }}
-        >
+      <View className="flex-1 bg-gray-50 dark:bg-slate-950" style={{ paddingTop: insets.top }}>
+        {/* Clean Header - Matching Decide/Evaluate */}
+        <View className="px-5 pt-4 pb-3 bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-800">
           <View className="flex-row items-center justify-between mb-3">
             <View>
-              <Text className="text-white/80 text-xs font-semibold">EXECUTION CENTER</Text>
-              <Text className="text-white text-2xl font-bold">Do</Text>
+              <Text className="text-gray-900 dark:text-white text-2xl font-bold">Do</Text>
+              <Text className="text-gray-500 dark:text-slate-400 text-sm">
+                Execute your assigned tasks
+              </Text>
             </View>
-            <View className="bg-white/20 px-3 py-1.5 rounded-full">
-              <Text className="text-white text-xs font-bold">APPRENTICE</Text>
-            </View>
+            {blockedCount > 0 && (
+              <View className="bg-red-500 px-3 py-1.5 rounded-full flex-row items-center">
+                <AlertTriangle size={14} color="#fff" />
+                <Text className="text-white font-bold text-sm ml-1">{blockedCount}</Text>
+              </View>
+            )}
           </View>
 
-          {/* Velocity Stats */}
-          <View className="flex-row gap-3">
-            <View className="flex-1 bg-white/10 rounded-xl p-3">
-              <Text className="text-white/60 text-xs mb-1">Active</Text>
-              <Text className="text-white text-2xl font-bold">{filteredPlans.length}</Text>
-            </View>
-            <View className="flex-1 bg-white/10 rounded-xl p-3">
-              <Text className="text-white/60 text-xs mb-1">Completed</Text>
-              <Text className="text-white text-2xl font-bold">{velocity.completed}</Text>
-            </View>
-            <View className="flex-1 bg-white/10 rounded-xl p-3">
-              <Text className="text-white/60 text-xs mb-1">Avg Progress</Text>
-              <Text className="text-white text-2xl font-bold">{velocity.avgProgress}%</Text>
-            </View>
-          </View>
-        </LinearGradient>
-
-        {/* View Mode Tabs */}
-        <View className="px-6 py-3 border-b border-gray-200 dark:border-slate-800">
-          <View className="flex-row gap-2 mb-3">
-            {(['focus', 'all', 'blocked'] as ViewMode[]).map((mode) => (
+          {/* View Tabs - Matching Evaluate Style */}
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{ gap: 8 }}
+          >
+            {[
+              { value: 'focus', label: 'Focus Mode', icon: Flame },
+              { value: 'all', label: 'All Tasks', icon: BarChart3 },
+              { value: 'blocked', label: 'Blocked', icon: AlertTriangle, count: blockedCount },
+            ].map((tab) => (
               <Pressable
-                key={mode}
-                onPress={() => setViewMode(mode)}
-                className={cn(
-                  'px-4 py-2 rounded-lg flex-row items-center',
-                  viewMode === mode ? 'bg-blue-500' : 'bg-gray-100 dark:bg-slate-800'
-                )}
+                key={tab.value}
+                onPress={() => setViewMode(tab.value as ViewMode)}
+                className={`flex-row items-center px-4 py-2 rounded-full ${
+                  viewMode === tab.value ? 'bg-blue-500' : 'bg-gray-100 dark:bg-slate-800'
+                } active:opacity-70`}
               >
-                {mode === 'focus' && <Flame size={14} color={viewMode === mode ? '#fff' : '#64748b'} />}
-                {mode === 'all' && <BarChart3 size={14} color={viewMode === mode ? '#fff' : '#64748b'} />}
-                {mode === 'blocked' && <AlertTriangle size={14} color={viewMode === mode ? '#fff' : '#ef4444'} />}
-                <Text className={cn(
-                  'text-sm font-semibold ml-1.5',
-                  viewMode === mode ? 'text-white' : 'text-gray-600 dark:text-slate-400'
-                )}>
-                  {mode === 'focus' ? 'Focus' : mode === 'all' ? 'All' : `Blocked (${blockedCount})`}
+                <tab.icon size={16} color={viewMode === tab.value ? '#fff' : tab.value === 'blocked' ? '#ef4444' : '#64748b'} />
+                <Text className={`ml-2 font-semibold text-sm ${
+                  viewMode === tab.value ? 'text-white' : 'text-gray-700 dark:text-slate-300'
+                }`}>
+                  {tab.label}
                 </Text>
+                {tab.count !== undefined && tab.count > 0 && (
+                  <View className={`ml-1.5 px-1.5 py-0.5 rounded ${
+                    viewMode === tab.value ? 'bg-white/20' : 'bg-red-100 dark:bg-red-900/30'
+                  }`}>
+                    <Text className={`text-xs font-bold ${
+                      viewMode === tab.value ? 'text-white' : 'text-red-600 dark:text-red-400'
+                    }`}>
+                      {tab.count}
+                    </Text>
+                  </View>
+                )}
               </Pressable>
             ))}
-          </View>
+          </ScrollView>
+        </View>
 
-          {/* Time Filter */}
-          <View className="flex-row gap-2">
+        {/* Stats Summary Bar */}
+        <View className="px-5 py-3 bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-800">
+          <View className="flex-row gap-3">
+            <View className="flex-1 bg-gray-100 dark:bg-slate-800 rounded-xl p-3 items-center">
+              <Text className="text-gray-500 dark:text-slate-400 text-xs">Active</Text>
+              <Text className="text-gray-900 dark:text-white text-xl font-bold">{filteredPlans.length}</Text>
+            </View>
+            <View className="flex-1 bg-emerald-100 dark:bg-emerald-900/20 rounded-xl p-3 items-center">
+              <Text className="text-emerald-600 dark:text-emerald-400 text-xs">Completed</Text>
+              <Text className="text-emerald-700 dark:text-emerald-300 text-xl font-bold">{velocity.completed}</Text>
+            </View>
+            <View className="flex-1 bg-blue-100 dark:bg-blue-900/20 rounded-xl p-3 items-center">
+              <Text className="text-blue-600 dark:text-blue-400 text-xs">Avg Progress</Text>
+              <Text className="text-blue-700 dark:text-blue-300 text-xl font-bold">{velocity.avgProgress}%</Text>
+            </View>
+          </View>
+        </View>
+
+        {/* Time Filter Pills */}
+        <View className="px-5 py-2 bg-white dark:bg-slate-900">
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}>
             {(['today', 'week', 'all'] as TimeFilter[]).map((filter) => (
               <Pressable
                 key={filter}
                 onPress={() => setTimeFilter(filter)}
-                className={cn(
-                  'px-3 py-1.5 rounded-lg',
-                  timeFilter === filter ? 'bg-purple-100 dark:bg-purple-900/30' : 'bg-gray-50 dark:bg-slate-900'
-                )}
+                className={`px-3 py-1.5 rounded-lg ${
+                  timeFilter === filter ? 'bg-purple-100 dark:bg-purple-900/30' : 'bg-gray-50 dark:bg-slate-800'
+                }`}
               >
-                <Text className={cn(
-                  'text-xs font-semibold',
+                <Text className={`text-xs font-semibold ${
                   timeFilter === filter ? 'text-purple-600 dark:text-purple-400' : 'text-gray-500 dark:text-slate-400'
-                )}>
-                  {filter === 'today' ? 'Today' : filter === 'week' ? 'This Week' : 'All Time'}
+                }`}>
+                  {filter === 'today' ? 'Due Today' : filter === 'week' ? 'This Week' : 'All Tasks'}
                 </Text>
               </Pressable>
             ))}
-          </View>
+          </ScrollView>
         </View>
 
-        <ScrollView className="flex-1 px-6 py-4">
+        <ScrollView className="flex-1 px-5 py-4">
           {filteredPlans.length === 0 ? (
-            <View className="items-center justify-center py-12">
+            <View className="items-center justify-center py-12 bg-white dark:bg-slate-900 rounded-xl">
               <CheckCircle2 size={48} color="#10b981" />
               <Text className="text-emerald-600 dark:text-emerald-400 text-center font-semibold text-lg mt-4">
                 All Clear!
@@ -876,92 +891,90 @@ export default function DoScreen() {
     const criticalPlans = allPlans.map(enrichWorkPlan).filter(p => p.priority === 'critical' && p.status !== 'completed');
 
     return (
-      <View className="flex-1 bg-white dark:bg-slate-950" style={{ paddingTop: insets.top }}>
-        {/* Header */}
-        <LinearGradient
-          colors={blockedCount > 0 ? ['#ef4444', '#dc2626'] : ['#8b5cf6', '#7c3aed']}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 0 }}
-          style={{ paddingHorizontal: 24, paddingTop: 20, paddingBottom: 20 }}
-        >
+      <View className="flex-1 bg-gray-50 dark:bg-slate-950" style={{ paddingTop: insets.top }}>
+        {/* Clean Header - Matching Decide/Evaluate */}
+        <View className="px-5 pt-4 pb-3 bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-800">
           <View className="flex-row items-center justify-between mb-3">
             <View>
-              <Text className="text-white/80 text-xs font-semibold">EXECUTION OVERVIEW</Text>
-              <Text className="text-white text-2xl font-bold">Do</Text>
-            </View>
-            <View className="bg-white/20 px-3 py-1.5 rounded-full">
-              <Text className="text-white text-xs font-bold">FOUNDER</Text>
-            </View>
-          </View>
-
-          {/* Velocity Stats */}
-          <View className="flex-row gap-3">
-            <View className="flex-1 bg-white/10 rounded-xl p-3">
-              <Text className="text-white/60 text-xs mb-1">Active Plans</Text>
-              <Text className="text-white text-2xl font-bold">{velocity.total - velocity.completed}</Text>
-            </View>
-            <View className="flex-1 bg-white/10 rounded-xl p-3">
-              <Text className="text-white/60 text-xs mb-1">Blocked</Text>
-              <Text className={cn('text-2xl font-bold', blockedCount > 0 ? 'text-red-300' : 'text-white')}>
-                {blockedCount}
+              <Text className="text-gray-900 dark:text-white text-2xl font-bold">Do</Text>
+              <Text className="text-gray-500 dark:text-slate-400 text-sm">
+                Execution overview across all functions
               </Text>
             </View>
-            <View className="flex-1 bg-white/10 rounded-xl p-3">
-              <Text className="text-white/60 text-xs mb-1">Avg Progress</Text>
-              <Text className="text-white text-2xl font-bold">{velocity.avgProgress}%</Text>
+            {blockedCount > 0 && (
+              <View className="bg-red-500 px-3 py-1.5 rounded-full flex-row items-center">
+                <AlertTriangle size={14} color="#fff" />
+                <Text className="text-white font-bold text-sm ml-1">{blockedCount} blocked</Text>
+              </View>
+            )}
+          </View>
+
+          {/* Stats Row */}
+          <View className="flex-row gap-3">
+            <View className="flex-1 bg-gray-100 dark:bg-slate-800 rounded-xl p-3 items-center">
+              <Text className="text-gray-500 dark:text-slate-400 text-xs">Active</Text>
+              <Text className="text-gray-900 dark:text-white text-xl font-bold">{velocity.total - velocity.completed}</Text>
+            </View>
+            <View className="flex-1 bg-emerald-100 dark:bg-emerald-900/20 rounded-xl p-3 items-center">
+              <Text className="text-emerald-600 dark:text-emerald-400 text-xs">Completed</Text>
+              <Text className="text-emerald-700 dark:text-emerald-300 text-xl font-bold">{velocity.completed}</Text>
+            </View>
+            <View className="flex-1 bg-blue-100 dark:bg-blue-900/20 rounded-xl p-3 items-center">
+              <Text className="text-blue-600 dark:text-blue-400 text-xs">Avg Progress</Text>
+              <Text className="text-blue-700 dark:text-blue-300 text-xl font-bold">{velocity.avgProgress}%</Text>
             </View>
           </View>
-        </LinearGradient>
+        </View>
 
         {/* Function Filter */}
-        <View className="px-6 py-3 border-b border-gray-200 dark:border-slate-800">
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ flexGrow: 0 }}>
-            <View className="flex-row gap-2">
-              <Pressable
-                onPress={() => setSelectedFunction('all')}
-                className={cn(
-                  'px-4 py-2 rounded-lg',
-                  selectedFunction === 'all' ? 'bg-purple-500' : 'bg-gray-100 dark:bg-slate-800'
-                )}
-              >
-                <Text className={cn(
-                  'text-sm font-semibold',
-                  selectedFunction === 'all' ? 'text-white' : 'text-gray-600 dark:text-slate-400'
-                )}>
-                  All Functions
-                </Text>
-              </Pressable>
-              {functions.map((func) => {
-                const funcPlans = getFounderWorkPlansByFunction(func);
-                const funcBlocked = funcPlans.filter(p => p.status === 'blocked').length;
-                return (
-                  <Pressable
-                    key={func}
-                    onPress={() => setSelectedFunction(func)}
-                    className={cn(
-                      'px-4 py-2 rounded-lg flex-row items-center',
-                      selectedFunction === func ? 'bg-purple-500' : 'bg-gray-100 dark:bg-slate-800'
-                    )}
-                  >
-                    <Text className={cn(
-                      'text-sm font-semibold',
-                      selectedFunction === func ? 'text-white' : 'text-gray-600 dark:text-slate-400'
-                    )}>
-                      {func}
-                    </Text>
-                    {funcBlocked > 0 && (
-                      <View className="ml-1.5 bg-red-500 rounded-full w-5 h-5 items-center justify-center">
-                        <Text className="text-white text-xs font-bold">{funcBlocked}</Text>
-                      </View>
-                    )}
-                  </Pressable>
-                );
-              })}
-            </View>
+        <View className="px-5 py-3 bg-white dark:bg-slate-900">
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}>
+            <Pressable
+              onPress={() => setSelectedFunction('all')}
+              className={`px-4 py-2 rounded-full ${
+                selectedFunction === 'all' ? 'bg-purple-500' : 'bg-gray-100 dark:bg-slate-800'
+              }`}
+            >
+              <Text className={`text-sm font-semibold ${
+                selectedFunction === 'all' ? 'text-white' : 'text-gray-600 dark:text-slate-400'
+              }`}>
+                All Functions
+              </Text>
+            </Pressable>
+            {functions.map((func) => {
+              const funcPlans = getFounderWorkPlansByFunction(func);
+              const funcBlocked = funcPlans.filter(p => p.status === 'blocked').length;
+              return (
+                <Pressable
+                  key={func}
+                  onPress={() => setSelectedFunction(func)}
+                  className={`flex-row items-center px-4 py-2 rounded-full ${
+                    selectedFunction === func ? 'bg-purple-500' : 'bg-gray-100 dark:bg-slate-800'
+                  }`}
+                >
+                  <Text className={`text-sm font-semibold ${
+                    selectedFunction === func ? 'text-white' : 'text-gray-600 dark:text-slate-400'
+                  }`}>
+                    {func}
+                  </Text>
+                  {funcBlocked > 0 && (
+                    <View className={`ml-1.5 px-1.5 py-0.5 rounded ${
+                      selectedFunction === func ? 'bg-white/20' : 'bg-red-100 dark:bg-red-900/30'
+                    }`}>
+                      <Text className={`text-xs font-bold ${
+                        selectedFunction === func ? 'text-white' : 'text-red-600 dark:text-red-400'
+                      }`}>
+                        {funcBlocked}
+                      </Text>
+                    </View>
+                  )}
+                </Pressable>
+              );
+            })}
           </ScrollView>
         </View>
 
-        <ScrollView className="flex-1 px-6 py-4">
+        <ScrollView className="flex-1 px-5 py-4">
           {/* Critical Alert */}
           {criticalPlans.length > 0 && (
             <View className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-4 mb-4">
@@ -1036,72 +1049,91 @@ export default function DoScreen() {
     const functionColor = getFunctionColor(execFunction);
 
     return (
-      <View className="flex-1 bg-white dark:bg-slate-950" style={{ paddingTop: insets.top }}>
-        {/* Header */}
-        <LinearGradient
-          colors={blockedCount > 0 ? ['#ef4444', '#dc2626'] : [functionColor, functionColor + 'dd']}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 0 }}
-          style={{ paddingHorizontal: 24, paddingTop: 20, paddingBottom: 20 }}
-        >
+      <View className="flex-1 bg-gray-50 dark:bg-slate-950" style={{ paddingTop: insets.top }}>
+        {/* Clean Header - Matching Decide/Evaluate */}
+        <View className="px-5 pt-4 pb-3 bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-800">
           <View className="flex-row items-center justify-between mb-3">
             <View>
-              <Text className="text-white/80 text-xs font-semibold">{execFunction.toUpperCase()} EXECUTION</Text>
-              <Text className="text-white text-2xl font-bold">Do</Text>
-            </View>
-            <View className="bg-white/20 px-3 py-1.5 rounded-full">
-              <Text className="text-white text-xs font-bold">EXECUTIVE</Text>
-            </View>
-          </View>
-
-          {/* Velocity Stats */}
-          <View className="flex-row gap-3">
-            <View className="flex-1 bg-white/10 rounded-xl p-3">
-              <Text className="text-white/60 text-xs mb-1">Active</Text>
-              <Text className="text-white text-2xl font-bold">{velocity.total - velocity.completed}</Text>
-            </View>
-            <View className="flex-1 bg-white/10 rounded-xl p-3">
-              <Text className="text-white/60 text-xs mb-1">Blocked</Text>
-              <Text className={cn('text-2xl font-bold', blockedCount > 0 ? 'text-red-300' : 'text-white')}>
-                {blockedCount}
+              <Text className="text-gray-900 dark:text-white text-2xl font-bold">Do</Text>
+              <Text className="text-gray-500 dark:text-slate-400 text-sm">
+                {execFunction} execution & oversight
               </Text>
             </View>
-            <View className="flex-1 bg-white/10 rounded-xl p-3">
-              <Text className="text-white/60 text-xs mb-1">Avg Progress</Text>
-              <Text className="text-white text-2xl font-bold">{velocity.avgProgress}%</Text>
+            <View className="flex-row items-center gap-2">
+              {blockedCount > 0 && (
+                <View className="bg-red-500 px-3 py-1.5 rounded-full flex-row items-center">
+                  <AlertTriangle size={14} color="#fff" />
+                  <Text className="text-white font-bold text-sm ml-1">{blockedCount}</Text>
+                </View>
+              )}
+              <View
+                className="px-3 py-1.5 rounded-full"
+                style={{ backgroundColor: functionColor + '20' }}
+              >
+                <Text className="text-xs font-bold" style={{ color: functionColor }}>{execFunction}</Text>
+              </View>
             </View>
           </View>
-        </LinearGradient>
 
-        {/* View Mode Tabs */}
-        <View className="px-6 py-3 border-b border-gray-200 dark:border-slate-800">
-          <View className="flex-row gap-2">
-            {(['focus', 'all', 'blocked'] as ViewMode[]).map((mode) => (
+          {/* Stats Row */}
+          <View className="flex-row gap-3 mb-3">
+            <View className="flex-1 bg-gray-100 dark:bg-slate-800 rounded-xl p-3 items-center">
+              <Text className="text-gray-500 dark:text-slate-400 text-xs">Active</Text>
+              <Text className="text-gray-900 dark:text-white text-xl font-bold">{velocity.total - velocity.completed}</Text>
+            </View>
+            <View className="flex-1 bg-emerald-100 dark:bg-emerald-900/20 rounded-xl p-3 items-center">
+              <Text className="text-emerald-600 dark:text-emerald-400 text-xs">Completed</Text>
+              <Text className="text-emerald-700 dark:text-emerald-300 text-xl font-bold">{velocity.completed}</Text>
+            </View>
+            <View className="flex-1 bg-blue-100 dark:bg-blue-900/20 rounded-xl p-3 items-center">
+              <Text className="text-blue-600 dark:text-blue-400 text-xs">Avg Progress</Text>
+              <Text className="text-blue-700 dark:text-blue-300 text-xl font-bold">{velocity.avgProgress}%</Text>
+            </View>
+          </View>
+
+          {/* View Tabs - Matching Evaluate Style */}
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{ gap: 8 }}
+          >
+            {[
+              { value: 'focus', label: 'Focus Mode', icon: Flame },
+              { value: 'all', label: 'All Tasks', icon: BarChart3 },
+              { value: 'blocked', label: 'Blocked', icon: AlertTriangle, count: blockedCount },
+            ].map((tab) => (
               <Pressable
-                key={mode}
-                onPress={() => setViewMode(mode)}
-                className={cn(
-                  'px-4 py-2 rounded-lg flex-row items-center',
-                  viewMode === mode ? 'bg-blue-500' : 'bg-gray-100 dark:bg-slate-800'
-                )}
+                key={tab.value}
+                onPress={() => setViewMode(tab.value as ViewMode)}
+                className={`flex-row items-center px-4 py-2 rounded-full ${
+                  viewMode === tab.value ? 'bg-blue-500' : 'bg-gray-100 dark:bg-slate-800'
+                } active:opacity-70`}
               >
-                {mode === 'focus' && <Flame size={14} color={viewMode === mode ? '#fff' : '#64748b'} />}
-                {mode === 'all' && <BarChart3 size={14} color={viewMode === mode ? '#fff' : '#64748b'} />}
-                {mode === 'blocked' && <AlertTriangle size={14} color={viewMode === mode ? '#fff' : '#ef4444'} />}
-                <Text className={cn(
-                  'text-sm font-semibold ml-1.5',
-                  viewMode === mode ? 'text-white' : 'text-gray-600 dark:text-slate-400'
-                )}>
-                  {mode === 'focus' ? 'Focus' : mode === 'all' ? 'All' : `Blocked (${blockedCount})`}
+                <tab.icon size={16} color={viewMode === tab.value ? '#fff' : tab.value === 'blocked' ? '#ef4444' : '#64748b'} />
+                <Text className={`ml-2 font-semibold text-sm ${
+                  viewMode === tab.value ? 'text-white' : 'text-gray-700 dark:text-slate-300'
+                }`}>
+                  {tab.label}
                 </Text>
+                {tab.count !== undefined && tab.count > 0 && (
+                  <View className={`ml-1.5 px-1.5 py-0.5 rounded ${
+                    viewMode === tab.value ? 'bg-white/20' : 'bg-red-100 dark:bg-red-900/30'
+                  }`}>
+                    <Text className={`text-xs font-bold ${
+                      viewMode === tab.value ? 'text-white' : 'text-red-600 dark:text-red-400'
+                    }`}>
+                      {tab.count}
+                    </Text>
+                  </View>
+                )}
               </Pressable>
             ))}
-          </View>
+          </ScrollView>
         </View>
 
-        <ScrollView className="flex-1 px-6 py-4">
+        <ScrollView className="flex-1 px-5 py-4">
           {filteredPlans.length === 0 ? (
-            <View className="items-center justify-center py-12">
+            <View className="items-center justify-center py-12 bg-white dark:bg-slate-900 rounded-xl">
               <CheckCircle2 size={48} color="#10b981" />
               <Text className="text-emerald-600 dark:text-emerald-400 text-center font-semibold text-lg mt-4">
                 All Clear!
