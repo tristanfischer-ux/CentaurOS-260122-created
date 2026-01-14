@@ -128,6 +128,35 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
   - Replaced `react-native-html-to-pdf` (requires native code) with `expo-print` (Expo-compatible)
   - PDF generation now works correctly in Expo managed workflow
 
+✅ **SETTINGS TAB - OPERATIONS COMMAND CENTER REDESIGN**:
+  - **Consultant Review**: Elite operations consultant optimization (Deloitte + Accenture methodology)
+  - **Renamed**: "Settings" → "Command Center" (Operations & Configuration hub)
+  - **Key Features**:
+    - **Operational Health Dashboard**: Real-time metrics showing setup progress % and estimated time to complete
+    - **Priority-Based Setup Checklist**: Tasks organized by priority (Critical → High → Recommended)
+      - Color-coded priority badges (red=critical, orange=high, blue=recommended)
+      - Time estimates for each task
+      - Category icons (Foundation, Team, Workflow, Optimization)
+    - **Role-Specific Guidance**: Different checklists for Founder, Executive, and Apprentice roles
+      - Founders: OKRs, team invitations, org structure, data sync, reports
+      - Executives: Engagements, guilds, function library
+      - Apprentices: Assignments, guild membership, AI tools exploration
+    - **Quick Actions Grid**: Role-specific shortcuts with notification badges
+      - Founders: Pending Approvals (3), Generate Report, Sync Data
+      - Executives: Work Plans, Team Capacity
+      - Apprentices: My Tasks, Submit Work
+    - **Collapsible Sections**: Clean UI with expand/collapse for each category
+    - **Animated Transitions**: FadeInDown animations using react-native-reanimated
+  - **Sections Reorganized**:
+    - Setup Checklist (priority-ordered tasks)
+    - Quick Actions (role-specific shortcuts)
+    - Preferences (theme, tutorial, about)
+    - Team & Collaboration (org structure, invitations, engagements, guilds)
+    - Data Management (Google Sheets, CSV import/export, reports) - Founders only
+    - Resources (Function Library)
+  - **Files Changed**:
+    - REWRITTEN: `src/app/(tabs)/settings.tsx` (complete redesign with operations methodology)
+
 Previous Updates:
 
 ✅ **Evaluate Tab EXECUTIVE-GRADE REDESIGN - COMPLETE**:
