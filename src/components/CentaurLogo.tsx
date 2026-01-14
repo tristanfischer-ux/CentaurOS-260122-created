@@ -1,156 +1,313 @@
 import React from 'react';
-import Svg, { Path, Circle, Ellipse, Rect, Line, Defs, LinearGradient, Stop } from 'react-native-svg';
+import Svg, { Path, Defs, LinearGradient, Stop, G } from 'react-native-svg';
 
 interface CentaurLogoProps {
   size?: number;
+  variant?: 'full' | 'minimal';
 }
 
-export function CentaurLogo({ size = 120 }: CentaurLogoProps) {
+export function CentaurLogo({ size = 120, variant = 'full' }: CentaurLogoProps) {
+  if (variant === 'minimal') {
+    // Single elegant centaur silhouette
+    return (
+      <Svg width={size} height={size} viewBox="0 0 100 100" fill="none">
+        <Defs>
+          <LinearGradient id="centaurGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <Stop offset="0%" stopColor="#8b5cf6" />
+            <Stop offset="50%" stopColor="#6366f1" />
+            <Stop offset="100%" stopColor="#3b82f6" />
+          </LinearGradient>
+          <LinearGradient id="accentGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+            <Stop offset="0%" stopColor="#f59e0b" />
+            <Stop offset="100%" stopColor="#f97316" />
+          </LinearGradient>
+        </Defs>
+
+        {/* Single elegant centaur - stylized silhouette */}
+        <G>
+          {/* Horse body - sleek curved form */}
+          <Path
+            d="M 25 70
+               Q 20 68, 18 62
+               L 15 50
+               Q 14 45, 18 42
+               L 35 38
+               Q 45 36, 55 38
+               L 72 42
+               Q 76 45, 75 50
+               L 72 62
+               Q 70 68, 65 70
+               Q 55 72, 45 72
+               Q 35 72, 25 70 Z"
+            fill="url(#centaurGradient)"
+          />
+
+          {/* Front legs - dynamic pose */}
+          <Path
+            d="M 22 62 Q 20 72, 18 82 Q 17 86, 19 88 L 23 88 Q 25 86, 24 82 Q 26 74, 28 65"
+            fill="url(#centaurGradient)"
+          />
+          <Path
+            d="M 30 64 Q 32 74, 34 84 Q 35 88, 33 90 L 29 90 Q 27 88, 28 84 Q 26 76, 26 66"
+            fill="url(#centaurGradient)"
+          />
+
+          {/* Back legs - galloping pose */}
+          <Path
+            d="M 62 64 Q 60 74, 58 84 Q 57 88, 59 90 L 63 90 Q 65 88, 64 84 Q 66 76, 68 66"
+            fill="url(#centaurGradient)"
+          />
+          <Path
+            d="M 70 62 Q 72 70, 76 78 Q 78 82, 80 86 L 84 84 Q 82 80, 78 74 Q 74 66, 72 60"
+            fill="url(#centaurGradient)"
+          />
+
+          {/* Tail - flowing */}
+          <Path
+            d="M 74 48 Q 82 44, 88 48 Q 92 52, 88 58 Q 84 54, 78 52 Q 76 50, 74 50"
+            fill="url(#centaurGradient)"
+          />
+
+          {/* Human torso rising from horse */}
+          <Path
+            d="M 35 38
+               Q 38 30, 42 24
+               L 42 20
+               Q 40 18, 40 14
+               Q 40 8, 46 6
+               Q 52 4, 54 10
+               Q 56 14, 54 18
+               L 54 22
+               Q 56 28, 58 36
+               Q 52 34, 45 34
+               Q 38 34, 35 38 Z"
+            fill="url(#centaurGradient)"
+          />
+
+          {/* Arms - reaching forward dynamically */}
+          <Path
+            d="M 38 28 Q 32 24, 26 22 Q 22 20, 20 22 Q 22 24, 26 25 Q 32 28, 36 30"
+            fill="url(#centaurGradient)"
+          />
+          <Path
+            d="M 54 26 Q 60 22, 66 20 Q 70 18, 72 20 Q 70 22, 66 24 Q 60 28, 56 30"
+            fill="url(#centaurGradient)"
+          />
+
+          {/* Spear/lance - tech element */}
+          <Path
+            d="M 20 22 L 8 10 L 6 12 L 18 24"
+            stroke="url(#accentGradient)"
+            strokeWidth="2"
+            strokeLinecap="round"
+            fill="none"
+          />
+          <Path
+            d="M 6 8 L 8 10 L 4 14"
+            fill="url(#accentGradient)"
+          />
+        </G>
+      </Svg>
+    );
+  }
+
+  // Full variant - Two centaurs in partnership (for larger displays)
   return (
     <Svg width={size} height={size} viewBox="0 0 200 200" fill="none">
       <Defs>
-        {/* Realistic skin tones */}
-        <LinearGradient id="maleSkinGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-          <Stop offset="0%" stopColor="#f0d5b8" stopOpacity="1" />
-          <Stop offset="100%" stopColor="#e8c4a0" stopOpacity="1" />
+        <LinearGradient id="leftCentaurGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+          <Stop offset="0%" stopColor="#3b82f6" />
+          <Stop offset="100%" stopColor="#6366f1" />
         </LinearGradient>
-        <LinearGradient id="femaleSkinGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-          <Stop offset="0%" stopColor="#fce5d8" stopOpacity="1" />
-          <Stop offset="100%" stopColor="#f5d5c3" stopOpacity="1" />
+        <LinearGradient id="rightCentaurGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+          <Stop offset="0%" stopColor="#8b5cf6" />
+          <Stop offset="100%" stopColor="#ec4899" />
         </LinearGradient>
-        {/* Clothing gradients */}
-        <LinearGradient id="maleShirtGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-          <Stop offset="0%" stopColor="#3b82f6" stopOpacity="1" />
-          <Stop offset="100%" stopColor="#2563eb" stopOpacity="1" />
+        <LinearGradient id="connectionGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+          <Stop offset="0%" stopColor="#3b82f6" />
+          <Stop offset="50%" stopColor="#8b5cf6" />
+          <Stop offset="100%" stopColor="#ec4899" />
         </LinearGradient>
-        <LinearGradient id="femaleShirtGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-          <Stop offset="0%" stopColor="#ec4899" stopOpacity="1" />
-          <Stop offset="100%" stopColor="#db2777" stopOpacity="1" />
-        </LinearGradient>
-        {/* Digital horse gradient */}
-        <LinearGradient id="digitalGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-          <Stop offset="0%" stopColor="#8b5cf6" stopOpacity="1" />
-          <Stop offset="100%" stopColor="#6366f1" stopOpacity="1" />
+        <LinearGradient id="glowGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+          <Stop offset="0%" stopColor="#fbbf24" />
+          <Stop offset="100%" stopColor="#f59e0b" />
         </LinearGradient>
       </Defs>
 
-      {/* Male Centaur - Left Side */}
-      {/* Head with realistic proportions */}
-      <Ellipse cx="65" cy="50" rx="14" ry="16" fill="url(#maleSkinGradient)" />
-      {/* Hair */}
-      <Path d="M 52 45 Q 50 40, 53 36 Q 58 32, 65 31 Q 72 32, 77 36 Q 80 40, 78 45 Z"
-        fill="#3d2817" />
-      {/* Ear */}
-      <Ellipse cx="50" cy="50" rx="3" ry="4" fill="url(#maleSkinGradient)" />
-      {/* Eyes */}
-      <Circle cx="60" cy="50" r="1.5" fill="#2c1810" />
-      <Circle cx="70" cy="50" r="1.5" fill="#2c1810" />
-      {/* Eyebrows */}
-      <Path d="M 57 46 Q 60 45, 63 46" stroke="#3d2817" strokeWidth="1.2" fill="none" strokeLinecap="round" />
-      <Path d="M 67 46 Q 70 45, 73 46" stroke="#3d2817" strokeWidth="1.2" fill="none" strokeLinecap="round" />
-      {/* Nose */}
-      <Line x1="65" y1="52" x2="65" y2="56" stroke="#d4a574" strokeWidth="1.2" strokeLinecap="round" />
-      <Path d="M 63 56 Q 65 57, 67 56" stroke="#d4a574" strokeWidth="0.8" fill="none" />
-      {/* Mouth */}
-      <Path d="M 60 59 Q 65 61, 70 59" stroke="#c4956a" strokeWidth="1.2" fill="none" strokeLinecap="round" />
+      {/* Left Centaur - Blue theme */}
+      <G transform="translate(10, 20)">
+        {/* Horse body */}
+        <Path
+          d="M 20 110
+             Q 15 108, 12 100
+             L 10 85
+             Q 8 78, 14 74
+             L 35 68
+             Q 50 64, 65 68
+             L 78 74
+             Q 84 78, 82 85
+             L 78 100
+             Q 76 108, 70 110
+             Q 55 114, 45 114
+             Q 30 114, 20 110 Z"
+          fill="url(#leftCentaurGradient)"
+        />
 
-      {/* Neck with shadow */}
-      <Path d="M 61 66 L 61 74 L 69 74 L 69 66" fill="url(#maleSkinGradient)" />
-      <Line x1="63" y1="66" x2="63" y2="74" stroke="#d4a574" strokeWidth="0.5" opacity="0.3" />
+        {/* Front legs */}
+        <Path
+          d="M 18 100 Q 14 115, 12 130 Q 10 138, 14 140 L 20 140 Q 22 136, 20 128 Q 22 115, 26 102"
+          fill="url(#leftCentaurGradient)"
+        />
+        <Path
+          d="M 30 104 Q 32 118, 36 132 Q 38 140, 34 144 L 28 144 Q 24 140, 28 130 Q 26 118, 26 106"
+          fill="url(#leftCentaurGradient)"
+        />
 
-      {/* Torso - Business shirt with collar */}
-      <Path d="M 54 74 L 58 74 L 60 84 L 60 98 L 70 98 L 70 84 L 72 74 L 76 74 Q 78 88, 76 98 L 54 98 Q 52 88, 54 74 Z"
-        fill="url(#maleShirtGradient)" />
-      {/* Shirt collar */}
-      <Path d="M 61 74 L 63 78 L 65 76 L 67 78 L 69 74" fill="white" opacity="0.9" />
-      {/* Shirt buttons */}
-      <Circle cx="65" cy="82" r="1" fill="white" opacity="0.8" />
-      <Circle cx="65" cy="88" r="1" fill="white" opacity="0.8" />
-      <Circle cx="65" cy="94" r="1" fill="white" opacity="0.8" />
+        {/* Back legs */}
+        <Path
+          d="M 62 104 Q 58 118, 54 132 Q 52 140, 56 144 L 62 144 Q 66 140, 64 130 Q 68 118, 72 106"
+          fill="url(#leftCentaurGradient)"
+        />
+        <Path
+          d="M 74 100 Q 78 112, 84 124 Q 88 132, 92 138 L 98 134 Q 92 126, 86 116 Q 80 106, 76 98"
+          fill="url(#leftCentaurGradient)"
+        />
 
-      {/* Realistic arms with shoulders */}
-      <Ellipse cx="51" cy="78" rx="4" ry="5" fill="url(#maleShirtGradient)" />
-      <Rect x="47" y="80" width="7" height="16" rx="3.5" fill="url(#maleSkinGradient)" />
-      <Ellipse cx="79" cy="78" rx="4" ry="5" fill="url(#maleShirtGradient)" />
-      <Rect x="76" y="80" width="7" height="16" rx="3.5" fill="url(#maleSkinGradient)" />
-      {/* Hands with fingers indication */}
-      <Ellipse cx="50.5" cy="96" rx="3.5" ry="3" fill="url(#maleSkinGradient)" />
-      <Ellipse cx="79.5" cy="96" rx="3.5" ry="3" fill="url(#maleSkinGradient)" />
+        {/* Tail */}
+        <Path
+          d="M 82 82 Q 94 76, 102 82 Q 108 90, 100 98 Q 92 92, 84 88"
+          fill="url(#leftCentaurGradient)"
+        />
 
-      {/* Digital horse body - male with better proportions */}
-      <Path d="M 60 98 Q 58 108, 56 122 L 52 142 L 48 160 M 70 98 Q 72 108, 74 122 L 78 142 L 82 160"
-        stroke="url(#digitalGradient)" strokeWidth="7" strokeLinecap="round" fill="none" />
-      {/* Circuit patterns */}
-      <Line x1="63" y1="102" x2="63" y2="118" stroke="#60a5fa" strokeWidth="1.8" opacity="0.7" />
-      <Circle cx="63" cy="110" r="3" fill="#60a5fa" opacity="0.8" />
-      <Line x1="58" y1="127" x2="68" y2="127" stroke="#60a5fa" strokeWidth="1.8" opacity="0.6" />
-      <Circle cx="58" cy="127" r="2" fill="#60a5fa" opacity="0.7" />
-      <Circle cx="68" cy="127" r="2" fill="#60a5fa" opacity="0.7" />
+        {/* Human torso */}
+        <Path
+          d="M 35 68
+             Q 40 54, 46 42
+             L 46 34
+             Q 42 30, 42 24
+             Q 42 14, 52 10
+             Q 62 8, 66 18
+             Q 68 24, 64 30
+             L 64 38
+             Q 68 50, 72 66
+             Q 60 62, 50 62
+             Q 40 62, 35 68 Z"
+          fill="url(#leftCentaurGradient)"
+        />
 
-      {/* Female Centaur - Right Side */}
-      {/* Head with realistic proportions */}
-      <Ellipse cx="135" cy="50" rx="13.5" ry="16" fill="url(#femaleSkinGradient)" />
-      {/* Hair - longer, more detailed */}
-      <Path d="M 122 44 Q 118 38, 122 33 Q 128 28, 135 27 Q 142 28, 148 33 Q 152 38, 148 44 L 146 54 Q 148 52, 151 56 L 148 62 Q 135 60, 122 62 L 119 56 Q 121 52, 124 54 Z"
-        fill="#5a3825" />
-      {/* Ear */}
-      <Ellipse cx="148" cy="50" rx="3" ry="4" fill="url(#femaleSkinGradient)" />
-      {/* Eyes */}
-      <Circle cx="130" cy="50" r="1.5" fill="#2c1810" />
-      <Circle cx="140" cy="50" r="1.5" fill="#2c1810" />
-      {/* Eyelashes */}
-      <Line x1="129" y1="48" x2="128" y2="46" stroke="#2c1810" strokeWidth="1" strokeLinecap="round" />
-      <Line x1="131" y1="48" x2="132" y2="46" stroke="#2c1810" strokeWidth="1" strokeLinecap="round" />
-      <Line x1="139" y1="48" x2="138" y2="46" stroke="#2c1810" strokeWidth="1" strokeLinecap="round" />
-      <Line x1="141" y1="48" x2="142" y2="46" stroke="#2c1810" strokeWidth="1" strokeLinecap="round" />
-      {/* Eyebrows */}
-      <Path d="M 127 46 Q 130 45, 133 46" stroke="#5a3825" strokeWidth="1" fill="none" strokeLinecap="round" />
-      <Path d="M 137 46 Q 140 45, 143 46" stroke="#5a3825" strokeWidth="1" fill="none" strokeLinecap="round" />
-      {/* Nose */}
-      <Line x1="135" y1="52" x2="135" y2="56" stroke="#e8b89a" strokeWidth="1.2" strokeLinecap="round" />
-      <Path d="M 133 56 Q 135 57, 137 56" stroke="#e8b89a" strokeWidth="0.8" fill="none" />
-      {/* Smile with lips */}
-      <Path d="M 130 59 Q 135 61, 140 59" stroke="#d8a88a" strokeWidth="1.2" fill="none" strokeLinecap="round" />
+        {/* Arms reaching toward center */}
+        <Path
+          d="M 64 38 Q 74 32, 86 30 Q 94 28, 100 32"
+          stroke="url(#leftCentaurGradient)"
+          strokeWidth="8"
+          strokeLinecap="round"
+          fill="none"
+        />
+      </G>
 
-      {/* Neck with shadow */}
-      <Path d="M 131 66 L 131 74 L 139 74 L 139 66" fill="url(#femaleSkinGradient)" />
-      <Line x1="133" y1="66" x2="133" y2="74" stroke="#e8b89a" strokeWidth="0.5" opacity="0.3" />
+      {/* Right Centaur - Purple/Pink theme (mirrored) */}
+      <G transform="translate(190, 20) scale(-1, 1)">
+        {/* Horse body */}
+        <Path
+          d="M 20 110
+             Q 15 108, 12 100
+             L 10 85
+             Q 8 78, 14 74
+             L 35 68
+             Q 50 64, 65 68
+             L 78 74
+             Q 84 78, 82 85
+             L 78 100
+             Q 76 108, 70 110
+             Q 55 114, 45 114
+             Q 30 114, 20 110 Z"
+          fill="url(#rightCentaurGradient)"
+        />
 
-      {/* Torso - Business shirt */}
-      <Path d="M 124 74 L 128 74 L 130 84 L 130 98 L 140 98 L 140 84 L 142 74 L 146 74 Q 148 88, 146 98 L 124 98 Q 122 88, 124 74 Z"
-        fill="url(#femaleShirtGradient)" />
-      {/* Shirt collar */}
-      <Path d="M 131 74 L 133 78 L 135 76 L 137 78 L 139 74" fill="white" opacity="0.9" />
+        {/* Front legs */}
+        <Path
+          d="M 18 100 Q 14 115, 12 130 Q 10 138, 14 140 L 20 140 Q 22 136, 20 128 Q 22 115, 26 102"
+          fill="url(#rightCentaurGradient)"
+        />
+        <Path
+          d="M 30 104 Q 32 118, 36 132 Q 38 140, 34 144 L 28 144 Q 24 140, 28 130 Q 26 118, 26 106"
+          fill="url(#rightCentaurGradient)"
+        />
 
-      {/* Realistic arms with shoulders */}
-      <Ellipse cx="121" cy="78" rx="4" ry="5" fill="url(#femaleShirtGradient)" />
-      <Rect x="117" y="80" width="7" height="16" rx="3.5" fill="url(#femaleSkinGradient)" />
-      <Ellipse cx="149" cy="78" rx="4" ry="5" fill="url(#femaleShirtGradient)" />
-      <Rect x="146" y="80" width="7" height="16" rx="3.5" fill="url(#femaleSkinGradient)" />
-      {/* Hands with fingers indication */}
-      <Ellipse cx="120.5" cy="96" rx="3.5" ry="3" fill="url(#femaleSkinGradient)" />
-      <Ellipse cx="149.5" cy="96" rx="3.5" ry="3" fill="url(#femaleSkinGradient)" />
+        {/* Back legs */}
+        <Path
+          d="M 62 104 Q 58 118, 54 132 Q 52 140, 56 144 L 62 144 Q 66 140, 64 130 Q 68 118, 72 106"
+          fill="url(#rightCentaurGradient)"
+        />
+        <Path
+          d="M 74 100 Q 78 112, 84 124 Q 88 132, 92 138 L 98 134 Q 92 126, 86 116 Q 80 106, 76 98"
+          fill="url(#rightCentaurGradient)"
+        />
 
-      {/* Digital horse body - female */}
-      <Path d="M 130 98 Q 128 108, 126 122 L 122 142 L 118 160 M 140 98 Q 142 108, 144 122 L 148 142 L 152 160"
-        stroke="url(#digitalGradient)" strokeWidth="7" strokeLinecap="round" fill="none" />
-      {/* Circuit patterns */}
-      <Line x1="133" y1="102" x2="133" y2="118" stroke="#ec4899" strokeWidth="1.8" opacity="0.7" />
-      <Circle cx="133" cy="110" r="3" fill="#ec4899" opacity="0.8" />
-      <Line x1="128" y1="127" x2="138" y2="127" stroke="#ec4899" strokeWidth="1.8" opacity="0.6" />
-      <Circle cx="128" cy="127" r="2" fill="#ec4899" opacity="0.7" />
-      <Circle cx="138" cy="127" r="2" fill="#ec4899" opacity="0.7" />
+        {/* Tail */}
+        <Path
+          d="M 82 82 Q 94 76, 102 82 Q 108 90, 100 98 Q 92 92, 84 88"
+          fill="url(#rightCentaurGradient)"
+        />
 
-      {/* Partnership connection - digital link between centaurs */}
-      <Line x1="82" y1="88" x2="118" y2="88" stroke="#8b5cf6" strokeWidth="2.5" strokeDasharray="5 3" opacity="0.8" />
-      <Circle cx="100" cy="88" r="6" fill="#8b5cf6" opacity="0.9" />
-      <Circle cx="100" cy="88" r="3.5" fill="#fff" opacity="0.9" />
+        {/* Human torso */}
+        <Path
+          d="M 35 68
+             Q 40 54, 46 42
+             L 46 34
+             Q 42 30, 42 24
+             Q 42 14, 52 10
+             Q 62 8, 66 18
+             Q 68 24, 64 30
+             L 64 38
+             Q 68 50, 72 66
+             Q 60 62, 50 62
+             Q 40 62, 35 68 Z"
+          fill="url(#rightCentaurGradient)"
+        />
 
-      {/* Data flow particles */}
-      <Circle cx="90" cy="88" r="2.5" fill="#60a5fa" opacity="0.6" />
-      <Circle cx="110" cy="88" r="2.5" fill="#ec4899" opacity="0.6" />
-      <Circle cx="95" cy="86" r="1.5" fill="#60a5fa" opacity="0.4" />
-      <Circle cx="105" cy="86" r="1.5" fill="#ec4899" opacity="0.4" />
+        {/* Arms reaching toward center */}
+        <Path
+          d="M 64 38 Q 74 32, 86 30 Q 94 28, 100 32"
+          stroke="url(#rightCentaurGradient)"
+          strokeWidth="8"
+          strokeLinecap="round"
+          fill="none"
+        />
+      </G>
+
+      {/* Connection element - hands meeting in center */}
+      <G>
+        {/* Glowing orb in center */}
+        <Path
+          d="M 90 52 Q 100 44, 110 52 Q 118 60, 110 68 Q 100 76, 90 68 Q 82 60, 90 52 Z"
+          fill="url(#glowGradient)"
+          opacity="0.9"
+        />
+        <Path
+          d="M 94 56 Q 100 52, 106 56 Q 110 60, 106 64 Q 100 68, 94 64 Q 90 60, 94 56 Z"
+          fill="white"
+          opacity="0.8"
+        />
+
+        {/* Energy lines */}
+        <Path
+          d="M 85 60 Q 88 58, 90 60"
+          stroke="url(#connectionGradient)"
+          strokeWidth="2"
+          strokeLinecap="round"
+          fill="none"
+          opacity="0.6"
+        />
+        <Path
+          d="M 110 60 Q 112 58, 115 60"
+          stroke="url(#connectionGradient)"
+          strokeWidth="2"
+          strokeLinecap="round"
+          fill="none"
+          opacity="0.6"
+        />
+      </G>
     </Svg>
   );
 }
