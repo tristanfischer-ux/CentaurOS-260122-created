@@ -1642,6 +1642,13 @@ Centaur OS turns OKRs into work, tracks execution, enables review workflows, and
   - **Auto-generation**: Reports generate automatically when accessed from home screen
   - **Multiple Export Formats**: Markdown (board-ready), CSV (analysis), JSON (integration)
   - **Professional Design**: Clean slate color palette, bold typography, proper visual hierarchy
+  - **Data Transparency System** (NEW): Clear indicators showing data sources for all metrics
+    - 🟢 **Live Data**: Metrics calculated from actual workspace data (tasks, time entries, team members)
+    - 🟡 **Estimated**: Scores derived from live data using industry frameworks
+    - ⚪ **Placeholder**: Default values used when real data isn't connected
+    - Each dashboard view shows which category its metrics fall into
+    - Finance dashboard clearly indicates placeholder values (£45k revenue, £75k burn defaults)
+    - Collapsible "Data Sources & Methodology" panel explains scoring basis
 - **Executive Workflow System** - Pre-defined task sequences for each function (Marketing, Sales, Finance, Ops, Engineering, Admin)
 - **UK Supplier Network** - Verified manufacturing supplier directory with 30+ UK suppliers
   - **Comprehensive Details**: Contact info, capabilities, certifications, lead times

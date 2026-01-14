@@ -26,6 +26,15 @@ const { width: SCREEN_WIDTH } = Dimensions.get('window');
 // Dashboard view types for the consulting modules
 type DashboardView = 'overview' | 'strategy' | 'operations' | 'finance' | 'talent' | 'process';
 
+// Data source types for transparency
+type DataSourceType = 'live' | 'estimated' | 'placeholder';
+
+interface DataSourceInfo {
+  label: string;
+  type: DataSourceType;
+  description: string;
+}
+
 // Consulting Firm Badges
 const FIRM_BADGES: Record<string, { name: string; color: string }> = {
   mckinsey: { name: 'McKinsey', color: '#1a365d' },
@@ -38,6 +47,40 @@ const FIRM_BADGES: Record<string, { name: string; color: string }> = {
   kpmg: { name: 'KPMG', color: '#00338d' },
   mercer: { name: 'Mercer', color: '#005eb8' },
   kornferry: { name: 'Korn Ferry', color: '#e31837' },
+};
+
+// Data sources explanation for each metric category
+const DATA_SOURCES: Record<string, DataSourceInfo[]> = {
+  overview: [
+    { label: 'Tasks', type: 'live', description: 'Task completion data from your workspace' },
+    { label: 'Time Logged', type: 'live', description: 'Time entries recorded by team members' },
+    { label: 'Team Size', type: 'live', description: 'Active workspace members' },
+  ],
+  strategy: [
+    { label: 'Alignment Score', type: 'estimated', description: 'Calculated from task completion and team utilization' },
+    { label: 'Market Position', type: 'placeholder', description: 'Uses default values - connect financial data for accuracy' },
+    { label: 'NPS Score', type: 'placeholder', description: 'Estimated from completion rates - connect customer data for accuracy' },
+  ],
+  operations: [
+    { label: 'Completion Rate', type: 'live', description: 'Actual task completion percentage' },
+    { label: 'Cycle Time', type: 'live', description: 'Average task duration from your data' },
+    { label: 'Automation Level', type: 'placeholder', description: 'Default estimate - adjust based on your tools' },
+  ],
+  finance: [
+    { label: 'Revenue', type: 'placeholder', description: 'Default £45k/month - connect your financial data' },
+    { label: 'Burn Rate', type: 'placeholder', description: 'Default £75k/month - connect your financial data' },
+    { label: 'Unit Economics', type: 'placeholder', description: 'Estimated from placeholder values' },
+  ],
+  talent: [
+    { label: 'Team Composition', type: 'live', description: 'Actual executive/apprentice ratios' },
+    { label: 'Utilization', type: 'live', description: 'Calculated from logged hours vs capacity' },
+    { label: 'Risk Scores', type: 'estimated', description: 'Derived from utilization patterns' },
+  ],
+  process: [
+    { label: 'Maturity Level', type: 'estimated', description: 'Based on completion rates and cycle times' },
+    { label: 'Process Metrics', type: 'live', description: 'Actual task and workflow data' },
+    { label: 'Automation', type: 'placeholder', description: 'Default estimate - adjust based on your setup' },
+  ],
 };
 
 export default function ReportsScreen() {
@@ -65,6 +108,7 @@ export default function ReportsScreen() {
   const [period, setPeriod] = useState<ReportPeriod>(initialPeriod);
   const [generatedReport, setGeneratedReport] = useState<Report | null>(null);
   const [activeView, setActiveView] = useState<DashboardView>('overview');
+  const [showDataSources, setShowDataSources] = useState(false);
 
   useEffect(() => {
     if (params.period) {
@@ -292,6 +336,83 @@ export default function ReportsScreen() {
           </Animated.View>
         )}
 
+        {/* Data Sources Transparency Section */}
+        {generatedReport && role === 'Founder' && (
+          <Animated.View entering={FadeIn.delay(450)} className="px-5 pb-4">
+            <Pressable
+              onPress={() => setShowDataSources(!showDataSources)}
+              className={cn(
+                'p-3 rounded-xl border flex-row items-center justify-between',
+                isDark ? 'bg-amber-500/10 border-amber-500/30' : isOffWhite ? 'bg-amber-100 border-amber-300' : 'bg-amber-50 border-amber-200'
+              )}
+            >
+              <View className="flex-row items-center flex-1">
+                <Info size={16} color="#f59e0b" />
+                <Text className="text-amber-600 dark:text-amber-400 text-sm font-medium ml-2">
+                  Data Sources & Methodology
+                </Text>
+              </View>
+              <ChevronRight
+                size={16}
+                color="#f59e0b"
+                style={{ transform: [{ rotate: showDataSources ? '90deg' : '0deg' }] }}
+              />
+            </Pressable>
+
+            {showDataSources && (
+              <View className={cn('mt-3 p-4 rounded-xl border', bgCard, borderColor)}>
+                <Text className={cn('font-bold mb-3', textPrimary)}>How Scores Are Calculated</Text>
+
+                {/* Legend */}
+                <View className="flex-row flex-wrap gap-3 mb-4 pb-3 border-b border-gray-200 dark:border-slate-700">
+                  <View className="flex-row items-center">
+                    <View className="w-2.5 h-2.5 rounded-full bg-emerald-500 mr-1.5" />
+                    <Text className={cn('text-xs', textSecondary)}>Live Data</Text>
+                  </View>
+                  <View className="flex-row items-center">
+                    <View className="w-2.5 h-2.5 rounded-full bg-amber-500 mr-1.5" />
+                    <Text className={cn('text-xs', textSecondary)}>Estimated</Text>
+                  </View>
+                  <View className="flex-row items-center">
+                    <View className="w-2.5 h-2.5 rounded-full bg-gray-400 mr-1.5" />
+                    <Text className={cn('text-xs', textSecondary)}>Placeholder</Text>
+                  </View>
+                </View>
+
+                {/* Data sources for current view */}
+                <Text className={cn('text-xs font-semibold uppercase mb-2', textMuted)}>
+                  {activeView.charAt(0).toUpperCase() + activeView.slice(1)} Data
+                </Text>
+                <View className="gap-2">
+                  {DATA_SOURCES[activeView]?.map((source, idx) => (
+                    <View key={idx} className="flex-row items-start">
+                      <View
+                        className={cn(
+                          'w-2.5 h-2.5 rounded-full mt-1 mr-2',
+                          source.type === 'live' ? 'bg-emerald-500' :
+                          source.type === 'estimated' ? 'bg-amber-500' : 'bg-gray-400'
+                        )}
+                      />
+                      <View className="flex-1">
+                        <Text className={cn('text-sm font-medium', textPrimary)}>{source.label}</Text>
+                        <Text className={cn('text-xs', textMuted)}>{source.description}</Text>
+                      </View>
+                    </View>
+                  ))}
+                </View>
+
+                {/* Important Note */}
+                <View className={cn('mt-4 p-3 rounded-lg', isDark ? 'bg-blue-500/10' : isOffWhite ? 'bg-blue-100' : 'bg-blue-50')}>
+                  <Text className="text-blue-500 text-xs font-medium">
+                    Note: Scores marked as "Placeholder" use industry-standard default values.
+                    For accurate financial analysis, connect your accounting data in the Settings tab.
+                  </Text>
+                </View>
+              </View>
+            )}
+          </Animated.View>
+        )}
+
         {/* Report Display */}
         {generatedReport && (
           <>
@@ -464,6 +585,18 @@ function OverviewDashboard({ data, isDark, isOffWhite }: { data: FounderReportDa
               </View>
             ))}
           </View>
+
+          {/* Data source indicator */}
+          <View className="mt-3 pt-3 border-t border-gray-200/50 dark:border-slate-700/50 flex-row items-center">
+            <View className="flex-row items-center mr-3">
+              <View className="w-2 h-2 rounded-full bg-emerald-500 mr-1" />
+              <View className="w-2 h-2 rounded-full bg-amber-500 mr-1" />
+              <View className="w-2 h-2 rounded-full bg-gray-400" />
+            </View>
+            <Text className={cn("text-xs", t.textMuted)}>
+              Mixed sources: live data + estimates
+            </Text>
+          </View>
         </View>
       </Animated.View>
 
@@ -613,6 +746,20 @@ function StrategyDashboard({ data, isDark, isOffWhite }: { data: FounderReportDa
             <Text className={cn("text-xs font-medium", t.textSecondary)}>{FIRM_BADGES[firm].name}</Text>
           </View>
         ))}
+      </View>
+
+      {/* Data Source Info */}
+      <View className={cn(
+        'p-3 rounded-xl border flex-row items-start',
+        isDark ? 'bg-amber-500/10 border-amber-500/30' : isOffWhite ? 'bg-amber-100 border-amber-300' : 'bg-amber-50 border-amber-200'
+      )}>
+        <View className="w-2.5 h-2.5 rounded-full bg-amber-500 mt-1 mr-2" />
+        <View className="flex-1">
+          <Text className={cn('text-xs font-semibold', t.textSecondary)}>Scores Based on Estimates</Text>
+          <Text className={cn('text-xs mt-0.5', t.textMuted)}>
+            Alignment scores derived from task completion and utilization. Market position uses default assumptions.
+          </Text>
+        </View>
       </View>
 
       {/* McKinsey 7S Framework */}
@@ -797,6 +944,20 @@ function OperationsDashboard({ data, isDark, isOffWhite }: { data: FounderReport
         ))}
       </View>
 
+      {/* Data Source Info */}
+      <View className={cn(
+        'p-3 rounded-xl border flex-row items-start',
+        isDark ? 'bg-emerald-500/10 border-emerald-500/30' : isOffWhite ? 'bg-emerald-100 border-emerald-300' : 'bg-emerald-50 border-emerald-200'
+      )}>
+        <View className="w-2.5 h-2.5 rounded-full bg-emerald-500 mt-1 mr-2" />
+        <View className="flex-1">
+          <Text className={cn('text-xs font-semibold', t.textSecondary)}>Based on Live Data</Text>
+          <Text className={cn('text-xs mt-0.5', t.textMuted)}>
+            Completion rates, cycle times, and throughput calculated from your actual task data.
+          </Text>
+        </View>
+      </View>
+
       {/* Overall Ops Score */}
       <Animated.View entering={FadeIn.delay(100)}>
         <View className={cn(
@@ -970,6 +1131,20 @@ function FinanceDashboard({ data, isDark, isOffWhite }: { data: FounderReportDat
             <Text className={cn("text-xs font-medium", t.textSecondary)}>{FIRM_BADGES[firm].name}</Text>
           </View>
         ))}
+      </View>
+
+      {/* Placeholder Data Warning */}
+      <View className={cn(
+        'p-3 rounded-xl border flex-row items-start',
+        isDark ? 'bg-gray-500/10 border-gray-500/30' : isOffWhite ? 'bg-gray-100 border-gray-300' : 'bg-gray-50 border-gray-200'
+      )}>
+        <View className="w-2.5 h-2.5 rounded-full bg-gray-400 mt-1 mr-2" />
+        <View className="flex-1">
+          <Text className={cn('text-xs font-semibold', t.textSecondary)}>Using Placeholder Financial Data</Text>
+          <Text className={cn('text-xs mt-0.5', t.textMuted)}>
+            These scores use default values (£45k revenue, £75k burn). Connect your accounting data for accurate analysis.
+          </Text>
+        </View>
       </View>
 
       {/* Overall Financial Health */}
@@ -1160,6 +1335,20 @@ function TalentDashboard({ data, isDark, isOffWhite }: { data: FounderReportData
             <Text className={cn("text-xs font-medium", t.textSecondary)}>{FIRM_BADGES[firm].name}</Text>
           </View>
         ))}
+      </View>
+
+      {/* Data Source Info */}
+      <View className={cn(
+        'p-3 rounded-xl border flex-row items-start',
+        isDark ? 'bg-emerald-500/10 border-emerald-500/30' : isOffWhite ? 'bg-emerald-100 border-emerald-300' : 'bg-emerald-50 border-emerald-200'
+      )}>
+        <View className="w-2.5 h-2.5 rounded-full bg-emerald-500 mt-1 mr-2" />
+        <View className="flex-1">
+          <Text className={cn('text-xs font-semibold', t.textSecondary)}>Based on Live Data</Text>
+          <Text className={cn('text-xs mt-0.5', t.textMuted)}>
+            Team composition and utilization from your actual workspace members and time entries.
+          </Text>
+        </View>
       </View>
 
       {/* Overall Talent Score */}
@@ -1371,6 +1560,20 @@ function ProcessDashboard({ data, isDark, isOffWhite }: { data: FounderReportDat
             <Text className={cn("text-xs font-medium", t.textSecondary)}>{FIRM_BADGES[firm].name}</Text>
           </View>
         ))}
+      </View>
+
+      {/* Data Source Info */}
+      <View className={cn(
+        'p-3 rounded-xl border flex-row items-start',
+        isDark ? 'bg-amber-500/10 border-amber-500/30' : isOffWhite ? 'bg-amber-100 border-amber-300' : 'bg-amber-50 border-amber-200'
+      )}>
+        <View className="w-2.5 h-2.5 rounded-full bg-amber-500 mt-1 mr-2" />
+        <View className="flex-1">
+          <Text className={cn('text-xs font-semibold', t.textSecondary)}>Estimated from Performance Data</Text>
+          <Text className={cn('text-xs mt-0.5', t.textMuted)}>
+            Maturity level derived from task cycle times and completion patterns. Automation levels use defaults.
+          </Text>
+        </View>
       </View>
 
       {/* Process Maturity Level */}
