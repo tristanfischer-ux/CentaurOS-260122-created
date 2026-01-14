@@ -13,6 +13,9 @@ import Animated, {
 import { LinearGradient } from 'expo-linear-gradient';
 import type { Achievement } from '@/lib/achievements';
 
+// McKinsey Achievement Framework - Celebration Modal
+// Recognition & Motivation Psychology Best Practices
+
 interface CelebrationModalProps {
   visible: boolean;
   onClose: () => void;
@@ -154,19 +157,19 @@ export function CelebrationModal({
             <Text className="text-6xl mb-4">{getEmoji()}</Text>
 
             {/* Title */}
-            <Text className="text-gray-900 dark:text-white text-2xl font-bold text-center mb-2">
+            <Text className="text-white text-2xl font-bold text-center mb-2">
               {getTitle()}
             </Text>
 
             {/* Description */}
             {achievement && (
-              <Text className="text-gray-900 dark:text-white/90 text-center mb-4">
+              <Text className="text-white/90 text-center mb-4">
                 {achievement.description}
               </Text>
             )}
 
             {message && (
-              <Text className="text-gray-900 dark:text-white/90 text-center mb-4">
+              <Text className="text-white/90 text-center mb-4">
                 {message}
               </Text>
             )}
@@ -174,7 +177,7 @@ export function CelebrationModal({
             {/* Tier Badge */}
             {achievement && (
               <View className="bg-white/20 px-4 py-2 rounded-full mb-6">
-                <Text className="text-gray-900 dark:text-white font-bold uppercase tracking-wider text-xs">
+                <Text className="text-white font-bold uppercase tracking-wider text-xs">
                   {achievement.tier} Tier
                 </Text>
               </View>
@@ -185,7 +188,7 @@ export function CelebrationModal({
               onPress={onClose}
               className="bg-white/20 px-8 py-3 rounded-xl active:opacity-70"
             >
-              <Text className="text-gray-900 dark:text-white font-bold text-lg">Awesome!</Text>
+              <Text className="text-white font-bold text-lg">Awesome!</Text>
             </Pressable>
           </LinearGradient>
         </Animated.View>
