@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, Pressable, Modal, TextInput } from 'react-native';
+import { View, Text, ScrollView, Pressable, Modal, TextInput, Switch } from 'react-native';
 import { useState, useMemo } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
@@ -15,10 +15,17 @@ import {
   Trash2,
   Settings,
   Building2,
+  Mail,
+  Phone,
+  Calendar,
+  Briefcase,
+  Shield,
+  Linkedin,
 } from 'lucide-react-native';
 import { useOrganizationStore } from '@/lib/state/organization-store';
 import { useArmoryStore } from '@/lib/state/armory-store';
 import type { OrganizationMember, AIAgent } from '@/lib/organization-seed';
+import { THIRD_PARTY_AI_TOOLS } from '@/lib/third-party-ai-tools';
 import { cn } from '@/lib/cn';
 
 // Mock marketplace data for recommended people
@@ -69,11 +76,14 @@ export default function TeamManagementScreen() {
   const [showCreateSquad, setShowCreateSquad] = useState(false);
   const [showAddMemberToSquad, setShowAddMemberToSquad] = useState<string | null>(null);
   const [showEquipAI, setShowEquipAI] = useState<string | null>(null);
+  const [selectedPerson, setSelectedPerson] = useState<OrganizationMember | null>(null);
 
   const members = useOrganizationStore((s) => s.members);
   const aiAgents = useOrganizationStore((s) => s.aiAgents);
   const updateMember = useOrganizationStore((s) => s.updateMember);
   const personLoadouts = useArmoryStore((s) => s.personLoadouts);
+  const addAITool = useArmoryStore((s) => s.addAITool);
+  const removeAITool = useArmoryStore((s) => s.removeAITool);
   const squads = useArmoryStore((s) => s.squads);
   const createSquad = useArmoryStore((s) => s.createSquad);
   const assignApprentice = useArmoryStore((s) => s.assignApprentice);
@@ -262,9 +272,10 @@ export default function TeamManagementScreen() {
                   : 0;
 
                 return (
-                  <View
+                  <Pressable
                     key={member.id}
-                    className="bg-white/5 border border-white/10 rounded-2xl p-4 mb-3"
+                    onPress={() => setSelectedPerson(member)}
+                    className="bg-white/5 border border-white/10 rounded-2xl p-4 mb-3 active:opacity-70"
                   >
                     <View className="flex-row items-start justify-between mb-3">
                       <View className="flex-1">
@@ -298,22 +309,9 @@ export default function TeamManagementScreen() {
                           {aiToolCount} AI {aiToolCount === 1 ? 'tool' : 'tools'}
                         </Text>
                       </View>
-                      <View className="flex-row gap-2">
-                        <Pressable
-                          onPress={() => router.push('/armory')}
-                          className="bg-blue-500/20 px-3 py-1.5 rounded-lg active:opacity-70"
-                        >
-                          <Text className="text-blue-300 text-xs font-bold">Equip AI</Text>
-                        </Pressable>
-                        <Pressable
-                          onPress={() => handleRemovePerson(member.id)}
-                          className="bg-red-500/20 px-3 py-1.5 rounded-lg active:opacity-70"
-                        >
-                          <Text className="text-red-400 text-xs font-bold">Remove</Text>
-                        </Pressable>
-                      </View>
+                      <ChevronRight size={20} color="#94a3b8" />
                     </View>
-                  </View>
+                  </Pressable>
                 );
               })}
             </View>
@@ -331,9 +329,10 @@ export default function TeamManagementScreen() {
                   : 0;
 
                 return (
-                  <View
+                  <Pressable
                     key={member.id}
-                    className="bg-white/5 border border-white/10 rounded-2xl p-4 mb-3"
+                    onPress={() => setSelectedPerson(member)}
+                    className="bg-white/5 border border-white/10 rounded-2xl p-4 mb-3 active:opacity-70"
                   >
                     <View className="flex-row items-start justify-between mb-3">
                       <View className="flex-1">
@@ -358,22 +357,9 @@ export default function TeamManagementScreen() {
                           {aiToolCount} AI {aiToolCount === 1 ? 'tool' : 'tools'}
                         </Text>
                       </View>
-                      <View className="flex-row gap-2">
-                        <Pressable
-                          onPress={() => router.push('/armory')}
-                          className="bg-blue-500/20 px-3 py-1.5 rounded-lg active:opacity-70"
-                        >
-                          <Text className="text-blue-300 text-xs font-bold">Equip AI</Text>
-                        </Pressable>
-                        <Pressable
-                          onPress={() => handleRemovePerson(member.id)}
-                          className="bg-red-500/20 px-3 py-1.5 rounded-lg active:opacity-70"
-                        >
-                          <Text className="text-red-400 text-xs font-bold">Remove</Text>
-                        </Pressable>
-                      </View>
+                      <ChevronRight size={20} color="#94a3b8" />
                     </View>
-                  </View>
+                  </Pressable>
                 );
               })}
             </View>
@@ -570,6 +556,21 @@ export default function TeamManagementScreen() {
           onAdd={assignApprentice}
         />
       )}
+
+      {/* Person Detail Modal */}
+      {selectedPerson && (
+        <PersonDetailModal
+          person={selectedPerson}
+          loadout={personLoadouts.find(l => l.memberId === selectedPerson.id)}
+          squads={squads}
+          aiAgents={aiAgents}
+          onClose={() => setSelectedPerson(null)}
+          onAddAI={addAITool}
+          onRemoveAI={removeAITool}
+          onRemovePerson={handleRemovePerson}
+          onAssignToSquad={assignApprentice}
+        />
+      )}
     </SafeAreaView>
   );
 }
@@ -764,6 +765,432 @@ function AddMemberToSquadModal({
           </ScrollView>
         </View>
       </View>
+    </Modal>
+  );
+}
+
+// Person Detail Modal Component
+function PersonDetailModal({
+  person,
+  loadout,
+  squads,
+  aiAgents,
+  onClose,
+  onAddAI,
+  onRemoveAI,
+  onRemovePerson,
+  onAssignToSquad,
+}: {
+  person: OrganizationMember;
+  loadout: any;
+  squads: any[];
+  aiAgents: AIAgent[] | null;
+  onClose: () => void;
+  onAddAI: (memberId: string, toolId: string) => Promise<void>;
+  onRemoveAI: (memberId: string, toolId: string) => Promise<void>;
+  onRemovePerson: (memberId: string) => void;
+  onAssignToSquad: (squadId: string, memberId: string) => Promise<void>;
+}) {
+  const [selectedTab, setSelectedTab] = useState<'info' | 'ai' | 'squads'>('info');
+  const [showConfirmRemove, setShowConfirmRemove] = useState(false);
+
+  const monthlyCost = person.costPerDay && person.daysPerWeek
+    ? Math.round(person.costPerDay * person.daysPerWeek * 4.33)
+    : person.costPerDay
+    ? Math.round(person.costPerDay * 5 * 4.33)
+    : 0;
+
+  const equippedAITools = loadout?.aiToolIds || [];
+  const availableAITools = THIRD_PARTY_AI_TOOLS.filter(
+    tool => !equippedAITools.includes(tool.id) && tool.functions.includes(person.function as any)
+  );
+
+  const memberSquads = squads.filter(s =>
+    s.leaderMemberId === person.id || s.apprenticeMemberIds?.includes(person.id)
+  );
+
+  const availableSquads = person.role === 'Apprentice'
+    ? squads.filter(s => !s.apprenticeMemberIds?.includes(person.id))
+    : [];
+
+  const handleToggleAI = async (toolId: string) => {
+    if (equippedAITools.includes(toolId)) {
+      await onRemoveAI(person.id, toolId);
+    } else {
+      await onAddAI(person.id, toolId);
+    }
+  };
+
+  const handleRemove = () => {
+    onRemovePerson(person.id);
+    onClose();
+  };
+
+  return (
+    <Modal visible={true} animationType="slide" statusBarTranslucent onRequestClose={onClose}>
+      <SafeAreaView className="flex-1 bg-slate-950" edges={['top']}>
+        {/* Header */}
+        <LinearGradient
+          colors={person.role === 'FractionalExec' ? ['#7c3aed', '#a855f7'] : ['#10b981', '#14b8a6']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={{ paddingHorizontal: 24, paddingVertical: 20 }}
+        >
+          <View className="flex-row items-center justify-between mb-4">
+            <Pressable
+              onPress={onClose}
+              className="w-10 h-10 items-center justify-center rounded-full bg-white/20 active:opacity-70"
+            >
+              <X size={24} color="white" />
+            </Pressable>
+            <Pressable
+              onPress={() => setShowConfirmRemove(true)}
+              className="bg-red-500/30 px-4 py-2 rounded-xl active:opacity-70"
+            >
+              <View className="flex-row items-center">
+                <Trash2 size={16} color="white" />
+                <Text className="text-white font-bold ml-2 text-sm">Remove</Text>
+              </View>
+            </Pressable>
+          </View>
+
+          <View className="items-center">
+            <View className={cn(
+              'w-20 h-20 rounded-full items-center justify-center mb-3',
+              person.role === 'FractionalExec' ? 'bg-purple-500/30' : 'bg-emerald-500/30'
+            )}>
+              <Text className="text-4xl">
+                {person.role === 'FractionalExec' ? '👔' : '🎓'}
+              </Text>
+            </View>
+            <Text className="text-white text-2xl font-black">{person.name}</Text>
+            <Text className="text-white/80 text-base mt-1">{person.function}</Text>
+            <View className="flex-row items-center gap-2 mt-2">
+              <View className={cn(
+                'px-3 py-1 rounded-lg',
+                person.role === 'FractionalExec' ? 'bg-purple-500/20' : 'bg-emerald-500/20'
+              )}>
+                <Text className={cn(
+                  'text-xs font-bold',
+                  person.role === 'FractionalExec' ? 'text-purple-200' : 'text-emerald-200'
+                )}>
+                  {person.role === 'FractionalExec' ? 'Executive' : 'Apprentice'}
+                </Text>
+              </View>
+              {person.daysPerWeek && (
+                <View className="bg-white/20 px-3 py-1 rounded-lg">
+                  <Text className="text-white text-xs font-bold">
+                    {person.daysPerWeek} days/week
+                  </Text>
+                </View>
+              )}
+            </View>
+            <Text className="text-white text-xl font-black mt-3">
+              £{monthlyCost.toLocaleString()}/month
+            </Text>
+          </View>
+        </LinearGradient>
+
+        {/* Tab Selector */}
+        <View className="flex-row px-6 py-4 gap-2 border-b border-white/10">
+          <Pressable
+            onPress={() => setSelectedTab('info')}
+            className={cn(
+              'flex-1 rounded-xl py-2.5 border',
+              selectedTab === 'info' ? 'bg-blue-500 border-blue-500' : 'bg-white/5 border-white/20'
+            )}
+          >
+            <Text className={cn(
+              'text-center font-bold text-sm',
+              selectedTab === 'info' ? 'text-white' : 'text-white/60'
+            )}>
+              Info
+            </Text>
+          </Pressable>
+          <Pressable
+            onPress={() => setSelectedTab('ai')}
+            className={cn(
+              'flex-1 rounded-xl py-2.5 border',
+              selectedTab === 'ai' ? 'bg-blue-500 border-blue-500' : 'bg-white/5 border-white/20'
+            )}
+          >
+            <Text className={cn(
+              'text-center font-bold text-sm',
+              selectedTab === 'ai' ? 'text-white' : 'text-white/60'
+            )}>
+              AI Tools ({equippedAITools.length})
+            </Text>
+          </Pressable>
+          <Pressable
+            onPress={() => setSelectedTab('squads')}
+            className={cn(
+              'flex-1 rounded-xl py-2.5 border',
+              selectedTab === 'squads' ? 'bg-blue-500 border-blue-500' : 'bg-white/5 border-white/20'
+            )}
+          >
+            <Text className={cn(
+              'text-center font-bold text-sm',
+              selectedTab === 'squads' ? 'text-white' : 'text-white/60'
+            )}>
+              Squads ({memberSquads.length})
+            </Text>
+          </Pressable>
+        </View>
+
+        {/* Content */}
+        <ScrollView className="flex-1 px-6 py-4" showsVerticalScrollIndicator={false}>
+          {/* Info Tab */}
+          {selectedTab === 'info' && (
+            <View>
+              {person.email && (
+                <View className="bg-white/5 border border-white/10 rounded-xl p-4 mb-3">
+                  <View className="flex-row items-center">
+                    <Mail size={20} color="#8b5cf6" />
+                    <View className="ml-3 flex-1">
+                      <Text className="text-white/60 text-xs mb-1">Email</Text>
+                      <Text className="text-white font-semibold">{person.email}</Text>
+                    </View>
+                  </View>
+                </View>
+              )}
+
+              {person.phone && (
+                <View className="bg-white/5 border border-white/10 rounded-xl p-4 mb-3">
+                  <View className="flex-row items-center">
+                    <Phone size={20} color="#10b981" />
+                    <View className="ml-3 flex-1">
+                      <Text className="text-white/60 text-xs mb-1">Phone</Text>
+                      <Text className="text-white font-semibold">{person.phone}</Text>
+                    </View>
+                  </View>
+                </View>
+              )}
+
+              {person.startDate && (
+                <View className="bg-white/5 border border-white/10 rounded-xl p-4 mb-3">
+                  <View className="flex-row items-center">
+                    <Calendar size={20} color="#3b82f6" />
+                    <View className="ml-3 flex-1">
+                      <Text className="text-white/60 text-xs mb-1">Start Date</Text>
+                      <Text className="text-white font-semibold">
+                        {new Date(person.startDate).toLocaleDateString('en-GB', {
+                          day: 'numeric',
+                          month: 'long',
+                          year: 'numeric'
+                        })}
+                      </Text>
+                    </View>
+                  </View>
+                </View>
+              )}
+
+              {person.costPerDay && (
+                <View className="bg-white/5 border border-white/10 rounded-xl p-4 mb-3">
+                  <View className="flex-row items-center">
+                    <Briefcase size={20} color="#f59e0b" />
+                    <View className="ml-3 flex-1">
+                      <Text className="text-white/60 text-xs mb-1">Daily Rate</Text>
+                      <Text className="text-white font-semibold">£{person.costPerDay}/day</Text>
+                    </View>
+                  </View>
+                </View>
+              )}
+
+              {person.linkedIn && (
+                <View className="bg-white/5 border border-white/10 rounded-xl p-4 mb-3">
+                  <View className="flex-row items-center">
+                    <Linkedin size={20} color="#0077b5" />
+                    <View className="ml-3 flex-1">
+                      <Text className="text-white/60 text-xs mb-1">LinkedIn</Text>
+                      <Text className="text-blue-400 font-semibold" numberOfLines={1}>
+                        {person.linkedIn}
+                      </Text>
+                    </View>
+                  </View>
+                </View>
+              )}
+
+              {person.bio && (
+                <View className="bg-white/5 border border-white/10 rounded-xl p-4 mb-3">
+                  <Text className="text-white font-bold mb-2">Bio</Text>
+                  <Text className="text-white/80 text-sm leading-5">{person.bio}</Text>
+                </View>
+              )}
+            </View>
+          )}
+
+          {/* AI Tools Tab */}
+          {selectedTab === 'ai' && (
+            <View>
+              {equippedAITools.length > 0 && (
+                <View className="mb-6">
+                  <Text className="text-white font-black text-base mb-3">
+                    Equipped AI Tools ({equippedAITools.length})
+                  </Text>
+                  {equippedAITools.map((toolId: string) => {
+                    const tool = THIRD_PARTY_AI_TOOLS.find(t => t.id === toolId);
+                    if (!tool) return null;
+                    return (
+                      <View
+                        key={tool.id}
+                        className="bg-purple-500/10 border border-purple-500/30 rounded-xl p-4 mb-3"
+                      >
+                        <View className="flex-row items-start justify-between mb-2">
+                          <View className="flex-1">
+                            <Text className="text-white font-bold text-base">{tool.name}</Text>
+                            <Text className="text-white/60 text-sm mt-1">{tool.purpose}</Text>
+                          </View>
+                          <Pressable
+                            onPress={() => handleToggleAI(tool.id)}
+                            className="bg-red-500/20 px-3 py-1.5 rounded-lg active:opacity-70"
+                          >
+                            <Text className="text-red-400 text-xs font-bold">Remove</Text>
+                          </Pressable>
+                        </View>
+                        <Text className="text-purple-300 font-bold text-sm">
+                          £{tool.costPerMonth}/month
+                        </Text>
+                      </View>
+                    );
+                  })}
+                </View>
+              )}
+
+              <View>
+                <Text className="text-white font-black text-base mb-3">
+                  Available AI Tools for {person.function} ({availableAITools.length})
+                </Text>
+                {availableAITools.length === 0 ? (
+                  <View className="py-12 items-center">
+                    <Bot size={48} color="rgba(255,255,255,0.2)" />
+                    <Text className="text-white/40 text-center mt-4">
+                      All compatible AI tools are equipped
+                    </Text>
+                  </View>
+                ) : (
+                  availableAITools.map((tool) => (
+                    <View
+                      key={tool.id}
+                      className="bg-white/5 border border-white/10 rounded-xl p-4 mb-3"
+                    >
+                      <View className="flex-row items-start justify-between mb-2">
+                        <View className="flex-1">
+                          <Text className="text-white font-bold text-base">{tool.name}</Text>
+                          <Text className="text-white/60 text-sm mt-1">{tool.purpose}</Text>
+                        </View>
+                        <Pressable
+                          onPress={() => handleToggleAI(tool.id)}
+                          className="bg-blue-500 px-3 py-1.5 rounded-lg active:opacity-70"
+                        >
+                          <Text className="text-white text-xs font-bold">Add</Text>
+                        </Pressable>
+                      </View>
+                      <Text className="text-blue-300 font-bold text-sm">
+                        £{tool.costPerMonth}/month
+                      </Text>
+                    </View>
+                  ))
+                )}
+              </View>
+            </View>
+          )}
+
+          {/* Squads Tab */}
+          {selectedTab === 'squads' && (
+            <View>
+              {memberSquads.length > 0 && (
+                <View className="mb-6">
+                  <Text className="text-white font-black text-base mb-3">
+                    Current Squads ({memberSquads.length})
+                  </Text>
+                  {memberSquads.map((squad) => (
+                    <View
+                      key={squad.id}
+                      className="bg-white/5 border border-white/10 rounded-xl p-4 mb-3"
+                    >
+                      <View className="flex-row items-start justify-between">
+                        <View className="flex-1">
+                          <Text className="text-white font-bold text-base">{squad.name}</Text>
+                          <Text className="text-white/60 text-sm mt-1">{squad.function}</Text>
+                          <View className="bg-blue-500/20 px-2 py-0.5 rounded mt-2 self-start">
+                            <Text className="text-blue-300 text-xs font-bold">
+                              {squad.leaderMemberId === person.id ? 'Leader' : 'Member'}
+                            </Text>
+                          </View>
+                        </View>
+                      </View>
+                    </View>
+                  ))}
+                </View>
+              )}
+
+              {person.role === 'Apprentice' && availableSquads.length > 0 && (
+                <View>
+                  <Text className="text-white font-black text-base mb-3">
+                    Join Squad ({availableSquads.length} available)
+                  </Text>
+                  {availableSquads.map((squad) => (
+                    <View
+                      key={squad.id}
+                      className="bg-white/5 border border-white/10 rounded-xl p-4 mb-3"
+                    >
+                      <View className="flex-row items-start justify-between">
+                        <View className="flex-1">
+                          <Text className="text-white font-bold text-base">{squad.name}</Text>
+                          <Text className="text-white/60 text-sm mt-1">{squad.function}</Text>
+                        </View>
+                        <Pressable
+                          onPress={() => onAssignToSquad(squad.id, person.id)}
+                          className="bg-emerald-500 px-3 py-1.5 rounded-lg active:opacity-70"
+                        >
+                          <Text className="text-white text-xs font-bold">Join</Text>
+                        </Pressable>
+                      </View>
+                    </View>
+                  ))}
+                </View>
+              )}
+
+              {memberSquads.length === 0 && person.role === 'Apprentice' && availableSquads.length === 0 && (
+                <View className="py-12 items-center">
+                  <Users size={48} color="rgba(255,255,255,0.2)" />
+                  <Text className="text-white/40 text-center mt-4">
+                    No squads available. Create a squad first.
+                  </Text>
+                </View>
+              )}
+            </View>
+          )}
+
+          <View className="h-40" />
+        </ScrollView>
+
+        {/* Confirm Remove Modal */}
+        <Modal visible={showConfirmRemove} transparent animationType="fade" onRequestClose={() => setShowConfirmRemove(false)}>
+          <View className="flex-1 bg-black/80 justify-center items-center px-6">
+            <View className="bg-slate-900 rounded-2xl p-6 w-full max-w-sm">
+              <Text className="text-white text-xl font-black mb-3">Remove {person.name}?</Text>
+              <Text className="text-white/60 text-sm mb-6">
+                This will mark them as inactive. They won't be deleted and can be reactivated later.
+              </Text>
+              <View className="flex-row gap-3">
+                <Pressable
+                  onPress={() => setShowConfirmRemove(false)}
+                  className="flex-1 bg-white/10 rounded-xl py-3 items-center active:opacity-70"
+                >
+                  <Text className="text-white font-bold">Cancel</Text>
+                </Pressable>
+                <Pressable
+                  onPress={handleRemove}
+                  className="flex-1 bg-red-500 rounded-xl py-3 items-center active:opacity-70"
+                >
+                  <Text className="text-white font-bold">Remove</Text>
+                </Pressable>
+              </View>
+            </View>
+          </View>
+        </Modal>
+      </SafeAreaView>
     </Modal>
   );
 }
