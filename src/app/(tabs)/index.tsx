@@ -398,7 +398,7 @@ const APPRENTICE_DATA = {
 
               <View className="bg-gray-100 dark:bg-slate-900 rounded-xl p-4 border border-gray-300 dark:border-slate-800">
                 <Pressable
-                  onPress={() => router.push('/org-diagram')}
+                  onPress={() => router.push('/create-team')}
                   className="flex-row items-center justify-between mb-3 active:opacity-70"
                 >
                   <View className="flex-row items-center">
@@ -411,7 +411,7 @@ const APPRENTICE_DATA = {
                 </Pressable>
 
                 <Pressable
-                  onPress={() => router.push('/org-diagram')}
+                  onPress={() => router.push('/create-team')}
                   className="flex-row items-center justify-between mb-3 active:opacity-70"
                 >
                   <View className="flex-row items-center">
@@ -424,7 +424,7 @@ const APPRENTICE_DATA = {
                 </Pressable>
 
                 <Pressable
-                  onPress={() => router.push({ pathname: '/(tabs)/make', params: { tab: 'ai' } })}
+                  onPress={() => router.push('/create-team')}
                   className="flex-row items-center justify-between active:opacity-70"
                 >
                   <View className="flex-row items-center">
@@ -436,17 +436,6 @@ const APPRENTICE_DATA = {
                   <ArrowRight size={20} color="#8b5cf6" />
                 </Pressable>
               </View>
-
-              {/* Team Management Button */}
-              <Pressable
-                onPress={() => router.push('/create-team')}
-                className="bg-blue-500 rounded-xl py-3 mt-3 items-center active:opacity-80"
-              >
-                <View className="flex-row items-center">
-                  <Users size={18} color="#fff" />
-                  <Text className="text-white font-bold ml-2">Manage Team & Squads</Text>
-                </View>
-              </Pressable>
             </View>
 
             {/* Financial Overview */}
@@ -727,7 +716,7 @@ const APPRENTICE_DATA = {
                 <Text className="text-gray-900 dark:text-white text-lg font-bold">
                   My Apprentices
                 </Text>
-                <Pressable onPress={() => router.push('/org-diagram')}>
+                <Pressable onPress={() => router.push('/create-team')}>
                   <Text className="text-blue-500 text-sm font-semibold">View All</Text>
                 </Pressable>
               </View>
@@ -736,7 +725,7 @@ const APPRENTICE_DATA = {
                 {EXECUTIVE_DATA.apprentices.map((apprentice, idx) => (
                   <Pressable
                     key={idx}
-                    onPress={() => router.push('/org-diagram')}
+                    onPress={() => router.push('/create-team')}
                     className="bg-gray-100 dark:bg-slate-900 rounded-xl p-3 active:opacity-70"
                   >
                     <View className="flex-row items-center justify-between mb-2">
@@ -826,14 +815,14 @@ const APPRENTICE_DATA = {
               </View>
             </View>
 
-            {/* View Org Chart Button */}
+            {/* View Team Management Button */}
             <Pressable
-              onPress={() => router.push('/org-diagram')}
+              onPress={() => router.push('/create-team')}
               className="bg-blue-500 rounded-xl py-3 mb-4 items-center active:opacity-80"
             >
               <View className="flex-row items-center">
-                <Building2 size={18} color="#fff" />
-                <Text className="text-white font-bold ml-2">View Organization Chart</Text>
+                <Users size={18} color="#fff" />
+                <Text className="text-white font-bold ml-2">View Team Management</Text>
               </View>
             </Pressable>
 
@@ -1020,7 +1009,7 @@ const APPRENTICE_DATA = {
               </Text>
 
               <Pressable
-                onPress={() => router.push('/org-diagram')}
+                onPress={() => router.push('/create-team')}
                 className="bg-gray-100 dark:bg-slate-900 rounded-xl p-4 border border-gray-300 dark:border-slate-800 active:opacity-70"
               >
                 {APPRENTICE_DATA.teamMembers.map((member, idx) => (
@@ -1050,14 +1039,14 @@ const APPRENTICE_DATA = {
               </Pressable>
             </View>
 
-            {/* View Org Chart Button */}
+            {/* View Team Management Button */}
             <Pressable
-              onPress={() => router.push('/org-diagram')}
+              onPress={() => router.push('/create-team')}
               className="bg-blue-500 rounded-xl py-3 mb-4 items-center active:opacity-80"
             >
               <View className="flex-row items-center">
-                <Building2 size={18} color="#fff" />
-                <Text className="text-white font-bold ml-2">View Organization Chart</Text>
+                <Users size={18} color="#fff" />
+                <Text className="text-white font-bold ml-2">View Team Management</Text>
               </View>
             </Pressable>
 

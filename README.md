@@ -57,6 +57,17 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
 **Last Updated**: 2026-01-13 (**COMPREHENSIVE AUDIT COMPLETE** + **ALL FIXES APPLIED** - Perfect 100/100 score)
 
 ### Latest Update (2026-01-13):
+✅ **Team Management Consolidated** - Fixed duplicate team screens - now single source of truth:
+  - All home tab team links now point to `/create-team` (Team Management screen)
+  - Removed redundant "Manage Team & Squads" button (team stats already link there)
+  - Updated all role views (Founder, Executive, Apprentice) to use same team screen
+  - Changed "View Organization Chart" buttons to "View Team Management"
+  - `/create-team` is now the single comprehensive screen for all team operations:
+    - Organization tab: View current team with person details
+    - Recommended tab: Browse marketplace executives/apprentices
+    - Squads tab: Create and manage squads
+  - `/org-diagram` remains available but is no longer the primary team screen
+
 ✅ **Net Cash Flow Fixed** - Home tab Financial Overview now shows correct net cash flow:
   - Fixed incorrect calculation that was dividing only burnRate by 1000
   - Now uses pre-calculated `netCashFlow` from financialMetrics (revenue - burn)
