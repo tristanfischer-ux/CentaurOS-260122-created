@@ -38,10 +38,6 @@ if (useOrganizationStore.getState().members.length === 0) {
   useOrganizationStore.getState().initializeOrganization();
 }
 
-// Get real-time financial metrics - SINGLE SOURCE OF TRUTH
-const financialMetrics = getFinancialMetrics();
-const costBreakdown = getCostBreakdown();
-
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
   const currentWorkspace = useCurrentWorkspace();
@@ -54,6 +50,10 @@ export default function HomeScreen() {
   const members = useOrganizationStore(s => s.members);
   const aiAgents = useOrganizationStore(s => s.aiAgents);
   const engagements = useOrganizationStore(s => s.supplierEngagements);
+
+  // Get real-time financial metrics - SINGLE SOURCE OF TRUTH (memoized inside component)
+  const financialMetrics = useMemo(() => getFinancialMetrics(), []);
+  const costBreakdown = useMemo(() => getCostBreakdown(), []);
 
   // Memoize counts to prevent re-renders
   const okrCounts = useMemo(() => ({
