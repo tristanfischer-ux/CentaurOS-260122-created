@@ -510,7 +510,6 @@ export default function MakeScreen() {
         visible={selectedSupplier !== null}
         transparent
         animationType="slide"
-        presentationStyle="pageSheet"
         onRequestClose={() => setSelectedSupplier(null)}
       >
         <View className="flex-1 bg-black/70 justify-end">
@@ -857,7 +856,6 @@ export default function MakeScreen() {
         visible={selectedAI !== null}
         transparent
         animationType="slide"
-        presentationStyle="pageSheet"
         onRequestClose={() => setSelectedAI(null)}
       >
         <View className="flex-1 bg-black/70 justify-end">

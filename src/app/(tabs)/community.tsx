@@ -1412,11 +1412,10 @@ export default function CommunityScreen() {
         visible={showProfileModal}
         transparent
         animationType="slide"
-        presentationStyle="pageSheet"
         onRequestClose={() => setShowProfileModal(false)}
       >
         <View className="flex-1 bg-black/70 justify-end">
-          <View className="bg-white dark:bg-slate-950 rounded-t-3xl" style={{ maxHeight: '90%' }}>
+          <View className="bg-white dark:bg-slate-950 rounded-t-3xl flex-1" style={{ maxHeight: '90%', marginTop: 'auto' }}>
             {/* Header */}
             <View className="px-6 pt-6 pb-4 border-b border-gray-200 dark:border-slate-800">
               <View className="flex-row items-center justify-between">
@@ -1737,7 +1736,6 @@ export default function CommunityScreen() {
         visible={showRequestModal}
         transparent
         animationType="slide"
-        presentationStyle="pageSheet"
         onRequestClose={() => setShowRequestModal(false)}
       >
         <View className="flex-1 bg-black/70 justify-end">
@@ -1798,7 +1796,6 @@ export default function CommunityScreen() {
         visible={showApplicationModal}
         transparent
         animationType="slide"
-        presentationStyle="pageSheet"
         onRequestClose={() => setShowApplicationModal(false)}
       >
         <View className="flex-1 bg-black/70 justify-end">
@@ -1940,7 +1937,6 @@ export default function CommunityScreen() {
         visible={selectedAIAgent !== null}
         transparent
         animationType="slide"
-        presentationStyle="pageSheet"
         onRequestClose={() => setSelectedAIAgent(null)}
       >
         <View className="flex-1 bg-black/70 justify-end">
@@ -2092,7 +2088,6 @@ export default function CommunityScreen() {
         visible={showCompareModal}
         transparent
         animationType="slide"
-        presentationStyle="pageSheet"
         onRequestClose={() => setShowCompareModal(false)}
       >
         <View className="flex-1 bg-black/70 justify-end">
