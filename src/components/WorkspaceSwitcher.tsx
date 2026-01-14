@@ -1,6 +1,7 @@
 import { View, Text, ScrollView, Pressable, Modal } from 'react-native';
 import { useState } from 'react';
 import { Building2, Check, ChevronDown, Bell, X } from 'lucide-react-native';
+import { useTheme } from '@/lib/ThemeContext';
 
 interface Workspace {
   id: string;
@@ -45,6 +46,18 @@ interface WorkspaceSwitcherProps {
 
 export function WorkspaceSwitcher({ currentWorkspace, onWorkspaceChange }: WorkspaceSwitcherProps) {
   const [showModal, setShowModal] = useState(false);
+  const { theme, isOffWhite } = useTheme();
+  const isDark = theme === 'dark';
+
+  // Theme-aware colors
+  const bgPrimary = isDark ? 'bg-slate-900' : isOffWhite ? 'bg-stone-50' : 'bg-gray-100';
+  const bgCard = isDark ? 'bg-slate-800' : isOffWhite ? 'bg-stone-100' : 'bg-gray-200';
+  const bgModal = isDark ? 'bg-slate-900' : isOffWhite ? 'bg-stone-50' : 'bg-gray-100';
+  const borderColor = isDark ? 'border-slate-800' : isOffWhite ? 'border-stone-300' : 'border-gray-300';
+  const textPrimary = isDark ? 'text-white' : 'text-gray-900';
+  const textSecondary = isDark ? 'text-slate-400' : isOffWhite ? 'text-stone-600' : 'text-gray-600';
+  const textMuted = isDark ? 'text-slate-500' : isOffWhite ? 'text-stone-500' : 'text-gray-500';
+  const iconColor = isDark ? '#94a3b8' : isOffWhite ? '#78716c' : '#64748b';
 
   const handleSwitchWorkspace = (workspace: Workspace) => {
     setShowModal(false);
@@ -60,18 +73,18 @@ export function WorkspaceSwitcher({ currentWorkspace, onWorkspaceChange }: Works
       {/* Workspace Selector Button */}
       <Pressable
         onPress={() => setShowModal(true)}
-        className="flex-row items-center bg-gray-100 dark:bg-slate-900 border border-gray-300 dark:border-slate-800 rounded-xl px-4 py-3 active:opacity-70"
+        className={`flex-row items-center ${bgPrimary} border ${borderColor} rounded-xl px-4 py-3 active:opacity-70`}
       >
         <View className="flex-1 flex-row items-center">
           <View className="bg-blue-500 w-8 h-8 rounded-lg items-center justify-center mr-3">
             <Building2 size={16} color="#fff" />
           </View>
           <View className="flex-1">
-            <Text className="text-gray-900 dark:text-white font-semibold text-sm">
+            <Text className={`${textPrimary} font-semibold text-sm`}>
               {activeWorkspace?.name}
             </Text>
             {activeWorkspace?.role !== 'Founder' && activeWorkspace?.commitment && (
-              <Text className="text-gray-500 dark:text-slate-500 text-xs">
+              <Text className={`${textMuted} text-xs`}>
                 {activeWorkspace.commitment}
               </Text>
             )}
@@ -83,21 +96,21 @@ export function WorkspaceSwitcher({ currentWorkspace, onWorkspaceChange }: Works
               <Text className="text-white text-xs font-bold">{totalUnread}</Text>
             </View>
           )}
-          <ChevronDown size={18} color="#64748b" />
+          <ChevronDown size={18} color={iconColor} />
         </View>
       </Pressable>
 
       {/* Workspace Switcher Modal */}
       <Modal visible={showModal} transparent animationType="fade" onRequestClose={() => setShowModal(false)}>
         <View className="flex-1 bg-black/70 justify-center items-center px-6">
-          <View className="bg-gray-100 dark:bg-slate-900 rounded-3xl w-full" style={{ maxHeight: '70%' }}>
-            <View className="px-6 pt-6 pb-4 border-b border-gray-300 dark:border-slate-800">
+          <View className={`${bgModal} rounded-3xl w-full`} style={{ maxHeight: '70%' }}>
+            <View className={`px-6 pt-6 pb-4 border-b ${borderColor}`}>
               <View className="flex-row items-center justify-between">
-                <Text className="text-gray-900 dark:text-white text-xl font-bold">
+                <Text className={`${textPrimary} text-xl font-bold`}>
                   Switch Workspace
                 </Text>
                 <Pressable onPress={() => setShowModal(false)}>
-                  <X size={24} color="#94a3b8" />
+                  <X size={24} color={iconColor} />
                 </Pressable>
               </View>
             </View>
@@ -111,7 +124,7 @@ export function WorkspaceSwitcher({ currentWorkspace, onWorkspaceChange }: Works
                     className={`mb-3 rounded-2xl p-4 border ${
                       workspace.isActive
                         ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-300 dark:border-blue-700'
-                        : 'bg-gray-200 dark:bg-slate-800 border-gray-300 dark:border-slate-700'
+                        : `${bgCard} ${borderColor}`
                     } active:opacity-70`}
                   >
                     <View className="flex-row items-start justify-between">
@@ -120,7 +133,7 @@ export function WorkspaceSwitcher({ currentWorkspace, onWorkspaceChange }: Works
                           <Text className={`font-bold text-base ${
                             workspace.isActive
                               ? 'text-blue-900 dark:text-blue-100'
-                              : 'text-gray-900 dark:text-white'
+                              : textPrimary
                           }`}>
                             {workspace.name}
                           </Text>
@@ -133,7 +146,7 @@ export function WorkspaceSwitcher({ currentWorkspace, onWorkspaceChange }: Works
                         <Text className={`text-sm ${
                           workspace.isActive
                             ? 'text-blue-700 dark:text-blue-300'
-                            : 'text-gray-600 dark:text-slate-400'
+                            : textSecondary
                         }`}>
                           {workspace.role}
                           {workspace.commitment && ` • ${workspace.commitment}`}
@@ -154,11 +167,11 @@ export function WorkspaceSwitcher({ currentWorkspace, onWorkspaceChange }: Works
                   </Pressable>
                 ))}
 
-                <View className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4 mt-2">
-                  <Text className="text-blue-900 dark:text-blue-100 font-semibold mb-2">
-                    💡 Multi-Company Workflows
+                <View className={`${isDark ? 'bg-blue-900/20 border-blue-800' : isOffWhite ? 'bg-amber-50 border-amber-200' : 'bg-blue-50 border-blue-200'} border rounded-xl p-4 mt-2`}>
+                  <Text className={`${isDark ? 'text-blue-100' : isOffWhite ? 'text-amber-900' : 'text-blue-900'} font-semibold mb-2`}>
+                    Multi-Company Workflows
                   </Text>
-                  <Text className="text-blue-800 dark:text-blue-200 text-sm leading-5">
+                  <Text className={`${isDark ? 'text-blue-200' : isOffWhite ? 'text-amber-800' : 'text-blue-800'} text-sm leading-5`}>
                     As a fractional executive or apprentice, you can work with multiple companies. Switch between workspaces to see tasks, OKRs, and updates for each.
                   </Text>
                 </View>

@@ -116,6 +116,12 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
    - Consistent white text on all tier gradients
    - Proper contrast for accessibility
 
+8. **Workspace Switcher Modal (NEW)** - Full Theme Conformity:
+   - Added full light/dark/off-white theme support
+   - Theme-aware colors for all UI elements
+   - Improved button and card styling for off-white mode
+   - Amber accent colors for off-white info cards
+
 **Files Changed**:
 - `src/app/(tabs)/do.tsx` - Enhanced Submit Work modal
 - `src/app/(tabs)/evaluate.tsx` - Enhanced Review Submission modal
@@ -125,6 +131,7 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
 - `src/lib/state/work-plan-store.ts` - Added submissionData type
 - `src/components/TimeTrackingModal.tsx` - **NEW**: Full theme support + UX enhancements
 - `src/components/CelebrationModal.tsx` - Fixed text contrast on gradient backgrounds
+- `src/components/WorkspaceSwitcher.tsx` - **NEW**: Full light/dark/off-white theme support
 
 ### 🎮 GUILDS & EVENTS - ENGAGEMENT OPTIMIZATION
 
