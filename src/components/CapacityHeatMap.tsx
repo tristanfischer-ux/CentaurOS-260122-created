@@ -196,9 +196,9 @@ export function CapacityHeatMap({
   }
 
   return (
-    <View className={cn(bgCard, 'rounded-xl border', borderColor, compact ? 'p-2' : 'p-4')}>
+    <View className={cn(bgCard, 'rounded-xl border', borderColor, compact ? 'p-2 w-full' : 'p-4')}>
       {/* Header with day labels */}
-      <View className={cn('flex-row', compact ? 'mb-1' : 'mb-3')}>
+      <View className={cn('flex-row justify-center', compact ? 'mb-1' : 'mb-3')}>
         {!compact && <View className="w-20 mr-2" />}
         <View className="flex-row gap-1">
           {dates.map((d, i) => (
@@ -217,15 +217,17 @@ export function CapacityHeatMap({
       </View>
 
       {/* Stacked capacity rows - Founders on top */}
-      {founders.map(member => renderMemberRow(member, ROLE_COLORS.Founder))}
+      <View className="items-center">
+        {founders.map(member => renderMemberRow(member, ROLE_COLORS.Founder))}
 
-      {/* Executives */}
-      {executives.map(member => renderMemberRow(member, ROLE_COLORS.FractionalExec))}
+        {/* Executives */}
+        {executives.map(member => renderMemberRow(member, ROLE_COLORS.FractionalExec))}
 
-      {/* Apprentices - each with unique color */}
-      {apprentices.map((member, index) =>
-        renderMemberRow(member, getApprenticeColor(index))
-      )}
+        {/* Apprentices - each with unique color */}
+        {apprentices.map((member, index) =>
+          renderMemberRow(member, getApprenticeColor(index))
+        )}
+      </View>
 
       {/* Legend */}
       {showLegend && !compact && (

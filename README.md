@@ -54,7 +54,7 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
 
 ## 🚨 PRODUCTION READINESS STATUS
 
-**Last Updated**: 2026-01-14 (**DRAG & DROP** - OKRs and tasks can now be reordered by dragging, tasks can be merged into OKRs)
+**Last Updated**: 2026-01-14 (**HOME TAB ENHANCED** - Team capacity now fully interactive with breakdown modal, OKR progress shows top 4 in scrollable list, all clickable to navigate)
 **Status**: ✅ **READY FOR APP STORE** - All features complete!
 
 ---
@@ -90,7 +90,15 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
 The Command Center now provides comprehensive visibility:
 - **Upcoming Deadlines Section**: Shows overdue tasks, due this week, and tasks awaiting review
 - **Top Urgent Tasks**: List of the 3 most urgent tasks across all functions with due dates
-- **Team Capacity Heat Map**: 10-day rolling view of team utilization
+- **Team Capacity Heat Map**:
+  - 10-day rolling view of team utilization spanning full width
+  - **Interactive Capacity Breakdown**: Click on "Available TU" to see detailed capacity breakdown modal
+  - View which team members are stretched, fully allocated, or have spare capacity
+  - Individual member capacity details including AI boost multipliers
+- **OKR Progress**:
+  - Horizontal scrollable list showing top 4 OKRs
+  - Click any OKR card to navigate to Decide tab
+  - Visual progress bars with status colors (on-track, at-risk, off-track)
 - **Attention Required**: Off-track OKRs, blocked plans, and pending approvals
 - **Quick Actions**: New OKR, Review, Finance, Calendar, Messages
 

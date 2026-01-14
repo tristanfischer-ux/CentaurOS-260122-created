@@ -44,6 +44,7 @@ import { useCapacityStore } from '@/lib/state/capacity-store';
 import { THIRD_PARTY_AI_TOOLS } from '@/lib/third-party-ai-tools';
 import { HelpModal, HelpButton, type HelpContent } from '@/components/HelpModal';
 import { CapacityHeatMap } from '@/components/CapacityHeatMap';
+import { CapacityBreakdownModal } from '@/components/CapacityBreakdownModal';
 
 // Help content for each role
 const FOUNDER_HELP: HelpContent = {
@@ -116,6 +117,9 @@ export default function HomeScreen() {
 
   // Help modal state
   const [showHelp, setShowHelp] = useState(false);
+
+  // Capacity breakdown modal state
+  const [showCapacityModal, setShowCapacityModal] = useState(false);
 
   // Use centralized stores - select primitive values to avoid infinite loops
   const okrs = useOKRStore(s => s.okrs);
@@ -634,6 +638,13 @@ export default function HomeScreen() {
           gradientColors={['#8b5cf6', '#6366f1']}
         />
 
+        <CapacityBreakdownModal
+          visible={showCapacityModal}
+          onClose={() => setShowCapacityModal(false)}
+          memberCapacities={memberCapacities}
+          totalAvailableTU={teamCapacitySummary.totalAvailableTU}
+        />
+
         {/* Role Header - Compact with Key Metrics */}
         <LinearGradient
           colors={getRoleGradient()}
@@ -933,7 +944,10 @@ export default function HomeScreen() {
                     {teamCapacitySummary.utilizationPct}%
                   </Text>
                 </View>
-                <View className="flex-1 bg-gray-100 dark:bg-slate-900 rounded-xl p-3">
+                <Pressable
+                  onPress={() => setShowCapacityModal(true)}
+                  className="flex-1 bg-gray-100 dark:bg-slate-900 rounded-xl p-3 active:opacity-70"
+                >
                   <View className="flex-row items-center mb-1">
                     <Clock size={14} color="#3b82f6" />
                     <Text className="text-gray-500 dark:text-slate-500 text-xs ml-1">Available</Text>
@@ -941,7 +955,7 @@ export default function HomeScreen() {
                   <Text className="text-gray-900 dark:text-white font-bold text-lg">
                     {teamCapacitySummary.totalAvailableTU} TU
                   </Text>
-                </View>
+                </Pressable>
                 <View className="flex-1 bg-gray-100 dark:bg-slate-900 rounded-xl p-3">
                   <View className="flex-row items-center mb-1">
                     <AlertTriangle size={14} color={teamCapacitySummary.stretchedCount > 0 ? '#ef4444' : '#64748b'} />
@@ -955,15 +969,17 @@ export default function HomeScreen() {
 
               {/* Mini Heat Map */}
               {memberCapacities.length > 0 && (
-                <CapacityHeatMap
-                  memberCapacities={memberCapacities}
-                  compact={true}
-                  showLegend={false}
-                />
+                <View className="w-full">
+                  <CapacityHeatMap
+                    memberCapacities={memberCapacities}
+                    compact={true}
+                    showLegend={false}
+                  />
+                </View>
               )}
             </View>
 
-            {/* OKRs by Function - Compact Grid */}
+            {/* OKRs by Function - Scrollable List of Top 4 */}
             <View className="mb-4">
               <View className="flex-row items-center justify-between mb-2">
                 <Text className="text-gray-500 dark:text-slate-500 text-xs font-bold tracking-wide">
@@ -974,49 +990,58 @@ export default function HomeScreen() {
                 </Pressable>
               </View>
 
-              <View className="flex-row flex-wrap gap-2">
-                {okrsByFunction.map((item, idx) => {
-                  const functionColor = getFunctionColor(item.function as BusinessFunction);
-                  const statusColor = item.status === 'off-track' ? '#ef4444' : item.status === 'at-risk' ? '#f59e0b' : '#10b981';
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={{ gap: 8 }}
+                style={{ flexGrow: 0 }}
+              >
+                {okrs.slice(0, 4).map((okr) => {
+                  const functionColor = getFunctionColor(okr.function as BusinessFunction);
+                  const statusColor = okr.status === 'off-track' ? '#ef4444' : okr.status === 'at-risk' ? '#f59e0b' : '#10b981';
+                  const avgProgress = okr.objectives.length > 0
+                    ? Math.round(okr.objectives.reduce((sum, obj) => sum + obj.progress, 0) / okr.objectives.length)
+                    : 0;
+
                   return (
                     <Pressable
-                      key={idx}
-                      onPress={() => router.push({
-                        pathname: '/(tabs)/decide',
-                        params: { function: item.function }
-                      })}
-                      className="bg-gray-100 dark:bg-slate-900 rounded-xl p-3 active:opacity-70"
-                      style={{ width: '48%' }}
+                      key={okr.id}
+                      onPress={() => router.push('/(tabs)/decide')}
+                      className="bg-gray-100 dark:bg-slate-900 rounded-xl p-4 active:opacity-70"
+                      style={{ width: 200 }}
                     >
-                      <View className="flex-row items-center mb-2">
+                      <View className="flex-row items-center mb-3">
                         <View
-                          className="w-7 h-7 rounded-lg items-center justify-center"
+                          className="w-8 h-8 rounded-lg items-center justify-center"
                           style={{ backgroundColor: functionColor + '20' }}
                         >
-                          <Target size={14} color={functionColor} />
+                          <Target size={16} color={functionColor} />
                         </View>
-                        <Text className="text-gray-900 dark:text-white font-semibold text-sm ml-2 flex-1" numberOfLines={1}>
-                          {item.function}
+                        <Text className="text-gray-500 dark:text-slate-400 text-xs ml-2 font-medium">
+                          {okr.function}
                         </Text>
                       </View>
-                      <View className="flex-row items-center justify-between mb-1.5">
+                      <Text className="text-gray-900 dark:text-white font-semibold text-sm mb-3" numberOfLines={2}>
+                        {okr.title}
+                      </Text>
+                      <View className="flex-row items-center justify-between mb-2">
                         <Text className="text-gray-500 dark:text-slate-400 text-xs">
-                          {item.okrs} OKR{item.okrs !== 1 ? 's' : ''}
+                          {okr.objectives.length} objective{okr.objectives.length !== 1 ? 's' : ''}
                         </Text>
                         <Text className="font-bold text-sm" style={{ color: statusColor }}>
-                          {item.progress}%
+                          {avgProgress}%
                         </Text>
                       </View>
-                      <View className="bg-gray-200 dark:bg-slate-700 rounded-full h-1 overflow-hidden">
+                      <View className="bg-gray-200 dark:bg-slate-700 rounded-full h-1.5 overflow-hidden">
                         <View
                           className="h-full rounded-full"
-                          style={{ width: `${item.progress}%`, backgroundColor: statusColor }}
+                          style={{ width: `${avgProgress}%`, backgroundColor: statusColor }}
                         />
                       </View>
                     </Pressable>
                   );
                 })}
-              </View>
+              </ScrollView>
             </View>
 
             {/* EXECUTION STATUS - Work Plans + Team Combined */}
