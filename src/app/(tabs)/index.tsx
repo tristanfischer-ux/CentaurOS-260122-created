@@ -1230,6 +1230,36 @@ export default function HomeScreen() {
                 </View>
               </Pressable>
             </View>
+
+            {/* STARTUP PACK - Company Setup */}
+            <View className="mb-6">
+              <Pressable
+                onPress={() => router.push('/startup-pack')}
+                className="active:opacity-70"
+              >
+                <LinearGradient
+                  colors={['#f59e0b', '#d97706']}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 0 }}
+                  style={{ borderRadius: 12, padding: 16 }}
+                >
+                  <View className="flex-row items-center justify-between">
+                    <View className="flex-row items-center flex-1">
+                      <View className="w-10 h-10 bg-white/20 rounded-lg items-center justify-center">
+                        <Lightbulb size={20} color="#fff" />
+                      </View>
+                      <View className="ml-3 flex-1">
+                        <Text className="text-white font-bold text-sm">Startup Pack</Text>
+                        <Text className="text-white/70 text-xs">
+                          Company setup & investor readiness
+                        </Text>
+                      </View>
+                    </View>
+                    <ArrowRight size={18} color="#fff" />
+                  </View>
+                </LinearGradient>
+              </Pressable>
+            </View>
           </View>
         </ScrollView>
       </View>
