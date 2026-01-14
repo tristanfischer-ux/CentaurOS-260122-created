@@ -23,6 +23,8 @@ import { DraggableOKRCard, DraggableTaskCard } from '@/components/DraggableOKRCa
 import { CompanyAimBanner } from '@/components/CompanyAimBanner';
 import { CompanyAimModal } from '@/components/CompanyAimModal';
 import { SquaresDisplay } from '@/components/SquaresDisplay';
+import { ResourceBar } from '@/components/ResourceBar';
+import { useResourceStore, type PersonResource } from '@/lib/state/resource-store';
 
 const DECIDE_HELP: HelpContent = {
   title: 'Strategic Decisions',
@@ -178,6 +180,15 @@ export default function DecideScreen() {
       useOrganizationStore.getState().initializeOrganization();
     }
   }, [orgMembers.length]);
+
+  // Initialize resource store if empty
+  const resourcePeople = useResourceStore(s => s.people);
+  const seedResourceData = useResourceStore(s => s.seedDemoData);
+  useEffect(() => {
+    if (resourcePeople.length === 0 && currentWorkspace) {
+      seedResourceData(currentWorkspace.id);
+    }
+  }, [resourcePeople.length, currentWorkspace]);
 
   // Get team members grouped by role
   const teamMembers = useMemo(() => {
@@ -740,122 +751,13 @@ export default function DecideScreen() {
         </View>
       </LinearGradient>
 
-      {/* Team Member Dock - Draggable Avatars */}
-      <View className="bg-gray-50 dark:bg-slate-900 border-b border-gray-200 dark:border-slate-800 px-4 py-3">
-        <Pressable
-          onPress={() => setShowTeamDock(!showTeamDock)}
-          className="flex-row items-center justify-between mb-2"
-        >
-          <View className="flex-row items-center">
-            <Users size={16} color="#6b7280" />
-            <Text className="text-gray-600 dark:text-slate-400 text-xs font-bold ml-2 tracking-wide">
-              TEAM ({teamMembers.founders.length + teamMembers.executives.length + teamMembers.apprentices.length})
-            </Text>
-          </View>
-          <Text className="text-purple-600 dark:text-purple-400 text-xs font-semibold">
-            {selectedMemberForAssign ? 'Tap a task to assign' : showTeamDock ? 'Collapse' : 'Expand'}
-          </Text>
-        </Pressable>
-
-        {showTeamDock && (
-          <View>
-            {/* Founders Row */}
-            {teamMembers.founders.length > 0 && (
-              <View className="mb-2">
-                <Text className="text-purple-600 dark:text-purple-400 text-[10px] font-semibold mb-1.5">FOUNDERS</Text>
-                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                  <View className="flex-row gap-2">
-                    {teamMembers.founders.map((member) => (
-                      <Pressable
-                        key={member.id}
-                        onPress={() => setSelectedMemberForAssign(selectedMemberForAssign === member.id ? null : member.id)}
-                        className={`items-center ${selectedMemberForAssign === member.id ? 'opacity-100' : 'opacity-80'}`}
-                      >
-                        <View
-                          className={`w-10 h-10 rounded-full items-center justify-center ${selectedMemberForAssign === member.id ? 'ring-2 ring-purple-500' : ''}`}
-                          style={{ backgroundColor: getRoleColor(member.role), borderWidth: selectedMemberForAssign === member.id ? 2 : 0, borderColor: '#fff' }}
-                        >
-                          <Text className="text-white font-bold text-sm">{getInitials(member.name)}</Text>
-                        </View>
-                        <Text className="text-gray-600 dark:text-slate-400 text-[9px] mt-0.5 text-center" numberOfLines={1} style={{ maxWidth: 50 }}>
-                          {member.name.split(' ')[0]}
-                        </Text>
-                      </Pressable>
-                    ))}
-                  </View>
-                </ScrollView>
-              </View>
-            )}
-
-            {/* Executives Row */}
-            {teamMembers.executives.length > 0 && (
-              <View className="mb-2">
-                <Text className="text-emerald-600 dark:text-emerald-400 text-[10px] font-semibold mb-1.5">EXECUTIVES</Text>
-                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                  <View className="flex-row gap-2">
-                    {teamMembers.executives.map((member) => (
-                      <Pressable
-                        key={member.id}
-                        onPress={() => setSelectedMemberForAssign(selectedMemberForAssign === member.id ? null : member.id)}
-                        className={`items-center ${selectedMemberForAssign === member.id ? 'opacity-100' : 'opacity-80'}`}
-                      >
-                        <View
-                          className={`w-10 h-10 rounded-full items-center justify-center`}
-                          style={{ backgroundColor: getRoleColor(member.role), borderWidth: selectedMemberForAssign === member.id ? 2 : 0, borderColor: '#fff' }}
-                        >
-                          <Text className="text-white font-bold text-sm">{getInitials(member.name)}</Text>
-                        </View>
-                        <Text className="text-gray-600 dark:text-slate-400 text-[9px] mt-0.5 text-center" numberOfLines={1} style={{ maxWidth: 50 }}>
-                          {member.name.split(' ')[0]}
-                        </Text>
-                      </Pressable>
-                    ))}
-                  </View>
-                </ScrollView>
-              </View>
-            )}
-
-            {/* Apprentices Row */}
-            {teamMembers.apprentices.length > 0 && (
-              <View className="mb-2">
-                <Text className="text-blue-600 dark:text-blue-400 text-[10px] font-semibold mb-1.5">APPRENTICES</Text>
-                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                  <View className="flex-row gap-2">
-                    {teamMembers.apprentices.map((member) => (
-                      <Pressable
-                        key={member.id}
-                        onPress={() => setSelectedMemberForAssign(selectedMemberForAssign === member.id ? null : member.id)}
-                        className={`items-center ${selectedMemberForAssign === member.id ? 'opacity-100' : 'opacity-80'}`}
-                      >
-                        <View
-                          className={`w-10 h-10 rounded-full items-center justify-center`}
-                          style={{ backgroundColor: getRoleColor(member.role), borderWidth: selectedMemberForAssign === member.id ? 2 : 0, borderColor: '#fff' }}
-                        >
-                          <Text className="text-white font-bold text-sm">{getInitials(member.name)}</Text>
-                        </View>
-                        <Text className="text-gray-600 dark:text-slate-400 text-[9px] mt-0.5 text-center" numberOfLines={1} style={{ maxWidth: 50 }}>
-                          {member.name.split(' ')[0]}
-                        </Text>
-                      </Pressable>
-                    ))}
-                  </View>
-                </ScrollView>
-              </View>
-            )}
-
-            {/* Get More Resources Button */}
-            <Pressable
-              onPress={() => setShowGetResourcesModal(true)}
-              className="mt-2 bg-purple-500/10 dark:bg-purple-500/20 border border-purple-300 dark:border-purple-700 border-dashed rounded-xl py-2.5 px-4 flex-row items-center justify-center active:opacity-70"
-            >
-              <UserPlus size={16} color="#8b5cf6" />
-              <Text className="text-purple-600 dark:text-purple-400 font-semibold text-sm ml-2">
-                Get More Resources
-              </Text>
-            </Pressable>
-          </View>
-        )}
-      </View>
+      {/* Resource Bar - Team with Squares */}
+      <ResourceBar
+        workspaceId={currentWorkspace?.id || ''}
+        onPersonPress={(person) => setSelectedMemberForAssign(selectedMemberForAssign === person.id ? null : person.id)}
+        selectedPersonId={selectedMemberForAssign || undefined}
+        compact
+      />
 
       <ScrollView className="flex-1 px-5 py-4">
         {/* Company Aim Banner */}

@@ -53,6 +53,8 @@ import { GoalQuestionnaireModal } from '@/components/GoalQuestionnaireModal';
 import { StrategyResultsModal } from '@/components/StrategyResultsModal';
 import { CompanyAimModal } from '@/components/CompanyAimModal';
 import { CompanyAimBanner } from '@/components/CompanyAimBanner';
+import { ResourceBar } from '@/components/ResourceBar';
+import { useResourceStore } from '@/lib/state/resource-store';
 
 // Help content for each role
 const FOUNDER_HELP: HelpContent = {
@@ -165,6 +167,20 @@ export default function HomeScreen() {
       initializeDemoMessages(currentWorkspace.id);
     }
   }, [currentWorkspace?.id]);
+
+  // Initialize resource store if empty
+  const resourcePeople = useResourceStore(s => s.people);
+  const seedResourceData = useResourceStore(s => s.seedDemoData);
+  const getTotalCapacity = useResourceStore(s => s.getTotalCapacity);
+
+  useEffect(() => {
+    if (resourcePeople.length === 0 && currentWorkspace) {
+      seedResourceData(currentWorkspace.id);
+    }
+  }, [resourcePeople.length, currentWorkspace]);
+
+  // Get resource utilization
+  const resourceCapacity = getTotalCapacity();
 
   // Calculate capacity on mount and when dependencies change
   useEffect(() => {
@@ -824,6 +840,12 @@ export default function HomeScreen() {
             </View>
           </View>
         </LinearGradient>
+
+        {/* Resource Bar - Team with Squares */}
+        <ResourceBar
+          workspaceId={currentWorkspace?.id || ''}
+          compact
+        />
 
         <ScrollView className="flex-1">
           <View className="px-5 py-4">

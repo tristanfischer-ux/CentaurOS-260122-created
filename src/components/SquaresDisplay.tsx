@@ -10,7 +10,7 @@
  */
 
 import { View, Text } from 'react-native';
-import { Bot } from 'lucide-react-native';
+import { Bot, DollarSign, Zap } from 'lucide-react-native';
 
 interface SquaresDisplayProps {
   /** Total squares needed (after AI adjustment) */
@@ -19,6 +19,8 @@ interface SquaresDisplayProps {
   completedSquares: number;
   /** Original squares before AI reduction (optional) */
   originalSquares?: number;
+  /** AI multiplier (1x = no AI, 2x-20x = AI acceleration) */
+  aiMultiplier?: number;
   /** AI mode for showing reduction */
   aiMode?: 'none' | 'assist' | 'heavy' | 'autonomous';
   /** Display variant */
@@ -27,6 +29,12 @@ interface SquaresDisplayProps {
   statusColor?: string;
   /** Show label */
   showLabel?: boolean;
+  /** Cost in £ */
+  cost?: number;
+  /** Show cost */
+  showCost?: boolean;
+  /** Squares allocated per week */
+  squaresPerWeek?: number;
 }
 
 const AI_MODE_COLORS: Record<string, string> = {
@@ -47,13 +55,18 @@ export function SquaresDisplay({
   totalSquares,
   completedSquares,
   originalSquares,
+  aiMultiplier = 1,
   aiMode = 'none',
   variant = 'compact',
   statusColor = '#10b981',
   showLabel = true,
+  cost,
+  showCost = false,
+  squaresPerWeek,
 }: SquaresDisplayProps) {
   const remaining = totalSquares - completedSquares;
-  const hasAIReduction = aiMode !== 'none' && originalSquares && originalSquares > totalSquares;
+  const hasAIReduction = (aiMode !== 'none' || aiMultiplier > 1) && originalSquares && originalSquares > totalSquares;
+  const weeksRemaining = squaresPerWeek && squaresPerWeek > 0 ? Math.ceil(remaining / squaresPerWeek) : null;
 
   if (variant === 'mini') {
     // Super compact - just numbers and tiny squares
@@ -85,7 +98,7 @@ export function SquaresDisplay({
 
   if (variant === 'compact') {
     return (
-      <View className="flex-row items-center">
+      <View className="flex-row items-center flex-wrap">
         {showLabel && (
           <Text className="text-gray-500 dark:text-slate-400 text-[10px] font-medium mr-1.5">
             Effort:
@@ -112,11 +125,24 @@ export function SquaresDisplay({
         </Text>
         {hasAIReduction && (
           <View className="flex-row items-center ml-1.5 bg-purple-50 dark:bg-purple-900/30 px-1 py-0.5 rounded">
-            <Bot size={10} color={AI_MODE_COLORS[aiMode]} />
-            <Text className="text-[9px] ml-0.5" style={{ color: AI_MODE_COLORS[aiMode] }}>
-              -{Math.round(((originalSquares - totalSquares) / originalSquares) * 100)}%
+            <Zap size={10} color="#8b5cf6" />
+            <Text className="text-[9px] ml-0.5 text-purple-600 dark:text-purple-400">
+              {aiMultiplier > 1 ? `${aiMultiplier}x` : `-${Math.round(((originalSquares - totalSquares) / originalSquares) * 100)}%`}
             </Text>
           </View>
+        )}
+        {showCost && cost !== undefined && cost > 0 && (
+          <View className="flex-row items-center ml-1.5">
+            <DollarSign size={10} color="#6b7280" />
+            <Text className="text-gray-500 dark:text-slate-400 text-[9px]">
+              £{cost.toLocaleString()}
+            </Text>
+          </View>
+        )}
+        {weeksRemaining !== null && weeksRemaining < Infinity && (
+          <Text className="text-gray-400 dark:text-slate-500 text-[9px] ml-1.5">
+            {weeksRemaining}w
+          </Text>
         )}
       </View>
     );
@@ -130,7 +156,7 @@ export function SquaresDisplay({
           EFFORT (SQUARES)
         </Text>
         <Text className="text-gray-900 dark:text-white text-xs font-bold">
-          {completedSquares} / {totalSquares} ({Math.round((completedSquares / totalSquares) * 100)}%)
+          {completedSquares} / {totalSquares} ({Math.round((completedSquares / Math.max(totalSquares, 1)) * 100)}%)
         </Text>
       </View>
 
@@ -152,22 +178,37 @@ export function SquaresDisplay({
         )}
       </View>
 
-      {/* AI Reduction indicator */}
+      {/* AI Multiplier indicator */}
       {hasAIReduction && (
-        <View className="flex-row items-center">
-          <Bot size={12} color={AI_MODE_COLORS[aiMode]} />
-          <Text className="text-xs ml-1" style={{ color: AI_MODE_COLORS[aiMode] }}>
-            {AI_MODE_LABELS[aiMode]}: {originalSquares} → {totalSquares} squares
+        <View className="flex-row items-center mb-1">
+          <Zap size={12} color="#8b5cf6" />
+          <Text className="text-xs ml-1 text-purple-600 dark:text-purple-400">
+            AI {aiMultiplier}x: {originalSquares} → {totalSquares} squares
             ({Math.round(((originalSquares - totalSquares) / originalSquares) * 100)}% reduction)
           </Text>
         </View>
       )}
 
-      {/* Time estimate */}
-      <View className="flex-row items-center mt-1">
-        <Text className="text-gray-400 dark:text-slate-500 text-[10px]">
-          ≈ {(remaining * 4)} hours remaining ({remaining} squares × 4h)
-        </Text>
+      {/* Time and Cost estimate */}
+      <View className="flex-row items-center justify-between mt-1 pt-2 border-t border-gray-100 dark:border-slate-800">
+        <View className="flex-row items-center">
+          <Text className="text-gray-400 dark:text-slate-500 text-[10px]">
+            ≈ {(remaining * 4)}h ({remaining}□ × 4h)
+          </Text>
+          {weeksRemaining !== null && weeksRemaining < Infinity && (
+            <Text className="text-gray-500 dark:text-slate-400 text-[10px] ml-2 font-medium">
+              {weeksRemaining} week{weeksRemaining !== 1 ? 's' : ''}
+            </Text>
+          )}
+        </View>
+        {showCost && cost !== undefined && cost > 0 && (
+          <View className="flex-row items-center">
+            <DollarSign size={12} color="#10b981" />
+            <Text className="text-emerald-600 dark:text-emerald-400 text-xs font-bold">
+              £{cost.toLocaleString()}
+            </Text>
+          </View>
+        )}
       </View>
     </View>
   );

@@ -48,6 +48,8 @@ import { useOrganizationStore } from '@/lib/state/organization-store';
 import { HelpModal, HelpButton, type HelpContent } from '@/components/HelpModal';
 import { TimeUnitPill } from '@/components/TimeAllocationBadge';
 import { SquaresDisplay } from '@/components/SquaresDisplay';
+import { ResourceBar } from '@/components/ResourceBar';
+import { useResourceStore } from '@/lib/state/resource-store';
 
 const EVALUATE_HELP: HelpContent = {
   title: 'Performance Insights',
@@ -333,6 +335,15 @@ export default function EvaluateScreen() {
   const updateWorkPlan = useWorkPlanStore(s => s.updateWorkPlan);
   const members = useOrganizationStore(s => s.members);
 
+  // Initialize resource store if empty
+  const resourcePeople = useResourceStore(s => s.people);
+  const seedResourceData = useResourceStore(s => s.seedDemoData);
+  useEffect(() => {
+    if (resourcePeople.length === 0 && currentWorkspace) {
+      seedResourceData(currentWorkspace.id);
+    }
+  }, [resourcePeople.length, currentWorkspace]);
+
   const [activeView, setActiveView] = useState<EvaluateView>('dashboard');
   const [showHelp, setShowHelp] = useState(false);
   const [selectedFunction, setSelectedFunction] = useState<BusinessFunction | 'all'>('all');
@@ -616,6 +627,12 @@ export default function EvaluateScreen() {
           </View>
         </View>
       </LinearGradient>
+
+      {/* Resource Bar */}
+      <ResourceBar
+        workspaceId={currentWorkspace?.id || ''}
+        compact
+      />
 
       {/* View Tabs - Below Header */}
       <View className="px-5 py-3 bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-800">

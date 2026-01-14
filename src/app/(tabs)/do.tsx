@@ -1,5 +1,5 @@
 import { View, Text, ScrollView, Pressable, Modal, TextInput, KeyboardAvoidingView, Platform } from 'react-native';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import {
   Briefcase, Plus, X, Clock, Target, CheckCircle2, Circle, AlertCircle, ChevronDown, ChevronRight,
   Flame, Calendar, AlertTriangle, Play, Pause, ArrowRight, TrendingUp, Zap, Filter,
@@ -15,6 +15,8 @@ import { cn } from '@/lib/cn';
 import { HelpModal, HelpButton, type HelpContent } from '@/components/HelpModal';
 import { TimeUnitPill } from '@/components/TimeAllocationBadge';
 import { SquaresDisplay } from '@/components/SquaresDisplay';
+import { ResourceBar } from '@/components/ResourceBar';
+import { useResourceStore } from '@/lib/state/resource-store';
 
 const DO_HELP_APPRENTICE: HelpContent = {
   title: 'Task Execution',
@@ -78,6 +80,15 @@ export default function DoScreen() {
   const getExecutiveWorkPlans = useWorkPlanStore(s => s.getExecutiveWorkPlans);
   const updateWorkPlan = useWorkPlanStore(s => s.updateWorkPlan);
   const okrs = useOKRStore(s => s.okrs);
+
+  // Initialize resource store if empty
+  const resourcePeople = useResourceStore(s => s.people);
+  const seedResourceData = useResourceStore(s => s.seedDemoData);
+  useEffect(() => {
+    if (resourcePeople.length === 0 && currentWorkspace) {
+      seedResourceData(currentWorkspace.id);
+    }
+  }, [resourcePeople.length, currentWorkspace]);
 
   const [selectedFunction, setSelectedFunction] = useState<BusinessFunction | 'all'>('all');
   const [expandedOKRs, setExpandedOKRs] = useState<Set<string>>(new Set());
@@ -585,6 +596,12 @@ export default function DoScreen() {
             </View>
           </View>
         </LinearGradient>
+
+        {/* Resource Bar */}
+        <ResourceBar
+          workspaceId={currentWorkspace?.id || ''}
+          compact
+        />
 
         {/* View Tabs */}
         <View className="px-5 py-3 bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-800">

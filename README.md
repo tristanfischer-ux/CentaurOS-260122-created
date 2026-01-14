@@ -54,8 +54,75 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
 
 ## 🚨 PRODUCTION READINESS STATUS
 
-**Last Updated**: 2026-01-14 (**BUILD QUEUE SYSTEM** - Homeworld-style task execution with time units, AI acceleration, person assignment, and timeline predictions)
+**Last Updated**: 2026-01-14 (**SQUARES RESOURCE SYSTEM** - Complete time unit system with person capacity, AI multipliers, cost calculations, and resource allocation across all tabs)
 **Status**: ✅ **READY FOR APP STORE** - All features complete!
+
+---
+
+## ⬜ SQUARES RESOURCE SYSTEM
+
+**Latest Update**: 2026-01-14
+
+### The Fundamental Resource Unit
+
+The squares system is the core resource allocation model. Every task, person, and cost is measured in squares.
+
+**1 Square = 4 Hours of Focused Work**
+
+### Person Capacity
+
+| Class | Base Squares/Week | Overtime | Max Total | Cost Basis |
+|-------|-------------------|----------|-----------|------------|
+| Founder | 10 | +5 | 15 | Company cost ÷ working hours × 4 |
+| Executive | 2-4 (contracted) | +11-13 | 15 | Day rate ÷ 2 |
+| Apprentice | 10 | +5 | 15 | Fixed rate (e.g., £50/□) |
+
+### AI Multipliers
+
+AI tools provide a multiplier effect that reduces effort:
+
+| AI Level | Multiplier | Cost/Square | Use Case |
+|----------|------------|-------------|----------|
+| None | 1x | £0 | Manual work only |
+| Assist | 2x | £5 | Basic AI help |
+| Copilot | 5x | £15 | AI handles routine |
+| Heavy | 10x | £30 | AI does most work |
+| Autonomous | 20x | £50 | AI handles everything |
+
+**Example**: A 20-square task with 10x AI becomes a 2-square task.
+
+### Task Cost Calculation
+
+```
+Task Cost = (Person Squares × Person Cost/Square × Weeks) + (Effective Squares × AI Cost/Square)
+```
+
+### Visual Indicators
+
+- **Filled Squares**: Work completed or time allocated
+- **Empty Squares**: Remaining work or available capacity
+- **Amber Squares**: Overtime capacity
+- **Purple Badge**: AI multiplier applied
+
+### Where Squares Appear
+
+- **Home Tab**: Resource Bar showing team capacity and utilization
+- **Decide Tab**: OKRs and tasks show squares, costs, timeline
+- **Do Tab**: Tasks show effort remaining and progress
+- **Evaluate Tab**: Submissions show effort metrics
+- **Build Queue**: Full Homeworld-style queue management
+
+### Resource Store
+
+Location: `/src/lib/state/resource-store.ts`
+
+Key features:
+- Person capacity management
+- Task allocation tracking
+- AI multiplier calculations
+- Cost estimation
+- Timeline predictions
+- Overtime toggling
 
 ---
 
