@@ -44,9 +44,20 @@ export function getTopRecommendations(inputs: RecommendationInputs): Recommended
   // If no matching presets, use all presets
   const presetsToScore = matchingPresets.length > 0 ? matchingPresets : PLAN_ARCHETYPES;
 
+  // Check if we have enough members
+  if (members.length === 0) {
+    return [];
+  }
+
   // Score each preset
   const scoredPlans = presetsToScore.map((preset) => {
     const plan = buildPlanFromPreset(preset, okr, members, targetWeeks);
+
+    // Skip if plan has no members allocated
+    if (plan.allocations.members.length === 0) {
+      return null;
+    }
+
     const forecast = computeForecast({
       okr,
       plan,
@@ -60,6 +71,7 @@ export function getTopRecommendations(inputs: RecommendationInputs): Recommended
       targetWeeks,
       currentRunwayWeeks,
       availableMembers: members.length,
+      okrFunction: okr.function,
     });
 
     const reasoning = explainScore(preset, forecast, {
@@ -74,7 +86,7 @@ export function getTopRecommendations(inputs: RecommendationInputs): Recommended
       reasoning,
       forecast,
     };
-  });
+  }).filter((plan): plan is RecommendedPlan => plan !== null);
 
   // Sort by score descending and return top 3
   return scoredPlans
@@ -134,12 +146,13 @@ function scorePreset(
     targetWeeks?: number;
     currentRunwayWeeks?: number;
     availableMembers: number;
+    okrFunction: string;
   }
 ): number {
   let score = 50; // Base score
 
   // 1. Function match (0-20 points)
-  const functionMatch = preset.intendedFor.functions.includes(context.costOfDelayPerWeekGBP as any);
+  const functionMatch = preset.intendedFor.functions.includes(context.okrFunction as any);
   if (functionMatch) score += 20;
 
   // 2. Urgency match (0-20 points)

@@ -113,12 +113,17 @@ export function computeForecast(inputs: ForecastInputs): ForecastMetrics {
   // L) Calculate confidence
   const confidence = calculateConfidence(overheadPct, remainingHours, calibration);
 
-  // M) Calculate baseline comparison
+  // M) Calculate baseline comparison (without recursion)
   const comparison = calculateBaselineComparison(
-    inputs,
+    plan,
+    members,
+    aiAgents,
+    remainingHours,
+    baseThroughputHours,
     etaWeeksP50,
     totalCostP50,
-    plan.costOfDelayPerWeekGBP
+    plan.costOfDelayPerWeekGBP,
+    calibration
   );
 
   return {
@@ -443,41 +448,52 @@ function calculateConfidence(
 }
 
 /**
- * Calculate baseline comparison
+ * Calculate baseline comparison (non-recursive version)
  */
 function calculateBaselineComparison(
-  inputs: ForecastInputs,
+  plan: OKRPlan,
+  members: OrganizationMember[],
+  aiAgents: AIAgent[],
+  remainingHours: number,
+  baseThroughputHours: number,
   currentEta: number,
   currentCost: number,
-  costOfDelayPerWeek: number
+  costOfDelayPerWeek: number,
+  calibration: CalibrationData
 ): ForecastComparison {
-  // Baseline: 1 apprentice at 100%, no tools
-  const baselinePlan: OKRPlan = {
-    ...inputs.plan,
-    allocations: {
-      members: [
-        {
-          memberId: inputs.members.find(m => m.role === 'Apprentice')?.id || '',
-          allocationPct: 100,
-        },
-      ],
-    },
-    toolAttachments: [],
-  };
+  // Find first apprentice for baseline
+  const apprentice = members.find(m => m.role === 'Apprentice');
+  if (!apprentice) {
+    // No apprentice available, return zero comparison
+    return {
+      baselineEtaWeeks: currentEta,
+      baselineCostGBP: currentCost,
+      weeksSaved: 0,
+      extraCostGBP: 0,
+      costPerWeekSaved: 0,
+      netAccelerationValuePerWeek: 0,
+    };
+  }
 
-  const baselineForecast = computeForecast({
-    ...inputs,
-    plan: baselinePlan,
-  });
+  // Calculate baseline metrics manually (1 apprentice at 100%, no tools)
+  const baselineHoursPerWeek = HOURS_PER_WEEK.Apprentice;
+  const baselineOverhead = MIN_OVERHEAD; // Single person, minimal overhead
+  const baselineEffectiveThroughput = baselineHoursPerWeek * (1 - baselineOverhead);
+  const baselineEta = baselineEffectiveThroughput > 0 ? remainingHours / baselineEffectiveThroughput : 999;
 
-  const weeksSaved = baselineForecast.etaWeeksP50 - currentEta;
-  const extraCostGBP = currentCost - baselineForecast.totalCostP50;
+  const apprenticeDailyRate = apprentice.costPerDay || 0;
+  const apprenticeDaysPerWeek = apprentice.daysPerWeek || 5;
+  const baselineWeeklyCost = apprenticeDailyRate * apprenticeDaysPerWeek;
+  const baselineTotalCost = baselineWeeklyCost * baselineEta;
+
+  const weeksSaved = baselineEta - currentEta;
+  const extraCostGBP = currentCost - baselineTotalCost;
   const costPerWeekSaved = weeksSaved > 0 ? extraCostGBP / weeksSaved : 0;
   const netAccelerationValuePerWeek = costOfDelayPerWeek - costPerWeekSaved;
 
   return {
-    baselineEtaWeeks: baselineForecast.etaWeeksP50,
-    baselineCostGBP: baselineForecast.totalCostP50,
+    baselineEtaWeeks: baselineEta,
+    baselineCostGBP: baselineTotalCost,
     weeksSaved,
     extraCostGBP,
     costPerWeekSaved,

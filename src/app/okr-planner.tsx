@@ -339,59 +339,68 @@ export default function OKRPlannerScreen() {
             </Text>
           </View>
 
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} className="gap-3">
-            {recommendations.map((rec, idx) => (
-              <Pressable
-                key={rec.preset.id}
-                onPress={() => handleApplyPreset(rec.preset)}
-                className={`bg-gray-900 border ${
-                  selectedPresetId === rec.preset.id
-                    ? 'border-blue-500'
-                    : 'border-gray-800'
-                } rounded-xl p-4 w-72`}
-              >
-                <View className="flex-row items-center justify-between mb-2">
-                  <Text className="text-white text-base font-semibold">
-                    {rec.preset.name}
+          {recommendations.length === 0 ? (
+            <View className="bg-gray-900 border border-gray-800 rounded-xl p-6 items-center">
+              <Sparkles size={32} color="#6b7280" />
+              <Text className="text-gray-400 text-center mt-3">
+                No recommendations available. Adjust your planning parameters or ensure team members are available.
+              </Text>
+            </View>
+          ) : (
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} className="gap-3">
+              {recommendations.map((rec, idx) => (
+                <Pressable
+                  key={rec.preset.id}
+                  onPress={() => handleApplyPreset(rec.preset)}
+                  className={`bg-gray-900 border ${
+                    selectedPresetId === rec.preset.id
+                      ? 'border-blue-500'
+                      : 'border-gray-800'
+                  } rounded-xl p-4 w-72`}
+                >
+                  <View className="flex-row items-center justify-between mb-2">
+                    <Text className="text-white text-base font-semibold">
+                      {rec.preset.name}
+                    </Text>
+                    <View className="bg-blue-500/20 px-2 py-1 rounded-lg">
+                      <Text className="text-blue-400 text-xs font-medium">
+                        {rec.score.toFixed(0)}% match
+                      </Text>
+                    </View>
+                  </View>
+
+                  <Text className="text-gray-400 text-sm mb-3">
+                    {rec.preset.description}
                   </Text>
-                  <View className="bg-blue-500/20 px-2 py-1 rounded-lg">
-                    <Text className="text-blue-400 text-xs font-medium">
-                      {rec.score.toFixed(0)}% match
-                    </Text>
-                  </View>
-                </View>
 
-                <Text className="text-gray-400 text-sm mb-3">
-                  {rec.preset.description}
-                </Text>
+                  <View className="gap-2">
+                    <View className="flex-row items-center justify-between">
+                      <Text className="text-gray-500 text-xs">ETA:</Text>
+                      <Text className="text-white text-sm font-medium">
+                        {rec.forecast.etaWeeksP50.toFixed(1)} weeks
+                      </Text>
+                    </View>
+                    <View className="flex-row items-center justify-between">
+                      <Text className="text-gray-500 text-xs">Weekly Cost:</Text>
+                      <Text className="text-white text-sm font-medium">
+                        £{(rec.forecast.burnPerWeekGBP / 1000).toFixed(1)}K
+                      </Text>
+                    </View>
+                    <View className="flex-row items-center justify-between">
+                      <Text className="text-gray-500 text-xs">Overhead:</Text>
+                      <Text className="text-white text-sm font-medium">
+                        {(rec.forecast.overheadPct * 100).toFixed(0)}%
+                      </Text>
+                    </View>
+                  </View>
 
-                <View className="gap-2">
-                  <View className="flex-row items-center justify-between">
-                    <Text className="text-gray-500 text-xs">ETA:</Text>
-                    <Text className="text-white text-sm font-medium">
-                      {rec.forecast.etaWeeksP50.toFixed(1)} weeks
-                    </Text>
-                  </View>
-                  <View className="flex-row items-center justify-between">
-                    <Text className="text-gray-500 text-xs">Weekly Cost:</Text>
-                    <Text className="text-white text-sm font-medium">
-                      £{(rec.forecast.burnPerWeekGBP / 1000).toFixed(1)}K
-                    </Text>
-                  </View>
-                  <View className="flex-row items-center justify-between">
-                    <Text className="text-gray-500 text-xs">Overhead:</Text>
-                    <Text className="text-white text-sm font-medium">
-                      {(rec.forecast.overheadPct * 100).toFixed(0)}%
-                    </Text>
-                  </View>
-                </View>
-
-                <Text className="text-gray-400 text-xs mt-3 leading-5">
-                  {rec.reasoning}
-                </Text>
-              </Pressable>
-            ))}
-          </ScrollView>
+                  <Text className="text-gray-400 text-xs mt-3 leading-5">
+                    {rec.reasoning}
+                  </Text>
+                </Pressable>
+              ))}
+            </ScrollView>
+          )}
         </View>
 
         {/* Resource Deployment */}
@@ -403,72 +412,84 @@ export default function OKRPlannerScreen() {
             </Text>
           </View>
 
-          <View className="gap-3">
-            {relevantMembers.map((member) => {
-              const allocation = planAllocations.find(
-                (a) => a.memberId === member.id
-              );
-              const allocationPct = allocation?.allocationPct || 0;
+          {relevantMembers.length === 0 ? (
+            <View className="bg-gray-900 border border-gray-800 rounded-xl p-6 items-center">
+              <Users size={32} color="#6b7280" />
+              <Text className="text-gray-400 text-center mt-3">
+                No team members available for {okr.function} function.
+              </Text>
+              <Text className="text-gray-500 text-center text-xs mt-2">
+                Add team members in the Team Management screen.
+              </Text>
+            </View>
+          ) : (
+            <View className="gap-3">
+              {relevantMembers.map((member) => {
+                const allocation = planAllocations.find(
+                  (a) => a.memberId === member.id
+                );
+                const allocationPct = allocation?.allocationPct || 0;
 
-              return (
-                <View
-                  key={member.id}
-                  className="bg-gray-900 border border-gray-800 rounded-xl p-4"
-                >
-                  <View className="flex-row items-center justify-between mb-3">
-                    <View className="flex-1">
-                      <Text className="text-white text-base font-medium">
-                        {member.name}
-                      </Text>
-                      <Text className="text-gray-400 text-sm">
-                        {member.role} • {member.function}
-                      </Text>
-                    </View>
-                    {allocationPct > 0 && (
-                      <View className="bg-blue-500/20 px-3 py-1 rounded-lg">
-                        <Text className="text-blue-400 text-sm font-medium">
-                          {allocationPct}%
+                return (
+                  <View
+                    key={member.id}
+                    className="bg-gray-900 border border-gray-800 rounded-xl p-4"
+                  >
+                    <View className="flex-row items-center justify-between mb-3">
+                      <View className="flex-1">
+                        <Text className="text-white text-base font-medium">
+                          {member.name}
+                        </Text>
+                        <Text className="text-gray-400 text-sm">
+                          {member.role} • {member.function}
                         </Text>
                       </View>
-                    )}
-                  </View>
-
-                  <View className="flex-row items-center gap-2">
-                    <Pressable
-                      onPress={() =>
-                        handleAllocationChange(
-                          member.id,
-                          Math.max(0, allocationPct - 25)
-                        )
-                      }
-                      className="bg-gray-800 w-10 h-10 rounded-lg items-center justify-center"
-                    >
-                      <Minus size={16} color="#fff" />
-                    </Pressable>
-
-                    <View className="flex-1 h-2 bg-gray-800 rounded-full overflow-hidden">
-                      <View
-                        className="h-full bg-blue-500"
-                        style={{ width: `${allocationPct}%` }}
-                      />
+                      {allocationPct > 0 && (
+                        <View className="bg-blue-500/20 px-3 py-1 rounded-lg">
+                          <Text className="text-blue-400 text-sm font-medium">
+                            {allocationPct}%
+                          </Text>
+                        </View>
+                      )}
                     </View>
 
-                    <Pressable
-                      onPress={() =>
-                        handleAllocationChange(
-                          member.id,
-                          Math.min(100, allocationPct + 25)
-                        )
-                      }
-                      className="bg-gray-800 w-10 h-10 rounded-lg items-center justify-center"
-                    >
-                      <Plus size={16} color="#fff" />
-                    </Pressable>
+                    <View className="flex-row items-center gap-2">
+                      <Pressable
+                        onPress={() =>
+                          handleAllocationChange(
+                            member.id,
+                            Math.max(0, allocationPct - 25)
+                          )
+                        }
+                        className="bg-gray-800 w-10 h-10 rounded-lg items-center justify-center"
+                      >
+                        <Minus size={16} color="#fff" />
+                      </Pressable>
+
+                      <View className="flex-1 h-2 bg-gray-800 rounded-full overflow-hidden">
+                        <View
+                          className="h-full bg-blue-500"
+                          style={{ width: `${allocationPct}%` }}
+                        />
+                      </View>
+
+                      <Pressable
+                        onPress={() =>
+                          handleAllocationChange(
+                            member.id,
+                            Math.min(100, allocationPct + 25)
+                          )
+                        }
+                        className="bg-gray-800 w-10 h-10 rounded-lg items-center justify-center"
+                      >
+                        <Plus size={16} color="#fff" />
+                      </Pressable>
+                    </View>
                   </View>
-                </View>
-              );
-            })}
-          </View>
+                );
+              })}
+            </View>
+          )}
         </View>
 
         {/* Bottlenecks */}
