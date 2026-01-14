@@ -19,10 +19,10 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { getStreakData, getActivityFeed, type StreakData, type ActivityItem } from '@/lib/engagement-tracking';
 import { router } from 'expo-router';
-import type { Task } from '@/types';
+import type { Task, Role } from '@/types';
 
 interface EngagementSectionsProps {
-  role: 'Founder' | 'FractionalExec' | 'Apprentice' | 'Government';
+  role: Role;
   tasks?: Task[];
   userName?: string;
 }
