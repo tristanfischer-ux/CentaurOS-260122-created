@@ -37,6 +37,7 @@ import {
   BadgeCheck,
   Layers,
   SlidersHorizontal,
+  HelpCircle,
 } from 'lucide-react-native';
 import { router } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -48,6 +49,25 @@ import { useCurrentMembership } from '@/lib/state/app-store';
 import { useSupplierStore } from '@/lib/state/supplier-store';
 import type { Supplier } from '@/types';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { HelpModal, HelpButton, type HelpContent } from '@/components/HelpModal';
+
+const COMMUNITY_HELP: HelpContent = {
+  title: 'Talent Marketplace',
+  subtitle: 'Build your team',
+  description: 'The Community tab is your talent marketplace. Discover and hire fractional executives, apprentices, find suppliers, and explore AI tools to build your startup\'s capabilities.',
+  tips: [
+    'Use the shortlist feature to save candidates for later comparison',
+    'Check candidate availability and cost per day before reaching out',
+    'Compare candidates side-by-side using the compare mode',
+    'Review skills and experience scores to find the best fit for your needs',
+  ],
+  quickActions: [
+    { label: 'Executives', description: 'Browse fractional executives available for hire' },
+    { label: 'Apprentices', description: 'Find talented apprentices to execute your work plans' },
+    { label: 'AI Agents', description: 'Discover AI tools to boost your team\'s productivity' },
+    { label: 'Suppliers', description: 'Find UK-based suppliers for manufacturing needs' },
+  ],
+};
 
 type CommunityTab = 'discover' | 'executives' | 'apprentices' | 'suppliers' | 'ai-agents' | 'shortlist' | 'apply';
 
@@ -109,6 +129,7 @@ export default function CommunityScreen() {
   const searchSuppliers = useSupplierStore((s) => s.searchSuppliers);
 
   const [activeTab, setActiveTab] = useState<CommunityTab>('discover');
+  const [showHelp, setShowHelp] = useState(false);
   const [selectedCandidate, setSelectedCandidate] = useState<Candidate | null>(null);
   const [selectedAIAgent, setSelectedAIAgent] = useState<ThirdPartyAITool | null>(null);
   const [selectedAIFunction, setSelectedAIFunction] = useState<BusinessFunction | 'all'>('all');
@@ -529,6 +550,14 @@ export default function CommunityScreen() {
 
   return (
     <View className="flex-1 bg-gray-50 dark:bg-slate-950">
+      {/* Help Modal */}
+      <HelpModal
+        visible={showHelp}
+        onClose={() => setShowHelp(false)}
+        content={COMMUNITY_HELP}
+        gradientColors={['#f59e0b', '#d97706']}
+      />
+
       {/* Header - Matching Home Tab Style */}
       <LinearGradient
         colors={['#f59e0b', '#d97706']}
@@ -542,6 +571,7 @@ export default function CommunityScreen() {
             <Text className="text-white text-xl font-bold">Talent Hub</Text>
           </View>
           <View className="flex-row gap-2">
+            <HelpButton onPress={() => setShowHelp(true)} />
             {shortlistedIds.size > 0 && (
               <Pressable
                 onPress={() => setActiveTab('shortlist')}

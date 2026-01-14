@@ -1,6 +1,6 @@
 import { View, Text, ScrollView, Pressable, Modal, TextInput, Alert, KeyboardAvoidingView, Platform } from 'react-native';
 import { useState, useEffect, useMemo } from 'react';
-import { Target, Plus, X, ChevronDown, ChevronRight, CheckCircle2, Circle, Clock, Users, DollarSign, Lightbulb, ChevronUp, UserPlus, Zap, AlertTriangle, AlertCircle, TrendingDown, CalendarClock, ArrowRight, Layers, Activity } from 'lucide-react-native';
+import { Target, Plus, X, ChevronDown, ChevronRight, CheckCircle2, Circle, Clock, Users, DollarSign, Lightbulb, ChevronUp, UserPlus, Zap, AlertTriangle, AlertCircle, TrendingDown, CalendarClock, ArrowRight, Layers, Activity, HelpCircle } from 'lucide-react-native';
 import { useCurrentWorkspace, useCurrentMembership } from '@/lib/state/app-store';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -14,6 +14,26 @@ import { useMarketplaceRequestsStore, type MarketplaceRequest } from '@/lib/stat
 import { MARKETPLACE_EXECUTIVES } from '@/lib/marketplace-executives';
 import { useOrganizationStore } from '@/lib/state/organization-store';
 import { useWorkPlanStore } from '@/lib/state/work-plan-store';
+import { HelpModal, HelpButton, type HelpContent } from '@/components/HelpModal';
+
+const DECIDE_HELP: HelpContent = {
+  title: 'Strategic Decisions',
+  subtitle: 'Set direction and allocate resources',
+  description: 'The Decide tab is where you set strategic direction through OKRs (Objectives & Key Results), allocate resources, and make critical decisions that impact your startup\'s trajectory.',
+  tips: [
+    'Address "Needs Your Decision" items first - these are blocking progress',
+    'Review at-risk OKRs weekly to catch problems before they become critical',
+    'Use the Build Queue to see how OKRs are progressing and ETA',
+    'Approve hiring requests promptly to unblock resource needs',
+    'Create new OKRs using the Ideas button for inspiration',
+  ],
+  quickActions: [
+    { label: 'Build Queue', description: 'View your OKR build queue with ETAs and resource allocation' },
+    { label: 'Capacity', description: 'Check team capacity and workload distribution' },
+    { label: 'Create OKR', description: 'Add a new strategic objective with key results' },
+    { label: 'OKR Ideas', description: 'Browse suggested OKRs by category for inspiration' },
+  ],
+};
 
 // Initialize OKR store once
 if (useOKRStore.getState().okrs.length === 0) {
@@ -102,6 +122,7 @@ export default function DecideScreen() {
   const [showApprovalQueue, setShowApprovalQueue] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<OKRCategory | 'all'>('all');
   const [selectedSuggestion, setSelectedSuggestion] = useState<OKRSuggestion | null>(null);
+  const [showHelp, setShowHelp] = useState(false);
 
   // Dropdown states
   const [showOwnerDropdown, setShowOwnerDropdown] = useState(false);
@@ -334,6 +355,14 @@ export default function DecideScreen() {
 
   return (
     <View className="flex-1 bg-white dark:bg-slate-950">
+      {/* Help Modal */}
+      <HelpModal
+        visible={showHelp}
+        onClose={() => setShowHelp(false)}
+        content={DECIDE_HELP}
+        gradientColors={['#8b5cf6', '#6366f1']}
+      />
+
       {/* Header - Matching Home Tab Style */}
       <LinearGradient
         colors={['#8b5cf6', '#6366f1']}
@@ -347,6 +376,7 @@ export default function DecideScreen() {
             <Text className="text-white text-xl font-bold">Decide</Text>
           </View>
           <View className="flex-row gap-2">
+            <HelpButton onPress={() => setShowHelp(true)} />
             <Pressable
               onPress={() => router.push('/okr-queue')}
               className="bg-white/20 rounded-xl p-2.5 active:opacity-70"

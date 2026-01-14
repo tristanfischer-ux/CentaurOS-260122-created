@@ -3,7 +3,7 @@ import { useState, useMemo } from 'react';
 import {
   Briefcase, Plus, X, Clock, Target, CheckCircle2, Circle, AlertCircle, ChevronDown, ChevronRight,
   Flame, Calendar, AlertTriangle, Play, Pause, ArrowRight, TrendingUp, Zap, Filter,
-  CalendarDays, CalendarClock, BarChart3, RefreshCw, Send, MessageSquare, Flag, Timer
+  CalendarDays, CalendarClock, BarChart3, RefreshCw, Send, MessageSquare, Flag, Timer, HelpCircle
 } from 'lucide-react-native';
 import { useCurrentWorkspace, useCurrentMembership } from '@/lib/state/app-store';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -12,6 +12,24 @@ import type { Function as BusinessFunction } from '@/types';
 import { useWorkPlanStore, type WorkPlan } from '@/lib/state/work-plan-store';
 import { useOKRStore } from '@/lib/state/okr-store';
 import { cn } from '@/lib/cn';
+import { HelpModal, HelpButton, type HelpContent } from '@/components/HelpModal';
+
+const DO_HELP: HelpContent = {
+  title: 'Task Execution',
+  subtitle: 'Get things done',
+  description: 'The Do tab is your workspace for executing tasks. Track work plans, manage deadlines, and submit completed work for review.',
+  tips: [
+    'Use Focus Mode to see your highest-priority tasks based on deadline and OKR health',
+    'Start timers to track how long tasks take for better future estimates',
+    'Submit work for review once you\'ve completed the quality checklist',
+    'Flag blocked tasks immediately so your executive can help unblock them',
+  ],
+  quickActions: [
+    { label: 'Focus Mode', description: 'See only your most urgent and important tasks' },
+    { label: 'Submit Work', description: 'Mark a task as complete and send it for executive review' },
+    { label: 'Track Time', description: 'Start a timer to record hours spent on each task' },
+  ],
+};
 
 // Initialize work plan store once
 if (useWorkPlanStore.getState().workPlans.length === 0) {
@@ -50,6 +68,7 @@ export default function DoScreen() {
   const [viewMode, setViewMode] = useState<ViewMode>('focus');
   const [timeFilter, setTimeFilter] = useState<TimeFilter>('week');
   const [activeTimer, setActiveTimer] = useState<string | null>(null);
+  const [showHelp, setShowHelp] = useState(false);
 
   // Enhanced submission state (Deloitte/Accenture process excellence)
   const [hoursSpent, setHoursSpent] = useState('');
@@ -485,6 +504,14 @@ export default function DoScreen() {
 
     return (
       <View className="flex-1 bg-gray-50 dark:bg-slate-950">
+        {/* Help Modal */}
+        <HelpModal
+          visible={showHelp}
+          onClose={() => setShowHelp(false)}
+          content={DO_HELP}
+          gradientColors={['#10b981', '#059669']}
+        />
+
         {/* Header - Matching Home Tab Style */}
         <LinearGradient
           colors={['#10b981', '#059669']}
@@ -497,12 +524,15 @@ export default function DoScreen() {
               <Text className="text-white/70 text-xs font-medium">TASK EXECUTION</Text>
               <Text className="text-white text-xl font-bold">Do</Text>
             </View>
-            {blockedCount > 0 && (
-              <View className="bg-white/20 px-3 py-2 rounded-xl">
-                <Text className="text-white/80 text-xs font-medium">BLOCKED</Text>
-                <Text className="text-white text-lg font-bold">{blockedCount}</Text>
-              </View>
-            )}
+            <View className="flex-row items-center gap-2">
+              <HelpButton onPress={() => setShowHelp(true)} />
+              {blockedCount > 0 && (
+                <View className="bg-white/20 px-3 py-2 rounded-xl">
+                  <Text className="text-white/80 text-xs font-medium">BLOCKED</Text>
+                  <Text className="text-white text-lg font-bold">{blockedCount}</Text>
+                </View>
+              )}
+            </View>
           </View>
           {/* Quick Health Indicators */}
           <View className="flex-row gap-4">

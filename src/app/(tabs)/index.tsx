@@ -27,6 +27,7 @@ import {
   Lightbulb,
   Calendar,
   MessageSquare,
+  HelpCircle,
 } from 'lucide-react-native';
 import { useCurrentWorkspace, useCurrentMembership, useCurrentUser } from '@/lib/state/app-store';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -39,6 +40,59 @@ import { useWorkPlanStore } from '@/lib/state/work-plan-store';
 import { useOrganizationStore } from '@/lib/state/organization-store';
 import { useArmoryStore } from '@/lib/state/armory-store';
 import { THIRD_PARTY_AI_TOOLS } from '@/lib/third-party-ai-tools';
+import { HelpModal, HelpButton, type HelpContent } from '@/components/HelpModal';
+
+// Help content for each role
+const FOUNDER_HELP: HelpContent = {
+  title: 'Command Center',
+  subtitle: 'Your startup dashboard',
+  description: 'This is your central hub for monitoring your startup\'s health. Track OKRs, financials, team performance, and urgent items that need your attention.',
+  tips: [
+    'Check the "Attention Required" section first thing each day for urgent items',
+    'Monitor runway and cash flow to ensure financial health',
+    'Use the financial dashboard for deeper cost analysis',
+    'Review pending approvals to unblock your team',
+  ],
+  quickActions: [
+    { label: 'View Financial Dashboard', description: 'Tap the runway indicator to see detailed financial metrics and cost breakdowns' },
+    { label: 'Review OKRs', description: 'Navigate to the Decide tab to review and adjust your strategic objectives' },
+    { label: 'Access Calendar & Messages', description: 'Quick access to schedule and team communications' },
+  ],
+};
+
+const EXECUTIVE_HELP: HelpContent = {
+  title: 'Executive Dashboard',
+  subtitle: 'Manage your function',
+  description: 'As a Fractional Executive, this dashboard helps you oversee your function\'s work, manage apprentices, and track OKR progress in your domain.',
+  tips: [
+    'Review apprentice progress daily to catch blockers early',
+    'Keep pending reviews under 3 days for optimal team velocity',
+    'Use AI tools to boost your team\'s productivity',
+    'Coordinate with other executives on cross-functional OKRs',
+  ],
+  quickActions: [
+    { label: 'Review Work Plans', description: 'Check and approve work submitted by your apprentices' },
+    { label: 'Manage AI Tools', description: 'Equip your team with AI tools to increase output quality' },
+    { label: 'Track OKR Progress', description: 'Monitor how your function\'s OKRs are progressing' },
+  ],
+};
+
+const APPRENTICE_HELP: HelpContent = {
+  title: 'My Workspace',
+  subtitle: 'Execute and deliver',
+  description: 'This is your personal workspace where you can see your active work, track progress on your objectives, and stay connected with your executive and team.',
+  tips: [
+    'Focus on completing tasks that contribute to your linked OKR',
+    'Update your work progress regularly so your executive can track status',
+    'Use AI tools to help with research, writing, and analysis',
+    'Reach out to your executive if you\'re blocked on anything',
+  ],
+  quickActions: [
+    { label: 'View My Work', description: 'See all your active tasks and their deadlines' },
+    { label: 'Ask AI for Help', description: 'Get AI assistance with your work tasks' },
+    { label: 'Contact My Team', description: 'Message your executive or view team members' },
+  ],
+};
 
 // Initialize stores once
 if (useOKRStore.getState().okrs.length === 0) {
@@ -56,6 +110,9 @@ export default function HomeScreen() {
   const currentWorkspace = useCurrentWorkspace();
   const currentMembership = useCurrentMembership();
   const currentUser = useCurrentUser();
+
+  // Help modal state
+  const [showHelp, setShowHelp] = useState(false);
 
   // Use centralized stores - select primitive values to avoid infinite loops
   const okrs = useOKRStore(s => s.okrs);
@@ -397,6 +454,14 @@ export default function HomeScreen() {
   if (isFounder) {
     return (
       <View className="flex-1 bg-white dark:bg-slate-950">
+        {/* Help Modal */}
+        <HelpModal
+          visible={showHelp}
+          onClose={() => setShowHelp(false)}
+          content={FOUNDER_HELP}
+          gradientColors={['#8b5cf6', '#6366f1']}
+        />
+
         {/* Role Header - Compact with Key Metrics */}
         <LinearGradient
           colors={getRoleGradient()}
@@ -411,15 +476,18 @@ export default function HomeScreen() {
                 {currentWorkspace.name}
               </Text>
             </View>
-            <Pressable
-              onPress={() => router.push('/financial-dashboard')}
-              className="bg-white/20 px-3 py-2 rounded-xl active:opacity-70"
-            >
-              <Text className="text-white/80 text-xs font-medium">RUNWAY</Text>
-              <Text className="text-white text-lg font-bold">
-                {FOUNDER_DATA.financials.runway >= 999 ? '∞' : `${FOUNDER_DATA.financials.runway.toFixed(0)}mo`}
-              </Text>
-            </Pressable>
+            <View className="flex-row items-center gap-2">
+              <HelpButton onPress={() => setShowHelp(true)} />
+              <Pressable
+                onPress={() => router.push('/financial-dashboard')}
+                className="bg-white/20 px-3 py-2 rounded-xl active:opacity-70"
+              >
+                <Text className="text-white/80 text-xs font-medium">RUNWAY</Text>
+                <Text className="text-white text-lg font-bold">
+                  {FOUNDER_DATA.financials.runway >= 999 ? '∞' : `${FOUNDER_DATA.financials.runway.toFixed(0)}mo`}
+                </Text>
+              </Pressable>
+            </View>
           </View>
           {/* Quick Health Indicators */}
           <View className="flex-row gap-4">
@@ -852,6 +920,14 @@ export default function HomeScreen() {
 
     return (
       <View className="flex-1 bg-white dark:bg-slate-950">
+        {/* Help Modal */}
+        <HelpModal
+          visible={showHelp}
+          onClose={() => setShowHelp(false)}
+          content={EXECUTIVE_HELP}
+          gradientColors={['#3b82f6', '#2563eb']}
+        />
+
         {/* Role Header */}
         <LinearGradient
           colors={getRoleGradient()}
@@ -866,8 +942,11 @@ export default function HomeScreen() {
                 {executiveData.myFunction}
               </Text>
             </View>
-            <View className="bg-white/20 px-3 py-1.5 rounded-full">
-              <Text className="text-white text-xs font-bold">EXECUTIVE</Text>
+            <View className="flex-row items-center gap-2">
+              <HelpButton onPress={() => setShowHelp(true)} />
+              <View className="bg-white/20 px-3 py-1.5 rounded-full">
+                <Text className="text-white text-xs font-bold">EXECUTIVE</Text>
+              </View>
             </View>
           </View>
           <Text className="text-white/90 text-sm">
@@ -1161,6 +1240,14 @@ export default function HomeScreen() {
 
     return (
       <View className="flex-1 bg-white dark:bg-slate-950">
+        {/* Help Modal */}
+        <HelpModal
+          visible={showHelp}
+          onClose={() => setShowHelp(false)}
+          content={APPRENTICE_HELP}
+          gradientColors={['#10b981', '#059669']}
+        />
+
         {/* Role Header */}
         <LinearGradient
           colors={getRoleGradient()}
@@ -1175,8 +1262,11 @@ export default function HomeScreen() {
                 My Work
               </Text>
             </View>
-            <View className="bg-white/20 px-3 py-1.5 rounded-full">
-              <Text className="text-white text-xs font-bold">APPRENTICE</Text>
+            <View className="flex-row items-center gap-2">
+              <HelpButton onPress={() => setShowHelp(true)} />
+              <View className="bg-white/20 px-3 py-1.5 rounded-full">
+                <Text className="text-white text-xs font-bold">APPRENTICE</Text>
+              </View>
             </View>
           </View>
           <Text className="text-white/90 text-sm">

@@ -26,6 +26,7 @@ import {
   Target,
   FileText,
   RefreshCw,
+  HelpCircle,
 } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useCurrentMembership } from '@/lib/state/app-store';
@@ -33,6 +34,23 @@ import { useOrganizationStore } from '@/lib/state/organization-store';
 import type { SupplierEngagement, AIAgent } from '@/lib/organization-seed';
 import { TabDescription } from '@/components/TabDescription';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { HelpModal, HelpButton, type HelpContent } from '@/components/HelpModal';
+
+const MAKE_HELP: HelpContent = {
+  title: 'Operations Center',
+  subtitle: 'Suppliers & AI tools',
+  description: 'The Make tab manages your manufacturing operations. Track supplier engagements, delivery schedules, and AI tool subscriptions that power your team.',
+  tips: [
+    'Review supplier delivery schedules weekly to catch delays early',
+    'Monitor AI tool usage and costs to optimize your tech stack',
+    'Track quality scores and lead times when evaluating suppliers',
+    'Use supplier ratings to inform future procurement decisions',
+  ],
+  quickActions: [
+    { label: 'Suppliers', description: 'View all supplier engagements, contracts, and delivery schedules' },
+    { label: 'AI Tools', description: 'Manage your AI subscriptions and monitor monthly spend' },
+  ],
+};
 
 // Initialize organization store once
 if (useOrganizationStore.getState().members.length === 0) {
@@ -54,6 +72,7 @@ export default function MakeScreen() {
   const getTotalSupplierSpend = useOrganizationStore((s) => s.getTotalSupplierSpend);
 
   const [activeTab, setActiveTab] = useState<MakeTab>('suppliers');
+  const [showHelp, setShowHelp] = useState(false);
 
   // Handle tab parameter from navigation
   useEffect(() => {
@@ -91,6 +110,14 @@ export default function MakeScreen() {
 
   return (
     <View className="flex-1 bg-white dark:bg-slate-950">
+      {/* Help Modal */}
+      <HelpModal
+        visible={showHelp}
+        onClose={() => setShowHelp(false)}
+        content={MAKE_HELP}
+        gradientColors={['#10b981', '#059669']}
+      />
+
       {/* Header - Matching Home Tab Style */}
       <LinearGradient
         colors={['#10b981', '#059669']}
@@ -103,13 +130,16 @@ export default function MakeScreen() {
             <Text className="text-white/70 text-xs font-medium">OPERATIONS CENTER</Text>
             <Text className="text-white text-xl font-bold">Make</Text>
           </View>
-          <Pressable
-            onPress={() => setActiveTab('ai')}
-            className="bg-white/20 px-3 py-2 rounded-xl active:opacity-70"
-          >
-            <Text className="text-white/80 text-xs font-medium">AI/MONTH</Text>
-            <Text className="text-white text-lg font-bold">£{aiSpend.toLocaleString()}</Text>
-          </Pressable>
+          <View className="flex-row items-center gap-2">
+            <HelpButton onPress={() => setShowHelp(true)} />
+            <Pressable
+              onPress={() => setActiveTab('ai')}
+              className="bg-white/20 px-3 py-2 rounded-xl active:opacity-70"
+            >
+              <Text className="text-white/80 text-xs font-medium">AI/MONTH</Text>
+              <Text className="text-white text-lg font-bold">£{aiSpend.toLocaleString()}</Text>
+            </Pressable>
+          </View>
         </View>
         {/* Quick Health Indicators */}
         <View className="flex-row gap-4">

@@ -37,6 +37,7 @@ import {
   Percent,
   Sparkles,
   DollarSign,
+  HelpCircle,
 } from 'lucide-react-native';
 import { useCurrentWorkspace, useCurrentMembership, useCurrentUser } from '@/lib/state/app-store';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -44,6 +45,24 @@ import { LinearGradient } from 'expo-linear-gradient';
 import type { Function as BusinessFunction } from '@/types';
 import { useWorkPlanStore, type WorkPlan } from '@/lib/state/work-plan-store';
 import { useOrganizationStore } from '@/lib/state/organization-store';
+import { HelpModal, HelpButton, type HelpContent } from '@/components/HelpModal';
+
+const EVALUATE_HELP: HelpContent = {
+  title: 'Performance Insights',
+  subtitle: 'Review and improve',
+  description: 'The Evaluate tab is your executive dashboard for reviewing apprentice work, tracking performance metrics, and identifying coaching opportunities.',
+  tips: [
+    'Review pending submissions within 48 hours to keep apprentices unblocked',
+    'Use quality scores to identify patterns and coaching opportunities',
+    'Check the Insights tab for automated recommendations on team performance',
+    'Track individual apprentice trends to catch declining performance early',
+  ],
+  quickActions: [
+    { label: 'Review Queue', description: 'See all work submissions waiting for your approval' },
+    { label: 'Performance', description: 'View individual apprentice performance metrics and trends' },
+    { label: 'Insights', description: 'AI-generated recommendations for improving team output' },
+  ],
+};
 
 // Enhanced types for executive-grade evaluation
 type EvaluateView = 'dashboard' | 'queue' | 'performance' | 'insights';
@@ -313,6 +332,7 @@ export default function EvaluateScreen() {
   const members = useOrganizationStore(s => s.members);
 
   const [activeView, setActiveView] = useState<EvaluateView>('dashboard');
+  const [showHelp, setShowHelp] = useState(false);
   const [selectedFunction, setSelectedFunction] = useState<BusinessFunction | 'all'>('all');
   const [expandedPlans, setExpandedPlans] = useState<Set<string>>(new Set());
   const [showSubmissionModal, setShowSubmissionModal] = useState(false);
@@ -536,6 +556,14 @@ export default function EvaluateScreen() {
 
   return (
     <View className="flex-1 bg-gray-50 dark:bg-slate-950">
+      {/* Help Modal */}
+      <HelpModal
+        visible={showHelp}
+        onClose={() => setShowHelp(false)}
+        content={EVALUATE_HELP}
+        gradientColors={['#3b82f6', '#2563eb']}
+      />
+
       {/* Header - Matching Home Tab Style */}
       <LinearGradient
         colors={['#3b82f6', '#2563eb']}
@@ -548,12 +576,15 @@ export default function EvaluateScreen() {
             <Text className="text-white/70 text-xs font-medium">PERFORMANCE INSIGHTS</Text>
             <Text className="text-white text-xl font-bold">Evaluate</Text>
           </View>
-          {stats.criticalCount > 0 && (
-            <View className="bg-white/20 px-3 py-2 rounded-xl">
-              <Text className="text-white/80 text-xs font-medium">CRITICAL</Text>
-              <Text className="text-white text-lg font-bold">{stats.criticalCount}</Text>
-            </View>
-          )}
+          <View className="flex-row items-center gap-2">
+            <HelpButton onPress={() => setShowHelp(true)} />
+            {stats.criticalCount > 0 && (
+              <View className="bg-white/20 px-3 py-2 rounded-xl">
+                <Text className="text-white/80 text-xs font-medium">CRITICAL</Text>
+                <Text className="text-white text-lg font-bold">{stats.criticalCount}</Text>
+              </View>
+            )}
+          </View>
         </View>
         {/* Quick Health Indicators */}
         <View className="flex-row gap-4">

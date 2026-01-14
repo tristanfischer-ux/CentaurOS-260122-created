@@ -4,7 +4,7 @@ import {
   Download, Upload, RefreshCw, Check, ExternalLink, Sheet, Play, Library, Eye,
   Mail, Users, Award, Building2, CheckCircle2,
   TrendingUp, Clock, Target, Zap, Settings2, ChevronDown, ChevronUp,
-  Sparkles, Shield, BarChart3, User, Briefcase, Rocket
+  Sparkles, Shield, BarChart3, User, Briefcase, Rocket, HelpCircle
 } from 'lucide-react-native';
 import { useAppStore, useCurrentUser, useCurrentMembership } from '@/lib/state/app-store';
 import { router } from 'expo-router';
@@ -15,6 +15,24 @@ import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useTheme } from '@/lib/ThemeContext';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
+import { HelpModal, HelpButton, type HelpContent } from '@/components/HelpModal';
+
+const SETTINGS_HELP: HelpContent = {
+  title: 'Operations & Config',
+  subtitle: 'Setup and preferences',
+  description: 'The Settings tab helps you configure Centaur OS for your role and preferences. Complete the setup checklist, customize your theme, and access resources.',
+  tips: [
+    'Complete all Critical priority setup tasks first to unlock full functionality',
+    'Switch between Dark, Light, and Off-White themes based on your preference',
+    'Use Quick Actions for common operations like generating reports',
+    'Reset onboarding if you want to see the tutorial again',
+  ],
+  quickActions: [
+    { label: 'Setup Checklist', description: 'Complete setup tasks to fully configure your workspace' },
+    { label: 'Theme Settings', description: 'Switch between dark, light, and off-white color schemes' },
+    { label: 'Data Management', description: 'Import/export data and generate reports' },
+  ],
+};
 
 // ============================================================================
 // OPERATIONS CONSULTANT METHODOLOGY
@@ -86,6 +104,7 @@ export default function SettingsScreen() {
   const iconColor = isDark ? '#94a3b8' : isOffWhite ? '#c2410c' : '#6b7280';
 
   const [showDataManagement, setShowDataManagement] = useState(false);
+  const [showHelp, setShowHelp] = useState(false);
   const [syncStatus, setSyncStatus] = useState<'idle' | 'syncing' | 'success' | 'error'>('idle');
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
     checklist: true,
@@ -513,6 +532,14 @@ export default function SettingsScreen() {
   // ===========================================================================
   return (
     <View className={`flex-1 ${bgPrimary}`}>
+      {/* Help Modal */}
+      <HelpModal
+        visible={showHelp}
+        onClose={() => setShowHelp(false)}
+        content={SETTINGS_HELP}
+        gradientColors={['#64748b', '#475569']}
+      />
+
       {/* Header - Matching Home Tab Style */}
       <LinearGradient
         colors={['#64748b', '#475569']}
@@ -525,12 +552,15 @@ export default function SettingsScreen() {
             <Text className="text-white/70 text-xs font-medium">OPERATIONS & CONFIG</Text>
             <Text className="text-white text-xl font-bold">Settings</Text>
           </View>
-          <Pressable
-            onPress={handleLogout}
-            className="bg-white/20 px-3 py-2 rounded-xl active:opacity-70"
-          >
-            <LogOut size={20} color="#fff" />
-          </Pressable>
+          <View className="flex-row items-center gap-2">
+            <HelpButton onPress={() => setShowHelp(true)} />
+            <Pressable
+              onPress={handleLogout}
+              className="bg-white/20 px-3 py-2 rounded-xl active:opacity-70"
+            >
+              <LogOut size={20} color="#fff" />
+            </Pressable>
+          </View>
         </View>
         {/* Quick Health Indicators */}
         <View className="flex-row gap-4">
