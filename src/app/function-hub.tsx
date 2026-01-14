@@ -23,6 +23,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { getAllFunctionProfiles, type FunctionProfile, type FunctionResource } from '@/lib/function-library';
 import { useAppStore } from '@/lib/state/app-store';
 import { cn } from '@/lib/cn';
+import { useTheme } from '@/lib/ThemeContext';
 
 // Icon mapping for resources
 const RESOURCE_ICONS = {
@@ -37,6 +38,18 @@ const RESOURCE_ICONS = {
 export default function FunctionHubScreen() {
   const currentMembership = useAppStore((s) => s.currentMembership);
   const allProfiles = getAllFunctionProfiles();
+  const { theme, isOffWhite } = useTheme();
+  const isDark = theme === 'dark';
+
+  // Theme-aware colors
+  const bgPrimary = isDark ? 'bg-slate-950' : isOffWhite ? 'bg-stone-50' : 'bg-white';
+  const bgCard = isDark ? 'bg-slate-900' : isOffWhite ? 'bg-stone-100' : 'bg-gray-100';
+  const borderColor = isDark ? 'border-slate-800' : isOffWhite ? 'border-stone-200' : 'border-gray-200';
+  const textPrimary = isDark ? 'text-white' : isOffWhite ? 'text-stone-900' : 'text-gray-900';
+  const textSecondary = isDark ? 'text-slate-400' : isOffWhite ? 'text-stone-600' : 'text-gray-600';
+  const textMuted = isDark ? 'text-slate-500' : isOffWhite ? 'text-stone-500' : 'text-gray-500';
+  const iconColor = isDark ? '#94a3b8' : isOffWhite ? '#78716c' : '#6b7280';
+  const backIconColor = isDark ? '#ffffff' : isOffWhite ? '#1c1917' : '#111827';
 
   const [selectedFunction, setSelectedFunction] = useState<FunctionProfile | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -76,17 +89,17 @@ export default function FunctionHubScreen() {
   // If no function selected, show function selector
   if (!selectedFunction) {
     return (
-      <View className="flex-1 bg-white dark:bg-slate-950">
+      <View className={`flex-1 ${bgPrimary}`}>
         <SafeAreaView edges={['top']} className="flex-1">
           {/* Header */}
-          <View className="px-6 py-4 border-b border-slate-800">
+          <View className={`px-6 py-4 border-b ${borderColor}`}>
             <View className="flex-row items-center mb-4">
               <Pressable onPress={handleBack} className="mr-4 active:opacity-70">
-                <ArrowLeft size={24} color="#fff" />
+                <ArrowLeft size={24} color={backIconColor} />
               </Pressable>
-              <Text className="text-gray-900 dark:text-white text-2xl font-bold">Function Library</Text>
+              <Text className={`${textPrimary} text-2xl font-bold`}>Function Library</Text>
             </View>
-            <Text className="text-gray-600 dark:text-slate-400 text-sm">
+            <Text className={`${textSecondary} text-sm`}>
               Access resources, tools, and advice for your function
             </Text>
           </View>
@@ -95,32 +108,36 @@ export default function FunctionHubScreen() {
           <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
             <View className="p-6">
               <View className="flex-row flex-wrap gap-4">
-                {allProfiles.map((profile) => (
-                  <Pressable
-                    key={profile.function}
-                    onPress={() => handleSelectFunction(profile)}
-                    className="flex-1 min-w-[45%] active:opacity-80"
-                  >
-                    <LinearGradient
-                      colors={[...profile.gradient, '#020617']}
-                      start={{ x: 0, y: 0 }}
-                      end={{ x: 1, y: 1 }}
-                      style={{ borderRadius: 20, padding: 20, minHeight: 140 }}
+                {allProfiles.map((profile) => {
+                  // Theme-aware gradient - append appropriate dark color
+                  const gradientEndColor = isDark ? '#020617' : isOffWhite ? '#f5f5f4' : '#f8fafc';
+                  return (
+                    <Pressable
+                      key={profile.function}
+                      onPress={() => handleSelectFunction(profile)}
+                      className="flex-1 min-w-[45%] active:opacity-80"
                     >
-                      <View className="items-center justify-center flex-1">
-                        <View className="w-16 h-16 bg-white/10 rounded-full items-center justify-center mb-3 border-2 border-white/20">
-                          <Text className="text-3xl">{getIconEmoji(profile.icon)}</Text>
+                      <LinearGradient
+                        colors={[...profile.gradient, gradientEndColor]}
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 1, y: 1 }}
+                        style={{ borderRadius: 20, padding: 20, minHeight: 140 }}
+                      >
+                        <View className="items-center justify-center flex-1">
+                          <View className="w-16 h-16 bg-white/10 rounded-full items-center justify-center mb-3 border-2 border-white/20">
+                            <Text className="text-3xl">{getIconEmoji(profile.icon)}</Text>
+                          </View>
+                          <Text className="text-white font-bold text-base text-center mb-1">
+                            {profile.title}
+                          </Text>
+                          <Text className="text-white/70 text-xs text-center" numberOfLines={2}>
+                            {profile.description.split('.')[0]}
+                          </Text>
                         </View>
-                        <Text className="text-gray-900 dark:text-white font-bold text-base text-center mb-1">
-                          {profile.title}
-                        </Text>
-                        <Text className="text-gray-900 dark:text-white/70 text-xs text-center" numberOfLines={2}>
-                          {profile.description.split('.')[0]}
-                        </Text>
-                      </View>
-                    </LinearGradient>
-                  </Pressable>
-                ))}
+                      </LinearGradient>
+                    </Pressable>
+                  );
+                })}
               </View>
             </View>
           </ScrollView>
@@ -132,12 +149,18 @@ export default function FunctionHubScreen() {
   // Function detail view
   const role = currentMembership?.role || 'Founder';
 
+  // Theme-aware gradient end color for detail view
+  const gradientEndColor = isDark ? '#020617' : isOffWhite ? '#f5f5f4' : '#f8fafc';
+  const tabBgColor = isDark ? 'bg-slate-900' : isOffWhite ? 'bg-stone-100' : 'bg-gray-100';
+  const cardBgSecondary = isDark ? 'bg-slate-800' : isOffWhite ? 'bg-stone-200' : 'bg-gray-200';
+  const textContent = isDark ? 'text-slate-300' : isOffWhite ? 'text-stone-700' : 'text-gray-700';
+
   return (
-    <View className="flex-1 bg-white dark:bg-slate-950">
+    <View className={`flex-1 ${bgPrimary}`}>
       <SafeAreaView edges={['top']} className="flex-1">
         {/* Header with gradient */}
         <LinearGradient
-          colors={[...currentProfile.gradient, '#020617']}
+          colors={[...currentProfile.gradient, gradientEndColor]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={{ paddingHorizontal: 24, paddingTop: 16, paddingBottom: 24 }}
@@ -146,9 +169,9 @@ export default function FunctionHubScreen() {
             <Pressable onPress={handleBack} className="mr-4 active:opacity-70">
               <ArrowLeft size={24} color="#fff" />
             </Pressable>
-            <Text className="text-gray-900 dark:text-white text-2xl font-bold flex-1">{currentProfile.title}</Text>
+            <Text className="text-white text-2xl font-bold flex-1">{currentProfile.title}</Text>
           </View>
-          <Text className="text-gray-900 dark:text-white/80 text-sm mb-4">{currentProfile.description}</Text>
+          <Text className="text-white/80 text-sm mb-4">{currentProfile.description}</Text>
 
           {/* Search */}
           <View className="bg-white/10 rounded-xl px-4 py-3 flex-row items-center backdrop-blur">
@@ -158,18 +181,18 @@ export default function FunctionHubScreen() {
               onChangeText={setSearchQuery}
               placeholder="Search resources..."
               placeholderTextColor="#ffffff80"
-              className="flex-1 ml-3 text-gray-900 dark:text-white"
+              className="flex-1 ml-3 text-white"
             />
           </View>
         </LinearGradient>
 
         {/* Tab Navigation */}
-        <View className="flex-row bg-slate-900 px-6 py-2 border-b border-slate-800">
+        <View className={`flex-row ${tabBgColor} px-6 py-2 border-b ${borderColor}`}>
           <Pressable
             onPress={() => setActiveTab('resources')}
             className={cn('flex-1 py-3 items-center border-b-2', activeTab === 'resources' ? 'border-blue-500' : 'border-transparent')}
           >
-            <Text className={cn('font-semibold', activeTab === 'resources' ? 'text-blue-500' : 'text-gray-600 dark:text-slate-400')}>
+            <Text className={cn('font-semibold', activeTab === 'resources' ? 'text-blue-500' : textSecondary)}>
               Resources
             </Text>
           </Pressable>
@@ -177,7 +200,7 @@ export default function FunctionHubScreen() {
             onPress={() => setActiveTab('advice')}
             className={cn('flex-1 py-3 items-center border-b-2', activeTab === 'advice' ? 'border-blue-500' : 'border-transparent')}
           >
-            <Text className={cn('font-semibold', activeTab === 'advice' ? 'text-blue-500' : 'text-gray-600 dark:text-slate-400')}>
+            <Text className={cn('font-semibold', activeTab === 'advice' ? 'text-blue-500' : textSecondary)}>
               Advice
             </Text>
           </Pressable>
@@ -185,7 +208,7 @@ export default function FunctionHubScreen() {
             onPress={() => setActiveTab('okrs')}
             className={cn('flex-1 py-3 items-center border-b-2', activeTab === 'okrs' ? 'border-blue-500' : 'border-transparent')}
           >
-            <Text className={cn('font-semibold', activeTab === 'okrs' ? 'text-blue-500' : 'text-gray-600 dark:text-slate-400')}>
+            <Text className={cn('font-semibold', activeTab === 'okrs' ? 'text-blue-500' : textSecondary)}>
               OKRs
             </Text>
           </Pressable>
@@ -202,6 +225,8 @@ export default function FunctionHubScreen() {
                   icon={Users}
                   resources={filterResources(currentProfile.resources.people)}
                   color={currentProfile.color}
+                  isDark={isDark}
+                  isOffWhite={isOffWhite}
                 />
               )}
 
@@ -212,6 +237,8 @@ export default function FunctionHubScreen() {
                   icon={Package}
                   resources={filterResources(currentProfile.resources.suppliers)}
                   color={currentProfile.color}
+                  isDark={isDark}
+                  isOffWhite={isOffWhite}
                 />
               )}
 
@@ -222,6 +249,8 @@ export default function FunctionHubScreen() {
                   icon={Bot}
                   resources={filterResources(currentProfile.resources.aiTools)}
                   color={currentProfile.color}
+                  isDark={isDark}
+                  isOffWhite={isOffWhite}
                 />
               )}
 
@@ -232,6 +261,8 @@ export default function FunctionHubScreen() {
                   icon={FileText}
                   resources={filterResources(currentProfile.resources.templates)}
                   color={currentProfile.color}
+                  isDark={isDark}
+                  isOffWhite={isOffWhite}
                 />
               )}
 
@@ -242,6 +273,8 @@ export default function FunctionHubScreen() {
                   icon={BookOpen}
                   resources={filterResources(currentProfile.resources.guides)}
                   color={currentProfile.color}
+                  isDark={isDark}
+                  isOffWhite={isOffWhite}
                 />
               )}
 
@@ -252,6 +285,8 @@ export default function FunctionHubScreen() {
                   icon={CheckSquare}
                   resources={filterResources(currentProfile.resources.checklists)}
                   color={currentProfile.color}
+                  isDark={isDark}
+                  isOffWhite={isOffWhite}
                 />
               )}
             </View>
@@ -260,48 +295,48 @@ export default function FunctionHubScreen() {
           {activeTab === 'advice' && (
             <View className="p-6">
               {/* Role-specific advice */}
-              <View className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-6 mb-4 border border-slate-800">
+              <View className={`${bgCard} rounded-2xl p-6 mb-4 border ${borderColor}`}>
                 <View className="flex-row items-center mb-4">
                   <Lightbulb size={24} color={currentProfile.color} />
-                  <Text className="text-gray-900 dark:text-white font-bold text-lg ml-3">Advice for {role}s</Text>
+                  <Text className={`${textPrimary} font-bold text-lg ml-3`}>Advice for {role}s</Text>
                 </View>
                 {getAdviceForRole(currentProfile, role).map((advice, index) => (
                   <View key={index} className="flex-row mb-3">
                     <View className="w-2 h-2 rounded-full bg-blue-500 mt-2 mr-3" />
-                    <Text className="text-slate-300 flex-1 leading-6">{advice}</Text>
+                    <Text className={`${textContent} flex-1 leading-6`}>{advice}</Text>
                   </View>
                 ))}
               </View>
 
               {/* Key Responsibilities */}
-              <View className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-6 mb-4 border border-slate-800">
-                <Text className="text-gray-900 dark:text-white font-bold text-lg mb-4">Key Responsibilities</Text>
+              <View className={`${bgCard} rounded-2xl p-6 mb-4 border ${borderColor}`}>
+                <Text className={`${textPrimary} font-bold text-lg mb-4`}>Key Responsibilities</Text>
                 {currentProfile.keyResponsibilities.map((resp, index) => (
                   <View key={index} className="flex-row mb-3">
                     <View className="w-2 h-2 rounded-full bg-green-500 mt-2 mr-3" />
-                    <Text className="text-slate-300 flex-1 leading-6">{resp}</Text>
+                    <Text className={`${textContent} flex-1 leading-6`}>{resp}</Text>
                   </View>
                 ))}
               </View>
 
               {/* Common Challenges */}
-              <View className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-6 mb-4 border border-slate-800">
-                <Text className="text-gray-900 dark:text-white font-bold text-lg mb-4">Common Challenges</Text>
+              <View className={`${bgCard} rounded-2xl p-6 mb-4 border ${borderColor}`}>
+                <Text className={`${textPrimary} font-bold text-lg mb-4`}>Common Challenges</Text>
                 {currentProfile.commonChallenges.map((challenge, index) => (
                   <View key={index} className="flex-row mb-3">
                     <View className="w-2 h-2 rounded-full bg-amber-500 mt-2 mr-3" />
-                    <Text className="text-slate-300 flex-1 leading-6">{challenge}</Text>
+                    <Text className={`${textContent} flex-1 leading-6`}>{challenge}</Text>
                   </View>
                 ))}
               </View>
 
               {/* Success Metrics */}
-              <View className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-6 mb-4 border border-slate-800">
-                <Text className="text-gray-900 dark:text-white font-bold text-lg mb-4">Success Metrics</Text>
+              <View className={`${bgCard} rounded-2xl p-6 mb-4 border ${borderColor}`}>
+                <Text className={`${textPrimary} font-bold text-lg mb-4`}>Success Metrics</Text>
                 {currentProfile.successMetrics.map((metric, index) => (
                   <View key={index} className="flex-row mb-3">
                     <View className="w-2 h-2 rounded-full bg-purple-500 mt-2 mr-3" />
-                    <Text className="text-slate-300 flex-1 leading-6">{metric}</Text>
+                    <Text className={`${textContent} flex-1 leading-6`}>{metric}</Text>
                   </View>
                 ))}
               </View>
@@ -310,16 +345,16 @@ export default function FunctionHubScreen() {
 
           {activeTab === 'okrs' && (
             <View className="p-6">
-              <View className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-6 mb-4 border border-slate-800">
+              <View className={`${bgCard} rounded-2xl p-6 mb-4 border ${borderColor}`}>
                 <View className="flex-row items-center mb-4">
                   <Target size={24} color={currentProfile.color} />
-                  <Text className="text-gray-900 dark:text-white font-bold text-lg ml-3">Suggested OKRs</Text>
+                  <Text className={`${textPrimary} font-bold text-lg ml-3`}>Suggested OKRs</Text>
                 </View>
-                <Text className="text-gray-600 dark:text-slate-400 mb-2">
+                <Text className={`${textSecondary} mb-2`}>
                   These are example OKRs for the {currentProfile.title} function. Tap any OKR to add it to your OKRs tab.
                 </Text>
                 <View className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-3 mb-6">
-                  <Text className="text-blue-400 text-xs">
+                  <Text className="text-blue-500 dark:text-blue-400 text-xs">
                     💡 Tip: Once added, you can customize the objective and key results to fit your specific goals.
                   </Text>
                 </View>
@@ -341,22 +376,22 @@ export default function FunctionHubScreen() {
                     }}
                     className="mb-6 last:mb-0 active:opacity-70"
                   >
-                    <View className="bg-slate-800 rounded-xl p-4 mb-0 border-2 border-transparent active:border-blue-500">
+                    <View className={`${cardBgSecondary} rounded-xl p-4 mb-0 border-2 border-transparent active:border-blue-500`}>
                       <View className="flex-row items-start justify-between mb-2">
-                        <Text className="text-gray-900 dark:text-white font-bold text-base flex-1">{okr.objective}</Text>
+                        <Text className={`${textPrimary} font-bold text-base flex-1`}>{okr.objective}</Text>
                         <View className="ml-2 bg-blue-500/20 px-2 py-1 rounded-lg">
-                          <Text className="text-blue-400 text-xs font-semibold">Tap to Add</Text>
+                          <Text className="text-blue-500 dark:text-blue-400 text-xs font-semibold">Tap to Add</Text>
                         </View>
                       </View>
-                      <Text className="text-gray-600 dark:text-slate-400 text-sm italic mb-3">{okr.rationale}</Text>
+                      <Text className={`${textSecondary} text-sm italic mb-3`}>{okr.rationale}</Text>
 
-                      <Text className="text-slate-300 font-semibold text-sm mb-2">Key Results:</Text>
+                      <Text className={`${textContent} font-semibold text-sm mb-2`}>Key Results:</Text>
                       {okr.keyResults.map((kr, krIndex) => (
                         <View key={krIndex} className="flex-row items-start mb-2">
                           <View className="w-6 h-6 bg-blue-500/20 rounded-full items-center justify-center mr-3 mt-0.5">
-                            <Text className="text-blue-400 text-xs font-bold">{krIndex + 1}</Text>
+                            <Text className="text-blue-500 dark:text-blue-400 text-xs font-bold">{krIndex + 1}</Text>
                           </View>
-                          <Text className="text-slate-300 flex-1">{kr}</Text>
+                          <Text className={`${textContent} flex-1`}>{kr}</Text>
                         </View>
                       ))}
                     </View>
@@ -377,43 +412,55 @@ function ResourceSection({
   icon: Icon,
   resources,
   color,
+  isDark,
+  isOffWhite,
 }: {
   title: string;
   icon: any;
   resources: FunctionResource[];
   color: string;
+  isDark: boolean;
+  isOffWhite: boolean;
 }) {
+  // Theme-aware colors
+  const bgCard = isDark ? 'bg-slate-900' : isOffWhite ? 'bg-stone-100' : 'bg-gray-100';
+  const borderColor = isDark ? 'border-slate-800' : isOffWhite ? 'border-stone-200' : 'border-gray-200';
+  const textPrimary = isDark ? 'text-white' : isOffWhite ? 'text-stone-900' : 'text-gray-900';
+  const textSecondary = isDark ? 'text-slate-400' : isOffWhite ? 'text-stone-600' : 'text-gray-600';
+  const badgeBg = isDark ? 'bg-slate-800' : isOffWhite ? 'bg-stone-200' : 'bg-gray-200';
+  const iconColor = isDark ? '#64748b' : isOffWhite ? '#78716c' : '#6b7280';
+
   return (
     <View className="mb-8">
       <View className="flex-row items-center mb-4">
         <Icon size={20} color={color} />
-        <Text className="text-gray-900 dark:text-white font-bold text-lg ml-2">{title}</Text>
-        <View className="ml-2 bg-slate-800 rounded-full px-2 py-0.5">
-          <Text className="text-gray-600 dark:text-slate-400 text-xs">{resources.length}</Text>
+        <Text className={`${textPrimary} font-bold text-lg ml-2`}>{title}</Text>
+        <View className={`ml-2 ${badgeBg} rounded-full px-2 py-0.5`}>
+          <Text className={`${textSecondary} text-xs`}>{resources.length}</Text>
         </View>
       </View>
 
       {resources.map((resource) => (
         <Pressable
           key={resource.id}
-          className="bg-gray-100 dark:bg-slate-900 rounded-xl p-4 mb-3 border border-slate-800 active:opacity-80"
+          className={`${bgCard} rounded-xl p-4 mb-3 border ${borderColor} active:opacity-80`}
         >
           <View className="flex-row items-start">
             <View className="flex-1">
               <View className="flex-row items-center mb-1">
-                <Text className="text-gray-900 dark:text-white font-semibold text-base flex-1">{resource.title}</Text>
-                {resource.url && <ExternalLink size={16} color="#64748b" />}
+                <Text className={`${textPrimary} font-semibold text-base flex-1`}>{resource.title}</Text>
+                {resource.url && <ExternalLink size={16} color={iconColor} />}
               </View>
-              <Text className="text-gray-600 dark:text-slate-400 text-sm mb-2">{resource.description}</Text>
+              <Text className={`${textSecondary} text-sm mb-2`}>{resource.description}</Text>
               <View className="flex-row flex-wrap gap-2">
                 {resource.tags.slice(0, 3).map((tag) => (
-                  <View key={tag} className="bg-slate-800 rounded-full px-2 py-1">
-                    <Text className="text-gray-600 dark:text-slate-400 text-xs">{tag}</Text>
+                  <View key={tag} className={`${badgeBg} rounded-full px-2 py-1`}>
+                    <Text className={`${textSecondary} text-xs`}>{tag}</Text>
                   </View>
                 ))}
               </View>
             </View>
-            <ChevronRight size={20} color="#64748b" className="ml-2" />
+            <ChevronRight size={20} color={iconColor} className="ml-2" />
           </View>
         </Pressable>
       ))}
