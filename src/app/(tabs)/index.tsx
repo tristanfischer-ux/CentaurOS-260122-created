@@ -94,6 +94,7 @@ export default function HomeScreen() {
       runway: financialMetrics.runway,
       burnRate: financialMetrics.burnRate,
       revenue: financialMetrics.monthlyRevenue,
+      netCashFlow: financialMetrics.netCashFlow,
     },
     pendingApprovals: 1, // This would need a separate approval store in the future
   };
@@ -500,7 +501,7 @@ const APPRENTICE_DATA = {
                     <View className="flex-1">
                       <Text className="text-emerald-100 text-xs mb-1">Net Cash Flow</Text>
                       <Text className="text-white text-lg font-bold">
-                        {FOUNDER_DATA.financials.revenue - FOUNDER_DATA.financials.burnRate >= 0 ? '+' : '-'}£{Math.abs(FOUNDER_DATA.financials.revenue - FOUNDER_DATA.financials.burnRate / 1000).toFixed(0)}K
+                        {FOUNDER_DATA.financials.netCashFlow >= 0 ? '+' : ''}£{(FOUNDER_DATA.financials.netCashFlow / 1000).toFixed(0)}K
                       </Text>
                     </View>
                     <View className="flex-1">

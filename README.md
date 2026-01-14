@@ -57,6 +57,11 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
 **Last Updated**: 2026-01-13 (**COMPREHENSIVE AUDIT COMPLETE** + **ALL FIXES APPLIED** - Perfect 100/100 score)
 
 ### Latest Update (2026-01-13):
+✅ **Net Cash Flow Fixed** - Home tab Financial Overview now shows correct net cash flow:
+  - Fixed incorrect calculation that was dividing only burnRate by 1000
+  - Now uses pre-calculated `netCashFlow` from financialMetrics (revenue - burn)
+  - Shows proper positive/negative cash flow with correct values
+
 ✅ **Marketplace Integration Fixed** - Team Management Recommended tab now uses real marketplace data:
   - Shows 6 available executives and apprentices from MARKETPLACE_EXECUTIVES
   - Displays actual marketplace profiles with ratings, experience, location, specialties
@@ -73,7 +78,7 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
     - Infrastructure: £4K
     - Marketing: £3K
     - Total Monthly Burn: dynamically calculated from all categories
-  - **Financial Overview Card**: Already using real-time runway and metrics
+  - **Financial Overview Card**: Using real-time runway, burn, revenue, and netCashFlow metrics
   - **Financial Dashboard**: Already using organization data as source of truth
   - All financial displays now pull from the same centralized calculations
   - Fixed module-level calculation issues by moving to useMemo inside component
