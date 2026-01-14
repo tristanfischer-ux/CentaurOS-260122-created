@@ -12,6 +12,7 @@ import { useState, useMemo } from 'react';
 import type { ThemeMode } from '@/types';
 import { resetOnboarding } from '@/lib/onboarding';
 import Animated, { FadeInDown, FadeInUp, useAnimatedStyle, withSpring, useSharedValue, withTiming } from 'react-native-reanimated';
+import { useTheme } from '@/lib/ThemeContext';
 
 // ============================================================================
 // OPERATIONS CONSULTANT METHODOLOGY
@@ -67,10 +68,8 @@ export default function SettingsScreen() {
   const currentMembership = useCurrentMembership();
   const logout = useAppStore((s) => s.logout);
   const setCurrentUser = useAppStore((s) => s.setCurrentUser);
+  const { themeMode, setThemeMode } = useTheme();
 
-  const [themeMode, setThemeModeState] = useState<ThemeMode>(
-    currentUser?.preferences?.themeMode ?? 'dark'
-  );
   const [showDataManagement, setShowDataManagement] = useState(false);
   const [syncStatus, setSyncStatus] = useState<'idle' | 'syncing' | 'success' | 'error'>('idle');
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
@@ -407,24 +406,8 @@ export default function SettingsScreen() {
     );
   };
 
-  const handleThemeChange = async (mode: ThemeMode) => {
-    setThemeModeState(mode);
-    if (currentUser) {
-      const updatedUser = {
-        ...currentUser,
-        preferences: {
-          ...currentUser.preferences,
-          themeMode: mode,
-        },
-      };
-      setCurrentUser(updatedUser);
-      const users = useAppStore.getState().users;
-      const setUsers = useAppStore.getState().setUsers;
-      setUsers({
-        ...users,
-        [currentUser.id]: updatedUser,
-      });
-    }
+  const handleThemeChange = (mode: ThemeMode) => {
+    setThemeMode(mode);
   };
 
   const handleExportCSV = (dataType: string) => {
