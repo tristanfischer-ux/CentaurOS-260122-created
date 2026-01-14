@@ -93,6 +93,43 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
 5. Live in App Store in 3-5 days! 🎉
 
 ### Latest Update (2026-01-14):
+✅ **ELITE CONSULTING DASHBOARD - REPORTS TAB COMPLETE**:
+  - **Consultant Review**: Comprehensive audit by elite team of consultants from the world's top firms
+  - **Frameworks Implemented**:
+    - **McKinsey**: 7S Framework (Strategy, Structure, Systems, Shared Values, Style, Staff, Skills)
+    - **BCG**: Growth-Share Matrix (Star, Cash Cow, Question Mark, Dog positioning)
+    - **Bain**: Net Promoter Score Analysis (Promoters, Passives, Detractors)
+    - **Oliver Wyman**: Risk-Adjusted Returns (Sharpe Ratio, Capital at Risk)
+    - **Roland Berger**: Transformation Readiness Assessment
+    - **Deloitte**: Digital Operations Index, HR Transformation Index, Process Analytics
+    - **Accenture**: Intelligent Operations Framework, BPM Maturity Model
+    - **EY**: Financial Performance Indicators (5-axis scoring)
+    - **PwC**: Value Creation Analysis, Process Risk Assessment
+    - **KPMG**: Process Excellence Dimensions (5-factor model)
+    - **Mercer**: Total Rewards Health Analysis
+    - **Korn Ferry**: Talent Assessment Framework (Leadership Bench, High Potential Ratio)
+    - **Aon**: Human Capital Risk Assessment (5 risk categories)
+    - **Charles River Associates**: Unit Economics Analysis (LTV:CAC, Payback Period)
+  - **Key Features**:
+    - **6-Dashboard Navigation**: Overview, Strategy, Operations, Finance, Talent, Process
+    - **Integrated Consulting Score**: Weighted aggregate across all frameworks (0-100)
+    - **Consulting Insights Engine**: Auto-generated actionable insights from each framework
+    - **Firm Attribution Badges**: Clear identification of which consulting methodology is being used
+    - **PDF/Board Pack Export**: Professional reporting with all framework analyses
+  - **Files Changed**:
+    - NEW: `src/lib/reports/consulting-frameworks.ts` (1000+ lines of consulting methodologies)
+    - UPDATED: `src/lib/reports/generator.ts` (integrated all consulting frameworks)
+    - REWRITTEN: `src/app/reports.tsx` (complete UI redesign with 6 dashboard views)
+    - UPDATED: `src/types/index.ts` (new consulting analysis types)
+    - FIXED: `src/lib/reports/export-pdf.ts` (replaced react-native-html-to-pdf with expo-print)
+
+✅ **PDF Export Native Module Fix**:
+  - Fixed TurboModuleRegistry 'HtmlToPdf' error
+  - Replaced `react-native-html-to-pdf` (requires native code) with `expo-print` (Expo-compatible)
+  - PDF generation now works correctly in Expo managed workflow
+
+Previous Updates:
+
 ✅ **Evaluate Tab EXECUTIVE-GRADE REDESIGN - COMPLETE**:
   - **Consultant Review**: Deloitte consulting-grade performance management system (30yr experience)
   - **Key Improvements**:

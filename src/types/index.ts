@@ -748,6 +748,30 @@ export interface FounderReportData {
     totalTimeLogged?: number;
     totalTasks?: number;
   };
+  // Elite Consulting Frameworks Analysis (McKinsey/BCG/Bain/Deloitte/Accenture/EY/PwC/KPMG)
+  consultingAnalysis?: {
+    // McKinsey 7S + BCG Growth-Share + Bain NPS + Oliver Wyman Risk + Roland Berger Transformation
+    strategy?: any;
+    // McKinsey Ops + BCG Lean + Deloitte Digital Ops + Accenture Intelligent Ops + Bain Supply Chain
+    operations?: any;
+    // EY Performance + Deloitte Risk + PwC Value Creation + Charles River Economics
+    finance?: any;
+    // McKinsey Human Capital + Deloitte HR + Mercer Total Rewards + Korn Ferry Talent + Aon Risk
+    talent?: any;
+    // Accenture BPM + KPMG Excellence + PwC Risk + Deloitte Analytics
+    process?: any;
+    // BCG Manufacturing + Deloitte Industry 4.0 + McKinsey Digital + KPMG Operational Excellence
+    manufacturing?: any;
+    // Integrated Analysis
+    integratedScore?: number;
+    consultingInsights?: {
+      source: string; // Which firm's framework
+      category: string;
+      insight: string;
+      recommendation: string;
+      impact: string;
+    }[];
+  };
 }
 
 // Executive Report - Function-specific performance
