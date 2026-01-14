@@ -32,19 +32,32 @@ export default function BuildQueueScreen() {
   const currentWorkspace = useCurrentWorkspace();
   const workspaceId = currentWorkspace?.id ?? DEFAULT_WORKSPACE_ID;
 
-  // Stores - use primitive selectors to avoid re-renders
-  const queueItems = useQueueStore((s) => s.items.filter((i) => i.workspaceId === workspaceId));
+  // Stores - select raw data, filter in useMemo to avoid re-renders
+  const allQueueItems = useQueueStore((s) => s.items);
   const startOKR = useQueueStore((s) => s.startOKR);
   const pauseOKR = useQueueStore((s) => s.pauseOKR);
   const completeOKR = useQueueStore((s) => s.completeOKR);
   const removeFromQueue = useQueueStore((s) => s.removeFromQueue);
   const initializeQueue = useQueueStore((s) => s.initializeQueue);
 
-  const okrs = useOKRStore((s) => s.okrs);
+  const allOkrs = useOKRStore((s) => s.okrs);
   const initializeFinance = useFinanceStore((s) => s.initializeFinance);
 
   // Get finance snapshot for memoized data access
   const financeSnapshots = useFinanceStore((s) => s.snapshots);
+
+  // Filter queue items by workspace in useMemo
+  const queueItems = useMemo(() =>
+    allQueueItems.filter((i) => i.workspaceId === workspaceId),
+    [allQueueItems, workspaceId]
+  );
+
+  // Filter OKRs by workspace in useMemo
+  const okrs = useMemo(() =>
+    allOkrs.filter((o) => o.workspaceId === workspaceId),
+    [allOkrs, workspaceId]
+  );
+
   const snapshot = useMemo(() =>
     financeSnapshots.find((s) => s.workspaceId === workspaceId),
     [financeSnapshots, workspaceId]
@@ -95,11 +108,11 @@ export default function BuildQueueScreen() {
     return grouped;
   }, [queueItems]);
 
-  // Get OKRs not in queue
+  // Get OKRs not in queue (okrs is already filtered by workspace)
   const okrsNotInQueue = useMemo(() => {
     const queuedOkrIds = new Set(queueItems.map((i) => i.okrId));
-    return okrs.filter((o) => !queuedOkrIds.has(o.id) && o.workspaceId === workspaceId);
-  }, [okrs, queueItems, workspaceId]);
+    return okrs.filter((o) => !queuedOkrIds.has(o.id));
+  }, [okrs, queueItems]);
 
   const getStatusIcon = (status: QueueItemStatus) => {
     switch (status) {
