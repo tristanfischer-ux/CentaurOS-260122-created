@@ -305,61 +305,101 @@ export const useCalendarStore = create<CalendarState>((set, get) => ({
 
   syncToDeviceCalendar: async (eventId) => {
     const { events, hasCalendarPermission, deviceCalendars } = get();
-    if (!hasCalendarPermission) return;
+
+    // Check permission first
+    if (!hasCalendarPermission) {
+      const granted = await get().requestCalendarPermission();
+      if (!granted) {
+        throw new Error('Calendar permission not granted');
+      }
+    }
 
     const event = events.find((e) => e.id === eventId);
-    if (!event) return;
+    if (!event) {
+      throw new Error('Event not found');
+    }
 
     try {
       // Find a writable calendar
+      let targetCalendarId: string | null = null;
+
+      // First try to find an existing writable calendar
       const writableCalendar = deviceCalendars.find((cal) => cal.allowsModifications);
-      if (!writableCalendar) {
-        // Create a new calendar for CentaurOS
-        const defaultCalendarSource =
-          Platform.OS === 'ios'
-            ? await Calendar.getDefaultCalendarAsync()
-            : { isLocalAccount: true, name: 'CentaurOS' };
 
-        const newCalendarId = await Calendar.createCalendarAsync({
-          title: 'CentaurOS',
-          color: '#8b5cf6',
-          entityType: Calendar.EntityTypes.EVENT,
-          sourceId: (defaultCalendarSource as any)?.source?.id,
-          source: {
-            isLocalAccount: true,
-            name: 'CentaurOS',
-            type: Platform.OS === 'ios' ? Calendar.SourceType.LOCAL : undefined,
-          } as any,
-          name: 'CentaurOS',
-          ownerAccount: 'CentaurOS',
-          accessLevel: Calendar.CalendarAccessLevel.OWNER,
-        });
-
-        // Create the event
-        const deviceEventId = await Calendar.createEventAsync(newCalendarId, {
-          title: event.title,
-          notes: event.description,
-          startDate: new Date(event.startDate),
-          endDate: new Date(event.endDate),
-          allDay: event.allDay,
-          location: event.location,
-        });
-
-        get().updateEvent(eventId, { deviceCalendarId: deviceEventId });
+      if (writableCalendar) {
+        targetCalendarId = writableCalendar.id;
       } else {
-        const deviceEventId = await Calendar.createEventAsync(writableCalendar.id, {
-          title: event.title,
-          notes: event.description,
-          startDate: new Date(event.startDate),
-          endDate: new Date(event.endDate),
-          allDay: event.allDay,
-          location: event.location,
-        });
+        // Need to create a new calendar
+        if (Platform.OS === 'ios') {
+          // On iOS, get the default calendar source
+          const calendars = await Calendar.getCalendarsAsync(Calendar.EntityTypes.EVENT);
+          const defaultCalendar = calendars.find(
+            (cal) => cal.allowsModifications && cal.source?.type === Calendar.SourceType.LOCAL
+          ) || calendars.find((cal) => cal.allowsModifications);
 
-        get().updateEvent(eventId, { deviceCalendarId: deviceEventId });
+          if (defaultCalendar) {
+            targetCalendarId = defaultCalendar.id;
+          } else {
+            // Create a new local calendar
+            const sources = await Calendar.getSourcesAsync();
+            const localSource = sources.find(
+              (source) => source.type === Calendar.SourceType.LOCAL
+            ) || sources[0];
+
+            if (localSource) {
+              targetCalendarId = await Calendar.createCalendarAsync({
+                title: 'CentaurOS',
+                color: '#8b5cf6',
+                entityType: Calendar.EntityTypes.EVENT,
+                sourceId: localSource.id,
+                source: localSource,
+                name: 'CentaurOS',
+                ownerAccount: 'CentaurOS',
+                accessLevel: Calendar.CalendarAccessLevel.OWNER,
+              });
+            }
+          }
+        } else {
+          // On Android, create a local calendar
+          targetCalendarId = await Calendar.createCalendarAsync({
+            title: 'CentaurOS',
+            color: '#8b5cf6',
+            entityType: Calendar.EntityTypes.EVENT,
+            source: {
+              isLocalAccount: true,
+              name: 'CentaurOS',
+              type: Calendar.SourceType.LOCAL,
+            },
+            name: 'CentaurOS',
+            ownerAccount: 'CentaurOS',
+            accessLevel: Calendar.CalendarAccessLevel.OWNER,
+          });
+        }
       }
+
+      if (!targetCalendarId) {
+        throw new Error('Could not find or create a writable calendar');
+      }
+
+      // Create the event in the device calendar
+      const deviceEventId = await Calendar.createEventAsync(targetCalendarId, {
+        title: event.title,
+        notes: event.description || '',
+        startDate: new Date(event.startDate),
+        endDate: new Date(event.endDate),
+        allDay: event.allDay,
+        location: event.location || '',
+        timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      });
+
+      // Update the event with the device calendar ID
+      get().updateEvent(eventId, { deviceCalendarId: deviceEventId });
+
+      // Reload device calendars to reflect any new calendar created
+      await get().loadDeviceCalendars();
     } catch (error) {
       console.error('Error syncing to device calendar:', error);
+      throw error;
     }
   },
 

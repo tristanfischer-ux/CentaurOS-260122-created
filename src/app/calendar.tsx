@@ -199,15 +199,22 @@ export default function CalendarScreen() {
   };
 
   const handleSyncToDevice = async (eventId: string) => {
-    if (!hasCalendarPermission) {
-      const granted = await requestCalendarPermission();
-      if (!granted) {
-        Alert.alert('Permission Required', 'Calendar access is needed to sync events to your device calendar.');
-        return;
+    try {
+      if (!hasCalendarPermission) {
+        const granted = await requestCalendarPermission();
+        if (!granted) {
+          Alert.alert('Permission Required', 'Calendar access is needed to sync events to your device calendar.');
+          return;
+        }
+        // Load calendars after getting permission
+        await loadDeviceCalendars();
       }
+      await syncToDeviceCalendar(eventId);
+      Alert.alert('Synced', 'Event added to your device calendar');
+    } catch (error) {
+      console.error('Sync error:', error);
+      Alert.alert('Sync Failed', 'Could not sync to device calendar. Please check calendar permissions in Settings.');
     }
-    await syncToDeviceCalendar(eventId);
-    Alert.alert('Synced', 'Event added to your device calendar');
   };
 
   const formatTime = (date: Date) => {
