@@ -21,6 +21,10 @@ import {
   Plus,
   DollarSign,
   TrendingDown,
+  FileText,
+  Download,
+  PieChart,
+  Lightbulb,
 } from 'lucide-react-native';
 import { useCurrentWorkspace, useCurrentMembership, useCurrentUser } from '@/lib/state/app-store';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -723,6 +727,97 @@ export default function HomeScreen() {
                 </View>
               </Pressable>
             </View>
+
+            {/* REPORTS & INSIGHTS - Founder */}
+            <View className="mb-4">
+              <View className="flex-row items-center justify-between mb-2">
+                <Text className="text-gray-500 dark:text-slate-500 text-xs font-bold tracking-wide">
+                  REPORTS & INSIGHTS
+                </Text>
+                <Pressable onPress={() => router.push('/reports')}>
+                  <Text className="text-purple-500 text-xs font-semibold">All Reports</Text>
+                </Pressable>
+              </View>
+
+              {/* Board Pack - Primary CTA for Founders */}
+              <Pressable
+                onPress={() => router.push({ pathname: '/reports', params: { period: 'month', export: 'boardpack' } })}
+                className="mb-2 active:opacity-70"
+              >
+                <LinearGradient
+                  colors={['#7c3aed', '#6d28d9']}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 0 }}
+                  style={{ borderRadius: 12, padding: 16 }}
+                >
+                  <View className="flex-row items-center justify-between">
+                    <View className="flex-row items-center flex-1">
+                      <View className="w-10 h-10 bg-white/20 rounded-lg items-center justify-center">
+                        <Download size={20} color="#fff" />
+                      </View>
+                      <View className="ml-3 flex-1">
+                        <Text className="text-white font-bold text-sm">Board Pack</Text>
+                        <Text className="text-white/70 text-xs">
+                          Executive summary, financials, OKRs & risks
+                        </Text>
+                      </View>
+                    </View>
+                    <ArrowRight size={18} color="#fff" />
+                  </View>
+                </LinearGradient>
+              </Pressable>
+
+              {/* Quick Report Options */}
+              <View className="flex-row gap-2">
+                <Pressable
+                  onPress={() => router.push({ pathname: '/reports', params: { period: 'week' } })}
+                  className="flex-1 bg-gray-100 dark:bg-slate-900 rounded-xl p-3 active:opacity-70"
+                >
+                  <View className="flex-row items-center">
+                    <View className="w-8 h-8 bg-blue-100 dark:bg-blue-900/30 rounded-lg items-center justify-center">
+                      <FileText size={16} color="#3b82f6" />
+                    </View>
+                    <View className="ml-2 flex-1">
+                      <Text className="text-gray-900 dark:text-white font-semibold text-xs">Weekly</Text>
+                      <Text className="text-gray-500 dark:text-slate-400 text-xs">7 day summary</Text>
+                    </View>
+                  </View>
+                </Pressable>
+                <Pressable
+                  onPress={() => router.push({ pathname: '/reports', params: { period: 'quarter' } })}
+                  className="flex-1 bg-gray-100 dark:bg-slate-900 rounded-xl p-3 active:opacity-70"
+                >
+                  <View className="flex-row items-center">
+                    <View className="w-8 h-8 bg-emerald-100 dark:bg-emerald-900/30 rounded-lg items-center justify-center">
+                      <PieChart size={16} color="#10b981" />
+                    </View>
+                    <View className="ml-2 flex-1">
+                      <Text className="text-gray-900 dark:text-white font-semibold text-xs">Quarterly</Text>
+                      <Text className="text-gray-500 dark:text-slate-400 text-xs">90 day trends</Text>
+                    </View>
+                  </View>
+                </Pressable>
+              </View>
+
+              {/* Analytics Quick Link */}
+              <Pressable
+                onPress={() => router.push('/analytics')}
+                className="mt-2 bg-gray-100 dark:bg-slate-900 rounded-xl p-3 active:opacity-70"
+              >
+                <View className="flex-row items-center justify-between">
+                  <View className="flex-row items-center">
+                    <View className="w-8 h-8 bg-amber-100 dark:bg-amber-900/30 rounded-lg items-center justify-center">
+                      <BarChart3 size={16} color="#f59e0b" />
+                    </View>
+                    <View className="ml-3">
+                      <Text className="text-gray-900 dark:text-white font-semibold text-sm">Live Analytics</Text>
+                      <Text className="text-gray-500 dark:text-slate-400 text-xs">Real-time team performance</Text>
+                    </View>
+                  </View>
+                  <ArrowRight size={16} color="#64748b" />
+                </View>
+              </Pressable>
+            </View>
           </View>
         </ScrollView>
       </View>
@@ -964,6 +1059,49 @@ export default function HomeScreen() {
                 <Text className="text-white font-bold ml-2">View Team Management</Text>
               </View>
             </Pressable>
+
+            {/* REPORTS - Executive */}
+            <View className="mb-4">
+              <View className="flex-row items-center justify-between mb-2">
+                <Text className="text-gray-500 dark:text-slate-500 text-xs font-bold tracking-wide">
+                  REPORTS
+                </Text>
+                <Pressable onPress={() => router.push('/reports')}>
+                  <Text className="text-blue-500 text-xs font-semibold">All Reports</Text>
+                </Pressable>
+              </View>
+
+              <View className="flex-row gap-2">
+                <Pressable
+                  onPress={() => router.push({ pathname: '/reports', params: { period: 'week' } })}
+                  className="flex-1 bg-gray-100 dark:bg-slate-900 rounded-xl p-3 active:opacity-70"
+                >
+                  <View className="flex-row items-center">
+                    <View className="w-9 h-9 bg-blue-100 dark:bg-blue-900/30 rounded-lg items-center justify-center">
+                      <FileText size={18} color="#3b82f6" />
+                    </View>
+                    <View className="ml-2.5 flex-1">
+                      <Text className="text-gray-900 dark:text-white font-semibold text-sm">Weekly Report</Text>
+                      <Text className="text-gray-500 dark:text-slate-400 text-xs">Function performance</Text>
+                    </View>
+                  </View>
+                </Pressable>
+                <Pressable
+                  onPress={() => router.push('/analytics')}
+                  className="flex-1 bg-gray-100 dark:bg-slate-900 rounded-xl p-3 active:opacity-70"
+                >
+                  <View className="flex-row items-center">
+                    <View className="w-9 h-9 bg-emerald-100 dark:bg-emerald-900/30 rounded-lg items-center justify-center">
+                      <BarChart3 size={18} color="#10b981" />
+                    </View>
+                    <View className="ml-2.5 flex-1">
+                      <Text className="text-gray-900 dark:text-white font-semibold text-sm">Analytics</Text>
+                      <Text className="text-gray-500 dark:text-slate-400 text-xs">Team insights</Text>
+                    </View>
+                  </View>
+                </Pressable>
+              </View>
+            </View>
 
             {/* Quick Actions */}
             <View className="flex-row gap-3 mb-4">
@@ -1222,6 +1360,50 @@ export default function HomeScreen() {
                     ))}
                   </View>
                 </LinearGradient>
+              </Pressable>
+            </View>
+
+            {/* MY PROGRESS REPORT - Apprentice */}
+            <View className="mb-4">
+              <View className="flex-row items-center justify-between mb-2">
+                <Text className="text-gray-500 dark:text-slate-500 text-xs font-bold tracking-wide">
+                  MY PROGRESS
+                </Text>
+                <Pressable onPress={() => router.push('/reports')}>
+                  <Text className="text-emerald-500 text-xs font-semibold">Full Report</Text>
+                </Pressable>
+              </View>
+
+              <Pressable
+                onPress={() => router.push({ pathname: '/reports', params: { period: 'week' } })}
+                className="bg-gray-100 dark:bg-slate-900 rounded-xl p-4 active:opacity-70"
+              >
+                <View className="flex-row items-center justify-between mb-3">
+                  <View className="flex-row items-center">
+                    <View className="w-10 h-10 bg-emerald-100 dark:bg-emerald-900/30 rounded-lg items-center justify-center">
+                      <Award size={20} color="#10b981" />
+                    </View>
+                    <View className="ml-3">
+                      <Text className="text-gray-900 dark:text-white font-semibold text-sm">Performance Report</Text>
+                      <Text className="text-gray-500 dark:text-slate-400 text-xs">View your achievements & stats</Text>
+                    </View>
+                  </View>
+                  <ArrowRight size={16} color="#64748b" />
+                </View>
+                <View className="flex-row justify-between pt-3 border-t border-gray-200 dark:border-slate-700">
+                  <View className="items-center flex-1">
+                    <Text className="text-emerald-500 font-bold text-lg">{apprenticeData.myWorkPlans.completed}</Text>
+                    <Text className="text-gray-500 dark:text-slate-400 text-xs">Completed</Text>
+                  </View>
+                  <View className="items-center flex-1">
+                    <Text className="text-blue-500 font-bold text-lg">{apprenticeData.myWorkPlans.active}</Text>
+                    <Text className="text-gray-500 dark:text-slate-400 text-xs">In Progress</Text>
+                  </View>
+                  <View className="items-center flex-1">
+                    <Text className="text-purple-500 font-bold text-lg">{apprenticeData.linkedOKR.progress}%</Text>
+                    <Text className="text-gray-500 dark:text-slate-400 text-xs">OKR Progress</Text>
+                  </View>
+                </View>
               </Pressable>
             </View>
 
