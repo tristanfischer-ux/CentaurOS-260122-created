@@ -122,6 +122,43 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
    - Improved button and card styling for off-white mode
    - Amber accent colors for off-white info cards
 
+---
+
+## 🗄️ DATABASE STRUCTURE & MULTI-TENANCY
+
+**Last Updated**: 2026-01-14
+
+### Data Separation Architecture
+
+The app uses a clear separation between **MARKETPLACE DATA** (global, shared across all companies) and **COMPANY DATA** (workspace-specific, isolated per company).
+
+#### MARKETPLACE DATA (No workspaceId - Global)
+| Store/File | Data Type | Description |
+|------------|-----------|-------------|
+| `marketplace-executives.ts` | Fractional Execs & Apprentices | Public talent directory for hiring |
+| `suppliers-seed.ts` (UK_SUPPLIERS) | Supplier Directory | Global supplier network catalog |
+| `integrations.ts` (INTEGRATIONS) | Integration Catalog | Available third-party integrations |
+
+#### COMPANY DATA (Has workspaceId - Per Company)
+| Store | Data Type | Multi-tenancy Key |
+|-------|-----------|-------------------|
+| `okr-store.ts` | OKRs | `workspaceId` on each OKR |
+| `work-plan-store.ts` | Work Plans | `workspaceId` on each work plan |
+| `organization-store.ts` | Members, AI Agents, Engagements | `workspaceId` on each entity |
+| `armory-store.ts` | Loadouts, Squads | `workspaceId` on each record |
+| `marketplace-requests-store.ts` | Hiring Requests | `workspaceId` on each request |
+| `supplier-store.ts` | Supplier Favorites | `favoritesByWorkspace[workspaceId]` |
+| `calendar-store.ts` | Calendar Events | `workspaceId` on each event |
+| `messages-store.ts` | Conversations & Messages | `workspaceId` on each conversation |
+| `integrations-store.ts` | Connected Integrations | `workspaceId` on each connection |
+
+#### Key Design Patterns
+
+1. **workspaceId as Multi-tenancy Key**: Every company-specific entity has a `workspaceId` field
+2. **Government User Access**: All stores provide `getAll*()` methods for cross-company visibility
+3. **Workspace-scoped Queries**: Methods like `get*ByWorkspace(workspaceId)` filter data per company
+4. **Default Workspace**: Demo data uses `'workspace-demo-company'` as the default workspaceId
+
 **Files Changed**:
 - `src/app/(tabs)/do.tsx` - Enhanced Submit Work modal
 - `src/app/(tabs)/evaluate.tsx` - Enhanced Review Submission modal

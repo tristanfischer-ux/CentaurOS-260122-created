@@ -22,6 +22,9 @@ import {
 } from '@/lib/integrations';
 import { successNotification } from '@/lib/haptics';
 
+// Default workspaceId for demo company
+const DEFAULT_WORKSPACE_ID = 'workspace-demo-company';
+
 export default function IntegrationsScreen() {
   const insets = useSafeAreaInsets();
   const [selectedCategory, setSelectedCategory] = useState<IntegrationCategory | 'All'>('All');
@@ -55,7 +58,7 @@ export default function IntegrationsScreen() {
       return;
     }
 
-    if (isIntegrationConnected(integration.id)) {
+    if (isIntegrationConnected(DEFAULT_WORKSPACE_ID, integration.id)) {
       // Show disconnect option
       Alert.alert(
         integration.name,
@@ -67,7 +70,7 @@ export default function IntegrationsScreen() {
             style: 'destructive',
             onPress: async () => {
               try {
-                await disconnectIntegration(integration.id);
+                await disconnectIntegration(DEFAULT_WORKSPACE_ID, integration.id);
                 await successNotification();
                 showToast.success('Disconnected', `${integration.name} has been disconnected`);
               } catch (error) {
@@ -99,7 +102,7 @@ export default function IntegrationsScreen() {
     }
 
     try {
-      await connectIntegration(selectedIntegration, configValues);
+      await connectIntegration(DEFAULT_WORKSPACE_ID, selectedIntegration, configValues);
       await successNotification();
       showToast.success('Connected!', `${selectedIntegration.name} is now connected`);
       setShowConnectModal(false);

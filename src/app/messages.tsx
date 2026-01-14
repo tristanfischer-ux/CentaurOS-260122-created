@@ -15,6 +15,9 @@ import { HapticPressable } from '@/components/HapticPressable';
 import { useCurrentUser } from '@/lib/state/app-store';
 import { format, isToday, isYesterday } from 'date-fns';
 
+// Default workspaceId for demo company
+const DEFAULT_WORKSPACE_ID = 'workspace-demo-company';
+
 export default function MessagesScreen() {
   const insets = useSafeAreaInsets();
   const currentUser = useCurrentUser();
@@ -90,9 +93,9 @@ export default function MessagesScreen() {
               <Text className="text-gray-900 dark:text-white text-2xl font-bold">Messages</Text>
             </View>
 
-            {getUnreadCount() > 0 && (
+            {getUnreadCount(DEFAULT_WORKSPACE_ID) > 0 && (
               <View className="bg-blue-500 px-3 py-1 rounded-full">
-                <Text className="text-white font-bold text-sm">{getUnreadCount()}</Text>
+                <Text className="text-white font-bold text-sm">{getUnreadCount(DEFAULT_WORKSPACE_ID)}</Text>
               </View>
             )}
           </View>

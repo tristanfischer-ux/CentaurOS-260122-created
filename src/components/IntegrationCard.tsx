@@ -11,6 +11,9 @@ import { showToast } from './ToastContainer';
 import { useIntegrationsStore } from '@/lib/state/integrations-store';
 import type { Integration } from '@/lib/integrations';
 
+// Default workspaceId for demo company
+const DEFAULT_WORKSPACE_ID = 'workspace-demo-company';
+
 interface IntegrationCardProps {
   integration: Integration;
   onPress: () => void;
@@ -18,7 +21,7 @@ interface IntegrationCardProps {
 
 export function IntegrationCard({ integration, onPress }: IntegrationCardProps) {
   const { isIntegrationConnected } = useIntegrationsStore();
-  const isConnected = isIntegrationConnected(integration.id);
+  const isConnected = isIntegrationConnected(DEFAULT_WORKSPACE_ID, integration.id);
 
   const getStatusBadge = () => {
     if (isConnected) {

@@ -1,9 +1,16 @@
 /**
  * Messages Store
  * State management for in-app messaging system
+ *
+ * DATA SEPARATION:
+ * - conversations = COMPANY DATA (each conversation has workspaceId)
+ * - messages = COMPANY DATA (linked to conversations which have workspaceId)
  */
 
 import { create } from 'zustand';
+
+// Default workspaceId for demo company
+const DEFAULT_WORKSPACE_ID = 'workspace-demo-company';
 
 export interface Message {
   id: string;
@@ -25,6 +32,7 @@ export interface Message {
 
 export interface Conversation {
   id: string;
+  workspaceId: string; // 🔑 Multi-tenancy key - links conversation to specific company
   type: 'direct' | 'group';
   name: string;
   participants: {
@@ -52,7 +60,11 @@ interface MessagesStore {
   markAsRead: (conversationId: string) => void;
   setTyping: (conversationId: string, userId: string, isTyping: boolean) => void;
   createConversation: (conversation: Omit<Conversation, 'id' | 'unreadCount' | 'isTyping' | 'createdAt' | 'updatedAt'>) => void;
-  getUnreadCount: () => number;
+  getUnreadCount: (workspaceId: string) => number;
+
+  // Multi-tenancy methods
+  getConversationsByWorkspace: (workspaceId: string) => Conversation[];
+  getAllConversations: () => Conversation[]; // For government users
 }
 
 export const useMessagesStore = create<MessagesStore>((set, get) => ({
@@ -141,18 +153,37 @@ export const useMessagesStore = create<MessagesStore>((set, get) => ({
     }));
   },
 
-  getUnreadCount: () => {
+  // Get unread count for a specific workspace
+  getUnreadCount: (workspaceId) => {
     const state = get();
-    return state.conversations.reduce((total, conv) => total + conv.unreadCount, 0);
+    return state.conversations
+      .filter((conv) => conv.workspaceId === workspaceId)
+      .reduce((total, conv) => total + conv.unreadCount, 0);
+  },
+
+  // Get conversations for a specific workspace
+  getConversationsByWorkspace: (workspaceId) => {
+    return get().conversations.filter((conv) => conv.workspaceId === workspaceId);
+  },
+
+  // Get all conversations (for government users)
+  getAllConversations: () => {
+    return get().conversations;
   },
 }));
 
+// Selector hooks for efficient access
+export const useConversationsByWorkspace = (workspaceId: string) =>
+  useMessagesStore((s) => s.conversations.filter((c) => c.workspaceId === workspaceId));
+export const useActiveConversation = () => useMessagesStore((s) => s.activeConversation);
+
 // Demo data for testing
-export const initializeDemoMessages = () => {
+export const initializeDemoMessages = (workspaceId: string = DEFAULT_WORKSPACE_ID) => {
   const store = useMessagesStore.getState();
 
-  // Create demo conversations
+  // Create demo conversations with workspaceId
   store.createConversation({
+    workspaceId,
     type: 'direct',
     name: 'Sarah Johnson',
     participants: [
@@ -162,6 +193,7 @@ export const initializeDemoMessages = () => {
   });
 
   store.createConversation({
+    workspaceId,
     type: 'group',
     name: 'Marketing Team',
     participants: [

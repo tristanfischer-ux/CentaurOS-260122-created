@@ -35,6 +35,9 @@ import { useTheme } from '@/lib/ThemeContext';
 import { cn } from '@/lib/cn';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
+// Default workspaceId for demo company
+const DEFAULT_WORKSPACE_ID = 'workspace-demo-company';
+
 const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const MONTHS = [
   'January', 'February', 'March', 'April', 'May', 'June',
@@ -137,7 +140,7 @@ export default function CalendarScreen() {
   };
 
   const selectedDateEvents = useMemo(() => {
-    return getEventsForDate(selectedDate);
+    return getEventsForDate(DEFAULT_WORKSPACE_ID, selectedDate);
   }, [selectedDate, events]);
 
   const getEventsCountForDate = useCallback((date: Date | null) => {
@@ -152,6 +155,7 @@ export default function CalendarScreen() {
     }
 
     addEvent({
+      workspaceId: DEFAULT_WORKSPACE_ID,
       title: newEventTitle,
       description: newEventDescription || undefined,
       startDate: newEventStartDate,

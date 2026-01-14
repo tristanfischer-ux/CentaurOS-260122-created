@@ -1,23 +1,36 @@
 /**
  * Integrations Store
  * Manage connected integrations and their configurations
+ *
+ * DATA SEPARATION:
+ * - INTEGRATIONS (in integrations.ts) = MARKETPLACE DATA (global catalog, no workspaceId)
+ * - connectedIntegrations = COMPANY DATA (keyed by workspaceId)
  */
 
 import { create } from 'zustand';
 import type { Integration, ConnectedIntegration } from '@/lib/integrations';
 
+// Extended interface to include workspaceId for connected integrations
+export interface WorkspaceConnectedIntegration extends ConnectedIntegration {
+  workspaceId: string; // 🔑 Multi-tenancy key - links integration to specific company
+}
+
 interface IntegrationsStore {
-  connectedIntegrations: ConnectedIntegration[];
+  connectedIntegrations: WorkspaceConnectedIntegration[];
   isConnecting: boolean;
   error: string | null;
 
-  // Actions
-  connectIntegration: (integration: Integration, config: Record<string, string>) => Promise<void>;
-  disconnectIntegration: (integrationId: string) => Promise<void>;
-  updateIntegrationConfig: (integrationId: string, config: Record<string, string>) => Promise<void>;
-  syncIntegration: (integrationId: string) => Promise<void>;
-  getConnectedIntegration: (integrationId: string) => ConnectedIntegration | undefined;
-  isIntegrationConnected: (integrationId: string) => boolean;
+  // Actions (require workspaceId for company-specific operations)
+  connectIntegration: (workspaceId: string, integration: Integration, config: Record<string, string>) => Promise<void>;
+  disconnectIntegration: (workspaceId: string, integrationId: string) => Promise<void>;
+  updateIntegrationConfig: (workspaceId: string, integrationId: string, config: Record<string, string>) => Promise<void>;
+  syncIntegration: (workspaceId: string, integrationId: string) => Promise<void>;
+  getConnectedIntegration: (workspaceId: string, integrationId: string) => WorkspaceConnectedIntegration | undefined;
+  isIntegrationConnected: (workspaceId: string, integrationId: string) => boolean;
+
+  // Multi-tenancy methods
+  getIntegrationsByWorkspace: (workspaceId: string) => WorkspaceConnectedIntegration[];
+  getAllIntegrations: () => WorkspaceConnectedIntegration[]; // For government users
 }
 
 export const useIntegrationsStore = create<IntegrationsStore>((set, get) => ({
@@ -25,15 +38,16 @@ export const useIntegrationsStore = create<IntegrationsStore>((set, get) => ({
   isConnecting: false,
   error: null,
 
-  connectIntegration: async (integration: Integration, config: Record<string, string>) => {
+  connectIntegration: async (workspaceId: string, integration: Integration, config: Record<string, string>) => {
     set({ isConnecting: true, error: null });
 
     try {
       // Simulate API call to connect integration
       await new Promise((resolve) => setTimeout(resolve, 1500));
 
-      const connectedIntegration: ConnectedIntegration = {
+      const connectedIntegration: WorkspaceConnectedIntegration = {
         ...integration,
+        workspaceId,
         status: 'connected',
         connectedAt: new Date(),
         config,
@@ -53,7 +67,7 @@ export const useIntegrationsStore = create<IntegrationsStore>((set, get) => ({
     }
   },
 
-  disconnectIntegration: async (integrationId: string) => {
+  disconnectIntegration: async (workspaceId: string, integrationId: string) => {
     set({ isConnecting: true, error: null });
 
     try {
@@ -61,7 +75,9 @@ export const useIntegrationsStore = create<IntegrationsStore>((set, get) => ({
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
       set((state) => ({
-        connectedIntegrations: state.connectedIntegrations.filter((i) => i.id !== integrationId),
+        connectedIntegrations: state.connectedIntegrations.filter(
+          (i) => !(i.id === integrationId && i.workspaceId === workspaceId)
+        ),
         isConnecting: false,
       }));
     } catch (error) {
@@ -73,7 +89,7 @@ export const useIntegrationsStore = create<IntegrationsStore>((set, get) => ({
     }
   },
 
-  updateIntegrationConfig: async (integrationId: string, config: Record<string, string>) => {
+  updateIntegrationConfig: async (workspaceId: string, integrationId: string, config: Record<string, string>) => {
     set({ isConnecting: true, error: null });
 
     try {
@@ -82,7 +98,7 @@ export const useIntegrationsStore = create<IntegrationsStore>((set, get) => ({
 
       set((state) => ({
         connectedIntegrations: state.connectedIntegrations.map((i) =>
-          i.id === integrationId ? { ...i, config } : i
+          i.id === integrationId && i.workspaceId === workspaceId ? { ...i, config } : i
         ),
         isConnecting: false,
       }));
@@ -95,15 +111,19 @@ export const useIntegrationsStore = create<IntegrationsStore>((set, get) => ({
     }
   },
 
-  syncIntegration: async (integrationId: string) => {
-    const integration = get().connectedIntegrations.find((i) => i.id === integrationId);
+  syncIntegration: async (workspaceId: string, integrationId: string) => {
+    const integration = get().connectedIntegrations.find(
+      (i) => i.id === integrationId && i.workspaceId === workspaceId
+    );
     if (!integration) throw new Error('Integration not found');
 
     try {
       // Update sync status
       set((state) => ({
         connectedIntegrations: state.connectedIntegrations.map((i) =>
-          i.id === integrationId ? { ...i, syncStatus: 'active' as const, lastSyncAt: new Date() } : i
+          i.id === integrationId && i.workspaceId === workspaceId
+            ? { ...i, syncStatus: 'active' as const, lastSyncAt: new Date() }
+            : i
         ),
       }));
 
@@ -112,13 +132,17 @@ export const useIntegrationsStore = create<IntegrationsStore>((set, get) => ({
 
       set((state) => ({
         connectedIntegrations: state.connectedIntegrations.map((i) =>
-          i.id === integrationId ? { ...i, lastSyncAt: new Date() } : i
+          i.id === integrationId && i.workspaceId === workspaceId
+            ? { ...i, lastSyncAt: new Date() }
+            : i
         ),
       }));
     } catch (error) {
       set((state) => ({
         connectedIntegrations: state.connectedIntegrations.map((i) =>
-          i.id === integrationId ? { ...i, syncStatus: 'error' as const } : i
+          i.id === integrationId && i.workspaceId === workspaceId
+            ? { ...i, syncStatus: 'error' as const }
+            : i
         ),
         error: error instanceof Error ? error.message : 'Sync failed',
       }));
@@ -126,11 +150,29 @@ export const useIntegrationsStore = create<IntegrationsStore>((set, get) => ({
     }
   },
 
-  getConnectedIntegration: (integrationId: string) => {
-    return get().connectedIntegrations.find((i) => i.id === integrationId);
+  getConnectedIntegration: (workspaceId: string, integrationId: string) => {
+    return get().connectedIntegrations.find(
+      (i) => i.id === integrationId && i.workspaceId === workspaceId
+    );
   },
 
-  isIntegrationConnected: (integrationId: string) => {
-    return get().connectedIntegrations.some((i) => i.id === integrationId);
+  isIntegrationConnected: (workspaceId: string, integrationId: string) => {
+    return get().connectedIntegrations.some(
+      (i) => i.id === integrationId && i.workspaceId === workspaceId
+    );
+  },
+
+  // Get integrations for a specific workspace
+  getIntegrationsByWorkspace: (workspaceId: string) => {
+    return get().connectedIntegrations.filter((i) => i.workspaceId === workspaceId);
+  },
+
+  // Get all integrations (for government users)
+  getAllIntegrations: () => {
+    return get().connectedIntegrations;
   },
 }));
+
+// Selector hooks for efficient access
+export const useIntegrationsByWorkspace = (workspaceId: string) =>
+  useIntegrationsStore((s) => s.connectedIntegrations.filter((i) => i.workspaceId === workspaceId));
