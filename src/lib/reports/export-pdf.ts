@@ -1,7 +1,7 @@
 // PDF export functionality for reports
 // Generates professional, board-ready PDF reports with beautiful styling
 
-import * as RNHTMLtoPDF from 'react-native-html-to-pdf';
+import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
 import type { Report, FounderReportData, ExecutiveReportData, ApprenticeReportData } from '@/types';
 import { CURRENT_FINANCIALS, calculateFinancialRatios } from '@/lib/financial-seed';
@@ -572,7 +572,7 @@ function generateApprenticeReportHTML(data: ApprenticeReportData): string {
 }
 
 /**
- * Export report as PDF
+ * Export report as PDF using expo-print
  */
 export async function exportReportAsPDF(
   report: Report,
@@ -582,26 +582,25 @@ export async function exportReportAsPDF(
   try {
     const html = generateReportHTML(report, companyName, producerName);
 
-    const periodLabel =
-      report.period === 'week' ? 'Weekly' : report.period === 'month' ? 'Monthly' : 'Quarterly';
-    const dateStr = new Date(report.generatedAt).toISOString().split('T')[0];
-    const fileName = `${companyName.replace(/[^a-z0-9]/gi, '_')}_${periodLabel}_Report_${dateStr}.pdf`;
-
-    const options = {
+    // Generate PDF using expo-print
+    const { uri } = await Print.printToFileAsync({
       html,
-      fileName,
-      directory: 'Documents',
-    };
-
-    const file = await RNHTMLtoPDF.generatePDF(options);
+      base64: false,
+    });
 
     // Share the PDF
-    if (file.filePath) {
-      await Sharing.shareAsync(file.filePath, {
-        mimeType: 'application/pdf',
-        dialogTitle: 'Share Report',
-        UTI: 'com.adobe.pdf',
-      });
+    if (uri) {
+      const isAvailable = await Sharing.isAvailableAsync();
+      if (isAvailable) {
+        await Sharing.shareAsync(uri, {
+          mimeType: 'application/pdf',
+          dialogTitle: 'Share Report',
+          UTI: 'com.adobe.pdf',
+        });
+      } else {
+        // Fallback: just print the PDF if sharing is not available
+        await Print.printAsync({ uri });
+      }
     }
   } catch (error) {
     console.error('Failed to export PDF:', error);
