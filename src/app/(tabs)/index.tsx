@@ -26,6 +26,8 @@ import { getFinancialMetrics, getCostBreakdown } from '@/lib/financial-calculati
 import { useOKRStore } from '@/lib/state/okr-store';
 import { useWorkPlanStore } from '@/lib/state/work-plan-store';
 import { useOrganizationStore } from '@/lib/state/organization-store';
+import { useArmoryStore } from '@/lib/state/armory-store';
+import { THIRD_PARTY_AI_TOOLS } from '@/lib/third-party-ai-tools';
 
 // Initialize stores once
 if (useOKRStore.getState().okrs.length === 0) {
@@ -50,10 +52,37 @@ export default function HomeScreen() {
   const members = useOrganizationStore(s => s.members);
   const aiAgents = useOrganizationStore(s => s.aiAgents);
   const engagements = useOrganizationStore(s => s.supplierEngagements);
+  const personLoadouts = useArmoryStore(s => s.personLoadouts);
 
   // Get real-time financial metrics - SINGLE SOURCE OF TRUTH (memoized inside component)
   const financialMetrics = useMemo(() => getFinancialMetrics(), []);
   const costBreakdown = useMemo(() => getCostBreakdown(), []);
+
+  // Calculate actual AI tool costs from person loadouts
+  const actualAIToolCost = useMemo(() => {
+    const allEquippedToolIds = personLoadouts.flatMap(loadout => loadout.aiToolIds || []);
+    const uniqueToolIds = [...new Set(allEquippedToolIds)];
+
+    return uniqueToolIds.reduce((total, toolId) => {
+      const tool = THIRD_PARTY_AI_TOOLS.find(t => t.id === toolId);
+      return total + (tool?.costPerMonth || 0);
+    }, 0);
+  }, [personLoadouts]);
+
+  // Adjust monthly burn to use actual AI tool costs
+  const adjustedMonthlyBurn = useMemo(() => {
+    return financialMetrics.monthlyBurn - costBreakdown.aiTools + actualAIToolCost;
+  }, [financialMetrics.monthlyBurn, costBreakdown.aiTools, actualAIToolCost]);
+
+  // Recalculate runway with adjusted burn
+  const adjustedRunway = useMemo(() => {
+    return adjustedMonthlyBurn > 0 ? financialMetrics.cashPosition / adjustedMonthlyBurn : 999;
+  }, [financialMetrics.cashPosition, adjustedMonthlyBurn]);
+
+  // Recalculate net cash flow with adjusted burn
+  const adjustedNetCashFlow = useMemo(() => {
+    return financialMetrics.monthlyRevenue - adjustedMonthlyBurn;
+  }, [financialMetrics.monthlyRevenue, adjustedMonthlyBurn]);
 
   // Memoize counts to prevent re-renders
   const okrCounts = useMemo(() => ({
@@ -91,10 +120,10 @@ export default function HomeScreen() {
       aiAgents: orgCounts.activeAI,
     },
     financials: {
-      runway: financialMetrics.runway,
-      burnRate: financialMetrics.burnRate,
+      runway: adjustedRunway,
+      burnRate: adjustedMonthlyBurn,
       revenue: financialMetrics.monthlyRevenue,
-      netCashFlow: financialMetrics.netCashFlow,
+      netCashFlow: adjustedNetCashFlow,
     },
     pendingApprovals: 1, // This would need a separate approval store in the future
   };
@@ -546,10 +575,12 @@ const APPRENTICE_DATA = {
                   <View className="flex-row items-center justify-between">
                     <View className="flex-row items-center flex-1">
                       <View className="w-2 h-2 rounded-full bg-cyan-500 mr-2" />
-                      <Text className="text-gray-700 dark:text-slate-300 text-sm">AI Tools & Software</Text>
+                      <Text className="text-gray-700 dark:text-slate-300 text-sm">
+                        AI Tools & Software ({personLoadouts.flatMap(l => l.aiToolIds || []).length} equipped)
+                      </Text>
                     </View>
                     <Text className="text-gray-900 dark:text-white font-bold text-sm">
-                      £{Math.round(costBreakdown.aiTools / 1000)}K
+                      £{Math.round(actualAIToolCost / 1000)}K
                     </Text>
                   </View>
 
@@ -578,7 +609,7 @@ const APPRENTICE_DATA = {
                   <View className="flex-row items-center justify-between">
                     <Text className="text-gray-900 dark:text-white font-bold text-sm">Total Monthly Burn</Text>
                     <Text className="text-gray-900 dark:text-white font-bold text-base">
-                      £{Math.round(financialMetrics.monthlyBurn / 1000)}K
+                      £{Math.round(adjustedMonthlyBurn / 1000)}K
                     </Text>
                   </View>
                 </View>

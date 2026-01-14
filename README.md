@@ -57,6 +57,14 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
 **Last Updated**: 2026-01-13 (**COMPREHENSIVE AUDIT COMPLETE** + **ALL FIXES APPLIED** - Perfect 100/100 score)
 
 ### Latest Update (2026-01-13):
+✅ **AI Tools Cost Connected to People** - Monthly cost breakdown now reflects actual equipped AI tools:
+  - AI Tools cost now calculated from person loadouts in armory system
+  - Shows count of equipped tools in breakdown (e.g., "AI Tools & Software (12 equipped)")
+  - Cost dynamically updates when tools are added/removed from team members
+  - Uses THIRD_PARTY_AI_TOOLS data for accurate per-tool costs
+  - Adjusted monthly burn, runway, and net cash flow to reflect actual AI costs
+  - Example: If 5 team members have ChatGPT (£20/mo each), shows £100 total
+
 ✅ **Team Management Consolidated** - Fixed duplicate team screens - now single source of truth:
   - All home tab team links now point to `/create-team` (Team Management screen)
   - Removed redundant "Manage Team & Squads" button (team stats already link there)
