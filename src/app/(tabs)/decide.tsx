@@ -841,45 +841,98 @@ export default function DecideScreen() {
 
                   return (
                     <View key={request.id} className="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-xl p-4 mb-3">
-                      <View className="flex-row items-center mb-2">
+                      <View className="flex-row items-center mb-3">
                         <UserPlus size={16} color="#a855f7" />
                         <Text className="text-purple-700 dark:text-purple-300 text-xs font-bold ml-1">HIRING REQUEST</Text>
                       </View>
 
-                      <Text className="text-purple-900 dark:text-purple-100 font-semibold mb-2">
-                        Hire: {request.candidateName}
-                      </Text>
+                      {/* Candidate Info Header */}
+                      <View className="flex-row items-start justify-between mb-3">
+                        <View className="flex-row items-start flex-1">
+                          <View className="bg-purple-500/20 rounded-full w-12 h-12 items-center justify-center mr-3">
+                            <Text className="text-2xl">
+                              {candidate.role === 'FractionalExec' ? '👔' : '🎓'}
+                            </Text>
+                          </View>
+                          <View className="flex-1">
+                            <Text className="text-purple-900 dark:text-purple-100 font-black text-base">{candidate.name}</Text>
+                            <Text className="text-purple-700 dark:text-purple-300 text-sm">{candidate.function}</Text>
+                            <View className="flex-row items-center gap-2 mt-1 flex-wrap">
+                              <View className="bg-amber-500/20 px-2 py-0.5 rounded">
+                                <Text className="text-amber-700 dark:text-amber-300 text-xs font-bold">⭐ {candidate.rating}</Text>
+                              </View>
+                              <View className={candidate.role === 'FractionalExec' ? 'bg-violet-500/20 px-2 py-0.5 rounded' : 'bg-emerald-500/20 px-2 py-0.5 rounded'}>
+                                <Text className={candidate.role === 'FractionalExec' ? 'text-violet-700 dark:text-violet-300 text-xs font-bold' : 'text-emerald-700 dark:text-emerald-300 text-xs font-bold'}>
+                                  {candidate.role === 'FractionalExec' ? 'Executive' : 'Apprentice'}
+                                </Text>
+                              </View>
+                            </View>
+                          </View>
+                        </View>
+                        <View className="items-end ml-2">
+                          <Text className="text-purple-700 dark:text-purple-300 font-black text-lg">
+                            £{request.proposedDayRate}
+                          </Text>
+                          <Text className="text-purple-600 dark:text-purple-400 text-xs">/day</Text>
+                        </View>
+                      </View>
 
-                      <View className="bg-white/50 dark:bg-slate-800/50 rounded-lg p-3 mb-3">
-                        <Text className="text-purple-700 dark:text-purple-300 text-sm mb-2">
-                          <Text className="font-bold">{candidate.role === 'FractionalExec' ? 'Executive' : 'Apprentice'}</Text> • {request.candidateFunction}
-                        </Text>
-                        <Text className="text-gray-700 dark:text-slate-300 text-sm mb-2">
-                          ⭐ {candidate.rating} rating • {candidate.experience}
-                        </Text>
-                        <Text className="text-purple-900 dark:text-purple-100 text-sm font-semibold">
-                          £{request.proposedDayRate}/day × {request.proposedDaysPerWeek} days/week = £{Math.round(request.proposedDayRate * request.proposedDaysPerWeek * 4.33)}/month
+                      {/* Experience */}
+                      <View className="bg-white/50 dark:bg-slate-800/50 rounded-xl p-3 mb-3">
+                        <Text className="text-purple-700 dark:text-purple-300 text-xs font-bold mb-1">EXPERIENCE</Text>
+                        <Text className="text-gray-900 dark:text-white text-sm">{candidate.experience}</Text>
+                      </View>
+
+                      {/* Specialties */}
+                      <View className="bg-white/50 dark:bg-slate-800/50 rounded-xl p-3 mb-3">
+                        <Text className="text-purple-700 dark:text-purple-300 text-xs font-bold mb-1">SPECIALTIES</Text>
+                        <Text className="text-gray-900 dark:text-white text-sm">{candidate.specialties.join(', ')}</Text>
+                      </View>
+
+                      {/* Location */}
+                      <View className="bg-white/50 dark:bg-slate-800/50 rounded-xl p-3 mb-3">
+                        <Text className="text-purple-700 dark:text-purple-300 text-xs font-bold mb-1">LOCATION</Text>
+                        <Text className="text-gray-900 dark:text-white text-sm">
+                          {candidate.location.city}, {candidate.location.country}
+                          {candidate.location.remote && ' • Remote'}
                         </Text>
                       </View>
 
-                      {request.notes && (
-                        <Text className="text-gray-600 dark:text-slate-400 text-xs mb-3 italic">
-                          {request.notes}
+                      {/* Proposed Terms */}
+                      <View className="bg-purple-100 dark:bg-purple-900/40 rounded-xl p-3 mb-3">
+                        <Text className="text-purple-700 dark:text-purple-300 text-xs font-bold mb-1">PROPOSED TERMS</Text>
+                        <Text className="text-purple-900 dark:text-purple-100 text-sm font-semibold">
+                          {request.proposedDaysPerWeek} days/week • £{Math.round(request.proposedDayRate * request.proposedDaysPerWeek * 4.33)}/month
                         </Text>
+                      </View>
+
+                      {/* Request Notes */}
+                      {request.notes && (
+                        <View className="bg-white/50 dark:bg-slate-800/50 rounded-xl p-3 mb-3">
+                          <Text className="text-purple-700 dark:text-purple-300 text-xs font-bold mb-1">NOTES</Text>
+                          <Text className="text-gray-900 dark:text-white text-sm italic">{request.notes}</Text>
+                        </View>
                       )}
 
+                      {/* Action Buttons */}
                       <View className="flex-row gap-2">
                         <Pressable
-                          onPress={() => handleRejectMarketplaceRequest(request.id)}
-                          className="flex-1 bg-gray-300 dark:bg-slate-700 py-2 rounded-lg active:opacity-70"
+                          onPress={() => {
+                            handleRejectMarketplaceRequest(request.id);
+                            setShowApprovalQueue(false);
+                          }}
+                          className="flex-1 bg-red-500/20 border border-red-500/30 py-3 rounded-xl active:opacity-70"
                         >
-                          <Text className="text-gray-700 dark:text-slate-300 text-center font-semibold text-sm">Reject</Text>
+                          <Text className="text-red-700 dark:text-red-400 text-center font-bold text-sm">Reject</Text>
                         </Pressable>
                         <Pressable
-                          onPress={() => handleApproveMarketplaceRequest(request.id, request.candidateId)}
-                          className="flex-1 bg-emerald-500 py-2 rounded-lg active:opacity-70"
+                          onPress={() => {
+                            handleApproveMarketplaceRequest(request.id, request.candidateId);
+                            setShowApprovalQueue(false);
+                          }}
+                          className="flex-1 bg-emerald-500 py-3 rounded-xl active:opacity-70"
                         >
-                          <Text className="text-white text-center font-semibold text-sm">Approve & Add to Team</Text>
+                          <Text className="text-white text-center font-bold text-sm">Approve & Add to Team</Text>
                         </Pressable>
                       </View>
                     </View>
