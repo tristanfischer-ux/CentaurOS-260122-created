@@ -52,11 +52,16 @@ export default function TeamManagementScreen() {
   const deleteSquad = useArmoryStore((s) => s.deleteSquad);
 
   // Marketplace requests store
-  const pendingRequests = useMarketplaceRequestsStore((s) => s.getPendingRequests());
+  const allRequests = useMarketplaceRequestsStore((s) => s.requests);
   const createRequest = useMarketplaceRequestsStore((s) => s.createRequest);
   const approveRequest = useMarketplaceRequestsStore((s) => s.approveRequest);
   const rejectRequest = useMarketplaceRequestsStore((s) => s.rejectRequest);
   const getRequestByCandidate = useMarketplaceRequestsStore((s) => s.getRequestByCandidate);
+
+  // Filter pending requests with useMemo
+  const pendingRequests = useMemo(() => {
+    return allRequests.filter((req) => req.status === 'pending');
+  }, [allRequests]);
 
   // Filter current team members
   const currentTeam = useMemo(() => {

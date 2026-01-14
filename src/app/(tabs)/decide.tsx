@@ -1,5 +1,5 @@
 import { View, Text, ScrollView, Pressable, Modal, TextInput, Alert, KeyboardAvoidingView, Platform } from 'react-native';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Target, Plus, X, ChevronDown, ChevronRight, CheckCircle2, Circle, Clock, Users, DollarSign, Lightbulb, ChevronUp, UserPlus } from 'lucide-react-native';
 import { useCurrentWorkspace, useCurrentMembership } from '@/lib/state/app-store';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -8,7 +8,7 @@ import type { Function as BusinessFunction } from '@/types';
 import { useOKRStore, type OKR, type Objective } from '@/lib/state/okr-store';
 import { OKR_CATEGORIES, OKR_SUGGESTIONS, type OKRSuggestion, type OKRCategory } from '@/lib/okr-suggestions';
 import { fractionalExecutives, apprentices, type Candidate } from '@/lib/candidates-seed';
-import { useMarketplaceRequestsStore } from '@/lib/state/marketplace-requests-store';
+import { useMarketplaceRequestsStore, type MarketplaceRequest } from '@/lib/state/marketplace-requests-store';
 import { MARKETPLACE_EXECUTIVES } from '@/lib/marketplace-executives';
 import { useOrganizationStore } from '@/lib/state/organization-store';
 
@@ -36,10 +36,15 @@ export default function DecideScreen() {
   const addOKR = useOKRStore(s => s.addOKR);
 
   // Marketplace requests
-  const pendingRequests = useMarketplaceRequestsStore((s) => s.getPendingRequests());
+  const allRequests = useMarketplaceRequestsStore((s) => s.requests);
   const approveRequest = useMarketplaceRequestsStore((s) => s.approveRequest);
   const rejectRequest = useMarketplaceRequestsStore((s) => s.rejectRequest);
   const addMember = useOrganizationStore((s) => s.addMember);
+
+  // Filter pending requests with useMemo
+  const pendingRequests = useMemo(() => {
+    return allRequests.filter((req) => req.status === 'pending');
+  }, [allRequests]);
 
   const [selectedFunction, setSelectedFunction] = useState<BusinessFunction | 'all'>('all');
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -150,7 +155,7 @@ export default function DecideScreen() {
   const handleApproveMarketplaceRequest = (requestId: string, candidateId: string) => {
     // Find the candidate
     const candidate = MARKETPLACE_EXECUTIVES.find(e => e.id === candidateId);
-    const request = pendingRequests.find(r => r.id === requestId);
+    const request = pendingRequests.find((r: MarketplaceRequest) => r.id === requestId);
 
     if (!candidate || !request) return;
 
@@ -835,7 +840,7 @@ export default function DecideScreen() {
 
               {/* Marketplace hiring requests */}
               {pendingRequests.length > 0 ? (
-                pendingRequests.map((request) => {
+                pendingRequests.map((request: MarketplaceRequest) => {
                   const candidate = MARKETPLACE_EXECUTIVES.find(e => e.id === request.candidateId);
                   if (!candidate) return null;
 
