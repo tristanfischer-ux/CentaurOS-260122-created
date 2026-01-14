@@ -57,10 +57,25 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
 **Last Updated**: 2026-01-13 (**COMPREHENSIVE AUDIT COMPLETE** + **ALL FIXES APPLIED** - Perfect 100/100 score)
 
 ### Latest Update (2026-01-13):
-✅ **Financial Data Consistency Fixed** - Fixed data inconsistency where UI showed 4 executives + 7 apprentices but financial breakdown showed 5 executives + 8 apprentices. Now uses organization-seed.ts as the single source of truth. Financial calculations now dynamically compute team costs based on actual organization data:
-  - 4 Executives: £44,035/month (calculated from costPerDay × daysPerWeek × 4.33)
-  - 7 Apprentices: £22,236/month (calculated from costPerDay × 5 days × 4.33)
-  - All financial dashboards now show consistent counts and costs
+✅ **All Financial Data Now Consistent** - Fixed all remaining data inconsistencies across the entire app:
+  - **Home Tab Team Stats**: Now shows correct counts (4 executives, 7 apprentices) using organization-seed.ts
+  - **Monthly Cost Breakdown**: Now uses real-time calculations from financial-calculations.ts showing:
+    - Team: £67K (4 Execs £44K + 7 Apprentices £22K + Founder £1K)
+    - Manufacturing: £18K
+    - AI Tools: £3K
+    - Infrastructure: £4K
+    - Marketing: £3K
+    - Total Monthly Burn: dynamically calculated from all categories
+  - **Financial Overview Card**: Already using real-time runway and metrics
+  - **Financial Dashboard**: Already using organization data as source of truth
+  - All financial displays now pull from the same centralized calculations
+
+✅ **Team Management Enhancement** - Clicking on any person in Team Management now opens a detailed modal with:
+  - **Info Tab**: Full personal information (email, phone, LinkedIn, bio, start date, costs)
+  - **AI Tools Tab**: Equip/remove AI tools filtered by their business function
+  - **Squads Tab**: View current squads, join new squads (for apprentices)
+  - Remove person functionality with confirmation
+  - Beautiful role-specific gradients (purple for executives, green for apprentices)
 
 ✅ **Home Tab Header Fixed** - The gradient ribbon now extends edge-to-edge to the top of the screen without clashing with the iOS status bar (time, WiFi, battery). Applied to all three role views (Founder Command Center, Executive Dashboard, Apprentice Workspace). The header gradient now properly sits behind the status bar while content remains appropriately spaced.
 

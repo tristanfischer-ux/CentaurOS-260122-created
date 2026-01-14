@@ -22,7 +22,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import type { Function as BusinessFunction } from '@/types';
-import { getFinancialMetrics } from '@/lib/financial-calculations';
+import { getFinancialMetrics, getCostBreakdown } from '@/lib/financial-calculations';
 import { useOKRStore } from '@/lib/state/okr-store';
 import { useWorkPlanStore } from '@/lib/state/work-plan-store';
 import { useOrganizationStore } from '@/lib/state/organization-store';
@@ -40,6 +40,7 @@ if (useOrganizationStore.getState().members.length === 0) {
 
 // Get real-time financial metrics - SINGLE SOURCE OF TRUTH
 const financialMetrics = getFinancialMetrics();
+const costBreakdown = getCostBreakdown();
 
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
@@ -533,9 +534,13 @@ const APPRENTICE_DATA = {
                   <View className="flex-row items-center justify-between">
                     <View className="flex-row items-center flex-1">
                       <View className="w-2 h-2 rounded-full bg-blue-500 mr-2" />
-                      <Text className="text-gray-700 dark:text-slate-300 text-sm">Team (5 Execs + 8 Apprentices)</Text>
+                      <Text className="text-gray-700 dark:text-slate-300 text-sm">
+                        Team ({orgCounts.executives} Execs + {orgCounts.apprentices} Apprentices)
+                      </Text>
                     </View>
-                    <Text className="text-gray-900 dark:text-white font-bold text-sm">£52K</Text>
+                    <Text className="text-gray-900 dark:text-white font-bold text-sm">
+                      £{Math.round(costBreakdown.team / 1000)}K
+                    </Text>
                   </View>
 
                   <View className="flex-row items-center justify-between">
@@ -543,7 +548,9 @@ const APPRENTICE_DATA = {
                       <View className="w-2 h-2 rounded-full bg-purple-500 mr-2" />
                       <Text className="text-gray-700 dark:text-slate-300 text-sm">Manufacturing & Suppliers</Text>
                     </View>
-                    <Text className="text-gray-900 dark:text-white font-bold text-sm">£18K</Text>
+                    <Text className="text-gray-900 dark:text-white font-bold text-sm">
+                      £{Math.round(costBreakdown.manufacturing / 1000)}K
+                    </Text>
                   </View>
 
                   <View className="flex-row items-center justify-between">
@@ -551,7 +558,9 @@ const APPRENTICE_DATA = {
                       <View className="w-2 h-2 rounded-full bg-cyan-500 mr-2" />
                       <Text className="text-gray-700 dark:text-slate-300 text-sm">AI Tools & Software</Text>
                     </View>
-                    <Text className="text-gray-900 dark:text-white font-bold text-sm">£3K</Text>
+                    <Text className="text-gray-900 dark:text-white font-bold text-sm">
+                      £{Math.round(costBreakdown.aiTools / 1000)}K
+                    </Text>
                   </View>
 
                   <View className="flex-row items-center justify-between">
@@ -559,7 +568,9 @@ const APPRENTICE_DATA = {
                       <View className="w-2 h-2 rounded-full bg-amber-500 mr-2" />
                       <Text className="text-gray-700 dark:text-slate-300 text-sm">Infrastructure & Ops</Text>
                     </View>
-                    <Text className="text-gray-900 dark:text-white font-bold text-sm">£7K</Text>
+                    <Text className="text-gray-900 dark:text-white font-bold text-sm">
+                      £{Math.round(costBreakdown.infrastructure / 1000)}K
+                    </Text>
                   </View>
 
                   <View className="flex-row items-center justify-between">
@@ -567,14 +578,18 @@ const APPRENTICE_DATA = {
                       <View className="w-2 h-2 rounded-full bg-pink-500 mr-2" />
                       <Text className="text-gray-700 dark:text-slate-300 text-sm">Marketing & Sales</Text>
                     </View>
-                    <Text className="text-gray-900 dark:text-white font-bold text-sm">£5K</Text>
+                    <Text className="text-gray-900 dark:text-white font-bold text-sm">
+                      £{Math.round(costBreakdown.marketing / 1000)}K
+                    </Text>
                   </View>
 
                   <View className="h-px bg-gray-300 dark:bg-slate-700 my-1" />
 
                   <View className="flex-row items-center justify-between">
                     <Text className="text-gray-900 dark:text-white font-bold text-sm">Total Monthly Burn</Text>
-                    <Text className="text-gray-900 dark:text-white font-bold text-base">£85K</Text>
+                    <Text className="text-gray-900 dark:text-white font-bold text-base">
+                      £{Math.round(financialMetrics.monthlyBurn / 1000)}K
+                    </Text>
                   </View>
                 </View>
               </Pressable>
