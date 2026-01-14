@@ -1416,7 +1416,7 @@ export default function CommunityScreen() {
         onRequestClose={() => setShowProfileModal(false)}
       >
         <View className="flex-1 bg-black/70 justify-end">
-          <View className="bg-white dark:bg-slate-950 rounded-t-3xl flex-1" style={{ maxHeight: '90%' }}>
+          <View className="bg-white dark:bg-slate-950 rounded-t-3xl" style={{ maxHeight: '90%' }}>
             {/* Header */}
             <View className="px-6 pt-6 pb-4 border-b border-gray-200 dark:border-slate-800">
               <View className="flex-row items-center justify-between">
@@ -1741,7 +1741,7 @@ export default function CommunityScreen() {
         onRequestClose={() => setShowRequestModal(false)}
       >
         <View className="flex-1 bg-black/70 justify-end">
-          <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} className="flex-1">
+          <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} className="flex-1 justify-end">
             <View className="bg-white dark:bg-slate-900 rounded-t-3xl" style={{ maxHeight: '60%' }}>
               <View className="px-6 pt-6 pb-4 border-b border-gray-200 dark:border-slate-800">
                 <View className="flex-row items-center justify-between">
@@ -1802,8 +1802,8 @@ export default function CommunityScreen() {
         onRequestClose={() => setShowApplicationModal(false)}
       >
         <View className="flex-1 bg-black/70 justify-end">
-          <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} className="flex-1">
-            <View className="bg-white dark:bg-slate-900 rounded-t-3xl flex-1" style={{ maxHeight: '90%' }}>
+          <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} className="flex-1 justify-end">
+            <View className="bg-white dark:bg-slate-900 rounded-t-3xl" style={{ maxHeight: '90%' }}>
               <View className="px-6 pt-6 pb-4 border-b border-gray-200 dark:border-slate-800">
                 <View className="flex-row items-center justify-between">
                   <Text className="text-gray-900 dark:text-white text-xl font-bold">
@@ -2096,7 +2096,7 @@ export default function CommunityScreen() {
         onRequestClose={() => setShowCompareModal(false)}
       >
         <View className="flex-1 bg-black/70 justify-end">
-          <View className="bg-white dark:bg-slate-950 rounded-t-3xl flex-1" style={{ maxHeight: '95%' }}>
+          <View className="bg-white dark:bg-slate-950 rounded-t-3xl" style={{ maxHeight: '95%' }}>
             {/* Header */}
             <View className="px-6 pt-6 pb-4 border-b border-gray-200 dark:border-slate-800">
               <View className="flex-row items-center justify-between">
