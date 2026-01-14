@@ -25,6 +25,7 @@ import {
   Download,
   PieChart,
   Lightbulb,
+  Calendar,
 } from 'lucide-react-native';
 import { useCurrentWorkspace, useCurrentMembership, useCurrentUser } from '@/lib/state/app-store';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -1113,11 +1114,11 @@ export default function HomeScreen() {
                 <Text className="text-white font-bold text-sm mt-2">Create Work Plan</Text>
               </Pressable>
               <Pressable
-                onPress={() => router.push({ pathname: '/(tabs)/make', params: { tab: 'ai' } })}
+                onPress={() => router.push('/calendar')}
                 className="flex-1 bg-purple-500 rounded-xl p-4 active:opacity-70"
               >
-                <Sparkles size={24} color="#fff" />
-                <Text className="text-white font-bold text-sm mt-2">AI Tools</Text>
+                <Calendar size={24} color="#fff" />
+                <Text className="text-white font-bold text-sm mt-2">Calendar</Text>
               </Pressable>
             </View>
           </View>
@@ -1417,11 +1418,11 @@ export default function HomeScreen() {
                 <Text className="text-white font-bold text-sm mt-2">Report Progress</Text>
               </Pressable>
               <Pressable
-                onPress={() => router.push('/(tabs)/do')}
-                className="flex-1 bg-blue-500 rounded-xl p-4 active:opacity-70"
+                onPress={() => router.push('/calendar')}
+                className="flex-1 bg-purple-500 rounded-xl p-4 active:opacity-70"
               >
-                <CheckCircle2 size={24} color="#fff" />
-                <Text className="text-white font-bold text-sm mt-2">Submit Work</Text>
+                <Calendar size={24} color="#fff" />
+                <Text className="text-white font-bold text-sm mt-2">Calendar</Text>
               </Pressable>
             </View>
           </View>
