@@ -54,7 +54,7 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
 
 ## 🚨 PRODUCTION READINESS STATUS
 
-**Last Updated**: 2026-01-14 (**ELITE AUDIT** - Comprehensive code review + Profile screen + UX fixes)
+**Last Updated**: 2026-01-14 (**ELITE AUDIT** - Comprehensive code review + Profile screen + UX fixes + RBAC for Apprentice view)
 **Status**: ✅ **READY FOR APP STORE** - All features complete!
 
 ---
@@ -369,6 +369,12 @@ The app uses a clear separation between **MARKETPLACE DATA** (global, shared acr
       - Founders: OKRs, team invitations, org structure, data sync, reports
       - Executives: Engagements, guilds, function library
       - Apprentices: Assignments, guild membership, AI tools exploration
+    - **Apprentice View Restrictions** (RBAC):
+      - Cannot see salary/compensation information for any team member
+      - Cannot onboard or remove team members
+      - Can only see their assigned Executive and Founders (not other Apprentices)
+      - Has dedicated "Ask AI Assistant" button for help with work tasks
+      - Team Management screen shows simplified "My Team" view
     - **Quick Actions Grid**: Role-specific shortcuts with notification badges
       - Founders: Pending Approvals (3), Generate Report, Sync Data
       - Executives: Work Plans, Team Capacity

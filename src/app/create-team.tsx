@@ -33,8 +33,13 @@ import type { OrganizationMember, AIAgent } from '@/lib/organization-seed';
 import { THIRD_PARTY_AI_TOOLS } from '@/lib/third-party-ai-tools';
 import { MARKETPLACE_EXECUTIVES } from '@/lib/marketplace-executives';
 import { cn } from '@/lib/cn';
+import { useCurrentRole, useCurrentUser } from '@/lib/state/app-store';
 
 export default function TeamManagementScreen() {
+  const currentRole = useCurrentRole();
+  const currentUser = useCurrentUser();
+  const isApprentice = currentRole === 'Apprentice';
+
   const [selectedTab, setSelectedTab] = useState<'organization' | 'recommended' | 'squads'>('organization');
   const [showCreateSquad, setShowCreateSquad] = useState(false);
   const [showAddMemberToSquad, setShowAddMemberToSquad] = useState<string | null>(null);
@@ -71,13 +76,31 @@ export default function TeamManagementScreen() {
     return members.filter(m => m.status === 'active');
   }, [members]);
 
+  // For Apprentice: only show their assigned executive and founders
+  // For others: show all executives
   const executives = useMemo(() => {
-    return currentTeam.filter(m => m.role === 'FractionalExec');
+    const allExecs = currentTeam.filter(m => m.role === 'FractionalExec');
+    if (isApprentice) {
+      // Apprentice can only see executives assigned to them (by squad) and founders
+      const apprenticeSquads = squads.filter(s => s.apprenticeMemberIds?.includes(currentUser?.id ?? ''));
+      const assignedExecIds = apprenticeSquads.map(s => s.leaderMemberId);
+      return allExecs.filter(e => assignedExecIds.includes(e.id));
+    }
+    return allExecs;
+  }, [currentTeam, isApprentice, squads, currentUser?.id]);
+
+  // Founders - everyone can see founders
+  const founders = useMemo(() => {
+    return currentTeam.filter(m => m.role === 'Founder');
   }, [currentTeam]);
 
+  // Apprentices - only show for non-apprentice users (apprentices shouldn't see other apprentices)
   const apprentices = useMemo(() => {
+    if (isApprentice) {
+      return []; // Apprentices don't see other apprentices
+    }
     return currentTeam.filter(m => m.role === 'Apprentice');
-  }, [currentTeam]);
+  }, [currentTeam, isApprentice]);
 
   const activeAI = useMemo(() => {
     return (aiAgents || []).filter(a => a.status === 'active');
@@ -153,22 +176,28 @@ export default function TeamManagementScreen() {
   };
 
   const handleRemovePerson = (memberId: string) => {
+    // Apprentices cannot remove team members
+    if (isApprentice) return;
     updateMember(memberId, { status: 'inactive' });
   };
 
   return (
     <SafeAreaView className="flex-1 bg-slate-950" edges={['top']}>
       <LinearGradient
-        colors={['#1e40af', '#7c3aed']}
+        colors={isApprentice ? ['#10b981', '#059669'] : ['#1e40af', '#7c3aed']}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={{ paddingHorizontal: 24, paddingVertical: 16 }}
       >
         <View className="flex-row items-center justify-between">
           <View className="flex-1">
-            <Text className="text-white text-2xl font-black">Team Management</Text>
+            <Text className="text-white text-2xl font-black">
+              {isApprentice ? 'My Team' : 'Team Management'}
+            </Text>
             <Text className="text-white/80 text-sm mt-1">
-              View team, hire people, organize squads, equip AI
+              {isApprentice
+                ? 'Your executive and founders'
+                : 'View team, hire people, organize squads, equip AI'}
             </Text>
           </View>
           <Pressable
@@ -179,127 +208,240 @@ export default function TeamManagementScreen() {
           </Pressable>
         </View>
 
-        {/* Summary Stats */}
-        <View className="flex-row gap-2 mt-4">
-          <View className="flex-1 bg-white/10 rounded-xl p-3">
-            <Text className="text-white/60 text-xs mb-1">Executives</Text>
-            <Text className="text-white text-2xl font-black">{executives.length}</Text>
+        {/* Summary Stats - Different for Apprentice */}
+        {isApprentice ? (
+          <View className="flex-row gap-2 mt-4">
+            <View className="flex-1 bg-white/10 rounded-xl p-3">
+              <Text className="text-white/60 text-xs mb-1">Your Executive</Text>
+              <Text className="text-white text-2xl font-black">{executives.length}</Text>
+            </View>
+            <View className="flex-1 bg-white/10 rounded-xl p-3">
+              <Text className="text-white/60 text-xs mb-1">Founders</Text>
+              <Text className="text-white text-2xl font-black">{founders.length}</Text>
+            </View>
+            <View className="flex-1 bg-white/10 rounded-xl p-3">
+              <Text className="text-white/60 text-xs mb-1">AI Agents</Text>
+              <Text className="text-white text-2xl font-black">{activeAI.length}</Text>
+            </View>
           </View>
-          <View className="flex-1 bg-white/10 rounded-xl p-3">
-            <Text className="text-white/60 text-xs mb-1">Apprentices</Text>
-            <Text className="text-white text-2xl font-black">{apprentices.length}</Text>
+        ) : (
+          <View className="flex-row gap-2 mt-4">
+            <View className="flex-1 bg-white/10 rounded-xl p-3">
+              <Text className="text-white/60 text-xs mb-1">Executives</Text>
+              <Text className="text-white text-2xl font-black">{executives.length}</Text>
+            </View>
+            <View className="flex-1 bg-white/10 rounded-xl p-3">
+              <Text className="text-white/60 text-xs mb-1">Apprentices</Text>
+              <Text className="text-white text-2xl font-black">{apprentices.length}</Text>
+            </View>
+            <View className="flex-1 bg-white/10 rounded-xl p-3">
+              <Text className="text-white/60 text-xs mb-1">AI Agents</Text>
+              <Text className="text-white text-2xl font-black">{activeAI.length}</Text>
+            </View>
+            <View className="flex-1 bg-white/10 rounded-xl p-3">
+              <Text className="text-white/60 text-xs mb-1">Squads</Text>
+              <Text className="text-white text-2xl font-black">{squads.length}</Text>
+            </View>
           </View>
-          <View className="flex-1 bg-white/10 rounded-xl p-3">
-            <Text className="text-white/60 text-xs mb-1">AI Agents</Text>
-            <Text className="text-white text-2xl font-black">{activeAI.length}</Text>
-          </View>
-          <View className="flex-1 bg-white/10 rounded-xl p-3">
-            <Text className="text-white/60 text-xs mb-1">Squads</Text>
-            <Text className="text-white text-2xl font-black">{squads.length}</Text>
-          </View>
-        </View>
+        )}
       </LinearGradient>
 
-      {/* Tab Selector */}
-      <View className="flex-row px-6 py-4 gap-2">
-        <Pressable
-          onPress={() => setSelectedTab('organization')}
-          className={cn(
-            'flex-1 rounded-xl py-3 border',
-            selectedTab === 'organization'
-              ? 'bg-blue-500 border-blue-500'
-              : 'bg-white/5 border-white/20'
-          )}
-        >
-          <View className="flex-row items-center justify-center">
-            <Building2 size={16} color={selectedTab === 'organization' ? '#fff' : '#94a3b8'} />
-            <Text
-              className={cn(
-                'ml-2 font-bold text-sm',
-                selectedTab === 'organization' ? 'text-white' : 'text-white/60'
-              )}
-            >
-              Organization
-            </Text>
-          </View>
-        </Pressable>
+      {/* Tab Selector - Apprentice only sees Organization tab */}
+      {!isApprentice && (
+        <View className="flex-row px-6 py-4 gap-2">
+          <Pressable
+            onPress={() => setSelectedTab('organization')}
+            className={cn(
+              'flex-1 rounded-xl py-3 border',
+              selectedTab === 'organization'
+                ? 'bg-blue-500 border-blue-500'
+                : 'bg-white/5 border-white/20'
+            )}
+          >
+            <View className="flex-row items-center justify-center">
+              <Building2 size={16} color={selectedTab === 'organization' ? '#fff' : '#94a3b8'} />
+              <Text
+                className={cn(
+                  'ml-2 font-bold text-sm',
+                  selectedTab === 'organization' ? 'text-white' : 'text-white/60'
+                )}
+              >
+                Organization
+              </Text>
+            </View>
+          </Pressable>
 
-        <Pressable
-          onPress={() => setSelectedTab('recommended')}
-          className={cn(
-            'flex-1 rounded-xl py-3 border',
-            selectedTab === 'recommended'
-              ? 'bg-blue-500 border-blue-500'
-              : 'bg-white/5 border-white/20'
-          )}
-        >
-          <View className="flex-row items-center justify-center">
-            <Sparkles size={16} color={selectedTab === 'recommended' ? '#fff' : '#94a3b8'} />
-            <Text
-              className={cn(
-                'ml-2 font-bold text-sm',
-                selectedTab === 'recommended' ? 'text-white' : 'text-white/60'
-              )}
-            >
-              Recommended
-            </Text>
-          </View>
-        </Pressable>
+          <Pressable
+            onPress={() => setSelectedTab('recommended')}
+            className={cn(
+              'flex-1 rounded-xl py-3 border',
+              selectedTab === 'recommended'
+                ? 'bg-blue-500 border-blue-500'
+                : 'bg-white/5 border-white/20'
+            )}
+          >
+            <View className="flex-row items-center justify-center">
+              <Sparkles size={16} color={selectedTab === 'recommended' ? '#fff' : '#94a3b8'} />
+              <Text
+                className={cn(
+                  'ml-2 font-bold text-sm',
+                  selectedTab === 'recommended' ? 'text-white' : 'text-white/60'
+                )}
+              >
+                Recommended
+              </Text>
+            </View>
+          </Pressable>
 
-        <Pressable
-          onPress={() => setSelectedTab('squads')}
-          className={cn(
-            'flex-1 rounded-xl py-3 border',
-            selectedTab === 'squads'
-              ? 'bg-blue-500 border-blue-500'
-              : 'bg-white/5 border-white/20'
-          )}
-        >
-          <View className="flex-row items-center justify-center">
-            <Users size={16} color={selectedTab === 'squads' ? '#fff' : '#94a3b8'} />
-            <Text
-              className={cn(
-                'ml-2 font-bold text-sm',
-                selectedTab === 'squads' ? 'text-white' : 'text-white/60'
-              )}
-            >
-              Squads
-            </Text>
-          </View>
-        </Pressable>
-      </View>
+          <Pressable
+            onPress={() => setSelectedTab('squads')}
+            className={cn(
+              'flex-1 rounded-xl py-3 border',
+              selectedTab === 'squads'
+                ? 'bg-blue-500 border-blue-500'
+                : 'bg-white/5 border-white/20'
+            )}
+          >
+            <View className="flex-row items-center justify-center">
+              <Users size={16} color={selectedTab === 'squads' ? '#fff' : '#94a3b8'} />
+              <Text
+                className={cn(
+                  'ml-2 font-bold text-sm',
+                  selectedTab === 'squads' ? 'text-white' : 'text-white/60'
+                )}
+              >
+                Squads
+              </Text>
+            </View>
+          </Pressable>
+        </View>
+      )}
 
       <ScrollView className="flex-1 px-6" showsVerticalScrollIndicator={false}>
         {/* Organization Tab - View Current Team */}
         {selectedTab === 'organization' && (
           <View>
-            {/* Quick Actions */}
-            <View className="flex-row gap-2 mb-4">
+            {/* Quick Actions - Only for non-Apprentices */}
+            {!isApprentice && (
+              <View className="flex-row gap-2 mb-4">
+                <Pressable
+                  onPress={() => setSelectedTab('recommended')}
+                  className="flex-1 bg-emerald-500 rounded-xl py-3 active:opacity-80"
+                >
+                  <View className="flex-row items-center justify-center">
+                    <UserPlus size={16} color="white" />
+                    <Text className="text-white font-bold ml-2 text-sm">Add People</Text>
+                  </View>
+                </Pressable>
+                <Pressable
+                  onPress={() => router.push('/armory')}
+                  className="flex-1 bg-purple-500 rounded-xl py-3 active:opacity-80"
+                >
+                  <View className="flex-row items-center justify-center">
+                    <Bot size={16} color="white" />
+                    <Text className="text-white font-bold ml-2 text-sm">Equip AI</Text>
+                  </View>
+                </Pressable>
+              </View>
+            )}
+
+            {/* AI Assistant Button for Apprentices */}
+            {isApprentice && (
               <Pressable
-                onPress={() => setSelectedTab('recommended')}
-                className="flex-1 bg-emerald-500 rounded-xl py-3 active:opacity-80"
+                onPress={() => router.push('/(tabs)/make')}
+                className="mb-4"
               >
-                <View className="flex-row items-center justify-center">
-                  <UserPlus size={16} color="white" />
-                  <Text className="text-white font-bold ml-2 text-sm">Add People</Text>
-                </View>
+                <LinearGradient
+                  colors={['#8b5cf6', '#6366f1']}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  style={{ borderRadius: 16, padding: 16 }}
+                >
+                  <View className="flex-row items-center justify-between">
+                    <View className="flex-row items-center flex-1">
+                      <View className="bg-white/20 w-12 h-12 rounded-full items-center justify-center">
+                        <Bot size={24} color="#fff" />
+                      </View>
+                      <View className="ml-3 flex-1">
+                        <Text className="text-white font-black text-base">Ask AI for Help</Text>
+                        <Text className="text-white/80 text-sm">Get assistance with your work</Text>
+                      </View>
+                    </View>
+                    <ChevronRight size={20} color="#fff" />
+                  </View>
+                </LinearGradient>
               </Pressable>
-              <Pressable
-                onPress={() => router.push('/armory')}
-                className="flex-1 bg-purple-500 rounded-xl py-3 active:opacity-80"
-              >
-                <View className="flex-row items-center justify-center">
-                  <Bot size={16} color="white" />
-                  <Text className="text-white font-bold ml-2 text-sm">Equip AI</Text>
-                </View>
-              </Pressable>
-            </View>
+            )}
+
+            {/* Founders Section - Visible to Everyone */}
+            {founders.length > 0 && (
+              <View className="mb-6">
+                <Text className="text-white font-black text-lg mb-3">
+                  Founders ({founders.length})
+                </Text>
+                {founders.map((member) => {
+                  const loadout = personLoadouts.find(l => l.memberId === member.id);
+                  const aiToolCount = loadout?.aiToolIds?.length || 0;
+                  const monthlyCost = member.costPerDay && member.daysPerWeek
+                    ? Math.round(member.costPerDay * member.daysPerWeek * 4.33)
+                    : 0;
+
+                  return (
+                    <Pressable
+                      key={member.id}
+                      onPress={() => !isApprentice && setSelectedPerson(member)}
+                      disabled={isApprentice}
+                      className="bg-white/5 border border-white/10 rounded-2xl p-4 mb-3 active:opacity-70"
+                    >
+                      <View className="flex-row items-start justify-between mb-3">
+                        <View className="flex-1">
+                          <Text className="text-white font-black text-base">{member.name}</Text>
+                          <Text className="text-white/60 text-sm">{member.function}</Text>
+                          <View className="flex-row items-center gap-2 mt-1">
+                            <View className="bg-amber-500/20 px-2 py-0.5 rounded">
+                              <Text className="text-amber-300 text-xs font-bold">Founder</Text>
+                            </View>
+                          </View>
+                        </View>
+                        {/* Hide salary for Apprentices */}
+                        {!isApprentice && monthlyCost > 0 && (
+                          <View className="items-end">
+                            <Text className="text-amber-300 font-black text-lg">
+                              £{monthlyCost.toLocaleString()}
+                            </Text>
+                            <Text className="text-white/40 text-xs">/month</Text>
+                          </View>
+                        )}
+                      </View>
+
+                      <View className="flex-row items-center justify-between">
+                        <View className="flex-row items-center">
+                          <Bot size={16} color="#f59e0b" />
+                          <Text className="text-white/60 text-sm ml-1">
+                            {aiToolCount} AI {aiToolCount === 1 ? 'tool' : 'tools'}
+                          </Text>
+                        </View>
+                        {!isApprentice && <ChevronRight size={20} color="#94a3b8" />}
+                      </View>
+                    </Pressable>
+                  );
+                })}
+              </View>
+            )}
 
             {/* Executives */}
             <View className="mb-6">
               <Text className="text-white font-black text-lg mb-3">
-                Executives ({executives.length})
+                {isApprentice ? 'My Executive' : `Executives (${executives.length})`}
               </Text>
+              {executives.length === 0 && isApprentice && (
+                <View className="bg-white/5 border border-white/10 rounded-2xl p-6 items-center">
+                  <Users size={32} color="rgba(255,255,255,0.3)" />
+                  <Text className="text-white/60 text-center mt-3">
+                    You haven't been assigned to an executive yet
+                  </Text>
+                </View>
+              )}
               {executives.map((member) => {
                 const loadout = personLoadouts.find(l => l.memberId === member.id);
                 const aiToolCount = loadout?.aiToolIds?.length || 0;
@@ -310,7 +452,8 @@ export default function TeamManagementScreen() {
                 return (
                   <Pressable
                     key={member.id}
-                    onPress={() => setSelectedPerson(member)}
+                    onPress={() => !isApprentice && setSelectedPerson(member)}
+                    disabled={isApprentice}
                     className="bg-white/5 border border-white/10 rounded-2xl p-4 mb-3 active:opacity-70"
                   >
                     <View className="flex-row items-start justify-between mb-3">
@@ -330,12 +473,15 @@ export default function TeamManagementScreen() {
                           )}
                         </View>
                       </View>
-                      <View className="items-end">
-                        <Text className="text-purple-300 font-black text-lg">
-                          £{monthlyCost.toLocaleString()}
-                        </Text>
-                        <Text className="text-white/40 text-xs">/month</Text>
-                      </View>
+                      {/* Hide salary for Apprentices */}
+                      {!isApprentice && (
+                        <View className="items-end">
+                          <Text className="text-purple-300 font-black text-lg">
+                            £{monthlyCost.toLocaleString()}
+                          </Text>
+                          <Text className="text-white/40 text-xs">/month</Text>
+                        </View>
+                      )}
                     </View>
 
                     <View className="flex-row items-center justify-between">
@@ -345,65 +491,67 @@ export default function TeamManagementScreen() {
                           {aiToolCount} AI {aiToolCount === 1 ? 'tool' : 'tools'}
                         </Text>
                       </View>
-                      <ChevronRight size={20} color="#94a3b8" />
+                      {!isApprentice && <ChevronRight size={20} color="#94a3b8" />}
                     </View>
                   </Pressable>
                 );
               })}
             </View>
 
-            {/* Apprentices */}
-            <View className="mb-6">
-              <Text className="text-white font-black text-lg mb-3">
-                Apprentices ({apprentices.length})
-              </Text>
-              {apprentices.map((member) => {
-                const loadout = personLoadouts.find(l => l.memberId === member.id);
-                const aiToolCount = loadout?.aiToolIds?.length || 0;
-                const monthlyCost = member.costPerDay && member.daysPerWeek
-                  ? Math.round(member.costPerDay * (member.daysPerWeek || 5) * 4.33)
-                  : 0;
+            {/* Apprentices - Only visible to non-Apprentices */}
+            {!isApprentice && (
+              <View className="mb-6">
+                <Text className="text-white font-black text-lg mb-3">
+                  Apprentices ({apprentices.length})
+                </Text>
+                {apprentices.map((member) => {
+                  const loadout = personLoadouts.find(l => l.memberId === member.id);
+                  const aiToolCount = loadout?.aiToolIds?.length || 0;
+                  const monthlyCost = member.costPerDay && member.daysPerWeek
+                    ? Math.round(member.costPerDay * (member.daysPerWeek || 5) * 4.33)
+                    : 0;
 
-                return (
-                  <Pressable
-                    key={member.id}
-                    onPress={() => setSelectedPerson(member)}
-                    className="bg-white/5 border border-white/10 rounded-2xl p-4 mb-3 active:opacity-70"
-                  >
-                    <View className="flex-row items-start justify-between mb-3">
-                      <View className="flex-1">
-                        <Text className="text-white font-black text-base">{member.name}</Text>
-                        <Text className="text-white/60 text-sm">{member.function}</Text>
-                        <View className="bg-emerald-500/20 px-2 py-0.5 rounded mt-1 self-start">
-                          <Text className="text-emerald-300 text-xs font-bold">Apprentice</Text>
+                  return (
+                    <Pressable
+                      key={member.id}
+                      onPress={() => setSelectedPerson(member)}
+                      className="bg-white/5 border border-white/10 rounded-2xl p-4 mb-3 active:opacity-70"
+                    >
+                      <View className="flex-row items-start justify-between mb-3">
+                        <View className="flex-1">
+                          <Text className="text-white font-black text-base">{member.name}</Text>
+                          <Text className="text-white/60 text-sm">{member.function}</Text>
+                          <View className="bg-emerald-500/20 px-2 py-0.5 rounded mt-1 self-start">
+                            <Text className="text-emerald-300 text-xs font-bold">Apprentice</Text>
+                          </View>
+                        </View>
+                        <View className="items-end">
+                          <Text className="text-emerald-300 font-black text-lg">
+                            £{monthlyCost.toLocaleString()}
+                          </Text>
+                          <Text className="text-white/40 text-xs">/month</Text>
                         </View>
                       </View>
-                      <View className="items-end">
-                        <Text className="text-emerald-300 font-black text-lg">
-                          £{monthlyCost.toLocaleString()}
-                        </Text>
-                        <Text className="text-white/40 text-xs">/month</Text>
-                      </View>
-                    </View>
 
-                    <View className="flex-row items-center justify-between">
-                      <View className="flex-row items-center">
-                        <Bot size={16} color="#8b5cf6" />
-                        <Text className="text-white/60 text-sm ml-1">
-                          {aiToolCount} AI {aiToolCount === 1 ? 'tool' : 'tools'}
-                        </Text>
+                      <View className="flex-row items-center justify-between">
+                        <View className="flex-row items-center">
+                          <Bot size={16} color="#8b5cf6" />
+                          <Text className="text-white/60 text-sm ml-1">
+                            {aiToolCount} AI {aiToolCount === 1 ? 'tool' : 'tools'}
+                          </Text>
+                        </View>
+                        <ChevronRight size={20} color="#94a3b8" />
                       </View>
-                      <ChevronRight size={20} color="#94a3b8" />
-                    </View>
-                  </Pressable>
-                );
-              })}
-            </View>
+                    </Pressable>
+                  );
+                })}
+              </View>
+            )}
           </View>
         )}
 
-        {/* Recommended Tab - Marketplace Hiring */}
-        {selectedTab === 'recommended' && (
+        {/* Recommended Tab - Marketplace Hiring (Hidden from Apprentices) */}
+        {selectedTab === 'recommended' && !isApprentice && (
           <View>
             {/* Pending Requests Section */}
             {pendingRecommendations.length > 0 && (
@@ -593,8 +741,8 @@ export default function TeamManagementScreen() {
           </View>
         )}
 
-        {/* Squads Tab - Team Organization */}
-        {selectedTab === 'squads' && (
+        {/* Squads Tab - Team Organization (Hidden from Apprentices) */}
+        {selectedTab === 'squads' && !isApprentice && (
           <View>
             <Pressable
               onPress={() => setShowCreateSquad(true)}

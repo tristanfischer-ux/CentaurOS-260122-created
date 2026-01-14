@@ -1352,9 +1352,41 @@ export default function HomeScreen() {
             >
               <View className="flex-row items-center">
                 <Users size={18} color="#fff" />
-                <Text className="text-white font-bold ml-2">View Team Management</Text>
+                <Text className="text-white font-bold ml-2">View My Team</Text>
               </View>
             </Pressable>
+
+            {/* Ask AI Assistant */}
+            <View className="mb-4">
+              <Text className="text-gray-900 dark:text-white text-lg font-bold mb-3">
+                Need Help?
+              </Text>
+
+              <Pressable
+                onPress={() => router.push('/(tabs)/make')}
+                className="active:opacity-70"
+              >
+                <LinearGradient
+                  colors={['#10b981', '#059669']}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 0 }}
+                  style={{ borderRadius: 12, padding: 16 }}
+                >
+                  <View className="flex-row items-center justify-between">
+                    <View className="flex-row items-center flex-1">
+                      <View className="w-12 h-12 bg-white/20 rounded-full items-center justify-center">
+                        <Bot size={24} color="#fff" />
+                      </View>
+                      <View className="ml-3 flex-1">
+                        <Text className="text-white font-bold text-base">Ask AI Assistant</Text>
+                        <Text className="text-white/80 text-sm">Get help with your work tasks</Text>
+                      </View>
+                    </View>
+                    <ArrowRight size={20} color="#fff" />
+                  </View>
+                </LinearGradient>
+              </Pressable>
+            </View>
 
             {/* AI Tools */}
             <View className="mb-4">
