@@ -55,48 +55,53 @@ export default function OrgDiagramScreen() {
   return (
     <View className="flex-1 bg-white dark:bg-slate-950">
       {/* Header */}
-      <View className="px-6 pt-3 pb-4 border-b border-gray-300 dark:border-slate-800" style={{ paddingTop: insets.top + 12 }}>
-        <View className="flex-row items-center justify-between mb-2">
+      <LinearGradient
+        colors={['#6366f1', '#8b5cf6']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 0 }}
+        style={{ paddingTop: insets.top + 16, paddingBottom: 16, paddingHorizontal: 24 }}
+      >
+        <View className="flex-row items-center justify-between mb-3">
           <View className="flex-1">
-            <Text className="text-gray-900 dark:text-white text-2xl font-bold">Organization</Text>
-            <Text className="text-gray-600 dark:text-slate-400 text-sm mt-0.5">
-              Team structure by business function
-            </Text>
+            <Text className="text-white/70 text-xs font-medium">TEAM OVERVIEW</Text>
+            <Text className="text-white text-2xl font-bold">Organization</Text>
           </View>
           <Pressable
             onPress={() => router.back()}
-            className="w-10 h-10 items-center justify-center rounded-full bg-gray-100 dark:bg-slate-900 active:opacity-70"
+            className="w-10 h-10 items-center justify-center rounded-full bg-white/20 active:opacity-70"
           >
-            <X size={24} color="#64748b" />
+            <X size={24} color="#ffffff" />
           </Pressable>
         </View>
 
         {/* Summary Stats */}
-        <View className="flex-row gap-3 mt-3">
-          <View className="flex-1 bg-blue-50 dark:bg-blue-900/20 rounded-xl p-3 border border-blue-200 dark:border-blue-800">
-            <Text className="text-blue-700 dark:text-blue-300 text-xs mb-1">Executives</Text>
-            <Text className="text-blue-900 dark:text-blue-100 text-2xl font-bold">
+        <View className="flex-row gap-3">
+          <View className="flex-1 bg-white/20 rounded-xl p-3">
+            <Text className="text-white/80 text-xs mb-1">Executives</Text>
+            <Text className="text-white text-2xl font-bold">
               {ORGANIZATION_MEMBERS.filter(m => m.role === 'FractionalExec').length}
             </Text>
           </View>
-          <View className="flex-1 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl p-3 border border-emerald-200 dark:border-emerald-800">
-            <Text className="text-emerald-700 dark:text-emerald-300 text-xs mb-1">Apprentices</Text>
-            <Text className="text-emerald-900 dark:text-emerald-100 text-2xl font-bold">
+          <View className="flex-1 bg-white/20 rounded-xl p-3">
+            <Text className="text-white/80 text-xs mb-1">Apprentices</Text>
+            <Text className="text-white text-2xl font-bold">
               {ORGANIZATION_MEMBERS.filter(m => m.role === 'Apprentice').length}
             </Text>
           </View>
-          <View className="flex-1 bg-purple-50 dark:bg-purple-900/20 rounded-xl p-3 border border-purple-200 dark:border-purple-800">
-            <Text className="text-purple-700 dark:text-purple-300 text-xs mb-1">AI Agents</Text>
-            <Text className="text-purple-900 dark:text-purple-100 text-2xl font-bold">
+          <View className="flex-1 bg-white/20 rounded-xl p-3">
+            <Text className="text-white/80 text-xs mb-1">AI Agents</Text>
+            <Text className="text-white text-2xl font-bold">
               {AI_AGENTS.length}
             </Text>
           </View>
         </View>
+      </LinearGradient>
 
-        {/* Armory Access Button */}
+      {/* Armory Access Button */}
+      <View className="px-6 pt-4">
         <Pressable
           onPress={() => router.push('/armory')}
-          className="mt-4 active:opacity-80"
+          className="active:opacity-80"
         >
           <LinearGradient
             colors={['#8b5cf6', '#6d28d9']}
