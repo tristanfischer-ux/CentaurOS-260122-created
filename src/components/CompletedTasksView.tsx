@@ -113,20 +113,20 @@ export function CompletedTasksView({ tasks, workspaceId, onClose, members = [] }
   const getPriorityColor = (priority: string) => {
     switch (priority) {
       case 'urgent':
-        return 'text-red-400';
+        return 'text-red-500 dark:text-red-400';
       case 'high':
-        return 'text-orange-400';
+        return 'text-orange-500 dark:text-orange-400';
       case 'medium':
-        return 'text-blue-400';
+        return 'text-blue-500 dark:text-blue-400';
       case 'low':
-        return 'text-slate-400';
+        return 'text-gray-500 dark:text-slate-400';
       default:
-        return 'text-slate-400';
+        return 'text-gray-500 dark:text-slate-400';
     }
   };
 
   return (
-    <View className="flex-1 bg-slate-950">
+    <View className="flex-1 bg-white dark:bg-slate-950">
       {/* Header */}
       <View className="px-6 pt-6 pb-4 border-b border-gray-300 dark:border-slate-800">
         <View className="flex-row items-center justify-between mb-4">
@@ -189,8 +189,8 @@ export function CompletedTasksView({ tasks, workspaceId, onClose, members = [] }
                 className="mb-3 active:opacity-70"
               >
                 <View
-                  className={`bg-slate-900 rounded-xl p-4 border ${
-                    selectedTasks.has(task.id) ? 'border-blue-500' : 'border-slate-800'
+                  className={`bg-gray-100 dark:bg-slate-900 rounded-xl p-4 border ${
+                    selectedTasks.has(task.id) ? 'border-blue-500' : 'border-gray-300 dark:border-slate-800'
                   }`}
                 >
                   <View className="flex-row items-start gap-3">
@@ -199,7 +199,7 @@ export function CompletedTasksView({ tasks, workspaceId, onClose, members = [] }
                       className={`w-6 h-6 rounded-lg border-2 items-center justify-center ${
                         selectedTasks.has(task.id)
                           ? 'bg-blue-500 border-blue-500'
-                          : 'border-slate-700'
+                          : 'border-gray-400 dark:border-slate-700'
                       }`}
                     >
                       {selectedTasks.has(task.id) && (
@@ -235,7 +235,7 @@ export function CompletedTasksView({ tasks, workspaceId, onClose, members = [] }
                               ? 'bg-red-500/20'
                               : task.priority === 'high'
                               ? 'bg-orange-500/20'
-                              : 'bg-slate-800'
+                              : 'bg-gray-200 dark:bg-slate-800'
                           }`}
                         >
                           <Text className={`${getPriorityColor(task.priority)} text-xs font-semibold uppercase`}>

@@ -84,48 +84,48 @@ export const colors = {
   // Primary actions
   primary: 'bg-blue-500',
   primaryHover: 'bg-blue-600',
-  primaryText: 'text-blue-500',
+  primaryText: 'text-blue-500 dark:text-blue-400',
   primaryLight: 'bg-blue-500/10',
   primaryBorder: 'border-blue-500',
 
   // Secondary actions
-  secondary: 'bg-slate-800',
-  secondaryBorder: 'border-slate-700',
-  secondaryText: 'text-slate-400',
+  secondary: 'bg-gray-100 dark:bg-slate-800',
+  secondaryBorder: 'border-gray-300 dark:border-slate-700',
+  secondaryText: 'text-gray-600 dark:text-slate-400',
 
   // Success
   success: 'bg-emerald-500',
-  successText: 'text-emerald-400',
+  successText: 'text-emerald-600 dark:text-emerald-400',
   successLight: 'bg-emerald-500/10',
   successBorder: 'border-emerald-500/30',
 
   // Warning
   warning: 'bg-amber-500',
-  warningText: 'text-amber-400',
+  warningText: 'text-amber-600 dark:text-amber-400',
   warningLight: 'bg-amber-500/10',
   warningBorder: 'border-amber-500/30',
 
   // Error/Destructive
   error: 'bg-red-500',
-  errorText: 'text-red-400',
+  errorText: 'text-red-600 dark:text-red-400',
   errorLight: 'bg-red-500/10',
   errorBorder: 'border-red-500/30',
 
   // Background
-  background: 'bg-slate-950',
-  backgroundSecondary: 'bg-slate-900',
-  backgroundTertiary: 'bg-slate-800',
+  background: 'bg-white dark:bg-slate-950',
+  backgroundSecondary: 'bg-gray-100 dark:bg-slate-900',
+  backgroundTertiary: 'bg-gray-200 dark:bg-slate-800',
 
   // Text
-  text: 'text-white',
-  textSecondary: 'text-slate-400',
-  textTertiary: 'text-slate-500',
-  textQuaternary: 'text-slate-600',
+  text: 'text-gray-900 dark:text-white',
+  textSecondary: 'text-gray-600 dark:text-slate-400',
+  textTertiary: 'text-gray-500 dark:text-slate-500',
+  textQuaternary: 'text-gray-400 dark:text-slate-600',
 
   // Borders
-  border: 'border-slate-800',
-  borderLight: 'border-slate-700',
-  borderStrong: 'border-slate-600',
+  border: 'border-gray-200 dark:border-slate-800',
+  borderLight: 'border-gray-300 dark:border-slate-700',
+  borderStrong: 'border-gray-400 dark:border-slate-600',
 };
 
 // ============================================================================
@@ -216,8 +216,8 @@ export const buttons = {
   primarySmall: `bg-blue-500 ${radius.medium} py-3 px-4 active:opacity-70`,
 
   // Secondary button (alternative actions)
-  secondary: `bg-slate-800 ${radius.medium} py-3 px-6 border border-slate-700 active:opacity-70`,
-  secondarySmall: `bg-slate-800 ${radius.medium} py-2 px-4 border border-slate-700 active:opacity-70`,
+  secondary: `bg-gray-100 dark:bg-slate-800 ${radius.medium} py-3 px-6 border border-gray-300 dark:border-slate-700 active:opacity-70`,
+  secondarySmall: `bg-gray-100 dark:bg-slate-800 ${radius.medium} py-2 px-4 border border-gray-300 dark:border-slate-700 active:opacity-70`,
 
   // Destructive button (dangerous actions)
   destructive: `bg-red-500/10 border border-red-500/30 ${radius.medium} py-3 px-6 active:opacity-70`,
@@ -241,17 +241,17 @@ export const buttons = {
 
 export const cards = {
   // Standard card
-  base: `bg-slate-900 ${radius.large} p-4 border border-slate-800`,
-  interactive: `bg-slate-900 ${radius.large} p-4 border border-slate-800 active:opacity-70`,
+  base: `bg-gray-100 dark:bg-slate-900 ${radius.large} p-4 border border-gray-200 dark:border-slate-800`,
+  interactive: `bg-gray-100 dark:bg-slate-900 ${radius.large} p-4 border border-gray-200 dark:border-slate-800 active:opacity-70`,
 
   // Card variants
-  elevated: `bg-slate-900 ${radius.large} p-4 border border-slate-700`,
-  flat: `bg-slate-900 ${radius.large} p-4`,
+  elevated: `bg-gray-100 dark:bg-slate-900 ${radius.large} p-4 border border-gray-300 dark:border-slate-700`,
+  flat: `bg-gray-100 dark:bg-slate-900 ${radius.large} p-4`,
 
   // Card sizes
-  compact: `bg-slate-900 ${radius.large} p-3 border border-slate-800`,
-  comfortable: `bg-slate-900 ${radius.large} p-5 border border-slate-800`,
-  spacious: `bg-slate-900 ${radius.large} p-6 border border-slate-800`,
+  compact: `bg-gray-100 dark:bg-slate-900 ${radius.large} p-3 border border-gray-200 dark:border-slate-800`,
+  comfortable: `bg-gray-100 dark:bg-slate-900 ${radius.large} p-5 border border-gray-200 dark:border-slate-800`,
+  spacious: `bg-gray-100 dark:bg-slate-900 ${radius.large} p-6 border border-gray-200 dark:border-slate-800`,
 };
 
 // ============================================================================
@@ -265,8 +265,8 @@ export const modals = {
   overlayDark: 'flex-1 bg-black/90',
 
   // Modal content
-  container: `bg-slate-900 ${radius.xlarge}`,
-  containerBottom: `bg-slate-900 rounded-t-3xl`,
+  container: `bg-white dark:bg-slate-900 ${radius.xlarge}`,
+  containerBottom: `bg-white dark:bg-slate-900 rounded-t-3xl`,
 
   // Modal sizes
   maxHeightSmall: { maxHeight: '70%' },
@@ -300,13 +300,14 @@ export const interactive = {
 // ============================================================================
 
 export const emptyState = {
-  container: `bg-slate-900 ${radius.large} p-8 border border-slate-800 items-center`,
+  container: `bg-gray-100 dark:bg-slate-900 ${radius.large} p-8 border border-gray-200 dark:border-slate-800 items-center`,
   icon: {
     size: 64,
-    color: '#64748b',
+    colorLight: '#6b7280',
+    colorDark: '#64748b',
   },
   title: `${typography.h2} mt-4 mb-2 text-center`,
-  description: `${typography.body} text-slate-400 text-center`,
+  description: `${typography.body} text-gray-500 dark:text-slate-400 text-center`,
   action: `mt-6`,
 };
 
@@ -315,7 +316,7 @@ export const emptyState = {
 // ============================================================================
 
 export const loading = {
-  container: 'flex-1 bg-slate-950 items-center justify-center',
+  container: 'flex-1 bg-white dark:bg-slate-950 items-center justify-center',
   spinnerColor: '#3b82f6',
 };
 

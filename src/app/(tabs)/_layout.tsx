@@ -54,11 +54,19 @@ export default function TabLayout() {
     return null;
   }
 
+  // Determine active/inactive colors based on theme
+  const activeColor = '#3b82f6'; // Keep blue accent consistent
+  const inactiveColor = colorScheme === 'dark'
+    ? '#64748b'
+    : isOffWhite
+    ? '#78716c' // stone-500
+    : '#9ca3af'; // gray-400
+
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: '#3b82f6',
-        tabBarInactiveTintColor: '#64748b',
+        tabBarActiveTintColor: activeColor,
+        tabBarInactiveTintColor: inactiveColor,
         tabBarStyle: {
           backgroundColor,
           borderTopColor: borderColor,

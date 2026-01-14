@@ -2,6 +2,7 @@ import { View, Text, Animated, Dimensions } from 'react-native';
 import { useEffect, useRef } from 'react';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Zap } from 'lucide-react-native';
+import { useTheme } from '@/lib/ThemeContext';
 
 const { width, height } = Dimensions.get('window');
 
@@ -70,6 +71,33 @@ export function WelcomeSplash({ onComplete }: WelcomeSplashProps) {
   const ringScale1 = useRef(new Animated.Value(0.8)).current;
   const ringScale2 = useRef(new Animated.Value(0.6)).current;
   const ringScale3 = useRef(new Animated.Value(0.4)).current;
+
+  const { theme, isOffWhite } = useTheme();
+  const isDark = theme === 'dark';
+
+  // Theme-aware colors
+  const gradientColors = isDark
+    ? ['#0a0a0a', '#0f172a', '#020617'] as const
+    : isOffWhite
+    ? ['#fafaf9', '#f5f5f4', '#fafaf9'] as const
+    : ['#ffffff', '#f8fafc', '#ffffff'] as const;
+
+  const ringColor1 = isDark ? 'rgba(139, 92, 246, 0.15)' : isOffWhite ? 'rgba(139, 92, 246, 0.1)' : 'rgba(139, 92, 246, 0.12)';
+  const ringColor2 = isDark ? 'rgba(99, 102, 241, 0.2)' : isOffWhite ? 'rgba(99, 102, 241, 0.15)' : 'rgba(99, 102, 241, 0.15)';
+  const ringColor3 = isDark ? 'rgba(59, 130, 246, 0.25)' : isOffWhite ? 'rgba(59, 130, 246, 0.2)' : 'rgba(59, 130, 246, 0.2)';
+
+  const logoBackdropBg = isDark ? 'rgba(139, 92, 246, 0.15)' : isOffWhite ? 'rgba(139, 92, 246, 0.12)' : 'rgba(139, 92, 246, 0.1)';
+  const logoContainerBg = isDark ? '#1e1b4b' : isOffWhite ? '#ede9fe' : '#f3e8ff';
+  const logoBorderColor = isDark ? 'rgba(139, 92, 246, 0.3)' : 'rgba(139, 92, 246, 0.4)';
+
+  const textPrimary = isDark ? '#ffffff' : isOffWhite ? '#1c1917' : '#111827';
+  const textSecondary = isDark ? '#64748b' : isOffWhite ? '#78716c' : '#6b7280';
+  const textTertiary = isDark ? '#475569' : isOffWhite ? '#a8a29e' : '#9ca3af';
+  const accentColor = '#8b5cf6';
+  const accentColorLight = isDark ? '#a78bfa' : '#7c3aed';
+
+  const loadingBarBg = isDark ? '#1e293b' : isOffWhite ? '#e7e5e4' : '#e5e7eb';
+  const dividerColor = isDark ? '#334155' : isOffWhite ? '#d6d3d1' : '#d1d5db';
 
   // Get random quote
   const randomQuote = BUSINESS_QUOTES[Math.floor(Math.random() * BUSINESS_QUOTES.length)];
@@ -156,7 +184,7 @@ export function WelcomeSplash({ onComplete }: WelcomeSplashProps) {
   return (
     <View className="absolute inset-0 z-50">
       <LinearGradient
-        colors={['#0a0a0a', '#0f172a', '#020617']}
+        colors={gradientColors}
         style={{ flex: 1 }}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
@@ -179,7 +207,7 @@ export function WelcomeSplash({ onComplete }: WelcomeSplashProps) {
                 height: 300,
                 borderRadius: 150,
                 borderWidth: 1,
-                borderColor: 'rgba(139, 92, 246, 0.15)',
+                borderColor: ringColor1,
                 transform: [{ scale: ringScale1 }],
                 left: -150,
                 top: -150,
@@ -192,7 +220,7 @@ export function WelcomeSplash({ onComplete }: WelcomeSplashProps) {
                 height: 220,
                 borderRadius: 110,
                 borderWidth: 1,
-                borderColor: 'rgba(99, 102, 241, 0.2)',
+                borderColor: ringColor2,
                 transform: [{ scale: ringScale2 }],
                 left: -110,
                 top: -110,
@@ -205,7 +233,7 @@ export function WelcomeSplash({ onComplete }: WelcomeSplashProps) {
                 height: 140,
                 borderRadius: 70,
                 borderWidth: 1,
-                borderColor: 'rgba(59, 130, 246, 0.25)',
+                borderColor: ringColor3,
                 transform: [{ scale: ringScale3 }],
                 left: -70,
                 top: -70,
@@ -232,10 +260,10 @@ export function WelcomeSplash({ onComplete }: WelcomeSplashProps) {
               style={{
                 width: 120,
                 height: 120,
-                backgroundColor: 'rgba(139, 92, 246, 0.15)',
+                backgroundColor: logoBackdropBg,
                 left: -10,
                 top: -10,
-                shadowColor: '#8b5cf6',
+                shadowColor: accentColor,
                 shadowOffset: { width: 0, height: 0 },
                 shadowOpacity: 0.5,
                 shadowRadius: 40,
@@ -248,13 +276,13 @@ export function WelcomeSplash({ onComplete }: WelcomeSplashProps) {
                 width: 100,
                 height: 100,
                 borderRadius: 28,
-                backgroundColor: '#1e1b4b',
+                backgroundColor: logoContainerBg,
                 borderWidth: 1,
-                borderColor: 'rgba(139, 92, 246, 0.3)',
+                borderColor: logoBorderColor,
                 justifyContent: 'center',
                 alignItems: 'center',
                 transform: [{ rotate: spin }],
-                shadowColor: '#8b5cf6',
+                shadowColor: accentColor,
                 shadowOffset: { width: 0, height: 4 },
                 shadowOpacity: 0.3,
                 shadowRadius: 20,
@@ -278,7 +306,7 @@ export function WelcomeSplash({ onComplete }: WelcomeSplashProps) {
               {/* Logo Icon */}
               <View className="bg-gradient-to-br from-purple-500 to-blue-500">
                 <Animated.View style={{ transform: [{ rotate: spin }] }}>
-                  <Text className="text-4xl font-black text-white">C</Text>
+                  <Text style={{ fontSize: 36, fontWeight: '900', color: isDark ? '#ffffff' : accentColor }}>C</Text>
                 </Animated.View>
               </View>
             </Animated.View>
@@ -293,18 +321,18 @@ export function WelcomeSplash({ onComplete }: WelcomeSplashProps) {
             }}
           >
             <View className="flex-row items-center mb-3">
-              <View className="w-8 h-px bg-gradient-to-r from-transparent to-purple-500/50" />
-              <Text className="text-purple-400/80 text-xs font-semibold tracking-[0.3em] mx-3">
+              <View style={{ width: 32, height: 1, backgroundColor: `${accentColor}50` }} />
+              <Text style={{ color: accentColorLight, fontSize: 10, fontWeight: '600', letterSpacing: 3, marginHorizontal: 12 }}>
                 WELCOME TO
               </Text>
-              <View className="w-8 h-px bg-gradient-to-l from-transparent to-purple-500/50" />
+              <View style={{ width: 32, height: 1, backgroundColor: `${accentColor}50` }} />
             </View>
 
-            <Text className="text-white text-4xl font-black tracking-tight mb-2">
-              Centaur<Text className="text-purple-400">OS</Text>
+            <Text style={{ color: textPrimary, fontSize: 36, fontWeight: '900', letterSpacing: -0.5, marginBottom: 8 }}>
+              Centaur<Text style={{ color: accentColor }}>OS</Text>
             </Text>
 
-            <Text className="text-slate-500 text-sm tracking-wide">
+            <Text style={{ color: textSecondary, fontSize: 14, letterSpacing: 0.5 }}>
               The Operating System for Lean Startups
             </Text>
           </Animated.View>
@@ -319,18 +347,18 @@ export function WelcomeSplash({ onComplete }: WelcomeSplashProps) {
           >
             <View className="relative">
               {/* Quote marks */}
-              <Text className="absolute -top-2 -left-1 text-purple-500/20 text-5xl font-serif">"</Text>
+              <Text style={{ position: 'absolute', top: -8, left: -4, color: `${accentColor}33`, fontSize: 48 }}>"</Text>
 
               <View className="px-4 py-3">
-                <Text className="text-slate-400 text-base text-center leading-6 font-light">
+                <Text style={{ color: textSecondary, fontSize: 16, textAlign: 'center', lineHeight: 24, fontWeight: '300' }}>
                   {randomQuote.quote}
                 </Text>
                 <View className="flex-row items-center justify-center mt-3">
-                  <View className="w-4 h-px bg-slate-700" />
-                  <Text className="text-slate-600 text-xs font-medium mx-2">
+                  <View style={{ width: 16, height: 1, backgroundColor: dividerColor }} />
+                  <Text style={{ color: textTertiary, fontSize: 12, fontWeight: '500', marginHorizontal: 8 }}>
                     {randomQuote.author}
                   </Text>
-                  <View className="w-4 h-px bg-slate-700" />
+                  <View style={{ width: 16, height: 1, backgroundColor: dividerColor }} />
                 </View>
               </View>
             </View>
@@ -338,19 +366,19 @@ export function WelcomeSplash({ onComplete }: WelcomeSplashProps) {
 
           {/* Loading Bar */}
           <View className="absolute bottom-16 w-32">
-            <View className="h-0.5 bg-slate-800 rounded-full overflow-hidden">
+            <View style={{ height: 2, backgroundColor: loadingBarBg, borderRadius: 1, overflow: 'hidden' }}>
               <Animated.View
                 style={{
                   height: '100%',
-                  backgroundColor: '#8b5cf6',
+                  backgroundColor: accentColor,
                   width: '100%',
                   opacity: fadeAnim,
                 }}
               />
             </View>
             <View className="flex-row items-center justify-center mt-3">
-              <Zap size={12} color="#8b5cf6" />
-              <Text className="text-slate-600 text-xs ml-1.5">Loading</Text>
+              <Zap size={12} color={accentColor} />
+              <Text style={{ color: textTertiary, fontSize: 12, marginLeft: 6 }}>Loading</Text>
             </View>
           </View>
         </Animated.View>

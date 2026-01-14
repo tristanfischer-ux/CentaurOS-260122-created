@@ -566,7 +566,7 @@ export default function LearningScreen() {
     <View className="flex-1 bg-white dark:bg-slate-950">
       <ScrollView className="flex-1">
         {/* Header */}
-        <View className="p-6 border-b border-slate-800">
+        <View className="p-6 border-b border-gray-200 dark:border-slate-800">
           <View className="flex-row items-center justify-between mb-2">
             <View className="flex-row items-center gap-3">
               <View className="w-12 h-12 bg-blue-500/20 rounded-xl items-center justify-center">
@@ -598,7 +598,7 @@ export default function LearningScreen() {
                   className={`rounded-xl p-4 border-2 ${
                     isSelected
                       ? 'bg-blue-500/20 border-blue-500'
-                      : 'bg-slate-900 border-slate-800'
+                      : 'bg-gray-100 dark:bg-slate-900 border-gray-200 dark:border-slate-800'
                   } active:opacity-70`}
                 >
                   <View className="flex-row items-center justify-between">
@@ -647,7 +647,7 @@ export default function LearningScreen() {
                   key={tab.id}
                   onPress={() => setSelectedView(tab.id as any)}
                   className={`flex-1 py-3 rounded-xl flex-row items-center justify-center gap-2 ${
-                    selectedView === tab.id ? 'bg-blue-500' : 'bg-slate-900'
+                    selectedView === tab.id ? 'bg-blue-500' : 'bg-gray-100 dark:bg-slate-900'
                   }`}
                 >
                   <tab.icon size={16} color={selectedView === tab.id ? '#ffffff' : '#64748b'} />
@@ -684,7 +684,7 @@ export default function LearningScreen() {
                         key={cat.id}
                         onPress={() => setSelectedSkillCategory(cat.id)}
                         className={`px-4 py-2 rounded-lg ${
-                          selectedSkillCategory === cat.id ? 'bg-blue-500' : 'bg-slate-800'
+                          selectedSkillCategory === cat.id ? 'bg-blue-500' : 'bg-gray-200 dark:bg-slate-800'
                         }`}
                       >
                         <Text
@@ -702,7 +702,7 @@ export default function LearningScreen() {
                 {/* Skills List */}
                 <View className="gap-3">
                   {filteredSkills?.map((skill) => (
-                    <View key={skill.id} className="bg-gray-100 dark:bg-slate-900 rounded-xl p-4 border border-slate-800">
+                    <View key={skill.id} className="bg-gray-100 dark:bg-slate-900 rounded-xl p-4 border border-gray-200 dark:border-slate-800">
                       <View className="flex-row items-center justify-between mb-2">
                         <View className="flex-1">
                           <Text className="text-gray-900 dark:text-white font-semibold mb-1">{skill.name}</Text>
@@ -719,13 +719,13 @@ export default function LearningScreen() {
                           </View>
                         </View>
                         <View className="items-end">
-                          <Text className="text-blue-400 text-2xl font-bold">{skill.progress}%</Text>
-                          <Text className="text-slate-500 text-xs">progress</Text>
+                          <Text className="text-blue-500 dark:text-blue-400 text-2xl font-bold">{skill.progress}%</Text>
+                          <Text className="text-gray-500 dark:text-slate-500 text-xs">progress</Text>
                         </View>
                       </View>
 
                       {/* Progress Bar */}
-                      <View className="bg-slate-800 h-2 rounded-full overflow-hidden">
+                      <View className="bg-gray-300 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
                         <View
                           className="bg-blue-500 h-full rounded-full"
                           style={{ width: `${skill.progress}%` }}
@@ -743,7 +743,7 @@ export default function LearningScreen() {
                 <View className="flex-row items-center justify-between mb-4">
                   <Text className="text-gray-900 dark:text-white font-semibold">Training Modules</Text>
                   <View className="bg-blue-500/20 px-3 py-1 rounded-full">
-                    <Text className="text-blue-400 text-xs font-medium">
+                    <Text className="text-blue-500 dark:text-blue-400 text-xs font-medium">
                       {selectedData.trainings.filter(t => t.completed).length} / {selectedData.trainings.length} completed
                     </Text>
                   </View>
@@ -756,7 +756,7 @@ export default function LearningScreen() {
                       className={`rounded-xl p-4 border ${
                         training.completed
                           ? 'bg-emerald-500/10 border-emerald-500/30'
-                          : 'bg-slate-900 border-slate-800'
+                          : 'bg-gray-100 dark:bg-slate-900 border-gray-200 dark:border-slate-800'
                       }`}
                     >
                       <View className="flex-row items-start justify-between mb-2">
@@ -764,10 +764,10 @@ export default function LearningScreen() {
                           <Text className="text-gray-900 dark:text-white font-semibold mb-1">{training.title}</Text>
                           <Text className="text-gray-600 dark:text-slate-400 text-xs mb-2">{training.description}</Text>
                           <View className="flex-row items-center gap-2">
-                            <View className="bg-slate-800 px-2 py-1 rounded">
+                            <View className="bg-gray-200 dark:bg-slate-800 px-2 py-1 rounded">
                               <Text className="text-gray-600 dark:text-slate-400 text-xs">{training.category}</Text>
                             </View>
-                            <View className="bg-slate-800 px-2 py-1 rounded">
+                            <View className="bg-gray-200 dark:bg-slate-800 px-2 py-1 rounded">
                               <Text className="text-gray-600 dark:text-slate-400 text-xs">{training.duration}</Text>
                             </View>
                           </View>
@@ -780,7 +780,7 @@ export default function LearningScreen() {
                       </View>
 
                       {training.completed && training.completedDate && (
-                        <Text className="text-emerald-400 text-xs mt-2">
+                        <Text className="text-emerald-500 dark:text-emerald-400 text-xs mt-2">
                           Completed on {new Date(training.completedDate).toLocaleDateString()}
                         </Text>
                       )}
@@ -797,13 +797,13 @@ export default function LearningScreen() {
                   <Text className="text-gray-900 dark:text-white font-semibold">Performance Reviews</Text>
                   <Pressable className="bg-blue-500 px-3 py-2 rounded-lg flex-row items-center gap-2 active:opacity-70">
                     <Plus size={16} color="#ffffff" />
-                    <Text className="text-gray-900 dark:text-white text-sm font-semibold">New Review</Text>
+                    <Text className="text-white text-sm font-semibold">New Review</Text>
                   </Pressable>
                 </View>
 
                 <View className="gap-4">
                   {selectedData.reviews.map((review) => (
-                    <View key={review.id} className="bg-gray-100 dark:bg-slate-900 rounded-xl p-4 border border-slate-800">
+                    <View key={review.id} className="bg-gray-100 dark:bg-slate-900 rounded-xl p-4 border border-gray-200 dark:border-slate-800">
                       {/* Header */}
                       <View className="flex-row items-center justify-between mb-3">
                         <View>
@@ -811,12 +811,12 @@ export default function LearningScreen() {
                           <Text className="text-gray-600 dark:text-slate-400 text-xs">
                             Reviewed by {review.reviewerName}
                           </Text>
-                          <Text className="text-slate-500 text-xs">
+                          <Text className="text-gray-500 dark:text-slate-500 text-xs">
                             {new Date(review.date).toLocaleDateString()}
                           </Text>
                         </View>
                         <View className="bg-blue-500/20 px-3 py-2 rounded-lg">
-                          <Text className="text-blue-400 font-bold text-lg">
+                          <Text className="text-blue-500 dark:text-blue-400 font-bold text-lg">
                             {(Object.values(review.ratings).reduce((a, b) => a + b, 0) / 5).toFixed(1)}
                           </Text>
                           <Text className="text-gray-600 dark:text-slate-400 text-xs">Overall</Text>
@@ -825,7 +825,7 @@ export default function LearningScreen() {
 
                       {/* Ratings */}
                       <View className="mb-4">
-                        <Text className="text-slate-300 font-semibold text-sm mb-2">Ratings</Text>
+                        <Text className="text-gray-700 dark:text-slate-300 font-semibold text-sm mb-2">Ratings</Text>
                         {Object.entries(review.ratings).map(([key, value]) => (
                           <View key={key} className="flex-row items-center justify-between mb-2">
                             <Text className="text-gray-600 dark:text-slate-400 text-sm capitalize">{key}</Text>
@@ -834,7 +834,7 @@ export default function LearningScreen() {
                                 <Star
                                   key={star}
                                   size={14}
-                                  color={star <= value ? '#f59e0b' : '#334155'}
+                                  color={star <= value ? '#f59e0b' : '#d1d5db'}
                                   fill={star <= value ? '#f59e0b' : 'none'}
                                 />
                               ))}
@@ -845,9 +845,9 @@ export default function LearningScreen() {
 
                       {/* Strengths */}
                       <View className="mb-3">
-                        <Text className="text-emerald-400 font-semibold text-sm mb-2">Strengths</Text>
+                        <Text className="text-emerald-600 dark:text-emerald-400 font-semibold text-sm mb-2">Strengths</Text>
                         {review.strengths.map((strength, idx) => (
-                          <Text key={idx} className="text-slate-300 text-sm mb-1">
+                          <Text key={idx} className="text-gray-700 dark:text-slate-300 text-sm mb-1">
                             • {strength}
                           </Text>
                         ))}
@@ -855,9 +855,9 @@ export default function LearningScreen() {
 
                       {/* Areas for Growth */}
                       <View className="mb-3">
-                        <Text className="text-orange-400 font-semibold text-sm mb-2">Areas for Growth</Text>
+                        <Text className="text-orange-600 dark:text-orange-400 font-semibold text-sm mb-2">Areas for Growth</Text>
                         {review.areasForGrowth.map((area, idx) => (
-                          <Text key={idx} className="text-slate-300 text-sm mb-1">
+                          <Text key={idx} className="text-gray-700 dark:text-slate-300 text-sm mb-1">
                             • {area}
                           </Text>
                         ))}
@@ -865,9 +865,9 @@ export default function LearningScreen() {
 
                       {/* Goals */}
                       <View className="mb-3">
-                        <Text className="text-blue-400 font-semibold text-sm mb-2">Next Quarter Goals</Text>
+                        <Text className="text-blue-600 dark:text-blue-400 font-semibold text-sm mb-2">Next Quarter Goals</Text>
                         {review.goals.map((goal, idx) => (
-                          <Text key={idx} className="text-slate-300 text-sm mb-1">
+                          <Text key={idx} className="text-gray-700 dark:text-slate-300 text-sm mb-1">
                             • {goal}
                           </Text>
                         ))}
@@ -875,8 +875,8 @@ export default function LearningScreen() {
 
                       {/* Notes */}
                       {review.notes && (
-                        <View className="bg-slate-800 rounded-lg p-3">
-                          <Text className="text-slate-300 text-sm italic">"{review.notes}"</Text>
+                        <View className="bg-gray-200 dark:bg-slate-800 rounded-lg p-3">
+                          <Text className="text-gray-700 dark:text-slate-300 text-sm italic">"{review.notes}"</Text>
                         </View>
                       )}
                     </View>

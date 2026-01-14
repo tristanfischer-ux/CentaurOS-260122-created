@@ -12,7 +12,7 @@ import { useInitializeApp } from '@/lib/hooks/useInitializeApp';
 import { WelcomeSplash } from '@/components/WelcomeSplash';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { ToastContainer } from '@/components/ToastContainer';
-import { ThemeProvider as AppThemeProvider } from '@/lib/ThemeContext';
+import { ThemeProvider as AppThemeProvider, useTheme } from '@/lib/ThemeContext';
 
 export const unstable_settings = {
   initialRouteName: 'sign-in',
@@ -33,6 +33,26 @@ const queryClient = new QueryClient({
 function RootLayoutNav({ colorScheme }: { colorScheme: 'light' | 'dark' | null | undefined }) {
   const { isInitialized } = useInitializeApp();
   const [showWelcomeSplash, setShowWelcomeSplash] = useState(false);
+  const { theme, isOffWhite } = useTheme();
+
+  // Theme-aware colors
+  const getBackgroundColor = () => {
+    if (theme === 'dark') return '#0f172a';
+    if (isOffWhite) return '#fafaf9';
+    return '#ffffff';
+  };
+
+  const getHeaderBackgroundColor = () => {
+    if (theme === 'dark') return '#020617';
+    if (isOffWhite) return '#fafaf9';
+    return '#ffffff';
+  };
+
+  const getHeaderTintColor = () => {
+    if (theme === 'dark') return '#ffffff';
+    if (isOffWhite) return '#1c1917';
+    return '#000000';
+  };
 
   useEffect(() => {
     if (isInitialized) {
@@ -44,7 +64,7 @@ function RootLayoutNav({ colorScheme }: { colorScheme: 'light' | 'dark' | null |
 
   if (!isInitialized) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#0f172a' }}>
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: getBackgroundColor() }}>
         <ActivityIndicator size="large" color="#3b82f6" />
       </View>
     );
@@ -74,8 +94,8 @@ function RootLayoutNav({ colorScheme }: { colorScheme: 'light' | 'dark' | null |
             options={{
               headerShown: true,
               title: 'Team Utilization',
-              headerStyle: { backgroundColor: '#0f172a' },
-              headerTintColor: '#fff',
+              headerStyle: { backgroundColor: getHeaderBackgroundColor() },
+              headerTintColor: getHeaderTintColor(),
             }}
           />
           <Stack.Screen
@@ -83,8 +103,8 @@ function RootLayoutNav({ colorScheme }: { colorScheme: 'light' | 'dark' | null |
             options={{
               headerShown: true,
               title: 'Reports',
-              headerStyle: { backgroundColor: '#09090b' },
-              headerTintColor: '#fff',
+              headerStyle: { backgroundColor: getHeaderBackgroundColor() },
+              headerTintColor: getHeaderTintColor(),
             }}
           />
           <Stack.Screen
@@ -92,8 +112,8 @@ function RootLayoutNav({ colorScheme }: { colorScheme: 'light' | 'dark' | null |
             options={{
               headerShown: true,
               title: 'Organization Chart',
-              headerStyle: { backgroundColor: '#020617' },
-              headerTintColor: '#fff',
+              headerStyle: { backgroundColor: getHeaderBackgroundColor() },
+              headerTintColor: getHeaderTintColor(),
               headerShadowVisible: false,
             }}
           />
@@ -101,8 +121,8 @@ function RootLayoutNav({ colorScheme }: { colorScheme: 'light' | 'dark' | null |
             name="kpi-details"
             options={{
               headerShown: true,
-              headerStyle: { backgroundColor: '#020617' },
-              headerTintColor: '#fff',
+              headerStyle: { backgroundColor: getHeaderBackgroundColor() },
+              headerTintColor: getHeaderTintColor(),
               headerShadowVisible: false,
             }}
           />
@@ -111,8 +131,8 @@ function RootLayoutNav({ colorScheme }: { colorScheme: 'light' | 'dark' | null |
             options={{
               headerShown: true,
               title: 'Learning & Development',
-              headerStyle: { backgroundColor: '#020617' },
-              headerTintColor: '#fff',
+              headerStyle: { backgroundColor: getHeaderBackgroundColor() },
+              headerTintColor: getHeaderTintColor(),
               headerShadowVisible: false,
             }}
           />
@@ -127,8 +147,8 @@ function RootLayoutNav({ colorScheme }: { colorScheme: 'light' | 'dark' | null |
             options={{
               headerShown: true,
               title: 'Marketplace',
-              headerStyle: { backgroundColor: '#0f172a' },
-              headerTintColor: '#fff',
+              headerStyle: { backgroundColor: getHeaderBackgroundColor() },
+              headerTintColor: getHeaderTintColor(),
               headerShadowVisible: false,
             }}
           />
