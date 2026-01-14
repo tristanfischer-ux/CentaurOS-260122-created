@@ -508,19 +508,28 @@ export default function DecideScreen() {
       </ScrollView>
 
       {/* OKR Ideas Modal */}
-      <Modal visible={showIdeasModal} transparent animationType="fade" onRequestClose={() => setShowIdeasModal(false)}>
-        <View className="flex-1 bg-black/70" style={{ paddingTop: insets.top + 20, paddingBottom: insets.bottom + 20 }}>
-          <View className="flex-1 justify-center items-center px-6">
-            <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} className="w-full">
-              <View className="bg-gray-100 dark:bg-slate-900 rounded-3xl w-full" style={{ maxHeight: '85%' }}>
-                <View className="px-6 pt-6 pb-4 border-b border-gray-300 dark:border-slate-800">
+      <Modal
+        visible={showIdeasModal}
+        transparent
+        animationType="slide"
+        presentationStyle="pageSheet"
+        onRequestClose={() => setShowIdeasModal(false)}
+      >
+        <View className="flex-1 bg-black/70 justify-end">
+          <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} className="flex-1">
+            <View className="bg-gray-100 dark:bg-slate-900 rounded-t-3xl flex-1" style={{ maxHeight: '90%' }}>
+              <View className="px-6 pt-6 pb-4 border-b border-gray-300 dark:border-slate-800">
                 <View className="flex-row items-center justify-between">
                   <View className="flex-row items-center">
                     <Lightbulb size={24} color="#8b5cf6" />
                     <Text className="text-gray-900 dark:text-white text-xl font-bold ml-2">OKR Ideas</Text>
                   </View>
-                  <Pressable onPress={() => setShowIdeasModal(false)}>
-                    <X size={24} color="#94a3b8" />
+                  <Pressable
+                    onPress={() => setShowIdeasModal(false)}
+                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                    className="w-10 h-10 items-center justify-center rounded-full bg-gray-200 dark:bg-slate-800 active:opacity-70"
+                  >
+                    <X size={24} color="#64748b" />
                   </Pressable>
                 </View>
                 <Text className="text-gray-600 dark:text-slate-400 text-sm mt-2">
@@ -587,7 +596,6 @@ export default function DecideScreen() {
               </ScrollView>
             </View>
           </KeyboardAvoidingView>
-          </View>
         </View>
       </Modal>
 

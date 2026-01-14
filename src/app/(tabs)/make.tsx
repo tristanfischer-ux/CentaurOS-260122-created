@@ -339,10 +339,16 @@ export default function MakeScreen() {
       </ScrollView>
 
       {/* Supplier Detail Modal */}
-      <Modal visible={selectedSupplier !== null} transparent animationType="fade" onRequestClose={() => setSelectedSupplier(null)}>
-        <View className="flex-1 bg-black/70 justify-center items-center px-6">
+      <Modal
+        visible={selectedSupplier !== null}
+        transparent
+        animationType="slide"
+        presentationStyle="pageSheet"
+        onRequestClose={() => setSelectedSupplier(null)}
+      >
+        <View className="flex-1 bg-black/70 justify-end">
           {selectedSupplier && (
-            <View className="bg-gray-100 dark:bg-slate-900 rounded-3xl w-full" style={{ maxHeight: '90%', minHeight: '60%' }}>
+            <View className="bg-gray-100 dark:bg-slate-900 rounded-t-3xl" style={{ maxHeight: '90%' }}>
               {/* Fixed Header */}
               <View className="px-6 pt-6 pb-4 border-b border-gray-300 dark:border-slate-800">
                 <View className="flex-row items-center justify-between mb-2">
@@ -350,8 +356,12 @@ export default function MakeScreen() {
                     <Text className="text-gray-900 dark:text-white text-xl font-bold">{selectedSupplier.supplierName}</Text>
                     <Text className="text-gray-600 dark:text-slate-400 text-sm">{selectedSupplier.projectName}</Text>
                   </View>
-                  <Pressable onPress={() => setSelectedSupplier(null)}>
-                    <X size={24} color="#94a3b8" />
+                  <Pressable
+                    onPress={() => setSelectedSupplier(null)}
+                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                    className="w-10 h-10 items-center justify-center rounded-full bg-gray-200 dark:bg-slate-800 active:opacity-70"
+                  >
+                    <X size={24} color="#64748b" />
                   </Pressable>
                 </View>
               </View>
@@ -416,16 +426,26 @@ export default function MakeScreen() {
       </Modal>
 
       {/* AI Agent Detail Modal */}
-      <Modal visible={selectedAI !== null} transparent animationType="fade" onRequestClose={() => setSelectedAI(null)}>
-        <View className="flex-1 bg-black/70 justify-center items-center px-6">
+      <Modal
+        visible={selectedAI !== null}
+        transparent
+        animationType="slide"
+        presentationStyle="pageSheet"
+        onRequestClose={() => setSelectedAI(null)}
+      >
+        <View className="flex-1 bg-black/70 justify-end">
           {selectedAI && (
-            <View className="bg-gray-100 dark:bg-slate-900 rounded-3xl w-full" style={{ maxHeight: '90%', minHeight: '60%' }}>
+            <View className="bg-gray-100 dark:bg-slate-900 rounded-t-3xl" style={{ maxHeight: '90%' }}>
               {/* Fixed Header */}
               <View className="px-6 pt-6 pb-4 border-b border-gray-300 dark:border-slate-800">
                 <View className="flex-row items-center justify-between mb-2">
                   <Text className="text-gray-900 dark:text-white text-xl font-bold flex-1">{selectedAI.name}</Text>
-                  <Pressable onPress={() => setSelectedAI(null)}>
-                    <X size={24} color="#94a3b8" />
+                  <Pressable
+                    onPress={() => setSelectedAI(null)}
+                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                    className="w-10 h-10 items-center justify-center rounded-full bg-gray-200 dark:bg-slate-800 active:opacity-70"
+                  >
+                    <X size={24} color="#64748b" />
                   </Pressable>
                 </View>
                 <View className="flex-row items-center gap-2">
