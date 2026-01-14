@@ -969,9 +969,13 @@ export default function SettingsScreen() {
 
                 <Pressable
                   onPress={handleGoogleSheetsSync}
-                  disabled={syncStatus === 'syncing'}
+                  disabled={syncStatus === 'syncing' || syncStatus === 'success'}
                   className={`rounded-xl p-4 flex-row items-center justify-center gap-2 ${
-                    syncStatus === 'syncing' ? (isDark ? 'bg-slate-800' : isOffWhite ? 'bg-orange-200' : 'bg-gray-200') : 'bg-emerald-500'
+                    syncStatus === 'syncing'
+                      ? (isDark ? 'bg-slate-800' : isOffWhite ? 'bg-orange-200' : 'bg-gray-200')
+                      : syncStatus === 'success'
+                        ? 'bg-emerald-600'
+                        : 'bg-emerald-500'
                   } active:opacity-70`}
                 >
                   {syncStatus === 'syncing' ? (
