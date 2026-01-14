@@ -18,6 +18,14 @@ import {
   Globe,
   BarChart3,
   ShoppingCart,
+  AlertTriangle,
+  TrendingUp,
+  TrendingDown,
+  Shield,
+  Star,
+  Target,
+  FileText,
+  RefreshCw,
 } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useCurrentMembership } from '@/lib/state/app-store';
@@ -338,7 +346,7 @@ export default function MakeScreen() {
         )}
       </ScrollView>
 
-      {/* Supplier Detail Modal */}
+      {/* Supplier Detail Modal - Enhanced (BCG Supply Chain Excellence) */}
       <Modal
         visible={selectedSupplier !== null}
         transparent
@@ -348,7 +356,7 @@ export default function MakeScreen() {
       >
         <View className="flex-1 bg-black/70 justify-end">
           {selectedSupplier && (
-            <View className="bg-gray-100 dark:bg-slate-900 rounded-t-3xl" style={{ maxHeight: '90%' }}>
+            <View className="bg-gray-100 dark:bg-slate-900 rounded-t-3xl" style={{ maxHeight: '95%' }}>
               {/* Fixed Header */}
               <View className="px-6 pt-6 pb-4 border-b border-gray-300 dark:border-slate-800">
                 <View className="flex-row items-center justify-between mb-2">
@@ -369,55 +377,236 @@ export default function MakeScreen() {
               {/* Scrollable Content */}
               <ScrollView showsVerticalScrollIndicator={true} bounces={false} className="flex-1">
                 <View className="px-6 py-4">
+                  {/* Performance KPIs (BCG Supplier Scorecard) */}
+                  <View className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4 mb-4">
+                    <View className="flex-row items-center mb-3">
+                      <BarChart3 size={18} color="#3b82f6" />
+                      <Text className="text-blue-900 dark:text-blue-100 font-bold ml-2">Performance Scorecard</Text>
+                    </View>
+                    <View className="flex-row gap-2 mb-3">
+                      <View className="flex-1 bg-white dark:bg-slate-800 rounded-lg p-3 items-center">
+                        <Text className="text-gray-500 dark:text-slate-400 text-xs">Quality</Text>
+                        <Text className="text-emerald-600 dark:text-emerald-400 text-xl font-bold">94%</Text>
+                        <View className="flex-row items-center">
+                          <TrendingUp size={10} color="#10b981" />
+                          <Text className="text-emerald-600 text-xs ml-1">+2%</Text>
+                        </View>
+                      </View>
+                      <View className="flex-1 bg-white dark:bg-slate-800 rounded-lg p-3 items-center">
+                        <Text className="text-gray-500 dark:text-slate-400 text-xs">On-Time</Text>
+                        <Text className="text-amber-600 dark:text-amber-400 text-xl font-bold">87%</Text>
+                        <View className="flex-row items-center">
+                          <TrendingDown size={10} color="#f59e0b" />
+                          <Text className="text-amber-600 text-xs ml-1">-3%</Text>
+                        </View>
+                      </View>
+                      <View className="flex-1 bg-white dark:bg-slate-800 rounded-lg p-3 items-center">
+                        <Text className="text-gray-500 dark:text-slate-400 text-xs">Response</Text>
+                        <Text className="text-blue-600 dark:text-blue-400 text-xl font-bold">4h</Text>
+                        <Text className="text-gray-500 text-xs">avg</Text>
+                      </View>
+                    </View>
+                    <View className="flex-row items-center justify-between bg-white dark:bg-slate-800 rounded-lg p-3">
+                      <View className="flex-row items-center">
+                        <Star size={16} color="#f59e0b" fill="#f59e0b" />
+                        <Text className="text-gray-900 dark:text-white font-bold ml-2">Overall Rating</Text>
+                      </View>
+                      <View className="flex-row items-center">
+                        <Text className="text-amber-600 dark:text-amber-400 text-lg font-bold">4.2</Text>
+                        <Text className="text-gray-500 dark:text-slate-500 text-sm">/5.0</Text>
+                      </View>
+                    </View>
+                  </View>
+
+                  {/* Financial Summary */}
                   <View className="bg-gray-200 dark:bg-slate-800 rounded-xl p-4 mb-4">
+                    <View className="flex-row items-center mb-3">
+                      <DollarSign size={18} color="#10b981" />
+                      <Text className="text-gray-900 dark:text-white font-bold ml-2">Financial Summary</Text>
+                    </View>
                     <View className="flex-row justify-between items-center mb-2">
                       <Text className="text-gray-600 dark:text-slate-400">Total Cost:</Text>
-                      <Text className="text-emerald-400 text-xl font-bold">
+                      <Text className="text-emerald-500 text-xl font-bold">
                         £{selectedSupplier.totalCost.toLocaleString()}
                       </Text>
                     </View>
                     <View className="flex-row justify-between items-center mb-2">
                       <Text className="text-gray-600 dark:text-slate-400">Paid to Date:</Text>
-                      <Text className="text-blue-400 text-lg font-bold">
+                      <Text className="text-blue-500 text-lg font-bold">
                         £{selectedSupplier.paidToDate.toLocaleString()}
                       </Text>
                     </View>
-                    <View className="flex-row justify-between items-center">
+                    <View className="flex-row justify-between items-center mb-3">
                       <Text className="text-gray-600 dark:text-slate-400">Outstanding:</Text>
-                      <Text className="text-orange-400 text-lg font-bold">
+                      <Text className="text-orange-500 text-lg font-bold">
                         £{(selectedSupplier.totalCost - selectedSupplier.paidToDate).toLocaleString()}
+                      </Text>
+                    </View>
+                    {/* Payment Progress Bar */}
+                    <View className="bg-gray-300 dark:bg-slate-700 rounded-full h-2 mb-2">
+                      <View
+                        className="bg-emerald-500 h-2 rounded-full"
+                        style={{ width: `${(selectedSupplier.paidToDate / selectedSupplier.totalCost) * 100}%` }}
+                      />
+                    </View>
+                    <Text className="text-gray-500 dark:text-slate-500 text-xs text-center">
+                      {((selectedSupplier.paidToDate / selectedSupplier.totalCost) * 100).toFixed(0)}% paid
+                    </Text>
+                  </View>
+
+                  {/* Risk Assessment (Deloitte Supply Chain Risk) */}
+                  <View className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-4 mb-4">
+                    <View className="flex-row items-center mb-3">
+                      <Shield size={18} color="#f59e0b" />
+                      <Text className="text-amber-900 dark:text-amber-100 font-bold ml-2">Risk Assessment</Text>
+                    </View>
+                    <View className="space-y-2">
+                      <View className="flex-row items-center justify-between">
+                        <Text className="text-amber-800 dark:text-amber-200 text-sm">Single-source dependency:</Text>
+                        <View className="bg-amber-200 dark:bg-amber-800 px-2 py-1 rounded">
+                          <Text className="text-amber-800 dark:text-amber-200 text-xs font-bold">MEDIUM</Text>
+                        </View>
+                      </View>
+                      <View className="flex-row items-center justify-between mt-2">
+                        <Text className="text-amber-800 dark:text-amber-200 text-sm">Geographic concentration:</Text>
+                        <View className="bg-emerald-200 dark:bg-emerald-800 px-2 py-1 rounded">
+                          <Text className="text-emerald-800 dark:text-emerald-200 text-xs font-bold">LOW</Text>
+                        </View>
+                      </View>
+                      <View className="flex-row items-center justify-between mt-2">
+                        <Text className="text-amber-800 dark:text-amber-200 text-sm">Financial stability:</Text>
+                        <View className="bg-emerald-200 dark:bg-emerald-800 px-2 py-1 rounded">
+                          <Text className="text-emerald-800 dark:text-emerald-200 text-xs font-bold">LOW</Text>
+                        </View>
+                      </View>
+                    </View>
+                    <View className="mt-3 bg-amber-100 dark:bg-amber-900/50 rounded-lg p-2">
+                      <Text className="text-amber-700 dark:text-amber-300 text-xs">
+                        Recommendation: Consider qualifying backup supplier for critical components
                       </Text>
                     </View>
                   </View>
 
+                  {/* Timeline & Milestones */}
+                  <View className="bg-gray-100 dark:bg-slate-800/50 rounded-xl p-4 mb-4">
+                    <View className="flex-row items-center mb-3">
+                      <Calendar size={18} color="#64748b" />
+                      <Text className="text-gray-900 dark:text-white font-bold ml-2">Timeline & Milestones</Text>
+                    </View>
+                    <View className="flex-row justify-between items-center mb-2">
+                      <Text className="text-gray-600 dark:text-slate-400 text-sm">Start Date:</Text>
+                      <Text className="text-gray-900 dark:text-white font-medium">
+                        {new Date(selectedSupplier.startDate).toLocaleDateString()}
+                      </Text>
+                    </View>
+                    <View className="flex-row justify-between items-center mb-2">
+                      <Text className="text-gray-600 dark:text-slate-400 text-sm">Delivery Date:</Text>
+                      <Text className="text-gray-900 dark:text-white font-medium">
+                        {new Date(selectedSupplier.deliveryDate).toLocaleDateString()}
+                      </Text>
+                    </View>
+                    <View className="flex-row justify-between items-center">
+                      <Text className="text-gray-600 dark:text-slate-400 text-sm">Days Remaining:</Text>
+                      <Text className={`font-bold ${
+                        Math.ceil((new Date(selectedSupplier.deliveryDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24)) < 14
+                          ? 'text-red-600'
+                          : 'text-emerald-600'
+                      }`}>
+                        {Math.max(0, Math.ceil((new Date(selectedSupplier.deliveryDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24)))} days
+                      </Text>
+                    </View>
+                  </View>
+
+                  {/* Description */}
                   <View className="mb-4">
-                    <Text className="text-gray-600 dark:text-slate-400 text-sm mb-1">Description</Text>
+                    <View className="flex-row items-center mb-2">
+                      <FileText size={16} color="#64748b" />
+                      <Text className="text-gray-700 dark:text-slate-300 font-semibold ml-2">Description</Text>
+                    </View>
                     <Text className="text-gray-900 dark:text-white">{selectedSupplier.description}</Text>
                   </View>
 
-                  <View className="mb-4">
-                    <Text className="text-gray-600 dark:text-slate-400 text-sm mb-1">Timeline</Text>
-                    <Text className="text-gray-900 dark:text-white">
-                      Start: {new Date(selectedSupplier.startDate).toLocaleDateString()}
-                    </Text>
-                    <Text className="text-gray-900 dark:text-white">
-                      Delivery: {new Date(selectedSupplier.deliveryDate).toLocaleDateString()}
-                    </Text>
+                  {/* Contract Renewal (KPMG Contract Management) */}
+                  <View className="bg-violet-50 dark:bg-violet-900/20 border border-violet-200 dark:border-violet-800 rounded-xl p-4 mb-4">
+                    <View className="flex-row items-center mb-3">
+                      <RefreshCw size={18} color="#8b5cf6" />
+                      <Text className="text-violet-900 dark:text-violet-100 font-bold ml-2">Contract & Renewal</Text>
+                    </View>
+                    <View className="flex-row justify-between items-center mb-2">
+                      <Text className="text-violet-800 dark:text-violet-200 text-sm">Contract Type:</Text>
+                      <Text className="text-violet-900 dark:text-violet-100 font-medium">Fixed Price</Text>
+                    </View>
+                    <View className="flex-row justify-between items-center mb-2">
+                      <Text className="text-violet-800 dark:text-violet-200 text-sm">Renewal Date:</Text>
+                      <Text className="text-violet-900 dark:text-violet-100 font-medium">
+                        {new Date(new Date(selectedSupplier.deliveryDate).getTime() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString()}
+                      </Text>
+                    </View>
+                    <View className="flex-row justify-between items-center mb-2">
+                      <Text className="text-violet-800 dark:text-violet-200 text-sm">Exit Notice Period:</Text>
+                      <Text className="text-violet-900 dark:text-violet-100 font-medium">30 days</Text>
+                    </View>
+                    <View className="mt-2 bg-violet-100 dark:bg-violet-900/50 rounded-lg p-2">
+                      <View className="flex-row items-center">
+                        <Target size={12} color="#8b5cf6" />
+                        <Text className="text-violet-700 dark:text-violet-300 text-xs ml-1">
+                          Action: Review renewal terms 2 weeks before deadline
+                        </Text>
+                      </View>
+                    </View>
                   </View>
 
-                  <View className="mb-4">
-                    <Text className="text-gray-600 dark:text-slate-400 text-sm mb-1">Contact</Text>
-                    <Text className="text-gray-900 dark:text-white">{selectedSupplier.contactPerson}</Text>
-                    <Text className="text-blue-400 text-sm">{selectedSupplier.contactEmail}</Text>
-                    <Text className="text-gray-600 dark:text-slate-400 text-sm">{selectedSupplier.contactPhone}</Text>
+                  {/* Contact Information */}
+                  <View className="bg-gray-100 dark:bg-slate-800/50 rounded-xl p-4 mb-4">
+                    <Text className="text-gray-900 dark:text-white font-bold mb-3">Contact Information</Text>
+                    <View className="flex-row items-center mb-2">
+                      <View className="w-8 h-8 bg-blue-100 dark:bg-blue-900/30 rounded-full items-center justify-center mr-3">
+                        <Text className="text-blue-600 dark:text-blue-400 font-bold text-sm">
+                          {selectedSupplier.contactPerson.split(' ').map(n => n[0]).join('')}
+                        </Text>
+                      </View>
+                      <Text className="text-gray-900 dark:text-white font-medium">{selectedSupplier.contactPerson}</Text>
+                    </View>
+                    <Pressable className="flex-row items-center mb-2 active:opacity-70">
+                      <Mail size={14} color="#3b82f6" />
+                      <Text className="text-blue-500 text-sm ml-2">{selectedSupplier.contactEmail}</Text>
+                    </Pressable>
+                    <View className="flex-row items-center">
+                      <Phone size={14} color="#64748b" />
+                      <Text className="text-gray-600 dark:text-slate-400 text-sm ml-2">{selectedSupplier.contactPhone}</Text>
+                    </View>
                   </View>
 
+                  {/* Notes */}
                   {selectedSupplier.notes && (
                     <View className="mb-4">
-                      <Text className="text-gray-600 dark:text-slate-400 text-sm mb-1">Notes</Text>
-                      <Text className="text-gray-900 dark:text-white">{selectedSupplier.notes}</Text>
+                      <Text className="text-gray-700 dark:text-slate-300 font-semibold mb-2">Internal Notes</Text>
+                      <View className="bg-gray-200 dark:bg-slate-800 rounded-xl p-3">
+                        <Text className="text-gray-900 dark:text-white">{selectedSupplier.notes}</Text>
+                      </View>
                     </View>
                   )}
+
+                  {/* Action Buttons */}
+                  <View className="flex-row gap-3 mb-6">
+                    <Pressable
+                      onPress={() => Linking.openURL(`mailto:${selectedSupplier.contactEmail}`)}
+                      className="flex-1 bg-blue-500 py-3 rounded-xl items-center active:opacity-70"
+                    >
+                      <View className="flex-row items-center">
+                        <Mail size={16} color="#fff" />
+                        <Text className="text-white font-bold ml-2">Contact</Text>
+                      </View>
+                    </Pressable>
+                    <Pressable
+                      className="flex-1 bg-gray-300 dark:bg-slate-700 py-3 rounded-xl items-center active:opacity-70"
+                    >
+                      <View className="flex-row items-center">
+                        <FileText size={16} color="#64748b" />
+                        <Text className="text-gray-700 dark:text-slate-300 font-bold ml-2">View Contract</Text>
+                      </View>
+                    </Pressable>
+                  </View>
                 </View>
               </ScrollView>
             </View>

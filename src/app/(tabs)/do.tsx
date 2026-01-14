@@ -51,6 +51,17 @@ export default function DoScreen() {
   const [timeFilter, setTimeFilter] = useState<TimeFilter>('week');
   const [activeTimer, setActiveTimer] = useState<string | null>(null);
 
+  // Enhanced submission state (Deloitte/Accenture process excellence)
+  const [hoursSpent, setHoursSpent] = useState('');
+  const [blockersEncountered, setBlockersEncountered] = useState<string[]>([]);
+  const [confidenceLevel, setConfidenceLevel] = useState<'high' | 'medium' | 'low'>('high');
+  const [qualityChecklist, setQualityChecklist] = useState({
+    requirementsMet: false,
+    testedLocally: false,
+    documentationUpdated: false,
+    peerReviewed: false,
+  });
+
   const functions: BusinessFunction[] = ['Marketing', 'Sales', 'Engineering', 'Ops', 'Finance', 'Admin'];
   const isFounder = currentMembership?.role === 'Founder';
   const isExecutive = currentMembership?.role === 'FractionalExec';
@@ -150,14 +161,39 @@ export default function DoScreen() {
 
   const handleSubmitWork = () => {
     if (!selectedPlan) return;
-    // Update work plan
+
+    // Calculate quality score based on checklist and confidence
+    const checklistScore = Object.values(qualityChecklist).filter(Boolean).length * 20; // 0-80
+    const confidenceBonus = confidenceLevel === 'high' ? 20 : confidenceLevel === 'medium' ? 10 : 0;
+    const estimatedQuality = Math.min(100, checklistScore + confidenceBonus);
+
+    // Update work plan with enhanced submission data
     updateWorkPlan(selectedPlan.id, {
       needsSubmission: true,
       lastSubmittedAt: new Date().toISOString(),
+      submissionData: {
+        notes: submissionNotes,
+        hoursSpent: parseFloat(hoursSpent) || 0,
+        blockersEncountered,
+        confidenceLevel,
+        qualityChecklist,
+        estimatedQuality,
+      },
     });
+
+    // Reset form
     setShowSubmitModal(false);
     setSelectedPlan(null);
     setSubmissionNotes('');
+    setHoursSpent('');
+    setBlockersEncountered([]);
+    setConfidenceLevel('high');
+    setQualityChecklist({
+      requirementsMet: false,
+      testedLocally: false,
+      documentationUpdated: false,
+      peerReviewed: false,
+    });
   };
 
   const handleQuickProgress = (plan: WorkPlan, increment: number) => {
@@ -565,7 +601,7 @@ export default function DoScreen() {
           <View className="h-8" />
         </ScrollView>
 
-        {/* Submit Work Modal */}
+        {/* Submit Work Modal - Enhanced (Deloitte/Accenture Process Excellence) */}
         <Modal
           visible={showSubmitModal}
           transparent
@@ -575,10 +611,13 @@ export default function DoScreen() {
         >
           <View className="flex-1 bg-black/70 justify-end">
             <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} className="flex-1">
-              <View className="bg-white dark:bg-slate-900 rounded-t-3xl flex-1" style={{ maxHeight: '90%' }}>
+              <View className="bg-white dark:bg-slate-900 rounded-t-3xl flex-1" style={{ maxHeight: '95%' }}>
                 <View className="px-6 pt-6 pb-4 border-b border-gray-200 dark:border-slate-800">
                   <View className="flex-row items-center justify-between">
-                    <Text className="text-gray-900 dark:text-white text-xl font-bold">Submit Work</Text>
+                    <View>
+                      <Text className="text-gray-900 dark:text-white text-xl font-bold">Submit Work</Text>
+                      <Text className="text-gray-500 dark:text-slate-400 text-xs mt-1">Complete all sections for faster approval</Text>
+                    </View>
                     <Pressable
                       onPress={() => setShowSubmitModal(false)}
                       className="w-10 h-10 items-center justify-center rounded-full bg-gray-100 dark:bg-slate-800 active:opacity-70"
@@ -591,31 +630,231 @@ export default function DoScreen() {
                 <ScrollView showsVerticalScrollIndicator={true} className="px-6 py-4">
                   {selectedPlan && (
                     <>
-                      <Text className="text-gray-900 dark:text-white font-bold text-base mb-4">
-                        {selectedPlan.title}
-                      </Text>
-
-                      <View className="mb-4">
-                        <Text className="text-gray-600 dark:text-slate-400 text-sm mb-2">
-                          Submission Notes
+                      {/* Task Context */}
+                      <View className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4 mb-4">
+                        <Text className="text-blue-900 dark:text-blue-100 font-bold text-base mb-1">
+                          {selectedPlan.title}
                         </Text>
+                        <View className="flex-row items-center mt-2">
+                          <Target size={14} color="#3b82f6" />
+                          <Text className="text-blue-700 dark:text-blue-300 text-xs ml-1">
+                            Linked to: {selectedPlan.linkedOKRTitle}
+                          </Text>
+                        </View>
+                      </View>
+
+                      {/* Time Tracking Section */}
+                      <View className="mb-4">
+                        <View className="flex-row items-center mb-2">
+                          <Clock size={16} color="#64748b" />
+                          <Text className="text-gray-900 dark:text-white font-semibold ml-2">Time Spent</Text>
+                          <Text className="text-red-500 ml-1">*</Text>
+                        </View>
+                        <View className="flex-row items-center gap-2">
+                          <TextInput
+                            className="flex-1 bg-gray-100 dark:bg-slate-800 rounded-xl px-4 py-3 text-gray-900 dark:text-white text-base"
+                            value={hoursSpent}
+                            onChangeText={setHoursSpent}
+                            placeholder="0"
+                            placeholderTextColor="#94a3b8"
+                            keyboardType="decimal-pad"
+                          />
+                          <Text className="text-gray-600 dark:text-slate-400 font-medium">hours</Text>
+                        </View>
+                        <Text className="text-gray-500 dark:text-slate-500 text-xs mt-1">
+                          Accurate time helps with future capacity planning
+                        </Text>
+                      </View>
+
+                      {/* Quality Checklist Section */}
+                      <View className="mb-4">
+                        <View className="flex-row items-center mb-3">
+                          <CheckCircle2 size={16} color="#10b981" />
+                          <Text className="text-gray-900 dark:text-white font-semibold ml-2">Quality Checklist</Text>
+                        </View>
+                        <View className="bg-gray-50 dark:bg-slate-800/50 rounded-xl p-3">
+                          {[
+                            { key: 'requirementsMet', label: 'All requirements met', icon: Target },
+                            { key: 'testedLocally', label: 'Tested/verified locally', icon: CheckCircle2 },
+                            { key: 'documentationUpdated', label: 'Documentation updated', icon: Briefcase },
+                            { key: 'peerReviewed', label: 'Peer reviewed (if applicable)', icon: MessageSquare },
+                          ].map(({ key, label, icon: Icon }) => (
+                            <Pressable
+                              key={key}
+                              onPress={() => setQualityChecklist(prev => ({
+                                ...prev,
+                                [key]: !prev[key as keyof typeof prev]
+                              }))}
+                              className="flex-row items-center py-2 active:opacity-70"
+                            >
+                              <View className={cn(
+                                'w-6 h-6 rounded-md border-2 items-center justify-center mr-3',
+                                qualityChecklist[key as keyof typeof qualityChecklist]
+                                  ? 'bg-emerald-500 border-emerald-500'
+                                  : 'border-gray-300 dark:border-slate-600'
+                              )}>
+                                {qualityChecklist[key as keyof typeof qualityChecklist] && (
+                                  <CheckCircle2 size={14} color="#fff" />
+                                )}
+                              </View>
+                              <Icon size={14} color="#64748b" />
+                              <Text className="text-gray-700 dark:text-slate-300 ml-2 flex-1">{label}</Text>
+                            </Pressable>
+                          ))}
+                        </View>
+                        <View className="flex-row items-center mt-2">
+                          <Text className="text-gray-500 dark:text-slate-500 text-xs">Quality score: </Text>
+                          <Text className={cn(
+                            'text-xs font-bold',
+                            Object.values(qualityChecklist).filter(Boolean).length >= 3 ? 'text-emerald-600' :
+                            Object.values(qualityChecklist).filter(Boolean).length >= 2 ? 'text-amber-600' : 'text-red-600'
+                          )}>
+                            {Object.values(qualityChecklist).filter(Boolean).length * 20 + (confidenceLevel === 'high' ? 20 : confidenceLevel === 'medium' ? 10 : 0)}/100
+                          </Text>
+                        </View>
+                      </View>
+
+                      {/* Confidence Level */}
+                      <View className="mb-4">
+                        <View className="flex-row items-center mb-2">
+                          <Zap size={16} color="#64748b" />
+                          <Text className="text-gray-900 dark:text-white font-semibold ml-2">Confidence Level</Text>
+                        </View>
+                        <View className="flex-row gap-2">
+                          {(['high', 'medium', 'low'] as const).map((level) => (
+                            <Pressable
+                              key={level}
+                              onPress={() => setConfidenceLevel(level)}
+                              className={cn(
+                                'flex-1 py-3 rounded-xl items-center border-2',
+                                confidenceLevel === level
+                                  ? level === 'high' ? 'bg-emerald-100 dark:bg-emerald-900/30 border-emerald-500'
+                                    : level === 'medium' ? 'bg-amber-100 dark:bg-amber-900/30 border-amber-500'
+                                    : 'bg-red-100 dark:bg-red-900/30 border-red-500'
+                                  : 'bg-gray-100 dark:bg-slate-800 border-transparent'
+                              )}
+                            >
+                              <Text className={cn(
+                                'font-semibold capitalize',
+                                confidenceLevel === level
+                                  ? level === 'high' ? 'text-emerald-700 dark:text-emerald-300'
+                                    : level === 'medium' ? 'text-amber-700 dark:text-amber-300'
+                                    : 'text-red-700 dark:text-red-300'
+                                  : 'text-gray-600 dark:text-slate-400'
+                              )}>
+                                {level}
+                              </Text>
+                            </Pressable>
+                          ))}
+                        </View>
+                        <Text className="text-gray-500 dark:text-slate-500 text-xs mt-1">
+                          How confident are you that this meets quality standards?
+                        </Text>
+                      </View>
+
+                      {/* Blockers Encountered */}
+                      <View className="mb-4">
+                        <View className="flex-row items-center mb-2">
+                          <AlertTriangle size={16} color="#f59e0b" />
+                          <Text className="text-gray-900 dark:text-white font-semibold ml-2">Blockers Encountered</Text>
+                          <Text className="text-gray-500 dark:text-slate-500 text-xs ml-2">(optional)</Text>
+                        </View>
+                        <View className="flex-row flex-wrap gap-2 mb-2">
+                          {['Unclear requirements', 'Missing resources', 'Technical issues', 'Waiting on others', 'Scope creep'].map((blocker) => (
+                            <Pressable
+                              key={blocker}
+                              onPress={() => {
+                                setBlockersEncountered(prev =>
+                                  prev.includes(blocker)
+                                    ? prev.filter(b => b !== blocker)
+                                    : [...prev, blocker]
+                                );
+                              }}
+                              className={cn(
+                                'px-3 py-2 rounded-lg border',
+                                blockersEncountered.includes(blocker)
+                                  ? 'bg-amber-100 dark:bg-amber-900/30 border-amber-500'
+                                  : 'bg-gray-100 dark:bg-slate-800 border-gray-200 dark:border-slate-700'
+                              )}
+                            >
+                              <Text className={cn(
+                                'text-sm',
+                                blockersEncountered.includes(blocker)
+                                  ? 'text-amber-700 dark:text-amber-300 font-semibold'
+                                  : 'text-gray-600 dark:text-slate-400'
+                              )}>
+                                {blocker}
+                              </Text>
+                            </Pressable>
+                          ))}
+                        </View>
+                        <Text className="text-gray-500 dark:text-slate-500 text-xs">
+                          This helps us improve processes for future work
+                        </Text>
+                      </View>
+
+                      {/* Submission Notes */}
+                      <View className="mb-4">
+                        <View className="flex-row items-center mb-2">
+                          <MessageSquare size={16} color="#64748b" />
+                          <Text className="text-gray-900 dark:text-white font-semibold ml-2">Summary Notes</Text>
+                        </View>
                         <TextInput
-                          className="bg-gray-100 dark:bg-slate-800 rounded-xl px-4 py-3 text-gray-900 dark:text-white text-base min-h-[120px]"
+                          className="bg-gray-100 dark:bg-slate-800 rounded-xl px-4 py-3 text-gray-900 dark:text-white text-base min-h-[100px]"
                           value={submissionNotes}
                           onChangeText={setSubmissionNotes}
-                          placeholder="Describe what you've completed, any blockers encountered, and next steps..."
+                          placeholder="What was completed? Any key decisions made? What should the reviewer know?"
                           placeholderTextColor="#94a3b8"
                           multiline
                           textAlignVertical="top"
                         />
                       </View>
 
+                      {/* Submission Summary */}
+                      <View className="bg-gray-100 dark:bg-slate-800 rounded-xl p-4 mb-4">
+                        <Text className="text-gray-900 dark:text-white font-semibold mb-2">Submission Summary</Text>
+                        <View className="flex-row justify-between mb-1">
+                          <Text className="text-gray-600 dark:text-slate-400 text-sm">Time logged:</Text>
+                          <Text className="text-gray-900 dark:text-white font-medium text-sm">{hoursSpent || '0'} hours</Text>
+                        </View>
+                        <View className="flex-row justify-between mb-1">
+                          <Text className="text-gray-600 dark:text-slate-400 text-sm">Quality checks:</Text>
+                          <Text className="text-gray-900 dark:text-white font-medium text-sm">
+                            {Object.values(qualityChecklist).filter(Boolean).length}/4 passed
+                          </Text>
+                        </View>
+                        <View className="flex-row justify-between mb-1">
+                          <Text className="text-gray-600 dark:text-slate-400 text-sm">Confidence:</Text>
+                          <Text className={cn(
+                            'font-medium text-sm capitalize',
+                            confidenceLevel === 'high' ? 'text-emerald-600' :
+                            confidenceLevel === 'medium' ? 'text-amber-600' : 'text-red-600'
+                          )}>
+                            {confidenceLevel}
+                          </Text>
+                        </View>
+                        <View className="flex-row justify-between">
+                          <Text className="text-gray-600 dark:text-slate-400 text-sm">Blockers reported:</Text>
+                          <Text className="text-gray-900 dark:text-white font-medium text-sm">{blockersEncountered.length}</Text>
+                        </View>
+                      </View>
+
+                      {/* Submit Button */}
                       <Pressable
                         onPress={handleSubmitWork}
-                        className="bg-purple-500 py-4 rounded-xl active:opacity-70 flex-row items-center justify-center"
+                        disabled={!hoursSpent}
+                        className={cn(
+                          'py-4 rounded-xl flex-row items-center justify-center mb-6',
+                          hoursSpent ? 'bg-purple-500 active:opacity-70' : 'bg-gray-300 dark:bg-slate-700'
+                        )}
                       >
-                        <Send size={18} color="#fff" />
-                        <Text className="text-white text-center font-bold ml-2">Submit for Review</Text>
+                        <Send size={18} color={hoursSpent ? '#fff' : '#94a3b8'} />
+                        <Text className={cn(
+                          'text-center font-bold ml-2',
+                          hoursSpent ? 'text-white' : 'text-gray-500'
+                        )}>
+                          Submit for Review
+                        </Text>
                       </Pressable>
                     </>
                   )}

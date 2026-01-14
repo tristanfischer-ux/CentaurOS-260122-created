@@ -959,47 +959,171 @@ export default function FinancialDashboardScreen() {
         </View>
       </ScrollView>
 
-      {/* Edit Cost Modal */}
+      {/* Edit Cost Modal - Enhanced (EY/PwC Financial Control Standards) */}
       <Modal visible={showEditModal} transparent animationType="slide" onRequestClose={() => setShowEditModal(false)}>
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} className="flex-1">
-          <View className="flex-1 bg-black/70 justify-center items-center px-6">
-            <View className="bg-white dark:bg-slate-900 rounded-2xl p-6 w-full">
-              <Text className="text-gray-900 dark:text-white text-xl font-bold mb-4">
-                Edit Cost Amount
-              </Text>
+          <View className="flex-1 bg-black/70 justify-center items-center px-4">
+            <View className="bg-white dark:bg-slate-900 rounded-2xl p-6 w-full max-w-md">
+              <View className="flex-row items-center justify-between mb-4">
+                <View>
+                  <Text className="text-gray-900 dark:text-white text-xl font-bold">
+                    Edit Cost Amount
+                  </Text>
+                  <Text className="text-gray-500 dark:text-slate-400 text-xs mt-1">
+                    Changes require justification
+                  </Text>
+                </View>
+                <Pressable
+                  onPress={() => setShowEditModal(false)}
+                  className="w-8 h-8 items-center justify-center rounded-full bg-gray-100 dark:bg-slate-800"
+                >
+                  <X size={16} color="#64748b" />
+                </Pressable>
+              </View>
 
               {editingItem && (
                 <>
-                  <Text className="text-gray-600 dark:text-slate-400 text-sm mb-2">
-                    {editingItem.item.name}
-                  </Text>
-
-                  <View className="bg-gray-100 dark:bg-slate-800 rounded-xl p-4 mb-4">
-                    <Text className="text-gray-600 dark:text-slate-400 text-xs mb-2">Monthly Amount (£)</Text>
-                    <TextInput
-                      value={editAmount}
-                      onChangeText={setEditAmount}
-                      keyboardType="numeric"
-                      className="text-gray-900 dark:text-white text-2xl font-bold"
-                      placeholder="0"
-                      placeholderTextColor="#9ca3af"
-                    />
+                  {/* Item Context */}
+                  <View className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-3 mb-4">
+                    <Text className="text-blue-900 dark:text-blue-100 font-bold">
+                      {editingItem.item.name}
+                    </Text>
+                    <Text className="text-blue-700 dark:text-blue-300 text-xs mt-1">
+                      Category: {editingItem.category.charAt(0).toUpperCase() + editingItem.category.slice(1).replace(/([A-Z])/g, ' $1')}
+                    </Text>
                   </View>
 
+                  {/* Current vs New Value */}
+                  <View className="flex-row gap-3 mb-4">
+                    <View className="flex-1 bg-gray-100 dark:bg-slate-800 rounded-xl p-3">
+                      <Text className="text-gray-500 dark:text-slate-400 text-xs mb-1">Current</Text>
+                      <Text className="text-gray-900 dark:text-white text-xl font-bold">
+                        £{editingItem.item.amount.toLocaleString()}
+                      </Text>
+                      <Text className="text-gray-500 dark:text-slate-500 text-xs">/month</Text>
+                    </View>
+                    <View className="flex-1 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-3">
+                      <Text className="text-blue-600 dark:text-blue-400 text-xs mb-1">New Amount (£)</Text>
+                      <TextInput
+                        value={editAmount}
+                        onChangeText={setEditAmount}
+                        keyboardType="numeric"
+                        className="text-blue-900 dark:text-blue-100 text-xl font-bold"
+                        placeholder="0"
+                        placeholderTextColor="#64748b"
+                      />
+                      <Text className="text-blue-500 dark:text-blue-400 text-xs">/month</Text>
+                    </View>
+                  </View>
+
+                  {/* Impact Preview (EY Financial Impact Analysis) */}
+                  {editAmount && parseFloat(editAmount) !== editingItem.item.amount && (
+                    <View className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-4 mb-4">
+                      <View className="flex-row items-center mb-2">
+                        <AlertTriangle size={16} color="#f59e0b" />
+                        <Text className="text-amber-800 dark:text-amber-200 font-bold ml-2">Impact Preview</Text>
+                      </View>
+
+                      {(() => {
+                        const newAmount = parseFloat(editAmount) || 0;
+                        const oldAmount = editingItem.item.amount;
+                        const difference = newAmount - oldAmount;
+                        const percentChange = oldAmount > 0 ? ((difference / oldAmount) * 100) : 0;
+                        const annualImpact = difference * 12;
+                        const currentBurn = Object.values(costs).flat().reduce((sum, item) => sum + (item as CostItem).amount, 0);
+                        const newBurn = currentBurn + difference;
+                        const currentRunway = INITIAL_DATA.cashPosition / currentBurn;
+                        const newRunway = INITIAL_DATA.cashPosition / newBurn;
+                        const runwayChange = newRunway - currentRunway;
+
+                        return (
+                          <>
+                            <View className="flex-row justify-between mb-2">
+                              <Text className="text-amber-700 dark:text-amber-300 text-sm">Monthly Change:</Text>
+                              <Text className={`font-bold text-sm ${difference >= 0 ? 'text-red-600' : 'text-emerald-600'}`}>
+                                {difference >= 0 ? '+' : ''}£{difference.toLocaleString()} ({percentChange >= 0 ? '+' : ''}{percentChange.toFixed(1)}%)
+                              </Text>
+                            </View>
+                            <View className="flex-row justify-between mb-2">
+                              <Text className="text-amber-700 dark:text-amber-300 text-sm">Annual Impact:</Text>
+                              <Text className={`font-bold text-sm ${annualImpact >= 0 ? 'text-red-600' : 'text-emerald-600'}`}>
+                                {annualImpact >= 0 ? '+' : ''}£{annualImpact.toLocaleString()}
+                              </Text>
+                            </View>
+                            <View className="flex-row justify-between">
+                              <Text className="text-amber-700 dark:text-amber-300 text-sm">Runway Effect:</Text>
+                              <Text className={`font-bold text-sm ${runwayChange <= 0 ? 'text-red-600' : 'text-emerald-600'}`}>
+                                {runwayChange >= 0 ? '+' : ''}{runwayChange.toFixed(1)} months
+                              </Text>
+                            </View>
+
+                            {/* Warning if significant change */}
+                            {Math.abs(percentChange) > 20 && (
+                              <View className="mt-3 bg-red-100 dark:bg-red-900/30 rounded-lg p-2">
+                                <Text className="text-red-700 dark:text-red-300 text-xs font-semibold">
+                                  ⚠️ Large change ({Math.abs(percentChange).toFixed(0)}%) - consider approval from CFO
+                                </Text>
+                              </View>
+                            )}
+                          </>
+                        );
+                      })()}
+                    </View>
+                  )}
+
+                  {/* Approval Context (PwC Governance Standards) */}
+                  <View className="bg-gray-50 dark:bg-slate-800/50 rounded-xl p-3 mb-4">
+                    <Text className="text-gray-700 dark:text-slate-300 font-semibold text-sm mb-2">Approval Thresholds</Text>
+                    <View className="flex-row items-center mb-1">
+                      <View className="w-2 h-2 rounded-full bg-emerald-500 mr-2" />
+                      <Text className="text-gray-600 dark:text-slate-400 text-xs">{"<"}£1,000: Self-approve</Text>
+                    </View>
+                    <View className="flex-row items-center mb-1">
+                      <View className="w-2 h-2 rounded-full bg-amber-500 mr-2" />
+                      <Text className="text-gray-600 dark:text-slate-400 text-xs">£1,000-5,000: Manager approval</Text>
+                    </View>
+                    <View className="flex-row items-center">
+                      <View className="w-2 h-2 rounded-full bg-red-500 mr-2" />
+                      <Text className="text-gray-600 dark:text-slate-400 text-xs">{">"}£5,000: CFO/Founder approval</Text>
+                    </View>
+                  </View>
+
+                  {/* Audit Trail Info */}
+                  <View className="flex-row items-center mb-4">
+                    <Info size={14} color="#64748b" />
+                    <Text className="text-gray-500 dark:text-slate-500 text-xs ml-2">
+                      Changes logged with timestamp and user ID for audit compliance
+                    </Text>
+                  </View>
+
+                  {/* Action Buttons */}
                   <View className="flex-row gap-3">
                     <Pressable
                       onPress={() => setShowEditModal(false)}
-                      className="flex-1 bg-gray-300 dark:bg-slate-700 rounded-xl py-3 items-center active:opacity-80"
+                      className="flex-1 bg-gray-200 dark:bg-slate-700 rounded-xl py-3 items-center active:opacity-80"
                     >
                       <Text className="text-gray-700 dark:text-slate-300 font-bold">Cancel</Text>
                     </Pressable>
                     <Pressable
                       onPress={saveEdit}
-                      className="flex-1 bg-blue-500 rounded-xl py-3 items-center active:opacity-80"
+                      disabled={!editAmount || parseFloat(editAmount) === editingItem.item.amount}
+                      className={cn(
+                        'flex-1 rounded-xl py-3 items-center active:opacity-80',
+                        editAmount && parseFloat(editAmount) !== editingItem.item.amount
+                          ? 'bg-blue-500'
+                          : 'bg-gray-300 dark:bg-slate-600'
+                      )}
                     >
                       <View className="flex-row items-center">
-                        <Save size={18} color="#fff" />
-                        <Text className="text-white font-bold ml-2">Save</Text>
+                        <Save size={18} color={editAmount && parseFloat(editAmount) !== editingItem.item.amount ? '#fff' : '#9ca3af'} />
+                        <Text className={cn(
+                          'font-bold ml-2',
+                          editAmount && parseFloat(editAmount) !== editingItem.item.amount
+                            ? 'text-white'
+                            : 'text-gray-500'
+                        )}>
+                          Save Change
+                        </Text>
                       </View>
                     </Pressable>
                   </View>

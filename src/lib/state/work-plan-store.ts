@@ -20,6 +20,20 @@ export interface WorkPlan {
   needsSubmission: boolean;
   lastSubmittedAt?: string;
   feedback?: string;
+  // Enhanced submission data (Deloitte/Accenture process excellence)
+  submissionData?: {
+    notes: string;
+    hoursSpent: number;
+    blockersEncountered: string[];
+    confidenceLevel: 'high' | 'medium' | 'low';
+    qualityChecklist: {
+      requirementsMet: boolean;
+      testedLocally: boolean;
+      documentationUpdated: boolean;
+      peerReviewed: boolean;
+    };
+    estimatedQuality: number;
+  };
 }
 
 interface WorkPlanState {

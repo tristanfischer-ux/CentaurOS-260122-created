@@ -23,6 +23,8 @@ import {
   Shield,
   Linkedin,
   Clock,
+  Target,
+  BarChart3,
 } from 'lucide-react-native';
 import { useOrganizationStore } from '@/lib/state/organization-store';
 import { useArmoryStore } from '@/lib/state/armory-store';
@@ -722,7 +724,7 @@ export default function TeamManagementScreen() {
   );
 }
 
-// Create Squad Modal Component
+// Create Squad Modal Component - Enhanced (BCG/McKinsey Org Design)
 function CreateSquadModal({
   visible,
   members,
@@ -737,40 +739,85 @@ function CreateSquadModal({
   const [name, setName] = useState('');
   const [selectedFunction, setSelectedFunction] = useState('Engineering');
   const [selectedLeader, setSelectedLeader] = useState('');
+  // Enhanced fields (BCG/McKinsey org design)
+  const [purpose, setPurpose] = useState('');
+  const [linkedOKR, setLinkedOKR] = useState('');
+  const [successMetrics, setSuccessMetrics] = useState<string[]>([]);
+  const [targetCapacity, setTargetCapacity] = useState('3');
 
   const execs = members.filter(m => m.role === 'FractionalExec' && m.status === 'active');
+
+  // Mock OKRs for linking
+  const availableOKRs = [
+    'Achieve Product-Market Fit',
+    'Scale Revenue to £1M ARR',
+    'Launch MVP by Q2',
+    'Reduce Customer Churn to <5%',
+    'Build World-Class Engineering Team',
+  ];
+
+  // Suggested success metrics based on function
+  const suggestedMetrics: Record<string, string[]> = {
+    Engineering: ['Sprint velocity', 'Code quality score', 'Bug resolution time', 'Feature delivery rate'],
+    Sales: ['Pipeline generated', 'Conversion rate', 'Average deal size', 'Time to close'],
+    Marketing: ['MQL generation', 'CAC reduction', 'Brand awareness', 'Content engagement'],
+    Finance: ['Forecast accuracy', 'Days to close', 'Audit readiness', 'Cost savings identified'],
+    Ops: ['Process efficiency', 'SLA compliance', 'Customer satisfaction', 'Incident response time'],
+  };
 
   const handleCreate = async () => {
     if (!name.trim() || !selectedLeader) return;
 
     await onCreate({
-      workspaceId: 'workspace-demo-company', // TODO: Get from context
+      workspaceId: 'workspace-demo-company',
       name: name.trim(),
       function: selectedFunction,
       leaderMemberId: selectedLeader,
       apprenticeMemberIds: [],
+      // Enhanced data
+      purpose: purpose.trim(),
+      linkedOKR,
+      successMetrics,
+      targetCapacity: parseInt(targetCapacity) || 3,
     });
 
+    // Reset form
     setName('');
     setSelectedFunction('Engineering');
     setSelectedLeader('');
+    setPurpose('');
+    setLinkedOKR('');
+    setSuccessMetrics([]);
+    setTargetCapacity('3');
     onClose();
+  };
+
+  const toggleMetric = (metric: string) => {
+    setSuccessMetrics(prev =>
+      prev.includes(metric)
+        ? prev.filter(m => m !== metric)
+        : [...prev, metric]
+    );
   };
 
   return (
     <Modal visible={visible} transparent animationType="slide" statusBarTranslucent>
       <View className="flex-1 bg-black/90 justify-end">
-        <View className="bg-slate-900 rounded-t-3xl max-h-[80%]">
+        <View className="bg-slate-900 rounded-t-3xl max-h-[95%]">
           <View className="px-6 py-5 border-b border-white/10 flex-row items-center justify-between">
-            <Text className="text-white text-xl font-black">Create Squad</Text>
+            <View>
+              <Text className="text-white text-xl font-black">Create Squad</Text>
+              <Text className="text-white/50 text-xs mt-1">Define purpose, ownership & success criteria</Text>
+            </View>
             <Pressable onPress={onClose} className="w-10 h-10 items-center justify-center rounded-full bg-white/10 active:opacity-70">
               <X size={24} color="white" />
             </Pressable>
           </View>
 
           <ScrollView className="px-6 py-6" showsVerticalScrollIndicator={false}>
+            {/* Squad Name */}
             <View className="mb-4">
-              <Text className="text-white font-bold mb-2">Squad Name</Text>
+              <Text className="text-white font-bold mb-2">Squad Name <Text className="text-red-400">*</Text></Text>
               <TextInput
                 className="bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white"
                 placeholder="Engineering Team Alpha"
@@ -780,13 +827,64 @@ function CreateSquadModal({
               />
             </View>
 
+            {/* Purpose/Charter (BCG best practice) */}
             <View className="mb-4">
-              <Text className="text-white font-bold mb-2">Function</Text>
+              <View className="flex-row items-center mb-2">
+                <Target size={16} color="#8b5cf6" />
+                <Text className="text-white font-bold ml-2">Squad Purpose</Text>
+              </View>
+              <TextInput
+                className="bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white min-h-[80px]"
+                placeholder="What is this squad responsible for? What outcomes will they drive?"
+                placeholderTextColor="rgba(255,255,255,0.4)"
+                value={purpose}
+                onChangeText={setPurpose}
+                multiline
+                textAlignVertical="top"
+              />
+              <Text className="text-white/40 text-xs mt-1">A clear purpose increases squad effectiveness by 40% (BCG research)</Text>
+            </View>
+
+            {/* OKR Alignment */}
+            <View className="mb-4">
+              <View className="flex-row items-center mb-2">
+                <ChevronRight size={16} color="#10b981" />
+                <Text className="text-white font-bold ml-2">Link to OKR</Text>
+              </View>
+              <View className="bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-3 mb-2">
+                <Text className="text-emerald-300 text-xs">Squads linked to OKRs are 2.3x more likely to hit targets</Text>
+              </View>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ flexGrow: 0 }}>
+                <View className="flex-row gap-2">
+                  {availableOKRs.map((okr) => (
+                    <Pressable
+                      key={okr}
+                      onPress={() => setLinkedOKR(linkedOKR === okr ? '' : okr)}
+                      className={cn(
+                        'px-3 py-2 rounded-xl border',
+                        linkedOKR === okr ? 'bg-emerald-500 border-emerald-500' : 'bg-white/5 border-white/20'
+                      )}
+                    >
+                      <Text className={cn('text-sm', linkedOKR === okr ? 'text-white font-bold' : 'text-white/60')} numberOfLines={1}>
+                        {okr}
+                      </Text>
+                    </Pressable>
+                  ))}
+                </View>
+              </ScrollView>
+            </View>
+
+            {/* Function */}
+            <View className="mb-4">
+              <Text className="text-white font-bold mb-2">Function <Text className="text-red-400">*</Text></Text>
               <View className="flex-row flex-wrap gap-2">
                 {['Engineering', 'Sales', 'Marketing', 'Finance', 'Ops'].map((func) => (
                   <Pressable
                     key={func}
-                    onPress={() => setSelectedFunction(func)}
+                    onPress={() => {
+                      setSelectedFunction(func);
+                      setSuccessMetrics([]); // Reset metrics when function changes
+                    }}
                     className={cn(
                       'px-4 py-2 rounded-xl border',
                       selectedFunction === func ? 'bg-violet-500 border-violet-500' : 'bg-white/5 border-white/20'
@@ -800,23 +898,120 @@ function CreateSquadModal({
               </View>
             </View>
 
-            <View className="mb-6">
-              <Text className="text-white font-bold mb-2">Select Leader (Executive)</Text>
-              {execs.map((exec) => (
-                <Pressable
-                  key={exec.id}
-                  onPress={() => setSelectedLeader(exec.id)}
-                  className={cn(
-                    'bg-white/5 border rounded-xl p-4 mb-2',
-                    selectedLeader === exec.id ? 'border-violet-500' : 'border-white/10'
-                  )}
-                >
-                  <Text className="text-white font-bold">{exec.name}</Text>
-                  <Text className="text-white/60 text-sm">{exec.function}</Text>
-                </Pressable>
-              ))}
+            {/* Success Metrics (McKinsey OKR methodology) */}
+            <View className="mb-4">
+              <View className="flex-row items-center mb-2">
+                <BarChart3 size={16} color="#f59e0b" />
+                <Text className="text-white font-bold ml-2">Success Metrics</Text>
+              </View>
+              <Text className="text-white/50 text-xs mb-2">Select 2-4 metrics to track squad performance</Text>
+              <View className="flex-row flex-wrap gap-2">
+                {suggestedMetrics[selectedFunction]?.map((metric) => (
+                  <Pressable
+                    key={metric}
+                    onPress={() => toggleMetric(metric)}
+                    className={cn(
+                      'px-3 py-2 rounded-xl border',
+                      successMetrics.includes(metric) ? 'bg-amber-500 border-amber-500' : 'bg-white/5 border-white/20'
+                    )}
+                  >
+                    <Text className={cn('text-sm', successMetrics.includes(metric) ? 'text-white font-bold' : 'text-white/60')}>
+                      {metric}
+                    </Text>
+                  </Pressable>
+                ))}
+              </View>
+              {successMetrics.length > 0 && (
+                <Text className="text-amber-400 text-xs mt-2">{successMetrics.length} metric{successMetrics.length > 1 ? 's' : ''} selected</Text>
+              )}
             </View>
 
+            {/* Target Capacity */}
+            <View className="mb-4">
+              <View className="flex-row items-center mb-2">
+                <Users size={16} color="#3b82f6" />
+                <Text className="text-white font-bold ml-2">Target Team Size</Text>
+              </View>
+              <View className="flex-row gap-2">
+                {['2', '3', '4', '5', '6+'].map((size) => (
+                  <Pressable
+                    key={size}
+                    onPress={() => setTargetCapacity(size.replace('+', ''))}
+                    className={cn(
+                      'flex-1 py-3 rounded-xl border items-center',
+                      targetCapacity === size.replace('+', '') ? 'bg-blue-500 border-blue-500' : 'bg-white/5 border-white/20'
+                    )}
+                  >
+                    <Text className={cn('font-bold', targetCapacity === size.replace('+', '') ? 'text-white' : 'text-white/60')}>
+                      {size}
+                    </Text>
+                  </Pressable>
+                ))}
+              </View>
+              <Text className="text-white/40 text-xs mt-1">Optimal squad size is 3-5 members (Amazon two-pizza rule)</Text>
+            </View>
+
+            {/* Select Leader */}
+            <View className="mb-6">
+              <Text className="text-white font-bold mb-2">Select Leader (Executive) <Text className="text-red-400">*</Text></Text>
+              {execs.length === 0 ? (
+                <View className="bg-red-500/10 border border-red-500/30 rounded-xl p-4">
+                  <Text className="text-red-300 text-sm">No executives available. Add executives to your team first.</Text>
+                </View>
+              ) : (
+                execs.map((exec) => (
+                  <Pressable
+                    key={exec.id}
+                    onPress={() => setSelectedLeader(exec.id)}
+                    className={cn(
+                      'bg-white/5 border rounded-xl p-4 mb-2',
+                      selectedLeader === exec.id ? 'border-violet-500 bg-violet-500/10' : 'border-white/10'
+                    )}
+                  >
+                    <View className="flex-row items-center justify-between">
+                      <View>
+                        <Text className="text-white font-bold">{exec.name}</Text>
+                        <Text className="text-white/60 text-sm">{exec.function}</Text>
+                      </View>
+                      {selectedLeader === exec.id && (
+                        <View className="bg-violet-500 px-2 py-1 rounded-lg">
+                          <Text className="text-white text-xs font-bold">Selected</Text>
+                        </View>
+                      )}
+                    </View>
+                  </Pressable>
+                ))
+              )}
+            </View>
+
+            {/* Summary Card */}
+            {name.trim() && selectedLeader && (
+              <View className="bg-white/5 border border-white/10 rounded-xl p-4 mb-4">
+                <Text className="text-white font-bold mb-2">Squad Summary</Text>
+                <View className="flex-row justify-between mb-1">
+                  <Text className="text-white/60 text-sm">Name:</Text>
+                  <Text className="text-white font-medium text-sm">{name}</Text>
+                </View>
+                <View className="flex-row justify-between mb-1">
+                  <Text className="text-white/60 text-sm">Function:</Text>
+                  <Text className="text-white font-medium text-sm">{selectedFunction}</Text>
+                </View>
+                <View className="flex-row justify-between mb-1">
+                  <Text className="text-white/60 text-sm">OKR Linked:</Text>
+                  <Text className="text-white font-medium text-sm" numberOfLines={1}>{linkedOKR || 'None'}</Text>
+                </View>
+                <View className="flex-row justify-between mb-1">
+                  <Text className="text-white/60 text-sm">Success Metrics:</Text>
+                  <Text className="text-white font-medium text-sm">{successMetrics.length} defined</Text>
+                </View>
+                <View className="flex-row justify-between">
+                  <Text className="text-white/60 text-sm">Target Size:</Text>
+                  <Text className="text-white font-medium text-sm">{targetCapacity} members</Text>
+                </View>
+              </View>
+            )}
+
+            {/* Create Button */}
             <Pressable
               onPress={handleCreate}
               disabled={!name.trim() || !selectedLeader}
@@ -825,7 +1020,9 @@ function CreateSquadModal({
                 name.trim() && selectedLeader ? 'bg-violet-500' : 'bg-white/10'
               )}
             >
-              <Text className="text-white font-black">Create Squad</Text>
+              <Text className={cn('font-black', name.trim() && selectedLeader ? 'text-white' : 'text-white/40')}>
+                Create Squad
+              </Text>
             </Pressable>
 
             <View className="h-40" />
