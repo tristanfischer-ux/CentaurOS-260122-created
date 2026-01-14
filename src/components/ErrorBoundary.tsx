@@ -31,7 +31,8 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error('ErrorBoundary caught an error:', error, errorInfo);
+    // Silent error capture - avoid console.error to prevent infinite loops
+    // Error details are stored in state and displayed in dev mode
     this.setState({
       error,
       errorInfo,
