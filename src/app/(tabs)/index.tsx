@@ -137,8 +137,13 @@ export default function HomeScreen() {
   const teamCapacitySummary = useCapacityStore(s => s.teamSummary);
 
   // Messages and Calendar stores
-  const conversations = useMessagesStore(s => s.conversations.filter(c => c.workspaceId === currentWorkspace?.id));
+  const allConversations = useMessagesStore(s => s.conversations);
   const getEventsForDateRange = useCalendarStore(s => s.getEventsForDateRange);
+
+  // Filter conversations by workspace (memoized to prevent infinite loops)
+  const conversations = useMemo(() => {
+    return allConversations.filter(c => c.workspaceId === currentWorkspace?.id);
+  }, [allConversations, currentWorkspace?.id]);
 
   // Initialize demo data on mount
   useEffect(() => {
