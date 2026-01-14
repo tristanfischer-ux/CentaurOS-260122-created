@@ -454,7 +454,7 @@ const APPRENTICE_DATA = {
 
                 <Pressable
                   onPress={() => router.push('/create-team')}
-                  className="flex-row items-center justify-between active:opacity-70"
+                  className="flex-row items-center justify-between mb-4 active:opacity-70"
                 >
                   <View className="flex-row items-center">
                     <Bot size={20} color="#8b5cf6" />
@@ -463,6 +463,16 @@ const APPRENTICE_DATA = {
                     </Text>
                   </View>
                   <ArrowRight size={20} color="#8b5cf6" />
+                </Pressable>
+
+                {/* Manage Team Button */}
+                <Pressable
+                  onPress={() => router.push('/create-team')}
+                  className="bg-blue-500 rounded-xl py-3 items-center active:opacity-80"
+                >
+                  <Text className="text-white text-sm font-bold">
+                    Manage Team
+                  </Text>
                 </Pressable>
               </View>
             </View>
