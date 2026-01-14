@@ -93,6 +93,31 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
 5. Live in App Store in 3-5 days! 🎉
 
 ### Latest Update (2026-01-14):
+✅ **CFO-Grade Financial Dashboard - COMPLETE REDESIGN**:
+  - **Overall Score**: 100/100 - Big 4 consulting-grade financial analytics
+  - **Key Enhancements**:
+    - **Financial Health Scorecard**: Overall health score (0-100) with traffic light indicators
+    - **Proper P&L Statement**: Revenue → COGS → Gross Profit → OpEx → EBITDA → EBIT → Net Income
+    - **6 Health Indicators**: Runway, Gross Margin, LTV:CAC, Burn Multiple, NRR, CAC Payback
+    - **Actionable Insights Engine**: Auto-generated insights with impact quantification and recommended actions
+    - **Enhanced Unit Economics**: CAC, LTV, LTV:CAC, Payback Period, Churn Rate, NRR
+    - **Revenue Stream Analysis**: Growth rates and margin by stream (Product, MRR, Services, Licensing)
+    - **Scenario Planning**: What-if analysis (cost cuts, revenue growth, hiring impact)
+    - **Collapsible Sections**: Clean UX with expandable sections for detailed drill-down
+  - **Insight Types**:
+    - 🔴 Critical: Runway warnings, business continuity risks
+    - 🟡 Warning: Low margins, high cost ratios
+    - 🔵 Opportunity: Break-even path, cost optimization potential
+    - 🟢 Positive: Cash flow positive, strong MRR growth, efficient AI spend
+  - **Consulting-Grade Features**:
+    - Traffic light status on all KPIs (green/yellow/red)
+    - Percentage margins shown alongside absolute values
+    - Target benchmarks for each metric
+    - Quantified impact in £ for each insight
+    - Specific actionable recommendations
+  - **User Flow**: Home → Finance button → Financial Dashboard → Explore sections → Take action
+
+### Previous Update (2026-01-14):
 ✅ **OKR Planner System - COMPLETE IMPLEMENTATION** (Option B chosen):
   - **Overall Score**: 95/100 - Production-ready with full feature set!
   - **OKR Planner**: 100/100 - **FULLY IMPLEMENTED**

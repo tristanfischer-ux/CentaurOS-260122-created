@@ -1,10 +1,37 @@
 import { View, Text, ScrollView, Pressable, Modal, TextInput, Switch, KeyboardAvoidingView, Platform } from 'react-native';
 import { router } from 'expo-router';
-import { useState } from 'react';
-import { X, TrendingUp, TrendingDown, DollarSign, Users, Cpu, Factory, Zap, ShoppingCart, BarChart3, AlertCircle, Edit2, Plus, Minus, Save, RotateCcw, Building, Shield, Phone, Wifi, Laptop, FileText, Calculator } from 'lucide-react-native';
+import { useState, useMemo } from 'react';
+import {
+  X, TrendingUp, TrendingDown, DollarSign, Users, Cpu, Factory, Zap, ShoppingCart,
+  BarChart3, AlertCircle, Edit2, Save, RotateCcw, Building, Shield, Laptop, FileText,
+  Calculator, ChevronDown, ChevronUp, Target, AlertTriangle, CheckCircle2, Info,
+  ArrowRight, PieChart, Activity, Wallet, TrendingUpDown
+} from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { FINANCIAL_DATA, type CostItem } from '@/lib/financial-calculations';
+import { FINANCIAL_DATA, type CostItem, calculateCategoryTotal } from '@/lib/financial-calculations';
+import { CURRENT_FINANCIALS, FINANCIAL_HISTORY, calculateFinancialRatios } from '@/lib/financial-seed';
+import { cn } from '@/lib/cn';
+
+// Types for financial analysis
+interface FinancialInsight {
+  id: string;
+  type: 'critical' | 'warning' | 'opportunity' | 'positive';
+  title: string;
+  description: string;
+  impact: string;
+  action: string;
+  metric?: string;
+}
+
+interface HealthIndicator {
+  name: string;
+  value: number;
+  target: number;
+  status: 'green' | 'yellow' | 'red';
+  trend: 'up' | 'down' | 'stable';
+  description: string;
+}
 
 // Use centralized financial data
 const INITIAL_DATA = {
@@ -13,10 +40,10 @@ const INITIAL_DATA = {
   monthlyRevenue: FINANCIAL_DATA.monthlyRevenue,
 
   revenueStreams: [
-    { name: 'Product Sales', amount: 185000, growth: 12 },
-    { name: 'Subscriptions (MRR)', amount: 87000, growth: 8 },
-    { name: 'Professional Services', amount: 28000, growth: -3 },
-    { name: 'Licensing', amount: 12000, growth: 5 },
+    { name: 'Product Sales', amount: 185000, growth: 12, margin: 42 },
+    { name: 'Subscriptions (MRR)', amount: 87000, growth: 8, margin: 85 },
+    { name: 'Professional Services', amount: 28000, growth: -3, margin: 65 },
+    { name: 'Licensing', amount: 12000, growth: 5, margin: 95 },
   ],
 
   costs: FINANCIAL_DATA.costs,
@@ -26,6 +53,9 @@ const INITIAL_DATA = {
     ltv: 3600,
     grossMargin: 68,
     burnMultiple: 0.27,
+    paybackPeriod: 4.2,
+    churnRate: 2.1,
+    nrr: 108,
   },
 };
 
@@ -37,13 +67,21 @@ export default function FinancialDashboardScreen() {
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingItem, setEditingItem] = useState<{ category: string; item: CostItem } | null>(null);
   const [editAmount, setEditAmount] = useState('');
-  const [showScenario, setShowScenario] = useState(false);
+  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
+    pnl: true,
+    health: true,
+    insights: true,
+    unitEconomics: false,
+    costs: false,
+    scenarios: false,
+  });
 
-  // Calculate totals
-  const calculateCategoryTotal = (category: CostItem[]) => {
-    return category.reduce((sum, item) => sum + (item.enabled ? item.amount : 0), 0);
+  // Toggle section expansion
+  const toggleSection = (section: string) => {
+    setExpandedSections(prev => ({ ...prev, [section]: !prev[section] }));
   };
 
+  // Calculate totals
   const totalTeam = calculateCategoryTotal(costs.team);
   const totalManufacturing = calculateCategoryTotal(costs.manufacturing);
   const totalAI = calculateCategoryTotal(costs.aiTools);
@@ -58,7 +96,219 @@ export default function FinancialDashboardScreen() {
                       totalMarketing + totalFacilities + totalEquipment + totalInsurance + totalProfessional;
 
   const netCashFlow = INITIAL_DATA.monthlyRevenue - monthlyBurn;
-  const runway = INITIAL_DATA.cashPosition / monthlyBurn;
+  const runway = netCashFlow >= 0 ? 999 : INITIAL_DATA.cashPosition / Math.abs(netCashFlow);
+
+  // P&L Calculations (proper accounting structure)
+  const pnl = useMemo(() => {
+    const revenue = INITIAL_DATA.monthlyRevenue;
+    const cogs = totalManufacturing; // Direct costs
+    const grossProfit = revenue - cogs;
+    const grossMargin = revenue > 0 ? (grossProfit / revenue) * 100 : 0;
+
+    const operatingExpenses = totalTeam + totalAI + totalInfrastructure +
+                              totalMarketing + totalFacilities + totalEquipment +
+                              totalInsurance + totalProfessional;
+
+    const ebitda = grossProfit - operatingExpenses;
+    const ebitdaMargin = revenue > 0 ? (ebitda / revenue) * 100 : 0;
+
+    // For startups, assume minimal D&A
+    const depreciation = totalEquipment * 0.3; // ~30% of equipment as depreciation proxy
+    const ebit = ebitda - depreciation;
+
+    const netIncome = ebit; // Pre-tax for simplicity
+    const netMargin = revenue > 0 ? (netIncome / revenue) * 100 : 0;
+
+    return {
+      revenue,
+      cogs,
+      grossProfit,
+      grossMargin,
+      operatingExpenses,
+      ebitda,
+      ebitdaMargin,
+      depreciation,
+      ebit,
+      netIncome,
+      netMargin,
+    };
+  }, [totalManufacturing, totalTeam, totalAI, totalInfrastructure,
+      totalMarketing, totalFacilities, totalEquipment, totalInsurance, totalProfessional]);
+
+  // Financial Health Indicators
+  const healthIndicators = useMemo((): HealthIndicator[] => {
+    const ltvCacRatio = INITIAL_DATA.metrics.ltv / INITIAL_DATA.metrics.cac;
+
+    return [
+      {
+        name: 'Runway',
+        value: runway === 999 ? 999 : runway,
+        target: 18,
+        status: runway === 999 ? 'green' : runway >= 18 ? 'green' : runway >= 12 ? 'yellow' : 'red',
+        trend: 'stable',
+        description: runway === 999 ? 'Cash flow positive - infinite runway' : `${runway.toFixed(1)} months at current burn`,
+      },
+      {
+        name: 'Gross Margin',
+        value: pnl.grossMargin,
+        target: 70,
+        status: pnl.grossMargin >= 70 ? 'green' : pnl.grossMargin >= 50 ? 'yellow' : 'red',
+        trend: 'up',
+        description: 'Revenue minus direct costs',
+      },
+      {
+        name: 'LTV:CAC Ratio',
+        value: ltvCacRatio,
+        target: 3,
+        status: ltvCacRatio >= 3 ? 'green' : ltvCacRatio >= 2 ? 'yellow' : 'red',
+        trend: 'up',
+        description: 'Customer lifetime value vs acquisition cost',
+      },
+      {
+        name: 'Burn Multiple',
+        value: INITIAL_DATA.metrics.burnMultiple,
+        target: 1.5,
+        status: INITIAL_DATA.metrics.burnMultiple <= 1.5 ? 'green' : INITIAL_DATA.metrics.burnMultiple <= 2.5 ? 'yellow' : 'red',
+        trend: 'down',
+        description: 'Net burn / Net new ARR (lower is better)',
+      },
+      {
+        name: 'Net Revenue Retention',
+        value: INITIAL_DATA.metrics.nrr,
+        target: 100,
+        status: INITIAL_DATA.metrics.nrr >= 110 ? 'green' : INITIAL_DATA.metrics.nrr >= 100 ? 'yellow' : 'red',
+        trend: 'up',
+        description: 'Revenue from existing customers (>100% = expansion)',
+      },
+      {
+        name: 'CAC Payback',
+        value: INITIAL_DATA.metrics.paybackPeriod,
+        target: 12,
+        status: INITIAL_DATA.metrics.paybackPeriod <= 12 ? 'green' : INITIAL_DATA.metrics.paybackPeriod <= 18 ? 'yellow' : 'red',
+        trend: 'down',
+        description: 'Months to recover customer acquisition cost',
+      },
+    ];
+  }, [runway, pnl.grossMargin]);
+
+  // Generate actionable insights
+  const insights = useMemo((): FinancialInsight[] => {
+    const result: FinancialInsight[] = [];
+
+    // Runway insights
+    if (runway !== 999 && runway < 12) {
+      result.push({
+        id: 'runway-critical',
+        type: 'critical',
+        title: 'Runway Below 12 Months',
+        description: `Current runway is ${runway.toFixed(1)} months. Immediate action required.`,
+        impact: 'Business continuity at risk',
+        action: 'Reduce burn by 20% or secure bridge funding within 60 days',
+        metric: `${runway.toFixed(1)} months`,
+      });
+    }
+
+    // Gross margin insights
+    if (pnl.grossMargin < 50) {
+      result.push({
+        id: 'margin-warning',
+        type: 'warning',
+        title: 'Low Gross Margin',
+        description: `Gross margin at ${pnl.grossMargin.toFixed(1)}% is below SaaS benchmark of 70%+`,
+        impact: `£${((0.7 - pnl.grossMargin/100) * pnl.revenue / 1000).toFixed(0)}K monthly opportunity`,
+        action: 'Review COGS structure, negotiate supplier terms, or increase pricing',
+      });
+    }
+
+    // Team cost efficiency
+    const teamCostRatio = (totalTeam / pnl.revenue) * 100;
+    if (teamCostRatio > 50) {
+      result.push({
+        id: 'team-cost',
+        type: 'warning',
+        title: 'High Team Cost Ratio',
+        description: `Team costs are ${teamCostRatio.toFixed(0)}% of revenue (target: <40%)`,
+        impact: `£${((teamCostRatio - 40) * pnl.revenue / 100 / 1000).toFixed(0)}K above optimal`,
+        action: 'Increase revenue per employee or optimize team structure',
+      });
+    }
+
+    // MRR growth opportunity
+    const mrrStream = INITIAL_DATA.revenueStreams.find(s => s.name.includes('MRR'));
+    if (mrrStream && mrrStream.growth > 0) {
+      result.push({
+        id: 'mrr-growth',
+        type: 'positive',
+        title: 'Strong MRR Growth',
+        description: `Subscriptions growing at ${mrrStream.growth}% MoM`,
+        impact: `Predictable revenue increasing £${((mrrStream.amount * mrrStream.growth / 100) / 1000).toFixed(0)}K/month`,
+        action: 'Double down on subscription conversion. Consider annual plans for cash acceleration.',
+      });
+    }
+
+    // AI tool ROI
+    const aiCostRatio = (totalAI / pnl.revenue) * 100;
+    if (aiCostRatio < 2) {
+      result.push({
+        id: 'ai-efficient',
+        type: 'positive',
+        title: 'Efficient AI Spend',
+        description: `AI tools at ${aiCostRatio.toFixed(1)}% of revenue is well-optimized`,
+        impact: 'Below industry average of 3-5%',
+        action: 'Consider strategic AI investments to accelerate productivity',
+      });
+    } else if (aiCostRatio > 5) {
+      result.push({
+        id: 'ai-cost',
+        type: 'opportunity',
+        title: 'AI Cost Optimization',
+        description: `AI spend at ${aiCostRatio.toFixed(1)}% of revenue above benchmark`,
+        impact: `£${((aiCostRatio - 3) * pnl.revenue / 100 / 1000).toFixed(0)}K potential savings`,
+        action: 'Audit AI tool usage, consolidate vendors, negotiate volume discounts',
+      });
+    }
+
+    // Cash flow positive
+    if (netCashFlow > 0) {
+      result.push({
+        id: 'cash-positive',
+        type: 'positive',
+        title: 'Cash Flow Positive',
+        description: `Generating +£${(netCashFlow / 1000).toFixed(0)}K monthly`,
+        impact: 'Self-sustaining operations achieved',
+        action: 'Consider reinvestment in growth or building cash reserves',
+      });
+    }
+
+    // Marketing efficiency
+    const marketingRoi = pnl.revenue / (totalMarketing || 1);
+    if (totalMarketing > 0 && marketingRoi > 50) {
+      result.push({
+        id: 'marketing-roi',
+        type: 'positive',
+        title: 'Strong Marketing ROI',
+        description: `£${marketingRoi.toFixed(0)} revenue per £1 marketing spend`,
+        impact: 'Excellent customer acquisition efficiency',
+        action: 'Scale marketing spend incrementally while monitoring CAC',
+      });
+    }
+
+    // Break-even analysis
+    const breakEvenRevenue = monthlyBurn / (pnl.grossMargin / 100 || 1);
+    const revenueGap = breakEvenRevenue - pnl.revenue;
+    if (revenueGap > 0 && netCashFlow < 0) {
+      result.push({
+        id: 'break-even',
+        type: 'opportunity',
+        title: 'Path to Break-Even',
+        description: `Need £${(revenueGap / 1000).toFixed(0)}K additional monthly revenue`,
+        impact: `${((revenueGap / pnl.revenue) * 100).toFixed(0)}% revenue increase required`,
+        action: 'Focus on high-margin revenue streams (subscriptions, licensing)',
+      });
+    }
+
+    return result;
+  }, [runway, pnl, totalTeam, totalAI, totalMarketing, monthlyBurn, netCashFlow]);
 
   // Toggle cost item
   const toggleCostItem = (categoryKey: string, itemId: string) => {
@@ -100,7 +350,133 @@ export default function FinancialDashboardScreen() {
     setCosts(INITIAL_DATA.costs);
   };
 
-  // Render cost category
+  // Calculate overall financial health score
+  const healthScore = useMemo(() => {
+    const greenCount = healthIndicators.filter(h => h.status === 'green').length;
+    const yellowCount = healthIndicators.filter(h => h.status === 'yellow').length;
+    const totalIndicators = healthIndicators.length;
+
+    const score = ((greenCount * 100) + (yellowCount * 50)) / totalIndicators;
+
+    return {
+      score: Math.round(score),
+      label: score >= 80 ? 'Strong' : score >= 60 ? 'Moderate' : 'Needs Attention',
+      color: score >= 80 ? '#10b981' : score >= 60 ? '#f59e0b' : '#ef4444',
+    };
+  }, [healthIndicators]);
+
+  // Render P&L line item
+  const renderPnLLine = (label: string, amount: number, isSubtotal?: boolean, isNegative?: boolean, percentage?: number) => (
+    <View className={cn('flex-row justify-between py-2', isSubtotal && 'border-t border-gray-200 dark:border-slate-700 pt-3')}>
+      <Text className={cn(
+        'text-sm',
+        isSubtotal ? 'text-gray-900 dark:text-white font-bold' : 'text-gray-700 dark:text-slate-300'
+      )}>
+        {label}
+      </Text>
+      <View className="flex-row items-center">
+        {percentage !== undefined && (
+          <Text className="text-gray-500 dark:text-slate-500 text-xs mr-3">
+            {percentage.toFixed(1)}%
+          </Text>
+        )}
+        <Text className={cn(
+          'text-sm font-semibold',
+          isSubtotal ? 'text-gray-900 dark:text-white' : 'text-gray-700 dark:text-slate-300',
+          isNegative && !isSubtotal && 'text-red-500 dark:text-red-400',
+          amount > 0 && isSubtotal && amount === pnl.netIncome && (amount >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400')
+        )}>
+          {isNegative && amount > 0 ? '(' : ''}{amount < 0 ? '-' : ''}£{(Math.abs(amount) / 1000).toFixed(1)}K{isNegative && amount > 0 ? ')' : ''}
+        </Text>
+      </View>
+    </View>
+  );
+
+  // Render health indicator
+  const renderHealthIndicator = (indicator: HealthIndicator) => (
+    <View key={indicator.name} className="bg-gray-50 dark:bg-slate-800/50 rounded-xl p-4 mb-2">
+      <View className="flex-row items-center justify-between mb-2">
+        <Text className="text-gray-900 dark:text-white font-semibold text-sm">{indicator.name}</Text>
+        <View className={cn(
+          'px-2 py-1 rounded-full',
+          indicator.status === 'green' && 'bg-emerald-100 dark:bg-emerald-900/30',
+          indicator.status === 'yellow' && 'bg-amber-100 dark:bg-amber-900/30',
+          indicator.status === 'red' && 'bg-red-100 dark:bg-red-900/30'
+        )}>
+          <Text className={cn(
+            'text-xs font-bold',
+            indicator.status === 'green' && 'text-emerald-700 dark:text-emerald-400',
+            indicator.status === 'yellow' && 'text-amber-700 dark:text-amber-400',
+            indicator.status === 'red' && 'text-red-700 dark:text-red-400'
+          )}>
+            {indicator.status === 'green' ? 'HEALTHY' : indicator.status === 'yellow' ? 'MONITOR' : 'ACTION'}
+          </Text>
+        </View>
+      </View>
+      <View className="flex-row items-end justify-between">
+        <View>
+          <Text className="text-gray-900 dark:text-white text-2xl font-bold">
+            {indicator.value === 999 ? '∞' : indicator.name === 'Gross Margin' || indicator.name === 'Net Revenue Retention'
+              ? `${indicator.value.toFixed(1)}%`
+              : indicator.name === 'LTV:CAC Ratio'
+                ? `${indicator.value.toFixed(1)}x`
+                : indicator.name === 'CAC Payback' || indicator.name === 'Runway'
+                  ? `${indicator.value.toFixed(1)}mo`
+                  : indicator.value.toFixed(2)}
+          </Text>
+          <Text className="text-gray-500 dark:text-slate-400 text-xs mt-1">{indicator.description}</Text>
+        </View>
+        <View className="items-end">
+          <Text className="text-gray-500 dark:text-slate-500 text-xs">Target</Text>
+          <Text className="text-gray-700 dark:text-slate-300 font-semibold">
+            {indicator.name === 'Gross Margin' || indicator.name === 'Net Revenue Retention'
+              ? `${indicator.target}%`
+              : indicator.name === 'LTV:CAC Ratio'
+                ? `${indicator.target}x`
+                : indicator.name === 'CAC Payback' || indicator.name === 'Runway'
+                  ? `${indicator.target}mo`
+                  : `≤${indicator.target}`}
+          </Text>
+        </View>
+      </View>
+    </View>
+  );
+
+  // Render insight card
+  const renderInsight = (insight: FinancialInsight) => {
+    const colors = {
+      critical: { bg: 'bg-red-50 dark:bg-red-900/20', border: 'border-red-200 dark:border-red-800', icon: '#ef4444', text: 'text-red-900 dark:text-red-100' },
+      warning: { bg: 'bg-amber-50 dark:bg-amber-900/20', border: 'border-amber-200 dark:border-amber-800', icon: '#f59e0b', text: 'text-amber-900 dark:text-amber-100' },
+      opportunity: { bg: 'bg-blue-50 dark:bg-blue-900/20', border: 'border-blue-200 dark:border-blue-800', icon: '#3b82f6', text: 'text-blue-900 dark:text-blue-100' },
+      positive: { bg: 'bg-emerald-50 dark:bg-emerald-900/20', border: 'border-emerald-200 dark:border-emerald-800', icon: '#10b981', text: 'text-emerald-900 dark:text-emerald-100' },
+    };
+    const style = colors[insight.type];
+    const Icon = insight.type === 'critical' ? AlertCircle : insight.type === 'warning' ? AlertTriangle : insight.type === 'opportunity' ? Target : CheckCircle2;
+
+    return (
+      <View key={insight.id} className={cn('rounded-xl p-4 mb-3 border', style.bg, style.border)}>
+        <View className="flex-row items-start mb-2">
+          <Icon size={20} color={style.icon} />
+          <View className="flex-1 ml-3">
+            <Text className={cn('font-bold text-sm', style.text)}>{insight.title}</Text>
+            <Text className={cn('text-sm mt-1 opacity-80', style.text)}>{insight.description}</Text>
+          </View>
+        </View>
+        <View className="bg-white/50 dark:bg-slate-900/50 rounded-lg p-3 mt-2">
+          <View className="flex-row justify-between mb-2">
+            <Text className="text-gray-600 dark:text-slate-400 text-xs font-semibold">IMPACT</Text>
+            <Text className={cn('text-xs font-medium', style.text)}>{insight.impact}</Text>
+          </View>
+          <View className="flex-row items-center">
+            <ArrowRight size={14} color={style.icon} />
+            <Text className={cn('text-xs ml-2 flex-1', style.text)}>{insight.action}</Text>
+          </View>
+        </View>
+      </View>
+    );
+  };
+
+  // Render cost category (collapsed)
   const renderCostCategory = (
     title: string,
     icon: any,
@@ -109,49 +485,44 @@ export default function FinancialDashboardScreen() {
     categoryKey: string,
     total: number
   ) => (
-    <View className="bg-gray-100 dark:bg-slate-900 rounded-xl p-4 border border-gray-300 dark:border-slate-800 mb-4">
+    <View className="bg-gray-100 dark:bg-slate-900 rounded-xl p-4 border border-gray-300 dark:border-slate-800 mb-3">
       <View className="flex-row items-center justify-between mb-3">
         <View className="flex-row items-center">
           {icon}
-          <Text className="text-gray-900 dark:text-white font-bold text-base ml-2">{title}</Text>
+          <Text className="text-gray-900 dark:text-white font-bold text-sm ml-2">{title}</Text>
         </View>
-        <Text className={`font-bold text-lg`} style={{ color: iconColor }}>
+        <Text className="font-bold text-sm" style={{ color: iconColor }}>
           £{(total / 1000).toFixed(1)}K/mo
         </Text>
       </View>
-      <View className="gap-3">
+      <View className="gap-2">
         {items.map((item) => (
-          <View key={item.id} className={`${!item.enabled ? 'opacity-40' : ''}`}>
-            <View className="flex-row items-center justify-between mb-1">
-              <View className="flex-row items-center flex-shrink">
-                <Switch
-                  value={item.enabled}
-                  onValueChange={() => toggleCostItem(categoryKey, item.id)}
-                  trackColor={{ false: '#cbd5e1', true: '#3b82f6' }}
-                  thumbColor="#fff"
-                  style={{ transform: [{ scaleX: 0.9 }, { scaleY: 0.9 }] }}
-                />
-                <Text className="text-gray-900 dark:text-white font-semibold text-sm ml-3">
-                  {item.name}
-                </Text>
-              </View>
-              <View className="flex-row items-center ml-2">
-                <Text className="text-gray-900 dark:text-white font-bold mr-2">
-                  £{item.amount >= 1000 ? `${(item.amount / 1000).toFixed(1)}K` : item.amount.toFixed(0)}
-                </Text>
-                {item.editable && (
-                  <Pressable
-                    onPress={() => openEditModal(categoryKey, item)}
-                    className="w-8 h-8 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-900/30 active:opacity-70"
-                  >
-                    <Edit2 size={14} color="#3b82f6" />
-                  </Pressable>
-                )}
-              </View>
+          <View key={item.id} className={cn('flex-row items-center justify-between', !item.enabled && 'opacity-40')}>
+            <View className="flex-row items-center flex-1">
+              <Switch
+                value={item.enabled}
+                onValueChange={() => toggleCostItem(categoryKey, item.id)}
+                trackColor={{ false: '#cbd5e1', true: '#3b82f6' }}
+                thumbColor="#fff"
+                style={{ transform: [{ scaleX: 0.8 }, { scaleY: 0.8 }] }}
+              />
+              <Text className="text-gray-700 dark:text-slate-300 text-xs ml-2 flex-1" numberOfLines={1}>
+                {item.name}
+              </Text>
             </View>
-            {item.details && (
-              <Text className="text-gray-600 dark:text-slate-400 text-xs ml-14">{item.details}</Text>
-            )}
+            <View className="flex-row items-center">
+              <Text className="text-gray-900 dark:text-white font-semibold text-xs">
+                £{item.amount >= 1000 ? `${(item.amount / 1000).toFixed(1)}K` : item.amount.toFixed(0)}
+              </Text>
+              {item.editable && (
+                <Pressable
+                  onPress={() => openEditModal(categoryKey, item)}
+                  className="w-6 h-6 items-center justify-center rounded-md bg-blue-100 dark:bg-blue-900/30 ml-2 active:opacity-70"
+                >
+                  <Edit2 size={12} color="#3b82f6" />
+                </Pressable>
+              )}
+            </View>
           </View>
         ))}
       </View>
@@ -163,8 +534,8 @@ export default function FinancialDashboardScreen() {
       {/* Header */}
       <View className="px-6 py-4 flex-row items-center justify-between border-b border-gray-200 dark:border-slate-800">
         <View>
-          <Text className="text-gray-900 dark:text-white text-2xl font-bold">Financial Dashboard</Text>
-          <Text className="text-gray-600 dark:text-slate-400 text-sm">Manage all costs and assumptions</Text>
+          <Text className="text-gray-900 dark:text-white text-xl font-bold">Financial Dashboard</Text>
+          <Text className="text-gray-500 dark:text-slate-400 text-xs">CFO-Grade Analytics & Insights</Text>
         </View>
         <Pressable
           onPress={() => router.back()}
@@ -176,222 +547,415 @@ export default function FinancialDashboardScreen() {
 
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
         <View className="px-6 py-4">
-          {/* Key Metrics Card */}
+          {/* Financial Health Score Card */}
           <LinearGradient
-            colors={['#10b981', '#14b8a6']}
+            colors={netCashFlow >= 0 ? ['#10b981', '#059669'] : runway >= 18 ? ['#3b82f6', '#2563eb'] : runway >= 12 ? ['#f59e0b', '#d97706'] : ['#ef4444', '#dc2626']}
             start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 0 }}
-            style={{ borderRadius: 16, padding: 20, marginBottom: 16 }}
+            end={{ x: 1, y: 1 }}
+            style={{ borderRadius: 20, padding: 20, marginBottom: 16 }}
           >
-            <View className="flex-row items-center justify-between mb-4">
+            <View className="flex-row items-start justify-between mb-4">
               <View>
-                <Text className="text-emerald-100 text-xs font-semibold mb-1">RUNWAY</Text>
-                <Text className="text-white text-4xl font-bold">
-                  {runway.toFixed(1)} months
-                </Text>
+                <Text className="text-white/70 text-xs font-semibold mb-1">FINANCIAL HEALTH</Text>
+                <Text className="text-white text-3xl font-bold">{healthScore.label}</Text>
+                <Text className="text-white/80 text-sm mt-1">Score: {healthScore.score}/100</Text>
               </View>
-              <BarChart3 size={40} color="#fff" />
+              <View className="bg-white/20 rounded-xl p-3">
+                <Activity size={32} color="#fff" />
+              </View>
             </View>
 
-            <View className="h-px bg-white/20 mb-4" />
-
-            <View className="gap-3">
-              <View className="flex-row justify-between">
-                <Text className="text-emerald-100 text-sm">Cash Position</Text>
-                <Text className="text-white text-lg font-bold">
-                  £{(INITIAL_DATA.cashPosition / 1000).toFixed(0)}K
-                </Text>
-              </View>
-              <View className="flex-row justify-between">
-                <Text className="text-emerald-100 text-sm">Monthly Revenue</Text>
-                <Text className="text-white text-lg font-bold">
-                  £{(INITIAL_DATA.monthlyRevenue / 1000).toFixed(0)}K
-                </Text>
-              </View>
-              <View className="flex-row justify-between">
-                <Text className="text-emerald-100 text-sm">Monthly Burn</Text>
-                <Text className="text-white text-lg font-bold">
-                  £{(monthlyBurn / 1000).toFixed(0)}K
-                </Text>
-              </View>
-              <View className="flex-row justify-between">
-                <Text className="text-emerald-100 text-sm">Net Cash Flow</Text>
-                <View className="flex-row items-center">
-                  {netCashFlow >= 0 ? (
-                    <TrendingUp size={16} color="#fff" />
-                  ) : (
-                    <TrendingDown size={16} color="#fff" />
-                  )}
-                  <Text className="text-white text-lg font-bold ml-1">
-                    {netCashFlow >= 0 ? '+' : ''}£{(netCashFlow / 1000).toFixed(0)}K
+            <View className="bg-white/10 rounded-xl p-4">
+              <View className="flex-row justify-between mb-3">
+                <View className="flex-1">
+                  <Text className="text-white/60 text-xs mb-1">Cash Position</Text>
+                  <Text className="text-white text-xl font-bold">£{(INITIAL_DATA.cashPosition / 1000).toFixed(0)}K</Text>
+                </View>
+                <View className="flex-1">
+                  <Text className="text-white/60 text-xs mb-1">Runway</Text>
+                  <Text className="text-white text-xl font-bold">
+                    {runway === 999 ? '∞' : `${runway.toFixed(1)}mo`}
                   </Text>
                 </View>
+                <View className="flex-1">
+                  <Text className="text-white/60 text-xs mb-1">Net Cash Flow</Text>
+                  <View className="flex-row items-center">
+                    {netCashFlow >= 0 ? <TrendingUp size={16} color="#fff" /> : <TrendingDown size={16} color="#fff" />}
+                    <Text className="text-white text-xl font-bold ml-1">
+                      {netCashFlow >= 0 ? '+' : ''}£{(netCashFlow / 1000).toFixed(0)}K
+                    </Text>
+                  </View>
+                </View>
+              </View>
+
+              {/* Quick Status Indicators */}
+              <View className="flex-row gap-2 pt-3 border-t border-white/20">
+                {healthIndicators.slice(0, 3).map((ind, idx) => (
+                  <View key={idx} className="flex-1 flex-row items-center">
+                    <View className={cn(
+                      'w-2 h-2 rounded-full mr-2',
+                      ind.status === 'green' && 'bg-emerald-300',
+                      ind.status === 'yellow' && 'bg-amber-300',
+                      ind.status === 'red' && 'bg-red-300'
+                    )} />
+                    <Text className="text-white/80 text-xs" numberOfLines={1}>{ind.name}</Text>
+                  </View>
+                ))}
               </View>
             </View>
           </LinearGradient>
 
-          {/* Action Buttons */}
-          <View className="flex-row gap-3 mb-4">
-            <Pressable
-              onPress={() => setShowScenario(!showScenario)}
-              className="flex-1 bg-blue-500 rounded-xl py-2 items-center active:opacity-80"
-            >
-              <View className="flex-row items-center">
-                <Calculator size={16} color="#fff" />
-                <Text className="text-white font-semibold text-sm ml-2">Scenarios</Text>
+          {/* P&L Statement Section */}
+          <Pressable
+            onPress={() => toggleSection('pnl')}
+            className="flex-row items-center justify-between mb-3"
+          >
+            <View className="flex-row items-center">
+              <View className="w-8 h-8 bg-blue-100 dark:bg-blue-900/30 rounded-lg items-center justify-center mr-3">
+                <FileText size={18} color="#3b82f6" />
               </View>
-            </Pressable>
-            <Pressable
-              onPress={resetToDefaults}
-              className="flex-1 bg-gray-300 dark:bg-slate-700 rounded-xl py-2 items-center active:opacity-80"
-            >
-              <View className="flex-row items-center">
-                <RotateCcw size={16} color="#64748b" />
-                <Text className="text-gray-700 dark:text-slate-300 font-semibold text-sm ml-2">Reset</Text>
-              </View>
-            </Pressable>
-          </View>
+              <Text className="text-gray-900 dark:text-white font-bold text-base">Profit & Loss Statement</Text>
+            </View>
+            {expandedSections.pnl ? <ChevronUp size={20} color="#64748b" /> : <ChevronDown size={20} color="#64748b" />}
+          </Pressable>
 
-          {/* Scenario Planning */}
-          {showScenario && (
-            <View className="bg-amber-50 dark:bg-amber-900/20 border-2 border-amber-300 dark:border-amber-700 rounded-xl p-4 mb-4">
-              <View className="flex-row items-center mb-3">
-                <Calculator size={20} color="#f59e0b" />
-                <Text className="text-amber-900 dark:text-amber-100 font-bold text-base ml-2">
-                  Scenario Analysis
-                </Text>
-              </View>
+          {expandedSections.pnl && (
+            <View className="bg-gray-50 dark:bg-slate-900 rounded-xl p-4 mb-4 border border-gray-200 dark:border-slate-800">
+              <Text className="text-gray-500 dark:text-slate-500 text-xs font-semibold mb-3">MONTHLY P&L (£'000s)</Text>
 
-              <Text className="text-amber-800 dark:text-amber-200 text-sm font-semibold mb-2">
-                What if you cut 30% of discretionary spend?
-              </Text>
-              <View className="bg-white dark:bg-slate-900 rounded-lg p-3 mb-3">
-                <Text className="text-gray-600 dark:text-slate-400 text-xs mb-1">New Monthly Burn</Text>
-                <Text className="text-gray-900 dark:text-white text-xl font-bold">
-                  £{((monthlyBurn - (totalMarketing + totalFacilities * 0.3)) / 1000).toFixed(0)}K
-                </Text>
-                <Text className="text-emerald-600 dark:text-emerald-400 text-xs mt-1">
-                  Runway extends to {(INITIAL_DATA.cashPosition / (monthlyBurn - (totalMarketing + totalFacilities * 0.3))).toFixed(1)} months
-                </Text>
-              </View>
+              {renderPnLLine('Revenue', pnl.revenue, false, false, 100)}
+              {renderPnLLine('Cost of Goods Sold (COGS)', pnl.cogs, false, true)}
+              {renderPnLLine('Gross Profit', pnl.grossProfit, true, false, pnl.grossMargin)}
 
-              <Text className="text-amber-800 dark:text-amber-200 text-sm font-semibold mb-2">
-                What if you onboard 2 more Executives?
-              </Text>
-              <View className="bg-white dark:bg-slate-900 rounded-lg p-3 mb-3">
-                <Text className="text-gray-600 dark:text-slate-400 text-xs mb-1">New Monthly Burn</Text>
-                <Text className="text-gray-900 dark:text-white text-xl font-bold">
-                  £{((monthlyBurn + 14000) / 1000).toFixed(0)}K
-                </Text>
-                <Text className="text-red-600 dark:text-red-400 text-xs mt-1">
-                  Runway reduces to {(INITIAL_DATA.cashPosition / (monthlyBurn + 14000)).toFixed(1)} months
-                </Text>
-              </View>
+              <View className="h-px bg-gray-200 dark:bg-slate-700 my-2" />
 
-              <Text className="text-amber-800 dark:text-amber-200 text-sm font-semibold mb-2">
-                What if revenue grows 20%?
-              </Text>
-              <View className="bg-white dark:bg-slate-900 rounded-lg p-3">
-                <Text className="text-gray-600 dark:text-slate-400 text-xs mb-1">New Monthly Cash Flow</Text>
-                <Text className="text-gray-900 dark:text-white text-xl font-bold">
-                  +£{((INITIAL_DATA.monthlyRevenue * 1.2 - monthlyBurn) / 1000).toFixed(0)}K
-                </Text>
-                <Text className="text-emerald-600 dark:text-emerald-400 text-xs mt-1">
-                  Cash positive! Revenue covers all costs
-                </Text>
+              <Text className="text-gray-500 dark:text-slate-500 text-xs font-semibold mb-2 mt-2">Operating Expenses</Text>
+              {renderPnLLine('  Team Costs', totalTeam, false, true)}
+              {renderPnLLine('  AI & Software', totalAI + totalInfrastructure, false, true)}
+              {renderPnLLine('  Marketing & Sales', totalMarketing, false, true)}
+              {renderPnLLine('  G&A (Facilities, Insurance, Prof.)', totalFacilities + totalInsurance + totalProfessional + totalEquipment, false, true)}
+              {renderPnLLine('Total Operating Expenses', pnl.operatingExpenses, true, true)}
+
+              <View className="h-px bg-gray-200 dark:bg-slate-700 my-2" />
+
+              {renderPnLLine('EBITDA', pnl.ebitda, true, false, pnl.ebitdaMargin)}
+              {renderPnLLine('Depreciation', pnl.depreciation, false, true)}
+              {renderPnLLine('Operating Income (EBIT)', pnl.ebit, true)}
+
+              <View className="h-2" />
+              <View className={cn(
+                'rounded-lg p-3',
+                pnl.netIncome >= 0 ? 'bg-emerald-100 dark:bg-emerald-900/30' : 'bg-red-100 dark:bg-red-900/30'
+              )}>
+                <View className="flex-row justify-between items-center">
+                  <Text className={cn(
+                    'font-bold',
+                    pnl.netIncome >= 0 ? 'text-emerald-800 dark:text-emerald-200' : 'text-red-800 dark:text-red-200'
+                  )}>
+                    Net Income
+                  </Text>
+                  <View className="flex-row items-center">
+                    <Text className="text-gray-500 dark:text-slate-400 text-xs mr-3">
+                      {pnl.netMargin.toFixed(1)}%
+                    </Text>
+                    <Text className={cn(
+                      'font-bold text-lg',
+                      pnl.netIncome >= 0 ? 'text-emerald-700 dark:text-emerald-300' : 'text-red-700 dark:text-red-300'
+                    )}>
+                      {pnl.netIncome >= 0 ? '+' : ''}£{(pnl.netIncome / 1000).toFixed(1)}K
+                    </Text>
+                  </View>
+                </View>
               </View>
             </View>
           )}
 
-          {/* Unit Economics */}
-          <View className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4 mb-4">
-            <Text className="text-blue-900 dark:text-blue-100 font-bold text-base mb-3">
-              Unit Economics
-            </Text>
-            <View className="gap-2">
-              <View className="flex-row justify-between">
-                <Text className="text-blue-800 dark:text-blue-200 text-sm">CAC (Customer Acquisition Cost)</Text>
-                <Text className="text-blue-900 dark:text-blue-100 font-bold">£{INITIAL_DATA.metrics.cac}</Text>
+          {/* Actionable Insights Section */}
+          <Pressable
+            onPress={() => toggleSection('insights')}
+            className="flex-row items-center justify-between mb-3"
+          >
+            <View className="flex-row items-center">
+              <View className="w-8 h-8 bg-purple-100 dark:bg-purple-900/30 rounded-lg items-center justify-center mr-3">
+                <Target size={18} color="#8b5cf6" />
               </View>
-              <View className="flex-row justify-between">
-                <Text className="text-blue-800 dark:text-blue-200 text-sm">LTV (Lifetime Value)</Text>
-                <Text className="text-blue-900 dark:text-blue-100 font-bold">£{INITIAL_DATA.metrics.ltv}</Text>
-              </View>
-              <View className="flex-row justify-between">
-                <Text className="text-blue-800 dark:text-blue-200 text-sm">LTV:CAC Ratio</Text>
-                <Text className="text-blue-900 dark:text-blue-100 font-bold">
-                  {(INITIAL_DATA.metrics.ltv / INITIAL_DATA.metrics.cac).toFixed(1)}x
-                </Text>
-              </View>
-              <View className="flex-row justify-between">
-                <Text className="text-blue-800 dark:text-blue-200 text-sm">Gross Margin</Text>
-                <Text className="text-blue-900 dark:text-blue-100 font-bold">{INITIAL_DATA.metrics.grossMargin}%</Text>
+              <Text className="text-gray-900 dark:text-white font-bold text-base">Actionable Insights</Text>
+              <View className="ml-2 bg-purple-500 rounded-full px-2 py-0.5">
+                <Text className="text-white text-xs font-bold">{insights.length}</Text>
               </View>
             </View>
-          </View>
+            {expandedSections.insights ? <ChevronUp size={20} color="#64748b" /> : <ChevronDown size={20} color="#64748b" />}
+          </Pressable>
 
-          {/* Revenue Streams */}
-          <View className="bg-gray-100 dark:bg-slate-900 rounded-xl p-4 border border-gray-300 dark:border-slate-800 mb-4">
-            <View className="flex-row items-center justify-between mb-3">
-              <Text className="text-gray-900 dark:text-white font-bold text-base">Revenue Streams</Text>
-              <Text className="text-emerald-500 font-bold text-lg">
-                £{(INITIAL_DATA.monthlyRevenue / 1000).toFixed(0)}K/mo
-              </Text>
-            </View>
-            <View className="gap-3">
-              {INITIAL_DATA.revenueStreams.map((stream, idx) => (
-                <View key={idx} className="flex-row items-center justify-between">
-                  <View className="flex-1">
-                    <Text className="text-gray-900 dark:text-white font-semibold text-sm">{stream.name}</Text>
-                    <View className="flex-row items-center mt-1">
-                      {stream.growth >= 0 ? (
-                        <TrendingUp size={12} color="#10b981" />
-                      ) : (
-                        <TrendingDown size={12} color="#ef4444" />
-                      )}
-                      <Text className={`text-xs ml-1 ${stream.growth >= 0 ? 'text-emerald-500' : 'text-red-500'}`}>
-                        {stream.growth >= 0 ? '+' : ''}{stream.growth}% MoM
-                      </Text>
-                    </View>
-                  </View>
-                  <Text className="text-gray-900 dark:text-white font-bold">
-                    £{(stream.amount / 1000).toFixed(0)}K
+          {expandedSections.insights && (
+            <View className="mb-4">
+              {insights.length === 0 ? (
+                <View className="bg-gray-50 dark:bg-slate-900 rounded-xl p-6 items-center">
+                  <CheckCircle2 size={32} color="#10b981" />
+                  <Text className="text-gray-900 dark:text-white font-semibold mt-3">All Clear</Text>
+                  <Text className="text-gray-500 dark:text-slate-400 text-sm text-center mt-1">
+                    No critical financial insights at this time
                   </Text>
                 </View>
-              ))}
+              ) : (
+                insights.map(renderInsight)
+              )}
             </View>
-          </View>
+          )}
 
-          {/* Cost Categories */}
-          {renderCostCategory('Team Costs', <Users size={20} color="#3b82f6" />, '#3b82f6', costs.team, 'team', totalTeam)}
-          {renderCostCategory('Manufacturing & Suppliers', <Factory size={20} color="#a855f7" />, '#a855f7', costs.manufacturing, 'manufacturing', totalManufacturing)}
-          {renderCostCategory('AI Tools & Software', <Cpu size={20} color="#06b6d4" />, '#06b6d4', costs.aiTools, 'aiTools', totalAI)}
-          {renderCostCategory('Infrastructure & Cloud', <Zap size={20} color="#f59e0b" />, '#f59e0b', costs.infrastructure, 'infrastructure', totalInfrastructure)}
-          {renderCostCategory('Marketing & Sales', <ShoppingCart size={20} color="#ec4899" />, '#ec4899', costs.marketing, 'marketing', totalMarketing)}
-          {renderCostCategory('Facilities & Office', <Building size={20} color="#8b5cf6" />, '#8b5cf6', costs.facilities, 'facilities', totalFacilities)}
-          {renderCostCategory('Equipment & Hardware', <Laptop size={20} color="#14b8a6" />, '#14b8a6', costs.equipment, 'equipment', totalEquipment)}
-          {renderCostCategory('Insurance & Protection', <Shield size={20} color="#f97316" />, '#f97316', costs.insurance, 'insurance', totalInsurance)}
-          {renderCostCategory('Professional Services', <FileText size={20} color="#84cc16" />, '#84cc16', costs.professional, 'professional', totalProfessional)}
-
-          {/* Summary */}
-          <View className="bg-purple-50 dark:bg-purple-900/20 border-2 border-purple-200 dark:border-purple-800 rounded-xl p-4 mb-4">
-            <View className="flex-row items-center mb-3">
-              <AlertCircle size={20} color="#a855f7" />
-              <Text className="text-purple-900 dark:text-purple-100 font-bold text-base ml-2">Financial Summary</Text>
+          {/* Health Indicators Section */}
+          <Pressable
+            onPress={() => toggleSection('health')}
+            className="flex-row items-center justify-between mb-3"
+          >
+            <View className="flex-row items-center">
+              <View className="w-8 h-8 bg-emerald-100 dark:bg-emerald-900/30 rounded-lg items-center justify-center mr-3">
+                <Activity size={18} color="#10b981" />
+              </View>
+              <Text className="text-gray-900 dark:text-white font-bold text-base">Health Indicators</Text>
             </View>
-            <Text className="text-purple-800 dark:text-purple-200 text-sm mb-2">
-              • Total Monthly Burn: £{(monthlyBurn / 1000).toFixed(0)}K across {Object.values(costs).flat().filter(i => i.enabled).length} active cost items
-            </Text>
-            <Text className="text-purple-800 dark:text-purple-200 text-sm mb-2">
-              • Current Runway: {runway.toFixed(1)} months at current burn rate
-            </Text>
-            <Text className="text-purple-800 dark:text-purple-200 text-sm mb-2">
-              • Monthly Cash Flow: {netCashFlow >= 0 ? 'Positive' : 'Negative'} £{Math.abs(netCashFlow / 1000).toFixed(0)}K
-            </Text>
-            <Text className="text-purple-800 dark:text-purple-200 text-sm">
-              • Toggle costs on/off to see impact on runway and burn rate
-            </Text>
-          </View>
+            {expandedSections.health ? <ChevronUp size={20} color="#64748b" /> : <ChevronDown size={20} color="#64748b" />}
+          </Pressable>
+
+          {expandedSections.health && (
+            <View className="mb-4">
+              {healthIndicators.map(renderHealthIndicator)}
+            </View>
+          )}
+
+          {/* Unit Economics Section */}
+          <Pressable
+            onPress={() => toggleSection('unitEconomics')}
+            className="flex-row items-center justify-between mb-3"
+          >
+            <View className="flex-row items-center">
+              <View className="w-8 h-8 bg-amber-100 dark:bg-amber-900/30 rounded-lg items-center justify-center mr-3">
+                <PieChart size={18} color="#f59e0b" />
+              </View>
+              <Text className="text-gray-900 dark:text-white font-bold text-base">Unit Economics</Text>
+            </View>
+            {expandedSections.unitEconomics ? <ChevronUp size={20} color="#64748b" /> : <ChevronDown size={20} color="#64748b" />}
+          </Pressable>
+
+          {expandedSections.unitEconomics && (
+            <View className="bg-gray-50 dark:bg-slate-900 rounded-xl p-4 mb-4 border border-gray-200 dark:border-slate-800">
+              <View className="flex-row flex-wrap gap-3">
+                <View className="bg-white dark:bg-slate-800 rounded-xl p-4 flex-1" style={{ minWidth: '45%' }}>
+                  <Text className="text-gray-500 dark:text-slate-400 text-xs mb-1">CAC</Text>
+                  <Text className="text-gray-900 dark:text-white text-xl font-bold">£{INITIAL_DATA.metrics.cac}</Text>
+                  <Text className="text-gray-500 dark:text-slate-400 text-xs mt-1">Customer Acquisition Cost</Text>
+                </View>
+                <View className="bg-white dark:bg-slate-800 rounded-xl p-4 flex-1" style={{ minWidth: '45%' }}>
+                  <Text className="text-gray-500 dark:text-slate-400 text-xs mb-1">LTV</Text>
+                  <Text className="text-gray-900 dark:text-white text-xl font-bold">£{INITIAL_DATA.metrics.ltv}</Text>
+                  <Text className="text-gray-500 dark:text-slate-400 text-xs mt-1">Customer Lifetime Value</Text>
+                </View>
+                <View className="bg-white dark:bg-slate-800 rounded-xl p-4 flex-1" style={{ minWidth: '45%' }}>
+                  <Text className="text-gray-500 dark:text-slate-400 text-xs mb-1">LTV:CAC</Text>
+                  <Text className="text-emerald-600 dark:text-emerald-400 text-xl font-bold">
+                    {(INITIAL_DATA.metrics.ltv / INITIAL_DATA.metrics.cac).toFixed(1)}x
+                  </Text>
+                  <Text className="text-gray-500 dark:text-slate-400 text-xs mt-1">Target: 3x+</Text>
+                </View>
+                <View className="bg-white dark:bg-slate-800 rounded-xl p-4 flex-1" style={{ minWidth: '45%' }}>
+                  <Text className="text-gray-500 dark:text-slate-400 text-xs mb-1">Payback Period</Text>
+                  <Text className="text-gray-900 dark:text-white text-xl font-bold">{INITIAL_DATA.metrics.paybackPeriod}mo</Text>
+                  <Text className="text-gray-500 dark:text-slate-400 text-xs mt-1">Target: {'<'}12mo</Text>
+                </View>
+                <View className="bg-white dark:bg-slate-800 rounded-xl p-4 flex-1" style={{ minWidth: '45%' }}>
+                  <Text className="text-gray-500 dark:text-slate-400 text-xs mb-1">Churn Rate</Text>
+                  <Text className="text-gray-900 dark:text-white text-xl font-bold">{INITIAL_DATA.metrics.churnRate}%</Text>
+                  <Text className="text-gray-500 dark:text-slate-400 text-xs mt-1">Monthly customer churn</Text>
+                </View>
+                <View className="bg-white dark:bg-slate-800 rounded-xl p-4 flex-1" style={{ minWidth: '45%' }}>
+                  <Text className="text-gray-500 dark:text-slate-400 text-xs mb-1">NRR</Text>
+                  <Text className="text-emerald-600 dark:text-emerald-400 text-xl font-bold">{INITIAL_DATA.metrics.nrr}%</Text>
+                  <Text className="text-gray-500 dark:text-slate-400 text-xs mt-1">Net Revenue Retention</Text>
+                </View>
+              </View>
+
+              {/* Revenue Streams */}
+              <View className="mt-4 pt-4 border-t border-gray-200 dark:border-slate-700">
+                <Text className="text-gray-900 dark:text-white font-semibold mb-3">Revenue Streams</Text>
+                {INITIAL_DATA.revenueStreams.map((stream, idx) => (
+                  <View key={idx} className="flex-row items-center justify-between py-2">
+                    <View className="flex-1">
+                      <Text className="text-gray-800 dark:text-slate-200 text-sm font-medium">{stream.name}</Text>
+                      <View className="flex-row items-center mt-1">
+                        {stream.growth >= 0 ? (
+                          <TrendingUp size={12} color="#10b981" />
+                        ) : (
+                          <TrendingDown size={12} color="#ef4444" />
+                        )}
+                        <Text className={cn('text-xs ml-1', stream.growth >= 0 ? 'text-emerald-600' : 'text-red-500')}>
+                          {stream.growth >= 0 ? '+' : ''}{stream.growth}% MoM
+                        </Text>
+                        <Text className="text-gray-400 dark:text-slate-500 text-xs ml-2">
+                          • {stream.margin}% margin
+                        </Text>
+                      </View>
+                    </View>
+                    <Text className="text-gray-900 dark:text-white font-bold">£{(stream.amount / 1000).toFixed(0)}K</Text>
+                  </View>
+                ))}
+              </View>
+            </View>
+          )}
+
+          {/* Scenario Planning Section */}
+          <Pressable
+            onPress={() => toggleSection('scenarios')}
+            className="flex-row items-center justify-between mb-3"
+          >
+            <View className="flex-row items-center">
+              <View className="w-8 h-8 bg-cyan-100 dark:bg-cyan-900/30 rounded-lg items-center justify-center mr-3">
+                <Calculator size={18} color="#06b6d4" />
+              </View>
+              <Text className="text-gray-900 dark:text-white font-bold text-base">Scenario Planning</Text>
+            </View>
+            {expandedSections.scenarios ? <ChevronUp size={20} color="#64748b" /> : <ChevronDown size={20} color="#64748b" />}
+          </Pressable>
+
+          {expandedSections.scenarios && (
+            <View className="bg-gradient-to-br from-cyan-50 to-blue-50 dark:from-cyan-900/20 dark:to-blue-900/20 rounded-xl p-4 mb-4 border border-cyan-200 dark:border-cyan-800">
+              {/* Scenario 1: Cost Reduction */}
+              <View className="mb-4">
+                <Text className="text-cyan-900 dark:text-cyan-100 font-bold text-sm mb-2">
+                  If you reduce operating costs by 20%:
+                </Text>
+                <View className="bg-white dark:bg-slate-900 rounded-lg p-3">
+                  <View className="flex-row justify-between mb-2">
+                    <Text className="text-gray-600 dark:text-slate-400 text-sm">New Monthly Burn</Text>
+                    <Text className="text-gray-900 dark:text-white font-bold">
+                      £{((monthlyBurn * 0.8) / 1000).toFixed(0)}K
+                    </Text>
+                  </View>
+                  <View className="flex-row justify-between mb-2">
+                    <Text className="text-gray-600 dark:text-slate-400 text-sm">New Net Cash Flow</Text>
+                    <Text className={cn(
+                      'font-bold',
+                      INITIAL_DATA.monthlyRevenue - (monthlyBurn * 0.8) >= 0 ? 'text-emerald-600' : 'text-red-500'
+                    )}>
+                      {INITIAL_DATA.monthlyRevenue - (monthlyBurn * 0.8) >= 0 ? '+' : ''}£{((INITIAL_DATA.monthlyRevenue - (monthlyBurn * 0.8)) / 1000).toFixed(0)}K
+                    </Text>
+                  </View>
+                  <View className="flex-row justify-between">
+                    <Text className="text-gray-600 dark:text-slate-400 text-sm">New Runway</Text>
+                    <Text className="text-emerald-600 dark:text-emerald-400 font-bold">
+                      {INITIAL_DATA.monthlyRevenue - (monthlyBurn * 0.8) >= 0
+                        ? '∞ (Cash Positive)'
+                        : `${(INITIAL_DATA.cashPosition / Math.abs(INITIAL_DATA.monthlyRevenue - (monthlyBurn * 0.8))).toFixed(1)} months`}
+                    </Text>
+                  </View>
+                </View>
+              </View>
+
+              {/* Scenario 2: Revenue Growth */}
+              <View className="mb-4">
+                <Text className="text-cyan-900 dark:text-cyan-100 font-bold text-sm mb-2">
+                  If revenue grows 30%:
+                </Text>
+                <View className="bg-white dark:bg-slate-900 rounded-lg p-3">
+                  <View className="flex-row justify-between mb-2">
+                    <Text className="text-gray-600 dark:text-slate-400 text-sm">New Revenue</Text>
+                    <Text className="text-gray-900 dark:text-white font-bold">
+                      £{((INITIAL_DATA.monthlyRevenue * 1.3) / 1000).toFixed(0)}K
+                    </Text>
+                  </View>
+                  <View className="flex-row justify-between mb-2">
+                    <Text className="text-gray-600 dark:text-slate-400 text-sm">New Net Cash Flow</Text>
+                    <Text className="text-emerald-600 dark:text-emerald-400 font-bold">
+                      +£{(((INITIAL_DATA.monthlyRevenue * 1.3) - monthlyBurn) / 1000).toFixed(0)}K
+                    </Text>
+                  </View>
+                  <View className="flex-row justify-between">
+                    <Text className="text-gray-600 dark:text-slate-400 text-sm">Status</Text>
+                    <Text className="text-emerald-600 dark:text-emerald-400 font-bold">
+                      Cash Flow Positive
+                    </Text>
+                  </View>
+                </View>
+              </View>
+
+              {/* Scenario 3: Hiring */}
+              <View>
+                <Text className="text-cyan-900 dark:text-cyan-100 font-bold text-sm mb-2">
+                  If you hire 2 more executives (+£14K/mo):
+                </Text>
+                <View className="bg-white dark:bg-slate-900 rounded-lg p-3">
+                  <View className="flex-row justify-between mb-2">
+                    <Text className="text-gray-600 dark:text-slate-400 text-sm">New Monthly Burn</Text>
+                    <Text className="text-gray-900 dark:text-white font-bold">
+                      £{((monthlyBurn + 14000) / 1000).toFixed(0)}K
+                    </Text>
+                  </View>
+                  <View className="flex-row justify-between mb-2">
+                    <Text className="text-gray-600 dark:text-slate-400 text-sm">New Net Cash Flow</Text>
+                    <Text className={cn(
+                      'font-bold',
+                      INITIAL_DATA.monthlyRevenue - (monthlyBurn + 14000) >= 0 ? 'text-emerald-600' : 'text-red-500'
+                    )}>
+                      {INITIAL_DATA.monthlyRevenue - (monthlyBurn + 14000) >= 0 ? '+' : ''}£{((INITIAL_DATA.monthlyRevenue - (monthlyBurn + 14000)) / 1000).toFixed(0)}K
+                    </Text>
+                  </View>
+                  <View className="flex-row justify-between">
+                    <Text className="text-gray-600 dark:text-slate-400 text-sm">New Runway</Text>
+                    <Text className={cn(
+                      'font-bold',
+                      INITIAL_DATA.monthlyRevenue - (monthlyBurn + 14000) >= 0 ? 'text-emerald-600' : 'text-amber-500'
+                    )}>
+                      {INITIAL_DATA.monthlyRevenue - (monthlyBurn + 14000) >= 0
+                        ? '∞ (Cash Positive)'
+                        : `${(INITIAL_DATA.cashPosition / Math.abs(INITIAL_DATA.monthlyRevenue - (monthlyBurn + 14000))).toFixed(1)} months`}
+                    </Text>
+                  </View>
+                </View>
+              </View>
+            </View>
+          )}
+
+          {/* Cost Management Section */}
+          <Pressable
+            onPress={() => toggleSection('costs')}
+            className="flex-row items-center justify-between mb-3"
+          >
+            <View className="flex-row items-center">
+              <View className="w-8 h-8 bg-red-100 dark:bg-red-900/30 rounded-lg items-center justify-center mr-3">
+                <Wallet size={18} color="#ef4444" />
+              </View>
+              <Text className="text-gray-900 dark:text-white font-bold text-base">Cost Management</Text>
+            </View>
+            {expandedSections.costs ? <ChevronUp size={20} color="#64748b" /> : <ChevronDown size={20} color="#64748b" />}
+          </Pressable>
+
+          {expandedSections.costs && (
+            <View className="mb-4">
+              {/* Reset Button */}
+              <Pressable
+                onPress={resetToDefaults}
+                className="bg-gray-200 dark:bg-slate-700 rounded-xl py-2.5 mb-4 items-center active:opacity-80"
+              >
+                <View className="flex-row items-center">
+                  <RotateCcw size={16} color="#64748b" />
+                  <Text className="text-gray-700 dark:text-slate-300 font-semibold text-sm ml-2">Reset All Costs</Text>
+                </View>
+              </Pressable>
+
+              {/* Cost Categories */}
+              {renderCostCategory('Team Costs', <Users size={18} color="#3b82f6" />, '#3b82f6', costs.team, 'team', totalTeam)}
+              {renderCostCategory('Manufacturing & Suppliers', <Factory size={18} color="#a855f7" />, '#a855f7', costs.manufacturing, 'manufacturing', totalManufacturing)}
+              {renderCostCategory('AI Tools & Software', <Cpu size={18} color="#06b6d4" />, '#06b6d4', costs.aiTools, 'aiTools', totalAI)}
+              {renderCostCategory('Infrastructure & Cloud', <Zap size={18} color="#f59e0b" />, '#f59e0b', costs.infrastructure, 'infrastructure', totalInfrastructure)}
+              {renderCostCategory('Marketing & Sales', <ShoppingCart size={18} color="#ec4899" />, '#ec4899', costs.marketing, 'marketing', totalMarketing)}
+              {renderCostCategory('Facilities & Office', <Building size={18} color="#8b5cf6" />, '#8b5cf6', costs.facilities, 'facilities', totalFacilities)}
+              {renderCostCategory('Equipment & Hardware', <Laptop size={18} color="#14b8a6" />, '#14b8a6', costs.equipment, 'equipment', totalEquipment)}
+              {renderCostCategory('Insurance & Protection', <Shield size={18} color="#f97316" />, '#f97316', costs.insurance, 'insurance', totalInsurance)}
+              {renderCostCategory('Professional Services', <FileText size={18} color="#84cc16" />, '#84cc16', costs.professional, 'professional', totalProfessional)}
+            </View>
+          )}
+
+          {/* Bottom Padding */}
+          <View className="h-8" />
         </View>
       </ScrollView>
 
