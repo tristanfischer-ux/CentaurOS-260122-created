@@ -547,7 +547,7 @@ export default function HomeScreen() {
               <Text className="text-gray-500 dark:text-slate-500 text-xs font-bold mb-2 tracking-wide">
                 QUICK ACTIONS
               </Text>
-              <View className="flex-row gap-2">
+              <View className="flex-row gap-2 mb-2">
                 <Pressable
                   onPress={() => router.push('/(tabs)/decide')}
                   className="flex-1 bg-purple-500 rounded-xl p-3 active:opacity-70"
@@ -573,6 +573,26 @@ export default function HomeScreen() {
                   <View className="flex-row items-center justify-center">
                     <DollarSign size={18} color="#fff" />
                     <Text className="text-white font-bold text-sm ml-1.5">Finance</Text>
+                  </View>
+                </Pressable>
+              </View>
+              <View className="flex-row gap-2">
+                <Pressable
+                  onPress={() => router.push('/calendar')}
+                  className="flex-1 bg-amber-500 rounded-xl p-3 active:opacity-70"
+                >
+                  <View className="flex-row items-center justify-center">
+                    <Calendar size={18} color="#fff" />
+                    <Text className="text-white font-bold text-sm ml-1.5">Calendar</Text>
+                  </View>
+                </Pressable>
+                <Pressable
+                  onPress={() => router.push('/messages')}
+                  className="flex-1 bg-cyan-500 rounded-xl p-3 active:opacity-70"
+                >
+                  <View className="flex-row items-center justify-center">
+                    <MessageSquare size={18} color="#fff" />
+                    <Text className="text-white font-bold text-sm ml-1.5">Messages</Text>
                   </View>
                 </Pressable>
               </View>
