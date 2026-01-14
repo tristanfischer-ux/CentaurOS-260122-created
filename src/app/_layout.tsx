@@ -163,6 +163,8 @@ function RootLayoutNav({ colorScheme }: { colorScheme: 'light' | 'dark' | null |
           <Stack.Screen name="okr-planner" options={{ headerShown: false }} />
           <Stack.Screen name="okr-queue" options={{ headerShown: false }} />
           <Stack.Screen name="profile" options={{ headerShown: false }} />
+          <Stack.Screen name="messages" options={{ headerShown: false }} />
+          <Stack.Screen name="calendar" options={{ headerShown: false }} />
           <Stack.Screen name="startup-pack" options={{ headerShown: false }} />
         </Stack>
       </ThemeProvider>

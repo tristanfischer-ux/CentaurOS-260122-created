@@ -181,8 +181,16 @@ export const useActiveConversation = () => useMessagesStore((s) => s.activeConve
 export const initializeDemoMessages = (workspaceId: string = DEFAULT_WORKSPACE_ID) => {
   const store = useMessagesStore.getState();
 
+  // Don't reinitialize if we already have conversations
+  if (store.conversations.length > 0) return;
+
+  const now = Date.now();
+  const conv1Id = `conv-${now}-1`;
+  const conv2Id = `conv-${now}-2`;
+
   // Create demo conversations with workspaceId
-  store.createConversation({
+  const conversation1: Conversation = {
+    id: conv1Id,
     workspaceId,
     type: 'direct',
     name: 'Sarah Johnson',
@@ -190,9 +198,14 @@ export const initializeDemoMessages = (workspaceId: string = DEFAULT_WORKSPACE_I
       { id: 'user1', name: 'Sarah Johnson', role: 'Founder' },
       { id: 'user2', name: 'You', role: 'FractionalExec' },
     ],
-  });
+    unreadCount: 1,
+    isTyping: [],
+    createdAt: new Date(now - 86400000),
+    updatedAt: new Date(now - 1800000),
+  };
 
-  store.createConversation({
+  const conversation2: Conversation = {
+    id: conv2Id,
     workspaceId,
     type: 'group',
     name: 'Marketing Team',
@@ -202,31 +215,89 @@ export const initializeDemoMessages = (workspaceId: string = DEFAULT_WORKSPACE_I
       { id: 'user3', name: 'Emily Carter', role: 'Apprentice' },
       { id: 'user4', name: 'David Kim', role: 'Apprentice' },
     ],
-  });
+    unreadCount: 2,
+    isTyping: [],
+    createdAt: new Date(now - 172800000),
+    updatedAt: new Date(now - 3600000),
+  };
 
-  // Add demo messages
-  const conv1Id = store.conversations[0]?.id;
-  if (conv1Id) {
-    store.addMessage({
-      id: '1',
+  // Create demo messages
+  const conv1Messages: Message[] = [
+    {
+      id: `msg-${now}-1`,
       conversationId: conv1Id,
       senderId: 'user1',
       senderName: 'Sarah Johnson',
       senderRole: 'Founder',
       content: 'Hi! Can you review the Q1 OKRs for Marketing?',
-      timestamp: new Date(Date.now() - 3600000),
+      timestamp: new Date(now - 3600000),
       read: true,
-    });
-
-    store.addMessage({
-      id: '2',
+    },
+    {
+      id: `msg-${now}-2`,
       conversationId: conv1Id,
       senderId: 'user2',
       senderName: 'You',
       senderRole: 'FractionalExec',
-      content: 'Absolutely! I\'ll review them this afternoon and provide feedback.',
-      timestamp: new Date(Date.now() - 1800000),
+      content: "Absolutely! I'll review them this afternoon and provide feedback.",
+      timestamp: new Date(now - 1800000),
       read: true,
-    });
-  }
+    },
+    {
+      id: `msg-${now}-3`,
+      conversationId: conv1Id,
+      senderId: 'user1',
+      senderName: 'Sarah Johnson',
+      senderRole: 'Founder',
+      content: 'Thanks! Let me know if you need any clarification on the targets.',
+      timestamp: new Date(now - 900000),
+      read: false,
+    },
+  ];
+
+  const conv2Messages: Message[] = [
+    {
+      id: `msg-${now}-4`,
+      conversationId: conv2Id,
+      senderId: 'user3',
+      senderName: 'Emily Carter',
+      senderRole: 'Apprentice',
+      content: 'Just finished the social media content calendar for next month!',
+      timestamp: new Date(now - 7200000),
+      read: true,
+    },
+    {
+      id: `msg-${now}-5`,
+      conversationId: conv2Id,
+      senderId: 'user2',
+      senderName: 'Priya Sharma',
+      senderRole: 'FractionalExec',
+      content: 'Great work Emily! Can you share the link?',
+      timestamp: new Date(now - 5400000),
+      read: true,
+    },
+    {
+      id: `msg-${now}-6`,
+      conversationId: conv2Id,
+      senderId: 'user4',
+      senderName: 'David Kim',
+      senderRole: 'Apprentice',
+      content: "I've updated the analytics dashboard. We're up 15% this week!",
+      timestamp: new Date(now - 3600000),
+      read: false,
+    },
+  ];
+
+  // Set last messages
+  conversation1.lastMessage = conv1Messages[conv1Messages.length - 1];
+  conversation2.lastMessage = conv2Messages[conv2Messages.length - 1];
+
+  // Update store directly
+  useMessagesStore.setState({
+    conversations: [conversation1, conversation2],
+    messages: {
+      [conv1Id]: conv1Messages,
+      [conv2Id]: conv2Messages,
+    },
+  });
 };
