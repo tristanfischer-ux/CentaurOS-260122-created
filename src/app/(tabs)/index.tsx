@@ -273,7 +273,7 @@ const APPRENTICE_DATA = {
                   RUNWAY
                 </Text>
                 <Text className="text-purple-900 dark:text-purple-100 text-2xl font-bold">
-                  {FOUNDER_DATA.financials.runway}
+                  {FOUNDER_DATA.financials.runway.toFixed(1)}
                 </Text>
                 <Text className="text-purple-600 dark:text-purple-400 text-xs">months</Text>
               </Pressable>
@@ -492,7 +492,7 @@ const APPRENTICE_DATA = {
                     <View>
                       <Text className="text-emerald-100 text-xs font-semibold mb-1">RUNWAY</Text>
                       <Text className="text-white text-3xl font-bold">
-                        {FOUNDER_DATA.financials.runway} months
+                        {FOUNDER_DATA.financials.runway.toFixed(1)} months
                       </Text>
                     </View>
                     <BarChart3 size={32} color="#fff" />
