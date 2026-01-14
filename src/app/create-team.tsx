@@ -972,7 +972,12 @@ function PersonDetailModal({
   };
 
   return (
-    <Modal visible={true} animationType="slide" statusBarTranslucent onRequestClose={onClose}>
+    <Modal
+      visible={true}
+      animationType="slide"
+      presentationStyle="pageSheet"
+      onRequestClose={onClose}
+    >
       <SafeAreaView className="flex-1 bg-slate-950" edges={['top']}>
         {/* Header */}
         <LinearGradient
@@ -985,6 +990,7 @@ function PersonDetailModal({
             <Pressable
               onPress={onClose}
               className="w-10 h-10 items-center justify-center rounded-full bg-white/20 active:opacity-70"
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
             >
               <X size={24} color="white" />
             </Pressable>
