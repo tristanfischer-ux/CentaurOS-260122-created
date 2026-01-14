@@ -117,8 +117,112 @@ const DEFAULT_LANES: QueueLane[] = [
   { name: 'Ops', function: 'Ops', maxParallel: 1, currentItems: [], queuedItems: [] },
 ];
 
+// Initial queue items seeded from OKRs
+const INITIAL_QUEUE_ITEMS: QueueItem[] = [
+  {
+    id: 'queue-eng-1',
+    workspaceId: DEFAULT_WORKSPACE_ID,
+    okrId: 'okr-engineering-1',
+    okrTitle: 'Ship Production-Ready Hardware v1.0',
+    lane: 'Engineering',
+    priority: 1,
+    status: 'in_progress',
+    dependencies: [],
+    etaWeeksFromStart: 8,
+    queuePositionEta: 0,
+    totalEtaWeeks: 8,
+    burnPerWeekGBP: 12000,
+    totalCostGBP: 96000,
+    addedAt: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString(),
+    startedAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
+  },
+  {
+    id: 'queue-eng-2',
+    workspaceId: DEFAULT_WORKSPACE_ID,
+    okrId: 'okr-bom-1',
+    okrTitle: 'Finalize Bill of Materials & Reduce COGS by 20%',
+    lane: 'Engineering',
+    priority: 2,
+    status: 'queued',
+    dependencies: ['okr-engineering-1'],
+    etaWeeksFromStart: 4,
+    queuePositionEta: 8,
+    totalEtaWeeks: 12,
+    burnPerWeekGBP: 8000,
+    totalCostGBP: 32000,
+    addedAt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
+  },
+  {
+    id: 'queue-marketing-1',
+    workspaceId: DEFAULT_WORKSPACE_ID,
+    okrId: 'okr-marketing-1',
+    okrTitle: 'Build Brand Awareness & Generate Leads',
+    lane: 'Marketing',
+    priority: 1,
+    status: 'in_progress',
+    dependencies: [],
+    etaWeeksFromStart: 12,
+    queuePositionEta: 0,
+    totalEtaWeeks: 12,
+    burnPerWeekGBP: 6000,
+    totalCostGBP: 72000,
+    addedAt: new Date(Date.now() - 21 * 24 * 60 * 60 * 1000).toISOString(),
+    startedAt: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString(),
+  },
+  {
+    id: 'queue-sales-1',
+    workspaceId: DEFAULT_WORKSPACE_ID,
+    okrId: 'okr-sales-1',
+    okrTitle: 'Achieve Product-Market Fit with 100 Customers',
+    lane: 'Sales',
+    priority: 1,
+    status: 'in_progress',
+    dependencies: [],
+    etaWeeksFromStart: 16,
+    queuePositionEta: 0,
+    totalEtaWeeks: 16,
+    burnPerWeekGBP: 8000,
+    totalCostGBP: 128000,
+    addedAt: new Date(Date.now() - 28 * 24 * 60 * 60 * 1000).toISOString(),
+    startedAt: new Date(Date.now() - 21 * 24 * 60 * 60 * 1000).toISOString(),
+  },
+  {
+    id: 'queue-ops-1',
+    workspaceId: DEFAULT_WORKSPACE_ID,
+    okrId: 'okr-ops-1',
+    okrTitle: 'Scale Manufacturing to 1000 Units/Month',
+    lane: 'Ops',
+    priority: 1,
+    status: 'queued',
+    dependencies: ['okr-engineering-1'],
+    etaWeeksFromStart: 10,
+    queuePositionEta: 8,
+    totalEtaWeeks: 18,
+    burnPerWeekGBP: 5000,
+    totalCostGBP: 50000,
+    addedAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
+  },
+  {
+    id: 'queue-finance-1',
+    workspaceId: DEFAULT_WORKSPACE_ID,
+    okrId: 'okr-finance-1',
+    okrTitle: 'Raise £2M Seed Round & Extend Runway to 18 Months',
+    lane: 'Finance',
+    priority: 1,
+    status: 'in_progress',
+    dependencies: [],
+    etaWeeksFromStart: 6,
+    queuePositionEta: 0,
+    totalEtaWeeks: 6,
+    burnPerWeekGBP: 3000,
+    totalCostGBP: 18000,
+    addedAt: new Date(Date.now() - 35 * 24 * 60 * 60 * 1000).toISOString(),
+    startedAt: new Date(Date.now() - 28 * 24 * 60 * 60 * 1000).toISOString(),
+  },
+];
+
 export const useQueueStore = create<QueueState>((set, get) => ({
-  items: [],
+  items: INITIAL_QUEUE_ITEMS,
   lanes: DEFAULT_LANES,
   isInitialized: false,
 
@@ -526,13 +630,33 @@ export const useQueueStore = create<QueueState>((set, get) => ({
       const json = await AsyncStorage.getItem(STORAGE_KEY);
       if (json) {
         const data = JSON.parse(json);
+        // Only use stored data if it has items, otherwise use initial seed data
+        if (data.items && data.items.length > 0) {
+          set({
+            items: data.items,
+            lanes: data.lanes || DEFAULT_LANES,
+          });
+        } else {
+          // Use initial seed data
+          set({
+            items: INITIAL_QUEUE_ITEMS,
+            lanes: DEFAULT_LANES,
+          });
+        }
+      } else {
+        // No stored data - use initial seed data
         set({
-          items: data.items || [],
-          lanes: data.lanes || DEFAULT_LANES,
+          items: INITIAL_QUEUE_ITEMS,
+          lanes: DEFAULT_LANES,
         });
       }
     } catch (error) {
       console.error('Failed to load queue store:', error);
+      // Fallback to initial seed data on error
+      set({
+        items: INITIAL_QUEUE_ITEMS,
+        lanes: DEFAULT_LANES,
+      });
     }
   },
 }));
