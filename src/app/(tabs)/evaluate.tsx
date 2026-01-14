@@ -46,6 +46,7 @@ import type { Function as BusinessFunction } from '@/types';
 import { useWorkPlanStore, type WorkPlan } from '@/lib/state/work-plan-store';
 import { useOrganizationStore } from '@/lib/state/organization-store';
 import { HelpModal, HelpButton, type HelpContent } from '@/components/HelpModal';
+import { TimeUnitPill } from '@/components/TimeAllocationBadge';
 
 const EVALUATE_HELP: HelpContent = {
   title: 'Performance Insights',
@@ -975,6 +976,8 @@ export default function EvaluateScreen() {
                                   {plan.linkedOKRTitle.slice(0, 25)}...
                                 </Text>
                               </View>
+                              {/* Time Units */}
+                              <TimeUnitPill timeUnits={plan.estimatedTimeUnits} variant="default" />
                               <View className="flex-row items-center">
                                 <Timer size={12} color={plan.daysUntilDue <= 2 ? '#ef4444' : '#64748b'} />
                                 <Text className={`text-xs ml-1 ${

@@ -16,6 +16,12 @@ export interface ThirdPartyAITool {
   capabilities: string[];
   integrations: string[];
   category: 'productivity' | 'sales' | 'marketing' | 'finance' | 'engineering' | 'operations' | 'manufacturing';
+
+  // Efficiency multiplier: How much faster tasks can be completed with this AI
+  // 1.0 = no speedup, 2.0 = 2x faster (half the time), 10.0 = 10x faster
+  // Range: 1.0 to 20.0
+  efficiencyMultiplier?: number;
+
   // Optional detailed fields for enhanced modal
   description?: string;
   useCases?: string[];
@@ -66,6 +72,7 @@ export const THIRD_PARTY_AI_TOOLS: ThirdPartyAITool[] = [
     ],
     integrations: ['QuickBooks', 'Xero', 'NetSuite', 'Slack'],
     category: 'finance',
+    efficiencyMultiplier: 10,  // 10x faster for invoice processing tasks
     useCases: [
       'Reduce invoice processing time from 5 minutes to 30 seconds per invoice',
       'Automatically code 95% of invoices without human review',
@@ -118,6 +125,7 @@ export const THIRD_PARTY_AI_TOOLS: ThirdPartyAITool[] = [
     ],
     integrations: ['Bank accounts', 'Credit cards', 'Stripe', 'Plaid'],
     category: 'finance',
+    efficiencyMultiplier: 5,  // 5x faster for bookkeeping tasks
     useCases: [
       'Get real-time P&L and balance sheet without waiting for month-end close',
       'Forecast cash runway based on spending patterns',
@@ -170,6 +178,7 @@ export const THIRD_PARTY_AI_TOOLS: ThirdPartyAITool[] = [
     ],
     integrations: ['Google Workspace', 'Sheets', 'Docs', 'Drive'],
     category: 'finance',
+    efficiencyMultiplier: 3,  // 3x faster for analysis tasks
     useCases: [
       'Build 3-year financial models in minutes using natural language',
       'Generate variance reports comparing actuals vs budget',
@@ -224,6 +233,7 @@ export const THIRD_PARTY_AI_TOOLS: ThirdPartyAITool[] = [
     ],
     integrations: ['Salesforce', 'HubSpot', 'LinkedIn', 'Gmail'],
     category: 'sales',
+    efficiencyMultiplier: 20,  // 20x faster for outbound prospecting
     useCases: [
       'Scale outbound to 1000+ prospects/month with consistent messaging',
       'Book 50+ qualified meetings per month on autopilot',
@@ -436,6 +446,7 @@ export const THIRD_PARTY_AI_TOOLS: ThirdPartyAITool[] = [
     ],
     integrations: ['WordPress', 'Webflow', 'Grammarly', 'Surfer SEO'],
     category: 'marketing',
+    efficiencyMultiplier: 10,  // 10x faster for content creation
     useCases: [
       'Generate 20+ blog posts per month with SEO optimization',
       'Create weeks of social media content in one sitting',
@@ -756,6 +767,7 @@ export const THIRD_PARTY_AI_TOOLS: ThirdPartyAITool[] = [
     ],
     integrations: ['Google Drive', 'Dropbox', 'SharePoint', 'Slack'],
     category: 'operations',
+    efficiencyMultiplier: 15,  // 15x faster for document analysis
     useCases: [
       'Review 100+ supplier contracts to extract payment terms and SLAs',
       'Analyze compliance documents across multiple jurisdictions',

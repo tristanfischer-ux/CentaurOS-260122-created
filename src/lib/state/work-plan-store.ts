@@ -20,6 +20,14 @@ export interface WorkPlan {
   needsSubmission: boolean;
   lastSubmittedAt?: string;
   feedback?: string;
+
+  // Time Unit Allocation System
+  // 1 Time Unit = Half Day (4 hours), 1 Day = 2 TU, 1 Week = 10 TU
+  estimatedTimeUnits: number;           // Total time units for task (min: 1)
+  allocatedTimeUnitsPerWeek?: number;   // For spread mode (optional)
+  assignedMemberIds?: string[];         // Who is working on this task
+  sprintMode?: boolean;                 // true = ASAP, false = spread over weeks
+
   // Enhanced submission data (Deloitte/Accenture process excellence)
   submissionData?: {
     notes: string;
@@ -86,6 +94,8 @@ const INITIAL_WORK_PLANS: WorkPlan[] = [
     assignedBy: 'Priya Sharma',
     needsSubmission: true,
     lastSubmittedAt: '2026-01-12 14:30',
+    estimatedTimeUnits: 8,  // 4 days of work
+    sprintMode: true,
   },
   {
     id: 'wp-a2',
@@ -99,6 +109,8 @@ const INITIAL_WORK_PLANS: WorkPlan[] = [
     progress: 40,
     assignedBy: 'Sarah Mitchell',
     needsSubmission: false,
+    estimatedTimeUnits: 6,  // 3 days of work
+    sprintMode: true,
   },
   {
     id: 'wp-a3',
@@ -114,6 +126,8 @@ const INITIAL_WORK_PLANS: WorkPlan[] = [
     needsSubmission: false,
     lastSubmittedAt: '2026-01-10 09:15',
     feedback: 'Excellent work! Moving forward with supplier B.',
+    estimatedTimeUnits: 4,  // 2 days of work
+    sprintMode: true,
   },
   // Founder/Executive work plans
   {
@@ -128,6 +142,9 @@ const INITIAL_WORK_PLANS: WorkPlan[] = [
     progress: 65,
     assignedBy: 'Priya Sharma',
     needsSubmission: true,
+    estimatedTimeUnits: 10,  // 1 week of work
+    allocatedTimeUnitsPerWeek: 2,  // Spread over 5 weeks
+    sprintMode: false,
   },
   {
     id: 'wp-f2',
@@ -141,6 +158,8 @@ const INITIAL_WORK_PLANS: WorkPlan[] = [
     progress: 78,
     assignedBy: 'Sarah Mitchell',
     needsSubmission: false,
+    estimatedTimeUnits: 12,  // 6 days of work
+    sprintMode: true,
   },
   {
     id: 'wp-f3',
@@ -154,6 +173,8 @@ const INITIAL_WORK_PLANS: WorkPlan[] = [
     progress: 100,
     assignedBy: 'Marcus Rodriguez',
     needsSubmission: false,
+    estimatedTimeUnits: 4,  // 2 days of work
+    sprintMode: true,
   },
   {
     id: 'wp-f4',
@@ -167,6 +188,9 @@ const INITIAL_WORK_PLANS: WorkPlan[] = [
     progress: 25,
     assignedBy: 'Thomas Anderson',
     needsSubmission: false,
+    estimatedTimeUnits: 20,  // 2 weeks of work
+    allocatedTimeUnitsPerWeek: 4,  // Spread over 5 weeks
+    sprintMode: false,
   },
   {
     id: 'wp-f5',
@@ -180,6 +204,8 @@ const INITIAL_WORK_PLANS: WorkPlan[] = [
     progress: 85,
     assignedBy: 'James Chen',
     needsSubmission: false,
+    estimatedTimeUnits: 6,  // 3 days of work
+    sprintMode: true,
   },
 ];
 

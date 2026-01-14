@@ -54,8 +54,67 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
 
 ## 🚨 PRODUCTION READINESS STATUS
 
-**Last Updated**: 2026-01-14 (**DO & EVALUATE TABS ENHANCED** - Priority sorting + Role-based workflows + Task management improvements)
+**Last Updated**: 2026-01-14 (**CAPACITY MANAGEMENT SYSTEM** - Time units, team utilization, AI efficiency multipliers)
 **Status**: ✅ **READY FOR APP STORE** - All features complete!
+
+---
+
+## ⏱️ CAPACITY MANAGEMENT SYSTEM
+
+**Latest Update**: 2026-01-14
+
+### Time Unit System
+
+The app now tracks team capacity using Time Units (TU):
+- **1 Time Unit = Half Day (4 hours)**
+- **1 Day = 2 TU** (normal) or **3 TU** (stretched, 12 hours)
+- **1 Week = 10 TU** (5 working days)
+- **Rolling Window: 10 days** (2 weeks of visibility)
+
+### Capacity Limits by Role
+
+| Role | Normal Capacity | Stretch Capacity |
+|------|----------------|------------------|
+| **Apprentice** | 10 TU/week | 15 TU/week |
+| **Executive** | 2-6 TU/week | 3-9 TU/week |
+| **Founder** | 10 TU/week | 15 TU/week |
+
+### AI Efficiency Multipliers
+
+AI tools can make individuals 1x to 20x more efficient:
+- Each AI tool has an `efficiencyMultiplier` property
+- Example: A 10 TU task with a 2x AI multiplier = 5 TU effective time
+- Highest multiplier from equipped tools is used
+
+### Key Features
+
+**Home Tab - Team Capacity Dashboard:**
+- 10-day rolling capacity heat map
+- Utilization percentage and available time units
+- Stretched team member alerts
+- Quick link to full capacity view
+
+**Do Tab - Task Time Allocation:**
+- Each task shows Time Unit badge
+- Sprint mode vs spread mode indicators
+- Visual feedback for stretched capacity
+
+**Evaluate Tab - Review Context:**
+- Time units shown for tasks under review
+- Helps executives understand task complexity
+
+### Visual Components
+
+**CapacityHeatMap:** Visual grid showing:
+- 10 columns (days) with stacked bars per person
+- Each bar: 0-3 squares high (time units per day)
+- Different colors per person/role
+- Red tint for stretched (3 TU) slots
+
+**TimeAllocationBadge:** Shows:
+- TU count with visual indicator
+- AI boost indicator when applicable
+- Stretched warning when needed
 
 ---
 

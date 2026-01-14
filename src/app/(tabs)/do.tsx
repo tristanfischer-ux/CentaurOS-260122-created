@@ -13,6 +13,7 @@ import { useWorkPlanStore, type WorkPlan } from '@/lib/state/work-plan-store';
 import { useOKRStore, type OKR } from '@/lib/state/okr-store';
 import { cn } from '@/lib/cn';
 import { HelpModal, HelpButton, type HelpContent } from '@/components/HelpModal';
+import { TimeUnitPill } from '@/components/TimeAllocationBadge';
 
 const DO_HELP_APPRENTICE: HelpContent = {
   title: 'Task Execution',
@@ -377,6 +378,12 @@ export default function DoScreen() {
             </View>
 
             <View className="flex-row items-center gap-2">
+              {/* Time Units Badge */}
+              <TimeUnitPill
+                timeUnits={plan.estimatedTimeUnits}
+                variant={plan.status === 'blocked' ? 'stretched' : 'default'}
+              />
+
               {/* Priority Badge */}
               <View
                 className="px-1.5 py-0.5 rounded-full"

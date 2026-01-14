@@ -28,6 +28,7 @@ import {
   Calendar,
   MessageSquare,
   HelpCircle,
+  Activity,
 } from 'lucide-react-native';
 import { useCurrentWorkspace, useCurrentMembership, useCurrentUser } from '@/lib/state/app-store';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -39,8 +40,10 @@ import { useOKRStore } from '@/lib/state/okr-store';
 import { useWorkPlanStore } from '@/lib/state/work-plan-store';
 import { useOrganizationStore } from '@/lib/state/organization-store';
 import { useArmoryStore } from '@/lib/state/armory-store';
+import { useCapacityStore } from '@/lib/state/capacity-store';
 import { THIRD_PARTY_AI_TOOLS } from '@/lib/third-party-ai-tools';
 import { HelpModal, HelpButton, type HelpContent } from '@/components/HelpModal';
+import { CapacityHeatMap } from '@/components/CapacityHeatMap';
 
 // Help content for each role
 const FOUNDER_HELP: HelpContent = {
@@ -121,6 +124,24 @@ export default function HomeScreen() {
   const aiAgents = useOrganizationStore(s => s.aiAgents);
   const engagements = useOrganizationStore(s => s.supplierEngagements);
   const personLoadouts = useArmoryStore(s => s.personLoadouts);
+
+  // Capacity store
+  const calculateCapacity = useCapacityStore(s => s.calculateCapacity);
+  const memberCapacities = useCapacityStore(s => s.memberCapacities);
+  const teamCapacitySummary = useCapacityStore(s => s.teamSummary);
+
+  // Calculate capacity on mount and when dependencies change
+  useEffect(() => {
+    // Build member AI tool IDs map
+    const memberAIToolIds = new Map<string, string[]>();
+    personLoadouts.forEach(loadout => {
+      if (loadout.aiToolIds && loadout.aiToolIds.length > 0) {
+        memberAIToolIds.set(loadout.memberId, loadout.aiToolIds);
+      }
+    });
+
+    calculateCapacity(members, workPlans, THIRD_PARTY_AI_TOOLS, memberAIToolIds);
+  }, [members, workPlans, personLoadouts, calculateCapacity]);
 
   // Get real-time financial metrics - SINGLE SOURCE OF TRUTH (memoized inside component)
   const financialMetrics = useMemo(() => getFinancialMetrics(), []);
@@ -664,6 +685,63 @@ export default function HomeScreen() {
                   </View>
                 </Pressable>
               </View>
+            </View>
+
+            {/* TEAM CAPACITY - 10 Day Rolling View */}
+            <View className="mb-4">
+              <View className="flex-row items-center justify-between mb-2">
+                <Text className="text-gray-500 dark:text-slate-500 text-xs font-bold tracking-wide">
+                  TEAM CAPACITY (10-DAY)
+                </Text>
+                <Pressable onPress={() => router.push('/capacity')}>
+                  <Text className="text-emerald-500 text-xs font-semibold">View Details</Text>
+                </Pressable>
+              </View>
+
+              {/* Quick Stats Row */}
+              <View className="flex-row gap-2 mb-3">
+                <View className="flex-1 bg-gray-100 dark:bg-slate-900 rounded-xl p-3">
+                  <View className="flex-row items-center mb-1">
+                    <Activity size={14} color={teamCapacitySummary.utilizationPct >= 85 ? '#f59e0b' : '#10b981'} />
+                    <Text className="text-gray-500 dark:text-slate-500 text-xs ml-1">Utilization</Text>
+                  </View>
+                  <Text className={`font-bold text-lg ${
+                    teamCapacitySummary.utilizationPct >= 100 ? 'text-red-500' :
+                    teamCapacitySummary.utilizationPct >= 85 ? 'text-amber-500' :
+                    teamCapacitySummary.utilizationPct >= 50 ? 'text-emerald-500' :
+                    'text-gray-500 dark:text-slate-500'
+                  }`}>
+                    {teamCapacitySummary.utilizationPct}%
+                  </Text>
+                </View>
+                <View className="flex-1 bg-gray-100 dark:bg-slate-900 rounded-xl p-3">
+                  <View className="flex-row items-center mb-1">
+                    <Clock size={14} color="#3b82f6" />
+                    <Text className="text-gray-500 dark:text-slate-500 text-xs ml-1">Available</Text>
+                  </View>
+                  <Text className="text-gray-900 dark:text-white font-bold text-lg">
+                    {teamCapacitySummary.totalAvailableTU} TU
+                  </Text>
+                </View>
+                <View className="flex-1 bg-gray-100 dark:bg-slate-900 rounded-xl p-3">
+                  <View className="flex-row items-center mb-1">
+                    <AlertTriangle size={14} color={teamCapacitySummary.stretchedCount > 0 ? '#ef4444' : '#64748b'} />
+                    <Text className="text-gray-500 dark:text-slate-500 text-xs ml-1">Stretched</Text>
+                  </View>
+                  <Text className={`font-bold text-lg ${teamCapacitySummary.stretchedCount > 0 ? 'text-red-500' : 'text-gray-900 dark:text-white'}`}>
+                    {teamCapacitySummary.stretchedCount}
+                  </Text>
+                </View>
+              </View>
+
+              {/* Mini Heat Map */}
+              {memberCapacities.length > 0 && (
+                <CapacityHeatMap
+                  memberCapacities={memberCapacities}
+                  compact={true}
+                  showLegend={false}
+                />
+              )}
             </View>
 
             {/* OKRs by Function - Compact Grid */}

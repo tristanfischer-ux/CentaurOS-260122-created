@@ -167,6 +167,8 @@ export default function SetupPlanScreen() {
         // Create a work plan for each task in the section
         for (const taskData of wpData.tasks) {
           const workPlanId = `wp-startup-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+          // Estimate time units: 1 TU = 4 hours, so estimatedHours / 4, minimum 1
+          const estimatedTimeUnits = Math.max(1, Math.ceil((taskData.estimatedHours ?? 8) / 4));
           addWorkPlan({
             id: workPlanId,
             workspaceId,
@@ -179,6 +181,8 @@ export default function SetupPlanScreen() {
             progress: 0,
             assignedBy: 'Startup Pack',
             needsSubmission: false,
+            estimatedTimeUnits,
+            sprintMode: true,
           });
           workPlansCreated++;
         }
