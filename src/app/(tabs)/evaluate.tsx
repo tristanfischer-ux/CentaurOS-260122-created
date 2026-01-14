@@ -1,154 +1,72 @@
 import { View, Text, ScrollView, Pressable, Modal, TextInput, Alert, KeyboardAvoidingView, Platform } from 'react-native';
-import { useState } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Briefcase, Plus, X, Clock, Users, Target, ChevronDown, ChevronRight, CheckCircle2, Circle, AlertCircle } from 'lucide-react-native';
-import { useCurrentWorkspace, useCurrentMembership } from '@/lib/state/app-store';
+import { useCurrentWorkspace, useCurrentMembership, useCurrentUser } from '@/lib/state/app-store';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { Function as BusinessFunction } from '@/types';
+import { useWorkPlanStore, type WorkPlan } from '@/lib/state/work-plan-store';
+import { useOrganizationStore } from '@/lib/state/organization-store';
 
-interface WorkPlan {
-  id: string;
-  title: string;
-  description: string;
-  function: BusinessFunction;
-  linkedOKRId: string;
-  linkedOKRTitle: string;
-  owner: string;
-  assignedTo: string[];
-  startDate: string;
-  dueDate: string;
-  status: 'not-started' | 'in-progress' | 'completed' | 'blocked';
-  progress: number;
-  submissions: WorkSubmission[];
-}
-
+// Submission type for evaluation workflow
 interface WorkSubmission {
   id: string;
+  workPlanId: string;
   apprenticeName: string;
   submittedAt: string;
   status: 'pending' | 'approved' | 'changes-requested';
   notes?: string;
 }
 
-// Demo work plans
-const DEMO_WORK_PLANS: WorkPlan[] = [
-  {
-    id: 'wp-1',
-    title: 'Launch Social Media Campaign',
-    description: 'Create and execute a 30-day social media campaign across LinkedIn, Twitter, and Instagram to generate brand awareness',
-    function: 'Marketing',
-    linkedOKRId: 'okr-marketing-1',
-    linkedOKRTitle: 'Build Brand Awareness & Generate Leads',
-    owner: 'Priya Sharma',
-    assignedTo: ['Emily Carter', 'David Kim'],
-    startDate: '2026-01-15',
-    dueDate: '2026-02-15',
-    status: 'in-progress',
-    progress: 65,
-    submissions: [
-      {
-        id: 'sub-1',
-        apprenticeName: 'Emily Carter',
-        submittedAt: '2026-01-12 14:30',
-        status: 'pending',
-      },
-    ],
-  },
-  {
-    id: 'wp-2',
-    title: 'Build Customer Outreach List',
-    description: 'Research and compile a list of 500 qualified leads in target industries with contact information and company details',
-    function: 'Sales',
-    linkedOKRId: 'okr-sales-1',
-    linkedOKRTitle: 'Achieve Product-Market Fit with 100 Customers',
-    owner: 'Sarah Mitchell',
-    assignedTo: ['Jordan Lee'],
-    startDate: '2026-01-10',
-    dueDate: '2026-01-31',
-    status: 'in-progress',
-    progress: 78,
-    submissions: [
-      {
-        id: 'sub-2',
-        apprenticeName: 'Jordan Lee',
-        submittedAt: '2026-01-11 16:45',
-        status: 'approved',
-        notes: 'Great work! List is comprehensive and well-researched.',
-      },
-    ],
-  },
-  {
-    id: 'wp-3',
-    title: 'Component Cost Analysis',
-    description: 'Analyze BOM and identify 3 alternative suppliers for top 10 most expensive components with cost comparisons',
-    function: 'Engineering',
-    linkedOKRId: 'okr-bom-1',
-    linkedOKRTitle: 'Finalize Bill of Materials & Reduce COGS by 20%',
-    owner: 'Marcus Rodriguez',
-    assignedTo: ['Alex Chen'],
-    startDate: '2026-01-08',
-    dueDate: '2026-01-25',
-    status: 'completed',
-    progress: 100,
-    submissions: [
-      {
-        id: 'sub-3',
-        apprenticeName: 'Alex Chen',
-        submittedAt: '2026-01-10 09:15',
-        status: 'approved',
-        notes: 'Excellent analysis. Moving forward with supplier B for PCB components.',
-      },
-    ],
-  },
-  {
-    id: 'wp-4',
-    title: 'Manufacturing Lead Time Optimization',
-    description: 'Work with contract manufacturers to reduce lead time from 6 weeks to 4 weeks through process improvements',
-    function: 'Ops',
-    linkedOKRId: 'okr-ops-1',
-    linkedOKRTitle: 'Scale Manufacturing to 1000 Units/Month',
-    owner: 'Thomas Anderson',
-    assignedTo: ['Maya Patel'],
-    startDate: '2026-01-12',
-    dueDate: '2026-02-28',
-    status: 'blocked',
-    progress: 25,
-    submissions: [
-      {
-        id: 'sub-4',
-        apprenticeName: 'Maya Patel',
-        submittedAt: '2026-01-11 11:20',
-        status: 'changes-requested',
-        notes: 'Need more detail on supplier constraints. Please schedule calls with each manufacturer.',
-      },
-    ],
-  },
-  {
-    id: 'wp-5',
-    title: 'Investor Deck Update',
-    description: 'Update pitch deck with Q4 metrics, new product milestones, and revised financial projections for seed round',
-    function: 'Finance',
-    linkedOKRId: 'okr-finance-1',
-    linkedOKRTitle: 'Raise £2M Seed Round & Extend Runway to 18 Months',
-    owner: 'James Chen',
-    assignedTo: ['Sophie Williams'],
-    startDate: '2026-01-05',
-    dueDate: '2026-01-20',
-    status: 'in-progress',
-    progress: 85,
-    submissions: [],
-  },
-];
+// Extended work plan type with submissions for evaluation
+interface EvaluationWorkPlan extends WorkPlan {
+  submissions: WorkSubmission[];
+  owner: string;
+  assignedTo: string[];
+}
+
+// Initialize stores once
+if (useWorkPlanStore.getState().workPlans.length === 0) {
+  useWorkPlanStore.getState().initializeWorkPlans();
+}
+if (useOrganizationStore.getState().members.length === 0) {
+  useOrganizationStore.getState().initializeOrganization();
+}
 
 export default function EvaluateScreen() {
   const insets = useSafeAreaInsets();
   const currentWorkspace = useCurrentWorkspace();
   const currentMembership = useCurrentMembership();
+  const currentUser = useCurrentUser();
+
+  // Use centralized work plan store - SINGLE SOURCE OF TRUTH
+  const workPlans = useWorkPlanStore(s => s.workPlans);
+  const updateWorkPlan = useWorkPlanStore(s => s.updateWorkPlan);
+  const members = useOrganizationStore(s => s.members);
+
+  // Local state for submissions (would be part of store in production)
+  const [submissions, setSubmissions] = useState<WorkSubmission[]>(() => {
+    // Generate submissions from work plans that need submission
+    const initialSubmissions: WorkSubmission[] = [];
+    workPlans.forEach(wp => {
+      if (wp.needsSubmission && wp.status === 'in-progress') {
+        initialSubmissions.push({
+          id: `sub-${wp.id}`,
+          workPlanId: wp.id,
+          apprenticeName: wp.assignedBy, // Using assignedBy as proxy for who submitted
+          submittedAt: wp.lastSubmittedAt || new Date().toISOString(),
+          status: 'pending',
+          notes: wp.feedback,
+        });
+      }
+    });
+    return initialSubmissions;
+  });
 
   const [expandedPlans, setExpandedPlans] = useState<Set<string>>(new Set());
   const [selectedFunction, setSelectedFunction] = useState<BusinessFunction | 'all'>('all');
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showSubmissionModal, setShowSubmissionModal] = useState(false);
-  const [selectedSubmission, setSelectedSubmission] = useState<{ plan: WorkPlan; submission: WorkSubmission } | null>(null);
+  const [selectedSubmission, setSelectedSubmission] = useState<{ plan: EvaluationWorkPlan; submission: WorkSubmission } | null>(null);
   const [reviewNotes, setReviewNotes] = useState('');
 
   const functions: BusinessFunction[] = ['Marketing', 'Sales', 'Engineering', 'Ops', 'Finance', 'Admin'];
@@ -156,22 +74,52 @@ export default function EvaluateScreen() {
   const isExecutive = currentMembership?.role === 'FractionalExec';
   const canCreatePlans = isFounder || isExecutive;
 
+  // Enrich work plans with submission data and assignee info
+  const enrichedWorkPlans = useMemo((): EvaluationWorkPlan[] => {
+    return workPlans.map(wp => {
+      // Get submissions for this work plan
+      const wpSubmissions = submissions.filter(s => s.workPlanId === wp.id);
+
+      // Find apprentices assigned to this function
+      const assignedApprentices = members
+        .filter(m => m.role === 'Apprentice' && m.function === wp.function && m.status === 'active')
+        .map(m => m.name);
+
+      // Find owner (executive for this function)
+      const owner = members.find(m =>
+        m.role === 'FractionalExec' && m.function === wp.function && m.status === 'active'
+      )?.name || wp.assignedBy;
+
+      return {
+        ...wp,
+        submissions: wpSubmissions,
+        owner,
+        assignedTo: assignedApprentices.length > 0 ? assignedApprentices : [wp.assignedBy],
+      };
+    });
+  }, [workPlans, submissions, members]);
+
   // Filter work plans to show only those needing evaluation (with pending submissions)
-  let workPlansNeedingEvaluation = DEMO_WORK_PLANS.filter(plan =>
-    plan.submissions.some(s => s.status === 'pending')
-  );
+  const workPlansNeedingEvaluation = useMemo(() => {
+    let filtered = enrichedWorkPlans.filter((plan: EvaluationWorkPlan) =>
+      plan.submissions.some((s: WorkSubmission) => s.status === 'pending') || plan.needsSubmission
+    );
 
-  // Filter by function
-  if (selectedFunction !== 'all') {
-    workPlansNeedingEvaluation = workPlansNeedingEvaluation.filter(plan => plan.function === selectedFunction);
-  }
+    // Filter by function
+    if (selectedFunction !== 'all') {
+      filtered = filtered.filter((plan: EvaluationWorkPlan) => plan.function === selectedFunction);
+    }
 
-  // Filter by role permissions (executives only see their work plans)
-  if (isExecutive && !isFounder) {
-    // In real app, this would filter by current user's name
-    // For now, show all plans to executives
-    // workPlansNeedingEvaluation = workPlansNeedingEvaluation.filter(plan => plan.owner === currentUser?.name);
-  }
+    // Filter by role permissions (executives only see their function's work plans)
+    if (isExecutive && !isFounder && currentUser) {
+      const currentMember = members.find(m => m.name === currentUser.name);
+      if (currentMember?.function) {
+        filtered = filtered.filter((plan: EvaluationWorkPlan) => plan.function === currentMember.function);
+      }
+    }
+
+    return filtered;
+  }, [enrichedWorkPlans, selectedFunction, isExecutive, isFounder, currentUser, members]);
 
   const togglePlan = (planId: string) => {
     const newExpanded = new Set(expandedPlans);
@@ -250,10 +198,10 @@ export default function EvaluateScreen() {
 
   // Calculate summary stats for items needing evaluation
   const totalPlans = workPlansNeedingEvaluation.length;
-  const pendingSubmissions = workPlansNeedingEvaluation.reduce((total, plan) =>
-    total + plan.submissions.filter(s => s.status === 'pending').length, 0
+  const pendingSubmissions = workPlansNeedingEvaluation.reduce((total: number, plan: EvaluationWorkPlan) =>
+    total + plan.submissions.filter((s: WorkSubmission) => s.status === 'pending').length, 0
   );
-  const totalSubmissions = workPlansNeedingEvaluation.reduce((total, plan) =>
+  const totalSubmissions = workPlansNeedingEvaluation.reduce((total: number, plan: EvaluationWorkPlan) =>
     total + plan.submissions.length, 0
   );
 
@@ -334,10 +282,10 @@ export default function EvaluateScreen() {
             <Text className="text-gray-900 dark:text-white text-base font-semibold mb-3">
               Work Plans with Pending Submissions ({workPlansNeedingEvaluation.length})
             </Text>
-            {workPlansNeedingEvaluation.map((plan) => {
+            {workPlansNeedingEvaluation.map((plan: EvaluationWorkPlan) => {
               const isExpanded = expandedPlans.has(plan.id);
               const functionColor = getFunctionColor(plan.function);
-              const pendingSubmissionsForPlan = plan.submissions.filter(s => s.status === 'pending');
+              const pendingSubmissionsForPlan = plan.submissions.filter((s: WorkSubmission) => s.status === 'pending');
 
               return (
                 <View key={plan.id} className="mb-3">
@@ -438,7 +386,7 @@ export default function EvaluateScreen() {
                           Assigned Apprentices
                         </Text>
                         <View className="gap-1">
-                          {plan.assignedTo.map((name, idx) => (
+                          {plan.assignedTo.map((name: string, idx: number) => (
                             <View key={idx} className="flex-row items-center">
                               <Circle size={8} color="#64748b" />
                               <Text className="text-gray-700 dark:text-slate-300 text-sm ml-2">{name}</Text>
@@ -454,7 +402,7 @@ export default function EvaluateScreen() {
                             Work Submissions ({plan.submissions.length})
                           </Text>
                           <View className="gap-2">
-                            {plan.submissions.map((submission) => (
+                            {plan.submissions.map((submission: WorkSubmission) => (
                               <Pressable
                                 key={submission.id}
                                 onPress={() => {
