@@ -76,8 +76,19 @@ export default function HomeScreen() {
 
   // Recalculate runway with adjusted burn
   const adjustedRunway = useMemo(() => {
-    return adjustedMonthlyBurn > 0 ? financialMetrics.cashPosition / adjustedMonthlyBurn : 999;
-  }, [financialMetrics.cashPosition, adjustedMonthlyBurn]);
+    if (adjustedMonthlyBurn <= 0) return 999; // No burn means infinite runway
+
+    const adjustedNetCashFlow = financialMetrics.monthlyRevenue - adjustedMonthlyBurn;
+
+    // If we have positive cash flow, runway is infinite
+    if (adjustedNetCashFlow >= 0) {
+      return 999;
+    }
+
+    // If we're burning cash, calculate months until we run out
+    const monthlyNetBurn = Math.abs(adjustedNetCashFlow);
+    return financialMetrics.cashPosition / monthlyNetBurn;
+  }, [financialMetrics.cashPosition, financialMetrics.monthlyRevenue, adjustedMonthlyBurn]);
 
   // Recalculate net cash flow with adjusted burn
   const adjustedNetCashFlow = useMemo(() => {

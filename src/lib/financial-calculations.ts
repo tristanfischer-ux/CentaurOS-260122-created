@@ -133,13 +133,24 @@ export function calculateMonthlyBurn(costs: typeof FINANCIAL_DATA.costs = FINANC
 /**
  * Calculate runway in months - SINGLE SOURCE OF TRUTH
  * Returns runway rounded to 1 decimal place
+ * If revenue > burn (positive cash flow), runway is infinite (returns 999)
  */
 export function calculateRunway(
   cashPosition: number = FINANCIAL_DATA.cashPosition,
-  costs: typeof FINANCIAL_DATA.costs = FINANCIAL_DATA.costs
+  costs: typeof FINANCIAL_DATA.costs = FINANCIAL_DATA.costs,
+  monthlyRevenue: number = FINANCIAL_DATA.monthlyRevenue
 ): number {
   const monthlyBurn = calculateMonthlyBurn(costs);
-  const runway = cashPosition / monthlyBurn;
+  const netCashFlow = monthlyRevenue - monthlyBurn;
+
+  // If we have positive cash flow, we're growing - runway is infinite
+  if (netCashFlow >= 0) {
+    return 999; // Represents infinite runway
+  }
+
+  // If we're burning cash, calculate months until we run out
+  const monthlyNetBurn = Math.abs(netCashFlow);
+  const runway = cashPosition / monthlyNetBurn;
   return Math.round(runway * 10) / 10; // Round to 1 decimal place
 }
 
@@ -148,7 +159,7 @@ export function calculateRunway(
  */
 export function getFinancialMetrics(costs: typeof FINANCIAL_DATA.costs = FINANCIAL_DATA.costs) {
   const monthlyBurn = calculateMonthlyBurn(costs);
-  const runway = calculateRunway(FINANCIAL_DATA.cashPosition, costs);
+  const runway = calculateRunway(FINANCIAL_DATA.cashPosition, costs, FINANCIAL_DATA.monthlyRevenue);
   const netCashFlow = FINANCIAL_DATA.monthlyRevenue - monthlyBurn;
 
   return {
