@@ -54,8 +54,41 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
 
 ## 🚨 PRODUCTION READINESS STATUS
 
-**Last Updated**: 2026-01-14 (**GOAL SETTING SYSTEM** - Founders can now define their goals through a 5-question AI-powered questionnaire that generates strategic next steps and OKR recommendations)
+**Last Updated**: 2026-01-14 (**COMPANY AIM SYSTEM** - Founders can define their company's high-level macro aim (ultimate purpose) and see it throughout the app to ensure all activities align with the company's true goal)
 **Status**: ✅ **READY FOR APP STORE** - All features complete!
+
+---
+
+## 🎯 COMPANY AIM SYSTEM
+
+**Latest Update**: 2026-01-14
+
+### High-Level Macro Purpose
+Every company needs a fundamental reason for existing - not just valuation or metrics, but the meaningful change it wants to create. The Company Aim System helps founders define and stay connected to this purpose.
+
+### Key Features
+- **Define Your Aim**: 3-question modal to capture:
+  1. **Ultimate Aim**: The high-level macro purpose (e.g., "Make sustainable living accessible to every household")
+  2. **Why It Matters**: The deeper reason behind the aim
+  3. **What It's NOT About**: Clarify what you're not optimizing for (e.g., "not just about increasing valuation")
+
+- **Persistent Visibility**: Company aim appears as a prominent purple gradient banner in:
+  - **Founder Home Tab**: At the top of Command Center to start each day with purpose
+  - **Decide Tab**: When creating OKRs to ensure strategic alignment
+
+- **Alignment Check**: Built-in reminder to ask: "Do the things I'm doing actually move forward to this goal?"
+
+- **Easy Editing**: Tap any aim banner to edit and refine the company's purpose
+
+### Why It Matters
+- **Focus**: Keeps the team focused on what truly matters
+- **Filtering**: Helps identify activities that don't serve the ultimate aim
+- **Motivation**: Reminds everyone why the work is meaningful
+- **Decision-Making**: Provides a north star for strategic choices
+- **Prevents Drift**: Stops the company from optimizing for the wrong metrics
+
+### Design Philosophy
+The aim is separate from OKRs and goals - it's the unchanging purpose that gives all other activities meaning. OKRs and tasks should ladder up to the aim, not replace it.
 
 ---
 
@@ -88,6 +121,9 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
 
 ### Founder Home Tab
 The Command Center now provides comprehensive visibility:
+- **Company Aim Banner**: Purple gradient banner showing the company's ultimate purpose at the top
+  - Tap to edit or define your company's high-level macro aim
+  - Visible reminder to ensure all activities align with the company's true goal
 - **Define Your Goals**: AI-powered strategic planning questionnaire
   - 5-question interactive survey about vision, metrics, challenges, and priorities
   - AI generates actionable next steps with priority levels and timeframes

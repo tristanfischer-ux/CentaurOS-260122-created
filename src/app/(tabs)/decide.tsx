@@ -20,6 +20,8 @@ import { useWorkPlanStore, type WorkPlan } from '@/lib/state/work-plan-store';
 import { HelpModal, HelpButton, type HelpContent } from '@/components/HelpModal';
 import HireResourceModal from '@/components/HireResourceModal';
 import { DraggableOKRCard, DraggableTaskCard } from '@/components/DraggableOKRCard';
+import { CompanyAimBanner } from '@/components/CompanyAimBanner';
+import { CompanyAimModal } from '@/components/CompanyAimModal';
 
 const DECIDE_HELP: HelpContent = {
   title: 'Strategic Decisions',
@@ -132,6 +134,7 @@ export default function DecideScreen() {
   const [showHireModal, setShowHireModal] = useState(false);
   const [selectedOKRForHire, setSelectedOKRForHire] = useState<OKR | null>(null);
   const [showGetResourcesModal, setShowGetResourcesModal] = useState(false);
+  const [showCompanyAimModal, setShowCompanyAimModal] = useState(false);
   const [resourceTypeTab, setResourceTypeTab] = useState<'people' | 'ai'>('people');
   const [hireName, setHireName] = useState('');
   const [hireRole, setHireRole] = useState<'FractionalExec' | 'Apprentice'>('Apprentice');
@@ -674,6 +677,13 @@ export default function DecideScreen() {
         gradientColors={['#8b5cf6', '#6366f1']}
       />
 
+      {/* Company Aim Modal */}
+      <CompanyAimModal
+        visible={showCompanyAimModal}
+        onClose={() => setShowCompanyAimModal(false)}
+        workspaceId={currentWorkspace?.id || ''}
+      />
+
       {/* Header - Matching Home Tab Style */}
       <LinearGradient
         colors={['#8b5cf6', '#6366f1']}
@@ -847,6 +857,14 @@ export default function DecideScreen() {
       </View>
 
       <ScrollView className="flex-1 px-5 py-4">
+        {/* Company Aim Banner */}
+        {currentWorkspace && (
+          <CompanyAimBanner
+            workspaceId={currentWorkspace.id}
+            onEdit={() => setShowCompanyAimModal(true)}
+          />
+        )}
+
         {/* SECTION 1: NEEDS YOUR DECISION (Critical) */}
         {decisionItems.totalCritical > 0 && (
           <View className="mb-5">

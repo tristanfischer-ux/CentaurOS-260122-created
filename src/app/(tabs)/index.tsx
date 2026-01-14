@@ -49,6 +49,8 @@ import { useMessagesStore, initializeDemoMessages } from '@/lib/state/messages-s
 import { useCalendarStore } from '@/lib/state/calendar-store';
 import { GoalQuestionnaireModal } from '@/components/GoalQuestionnaireModal';
 import { StrategyResultsModal } from '@/components/StrategyResultsModal';
+import { CompanyAimModal } from '@/components/CompanyAimModal';
+import { CompanyAimBanner } from '@/components/CompanyAimBanner';
 
 // Help content for each role
 const FOUNDER_HELP: HelpContent = {
@@ -129,6 +131,9 @@ export default function HomeScreen() {
   const [showGoalQuestionnaire, setShowGoalQuestionnaire] = useState(false);
   const [showStrategyResults, setShowStrategyResults] = useState(false);
   const [goalResponses, setGoalResponses] = useState<Record<string, string>>({});
+
+  // Company aim modal state
+  const [showCompanyAimModal, setShowCompanyAimModal] = useState(false);
 
   // Use centralized stores - select primitive values to avoid infinite loops
   const okrs = useOKRStore(s => s.okrs);
@@ -739,6 +744,13 @@ export default function HomeScreen() {
           onCreateOKRs={handleCreateOKRs}
         />
 
+        {/* Company Aim Modal */}
+        <CompanyAimModal
+          visible={showCompanyAimModal}
+          onClose={() => setShowCompanyAimModal(false)}
+          workspaceId={currentWorkspace.id}
+        />
+
         {/* Role Header - Compact with Key Metrics */}
         <LinearGradient
           colors={getRoleGradient()}
@@ -785,6 +797,12 @@ export default function HomeScreen() {
 
         <ScrollView className="flex-1">
           <View className="px-5 py-4">
+            {/* Company Aim Banner */}
+            <CompanyAimBanner
+              workspaceId={currentWorkspace.id}
+              onEdit={() => setShowCompanyAimModal(true)}
+            />
+
             {/* ATTENTION REQUIRED - Most Critical */}
             {(urgentItems.totalUrgent > 0 || urgentItems.totalWarning > 0 || FOUNDER_DATA.pendingApprovals > 0) && (
               <View className="mb-4">
