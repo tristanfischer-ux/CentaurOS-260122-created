@@ -13,7 +13,8 @@ import { fractionalExecutives, apprentices, type Candidate } from '@/lib/candida
 import { useMarketplaceRequestsStore, type MarketplaceRequest } from '@/lib/state/marketplace-requests-store';
 import { MARKETPLACE_EXECUTIVES } from '@/lib/marketplace-executives';
 import { useOrganizationStore } from '@/lib/state/organization-store';
-import { useWorkPlanStore } from '@/lib/state/work-plan-store';
+import { type OrganizationMember } from '@/lib/organization-seed';
+import { useWorkPlanStore, type WorkPlan } from '@/lib/state/work-plan-store';
 import { HelpModal, HelpButton, type HelpContent } from '@/components/HelpModal';
 import HireResourceModal from '@/components/HireResourceModal';
 
@@ -139,6 +140,80 @@ export default function DecideScreen() {
   // Work plan state
   const [workPlanItems, setWorkPlanItems] = useState<WorkPlanItem[]>([]);
   const [showWorkPlanSection, setShowWorkPlanSection] = useState(false);
+
+  // Team member assignment state
+  const [selectedMemberForAssign, setSelectedMemberForAssign] = useState<string | null>(null);
+  const [showTeamDock, setShowTeamDock] = useState(true);
+
+  // Organization members for assignment
+  const orgMembers = useOrganizationStore(s => s.members);
+  const updateWorkPlan = useWorkPlanStore(s => s.updateWorkPlan);
+
+  // Initialize organization if empty
+  useEffect(() => {
+    if (orgMembers.length === 0) {
+      useOrganizationStore.getState().initializeOrganization();
+    }
+  }, [orgMembers.length]);
+
+  // Get team members grouped by role
+  const teamMembers = useMemo(() => {
+    const founders = orgMembers.filter(m => m.role === 'Founder' && m.status === 'active');
+    const executives = orgMembers.filter(m => m.role === 'FractionalExec' && m.status === 'active');
+    const apprenticeMembers = orgMembers.filter(m => m.role === 'Apprentice' && m.status === 'active');
+    return { founders, executives, apprentices: apprenticeMembers };
+  }, [orgMembers]);
+
+  // Get initials from name
+  const getInitials = (name: string) => {
+    const parts = name.split(' ');
+    if (parts.length >= 2) {
+      return `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase();
+    }
+    return name.substring(0, 2).toUpperCase();
+  };
+
+  // Get role color
+  const getRoleColor = (role: 'Founder' | 'FractionalExec' | 'Apprentice') => {
+    switch (role) {
+      case 'Founder': return '#8b5cf6'; // Purple
+      case 'FractionalExec': return '#10b981'; // Emerald
+      case 'Apprentice': return '#3b82f6'; // Blue
+    }
+  };
+
+  // Handle assigning a member to a work plan
+  const handleAssignMember = (workPlanId: string, memberId: string) => {
+    const workPlan = workPlans.find(wp => wp.id === workPlanId);
+    if (!workPlan) return;
+
+    const currentAssigned = workPlan.assignedMemberIds || [];
+    if (!currentAssigned.includes(memberId)) {
+      updateWorkPlan(workPlanId, {
+        assignedMemberIds: [...currentAssigned, memberId]
+      });
+    }
+    setSelectedMemberForAssign(null);
+  };
+
+  // Handle removing a member from a work plan
+  const handleRemoveMember = (workPlanId: string, memberId: string) => {
+    const workPlan = workPlans.find(wp => wp.id === workPlanId);
+    if (!workPlan) return;
+
+    const currentAssigned = workPlan.assignedMemberIds || [];
+    updateWorkPlan(workPlanId, {
+      assignedMemberIds: currentAssigned.filter(id => id !== memberId)
+    });
+  };
+
+  // Get assigned members for a work plan
+  const getAssignedMembers = (workPlan: WorkPlan) => {
+    const memberIds = workPlan.assignedMemberIds || [];
+    return memberIds
+      .map(id => orgMembers.find(m => m.id === id))
+      .filter((m): m is OrganizationMember => m !== undefined);
+  };
 
   // Set initial function from params if provided
   useEffect(() => {
@@ -466,6 +541,112 @@ export default function DecideScreen() {
         </View>
       </LinearGradient>
 
+      {/* Team Member Dock - Draggable Avatars */}
+      <View className="bg-gray-50 dark:bg-slate-900 border-b border-gray-200 dark:border-slate-800 px-4 py-3">
+        <Pressable
+          onPress={() => setShowTeamDock(!showTeamDock)}
+          className="flex-row items-center justify-between mb-2"
+        >
+          <View className="flex-row items-center">
+            <Users size={16} color="#6b7280" />
+            <Text className="text-gray-600 dark:text-slate-400 text-xs font-bold ml-2 tracking-wide">
+              TEAM ({teamMembers.founders.length + teamMembers.executives.length + teamMembers.apprentices.length})
+            </Text>
+          </View>
+          <Text className="text-purple-600 dark:text-purple-400 text-xs font-semibold">
+            {selectedMemberForAssign ? 'Tap a task to assign' : showTeamDock ? 'Collapse' : 'Expand'}
+          </Text>
+        </Pressable>
+
+        {showTeamDock && (
+          <View>
+            {/* Founders Row */}
+            {teamMembers.founders.length > 0 && (
+              <View className="mb-2">
+                <Text className="text-purple-600 dark:text-purple-400 text-[10px] font-semibold mb-1.5">FOUNDERS</Text>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                  <View className="flex-row gap-2">
+                    {teamMembers.founders.map((member) => (
+                      <Pressable
+                        key={member.id}
+                        onPress={() => setSelectedMemberForAssign(selectedMemberForAssign === member.id ? null : member.id)}
+                        className={`items-center ${selectedMemberForAssign === member.id ? 'opacity-100' : 'opacity-80'}`}
+                      >
+                        <View
+                          className={`w-10 h-10 rounded-full items-center justify-center ${selectedMemberForAssign === member.id ? 'ring-2 ring-purple-500' : ''}`}
+                          style={{ backgroundColor: getRoleColor(member.role), borderWidth: selectedMemberForAssign === member.id ? 2 : 0, borderColor: '#fff' }}
+                        >
+                          <Text className="text-white font-bold text-sm">{getInitials(member.name)}</Text>
+                        </View>
+                        <Text className="text-gray-600 dark:text-slate-400 text-[9px] mt-0.5 text-center" numberOfLines={1} style={{ maxWidth: 50 }}>
+                          {member.name.split(' ')[0]}
+                        </Text>
+                      </Pressable>
+                    ))}
+                  </View>
+                </ScrollView>
+              </View>
+            )}
+
+            {/* Executives Row */}
+            {teamMembers.executives.length > 0 && (
+              <View className="mb-2">
+                <Text className="text-emerald-600 dark:text-emerald-400 text-[10px] font-semibold mb-1.5">EXECUTIVES</Text>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                  <View className="flex-row gap-2">
+                    {teamMembers.executives.map((member) => (
+                      <Pressable
+                        key={member.id}
+                        onPress={() => setSelectedMemberForAssign(selectedMemberForAssign === member.id ? null : member.id)}
+                        className={`items-center ${selectedMemberForAssign === member.id ? 'opacity-100' : 'opacity-80'}`}
+                      >
+                        <View
+                          className={`w-10 h-10 rounded-full items-center justify-center`}
+                          style={{ backgroundColor: getRoleColor(member.role), borderWidth: selectedMemberForAssign === member.id ? 2 : 0, borderColor: '#fff' }}
+                        >
+                          <Text className="text-white font-bold text-sm">{getInitials(member.name)}</Text>
+                        </View>
+                        <Text className="text-gray-600 dark:text-slate-400 text-[9px] mt-0.5 text-center" numberOfLines={1} style={{ maxWidth: 50 }}>
+                          {member.name.split(' ')[0]}
+                        </Text>
+                      </Pressable>
+                    ))}
+                  </View>
+                </ScrollView>
+              </View>
+            )}
+
+            {/* Apprentices Row */}
+            {teamMembers.apprentices.length > 0 && (
+              <View>
+                <Text className="text-blue-600 dark:text-blue-400 text-[10px] font-semibold mb-1.5">APPRENTICES</Text>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                  <View className="flex-row gap-2">
+                    {teamMembers.apprentices.map((member) => (
+                      <Pressable
+                        key={member.id}
+                        onPress={() => setSelectedMemberForAssign(selectedMemberForAssign === member.id ? null : member.id)}
+                        className={`items-center ${selectedMemberForAssign === member.id ? 'opacity-100' : 'opacity-80'}`}
+                      >
+                        <View
+                          className={`w-10 h-10 rounded-full items-center justify-center`}
+                          style={{ backgroundColor: getRoleColor(member.role), borderWidth: selectedMemberForAssign === member.id ? 2 : 0, borderColor: '#fff' }}
+                        >
+                          <Text className="text-white font-bold text-sm">{getInitials(member.name)}</Text>
+                        </View>
+                        <Text className="text-gray-600 dark:text-slate-400 text-[9px] mt-0.5 text-center" numberOfLines={1} style={{ maxWidth: 50 }}>
+                          {member.name.split(' ')[0]}
+                        </Text>
+                      </Pressable>
+                    ))}
+                  </View>
+                </ScrollView>
+              </View>
+            )}
+          </View>
+        )}
+      </View>
+
       <ScrollView className="flex-1 px-5 py-4">
         {/* SECTION 1: NEEDS YOUR DECISION (Critical) */}
         {decisionItems.totalCritical > 0 && (
@@ -731,30 +912,105 @@ export default function DecideScreen() {
 
                     {isExpanded && (
                       <View className="mt-2 ml-4 gap-2">
-                        {okr.objectives.map((objective: Objective) => (
-                          <View
-                            key={objective.id}
-                            className="bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg p-2.5"
-                          >
-                            <View className="flex-row items-center justify-between mb-1.5">
-                              <Text className="text-gray-900 dark:text-white font-medium text-sm flex-1" numberOfLines={1}>
+                        {/* Work Plans (Tasks) with Assigned Members */}
+                        {linkedPlans.map((plan) => {
+                          const assignedMembers = getAssignedMembers(plan);
+                          return (
+                            <Pressable
+                              key={plan.id}
+                              onPress={() => {
+                                if (selectedMemberForAssign) {
+                                  handleAssignMember(plan.id, selectedMemberForAssign);
+                                }
+                              }}
+                              className={`bg-white dark:bg-slate-800 border rounded-xl p-3 ${
+                                selectedMemberForAssign
+                                  ? 'border-purple-400 dark:border-purple-600 border-2'
+                                  : 'border-gray-200 dark:border-slate-700'
+                              }`}
+                            >
+                              <View className="flex-row items-start justify-between mb-2">
+                                <View className="flex-1 mr-2">
+                                  <Text className="text-gray-900 dark:text-white font-semibold text-sm" numberOfLines={2}>
+                                    {plan.title}
+                                  </Text>
+                                  <View className="flex-row items-center mt-1 gap-2">
+                                    <View className={`px-1.5 py-0.5 rounded ${
+                                      plan.status === 'completed' ? 'bg-emerald-500/20' :
+                                      plan.status === 'in-progress' ? 'bg-blue-500/20' :
+                                      plan.status === 'blocked' ? 'bg-red-500/20' : 'bg-gray-500/20'
+                                    }`}>
+                                      <Text className={`text-[10px] font-semibold ${
+                                        plan.status === 'completed' ? 'text-emerald-600 dark:text-emerald-400' :
+                                        plan.status === 'in-progress' ? 'text-blue-600 dark:text-blue-400' :
+                                        plan.status === 'blocked' ? 'text-red-600 dark:text-red-400' : 'text-gray-600 dark:text-gray-400'
+                                      }`}>{plan.status}</Text>
+                                    </View>
+                                    <Text className="text-gray-500 dark:text-slate-400 text-[10px]">{plan.progress}%</Text>
+                                  </View>
+                                </View>
+
+                                {/* Assigned Members Avatars */}
+                                <View className="flex-row items-center">
+                                  {assignedMembers.length > 0 ? (
+                                    <View className="flex-row -space-x-2">
+                                      {assignedMembers.slice(0, 4).map((member, idx) => (
+                                        <Pressable
+                                          key={member.id}
+                                          onPress={() => handleRemoveMember(plan.id, member.id)}
+                                          style={{ marginLeft: idx > 0 ? -8 : 0, zIndex: 10 - idx }}
+                                        >
+                                          <View
+                                            className="w-8 h-8 rounded-full items-center justify-center border-2 border-white dark:border-slate-800"
+                                            style={{ backgroundColor: getRoleColor(member.role) }}
+                                          >
+                                            <Text className="text-white font-bold text-[10px]">{getInitials(member.name)}</Text>
+                                          </View>
+                                        </Pressable>
+                                      ))}
+                                      {assignedMembers.length > 4 && (
+                                        <View className="w-8 h-8 rounded-full items-center justify-center bg-gray-400 border-2 border-white dark:border-slate-800" style={{ marginLeft: -8 }}>
+                                          <Text className="text-white font-bold text-[10px]">+{assignedMembers.length - 4}</Text>
+                                        </View>
+                                      )}
+                                    </View>
+                                  ) : (
+                                    <View className="w-8 h-8 rounded-full items-center justify-center bg-gray-200 dark:bg-slate-700 border-2 border-dashed border-gray-400 dark:border-slate-500">
+                                      <Plus size={14} color="#9ca3af" />
+                                    </View>
+                                  )}
+                                </View>
+                              </View>
+
+                              {/* Progress Bar */}
+                              <View className="bg-gray-200 dark:bg-slate-700 rounded-full h-1.5 overflow-hidden">
+                                <View
+                                  className={`h-full ${
+                                    plan.status === 'completed' ? 'bg-emerald-500' :
+                                    plan.status === 'blocked' ? 'bg-red-500' : 'bg-blue-500'
+                                  }`}
+                                  style={{ width: `${plan.progress}%` }}
+                                />
+                              </View>
+                            </Pressable>
+                          );
+                        })}
+
+                        {/* Key Results Summary */}
+                        <View className="bg-gray-50 dark:bg-slate-800/50 rounded-lg p-2">
+                          <Text className="text-gray-500 dark:text-slate-400 text-[10px] font-semibold mb-1">KEY RESULTS</Text>
+                          {okr.objectives.slice(0, 3).map((objective: Objective) => (
+                            <View key={objective.id} className="flex-row items-center justify-between py-1">
+                              <Text className="text-gray-700 dark:text-slate-300 text-xs flex-1 mr-2" numberOfLines={1}>
                                 {objective.title}
                               </Text>
-                              <View className={`px-1.5 py-0.5 rounded ml-2 ${getStatusColor(objective.status)}`}>
-                                <Text className="text-xs font-semibold">{objective.progress}%</Text>
-                              </View>
+                              <Text className={`text-xs font-semibold ${
+                                objective.status === 'on-track' ? 'text-emerald-500' :
+                                objective.status === 'at-risk' ? 'text-amber-500' : 'text-red-500'
+                              }`}>{objective.progress}%</Text>
                             </View>
-                            <View className="bg-gray-200 dark:bg-slate-700 rounded-full h-1.5 overflow-hidden">
-                              <View
-                                className={`h-full ${
-                                  objective.status === 'on-track' ? 'bg-emerald-500' :
-                                  objective.status === 'at-risk' ? 'bg-amber-500' : 'bg-red-500'
-                                }`}
-                                style={{ width: `${objective.progress}%` }}
-                              />
-                            </View>
-                          </View>
-                        ))}
+                          ))}
+                        </View>
 
                         <View className="gap-2">
                           <Pressable
@@ -763,17 +1019,6 @@ export default function DecideScreen() {
                           >
                             <Zap size={16} color="#fff" />
                             <Text className="text-white text-sm font-semibold">View Resource Plan</Text>
-                          </Pressable>
-
-                          <Pressable
-                            onPress={() => {
-                              setSelectedOKRForHire(okr);
-                              setShowHireModal(true);
-                            }}
-                            className="bg-blue-500 rounded-lg py-2.5 flex-row items-center justify-center gap-2 active:opacity-70"
-                          >
-                            <UserPlus size={16} color="#fff" />
-                            <Text className="text-white text-sm font-semibold">Speed Up OKR</Text>
                           </Pressable>
                         </View>
                       </View>
@@ -890,51 +1135,39 @@ export default function DecideScreen() {
 
                     {isExpanded && (
                       <View className="mt-2 ml-4 gap-2">
-                        {okr.objectives.map((objective: Objective) => (
-                          <View
-                            key={objective.id}
-                            className="bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg p-2.5"
-                          >
-                            <View className="flex-row items-center justify-between mb-1.5">
-                              <Text className="text-gray-900 dark:text-white font-medium text-sm flex-1" numberOfLines={1}>
+                        {/* Info Card - Needs Resources */}
+                        <View className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-3">
+                          <View className="flex-row items-center">
+                            <AlertCircle size={16} color="#f59e0b" />
+                            <Text className="text-amber-800 dark:text-amber-200 text-xs ml-2 flex-1">
+                              This OKR needs a resource plan. Create work plans and assign team members to move it to Active.
+                            </Text>
+                          </View>
+                        </View>
+
+                        {/* Key Results */}
+                        <View className="bg-gray-50 dark:bg-slate-800/50 rounded-lg p-2">
+                          <Text className="text-gray-500 dark:text-slate-400 text-[10px] font-semibold mb-1">KEY RESULTS</Text>
+                          {okr.objectives.map((objective: Objective) => (
+                            <View key={objective.id} className="flex-row items-center justify-between py-1.5 border-b border-gray-200 dark:border-slate-700 last:border-0">
+                              <Text className="text-gray-700 dark:text-slate-300 text-xs flex-1 mr-2" numberOfLines={1}>
                                 {objective.title}
                               </Text>
-                              <View className={`px-1.5 py-0.5 rounded ml-2 ${getStatusColor(objective.status)}`}>
-                                <Text className="text-xs font-semibold">{objective.progress}%</Text>
-                              </View>
+                              <Text className={`text-xs font-semibold ${
+                                objective.status === 'on-track' ? 'text-emerald-500' :
+                                objective.status === 'at-risk' ? 'text-amber-500' : 'text-red-500'
+                              }`}>{objective.progress}%</Text>
                             </View>
-                            <View className="bg-gray-200 dark:bg-slate-700 rounded-full h-1.5 overflow-hidden">
-                              <View
-                                className={`h-full ${
-                                  objective.status === 'on-track' ? 'bg-emerald-500' :
-                                  objective.status === 'at-risk' ? 'bg-amber-500' : 'bg-red-500'
-                                }`}
-                                style={{ width: `${objective.progress}%` }}
-                              />
-                            </View>
-                          </View>
-                        ))}
-
-                        <View className="gap-2">
-                          <Pressable
-                            onPress={() => router.push(`/okr-planner?okrId=${okr.id}`)}
-                            className="bg-purple-500 rounded-lg py-2.5 flex-row items-center justify-center gap-2 active:opacity-70"
-                          >
-                            <Zap size={16} color="#fff" />
-                            <Text className="text-white text-sm font-semibold">Create Resource Plan</Text>
-                          </Pressable>
-
-                          <Pressable
-                            onPress={() => {
-                              setSelectedOKRForHire(okr);
-                              setShowHireModal(true);
-                            }}
-                            className="bg-blue-500 rounded-lg py-2.5 flex-row items-center justify-center gap-2 active:opacity-70"
-                          >
-                            <UserPlus size={16} color="#fff" />
-                            <Text className="text-white text-sm font-semibold">Allocate Resources</Text>
-                          </Pressable>
+                          ))}
                         </View>
+
+                        <Pressable
+                          onPress={() => router.push(`/okr-planner?okrId=${okr.id}`)}
+                          className="bg-purple-500 rounded-lg py-2.5 flex-row items-center justify-center gap-2 active:opacity-70"
+                        >
+                          <Zap size={16} color="#fff" />
+                          <Text className="text-white text-sm font-semibold">Create Resource Plan</Text>
+                        </Pressable>
                       </View>
                     )}
                   </View>

@@ -322,8 +322,27 @@ The Build Queue now syncs with OKRs:
 | Screen | Route | Description |
 |--------|-------|-------------|
 | **OKR Planner** | `/okr-planner?okrId=xxx` | Configure resource allocation, apply presets, see forecast |
-| **Build Queue** | `/okr-queue` | Homeworld-style queue with parallel lanes per function |
-| **Capacity** | `/capacity` | Person-level utilization, burnout risk, allocation breakdown |
+
+### Team Member Assignment (Decide Tab)
+
+The Decide tab now features an interactive team assignment system:
+
+**Team Dock**:
+- Collapsible dock showing all team members organized by role (Founders, Executives, Apprentices)
+- Each member shown as a circular avatar with initials
+- Color-coded by role: Purple (Founders), Emerald (Executives), Blue (Apprentices)
+- Tap a member to select them for assignment
+
+**Task Assignment**:
+- Active OKRs show their linked work plans (tasks) with assigned member avatars
+- Tap a task while a member is selected to assign them
+- Tap a member avatar on a task to remove them
+- Tasks with no assigned members appear with a "+" placeholder
+
+**Queue Logic**:
+- OKRs with work plans that have assigned members appear in "ACTIVE - RESOURCES ALLOCATED"
+- OKRs without work plans or with unassigned work plans appear in "QUEUED - AWAITING RESOURCES"
+- Queue position is shown as #1, #2, etc.
 
 ### New Stores & Engines
 
@@ -352,9 +371,9 @@ The Build Queue now syncs with OKRs:
 ### Access from Decide Tab
 
 The Decide tab header now includes:
-- **Layers icon** → Build Queue screen
-- **Activity icon** → Capacity screen
-- **"X building" badge** → Shows active OKRs in queue
+- **Plus icon** → Create new OKR
+- **Lightbulb icon** → Browse OKR ideas/templates
+- **Help icon** → View help and tips
 
 ### 🏆 ELITE CONSULTING MODAL AUDIT (ENHANCED!)
 
