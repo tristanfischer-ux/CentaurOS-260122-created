@@ -45,6 +45,8 @@ import { THIRD_PARTY_AI_TOOLS } from '@/lib/third-party-ai-tools';
 import { HelpModal, HelpButton, type HelpContent } from '@/components/HelpModal';
 import { CapacityHeatMap } from '@/components/CapacityHeatMap';
 import { CapacityBreakdownModal } from '@/components/CapacityBreakdownModal';
+import { useMessagesStore, initializeDemoMessages } from '@/lib/state/messages-store';
+import { useCalendarStore } from '@/lib/state/calendar-store';
 
 // Help content for each role
 const FOUNDER_HELP: HelpContent = {
@@ -133,6 +135,17 @@ export default function HomeScreen() {
   const calculateCapacity = useCapacityStore(s => s.calculateCapacity);
   const memberCapacities = useCapacityStore(s => s.memberCapacities);
   const teamCapacitySummary = useCapacityStore(s => s.teamSummary);
+
+  // Messages and Calendar stores
+  const conversations = useMessagesStore(s => s.conversations.filter(c => c.workspaceId === currentWorkspace?.id));
+  const getEventsForDateRange = useCalendarStore(s => s.getEventsForDateRange);
+
+  // Initialize demo data on mount
+  useEffect(() => {
+    if (currentWorkspace?.id) {
+      initializeDemoMessages(currentWorkspace.id);
+    }
+  }, [currentWorkspace?.id]);
 
   // Calculate capacity on mount and when dependencies change
   useEffect(() => {
@@ -253,6 +266,47 @@ export default function HomeScreen() {
       totalWarning: atRiskOKRs.length,
     };
   }, [okrs, workPlans]);
+
+  // Get recent messages (top 2)
+  const recentMessages = useMemo(() => {
+    return conversations
+      .filter(conv => conv.lastMessage)
+      .sort((a, b) => {
+        const aTime = a.lastMessage?.timestamp.getTime() || 0;
+        const bTime = b.lastMessage?.timestamp.getTime() || 0;
+        return bTime - aTime;
+      })
+      .slice(0, 2);
+  }, [conversations]);
+
+  // Get upcoming calendar events (next 2 business days)
+  const upcomingEvents = useMemo(() => {
+    if (!currentWorkspace?.id) return [];
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    // Calculate 2 business days ahead
+    let businessDaysCount = 0;
+    let currentDate = new Date(today);
+    let endDate = new Date(today);
+
+    while (businessDaysCount < 2) {
+      currentDate.setDate(currentDate.getDate() + 1);
+      const dayOfWeek = currentDate.getDay();
+      // Skip weekends (0 = Sunday, 6 = Saturday)
+      if (dayOfWeek !== 0 && dayOfWeek !== 6) {
+        businessDaysCount++;
+        endDate = new Date(currentDate);
+      }
+    }
+    endDate.setHours(23, 59, 59, 999);
+
+    const events = getEventsForDateRange(currentWorkspace.id, today, endDate);
+    return events
+      .sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime())
+      .slice(0, 2);
+  }, [currentWorkspace?.id, getEventsForDateRange]);
 
   // Calculate tasks due soon (Founder view - across all functions)
   const tasksDueSoon = useMemo(() => {
@@ -1230,6 +1284,107 @@ export default function HomeScreen() {
                 </View>
               </Pressable>
             </View>
+
+            {/* RECENT MESSAGES */}
+            {recentMessages.length > 0 && (
+              <View className="mb-4">
+                <View className="flex-row items-center justify-between mb-2">
+                  <Text className="text-gray-500 dark:text-slate-500 text-xs font-bold tracking-wide">
+                    RECENT MESSAGES
+                  </Text>
+                  <Pressable onPress={() => router.push('/messages')}>
+                    <Text className="text-blue-500 text-xs font-semibold">View All</Text>
+                  </Pressable>
+                </View>
+
+                <View className="gap-2">
+                  {recentMessages.map((conv) => (
+                    <Pressable
+                      key={conv.id}
+                      onPress={() => router.push('/messages')}
+                      className="bg-gray-100 dark:bg-slate-900 rounded-xl p-3 active:opacity-70"
+                    >
+                      <View className="flex-row items-start justify-between mb-1">
+                        <View className="flex-1">
+                          <Text className="text-gray-900 dark:text-white font-semibold text-sm mb-0.5">
+                            {conv.name}
+                          </Text>
+                          <Text className="text-gray-600 dark:text-slate-400 text-xs" numberOfLines={2}>
+                            {conv.lastMessage?.content}
+                          </Text>
+                        </View>
+                        {conv.unreadCount > 0 && (
+                          <View className="bg-blue-500 rounded-full w-5 h-5 items-center justify-center ml-2">
+                            <Text className="text-white text-xs font-bold">{conv.unreadCount}</Text>
+                          </View>
+                        )}
+                      </View>
+                      <Text className="text-gray-500 dark:text-slate-500 text-xs">
+                        {new Date(conv.lastMessage?.timestamp || '').toLocaleTimeString([], {
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        })}
+                      </Text>
+                    </Pressable>
+                  ))}
+                </View>
+              </View>
+            )}
+
+            {/* UPCOMING CALENDAR */}
+            {upcomingEvents.length > 0 && (
+              <View className="mb-4">
+                <View className="flex-row items-center justify-between mb-2">
+                  <Text className="text-gray-500 dark:text-slate-500 text-xs font-bold tracking-wide">
+                    UPCOMING (NEXT 2 BUSINESS DAYS)
+                  </Text>
+                  <Pressable onPress={() => router.push('/calendar')}>
+                    <Text className="text-emerald-500 text-xs font-semibold">View Calendar</Text>
+                  </Pressable>
+                </View>
+
+                <View className="gap-2">
+                  {upcomingEvents.map((event) => {
+                    const eventDate = new Date(event.startDate);
+                    const isToday = eventDate.toDateString() === new Date().toDateString();
+                    const isTomorrow = eventDate.toDateString() === new Date(Date.now() + 86400000).toDateString();
+
+                    let dateLabel = eventDate.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' });
+                    if (isToday) dateLabel = 'Today';
+                    else if (isTomorrow) dateLabel = 'Tomorrow';
+
+                    return (
+                      <Pressable
+                        key={event.id}
+                        onPress={() => router.push('/calendar')}
+                        className="bg-gray-100 dark:bg-slate-900 rounded-xl p-3 active:opacity-70"
+                      >
+                        <View className="flex-row items-center mb-2">
+                          <View
+                            className="w-1 h-10 rounded-full mr-3"
+                            style={{ backgroundColor: event.color }}
+                          />
+                          <View className="flex-1">
+                            <Text className="text-gray-900 dark:text-white font-semibold text-sm mb-0.5">
+                              {event.title}
+                            </Text>
+                            <Text className="text-gray-600 dark:text-slate-400 text-xs">
+                              {dateLabel}
+                              {!event.allDay && ` • ${eventDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`}
+                            </Text>
+                          </View>
+                        </View>
+                        {event.description && (
+                          <Text className="text-gray-500 dark:text-slate-500 text-xs" numberOfLines={1}>
+                            {event.description}
+                          </Text>
+                        )}
+                      </Pressable>
+                    );
+                  })}
+                </View>
+              </View>
+            )}
 
             {/* STARTUP PACK - Company Setup */}
             <View className="mb-6">
