@@ -21,17 +21,15 @@ import {
 } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useCurrentMembership } from '@/lib/state/app-store';
-import {
-  ORGANIZATION_MEMBERS,
-  SUPPLIER_ENGAGEMENTS,
-  AI_AGENTS,
-  getTotalAISpend,
-  getTotalSupplierSpend,
-  type SupplierEngagement,
-  type AIAgent,
-} from '@/lib/organization-seed';
+import { useOrganizationStore } from '@/lib/state/organization-store';
+import type { SupplierEngagement, AIAgent } from '@/lib/organization-seed';
 import { TabDescription } from '@/components/TabDescription';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
+// Initialize organization store once
+if (useOrganizationStore.getState().members.length === 0) {
+  useOrganizationStore.getState().initializeOrganization();
+}
 
 type MakeTab = 'suppliers' | 'ai';
 
@@ -39,6 +37,13 @@ export default function MakeScreen() {
   const insets = useSafeAreaInsets();
   const currentMembership = useCurrentMembership();
   const params = useLocalSearchParams();
+
+  // Use centralized organization store
+  const aiAgents = useOrganizationStore((s) => s.aiAgents);
+  const supplierEngagements = useOrganizationStore((s) => s.supplierEngagements);
+  const members = useOrganizationStore((s) => s.members);
+  const getTotalAISpend = useOrganizationStore((s) => s.getTotalAISpend);
+  const getTotalSupplierSpend = useOrganizationStore((s) => s.getTotalSupplierSpend);
 
   const [activeTab, setActiveTab] = useState<MakeTab>('suppliers');
 
@@ -113,7 +118,7 @@ export default function MakeScreen() {
               £{aiSpend.toLocaleString()}
             </Text>
             <Text className="text-purple-600 dark:text-purple-400 text-xs mt-0.5">
-              {AI_AGENTS.filter(a => a.status === 'active').length} active
+              {aiAgents.filter(a => a.status === 'active').length} active
             </Text>
           </Pressable>
         </View>
@@ -176,10 +181,10 @@ export default function MakeScreen() {
             </View>
 
             <Text className="text-gray-900 dark:text-white text-base font-semibold mb-3">
-              Active Engagements ({SUPPLIER_ENGAGEMENTS.length})
+              Active Engagements ({supplierEngagements.length})
             </Text>
 
-            {SUPPLIER_ENGAGEMENTS.map((engagement) => {
+            {supplierEngagements.map((engagement) => {
               const statusColors: Record<string, string> = {
                 active: 'bg-emerald-500/20 text-emerald-400',
                 negotiating: 'bg-blue-500/20 text-blue-400',
@@ -249,23 +254,23 @@ export default function MakeScreen() {
                   <Text className="text-white font-bold ml-2 text-base">AI Infrastructure</Text>
                 </View>
                 <Text className="text-white/90 text-sm mb-3">
-                  {AI_AGENTS.filter(a => a.status === 'active').length} active agents costing £
+                  {aiAgents.filter(a => a.status === 'active').length} active agents costing £
                   {aiSpend}/month
                 </Text>
                 <View className="flex-row gap-2 flex-wrap">
                   <View className="bg-white/20 px-3 py-1.5 rounded-lg">
                     <Text className="text-white text-xs font-semibold">
-                      {AI_AGENTS.filter(a => a.provider === 'OpenAI').length} OpenAI
+                      {aiAgents.filter(a => a.provider === 'OpenAI').length} OpenAI
                     </Text>
                   </View>
                   <View className="bg-white/20 px-3 py-1.5 rounded-lg">
                     <Text className="text-white text-xs font-semibold">
-                      {AI_AGENTS.filter(a => a.provider === 'Anthropic').length} Anthropic
+                      {aiAgents.filter(a => a.provider === 'Anthropic').length} Anthropic
                     </Text>
                   </View>
                   <View className="bg-white/20 px-3 py-1.5 rounded-lg">
                     <Text className="text-white text-xs font-semibold">
-                      {AI_AGENTS.filter(a => a.provider === 'Google').length} Google
+                      {aiAgents.filter(a => a.provider === 'Google').length} Google
                     </Text>
                   </View>
                 </View>
@@ -273,10 +278,10 @@ export default function MakeScreen() {
             </View>
 
             <Text className="text-gray-900 dark:text-white text-base font-semibold mb-3">
-              AI Agents Directory ({AI_AGENTS.length})
+              AI Agents Directory ({aiAgents.length})
             </Text>
 
-            {AI_AGENTS.sort((a, b) => b.costPerMonth - a.costPerMonth).map(agent => {
+            {aiAgents.sort((a, b) => b.costPerMonth - a.costPerMonth).map(agent => {
               const providerColors: Record<string, string> = {
                 OpenAI: 'bg-blue-500/20 text-blue-400',
                 Anthropic: 'bg-purple-500/20 text-purple-400',
@@ -469,7 +474,7 @@ export default function MakeScreen() {
                       <View className="bg-gray-200 dark:bg-slate-800 rounded-xl p-3">
                         <View className="gap-2">
                           {selectedAI.usedBy.map((userId, idx) => {
-                            const member = ORGANIZATION_MEMBERS.find(m => m.id === userId);
+                            const member = members.find(m => m.id === userId);
                             if (!member) return null;
 
                             const getRoleColor = (role: string) => {
