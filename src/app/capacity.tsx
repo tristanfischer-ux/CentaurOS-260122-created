@@ -9,6 +9,7 @@ import {
   Activity,
 } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useTheme } from '@/lib/ThemeContext';
 
 // Stores
 import { useOrganizationStore } from '@/lib/state/organization-store';
@@ -33,6 +34,17 @@ export default function CapacityScreen() {
   const router = useRouter();
   const currentWorkspace = useCurrentWorkspace();
   const workspaceId = currentWorkspace?.id ?? DEFAULT_WORKSPACE_ID;
+  const { theme, isOffWhite } = useTheme();
+  const isDark = theme === 'dark';
+
+  // Theme colors
+  const bgPrimary = isDark ? 'bg-slate-950' : isOffWhite ? 'bg-orange-50' : 'bg-gray-50';
+  const bgCard = isDark ? 'bg-slate-900' : isOffWhite ? 'bg-white' : 'bg-white';
+  const borderColor = isDark ? 'border-slate-800' : isOffWhite ? 'border-orange-200' : 'border-gray-200';
+  const textPrimary = isDark ? 'text-white' : 'text-gray-900';
+  const textSecondary = isDark ? 'text-slate-400' : isOffWhite ? 'text-orange-700' : 'text-gray-600';
+  const textMuted = isDark ? 'text-slate-500' : isOffWhite ? 'text-orange-600' : 'text-gray-500';
+  const bgSecondary = isDark ? 'bg-slate-800' : isOffWhite ? 'bg-orange-100' : 'bg-gray-100';
 
   // Stores
   const members = useOrganizationStore((s) => s.members);
@@ -102,12 +114,12 @@ export default function CapacityScreen() {
   };
 
   return (
-    <View className="flex-1 bg-slate-950">
+    <View className={`flex-1 ${bgPrimary}`}>
       <Stack.Screen options={{ headerShown: false }} />
 
       {/* Header */}
       <LinearGradient
-        colors={['#10b981', '#059669']}
+        colors={isDark ? ['#10b981', '#059669'] : isOffWhite ? ['#f97316', '#ea580c'] : ['#10b981', '#059669']}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 0 }}
         style={{ paddingHorizontal: 20, paddingTop: insets.top + 12, paddingBottom: 16 }}
@@ -163,12 +175,12 @@ export default function CapacityScreen() {
       <ScrollView className="flex-1 px-5 py-4" contentContainerStyle={{ paddingBottom: insets.bottom + 40 }}>
         {/* Overload Warning */}
         {teamCapacity.overloadedCount > 0 && (
-          <View className="bg-red-900/30 border border-red-500/50 rounded-xl p-4 mb-4">
+          <View className={`${isDark ? 'bg-red-900/30' : 'bg-red-100'} border ${isDark ? 'border-red-500/50' : 'border-red-300'} rounded-xl p-4 mb-4`}>
             <View className="flex-row items-center gap-2 mb-2">
               <AlertTriangle size={18} color="#ef4444" />
-              <Text className="text-red-400 font-bold">Capacity Overload</Text>
+              <Text className={`${isDark ? 'text-red-400' : 'text-red-700'} font-bold`}>Capacity Overload</Text>
             </View>
-            <Text className="text-red-200 text-sm">
+            <Text className={`${isDark ? 'text-red-200' : 'text-red-600'} text-sm`}>
               {summary.overloadedNames.join(', ')} {teamCapacity.overloadedCount > 1 ? 'are' : 'is'} over 100% allocated.
               This increases coordination overhead across all projects.
             </Text>
@@ -177,18 +189,18 @@ export default function CapacityScreen() {
 
         {/* Capacity by Function */}
         <View className="mb-6">
-          <Text className="text-white font-bold text-lg mb-3">By Function</Text>
+          <Text className={`${textPrimary} font-bold text-lg mb-3`}>By Function</Text>
           <View className="gap-3">
             {capacityByFunction.map((func) => (
-              <View key={func.function} className="bg-slate-900 border border-slate-800 rounded-xl p-4">
+              <View key={func.function} className={`${bgCard} border ${borderColor} rounded-xl p-4`}>
                 <View className="flex-row items-center justify-between mb-3">
                   <View className="flex-row items-center gap-2">
-                    <View className="w-8 h-8 rounded-lg bg-slate-800 items-center justify-center">
-                      <Target size={16} color="#64748b" />
+                    <View className={`w-8 h-8 rounded-lg ${bgSecondary} items-center justify-center`}>
+                      <Target size={16} color={isDark ? '#64748b' : '#6b7280'} />
                     </View>
                     <View>
-                      <Text className="text-white font-semibold">{func.function}</Text>
-                      <Text className="text-slate-400 text-xs">{func.memberCount} members</Text>
+                      <Text className={`${textPrimary} font-semibold`}>{func.function}</Text>
+                      <Text className={`${textSecondary} text-xs`}>{func.memberCount} members</Text>
                     </View>
                   </View>
                   <Text
@@ -200,7 +212,7 @@ export default function CapacityScreen() {
                 </View>
 
                 {/* Utilization Bar */}
-                <View className="h-2 bg-slate-800 rounded-full overflow-hidden">
+                <View className={`h-2 ${bgSecondary} rounded-full overflow-hidden`}>
                   <View
                     className="h-full rounded-full"
                     style={{
@@ -211,7 +223,7 @@ export default function CapacityScreen() {
                 </View>
 
                 <View className="flex-row items-center justify-between mt-2">
-                  <Text className="text-slate-500 text-xs">
+                  <Text className={`${textMuted} text-xs`}>
                     {func.allocatedHours.toFixed(0)}h / {func.totalHours.toFixed(0)}h capacity
                   </Text>
                   {func.utilizationPct > 100 && (
@@ -227,13 +239,13 @@ export default function CapacityScreen() {
 
         {/* Individual Members */}
         <View>
-          <Text className="text-white font-bold text-lg mb-3">Team Members</Text>
+          <Text className={`${textPrimary} font-bold text-lg mb-3`}>Team Members</Text>
           <View className="gap-3">
             {teamCapacity.members.map((member) => (
               <Pressable
                 key={member.memberId}
-                className={`bg-slate-900 border rounded-xl p-4 active:opacity-70 ${
-                  member.isOverloaded ? 'border-red-500/50' : 'border-slate-800'
+                className={`${bgCard} border rounded-xl p-4 active:opacity-70 ${
+                  member.isOverloaded ? 'border-red-500/50' : borderColor
                 }`}
               >
                 <View className="flex-row items-start justify-between mb-3">
@@ -247,8 +259,8 @@ export default function CapacityScreen() {
                       </Text>
                     </View>
                     <View className="flex-1">
-                      <Text className="text-white font-semibold">{member.name}</Text>
-                      <Text className="text-slate-400 text-sm">
+                      <Text className={`${textPrimary} font-semibold`}>{member.name}</Text>
+                      <Text className={`${textSecondary} text-sm`}>
                         {member.role === 'FractionalExec' ? 'Executive' : member.role} • {member.function}
                       </Text>
                     </View>
@@ -270,7 +282,7 @@ export default function CapacityScreen() {
                 </View>
 
                 {/* Utilization Bar */}
-                <View className="h-2 bg-slate-800 rounded-full overflow-hidden mb-3">
+                <View className={`h-2 ${bgSecondary} rounded-full overflow-hidden mb-3`}>
                   <View
                     className="h-full rounded-full"
                     style={{
@@ -283,35 +295,35 @@ export default function CapacityScreen() {
                 {/* Allocations */}
                 {member.allocations.length > 0 ? (
                   <View className="gap-2">
-                    <Text className="text-slate-500 text-xs font-medium">ALLOCATIONS</Text>
+                    <Text className={`${textMuted} text-xs font-medium`}>ALLOCATIONS</Text>
                     {member.allocations.map((alloc) => (
                       <View
                         key={alloc.okrId}
-                        className="flex-row items-center justify-between bg-slate-800/50 rounded-lg px-3 py-2"
+                        className={`flex-row items-center justify-between ${isDark ? 'bg-slate-800/50' : 'bg-gray-100'} rounded-lg px-3 py-2`}
                       >
-                        <Text className="text-slate-300 text-sm flex-1" numberOfLines={1}>
+                        <Text className={`${textSecondary} text-sm flex-1`} numberOfLines={1}>
                           {alloc.okrTitle}
                         </Text>
-                        <Text className="text-slate-400 text-sm font-medium ml-2">
+                        <Text className={`${textSecondary} text-sm font-medium ml-2`}>
                           {alloc.allocationPct}%
                         </Text>
                       </View>
                     ))}
                   </View>
                 ) : (
-                  <View className="bg-slate-800/30 rounded-lg px-3 py-2">
-                    <Text className="text-slate-500 text-sm text-center">
+                  <View className={`${isDark ? 'bg-slate-800/30' : 'bg-gray-100'} rounded-lg px-3 py-2`}>
+                    <Text className={`${textMuted} text-sm text-center`}>
                       No active allocations
                     </Text>
                   </View>
                 )}
 
                 {/* Cost */}
-                <View className="flex-row items-center justify-between mt-3 pt-3 border-t border-slate-800">
-                  <Text className="text-slate-500 text-xs">
+                <View className={`flex-row items-center justify-between mt-3 pt-3 border-t ${borderColor}`}>
+                  <Text className={`${textMuted} text-xs`}>
                     {member.baseHoursPerWeek}h/week base capacity
                   </Text>
-                  <Text className="text-slate-400 text-sm font-medium">
+                  <Text className={`${textSecondary} text-sm font-medium`}>
                     £{member.costPerWeekGBP.toFixed(0)}/week
                   </Text>
                 </View>
@@ -322,12 +334,12 @@ export default function CapacityScreen() {
 
         {/* Underutilized Notice */}
         {teamCapacity.underutilizedCount > 0 && (
-          <View className="bg-blue-900/20 border border-blue-500/30 rounded-xl p-4 mt-4">
+          <View className={`${isDark ? 'bg-blue-900/20' : 'bg-blue-100'} border ${isDark ? 'border-blue-500/30' : 'border-blue-300'} rounded-xl p-4 mt-4`}>
             <View className="flex-row items-center gap-2 mb-2">
               <Activity size={18} color="#3b82f6" />
-              <Text className="text-blue-400 font-semibold">Underutilized Capacity</Text>
+              <Text className={`${isDark ? 'text-blue-400' : 'text-blue-700'} font-semibold`}>Underutilized Capacity</Text>
             </View>
-            <Text className="text-blue-200 text-sm">
+            <Text className={`${isDark ? 'text-blue-200' : 'text-blue-600'} text-sm`}>
               {summary.underutilizedNames.join(', ')} {teamCapacity.underutilizedCount > 1 ? 'have' : 'has'} less than 50% allocation.
               Consider assigning more work or reducing team costs.
             </Text>
