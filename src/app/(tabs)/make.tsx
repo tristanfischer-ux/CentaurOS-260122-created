@@ -27,14 +27,17 @@ import {
   FileText,
   RefreshCw,
   HelpCircle,
+  User,
 } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useCurrentMembership } from '@/lib/state/app-store';
+import { useCurrentMembership, useCurrentWorkspace, useCurrentUser } from '@/lib/state/app-store';
 import { useOrganizationStore } from '@/lib/state/organization-store';
 import type { SupplierEngagement, AIAgent } from '@/lib/organization-seed';
 import { TabDescription } from '@/components/TabDescription';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { HelpModal, HelpButton, type HelpContent } from '@/components/HelpModal';
+import { useResourceOwnershipStore, initializeDemoOwnerships, type ResourceOwnership } from '@/lib/state/resource-ownership-store';
+import { ApprovalHistoryModal } from '@/components/ApprovalHistoryModal';
 
 const MAKE_HELP: HelpContent = {
   title: 'Operations Center',
@@ -62,6 +65,8 @@ type MakeTab = 'suppliers' | 'ai';
 export default function MakeScreen() {
   const insets = useSafeAreaInsets();
   const currentMembership = useCurrentMembership();
+  const currentWorkspace = useCurrentWorkspace();
+  const currentUser = useCurrentUser();
   const params = useLocalSearchParams();
 
   // Use centralized organization store
@@ -71,8 +76,19 @@ export default function MakeScreen() {
   const getTotalAISpend = useOrganizationStore((s) => s.getTotalAISpend);
   const getTotalSupplierSpend = useOrganizationStore((s) => s.getTotalSupplierSpend);
 
+  // Ownership store
+  const getOwnershipsForUser = useResourceOwnershipStore(s => s.getOwnershipsForUser);
+  const getOwnershipByResource = useResourceOwnershipStore(s => s.getOwnershipByResource);
+
   const [activeTab, setActiveTab] = useState<MakeTab>('suppliers');
   const [showHelp, setShowHelp] = useState(false);
+
+  // Initialize ownership data once
+  useEffect(() => {
+    if (currentWorkspace) {
+      initializeDemoOwnerships(currentWorkspace.id);
+    }
+  }, [currentWorkspace?.id]);
 
   // Handle tab parameter from navigation
   useEffect(() => {
@@ -80,8 +96,11 @@ export default function MakeScreen() {
       setActiveTab('ai');
     }
   }, [params.tab]);
+
   const [selectedSupplier, setSelectedSupplier] = useState<SupplierEngagement | null>(null);
   const [selectedAI, setSelectedAI] = useState<AIAgent | null>(null);
+  const [selectedOwnership, setSelectedOwnership] = useState<ResourceOwnership | null>(null);
+  const [showApprovalHistory, setShowApprovalHistory] = useState(false);
 
   // All roles can view this tab (Founder, FractionalExec, Apprentice)
   const canView = true; // Everyone has access now
@@ -103,6 +122,49 @@ export default function MakeScreen() {
   const supplierSpend = getTotalSupplierSpend();
   const aiSpend = getTotalAISpend();
 
+  // Filter resources based on role (founder sees all, others see only their items)
+  const visibleSuppliers = currentWorkspace && currentUser && currentMembership
+    ? supplierEngagements.filter(supplier => {
+        const ownership = getOwnershipByResource(currentWorkspace.id, supplier.id);
+        if (currentMembership.role === 'Founder') {
+          return true; // Founder sees everything
+        }
+        // Others only see what they own
+        return ownership && ownership.ownerId === currentUser.id;
+      })
+    : supplierEngagements;
+
+  const visibleAIAgents = currentWorkspace && currentUser && currentMembership
+    ? aiAgents.filter(agent => {
+        const ownership = getOwnershipByResource(currentWorkspace.id, agent.id);
+        if (currentMembership.role === 'Founder') {
+          return true; // Founder sees everything
+        }
+        // Others only see what they own
+        return ownership && ownership.ownerId === currentUser.id;
+      })
+    : aiAgents;
+
+  // Helper to get role badge color
+  const getRoleColor = (role: string) => {
+    switch (role) {
+      case 'Founder':
+        return 'bg-purple-500';
+      case 'FractionalExec':
+        return 'bg-blue-500';
+      case 'Apprentice':
+        return 'bg-green-500';
+      default:
+        return 'bg-gray-500';
+    }
+  };
+
+  // Handle owner click
+  const handleOwnerClick = (ownership: ResourceOwnership) => {
+    setSelectedOwnership(ownership);
+    setShowApprovalHistory(true);
+  };
+
   const tabs: { value: MakeTab; label: string; icon: any }[] = [
     { value: 'suppliers', label: 'Suppliers', icon: Package },
     { value: 'ai', label: 'AI Tools', icon: Cpu },
@@ -110,6 +172,16 @@ export default function MakeScreen() {
 
   return (
     <View className="flex-1 bg-white dark:bg-slate-950">
+      {/* Approval History Modal */}
+      <ApprovalHistoryModal
+        visible={showApprovalHistory}
+        onClose={() => {
+          setShowApprovalHistory(false);
+          setSelectedOwnership(null);
+        }}
+        ownership={selectedOwnership}
+      />
+
       {/* Help Modal */}
       <HelpModal
         visible={showHelp}
@@ -213,10 +285,10 @@ export default function MakeScreen() {
             </View>
 
             <Text className="text-gray-900 dark:text-white text-base font-semibold mb-3">
-              Active Engagements ({supplierEngagements.length})
+              Active Engagements ({visibleSuppliers.length})
             </Text>
 
-            {supplierEngagements.map((engagement) => {
+            {visibleSuppliers.map((engagement) => {
               const statusColors: Record<string, string> = {
                 active: 'bg-emerald-500/20 text-emerald-400',
                 negotiating: 'bg-blue-500/20 text-blue-400',
@@ -225,6 +297,11 @@ export default function MakeScreen() {
               };
 
               const statusColor = statusColors[engagement.status] || statusColors.active;
+
+              // Get ownership info for this supplier
+              const ownership = currentWorkspace
+                ? getOwnershipByResource(currentWorkspace.id, engagement.id)
+                : null;
 
               return (
                 <Pressable
@@ -265,6 +342,32 @@ export default function MakeScreen() {
                     </View>
                     <ChevronRight size={16} color="#64748b" />
                   </View>
+
+                  {/* Owner Badge */}
+                  {ownership && (
+                    <View className="mt-3 pt-3 border-t border-gray-200 dark:border-slate-800">
+                      <Pressable
+                        onPress={(e) => {
+                          e.stopPropagation();
+                          handleOwnerClick(ownership);
+                        }}
+                        className="flex-row items-center active:opacity-70"
+                      >
+                        <View className={`w-6 h-6 ${getRoleColor(ownership.ownerRole)} rounded-full items-center justify-center`}>
+                          <User size={14} color="#fff" />
+                        </View>
+                        <View className="ml-2 flex-1">
+                          <Text className="text-gray-500 dark:text-slate-400 text-xs">
+                            Managed by
+                          </Text>
+                          <Text className="text-gray-900 dark:text-white text-sm font-semibold">
+                            {ownership.ownerName}
+                          </Text>
+                        </View>
+                        <ChevronRight size={14} color="#9ca3af" />
+                      </Pressable>
+                    </View>
+                  )}
                 </Pressable>
               );
             })}
@@ -310,10 +413,10 @@ export default function MakeScreen() {
             </View>
 
             <Text className="text-gray-900 dark:text-white text-base font-semibold mb-3">
-              AI Agents Directory ({aiAgents.length})
+              AI Agents Directory ({visibleAIAgents.length})
             </Text>
 
-            {aiAgents.sort((a, b) => b.costPerMonth - a.costPerMonth).map(agent => {
+            {visibleAIAgents.sort((a, b) => b.costPerMonth - a.costPerMonth).map(agent => {
               const providerColors: Record<string, string> = {
                 OpenAI: 'bg-blue-500/20 text-blue-400',
                 Anthropic: 'bg-purple-500/20 text-purple-400',
@@ -324,8 +427,12 @@ export default function MakeScreen() {
               };
 
               const providerColor = providerColors[agent.provider] || providerColors.Other;
-
               const statusColor = agent.status === 'active' ? 'text-emerald-400' : 'text-gray-600 dark:text-slate-400';
+
+              // Get ownership info for this AI tool
+              const ownership = currentWorkspace
+                ? getOwnershipByResource(currentWorkspace.id, agent.id)
+                : null;
 
               return (
                 <Pressable
@@ -363,6 +470,32 @@ export default function MakeScreen() {
                     </Text>
                     <ChevronRight size={16} color="#64748b" />
                   </View>
+
+                  {/* Owner Badge */}
+                  {ownership && (
+                    <View className="mt-3 pt-3 border-t border-gray-200 dark:border-slate-800">
+                      <Pressable
+                        onPress={(e) => {
+                          e.stopPropagation();
+                          handleOwnerClick(ownership);
+                        }}
+                        className="flex-row items-center active:opacity-70"
+                      >
+                        <View className={`w-6 h-6 ${getRoleColor(ownership.ownerRole)} rounded-full items-center justify-center`}>
+                          <User size={14} color="#fff" />
+                        </View>
+                        <View className="ml-2 flex-1">
+                          <Text className="text-gray-500 dark:text-slate-400 text-xs">
+                            Managed by
+                          </Text>
+                          <Text className="text-gray-900 dark:text-white text-sm font-semibold">
+                            {ownership.ownerName}
+                          </Text>
+                        </View>
+                        <ChevronRight size={14} color="#9ca3af" />
+                      </Pressable>
+                    </View>
+                  )}
                 </Pressable>
               );
             })}
