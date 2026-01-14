@@ -137,7 +137,14 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
     - Guild detail modal with Activity/Resources/Members/Challenges tabs
     - Success toasts with XP rewards on join
     - Gradient headers per guild theme
-  - **Files Changed**: REWRITTEN `src/app/guilds.tsx` (1100+ lines)
+  - **FULLY INTERACTIVE MODALS** (NEW!):
+    - **Take Challenge Modal**: Submit challenge responses with requirements checklist, participant stats, and submission tracking
+    - **Start Discussion Modal**: Create new discussions with title/content, tips for great discussions, and +15 XP reward
+    - **Share Resource Modal**: Upload resources with type selection (Document/Video/Template/Link) and +25 XP reward
+    - **Discussion Detail Modal**: View full discussions with replies, like/reply functionality, and reply input
+    - **Resource Detail Modal**: View resource stats, like/save buttons, and download/open functionality
+    - **Member Profile Modal**: Full member profiles with badges, XP stats, streak, contributions, message/follow actions
+  - **Files Changed**: REWRITTEN `src/app/guilds.tsx` (1600+ lines)
 
 ✅ **EVENTS - FOMO-Driven Engagement Redesign**:
   - **Consultant Framework**: FOMO-Driven + Social Proof + Achievement Psychology

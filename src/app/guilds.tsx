@@ -293,6 +293,27 @@ export default function GuildsScreen() {
   const [showJoinSuccess, setShowJoinSuccess] = useState(false);
   const [joinedGuildName, setJoinedGuildName] = useState('');
 
+  // Modal states for interactive features
+  const [showChallengeModal, setShowChallengeModal] = useState(false);
+  const [showDiscussionModal, setShowDiscussionModal] = useState(false);
+  const [showResourceModal, setShowResourceModal] = useState(false);
+  const [selectedDiscussion, setSelectedDiscussion] = useState<GuildDiscussion | null>(null);
+  const [selectedResource, setSelectedResource] = useState<GuildResource | null>(null);
+  const [selectedMember, setSelectedMember] = useState<GuildMember | null>(null);
+
+  // Form states
+  const [discussionTitle, setDiscussionTitle] = useState('');
+  const [discussionContent, setDiscussionContent] = useState('');
+  const [resourceTitle, setResourceTitle] = useState('');
+  const [resourceType, setResourceType] = useState<GuildResource['type']>('document');
+  const [resourceLink, setResourceLink] = useState('');
+  const [challengeSubmission, setChallengeSubmission] = useState('');
+
+  // Success states
+  const [showChallengeSuccess, setShowChallengeSuccess] = useState(false);
+  const [showDiscussionSuccess, setShowDiscussionSuccess] = useState(false);
+  const [showResourceSuccess, setShowResourceSuccess] = useState(false);
+
   const myGuilds = useMemo(() => DEMO_GUILDS.filter(g => g.isMember), []);
   const discoverGuilds = useMemo(() => {
     return DEMO_GUILDS.filter(g => {
@@ -319,6 +340,32 @@ export default function GuildsScreen() {
     setTimeout(() => setShowJoinSuccess(false), 3000);
   };
 
+  const handleTakeChallenge = () => {
+    if (!challengeSubmission.trim()) return;
+    setShowChallengeModal(false);
+    setShowChallengeSuccess(true);
+    setChallengeSubmission('');
+    setTimeout(() => setShowChallengeSuccess(false), 3000);
+  };
+
+  const handleCreateDiscussion = () => {
+    if (!discussionTitle.trim() || !discussionContent.trim()) return;
+    setShowDiscussionModal(false);
+    setShowDiscussionSuccess(true);
+    setDiscussionTitle('');
+    setDiscussionContent('');
+    setTimeout(() => setShowDiscussionSuccess(false), 3000);
+  };
+
+  const handleShareResource = () => {
+    if (!resourceTitle.trim() || !resourceLink.trim()) return;
+    setShowResourceModal(false);
+    setShowResourceSuccess(true);
+    setResourceTitle('');
+    setResourceLink('');
+    setTimeout(() => setShowResourceSuccess(false), 3000);
+  };
+
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
       case 'easy': return { bg: 'bg-emerald-500/20', text: 'text-emerald-400', border: 'border-emerald-500/30' };
@@ -341,7 +388,7 @@ export default function GuildsScreen() {
 
   return (
     <View className="flex-1 bg-slate-950">
-      {/* Join Success Toast */}
+      {/* Success Toasts */}
       {showJoinSuccess && (
         <Animated.View
           entering={FadeInUp}
@@ -354,6 +401,54 @@ export default function GuildsScreen() {
           </View>
           <View className="bg-white/20 px-3 py-1 rounded-full">
             <Text className="text-white font-bold">+50 XP</Text>
+          </View>
+        </Animated.View>
+      )}
+
+      {showChallengeSuccess && (
+        <Animated.View
+          entering={FadeInUp}
+          className="absolute top-20 left-6 right-6 z-50 bg-amber-500 rounded-2xl p-4 flex-row items-center"
+        >
+          <Target size={24} color="#ffffff" />
+          <View className="ml-3 flex-1">
+            <Text className="text-white font-bold">Challenge Submitted!</Text>
+            <Text className="text-white/80 text-sm">Under review - XP awarded on approval</Text>
+          </View>
+          <View className="bg-white/20 px-3 py-1 rounded-full">
+            <Text className="text-white font-bold">Pending</Text>
+          </View>
+        </Animated.View>
+      )}
+
+      {showDiscussionSuccess && (
+        <Animated.View
+          entering={FadeInUp}
+          className="absolute top-20 left-6 right-6 z-50 bg-blue-500 rounded-2xl p-4 flex-row items-center"
+        >
+          <MessageSquare size={24} color="#ffffff" />
+          <View className="ml-3 flex-1">
+            <Text className="text-white font-bold">Discussion Created!</Text>
+            <Text className="text-white/80 text-sm">You've earned +15 XP for starting a discussion</Text>
+          </View>
+          <View className="bg-white/20 px-3 py-1 rounded-full">
+            <Text className="text-white font-bold">+15 XP</Text>
+          </View>
+        </Animated.View>
+      )}
+
+      {showResourceSuccess && (
+        <Animated.View
+          entering={FadeInUp}
+          className="absolute top-20 left-6 right-6 z-50 bg-purple-500 rounded-2xl p-4 flex-row items-center"
+        >
+          <BookOpen size={24} color="#ffffff" />
+          <View className="ml-3 flex-1">
+            <Text className="text-white font-bold">Resource Shared!</Text>
+            <Text className="text-white/80 text-sm">You've earned +25 XP for sharing knowledge</Text>
+          </View>
+          <View className="bg-white/20 px-3 py-1 rounded-full">
+            <Text className="text-white font-bold">+25 XP</Text>
           </View>
         </Animated.View>
       )}
@@ -912,7 +1007,7 @@ export default function GuildsScreen() {
                             <Text className="text-slate-400 text-xs ml-1">3 days left</Text>
                           </View>
                         </View>
-                        <Pressable className="bg-amber-500 py-3 rounded-xl mt-4 active:opacity-70">
+                        <Pressable onPress={() => setShowChallengeModal(true)} className="bg-amber-500 py-3 rounded-xl mt-4 active:opacity-70">
                           <Text className="text-white text-center font-bold">Take Challenge</Text>
                         </Pressable>
                       </View>
@@ -921,7 +1016,7 @@ export default function GuildsScreen() {
                     {/* Recent Discussions */}
                     <Text className="text-white font-bold text-lg mb-3">Recent Discussions</Text>
                     {selectedGuild.recentDiscussions.map((disc) => (
-                      <Pressable key={disc.id} className="bg-slate-800 rounded-xl p-4 mb-3 active:opacity-70">
+                      <Pressable key={disc.id} onPress={() => setSelectedDiscussion(disc)} className="bg-slate-800 rounded-xl p-4 mb-3 active:opacity-70">
                         <View className="flex-row items-start">
                           {disc.isHot && (
                             <View className="bg-red-500/20 p-1 rounded-md mr-2">
@@ -952,7 +1047,7 @@ export default function GuildsScreen() {
                     ))}
 
                     {/* New Discussion Button */}
-                    <Pressable className="bg-blue-500 py-3 rounded-xl mt-2 flex-row items-center justify-center active:opacity-70">
+                    <Pressable onPress={() => setShowDiscussionModal(true)} className="bg-blue-500 py-3 rounded-xl mt-2 flex-row items-center justify-center active:opacity-70">
                       <Plus size={18} color="#ffffff" />
                       <Text className="text-white font-semibold ml-2">Start Discussion</Text>
                     </Pressable>
@@ -964,7 +1059,7 @@ export default function GuildsScreen() {
                     {selectedGuild.featuredResources.map((resource) => {
                       const ResourceIcon = getResourceIcon(resource.type);
                       return (
-                        <Pressable key={resource.id} className="bg-slate-800 rounded-xl p-4 mb-3 active:opacity-70">
+                        <Pressable key={resource.id} onPress={() => setSelectedResource(resource)} className="bg-slate-800 rounded-xl p-4 mb-3 active:opacity-70">
                           <View className="flex-row items-start">
                             <View className="w-10 h-10 rounded-xl bg-blue-500/20 items-center justify-center mr-3">
                               <ResourceIcon size={20} color="#3b82f6" />
@@ -1001,7 +1096,7 @@ export default function GuildsScreen() {
                       );
                     })}
 
-                    <Pressable className="bg-blue-500 py-3 rounded-xl mt-2 flex-row items-center justify-center active:opacity-70">
+                    <Pressable onPress={() => setShowResourceModal(true)} className="bg-blue-500 py-3 rounded-xl mt-2 flex-row items-center justify-center active:opacity-70">
                       <Plus size={18} color="#ffffff" />
                       <Text className="text-white font-semibold ml-2">Share Resource</Text>
                       <View className="bg-white/20 px-2 py-0.5 rounded-full ml-2">
@@ -1014,7 +1109,7 @@ export default function GuildsScreen() {
                   <View>
                     <Text className="text-white font-bold text-lg mb-3">Top Contributors</Text>
                     {selectedGuild.topContributors.map((member, index) => (
-                      <View key={member.id} className="bg-slate-800 rounded-xl p-4 mb-3">
+                      <Pressable key={member.id} onPress={() => setSelectedMember(member)} className="bg-slate-800 rounded-xl p-4 mb-3 active:opacity-70">
                         <View className="flex-row items-center">
                           <Text className="text-slate-400 font-bold w-6">#{index + 1}</Text>
                           <View className="w-12 h-12 rounded-full bg-slate-700 items-center justify-center mr-3 relative">
@@ -1050,7 +1145,7 @@ export default function GuildsScreen() {
                             ))}
                           </View>
                         )}
-                      </View>
+                      </Pressable>
                     ))}
                   </View>
                 ) : (
@@ -1071,7 +1166,7 @@ export default function GuildsScreen() {
                         </View>
                         <Text className="text-white font-bold text-lg mb-1">{selectedGuild.weeklyChallenge.title}</Text>
                         <Text className="text-slate-300 mb-3">{selectedGuild.weeklyChallenge.description}</Text>
-                        <Pressable className="bg-amber-500 py-3 rounded-xl active:opacity-70">
+                        <Pressable onPress={() => setShowChallengeModal(true)} className="bg-amber-500 py-3 rounded-xl active:opacity-70">
                           <Text className="text-white text-center font-bold">Start Challenge</Text>
                         </Pressable>
                       </View>
@@ -1091,6 +1186,555 @@ export default function GuildsScreen() {
                     </View>
                   </View>
                 )}
+              </ScrollView>
+            </View>
+          )}
+        </View>
+      </Modal>
+
+      {/* Take Challenge Modal */}
+      <Modal visible={showChallengeModal} transparent animationType="slide" onRequestClose={() => setShowChallengeModal(false)}>
+        <View className="flex-1 bg-black/70 justify-end">
+          <View className="bg-slate-900 rounded-t-3xl p-6" style={{ maxHeight: '80%' }}>
+            <View className="flex-row items-center justify-between mb-6">
+              <Text className="text-white text-xl font-bold">Take Challenge</Text>
+              <Pressable onPress={() => setShowChallengeModal(false)} className="p-2 bg-slate-800 rounded-full">
+                <X size={20} color="#94a3b8" />
+              </Pressable>
+            </View>
+
+            {selectedGuild?.weeklyChallenge && (
+              <ScrollView showsVerticalScrollIndicator={false}>
+                {/* Challenge Info */}
+                <View className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-4 mb-4">
+                  <View className="flex-row items-center justify-between mb-2">
+                    <View className="flex-row items-center">
+                      <Target size={18} color="#f59e0b" />
+                      <Text className="text-amber-400 font-bold ml-2">Weekly Challenge</Text>
+                    </View>
+                    <View className="bg-amber-500/20 px-3 py-1 rounded-full">
+                      <Text className="text-amber-400 font-bold">+{selectedGuild.weeklyChallenge.xpReward} XP</Text>
+                    </View>
+                  </View>
+                  <Text className="text-white font-bold text-lg mb-2">{selectedGuild.weeklyChallenge.title}</Text>
+                  <Text className="text-slate-300">{selectedGuild.weeklyChallenge.description}</Text>
+                </View>
+
+                {/* Requirements */}
+                <View className="bg-slate-800 rounded-xl p-4 mb-4">
+                  <Text className="text-white font-bold mb-3">Requirements</Text>
+                  <View className="flex-row items-center mb-2">
+                    <CheckCircle2 size={16} color="#10b981" />
+                    <Text className="text-slate-300 ml-2">Submit a relevant response</Text>
+                  </View>
+                  <View className="flex-row items-center mb-2">
+                    <CheckCircle2 size={16} color="#10b981" />
+                    <Text className="text-slate-300 ml-2">Include specific examples or details</Text>
+                  </View>
+                  <View className="flex-row items-center">
+                    <CheckCircle2 size={16} color="#10b981" />
+                    <Text className="text-slate-300 ml-2">Be helpful to other guild members</Text>
+                  </View>
+                </View>
+
+                {/* Submission Input */}
+                <Text className="text-white font-bold mb-2">Your Submission</Text>
+                <TextInput
+                  value={challengeSubmission}
+                  onChangeText={setChallengeSubmission}
+                  placeholder="Share your response to this challenge..."
+                  placeholderTextColor="#64748b"
+                  multiline
+                  numberOfLines={6}
+                  className="bg-slate-800 border border-slate-700 rounded-xl p-4 text-white mb-4"
+                  style={{ minHeight: 120, textAlignVertical: 'top' }}
+                />
+
+                {/* Stats */}
+                <View className="flex-row gap-3 mb-6">
+                  <View className="flex-1 bg-slate-800 rounded-xl p-3 items-center">
+                    <Users size={18} color="#3b82f6" />
+                    <Text className="text-white font-bold mt-1">{selectedGuild.weeklyChallenge.participants}</Text>
+                    <Text className="text-slate-400 text-xs">Participating</Text>
+                  </View>
+                  <View className="flex-1 bg-slate-800 rounded-xl p-3 items-center">
+                    <CheckCircle2 size={18} color="#10b981" />
+                    <Text className="text-white font-bold mt-1">{selectedGuild.weeklyChallenge.completed}</Text>
+                    <Text className="text-slate-400 text-xs">Completed</Text>
+                  </View>
+                  <View className="flex-1 bg-slate-800 rounded-xl p-3 items-center">
+                    <Clock size={18} color="#f59e0b" />
+                    <Text className="text-white font-bold mt-1">3</Text>
+                    <Text className="text-slate-400 text-xs">Days Left</Text>
+                  </View>
+                </View>
+
+                {/* Submit Button */}
+                <Pressable
+                  onPress={handleTakeChallenge}
+                  className={`py-4 rounded-xl flex-row items-center justify-center ${challengeSubmission.trim() ? 'bg-amber-500 active:opacity-70' : 'bg-slate-700'}`}
+                  disabled={!challengeSubmission.trim()}
+                >
+                  <Zap size={20} color="#ffffff" />
+                  <Text className="text-white font-bold text-lg ml-2">Submit Challenge</Text>
+                </Pressable>
+              </ScrollView>
+            )}
+          </View>
+        </View>
+      </Modal>
+
+      {/* Start Discussion Modal */}
+      <Modal visible={showDiscussionModal} transparent animationType="slide" onRequestClose={() => setShowDiscussionModal(false)}>
+        <View className="flex-1 bg-black/70 justify-end">
+          <View className="bg-slate-900 rounded-t-3xl p-6" style={{ maxHeight: '85%' }}>
+            <View className="flex-row items-center justify-between mb-6">
+              <Text className="text-white text-xl font-bold">Start Discussion</Text>
+              <Pressable onPress={() => setShowDiscussionModal(false)} className="p-2 bg-slate-800 rounded-full">
+                <X size={20} color="#94a3b8" />
+              </Pressable>
+            </View>
+
+            <ScrollView showsVerticalScrollIndicator={false}>
+              {/* XP Reward */}
+              <View className="bg-blue-500/10 border border-blue-500/30 rounded-xl p-4 mb-4 flex-row items-center">
+                <MessageSquare size={20} color="#3b82f6" />
+                <Text className="text-slate-300 ml-3 flex-1">Starting discussions helps the community and earns you XP!</Text>
+                <View className="bg-blue-500/20 px-3 py-1 rounded-full">
+                  <Text className="text-blue-400 font-bold">+15 XP</Text>
+                </View>
+              </View>
+
+              {/* Title Input */}
+              <Text className="text-white font-bold mb-2">Discussion Title</Text>
+              <TextInput
+                value={discussionTitle}
+                onChangeText={setDiscussionTitle}
+                placeholder="What would you like to discuss?"
+                placeholderTextColor="#64748b"
+                className="bg-slate-800 border border-slate-700 rounded-xl p-4 text-white mb-4"
+              />
+
+              {/* Content Input */}
+              <Text className="text-white font-bold mb-2">Details</Text>
+              <TextInput
+                value={discussionContent}
+                onChangeText={setDiscussionContent}
+                placeholder="Provide context, ask specific questions, or share your thoughts..."
+                placeholderTextColor="#64748b"
+                multiline
+                numberOfLines={8}
+                className="bg-slate-800 border border-slate-700 rounded-xl p-4 text-white mb-4"
+                style={{ minHeight: 150, textAlignVertical: 'top' }}
+              />
+
+              {/* Tips */}
+              <View className="bg-slate-800 rounded-xl p-4 mb-6">
+                <Text className="text-white font-bold mb-2">Tips for great discussions</Text>
+                <View className="flex-row items-center mb-2">
+                  <Sparkles size={14} color="#f59e0b" />
+                  <Text className="text-slate-300 text-sm ml-2">Be specific and provide context</Text>
+                </View>
+                <View className="flex-row items-center mb-2">
+                  <Sparkles size={14} color="#f59e0b" />
+                  <Text className="text-slate-300 text-sm ml-2">Ask open-ended questions</Text>
+                </View>
+                <View className="flex-row items-center">
+                  <Sparkles size={14} color="#f59e0b" />
+                  <Text className="text-slate-300 text-sm ml-2">Share your own experience first</Text>
+                </View>
+              </View>
+
+              {/* Post Button */}
+              <Pressable
+                onPress={handleCreateDiscussion}
+                className={`py-4 rounded-xl flex-row items-center justify-center ${discussionTitle.trim() && discussionContent.trim() ? 'bg-blue-500 active:opacity-70' : 'bg-slate-700'}`}
+                disabled={!discussionTitle.trim() || !discussionContent.trim()}
+              >
+                <MessageSquare size={20} color="#ffffff" />
+                <Text className="text-white font-bold text-lg ml-2">Post Discussion</Text>
+              </Pressable>
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Share Resource Modal */}
+      <Modal visible={showResourceModal} transparent animationType="slide" onRequestClose={() => setShowResourceModal(false)}>
+        <View className="flex-1 bg-black/70 justify-end">
+          <View className="bg-slate-900 rounded-t-3xl p-6" style={{ maxHeight: '85%' }}>
+            <View className="flex-row items-center justify-between mb-6">
+              <Text className="text-white text-xl font-bold">Share Resource</Text>
+              <Pressable onPress={() => setShowResourceModal(false)} className="p-2 bg-slate-800 rounded-full">
+                <X size={20} color="#94a3b8" />
+              </Pressable>
+            </View>
+
+            <ScrollView showsVerticalScrollIndicator={false}>
+              {/* XP Reward */}
+              <View className="bg-purple-500/10 border border-purple-500/30 rounded-xl p-4 mb-4 flex-row items-center">
+                <BookOpen size={20} color="#a855f7" />
+                <Text className="text-slate-300 ml-3 flex-1">Sharing valuable resources helps everyone grow!</Text>
+                <View className="bg-purple-500/20 px-3 py-1 rounded-full">
+                  <Text className="text-purple-400 font-bold">+25 XP</Text>
+                </View>
+              </View>
+
+              {/* Resource Type */}
+              <Text className="text-white font-bold mb-2">Resource Type</Text>
+              <View className="flex-row flex-wrap gap-2 mb-4">
+                {[
+                  { id: 'document', label: 'Document', icon: FileText },
+                  { id: 'video', label: 'Video', icon: Video },
+                  { id: 'template', label: 'Template', icon: Download },
+                  { id: 'link', label: 'Link', icon: Link2 },
+                ].map((type) => (
+                  <Pressable
+                    key={type.id}
+                    onPress={() => setResourceType(type.id as GuildResource['type'])}
+                    className={`flex-row items-center px-4 py-2 rounded-xl ${resourceType === type.id ? 'bg-purple-500' : 'bg-slate-800'}`}
+                  >
+                    <type.icon size={16} color={resourceType === type.id ? '#ffffff' : '#94a3b8'} />
+                    <Text className={`ml-2 font-medium ${resourceType === type.id ? 'text-white' : 'text-slate-400'}`}>{type.label}</Text>
+                  </Pressable>
+                ))}
+              </View>
+
+              {/* Title Input */}
+              <Text className="text-white font-bold mb-2">Resource Title</Text>
+              <TextInput
+                value={resourceTitle}
+                onChangeText={setResourceTitle}
+                placeholder="Give your resource a descriptive title"
+                placeholderTextColor="#64748b"
+                className="bg-slate-800 border border-slate-700 rounded-xl p-4 text-white mb-4"
+              />
+
+              {/* Link Input */}
+              <Text className="text-white font-bold mb-2">Link / URL</Text>
+              <TextInput
+                value={resourceLink}
+                onChangeText={setResourceLink}
+                placeholder="Paste the link to your resource"
+                placeholderTextColor="#64748b"
+                className="bg-slate-800 border border-slate-700 rounded-xl p-4 text-white mb-6"
+                keyboardType="url"
+                autoCapitalize="none"
+              />
+
+              {/* Submit Button */}
+              <Pressable
+                onPress={handleShareResource}
+                className={`py-4 rounded-xl flex-row items-center justify-center ${resourceTitle.trim() && resourceLink.trim() ? 'bg-purple-500 active:opacity-70' : 'bg-slate-700'}`}
+                disabled={!resourceTitle.trim() || !resourceLink.trim()}
+              >
+                <Share2 size={20} color="#ffffff" />
+                <Text className="text-white font-bold text-lg ml-2">Share Resource</Text>
+              </Pressable>
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Discussion Detail Modal */}
+      <Modal visible={selectedDiscussion !== null} transparent animationType="slide" onRequestClose={() => setSelectedDiscussion(null)}>
+        <View className="flex-1 bg-black/70 justify-end">
+          {selectedDiscussion && (
+            <View className="bg-slate-900 rounded-t-3xl" style={{ height: '90%' }}>
+              {/* Header */}
+              <View className="p-6 border-b border-slate-800">
+                <View className="flex-row items-center justify-between mb-4">
+                  <Pressable onPress={() => setSelectedDiscussion(null)} className="p-2 bg-slate-800 rounded-full">
+                    <X size={20} color="#94a3b8" />
+                  </Pressable>
+                  <View className="flex-row items-center">
+                    <Pressable className="p-2 bg-slate-800 rounded-full mr-2">
+                      <Bookmark size={18} color="#94a3b8" />
+                    </Pressable>
+                    <Pressable className="p-2 bg-slate-800 rounded-full">
+                      <Share2 size={18} color="#94a3b8" />
+                    </Pressable>
+                  </View>
+                </View>
+
+                <View className="flex-row items-center mb-3">
+                  {selectedDiscussion.isHot && (
+                    <View className="bg-red-500/20 px-2 py-1 rounded-md mr-2 flex-row items-center">
+                      <Flame size={12} color="#ef4444" />
+                      <Text className="text-red-400 text-xs font-bold ml-1">HOT</Text>
+                    </View>
+                  )}
+                  {selectedDiscussion.isPinned && (
+                    <View className="bg-blue-500/20 px-2 py-1 rounded-md flex-row items-center">
+                      <Bookmark size={12} color="#3b82f6" />
+                      <Text className="text-blue-400 text-xs font-bold ml-1">PINNED</Text>
+                    </View>
+                  )}
+                </View>
+
+                <Text className="text-white text-xl font-bold mb-2">{selectedDiscussion.title}</Text>
+                <View className="flex-row items-center">
+                  <View className="w-8 h-8 rounded-full bg-slate-700 items-center justify-center mr-2">
+                    <Text className="text-white text-xs font-bold">{selectedDiscussion.author.split(' ').map(n => n[0]).join('')}</Text>
+                  </View>
+                  <View>
+                    <Text className="text-white font-medium">{selectedDiscussion.author}</Text>
+                    <Text className="text-slate-400 text-xs">{selectedDiscussion.authorRole} • {selectedDiscussion.lastActivity}</Text>
+                  </View>
+                </View>
+              </View>
+
+              {/* Content */}
+              <ScrollView className="flex-1 p-6">
+                {/* Original Post */}
+                <View className="bg-slate-800 rounded-xl p-4 mb-4">
+                  <Text className="text-slate-300 leading-6">
+                    This is a great topic for discussion. I've been working on this problem for a while and have some insights to share with the community. What are your thoughts and experiences?
+                  </Text>
+                  <View className="flex-row items-center mt-4 pt-4 border-t border-slate-700">
+                    <Pressable className="flex-row items-center mr-4 active:opacity-70">
+                      <ThumbsUp size={16} color="#64748b" />
+                      <Text className="text-slate-400 ml-1">{selectedDiscussion.likes}</Text>
+                    </Pressable>
+                    <Pressable className="flex-row items-center active:opacity-70">
+                      <MessageCircle size={16} color="#64748b" />
+                      <Text className="text-slate-400 ml-1">{selectedDiscussion.replies} replies</Text>
+                    </Pressable>
+                  </View>
+                </View>
+
+                {/* Replies */}
+                <Text className="text-white font-bold text-lg mb-3">Replies</Text>
+                {[
+                  { author: 'Marcus R.', time: '2 hours ago', content: 'Great question! In my experience, the key is to start with a solid foundation and iterate from there.', likes: 12 },
+                  { author: 'Emily W.', time: '1 hour ago', content: 'I agree with Marcus. Also consider the trade-offs between different approaches before committing.', likes: 8 },
+                  { author: 'James L.', time: '45 mins ago', content: 'Has anyone tried the new methodology? I heard it addresses some of these concerns.', likes: 5 },
+                ].map((reply, index) => (
+                  <View key={index} className="bg-slate-800/50 rounded-xl p-4 mb-3">
+                    <View className="flex-row items-center mb-2">
+                      <View className="w-6 h-6 rounded-full bg-slate-700 items-center justify-center mr-2">
+                        <Text className="text-white text-xs font-bold">{reply.author.split(' ').map(n => n[0]).join('')}</Text>
+                      </View>
+                      <Text className="text-white font-medium">{reply.author}</Text>
+                      <Text className="text-slate-500 text-xs ml-2">{reply.time}</Text>
+                    </View>
+                    <Text className="text-slate-300">{reply.content}</Text>
+                    <Pressable className="flex-row items-center mt-2 active:opacity-70">
+                      <ThumbsUp size={14} color="#64748b" />
+                      <Text className="text-slate-400 text-sm ml-1">{reply.likes}</Text>
+                    </Pressable>
+                  </View>
+                ))}
+              </ScrollView>
+
+              {/* Reply Input */}
+              <View className="p-4 border-t border-slate-800">
+                <View className="flex-row items-center bg-slate-800 rounded-xl px-4 py-3">
+                  <TextInput
+                    placeholder="Add a reply..."
+                    placeholderTextColor="#64748b"
+                    className="flex-1 text-white"
+                  />
+                  <Pressable className="bg-blue-500 p-2 rounded-lg ml-2 active:opacity-70">
+                    <ChevronRight size={20} color="#ffffff" />
+                  </Pressable>
+                </View>
+              </View>
+            </View>
+          )}
+        </View>
+      </Modal>
+
+      {/* Resource Detail Modal */}
+      <Modal visible={selectedResource !== null} transparent animationType="slide" onRequestClose={() => setSelectedResource(null)}>
+        <View className="flex-1 bg-black/70 justify-end">
+          {selectedResource && (
+            <View className="bg-slate-900 rounded-t-3xl p-6" style={{ maxHeight: '80%' }}>
+              <View className="flex-row items-center justify-between mb-6">
+                <Text className="text-white text-xl font-bold">Resource Details</Text>
+                <Pressable onPress={() => setSelectedResource(null)} className="p-2 bg-slate-800 rounded-full">
+                  <X size={20} color="#94a3b8" />
+                </Pressable>
+              </View>
+
+              <ScrollView showsVerticalScrollIndicator={false}>
+                {/* Resource Icon & Title */}
+                <View className="items-center mb-6">
+                  <View className="w-20 h-20 rounded-2xl bg-blue-500/20 items-center justify-center mb-4">
+                    {(() => {
+                      const IconComponent = getResourceIcon(selectedResource.type);
+                      return <IconComponent size={40} color="#3b82f6" />;
+                    })()}
+                  </View>
+                  <Text className="text-white text-xl font-bold text-center mb-1">{selectedResource.title}</Text>
+                  <Text className="text-slate-400">By {selectedResource.author}</Text>
+                </View>
+
+                {/* Tags */}
+                <View className="flex-row flex-wrap justify-center gap-2 mb-6">
+                  {selectedResource.tags.map((tag) => (
+                    <View key={tag} className="bg-slate-800 px-3 py-1 rounded-full">
+                      <Text className="text-slate-300">{tag}</Text>
+                    </View>
+                  ))}
+                </View>
+
+                {/* Stats */}
+                <View className="flex-row gap-3 mb-6">
+                  <View className="flex-1 bg-slate-800 rounded-xl p-4 items-center">
+                    <Eye size={20} color="#3b82f6" />
+                    <Text className="text-white font-bold text-lg mt-1">{selectedResource.views}</Text>
+                    <Text className="text-slate-400 text-xs">Views</Text>
+                  </View>
+                  <View className="flex-1 bg-slate-800 rounded-xl p-4 items-center">
+                    <ThumbsUp size={20} color="#10b981" />
+                    <Text className="text-white font-bold text-lg mt-1">{selectedResource.likes}</Text>
+                    <Text className="text-slate-400 text-xs">Likes</Text>
+                  </View>
+                  {selectedResource.downloads > 0 && (
+                    <View className="flex-1 bg-slate-800 rounded-xl p-4 items-center">
+                      <Download size={20} color="#f59e0b" />
+                      <Text className="text-white font-bold text-lg mt-1">{selectedResource.downloads}</Text>
+                      <Text className="text-slate-400 text-xs">Downloads</Text>
+                    </View>
+                  )}
+                </View>
+
+                {/* Actions */}
+                <View className="flex-row gap-3 mb-4">
+                  <Pressable className="flex-1 bg-slate-800 py-3 rounded-xl flex-row items-center justify-center active:opacity-70">
+                    <ThumbsUp size={18} color="#3b82f6" />
+                    <Text className="text-blue-400 font-semibold ml-2">Like</Text>
+                  </Pressable>
+                  <Pressable className="flex-1 bg-slate-800 py-3 rounded-xl flex-row items-center justify-center active:opacity-70">
+                    <Bookmark size={18} color="#f59e0b" />
+                    <Text className="text-amber-400 font-semibold ml-2">Save</Text>
+                  </Pressable>
+                </View>
+
+                {/* Download/Open Button */}
+                <Pressable className="bg-blue-500 py-4 rounded-xl flex-row items-center justify-center active:opacity-70">
+                  {selectedResource.type === 'video' ? (
+                    <>
+                      <Video size={20} color="#ffffff" />
+                      <Text className="text-white font-bold text-lg ml-2">Watch Video</Text>
+                    </>
+                  ) : selectedResource.type === 'link' ? (
+                    <>
+                      <ExternalLink size={20} color="#ffffff" />
+                      <Text className="text-white font-bold text-lg ml-2">Open Link</Text>
+                    </>
+                  ) : (
+                    <>
+                      <Download size={20} color="#ffffff" />
+                      <Text className="text-white font-bold text-lg ml-2">Download Resource</Text>
+                    </>
+                  )}
+                </Pressable>
+              </ScrollView>
+            </View>
+          )}
+        </View>
+      </Modal>
+
+      {/* Member Profile Modal */}
+      <Modal visible={selectedMember !== null} transparent animationType="slide" onRequestClose={() => setSelectedMember(null)}>
+        <View className="flex-1 bg-black/70 justify-end">
+          {selectedMember && (
+            <View className="bg-slate-900 rounded-t-3xl p-6" style={{ maxHeight: '85%' }}>
+              <View className="flex-row items-center justify-between mb-6">
+                <Text className="text-white text-xl font-bold">Member Profile</Text>
+                <Pressable onPress={() => setSelectedMember(null)} className="p-2 bg-slate-800 rounded-full">
+                  <X size={20} color="#94a3b8" />
+                </Pressable>
+              </View>
+
+              <ScrollView showsVerticalScrollIndicator={false}>
+                {/* Profile Header */}
+                <View className="items-center mb-6">
+                  <View className="w-24 h-24 rounded-full bg-slate-700 items-center justify-center mb-4 relative">
+                    <Text className="text-white text-2xl font-bold">{selectedMember.name.split(' ').map(n => n[0]).join('')}</Text>
+                    {selectedMember.isOnline && (
+                      <View className="absolute bottom-1 right-1 w-5 h-5 bg-emerald-500 rounded-full border-3 border-slate-900" />
+                    )}
+                  </View>
+                  <Text className="text-white text-xl font-bold">{selectedMember.name}</Text>
+                  <Text className="text-slate-400">{selectedMember.role}</Text>
+                  <View className="flex-row items-center mt-2">
+                    <Star size={16} color="#f59e0b" />
+                    <Text className="text-amber-400 font-semibold ml-1">Level {selectedMember.level}</Text>
+                    <Text className="text-slate-500 ml-2">•</Text>
+                    <Text className="text-slate-400 ml-2">{LEVEL_TITLES[selectedMember.level]}</Text>
+                  </View>
+                </View>
+
+                {/* Badges */}
+                {selectedMember.badges.length > 0 && (
+                  <View className="mb-6">
+                    <Text className="text-white font-bold mb-3">Badges</Text>
+                    <View className="flex-row flex-wrap gap-2">
+                      {selectedMember.badges.map((badge) => (
+                        <View
+                          key={badge}
+                          className="flex-row items-center px-3 py-2 rounded-xl"
+                          style={{ backgroundColor: `${BADGES[badge as keyof typeof BADGES]?.color}20` }}
+                        >
+                          <Text className="text-lg mr-2">{BADGES[badge as keyof typeof BADGES]?.icon}</Text>
+                          <Text className="font-semibold" style={{ color: BADGES[badge as keyof typeof BADGES]?.color }}>{badge}</Text>
+                        </View>
+                      ))}
+                    </View>
+                  </View>
+                )}
+
+                {/* Stats */}
+                <View className="flex-row gap-3 mb-6">
+                  <View className="flex-1 bg-slate-800 rounded-xl p-4 items-center">
+                    <Zap size={20} color="#3b82f6" />
+                    <Text className="text-white font-bold text-lg mt-1">{selectedMember.xp.toLocaleString()}</Text>
+                    <Text className="text-slate-400 text-xs">Total XP</Text>
+                  </View>
+                  <View className="flex-1 bg-slate-800 rounded-xl p-4 items-center">
+                    <Flame size={20} color="#f97316" />
+                    <Text className="text-white font-bold text-lg mt-1">{selectedMember.streak}</Text>
+                    <Text className="text-slate-400 text-xs">Day Streak</Text>
+                  </View>
+                  <View className="flex-1 bg-slate-800 rounded-xl p-4 items-center">
+                    <Trophy size={20} color="#f59e0b" />
+                    <Text className="text-white font-bold text-lg mt-1">{selectedMember.contributions}</Text>
+                    <Text className="text-slate-400 text-xs">Contributions</Text>
+                  </View>
+                </View>
+
+                {/* Activity */}
+                <View className="bg-slate-800 rounded-xl p-4 mb-6">
+                  <Text className="text-white font-bold mb-3">Activity</Text>
+                  <View className="flex-row items-center justify-between py-2 border-b border-slate-700">
+                    <Text className="text-slate-400">Member since</Text>
+                    <Text className="text-white">{new Date(selectedMember.joinedAt).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}</Text>
+                  </View>
+                  <View className="flex-row items-center justify-between py-2">
+                    <Text className="text-slate-400">Status</Text>
+                    <View className="flex-row items-center">
+                      <View className={`w-2 h-2 rounded-full mr-2 ${selectedMember.isOnline ? 'bg-emerald-500' : 'bg-slate-500'}`} />
+                      <Text className={selectedMember.isOnline ? 'text-emerald-400' : 'text-slate-400'}>
+                        {selectedMember.isOnline ? 'Online' : 'Offline'}
+                      </Text>
+                    </View>
+                  </View>
+                </View>
+
+                {/* Actions */}
+                <View className="flex-row gap-3">
+                  <Pressable className="flex-1 bg-blue-500 py-4 rounded-xl flex-row items-center justify-center active:opacity-70">
+                    <MessageSquare size={18} color="#ffffff" />
+                    <Text className="text-white font-bold ml-2">Message</Text>
+                  </Pressable>
+                  <Pressable className="flex-1 bg-slate-800 py-4 rounded-xl flex-row items-center justify-center active:opacity-70">
+                    <Users size={18} color="#3b82f6" />
+                    <Text className="text-blue-400 font-bold ml-2">Follow</Text>
+                  </Pressable>
+                </View>
               </ScrollView>
             </View>
           )}
