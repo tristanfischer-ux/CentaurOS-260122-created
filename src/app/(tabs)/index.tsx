@@ -705,8 +705,36 @@ export default function HomeScreen() {
   };
 
   const handleCreateOKRs = (okrRecommendations: any[]) => {
-    // Here we would create the OKRs in the store
-    // For now, just show an alert and navigate to Decide tab
+    if (!currentWorkspace || !currentUser) return;
+
+    // Add each OKR recommendation to the store
+    const addOKR = useOKRStore.getState().addOKR;
+
+    okrRecommendations.forEach((recommendation, index) => {
+      const newOKR = {
+        id: `okr-generated-${Date.now()}-${index}`,
+        workspaceId: currentWorkspace.id,
+        function: recommendation.function as BusinessFunction,
+        title: recommendation.title,
+        description: recommendation.objective,
+        owner: currentUser.name,
+        startDate: recommendation.quarter,
+        endDate: recommendation.quarter,
+        status: 'on-track' as const,
+        objectives: recommendation.keyResults.map((kr: string, krIndex: number) => ({
+          id: `kr-generated-${Date.now()}-${index}-${krIndex}`,
+          title: kr,
+          target: '100',
+          current: '0',
+          progress: 0,
+          status: 'on-track' as const,
+        })),
+      };
+
+      addOKR(newOKR);
+    });
+
+    // Close modal and navigate to Decide tab
     setShowStrategyResults(false);
     router.push('/(tabs)/decide');
   };

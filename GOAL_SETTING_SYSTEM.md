@@ -140,9 +140,10 @@ Founder opens home tab and sees prominent "Define Your Goals" card
 Two options:
 1. **Review Later**: Close modal, recommendations are not saved (can run questionnaire again)
 2. **Create OKRs**:
-   - Close results modal
-   - Navigate to Decide tab
-   - (Future: OKRs would be pre-populated in the create form)
+   - Creates all 3 OKR recommendations in the OKR store
+   - Each OKR includes full details: title, description, function, quarter, key results
+   - Navigates to Decide tab where you can see the newly created OKRs
+   - OKRs can be further edited, assigned to team members, or deleted
 
 ---
 
@@ -192,20 +193,61 @@ Two options:
 4. Parse JSON response into NextStep[] and OKRRecommendation[]
 5. Handle errors and fallback to demo recommendations
 
-### Phase 3: OKR Creation Integration
-**Current**: "Create OKRs" button just navigates to Decide tab
-**Future**: Pre-populate OKR creation form with recommendations
-- Pass OKR recommendations through route params or context
-- Open create OKR modal with pre-filled values
-- Allow founder to review and customize before saving
-- Save to OKR store with proper workspace/owner assignment
+### Phase 2: Real AI Integration
+**Current**: Demo recommendations based on common startup patterns
+**Future**: Integration with actual AI service (OpenAI, Anthropic)
+- Parse responses to extract key themes
+- Generate personalized recommendations
+- Tailor OKRs to specific industry and stage
+- Provide reasoning for each recommendation
 
 **Implementation Path**:
-1. Add route params to Decide tab navigation
-2. Check for params in Decide tab useEffect
-3. Open create modal automatically if params present
-4. Pre-fill form fields from params
-5. Clear params after creation or cancellation
+1. Add environment variable for AI API key
+2. Create prompt template that includes all 5 responses
+3. Call AI API with structured output format
+4. Parse JSON response into NextStep[] and OKRRecommendation[]
+5. Handle errors and fallback to demo recommendations
+
+### Phase 3: OKR Creation Integration ✅ COMPLETE
+**Status**: Fully implemented and functional
+- ✅ "Create OKRs" button now creates actual OKRs in the store
+- ✅ All 3 OKR recommendations are added with proper workspace/owner assignment
+- ✅ Key results are converted to objectives with proper structure
+- ✅ Navigates to Decide tab to show newly created OKRs
+- ✅ OKRs include function, quarter, title, description, and key results
+
+**Implementation Details**:
+```typescript
+const handleCreateOKRs = (okrRecommendations: any[]) => {
+  const addOKR = useOKRStore.getState().addOKR;
+
+  okrRecommendations.forEach((recommendation, index) => {
+    const newOKR = {
+      id: `okr-generated-${Date.now()}-${index}`,
+      workspaceId: currentWorkspace.id,
+      function: recommendation.function,
+      title: recommendation.title,
+      description: recommendation.objective,
+      owner: currentUser.name,
+      startDate: recommendation.quarter,
+      endDate: recommendation.quarter,
+      status: 'on-track',
+      objectives: recommendation.keyResults.map((kr, krIndex) => ({
+        id: `kr-generated-${Date.now()}-${index}-${krIndex}`,
+        title: kr,
+        target: '100',
+        current: '0',
+        progress: 0,
+        status: 'on-track',
+      })),
+    };
+
+    addOKR(newOKR);
+  });
+
+  router.push('/(tabs)/decide');
+};
+```
 
 ### Phase 4: Goal Tracking
 **Future**: Track progress on goals over time
