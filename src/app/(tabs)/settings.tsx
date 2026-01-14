@@ -68,7 +68,19 @@ export default function SettingsScreen() {
   const currentMembership = useCurrentMembership();
   const logout = useAppStore((s) => s.logout);
   const setCurrentUser = useAppStore((s) => s.setCurrentUser);
-  const { themeMode, setThemeMode } = useTheme();
+  const { theme, themeMode, setThemeMode, isOffWhite } = useTheme();
+  const isDark = theme === 'dark';
+
+  // Theme-aware style classes
+  const bgPrimary = isDark ? 'bg-slate-950' : isOffWhite ? 'bg-orange-50' : 'bg-gray-50';
+  const bgCard = isDark ? 'bg-slate-900' : isOffWhite ? 'bg-white' : 'bg-white';
+  const bgCardAlt = isDark ? 'bg-slate-800' : isOffWhite ? 'bg-orange-100' : 'bg-gray-100';
+  const borderColor = isDark ? 'border-slate-800' : isOffWhite ? 'border-orange-200' : 'border-gray-200';
+  const borderColorAlt = isDark ? 'border-slate-700' : isOffWhite ? 'border-orange-300' : 'border-gray-300';
+  const textPrimary = isDark ? 'text-white' : 'text-gray-900';
+  const textSecondary = isDark ? 'text-slate-400' : isOffWhite ? 'text-orange-700' : 'text-gray-600';
+  const textMuted = isDark ? 'text-slate-500' : isOffWhite ? 'text-orange-600' : 'text-gray-500';
+  const iconColor = isDark ? '#94a3b8' : isOffWhite ? '#c2410c' : '#6b7280';
 
   const [showDataManagement, setShowDataManagement] = useState(false);
   const [syncStatus, setSyncStatus] = useState<'idle' | 'syncing' | 'success' | 'error'>('idle');
@@ -497,32 +509,32 @@ export default function SettingsScreen() {
   // RENDER
   // ===========================================================================
   return (
-    <View className="flex-1 bg-slate-950">
+    <View className={`flex-1 ${bgPrimary}`}>
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
         {/* Header with Operational Health */}
         <View className="px-5 pt-14 pb-4">
           <View className="flex-row items-center justify-between mb-4">
             <View>
-              <Text className="text-white text-2xl font-bold">Command Center</Text>
-              <Text className="text-slate-400 text-sm">Operations & Configuration</Text>
+              <Text className={`text-2xl font-bold ${textPrimary}`}>Command Center</Text>
+              <Text className={`text-sm ${textSecondary}`}>Operations & Configuration</Text>
             </View>
-            <View className="bg-slate-800/50 rounded-xl px-3 py-2 border border-slate-700">
-              <Text className="text-slate-400 text-xs">Role</Text>
-              <Text className="text-white font-semibold text-sm">
+            <View className={`rounded-xl px-3 py-2 border ${bgCardAlt} ${borderColorAlt}`}>
+              <Text className={`text-xs ${textMuted}`}>Role</Text>
+              <Text className={`font-semibold text-sm ${textPrimary}`}>
                 {userRole === 'FractionalExec' ? 'Executive' : userRole}
               </Text>
             </View>
           </View>
 
           {/* User Card */}
-          <View className="bg-slate-900/80 rounded-2xl p-4 border border-slate-800">
+          <View className={`rounded-2xl p-4 border ${bgCard} ${borderColor}`}>
             <View className="flex-row items-center">
               <View className="w-14 h-14 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 items-center justify-center">
                 <User size={28} color="#ffffff" />
               </View>
               <View className="ml-4 flex-1">
-                <Text className="text-white text-lg font-bold">{currentUser?.name}</Text>
-                <Text className="text-slate-400 text-sm">{currentUser?.email}</Text>
+                <Text className={`text-lg font-bold ${textPrimary}`}>{currentUser?.name}</Text>
+                <Text className={`text-sm ${textSecondary}`}>{currentUser?.email}</Text>
               </View>
               <Pressable
                 onPress={handleLogout}
@@ -543,7 +555,7 @@ export default function SettingsScreen() {
                     'bg-red-500/10 border border-red-500/30'
                   }`}
                 >
-                  <Text className="text-slate-400 text-xs">{metric.label}</Text>
+                  <Text className={textSecondary} style={{ fontSize: 10 }}>{metric.label}</Text>
                   <View className="flex-row items-center mt-1">
                     <Text className={`text-lg font-bold ${
                       metric.status === 'good' ? 'text-emerald-400' :
@@ -572,16 +584,16 @@ export default function SettingsScreen() {
                   <Target size={18} color="#f59e0b" />
                 </View>
                 <View>
-                  <Text className="text-white font-bold text-lg">Setup Checklist</Text>
-                  <Text className="text-slate-400 text-xs">
+                  <Text className={`font-bold text-lg ${textPrimary}`}>Setup Checklist</Text>
+                  <Text className={`text-xs ${textSecondary}`}>
                     {completionMetrics.completed}/{completionMetrics.total} complete • {completionMetrics.estimatedMinutes}m remaining
                   </Text>
                 </View>
               </View>
               {expandedSections.checklist ? (
-                <ChevronUp size={20} color="#64748b" />
+                <ChevronUp size={20} color={iconColor} />
               ) : (
-                <ChevronDown size={20} color="#64748b" />
+                <ChevronDown size={20} color={iconColor} />
               )}
             </Pressable>
 
@@ -597,10 +609,10 @@ export default function SettingsScreen() {
                       >
                         <Text className="text-white text-xs font-bold">CRITICAL</Text>
                       </View>
-                      <Text className="text-slate-400 text-xs">Do these first</Text>
+                      <Text className={`text-xs ${textSecondary}`}>Do these first</Text>
                     </View>
                     {groupedSteps.critical.map((step) => (
-                      <SetupStepCard key={step.id} step={step} />
+                      <SetupStepCard key={step.id} step={step} isDark={isDark} isOffWhite={isOffWhite} />
                     ))}
                   </View>
                 )}
@@ -615,10 +627,10 @@ export default function SettingsScreen() {
                       >
                         <Text className="text-white text-xs font-bold">HIGH</Text>
                       </View>
-                      <Text className="text-slate-400 text-xs">Important for efficiency</Text>
+                      <Text className={`text-xs ${textSecondary}`}>Important for efficiency</Text>
                     </View>
                     {groupedSteps.high.map((step) => (
-                      <SetupStepCard key={step.id} step={step} />
+                      <SetupStepCard key={step.id} step={step} isDark={isDark} isOffWhite={isOffWhite} />
                     ))}
                   </View>
                 )}
@@ -633,10 +645,10 @@ export default function SettingsScreen() {
                       >
                         <Text className="text-white text-xs font-bold">RECOMMENDED</Text>
                       </View>
-                      <Text className="text-slate-400 text-xs">Optimize your workflow</Text>
+                      <Text className={`text-xs ${textSecondary}`}>Optimize your workflow</Text>
                     </View>
                     {groupedSteps.medium.map((step) => (
-                      <SetupStepCard key={step.id} step={step} />
+                      <SetupStepCard key={step.id} step={step} isDark={isDark} isOffWhite={isOffWhite} />
                     ))}
                   </View>
                 )}
@@ -655,12 +667,12 @@ export default function SettingsScreen() {
               <View className="w-8 h-8 rounded-lg bg-blue-500/20 items-center justify-center mr-3">
                 <Zap size={18} color="#3b82f6" />
               </View>
-              <Text className="text-white font-bold text-lg">Quick Actions</Text>
+              <Text className={`font-bold text-lg ${textPrimary}`}>Quick Actions</Text>
             </View>
             {expandedSections.quickActions ? (
-              <ChevronUp size={20} color="#64748b" />
+              <ChevronUp size={20} color={iconColor} />
             ) : (
-              <ChevronDown size={20} color="#64748b" />
+              <ChevronDown size={20} color={iconColor} />
             )}
           </Pressable>
 
@@ -670,7 +682,7 @@ export default function SettingsScreen() {
                 <Pressable
                   key={action.id}
                   onPress={action.action}
-                  className="bg-slate-900/80 border border-slate-800 rounded-xl p-4 active:opacity-70"
+                  className={`${bgCard} border ${borderColor} rounded-xl p-4 active:opacity-70`}
                   style={{ width: '47%' }}
                 >
                   <View className="flex-row items-center justify-between mb-2">
@@ -686,8 +698,8 @@ export default function SettingsScreen() {
                       </View>
                     )}
                   </View>
-                  <Text className="text-white font-semibold text-sm">{action.title}</Text>
-                  <Text className="text-slate-400 text-xs mt-0.5">{action.subtitle}</Text>
+                  <Text className={`font-semibold text-sm ${textPrimary}`}>{action.title}</Text>
+                  <Text className={`text-xs mt-0.5 ${textSecondary}`}>{action.subtitle}</Text>
                 </Pressable>
               ))}
             </View>
@@ -704,18 +716,18 @@ export default function SettingsScreen() {
               <View className="w-8 h-8 rounded-lg bg-violet-500/20 items-center justify-center mr-3">
                 <Settings2 size={18} color="#8b5cf6" />
               </View>
-              <Text className="text-white font-bold text-lg">Preferences</Text>
+              <Text className={`font-bold text-lg ${textPrimary}`}>Preferences</Text>
             </View>
             {expandedSections.preferences ? (
-              <ChevronUp size={20} color="#64748b" />
+              <ChevronUp size={20} color={iconColor} />
             ) : (
-              <ChevronDown size={20} color="#64748b" />
+              <ChevronDown size={20} color={iconColor} />
             )}
           </Pressable>
 
           {expandedSections.preferences && (
-            <View className="bg-slate-900/80 border border-slate-800 rounded-2xl p-4">
-              <Text className="text-slate-400 text-xs font-medium mb-3">DISPLAY THEME</Text>
+            <View className={`${bgCard} border ${borderColor} rounded-2xl p-4`}>
+              <Text className={`text-xs font-medium mb-3 ${textSecondary}`}>DISPLAY THEME</Text>
               <View className="flex-row gap-2">
                 {themeOptions.map(({ mode, label, icon: Icon }) => (
                   <Pressable
@@ -724,12 +736,12 @@ export default function SettingsScreen() {
                     className={`flex-1 p-3 rounded-xl border-2 items-center ${
                       themeMode === mode
                         ? 'bg-blue-500/10 border-blue-500'
-                        : 'bg-slate-800 border-slate-700'
+                        : isDark ? 'bg-slate-800 border-slate-700' : isOffWhite ? 'bg-orange-100 border-orange-300' : 'bg-gray-100 border-gray-300'
                     } active:opacity-70`}
                   >
-                    <Icon size={20} color={themeMode === mode ? '#3b82f6' : '#64748b'} />
+                    <Icon size={20} color={themeMode === mode ? '#3b82f6' : iconColor} />
                     <Text className={`text-xs font-medium mt-1 ${
-                      themeMode === mode ? 'text-blue-400' : 'text-slate-400'
+                      themeMode === mode ? 'text-blue-400' : textSecondary
                     }`}>
                       {label}
                     </Text>
@@ -740,25 +752,25 @@ export default function SettingsScreen() {
               {/* Replay Tutorial */}
               <Pressable
                 onPress={handleReplayOnboarding}
-                className="flex-row items-center justify-between mt-4 pt-4 border-t border-slate-800 active:opacity-70"
+                className={`flex-row items-center justify-between mt-4 pt-4 border-t ${borderColor} active:opacity-70`}
               >
                 <View className="flex-row items-center">
                   <Play size={18} color="#8b5cf6" />
-                  <Text className="text-white font-medium ml-3">Replay Tutorial</Text>
+                  <Text className={`font-medium ml-3 ${textPrimary}`}>Replay Tutorial</Text>
                 </View>
-                <ChevronRight size={18} color="#64748b" />
+                <ChevronRight size={18} color={iconColor} />
               </Pressable>
 
               {/* About */}
               <Pressable
                 onPress={() => router.push('/settings/about')}
-                className="flex-row items-center justify-between mt-3 pt-3 border-t border-slate-800 active:opacity-70"
+                className={`flex-row items-center justify-between mt-3 pt-3 border-t ${borderColor} active:opacity-70`}
               >
                 <View className="flex-row items-center">
                   <Info size={18} color="#3b82f6" />
-                  <Text className="text-white font-medium ml-3">About Centaur OS</Text>
+                  <Text className={`font-medium ml-3 ${textPrimary}`}>About Centaur OS</Text>
                 </View>
-                <ChevronRight size={18} color="#64748b" />
+                <ChevronRight size={18} color={iconColor} />
               </Pressable>
             </View>
           )}
@@ -774,12 +786,12 @@ export default function SettingsScreen() {
               <View className="w-8 h-8 rounded-lg bg-emerald-500/20 items-center justify-center mr-3">
                 <Users size={18} color="#10b981" />
               </View>
-              <Text className="text-white font-bold text-lg">Team & Collaboration</Text>
+              <Text className={`font-bold text-lg ${textPrimary}`}>Team & Collaboration</Text>
             </View>
             {expandedSections.team ? (
-              <ChevronUp size={20} color="#64748b" />
+              <ChevronUp size={20} color={iconColor} />
             ) : (
-              <ChevronDown size={20} color="#64748b" />
+              <ChevronDown size={20} color={iconColor} />
             )}
           </Pressable>
 
@@ -791,6 +803,8 @@ export default function SettingsScreen() {
                 title="Organization Structure"
                 subtitle="Team hierarchy and reporting lines"
                 onPress={() => router.push('/org-diagram')}
+                isDark={isDark}
+                isOffWhite={isOffWhite}
               />
               <NavigationCard
                 icon={Mail}
@@ -798,6 +812,8 @@ export default function SettingsScreen() {
                 title="Invitations"
                 subtitle={userRole === 'Founder' ? 'Manage team invitations' : 'View incoming invitations'}
                 onPress={() => router.push('/invitations')}
+                isDark={isDark}
+                isOffWhite={isOffWhite}
               />
               {(userRole === 'FractionalExec' || userRole === 'Apprentice') && (
                 <NavigationCard
@@ -806,6 +822,8 @@ export default function SettingsScreen() {
                   title="My Engagements"
                   subtitle="Active companies and capacity"
                   onPress={() => router.push('/engagements')}
+                  isDark={isDark}
+                  isOffWhite={isOffWhite}
                 />
               )}
               <NavigationCard
@@ -814,6 +832,8 @@ export default function SettingsScreen() {
                 title="Guilds"
                 subtitle="Cross-company communities"
                 onPress={() => router.push('/guilds')}
+                isDark={isDark}
+                isOffWhite={isOffWhite}
               />
             </View>
           )}
@@ -830,12 +850,12 @@ export default function SettingsScreen() {
                 <View className="w-8 h-8 rounded-lg bg-cyan-500/20 items-center justify-center mr-3">
                   <Database size={18} color="#06b6d4" />
                 </View>
-                <Text className="text-white font-bold text-lg">Data Management</Text>
+                <Text className={`font-bold text-lg ${textPrimary}`}>Data Management</Text>
               </View>
               {expandedSections.data ? (
-                <ChevronUp size={20} color="#64748b" />
+                <ChevronUp size={20} color={iconColor} />
               ) : (
-                <ChevronDown size={20} color="#64748b" />
+                <ChevronDown size={20} color={iconColor} />
               )}
             </Pressable>
 
@@ -847,6 +867,8 @@ export default function SettingsScreen() {
                   title="Google Sheets Sync"
                   subtitle="Two-way data synchronization"
                   onPress={handleOpenGoogleSheets}
+                  isDark={isDark}
+                  isOffWhite={isOffWhite}
                 />
                 <NavigationCard
                   icon={FileText}
@@ -854,6 +876,8 @@ export default function SettingsScreen() {
                   title="Import/Export CSV"
                   subtitle="Bulk data operations"
                   onPress={() => setShowDataManagement(true)}
+                  isDark={isDark}
+                  isOffWhite={isOffWhite}
                 />
                 <NavigationCard
                   icon={BarChart3}
@@ -861,6 +885,8 @@ export default function SettingsScreen() {
                   title="Reports"
                   subtitle="Generate consulting-grade reports"
                   onPress={() => router.push('/reports')}
+                  isDark={isDark}
+                  isOffWhite={isOffWhite}
                 />
               </View>
             )}
@@ -873,7 +899,7 @@ export default function SettingsScreen() {
             <View className="w-8 h-8 rounded-lg bg-pink-500/20 items-center justify-center mr-3">
               <Sparkles size={18} color="#ec4899" />
             </View>
-            <Text className="text-white font-bold text-lg">Resources</Text>
+            <Text className={`font-bold text-lg ${textPrimary}`}>Resources</Text>
           </View>
 
           <NavigationCard
@@ -882,6 +908,8 @@ export default function SettingsScreen() {
             title="Function Library"
             subtitle="Templates, tools, and best practices"
             onPress={() => router.push('/function-hub')}
+            isDark={isDark}
+            isOffWhite={isOffWhite}
           />
         </Animated.View>
 
@@ -897,23 +925,23 @@ export default function SettingsScreen() {
         onRequestClose={() => setShowDataManagement(false)}
       >
         <View className="flex-1 bg-black/70 justify-end">
-          <View className="bg-slate-900 rounded-t-3xl" style={{ maxHeight: '90%' }}>
-            <View className="p-6 border-b border-slate-800">
+          <View className={`${isDark ? 'bg-slate-900' : isOffWhite ? 'bg-orange-50' : 'bg-white'} rounded-t-3xl`} style={{ maxHeight: '90%' }}>
+            <View className={`p-6 border-b ${borderColor}`}>
               <View className="flex-row items-center justify-between">
                 <View className="flex-row items-center gap-3">
                   <View className="w-12 h-12 bg-blue-500/20 rounded-xl items-center justify-center">
                     <Database size={24} color="#3b82f6" />
                   </View>
                   <View>
-                    <Text className="text-white text-xl font-bold">Data Management</Text>
-                    <Text className="text-slate-400 text-xs">Import, Export & Sync</Text>
+                    <Text className={`text-xl font-bold ${textPrimary}`}>Data Management</Text>
+                    <Text className={`text-xs ${textSecondary}`}>Import, Export & Sync</Text>
                   </View>
                 </View>
                 <Pressable
                   onPress={() => setShowDataManagement(false)}
-                  className="w-10 h-10 items-center justify-center rounded-full bg-slate-800 active:opacity-70"
+                  className={`w-10 h-10 items-center justify-center rounded-full ${bgCardAlt} active:opacity-70`}
                 >
-                  <X size={24} color="#64748b" />
+                  <X size={24} color={iconColor} />
                 </Pressable>
               </View>
             </View>
@@ -923,7 +951,7 @@ export default function SettingsScreen() {
               <View className="mb-6">
                 <View className="flex-row items-center gap-2 mb-3">
                   <Sheet size={20} color="#10b981" />
-                  <Text className="text-white text-lg font-bold">Google Sheets</Text>
+                  <Text className={`text-lg font-bold ${textPrimary}`}>Google Sheets</Text>
                 </View>
 
                 <Pressable
@@ -932,8 +960,8 @@ export default function SettingsScreen() {
                 >
                   <View className="flex-row items-center justify-between">
                     <View className="flex-1">
-                      <Text className="text-white font-semibold mb-1">Connect Google Sheets</Text>
-                      <Text className="text-slate-400 text-xs">Link for automatic sync</Text>
+                      <Text className={`font-semibold mb-1 ${textPrimary}`}>Connect Google Sheets</Text>
+                      <Text className={`text-xs ${textSecondary}`}>Link for automatic sync</Text>
                     </View>
                     <ExternalLink size={20} color="#10b981" />
                   </View>
@@ -943,13 +971,13 @@ export default function SettingsScreen() {
                   onPress={handleGoogleSheetsSync}
                   disabled={syncStatus === 'syncing'}
                   className={`rounded-xl p-4 flex-row items-center justify-center gap-2 ${
-                    syncStatus === 'syncing' ? 'bg-slate-800' : 'bg-emerald-500'
+                    syncStatus === 'syncing' ? (isDark ? 'bg-slate-800' : isOffWhite ? 'bg-orange-200' : 'bg-gray-200') : 'bg-emerald-500'
                   } active:opacity-70`}
                 >
                   {syncStatus === 'syncing' ? (
                     <>
-                      <RefreshCw size={20} color="#ffffff" />
-                      <Text className="text-white font-bold">Syncing...</Text>
+                      <RefreshCw size={20} color={isDark ? '#ffffff' : '#374151'} />
+                      <Text className={isDark ? 'text-white font-bold' : 'text-gray-700 font-bold'}>Syncing...</Text>
                     </>
                   ) : syncStatus === 'success' ? (
                     <>
@@ -969,14 +997,14 @@ export default function SettingsScreen() {
               <View className="mb-6">
                 <View className="flex-row items-center gap-2 mb-3">
                   <FileText size={20} color="#3b82f6" />
-                  <Text className="text-white text-lg font-bold">CSV Operations</Text>
+                  <Text className={`text-lg font-bold ${textPrimary}`}>CSV Operations</Text>
                 </View>
 
                 {/* Templates */}
                 <View className="bg-blue-500/10 border border-blue-500/30 rounded-xl p-4 mb-4">
                   <View className="flex-row items-center gap-2 mb-2">
                     <Download size={18} color="#3b82f6" />
-                    <Text className="text-white font-semibold">Download Templates</Text>
+                    <Text className={`font-semibold ${textPrimary}`}>Download Templates</Text>
                   </View>
                   <View className="flex-row flex-wrap gap-2">
                     {['Tasks', 'OKRs', 'Team', 'Suppliers', 'AI Agents', 'Finance'].map((type) => (
@@ -999,13 +1027,13 @@ export default function SettingsScreen() {
                   { type: 'Suppliers', icon: '🏭', count: '30', color: '#f59e0b' },
                   { type: 'Financial Data', icon: '💰', count: '12 months', color: '#06b6d4' },
                 ].map((item) => (
-                  <View key={item.type} className="bg-slate-800 rounded-xl p-4 mb-3 border border-slate-700">
+                  <View key={item.type} className={`${isDark ? 'bg-slate-800 border-slate-700' : isOffWhite ? 'bg-orange-100 border-orange-200' : 'bg-gray-100 border-gray-200'} rounded-xl p-4 mb-3 border`}>
                     <View className="flex-row items-center justify-between mb-3">
                       <View className="flex-row items-center gap-3">
                         <Text className="text-2xl">{item.icon}</Text>
                         <View>
-                          <Text className="text-white font-semibold">{item.type}</Text>
-                          <Text className="text-slate-500 text-xs">{item.count} records</Text>
+                          <Text className={`font-semibold ${textPrimary}`}>{item.type}</Text>
+                          <Text className={`text-xs ${textMuted}`}>{item.count} records</Text>
                         </View>
                       </View>
                     </View>
@@ -1019,10 +1047,10 @@ export default function SettingsScreen() {
                       </Pressable>
                       <Pressable
                         onPress={() => handleExportCSV(item.type)}
-                        className="flex-1 bg-slate-700 py-3 rounded-lg flex-row items-center justify-center gap-2 active:opacity-70"
+                        className={`flex-1 ${isDark ? 'bg-slate-700' : isOffWhite ? 'bg-orange-200' : 'bg-gray-200'} py-3 rounded-lg flex-row items-center justify-center gap-2 active:opacity-70`}
                       >
                         <Download size={16} color={item.color} />
-                        <Text className="text-white font-semibold text-sm">Export</Text>
+                        <Text className={`font-semibold text-sm ${textPrimary}`}>Export</Text>
                       </Pressable>
                     </View>
                   </View>
@@ -1040,13 +1068,19 @@ export default function SettingsScreen() {
 // REUSABLE COMPONENTS
 // ===========================================================================
 
-function SetupStepCard({ step }: { step: SetupStep }) {
+function SetupStepCard({ step, isDark, isOffWhite }: { step: SetupStep; isDark: boolean; isOffWhite: boolean }) {
   const CategoryIcon = CATEGORY_ICONS[step.category];
+  const bgCard = isDark ? 'bg-slate-900/80' : isOffWhite ? 'bg-white' : 'bg-white';
+  const borderColor = isDark ? 'border-slate-800' : isOffWhite ? 'border-orange-200' : 'border-gray-200';
+  const textPrimary = isDark ? 'text-white' : 'text-gray-900';
+  const textSecondary = isDark ? 'text-slate-400' : isOffWhite ? 'text-orange-700' : 'text-gray-600';
+  const textMuted = isDark ? 'text-slate-500' : isOffWhite ? 'text-orange-600' : 'text-gray-500';
+  const iconColor = isDark ? '#64748b' : isOffWhite ? '#c2410c' : '#6b7280';
 
   return (
     <Pressable
       onPress={step.action}
-      className="bg-slate-900/80 border border-slate-800 rounded-xl p-4 mb-2 flex-row items-center active:opacity-70"
+      className={`${bgCard} border ${borderColor} rounded-xl p-4 mb-2 flex-row items-center active:opacity-70`}
     >
       <View className="w-10 h-10 rounded-xl items-center justify-center mr-3" style={{ backgroundColor: `${PRIORITY_COLORS[step.priority].bg}15` }}>
         {step.isComplete ? (
@@ -1056,16 +1090,16 @@ function SetupStepCard({ step }: { step: SetupStep }) {
         )}
       </View>
       <View className="flex-1">
-        <Text className={`font-semibold ${step.isComplete ? 'text-slate-500 line-through' : 'text-white'}`}>
+        <Text className={`font-semibold ${step.isComplete ? textMuted + ' line-through' : textPrimary}`}>
           {step.title}
         </Text>
-        <Text className="text-slate-400 text-xs mt-0.5">{step.description}</Text>
+        <Text className={`text-xs mt-0.5 ${textSecondary}`}>{step.description}</Text>
         <View className="flex-row items-center mt-1">
-          <Clock size={12} color="#64748b" />
-          <Text className="text-slate-500 text-xs ml-1">{step.estimatedMinutes}m</Text>
+          <Clock size={12} color={iconColor} />
+          <Text className={`text-xs ml-1 ${textMuted}`}>{step.estimatedMinutes}m</Text>
         </View>
       </View>
-      <ChevronRight size={18} color="#64748b" />
+      <ChevronRight size={18} color={iconColor} />
     </Pressable>
   );
 }
@@ -1077,6 +1111,8 @@ function NavigationCard({
   subtitle,
   onPress,
   badge,
+  isDark,
+  isOffWhite,
 }: {
   icon: typeof Target;
   iconColor: string;
@@ -1084,11 +1120,19 @@ function NavigationCard({
   subtitle: string;
   onPress: () => void;
   badge?: string;
+  isDark: boolean;
+  isOffWhite: boolean;
 }) {
+  const bgCard = isDark ? 'bg-slate-900/80' : isOffWhite ? 'bg-white' : 'bg-white';
+  const borderColor = isDark ? 'border-slate-800' : isOffWhite ? 'border-orange-200' : 'border-gray-200';
+  const textPrimary = isDark ? 'text-white' : 'text-gray-900';
+  const textSecondary = isDark ? 'text-slate-400' : isOffWhite ? 'text-orange-700' : 'text-gray-600';
+  const chevronColor = isDark ? '#64748b' : isOffWhite ? '#c2410c' : '#6b7280';
+
   return (
     <Pressable
       onPress={onPress}
-      className="bg-slate-900/80 border border-slate-800 rounded-xl p-4 flex-row items-center active:opacity-70"
+      className={`${bgCard} border ${borderColor} rounded-xl p-4 flex-row items-center active:opacity-70`}
     >
       <View
         className="w-10 h-10 rounded-xl items-center justify-center mr-3"
@@ -1097,15 +1141,15 @@ function NavigationCard({
         <Icon size={20} color={iconColor} />
       </View>
       <View className="flex-1">
-        <Text className="text-white font-semibold">{title}</Text>
-        <Text className="text-slate-400 text-xs mt-0.5">{subtitle}</Text>
+        <Text className={`font-semibold ${textPrimary}`}>{title}</Text>
+        <Text className={`text-xs mt-0.5 ${textSecondary}`}>{subtitle}</Text>
       </View>
       {badge && (
         <View className="bg-red-500 rounded-full px-2 py-0.5 mr-2">
           <Text className="text-white text-xs font-bold">{badge}</Text>
         </View>
       )}
-      <ChevronRight size={18} color="#64748b" />
+      <ChevronRight size={18} color={chevronColor} />
     </Pressable>
   );
 }
