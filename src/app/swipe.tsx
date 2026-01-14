@@ -580,10 +580,16 @@ export default function SwipeScreen() {
                   <Text className="text-gray-600 dark:text-slate-400 text-sm font-semibold mb-3">Details</Text>
                   <View className="gap-3">
                     {selectedPerson.costPerDay && (
-                      <View className="flex-row justify-between">
-                        <Text className="text-gray-600 dark:text-slate-400">Daily Rate:</Text>
-                        <Text className="text-gray-900 dark:text-white font-semibold">£{selectedPerson.costPerDay}</Text>
-                      </View>
+                      <>
+                        <View className="flex-row justify-between">
+                          <Text className="text-gray-600 dark:text-slate-400">Cost per □:</Text>
+                          <Text className="text-emerald-500 font-bold">£{Math.round(selectedPerson.costPerDay / 2)}</Text>
+                        </View>
+                        <View className="flex-row justify-between">
+                          <Text className="text-gray-600 dark:text-slate-400">Daily Rate:</Text>
+                          <Text className="text-gray-900 dark:text-white font-semibold">£{selectedPerson.costPerDay}</Text>
+                        </View>
+                      </>
                     )}
                     <View className="flex-row justify-between">
                       <Text className="text-gray-600 dark:text-slate-400">Started:</Text>
@@ -744,8 +750,8 @@ function PersonTopTrumpsCard({ card, onTap }: { card: PersonCard; onTap: (person
             {/* Cost */}
             <StatRow
               icon={<DollarSign size={20} color="#10b981" />}
-              label="Daily Rate"
-              value={card.costPerDay ? `£${card.costPerDay}` : 'N/A'}
+              label="Cost per □"
+              value={card.costPerDay ? `£${Math.round(card.costPerDay / 2)}` : 'N/A'}
               rating={card.costPerDay ? Math.min(10, Math.floor(card.costPerDay / 100)) : 0}
               color="emerald"
             />

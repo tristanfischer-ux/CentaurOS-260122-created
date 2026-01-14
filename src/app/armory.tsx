@@ -386,7 +386,7 @@ function CharacterSheetModal({
                   ))}
                 </View>
                 <Text className={`${textMuted} text-xs mt-2`}>
-                  {member.costPerDay && `£${member.costPerDay}/day × ${daysPerWeek} days × 4.33 weeks = £${Math.round(personCostPerMonth).toLocaleString()}/month`}
+                  {member.costPerDay && `£${Math.round(member.costPerDay / 2)}/□ × ${daysPerWeek * 2}□/wk × 4.33 weeks = £${Math.round(personCostPerMonth).toLocaleString()}/month`}
                 </Text>
               </View>
             )}
@@ -1174,14 +1174,18 @@ function PersonDetailModal({
                   <Text className={`${textPrimary} text-lg font-bold mb-3`}>💰 Cost</Text>
                   <View className="bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-4">
                     <View className="flex-row justify-between mb-2">
-                      <Text className={textSecondary}>Day Rate</Text>
-                      <Text className="text-emerald-500 font-bold">£{member.costPerDay}/day</Text>
+                      <Text className={textSecondary}>Cost per □</Text>
+                      <Text className="text-emerald-500 font-bold text-xl">£{Math.round(member.costPerDay / 2)}</Text>
+                    </View>
+                    <View className="flex-row justify-between mb-2">
+                      <Text className={textSecondary}>Day Rate (2□)</Text>
+                      <Text className={`${textPrimary} font-semibold`}>£{member.costPerDay}</Text>
                     </View>
                     {member.daysPerWeek && (
                       <>
                         <View className="flex-row justify-between mb-2">
                           <Text className={textSecondary}>Days Per Week</Text>
-                          <Text className={`${textPrimary} font-bold`}>{member.daysPerWeek} days</Text>
+                          <Text className={`${textPrimary} font-bold`}>{member.daysPerWeek} days ({member.daysPerWeek * 2}□)</Text>
                         </View>
                         <View className="flex-row justify-between border-t border-emerald-500/30 pt-2 mt-2">
                           <Text className={textSecondary}>Monthly Cost</Text>

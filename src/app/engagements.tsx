@@ -196,7 +196,7 @@ export default function EngagementsScreen() {
                     <View className="flex-row items-center">
                       <DollarSign size={14} color="#10b981" />
                       <Text className="text-emerald-500 text-xs font-semibold ml-1">
-                        £{engagement.dayRate}/day
+                        £{Math.round(engagement.dayRate / 2)}/□
                       </Text>
                     </View>
                   </View>

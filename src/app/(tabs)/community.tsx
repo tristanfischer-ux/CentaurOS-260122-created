@@ -439,9 +439,13 @@ export default function CommunityScreen() {
                 <Clock size={14} color="#64748b" />
                 <Text className="text-gray-600 dark:text-slate-400 text-xs ml-1">{candidate.experience}y exp</Text>
               </View>
+              <View className="flex-row items-center bg-emerald-50 dark:bg-emerald-900/20 px-2 py-0.5 rounded-lg">
+                <Text className="text-emerald-700 dark:text-emerald-300 text-xs font-semibold">
+                  £{Math.round(candidate.costPerDay / 2)}/□
+                </Text>
+              </View>
               <View className="flex-row items-center">
-                <DollarSign size={14} color="#64748b" />
-                <Text className="text-gray-600 dark:text-slate-400 text-xs ml-1">£{candidate.costPerDay}/day</Text>
+                <Text className="text-gray-500 dark:text-slate-500 text-xs">£{candidate.costPerDay}/day</Text>
               </View>
               <View className={`flex-row items-center px-2 py-0.5 rounded-full ${
                 candidate.availability.toLowerCase().includes('now')
@@ -1570,12 +1574,30 @@ export default function CommunityScreen() {
                         Rate
                       </Text>
                       <View className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-xl p-4">
-                        <Text className="text-emerald-700 dark:text-emerald-300 text-2xl font-bold">
-                          £{selectedCandidate.costPerDay}/day
-                        </Text>
-                        <Text className="text-emerald-600 dark:text-emerald-400 text-sm mt-1">
-                          {selectedCandidate.role === 'FractionalExec' ? 'Fractional engagement' : 'Apprentice rate'}
-                        </Text>
+                        <View className="flex-row items-center justify-between mb-2">
+                          <View>
+                            <Text className="text-emerald-600 dark:text-emerald-400 text-xs font-medium uppercase tracking-wide">Cost per Square</Text>
+                            <Text className="text-emerald-700 dark:text-emerald-300 text-3xl font-bold">
+                              £{Math.round(selectedCandidate.costPerDay / 2)}/□
+                            </Text>
+                          </View>
+                          <View className="items-end">
+                            <Text className="text-gray-500 dark:text-slate-400 text-xs">Per day (2□)</Text>
+                            <Text className="text-gray-700 dark:text-slate-300 text-lg font-semibold">
+                              £{selectedCandidate.costPerDay}
+                            </Text>
+                          </View>
+                        </View>
+                        <View className="border-t border-emerald-200 dark:border-emerald-800 pt-3 mt-2">
+                          <View className="flex-row items-center justify-between">
+                            <Text className="text-emerald-600 dark:text-emerald-400 text-sm">
+                              {selectedCandidate.role === 'FractionalExec' ? 'Fractional engagement' : 'Apprentice rate'}
+                            </Text>
+                            <Text className="text-gray-500 dark:text-slate-400 text-xs">
+                              1□ = 4 hours
+                            </Text>
+                          </View>
+                        </View>
                       </View>
                     </View>
                   )}
@@ -2236,7 +2258,7 @@ export default function CommunityScreen() {
                     <View className="bg-gray-100 dark:bg-slate-800 rounded-xl p-4 mb-4">
                       <View className="flex-row items-center mb-3">
                         <DollarSign size={18} color="#64748b" />
-                        <Text className="text-gray-700 dark:text-slate-300 font-bold ml-2">Daily Rate</Text>
+                        <Text className="text-gray-700 dark:text-slate-300 font-bold ml-2">Cost per Square (□)</Text>
                       </View>
                       <View className="flex-row gap-2">
                         {candidatesToCompare.map((candidate) => (
@@ -2250,9 +2272,10 @@ export default function CommunityScreen() {
                                 ? 'text-emerald-700 dark:text-emerald-300'
                                 : 'text-gray-900 dark:text-white'
                             }`}>
-                              £{candidate.costPerDay}
+                              £{Math.round(candidate.costPerDay / 2)}
                             </Text>
-                            <Text className="text-gray-500 dark:text-slate-400 text-xs text-center">per day</Text>
+                            <Text className="text-gray-500 dark:text-slate-400 text-xs text-center">per □</Text>
+                            <Text className="text-gray-400 dark:text-slate-500 text-[10px] text-center mt-0.5">(£{candidate.costPerDay}/day)</Text>
                             {candidate.costPerDay === bestCost && (
                               <Text className="text-emerald-600 dark:text-emerald-400 text-xs text-center font-semibold mt-1">Best Value</Text>
                             )}

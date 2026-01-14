@@ -1489,8 +1489,9 @@ function PersonDetailModal({
                   <View className="flex-row items-center">
                     <Briefcase size={20} color="#f59e0b" />
                     <View className="ml-3 flex-1">
-                      <Text className="text-white/60 text-xs mb-1">Daily Rate</Text>
-                      <Text className="text-white font-semibold">£{person.costPerDay}/day</Text>
+                      <Text className="text-white/60 text-xs mb-1">Cost per □</Text>
+                      <Text className="text-emerald-400 font-bold text-lg">£{Math.round(person.costPerDay / 2)}</Text>
+                      <Text className="text-white/40 text-xs">£{person.costPerDay}/day (2□)</Text>
                     </View>
                   </View>
                 </View>

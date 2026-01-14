@@ -223,7 +223,7 @@ export default function OrgDiagramScreen() {
                               </View>
                               <View className="flex-row items-center">
                                 <Text className="text-gray-600 dark:text-slate-400 text-xs mr-2">
-                                  £{((exec.costPerDay || 0) * 22 / 1000).toFixed(1)}K/mo
+                                  £{Math.round((exec.costPerDay || 0) / 2)}/□
                                 </Text>
                                 <Briefcase size={14} color="#8b5cf6" />
                               </View>
@@ -260,7 +260,7 @@ export default function OrgDiagramScreen() {
                               </View>
                               <View className="flex-row items-center">
                                 <Text className="text-gray-600 dark:text-slate-400 text-xs mr-2">
-                                  £{((app.costPerDay || 0) * 22 / 1000).toFixed(1)}K/mo
+                                  £{Math.round((app.costPerDay || 0) / 2)}/□
                                 </Text>
                                 <Award size={14} color="#10b981" />
                               </View>
@@ -439,13 +439,19 @@ export default function OrgDiagramScreen() {
                     <View className="bg-gray-100 dark:bg-slate-900 rounded-xl p-4 mb-4">
                       <Text className="text-gray-900 dark:text-white font-semibold mb-3">Cost</Text>
                       <View className="flex-row items-center justify-between">
-                        <Text className="text-gray-600 dark:text-slate-400 text-sm">Daily Rate</Text>
+                        <Text className="text-gray-600 dark:text-slate-400 text-sm">Cost per □</Text>
+                        <Text className="text-emerald-500 font-bold text-xl">
+                          £{Math.round((selectedMember.costPerDay || 0) / 2)}
+                        </Text>
+                      </View>
+                      <View className="flex-row items-center justify-between mt-2">
+                        <Text className="text-gray-600 dark:text-slate-400 text-sm">Daily Rate (2□)</Text>
                         <Text className="text-gray-900 dark:text-white font-bold text-lg">
                           £{selectedMember.costPerDay || 0}
                         </Text>
                       </View>
                       <View className="flex-row items-center justify-between mt-2">
-                        <Text className="text-gray-600 dark:text-slate-400 text-sm">Monthly (22 days)</Text>
+                        <Text className="text-gray-600 dark:text-slate-400 text-sm">Monthly (44□)</Text>
                         <Text className="text-gray-900 dark:text-white font-bold text-lg">
                           £{((selectedMember.costPerDay || 0) * 22 / 1000).toFixed(1)}K
                         </Text>
