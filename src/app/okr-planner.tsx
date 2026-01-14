@@ -1,22 +1,18 @@
-import { View, Text, ScrollView, Pressable, TextInput, Modal, Alert } from 'react-native';
+import { View, Text, ScrollView, Pressable, TextInput, Alert } from 'react-native';
 import { useState, useEffect, useMemo } from 'react';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   Target,
   Users,
-  Zap,
-  TrendingUp,
   AlertTriangle,
   DollarSign,
   Clock,
-  BarChart3,
   Sparkles,
-  X,
   Plus,
   Minus,
-  ChevronRight,
   ArrowLeft,
+  TrendingUp,
 } from 'lucide-react-native';
 
 // Stores and data
@@ -28,9 +24,8 @@ import { useCurrentWorkspace } from '@/lib/state/app-store';
 
 // OKR Planner logic
 import { computeForecast } from '@/lib/okr/forecast-engine';
-import { getTopRecommendations, getEfficientFrontier } from '@/lib/okr/recommendation-engine';
-import { detectBottlenecks, getPrimaryBottleneck } from '@/lib/okr/bottleneck-detector';
-import { PLAN_ARCHETYPES, getPresetById } from '@/lib/okr/plan-library';
+import { getTopRecommendations } from '@/lib/okr/recommendation-engine';
+import { detectBottlenecks } from '@/lib/okr/bottleneck-detector';
 import type { OKRPlan, RecommendedPlan, ForecastMetrics, PlanPreset, MemberAllocation } from '@/lib/okr/planner-types';
 
 export default function OKRPlannerScreen() {

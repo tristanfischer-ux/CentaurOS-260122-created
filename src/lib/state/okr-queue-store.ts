@@ -130,7 +130,7 @@ export const useQueueStore = create<QueueState>((set, get) => ({
   addToQueue: (itemData) => {
     const newItem: QueueItem = {
       ...itemData,
-      id: `queue-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      id: `queue-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`,
       addedAt: new Date().toISOString(),
     };
 

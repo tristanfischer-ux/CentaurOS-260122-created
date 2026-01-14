@@ -1,17 +1,12 @@
 import { View, Text, ScrollView, Pressable } from 'react-native';
-import { useState, useEffect, useMemo } from 'react';
+import { useMemo } from 'react';
 import { useRouter, Stack } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   ArrowLeft,
-  Users,
   AlertTriangle,
-  TrendingUp,
-  Clock,
-  Zap,
   Target,
   Activity,
-  ChevronRight,
 } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 

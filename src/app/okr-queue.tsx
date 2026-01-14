@@ -15,7 +15,6 @@ import {
   GripVertical,
   Layers,
   Target,
-  TrendingUp,
 } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 
@@ -59,7 +58,7 @@ export default function BuildQueueScreen() {
   }, []);
 
   // Get summary
-  const summary = useMemo(() => getQueueSummary(workspaceId), [queueItems, workspaceId]);
+  const summary = useMemo(() => getQueueSummary(workspaceId), [getQueueSummary, queueItems, workspaceId]);
   const runway = getRunway(workspaceId);
   const cashBalance = getCashBalance(workspaceId);
 
@@ -201,7 +200,7 @@ export default function BuildQueueScreen() {
 
       <ScrollView className="flex-1 px-5 py-4" contentContainerStyle={{ paddingBottom: insets.bottom + 80 }}>
         {/* Runway Warning */}
-        {summary.totalEtaWeeks > runway * 0.5 && (
+        {runway > 0 && summary.totalEtaWeeks > runway * 0.5 && (
           <View className="bg-amber-900/30 border border-amber-500/50 rounded-xl p-4 mb-4">
             <View className="flex-row items-center gap-2 mb-2">
               <AlertTriangle size={18} color="#f59e0b" />
