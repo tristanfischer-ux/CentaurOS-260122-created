@@ -294,20 +294,12 @@ export default function DecideScreen() {
               OKRs requiring decisions and pending approvals
             </Text>
           </View>
-          <View className="flex-row gap-2">
-            <Pressable
-              onPress={() => setShowIdeasModal(true)}
-              className="bg-violet-500 rounded-xl p-2 active:opacity-70"
-            >
-              <Lightbulb size={24} color="#fff" />
-            </Pressable>
-            <Pressable
-              onPress={() => setShowCreateModal(true)}
-              className="bg-blue-500 rounded-xl p-2 active:opacity-70"
-            >
-              <Plus size={24} color="#fff" />
-            </Pressable>
-          </View>
+          <Pressable
+            onPress={() => setShowIdeasModal(true)}
+            className="bg-violet-500 rounded-xl p-3 active:opacity-70"
+          >
+            <Lightbulb size={24} color="#fff" />
+          </Pressable>
         </View>
 
         {/* Summary Stats */}
