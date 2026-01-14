@@ -54,8 +54,63 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
 
 ## 🚨 PRODUCTION READINESS STATUS
 
-**Last Updated**: 2026-01-14 (**ELITE AUDIT** - Comprehensive code review + Profile screen + UX fixes + RBAC for Apprentice view + Theme conformity fixes)
+**Last Updated**: 2026-01-14 (**DO & EVALUATE TABS ENHANCED** - Priority sorting + Role-based workflows + Task management improvements)
 **Status**: ✅ **READY FOR APP STORE** - All features complete!
+
+---
+
+## 🎯 DO & EVALUATE TAB ENHANCEMENTS
+
+**Latest Update**: 2026-01-14
+
+### Do Tab - Priority-Driven Execution
+
+The Do tab now features intelligent priority sorting to help users focus on what matters most:
+
+**For Apprentices:**
+- OKRs are sorted by highest priority task they contain
+- Tasks within each OKR are sorted by priority (Critical → High → Medium → Low)
+- Critical and high-priority tasks appear at the top for immediate attention
+- Grouped view shows how individual tasks contribute to larger objectives
+
+**For Executives:**
+- OKRs displayed in priority order based on most urgent tasks
+- Tasks nested under OKRs, sorted by priority and due date
+- Clear visibility into team execution priorities
+- Quick access to blocked or at-risk work
+
+**Priority Calculation:**
+- **Critical**: Blocked tasks, due within 2 days, or OKR is off-track
+- **High**: Due within 7 days or OKR is at-risk
+- **Medium**: Due within 14 days
+- **Low**: Due after 14 days
+
+### Evaluate Tab - Enhanced Review Workflow
+
+The Evaluate tab now distinguishes between different types of work:
+
+**Executive's Own Tasks:**
+- Tasks directly assigned to the executive
+- Can self-approve completion
+- Focus on execution, not approval workflow
+
+**Apprentice Oversight:**
+- Tasks assigned to apprentices that require review
+- Apprentices submit work for approval
+- Executive provides feedback and quality scores
+- Tracks performance metrics and trends
+
+**Priority Sorting:**
+- All tasks and OKRs sorted by priority score (highest first)
+- Secondary sort by due date (soonest first)
+- Critical items appear at the top of all views
+- Ensures executives focus on highest-impact reviews first
+
+**Key Benefits:**
+- Clear separation of execution vs oversight responsibilities
+- Reduced cognitive load with priority-based organization
+- Faster decision-making with most important items first
+- Better team velocity through focused attention
 
 ---
 

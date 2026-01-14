@@ -427,9 +427,25 @@ export default function EvaluateScreen() {
       }
     }
 
-    // Sort by priority
-    return filtered.sort((a, b) => b.priorityScore - a.priorityScore);
+    // Sort by priority first, then by due date
+    return filtered.sort((a, b) => {
+      // Priority sort (critical → high → medium → low)
+      const priorityDiff = b.priorityScore - a.priorityScore;
+      if (priorityDiff !== 0) return priorityDiff;
+
+      // Then by due date (soonest first)
+      return a.daysUntilDue - b.daysUntilDue;
+    });
   }, [enrichedWorkPlans, selectedFunction, isExecutive, isFounder, currentUser, members]);
+
+  // Separate executive's own tasks from tasks they're overseeing
+  const execOwnTasks = filteredWorkPlans.filter(wp =>
+    wp.assignedTo.includes(currentUser?.name || '') && !wp.submissions.some(s => s.status === 'pending')
+  );
+
+  const execOverseeingTasks = filteredWorkPlans.filter(wp =>
+    wp.submissions.some(s => s.status === 'pending')
+  );
 
   // Work plans with pending submissions
   const pendingWorkPlans = filteredWorkPlans.filter(wp =>

@@ -298,19 +298,27 @@ export default function DoScreen() {
   const tasksByOKR = useMemo(() => {
     if (!isApprentice) return [];
 
-    const grouped = new Map<string, { okr: OKR; tasks: PrioritizedPlan[] }>();
+    const grouped = new Map<string, { okr: OKR; tasks: PrioritizedPlan[]; highestPriority: number }>();
 
     filteredPlans.forEach(task => {
       const okr = okrs.find(o => o.title === task.linkedOKRTitle);
       if (okr) {
         if (!grouped.has(okr.id)) {
-          grouped.set(okr.id, { okr, tasks: [] });
+          grouped.set(okr.id, { okr, tasks: [], highestPriority: 4 }); // 4 = lowest priority (low)
         }
-        grouped.get(okr.id)!.tasks.push(task);
+        const group = grouped.get(okr.id)!;
+        group.tasks.push(task);
+
+        // Track highest priority (lowest number = highest priority)
+        const priorityValue = { critical: 0, high: 1, medium: 2, low: 3 }[task.priority];
+        if (priorityValue < group.highestPriority) {
+          group.highestPriority = priorityValue;
+        }
       }
     });
 
-    return Array.from(grouped.values());
+    // Sort OKRs by highest priority task they contain
+    return Array.from(grouped.values()).sort((a, b) => a.highestPriority - b.highestPriority);
   }, [isApprentice, filteredPlans, okrs]);
 
   // Group OKRs with tasks for Executives
@@ -320,7 +328,7 @@ export default function DoScreen() {
     const execFunction = (currentMembership?.function || 'Marketing') as BusinessFunction;
     const myOKRs = okrs.filter(okr => okr.function === execFunction);
 
-    return myOKRs.map(okr => {
+    const okrsWithTasksAndPriority = myOKRs.map(okr => {
       const tasks = myWorkPlans
         .filter(plan => plan.linkedOKRTitle === okr.title && plan.status !== 'completed')
         .map(enrichWorkPlan)
@@ -330,8 +338,17 @@ export default function DoScreen() {
           if (priorityDiff !== 0) return priorityDiff;
           return a.daysUntilDue - b.daysUntilDue;
         });
-      return { okr, tasks };
+
+      // Calculate highest priority for this OKR based on its tasks
+      const highestPriority = tasks.length > 0
+        ? { critical: 0, high: 1, medium: 2, low: 3 }[tasks[0].priority]
+        : 4; // No tasks = lowest priority
+
+      return { okr, tasks, highestPriority };
     });
+
+    // Sort OKRs by highest priority task they contain
+    return okrsWithTasksAndPriority.sort((a, b) => a.highestPriority - b.highestPriority);
   }, [isExecutive, currentMembership?.function, okrs, myWorkPlans]);
 
   // Render compact task card (for OKR-grouped view)
