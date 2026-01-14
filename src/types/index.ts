@@ -14,6 +14,18 @@ export type EngagementStatus = 'active' | 'paused' | 'ended';
 export type Availability = '1-day' | '2-day' | '3-day' | 'full-time' | 'part-time';
 export type SkillLevel = 'beginner' | 'intermediate' | 'advanced' | 'expert';
 
+// OKR Planner types
+export type PlanConfidence = 'high' | 'medium' | 'low';
+export type PlanArchetype =
+  | 'Speed Run'
+  | 'Lean Baseline'
+  | 'Expert Burst'
+  | 'Two-Track'
+  | 'Manufacturing Loop'
+  | 'Quality Shield'
+  | 'Revenue Strike'
+  | 'Overhead Reset';
+
 // Manufacturing capabilities
 export type ManufacturingCapability =
   | 'Additive Manufacturing - Plastic'
