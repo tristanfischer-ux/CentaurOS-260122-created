@@ -13,6 +13,8 @@ import type { ThemeMode } from '@/types';
 import { resetOnboarding } from '@/lib/onboarding';
 import Animated, { FadeInDown, FadeInUp, useAnimatedStyle, withSpring, useSharedValue, withTiming } from 'react-native-reanimated';
 import { useTheme } from '@/lib/ThemeContext';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { LinearGradient } from 'expo-linear-gradient';
 
 // ============================================================================
 // OPERATIONS CONSULTANT METHODOLOGY
@@ -64,6 +66,7 @@ const CATEGORY_ICONS = {
 };
 
 export default function SettingsScreen() {
+  const insets = useSafeAreaInsets();
   const currentUser = useCurrentUser();
   const currentMembership = useCurrentMembership();
   const logout = useAppStore((s) => s.logout);
@@ -510,23 +513,41 @@ export default function SettingsScreen() {
   // ===========================================================================
   return (
     <View className={`flex-1 ${bgPrimary}`}>
-      <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
-        {/* Header with Operational Health */}
-        <View className="px-5 pt-14 pb-4">
-          <View className="flex-row items-center justify-between mb-4">
-            <View>
-              <Text className={`text-2xl font-bold ${textPrimary}`}>Command Center</Text>
-              <Text className={`text-sm ${textSecondary}`}>Operations & Configuration</Text>
-            </View>
-            <View className={`rounded-xl px-3 py-2 border ${bgCardAlt} ${borderColorAlt}`}>
-              <Text className={`text-xs ${textMuted}`}>Role</Text>
-              <Text className={`font-semibold text-sm ${textPrimary}`}>
-                {userRole === 'FractionalExec' ? 'Executive' : userRole}
-              </Text>
-            </View>
+      {/* Header - Matching Home Tab Style */}
+      <LinearGradient
+        colors={['#64748b', '#475569']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 0 }}
+        style={{ paddingHorizontal: 24, paddingTop: insets.top + 16, paddingBottom: 16 }}
+      >
+        <View className="flex-row items-center justify-between mb-3">
+          <View className="flex-1">
+            <Text className="text-white/70 text-xs font-medium">OPERATIONS & CONFIG</Text>
+            <Text className="text-white text-xl font-bold">Settings</Text>
           </View>
+          <Pressable
+            onPress={handleLogout}
+            className="bg-white/20 px-3 py-2 rounded-xl active:opacity-70"
+          >
+            <LogOut size={20} color="#fff" />
+          </Pressable>
+        </View>
+        {/* Quick Health Indicators */}
+        <View className="flex-row gap-4">
+          <View className="flex-row items-center">
+            <View className={`w-2 h-2 rounded-full mr-1.5 ${completionMetrics.percentage >= 80 ? 'bg-emerald-400' : completionMetrics.percentage >= 50 ? 'bg-amber-400' : 'bg-red-400'}`} />
+            <Text className="text-white/90 text-xs">{completionMetrics.percentage}% setup complete</Text>
+          </View>
+          <View className="flex-row items-center">
+            <View className="w-2 h-2 rounded-full mr-1.5 bg-white" />
+            <Text className="text-white/90 text-xs">{userRole === 'FractionalExec' ? 'Executive' : userRole}</Text>
+          </View>
+        </View>
+      </LinearGradient>
 
-          {/* User Card */}
+      <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
+        {/* User Card */}
+        <View className="px-5 pt-4">
           <View className={`rounded-2xl p-4 border ${bgCard} ${borderColor}`}>
             <View className="flex-row items-center">
               <View className="w-14 h-14 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 items-center justify-center">
@@ -536,12 +557,12 @@ export default function SettingsScreen() {
                 <Text className={`text-lg font-bold ${textPrimary}`}>{currentUser?.name}</Text>
                 <Text className={`text-sm ${textSecondary}`}>{currentUser?.email}</Text>
               </View>
-              <Pressable
-                onPress={handleLogout}
-                className="bg-red-500/10 border border-red-500/30 rounded-xl p-3 active:opacity-70"
-              >
-                <LogOut size={20} color="#ef4444" />
-              </Pressable>
+              <View className={`rounded-xl px-3 py-2 border ${bgCardAlt} ${borderColorAlt}`}>
+                <Text className={`text-xs ${textMuted}`}>Role</Text>
+                <Text className={`font-semibold text-sm ${textPrimary}`}>
+                  {userRole === 'FractionalExec' ? 'Executive' : userRole}
+                </Text>
+              </View>
             </View>
 
             {/* Operational Metrics Bar */}
@@ -574,7 +595,7 @@ export default function SettingsScreen() {
 
         {/* Setup Checklist Section */}
         {(groupedSteps.critical.length > 0 || groupedSteps.high.length > 0 || groupedSteps.medium.length > 0) && (
-          <Animated.View entering={FadeInDown.delay(100)} className="px-5 mb-4">
+          <Animated.View entering={FadeInDown.delay(100)} className="px-5 mt-4 mb-4">
             <Pressable
               onPress={() => toggleSection('checklist')}
               className="flex-row items-center justify-between mb-3"

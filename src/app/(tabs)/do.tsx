@@ -484,25 +484,41 @@ export default function DoScreen() {
     const criticalCount = filteredPlans.filter(p => p.priority === 'critical').length;
 
     return (
-      <View className="flex-1 bg-gray-50 dark:bg-slate-950" style={{ paddingTop: insets.top }}>
-        {/* Clean Header - Matching Decide/Evaluate */}
-        <View className="px-5 pt-4 pb-3 bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-800">
+      <View className="flex-1 bg-gray-50 dark:bg-slate-950">
+        {/* Header - Matching Home Tab Style */}
+        <LinearGradient
+          colors={['#10b981', '#059669']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 0 }}
+          style={{ paddingHorizontal: 24, paddingTop: insets.top + 16, paddingBottom: 16 }}
+        >
           <View className="flex-row items-center justify-between mb-3">
-            <View>
-              <Text className="text-gray-900 dark:text-white text-2xl font-bold">Do</Text>
-              <Text className="text-gray-500 dark:text-slate-400 text-sm">
-                Execute your assigned tasks
-              </Text>
+            <View className="flex-1">
+              <Text className="text-white/70 text-xs font-medium">TASK EXECUTION</Text>
+              <Text className="text-white text-xl font-bold">Do</Text>
             </View>
             {blockedCount > 0 && (
-              <View className="bg-red-500 px-3 py-1.5 rounded-full flex-row items-center">
-                <AlertTriangle size={14} color="#fff" />
-                <Text className="text-white font-bold text-sm ml-1">{blockedCount}</Text>
+              <View className="bg-white/20 px-3 py-2 rounded-xl">
+                <Text className="text-white/80 text-xs font-medium">BLOCKED</Text>
+                <Text className="text-white text-lg font-bold">{blockedCount}</Text>
               </View>
             )}
           </View>
+          {/* Quick Health Indicators */}
+          <View className="flex-row gap-4">
+            <View className="flex-row items-center">
+              <View className="w-2 h-2 rounded-full mr-1.5 bg-emerald-300" />
+              <Text className="text-white/90 text-xs">{filteredPlans.length} active tasks</Text>
+            </View>
+            <View className="flex-row items-center">
+              <View className="w-2 h-2 rounded-full mr-1.5 bg-white" />
+              <Text className="text-white/90 text-xs">{velocity.avgProgress}% avg progress</Text>
+            </View>
+          </View>
+        </LinearGradient>
 
-          {/* View Tabs - Matching Evaluate Style */}
+        {/* View Tabs - Below Header */}
+        <View className="px-5 py-3 bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-800">
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
@@ -517,7 +533,7 @@ export default function DoScreen() {
                 key={tab.value}
                 onPress={() => setViewMode(tab.value as ViewMode)}
                 className={`flex-row items-center px-4 py-2 rounded-full ${
-                  viewMode === tab.value ? 'bg-blue-500' : 'bg-gray-100 dark:bg-slate-800'
+                  viewMode === tab.value ? 'bg-emerald-500' : 'bg-gray-100 dark:bg-slate-800'
                 } active:opacity-70`}
               >
                 <tab.icon size={16} color={viewMode === tab.value ? '#fff' : tab.value === 'blocked' ? '#ef4444' : '#64748b'} />
@@ -540,24 +556,6 @@ export default function DoScreen() {
               </Pressable>
             ))}
           </ScrollView>
-        </View>
-
-        {/* Stats Summary Bar */}
-        <View className="px-5 py-3 bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-800">
-          <View className="flex-row gap-3">
-            <View className="flex-1 bg-gray-100 dark:bg-slate-800 rounded-xl p-3 items-center">
-              <Text className="text-gray-500 dark:text-slate-400 text-xs">Active</Text>
-              <Text className="text-gray-900 dark:text-white text-xl font-bold">{filteredPlans.length}</Text>
-            </View>
-            <View className="flex-1 bg-emerald-100 dark:bg-emerald-900/20 rounded-xl p-3 items-center">
-              <Text className="text-emerald-600 dark:text-emerald-400 text-xs">Completed</Text>
-              <Text className="text-emerald-700 dark:text-emerald-300 text-xl font-bold">{velocity.completed}</Text>
-            </View>
-            <View className="flex-1 bg-blue-100 dark:bg-blue-900/20 rounded-xl p-3 items-center">
-              <Text className="text-blue-600 dark:text-blue-400 text-xs">Avg Progress</Text>
-              <Text className="text-blue-700 dark:text-blue-300 text-xl font-bold">{velocity.avgProgress}%</Text>
-            </View>
-          </View>
         </View>
 
         {/* Time Filter Pills */}
@@ -891,43 +889,45 @@ export default function DoScreen() {
     const criticalPlans = allPlans.map(enrichWorkPlan).filter(p => p.priority === 'critical' && p.status !== 'completed');
 
     return (
-      <View className="flex-1 bg-gray-50 dark:bg-slate-950" style={{ paddingTop: insets.top }}>
-        {/* Clean Header - Matching Decide/Evaluate */}
-        <View className="px-5 pt-4 pb-3 bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-800">
+      <View className="flex-1 bg-gray-50 dark:bg-slate-950">
+        {/* Header - Matching Home Tab Style */}
+        <LinearGradient
+          colors={['#8b5cf6', '#6366f1']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 0 }}
+          style={{ paddingHorizontal: 24, paddingTop: insets.top + 16, paddingBottom: 16 }}
+        >
           <View className="flex-row items-center justify-between mb-3">
-            <View>
-              <Text className="text-gray-900 dark:text-white text-2xl font-bold">Do</Text>
-              <Text className="text-gray-500 dark:text-slate-400 text-sm">
-                Execution overview across all functions
-              </Text>
+            <View className="flex-1">
+              <Text className="text-white/70 text-xs font-medium">EXECUTION OVERVIEW</Text>
+              <Text className="text-white text-xl font-bold">Do</Text>
             </View>
             {blockedCount > 0 && (
-              <View className="bg-red-500 px-3 py-1.5 rounded-full flex-row items-center">
-                <AlertTriangle size={14} color="#fff" />
-                <Text className="text-white font-bold text-sm ml-1">{blockedCount} blocked</Text>
+              <View className="bg-white/20 px-3 py-2 rounded-xl">
+                <Text className="text-white/80 text-xs font-medium">BLOCKED</Text>
+                <Text className="text-white text-lg font-bold">{blockedCount}</Text>
               </View>
             )}
           </View>
-
-          {/* Stats Row */}
-          <View className="flex-row gap-3">
-            <View className="flex-1 bg-gray-100 dark:bg-slate-800 rounded-xl p-3 items-center">
-              <Text className="text-gray-500 dark:text-slate-400 text-xs">Active</Text>
-              <Text className="text-gray-900 dark:text-white text-xl font-bold">{velocity.total - velocity.completed}</Text>
+          {/* Quick Health Indicators */}
+          <View className="flex-row gap-4">
+            <View className="flex-row items-center">
+              <View className="w-2 h-2 rounded-full mr-1.5 bg-violet-300" />
+              <Text className="text-white/90 text-xs">{velocity.total - velocity.completed} active</Text>
             </View>
-            <View className="flex-1 bg-emerald-100 dark:bg-emerald-900/20 rounded-xl p-3 items-center">
-              <Text className="text-emerald-600 dark:text-emerald-400 text-xs">Completed</Text>
-              <Text className="text-emerald-700 dark:text-emerald-300 text-xl font-bold">{velocity.completed}</Text>
+            <View className="flex-row items-center">
+              <View className="w-2 h-2 rounded-full mr-1.5 bg-emerald-400" />
+              <Text className="text-white/90 text-xs">{velocity.completed} completed</Text>
             </View>
-            <View className="flex-1 bg-blue-100 dark:bg-blue-900/20 rounded-xl p-3 items-center">
-              <Text className="text-blue-600 dark:text-blue-400 text-xs">Avg Progress</Text>
-              <Text className="text-blue-700 dark:text-blue-300 text-xl font-bold">{velocity.avgProgress}%</Text>
+            <View className="flex-row items-center">
+              <View className="w-2 h-2 rounded-full mr-1.5 bg-white" />
+              <Text className="text-white/90 text-xs">{velocity.avgProgress}% avg</Text>
             </View>
           </View>
-        </View>
+        </LinearGradient>
 
-        {/* Function Filter */}
-        <View className="px-5 py-3 bg-white dark:bg-slate-900">
+        {/* Function Filter - Below Header */}
+        <View className="px-5 py-3 bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-800">
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}>
             <Pressable
               onPress={() => setSelectedFunction('all')}
@@ -1049,49 +1049,45 @@ export default function DoScreen() {
     const functionColor = getFunctionColor(execFunction);
 
     return (
-      <View className="flex-1 bg-gray-50 dark:bg-slate-950" style={{ paddingTop: insets.top }}>
-        {/* Clean Header - Matching Decide/Evaluate */}
-        <View className="px-5 pt-4 pb-3 bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-800">
+      <View className="flex-1 bg-gray-50 dark:bg-slate-950">
+        {/* Header - Matching Home Tab Style */}
+        <LinearGradient
+          colors={['#3b82f6', '#2563eb']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 0 }}
+          style={{ paddingHorizontal: 24, paddingTop: insets.top + 16, paddingBottom: 16 }}
+        >
           <View className="flex-row items-center justify-between mb-3">
-            <View>
-              <Text className="text-gray-900 dark:text-white text-2xl font-bold">Do</Text>
-              <Text className="text-gray-500 dark:text-slate-400 text-sm">
-                {execFunction} execution & oversight
-              </Text>
+            <View className="flex-1">
+              <Text className="text-white/70 text-xs font-medium">{execFunction.toUpperCase()} EXECUTION</Text>
+              <Text className="text-white text-xl font-bold">Do</Text>
             </View>
-            <View className="flex-row items-center gap-2">
-              {blockedCount > 0 && (
-                <View className="bg-red-500 px-3 py-1.5 rounded-full flex-row items-center">
-                  <AlertTriangle size={14} color="#fff" />
-                  <Text className="text-white font-bold text-sm ml-1">{blockedCount}</Text>
-                </View>
-              )}
-              <View
-                className="px-3 py-1.5 rounded-full"
-                style={{ backgroundColor: functionColor + '20' }}
-              >
-                <Text className="text-xs font-bold" style={{ color: functionColor }}>{execFunction}</Text>
+            {blockedCount > 0 && (
+              <View className="bg-white/20 px-3 py-2 rounded-xl">
+                <Text className="text-white/80 text-xs font-medium">BLOCKED</Text>
+                <Text className="text-white text-lg font-bold">{blockedCount}</Text>
               </View>
+            )}
+          </View>
+          {/* Quick Health Indicators */}
+          <View className="flex-row gap-4">
+            <View className="flex-row items-center">
+              <View className="w-2 h-2 rounded-full mr-1.5 bg-blue-300" />
+              <Text className="text-white/90 text-xs">{velocity.total - velocity.completed} active</Text>
+            </View>
+            <View className="flex-row items-center">
+              <View className="w-2 h-2 rounded-full mr-1.5 bg-emerald-400" />
+              <Text className="text-white/90 text-xs">{velocity.completed} completed</Text>
+            </View>
+            <View className="flex-row items-center">
+              <View className="w-2 h-2 rounded-full mr-1.5 bg-white" />
+              <Text className="text-white/90 text-xs">{velocity.avgProgress}% avg</Text>
             </View>
           </View>
+        </LinearGradient>
 
-          {/* Stats Row */}
-          <View className="flex-row gap-3 mb-3">
-            <View className="flex-1 bg-gray-100 dark:bg-slate-800 rounded-xl p-3 items-center">
-              <Text className="text-gray-500 dark:text-slate-400 text-xs">Active</Text>
-              <Text className="text-gray-900 dark:text-white text-xl font-bold">{velocity.total - velocity.completed}</Text>
-            </View>
-            <View className="flex-1 bg-emerald-100 dark:bg-emerald-900/20 rounded-xl p-3 items-center">
-              <Text className="text-emerald-600 dark:text-emerald-400 text-xs">Completed</Text>
-              <Text className="text-emerald-700 dark:text-emerald-300 text-xl font-bold">{velocity.completed}</Text>
-            </View>
-            <View className="flex-1 bg-blue-100 dark:bg-blue-900/20 rounded-xl p-3 items-center">
-              <Text className="text-blue-600 dark:text-blue-400 text-xs">Avg Progress</Text>
-              <Text className="text-blue-700 dark:text-blue-300 text-xl font-bold">{velocity.avgProgress}%</Text>
-            </View>
-          </View>
-
-          {/* View Tabs - Matching Evaluate Style */}
+        {/* View Tabs - Below Header */}
+        <View className="px-5 py-3 bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-800">
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}

@@ -40,6 +40,7 @@ import {
 } from 'lucide-react-native';
 import { useCurrentWorkspace, useCurrentMembership, useCurrentUser } from '@/lib/state/app-store';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { LinearGradient } from 'expo-linear-gradient';
 import type { Function as BusinessFunction } from '@/types';
 import { useWorkPlanStore, type WorkPlan } from '@/lib/state/work-plan-store';
 import { useOrganizationStore } from '@/lib/state/organization-store';
@@ -534,25 +535,41 @@ export default function EvaluateScreen() {
   };
 
   return (
-    <View className="flex-1 bg-gray-50 dark:bg-slate-950" style={{ paddingTop: insets.top }}>
-      {/* Header */}
-      <View className="px-5 pt-4 pb-3 bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-800">
+    <View className="flex-1 bg-gray-50 dark:bg-slate-950">
+      {/* Header - Matching Home Tab Style */}
+      <LinearGradient
+        colors={['#3b82f6', '#2563eb']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 0 }}
+        style={{ paddingHorizontal: 24, paddingTop: insets.top + 16, paddingBottom: 16 }}
+      >
         <View className="flex-row items-center justify-between mb-3">
-          <View>
-            <Text className="text-gray-900 dark:text-white text-2xl font-bold">Evaluate</Text>
-            <Text className="text-gray-500 dark:text-slate-400 text-sm">
-              Performance insights & decisions
-            </Text>
+          <View className="flex-1">
+            <Text className="text-white/70 text-xs font-medium">PERFORMANCE INSIGHTS</Text>
+            <Text className="text-white text-xl font-bold">Evaluate</Text>
           </View>
           {stats.criticalCount > 0 && (
-            <View className="bg-red-500 px-3 py-1.5 rounded-full flex-row items-center">
-              <AlertCircle size={14} color="#fff" />
-              <Text className="text-white font-bold text-sm ml-1">{stats.criticalCount}</Text>
+            <View className="bg-white/20 px-3 py-2 rounded-xl">
+              <Text className="text-white/80 text-xs font-medium">CRITICAL</Text>
+              <Text className="text-white text-lg font-bold">{stats.criticalCount}</Text>
             </View>
           )}
         </View>
+        {/* Quick Health Indicators */}
+        <View className="flex-row gap-4">
+          <View className="flex-row items-center">
+            <View className={`w-2 h-2 rounded-full mr-1.5 ${stats.pending > 0 ? 'bg-amber-400' : 'bg-emerald-400'}`} />
+            <Text className="text-white/90 text-xs">{stats.pending} pending reviews</Text>
+          </View>
+          <View className="flex-row items-center">
+            <View className="w-2 h-2 rounded-full mr-1.5 bg-emerald-400" />
+            <Text className="text-white/90 text-xs">{stats.avgQuality}% avg quality</Text>
+          </View>
+        </View>
+      </LinearGradient>
 
-        {/* View Tabs */}
+      {/* View Tabs - Below Header */}
+      <View className="px-5 py-3 bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-800">
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}

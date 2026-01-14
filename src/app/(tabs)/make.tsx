@@ -90,49 +90,43 @@ export default function MakeScreen() {
   ];
 
   return (
-    <View className="flex-1 bg-white dark:bg-slate-950" style={{ paddingTop: insets.top }}>
-      {/* Header */}
-      <View className="px-6 py-4 border-b border-gray-300 dark:border-slate-800">
+    <View className="flex-1 bg-white dark:bg-slate-950">
+      {/* Header - Matching Home Tab Style */}
+      <LinearGradient
+        colors={['#10b981', '#059669']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 0 }}
+        style={{ paddingHorizontal: 24, paddingTop: insets.top + 16, paddingBottom: 16 }}
+      >
         <View className="flex-row items-center justify-between mb-3">
           <View className="flex-1">
-            <Text className="text-gray-900 dark:text-white text-2xl font-bold">Make</Text>
-            <Text className="text-gray-600 dark:text-slate-400 text-sm mt-0.5">
-              Currently used AI tools and active supplier engagements
-            </Text>
+            <Text className="text-white/70 text-xs font-medium">OPERATIONS CENTER</Text>
+            <Text className="text-white text-xl font-bold">Make</Text>
           </View>
-        </View>
-
-        {/* Summary Stats - Now Clickable */}
-        <View className="flex-row gap-3 mb-3">
-          <Pressable
-            onPress={() => setActiveTab('suppliers')}
-            className="flex-1 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl p-3 border border-emerald-200 dark:border-emerald-800 active:opacity-70"
-          >
-            <Text className="text-emerald-700 dark:text-emerald-300 text-xs font-semibold mb-1">SUPPLIERS</Text>
-            <Text className="text-emerald-900 dark:text-emerald-100 text-2xl font-bold">
-              £{(supplierSpend.total / 1000).toFixed(0)}k
-            </Text>
-            <Text className="text-emerald-600 dark:text-emerald-400 text-xs mt-0.5">
-              £{(supplierSpend.paid / 1000).toFixed(0)}k paid
-            </Text>
-          </Pressable>
-
           <Pressable
             onPress={() => setActiveTab('ai')}
-            className="flex-1 bg-purple-50 dark:bg-purple-900/20 rounded-xl p-3 border border-purple-200 dark:border-purple-800 active:opacity-70"
+            className="bg-white/20 px-3 py-2 rounded-xl active:opacity-70"
           >
-            <Text className="text-purple-700 dark:text-purple-300 text-xs font-semibold mb-1">AI/MONTH</Text>
-            <Text className="text-purple-900 dark:text-purple-100 text-2xl font-bold">
-              £{aiSpend.toLocaleString()}
-            </Text>
-            <Text className="text-purple-600 dark:text-purple-400 text-xs mt-0.5">
-              {aiAgents.filter(a => a.status === 'active').length} active
-            </Text>
+            <Text className="text-white/80 text-xs font-medium">AI/MONTH</Text>
+            <Text className="text-white text-lg font-bold">£{aiSpend.toLocaleString()}</Text>
           </Pressable>
         </View>
+        {/* Quick Health Indicators */}
+        <View className="flex-row gap-4">
+          <View className="flex-row items-center">
+            <View className="w-2 h-2 rounded-full mr-1.5 bg-emerald-300" />
+            <Text className="text-white/90 text-xs">£{(supplierSpend.total / 1000).toFixed(0)}k contracted</Text>
+          </View>
+          <View className="flex-row items-center">
+            <View className="w-2 h-2 rounded-full mr-1.5 bg-white" />
+            <Text className="text-white/90 text-xs">{aiAgents.filter(a => a.status === 'active').length} AI tools active</Text>
+          </View>
+        </View>
+      </LinearGradient>
 
-        {/* Tab Selector */}
-        <View className="flex-row bg-gray-100 dark:bg-slate-900 rounded-xl p-1 border border-gray-300 dark:border-slate-800">
+      {/* Tab Selector - Below Header */}
+      <View className="px-5 py-3 bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-800">
+        <View className="flex-row bg-gray-100 dark:bg-slate-800 rounded-xl p-1">
           {tabs.map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.value;
@@ -140,17 +134,17 @@ export default function MakeScreen() {
               <Pressable
                 key={tab.value}
                 onPress={() => setActiveTab(tab.value)}
-                className={`flex-1 py-2 rounded-lg items-center active:opacity-70 ${
-                  isActive ? 'bg-purple-500' : ''
+                className={`flex-1 py-2.5 rounded-lg flex-row items-center justify-center active:opacity-70 ${
+                  isActive ? 'bg-emerald-500' : ''
                 }`}
               >
                 <Icon
-                  size={18}
+                  size={16}
                   color={isActive ? '#ffffff' : '#64748b'}
                   strokeWidth={2}
                 />
                 <Text
-                  className={`text-xs mt-1 font-medium ${
+                  className={`text-sm ml-2 font-semibold ${
                     isActive ? 'text-white' : 'text-gray-600 dark:text-slate-400'
                   }`}
                 >

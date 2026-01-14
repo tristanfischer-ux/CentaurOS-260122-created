@@ -4,6 +4,7 @@ import { Target, Plus, X, ChevronDown, ChevronRight, CheckCircle2, Circle, Clock
 import { useCurrentWorkspace, useCurrentMembership } from '@/lib/state/app-store';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import { LinearGradient } from 'expo-linear-gradient';
 import type { Function as BusinessFunction } from '@/types';
 import { useOKRStore, type OKR, type Objective } from '@/lib/state/okr-store';
 import { OKR_CATEGORIES, OKR_SUGGESTIONS, type OKRSuggestion, type OKRCategory } from '@/lib/okr-suggestions';
@@ -325,55 +326,54 @@ export default function DecideScreen() {
   };
 
   return (
-    <View className="flex-1 bg-white dark:bg-slate-950" style={{ paddingTop: insets.top }}>
-      {/* Compact Header */}
-      <View className="px-5 py-3 border-b border-gray-200 dark:border-slate-800">
-        <View className="flex-row items-center justify-between mb-2">
+    <View className="flex-1 bg-white dark:bg-slate-950">
+      {/* Header - Matching Home Tab Style */}
+      <LinearGradient
+        colors={['#8b5cf6', '#6366f1']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 0 }}
+        style={{ paddingHorizontal: 24, paddingTop: insets.top + 16, paddingBottom: 16 }}
+      >
+        <View className="flex-row items-center justify-between mb-3">
           <View className="flex-1">
-            <Text className="text-gray-900 dark:text-white text-xl font-bold">Decide</Text>
-            <Text className="text-gray-500 dark:text-slate-500 text-xs">
-              Strategic decisions & approvals
-            </Text>
+            <Text className="text-white/70 text-xs font-medium">STRATEGIC DECISIONS</Text>
+            <Text className="text-white text-xl font-bold">Decide</Text>
           </View>
-          {/* Quick Action Buttons */}
           <View className="flex-row gap-2">
             <Pressable
               onPress={() => setShowCreateModal(true)}
-              className="bg-purple-500 rounded-xl p-2.5 active:opacity-70"
+              className="bg-white/20 rounded-xl p-2.5 active:opacity-70"
             >
               <Plus size={20} color="#fff" />
             </Pressable>
             <Pressable
               onPress={() => setShowIdeasModal(true)}
-              className="bg-violet-100 dark:bg-violet-900/30 rounded-xl p-2.5 active:opacity-70"
+              className="bg-white/20 rounded-xl p-2.5 active:opacity-70"
             >
-              <Lightbulb size={20} color="#8b5cf6" />
+              <Lightbulb size={20} color="#fff" />
             </Pressable>
           </View>
         </View>
-
-        {/* Decision Summary Bar */}
-        {(decisionItems.totalCritical > 0 || decisionItems.totalWarning > 0) && (
-          <View className="flex-row gap-2">
-            {decisionItems.totalCritical > 0 && (
-              <View className="flex-row items-center bg-red-100 dark:bg-red-900/20 px-2.5 py-1.5 rounded-lg">
-                <AlertTriangle size={14} color="#ef4444" />
-                <Text className="text-red-700 dark:text-red-300 text-xs font-bold ml-1">
-                  {decisionItems.totalCritical} critical
-                </Text>
-              </View>
-            )}
-            {decisionItems.totalWarning > 0 && (
-              <View className="flex-row items-center bg-amber-100 dark:bg-amber-900/20 px-2.5 py-1.5 rounded-lg">
-                <AlertCircle size={14} color="#f59e0b" />
-                <Text className="text-amber-700 dark:text-amber-300 text-xs font-bold ml-1">
-                  {decisionItems.totalWarning} needs review
-                </Text>
-              </View>
-            )}
+        {/* Quick Health Indicators */}
+        <View className="flex-row gap-4">
+          {decisionItems.totalCritical > 0 && (
+            <View className="flex-row items-center">
+              <View className="w-2 h-2 rounded-full mr-1.5 bg-red-400" />
+              <Text className="text-white/90 text-xs">{decisionItems.totalCritical} critical</Text>
+            </View>
+          )}
+          {decisionItems.totalWarning > 0 && (
+            <View className="flex-row items-center">
+              <View className="w-2 h-2 rounded-full mr-1.5 bg-amber-400" />
+              <Text className="text-white/90 text-xs">{decisionItems.totalWarning} needs review</Text>
+            </View>
+          )}
+          <View className="flex-row items-center">
+            <View className="w-2 h-2 rounded-full mr-1.5 bg-emerald-400" />
+            <Text className="text-white/90 text-xs">{totalOKRs} OKRs tracked</Text>
           </View>
-        )}
-      </View>
+        </View>
+      </LinearGradient>
 
       <ScrollView className="flex-1 px-5 py-4">
         {/* SECTION 1: NEEDS YOUR DECISION (Critical) */}

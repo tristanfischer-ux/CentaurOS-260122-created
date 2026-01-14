@@ -39,6 +39,7 @@ import {
   SlidersHorizontal,
 } from 'lucide-react-native';
 import { router } from 'expo-router';
+import { LinearGradient } from 'expo-linear-gradient';
 import { fractionalExecutives, apprentices, type Candidate } from '@/lib/candidates-seed';
 import { UK_SUPPLIERS } from '@/lib/suppliers-seed';
 import { THIRD_PARTY_AI_TOOLS, getAIToolsByFunction, getTotalAIToolsCount, getCategoryColor, type ThirdPartyAITool, type BusinessFunction } from '@/lib/third-party-ai-tools';
@@ -526,38 +527,58 @@ export default function CommunityScreen() {
   };
 
   return (
-    <View className="flex-1 bg-gray-50 dark:bg-slate-950" style={{ paddingTop: insets.top }}>
-      {/* Header */}
-      <View className="px-5 pt-4 pb-3 bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-800">
+    <View className="flex-1 bg-gray-50 dark:bg-slate-950">
+      {/* Header - Matching Home Tab Style */}
+      <LinearGradient
+        colors={['#f59e0b', '#d97706']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 0 }}
+        style={{ paddingHorizontal: 24, paddingTop: insets.top + 16, paddingBottom: 16 }}
+      >
         <View className="flex-row items-center justify-between mb-3">
-          <View>
-            <Text className="text-gray-900 dark:text-white text-2xl font-bold">Talent Hub</Text>
-            <Text className="text-gray-500 dark:text-slate-400 text-sm">
-              Find the perfect match for your team
-            </Text>
+          <View className="flex-1">
+            <Text className="text-white/70 text-xs font-medium">TALENT MARKETPLACE</Text>
+            <Text className="text-white text-xl font-bold">Talent Hub</Text>
           </View>
           <View className="flex-row gap-2">
             {shortlistedIds.size > 0 && (
               <Pressable
                 onPress={() => setActiveTab('shortlist')}
-                className="bg-red-100 dark:bg-red-900/30 px-3 py-2 rounded-xl flex-row items-center active:opacity-70"
+                className="bg-white/20 px-3 py-2 rounded-xl flex-row items-center active:opacity-70"
               >
-                <Heart size={16} color="#ef4444" fill="#ef4444" />
-                <Text className="text-red-600 dark:text-red-400 font-bold ml-1">{shortlistedIds.size}</Text>
+                <Heart size={16} color="#fff" fill="#fff" />
+                <Text className="text-white font-bold ml-1">{shortlistedIds.size}</Text>
               </Pressable>
             )}
             <Pressable
               onPress={() => setCompareMode(!compareMode)}
-              className={`px-3 py-2 rounded-xl flex-row items-center active:opacity-70 ${
-                compareMode ? 'bg-blue-500' : 'bg-gray-100 dark:bg-slate-800'
+              className={`px-3 py-2 rounded-xl active:opacity-70 ${
+                compareMode ? 'bg-white/40' : 'bg-white/20'
               }`}
             >
-              <Scale size={16} color={compareMode ? '#fff' : '#64748b'} />
+              <Scale size={16} color="#fff" />
             </Pressable>
           </View>
         </View>
+        {/* Quick Health Indicators */}
+        <View className="flex-row gap-4">
+          <View className="flex-row items-center">
+            <View className="w-2 h-2 rounded-full mr-1.5 bg-amber-200" />
+            <Text className="text-white/90 text-xs">{scoredExecutives.length} executives</Text>
+          </View>
+          <View className="flex-row items-center">
+            <View className="w-2 h-2 rounded-full mr-1.5 bg-white" />
+            <Text className="text-white/90 text-xs">{scoredApprentices.length} apprentices</Text>
+          </View>
+          <View className="flex-row items-center">
+            <View className="w-2 h-2 rounded-full mr-1.5 bg-emerald-300" />
+            <Text className="text-white/90 text-xs">{getTotalAIToolsCount()} AI tools</Text>
+          </View>
+        </View>
+      </LinearGradient>
 
-        {/* Quick Nav Pills */}
+      {/* Quick Nav Pills - Below Header */}
+      <View className="px-5 py-3 bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-800">
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -576,7 +597,7 @@ export default function CommunityScreen() {
               onPress={() => setActiveTab(tab.value as CommunityTab)}
               className={`flex-row items-center px-4 py-2 rounded-full ${
                 activeTab === tab.value
-                  ? 'bg-blue-500'
+                  ? 'bg-amber-500'
                   : 'bg-gray-100 dark:bg-slate-800'
               } active:opacity-70`}
             >
