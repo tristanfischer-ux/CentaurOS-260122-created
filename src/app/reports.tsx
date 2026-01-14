@@ -14,6 +14,7 @@ import {
   ChevronRight, Award, Zap, Brain, Building2, LineChart, Gauge
 } from 'lucide-react-native';
 import { useAppStore } from '@/lib/state/app-store';
+import { useTheme } from '@/lib/ThemeContext';
 import { generateReport } from '@/lib/reports/generator';
 import { exportBoardPack, exportReportAsCSV, exportReportAsJSON } from '@/lib/reports/export-board-pack';
 import { exportReportAsPDF } from '@/lib/reports/export-pdf';
@@ -41,6 +42,18 @@ const FIRM_BADGES: Record<string, { name: string; color: string }> = {
 
 export default function ReportsScreen() {
   const params = useLocalSearchParams<{ period?: string; export?: string }>();
+  const { theme, isOffWhite } = useTheme();
+  const isDark = theme === 'dark';
+
+  // Theme-aware style classes
+  const bgPrimary = isDark ? 'bg-slate-950' : isOffWhite ? 'bg-orange-50' : 'bg-gray-50';
+  const bgCard = isDark ? 'bg-slate-900' : isOffWhite ? 'bg-orange-100/50' : 'bg-white';
+  const bgCardAlt = isDark ? 'bg-slate-900/50' : isOffWhite ? 'bg-orange-100/30' : 'bg-gray-100';
+  const bgInput = isDark ? 'bg-slate-800' : isOffWhite ? 'bg-orange-100' : 'bg-gray-100';
+  const borderColor = isDark ? 'border-slate-800' : isOffWhite ? 'border-orange-200' : 'border-gray-200';
+  const textPrimary = isDark ? 'text-white' : 'text-gray-900';
+  const textSecondary = isDark ? 'text-slate-400' : isOffWhite ? 'text-orange-700' : 'text-gray-600';
+  const textMuted = isDark ? 'text-slate-500' : isOffWhite ? 'text-orange-600' : 'text-gray-500';
 
   const currentUser = useAppStore((s) => s.currentUser);
   const currentWorkspace = useAppStore((s) => s.currentWorkspace);
@@ -180,17 +193,17 @@ export default function ReportsScreen() {
   ];
 
   return (
-    <View className="flex-1 bg-slate-950">
+    <View className={cn("flex-1", bgPrimary)}>
       <ScrollView className="flex-1" contentContainerStyle={{ paddingBottom: 100 }}>
         {/* Header */}
         <View className="px-5 pt-4 pb-4">
           <Animated.View entering={FadeInDown.delay(100).springify()}>
-            <Text className="text-white text-2xl font-bold mb-1">
+            <Text className={cn("text-2xl font-bold mb-1", textPrimary)}>
               {role === 'Founder' && 'Consulting Dashboard'}
               {role === 'FractionalExec' && 'Executive Dashboard'}
               {role === 'Apprentice' && 'Performance Report'}
             </Text>
-            <Text className="text-slate-400 text-sm">
+            <Text className={cn("text-sm", textSecondary)}>
               {role === 'Founder' && 'Elite insights from McKinsey, BCG, Bain, Deloitte, and more'}
               {role === 'FractionalExec' && 'Function performance and team analytics'}
               {role === 'Apprentice' && 'Your work summary and achievements'}
@@ -200,7 +213,7 @@ export default function ReportsScreen() {
 
         {/* Period Selector */}
         <Animated.View entering={FadeInDown.delay(200).springify()} className="px-5 pb-4">
-          <View className="flex-row bg-slate-900 rounded-xl p-1">
+          <View className={cn("flex-row rounded-xl p-1", bgCard)}>
             {periods.map((p) => (
               <Pressable
                 key={p.value}
@@ -212,7 +225,7 @@ export default function ReportsScreen() {
               >
                 <Text className={cn(
                   'text-center font-semibold text-sm',
-                  period === p.value ? 'text-white' : 'text-slate-400'
+                  period === p.value ? 'text-white' : textSecondary
                 )}>
                   {p.label}
                 </Text>
@@ -258,14 +271,14 @@ export default function ReportsScreen() {
                       key={view.id}
                       onPress={() => setActiveView(view.id)}
                       className={cn(
-                        'px-4 py-2.5 rounded-xl flex-row items-center',
-                        isActive ? 'bg-slate-800 border border-slate-700' : 'bg-slate-900/50'
+                        'px-4 py-2.5 rounded-xl flex-row items-center border',
+                        isActive ? (isDark ? 'bg-slate-800 border-slate-700' : isOffWhite ? 'bg-orange-200 border-orange-300' : 'bg-blue-100 border-blue-200') : (isDark ? 'bg-slate-900/50 border-transparent' : isOffWhite ? 'bg-orange-100/50 border-transparent' : 'bg-gray-100 border-transparent')
                       )}
                     >
-                      <Icon size={16} color={isActive ? view.color : '#64748b'} />
+                      <Icon size={16} color={isActive ? view.color : (isDark ? '#64748b' : '#9ca3af')} />
                       <Text className={cn(
                         'ml-2 font-medium text-sm',
-                        isActive ? 'text-white' : 'text-slate-500'
+                        isActive ? textPrimary : textMuted
                       )}>
                         {view.label}
                       </Text>
@@ -291,7 +304,7 @@ export default function ReportsScreen() {
 
             {/* Export Actions */}
             <Animated.View entering={FadeInUp.delay(600).springify()} className="px-5 pt-4 pb-4">
-              <Text className="text-white font-bold text-lg mb-3">Export Options</Text>
+              <Text className={cn("font-bold text-lg mb-3", textPrimary)}>Export Options</Text>
               <View className="gap-2">
                 <Pressable
                   onPress={() => exportPDFMutation.mutate()}
@@ -358,32 +371,54 @@ export default function ReportsScreen() {
 
 function FounderConsultingDashboard({ report, activeView }: { report: Report; activeView: DashboardView }) {
   const data = report.data as FounderReportData;
+  const { theme, isOffWhite } = useTheme();
+  const isDark = theme === 'dark';
 
   switch (activeView) {
     case 'overview':
-      return <OverviewDashboard data={data} />;
+      return <OverviewDashboard data={data} isDark={isDark} isOffWhite={isOffWhite} />;
     case 'strategy':
-      return <StrategyDashboard data={data} />;
+      return <StrategyDashboard data={data} isDark={isDark} isOffWhite={isOffWhite} />;
     case 'operations':
-      return <OperationsDashboard data={data} />;
+      return <OperationsDashboard data={data} isDark={isDark} isOffWhite={isOffWhite} />;
     case 'finance':
-      return <FinanceDashboard data={data} />;
+      return <FinanceDashboard data={data} isDark={isDark} isOffWhite={isOffWhite} />;
     case 'talent':
-      return <TalentDashboard data={data} />;
+      return <TalentDashboard data={data} isDark={isDark} isOffWhite={isOffWhite} />;
     case 'process':
-      return <ProcessDashboard data={data} />;
+      return <ProcessDashboard data={data} isDark={isDark} isOffWhite={isOffWhite} />;
     default:
-      return <OverviewDashboard data={data} />;
+      return <OverviewDashboard data={data} isDark={isDark} isOffWhite={isOffWhite} />;
   }
+}
+
+// Theme props interface
+interface ThemeProps {
+  isDark: boolean;
+  isOffWhite: boolean;
+}
+
+// Theme helper function for dashboard components
+function getThemeClasses(isDark: boolean, isOffWhite: boolean) {
+  return {
+    bgCard: isDark ? 'bg-slate-900' : isOffWhite ? 'bg-orange-100/50' : 'bg-white',
+    bgCardAlt: isDark ? 'bg-slate-900/50' : isOffWhite ? 'bg-orange-100/30' : 'bg-gray-100',
+    bgInput: isDark ? 'bg-slate-800' : isOffWhite ? 'bg-orange-100' : 'bg-gray-100',
+    borderColor: isDark ? 'border-slate-800' : isOffWhite ? 'border-orange-200' : 'border-gray-200',
+    textPrimary: isDark ? 'text-white' : 'text-gray-900',
+    textSecondary: isDark ? 'text-slate-400' : isOffWhite ? 'text-orange-700' : 'text-gray-600',
+    textMuted: isDark ? 'text-slate-500' : isOffWhite ? 'text-orange-600' : 'text-gray-500',
+  };
 }
 
 // ===========================================================================
 // OVERVIEW DASHBOARD
 // ===========================================================================
 
-function OverviewDashboard({ data }: { data: FounderReportData }) {
+function OverviewDashboard({ data, isDark, isOffWhite }: { data: FounderReportData } & ThemeProps) {
   const consultingAnalysis = data.consultingAnalysis;
   const integratedScore = consultingAnalysis?.integratedScore ?? 0;
+  const t = getThemeClasses(isDark, isOffWhite);
 
   return (
     <View className="px-5 gap-4">
@@ -397,10 +432,10 @@ function OverviewDashboard({ data }: { data: FounderReportData }) {
         )}>
           <View className="flex-row items-center justify-between mb-4">
             <View>
-              <Text className="text-slate-400 text-xs font-semibold uppercase tracking-wider">
+              <Text className={cn("text-xs font-semibold uppercase tracking-wider", t.textSecondary)}>
                 Integrated Consulting Score
               </Text>
-              <Text className="text-white text-3xl font-bold mt-1">{integratedScore}%</Text>
+              <Text className={cn("text-3xl font-bold mt-1", t.textPrimary)}>{integratedScore}%</Text>
             </View>
             <View className={cn(
               'w-16 h-16 rounded-full items-center justify-center',
@@ -416,8 +451,8 @@ function OverviewDashboard({ data }: { data: FounderReportData }) {
 
           <View className="flex-row flex-wrap gap-2">
             {Object.entries(FIRM_BADGES).slice(0, 5).map(([key, badge]) => (
-              <View key={key} className="bg-slate-900/50 px-2 py-1 rounded-md">
-                <Text className="text-slate-400 text-xs font-medium">{badge.name}</Text>
+              <View key={key} className={cn("px-2 py-1 rounded-md", t.bgCardAlt)}>
+                <Text className={cn("text-xs font-medium", t.textSecondary)}>{badge.name}</Text>
               </View>
             ))}
           </View>
@@ -543,13 +578,14 @@ function OverviewDashboard({ data }: { data: FounderReportData }) {
 // STRATEGY DASHBOARD (McKinsey 7S, BCG Growth-Share, Bain NPS)
 // ===========================================================================
 
-function StrategyDashboard({ data }: { data: FounderReportData }) {
+function StrategyDashboard({ data, isDark, isOffWhite }: { data: FounderReportData } & ThemeProps) {
   const strategy = data.consultingAnalysis?.strategy;
+  const t = getThemeClasses(isDark, isOffWhite);
 
   if (!strategy) {
     return (
       <View className="px-5 py-8 items-center">
-        <Text className="text-slate-400">Strategy analysis not available</Text>
+        <Text className={t.textSecondary}>Strategy analysis not available</Text>
       </View>
     );
   }
@@ -724,13 +760,14 @@ function StrategyDashboard({ data }: { data: FounderReportData }) {
 // OPERATIONS DASHBOARD (Deloitte, Accenture, BCG Lean)
 // ===========================================================================
 
-function OperationsDashboard({ data }: { data: FounderReportData }) {
+function OperationsDashboard({ data, isDark, isOffWhite }: { data: FounderReportData } & ThemeProps) {
   const operations = data.consultingAnalysis?.operations;
+  const t = getThemeClasses(isDark, isOffWhite);
 
   if (!operations) {
     return (
       <View className="px-5 py-8 items-center">
-        <Text className="text-slate-400">Operations analysis not available</Text>
+        <Text className={t.textSecondary}>Operations analysis not available</Text>
       </View>
     );
   }
@@ -898,13 +935,14 @@ function OperationsDashboard({ data }: { data: FounderReportData }) {
 // FINANCE DASHBOARD (EY, PwC, Deloitte, Charles River)
 // ===========================================================================
 
-function FinanceDashboard({ data }: { data: FounderReportData }) {
+function FinanceDashboard({ data, isDark, isOffWhite }: { data: FounderReportData } & ThemeProps) {
   const finance = data.consultingAnalysis?.finance;
+  const t = getThemeClasses(isDark, isOffWhite);
 
   if (!finance) {
     return (
       <View className="px-5 py-8 items-center">
-        <Text className="text-slate-400">Finance analysis not available</Text>
+        <Text className={t.textSecondary}>Finance analysis not available</Text>
       </View>
     );
   }
@@ -1087,13 +1125,14 @@ function FinanceDashboard({ data }: { data: FounderReportData }) {
 // TALENT DASHBOARD (Mercer, Korn Ferry, Aon, Deloitte HR)
 // ===========================================================================
 
-function TalentDashboard({ data }: { data: FounderReportData }) {
+function TalentDashboard({ data, isDark, isOffWhite }: { data: FounderReportData } & ThemeProps) {
   const talent = data.consultingAnalysis?.talent;
+  const t = getThemeClasses(isDark, isOffWhite);
 
   if (!talent) {
     return (
       <View className="px-5 py-8 items-center">
-        <Text className="text-slate-400">Talent analysis not available</Text>
+        <Text className={t.textSecondary}>Talent analysis not available</Text>
       </View>
     );
   }
@@ -1289,13 +1328,14 @@ function TalentDashboard({ data }: { data: FounderReportData }) {
 // PROCESS DASHBOARD (Accenture BPM, KPMG, PwC, Deloitte)
 // ===========================================================================
 
-function ProcessDashboard({ data }: { data: FounderReportData }) {
+function ProcessDashboard({ data, isDark, isOffWhite }: { data: FounderReportData } & ThemeProps) {
   const process = data.consultingAnalysis?.process;
+  const t = getThemeClasses(isDark, isOffWhite);
 
   if (!process) {
     return (
       <View className="px-5 py-8 items-center">
-        <Text className="text-slate-400">Process analysis not available</Text>
+        <Text className={t.textSecondary}>Process analysis not available</Text>
       </View>
     );
   }
@@ -1521,21 +1561,24 @@ function MetricCard({ icon: Icon, color, label, value, subtext }: {
 
 function ExecutiveReportView({ report }: { report: Report }) {
   const data = report.data as ExecutiveReportData;
+  const { theme, isOffWhite } = useTheme();
+  const isDark = theme === 'dark';
+  const t = getThemeClasses(isDark, isOffWhite);
 
   return (
     <View className="px-5 gap-4">
       <Animated.View entering={FadeIn.delay(100)}>
-        <View className="bg-slate-900 p-5 rounded-2xl border border-slate-800">
-          <Text className="text-slate-400 text-xs font-semibold uppercase mb-1">Function</Text>
-          <Text className="text-white text-xl font-bold mb-4">{data.function}</Text>
+        <View className={cn("p-5 rounded-2xl border", t.bgCard, t.borderColor)}>
+          <Text className={cn("text-xs font-semibold uppercase mb-1", t.textSecondary)}>Function</Text>
+          <Text className={cn("text-xl font-bold mb-4", t.textPrimary)}>{data.function}</Text>
 
           <View className="gap-3">
             <View className="flex-row justify-between">
-              <Text className="text-slate-400">Tasks Created</Text>
-              <Text className="text-white font-bold">{data.summary.tasksCreated}</Text>
+              <Text className={t.textSecondary}>Tasks Created</Text>
+              <Text className={cn("font-bold", t.textPrimary)}>{data.summary.tasksCreated}</Text>
             </View>
             <View className="flex-row justify-between">
-              <Text className="text-slate-400">Tasks Completed</Text>
+              <Text className={t.textSecondary}>Tasks Completed</Text>
               <Text className="text-emerald-400 font-bold">{data.summary.tasksCompleted}</Text>
             </View>
             <View className="flex-row justify-between">
@@ -1582,30 +1625,33 @@ function ExecutiveReportView({ report }: { report: Report }) {
 
 function ApprenticeReportView({ report }: { report: Report }) {
   const data = report.data as ApprenticeReportData;
+  const { theme, isOffWhite } = useTheme();
+  const isDark = theme === 'dark';
+  const t = getThemeClasses(isDark, isOffWhite);
 
   return (
     <View className="px-5 gap-4">
       <Animated.View entering={FadeIn.delay(100)}>
-        <View className="bg-slate-900 p-5 rounded-2xl border border-slate-800">
-          <Text className="text-slate-400 text-xs font-semibold uppercase mb-1">Function</Text>
-          <Text className="text-white text-xl font-bold mb-4">{data.function}</Text>
+        <View className={cn("p-5 rounded-2xl border", t.bgCard, t.borderColor)}>
+          <Text className={cn("text-xs font-semibold uppercase mb-1", t.textSecondary)}>Function</Text>
+          <Text className={cn("text-xl font-bold mb-4", t.textPrimary)}>{data.function}</Text>
 
           <View className="gap-3">
             <View className="flex-row justify-between">
-              <Text className="text-slate-400">Tasks Assigned</Text>
-              <Text className="text-white font-bold">{data.summary.tasksAssigned}</Text>
+              <Text className={t.textSecondary}>Tasks Assigned</Text>
+              <Text className={cn("font-bold", t.textPrimary)}>{data.summary.tasksAssigned}</Text>
             </View>
             <View className="flex-row justify-between">
-              <Text className="text-slate-400">Tasks Completed</Text>
+              <Text className={t.textSecondary}>Tasks Completed</Text>
               <Text className="text-emerald-400 font-bold">{data.summary.tasksCompleted}</Text>
             </View>
             <View className="flex-row justify-between">
-              <Text className="text-slate-400">In Progress</Text>
+              <Text className={t.textSecondary}>In Progress</Text>
               <Text className="text-blue-400 font-bold">{data.summary.tasksInProgress}</Text>
             </View>
             <View className="flex-row justify-between">
-              <Text className="text-slate-400">Total Hours</Text>
-              <Text className="text-white font-bold">{data.summary.totalHoursLogged}h</Text>
+              <Text className={t.textSecondary}>Total Hours</Text>
+              <Text className={cn("font-bold", t.textPrimary)}>{data.summary.totalHoursLogged}h</Text>
             </View>
           </View>
         </View>
