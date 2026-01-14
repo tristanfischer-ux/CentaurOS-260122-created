@@ -48,6 +48,7 @@ interface OKRState {
   updateOKR: (id: string, updates: Partial<OKR>) => void;
   updateQueueStatus: (okrId: string, queueStatus: QueueStatus) => void;
   deleteOKR: (id: string) => void;
+  reorderOKRs: (okrIds: string[]) => void;
   getCounts: () => {
     total: number;
     onTrack: number;
@@ -255,6 +256,29 @@ export const useOKRStore = create<OKRState>((set, get) => ({
     set(state => ({
       okrs: state.okrs.filter(okr => okr.id !== id),
     }));
+  },
+
+  reorderOKRs: (okrIds: string[]) => {
+    set(state => {
+      const okrMap = new Map(state.okrs.map(okr => [okr.id, okr]));
+      const reorderedOKRs: OKR[] = [];
+
+      // First add OKRs in the new order
+      for (const id of okrIds) {
+        const okr = okrMap.get(id);
+        if (okr) {
+          reorderedOKRs.push(okr);
+          okrMap.delete(id);
+        }
+      }
+
+      // Then add any remaining OKRs that weren't in the reorder list
+      for (const okr of okrMap.values()) {
+        reorderedOKRs.push(okr);
+      }
+
+      return { okrs: reorderedOKRs };
+    });
   },
 
   getCounts: () => {

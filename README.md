@@ -54,8 +54,31 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
 
 ## 🚨 PRODUCTION READINESS STATUS
 
-**Last Updated**: 2026-01-14 (**GET MORE RESOURCES** - Added ability to hire people or add AIs from the Decide tab team dock)
+**Last Updated**: 2026-01-14 (**DRAG & DROP** - OKRs and tasks can now be reordered by dragging, tasks can be merged into OKRs)
 **Status**: ✅ **READY FOR APP STORE** - All features complete!
+
+---
+
+## 🔄 DRAG & DROP SYSTEM (Decide Tab)
+
+**Latest Update**: 2026-01-14
+
+### OKR Reordering
+- **Drag Handle**: Each OKR card has a grip handle on the left for dragging
+- **Reorder Within Sections**: Drag OKRs up/down to change priority within Active or Queued sections
+- **Move Between Sections**: Drag an Active OKR down past the divider to move it to Queue (unassigns all members)
+- **Visual Feedback**: Purple border highlight while dragging, smooth spring animations
+
+### Task Merging
+- **Drag Tasks**: Tasks within expanded OKRs can be dragged
+- **Merge into OKR**: Drag one task onto another to combine them into a new OKR
+- **Rename Modal**: After merging, a modal appears to name the new OKR
+- **Automatic Key Results**: Merged tasks become key results of the new OKR
+
+### Active vs Queued Logic
+- **Active OKRs**: Have work plans with assigned team members
+- **Queued OKRs**: No work plans or work plans without assigned members
+- **Divider Line**: Visual "DRAG TO REORDER" divider separates sections
 
 ---
 
