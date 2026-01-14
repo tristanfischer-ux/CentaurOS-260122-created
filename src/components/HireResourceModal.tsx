@@ -1,4 +1,4 @@
-import { View, Text, Modal, ScrollView, Pressable, TextInput } from 'react-native';
+import { View, Text, Modal, ScrollView, Pressable, TextInput, KeyboardAvoidingView, Platform } from 'react-native';
 import { useState } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { X, Users, Zap, UserPlus, Briefcase, GraduationCap, AlertCircle, CheckCircle } from 'lucide-react-native';
@@ -215,10 +215,11 @@ export default function HireResourceModal({ visible, onClose, okr }: HireResourc
   return (
     <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
       <View className="flex-1 bg-black/50 justify-end">
-        <View
-          className={`${bgPrimary} rounded-t-3xl`}
-          style={{ paddingBottom: insets.bottom + 16, maxHeight: '90%' }}
-        >
+        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} className="justify-end">
+          <View
+            className={`${bgPrimary} rounded-t-3xl`}
+            style={{ paddingBottom: insets.bottom + 16, maxHeight: '90%' }}
+          >
           {/* Header */}
           <View className={`flex-row items-center justify-between px-5 py-4 border-b ${borderColor}`}>
             <View className="flex-1 mr-4">
@@ -320,7 +321,8 @@ export default function HireResourceModal({ visible, onClose, okr }: HireResourc
               </Text>
             </Pressable>
           </View>
-        </View>
+          </View>
+        </KeyboardAvoidingView>
       </View>
     </Modal>
   );
