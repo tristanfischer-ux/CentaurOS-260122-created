@@ -94,6 +94,7 @@ export default function HomeScreen() {
 
   const workPlanCounts = useMemo(() => ({
     total: workPlans.length,
+    active: workPlans.filter(wp => wp.status !== 'completed').length,
     inProgress: workPlans.filter(wp => wp.status === 'in-progress').length,
     completed: workPlans.filter(wp => wp.status === 'completed').length,
     blocked: workPlans.filter(wp => wp.status === 'blocked').length,
@@ -110,6 +111,7 @@ export default function HomeScreen() {
     okrs: okrCounts,
     workPlans: {
       total: workPlanCounts.total,
+      active: workPlanCounts.active,
       inProgress: workPlanCounts.inProgress,
       completed: workPlanCounts.completed,
       blocked: workPlanCounts.blocked,
@@ -412,7 +414,7 @@ const APPRENTICE_DATA = {
                 >
                   <Clock size={24} color="#a855f7" />
                   <Text className="text-purple-900 dark:text-purple-100 text-2xl font-bold mt-2">
-                    {FOUNDER_DATA.workPlans.total}
+                    {FOUNDER_DATA.workPlans.active}
                   </Text>
                   <Text className="text-purple-600 dark:text-purple-400 text-xs">Total Active</Text>
                 </Pressable>
