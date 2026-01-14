@@ -241,13 +241,15 @@ export default function ReportsScreen() {
             disabled={generateReportMutation.isPending}
             className={cn(
               'py-3.5 rounded-xl items-center flex-row justify-center',
-              generateReportMutation.isPending ? 'bg-slate-800' : 'bg-blue-500'
+              generateReportMutation.isPending
+                ? (isDark ? 'bg-slate-800' : isOffWhite ? 'bg-orange-200' : 'bg-gray-300')
+                : 'bg-blue-500'
             )}
           >
             {generateReportMutation.isPending ? (
               <>
-                <ActivityIndicator size="small" color="#fff" />
-                <Text className="text-white font-bold ml-2">Analyzing...</Text>
+                <ActivityIndicator size="small" color={isDark ? '#fff' : '#1e40af'} />
+                <Text className={cn("font-bold ml-2", isDark ? 'text-white' : 'text-blue-800')}>Analyzing...</Text>
               </>
             ) : (
               <>
@@ -342,18 +344,24 @@ export default function ReportsScreen() {
                   <Pressable
                     onPress={() => exportCSVMutation.mutate()}
                     disabled={exportCSVMutation.isPending}
-                    className="flex-1 bg-slate-800 py-3.5 rounded-xl flex-row items-center justify-center"
+                    className={cn(
+                      "flex-1 py-3.5 rounded-xl flex-row items-center justify-center",
+                      isDark ? 'bg-slate-800' : isOffWhite ? 'bg-orange-200' : 'bg-gray-200'
+                    )}
                   >
-                    <Download size={16} color="#94a3b8" />
-                    <Text className="text-slate-200 font-semibold ml-2 text-sm">CSV</Text>
+                    <Download size={16} color={isDark ? '#94a3b8' : isOffWhite ? '#9a3412' : '#4b5563'} />
+                    <Text className={cn("font-semibold ml-2 text-sm", isDark ? 'text-slate-200' : isOffWhite ? 'text-orange-800' : 'text-gray-700')}>CSV</Text>
                   </Pressable>
                   <Pressable
                     onPress={() => exportJSONMutation.mutate()}
                     disabled={exportJSONMutation.isPending}
-                    className="flex-1 bg-slate-800 py-3.5 rounded-xl flex-row items-center justify-center"
+                    className={cn(
+                      "flex-1 py-3.5 rounded-xl flex-row items-center justify-center",
+                      isDark ? 'bg-slate-800' : isOffWhite ? 'bg-orange-200' : 'bg-gray-200'
+                    )}
                   >
-                    <Download size={16} color="#94a3b8" />
-                    <Text className="text-slate-200 font-semibold ml-2 text-sm">JSON</Text>
+                    <Download size={16} color={isDark ? '#94a3b8' : isOffWhite ? '#9a3412' : '#4b5563'} />
+                    <Text className={cn("font-semibold ml-2 text-sm", isDark ? 'text-slate-200' : isOffWhite ? 'text-orange-800' : 'text-gray-700')}>JSON</Text>
                   </Pressable>
                 </View>
               </View>
@@ -474,14 +482,14 @@ function OverviewDashboard({ data, isDark, isOffWhite }: { data: FounderReportDa
                 data.executiveSummary.overallStatus === 'green' ? 'bg-emerald-500' :
                 data.executiveSummary.overallStatus === 'yellow' ? 'bg-amber-500' : 'bg-red-500'
               )} />
-              <Text className="text-white font-bold">{data.executiveSummary.statusLabel}</Text>
+              <Text className={cn("font-bold", t.textPrimary)}>{data.executiveSummary.statusLabel}</Text>
             </View>
-            <Text className="text-slate-300 text-sm leading-5">{data.executiveSummary.headline}</Text>
+            <Text className={cn("text-sm leading-5", t.textSecondary)}>{data.executiveSummary.headline}</Text>
 
             {data.executiveSummary.boardDecisionRequired && (
               <View className="mt-4 p-3 bg-amber-500/10 border border-amber-500/30 rounded-xl flex-row items-start">
                 <AlertTriangle size={16} color="#f59e0b" />
-                <Text className="text-amber-400 text-sm ml-2 flex-1">{data.executiveSummary.boardDecisionRequired}</Text>
+                <Text className="text-amber-500 text-sm ml-2 flex-1">{data.executiveSummary.boardDecisionRequired}</Text>
               </View>
             )}
           </View>
@@ -490,7 +498,7 @@ function OverviewDashboard({ data, isDark, isOffWhite }: { data: FounderReportDa
 
       {/* Key Metrics Grid */}
       <Animated.View entering={FadeIn.delay(300)}>
-        <Text className="text-white font-bold text-lg mb-3">Key Metrics</Text>
+        <Text className={cn("font-bold text-lg mb-3", t.textPrimary)}>Key Metrics</Text>
         <View className="flex-row flex-wrap gap-2">
           <MetricCard
             icon={Target}
@@ -498,6 +506,8 @@ function OverviewDashboard({ data, isDark, isOffWhite }: { data: FounderReportDa
             label="Completion"
             value={`${data.overview.completionRate}%`}
             subtext={`${data.overview.completedTasks}/${data.overview.totalTasks} tasks`}
+            isDark={isDark}
+            isOffWhite={isOffWhite}
           />
           <MetricCard
             icon={TrendingUp}
@@ -505,6 +515,8 @@ function OverviewDashboard({ data, isDark, isOffWhite }: { data: FounderReportDa
             label="Time Tracked"
             value={`${data.overview.totalTimeLogged}h`}
             subtext={`${data.overview.totalTeamMembers} members`}
+            isDark={isDark}
+            isOffWhite={isOffWhite}
           />
           <MetricCard
             icon={Users}
@@ -512,6 +524,8 @@ function OverviewDashboard({ data, isDark, isOffWhite }: { data: FounderReportDa
             label="Workflow"
             value={`${data.overview.completedWorkflowItems}`}
             subtext={`${data.overview.activeWorkflowItems} active`}
+            isDark={isDark}
+            isOffWhite={isOffWhite}
           />
         </View>
       </Animated.View>
@@ -519,20 +533,20 @@ function OverviewDashboard({ data, isDark, isOffWhite }: { data: FounderReportDa
       {/* Consulting Insights */}
       {consultingAnalysis?.consultingInsights && consultingAnalysis.consultingInsights.length > 0 && (
         <Animated.View entering={FadeIn.delay(400)}>
-          <Text className="text-white font-bold text-lg mb-3">Consulting Insights</Text>
+          <Text className={cn("font-bold text-lg mb-3", t.textPrimary)}>Consulting Insights</Text>
           <View className="gap-3">
             {consultingAnalysis.consultingInsights.slice(0, 4).map((insight: any, idx: number) => (
-              <View key={idx} className="bg-slate-900 p-4 rounded-xl border border-slate-800">
+              <View key={idx} className={cn("p-4 rounded-xl border", t.bgCard, t.borderColor)}>
                 <View className="flex-row items-center justify-between mb-2">
-                  <View className="bg-slate-800 px-2 py-1 rounded">
-                    <Text className="text-xs text-slate-400 font-medium">{insight.source}</Text>
+                  <View className={cn("px-2 py-1 rounded", t.bgCardAlt)}>
+                    <Text className={cn("text-xs font-medium", t.textSecondary)}>{insight.source}</Text>
                   </View>
-                  <Text className="text-xs text-slate-500 uppercase">{insight.category}</Text>
+                  <Text className={cn("text-xs uppercase", t.textMuted)}>{insight.category}</Text>
                 </View>
-                <Text className="text-white font-medium mb-2">{insight.insight}</Text>
+                <Text className={cn("font-medium mb-2", t.textPrimary)}>{insight.insight}</Text>
                 <View className="flex-row items-start">
                   <Lightbulb size={14} color="#f59e0b" />
-                  <Text className="text-amber-400 text-sm ml-2 flex-1">{insight.recommendation}</Text>
+                  <Text className="text-amber-500 text-sm ml-2 flex-1">{insight.recommendation}</Text>
                 </View>
               </View>
             ))}
@@ -543,7 +557,7 @@ function OverviewDashboard({ data, isDark, isOffWhite }: { data: FounderReportDa
       {/* Top Recommendations */}
       {data.recommendations && data.recommendations.length > 0 && (
         <Animated.View entering={FadeIn.delay(500)}>
-          <Text className="text-white font-bold text-lg mb-3">Priority Actions</Text>
+          <Text className={cn("font-bold text-lg mb-3", t.textPrimary)}>Priority Actions</Text>
           <View className="gap-3">
             {data.recommendations.slice(0, 3).map((rec: any) => (
               <View
@@ -561,10 +575,10 @@ function OverviewDashboard({ data, isDark, isOffWhite }: { data: FounderReportDa
                     rec.priority === 1 ? 'text-red-400' :
                     rec.priority === 2 ? 'text-amber-400' : 'text-emerald-400'
                   )}>{rec.priorityLabel}</Text>
-                  <Text className="text-slate-500 text-xs">{rec.timeline}</Text>
+                  <Text className={cn("text-xs", t.textMuted)}>{rec.timeline}</Text>
                 </View>
-                <Text className="text-white font-semibold mb-2">{rec.title}</Text>
-                <Text className="text-slate-400 text-sm">{rec.expectedImpact}</Text>
+                <Text className={cn("font-semibold mb-2", t.textPrimary)}>{rec.title}</Text>
+                <Text className={cn("text-sm", t.textSecondary)}>{rec.expectedImpact}</Text>
               </View>
             ))}
           </View>
@@ -595,31 +609,31 @@ function StrategyDashboard({ data, isDark, isOffWhite }: { data: FounderReportDa
       {/* Framework Attribution */}
       <View className="flex-row flex-wrap gap-2 mb-2">
         {['mckinsey', 'bcg', 'bain'].map((firm) => (
-          <View key={firm} className="bg-slate-800 px-3 py-1.5 rounded-lg">
-            <Text className="text-slate-300 text-xs font-medium">{FIRM_BADGES[firm].name}</Text>
+          <View key={firm} className={cn("px-3 py-1.5 rounded-lg", t.bgCardAlt)}>
+            <Text className={cn("text-xs font-medium", t.textSecondary)}>{FIRM_BADGES[firm].name}</Text>
           </View>
         ))}
       </View>
 
       {/* McKinsey 7S Framework */}
       <Animated.View entering={FadeIn.delay(100)}>
-        <View className="bg-slate-900 p-5 rounded-2xl border border-slate-800">
+        <View className={cn("p-5 rounded-2xl border", t.bgCard, t.borderColor)}>
           <View className="flex-row items-center mb-4">
             <View className="w-8 h-8 bg-blue-500/20 rounded-lg items-center justify-center mr-3">
               <Target size={18} color="#3b82f6" />
             </View>
             <View>
-              <Text className="text-white font-bold">McKinsey 7S Framework</Text>
-              <Text className="text-slate-400 text-xs">Organizational Alignment: {strategy.overallAlignment}%</Text>
+              <Text className={cn("font-bold", t.textPrimary)}>McKinsey 7S Framework</Text>
+              <Text className={cn("text-xs", t.textSecondary)}>Organizational Alignment: {strategy.overallAlignment}%</Text>
             </View>
           </View>
 
           <View className="gap-3">
             {Object.entries(strategy.sevenS).map(([key, value]: [string, any]) => (
               <View key={key} className="flex-row items-center justify-between">
-                <Text className="text-slate-400 capitalize text-sm">{key}</Text>
+                <Text className={cn("capitalize text-sm", t.textSecondary)}>{key}</Text>
                 <View className="flex-row items-center">
-                  <View className="w-24 h-2 bg-slate-800 rounded-full overflow-hidden mr-3">
+                  <View className={cn("w-24 h-2 rounded-full overflow-hidden mr-3", t.bgCardAlt)}>
                     <View
                       className={cn(
                         'h-full rounded-full',
@@ -629,7 +643,7 @@ function StrategyDashboard({ data, isDark, isOffWhite }: { data: FounderReportDa
                       style={{ width: `${value.score}%` }}
                     />
                   </View>
-                  <Text className="text-white font-semibold text-sm w-10">{value.score}%</Text>
+                  <Text className={cn("font-semibold text-sm w-10", t.textPrimary)}>{value.score}%</Text>
                 </View>
               </View>
             ))}
@@ -639,14 +653,14 @@ function StrategyDashboard({ data, isDark, isOffWhite }: { data: FounderReportDa
 
       {/* BCG Growth-Share Matrix */}
       <Animated.View entering={FadeIn.delay(200)}>
-        <View className="bg-slate-900 p-5 rounded-2xl border border-slate-800">
+        <View className={cn("p-5 rounded-2xl border", t.bgCard, t.borderColor)}>
           <View className="flex-row items-center mb-4">
             <View className="w-8 h-8 bg-green-500/20 rounded-lg items-center justify-center mr-3">
               <PieChart size={18} color="#10b981" />
             </View>
             <View>
-              <Text className="text-white font-bold">BCG Growth-Share Matrix</Text>
-              <Text className="text-slate-400 text-xs">Market Position Analysis</Text>
+              <Text className={cn("font-bold", t.textPrimary)}>BCG Growth-Share Matrix</Text>
+              <Text className={cn("text-xs", t.textSecondary)}>Market Position Analysis</Text>
             </View>
           </View>
 
@@ -665,7 +679,7 @@ function StrategyDashboard({ data, isDark, isOffWhite }: { data: FounderReportDa
             )}>
               {strategy.growthSharePosition.replace('_', ' ')}
             </Text>
-            <Text className="text-slate-400 text-sm">
+            <Text className={cn("text-sm", t.textSecondary)}>
               Market Growth: {strategy.marketGrowthRate}% | Relative Share: {strategy.relativeMarketShare.toFixed(2)}x
             </Text>
           </View>
@@ -674,43 +688,43 @@ function StrategyDashboard({ data, isDark, isOffWhite }: { data: FounderReportDa
 
       {/* Bain NPS Analysis */}
       <Animated.View entering={FadeIn.delay(300)}>
-        <View className="bg-slate-900 p-5 rounded-2xl border border-slate-800">
+        <View className={cn("p-5 rounded-2xl border", t.bgCard, t.borderColor)}>
           <View className="flex-row items-center mb-4">
             <View className="w-8 h-8 bg-red-500/20 rounded-lg items-center justify-center mr-3">
               <Award size={18} color="#ef4444" />
             </View>
             <View>
-              <Text className="text-white font-bold">Bain Net Promoter System</Text>
-              <Text className="text-slate-400 text-xs">Customer Loyalty Analysis</Text>
+              <Text className={cn("font-bold", t.textPrimary)}>Bain Net Promoter System</Text>
+              <Text className={cn("text-xs", t.textSecondary)}>Customer Loyalty Analysis</Text>
             </View>
           </View>
 
           <View className="flex-row items-center justify-between mb-4">
             <View>
-              <Text className="text-slate-400 text-xs uppercase">NPS Score</Text>
+              <Text className={cn("text-xs uppercase", t.textSecondary)}>NPS Score</Text>
               <Text className={cn(
                 'text-3xl font-bold',
                 strategy.npsAnalysis.score > 50 ? 'text-emerald-400' :
                 strategy.npsAnalysis.score > 0 ? 'text-amber-400' : 'text-red-400'
               )}>{strategy.npsAnalysis.score}</Text>
             </View>
-            <View className="bg-slate-800 px-3 py-2 rounded-lg">
-              <Text className="text-white font-semibold">{strategy.npsAnalysis.benchmark}</Text>
+            <View className={cn("px-3 py-2 rounded-lg", t.bgCardAlt)}>
+              <Text className={cn("font-semibold", t.textPrimary)}>{strategy.npsAnalysis.benchmark}</Text>
             </View>
           </View>
 
           <View className="flex-row gap-2">
             <View className="flex-1 bg-emerald-500/10 p-3 rounded-lg">
               <Text className="text-emerald-400 text-xs mb-1">Promoters</Text>
-              <Text className="text-white font-bold">{strategy.npsAnalysis.promoters}%</Text>
+              <Text className={cn("font-bold", t.textPrimary)}>{strategy.npsAnalysis.promoters}%</Text>
             </View>
-            <View className="flex-1 bg-slate-800 p-3 rounded-lg">
-              <Text className="text-slate-400 text-xs mb-1">Passives</Text>
-              <Text className="text-white font-bold">{strategy.npsAnalysis.passives}%</Text>
+            <View className={cn("flex-1 p-3 rounded-lg", t.bgCardAlt)}>
+              <Text className={cn("text-xs mb-1", t.textSecondary)}>Passives</Text>
+              <Text className={cn("font-bold", t.textPrimary)}>{strategy.npsAnalysis.passives}%</Text>
             </View>
             <View className="flex-1 bg-red-500/10 p-3 rounded-lg">
               <Text className="text-red-400 text-xs mb-1">Detractors</Text>
-              <Text className="text-white font-bold">{strategy.npsAnalysis.detractors}%</Text>
+              <Text className={cn("font-bold", t.textPrimary)}>{strategy.npsAnalysis.detractors}%</Text>
             </View>
           </View>
         </View>
@@ -718,14 +732,14 @@ function StrategyDashboard({ data, isDark, isOffWhite }: { data: FounderReportDa
 
       {/* Transformation Readiness (Roland Berger) */}
       <Animated.View entering={FadeIn.delay(400)}>
-        <View className="bg-slate-900 p-5 rounded-2xl border border-slate-800">
+        <View className={cn("p-5 rounded-2xl border", t.bgCard, t.borderColor)}>
           <View className="flex-row items-center mb-4">
             <View className="w-8 h-8 bg-purple-500/20 rounded-lg items-center justify-center mr-3">
               <Zap size={18} color="#a855f7" />
             </View>
             <View>
-              <Text className="text-white font-bold">Transformation Readiness</Text>
-              <Text className="text-slate-400 text-xs">Roland Berger Assessment</Text>
+              <Text className={cn("font-bold", t.textPrimary)}>Transformation Readiness</Text>
+              <Text className={cn("text-xs", t.textSecondary)}>Roland Berger Assessment</Text>
             </View>
           </View>
 
@@ -737,15 +751,15 @@ function StrategyDashboard({ data, isDark, isOffWhite }: { data: FounderReportDa
               { label: 'Leadership Alignment', value: strategy.transformationReadiness.leadershipAlignment },
             ].map((item) => (
               <View key={item.label} className="flex-row items-center justify-between">
-                <Text className="text-slate-400 text-sm">{item.label}</Text>
+                <Text className={cn("text-sm", t.textSecondary)}>{item.label}</Text>
                 <View className="flex-row items-center">
-                  <View className="w-20 h-2 bg-slate-800 rounded-full overflow-hidden mr-3">
+                  <View className={cn("w-20 h-2 rounded-full overflow-hidden mr-3", t.bgCardAlt)}>
                     <View
                       className="h-full bg-purple-500 rounded-full"
                       style={{ width: `${item.value}%` }}
                     />
                   </View>
-                  <Text className="text-white font-semibold text-sm w-10">{item.value}%</Text>
+                  <Text className={cn("font-semibold text-sm w-10", t.textPrimary)}>{item.value}%</Text>
                 </View>
               </View>
             ))}
@@ -777,8 +791,8 @@ function OperationsDashboard({ data, isDark, isOffWhite }: { data: FounderReport
       {/* Framework Attribution */}
       <View className="flex-row flex-wrap gap-2 mb-2">
         {['deloitte', 'accenture', 'bcg'].map((firm) => (
-          <View key={firm} className="bg-slate-800 px-3 py-1.5 rounded-lg">
-            <Text className="text-slate-300 text-xs font-medium">{FIRM_BADGES[firm].name}</Text>
+          <View key={firm} className={cn("px-3 py-1.5 rounded-lg", t.bgCardAlt)}>
+            <Text className={cn("text-xs font-medium", t.textSecondary)}>{FIRM_BADGES[firm].name}</Text>
           </View>
         ))}
       </View>
@@ -791,23 +805,23 @@ function OperationsDashboard({ data, isDark, isOffWhite }: { data: FounderReport
           operations.overallOpsScore >= 55 ? 'bg-amber-500/10 border-amber-500/40' :
           'bg-red-500/10 border-red-500/40'
         )}>
-          <Text className="text-slate-400 text-xs font-semibold uppercase mb-2">
+          <Text className={cn("text-xs font-semibold uppercase mb-2", t.textSecondary)}>
             Operations Excellence Score
           </Text>
-          <Text className="text-white text-4xl font-bold">{operations.overallOpsScore}%</Text>
+          <Text className={cn("text-4xl font-bold", t.textPrimary)}>{operations.overallOpsScore}%</Text>
         </View>
       </Animated.View>
 
       {/* BCG Lean Maturity */}
       <Animated.View entering={FadeIn.delay(200)}>
-        <View className="bg-slate-900 p-5 rounded-2xl border border-slate-800">
+        <View className={cn("p-5 rounded-2xl border", t.bgCard, t.borderColor)}>
           <View className="flex-row items-center mb-4">
             <View className="w-8 h-8 bg-green-500/20 rounded-lg items-center justify-center mr-3">
               <Activity size={18} color="#10b981" />
             </View>
             <View>
-              <Text className="text-white font-bold">BCG Lean Operations</Text>
-              <Text className="text-slate-400 text-xs">Maturity Level: {operations.leanMaturity.score}/5</Text>
+              <Text className={cn("font-bold", t.textPrimary)}>BCG Lean Operations</Text>
+              <Text className={cn("text-xs", t.textSecondary)}>Maturity Level: {operations.leanMaturity.score}/5</Text>
             </View>
           </View>
 
@@ -819,14 +833,14 @@ function OperationsDashboard({ data, isDark, isOffWhite }: { data: FounderReport
               { label: 'Pull System', value: operations.leanMaturity.pullSystem },
             ].map((item) => (
               <View key={item.label} className="flex-row items-center justify-between">
-                <Text className="text-slate-400 text-sm">{item.label}</Text>
+                <Text className={cn("text-sm", t.textSecondary)}>{item.label}</Text>
                 <View className="flex-row">
                   {[1, 2, 3, 4, 5].map((level) => (
                     <View
                       key={level}
                       className={cn(
                         'w-5 h-5 rounded-full mx-0.5',
-                        level <= item.value ? 'bg-emerald-500' : 'bg-slate-800'
+                        level <= item.value ? 'bg-emerald-500' : (isDark ? 'bg-slate-800' : isOffWhite ? 'bg-orange-200' : 'bg-gray-200')
                       )}
                     />
                   ))}
@@ -839,14 +853,14 @@ function OperationsDashboard({ data, isDark, isOffWhite }: { data: FounderReport
 
       {/* Deloitte Digital Operations Index */}
       <Animated.View entering={FadeIn.delay(300)}>
-        <View className="bg-slate-900 p-5 rounded-2xl border border-slate-800">
+        <View className={cn("p-5 rounded-2xl border", t.bgCard, t.borderColor)}>
           <View className="flex-row items-center mb-4">
             <View className="w-8 h-8 bg-lime-500/20 rounded-lg items-center justify-center mr-3">
               <Settings2 size={18} color="#84cc16" />
             </View>
             <View>
-              <Text className="text-white font-bold">Deloitte Digital Ops Index</Text>
-              <Text className="text-slate-400 text-xs">Overall: {operations.digitalOpsIndex.score}%</Text>
+              <Text className={cn("font-bold", t.textPrimary)}>Deloitte Digital Ops Index</Text>
+              <Text className={cn("text-xs", t.textSecondary)}>Overall: {operations.digitalOpsIndex.score}%</Text>
             </View>
           </View>
 
@@ -859,10 +873,10 @@ function OperationsDashboard({ data, isDark, isOffWhite }: { data: FounderReport
             ].map((item) => (
               <View key={item.label}>
                 <View className="flex-row justify-between mb-1">
-                  <Text className="text-slate-400 text-sm">{item.label}</Text>
-                  <Text className="text-white font-semibold text-sm">{Math.round(item.value)}%</Text>
+                  <Text className={cn("text-sm", t.textSecondary)}>{item.label}</Text>
+                  <Text className={cn("font-semibold text-sm", t.textPrimary)}>{Math.round(item.value)}%</Text>
                 </View>
-                <View className="h-2 bg-slate-800 rounded-full overflow-hidden">
+                <View className={cn("h-2 rounded-full overflow-hidden", t.bgCardAlt)}>
                   <View
                     className="h-full rounded-full"
                     style={{ width: `${item.value}%`, backgroundColor: item.color }}
@@ -876,14 +890,14 @@ function OperationsDashboard({ data, isDark, isOffWhite }: { data: FounderReport
 
       {/* Accenture Intelligent Operations */}
       <Animated.View entering={FadeIn.delay(400)}>
-        <View className="bg-slate-900 p-5 rounded-2xl border border-slate-800">
+        <View className={cn("p-5 rounded-2xl border", t.bgCard, t.borderColor)}>
           <View className="flex-row items-center mb-4">
             <View className="w-8 h-8 bg-purple-500/20 rounded-lg items-center justify-center mr-3">
               <Brain size={18} color="#a855f7" />
             </View>
             <View>
-              <Text className="text-white font-bold">Accenture Intelligent Ops</Text>
-              <Text className="text-slate-400 text-xs">AI & Automation Readiness</Text>
+              <Text className={cn("font-bold", t.textPrimary)}>Accenture Intelligent Ops</Text>
+              <Text className={cn("text-xs", t.textSecondary)}>AI & Automation Readiness</Text>
             </View>
           </View>
 
@@ -894,9 +908,9 @@ function OperationsDashboard({ data, isDark, isOffWhite }: { data: FounderReport
               { label: 'Self-Healing', value: operations.intelligentOps.selfHealingProcesses },
               { label: 'Real-time', value: operations.intelligentOps.realTimeInsights },
             ].map((item) => (
-              <View key={item.label} className="bg-slate-800 p-3 rounded-xl flex-1 min-w-[45%]">
-                <Text className="text-slate-400 text-xs mb-1">{item.label}</Text>
-                <Text className="text-white font-bold text-lg">{Math.round(item.value)}%</Text>
+              <View key={item.label} className={cn("p-3 rounded-xl flex-1 min-w-[45%]", t.bgCardAlt)}>
+                <Text className={cn("text-xs mb-1", t.textSecondary)}>{item.label}</Text>
+                <Text className={cn("font-bold text-lg", t.textPrimary)}>{Math.round(item.value)}%</Text>
               </View>
             ))}
           </View>
@@ -906,22 +920,22 @@ function OperationsDashboard({ data, isDark, isOffWhite }: { data: FounderReport
       {/* Operations Recommendations */}
       {operations.recommendations?.length > 0 && (
         <Animated.View entering={FadeIn.delay(500)}>
-          <Text className="text-white font-bold text-lg mb-3">Operations Priorities</Text>
+          <Text className={cn("font-bold text-lg mb-3", t.textPrimary)}>Operations Priorities</Text>
           <View className="gap-3">
             {operations.recommendations.slice(0, 3).map((rec: any, idx: number) => (
               <View key={idx} className={cn(
                 'p-4 rounded-xl border',
                 rec.priority === 'critical' ? 'bg-red-500/5 border-red-500/30' :
                 rec.priority === 'high' ? 'bg-amber-500/5 border-amber-500/30' :
-                'bg-slate-800 border-slate-700'
+                (isDark ? 'bg-slate-800 border-slate-700' : isOffWhite ? 'bg-orange-100 border-orange-200' : 'bg-gray-100 border-gray-200')
               )}>
                 <Text className={cn(
                   'text-xs font-bold uppercase mb-2',
                   rec.priority === 'critical' ? 'text-red-400' :
-                  rec.priority === 'high' ? 'text-amber-400' : 'text-slate-400'
+                  rec.priority === 'high' ? 'text-amber-400' : t.textSecondary
                 )}>{rec.priority} - {rec.category}</Text>
-                <Text className="text-white font-semibold mb-1">{rec.title}</Text>
-                <Text className="text-slate-400 text-sm">{rec.impact}</Text>
+                <Text className={cn("font-semibold mb-1", t.textPrimary)}>{rec.title}</Text>
+                <Text className={cn("text-sm", t.textSecondary)}>{rec.impact}</Text>
               </View>
             ))}
           </View>
@@ -952,8 +966,8 @@ function FinanceDashboard({ data, isDark, isOffWhite }: { data: FounderReportDat
       {/* Framework Attribution */}
       <View className="flex-row flex-wrap gap-2 mb-2">
         {['ey', 'pwc', 'deloitte'].map((firm) => (
-          <View key={firm} className="bg-slate-800 px-3 py-1.5 rounded-lg">
-            <Text className="text-slate-300 text-xs font-medium">{FIRM_BADGES[firm].name}</Text>
+          <View key={firm} className={cn("px-3 py-1.5 rounded-lg", t.bgCardAlt)}>
+            <Text className={cn("text-xs font-medium", t.textSecondary)}>{FIRM_BADGES[firm].name}</Text>
           </View>
         ))}
       </View>
@@ -966,10 +980,10 @@ function FinanceDashboard({ data, isDark, isOffWhite }: { data: FounderReportDat
           finance.overallFinancialHealth >= 55 ? 'bg-amber-500/10 border-amber-500/40' :
           'bg-red-500/10 border-red-500/40'
         )}>
-          <Text className="text-slate-400 text-xs font-semibold uppercase mb-2">
+          <Text className={cn("text-xs font-semibold uppercase mb-2", t.textSecondary)}>
             Financial Health Score
           </Text>
-          <Text className="text-white text-4xl font-bold">{finance.overallFinancialHealth}%</Text>
+          <Text className={cn("text-4xl font-bold", t.textPrimary)}>{finance.overallFinancialHealth}%</Text>
 
           <View className={cn(
             'mt-3 px-3 py-1.5 rounded-lg self-start',
@@ -990,12 +1004,12 @@ function FinanceDashboard({ data, isDark, isOffWhite }: { data: FounderReportDat
 
       {/* EY Performance Indicators */}
       <Animated.View entering={FadeIn.delay(200)}>
-        <View className="bg-slate-900 p-5 rounded-2xl border border-slate-800">
+        <View className={cn("p-5 rounded-2xl border", t.bgCard, t.borderColor)}>
           <View className="flex-row items-center mb-4">
             <View className="w-8 h-8 bg-yellow-500/20 rounded-lg items-center justify-center mr-3">
               <LineChart size={18} color="#eab308" />
             </View>
-            <Text className="text-white font-bold">EY Performance Indicators</Text>
+            <Text className={cn("font-bold", t.textPrimary)}>EY Performance Indicators</Text>
           </View>
 
           <View className="flex-row flex-wrap gap-2">
@@ -1006,8 +1020,8 @@ function FinanceDashboard({ data, isDark, isOffWhite }: { data: FounderReportDat
               { label: 'Efficiency', value: finance.eyPerformanceIndicators.efficiencyIndex, color: '#f59e0b' },
               { label: 'Growth', value: finance.eyPerformanceIndicators.growthIndex, color: '#ec4899' },
             ].map((item) => (
-              <View key={item.label} className="bg-slate-800 p-3 rounded-xl flex-1 min-w-[30%]">
-                <Text className="text-slate-400 text-xs mb-1">{item.label}</Text>
+              <View key={item.label} className={cn("p-3 rounded-xl flex-1 min-w-[30%]", t.bgCardAlt)}>
+                <Text className={cn("text-xs mb-1", t.textSecondary)}>{item.label}</Text>
                 <Text style={{ color: item.color }} className="font-bold text-lg">{Math.round(item.value)}</Text>
               </View>
             ))}
@@ -1017,17 +1031,17 @@ function FinanceDashboard({ data, isDark, isOffWhite }: { data: FounderReportDat
 
       {/* Charles River Unit Economics */}
       <Animated.View entering={FadeIn.delay(300)}>
-        <View className="bg-slate-900 p-5 rounded-2xl border border-slate-800">
+        <View className={cn("p-5 rounded-2xl border", t.bgCard, t.borderColor)}>
           <View className="flex-row items-center mb-4">
             <View className="w-8 h-8 bg-blue-500/20 rounded-lg items-center justify-center mr-3">
               <DollarSign size={18} color="#3b82f6" />
             </View>
-            <Text className="text-white font-bold">Unit Economics</Text>
+            <Text className={cn("font-bold", t.textPrimary)}>Unit Economics</Text>
           </View>
 
           <View className="gap-3">
             <View className="flex-row justify-between items-center">
-              <Text className="text-slate-400">LTV:CAC Ratio</Text>
+              <Text className={t.textSecondary}>LTV:CAC Ratio</Text>
               <Text className={cn(
                 'font-bold text-lg',
                 finance.economicIndicators.unitEconomics.ltvCacRatio >= 3 ? 'text-emerald-400' :
@@ -1037,13 +1051,13 @@ function FinanceDashboard({ data, isDark, isOffWhite }: { data: FounderReportDat
               </Text>
             </View>
             <View className="flex-row justify-between items-center">
-              <Text className="text-slate-400">Payback Period</Text>
-              <Text className="text-white font-bold text-lg">
+              <Text className={t.textSecondary}>Payback Period</Text>
+              <Text className={cn("font-bold text-lg", t.textPrimary)}>
                 {finance.economicIndicators.unitEconomics.paybackMonths.toFixed(0)} mo
               </Text>
             </View>
             <View className="flex-row justify-between items-center">
-              <Text className="text-slate-400">Net Revenue Retention</Text>
+              <Text className={t.textSecondary}>Net Revenue Retention</Text>
               <Text className={cn(
                 'font-bold text-lg',
                 finance.economicIndicators.growthMetrics.netRevenueRetention >= 100 ? 'text-emerald-400' : 'text-amber-400'
@@ -1057,12 +1071,12 @@ function FinanceDashboard({ data, isDark, isOffWhite }: { data: FounderReportDat
 
       {/* Margin Analysis */}
       <Animated.View entering={FadeIn.delay(400)}>
-        <View className="bg-slate-900 p-5 rounded-2xl border border-slate-800">
+        <View className={cn("p-5 rounded-2xl border", t.bgCard, t.borderColor)}>
           <View className="flex-row items-center mb-4">
             <View className="w-8 h-8 bg-orange-500/20 rounded-lg items-center justify-center mr-3">
               <PieChart size={18} color="#f97316" />
             </View>
-            <Text className="text-white font-bold">Margin Analysis</Text>
+            <Text className={cn("font-bold", t.textPrimary)}>Margin Analysis</Text>
           </View>
 
           <View className="gap-3">
@@ -1074,13 +1088,13 @@ function FinanceDashboard({ data, isDark, isOffWhite }: { data: FounderReportDat
             ].map((item) => (
               <View key={item.label}>
                 <View className="flex-row justify-between mb-1">
-                  <Text className="text-slate-400 text-sm">{item.label}</Text>
+                  <Text className={cn("text-sm", t.textSecondary)}>{item.label}</Text>
                   <Text className={cn(
                     'font-semibold text-sm',
                     item.value >= 0 ? 'text-emerald-400' : 'text-red-400'
                   )}>{item.value.toFixed(1)}%</Text>
                 </View>
-                <View className="h-2 bg-slate-800 rounded-full overflow-hidden">
+                <View className={cn("h-2 rounded-full overflow-hidden", t.bgCardAlt)}>
                   <View
                     className={cn('h-full rounded-full', item.value >= 0 ? 'bg-emerald-500' : 'bg-red-500')}
                     style={{ width: `${Math.min(100, Math.abs(item.value))}%` }}
@@ -1095,7 +1109,7 @@ function FinanceDashboard({ data, isDark, isOffWhite }: { data: FounderReportDat
       {/* Key Insights */}
       {finance.keyInsights?.length > 0 && (
         <Animated.View entering={FadeIn.delay(500)}>
-          <Text className="text-white font-bold text-lg mb-3">Financial Insights</Text>
+          <Text className={cn("font-bold text-lg mb-3", t.textPrimary)}>Financial Insights</Text>
           <View className="gap-3">
             {finance.keyInsights.map((insight: any, idx: number) => (
               <View key={idx} className={cn(
@@ -1109,9 +1123,9 @@ function FinanceDashboard({ data, isDark, isOffWhite }: { data: FounderReportDat
                   insight.category === 'strength' ? 'text-emerald-400' :
                   insight.category === 'concern' ? 'text-red-400' : 'text-amber-400'
                 )}>{insight.category}</Text>
-                <Text className="text-white font-semibold mb-1">{insight.title}</Text>
-                <Text className="text-slate-400 text-sm mb-2">{insight.metric}</Text>
-                <Text className="text-slate-500 text-xs">{insight.implication}</Text>
+                <Text className={cn("font-semibold mb-1", t.textPrimary)}>{insight.title}</Text>
+                <Text className={cn("text-sm mb-2", t.textSecondary)}>{insight.metric}</Text>
+                <Text className={cn("text-xs", t.textMuted)}>{insight.implication}</Text>
               </View>
             ))}
           </View>
@@ -1142,8 +1156,8 @@ function TalentDashboard({ data, isDark, isOffWhite }: { data: FounderReportData
       {/* Framework Attribution */}
       <View className="flex-row flex-wrap gap-2 mb-2">
         {['mercer', 'kornferry', 'deloitte'].map((firm) => (
-          <View key={firm} className="bg-slate-800 px-3 py-1.5 rounded-lg">
-            <Text className="text-slate-300 text-xs font-medium">{FIRM_BADGES[firm].name}</Text>
+          <View key={firm} className={cn("px-3 py-1.5 rounded-lg", t.bgCardAlt)}>
+            <Text className={cn("text-xs font-medium", t.textSecondary)}>{FIRM_BADGES[firm].name}</Text>
           </View>
         ))}
       </View>
@@ -1156,10 +1170,10 @@ function TalentDashboard({ data, isDark, isOffWhite }: { data: FounderReportData
           talent.overallTalentScore >= 55 ? 'bg-amber-500/10 border-amber-500/40' :
           'bg-red-500/10 border-red-500/40'
         )}>
-          <Text className="text-slate-400 text-xs font-semibold uppercase mb-2">
+          <Text className={cn("text-xs font-semibold uppercase mb-2", t.textSecondary)}>
             Human Capital Score
           </Text>
-          <Text className="text-white text-4xl font-bold">{talent.overallTalentScore}%</Text>
+          <Text className={cn("text-4xl font-bold", t.textPrimary)}>{talent.overallTalentScore}%</Text>
 
           <View className={cn(
             'mt-3 px-3 py-1.5 rounded-lg self-start',
@@ -1180,23 +1194,23 @@ function TalentDashboard({ data, isDark, isOffWhite }: { data: FounderReportData
 
       {/* Team Composition */}
       <Animated.View entering={FadeIn.delay(200)}>
-        <View className="bg-slate-900 p-5 rounded-2xl border border-slate-800">
+        <View className={cn("p-5 rounded-2xl border", t.bgCard, t.borderColor)}>
           <View className="flex-row items-center mb-4">
             <View className="w-8 h-8 bg-pink-500/20 rounded-lg items-center justify-center mr-3">
               <Users size={18} color="#ec4899" />
             </View>
-            <Text className="text-white font-bold">Team Composition</Text>
+            <Text className={cn("font-bold", t.textPrimary)}>Team Composition</Text>
           </View>
 
           <View className="flex-row gap-2 mb-4">
-            <View className="flex-1 bg-slate-800 p-3 rounded-xl items-center">
-              <Text className="text-slate-400 text-xs mb-1">Exec:Apprentice</Text>
-              <Text className="text-white font-bold text-lg">
+            <View className={cn("flex-1 p-3 rounded-xl items-center", t.bgCardAlt)}>
+              <Text className={cn("text-xs mb-1", t.textSecondary)}>Exec:Apprentice</Text>
+              <Text className={cn("font-bold text-lg", t.textPrimary)}>
                 1:{(1/talent.teamComposition.executiveToApprenticeRatio).toFixed(0)}
               </Text>
             </View>
-            <View className="flex-1 bg-slate-800 p-3 rounded-xl items-center">
-              <Text className="text-slate-400 text-xs mb-1">Avg Utilization</Text>
+            <View className={cn("flex-1 p-3 rounded-xl items-center", t.bgCardAlt)}>
+              <Text className={cn("text-xs mb-1", t.textSecondary)}>Avg Utilization</Text>
               <Text className={cn(
                 'font-bold text-lg',
                 talent.teamComposition.avgUtilization >= 60 && talent.teamComposition.avgUtilization <= 90 ?
@@ -1211,15 +1225,15 @@ function TalentDashboard({ data, isDark, isOffWhite }: { data: FounderReportData
           <View className="flex-row gap-2">
             <View className="flex-1 bg-red-500/10 p-3 rounded-xl">
               <Text className="text-red-400 text-xs mb-1">Over-utilized</Text>
-              <Text className="text-white font-bold text-lg">{talent.teamComposition.capacityDistribution.overutilized}</Text>
+              <Text className={cn("font-bold text-lg", t.textPrimary)}>{talent.teamComposition.capacityDistribution.overutilized}</Text>
             </View>
             <View className="flex-1 bg-emerald-500/10 p-3 rounded-xl">
               <Text className="text-emerald-400 text-xs mb-1">Optimal</Text>
-              <Text className="text-white font-bold text-lg">{talent.teamComposition.capacityDistribution.optimal}</Text>
+              <Text className={cn("font-bold text-lg", t.textPrimary)}>{talent.teamComposition.capacityDistribution.optimal}</Text>
             </View>
             <View className="flex-1 bg-amber-500/10 p-3 rounded-xl">
               <Text className="text-amber-400 text-xs mb-1">Under-utilized</Text>
-              <Text className="text-white font-bold text-lg">{talent.teamComposition.capacityDistribution.underutilized}</Text>
+              <Text className={cn("font-bold text-lg", t.textPrimary)}>{talent.teamComposition.capacityDistribution.underutilized}</Text>
             </View>
           </View>
         </View>
@@ -1227,12 +1241,12 @@ function TalentDashboard({ data, isDark, isOffWhite }: { data: FounderReportData
 
       {/* Aon Human Capital Risk */}
       <Animated.View entering={FadeIn.delay(300)}>
-        <View className="bg-slate-900 p-5 rounded-2xl border border-slate-800">
+        <View className={cn("p-5 rounded-2xl border", t.bgCard, t.borderColor)}>
           <View className="flex-row items-center mb-4">
             <View className="w-8 h-8 bg-red-500/20 rounded-lg items-center justify-center mr-3">
               <Shield size={18} color="#ef4444" />
             </View>
-            <Text className="text-white font-bold">Aon Human Capital Risk</Text>
+            <Text className={cn("font-bold", t.textPrimary)}>Aon Human Capital Risk</Text>
           </View>
 
           <View className="gap-3">
@@ -1245,14 +1259,14 @@ function TalentDashboard({ data, isDark, isOffWhite }: { data: FounderReportData
             ].map((item) => (
               <View key={item.label}>
                 <View className="flex-row justify-between mb-1">
-                  <Text className="text-slate-400 text-sm">{item.label}</Text>
+                  <Text className={cn("text-sm", t.textSecondary)}>{item.label}</Text>
                   <Text className={cn(
                     'font-semibold text-sm',
                     item.value < 30 ? 'text-emerald-400' :
                     item.value < 60 ? 'text-amber-400' : 'text-red-400'
                   )}>{item.value}%</Text>
                 </View>
-                <View className="h-2 bg-slate-800 rounded-full overflow-hidden">
+                <View className={cn("h-2 rounded-full overflow-hidden", t.bgCardAlt)}>
                   <View
                     className={cn(
                       'h-full rounded-full',
@@ -1270,12 +1284,12 @@ function TalentDashboard({ data, isDark, isOffWhite }: { data: FounderReportData
 
       {/* Korn Ferry Talent Assessment */}
       <Animated.View entering={FadeIn.delay(400)}>
-        <View className="bg-slate-900 p-5 rounded-2xl border border-slate-800">
+        <View className={cn("p-5 rounded-2xl border", t.bgCard, t.borderColor)}>
           <View className="flex-row items-center mb-4">
             <View className="w-8 h-8 bg-rose-500/20 rounded-lg items-center justify-center mr-3">
               <UserCheck size={18} color="#e11d48" />
             </View>
-            <Text className="text-white font-bold">Korn Ferry Assessment</Text>
+            <Text className={cn("font-bold", t.textPrimary)}>Korn Ferry Assessment</Text>
           </View>
 
           <View className="flex-row flex-wrap gap-2">
@@ -1285,9 +1299,9 @@ function TalentDashboard({ data, isDark, isOffWhite }: { data: FounderReportData
               { label: 'Succession Ready', value: talent.talentAssessment.successionReadiness },
               { label: 'Skills Coverage', value: talent.talentAssessment.skillsCoverage },
             ].map((item) => (
-              <View key={item.label} className="bg-slate-800 p-3 rounded-xl flex-1 min-w-[45%]">
-                <Text className="text-slate-400 text-xs mb-1">{item.label}</Text>
-                <Text className="text-white font-bold text-lg">{Math.round(item.value)}%</Text>
+              <View key={item.label} className={cn("p-3 rounded-xl flex-1 min-w-[45%]", t.bgCardAlt)}>
+                <Text className={cn("text-xs mb-1", t.textSecondary)}>{item.label}</Text>
+                <Text className={cn("font-bold text-lg", t.textPrimary)}>{Math.round(item.value)}%</Text>
               </View>
             ))}
           </View>
@@ -1297,7 +1311,7 @@ function TalentDashboard({ data, isDark, isOffWhite }: { data: FounderReportData
       {/* Talent Insights */}
       {talent.insights?.length > 0 && (
         <Animated.View entering={FadeIn.delay(500)}>
-          <Text className="text-white font-bold text-lg mb-3">Talent Insights</Text>
+          <Text className={cn("font-bold text-lg mb-3", t.textPrimary)}>Talent Insights</Text>
           <View className="gap-3">
             {talent.insights.map((insight: any, idx: number) => (
               <View key={idx} className={cn(
@@ -1305,15 +1319,15 @@ function TalentDashboard({ data, isDark, isOffWhite }: { data: FounderReportData
                 insight.severity === 'positive' ? 'bg-emerald-500/5 border-emerald-500/30' :
                 insight.severity === 'warning' ? 'bg-amber-500/5 border-amber-500/30' :
                 insight.severity === 'critical' ? 'bg-red-500/5 border-red-500/30' :
-                'bg-slate-800 border-slate-700'
+                (isDark ? 'bg-slate-800 border-slate-700' : isOffWhite ? 'bg-orange-100 border-orange-200' : 'bg-gray-100 border-gray-200')
               )}>
                 {insight.severity === 'positive' && <CheckCircle size={18} color="#10b981" />}
                 {insight.severity === 'warning' && <AlertTriangle size={18} color="#f59e0b" />}
                 {insight.severity === 'critical' && <AlertTriangle size={18} color="#ef4444" />}
                 <View className="flex-1 ml-3">
-                  <Text className="text-white font-semibold mb-1">{insight.title}</Text>
-                  <Text className="text-slate-400 text-sm mb-2">{insight.metric}</Text>
-                  <Text className="text-slate-500 text-xs">{insight.action}</Text>
+                  <Text className={cn("font-semibold mb-1", t.textPrimary)}>{insight.title}</Text>
+                  <Text className={cn("text-sm mb-2", t.textSecondary)}>{insight.metric}</Text>
+                  <Text className={cn("text-xs", t.textMuted)}>{insight.action}</Text>
                 </View>
               </View>
             ))}
@@ -1353,23 +1367,23 @@ function ProcessDashboard({ data, isDark, isOffWhite }: { data: FounderReportDat
       {/* Framework Attribution */}
       <View className="flex-row flex-wrap gap-2 mb-2">
         {['accenture', 'kpmg', 'pwc'].map((firm) => (
-          <View key={firm} className="bg-slate-800 px-3 py-1.5 rounded-lg">
-            <Text className="text-slate-300 text-xs font-medium">{FIRM_BADGES[firm].name}</Text>
+          <View key={firm} className={cn("px-3 py-1.5 rounded-lg", t.bgCardAlt)}>
+            <Text className={cn("text-xs font-medium", t.textSecondary)}>{FIRM_BADGES[firm].name}</Text>
           </View>
         ))}
       </View>
 
       {/* Process Maturity Level */}
       <Animated.View entering={FadeIn.delay(100)}>
-        <View className="bg-slate-900 p-5 rounded-2xl border border-slate-800">
-          <Text className="text-slate-400 text-xs font-semibold uppercase mb-3">
+        <View className={cn("p-5 rounded-2xl border", t.bgCard, t.borderColor)}>
+          <Text className={cn("text-xs font-semibold uppercase mb-3", t.textSecondary)}>
             Accenture BPM Maturity
           </Text>
 
           <View className="flex-row items-center justify-between mb-4">
             <View>
-              <Text className="text-white text-4xl font-bold">Level {process.processMaturityLevel}</Text>
-              <Text className="text-slate-400 text-sm mt-1">{process.processMaturityLabel.split(' - ')[0]}</Text>
+              <Text className={cn("text-4xl font-bold", t.textPrimary)}>Level {process.processMaturityLevel}</Text>
+              <Text className={cn("text-sm mt-1", t.textSecondary)}>{process.processMaturityLabel.split(' - ')[0]}</Text>
             </View>
             <View className="flex-row">
               {[1, 2, 3, 4, 5].map((level) => (
@@ -1379,27 +1393,27 @@ function ProcessDashboard({ data, isDark, isOffWhite }: { data: FounderReportDat
                   style={{
                     backgroundColor: level <= process.processMaturityLevel
                       ? maturityColors[level as keyof typeof maturityColors]
-                      : '#1e293b'
+                      : (isDark ? '#1e293b' : isOffWhite ? '#fed7aa' : '#e5e7eb')
                   }}
                 >
-                  <Text className="text-white font-bold text-sm">{level}</Text>
+                  <Text className={cn("font-bold text-sm", level <= process.processMaturityLevel ? 'text-white' : t.textMuted)}>{level}</Text>
                 </View>
               ))}
             </View>
           </View>
 
-          <Text className="text-slate-500 text-sm">{process.processMaturityLabel.split(' - ')[1]}</Text>
+          <Text className={cn("text-sm", t.textMuted)}>{process.processMaturityLabel.split(' - ')[1]}</Text>
         </View>
       </Animated.View>
 
       {/* KPMG Process Excellence */}
       <Animated.View entering={FadeIn.delay(200)}>
-        <View className="bg-slate-900 p-5 rounded-2xl border border-slate-800">
+        <View className={cn("p-5 rounded-2xl border", t.bgCard, t.borderColor)}>
           <View className="flex-row items-center mb-4">
             <View className="w-8 h-8 bg-blue-500/20 rounded-lg items-center justify-center mr-3">
               <Workflow size={18} color="#3b82f6" />
             </View>
-            <Text className="text-white font-bold">KPMG Process Excellence</Text>
+            <Text className={cn("font-bold", t.textPrimary)}>KPMG Process Excellence</Text>
           </View>
 
           <View className="gap-3">
@@ -1412,10 +1426,10 @@ function ProcessDashboard({ data, isDark, isOffWhite }: { data: FounderReportDat
             ].map((item) => (
               <View key={item.label}>
                 <View className="flex-row justify-between mb-1">
-                  <Text className="text-slate-400 text-sm">{item.label}</Text>
-                  <Text className="text-white font-semibold text-sm">{item.value}%</Text>
+                  <Text className={cn("text-sm", t.textSecondary)}>{item.label}</Text>
+                  <Text className={cn("font-semibold text-sm", t.textPrimary)}>{item.value}%</Text>
                 </View>
-                <View className="h-2 bg-slate-800 rounded-full overflow-hidden">
+                <View className={cn("h-2 rounded-full overflow-hidden", t.bgCardAlt)}>
                   <View
                     className="h-full rounded-full"
                     style={{ width: `${item.value}%`, backgroundColor: item.color }}
@@ -1429,12 +1443,12 @@ function ProcessDashboard({ data, isDark, isOffWhite }: { data: FounderReportDat
 
       {/* Process Metrics */}
       <Animated.View entering={FadeIn.delay(300)}>
-        <View className="bg-slate-900 p-5 rounded-2xl border border-slate-800">
+        <View className={cn("p-5 rounded-2xl border", t.bgCard, t.borderColor)}>
           <View className="flex-row items-center mb-4">
             <View className="w-8 h-8 bg-cyan-500/20 rounded-lg items-center justify-center mr-3">
               <BarChart3 size={18} color="#06b6d4" />
             </View>
-            <Text className="text-white font-bold">Process Metrics</Text>
+            <Text className={cn("font-bold", t.textPrimary)}>Process Metrics</Text>
           </View>
 
           <View className="flex-row flex-wrap gap-2">
@@ -1449,7 +1463,7 @@ function ProcessDashboard({ data, isDark, isOffWhite }: { data: FounderReportDat
                 'p-3 rounded-xl flex-1 min-w-[30%]',
                 item.status === 'good' ? 'bg-emerald-500/10' : 'bg-amber-500/10'
               )}>
-                <Text className="text-slate-400 text-xs mb-1">{item.label}</Text>
+                <Text className={cn("text-xs mb-1", t.textSecondary)}>{item.label}</Text>
                 <Text className={cn(
                   'font-bold text-lg',
                   item.status === 'good' ? 'text-emerald-400' : 'text-amber-400'
@@ -1465,12 +1479,12 @@ function ProcessDashboard({ data, isDark, isOffWhite }: { data: FounderReportDat
         process.processRisks.efficiencyLeaks.length > 0 ||
         process.processRisks.qualityIssues.length > 0) && (
         <Animated.View entering={FadeIn.delay(400)}>
-          <View className="bg-slate-900 p-5 rounded-2xl border border-slate-800">
+          <View className={cn("p-5 rounded-2xl border", t.bgCard, t.borderColor)}>
             <View className="flex-row items-center mb-4">
               <View className="w-8 h-8 bg-orange-500/20 rounded-lg items-center justify-center mr-3">
                 <AlertTriangle size={18} color="#f97316" />
               </View>
-              <Text className="text-white font-bold">PwC Process Risks</Text>
+              <Text className={cn("font-bold", t.textPrimary)}>PwC Process Risks</Text>
             </View>
 
             <View className="gap-3">
@@ -1483,7 +1497,7 @@ function ProcessDashboard({ data, isDark, isOffWhite }: { data: FounderReportDat
                   <View className="w-2 h-2 bg-orange-500 rounded-full mt-2 mr-3" />
                   <View className="flex-1">
                     <Text className="text-orange-400 text-xs font-bold uppercase">{risk.type}</Text>
-                    <Text className="text-slate-300 text-sm">{risk.text}</Text>
+                    <Text className={cn("text-sm", t.textSecondary)}>{risk.text}</Text>
                   </View>
                 </View>
               ))}
@@ -1501,7 +1515,7 @@ function ProcessDashboard({ data, isDark, isOffWhite }: { data: FounderReportDat
               {process.processMetrics.bottlenecks.map((bottleneck: string, idx: number) => (
                 <View key={idx} className="flex-row items-center">
                   <View className="w-2 h-2 bg-red-500 rounded-full mr-2" />
-                  <Text className="text-slate-300 text-sm">{bottleneck}</Text>
+                  <Text className={cn("text-sm", t.textSecondary)}>{bottleneck}</Text>
                 </View>
               ))}
             </View>
@@ -1512,17 +1526,17 @@ function ProcessDashboard({ data, isDark, isOffWhite }: { data: FounderReportDat
       {/* Process Recommendations */}
       {process.recommendations?.length > 0 && (
         <Animated.View entering={FadeIn.delay(600)}>
-          <Text className="text-white font-bold text-lg mb-3">Process Improvements</Text>
+          <Text className={cn("font-bold text-lg mb-3", t.textPrimary)}>Process Improvements</Text>
           <View className="gap-3">
             {process.recommendations.map((rec: any, idx: number) => (
-              <View key={idx} className="bg-slate-900 p-4 rounded-xl border border-slate-800">
+              <View key={idx} className={cn("p-4 rounded-xl border", t.bgCard, t.borderColor)}>
                 <View className="flex-row items-center justify-between mb-2">
                   <Text className="text-blue-400 text-xs font-bold uppercase">{rec.processArea}</Text>
-                  <Text className="text-slate-500 text-xs">{rec.effort}</Text>
+                  <Text className={cn("text-xs", t.textMuted)}>{rec.effort}</Text>
                 </View>
-                <Text className="text-white font-semibold mb-1">{rec.title}</Text>
-                <Text className="text-slate-400 text-sm mb-2">{rec.currentState} → {rec.targetState}</Text>
-                <Text className="text-slate-500 text-xs">{rec.impact}</Text>
+                <Text className={cn("font-semibold mb-1", t.textPrimary)}>{rec.title}</Text>
+                <Text className={cn("text-sm mb-2", t.textSecondary)}>{rec.currentState} → {rec.targetState}</Text>
+                <Text className={cn("text-xs", t.textMuted)}>{rec.impact}</Text>
               </View>
             ))}
           </View>
@@ -1536,21 +1550,24 @@ function ProcessDashboard({ data, isDark, isOffWhite }: { data: FounderReportDat
 // HELPER COMPONENTS
 // ===========================================================================
 
-function MetricCard({ icon: Icon, color, label, value, subtext }: {
+function MetricCard({ icon: Icon, color, label, value, subtext, isDark, isOffWhite }: {
   icon: any;
   color: string;
   label: string;
   value: string;
   subtext: string;
+  isDark?: boolean;
+  isOffWhite?: boolean;
 }) {
+  const t = getThemeClasses(isDark ?? false, isOffWhite ?? false);
   return (
-    <View className="bg-slate-900 p-4 rounded-xl border border-slate-800 flex-1 min-w-[30%]">
+    <View className={cn("p-4 rounded-xl border flex-1 min-w-[30%]", t.bgCard, t.borderColor)}>
       <View className="w-8 h-8 rounded-lg items-center justify-center mb-2" style={{ backgroundColor: `${color}20` }}>
         <Icon size={16} color={color} />
       </View>
-      <Text className="text-slate-400 text-xs font-medium">{label}</Text>
-      <Text className="text-white text-xl font-bold">{value}</Text>
-      <Text className="text-slate-500 text-xs mt-1">{subtext}</Text>
+      <Text className={cn("text-xs font-medium", t.textSecondary)}>{label}</Text>
+      <Text className={cn("text-xl font-bold", t.textPrimary)}>{value}</Text>
+      <Text className={cn("text-xs mt-1", t.textMuted)}>{subtext}</Text>
     </View>
   );
 }
@@ -1582,7 +1599,7 @@ function ExecutiveReportView({ report }: { report: Report }) {
               <Text className="text-emerald-400 font-bold">{data.summary.tasksCompleted}</Text>
             </View>
             <View className="flex-row justify-between">
-              <Text className="text-slate-400">Hours Logged</Text>
+              <Text className={t.textSecondary}>Hours Logged</Text>
               <Text className="text-blue-400 font-bold">{data.summary.hoursLogged}h</Text>
             </View>
           </View>
@@ -1591,22 +1608,22 @@ function ExecutiveReportView({ report }: { report: Report }) {
 
       {data.apprenticePerformance.length > 0 && (
         <Animated.View entering={FadeIn.delay(200)}>
-          <Text className="text-white font-bold text-lg mb-3">Team Performance</Text>
+          <Text className={cn("font-bold text-lg mb-3", t.textPrimary)}>Team Performance</Text>
           <View className="gap-3">
             {data.apprenticePerformance.map((apprentice) => (
-              <View key={apprentice.apprenticeId} className="bg-slate-900 p-4 rounded-xl border border-slate-800">
-                <Text className="text-white font-semibold mb-3">{apprentice.apprenticeName}</Text>
+              <View key={apprentice.apprenticeId} className={cn("p-4 rounded-xl border", t.bgCard, t.borderColor)}>
+                <Text className={cn("font-semibold mb-3", t.textPrimary)}>{apprentice.apprenticeName}</Text>
                 <View className="flex-row justify-between">
                   <View className="items-center">
-                    <Text className="text-slate-500 text-xs">Tasks</Text>
-                    <Text className="text-white font-bold">{apprentice.tasksCompleted}/{apprentice.tasksAssigned}</Text>
+                    <Text className={cn("text-xs", t.textMuted)}>Tasks</Text>
+                    <Text className={cn("font-bold", t.textPrimary)}>{apprentice.tasksCompleted}/{apprentice.tasksAssigned}</Text>
                   </View>
                   <View className="items-center">
-                    <Text className="text-slate-500 text-xs">Hours</Text>
-                    <Text className="text-white font-bold">{apprentice.hoursLogged}h</Text>
+                    <Text className={cn("text-xs", t.textMuted)}>Hours</Text>
+                    <Text className={cn("font-bold", t.textPrimary)}>{apprentice.hoursLogged}h</Text>
                   </View>
                   <View className="items-center">
-                    <Text className="text-slate-500 text-xs">Pending</Text>
+                    <Text className={cn("text-xs", t.textMuted)}>Pending</Text>
                     <Text className="text-amber-400 font-bold">{apprentice.pendingVerifications}</Text>
                   </View>
                 </View>
@@ -1659,7 +1676,7 @@ function ApprenticeReportView({ report }: { report: Report }) {
 
       {data.achievements.length > 0 && (
         <Animated.View entering={FadeIn.delay(200)}>
-          <Text className="text-white font-bold text-lg mb-3">Achievements</Text>
+          <Text className={cn("font-bold text-lg mb-3", t.textPrimary)}>Achievements</Text>
           <View className="gap-2">
             {data.achievements.map((achievement, idx) => (
               <View key={idx} className="bg-emerald-500/10 border border-emerald-500/30 p-4 rounded-xl flex-row items-center">
@@ -1673,12 +1690,12 @@ function ApprenticeReportView({ report }: { report: Report }) {
 
       {data.taskDetails.length > 0 && (
         <Animated.View entering={FadeIn.delay(300)}>
-          <Text className="text-white font-bold text-lg mb-3">Recent Tasks</Text>
+          <Text className={cn("font-bold text-lg mb-3", t.textPrimary)}>Recent Tasks</Text>
           <View className="gap-3">
             {data.taskDetails.slice(0, 5).map((task) => (
-              <View key={task.taskId} className="bg-slate-900 p-4 rounded-xl border border-slate-800">
+              <View key={task.taskId} className={cn("p-4 rounded-xl border", t.bgCard, t.borderColor)}>
                 <View className="flex-row items-start justify-between">
-                  <Text className="text-white font-medium flex-1 mr-2">{task.title}</Text>
+                  <Text className={cn("font-medium flex-1 mr-2", t.textPrimary)}>{task.title}</Text>
                   <View className={cn(
                     'px-2 py-1 rounded',
                     task.status === 'done' ? 'bg-emerald-500/20' :
@@ -1692,7 +1709,7 @@ function ApprenticeReportView({ report }: { report: Report }) {
                   </View>
                 </View>
                 {task.hoursLogged > 0 && (
-                  <Text className="text-slate-500 text-sm mt-2">{task.hoursLogged}h logged</Text>
+                  <Text className={cn("text-sm mt-2", t.textMuted)}>{task.hoursLogged}h logged</Text>
                 )}
               </View>
             ))}
