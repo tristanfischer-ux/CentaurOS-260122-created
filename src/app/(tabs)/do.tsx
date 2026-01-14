@@ -10,24 +10,41 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import type { Function as BusinessFunction } from '@/types';
 import { useWorkPlanStore, type WorkPlan } from '@/lib/state/work-plan-store';
-import { useOKRStore } from '@/lib/state/okr-store';
+import { useOKRStore, type OKR } from '@/lib/state/okr-store';
 import { cn } from '@/lib/cn';
 import { HelpModal, HelpButton, type HelpContent } from '@/components/HelpModal';
 
-const DO_HELP: HelpContent = {
+const DO_HELP_APPRENTICE: HelpContent = {
   title: 'Task Execution',
   subtitle: 'Get things done',
-  description: 'The Do tab is your workspace for executing tasks. Track work plans, manage deadlines, and submit completed work for review.',
+  description: 'The Do tab shows your tasks organized by the OKRs they contribute to. Focus on executing tasks and see how your work drives objectives forward.',
   tips: [
-    'Use Focus Mode to see your highest-priority tasks based on deadline and OKR health',
-    'Start timers to track how long tasks take for better future estimates',
+    'Tasks are grouped by OKR to show you the bigger picture',
+    'See how each task contributes to overall objective progress',
+    'Use Focus Mode to see only your highest-priority tasks',
     'Submit work for review once you\'ve completed the quality checklist',
-    'Flag blocked tasks immediately so your executive can help unblock them',
   ],
   quickActions: [
     { label: 'Focus Mode', description: 'See only your most urgent and important tasks' },
     { label: 'Submit Work', description: 'Mark a task as complete and send it for executive review' },
     { label: 'Track Time', description: 'Start a timer to record hours spent on each task' },
+  ],
+};
+
+const DO_HELP_EXECUTIVE: HelpContent = {
+  title: 'OKR Execution',
+  subtitle: 'Drive objectives forward',
+  description: 'The Do tab shows your OKRs with all related tasks nested underneath. Track progress on objectives and help your team execute.',
+  tips: [
+    'Each OKR shows all tasks that drive it forward',
+    'Monitor task progress and unblock your team',
+    'Review submitted work and provide feedback',
+    'Use OKR health indicators to identify risks early',
+  ],
+  quickActions: [
+    { label: 'Expand OKR', description: 'See all tasks contributing to an objective' },
+    { label: 'Review Work', description: 'Provide feedback on submitted tasks' },
+    { label: 'Unblock Tasks', description: 'Help remove blockers for your team' },
   ],
 };
 
@@ -61,6 +78,7 @@ export default function DoScreen() {
   const okrs = useOKRStore(s => s.okrs);
 
   const [selectedFunction, setSelectedFunction] = useState<BusinessFunction | 'all'>('all');
+  const [expandedOKRs, setExpandedOKRs] = useState<Set<string>>(new Set());
   const [expandedPlans, setExpandedPlans] = useState<Set<string>>(new Set());
   const [showSubmitModal, setShowSubmitModal] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<WorkPlan | null>(null);
@@ -70,7 +88,7 @@ export default function DoScreen() {
   const [activeTimer, setActiveTimer] = useState<string | null>(null);
   const [showHelp, setShowHelp] = useState(false);
 
-  // Enhanced submission state (Deloitte/Accenture process excellence)
+  // Enhanced submission state
   const [hoursSpent, setHoursSpent] = useState('');
   const [blockersEncountered, setBlockersEncountered] = useState<string[]>([]);
   const [confidenceLevel, setConfidenceLevel] = useState<'high' | 'medium' | 'low'>('high');
@@ -86,6 +104,13 @@ export default function DoScreen() {
   const isExecutive = currentMembership?.role === 'FractionalExec';
   const isApprentice = currentMembership?.role === 'Apprentice';
 
+  // Get work plans for current user
+  const myWorkPlans = isApprentice
+    ? getApprenticeWorkPlans()
+    : isExecutive
+      ? getExecutiveWorkPlans((currentMembership?.function || 'Marketing') as BusinessFunction)
+      : [];
+
   // Calculate priority and enrich work plans
   const enrichWorkPlan = (plan: WorkPlan): PrioritizedPlan => {
     const today = new Date();
@@ -95,7 +120,6 @@ export default function DoScreen() {
     // Find linked OKR
     const linkedOKR = okrs.find(o => o.title === plan.linkedOKRTitle);
     const okrHealth = linkedOKR?.status || 'on-track';
-    // Calculate OKR progress from objectives average
     const okrProgress = linkedOKR?.objectives && linkedOKR.objectives.length > 0
       ? Math.round(linkedOKR.objectives.reduce((sum, obj) => sum + obj.progress, 0) / linkedOKR.objectives.length)
       : 0;
@@ -119,6 +143,16 @@ export default function DoScreen() {
       okrHealth,
       okrProgress,
     };
+  };
+
+  const toggleOKR = (okrId: string) => {
+    const newExpanded = new Set(expandedOKRs);
+    if (newExpanded.has(okrId)) {
+      newExpanded.delete(okrId);
+    } else {
+      newExpanded.add(okrId);
+    }
+    setExpandedOKRs(newExpanded);
   };
 
   const togglePlan = (planId: string) => {
@@ -166,27 +200,13 @@ export default function DoScreen() {
     }
   };
 
-  const getFunctionColor = (func: BusinessFunction) => {
-    switch (func) {
-      case 'Marketing': return '#f59e0b';
-      case 'Sales': return '#ec4899';
-      case 'Engineering': return '#3b82f6';
-      case 'Ops': return '#8b5cf6';
-      case 'Finance': return '#10b981';
-      case 'Admin': return '#64748b';
-      default: return '#64748b';
-    }
-  };
-
   const handleSubmitWork = () => {
     if (!selectedPlan) return;
 
-    // Calculate quality score based on checklist and confidence
-    const checklistScore = Object.values(qualityChecklist).filter(Boolean).length * 20; // 0-80
+    const checklistScore = Object.values(qualityChecklist).filter(Boolean).length * 20;
     const confidenceBonus = confidenceLevel === 'high' ? 20 : confidenceLevel === 'medium' ? 10 : 0;
     const estimatedQuality = Math.min(100, checklistScore + confidenceBonus);
 
-    // Update work plan with enhanced submission data
     updateWorkPlan(selectedPlan.id, {
       needsSubmission: true,
       lastSubmittedAt: new Date().toISOString(),
@@ -234,11 +254,10 @@ export default function DoScreen() {
     }
   };
 
-  // Filter and sort plans based on view mode and time filter
+  // Filter and sort plans
   const filterAndSortPlans = (plans: WorkPlan[]): PrioritizedPlan[] => {
     let enrichedPlans = plans.map(enrichWorkPlan);
 
-    // Filter by view mode
     if (viewMode === 'focus') {
       enrichedPlans = enrichedPlans.filter(p => p.status !== 'completed' && p.priority !== 'low');
     } else if (viewMode === 'blocked') {
@@ -247,14 +266,12 @@ export default function DoScreen() {
       enrichedPlans = enrichedPlans.filter(p => p.status !== 'completed');
     }
 
-    // Filter by time
     if (timeFilter === 'today') {
       enrichedPlans = enrichedPlans.filter(p => p.daysUntilDue <= 1);
     } else if (timeFilter === 'week') {
       enrichedPlans = enrichedPlans.filter(p => p.daysUntilDue <= 7);
     }
 
-    // Sort by priority then due date
     const priorityOrder = { critical: 0, high: 1, medium: 2, low: 3 };
     return enrichedPlans.sort((a, b) => {
       const priorityDiff = priorityOrder[a.priority] - priorityOrder[b.priority];
@@ -274,108 +291,105 @@ export default function DoScreen() {
     return { completed, total, blocked, avgProgress };
   };
 
-  // Render work plan card
-  const renderWorkPlanCard = (plan: PrioritizedPlan, showFunction = false) => {
+  // Filter and prepare data at top level
+  const filteredPlans = filterAndSortPlans(myWorkPlans);
+
+  // Group tasks by OKR for Apprentices
+  const tasksByOKR = useMemo(() => {
+    if (!isApprentice) return [];
+
+    const grouped = new Map<string, { okr: OKR; tasks: PrioritizedPlan[] }>();
+
+    filteredPlans.forEach(task => {
+      const okr = okrs.find(o => o.title === task.linkedOKRTitle);
+      if (okr) {
+        if (!grouped.has(okr.id)) {
+          grouped.set(okr.id, { okr, tasks: [] });
+        }
+        grouped.get(okr.id)!.tasks.push(task);
+      }
+    });
+
+    return Array.from(grouped.values());
+  }, [isApprentice, filteredPlans, okrs]);
+
+  // Group OKRs with tasks for Executives
+  const okrsWithTasks = useMemo(() => {
+    if (!isExecutive) return [];
+
+    const execFunction = (currentMembership?.function || 'Marketing') as BusinessFunction;
+    const myOKRs = okrs.filter(okr => okr.function === execFunction);
+
+    return myOKRs.map(okr => {
+      const tasks = myWorkPlans
+        .filter(plan => plan.linkedOKRTitle === okr.title && plan.status !== 'completed')
+        .map(enrichWorkPlan)
+        .sort((a, b) => {
+          const priorityOrder = { critical: 0, high: 1, medium: 2, low: 3 };
+          const priorityDiff = priorityOrder[a.priority] - priorityOrder[b.priority];
+          if (priorityDiff !== 0) return priorityDiff;
+          return a.daysUntilDue - b.daysUntilDue;
+        });
+      return { okr, tasks };
+    });
+  }, [isExecutive, currentMembership?.function, okrs, myWorkPlans]);
+
+  // Render compact task card (for OKR-grouped view)
+  const renderCompactTaskCard = (plan: PrioritizedPlan) => {
     const isExpanded = expandedPlans.has(plan.id);
-    const functionColor = getFunctionColor(plan.function);
     const statusStyle = getStatusColor(plan.status);
     const priorityStyle = getPriorityColor(plan.priority);
     const isTimerActive = activeTimer === plan.id;
 
     return (
-      <View key={plan.id} className="mb-3">
+      <View key={plan.id} className="mb-2">
         <Pressable
           onPress={() => togglePlan(plan.id)}
           className={cn(
-            'rounded-2xl p-4 active:opacity-70 border',
+            'rounded-xl p-3 active:opacity-70 border',
             plan.status === 'blocked'
               ? 'bg-red-50 dark:bg-red-900/10 border-red-200 dark:border-red-800'
-              : plan.priority === 'critical'
-                ? 'bg-amber-50 dark:bg-amber-900/10 border-amber-200 dark:border-amber-800'
-                : 'bg-gray-50 dark:bg-slate-900 border-gray-200 dark:border-slate-800'
+              : 'bg-white dark:bg-slate-900 border-gray-200 dark:border-slate-800'
           )}
         >
-          {/* Top Row: Priority Badge + Function */}
           <View className="flex-row items-center justify-between mb-2">
+            <View className="flex-1 mr-3">
+              <Text className="text-gray-900 dark:text-white font-bold text-sm">
+                {plan.title}
+              </Text>
+            </View>
+
             <View className="flex-row items-center gap-2">
               {/* Priority Badge */}
               <View
-                className="px-2 py-0.5 rounded-full"
+                className="px-1.5 py-0.5 rounded-full"
                 style={{ backgroundColor: priorityStyle.bg }}
               >
-                <Text className="text-white text-xs font-bold">{priorityStyle.text}</Text>
+                <Text className="text-white text-xs font-bold">{priorityStyle.text[0]}</Text>
               </View>
 
-              {showFunction && (
-                <View
-                  className="px-2 py-0.5 rounded"
-                  style={{ backgroundColor: functionColor + '20' }}
-                >
-                  <Text className="text-xs font-semibold" style={{ color: functionColor }}>
-                    {plan.function}
-                  </Text>
-                </View>
-              )}
-            </View>
-
-            {/* Due Date Badge */}
-            <View className={cn(
-              'flex-row items-center px-2 py-1 rounded-lg',
-              plan.daysUntilDue <= 2 ? 'bg-red-100 dark:bg-red-900/30' :
-              plan.daysUntilDue <= 7 ? 'bg-amber-100 dark:bg-amber-900/30' :
-              'bg-gray-100 dark:bg-slate-800'
-            )}>
-              <CalendarClock size={12} color={plan.daysUntilDue <= 2 ? '#ef4444' : plan.daysUntilDue <= 7 ? '#f59e0b' : '#64748b'} />
-              <Text className={cn(
-                'text-xs font-semibold ml-1',
-                plan.daysUntilDue <= 2 ? 'text-red-600 dark:text-red-400' :
-                plan.daysUntilDue <= 7 ? 'text-amber-600 dark:text-amber-400' :
-                'text-gray-600 dark:text-slate-400'
+              {/* Due Date */}
+              <View className={cn(
+                'px-2 py-0.5 rounded',
+                plan.daysUntilDue <= 2 ? 'bg-red-100 dark:bg-red-900/30' :
+                plan.daysUntilDue <= 7 ? 'bg-amber-100 dark:bg-amber-900/30' :
+                'bg-gray-100 dark:bg-slate-800'
               )}>
-                {plan.daysUntilDue <= 0 ? 'Overdue!' : plan.daysUntilDue === 1 ? 'Due Tomorrow' : `${plan.daysUntilDue}d left`}
-              </Text>
-            </View>
-          </View>
-
-          {/* Title */}
-          <Text className="text-gray-900 dark:text-white font-bold text-base mb-2">
-            {plan.title}
-          </Text>
-
-          {/* OKR Link with Impact Indicator */}
-          <View className="flex-row items-center mb-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg px-3 py-2">
-            <Target size={14} color="#8b5cf6" />
-            <View className="flex-1 ml-2">
-              <Text className="text-purple-700 dark:text-purple-300 text-xs font-medium" numberOfLines={1}>
-                {plan.linkedOKRTitle}
-              </Text>
-              <View className="flex-row items-center mt-1">
-                <View className="flex-1 bg-purple-200 dark:bg-purple-800 rounded-full h-1.5 mr-2">
-                  <View
-                    className="bg-purple-500 h-full rounded-full"
-                    style={{ width: `${plan.okrProgress}%` }}
-                  />
-                </View>
-                <Text className="text-purple-600 dark:text-purple-400 text-xs font-semibold">
-                  {plan.okrProgress}%
+                <Text className={cn(
+                  'text-xs font-semibold',
+                  plan.daysUntilDue <= 2 ? 'text-red-600 dark:text-red-400' :
+                  plan.daysUntilDue <= 7 ? 'text-amber-600 dark:text-amber-400' :
+                  'text-gray-600 dark:text-slate-400'
+                )}>
+                  {plan.daysUntilDue}d
                 </Text>
               </View>
             </View>
-            <View className={cn(
-              'w-2 h-2 rounded-full ml-2',
-              plan.okrHealth === 'on-track' && 'bg-emerald-500',
-              plan.okrHealth === 'at-risk' && 'bg-amber-500',
-              plan.okrHealth === 'off-track' && 'bg-red-500'
-            )} />
           </View>
 
           {/* Progress Bar */}
           <View className="mb-2">
-            <View className="flex-row items-center justify-between mb-1">
-              <Text className="text-gray-500 dark:text-slate-400 text-xs">Progress</Text>
-              <Text className="text-gray-900 dark:text-white font-bold text-sm">{plan.progress}%</Text>
-            </View>
-            <View className="bg-gray-200 dark:bg-slate-700 rounded-full h-2 overflow-hidden">
+            <View className="bg-gray-200 dark:bg-slate-700 rounded-full h-1.5 overflow-hidden">
               <View
                 className={cn(
                   'h-full rounded-full',
@@ -389,39 +403,39 @@ export default function DoScreen() {
           </View>
 
           {/* Quick Actions Row */}
-          <View className="flex-row items-center justify-between pt-2 border-t border-gray-200 dark:border-slate-700">
-            <View className={cn('px-2 py-1 rounded', statusStyle.bg)}>
+          <View className="flex-row items-center justify-between">
+            <View className={cn('px-2 py-0.5 rounded', statusStyle.bg)}>
               <Text className={cn('text-xs font-semibold', statusStyle.text)}>{getStatusText(plan.status)}</Text>
             </View>
 
             <View className="flex-row items-center gap-2">
-              {/* Timer Button */}
+              {/* Timer */}
               <Pressable
                 onPress={() => toggleTimer(plan.id)}
                 className={cn(
-                  'w-8 h-8 rounded-lg items-center justify-center',
+                  'w-7 h-7 rounded-lg items-center justify-center',
                   isTimerActive ? 'bg-blue-500' : 'bg-gray-200 dark:bg-slate-700'
                 )}
               >
-                {isTimerActive ? <Pause size={16} color="#fff" /> : <Play size={16} color="#64748b" />}
+                {isTimerActive ? <Pause size={14} color="#fff" /> : <Play size={14} color="#64748b" />}
               </Pressable>
 
               {/* Blocked Toggle */}
               <Pressable
                 onPress={() => handleToggleBlocked(plan)}
                 className={cn(
-                  'w-8 h-8 rounded-lg items-center justify-center',
+                  'w-7 h-7 rounded-lg items-center justify-center',
                   plan.status === 'blocked' ? 'bg-red-500' : 'bg-gray-200 dark:bg-slate-700'
                 )}
               >
-                <AlertTriangle size={16} color={plan.status === 'blocked' ? '#fff' : '#64748b'} />
+                <AlertTriangle size={14} color={plan.status === 'blocked' ? '#fff' : '#64748b'} />
               </Pressable>
 
               {/* Expand */}
               {isExpanded ? (
-                <ChevronDown size={20} color="#64748b" />
+                <ChevronDown size={18} color="#64748b" />
               ) : (
-                <ChevronRight size={20} color="#64748b" />
+                <ChevronRight size={18} color="#64748b" />
               )}
             </View>
           </View>
@@ -429,14 +443,14 @@ export default function DoScreen() {
 
         {/* Expanded Actions */}
         {isExpanded && (
-          <View className="mt-2 ml-4 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl p-4">
+          <View className="mt-1 ml-3 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl p-3">
             <Text className="text-gray-700 dark:text-slate-300 text-sm mb-3">{plan.description}</Text>
 
             {/* Quick Progress Buttons */}
             <View className="mb-3">
-              <Text className="text-gray-500 dark:text-slate-400 text-xs font-semibold mb-2">QUICK PROGRESS UPDATE</Text>
+              <Text className="text-gray-500 dark:text-slate-400 text-xs font-semibold mb-2">QUICK PROGRESS</Text>
               <View className="flex-row gap-2">
-                {[10, 25, 50].map((increment) => (
+                {[25, 50].map((increment) => (
                   <Pressable
                     key={increment}
                     onPress={() => handleQuickProgress(plan, increment)}
@@ -454,38 +468,28 @@ export default function DoScreen() {
               </View>
             </View>
 
-            {/* Action Buttons */}
-            <View className="flex-row gap-2">
+            {/* Submit Button */}
+            {isApprentice && (
               <Pressable
                 onPress={() => {
                   setSelectedPlan(plan);
                   setShowSubmitModal(true);
                 }}
-                className="flex-1 bg-purple-500 py-2.5 rounded-lg active:opacity-70 flex-row items-center justify-center"
+                className="bg-purple-500 py-2 rounded-lg active:opacity-70 flex-row items-center justify-center"
               >
-                <Send size={16} color="#fff" />
+                <Send size={14} color="#fff" />
                 <Text className="text-white text-center font-semibold text-sm ml-1.5">Submit Work</Text>
               </Pressable>
-            </View>
+            )}
 
             {/* Feedback Display */}
             {plan.feedback && (
-              <View className="mt-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3">
+              <View className="mt-2 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-2">
                 <View className="flex-row items-center mb-1">
-                  <MessageSquare size={14} color="#3b82f6" />
-                  <Text className="text-blue-700 dark:text-blue-300 text-xs font-semibold ml-1">Feedback from {plan.assignedBy}</Text>
+                  <MessageSquare size={12} color="#3b82f6" />
+                  <Text className="text-blue-700 dark:text-blue-300 text-xs font-semibold ml-1">Feedback</Text>
                 </View>
-                <Text className="text-blue-600 dark:text-blue-400 text-sm">{plan.feedback}</Text>
-              </View>
-            )}
-
-            {/* Last Submission */}
-            {plan.lastSubmittedAt && (
-              <View className="mt-2 flex-row items-center">
-                <Clock size={12} color="#64748b" />
-                <Text className="text-gray-500 dark:text-slate-400 text-xs ml-1">
-                  Last submitted: {new Date(plan.lastSubmittedAt).toLocaleDateString()}
-                </Text>
+                <Text className="text-blue-600 dark:text-blue-400 text-xs">{plan.feedback}</Text>
               </View>
             )}
           </View>
@@ -494,10 +498,8 @@ export default function DoScreen() {
     );
   };
 
-  // Render for Apprentices
+  // Render for Apprentices - Task-focused grouped by OKR
   if (isApprentice) {
-    const myWorkPlans = getApprenticeWorkPlans();
-    const filteredPlans = filterAndSortPlans(myWorkPlans);
     const velocity = calculateVelocity(myWorkPlans);
     const blockedCount = myWorkPlans.filter(p => p.status === 'blocked').length;
     const criticalCount = filteredPlans.filter(p => p.priority === 'critical').length;
@@ -508,11 +510,11 @@ export default function DoScreen() {
         <HelpModal
           visible={showHelp}
           onClose={() => setShowHelp(false)}
-          content={DO_HELP}
+          content={DO_HELP_APPRENTICE}
           gradientColors={['#10b981', '#059669']}
         />
 
-        {/* Header - Matching Home Tab Style */}
+        {/* Header */}
         <LinearGradient
           colors={['#10b981', '#059669']}
           start={{ x: 0, y: 0 }}
@@ -521,7 +523,7 @@ export default function DoScreen() {
         >
           <View className="flex-row items-center justify-between mb-3">
             <View className="flex-1">
-              <Text className="text-white/70 text-xs font-medium">TASK EXECUTION</Text>
+              <Text className="text-white/70 text-xs font-medium">MY TASKS</Text>
               <Text className="text-white text-xl font-bold">Do</Text>
             </View>
             <View className="flex-row items-center gap-2">
@@ -534,20 +536,19 @@ export default function DoScreen() {
               )}
             </View>
           </View>
-          {/* Quick Health Indicators */}
           <View className="flex-row gap-4">
             <View className="flex-row items-center">
               <View className="w-2 h-2 rounded-full mr-1.5 bg-emerald-300" />
-              <Text className="text-white/90 text-xs">{filteredPlans.length} active tasks</Text>
+              <Text className="text-white/90 text-xs">{filteredPlans.length} tasks</Text>
             </View>
             <View className="flex-row items-center">
               <View className="w-2 h-2 rounded-full mr-1.5 bg-white" />
-              <Text className="text-white/90 text-xs">{velocity.avgProgress}% avg progress</Text>
+              <Text className="text-white/90 text-xs">{velocity.avgProgress}% avg</Text>
             </View>
           </View>
         </LinearGradient>
 
-        {/* View Tabs - Below Header */}
+        {/* View Tabs */}
         <View className="px-5 py-3 bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-800">
           <ScrollView
             horizontal
@@ -555,7 +556,7 @@ export default function DoScreen() {
             contentContainerStyle={{ gap: 8 }}
           >
             {[
-              { value: 'focus', label: 'Focus Mode', icon: Flame },
+              { value: 'focus', label: 'Focus', icon: Flame },
               { value: 'all', label: 'All Tasks', icon: BarChart3 },
               { value: 'blocked', label: 'Blocked', icon: AlertTriangle, count: blockedCount },
             ].map((tab) => (
@@ -588,7 +589,7 @@ export default function DoScreen() {
           </ScrollView>
         </View>
 
-        {/* Time Filter Pills */}
+        {/* Time Filter */}
         <View className="px-5 py-2 bg-white dark:bg-slate-900">
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}>
             {(['today', 'week', 'all'] as TimeFilter[]).map((filter) => (
@@ -602,7 +603,7 @@ export default function DoScreen() {
                 <Text className={`text-xs font-semibold ${
                   timeFilter === filter ? 'text-purple-600 dark:text-purple-400' : 'text-gray-500 dark:text-slate-400'
                 }`}>
-                  {filter === 'today' ? 'Due Today' : filter === 'week' ? 'This Week' : 'All Tasks'}
+                  {filter === 'today' ? 'Today' : filter === 'week' ? 'This Week' : 'All'}
                 </Text>
               </Pressable>
             ))}
@@ -610,41 +611,88 @@ export default function DoScreen() {
         </View>
 
         <ScrollView className="flex-1 px-5 py-4">
-          {filteredPlans.length === 0 ? (
+          {tasksByOKR.length === 0 ? (
             <View className="items-center justify-center py-12 bg-white dark:bg-slate-900 rounded-xl">
               <CheckCircle2 size={48} color="#10b981" />
               <Text className="text-emerald-600 dark:text-emerald-400 text-center font-semibold text-lg mt-4">
                 All Clear!
               </Text>
               <Text className="text-gray-500 dark:text-slate-400 text-center mt-2">
-                {viewMode === 'blocked' ? 'No blocked tasks' : 'No tasks matching your filters'}
+                No tasks matching your filters
               </Text>
             </View>
           ) : (
             <>
-              {/* Critical Alert Banner */}
+              {/* Critical Alert */}
               {criticalCount > 0 && viewMode !== 'blocked' && (
                 <View className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-4 mb-4">
                   <View className="flex-row items-center">
                     <Flame size={20} color="#ef4444" />
                     <Text className="text-red-700 dark:text-red-300 font-bold ml-2">
-                      {criticalCount} Critical Task{criticalCount > 1 ? 's' : ''} Need Attention
+                      {criticalCount} Critical Task{criticalCount > 1 ? 's' : ''}
                     </Text>
                   </View>
-                  <Text className="text-red-600 dark:text-red-400 text-sm mt-1">
-                    These are overdue, blocked, or linked to off-track OKRs
-                  </Text>
                 </View>
               )}
 
-              {filteredPlans.map((plan) => renderWorkPlanCard(plan, true))}
+              {/* Tasks grouped by OKR */}
+              {tasksByOKR.map(({ okr, tasks }) => {
+                const isExpanded = expandedOKRs.has(okr.id);
+                const okrProgress = okr.objectives.length > 0
+                  ? Math.round(okr.objectives.reduce((sum, obj) => sum + obj.progress, 0) / okr.objectives.length)
+                  : 0;
+
+                return (
+                  <View key={okr.id} className="mb-4">
+                    {/* OKR Header */}
+                    <Pressable
+                      onPress={() => toggleOKR(okr.id)}
+                      className="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-xl p-4 mb-2 active:opacity-70"
+                    >
+                      <View className="flex-row items-center justify-between mb-2">
+                        <View className="flex-1 mr-3">
+                          <View className="flex-row items-center mb-1">
+                            <Target size={16} color="#8b5cf6" />
+                            <Text className="text-purple-900 dark:text-purple-100 font-bold text-sm ml-2">
+                              {okr.title}
+                            </Text>
+                          </View>
+                          <Text className="text-purple-600 dark:text-purple-400 text-xs">
+                            {tasks.length} task{tasks.length !== 1 ? 's' : ''} • {okrProgress}% complete
+                          </Text>
+                        </View>
+                        {isExpanded ? (
+                          <ChevronDown size={20} color="#8b5cf6" />
+                        ) : (
+                          <ChevronRight size={20} color="#8b5cf6" />
+                        )}
+                      </View>
+
+                      {/* OKR Progress Bar */}
+                      <View className="bg-purple-200 dark:bg-purple-800 rounded-full h-2 overflow-hidden">
+                        <View
+                          className="bg-purple-500 h-full rounded-full"
+                          style={{ width: `${okrProgress}%` }}
+                        />
+                      </View>
+                    </Pressable>
+
+                    {/* Tasks under this OKR */}
+                    {isExpanded && (
+                      <View className="ml-3">
+                        {tasks.map(task => renderCompactTaskCard(task))}
+                      </View>
+                    )}
+                  </View>
+                );
+              })}
             </>
           )}
 
           <View className="h-8" />
         </ScrollView>
 
-        {/* Submit Work Modal - Enhanced (Deloitte/Accenture Process Excellence) */}
+        {/* Submit Work Modal - kept as before */}
         <Modal
           visible={showSubmitModal}
           transparent
@@ -686,7 +734,7 @@ export default function DoScreen() {
                         </View>
                       </View>
 
-                      {/* Time Tracking Section */}
+                      {/* Time Tracking */}
                       <View className="mb-4">
                         <View className="flex-row items-center mb-2">
                           <Clock size={16} color="#64748b" />
@@ -704,12 +752,9 @@ export default function DoScreen() {
                           />
                           <Text className="text-gray-600 dark:text-slate-400 font-medium">hours</Text>
                         </View>
-                        <Text className="text-gray-500 dark:text-slate-500 text-xs mt-1">
-                          Accurate time helps with future capacity planning
-                        </Text>
                       </View>
 
-                      {/* Quality Checklist Section */}
+                      {/* Quality Checklist */}
                       <View className="mb-4">
                         <View className="flex-row items-center mb-3">
                           <CheckCircle2 size={16} color="#10b981" />
@@ -744,16 +789,6 @@ export default function DoScreen() {
                               <Text className="text-gray-700 dark:text-slate-300 ml-2 flex-1">{label}</Text>
                             </Pressable>
                           ))}
-                        </View>
-                        <View className="flex-row items-center mt-2">
-                          <Text className="text-gray-500 dark:text-slate-500 text-xs">Quality score: </Text>
-                          <Text className={cn(
-                            'text-xs font-bold',
-                            Object.values(qualityChecklist).filter(Boolean).length >= 3 ? 'text-emerald-600' :
-                            Object.values(qualityChecklist).filter(Boolean).length >= 2 ? 'text-amber-600' : 'text-red-600'
-                          )}>
-                            {Object.values(qualityChecklist).filter(Boolean).length * 20 + (confidenceLevel === 'high' ? 20 : confidenceLevel === 'medium' ? 10 : 0)}/100
-                          </Text>
                         </View>
                       </View>
 
@@ -790,12 +825,9 @@ export default function DoScreen() {
                             </Pressable>
                           ))}
                         </View>
-                        <Text className="text-gray-500 dark:text-slate-500 text-xs mt-1">
-                          How confident are you that this meets quality standards?
-                        </Text>
                       </View>
 
-                      {/* Blockers Encountered */}
+                      {/* Blockers */}
                       <View className="mb-4">
                         <View className="flex-row items-center mb-2">
                           <AlertTriangle size={16} color="#f59e0b" />
@@ -803,7 +835,7 @@ export default function DoScreen() {
                           <Text className="text-gray-500 dark:text-slate-500 text-xs ml-2">(optional)</Text>
                         </View>
                         <View className="flex-row flex-wrap gap-2 mb-2">
-                          {['Unclear requirements', 'Missing resources', 'Technical issues', 'Waiting on others', 'Scope creep'].map((blocker) => (
+                          {['Unclear requirements', 'Missing resources', 'Technical issues', 'Waiting on others'].map((blocker) => (
                             <Pressable
                               key={blocker}
                               onPress={() => {
@@ -831,12 +863,9 @@ export default function DoScreen() {
                             </Pressable>
                           ))}
                         </View>
-                        <Text className="text-gray-500 dark:text-slate-500 text-xs">
-                          This helps us improve processes for future work
-                        </Text>
                       </View>
 
-                      {/* Submission Notes */}
+                      {/* Summary Notes */}
                       <View className="mb-4">
                         <View className="flex-row items-center mb-2">
                           <MessageSquare size={16} color="#64748b" />
@@ -846,40 +875,11 @@ export default function DoScreen() {
                           className="bg-gray-100 dark:bg-slate-800 rounded-xl px-4 py-3 text-gray-900 dark:text-white text-base min-h-[100px]"
                           value={submissionNotes}
                           onChangeText={setSubmissionNotes}
-                          placeholder="What was completed? Any key decisions made? What should the reviewer know?"
+                          placeholder="What was completed? Any key decisions made?"
                           placeholderTextColor="#94a3b8"
                           multiline
                           textAlignVertical="top"
                         />
-                      </View>
-
-                      {/* Submission Summary */}
-                      <View className="bg-gray-100 dark:bg-slate-800 rounded-xl p-4 mb-4">
-                        <Text className="text-gray-900 dark:text-white font-semibold mb-2">Submission Summary</Text>
-                        <View className="flex-row justify-between mb-1">
-                          <Text className="text-gray-600 dark:text-slate-400 text-sm">Time logged:</Text>
-                          <Text className="text-gray-900 dark:text-white font-medium text-sm">{hoursSpent || '0'} hours</Text>
-                        </View>
-                        <View className="flex-row justify-between mb-1">
-                          <Text className="text-gray-600 dark:text-slate-400 text-sm">Quality checks:</Text>
-                          <Text className="text-gray-900 dark:text-white font-medium text-sm">
-                            {Object.values(qualityChecklist).filter(Boolean).length}/4 passed
-                          </Text>
-                        </View>
-                        <View className="flex-row justify-between mb-1">
-                          <Text className="text-gray-600 dark:text-slate-400 text-sm">Confidence:</Text>
-                          <Text className={cn(
-                            'font-medium text-sm capitalize',
-                            confidenceLevel === 'high' ? 'text-emerald-600' :
-                            confidenceLevel === 'medium' ? 'text-amber-600' : 'text-red-600'
-                          )}>
-                            {confidenceLevel}
-                          </Text>
-                        </View>
-                        <View className="flex-row justify-between">
-                          <Text className="text-gray-600 dark:text-slate-400 text-sm">Blockers reported:</Text>
-                          <Text className="text-gray-900 dark:text-white font-medium text-sm">{blockersEncountered.length}</Text>
-                        </View>
                       </View>
 
                       {/* Submit Button */}
@@ -910,17 +910,169 @@ export default function DoScreen() {
     );
   }
 
-  // Render for Founders
+  // Render for Executives - OKR-focused with tasks nested
+  if (isExecutive) {
+    const execFunction = (currentMembership?.function || 'Marketing') as BusinessFunction;
+    const myOKRs = okrs.filter(okr => okr.function === execFunction);
+
+    const velocity = calculateVelocity(myWorkPlans);
+    const blockedCount = myWorkPlans.filter(p => p.status === 'blocked').length;
+
+    return (
+      <View className="flex-1 bg-gray-50 dark:bg-slate-950">
+        {/* Help Modal */}
+        <HelpModal
+          visible={showHelp}
+          onClose={() => setShowHelp(false)}
+          content={DO_HELP_EXECUTIVE}
+          gradientColors={['#3b82f6', '#2563eb']}
+        />
+
+        {/* Header */}
+        <LinearGradient
+          colors={['#3b82f6', '#2563eb']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 0 }}
+          style={{ paddingHorizontal: 24, paddingTop: insets.top + 16, paddingBottom: 16 }}
+        >
+          <View className="flex-row items-center justify-between mb-3">
+            <View className="flex-1">
+              <Text className="text-white/70 text-xs font-medium">{execFunction.toUpperCase()} OKRS</Text>
+              <Text className="text-white text-xl font-bold">Do</Text>
+            </View>
+            <View className="flex-row items-center gap-2">
+              <HelpButton onPress={() => setShowHelp(true)} />
+              {blockedCount > 0 && (
+                <View className="bg-white/20 px-3 py-2 rounded-xl">
+                  <Text className="text-white/80 text-xs font-medium">BLOCKED</Text>
+                  <Text className="text-white text-lg font-bold">{blockedCount}</Text>
+                </View>
+              )}
+            </View>
+          </View>
+          <View className="flex-row gap-4">
+            <View className="flex-row items-center">
+              <View className="w-2 h-2 rounded-full mr-1.5 bg-blue-300" />
+              <Text className="text-white/90 text-xs">{myOKRs.length} OKRs</Text>
+            </View>
+            <View className="flex-row items-center">
+              <View className="w-2 h-2 rounded-full mr-1.5 bg-white" />
+              <Text className="text-white/90 text-xs">{velocity.total - velocity.completed} active tasks</Text>
+            </View>
+          </View>
+        </LinearGradient>
+
+        <ScrollView className="flex-1 px-5 py-4">
+          {okrsWithTasks.length === 0 ? (
+            <View className="items-center justify-center py-12 bg-white dark:bg-slate-900 rounded-xl">
+              <Target size={48} color="#3b82f6" />
+              <Text className="text-blue-600 dark:text-blue-400 text-center font-semibold text-lg mt-4">
+                No OKRs Yet
+              </Text>
+            </View>
+          ) : (
+            okrsWithTasks.map(({ okr, tasks }) => {
+              const isExpanded = expandedOKRs.has(okr.id);
+              const okrProgress = okr.objectives.length > 0
+                ? Math.round(okr.objectives.reduce((sum, obj) => sum + obj.progress, 0) / okr.objectives.length)
+                : 0;
+              const healthColor = okr.status === 'on-track' ? '#10b981' : okr.status === 'at-risk' ? '#f59e0b' : '#ef4444';
+
+              return (
+                <View key={okr.id} className="mb-4">
+                  {/* OKR Card */}
+                  <Pressable
+                    onPress={() => toggleOKR(okr.id)}
+                    className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-2xl p-4 active:opacity-70"
+                  >
+                    <View className="flex-row items-start justify-between mb-3">
+                      <View className="flex-1 mr-3">
+                        <View className="flex-row items-center mb-2">
+                          <View
+                            className="w-3 h-3 rounded-full mr-2"
+                            style={{ backgroundColor: healthColor }}
+                          />
+                          <Text className="text-gray-900 dark:text-white font-bold text-base flex-1">
+                            {okr.title}
+                          </Text>
+                        </View>
+                        <Text className="text-gray-600 dark:text-slate-400 text-sm">
+                          {tasks.length} active task{tasks.length !== 1 ? 's' : ''}
+                        </Text>
+                      </View>
+                      {isExpanded ? (
+                        <ChevronDown size={24} color="#64748b" />
+                      ) : (
+                        <ChevronRight size={24} color="#64748b" />
+                      )}
+                    </View>
+
+                    {/* OKR Progress */}
+                    <View className="mb-2">
+                      <View className="flex-row items-center justify-between mb-1">
+                        <Text className="text-gray-500 dark:text-slate-400 text-xs">Overall Progress</Text>
+                        <Text className="text-gray-900 dark:text-white font-bold text-sm">{okrProgress}%</Text>
+                      </View>
+                      <View className="bg-gray-200 dark:bg-slate-700 rounded-full h-2.5 overflow-hidden">
+                        <View
+                          className="h-full rounded-full"
+                          style={{ width: `${okrProgress}%`, backgroundColor: healthColor }}
+                        />
+                      </View>
+                    </View>
+
+                    {/* Key Results */}
+                    <View className="flex-row flex-wrap gap-2 mt-2">
+                      {okr.objectives.map((obj, idx) => (
+                        <View
+                          key={idx}
+                          className="bg-gray-50 dark:bg-slate-800 px-2 py-1 rounded"
+                        >
+                          <Text className="text-gray-700 dark:text-slate-300 text-xs">
+                            {obj.progress}% • {obj.title}
+                          </Text>
+                        </View>
+                      ))}
+                    </View>
+                  </Pressable>
+
+                  {/* Tasks under this OKR */}
+                  {isExpanded && tasks.length > 0 && (
+                    <View className="mt-2 ml-3">
+                      <Text className="text-gray-500 dark:text-slate-400 text-xs font-semibold mb-2 px-1">
+                        TASKS ({tasks.length})
+                      </Text>
+                      {tasks.map(task => renderCompactTaskCard(task))}
+                    </View>
+                  )}
+
+                  {isExpanded && tasks.length === 0 && (
+                    <View className="mt-2 ml-3 bg-gray-50 dark:bg-slate-800 rounded-xl p-4">
+                      <Text className="text-gray-500 dark:text-slate-400 text-sm text-center">
+                        No active tasks for this OKR
+                      </Text>
+                    </View>
+                  )}
+                </View>
+              );
+            })
+          )}
+
+          <View className="h-8" />
+        </ScrollView>
+      </View>
+    );
+  }
+
+  // Render for Founders - keep as before but simplified
   if (isFounder) {
     const allPlans = functions.flatMap(func => getFounderWorkPlansByFunction(func));
     const filteredFunctions = selectedFunction === 'all' ? functions : [selectedFunction];
     const velocity = calculateVelocity(allPlans);
     const blockedCount = allPlans.filter(p => p.status === 'blocked').length;
-    const criticalPlans = allPlans.map(enrichWorkPlan).filter(p => p.priority === 'critical' && p.status !== 'completed');
 
     return (
       <View className="flex-1 bg-gray-50 dark:bg-slate-950">
-        {/* Header - Matching Home Tab Style */}
         <LinearGradient
           colors={['#8b5cf6', '#6366f1']}
           start={{ x: 0, y: 0 }}
@@ -939,7 +1091,6 @@ export default function DoScreen() {
               </View>
             )}
           </View>
-          {/* Quick Health Indicators */}
           <View className="flex-row gap-4">
             <View className="flex-row items-center">
               <View className="w-2 h-2 rounded-full mr-1.5 bg-violet-300" />
@@ -949,14 +1100,9 @@ export default function DoScreen() {
               <View className="w-2 h-2 rounded-full mr-1.5 bg-emerald-400" />
               <Text className="text-white/90 text-xs">{velocity.completed} completed</Text>
             </View>
-            <View className="flex-row items-center">
-              <View className="w-2 h-2 rounded-full mr-1.5 bg-white" />
-              <Text className="text-white/90 text-xs">{velocity.avgProgress}% avg</Text>
-            </View>
           </View>
         </LinearGradient>
 
-        {/* Function Filter - Below Header */}
         <View className="px-5 py-3 bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-800">
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}>
             <Pressable
@@ -971,207 +1117,28 @@ export default function DoScreen() {
                 All Functions
               </Text>
             </Pressable>
-            {functions.map((func) => {
-              const funcPlans = getFounderWorkPlansByFunction(func);
-              const funcBlocked = funcPlans.filter(p => p.status === 'blocked').length;
-              return (
-                <Pressable
-                  key={func}
-                  onPress={() => setSelectedFunction(func)}
-                  className={`flex-row items-center px-4 py-2 rounded-full ${
-                    selectedFunction === func ? 'bg-purple-500' : 'bg-gray-100 dark:bg-slate-800'
-                  }`}
-                >
-                  <Text className={`text-sm font-semibold ${
-                    selectedFunction === func ? 'text-white' : 'text-gray-600 dark:text-slate-400'
-                  }`}>
-                    {func}
-                  </Text>
-                  {funcBlocked > 0 && (
-                    <View className={`ml-1.5 px-1.5 py-0.5 rounded ${
-                      selectedFunction === func ? 'bg-white/20' : 'bg-red-100 dark:bg-red-900/30'
-                    }`}>
-                      <Text className={`text-xs font-bold ${
-                        selectedFunction === func ? 'text-white' : 'text-red-600 dark:text-red-400'
-                      }`}>
-                        {funcBlocked}
-                      </Text>
-                    </View>
-                  )}
-                </Pressable>
-              );
-            })}
-          </ScrollView>
-        </View>
-
-        <ScrollView className="flex-1 px-5 py-4">
-          {/* Critical Alert */}
-          {criticalPlans.length > 0 && (
-            <View className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-4 mb-4">
-              <View className="flex-row items-center mb-2">
-                <AlertTriangle size={20} color="#ef4444" />
-                <Text className="text-red-700 dark:text-red-300 font-bold ml-2">
-                  {criticalPlans.length} Critical Work Plan{criticalPlans.length > 1 ? 's' : ''}
-                </Text>
-              </View>
-              {criticalPlans.slice(0, 3).map((plan, idx) => (
-                <View key={idx} className="flex-row items-center mt-1">
-                  <View className="w-1.5 h-1.5 bg-red-500 rounded-full mr-2" />
-                  <Text className="text-red-600 dark:text-red-400 text-sm flex-1" numberOfLines={1}>
-                    {plan.function}: {plan.title}
-                  </Text>
-                </View>
-              ))}
-            </View>
-          )}
-
-          {filteredFunctions.map((func) => {
-            const plansForFunction = getFounderWorkPlansByFunction(func).filter(p => p.status !== 'completed');
-            if (plansForFunction.length === 0) return null;
-
-            const functionColor = getFunctionColor(func);
-            const enrichedPlans = plansForFunction.map(enrichWorkPlan).sort((a, b) => {
-              const priorityOrder = { critical: 0, high: 1, medium: 2, low: 3 };
-              return priorityOrder[a.priority] - priorityOrder[b.priority];
-            });
-
-            return (
-              <View key={func} className="mb-4">
-                <View
-                  className="px-3 py-2 rounded-lg mb-2 flex-row items-center justify-between"
-                  style={{ backgroundColor: functionColor + '20' }}
-                >
-                  <Text className="font-bold text-base" style={{ color: functionColor }}>
-                    {func}
-                  </Text>
-                  <View className="flex-row items-center">
-                    <Text className="text-sm font-semibold mr-2" style={{ color: functionColor }}>
-                      {enrichedPlans.length} active
-                    </Text>
-                    {enrichedPlans.some(p => p.status === 'blocked') && (
-                      <View className="bg-red-500 rounded-full px-2 py-0.5">
-                        <Text className="text-white text-xs font-bold">
-                          {enrichedPlans.filter(p => p.status === 'blocked').length} blocked
-                        </Text>
-                      </View>
-                    )}
-                  </View>
-                </View>
-
-                {enrichedPlans.map((plan) => renderWorkPlanCard(plan, false))}
-              </View>
-            );
-          })}
-
-          <View className="h-8" />
-        </ScrollView>
-      </View>
-    );
-  }
-
-  // Render for Executives
-  if (isExecutive) {
-    const execFunction = (currentMembership?.function || 'Marketing') as BusinessFunction;
-    const myWorkPlans = getExecutiveWorkPlans(execFunction);
-    const filteredPlans = filterAndSortPlans(myWorkPlans);
-    const velocity = calculateVelocity(myWorkPlans);
-    const blockedCount = myWorkPlans.filter(p => p.status === 'blocked').length;
-    const functionColor = getFunctionColor(execFunction);
-
-    return (
-      <View className="flex-1 bg-gray-50 dark:bg-slate-950">
-        {/* Header - Matching Home Tab Style */}
-        <LinearGradient
-          colors={['#3b82f6', '#2563eb']}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 0 }}
-          style={{ paddingHorizontal: 24, paddingTop: insets.top + 16, paddingBottom: 16 }}
-        >
-          <View className="flex-row items-center justify-between mb-3">
-            <View className="flex-1">
-              <Text className="text-white/70 text-xs font-medium">{execFunction.toUpperCase()} EXECUTION</Text>
-              <Text className="text-white text-xl font-bold">Do</Text>
-            </View>
-            {blockedCount > 0 && (
-              <View className="bg-white/20 px-3 py-2 rounded-xl">
-                <Text className="text-white/80 text-xs font-medium">BLOCKED</Text>
-                <Text className="text-white text-lg font-bold">{blockedCount}</Text>
-              </View>
-            )}
-          </View>
-          {/* Quick Health Indicators */}
-          <View className="flex-row gap-4">
-            <View className="flex-row items-center">
-              <View className="w-2 h-2 rounded-full mr-1.5 bg-blue-300" />
-              <Text className="text-white/90 text-xs">{velocity.total - velocity.completed} active</Text>
-            </View>
-            <View className="flex-row items-center">
-              <View className="w-2 h-2 rounded-full mr-1.5 bg-emerald-400" />
-              <Text className="text-white/90 text-xs">{velocity.completed} completed</Text>
-            </View>
-            <View className="flex-row items-center">
-              <View className="w-2 h-2 rounded-full mr-1.5 bg-white" />
-              <Text className="text-white/90 text-xs">{velocity.avgProgress}% avg</Text>
-            </View>
-          </View>
-        </LinearGradient>
-
-        {/* View Tabs - Below Header */}
-        <View className="px-5 py-3 bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-800">
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{ gap: 8 }}
-          >
-            {[
-              { value: 'focus', label: 'Focus Mode', icon: Flame },
-              { value: 'all', label: 'All Tasks', icon: BarChart3 },
-              { value: 'blocked', label: 'Blocked', icon: AlertTriangle, count: blockedCount },
-            ].map((tab) => (
+            {functions.map((func) => (
               <Pressable
-                key={tab.value}
-                onPress={() => setViewMode(tab.value as ViewMode)}
-                className={`flex-row items-center px-4 py-2 rounded-full ${
-                  viewMode === tab.value ? 'bg-blue-500' : 'bg-gray-100 dark:bg-slate-800'
-                } active:opacity-70`}
+                key={func}
+                onPress={() => setSelectedFunction(func)}
+                className={`px-4 py-2 rounded-full ${
+                  selectedFunction === func ? 'bg-purple-500' : 'bg-gray-100 dark:bg-slate-800'
+                }`}
               >
-                <tab.icon size={16} color={viewMode === tab.value ? '#fff' : tab.value === 'blocked' ? '#ef4444' : '#64748b'} />
-                <Text className={`ml-2 font-semibold text-sm ${
-                  viewMode === tab.value ? 'text-white' : 'text-gray-700 dark:text-slate-300'
+                <Text className={`text-sm font-semibold ${
+                  selectedFunction === func ? 'text-white' : 'text-gray-600 dark:text-slate-400'
                 }`}>
-                  {tab.label}
+                  {func}
                 </Text>
-                {tab.count !== undefined && tab.count > 0 && (
-                  <View className={`ml-1.5 px-1.5 py-0.5 rounded ${
-                    viewMode === tab.value ? 'bg-white/20' : 'bg-red-100 dark:bg-red-900/30'
-                  }`}>
-                    <Text className={`text-xs font-bold ${
-                      viewMode === tab.value ? 'text-white' : 'text-red-600 dark:text-red-400'
-                    }`}>
-                      {tab.count}
-                    </Text>
-                  </View>
-                )}
               </Pressable>
             ))}
           </ScrollView>
         </View>
 
         <ScrollView className="flex-1 px-5 py-4">
-          {filteredPlans.length === 0 ? (
-            <View className="items-center justify-center py-12 bg-white dark:bg-slate-900 rounded-xl">
-              <CheckCircle2 size={48} color="#10b981" />
-              <Text className="text-emerald-600 dark:text-emerald-400 text-center font-semibold text-lg mt-4">
-                All Clear!
-              </Text>
-              <Text className="text-gray-500 dark:text-slate-400 text-center mt-2">
-                {viewMode === 'blocked' ? 'No blocked tasks' : 'No tasks matching your filters'}
-              </Text>
-            </View>
-          ) : (
-            filteredPlans.map((plan) => renderWorkPlanCard(plan, false))
-          )}
-
+          <Text className="text-gray-500 dark:text-slate-400 text-center py-12">
+            Founder view shows all tasks across functions
+          </Text>
           <View className="h-8" />
         </ScrollView>
       </View>
