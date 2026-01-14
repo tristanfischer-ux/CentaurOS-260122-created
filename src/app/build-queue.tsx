@@ -53,9 +53,12 @@ export default function BuildQueueScreen() {
 
   // Initialize demo data
   useEffect(() => {
+    console.log('[BuildQueue] Screen mounted, workspace:', currentWorkspace?.id);
     if (currentWorkspace) {
       const tasks = getTasksByWorkspace(currentWorkspace.id);
+      console.log('[BuildQueue] Current tasks:', tasks.length);
       if (tasks.length === 0) {
+        console.log('[BuildQueue] Seeding demo data...');
         seedDemoData(currentWorkspace.id);
       }
     }
