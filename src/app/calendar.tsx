@@ -1,10 +1,11 @@
 import { View, Text, ScrollView, Pressable, Modal, TextInput, Switch, Alert } from 'react-native';
 import { useState, useMemo, useCallback } from 'react';
-import { Stack } from 'expo-router';
+import { Stack, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { FadeIn, FadeInDown, FadeInUp, SlideInRight } from 'react-native-reanimated';
 import {
+  ArrowLeft,
   ChevronLeft,
   ChevronRight,
   Plus,
@@ -56,6 +57,7 @@ const EVENT_TYPES: { type: CalendarEventType; label: string; icon: any; color: s
 
 export default function CalendarScreen() {
   const insets = useSafeAreaInsets();
+  const router = useRouter();
   const { theme, isOffWhite } = useTheme();
   const isDark = theme === 'dark';
 
@@ -245,6 +247,12 @@ export default function CalendarScreen() {
         >
           <View className="flex-row items-center justify-between mb-4 pt-2">
             <View className="flex-row items-center">
+              <Pressable
+                onPress={() => router.back()}
+                className="w-10 h-10 bg-white/20 rounded-xl items-center justify-center mr-3"
+              >
+                <ArrowLeft size={20} color="#fff" />
+              </Pressable>
               <CalendarIcon size={24} color="#fff" />
               <Text className="text-white text-xl font-bold ml-2">Calendar</Text>
             </View>
