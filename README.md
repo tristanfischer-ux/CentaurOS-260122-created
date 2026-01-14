@@ -57,6 +57,29 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
 **Last Updated**: 2026-01-13 (**COMPREHENSIVE AUDIT COMPLETE** + **ALL FIXES APPLIED** - Perfect 100/100 score)
 
 ### Latest Update (2026-01-14):
+✅ **Armory Detailed Information Cards** - Enhanced AI tool and person details:
+  - **AI Tool Detail Modal**: Full information display when adding AI tools in Armory
+    - Now shows comprehensive details before adding tool (matching Community tab depth)
+    - 10+ sections: Description, business functions, key features, use cases, capabilities, integrations, pricing plans, setup requirements, support info, user reviews, website, usage stats
+    - "Add Tool" button allows review before equipping to team member
+    - Consistent information depth across Community browse and Armory equip flows
+  - **Person Detail Modal**: Full profile information when clicking team member names
+    - Tap member avatar/name to view complete profile details
+    - Displays bio, contact information (email, phone, LinkedIn)
+    - Cost breakdown (day rate, days/week, monthly total)
+    - Reporting structure (reports to, manages)
+    - Start date with formatted display
+    - Clean scrollable layout with all available member information
+  - **Enhanced AIAgent Type**: Added optional detailed fields to AIAgent interface
+    - Now supports description, use cases, key features, category
+    - Pricing details (starter/professional/enterprise tiers)
+    - Setup information (difficulty, time to value, requirements)
+    - Support details (documentation, community, email, phone)
+    - User reviews (rating, pros, cons)
+  - **User Experience**: "Tap to view full profile" prompt on team member cards
+  - **Integration**: Detailed modals work seamlessly with existing Armory workflow
+
+### Previous Update (2026-01-14):
 ✅ **Marketplace Request/Approval System** - Complete hiring workflow from marketplace to team:
   - **New Marketplace Requests Store**: Created `marketplace-requests-store.ts` for tracking hiring requests
   - **Team Management → Recommended Tab**:

@@ -234,6 +234,7 @@ function CharacterSheetModal({
 }) {
   const [showAddTool, setShowAddTool] = useState(false);
   const [showRemoveConfirm, setShowRemoveConfirm] = useState(false);
+  const [showPersonDetail, setShowPersonDetail] = useState(false);
 
   const loadout = useArmoryStore((s) => s.getLoadoutForMember(member.id));
   const addAITool = useArmoryStore((s) => s.addAITool);
@@ -298,13 +299,18 @@ function CharacterSheetModal({
           <ScrollView className="px-6 py-6" showsVerticalScrollIndicator={false}>
             {/* Avatar & Stats */}
             <View className="items-center mb-6">
-              <View className="w-20 h-20 rounded-full items-center justify-center mb-3" style={{ backgroundColor: roleColor }}>
-                <Text className="text-white text-2xl font-black">{member.name.split(' ').map((n) => n[0]).join('')}</Text>
-              </View>
-              <Text className="text-white text-xl font-black mb-1">{member.name}</Text>
-              <Text className="text-white/60 text-sm mb-4">
-                {member.role === 'FractionalExec' ? 'Fractional Executive' : member.role} • {member.function}
-              </Text>
+              <Pressable onPress={() => setShowPersonDetail(true)} className="items-center active:opacity-70">
+                <View className="w-20 h-20 rounded-full items-center justify-center mb-3" style={{ backgroundColor: roleColor }}>
+                  <Text className="text-white text-2xl font-black">{member.name.split(' ').map((n) => n[0]).join('')}</Text>
+                </View>
+                <Text className="text-white text-xl font-black mb-1">{member.name}</Text>
+                <Text className="text-white/60 text-sm mb-2">
+                  {member.role === 'FractionalExec' ? 'Fractional Executive' : member.role} • {member.function}
+                </Text>
+                <View className="bg-blue-500/20 px-3 py-1.5 rounded-lg mb-4">
+                  <Text className="text-blue-300 text-xs font-bold">Tap to view full profile</Text>
+                </View>
+              </Pressable>
 
               {/* Total Cost */}
               <View className="bg-blue-500/20 border border-blue-500/30 rounded-2xl px-6 py-4">
@@ -492,6 +498,15 @@ function CharacterSheetModal({
             </View>
           </Modal>
         )}
+
+        {/* Person Detail Modal */}
+        {showPersonDetail && (
+          <PersonDetailModal
+            visible={showPersonDetail}
+            member={member}
+            onClose={() => setShowPersonDetail(false)}
+          />
+        )}
       </View>
     </Modal>
   );
@@ -515,6 +530,7 @@ function AddToolModal({
   onClose: () => void;
 }) {
   const [showAllTools, setShowAllTools] = useState(false);
+  const [selectedTool, setSelectedTool] = useState<AIAgent | null>(null);
 
   const recommended = getRecommendedToolsForMember(member, aiAgents);
   const availableTools = aiAgents.filter((t) => t.status === 'active' && !equippedToolIds.includes(t.id));
@@ -527,60 +543,598 @@ function AddToolModal({
   const toolsToShow = showAllTools ? availableTools : recommendedAvailable;
 
   return (
-    <Modal visible={visible} transparent animationType="slide" statusBarTranslucent>
-      <View className="flex-1 bg-black/90 justify-end">
-        <View className="bg-slate-900 rounded-t-3xl max-h-[80%]">
-          <View className="px-6 py-5 border-b border-white/10 flex-row items-center justify-between">
-            <Text className="text-white text-xl font-black">Add AI Tool</Text>
-            <Pressable onPress={onClose} className="w-10 h-10 items-center justify-center rounded-full bg-white/10 active:opacity-70">
-              <X size={24} color="white" />
-            </Pressable>
-          </View>
+    <>
+      <Modal visible={visible} transparent animationType="slide" statusBarTranslucent>
+        <View className="flex-1 bg-black/90 justify-end">
+          <View className="bg-slate-900 rounded-t-3xl max-h-[80%]">
+            <View className="px-6 py-5 border-b border-white/10 flex-row items-center justify-between">
+              <Text className="text-white text-xl font-black">Add AI Tool</Text>
+              <Pressable onPress={onClose} className="w-10 h-10 items-center justify-center rounded-full bg-white/10 active:opacity-70">
+                <X size={24} color="white" />
+              </Pressable>
+            </View>
 
-          <View className="px-6 pt-4 pb-2">
-            <Pressable onPress={() => setShowAllTools(!showAllTools)} className="bg-white/5 rounded-xl py-3 px-4 active:opacity-70">
-              <Text className="text-white font-bold text-center">{showAllTools ? 'Show Recommended' : 'Show All Tools'}</Text>
-            </Pressable>
-          </View>
+            <View className="px-6 pt-4 pb-2">
+              <Pressable onPress={() => setShowAllTools(!showAllTools)} className="bg-white/5 rounded-xl py-3 px-4 active:opacity-70">
+                <Text className="text-white font-bold text-center">{showAllTools ? 'Show Recommended' : 'Show All Tools'}</Text>
+              </Pressable>
+            </View>
 
-          <ScrollView className="px-6 py-2" showsVerticalScrollIndicator={false}>
-            {toolsToShow.length === 0 ? (
-              <View className="py-12 items-center">
-                <Text className="text-white/40 text-center">No more tools available</Text>
+            <ScrollView className="px-6 py-2" showsVerticalScrollIndicator={false}>
+              {toolsToShow.length === 0 ? (
+                <View className="py-12 items-center">
+                  <Text className="text-white/40 text-center">No more tools available</Text>
+                </View>
+              ) : (
+                toolsToShow.map((tool) => {
+                  const toolEffects = getToolEffects(tool.id);
+                  return (
+                    <Pressable
+                      key={tool.id}
+                      onPress={() => setSelectedTool(tool)}
+                      className="bg-white/5 border border-white/10 rounded-2xl p-4 mb-3 active:bg-white/10"
+                    >
+                      <View className="flex-row items-start justify-between mb-2">
+                        <View className="flex-1">
+                          <Text className="text-white font-black text-base">{tool.name}</Text>
+                          <Text className="text-white/60 text-sm mt-1">{tool.purpose}</Text>
+                        </View>
+                        <View className="bg-blue-500/20 px-3 py-1 rounded-lg">
+                          <Text className="text-blue-300 text-xs font-bold">£{tool.costPerMonth}/mo</Text>
+                        </View>
+                      </View>
+                      {toolEffects && (
+                        <View className="flex-row flex-wrap gap-1 mt-2">
+                          {toolEffects.effectTags.map((tag, idx) => (
+                            <View key={idx} className="bg-emerald-500/20 px-2 py-1 rounded">
+                              <Text className="text-emerald-300 text-xs font-bold">{tag}</Text>
+                            </View>
+                          ))}
+                        </View>
+                      )}
+                    </Pressable>
+                  );
+                })
+              )}
+              <View className="h-20" />
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
+
+      {/* AI Tool Detail Modal */}
+      {selectedTool && (
+        <AIToolDetailModal
+          visible={selectedTool !== null}
+          tool={selectedTool}
+          onAdd={() => {
+            onAdd(selectedTool.id);
+            setSelectedTool(null);
+          }}
+          onClose={() => setSelectedTool(null)}
+        />
+      )}
+    </>
+  );
+}
+
+// ========== AI TOOL DETAIL MODAL ==========
+
+function AIToolDetailModal({
+  visible,
+  tool,
+  onAdd,
+  onClose,
+}: {
+  visible: boolean;
+  tool: AIAgent;
+  onAdd: () => void;
+  onClose: () => void;
+}) {
+  return (
+    <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose} statusBarTranslucent>
+      <View className="flex-1 bg-black/90 justify-center items-center px-4">
+        <View className="bg-slate-900 rounded-3xl w-full" style={{ maxHeight: '95%', height: '95%' }}>
+          {/* Header */}
+          <View className="px-6 pt-6 pb-4 border-b border-white/10">
+            <View className="flex-row items-center justify-between mb-2">
+              <Text className="text-white text-2xl font-black flex-1" numberOfLines={2}>{tool.name}</Text>
+              <Pressable onPress={onClose} className="ml-2">
+                <X size={28} color="#94a3b8" />
+              </Pressable>
+            </View>
+            <View className="flex-row items-center gap-2 mb-3">
+              <View className="bg-blue-100 dark:bg-blue-900/30 px-3 py-1.5 rounded-lg">
+                <Text className="text-blue-700 dark:text-blue-300 text-sm font-semibold">
+                  {tool.provider}
+                </Text>
               </View>
-            ) : (
-              toolsToShow.map((tool) => {
-                const toolEffects = getToolEffects(tool.id);
-                return (
-                  <Pressable
-                    key={tool.id}
-                    onPress={() => onAdd(tool.id)}
-                    className="bg-white/5 border border-white/10 rounded-2xl p-4 mb-3 active:bg-white/10"
-                  >
-                    <View className="flex-row items-start justify-between mb-2">
-                      <View className="flex-1">
-                        <Text className="text-white font-black text-base">{tool.name}</Text>
-                        <Text className="text-white/60 text-sm mt-1">{tool.purpose}</Text>
-                      </View>
-                      <View className="bg-blue-500/20 px-3 py-1 rounded-lg">
-                        <Text className="text-blue-300 text-xs font-bold">£{tool.costPerMonth}/mo</Text>
-                      </View>
+              {tool.category && (
+                <View className="bg-purple-100 dark:bg-purple-900/30 px-3 py-1.5 rounded-lg">
+                  <Text className="text-purple-700 dark:text-purple-300 text-sm font-semibold capitalize">
+                    {tool.category.replace('-', ' ')}
+                  </Text>
+                </View>
+              )}
+            </View>
+            <View className="bg-blue-50 dark:bg-blue-900/20 rounded-lg px-3 py-2">
+              <Text className="text-blue-600 dark:text-blue-400 text-xs text-center font-semibold">
+                ⬇️ Scroll down - 10+ sections of detailed info below
+              </Text>
+            </View>
+          </View>
+
+          {/* Scrollable Content */}
+          <ScrollView
+            showsVerticalScrollIndicator={true}
+            bounces={true}
+            className="flex-1"
+            persistentScrollbar={true}
+            contentContainerStyle={{ paddingBottom: 20 }}
+          >
+            <View className="px-6 py-4">
+              {/* Cost and Rating Section */}
+              <View className="flex-row gap-3 mb-4">
+                <View className="flex-1 bg-white/10 rounded-xl p-4">
+                  <Text className="text-white/60 text-xs mb-1">Monthly Cost</Text>
+                  <Text className="text-emerald-400 text-2xl font-bold">
+                    £{tool.costPerMonth}
+                  </Text>
+                  <Text className="text-white/40 text-xs">/month</Text>
+                </View>
+                {tool.reviews && (
+                  <View className="flex-1 bg-white/10 rounded-xl p-4">
+                    <Text className="text-white/60 text-xs mb-1">User Rating</Text>
+                    <View className="flex-row items-center">
+                      <Text className="text-amber-400 text-2xl font-bold">
+                        {tool.reviews.rating}
+                      </Text>
+                      <Text className="text-white/40 text-sm ml-1">/5</Text>
                     </View>
-                    {toolEffects && (
-                      <View className="flex-row flex-wrap gap-1 mt-2">
-                        {toolEffects.effectTags.map((tag, idx) => (
-                          <View key={idx} className="bg-emerald-500/20 px-2 py-1 rounded">
-                            <Text className="text-emerald-300 text-xs font-bold">{tag}</Text>
-                          </View>
+                    <Text className="text-white/40 text-xs">
+                      {tool.reviews.totalReviews} reviews
+                    </Text>
+                  </View>
+                )}
+              </View>
+
+              {/* Description */}
+              {tool.description && (
+                <View className="mb-6">
+                  <Text className="text-white text-lg font-bold mb-3">📝 Description</Text>
+                  <Text className="text-white text-base leading-6">
+                    {tool.description}
+                  </Text>
+                </View>
+              )}
+
+              {/* Purpose (if no description) */}
+              {!tool.description && (
+                <View className="mb-6">
+                  <Text className="text-white text-lg font-bold mb-3">📝 Purpose</Text>
+                  <Text className="text-white text-base leading-6">
+                    {tool.purpose}
+                  </Text>
+                </View>
+              )}
+
+              {/* Business Functions */}
+              <View className="mb-6">
+                <Text className="text-white text-lg font-bold mb-3">🎯 Business Functions</Text>
+                <View className="flex-row flex-wrap gap-2">
+                  {tool.functions.map((func, idx) => (
+                    <View key={idx} className="bg-blue-100 dark:bg-blue-900/30 px-3 py-2 rounded-lg border border-blue-200 dark:border-blue-800">
+                      <Text className="text-blue-700 dark:text-blue-300 font-semibold">{func}</Text>
+                    </View>
+                  ))}
+                </View>
+              </View>
+
+              {/* Key Features */}
+              {tool.keyFeatures && tool.keyFeatures.length > 0 && (
+                <View className="mb-6">
+                  <Text className="text-white text-lg font-bold mb-3">✨ Key Features</Text>
+                  <View className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4">
+                    {tool.keyFeatures.map((feature, idx) => (
+                      <View key={idx} className="flex-row items-start mb-2">
+                        <Text className="text-blue-400 mr-2">✓</Text>
+                        <Text className="text-white flex-1 font-medium">{feature}</Text>
+                      </View>
+                    ))}
+                  </View>
+                </View>
+              )}
+
+              {/* Use Cases */}
+              {tool.useCases && tool.useCases.length > 0 && (
+                <View className="mb-6">
+                  <Text className="text-white text-lg font-bold mb-3">💡 Use Cases</Text>
+                  <View className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-xl p-4">
+                    {tool.useCases.map((useCase, idx) => (
+                      <View key={idx} className="flex-row items-start mb-2">
+                        <Text className="text-emerald-400 mr-2">→</Text>
+                        <Text className="text-white flex-1">{useCase}</Text>
+                      </View>
+                    ))}
+                  </View>
+                </View>
+              )}
+
+              {/* Capabilities */}
+              {tool.capabilities.length > 0 && (
+                <View className="mb-6">
+                  <Text className="text-white text-lg font-bold mb-3">⚡ Capabilities</Text>
+                  <View className="bg-white/10 rounded-xl p-4">
+                    {tool.capabilities.map((capability, idx) => (
+                      <View key={idx} className="flex-row items-start mb-2">
+                        <Text className="text-white/60 mr-2">•</Text>
+                        <Text className="text-white/80 flex-1">{capability}</Text>
+                      </View>
+                    ))}
+                  </View>
+                </View>
+              )}
+
+              {/* Integrations */}
+              {tool.integrations.length > 0 && (
+                <View className="mb-6">
+                  <Text className="text-white text-lg font-bold mb-3">🔗 Integrations</Text>
+                  <View className="flex-row flex-wrap gap-2">
+                    {tool.integrations.map((integration, idx) => (
+                      <View key={idx} className="bg-white/10 px-3 py-2 rounded-lg">
+                        <Text className="text-white/80">{integration}</Text>
+                      </View>
+                    ))}
+                  </View>
+                </View>
+              )}
+
+              {/* Pricing Details */}
+              {tool.pricing && (
+                <View className="mb-6">
+                  <Text className="text-white text-lg font-bold mb-3">💰 Pricing Plans</Text>
+                  <View className="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-xl p-4">
+                    {tool.pricing.starter && (
+                      <View className="mb-2">
+                        <Text className="text-purple-300 font-semibold">Starter</Text>
+                        <Text className="text-white/80">{tool.pricing.starter}</Text>
+                      </View>
+                    )}
+                    {tool.pricing.professional && (
+                      <View className="mb-2">
+                        <Text className="text-purple-300 font-semibold">Professional</Text>
+                        <Text className="text-white/80">{tool.pricing.professional}</Text>
+                      </View>
+                    )}
+                    {tool.pricing.enterprise && (
+                      <View className="mb-2">
+                        <Text className="text-purple-300 font-semibold">Enterprise</Text>
+                        <Text className="text-white/80">{tool.pricing.enterprise}</Text>
+                      </View>
+                    )}
+                    {tool.pricing.notes && (
+                      <Text className="text-white/60 text-sm mt-2 italic">
+                        {tool.pricing.notes}
+                      </Text>
+                    )}
+                  </View>
+                </View>
+              )}
+
+              {/* Setup Information */}
+              {tool.setup && (
+                <View className="mb-6">
+                  <Text className="text-white text-lg font-bold mb-3">⚙️ Setup & Requirements</Text>
+                  <View className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-4">
+                    {tool.setup.difficulty && (
+                      <View className="mb-2">
+                        <Text className="text-amber-300 font-semibold">Difficulty</Text>
+                        <Text className="text-white/80">{tool.setup.difficulty}</Text>
+                      </View>
+                    )}
+                    {tool.setup.timeToValue && (
+                      <View className="mb-2">
+                        <Text className="text-amber-300 font-semibold">Time to Value</Text>
+                        <Text className="text-white/80">{tool.setup.timeToValue}</Text>
+                      </View>
+                    )}
+                    {tool.setup.requirements && tool.setup.requirements.length > 0 && (
+                      <View>
+                        <Text className="text-amber-300 font-semibold mb-1">Requirements</Text>
+                        {tool.setup.requirements.map((req, idx) => (
+                          <Text key={idx} className="text-white/80 text-sm">• {req}</Text>
                         ))}
                       </View>
                     )}
-                  </Pressable>
-                );
-              })
-            )}
-            <View className="h-20" />
+                  </View>
+                </View>
+              )}
+
+              {/* Support */}
+              {tool.support && (
+                <View className="mb-6">
+                  <Text className="text-white text-lg font-bold mb-3">📞 Support</Text>
+                  <View className="bg-cyan-50 dark:bg-cyan-900/20 border border-cyan-200 dark:border-cyan-800 rounded-xl p-4">
+                    <View className="flex-row justify-between mb-2">
+                      <Text className="text-white/80">Email Support</Text>
+                      <Text className="text-cyan-300 font-semibold">
+                        {tool.support.email ? '✓ Yes' : '✗ No'}
+                      </Text>
+                    </View>
+                    <View className="flex-row justify-between mb-2">
+                      <Text className="text-white/80">Phone Support</Text>
+                      <Text className="text-cyan-300 font-semibold">
+                        {tool.support.phone ? '✓ Yes' : '✗ No'}
+                      </Text>
+                    </View>
+                    {tool.support.documentation && (
+                      <View className="mb-2">
+                        <Text className="text-cyan-300 font-semibold">Documentation</Text>
+                        <Text className="text-white/80 text-sm">{tool.support.documentation}</Text>
+                      </View>
+                    )}
+                    {tool.support.community && (
+                      <View>
+                        <Text className="text-cyan-300 font-semibold">Community</Text>
+                        <Text className="text-white/80 text-sm">{tool.support.community}</Text>
+                      </View>
+                    )}
+                  </View>
+                </View>
+              )}
+
+              {/* User Reviews */}
+              {tool.reviews && (tool.reviews.pros || tool.reviews.cons) && (
+                <View className="mb-6">
+                  <Text className="text-white text-lg font-bold mb-3">⭐ User Feedback</Text>
+                  <View className="bg-white/10 rounded-xl p-4">
+                    {tool.reviews.pros && tool.reviews.pros.length > 0 && (
+                      <View className="mb-3">
+                        <Text className="text-emerald-300 font-semibold mb-2">👍 Pros</Text>
+                        {tool.reviews.pros.map((pro, idx) => (
+                          <Text key={idx} className="text-white/80 text-sm mb-1">• {pro}</Text>
+                        ))}
+                      </View>
+                    )}
+                    {tool.reviews.cons && tool.reviews.cons.length > 0 && (
+                      <View>
+                        <Text className="text-red-300 font-semibold mb-2">👎 Cons</Text>
+                        {tool.reviews.cons.map((con, idx) => (
+                          <Text key={idx} className="text-white/80 text-sm mb-1">• {con}</Text>
+                        ))}
+                      </View>
+                    )}
+                  </View>
+                </View>
+              )}
+
+              {/* Website Link */}
+              {tool.website && (
+                <View className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4 mb-4">
+                  <Text className="text-blue-300 text-sm font-semibold mb-2">🌐 Website</Text>
+                  <Text className="text-blue-400 text-sm">
+                    {tool.website}
+                  </Text>
+                </View>
+              )}
+
+              {/* Usage Stats */}
+              {tool.usageStats && (
+                <View className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-xl p-4">
+                  <Text className="text-emerald-300 text-sm font-semibold mb-2">📊 Usage Stats</Text>
+                  <View className="space-y-1">
+                    <View className="flex-row justify-between">
+                      <Text className="text-white/60 text-sm">Requests This Month:</Text>
+                      <Text className="text-white font-bold text-sm">{tool.usageStats.requestsThisMonth}</Text>
+                    </View>
+                    <View className="flex-row justify-between">
+                      <Text className="text-white/60 text-sm">Avg Response Time:</Text>
+                      <Text className="text-white font-bold text-sm">{tool.usageStats.averageResponseTime}</Text>
+                    </View>
+                    <View className="flex-row justify-between">
+                      <Text className="text-white/60 text-sm">Success Rate:</Text>
+                      <Text className="text-white font-bold text-sm">{tool.usageStats.successRate}%</Text>
+                    </View>
+                  </View>
+                </View>
+              )}
+            </View>
           </ScrollView>
+
+          {/* Action Buttons */}
+          <View className="px-6 py-4 border-t border-white/10 flex-row gap-3">
+            <Pressable
+              onPress={onClose}
+              className="flex-1 bg-white/10 rounded-xl py-4 items-center active:opacity-70"
+            >
+              <Text className="text-white font-bold text-base">Close</Text>
+            </Pressable>
+            <Pressable
+              onPress={onAdd}
+              className="flex-1 bg-blue-500 rounded-xl py-4 items-center active:opacity-70"
+            >
+              <Text className="text-white font-bold text-base">Add Tool</Text>
+            </Pressable>
+          </View>
+        </View>
+      </View>
+    </Modal>
+  );
+}
+
+// ========== PERSON DETAIL MODAL ==========
+
+function PersonDetailModal({
+  visible,
+  member,
+  onClose,
+}: {
+  visible: boolean;
+  member: OrganizationMember;
+  onClose: () => void;
+}) {
+  const roleColor = member.role === 'Founder' ? '#3b82f6' : member.role === 'FractionalExec' ? '#8b5cf6' : '#10b981';
+
+  return (
+    <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose} statusBarTranslucent>
+      <View className="flex-1 bg-black/90 justify-center items-center px-4">
+        <View className="bg-slate-900 rounded-3xl w-full" style={{ maxHeight: '95%', height: '95%' }}>
+          {/* Header */}
+          <View className="px-6 pt-6 pb-4 border-b border-white/10">
+            <View className="flex-row items-center justify-between mb-2">
+              <Text className="text-white text-2xl font-black flex-1" numberOfLines={2}>{member.name}</Text>
+              <Pressable onPress={onClose} className="ml-2">
+                <X size={28} color="#94a3b8" />
+              </Pressable>
+            </View>
+            <View className="flex-row items-center gap-2 mb-3">
+              <View className="bg-blue-100 dark:bg-blue-900/30 px-3 py-1.5 rounded-lg">
+                <Text className="text-blue-700 dark:text-blue-300 text-sm font-semibold">
+                  {member.role === 'FractionalExec' ? 'Fractional Executive' : member.role}
+                </Text>
+              </View>
+              <View className="bg-purple-100 dark:bg-purple-900/30 px-3 py-1.5 rounded-lg">
+                <Text className="text-purple-700 dark:text-purple-300 text-sm font-semibold">
+                  {member.function}
+                </Text>
+              </View>
+            </View>
+            <View className="bg-blue-50 dark:bg-blue-900/20 rounded-lg px-3 py-2">
+              <Text className="text-blue-600 dark:text-blue-400 text-xs text-center font-semibold">
+                ⬇️ Scroll down for full profile details
+              </Text>
+            </View>
+          </View>
+
+          {/* Scrollable Content */}
+          <ScrollView
+            showsVerticalScrollIndicator={true}
+            bounces={true}
+            className="flex-1"
+            persistentScrollbar={true}
+            contentContainerStyle={{ paddingBottom: 20 }}
+          >
+            <View className="px-6 py-4">
+              {/* Avatar */}
+              <View className="items-center mb-6">
+                <View className="w-24 h-24 rounded-full items-center justify-center mb-3" style={{ backgroundColor: roleColor }}>
+                  <Text className="text-white text-3xl font-black">{member.name.split(' ').map((n) => n[0]).join('')}</Text>
+                </View>
+              </View>
+
+              {/* Bio */}
+              {member.bio && (
+                <View className="mb-6">
+                  <Text className="text-white text-lg font-bold mb-3">👤 About</Text>
+                  <Text className="text-white text-base leading-6">
+                    {member.bio}
+                  </Text>
+                </View>
+              )}
+
+              {/* Contact Information */}
+              <View className="mb-6">
+                <Text className="text-white text-lg font-bold mb-3">📧 Contact</Text>
+                <View className="bg-white/10 rounded-xl p-4">
+                  {member.email && (
+                    <View className="mb-3">
+                      <Text className="text-white/60 text-xs mb-1">Email</Text>
+                      <Text className="text-white/90 text-sm">{member.email}</Text>
+                    </View>
+                  )}
+                  {member.phone && (
+                    <View className="mb-3">
+                      <Text className="text-white/60 text-xs mb-1">Phone</Text>
+                      <Text className="text-white/90 text-sm">{member.phone}</Text>
+                    </View>
+                  )}
+                  {member.linkedIn && (
+                    <View>
+                      <Text className="text-white/60 text-xs mb-1">LinkedIn</Text>
+                      <Text className="text-blue-400 text-sm">{member.linkedIn}</Text>
+                    </View>
+                  )}
+                </View>
+              </View>
+
+              {/* Cost Information */}
+              {member.costPerDay && (
+                <View className="mb-6">
+                  <Text className="text-white text-lg font-bold mb-3">💰 Cost</Text>
+                  <View className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-xl p-4">
+                    <View className="flex-row justify-between mb-2">
+                      <Text className="text-white/80">Day Rate</Text>
+                      <Text className="text-emerald-300 font-bold">£{member.costPerDay}/day</Text>
+                    </View>
+                    {member.daysPerWeek && (
+                      <>
+                        <View className="flex-row justify-between mb-2">
+                          <Text className="text-white/80">Days Per Week</Text>
+                          <Text className="text-white font-bold">{member.daysPerWeek} days</Text>
+                        </View>
+                        <View className="flex-row justify-between border-t border-emerald-700/30 pt-2 mt-2">
+                          <Text className="text-white/80">Monthly Cost</Text>
+                          <Text className="text-emerald-300 font-bold text-lg">
+                            £{Math.round(member.costPerDay * member.daysPerWeek * 4.33).toLocaleString()}
+                          </Text>
+                        </View>
+                      </>
+                    )}
+                  </View>
+                </View>
+              )}
+
+              {/* Reports To */}
+              {member.reportsTo && (
+                <View className="mb-6">
+                  <Text className="text-white text-lg font-bold mb-3">👥 Reporting Structure</Text>
+                  <View className="bg-white/10 rounded-xl p-4">
+                    <View className="flex-row justify-between">
+                      <Text className="text-white/80">Reports To</Text>
+                      <Text className="text-white font-bold">{member.reportsTo}</Text>
+                    </View>
+                  </View>
+                </View>
+              )}
+
+              {/* Manages */}
+              {member.manages && member.manages.length > 0 && (
+                <View className="mb-6">
+                  <Text className="text-white text-lg font-bold mb-3">👥 Direct Reports</Text>
+                  <View className="bg-white/10 rounded-xl p-4">
+                    <Text className="text-white/80 mb-2">Manages {member.manages.length} team member{member.manages.length !== 1 ? 's' : ''}</Text>
+                    {member.manages.map((reportId, idx) => (
+                      <Text key={idx} className="text-white/60 text-sm">• {reportId}</Text>
+                    ))}
+                  </View>
+                </View>
+              )}
+
+              {/* Start Date */}
+              {member.startDate && (
+                <View className="bg-cyan-50 dark:bg-cyan-900/20 border border-cyan-200 dark:border-cyan-800 rounded-xl p-4">
+                  <Text className="text-cyan-300 text-sm font-semibold mb-2">📅 Start Date</Text>
+                  <Text className="text-cyan-300 font-semibold">
+                    {new Date(member.startDate).toLocaleDateString('en-GB', {
+                      day: 'numeric',
+                      month: 'long',
+                      year: 'numeric'
+                    })}
+                  </Text>
+                </View>
+              )}
+            </View>
+          </ScrollView>
+
+          {/* Action Button */}
+          <View className="px-6 py-4 border-t border-white/10">
+            <Pressable
+              onPress={onClose}
+              className="bg-blue-500 rounded-xl py-4 items-center active:opacity-70"
+            >
+              <Text className="text-white font-bold text-base">Close</Text>
+            </Pressable>
+          </View>
         </View>
       </View>
     </Modal>

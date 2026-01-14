@@ -70,6 +70,34 @@ export interface AIAgent {
     averageResponseTime: string;
     successRate: number;
   };
+  // Optional detailed fields for enhanced modal
+  description?: string;
+  useCases?: string[];
+  keyFeatures?: string[];
+  category?: 'productivity' | 'sales' | 'marketing' | 'finance' | 'engineering' | 'operations' | 'manufacturing';
+  pricing?: {
+    starter?: string;
+    professional?: string;
+    enterprise?: string;
+    notes?: string;
+  };
+  setup?: {
+    difficulty?: 'Easy' | 'Moderate' | 'Advanced';
+    timeToValue?: string;
+    requirements?: string[];
+  };
+  support?: {
+    documentation?: string;
+    community?: string;
+    email?: boolean;
+    phone?: boolean;
+  };
+  reviews?: {
+    rating?: number;
+    totalReviews?: number;
+    pros?: string[];
+    cons?: string[];
+  };
 }
 
 // Organization structure with reporting lines
