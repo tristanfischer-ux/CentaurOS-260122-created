@@ -19,6 +19,7 @@ import {
   BarChart3,
   ShoppingCart,
 } from 'lucide-react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useCurrentMembership } from '@/lib/state/app-store';
 import {
   ORGANIZATION_MEMBERS,
@@ -92,27 +93,27 @@ export default function MakeScreen() {
         <View className="flex-row gap-3 mb-3">
           <Pressable
             onPress={() => setActiveTab('suppliers')}
-            className="flex-1 bg-gray-100 dark:bg-slate-900 rounded-xl p-3 border border-gray-300 dark:border-slate-800 active:opacity-70"
+            className="flex-1 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl p-3 border border-emerald-200 dark:border-emerald-800 active:opacity-70"
           >
-            <Text className="text-gray-600 dark:text-slate-400 text-xs mb-1">Suppliers</Text>
-            <Text className="text-emerald-400 text-xl font-bold">
+            <Text className="text-emerald-700 dark:text-emerald-300 text-xs font-semibold mb-1">SUPPLIERS</Text>
+            <Text className="text-emerald-900 dark:text-emerald-100 text-2xl font-bold">
               £{(supplierSpend.total / 1000).toFixed(0)}k
             </Text>
-            <Text className="text-gray-600 dark:text-slate-500 text-[10px] mt-0.5">
-              £{(supplierSpend.paid / 1000).toFixed(0)}k paid • Tap to view
+            <Text className="text-emerald-600 dark:text-emerald-400 text-xs mt-0.5">
+              £{(supplierSpend.paid / 1000).toFixed(0)}k paid
             </Text>
           </Pressable>
 
           <Pressable
             onPress={() => setActiveTab('ai')}
-            className="flex-1 bg-gray-100 dark:bg-slate-900 rounded-xl p-3 border border-gray-300 dark:border-slate-800 active:opacity-70"
+            className="flex-1 bg-purple-50 dark:bg-purple-900/20 rounded-xl p-3 border border-purple-200 dark:border-purple-800 active:opacity-70"
           >
-            <Text className="text-gray-600 dark:text-slate-400 text-xs mb-1">AI/Month</Text>
-            <Text className="text-blue-400 text-xl font-bold">
+            <Text className="text-purple-700 dark:text-purple-300 text-xs font-semibold mb-1">AI/MONTH</Text>
+            <Text className="text-purple-900 dark:text-purple-100 text-2xl font-bold">
               £{aiSpend.toLocaleString()}
             </Text>
-            <Text className="text-gray-600 dark:text-slate-500 text-[10px] mt-0.5">
-              {AI_AGENTS.filter(a => a.status === 'active').length} active • Tap to view
+            <Text className="text-purple-600 dark:text-purple-400 text-xs mt-0.5">
+              {AI_AGENTS.filter(a => a.status === 'active').length} active
             </Text>
           </Pressable>
         </View>
@@ -127,7 +128,7 @@ export default function MakeScreen() {
                 key={tab.value}
                 onPress={() => setActiveTab(tab.value)}
                 className={`flex-1 py-2 rounded-lg items-center active:opacity-70 ${
-                  isActive ? 'bg-blue-500' : ''
+                  isActive ? 'bg-purple-500' : ''
                 }`}
               >
                 <Icon
@@ -236,32 +237,39 @@ export default function MakeScreen() {
         {/* AI Tools Tab */}
         {activeTab === 'ai' && (
           <View className="px-6 pb-6">
-            <View className="bg-gradient-to-r from-blue-900/40 to-purple-900/40 rounded-xl p-4 border border-blue-700/50 mb-4">
-              <View className="flex-row items-center mb-2">
-                <Sparkles size={20} color="#60a5fa" />
-                <Text className="text-gray-900 dark:text-white font-semibold ml-2">AI Infrastructure</Text>
-              </View>
-              <Text className="text-gray-700 dark:text-slate-300 text-sm mb-3">
-                {AI_AGENTS.filter(a => a.status === 'active').length} active agents costing £
-                {aiSpend}/month
-              </Text>
-              <View className="flex-row gap-2">
-                <View className="bg-blue-500/20 px-3 py-1 rounded-lg">
-                  <Text className="text-blue-300 text-xs">
-                    {AI_AGENTS.filter(a => a.provider === 'OpenAI').length} OpenAI
-                  </Text>
+            <View className="rounded-xl overflow-hidden mb-4 border border-purple-200 dark:border-purple-800">
+              <LinearGradient
+                colors={['#6366f1', '#8b5cf6']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={{ padding: 16 }}
+              >
+                <View className="flex-row items-center mb-2">
+                  <Sparkles size={20} color="#fff" />
+                  <Text className="text-white font-bold ml-2 text-base">AI Infrastructure</Text>
                 </View>
-                <View className="bg-purple-500/20 px-3 py-1 rounded-lg">
-                  <Text className="text-purple-300 text-xs">
-                    {AI_AGENTS.filter(a => a.provider === 'Anthropic').length} Anthropic
-                  </Text>
+                <Text className="text-white/90 text-sm mb-3">
+                  {AI_AGENTS.filter(a => a.status === 'active').length} active agents costing £
+                  {aiSpend}/month
+                </Text>
+                <View className="flex-row gap-2 flex-wrap">
+                  <View className="bg-white/20 px-3 py-1.5 rounded-lg">
+                    <Text className="text-white text-xs font-semibold">
+                      {AI_AGENTS.filter(a => a.provider === 'OpenAI').length} OpenAI
+                    </Text>
+                  </View>
+                  <View className="bg-white/20 px-3 py-1.5 rounded-lg">
+                    <Text className="text-white text-xs font-semibold">
+                      {AI_AGENTS.filter(a => a.provider === 'Anthropic').length} Anthropic
+                    </Text>
+                  </View>
+                  <View className="bg-white/20 px-3 py-1.5 rounded-lg">
+                    <Text className="text-white text-xs font-semibold">
+                      {AI_AGENTS.filter(a => a.provider === 'Google').length} Google
+                    </Text>
+                  </View>
                 </View>
-                <View className="bg-emerald-500/20 px-3 py-1 rounded-lg">
-                  <Text className="text-emerald-300 text-xs">
-                    {AI_AGENTS.filter(a => a.provider === 'Google').length} Google
-                  </Text>
-                </View>
-              </View>
+              </LinearGradient>
             </View>
 
             <Text className="text-gray-900 dark:text-white text-base font-semibold mb-3">
@@ -301,7 +309,7 @@ export default function MakeScreen() {
                       </View>
                     </View>
                     <View className="items-end">
-                      <Text className="text-blue-400 text-lg font-bold">
+                      <Text className="text-purple-500 dark:text-purple-400 text-lg font-bold">
                         £{agent.costPerMonth}
                       </Text>
                       <Text className="text-gray-600 dark:text-slate-400 text-xs">/month</Text>
@@ -416,7 +424,7 @@ export default function MakeScreen() {
                   </Pressable>
                 </View>
                 <View className="flex-row items-center gap-2">
-                  <Text className="text-blue-400 text-sm">{selectedAI.provider}</Text>
+                  <Text className="text-purple-500 dark:text-purple-400 text-sm font-semibold">{selectedAI.provider}</Text>
                   <Text className="text-gray-600 dark:text-slate-500">•</Text>
                   <Text className="text-gray-600 dark:text-slate-400 text-sm">{selectedAI.model}</Text>
                 </View>
@@ -428,7 +436,7 @@ export default function MakeScreen() {
                   <View className="bg-gray-200 dark:bg-slate-800 rounded-xl p-4 mb-4">
                     <View className="flex-row justify-between items-center">
                       <Text className="text-gray-600 dark:text-slate-400">Monthly Cost:</Text>
-                      <Text className="text-blue-400 text-xl font-bold">
+                      <Text className="text-purple-500 dark:text-purple-400 text-xl font-bold">
                         £{selectedAI.costPerMonth}
                       </Text>
                     </View>
