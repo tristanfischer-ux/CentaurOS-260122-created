@@ -1,6 +1,6 @@
 import { View, Text, ScrollView, Pressable, Modal, TextInput, Alert, KeyboardAvoidingView, Platform } from 'react-native';
 import { useState, useEffect } from 'react';
-import { Target, Plus, X, ChevronDown, ChevronRight, CheckCircle2, Circle, Clock, Users, DollarSign, Lightbulb, ChevronUp } from 'lucide-react-native';
+import { Target, Plus, X, ChevronDown, ChevronRight, CheckCircle2, Circle, Clock, Users, DollarSign, Lightbulb, ChevronUp, UserPlus } from 'lucide-react-native';
 import { useCurrentWorkspace, useCurrentMembership } from '@/lib/state/app-store';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams } from 'expo-router';
@@ -8,6 +8,9 @@ import type { Function as BusinessFunction } from '@/types';
 import { useOKRStore, type OKR, type Objective } from '@/lib/state/okr-store';
 import { OKR_CATEGORIES, OKR_SUGGESTIONS, type OKRSuggestion, type OKRCategory } from '@/lib/okr-suggestions';
 import { fractionalExecutives, apprentices, type Candidate } from '@/lib/candidates-seed';
+import { useMarketplaceRequestsStore } from '@/lib/state/marketplace-requests-store';
+import { MARKETPLACE_EXECUTIVES } from '@/lib/marketplace-executives';
+import { useOrganizationStore } from '@/lib/state/organization-store';
 
 // Initialize OKR store once
 if (useOKRStore.getState().okrs.length === 0) {
@@ -31,6 +34,12 @@ export default function DecideScreen() {
   const okrs = useOKRStore(s => s.okrs);
   const toggleOKRExpanded = useOKRStore(s => s.toggleOKRExpanded);
   const addOKR = useOKRStore(s => s.addOKR);
+
+  // Marketplace requests
+  const pendingRequests = useMarketplaceRequestsStore((s) => s.getPendingRequests());
+  const approveRequest = useMarketplaceRequestsStore((s) => s.approveRequest);
+  const rejectRequest = useMarketplaceRequestsStore((s) => s.rejectRequest);
+  const addMember = useOrganizationStore((s) => s.addMember);
 
   const [selectedFunction, setSelectedFunction] = useState<BusinessFunction | 'all'>('all');
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -136,7 +145,41 @@ export default function DecideScreen() {
   const totalOKRs = filteredOKRs.length;
   const atRiskOKRs = filteredOKRs.filter((okr: OKR) => okr.status === 'at-risk').length;
   const offTrackOKRs = filteredOKRs.filter((okr: OKR) => okr.status === 'off-track').length;
-  const approvalQueueCount = 3; // In real app, this would be dynamic
+  const approvalQueueCount = pendingRequests.length;
+
+  const handleApproveMarketplaceRequest = (requestId: string, candidateId: string) => {
+    // Find the candidate
+    const candidate = MARKETPLACE_EXECUTIVES.find(e => e.id === candidateId);
+    const request = pendingRequests.find(r => r.id === requestId);
+
+    if (!candidate || !request) return;
+
+    // Add to organization
+    addMember({
+      id: `member-${Date.now()}`,
+      workspaceId: 'workspace-demo-company',
+      name: candidate.name,
+      role: candidate.role as 'FractionalExec' | 'Apprentice',
+      function: candidate.function,
+      email: `${candidate.name.toLowerCase().replace(/\s+/g, '.')}@example.com`,
+      phone: undefined,
+      linkedIn: candidate.linkedIn,
+      bio: candidate.bio,
+      costPerDay: request.proposedDayRate,
+      daysPerWeek: request.proposedDaysPerWeek,
+      status: 'active',
+      startDate: new Date().toISOString().split('T')[0],
+    });
+
+    // Approve the request
+    approveRequest(requestId, currentMembership?.role || 'Founder');
+    Alert.alert('Success', `${candidate.name} has been added to your team!`);
+  };
+
+  const handleRejectMarketplaceRequest = (requestId: string) => {
+    rejectRequest(requestId, currentMembership?.role || 'Founder');
+    Alert.alert('Rejected', 'The hiring request has been rejected.');
+  };
 
   // Filter suggestions by category
   const filteredSuggestions = selectedCategory === 'all'
@@ -301,7 +344,7 @@ export default function DecideScreen() {
         </ScrollView>
 
         {/* Approval Queue Button */}
-        {currentMembership?.role === 'Founder' && (
+        {currentMembership?.role === 'Founder' && approvalQueueCount > 0 && (
           <Pressable
             onPress={() => setShowApprovalQueue(true)}
             className="mt-3 bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-xl p-3 flex-row items-center justify-between active:opacity-70"
@@ -309,7 +352,7 @@ export default function DecideScreen() {
             <View className="flex-row items-center">
               <Target size={18} color="#a855f7" />
               <Text className="text-purple-700 dark:text-purple-300 font-semibold ml-2">
-                Approval Queue (3)
+                Approval Queue ({approvalQueueCount})
               </Text>
             </View>
             <ChevronRight size={18} color="#a855f7" />
@@ -787,32 +830,68 @@ export default function DecideScreen() {
 
             <ScrollView showsVerticalScrollIndicator={true} className="px-6 py-4">
               <Text className="text-gray-600 dark:text-slate-400 text-sm mb-4">
-                Review and approve resource allocation requests from executives and apprentices.
+                Review and approve hiring requests from the marketplace.
               </Text>
 
-              {/* Demo approval items */}
-              <View className="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-xl p-4 mb-3">
-                <Text className="text-purple-900 dark:text-purple-100 font-semibold mb-2">
-                  Request: Add Apprentice to Marketing OKR
-                </Text>
-                <Text className="text-purple-700 dark:text-purple-300 text-sm mb-3">
-                  Priya Sharma requests to add Emily Carter (Marketing Apprentice) to "Build Brand Awareness" work package.
-                </Text>
-                <View className="flex-row gap-2">
-                  <Pressable className="flex-1 bg-emerald-500 py-2 rounded-lg active:opacity-70">
-                    <Text className="text-white text-center font-semibold text-sm">Approve</Text>
-                  </Pressable>
-                  <Pressable className="flex-1 bg-gray-300 dark:bg-slate-700 py-2 rounded-lg active:opacity-70">
-                    <Text className="text-gray-700 dark:text-slate-300 text-center font-semibold text-sm">Reject</Text>
-                  </Pressable>
-                </View>
-              </View>
+              {/* Marketplace hiring requests */}
+              {pendingRequests.length > 0 ? (
+                pendingRequests.map((request) => {
+                  const candidate = MARKETPLACE_EXECUTIVES.find(e => e.id === request.candidateId);
+                  if (!candidate) return null;
 
-              <View className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4">
-                <Text className="text-blue-900 dark:text-blue-100 text-sm">
-                  Approval requests from the Community tab will appear here for founder review.
-                </Text>
-              </View>
+                  return (
+                    <View key={request.id} className="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-xl p-4 mb-3">
+                      <View className="flex-row items-center mb-2">
+                        <UserPlus size={16} color="#a855f7" />
+                        <Text className="text-purple-700 dark:text-purple-300 text-xs font-bold ml-1">HIRING REQUEST</Text>
+                      </View>
+
+                      <Text className="text-purple-900 dark:text-purple-100 font-semibold mb-2">
+                        Hire: {request.candidateName}
+                      </Text>
+
+                      <View className="bg-white/50 dark:bg-slate-800/50 rounded-lg p-3 mb-3">
+                        <Text className="text-purple-700 dark:text-purple-300 text-sm mb-2">
+                          <Text className="font-bold">{candidate.role === 'FractionalExec' ? 'Executive' : 'Apprentice'}</Text> • {request.candidateFunction}
+                        </Text>
+                        <Text className="text-gray-700 dark:text-slate-300 text-sm mb-2">
+                          ⭐ {candidate.rating} rating • {candidate.experience}
+                        </Text>
+                        <Text className="text-purple-900 dark:text-purple-100 text-sm font-semibold">
+                          £{request.proposedDayRate}/day × {request.proposedDaysPerWeek} days/week = £{Math.round(request.proposedDayRate * request.proposedDaysPerWeek * 4.33)}/month
+                        </Text>
+                      </View>
+
+                      {request.notes && (
+                        <Text className="text-gray-600 dark:text-slate-400 text-xs mb-3 italic">
+                          {request.notes}
+                        </Text>
+                      )}
+
+                      <View className="flex-row gap-2">
+                        <Pressable
+                          onPress={() => handleRejectMarketplaceRequest(request.id)}
+                          className="flex-1 bg-gray-300 dark:bg-slate-700 py-2 rounded-lg active:opacity-70"
+                        >
+                          <Text className="text-gray-700 dark:text-slate-300 text-center font-semibold text-sm">Reject</Text>
+                        </Pressable>
+                        <Pressable
+                          onPress={() => handleApproveMarketplaceRequest(request.id, request.candidateId)}
+                          className="flex-1 bg-emerald-500 py-2 rounded-lg active:opacity-70"
+                        >
+                          <Text className="text-white text-center font-semibold text-sm">Approve & Add to Team</Text>
+                        </Pressable>
+                      </View>
+                    </View>
+                  );
+                })
+              ) : (
+                <View className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4">
+                  <Text className="text-blue-900 dark:text-blue-100 text-sm">
+                    No pending approvals. Hiring requests from the Team Management tab will appear here for founder review.
+                  </Text>
+                </View>
+              )}
             </ScrollView>
           </View>
         </View>

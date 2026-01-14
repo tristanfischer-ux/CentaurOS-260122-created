@@ -56,7 +56,24 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
 
 **Last Updated**: 2026-01-13 (**COMPREHENSIVE AUDIT COMPLETE** + **ALL FIXES APPLIED** - Perfect 100/100 score)
 
-### Latest Update (2026-01-13):
+### Latest Update (2026-01-14):
+✅ **Marketplace Request/Approval System** - Complete hiring workflow from marketplace to team:
+  - **New Marketplace Requests Store**: Created `marketplace-requests-store.ts` for tracking hiring requests
+  - **Team Management → Recommended Tab**:
+    - Now shows two sections: "Pending Approvals" and "Available from Marketplace"
+    - Pending requests appear with amber highlight and show proposed terms (days/week, rate, monthly cost)
+    - Available people can be requested with "Request to Hire" button
+    - Button shows "Request Pending" when already requested
+  - **Decide Tab → Approval Queue**:
+    - Shows all pending marketplace hiring requests with full candidate details
+    - Displays rating, experience, role, function, and cost breakdown
+    - "Approve & Add to Team" button creates OrganizationMember and adds to active team
+    - "Reject" button declines the request
+    - Dynamic approval count badge (only shows when requests exist)
+  - **Complete Integration**: Requests flow from marketplace → recommended tab → decide tab → organization
+  - **Real-time Updates**: Both tabs automatically sync when requests are created, approved, or rejected
+
+### Previous Update (2026-01-13):
 ✅ **AI Tools Cost Connected to People** - Monthly cost breakdown now reflects actual equipped AI tools:
   - AI Tools cost now calculated from person loadouts in armory system
   - Shows count of equipped tools in breakdown (e.g., "AI Tools & Software (12 equipped)")

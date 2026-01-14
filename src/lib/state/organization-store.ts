@@ -28,6 +28,7 @@ interface OrganizationState {
   getMemberById: (id: string) => OrganizationMember | undefined;
   getMembersByRole: (role: OrganizationMember['role']) => OrganizationMember[];
   getMembersByFunction: (func: string) => OrganizationMember[];
+  addMember: (member: OrganizationMember) => void;
   updateMember: (id: string, updates: Partial<OrganizationMember>) => void;
 
   // AI Agent methods
@@ -87,6 +88,12 @@ export const useOrganizationStore = create<OrganizationState>((set, get) => ({
 
   getMembersByFunction: (func: string) => {
     return get().members.filter(m => m.function === func && m.status === 'active');
+  },
+
+  addMember: (member: OrganizationMember) => {
+    set((state) => ({
+      members: [...state.members, member]
+    }));
   },
 
   updateMember: (id: string, updates: Partial<OrganizationMember>) => {

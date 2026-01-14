@@ -21,9 +21,11 @@ import {
   Briefcase,
   Shield,
   Linkedin,
+  Clock,
 } from 'lucide-react-native';
 import { useOrganizationStore } from '@/lib/state/organization-store';
 import { useArmoryStore } from '@/lib/state/armory-store';
+import { useMarketplaceRequestsStore } from '@/lib/state/marketplace-requests-store';
 import type { OrganizationMember, AIAgent } from '@/lib/organization-seed';
 import { THIRD_PARTY_AI_TOOLS } from '@/lib/third-party-ai-tools';
 import { MARKETPLACE_EXECUTIVES } from '@/lib/marketplace-executives';
@@ -39,6 +41,7 @@ export default function TeamManagementScreen() {
   const members = useOrganizationStore((s) => s.members);
   const aiAgents = useOrganizationStore((s) => s.aiAgents);
   const updateMember = useOrganizationStore((s) => s.updateMember);
+  const addMember = useOrganizationStore((s) => s.addMember);
   const personLoadouts = useArmoryStore((s) => s.personLoadouts);
   const addAITool = useArmoryStore((s) => s.addAITool);
   const removeAITool = useArmoryStore((s) => s.removeAITool);
@@ -47,6 +50,13 @@ export default function TeamManagementScreen() {
   const assignApprentice = useArmoryStore((s) => s.assignApprentice);
   const removeApprentice = useArmoryStore((s) => s.removeApprentice);
   const deleteSquad = useArmoryStore((s) => s.deleteSquad);
+
+  // Marketplace requests store
+  const pendingRequests = useMarketplaceRequestsStore((s) => s.getPendingRequests());
+  const createRequest = useMarketplaceRequestsStore((s) => s.createRequest);
+  const approveRequest = useMarketplaceRequestsStore((s) => s.approveRequest);
+  const rejectRequest = useMarketplaceRequestsStore((s) => s.rejectRequest);
+  const getRequestByCandidate = useMarketplaceRequestsStore((s) => s.getRequestByCandidate);
 
   // Filter current team members
   const currentTeam = useMemo(() => {
@@ -65,20 +75,73 @@ export default function TeamManagementScreen() {
     return (aiAgents || []).filter(a => a.status === 'active');
   }, [aiAgents]);
 
-  // Get recommended people from marketplace (top 6 available executives and apprentices)
+  // Get recommended people from marketplace
+  // Show pending requests first, then available people
   const recommendedPeople = useMemo(() => {
-    return MARKETPLACE_EXECUTIVES
+    const available = MARKETPLACE_EXECUTIVES
       .filter(exec => exec.availability === 'available')
-      .slice(0, 6);
+      .slice(0, 10);
+    return available;
   }, []);
 
-  const handleApprovePerson = (personId: string) => {
-    console.log('Approved person:', personId);
-    // TODO: Add to organization
+  // Split recommendations into pending requests and available people
+  const pendingRecommendations = useMemo(() => {
+    return pendingRequests.map(req => {
+      const candidate = MARKETPLACE_EXECUTIVES.find(e => e.id === req.candidateId);
+      return { request: req, candidate };
+    }).filter(item => item.candidate);
+  }, [pendingRequests]);
+
+  const availableRecommendations = useMemo(() => {
+    const requestedIds = pendingRequests.map(r => r.candidateId);
+    return recommendedPeople.filter(p => !requestedIds.includes(p.id));
+  }, [recommendedPeople, pendingRequests]);
+
+  const handleRequestPerson = (person: typeof MARKETPLACE_EXECUTIVES[0]) => {
+    // Create a marketplace request
+    createRequest({
+      workspaceId: 'workspace-demo-company',
+      candidateId: person.id,
+      candidateName: person.name,
+      candidateRole: person.role as 'FractionalExec' | 'Apprentice',
+      candidateFunction: person.function,
+      requestedBy: 'Founder',
+      proposedDaysPerWeek: 3, // Default 3 days per week
+      proposedDayRate: person.costPerDay,
+      notes: `Requested from marketplace - ${person.experience}`,
+    });
   };
 
-  const handleRejectPerson = (personId: string) => {
-    console.log('Rejected person:', personId);
+  const handleApprovePerson = (requestId: string, candidateId: string) => {
+    // Find the candidate
+    const candidate = MARKETPLACE_EXECUTIVES.find(e => e.id === candidateId);
+    const request = pendingRequests.find(r => r.id === requestId);
+
+    if (!candidate || !request) return;
+
+    // Add to organization
+    addMember({
+      id: `member-${Date.now()}`,
+      workspaceId: 'workspace-demo-company',
+      name: candidate.name,
+      role: candidate.role as 'FractionalExec' | 'Apprentice',
+      function: candidate.function,
+      email: `${candidate.name.toLowerCase().replace(/\s+/g, '.')}@example.com`,
+      phone: undefined,
+      linkedIn: candidate.linkedIn,
+      bio: candidate.bio,
+      costPerDay: request.proposedDayRate,
+      daysPerWeek: request.proposedDaysPerWeek,
+      status: 'active',
+      startDate: new Date().toISOString().split('T')[0],
+    });
+
+    // Approve the request
+    approveRequest(requestId, 'Founder');
+  };
+
+  const handleRejectPerson = (requestId: string) => {
+    rejectRequest(requestId, 'Founder');
   };
 
   const handleRemovePerson = (memberId: string) => {
@@ -334,88 +397,184 @@ export default function TeamManagementScreen() {
         {/* Recommended Tab - Marketplace Hiring */}
         {selectedTab === 'recommended' && (
           <View>
-            <View className="mb-4">
-              <Text className="text-white/60 text-sm mb-3">
-                These people match your needs and are waiting for approval
-              </Text>
-            </View>
+            {/* Pending Requests Section */}
+            {pendingRecommendations.length > 0 && (
+              <View className="mb-6">
+                <Text className="text-white font-black text-lg mb-3">
+                  Pending Approvals ({pendingRecommendations.length})
+                </Text>
+                <Text className="text-amber-400 text-sm mb-3">
+                  Review and approve these hiring requests
+                </Text>
 
-            {recommendedPeople.map((person) => (
-              <View
-                key={person.id}
-                className="bg-white/5 border border-white/10 rounded-2xl p-4 mb-3"
-              >
-                <View className="flex-row items-start justify-between mb-3">
-                  <View className="flex-row items-start flex-1">
-                    <View className="bg-blue-500/20 rounded-full w-12 h-12 items-center justify-center mr-3">
-                      <Text className="text-2xl">
-                        {person.role === 'FractionalExec' ? '👔' : '🎓'}
-                      </Text>
-                    </View>
-                    <View className="flex-1">
-                      <Text className="text-white font-black text-base">{person.name}</Text>
-                      <Text className="text-white/60 text-sm">{person.function}</Text>
-                      <View className="flex-row items-center gap-2 mt-1 flex-wrap">
-                        <View className="bg-amber-500/20 px-2 py-0.5 rounded">
-                          <Text className="text-amber-300 text-xs font-bold">⭐ {person.rating}</Text>
+                {pendingRecommendations.map(({ request, candidate }) => {
+                  if (!candidate) return null;
+                  return (
+                    <View
+                      key={request.id}
+                      className="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-4 mb-3"
+                    >
+                      <View className="flex-row items-center mb-2">
+                        <Clock size={16} color="#fbbf24" />
+                        <Text className="text-amber-400 text-xs font-bold ml-1">PENDING APPROVAL</Text>
+                      </View>
+
+                      <View className="flex-row items-start justify-between mb-3">
+                        <View className="flex-row items-start flex-1">
+                          <View className="bg-blue-500/20 rounded-full w-12 h-12 items-center justify-center mr-3">
+                            <Text className="text-2xl">
+                              {candidate.role === 'FractionalExec' ? '👔' : '🎓'}
+                            </Text>
+                          </View>
+                          <View className="flex-1">
+                            <Text className="text-white font-black text-base">{candidate.name}</Text>
+                            <Text className="text-white/60 text-sm">{candidate.function}</Text>
+                            <View className="flex-row items-center gap-2 mt-1 flex-wrap">
+                              <View className="bg-amber-500/20 px-2 py-0.5 rounded">
+                                <Text className="text-amber-300 text-xs font-bold">⭐ {candidate.rating}</Text>
+                              </View>
+                              <View className={candidate.role === 'FractionalExec' ? 'bg-purple-500/20 px-2 py-0.5 rounded' : 'bg-emerald-500/20 px-2 py-0.5 rounded'}>
+                                <Text className={candidate.role === 'FractionalExec' ? 'text-purple-300 text-xs font-bold' : 'text-emerald-300 text-xs font-bold'}>
+                                  {candidate.role === 'FractionalExec' ? 'Executive' : 'Apprentice'}
+                                </Text>
+                              </View>
+                            </View>
+                          </View>
                         </View>
-                        <View className="bg-blue-500/20 px-2 py-0.5 rounded">
-                          <Text className="text-blue-300 text-xs font-bold">
-                            {person.specialties[0]}
+                        <View className="items-end ml-2">
+                          <Text className="text-blue-300 font-black text-lg">
+                            £{request.proposedDayRate}
                           </Text>
-                        </View>
-                        <View className={person.role === 'FractionalExec' ? 'bg-purple-500/20 px-2 py-0.5 rounded' : 'bg-emerald-500/20 px-2 py-0.5 rounded'}>
-                          <Text className={person.role === 'FractionalExec' ? 'text-purple-300 text-xs font-bold' : 'text-emerald-300 text-xs font-bold'}>
-                            {person.role === 'FractionalExec' ? 'Executive' : 'Apprentice'}
-                          </Text>
+                          <Text className="text-white/40 text-xs">/day × {request.proposedDaysPerWeek}d</Text>
                         </View>
                       </View>
+
+                      <View className="bg-white/5 rounded-xl p-3 mb-3">
+                        <Text className="text-white/60 text-xs font-bold mb-1">PROPOSED TERMS</Text>
+                        <Text className="text-white text-sm">
+                          {request.proposedDaysPerWeek} days/week • £{Math.round(request.proposedDayRate * request.proposedDaysPerWeek * 4.33)}/month
+                        </Text>
+                      </View>
+
+                      <View className="flex-row gap-2">
+                        <Pressable
+                          onPress={() => handleRejectPerson(request.id)}
+                          className="flex-1 bg-red-500/20 border border-red-500/30 rounded-xl py-3 active:opacity-70"
+                        >
+                          <Text className="text-red-400 font-bold text-center">Reject</Text>
+                        </Pressable>
+                        <Pressable
+                          onPress={() => handleApprovePerson(request.id, candidate.id)}
+                          className="flex-1 bg-emerald-500 rounded-xl py-3 active:opacity-80"
+                        >
+                          <View className="flex-row items-center justify-center">
+                            <Check size={16} color="white" />
+                            <Text className="text-white font-bold ml-1">Approve & Add</Text>
+                          </View>
+                        </Pressable>
+                      </View>
                     </View>
-                  </View>
-                  <View className="items-end ml-2">
-                    <Text className="text-blue-300 font-black text-lg">
-                      £{person.costPerDay}
-                    </Text>
-                    <Text className="text-white/40 text-xs">/day</Text>
-                  </View>
-                </View>
-
-                <View className="bg-white/5 rounded-xl p-3 mb-3">
-                  <Text className="text-white/60 text-xs font-bold mb-1">EXPERIENCE</Text>
-                  <Text className="text-white text-sm">{person.experience}</Text>
-                </View>
-
-                <View className="bg-white/5 rounded-xl p-3 mb-3">
-                  <Text className="text-white/60 text-xs font-bold mb-1">LOCATION</Text>
-                  <Text className="text-white text-sm">
-                    {person.location.city}, {person.location.country}
-                    {person.location.remote && ' • Remote'}
-                  </Text>
-                </View>
-
-                <View className="flex-row gap-2">
-                  <Pressable
-                    onPress={() => handleRejectPerson(person.id)}
-                    className="flex-1 bg-red-500/20 border border-red-500/30 rounded-xl py-3 active:opacity-70"
-                  >
-                    <Text className="text-red-400 font-bold text-center">Reject</Text>
-                  </Pressable>
-                  <Pressable
-                    onPress={() => handleApprovePerson(person.id)}
-                    className="flex-1 bg-emerald-500 rounded-xl py-3 active:opacity-80"
-                  >
-                    <View className="flex-row items-center justify-center">
-                      <Check size={16} color="white" />
-                      <Text className="text-white font-bold ml-1">Approve & Add</Text>
-                    </View>
-                  </Pressable>
-                </View>
+                  );
+                })}
               </View>
-            ))}
+            )}
+
+            {/* Available People Section */}
+            <View>
+              <Text className="text-white font-black text-lg mb-3">
+                Available from Marketplace ({availableRecommendations.length})
+              </Text>
+              <Text className="text-white/60 text-sm mb-3">
+                Top talent available to hire immediately
+              </Text>
+
+              {availableRecommendations.map((person) => {
+                const existingRequest = getRequestByCandidate(person.id);
+                const isRequested = existingRequest?.status === 'pending';
+
+                return (
+                  <View
+                    key={person.id}
+                    className="bg-white/5 border border-white/10 rounded-2xl p-4 mb-3"
+                  >
+                    <View className="flex-row items-start justify-between mb-3">
+                      <View className="flex-row items-start flex-1">
+                        <View className="bg-blue-500/20 rounded-full w-12 h-12 items-center justify-center mr-3">
+                          <Text className="text-2xl">
+                            {person.role === 'FractionalExec' ? '👔' : '🎓'}
+                          </Text>
+                        </View>
+                        <View className="flex-1">
+                          <Text className="text-white font-black text-base">{person.name}</Text>
+                          <Text className="text-white/60 text-sm">{person.function}</Text>
+                          <View className="flex-row items-center gap-2 mt-1 flex-wrap">
+                            <View className="bg-amber-500/20 px-2 py-0.5 rounded">
+                              <Text className="text-amber-300 text-xs font-bold">⭐ {person.rating}</Text>
+                            </View>
+                            <View className="bg-blue-500/20 px-2 py-0.5 rounded">
+                              <Text className="text-blue-300 text-xs font-bold">
+                                {person.specialties[0]}
+                              </Text>
+                            </View>
+                            <View className={person.role === 'FractionalExec' ? 'bg-purple-500/20 px-2 py-0.5 rounded' : 'bg-emerald-500/20 px-2 py-0.5 rounded'}>
+                              <Text className={person.role === 'FractionalExec' ? 'text-purple-300 text-xs font-bold' : 'text-emerald-300 text-xs font-bold'}>
+                                {person.role === 'FractionalExec' ? 'Executive' : 'Apprentice'}
+                              </Text>
+                            </View>
+                          </View>
+                        </View>
+                      </View>
+                      <View className="items-end ml-2">
+                        <Text className="text-blue-300 font-black text-lg">
+                          £{person.costPerDay}
+                        </Text>
+                        <Text className="text-white/40 text-xs">/day</Text>
+                      </View>
+                    </View>
+
+                    <View className="bg-white/5 rounded-xl p-3 mb-3">
+                      <Text className="text-white/60 text-xs font-bold mb-1">EXPERIENCE</Text>
+                      <Text className="text-white text-sm">{person.experience}</Text>
+                    </View>
+
+                    <View className="bg-white/5 rounded-xl p-3 mb-3">
+                      <Text className="text-white/60 text-xs font-bold mb-1">LOCATION</Text>
+                      <Text className="text-white text-sm">
+                        {person.location.city}, {person.location.country}
+                        {person.location.remote && ' • Remote'}
+                      </Text>
+                    </View>
+
+                    <Pressable
+                      onPress={() => handleRequestPerson(person)}
+                      disabled={isRequested}
+                      className={cn(
+                        'rounded-xl py-3 active:opacity-80',
+                        isRequested ? 'bg-gray-500/20' : 'bg-emerald-500'
+                      )}
+                    >
+                      <View className="flex-row items-center justify-center">
+                        {isRequested ? (
+                          <>
+                            <Clock size={16} color="#94a3b8" />
+                            <Text className="text-gray-400 font-bold ml-1">Request Pending</Text>
+                          </>
+                        ) : (
+                          <>
+                            <UserPlus size={16} color="white" />
+                            <Text className="text-white font-bold ml-1">Request to Hire</Text>
+                          </>
+                        )}
+                      </View>
+                    </Pressable>
+                  </View>
+                );
+              })}
+            </View>
 
             <Pressable
               onPress={() => router.push('/(tabs)/community')}
-              className="bg-blue-500/20 border border-blue-500/30 rounded-xl py-4 mt-2 active:opacity-70"
+              className="bg-blue-500/20 border border-blue-500/30 rounded-xl py-4 mt-4 active:opacity-70"
             >
               <View className="flex-row items-center justify-center">
                 <UserPlus size={18} color="#60a5fa" />
