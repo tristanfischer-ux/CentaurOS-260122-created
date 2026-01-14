@@ -12,6 +12,7 @@ import { useInitializeApp } from '@/lib/hooks/useInitializeApp';
 import { WelcomeSplash } from '@/components/WelcomeSplash';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { ToastContainer } from '@/components/ToastContainer';
+import { ThemeProvider as AppThemeProvider } from '@/lib/ThemeContext';
 
 export const unstable_settings = {
   initialRouteName: 'sign-in',
@@ -157,13 +158,15 @@ export default function RootLayout() {
   return (
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
-        <GestureHandlerRootView style={{ flex: 1 }}>
-          <KeyboardProvider>
-            <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
-            <RootLayoutNav colorScheme={colorScheme} />
-            <ToastContainer />
-          </KeyboardProvider>
-        </GestureHandlerRootView>
+        <AppThemeProvider>
+          <GestureHandlerRootView style={{ flex: 1 }}>
+            <KeyboardProvider>
+              <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
+              <RootLayoutNav colorScheme={colorScheme} />
+              <ToastContainer />
+            </KeyboardProvider>
+          </GestureHandlerRootView>
+        </AppThemeProvider>
       </QueryClientProvider>
     </ErrorBoundary>
   );
