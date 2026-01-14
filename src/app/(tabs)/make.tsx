@@ -443,7 +443,7 @@ export default function MakeScreen() {
                   </View>
 
                   {/* Financial Summary */}
-                  <View className="bg-gray-200 dark:bg-slate-800 rounded-xl p-4 mb-4">
+                  <View className="bg-gray-100 dark:bg-slate-800 rounded-xl p-4 mb-4">
                     <View className="flex-row items-center mb-3">
                       <DollarSign size={18} color="#10b981" />
                       <Text className="text-gray-900 dark:text-white font-bold ml-2">Financial Summary</Text>

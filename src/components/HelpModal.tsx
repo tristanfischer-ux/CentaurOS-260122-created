@@ -25,7 +25,7 @@ export function HelpModal({ visible, onClose, content, gradientColors = ['#3b82f
       presentationStyle="pageSheet"
       onRequestClose={onClose}
     >
-      <View className="flex-1 bg-slate-950">
+      <View className="flex-1 bg-gray-50 dark:bg-slate-950">
         <LinearGradient
           colors={gradientColors}
           start={{ x: 0, y: 0 }}
@@ -50,7 +50,7 @@ export function HelpModal({ visible, onClose, content, gradientColors = ['#3b82f
         <ScrollView className="flex-1 px-6 py-6" showsVerticalScrollIndicator={false}>
           {/* Description */}
           <View className="mb-6">
-            <Text className="text-white/90 text-base leading-6">
+            <Text className="text-gray-800 dark:text-white/90 text-base leading-6">
               {content.description}
             </Text>
           </View>
@@ -59,13 +59,13 @@ export function HelpModal({ visible, onClose, content, gradientColors = ['#3b82f
           <View className="mb-6">
             <View className="flex-row items-center mb-4">
               <Lightbulb size={20} color="#fbbf24" />
-              <Text className="text-white font-bold text-lg ml-2">Tips & Best Practices</Text>
+              <Text className="text-gray-900 dark:text-white font-bold text-lg ml-2">Tips & Best Practices</Text>
             </View>
-            <View className="bg-white/5 border border-white/10 rounded-2xl p-4">
+            <View className="bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-2xl p-4">
               {content.tips.map((tip, idx) => (
-                <View key={idx} className={`flex-row items-start ${idx > 0 ? 'mt-3 pt-3 border-t border-white/10' : ''}`}>
+                <View key={idx} className={`flex-row items-start ${idx > 0 ? 'mt-3 pt-3 border-t border-gray-200 dark:border-white/10' : ''}`}>
                   <CheckCircle2 size={18} color="#22c55e" style={{ marginTop: 2 }} />
-                  <Text className="text-white/80 text-sm ml-3 flex-1 leading-5">
+                  <Text className="text-gray-700 dark:text-white/80 text-sm ml-3 flex-1 leading-5">
                     {tip}
                   </Text>
                 </View>
@@ -76,14 +76,14 @@ export function HelpModal({ visible, onClose, content, gradientColors = ['#3b82f
           {/* Quick Actions Section */}
           {content.quickActions && content.quickActions.length > 0 && (
             <View className="mb-6">
-              <Text className="text-white font-bold text-lg mb-4">What You Can Do Here</Text>
+              <Text className="text-gray-900 dark:text-white font-bold text-lg mb-4">What You Can Do Here</Text>
               {content.quickActions.map((action, idx) => (
                 <View
                   key={idx}
-                  className="bg-white/5 border border-white/10 rounded-xl p-4 mb-3"
+                  className="bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl p-4 mb-3"
                 >
-                  <Text className="text-white font-bold text-base mb-1">{action.label}</Text>
-                  <Text className="text-white/60 text-sm leading-5">{action.description}</Text>
+                  <Text className="text-gray-900 dark:text-white font-bold text-base mb-1">{action.label}</Text>
+                  <Text className="text-gray-500 dark:text-white/60 text-sm leading-5">{action.description}</Text>
                 </View>
               ))}
             </View>
