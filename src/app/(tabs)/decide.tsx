@@ -22,6 +22,7 @@ import HireResourceModal from '@/components/HireResourceModal';
 import { DraggableOKRCard, DraggableTaskCard } from '@/components/DraggableOKRCard';
 import { CompanyAimBanner } from '@/components/CompanyAimBanner';
 import { CompanyAimModal } from '@/components/CompanyAimModal';
+import { SquaresDisplay } from '@/components/SquaresDisplay';
 
 const DECIDE_HELP: HelpContent = {
   title: 'Strategic Decisions',
@@ -1120,6 +1121,27 @@ export default function DecideScreen() {
                               <Text className="text-gray-500 dark:text-slate-400 text-xs">
                                 {okr.objectives.length} KRs
                               </Text>
+                              {linkedPlans.length > 0 && (
+                                <View className="flex-row items-center">
+                                  <View className="flex-row items-center gap-0.5">
+                                    {Array.from({ length: Math.min(linkedPlans.reduce((sum, p) => sum + p.estimatedTimeUnits, 0), 5) }).map((_, i) => {
+                                      const completedSquares = linkedPlans.reduce((sum, p) => sum + Math.round((p.progress / 100) * p.estimatedTimeUnits), 0);
+                                      return (
+                                        <View
+                                          key={i}
+                                          className="w-2 h-2 rounded-sm"
+                                          style={{
+                                            backgroundColor: i < completedSquares ? '#10b981' : '#d1d5db',
+                                          }}
+                                        />
+                                      );
+                                    })}
+                                  </View>
+                                  <Text className="text-gray-500 dark:text-slate-400 text-[10px] ml-1">
+                                    {linkedPlans.reduce((sum, p) => sum + p.estimatedTimeUnits, 0)}□
+                                  </Text>
+                                </View>
+                              )}
                             </View>
                           </View>
 
@@ -1212,6 +1234,19 @@ export default function DecideScreen() {
                                     plan.status === 'blocked' ? 'bg-red-500' : 'bg-blue-500'
                                   }`}
                                   style={{ width: `${plan.progress}%` }}
+                                />
+                              </View>
+
+                              {/* Squares Display */}
+                              <View className="mt-2">
+                                <SquaresDisplay
+                                  totalSquares={plan.estimatedTimeUnits}
+                                  completedSquares={Math.round((plan.progress / 100) * plan.estimatedTimeUnits)}
+                                  variant="compact"
+                                  statusColor={
+                                    plan.status === 'completed' ? '#10b981' :
+                                    plan.status === 'blocked' ? '#ef4444' : '#3b82f6'
+                                  }
                                 />
                               </View>
                             </Pressable>

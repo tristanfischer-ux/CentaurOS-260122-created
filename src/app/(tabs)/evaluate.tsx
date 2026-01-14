@@ -47,6 +47,7 @@ import { useWorkPlanStore, type WorkPlan } from '@/lib/state/work-plan-store';
 import { useOrganizationStore } from '@/lib/state/organization-store';
 import { HelpModal, HelpButton, type HelpContent } from '@/components/HelpModal';
 import { TimeUnitPill } from '@/components/TimeAllocationBadge';
+import { SquaresDisplay } from '@/components/SquaresDisplay';
 
 const EVALUATE_HELP: HelpContent = {
   title: 'Performance Insights',
@@ -977,7 +978,12 @@ export default function EvaluateScreen() {
                                 </Text>
                               </View>
                               {/* Time Units */}
-                              <TimeUnitPill timeUnits={plan.estimatedTimeUnits} variant="default" />
+                              <SquaresDisplay
+                                totalSquares={plan.estimatedTimeUnits}
+                                completedSquares={Math.round((plan.progress / 100) * plan.estimatedTimeUnits)}
+                                variant="mini"
+                                statusColor="#8b5cf6"
+                              />
                               <View className="flex-row items-center">
                                 <Timer size={12} color={plan.daysUntilDue <= 2 ? '#ef4444' : '#64748b'} />
                                 <Text className={`text-xs ml-1 ${

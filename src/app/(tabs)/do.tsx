@@ -14,6 +14,7 @@ import { useOKRStore, type OKR } from '@/lib/state/okr-store';
 import { cn } from '@/lib/cn';
 import { HelpModal, HelpButton, type HelpContent } from '@/components/HelpModal';
 import { TimeUnitPill } from '@/components/TimeAllocationBadge';
+import { SquaresDisplay } from '@/components/SquaresDisplay';
 
 const DO_HELP_APPRENTICE: HelpContent = {
   title: 'Task Execution',
@@ -424,6 +425,19 @@ export default function DoScreen() {
                 style={{ width: `${plan.progress}%` }}
               />
             </View>
+          </View>
+
+          {/* Squares Display */}
+          <View className="mb-2">
+            <SquaresDisplay
+              totalSquares={plan.estimatedTimeUnits}
+              completedSquares={Math.round((plan.progress / 100) * plan.estimatedTimeUnits)}
+              variant="compact"
+              statusColor={
+                plan.status === 'completed' ? '#10b981' :
+                plan.status === 'blocked' ? '#ef4444' : '#3b82f6'
+              }
+            />
           </View>
 
           {/* Quick Actions Row */}
