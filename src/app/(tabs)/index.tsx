@@ -26,6 +26,7 @@ import {
   PieChart,
   Lightbulb,
   Calendar,
+  MessageSquare,
 } from 'lucide-react-native';
 import { useCurrentWorkspace, useCurrentMembership, useCurrentUser } from '@/lib/state/app-store';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -1111,7 +1112,7 @@ export default function HomeScreen() {
                 className="flex-1 bg-blue-500 rounded-xl p-4 active:opacity-70"
               >
                 <Briefcase size={24} color="#fff" />
-                <Text className="text-white font-bold text-sm mt-2">Create Work Plan</Text>
+                <Text className="text-white font-bold text-sm mt-2">Work Plans</Text>
               </Pressable>
               <Pressable
                 onPress={() => router.push('/calendar')}
@@ -1119,6 +1120,13 @@ export default function HomeScreen() {
               >
                 <Calendar size={24} color="#fff" />
                 <Text className="text-white font-bold text-sm mt-2">Calendar</Text>
+              </Pressable>
+              <Pressable
+                onPress={() => router.push('/messages')}
+                className="flex-1 bg-cyan-500 rounded-xl p-4 active:opacity-70"
+              >
+                <MessageSquare size={24} color="#fff" />
+                <Text className="text-white font-bold text-sm mt-2">Messages</Text>
               </Pressable>
             </View>
           </View>
@@ -1415,7 +1423,7 @@ export default function HomeScreen() {
                 className="flex-1 bg-emerald-500 rounded-xl p-4 active:opacity-70"
               >
                 <Zap size={24} color="#fff" />
-                <Text className="text-white font-bold text-sm mt-2">Report Progress</Text>
+                <Text className="text-white font-bold text-sm mt-2">Progress</Text>
               </Pressable>
               <Pressable
                 onPress={() => router.push('/calendar')}
@@ -1423,6 +1431,13 @@ export default function HomeScreen() {
               >
                 <Calendar size={24} color="#fff" />
                 <Text className="text-white font-bold text-sm mt-2">Calendar</Text>
+              </Pressable>
+              <Pressable
+                onPress={() => router.push('/messages')}
+                className="flex-1 bg-cyan-500 rounded-xl p-4 active:opacity-70"
+              >
+                <MessageSquare size={24} color="#fff" />
+                <Text className="text-white font-bold text-sm mt-2">Messages</Text>
               </Pressable>
             </View>
           </View>
