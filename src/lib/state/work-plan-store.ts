@@ -21,9 +21,9 @@ export interface WorkPlan {
   lastSubmittedAt?: string;
   feedback?: string;
 
-  // Time Unit Allocation System
-  // 1 Time Unit = Half Day (4 hours), 1 Day = 2 TU, 1 Week = 10 TU
-  estimatedTimeUnits: number;           // Total time units for task (min: 1)
+  // Squares Allocation System
+  // 1 Square (□) = Half Day (4 hours), 1 Day = 2□, 1 Week = 10□
+  estimatedTimeUnits: number;           // Total squares for task (min: 1)
   allocatedTimeUnitsPerWeek?: number;   // For spread mode (optional)
   assignedMemberIds?: string[];         // Who is working on this task
   sprintMode?: boolean;                 // true = ASAP, false = spread over weeks

@@ -1,16 +1,16 @@
 /**
- * Capacity Store - Time Unit Based Capacity Management
+ * Capacity Store - Squares-Based Capacity Management
  *
  * Key concepts:
- * - 1 Time Unit (TU) = Half Day = 4 hours
- * - 1 Day = 2 TU (normal) or 3 TU (stretched, 12 hours)
- * - 1 Week = 10 TU (5 days × 2 TU)
- * - Rolling window: 10 days (20 TU)
+ * - 1 Square (□) = Half Day = 4 hours
+ * - 1 Day = 2□ (normal) or 3□ (stretched, 12 hours)
+ * - 1 Week = 10□ (5 days × 2□)
+ * - Rolling window: 10 days (20□)
  *
  * Capacity limits:
- * - Apprentice: 10 TU/week normal, 15 TU/week stretched
- * - Executive: 2-6 TU/week based on daysPerWeek, up to 9 TU stretched
- * - Founder: 10 TU/week normal, 15 TU/week stretched
+ * - Apprentice: 10□/week normal, 15□/week stretched
+ * - Executive: 2-6□/week based on daysPerWeek, up to 9□ stretched
+ * - Founder: 10□/week normal, 15□/week stretched
  */
 
 import { create } from 'zustand';
@@ -18,11 +18,11 @@ import type { OrganizationMember } from '@/lib/organization-seed';
 import type { WorkPlan } from './work-plan-store';
 import type { ThirdPartyAITool } from '@/lib/third-party-ai-tools';
 
-// Constants
-const TU_PER_HALF_DAY = 1;
-const TU_PER_DAY_NORMAL = 2;
-const TU_PER_DAY_STRETCHED = 3;
-const TU_PER_WEEK_NORMAL = 10;
+// Constants (squares = time units internally)
+const SQUARES_PER_HALF_DAY = 1;
+const SQUARES_PER_DAY_NORMAL = 2;
+const SQUARES_PER_DAY_STRETCHED = 3;
+const SQUARES_PER_WEEK_NORMAL = 10;
 const ROLLING_WINDOW_DAYS = 10;
 
 export interface TimeSlot {
@@ -43,8 +43,8 @@ export interface MemberCapacityView {
   // Capacity metrics
   baseTimeUnitsPerWeek: number;        // Normal capacity based on daysPerWeek
   maxTimeUnitsPerWeek: number;         // Max with stretch (1.5x normal)
-  allocatedTimeUnits: number;          // Currently allocated TU
-  availableTimeUnits: number;          // Remaining TU
+  allocatedTimeUnits: number;          // Currently allocated □
+  availableTimeUnits: number;          // Remaining □
   utilizationPct: number;              // 0-100+
   isStretched: boolean;                // True if over 100% normal capacity
 
@@ -136,16 +136,16 @@ interface CapacityState {
   ) => number;
 }
 
-// Helper: Get base TU per week for a member
+// Helper: Get base squares per week for a member
 function getBaseTimeUnitsPerWeek(member: OrganizationMember): number {
   const daysPerWeek = member.daysPerWeek ?? 5;
-  return daysPerWeek * TU_PER_DAY_NORMAL;
+  return daysPerWeek * SQUARES_PER_DAY_NORMAL;
 }
 
-// Helper: Get max TU per week (with stretch)
+// Helper: Get max squares per week (with stretch)
 function getMaxTimeUnitsPerWeek(member: OrganizationMember): number {
   const daysPerWeek = member.daysPerWeek ?? 5;
-  return daysPerWeek * TU_PER_DAY_STRETCHED;
+  return daysPerWeek * SQUARES_PER_DAY_STRETCHED;
 }
 
 // Helper: Calculate AI multiplier from equipped tools
@@ -230,14 +230,14 @@ export const useCapacityStore = create<CapacityState>((set, get) => ({
           wp.function === member.function
         );
 
-        // Sum up time units from active work plans
+        // Sum up squares from active work plans
         const allocatedTimeUnits = memberWorkPlans
           .filter(wp => wp.status !== 'completed')
           .reduce((sum, wp) => {
-            // Calculate remaining TU based on progress
+            // Calculate remaining squares based on progress
             const remainingPct = (100 - wp.progress) / 100;
-            const remainingTU = Math.ceil(wp.estimatedTimeUnits * remainingPct);
-            return sum + remainingTU;
+            const remainingSquares = Math.ceil(wp.estimatedTimeUnits * remainingPct);
+            return sum + remainingSquares;
           }, 0);
 
         const availableTimeUnits = Math.max(0, baseTimeUnitsPerWeek - allocatedTimeUnits);
@@ -250,11 +250,11 @@ export const useCapacityStore = create<CapacityState>((set, get) => ({
         const dailyAllocation = dates
           .filter(isWorkingDay)
           .map(date => {
-            // Simplified: distribute allocated TU evenly across working days
+            // Simplified: distribute allocated squares evenly across working days
             const workingDaysInWindow = dates.filter(isWorkingDay).length;
-            const avgTUPerDay = allocatedTimeUnits / workingDaysInWindow;
-            const normalSlots = Math.min(2, Math.floor(avgTUPerDay));
-            const stretchSlots = avgTUPerDay > 2 ? 1 : 0;
+            const avgSquaresPerDay = allocatedTimeUnits / workingDaysInWindow;
+            const normalSlots = Math.min(2, Math.floor(avgSquaresPerDay));
+            const stretchSlots = avgSquaresPerDay > 2 ? 1 : 0;
 
             return {
               date,
@@ -397,20 +397,20 @@ export const useCapacityStore = create<CapacityState>((set, get) => ({
 
     if (sprintMode) {
       // Sprint mode: use all available capacity from assigned members
-      const totalDailyTU = assignedMemberIds.reduce((sum, id) => {
+      const totalDailySquares = assignedMemberIds.reduce((sum, id) => {
         const member = memberCapacities.find(m => m.memberId === id);
         if (!member) return sum;
-        // Assume 2 TU per day per member in sprint mode
-        return sum + TU_PER_DAY_NORMAL;
+        // Assume 2□ per day per member in sprint mode
+        return sum + SQUARES_PER_DAY_NORMAL;
       }, 0);
 
-      if (totalDailyTU === 0) return timeUnits; // Fallback: 1 TU per day
+      if (totalDailySquares === 0) return timeUnits; // Fallback: 1□ per day
 
-      return Math.ceil(timeUnits / totalDailyTU);
+      return Math.ceil(timeUnits / totalDailySquares);
     } else {
-      // Spread mode: use allocated TU per week
-      const tuPerWeek = allocatedPerWeek || 2; // Default 2 TU per week
-      const weeks = Math.ceil(timeUnits / tuPerWeek);
+      // Spread mode: use allocated squares per week
+      const squaresPerWeek = allocatedPerWeek || 2; // Default 2□ per week
+      const weeks = Math.ceil(timeUnits / squaresPerWeek);
       return weeks * 5; // Convert weeks to working days
     }
   },

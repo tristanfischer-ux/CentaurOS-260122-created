@@ -46,7 +46,6 @@ import type { Function as BusinessFunction } from '@/types';
 import { useWorkPlanStore, type WorkPlan } from '@/lib/state/work-plan-store';
 import { useOrganizationStore } from '@/lib/state/organization-store';
 import { HelpModal, HelpButton, type HelpContent } from '@/components/HelpModal';
-import { TimeUnitPill } from '@/components/TimeAllocationBadge';
 import { SquaresDisplay } from '@/components/SquaresDisplay';
 import { ResourceBar } from '@/components/ResourceBar';
 import { useResourceStore } from '@/lib/state/resource-store';

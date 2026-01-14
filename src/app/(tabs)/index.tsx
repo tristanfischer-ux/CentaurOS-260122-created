@@ -1179,7 +1179,7 @@ export default function HomeScreen() {
                     <Text className="text-gray-500 dark:text-slate-500 text-xs ml-1">Available</Text>
                   </View>
                   <Text className="text-gray-900 dark:text-white font-bold text-lg">
-                    {teamCapacitySummary.totalAvailableTU} TU
+                    {teamCapacitySummary.totalAvailableTU}□
                   </Text>
                 </Pressable>
                 <View className="flex-1 bg-gray-100 dark:bg-slate-900 rounded-xl p-3">

@@ -3,9 +3,9 @@
  *
  * Visual grid showing 10-day rolling capacity for team members
  * - 10 columns (days) with stacked bars per person
- * - Each bar: 0-3 squares high (time units per day)
+ * - Each bar: 0-3 squares high (squares per day)
  * - Different colors per person/role
- * - Red tint for stretched (3 TU) slots
+ * - Red tint for stretched (3 squares) slots
  */
 
 import { View, Text, Pressable } from 'react-native';
@@ -284,7 +284,7 @@ export function CapacityHeatMap({
                     Function: {member.function}
                   </Text>
                   <Text className={cn('text-xs', textSecondary)}>
-                    Capacity: {member.allocatedTimeUnits}/{member.baseTimeUnitsPerWeek} TU
+                    Capacity: {member.allocatedTimeUnits}/{member.baseTimeUnitsPerWeek}□
                   </Text>
                   {member.aiMultiplier > 1 && (
                     <Text className="text-xs text-blue-500 font-medium">

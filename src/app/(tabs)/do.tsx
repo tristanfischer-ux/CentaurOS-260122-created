@@ -13,7 +13,6 @@ import { useWorkPlanStore, type WorkPlan } from '@/lib/state/work-plan-store';
 import { useOKRStore, type OKR } from '@/lib/state/okr-store';
 import { cn } from '@/lib/cn';
 import { HelpModal, HelpButton, type HelpContent } from '@/components/HelpModal';
-import { TimeUnitPill } from '@/components/TimeAllocationBadge';
 import { SquaresDisplay } from '@/components/SquaresDisplay';
 import { ResourceBar } from '@/components/ResourceBar';
 import { useResourceStore } from '@/lib/state/resource-store';
@@ -390,11 +389,23 @@ export default function DoScreen() {
             </View>
 
             <View className="flex-row items-center gap-2">
-              {/* Time Units Badge */}
-              <TimeUnitPill
-                timeUnits={plan.estimatedTimeUnits}
-                variant={plan.status === 'blocked' ? 'stretched' : 'default'}
-              />
+              {/* Squares Badge */}
+              <View className="flex-row items-center gap-0.5 bg-gray-100 dark:bg-slate-800 px-1.5 py-0.5 rounded">
+                {Array.from({ length: Math.min(plan.estimatedTimeUnits, 5) }).map((_, i) => (
+                  <View
+                    key={i}
+                    className="w-2 h-2 rounded-sm"
+                    style={{
+                      backgroundColor: i < Math.round((plan.progress / 100) * plan.estimatedTimeUnits)
+                        ? (plan.status === 'blocked' ? '#ef4444' : '#10b981')
+                        : '#d1d5db',
+                    }}
+                  />
+                ))}
+                <Text className="text-gray-600 dark:text-slate-400 text-[10px] font-bold ml-1">
+                  {plan.estimatedTimeUnits}□
+                </Text>
+              </View>
 
               {/* Priority Badge */}
               <View

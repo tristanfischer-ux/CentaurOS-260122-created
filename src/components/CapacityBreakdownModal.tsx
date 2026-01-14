@@ -115,19 +115,19 @@ export function CapacityBreakdownModal({
           <View>
             <Text className="text-gray-500 dark:text-slate-400 text-xs">Allocated</Text>
             <Text className="text-gray-900 dark:text-white font-semibold text-sm">
-              {member.allocatedTimeUnits} TU
+              {member.allocatedTimeUnits}□
             </Text>
           </View>
           <View>
             <Text className="text-gray-500 dark:text-slate-400 text-xs">Available</Text>
             <Text className="text-gray-900 dark:text-white font-semibold text-sm">
-              {member.availableTimeUnits} TU
+              {member.availableTimeUnits}□
             </Text>
           </View>
           <View>
             <Text className="text-gray-500 dark:text-slate-400 text-xs">Capacity</Text>
             <Text className="text-gray-900 dark:text-white font-semibold text-sm">
-              {member.baseTimeUnitsPerWeek} TU/wk
+              {member.baseTimeUnitsPerWeek}□/wk
             </Text>
           </View>
           {member.aiMultiplier > 1 && (
@@ -168,7 +168,7 @@ export function CapacityBreakdownModal({
                 Team Capacity Breakdown
               </Text>
               <Text className="text-gray-500 dark:text-slate-400 text-sm mt-1">
-                {totalAvailableTU} TU available across {memberCapacities.length} team members
+                {totalAvailableTU}□ available across {memberCapacities.length} team members
               </Text>
             </View>
             <Pressable

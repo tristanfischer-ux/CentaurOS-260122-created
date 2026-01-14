@@ -1,10 +1,12 @@
 /**
- * TimeAllocationBadge Component
+ * TimeAllocationBadge Component (DEPRECATED - use SquaresDisplay instead)
  *
- * Displays time unit allocation for tasks/OKRs
- * - Shows TU count with visual indicator
+ * Displays squares allocation for tasks/OKRs
+ * - Shows square count with visual indicator
  * - Indicates AI boost if applicable
  * - Shows stretched warning if needed
+ *
+ * Note: This component is being phased out. Use SquaresDisplay for new code.
  */
 
 import { View, Text } from 'react-native';
@@ -12,24 +14,24 @@ import { Zap, AlertTriangle, Clock } from 'lucide-react-native';
 import { cn } from '@/lib/cn';
 
 interface TimeAllocationBadgeProps {
-  timeUnits: number;              // Total time units
-  effectiveTimeUnits?: number;    // Time with AI efficiency applied
+  timeUnits: number;              // Total squares
+  effectiveTimeUnits?: number;    // Squares with AI efficiency applied
   aiMultiplier?: number;          // AI efficiency multiplier (1.0 - 20.0)
   isStretched?: boolean;          // Is this causing stretched capacity
   compact?: boolean;              // Smaller version
   showDays?: boolean;             // Show conversion to days
 }
 
-// Convert TU to human-readable format
-function formatTimeUnits(tu: number, showDays: boolean): string {
+// Convert squares to human-readable format
+function formatTimeUnits(squares: number, showDays: boolean): string {
   if (showDays) {
-    const days = tu / 2; // 2 TU = 1 day
-    if (days < 1) return `${tu} TU (½ day)`;
-    if (days === 1) return `${tu} TU (1 day)`;
-    if (days % 1 === 0) return `${tu} TU (${days} days)`;
-    return `${tu} TU (${days.toFixed(1)} days)`;
+    const days = squares / 2; // 2 squares = 1 day
+    if (days < 1) return `${squares}□ (½ day)`;
+    if (days === 1) return `${squares}□ (1 day)`;
+    if (days % 1 === 0) return `${squares}□ (${days} days)`;
+    return `${squares}□ (${days.toFixed(1)} days)`;
   }
-  return `${tu} TU`;
+  return `${squares}□`;
 }
 
 export function TimeAllocationBadge({
@@ -107,7 +109,7 @@ export function TimeAllocationBadge({
         </Text>
         {hasAIBoost && effectiveTU !== timeUnits && (
           <Text className="text-xs text-blue-500 dark:text-blue-400">
-            ({timeUnits} TU → {effectiveTU} with {aiMultiplier}x AI)
+            ({timeUnits}□ → {effectiveTU} with {aiMultiplier}x AI)
           </Text>
         )}
       </View>
@@ -133,7 +135,7 @@ export function TimeUnitPill({
 
   return (
     <View className={cn('px-1.5 py-0.5 rounded', styles[variant])}>
-      <Text className="text-xs font-bold">{timeUnits} TU</Text>
+      <Text className="text-xs font-bold">{timeUnits}□</Text>
     </View>
   );
 }
@@ -153,7 +155,7 @@ export function TimeUnitText({
 
   return (
     <Text className="text-gray-600 dark:text-gray-400">
-      {timeUnits} TU{showDays && ` (${daysText})`}
+      {timeUnits}□{showDays && ` (${daysText})`}
     </Text>
   );
 }
