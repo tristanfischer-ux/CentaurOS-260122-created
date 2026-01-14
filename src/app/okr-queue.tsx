@@ -32,9 +32,8 @@ export default function BuildQueueScreen() {
   const currentWorkspace = useCurrentWorkspace();
   const workspaceId = currentWorkspace?.id ?? DEFAULT_WORKSPACE_ID;
 
-  // Stores
+  // Stores - use primitive selectors to avoid re-renders
   const queueItems = useQueueStore((s) => s.items.filter((i) => i.workspaceId === workspaceId));
-  const getQueueSummary = useQueueStore((s) => s.getQueueSummary);
   const startOKR = useQueueStore((s) => s.startOKR);
   const pauseOKR = useQueueStore((s) => s.pauseOKR);
   const completeOKR = useQueueStore((s) => s.completeOKR);
@@ -43,8 +42,14 @@ export default function BuildQueueScreen() {
 
   const okrs = useOKRStore((s) => s.okrs);
   const initializeFinance = useFinanceStore((s) => s.initializeFinance);
-  const getRunway = useFinanceStore((s) => s.getRunway);
-  const getCashBalance = useFinanceStore((s) => s.getCashBalance);
+
+  // Get finance snapshot for memoized data access
+  const financeSnapshots = useFinanceStore((s) => s.snapshots);
+  const snapshot = useMemo(() =>
+    financeSnapshots.find((s) => s.workspaceId === workspaceId),
+    [financeSnapshots, workspaceId]
+  );
+  const runway = snapshot?.runwayWeeks ?? 0;
 
   // State
   const [selectedItem, setSelectedItem] = useState<QueueItem | null>(null);
@@ -56,9 +61,28 @@ export default function BuildQueueScreen() {
     initializeFinance();
   }, []);
 
-  // Get summary
-  const summary = useMemo(() => getQueueSummary(workspaceId), [getQueueSummary, queueItems, workspaceId]);
-  const runway = getRunway(workspaceId);
+  // Calculate summary from queueItems
+  const summary = useMemo(() => {
+    const inProgress = queueItems.filter(i => i.status === 'in_progress').length;
+    const queued = queueItems.filter(i => i.status === 'queued').length;
+    const blocked = queueItems.filter(i => i.status === 'blocked').length;
+    const completed = queueItems.filter(i => i.status === 'completed').length;
+    const totalEtaWeeks = queueItems.reduce((sum, i) => sum + (i.totalEtaWeeks ?? 0), 0);
+    const totalBurnGBP = queueItems.reduce((sum, i) => sum + (i.burnPerWeekGBP ?? 0), 0);
+    const totalCostGBP = queueItems.reduce((sum, i) => sum + (i.totalCostGBP ?? 0), 0);
+
+    return {
+      totalOKRs: queueItems.length,
+      inProgress,
+      queued,
+      blocked,
+      completed,
+      totalEtaWeeks,
+      totalBurnGBP,
+      totalCostGBP,
+      runwayImpactWeeks: runway > 0 ? Math.round(totalCostGBP / ((snapshot?.weeklyBurnGBP ?? 1) * runway) * 100) / 100 : 0,
+    };
+  }, [queueItems, runway, snapshot?.weeklyBurnGBP]);
 
   // Group items by lane
   const itemsByLane = useMemo(() => {
