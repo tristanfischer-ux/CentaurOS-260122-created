@@ -900,3 +900,124 @@ export interface AIToolEffects {
   rarity: GearRarity;
   category: 'sales' | 'marketing' | 'engineering' | 'operations' | 'finance' | 'productivity' | 'design';
 }
+
+// ==================== STARTUP PACK SYSTEM ====================
+// Educational hub for UK company setup and investor readiness
+
+export type StartupPackPriority = 'critical' | 'high' | 'medium' | 'low';
+export type StartupChecklistStatus = 'not_started' | 'in_progress' | 'done';
+export type StartupTemplateFormat = 'markdown' | 'docx' | 'pdf';
+export type StartupJurisdiction = 'UK' | 'US' | 'EU' | 'International';
+export type FundraisingRoundType = 'pre-seed' | 'seed' | 'series-a' | 'other';
+
+export interface StartupPackSection {
+  id: string;
+  title: string;
+  description: string;
+  order: number;
+  tags: string[];
+  icon?: string; // lucide icon name
+  color?: string; // hex color for UI
+}
+
+export interface StartupPackArticle {
+  id: string;
+  sectionId: string;
+  title: string;
+  summary: string;
+  contentMarkdown: string;
+  tags: string[];
+  lastUpdatedISO: string;
+  jurisdiction: StartupJurisdiction;
+  readTimeMinutes?: number;
+}
+
+export interface StartupChecklistItem {
+  id: string;
+  sectionId: string;
+  title: string;
+  description: string;
+  priority: StartupPackPriority;
+  estimatedHours?: number;
+  ownerRoleHint?: Role;
+  defaultDueDays?: number; // Days from plan creation
+  links?: { label: string; url: string }[];
+  templateIds?: string[];
+  notes?: string;
+  order: number;
+}
+
+export interface StartupChecklistItemState {
+  itemId: string;
+  status: StartupChecklistStatus;
+  ownerId?: string;
+  dueDate?: string;
+  completedAt?: string;
+  notes?: string;
+}
+
+export interface StartupTemplateVariable {
+  key: string;
+  label: string;
+  placeholder?: string;
+  default?: string;
+  required?: boolean;
+}
+
+export interface StartupTemplate {
+  id: string;
+  sectionId: string;
+  title: string;
+  description: string;
+  format: StartupTemplateFormat;
+  contentMarkdown: string;
+  variables: StartupTemplateVariable[];
+  tags: string[];
+  disclaimers?: string[];
+  lastUpdatedISO: string;
+}
+
+export interface StartupCompanyProfile {
+  companyName: string;
+  jurisdiction: StartupJurisdiction;
+  founders: string[];
+  industry: string;
+  fundraisingIntent: boolean;
+  incorporationDate?: string;
+  companyNumber?: string;
+  registeredAddress?: string;
+}
+
+export interface StartupPackSelections {
+  wantsSEIS: boolean;
+  wantsEIS: boolean;
+  needsTrademark: boolean;
+  raisingRoundType: FundraisingRoundType;
+  hasCofounder: boolean;
+  hasDomain: boolean;
+  hasIncorporated: boolean;
+  hasDataRoom: boolean;
+  targetRaiseAmount?: number;
+  targetRaiseDate?: string;
+}
+
+export interface StartupPackPlan {
+  id: string;
+  workspaceId: string;
+  companyProfile: StartupCompanyProfile;
+  selections: StartupPackSelections;
+  checklistItemStates: Record<string, StartupChecklistItemState>;
+  filledVariables: Record<string, string>;
+  createdAt: string;
+  updatedAt: string;
+  createdOKRId?: string; // Link to generated OKR
+}
+
+export interface StartupPackProgress {
+  totalItems: number;
+  completedItems: number;
+  inProgressItems: number;
+  percentComplete: number;
+  criticalRemaining: number;
+  nextActions: StartupChecklistItem[];
+}

@@ -4,7 +4,7 @@ import {
   Download, Upload, RefreshCw, Check, ExternalLink, Sheet, Play, Library, Eye,
   Mail, Users, Award, Building2, CheckCircle2,
   TrendingUp, Clock, Target, Zap, Settings2, ChevronDown, ChevronUp,
-  Sparkles, Shield, BarChart3, User, Briefcase
+  Sparkles, Shield, BarChart3, User, Briefcase, Rocket
 } from 'lucide-react-native';
 import { useAppStore, useCurrentUser, useCurrentMembership } from '@/lib/state/app-store';
 import { router } from 'expo-router';
@@ -923,15 +923,30 @@ export default function SettingsScreen() {
             <Text className={`font-bold text-lg ${textPrimary}`}>Resources</Text>
           </View>
 
-          <NavigationCard
-            icon={Library}
-            iconColor="#f59e0b"
-            title="Function Library"
-            subtitle="Templates, tools, and best practices"
-            onPress={() => router.push('/function-hub')}
-            isDark={isDark}
-            isOffWhite={isOffWhite}
-          />
+          {/* Startup Pack - For Founders */}
+          {userRole === 'Founder' && (
+            <NavigationCard
+              icon={Rocket}
+              iconColor="#10b981"
+              title="Startup Pack"
+              subtitle="UK company setup guides & templates"
+              onPress={() => router.push('/startup-pack')}
+              isDark={isDark}
+              isOffWhite={isOffWhite}
+            />
+          )}
+
+          <View className={userRole === 'Founder' ? 'mt-2' : ''}>
+            <NavigationCard
+              icon={Library}
+              iconColor="#f59e0b"
+              title="Function Library"
+              subtitle="Templates, tools, and best practices"
+              onPress={() => router.push('/function-hub')}
+              isDark={isDark}
+              isOffWhite={isOffWhite}
+            />
+          </View>
         </Animated.View>
 
         <View className="h-8" />

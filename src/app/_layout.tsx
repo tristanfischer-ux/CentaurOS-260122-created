@@ -162,6 +162,7 @@ function RootLayoutNav({ colorScheme }: { colorScheme: 'light' | 'dark' | null |
           <Stack.Screen name="create-team" options={{ headerShown: false }} />
           <Stack.Screen name="okr-planner" options={{ headerShown: false }} />
           <Stack.Screen name="profile" options={{ headerShown: false }} />
+          <Stack.Screen name="startup-pack" options={{ headerShown: false }} />
         </Stack>
       </ThemeProvider>
 
