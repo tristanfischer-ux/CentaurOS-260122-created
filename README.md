@@ -54,8 +54,86 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
 
 ## 🚨 PRODUCTION READINESS STATUS
 
-**Last Updated**: 2026-01-14 (**COMPETITIVE LEADERBOARDS** - Companies can now see how they rank against other startups on key metrics: time to market, revenue velocity, capital efficiency, and team efficiency)
+**Last Updated**: 2026-01-14 (**BUILD QUEUE SYSTEM** - Homeworld-style task execution with time units, AI acceleration, person assignment, and timeline predictions)
 **Status**: ✅ **READY FOR APP STORE** - All features complete!
+
+---
+
+## 🏗️ BUILD QUEUE SYSTEM
+
+**Latest Update**: 2026-01-14
+
+### Homeworld-Style Task Execution
+The Build Queue is inspired by RTS games like Homeworld - tasks queue up and consume "time units" (squares) that represent actual work capacity. This makes resource allocation visual and tangible.
+
+### Core Concepts
+
+#### Time Units (Squares)
+- **1 Square = 4 Hours** of focused, productive work
+- **Per Person Per Day**: 2 squares typical capacity
+- **Visual Representation**: Tasks show a grid of squares (filled = completed, empty = remaining)
+
+#### AI Acceleration Modes
+| Mode | Effort Reduction | Use Case |
+|------|-----------------|----------|
+| None | 0% | Manual work only |
+| Assist | -20% | AI helps with research, suggestions |
+| Heavy | -40% | AI does significant portions |
+| Autonomous | -60% | AI handles most execution |
+
+#### Cadence Settings
+| Cadence | Throughput | Description |
+|---------|-----------|-------------|
+| Slow | 0.5x | Sustainable pace |
+| Normal | 1x | Standard workload |
+| Fast | 1.5x | Accelerated delivery |
+| Crash | 2x | Emergency sprint |
+
+### Features
+
+#### Resource Pot
+- **Visual Capacity Display**: Shows total/allocated/available squares per day
+- **Role Breakdown**: See capacity by Founders, Executives, Apprentices
+- **Weekly Forecast**: Bar chart showing capacity utilization for each day
+- **Over-Allocation Warnings**: Alerts when tasks exceed available capacity
+
+#### Build Queue Cards
+- **Square Progress Grid**: Visual grid showing completed vs remaining work
+- **AI Mode Indicator**: Shows which AI acceleration is applied
+- **Assigned People**: Avatar display of who's working on task
+- **Timeline Prediction**: Days remaining based on current assignment
+- **Quality Indicators**: Confidence and rework risk levels
+
+#### Task Detail Modal
+- **AI Mode Selection**: Instant recalculation when changing AI involvement
+- **Person Assignment**: Add/remove people with squares-per-day allocation
+- **Cadence Control**: Adjust throughput multiplier
+- **QA Reviewer**: Assign senior team member for quality review
+- **Quality Metrics**: Real-time confidence and rework risk display
+- **Predicted Timeline**: End date calculation based on all factors
+
+#### Task Creation
+- **Effort Estimation**: Easy +/- controls for square count
+- **Function Selection**: Assign to Marketing, Sales, Ops, etc.
+- **Urgency Levels**: Critical, High, Medium, Low
+- **Staffing Scenarios**: See predicted days with different AI modes
+
+### Quality Model
+- **Senior Involvement**: Fractional executives increase quality confidence
+- **QA Reviews**: Reduce rework risk when seniors review work
+- **Rework Risk**: Tasks without senior oversight have higher risk
+- **Confidence Score**: Percentage likelihood of first-time quality
+
+### Access
+- **Quick Actions**: Indigo "Build Queue" button in Founder Home tab
+- **Direct Link**: `/build-queue` route
+
+### Why It Matters
+- **Predictability**: Know exactly when tasks will complete
+- **Resource Visibility**: See team capacity at a glance
+- **AI Optimization**: Leverage AI to accelerate delivery
+- **Quality Assurance**: Built-in QA model prevents rework
+- **Realistic Planning**: Based on actual work hours, not wishful thinking
 
 ---
 

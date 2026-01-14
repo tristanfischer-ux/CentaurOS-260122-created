@@ -30,6 +30,7 @@ import {
   HelpCircle,
   Activity,
   Trophy,
+  ListOrdered,
 } from 'lucide-react-native';
 import { useCurrentWorkspace, useCurrentMembership, useCurrentUser } from '@/lib/state/app-store';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -1036,6 +1037,19 @@ export default function HomeScreen() {
                     <Text className="text-white font-bold text-sm ml-1.5">Messages</Text>
                   </View>
                 </Pressable>
+              </View>
+              <View className="flex-row gap-2 mt-2">
+                <Pressable
+                  onPress={() => router.push('/build-queue')}
+                  className="flex-1 bg-indigo-500 rounded-xl p-3 active:opacity-70"
+                >
+                  <View className="flex-row items-center justify-center">
+                    <ListOrdered size={18} color="#fff" />
+                    <Text className="text-white font-bold text-sm ml-1.5">Build Queue</Text>
+                  </View>
+                </Pressable>
+                <View className="flex-1" />
+                <View className="flex-1" />
               </View>
             </View>
 
