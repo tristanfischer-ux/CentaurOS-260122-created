@@ -15,6 +15,7 @@ import { MARKETPLACE_EXECUTIVES } from '@/lib/marketplace-executives';
 import { useOrganizationStore } from '@/lib/state/organization-store';
 import { useWorkPlanStore } from '@/lib/state/work-plan-store';
 import { HelpModal, HelpButton, type HelpContent } from '@/components/HelpModal';
+import HireResourceModal from '@/components/HireResourceModal';
 
 const DECIDE_HELP: HelpContent = {
   title: 'Strategic Decisions',
@@ -124,6 +125,8 @@ export default function DecideScreen() {
   const [selectedCategory, setSelectedCategory] = useState<OKRCategory | 'all'>('all');
   const [selectedSuggestion, setSelectedSuggestion] = useState<OKRSuggestion | null>(null);
   const [showHelp, setShowHelp] = useState(false);
+  const [showHireModal, setShowHireModal] = useState(false);
+  const [selectedOKRForHire, setSelectedOKRForHire] = useState<OKR | null>(null);
 
   // Dropdown states
   const [showOwnerDropdown, setShowOwnerDropdown] = useState(false);
@@ -762,16 +765,31 @@ export default function DecideScreen() {
                           </View>
                         ))}
 
-                        {/* Action Button */}
-                        <Pressable
-                          onPress={() => router.push(`/okr-planner?okrId=${okr.id}`)}
-                          className="bg-purple-500 rounded-lg py-2.5 flex-row items-center justify-center gap-2 active:opacity-70"
-                        >
-                          <Zap size={16} color="#fff" />
-                          <Text className="text-white text-sm font-semibold">
-                            {linkedPlans.length === 0 ? 'Create Resource Plan' : 'View Resource Plan'}
-                          </Text>
-                        </Pressable>
+                        {/* Action Buttons */}
+                        <View className="gap-2">
+                          <Pressable
+                            onPress={() => router.push(`/okr-planner?okrId=${okr.id}`)}
+                            className="bg-purple-500 rounded-lg py-2.5 flex-row items-center justify-center gap-2 active:opacity-70"
+                          >
+                            <Zap size={16} color="#fff" />
+                            <Text className="text-white text-sm font-semibold">
+                              {linkedPlans.length === 0 ? 'Create Resource Plan' : 'View Resource Plan'}
+                            </Text>
+                          </Pressable>
+
+                          <Pressable
+                            onPress={() => {
+                              setSelectedOKRForHire(okr);
+                              setShowHireModal(true);
+                            }}
+                            className="bg-blue-500 rounded-lg py-2.5 flex-row items-center justify-center gap-2 active:opacity-70"
+                          >
+                            <UserPlus size={16} color="#fff" />
+                            <Text className="text-white text-sm font-semibold">
+                              Speed Up OKR
+                            </Text>
+                          </Pressable>
+                        </View>
                       </View>
                     )}
                   </View>
@@ -1270,6 +1288,18 @@ export default function DecideScreen() {
           </View>
         </View>
       </Modal>
+
+      {/* Hire Resource Modal */}
+      {selectedOKRForHire && (
+        <HireResourceModal
+          visible={showHireModal}
+          onClose={() => {
+            setShowHireModal(false);
+            setSelectedOKRForHire(null);
+          }}
+          okr={selectedOKRForHire}
+        />
+      )}
     </View>
   );
 }

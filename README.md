@@ -84,6 +84,35 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
    - **SH01** - Share allotment notification guide
    - **PSC Register** - Persons with Significant Control maintenance guide
 
+---
+
+## 💰 RESOURCE HIRING SYSTEM
+
+**Latest Update**: 2026-01-14
+
+### Speed Up OKRs by Hiring Resources
+
+Founders can now hire additional resources to accelerate OKR completion:
+
+- **Fractional Executives** - £2,000/week, 2 days/week - Expert guidance
+- **Apprentices** - £500/week, 5 days/week - Full-time execution support
+- **AI Agents** - £200/week, 24/7 - Automated support
+
+### How It Works
+
+1. **Access from Decide Tab** - Each expanded OKR shows a "Speed Up OKR" button
+2. **Select Resource Type** - Choose executive, apprentice, or AI based on needs
+3. **Cost Breakdown** - 4 weeks upfront payment required from cash reserves
+4. **Hire & Allocate** - Resource is added to the team and allocated to the OKR's function
+5. **Increased Capacity** - Team capacity increases, reducing bottlenecks and speeding completion
+
+### Financial Impact
+
+- **Upfront Cost**: 4 weeks payment deducted from cash reserves
+- **Weekly Burn**: Weekly burn rate increases by resource cost
+- **Runway Impact**: Automatically recalculated based on new burn rate
+- **Capacity Gain**: View increased capacity in the Capacity screen
+
 ### Queue ↔ OKR Sync
 
 The Build Queue now syncs with OKRs:
