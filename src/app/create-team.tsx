@@ -6,6 +6,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import {
   X,
   Plus,
+  Minus,
   Users,
   Bot,
   Check,
@@ -714,6 +715,7 @@ export default function TeamManagementScreen() {
           onRemoveAI={removeAITool}
           onRemovePerson={handleRemovePerson}
           onAssignToSquad={assignApprentice}
+          onUpdateMember={updateMember}
         />
       )}
     </SafeAreaView>
@@ -925,6 +927,7 @@ function PersonDetailModal({
   onRemoveAI,
   onRemovePerson,
   onAssignToSquad,
+  onUpdateMember,
 }: {
   person: OrganizationMember;
   loadout: any;
@@ -935,6 +938,7 @@ function PersonDetailModal({
   onRemoveAI: (memberId: string, toolId: string) => Promise<void>;
   onRemovePerson: (memberId: string) => void;
   onAssignToSquad: (squadId: string, memberId: string) => Promise<void>;
+  onUpdateMember: (memberId: string, updates: Partial<OrganizationMember>) => void;
 }) {
   const [selectedTab, setSelectedTab] = useState<'info' | 'ai' | 'squads'>('info');
   const [showConfirmRemove, setShowConfirmRemove] = useState(false);
@@ -1146,6 +1150,62 @@ function PersonDetailModal({
                   </View>
                 </View>
               )}
+
+              {/* Days Per Week Editor */}
+              <View className="bg-white/5 border border-white/10 rounded-xl p-4 mb-3">
+                <View className="flex-row items-center mb-3">
+                  <Clock size={20} color="#8b5cf6" />
+                  <View className="ml-3 flex-1">
+                    <Text className="text-white/60 text-xs mb-1">Days Per Week</Text>
+                    <Text className="text-white font-semibold">{person.daysPerWeek || 5} days/week</Text>
+                  </View>
+                </View>
+
+                {/* Days/Week Adjuster */}
+                <View className="flex-row items-center justify-between bg-white/10 rounded-lg p-2">
+                  <Pressable
+                    onPress={() => {
+                      const currentDays = person.daysPerWeek || 5;
+                      if (currentDays > 1) {
+                        onUpdateMember(person.id, { daysPerWeek: currentDays - 1 });
+                      }
+                    }}
+                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                    className="bg-white/10 rounded-lg px-4 py-2 active:opacity-60"
+                  >
+                    <Minus size={20} color="#fff" />
+                  </Pressable>
+
+                  <View className="flex-1 items-center">
+                    <Text className="text-white font-bold text-2xl">{person.daysPerWeek || 5}</Text>
+                    <Text className="text-white/60 text-xs">days</Text>
+                  </View>
+
+                  <Pressable
+                    onPress={() => {
+                      const currentDays = person.daysPerWeek || 5;
+                      if (currentDays < 5) {
+                        onUpdateMember(person.id, { daysPerWeek: currentDays + 1 });
+                      }
+                    }}
+                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                    className="bg-white/10 rounded-lg px-4 py-2 active:opacity-60"
+                  >
+                    <Plus size={20} color="#fff" />
+                  </Pressable>
+                </View>
+
+                {/* Monthly Cost Estimate */}
+                {person.costPerDay && (
+                  <View className="mt-3 pt-3 border-t border-white/10">
+                    <Text className="text-white/60 text-xs mb-1">Monthly Cost Estimate</Text>
+                    <Text className="text-white font-bold text-lg">
+                      £{((person.costPerDay * (person.daysPerWeek || 5) * 4.33).toFixed(0))}
+                      <Text className="text-white/60 text-xs font-normal">/month</Text>
+                    </Text>
+                  </View>
+                )}
+              </View>
 
               {person.linkedIn && (
                 <View className="bg-white/5 border border-white/10 rounded-xl p-4 mb-3">
