@@ -13,6 +13,7 @@ export interface Objective {
   current: string;
   progress: number;
   status: 'on-track' | 'at-risk' | 'off-track';
+  assignedMemberIds?: string[]; // Track assigned team members
 }
 
 export type QueueStatus = 'not_queued' | 'queued' | 'in_progress' | 'blocked' | 'completed' | 'paused';
@@ -55,6 +56,11 @@ interface OKRState {
     atRisk: number;
     offTrack: number;
   };
+
+  // Member assignment methods
+  assignMemberToObjective: (okrId: string, objectiveId: string, memberId: string) => void;
+  removeMemberFromObjective: (okrId: string, objectiveId: string, memberId: string) => void;
+  getObjectiveMembers: (okrId: string, objectiveId: string) => string[];
 
   // Multi-tenancy methods
   getOKRsByWorkspace: (workspaceId: string) => OKR[];
@@ -289,6 +295,59 @@ export const useOKRStore = create<OKRState>((set, get) => ({
       atRisk: okrs.filter(o => o.status === 'at-risk').length,
       offTrack: okrs.filter(o => o.status === 'off-track').length,
     };
+  },
+
+  // Member assignment methods
+  assignMemberToObjective: (okrId: string, objectiveId: string, memberId: string) => {
+    set(state => ({
+      okrs: state.okrs.map(okr => {
+        if (okr.id !== okrId) return okr;
+
+        return {
+          ...okr,
+          objectives: okr.objectives.map(obj => {
+            if (obj.id !== objectiveId) return obj;
+
+            const currentMembers = obj.assignedMemberIds || [];
+            if (currentMembers.includes(memberId)) return obj; // Already assigned
+
+            return {
+              ...obj,
+              assignedMemberIds: [...currentMembers, memberId],
+            };
+          }),
+        };
+      }),
+    }));
+  },
+
+  removeMemberFromObjective: (okrId: string, objectiveId: string, memberId: string) => {
+    set(state => ({
+      okrs: state.okrs.map(okr => {
+        if (okr.id !== okrId) return okr;
+
+        return {
+          ...okr,
+          objectives: okr.objectives.map(obj => {
+            if (obj.id !== objectiveId) return obj;
+
+            const currentMembers = obj.assignedMemberIds || [];
+            return {
+              ...obj,
+              assignedMemberIds: currentMembers.filter(id => id !== memberId),
+            };
+          }),
+        };
+      }),
+    }));
+  },
+
+  getObjectiveMembers: (okrId: string, objectiveId: string) => {
+    const okr = get().okrs.find(o => o.id === okrId);
+    if (!okr) return [];
+
+    const objective = okr.objectives.find(obj => obj.id === objectiveId);
+    return objective?.assignedMemberIds || [];
   },
 
   // Multi-tenancy methods
