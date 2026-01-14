@@ -15,10 +15,13 @@ import type { OrganizationMember, AIAgent } from '@/lib/organization-seed';
 import { getRecommendedToolsForMember } from '@/lib/armory/recommendations';
 import { getToolEffects } from '@/lib/armory/tool-effects';
 import { cn } from '@/lib/cn';
+import { useTheme } from '@/lib/ThemeContext';
 
 export default function ArmoryScreen() {
   const [selectedMember, setSelectedMember] = useState<OrganizationMember | null>(null);
   const [showCharacterSheet, setShowCharacterSheet] = useState(false);
+  const { theme, isOffWhite } = useTheme();
+  const isDark = theme === 'dark';
 
   const currentUser = useAppStore((s) => s.currentUser);
   const currentMembership = useAppStore((s) => s.currentMembership);
@@ -27,6 +30,13 @@ export default function ArmoryScreen() {
 
   const initializeArmory = useArmoryStore((s) => s.initializeArmory);
   const isInitialized = useArmoryStore((s) => s.isInitialized);
+
+  // Theme colors
+  const bgPrimary = isDark ? 'bg-slate-950' : isOffWhite ? 'bg-orange-50' : 'bg-gray-50';
+  const bgCard = isDark ? 'bg-slate-900' : isOffWhite ? 'bg-white' : 'bg-white';
+  const borderColor = isDark ? 'border-slate-800' : isOffWhite ? 'border-orange-200' : 'border-gray-200';
+  const textPrimary = isDark ? 'text-white' : 'text-gray-900';
+  const textSecondary = isDark ? 'text-slate-400' : isOffWhite ? 'text-orange-700' : 'text-gray-600';
 
   // Initialize on mount
   useEffect(() => {
@@ -46,9 +56,9 @@ export default function ArmoryScreen() {
   };
 
   return (
-    <View className="flex-1 bg-slate-950">
+    <View className={`flex-1 ${bgPrimary}`}>
       <LinearGradient
-        colors={['#0f172a', '#1e1b4b', '#312e81']}
+        colors={isDark ? ['#0f172a', '#1e1b4b', '#312e81'] : isOffWhite ? ['#f97316', '#ea580c', '#c2410c'] : ['#3b82f6', '#2563eb', '#1d4ed8']}
         style={{ flex: 1 }}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
@@ -236,6 +246,9 @@ function CharacterSheetModal({
   const [showRemoveConfirm, setShowRemoveConfirm] = useState(false);
   const [showPersonDetail, setShowPersonDetail] = useState(false);
 
+  const { theme, isOffWhite } = useTheme();
+  const isDark = theme === 'dark';
+
   const loadout = useArmoryStore((s) => s.getLoadoutForMember(member.id));
   const addAITool = useArmoryStore((s) => s.addAITool);
   const removeAITool = useArmoryStore((s) => s.removeAITool);
@@ -243,6 +256,14 @@ function CharacterSheetModal({
   const clearLoadout = useArmoryStore((s) => s.clearLoadout);
   const removePersonLoadout = useArmoryStore((s) => s.removePersonLoadout);
   const updateMember = useOrganizationStore((s) => s.updateMember);
+
+  // Theme colors
+  const bgCard = isDark ? 'bg-slate-900' : isOffWhite ? 'bg-white' : 'bg-white';
+  const bgSecondary = isDark ? 'bg-slate-800' : isOffWhite ? 'bg-orange-100' : 'bg-gray-100';
+  const borderColor = isDark ? 'border-slate-700' : isOffWhite ? 'border-orange-200' : 'border-gray-200';
+  const textPrimary = isDark ? 'text-white' : 'text-gray-900';
+  const textSecondary = isDark ? 'text-slate-400' : isOffWhite ? 'text-orange-700' : 'text-gray-600';
+  const textMuted = isDark ? 'text-slate-500' : isOffWhite ? 'text-orange-600' : 'text-gray-500';
 
   // Get all equipped tools
   const equippedTools = loadout
@@ -287,12 +308,12 @@ function CharacterSheetModal({
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose} statusBarTranslucent>
       <View className="flex-1 bg-black/80 justify-end">
-        <View className="bg-slate-900 rounded-t-3xl max-h-[90%]">
+        <View className={`${bgCard} rounded-t-3xl max-h-[90%]`}>
           {/* Header */}
-          <View className="px-6 py-5 border-b border-white/10 flex-row items-center justify-between">
-            <Text className="text-white text-xl font-black">AI Tools</Text>
-            <Pressable onPress={onClose} className="w-10 h-10 items-center justify-center rounded-full bg-white/10 active:opacity-70">
-              <X size={24} color="white" />
+          <View className={`px-6 py-5 border-b ${borderColor} flex-row items-center justify-between`}>
+            <Text className={`${textPrimary} text-xl font-black`}>AI Tools</Text>
+            <Pressable onPress={onClose} className={`w-10 h-10 items-center justify-center rounded-full ${bgSecondary} active:opacity-70`}>
+              <X size={24} color={isDark ? '#fff' : '#374151'} />
             </Pressable>
           </View>
 
@@ -303,8 +324,8 @@ function CharacterSheetModal({
                 <View className="w-20 h-20 rounded-full items-center justify-center mb-3" style={{ backgroundColor: roleColor }}>
                   <Text className="text-white text-2xl font-black">{member.name.split(' ').map((n) => n[0]).join('')}</Text>
                 </View>
-                <Text className="text-white text-xl font-black mb-1">{member.name}</Text>
-                <Text className="text-white/60 text-sm mb-2">
+                <Text className={`${textPrimary} text-xl font-black mb-1`}>{member.name}</Text>
+                <Text className={`${textSecondary} text-sm mb-2`}>
                   {member.role === 'FractionalExec' ? 'Fractional Executive' : member.role} • {member.function}
                 </Text>
                 <View className="bg-blue-500/20 px-3 py-1.5 rounded-lg mb-4">
@@ -317,20 +338,20 @@ function CharacterSheetModal({
                 <View className="flex-row items-center justify-center gap-2 mb-3">
                   <DollarSign size={24} color="#60a5fa" />
                   <Text className="text-blue-300 text-3xl font-black">£{totalCost.toLocaleString()}</Text>
-                  <Text className="text-white/40 text-sm">/month</Text>
+                  <Text className={`${textMuted} text-sm`}>/month</Text>
                 </View>
 
                 {/* Cost Breakdown */}
                 <View className="border-t border-blue-500/20 pt-3 space-y-1">
                   {personCostPerMonth > 0 && (
                     <View className="flex-row justify-between">
-                      <Text className="text-white/60 text-sm">Person Cost:</Text>
-                      <Text className="text-white/80 text-sm font-bold">£{personCostPerMonth.toLocaleString()}</Text>
+                      <Text className={`${textSecondary} text-sm`}>Person Cost:</Text>
+                      <Text className={`${textPrimary} text-sm font-bold`}>£{personCostPerMonth.toLocaleString()}</Text>
                     </View>
                   )}
                   <View className="flex-row justify-between">
-                    <Text className="text-white/60 text-sm">AI Tools Cost:</Text>
-                    <Text className="text-white/80 text-sm font-bold">£{aiToolsCost.toLocaleString()}</Text>
+                    <Text className={`${textSecondary} text-sm`}>AI Tools Cost:</Text>
+                    <Text className={`${textPrimary} text-sm font-bold`}>£{aiToolsCost.toLocaleString()}</Text>
                   </View>
                 </View>
               </View>
@@ -339,7 +360,7 @@ function CharacterSheetModal({
             {/* Days Per Week Selector (for executives only) */}
             {member.role === 'FractionalExec' && canManage && (
               <View className="mb-6">
-                <Text className="text-white text-sm font-bold mb-2">Days Per Week</Text>
+                <Text className={`${textPrimary} text-sm font-bold mb-2`}>Days Per Week</Text>
                 <View className="flex-row gap-2">
                   {[1, 2, 3, 4, 5].map((days) => (
                     <Pressable
@@ -349,13 +370,13 @@ function CharacterSheetModal({
                         'flex-1 rounded-xl py-3 border',
                         daysPerWeek === days
                           ? 'bg-blue-500 border-blue-500'
-                          : 'bg-white/5 border-white/20'
+                          : `${bgSecondary} ${borderColor}`
                       )}
                     >
                       <Text
                         className={cn(
                           'text-center font-bold',
-                          daysPerWeek === days ? 'text-white' : 'text-white/60'
+                          daysPerWeek === days ? 'text-white' : textSecondary
                         )}
                       >
                         {days}
@@ -363,7 +384,7 @@ function CharacterSheetModal({
                     </Pressable>
                   ))}
                 </View>
-                <Text className="text-white/40 text-xs mt-2">
+                <Text className={`${textMuted} text-xs mt-2`}>
                   {member.costPerDay && `£${member.costPerDay}/day × ${daysPerWeek} days × 4.33 weeks = £${Math.round(personCostPerMonth).toLocaleString()}/month`}
                 </Text>
               </View>
@@ -385,7 +406,7 @@ function CharacterSheetModal({
 
             {/* AI Tools List */}
             <View className="flex-row items-center justify-between mb-3">
-              <Text className="text-white text-lg font-black">AI Tools ({equippedTools.length})</Text>
+              <Text className={`${textPrimary} text-lg font-black`}>AI Tools ({equippedTools.length})</Text>
               {canManage && (
                 <Pressable onPress={() => setShowAddTool(true)} className="bg-blue-500 rounded-lg px-3 py-2 active:opacity-80">
                   <Text className="text-white font-bold text-sm">+ Add</Text>
@@ -394,8 +415,8 @@ function CharacterSheetModal({
             </View>
 
             {equippedTools.length === 0 ? (
-              <View className="bg-white/5 rounded-2xl p-8 items-center">
-                <Text className="text-white/40 text-center">No AI tools equipped yet</Text>
+              <View className={`${bgSecondary} rounded-2xl p-8 items-center`}>
+                <Text className={`${textMuted} text-center`}>No AI tools equipped yet</Text>
                 {canManage && (
                   <Pressable onPress={() => setShowAddTool(true)} className="bg-blue-500 rounded-xl px-6 py-3 mt-4 active:opacity-80">
                     <Text className="text-white font-bold">Add First Tool</Text>
@@ -406,11 +427,11 @@ function CharacterSheetModal({
               equippedTools.map((tool) => {
                 const toolEffects = getToolEffects(tool.id);
                 return (
-                  <View key={tool.id} className="bg-white/5 border border-white/10 rounded-2xl p-4 mb-3">
+                  <View key={tool.id} className={`${bgSecondary} border ${borderColor} rounded-2xl p-4 mb-3`}>
                     <View className="flex-row items-start justify-between mb-2">
                       <View className="flex-1 mr-3">
-                        <Text className="text-white font-black text-base">{tool.name}</Text>
-                        <Text className="text-white/60 text-sm mt-1">{tool.purpose}</Text>
+                        <Text className={`${textPrimary} font-black text-base`}>{tool.name}</Text>
+                        <Text className={`${textSecondary} text-sm mt-1`}>{tool.purpose}</Text>
                       </View>
                       <View className="items-end">
                         <View className="bg-blue-500/20 px-3 py-1 rounded-lg mb-2">
@@ -442,14 +463,14 @@ function CharacterSheetModal({
 
             {/* Remove from Armory */}
             {canManage && (
-              <View className="mt-8 pt-6 border-t border-white/10">
+              <View className={`mt-8 pt-6 border-t ${borderColor}`}>
                 <Pressable
                   onPress={() => setShowRemoveConfirm(true)}
                   className="bg-red-500/20 border border-red-500/30 rounded-xl py-3 px-4 active:opacity-70"
                 >
                   <Text className="text-red-400 font-bold text-center">Remove from Armory</Text>
                 </Pressable>
-                <Text className="text-white/40 text-xs text-center mt-2">
+                <Text className={`${textMuted} text-xs text-center mt-2`}>
                   This will remove this person from the Armory. They will still exist in your organization.
                 </Text>
               </View>
@@ -475,17 +496,17 @@ function CharacterSheetModal({
         {showRemoveConfirm && (
           <Modal visible={showRemoveConfirm} transparent animationType="fade" onRequestClose={() => setShowRemoveConfirm(false)}>
             <View className="flex-1 bg-black/90 items-center justify-center px-6">
-              <View className="bg-slate-900 rounded-2xl p-6 w-full max-w-sm border border-red-500/30">
-                <Text className="text-white text-xl font-black mb-3">Remove from Armory?</Text>
-                <Text className="text-white/60 text-sm mb-6">
+              <View className={`${bgCard} rounded-2xl p-6 w-full max-w-sm border border-red-500/30`}>
+                <Text className={`${textPrimary} text-xl font-black mb-3`}>Remove from Armory?</Text>
+                <Text className={`${textSecondary} text-sm mb-6`}>
                   This will remove {member.name} from the Armory. All equipped AI tools will be unassigned. This person will still exist in your organization chart.
                 </Text>
                 <View className="flex-row gap-3">
                   <Pressable
                     onPress={() => setShowRemoveConfirm(false)}
-                    className="flex-1 bg-white/10 rounded-xl py-3 active:opacity-70"
+                    className={`flex-1 ${bgSecondary} rounded-xl py-3 active:opacity-70`}
                   >
-                    <Text className="text-white font-bold text-center">Cancel</Text>
+                    <Text className={`${textPrimary} font-bold text-center`}>Cancel</Text>
                   </Pressable>
                   <Pressable
                     onPress={handleRemovePerson}
@@ -532,6 +553,17 @@ function AddToolModal({
   const [showAllTools, setShowAllTools] = useState(false);
   const [selectedTool, setSelectedTool] = useState<AIAgent | null>(null);
 
+  const { theme, isOffWhite } = useTheme();
+  const isDark = theme === 'dark';
+
+  // Theme colors
+  const bgCard = isDark ? 'bg-slate-900' : isOffWhite ? 'bg-white' : 'bg-white';
+  const bgSecondary = isDark ? 'bg-slate-800' : isOffWhite ? 'bg-orange-100' : 'bg-gray-100';
+  const borderColor = isDark ? 'border-slate-700' : isOffWhite ? 'border-orange-200' : 'border-gray-200';
+  const textPrimary = isDark ? 'text-white' : 'text-gray-900';
+  const textSecondary = isDark ? 'text-slate-400' : isOffWhite ? 'text-orange-700' : 'text-gray-600';
+  const textMuted = isDark ? 'text-slate-500' : isOffWhite ? 'text-orange-600' : 'text-gray-500';
+
   const recommended = getRecommendedToolsForMember(member, aiAgents);
   const availableTools = aiAgents.filter((t) => t.status === 'active' && !equippedToolIds.includes(t.id));
 
@@ -546,24 +578,24 @@ function AddToolModal({
     <>
       <Modal visible={visible} transparent animationType="slide" statusBarTranslucent>
         <View className="flex-1 bg-black/90 justify-end">
-          <View className="bg-slate-900 rounded-t-3xl max-h-[80%]">
-            <View className="px-6 py-5 border-b border-white/10 flex-row items-center justify-between">
-              <Text className="text-white text-xl font-black">Add AI Tool</Text>
-              <Pressable onPress={onClose} className="w-10 h-10 items-center justify-center rounded-full bg-white/10 active:opacity-70">
-                <X size={24} color="white" />
+          <View className={`${bgCard} rounded-t-3xl max-h-[80%]`}>
+            <View className={`px-6 py-5 border-b ${borderColor} flex-row items-center justify-between`}>
+              <Text className={`${textPrimary} text-xl font-black`}>Add AI Tool</Text>
+              <Pressable onPress={onClose} className={`w-10 h-10 items-center justify-center rounded-full ${bgSecondary} active:opacity-70`}>
+                <X size={24} color={isDark ? '#fff' : '#374151'} />
               </Pressable>
             </View>
 
             <View className="px-6 pt-4 pb-2">
-              <Pressable onPress={() => setShowAllTools(!showAllTools)} className="bg-white/5 rounded-xl py-3 px-4 active:opacity-70">
-                <Text className="text-white font-bold text-center">{showAllTools ? 'Show Recommended' : 'Show All Tools'}</Text>
+              <Pressable onPress={() => setShowAllTools(!showAllTools)} className={`${bgSecondary} rounded-xl py-3 px-4 active:opacity-70`}>
+                <Text className={`${textPrimary} font-bold text-center`}>{showAllTools ? 'Show Recommended' : 'Show All Tools'}</Text>
               </Pressable>
             </View>
 
             <ScrollView className="px-6 py-2" showsVerticalScrollIndicator={false}>
               {toolsToShow.length === 0 ? (
                 <View className="py-12 items-center">
-                  <Text className="text-white/40 text-center">No more tools available</Text>
+                  <Text className={`${textMuted} text-center`}>No more tools available</Text>
                 </View>
               ) : (
                 toolsToShow.map((tool) => {
@@ -572,12 +604,12 @@ function AddToolModal({
                     <Pressable
                       key={tool.id}
                       onPress={() => setSelectedTool(tool)}
-                      className="bg-white/5 border border-white/10 rounded-2xl p-4 mb-3 active:bg-white/10"
+                      className={`${bgSecondary} border ${borderColor} rounded-2xl p-4 mb-3 active:opacity-70`}
                     >
                       <View className="flex-row items-start justify-between mb-2">
                         <View className="flex-1">
-                          <Text className="text-white font-black text-base">{tool.name}</Text>
-                          <Text className="text-white/60 text-sm mt-1">{tool.purpose}</Text>
+                          <Text className={`${textPrimary} font-black text-base`}>{tool.name}</Text>
+                          <Text className={`${textSecondary} text-sm mt-1`}>{tool.purpose}</Text>
                         </View>
                         <View className="bg-blue-500/20 px-3 py-1 rounded-lg">
                           <Text className="text-blue-300 text-xs font-bold">£{tool.costPerMonth}/mo</Text>
@@ -631,34 +663,45 @@ function AIToolDetailModal({
   onAdd: () => void;
   onClose: () => void;
 }) {
+  const { theme, isOffWhite } = useTheme();
+  const isDark = theme === 'dark';
+
+  // Theme colors
+  const bgCard = isDark ? 'bg-slate-900' : isOffWhite ? 'bg-white' : 'bg-white';
+  const bgSecondary = isDark ? 'bg-slate-800' : isOffWhite ? 'bg-orange-100' : 'bg-gray-100';
+  const borderColor = isDark ? 'border-slate-700' : isOffWhite ? 'border-orange-200' : 'border-gray-200';
+  const textPrimary = isDark ? 'text-white' : 'text-gray-900';
+  const textSecondary = isDark ? 'text-slate-400' : isOffWhite ? 'text-orange-700' : 'text-gray-600';
+  const textMuted = isDark ? 'text-slate-500' : isOffWhite ? 'text-orange-600' : 'text-gray-500';
+
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose} statusBarTranslucent>
       <View className="flex-1 bg-black/90 justify-center items-center px-4">
-        <View className="bg-slate-900 rounded-3xl w-full" style={{ maxHeight: '95%', height: '95%' }}>
+        <View className={`${bgCard} rounded-3xl w-full`} style={{ maxHeight: '95%', height: '95%' }}>
           {/* Header */}
-          <View className="px-6 pt-6 pb-4 border-b border-white/10">
+          <View className={`px-6 pt-6 pb-4 border-b ${borderColor}`}>
             <View className="flex-row items-center justify-between mb-2">
-              <Text className="text-white text-2xl font-black flex-1" numberOfLines={2}>{tool.name}</Text>
+              <Text className={`${textPrimary} text-2xl font-black flex-1`} numberOfLines={2}>{tool.name}</Text>
               <Pressable onPress={onClose} className="ml-2">
-                <X size={28} color="#94a3b8" />
+                <X size={28} color={isDark ? '#94a3b8' : '#6b7280'} />
               </Pressable>
             </View>
             <View className="flex-row items-center gap-2 mb-3">
-              <View className="bg-blue-100 dark:bg-blue-900/30 px-3 py-1.5 rounded-lg">
-                <Text className="text-blue-700 dark:text-blue-300 text-sm font-semibold">
+              <View className="bg-blue-500/20 px-3 py-1.5 rounded-lg">
+                <Text className="text-blue-500 text-sm font-semibold">
                   {tool.provider}
                 </Text>
               </View>
               {tool.category && (
-                <View className="bg-purple-100 dark:bg-purple-900/30 px-3 py-1.5 rounded-lg">
-                  <Text className="text-purple-700 dark:text-purple-300 text-sm font-semibold capitalize">
+                <View className="bg-purple-500/20 px-3 py-1.5 rounded-lg">
+                  <Text className="text-purple-500 text-sm font-semibold capitalize">
                     {tool.category.replace('-', ' ')}
                   </Text>
                 </View>
               )}
             </View>
-            <View className="bg-blue-50 dark:bg-blue-900/20 rounded-lg px-3 py-2">
-              <Text className="text-blue-600 dark:text-blue-400 text-xs text-center font-semibold">
+            <View className="bg-blue-500/10 rounded-lg px-3 py-2">
+              <Text className="text-blue-500 text-xs text-center font-semibold">
                 ⬇️ Scroll down - 10+ sections of detailed info below
               </Text>
             </View>
@@ -675,23 +718,23 @@ function AIToolDetailModal({
             <View className="px-6 py-4">
               {/* Cost and Rating Section */}
               <View className="flex-row gap-3 mb-4">
-                <View className="flex-1 bg-white/10 rounded-xl p-4">
-                  <Text className="text-white/60 text-xs mb-1">Monthly Cost</Text>
-                  <Text className="text-emerald-400 text-2xl font-bold">
+                <View className={`flex-1 ${bgSecondary} rounded-xl p-4`}>
+                  <Text className={`${textSecondary} text-xs mb-1`}>Monthly Cost</Text>
+                  <Text className="text-emerald-500 text-2xl font-bold">
                     £{tool.costPerMonth}
                   </Text>
-                  <Text className="text-white/40 text-xs">/month</Text>
+                  <Text className={`${textMuted} text-xs`}>/month</Text>
                 </View>
                 {tool.reviews && (
-                  <View className="flex-1 bg-white/10 rounded-xl p-4">
-                    <Text className="text-white/60 text-xs mb-1">User Rating</Text>
+                  <View className={`flex-1 ${bgSecondary} rounded-xl p-4`}>
+                    <Text className={`${textSecondary} text-xs mb-1`}>User Rating</Text>
                     <View className="flex-row items-center">
-                      <Text className="text-amber-400 text-2xl font-bold">
+                      <Text className="text-amber-500 text-2xl font-bold">
                         {tool.reviews.rating}
                       </Text>
-                      <Text className="text-white/40 text-sm ml-1">/5</Text>
+                      <Text className={`${textMuted} text-sm ml-1`}>/5</Text>
                     </View>
-                    <Text className="text-white/40 text-xs">
+                    <Text className={`${textMuted} text-xs`}>
                       {tool.reviews.totalReviews} reviews
                     </Text>
                   </View>
@@ -701,8 +744,8 @@ function AIToolDetailModal({
               {/* Description */}
               {tool.description && (
                 <View className="mb-6">
-                  <Text className="text-white text-lg font-bold mb-3">📝 Description</Text>
-                  <Text className="text-white text-base leading-6">
+                  <Text className={`${textPrimary} text-lg font-bold mb-3`}>📝 Description</Text>
+                  <Text className={`${textPrimary} text-base leading-6`}>
                     {tool.description}
                   </Text>
                 </View>
@@ -711,8 +754,8 @@ function AIToolDetailModal({
               {/* Purpose (if no description) */}
               {!tool.description && (
                 <View className="mb-6">
-                  <Text className="text-white text-lg font-bold mb-3">📝 Purpose</Text>
-                  <Text className="text-white text-base leading-6">
+                  <Text className={`${textPrimary} text-lg font-bold mb-3`}>📝 Purpose</Text>
+                  <Text className={`${textPrimary} text-base leading-6`}>
                     {tool.purpose}
                   </Text>
                 </View>
@@ -720,11 +763,11 @@ function AIToolDetailModal({
 
               {/* Business Functions */}
               <View className="mb-6">
-                <Text className="text-white text-lg font-bold mb-3">🎯 Business Functions</Text>
+                <Text className={`${textPrimary} text-lg font-bold mb-3`}>🎯 Business Functions</Text>
                 <View className="flex-row flex-wrap gap-2">
                   {tool.functions.map((func, idx) => (
-                    <View key={idx} className="bg-blue-100 dark:bg-blue-900/30 px-3 py-2 rounded-lg border border-blue-200 dark:border-blue-800">
-                      <Text className="text-blue-700 dark:text-blue-300 font-semibold">{func}</Text>
+                    <View key={idx} className="bg-blue-500/20 px-3 py-2 rounded-lg border border-blue-500/30">
+                      <Text className="text-blue-500 font-semibold">{func}</Text>
                     </View>
                   ))}
                 </View>
@@ -733,12 +776,12 @@ function AIToolDetailModal({
               {/* Key Features */}
               {tool.keyFeatures && tool.keyFeatures.length > 0 && (
                 <View className="mb-6">
-                  <Text className="text-white text-lg font-bold mb-3">✨ Key Features</Text>
-                  <View className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4">
+                  <Text className={`${textPrimary} text-lg font-bold mb-3`}>✨ Key Features</Text>
+                  <View className={`bg-blue-500/10 border border-blue-500/30 rounded-xl p-4`}>
                     {tool.keyFeatures.map((feature, idx) => (
                       <View key={idx} className="flex-row items-start mb-2">
-                        <Text className="text-blue-400 mr-2">✓</Text>
-                        <Text className="text-white flex-1 font-medium">{feature}</Text>
+                        <Text className="text-blue-500 mr-2">✓</Text>
+                        <Text className={`${textPrimary} flex-1 font-medium`}>{feature}</Text>
                       </View>
                     ))}
                   </View>
@@ -748,12 +791,12 @@ function AIToolDetailModal({
               {/* Use Cases */}
               {tool.useCases && tool.useCases.length > 0 && (
                 <View className="mb-6">
-                  <Text className="text-white text-lg font-bold mb-3">💡 Use Cases</Text>
-                  <View className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-xl p-4">
+                  <Text className={`${textPrimary} text-lg font-bold mb-3`}>💡 Use Cases</Text>
+                  <View className="bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-4">
                     {tool.useCases.map((useCase, idx) => (
                       <View key={idx} className="flex-row items-start mb-2">
-                        <Text className="text-emerald-400 mr-2">→</Text>
-                        <Text className="text-white flex-1">{useCase}</Text>
+                        <Text className="text-emerald-500 mr-2">→</Text>
+                        <Text className={`${textPrimary} flex-1`}>{useCase}</Text>
                       </View>
                     ))}
                   </View>
@@ -763,12 +806,12 @@ function AIToolDetailModal({
               {/* Capabilities */}
               {tool.capabilities.length > 0 && (
                 <View className="mb-6">
-                  <Text className="text-white text-lg font-bold mb-3">⚡ Capabilities</Text>
-                  <View className="bg-white/10 rounded-xl p-4">
+                  <Text className={`${textPrimary} text-lg font-bold mb-3`}>⚡ Capabilities</Text>
+                  <View className={`${bgSecondary} rounded-xl p-4`}>
                     {tool.capabilities.map((capability, idx) => (
                       <View key={idx} className="flex-row items-start mb-2">
-                        <Text className="text-white/60 mr-2">•</Text>
-                        <Text className="text-white/80 flex-1">{capability}</Text>
+                        <Text className={`${textMuted} mr-2`}>•</Text>
+                        <Text className={`${textSecondary} flex-1`}>{capability}</Text>
                       </View>
                     ))}
                   </View>
@@ -778,11 +821,11 @@ function AIToolDetailModal({
               {/* Integrations */}
               {tool.integrations.length > 0 && (
                 <View className="mb-6">
-                  <Text className="text-white text-lg font-bold mb-3">🔗 Integrations</Text>
+                  <Text className={`${textPrimary} text-lg font-bold mb-3`}>🔗 Integrations</Text>
                   <View className="flex-row flex-wrap gap-2">
                     {tool.integrations.map((integration, idx) => (
-                      <View key={idx} className="bg-white/10 px-3 py-2 rounded-lg">
-                        <Text className="text-white/80">{integration}</Text>
+                      <View key={idx} className={`${bgSecondary} px-3 py-2 rounded-lg`}>
+                        <Text className={`${textSecondary}`}>{integration}</Text>
                       </View>
                     ))}
                   </View>
@@ -792,28 +835,28 @@ function AIToolDetailModal({
               {/* Pricing Details */}
               {tool.pricing && (
                 <View className="mb-6">
-                  <Text className="text-white text-lg font-bold mb-3">💰 Pricing Plans</Text>
-                  <View className="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-xl p-4">
+                  <Text className={`${textPrimary} text-lg font-bold mb-3`}>💰 Pricing Plans</Text>
+                  <View className="bg-purple-500/10 border border-purple-500/30 rounded-xl p-4">
                     {tool.pricing.starter && (
                       <View className="mb-2">
-                        <Text className="text-purple-300 font-semibold">Starter</Text>
-                        <Text className="text-white/80">{tool.pricing.starter}</Text>
+                        <Text className="text-purple-500 font-semibold">Starter</Text>
+                        <Text className={textSecondary}>{tool.pricing.starter}</Text>
                       </View>
                     )}
                     {tool.pricing.professional && (
                       <View className="mb-2">
-                        <Text className="text-purple-300 font-semibold">Professional</Text>
-                        <Text className="text-white/80">{tool.pricing.professional}</Text>
+                        <Text className="text-purple-500 font-semibold">Professional</Text>
+                        <Text className={textSecondary}>{tool.pricing.professional}</Text>
                       </View>
                     )}
                     {tool.pricing.enterprise && (
                       <View className="mb-2">
-                        <Text className="text-purple-300 font-semibold">Enterprise</Text>
-                        <Text className="text-white/80">{tool.pricing.enterprise}</Text>
+                        <Text className="text-purple-500 font-semibold">Enterprise</Text>
+                        <Text className={textSecondary}>{tool.pricing.enterprise}</Text>
                       </View>
                     )}
                     {tool.pricing.notes && (
-                      <Text className="text-white/60 text-sm mt-2 italic">
+                      <Text className={`${textSecondary} text-sm mt-2 italic`}>
                         {tool.pricing.notes}
                       </Text>
                     )}
@@ -824,25 +867,25 @@ function AIToolDetailModal({
               {/* Setup Information */}
               {tool.setup && (
                 <View className="mb-6">
-                  <Text className="text-white text-lg font-bold mb-3">⚙️ Setup & Requirements</Text>
-                  <View className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-4">
+                  <Text className={`${textPrimary} text-lg font-bold mb-3`}>⚙️ Setup & Requirements</Text>
+                  <View className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-4">
                     {tool.setup.difficulty && (
                       <View className="mb-2">
-                        <Text className="text-amber-300 font-semibold">Difficulty</Text>
-                        <Text className="text-white/80">{tool.setup.difficulty}</Text>
+                        <Text className="text-amber-500 font-semibold">Difficulty</Text>
+                        <Text className={textSecondary}>{tool.setup.difficulty}</Text>
                       </View>
                     )}
                     {tool.setup.timeToValue && (
                       <View className="mb-2">
-                        <Text className="text-amber-300 font-semibold">Time to Value</Text>
-                        <Text className="text-white/80">{tool.setup.timeToValue}</Text>
+                        <Text className="text-amber-500 font-semibold">Time to Value</Text>
+                        <Text className={textSecondary}>{tool.setup.timeToValue}</Text>
                       </View>
                     )}
                     {tool.setup.requirements && tool.setup.requirements.length > 0 && (
                       <View>
-                        <Text className="text-amber-300 font-semibold mb-1">Requirements</Text>
+                        <Text className="text-amber-500 font-semibold mb-1">Requirements</Text>
                         {tool.setup.requirements.map((req, idx) => (
-                          <Text key={idx} className="text-white/80 text-sm">• {req}</Text>
+                          <Text key={idx} className={`${textSecondary} text-sm`}>• {req}</Text>
                         ))}
                       </View>
                     )}
@@ -853,30 +896,30 @@ function AIToolDetailModal({
               {/* Support */}
               {tool.support && (
                 <View className="mb-6">
-                  <Text className="text-white text-lg font-bold mb-3">📞 Support</Text>
-                  <View className="bg-cyan-50 dark:bg-cyan-900/20 border border-cyan-200 dark:border-cyan-800 rounded-xl p-4">
+                  <Text className={`${textPrimary} text-lg font-bold mb-3`}>📞 Support</Text>
+                  <View className="bg-cyan-500/10 border border-cyan-500/30 rounded-xl p-4">
                     <View className="flex-row justify-between mb-2">
-                      <Text className="text-white/80">Email Support</Text>
-                      <Text className="text-cyan-300 font-semibold">
+                      <Text className={textSecondary}>Email Support</Text>
+                      <Text className="text-cyan-500 font-semibold">
                         {tool.support.email ? '✓ Yes' : '✗ No'}
                       </Text>
                     </View>
                     <View className="flex-row justify-between mb-2">
-                      <Text className="text-white/80">Phone Support</Text>
-                      <Text className="text-cyan-300 font-semibold">
+                      <Text className={textSecondary}>Phone Support</Text>
+                      <Text className="text-cyan-500 font-semibold">
                         {tool.support.phone ? '✓ Yes' : '✗ No'}
                       </Text>
                     </View>
                     {tool.support.documentation && (
                       <View className="mb-2">
-                        <Text className="text-cyan-300 font-semibold">Documentation</Text>
-                        <Text className="text-white/80 text-sm">{tool.support.documentation}</Text>
+                        <Text className="text-cyan-500 font-semibold">Documentation</Text>
+                        <Text className={`${textSecondary} text-sm`}>{tool.support.documentation}</Text>
                       </View>
                     )}
                     {tool.support.community && (
                       <View>
-                        <Text className="text-cyan-300 font-semibold">Community</Text>
-                        <Text className="text-white/80 text-sm">{tool.support.community}</Text>
+                        <Text className="text-cyan-500 font-semibold">Community</Text>
+                        <Text className={`${textSecondary} text-sm`}>{tool.support.community}</Text>
                       </View>
                     )}
                   </View>
@@ -886,21 +929,21 @@ function AIToolDetailModal({
               {/* User Reviews */}
               {tool.reviews && (tool.reviews.pros || tool.reviews.cons) && (
                 <View className="mb-6">
-                  <Text className="text-white text-lg font-bold mb-3">⭐ User Feedback</Text>
-                  <View className="bg-white/10 rounded-xl p-4">
+                  <Text className={`${textPrimary} text-lg font-bold mb-3`}>⭐ User Feedback</Text>
+                  <View className={`${bgSecondary} rounded-xl p-4`}>
                     {tool.reviews.pros && tool.reviews.pros.length > 0 && (
                       <View className="mb-3">
-                        <Text className="text-emerald-300 font-semibold mb-2">👍 Pros</Text>
+                        <Text className="text-emerald-500 font-semibold mb-2">👍 Pros</Text>
                         {tool.reviews.pros.map((pro, idx) => (
-                          <Text key={idx} className="text-white/80 text-sm mb-1">• {pro}</Text>
+                          <Text key={idx} className={`${textSecondary} text-sm mb-1`}>• {pro}</Text>
                         ))}
                       </View>
                     )}
                     {tool.reviews.cons && tool.reviews.cons.length > 0 && (
                       <View>
-                        <Text className="text-red-300 font-semibold mb-2">👎 Cons</Text>
+                        <Text className="text-red-500 font-semibold mb-2">👎 Cons</Text>
                         {tool.reviews.cons.map((con, idx) => (
-                          <Text key={idx} className="text-white/80 text-sm mb-1">• {con}</Text>
+                          <Text key={idx} className={`${textSecondary} text-sm mb-1`}>• {con}</Text>
                         ))}
                       </View>
                     )}
@@ -910,9 +953,9 @@ function AIToolDetailModal({
 
               {/* Website Link */}
               {tool.website && (
-                <View className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4 mb-4">
-                  <Text className="text-blue-300 text-sm font-semibold mb-2">🌐 Website</Text>
-                  <Text className="text-blue-400 text-sm">
+                <View className="bg-blue-500/10 border border-blue-500/30 rounded-xl p-4 mb-4">
+                  <Text className="text-blue-500 text-sm font-semibold mb-2">🌐 Website</Text>
+                  <Text className="text-blue-500 text-sm">
                     {tool.website}
                   </Text>
                 </View>
@@ -920,20 +963,20 @@ function AIToolDetailModal({
 
               {/* Usage Stats */}
               {tool.usageStats && (
-                <View className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-xl p-4">
-                  <Text className="text-emerald-300 text-sm font-semibold mb-2">📊 Usage Stats</Text>
+                <View className="bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-4">
+                  <Text className="text-emerald-500 text-sm font-semibold mb-2">📊 Usage Stats</Text>
                   <View className="space-y-1">
                     <View className="flex-row justify-between">
-                      <Text className="text-white/60 text-sm">Requests This Month:</Text>
-                      <Text className="text-white font-bold text-sm">{tool.usageStats.requestsThisMonth}</Text>
+                      <Text className={`${textSecondary} text-sm`}>Requests This Month:</Text>
+                      <Text className={`${textPrimary} font-bold text-sm`}>{tool.usageStats.requestsThisMonth}</Text>
                     </View>
                     <View className="flex-row justify-between">
-                      <Text className="text-white/60 text-sm">Avg Response Time:</Text>
-                      <Text className="text-white font-bold text-sm">{tool.usageStats.averageResponseTime}</Text>
+                      <Text className={`${textSecondary} text-sm`}>Avg Response Time:</Text>
+                      <Text className={`${textPrimary} font-bold text-sm`}>{tool.usageStats.averageResponseTime}</Text>
                     </View>
                     <View className="flex-row justify-between">
-                      <Text className="text-white/60 text-sm">Success Rate:</Text>
-                      <Text className="text-white font-bold text-sm">{tool.usageStats.successRate}%</Text>
+                      <Text className={`${textSecondary} text-sm`}>Success Rate:</Text>
+                      <Text className={`${textPrimary} font-bold text-sm`}>{tool.usageStats.successRate}%</Text>
                     </View>
                   </View>
                 </View>
@@ -942,12 +985,12 @@ function AIToolDetailModal({
           </ScrollView>
 
           {/* Action Buttons */}
-          <View className="px-6 py-4 border-t border-white/10 flex-row gap-3">
+          <View className={`px-6 py-4 border-t ${borderColor} flex-row gap-3`}>
             <Pressable
               onPress={onClose}
-              className="flex-1 bg-white/10 rounded-xl py-4 items-center active:opacity-70"
+              className={`flex-1 ${bgSecondary} rounded-xl py-4 items-center active:opacity-70`}
             >
-              <Text className="text-white font-bold text-base">Close</Text>
+              <Text className={`${textPrimary} font-bold text-base`}>Close</Text>
             </Pressable>
             <Pressable
               onPress={onAdd}
@@ -973,34 +1016,45 @@ function PersonDetailModal({
   member: OrganizationMember;
   onClose: () => void;
 }) {
+  const { theme, isOffWhite } = useTheme();
+  const isDark = theme === 'dark';
+
+  // Theme colors
+  const bgCard = isDark ? 'bg-slate-900' : isOffWhite ? 'bg-white' : 'bg-white';
+  const bgSecondary = isDark ? 'bg-slate-800' : isOffWhite ? 'bg-orange-100' : 'bg-gray-100';
+  const borderColor = isDark ? 'border-slate-700' : isOffWhite ? 'border-orange-200' : 'border-gray-200';
+  const textPrimary = isDark ? 'text-white' : 'text-gray-900';
+  const textSecondary = isDark ? 'text-slate-400' : isOffWhite ? 'text-orange-700' : 'text-gray-600';
+  const textMuted = isDark ? 'text-slate-500' : isOffWhite ? 'text-orange-600' : 'text-gray-500';
+
   const roleColor = member.role === 'Founder' ? '#3b82f6' : member.role === 'FractionalExec' ? '#8b5cf6' : '#10b981';
 
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose} statusBarTranslucent>
       <View className="flex-1 bg-black/90 justify-center items-center px-4">
-        <View className="bg-slate-900 rounded-3xl w-full" style={{ maxHeight: '95%', height: '95%' }}>
+        <View className={`${bgCard} rounded-3xl w-full`} style={{ maxHeight: '95%', height: '95%' }}>
           {/* Header */}
-          <View className="px-6 pt-6 pb-4 border-b border-white/10">
+          <View className={`px-6 pt-6 pb-4 border-b ${borderColor}`}>
             <View className="flex-row items-center justify-between mb-2">
-              <Text className="text-white text-2xl font-black flex-1" numberOfLines={2}>{member.name}</Text>
+              <Text className={`${textPrimary} text-2xl font-black flex-1`} numberOfLines={2}>{member.name}</Text>
               <Pressable onPress={onClose} className="ml-2">
-                <X size={28} color="#94a3b8" />
+                <X size={28} color={isDark ? '#94a3b8' : '#6b7280'} />
               </Pressable>
             </View>
             <View className="flex-row items-center gap-2 mb-3">
-              <View className="bg-blue-100 dark:bg-blue-900/30 px-3 py-1.5 rounded-lg">
-                <Text className="text-blue-700 dark:text-blue-300 text-sm font-semibold">
+              <View className="bg-blue-500/20 px-3 py-1.5 rounded-lg">
+                <Text className="text-blue-500 text-sm font-semibold">
                   {member.role === 'FractionalExec' ? 'Fractional Executive' : member.role}
                 </Text>
               </View>
-              <View className="bg-purple-100 dark:bg-purple-900/30 px-3 py-1.5 rounded-lg">
-                <Text className="text-purple-700 dark:text-purple-300 text-sm font-semibold">
+              <View className="bg-purple-500/20 px-3 py-1.5 rounded-lg">
+                <Text className="text-purple-500 text-sm font-semibold">
                   {member.function}
                 </Text>
               </View>
             </View>
-            <View className="bg-blue-50 dark:bg-blue-900/20 rounded-lg px-3 py-2">
-              <Text className="text-blue-600 dark:text-blue-400 text-xs text-center font-semibold">
+            <View className="bg-blue-500/10 rounded-lg px-3 py-2">
+              <Text className="text-blue-500 text-xs text-center font-semibold">
                 ⬇️ Scroll down for full profile details
               </Text>
             </View>
@@ -1025,8 +1079,8 @@ function PersonDetailModal({
               {/* Bio */}
               {member.bio && (
                 <View className="mb-6">
-                  <Text className="text-white text-lg font-bold mb-3">👤 About</Text>
-                  <Text className="text-white text-base leading-6">
+                  <Text className={`${textPrimary} text-lg font-bold mb-3`}>👤 About</Text>
+                  <Text className={`${textPrimary} text-base leading-6`}>
                     {member.bio}
                   </Text>
                 </View>
@@ -1034,24 +1088,24 @@ function PersonDetailModal({
 
               {/* Contact Information */}
               <View className="mb-6">
-                <Text className="text-white text-lg font-bold mb-3">📧 Contact</Text>
-                <View className="bg-white/10 rounded-xl p-4">
+                <Text className={`${textPrimary} text-lg font-bold mb-3`}>📧 Contact</Text>
+                <View className={`${bgSecondary} rounded-xl p-4`}>
                   {member.email && (
                     <View className="mb-3">
-                      <Text className="text-white/60 text-xs mb-1">Email</Text>
-                      <Text className="text-white/90 text-sm">{member.email}</Text>
+                      <Text className={`${textSecondary} text-xs mb-1`}>Email</Text>
+                      <Text className={`${textPrimary} text-sm`}>{member.email}</Text>
                     </View>
                   )}
                   {member.phone && (
                     <View className="mb-3">
-                      <Text className="text-white/60 text-xs mb-1">Phone</Text>
-                      <Text className="text-white/90 text-sm">{member.phone}</Text>
+                      <Text className={`${textSecondary} text-xs mb-1`}>Phone</Text>
+                      <Text className={`${textPrimary} text-sm`}>{member.phone}</Text>
                     </View>
                   )}
                   {member.linkedIn && (
                     <View>
-                      <Text className="text-white/60 text-xs mb-1">LinkedIn</Text>
-                      <Text className="text-blue-400 text-sm">{member.linkedIn}</Text>
+                      <Text className={`${textSecondary} text-xs mb-1`}>LinkedIn</Text>
+                      <Text className="text-blue-500 text-sm">{member.linkedIn}</Text>
                     </View>
                   )}
                 </View>
@@ -1060,21 +1114,21 @@ function PersonDetailModal({
               {/* Cost Information */}
               {member.costPerDay && (
                 <View className="mb-6">
-                  <Text className="text-white text-lg font-bold mb-3">💰 Cost</Text>
-                  <View className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-xl p-4">
+                  <Text className={`${textPrimary} text-lg font-bold mb-3`}>💰 Cost</Text>
+                  <View className="bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-4">
                     <View className="flex-row justify-between mb-2">
-                      <Text className="text-white/80">Day Rate</Text>
-                      <Text className="text-emerald-300 font-bold">£{member.costPerDay}/day</Text>
+                      <Text className={textSecondary}>Day Rate</Text>
+                      <Text className="text-emerald-500 font-bold">£{member.costPerDay}/day</Text>
                     </View>
                     {member.daysPerWeek && (
                       <>
                         <View className="flex-row justify-between mb-2">
-                          <Text className="text-white/80">Days Per Week</Text>
-                          <Text className="text-white font-bold">{member.daysPerWeek} days</Text>
+                          <Text className={textSecondary}>Days Per Week</Text>
+                          <Text className={`${textPrimary} font-bold`}>{member.daysPerWeek} days</Text>
                         </View>
-                        <View className="flex-row justify-between border-t border-emerald-700/30 pt-2 mt-2">
-                          <Text className="text-white/80">Monthly Cost</Text>
-                          <Text className="text-emerald-300 font-bold text-lg">
+                        <View className="flex-row justify-between border-t border-emerald-500/30 pt-2 mt-2">
+                          <Text className={textSecondary}>Monthly Cost</Text>
+                          <Text className="text-emerald-500 font-bold text-lg">
                             £{Math.round(member.costPerDay * member.daysPerWeek * 4.33).toLocaleString()}
                           </Text>
                         </View>
@@ -1087,11 +1141,11 @@ function PersonDetailModal({
               {/* Reports To */}
               {member.reportsTo && (
                 <View className="mb-6">
-                  <Text className="text-white text-lg font-bold mb-3">👥 Reporting Structure</Text>
-                  <View className="bg-white/10 rounded-xl p-4">
+                  <Text className={`${textPrimary} text-lg font-bold mb-3`}>👥 Reporting Structure</Text>
+                  <View className={`${bgSecondary} rounded-xl p-4`}>
                     <View className="flex-row justify-between">
-                      <Text className="text-white/80">Reports To</Text>
-                      <Text className="text-white font-bold">{member.reportsTo}</Text>
+                      <Text className={textSecondary}>Reports To</Text>
+                      <Text className={`${textPrimary} font-bold`}>{member.reportsTo}</Text>
                     </View>
                   </View>
                 </View>
@@ -1100,11 +1154,11 @@ function PersonDetailModal({
               {/* Manages */}
               {member.manages && member.manages.length > 0 && (
                 <View className="mb-6">
-                  <Text className="text-white text-lg font-bold mb-3">👥 Direct Reports</Text>
-                  <View className="bg-white/10 rounded-xl p-4">
-                    <Text className="text-white/80 mb-2">Manages {member.manages.length} team member{member.manages.length !== 1 ? 's' : ''}</Text>
+                  <Text className={`${textPrimary} text-lg font-bold mb-3`}>👥 Direct Reports</Text>
+                  <View className={`${bgSecondary} rounded-xl p-4`}>
+                    <Text className={`${textSecondary} mb-2`}>Manages {member.manages.length} team member{member.manages.length !== 1 ? 's' : ''}</Text>
                     {member.manages.map((reportId, idx) => (
-                      <Text key={idx} className="text-white/60 text-sm">• {reportId}</Text>
+                      <Text key={idx} className={`${textMuted} text-sm`}>• {reportId}</Text>
                     ))}
                   </View>
                 </View>
@@ -1112,9 +1166,9 @@ function PersonDetailModal({
 
               {/* Start Date */}
               {member.startDate && (
-                <View className="bg-cyan-50 dark:bg-cyan-900/20 border border-cyan-200 dark:border-cyan-800 rounded-xl p-4">
-                  <Text className="text-cyan-300 text-sm font-semibold mb-2">📅 Start Date</Text>
-                  <Text className="text-cyan-300 font-semibold">
+                <View className="bg-cyan-500/10 border border-cyan-500/30 rounded-xl p-4">
+                  <Text className="text-cyan-500 text-sm font-semibold mb-2">📅 Start Date</Text>
+                  <Text className="text-cyan-500 font-semibold">
                     {new Date(member.startDate).toLocaleDateString('en-GB', {
                       day: 'numeric',
                       month: 'long',
@@ -1127,7 +1181,7 @@ function PersonDetailModal({
           </ScrollView>
 
           {/* Action Button */}
-          <View className="px-6 py-4 border-t border-white/10">
+          <View className={`px-6 py-4 border-t ${borderColor}`}>
             <Pressable
               onPress={onClose}
               className="bg-blue-500 rounded-xl py-4 items-center active:opacity-70"

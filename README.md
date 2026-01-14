@@ -54,8 +54,26 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
 
 ## 🚨 PRODUCTION READINESS STATUS
 
-**Last Updated**: 2026-01-14 (**ELITE AUDIT** - Comprehensive code review + Profile screen + UX fixes + RBAC for Apprentice view)
+**Last Updated**: 2026-01-14 (**ELITE AUDIT** - Comprehensive code review + Profile screen + UX fixes + RBAC for Apprentice view + Theme conformity fixes)
 **Status**: ✅ **READY FOR APP STORE** - All features complete!
+
+---
+
+## 🎨 THEME CONFORMITY UPDATES
+
+**Latest Update**: 2026-01-14
+
+### Fixed Theme Support
+All screens now properly conform to the app's theme system (Dark, Light, Off-White):
+- ✅ Capacity screen - Fixed resource plan view
+- ✅ Armory screen - Complete theme overhaul for all modals
+  - Character Sheet Modal
+  - Add Tool Modal
+  - AI Tool Detail Modal
+  - Person Detail Modal
+  - Remove Confirmation Modal
+
+All hardcoded dark colors (bg-slate-900, text-white, etc.) have been replaced with theme-aware variables that adapt to the current theme setting.
 
 ---
 
