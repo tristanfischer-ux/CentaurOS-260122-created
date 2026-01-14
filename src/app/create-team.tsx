@@ -26,50 +26,8 @@ import { useOrganizationStore } from '@/lib/state/organization-store';
 import { useArmoryStore } from '@/lib/state/armory-store';
 import type { OrganizationMember, AIAgent } from '@/lib/organization-seed';
 import { THIRD_PARTY_AI_TOOLS } from '@/lib/third-party-ai-tools';
+import { MARKETPLACE_EXECUTIVES } from '@/lib/marketplace-executives';
 import { cn } from '@/lib/cn';
-
-// Mock marketplace data for recommended people
-const RECOMMENDED_PEOPLE = [
-  {
-    id: 'rec-exec-1',
-    name: 'Michael Chen',
-    role: 'FractionalExec' as const,
-    function: 'Engineering',
-    specialty: 'Hardware & IoT',
-    costPerDay: 950,
-    daysPerWeek: 3,
-    rating: 4.9,
-    experience: '15 years',
-    avatar: '👨‍💻',
-    status: 'pending' as const,
-  },
-  {
-    id: 'rec-app-1',
-    name: 'Jessica Lee',
-    role: 'Apprentice' as const,
-    function: 'Marketing',
-    specialty: 'Social Media',
-    costPerDay: 150,
-    daysPerWeek: 5,
-    rating: 4.7,
-    experience: '2 years',
-    avatar: '👩',
-    status: 'pending' as const,
-  },
-  {
-    id: 'rec-app-2',
-    name: 'Tom Wilson',
-    role: 'Apprentice' as const,
-    function: 'Engineering',
-    specialty: 'CAD Design',
-    costPerDay: 160,
-    daysPerWeek: 5,
-    rating: 4.8,
-    experience: '3 years',
-    avatar: '👨',
-    status: 'pending' as const,
-  },
-];
 
 export default function TeamManagementScreen() {
   const [selectedTab, setSelectedTab] = useState<'organization' | 'recommended' | 'squads'>('organization');
@@ -106,6 +64,13 @@ export default function TeamManagementScreen() {
   const activeAI = useMemo(() => {
     return (aiAgents || []).filter(a => a.status === 'active');
   }, [aiAgents]);
+
+  // Get recommended people from marketplace (top 6 available executives and apprentices)
+  const recommendedPeople = useMemo(() => {
+    return MARKETPLACE_EXECUTIVES
+      .filter(exec => exec.availability === 'available')
+      .slice(0, 6);
+  }, []);
 
   const handleApprovePerson = (personId: string) => {
     console.log('Approved person:', personId);
@@ -375,7 +340,7 @@ export default function TeamManagementScreen() {
               </Text>
             </View>
 
-            {RECOMMENDED_PEOPLE.map((person) => (
+            {recommendedPeople.map((person) => (
               <View
                 key={person.id}
                 className="bg-white/5 border border-white/10 rounded-2xl p-4 mb-3"
@@ -383,7 +348,9 @@ export default function TeamManagementScreen() {
                 <View className="flex-row items-start justify-between mb-3">
                   <View className="flex-row items-start flex-1">
                     <View className="bg-blue-500/20 rounded-full w-12 h-12 items-center justify-center mr-3">
-                      <Text className="text-2xl">{person.avatar}</Text>
+                      <Text className="text-2xl">
+                        {person.role === 'FractionalExec' ? '👔' : '🎓'}
+                      </Text>
                     </View>
                     <View className="flex-1">
                       <Text className="text-white font-black text-base">{person.name}</Text>
@@ -393,7 +360,14 @@ export default function TeamManagementScreen() {
                           <Text className="text-amber-300 text-xs font-bold">⭐ {person.rating}</Text>
                         </View>
                         <View className="bg-blue-500/20 px-2 py-0.5 rounded">
-                          <Text className="text-blue-300 text-xs font-bold">{person.specialty}</Text>
+                          <Text className="text-blue-300 text-xs font-bold">
+                            {person.specialties[0]}
+                          </Text>
+                        </View>
+                        <View className={person.role === 'FractionalExec' ? 'bg-purple-500/20 px-2 py-0.5 rounded' : 'bg-emerald-500/20 px-2 py-0.5 rounded'}>
+                          <Text className={person.role === 'FractionalExec' ? 'text-purple-300 text-xs font-bold' : 'text-emerald-300 text-xs font-bold'}>
+                            {person.role === 'FractionalExec' ? 'Executive' : 'Apprentice'}
+                          </Text>
                         </View>
                       </View>
                     </View>
@@ -403,13 +377,20 @@ export default function TeamManagementScreen() {
                       £{person.costPerDay}
                     </Text>
                     <Text className="text-white/40 text-xs">/day</Text>
-                    <Text className="text-white/40 text-xs">{person.daysPerWeek} days/wk</Text>
                   </View>
                 </View>
 
                 <View className="bg-white/5 rounded-xl p-3 mb-3">
                   <Text className="text-white/60 text-xs font-bold mb-1">EXPERIENCE</Text>
                   <Text className="text-white text-sm">{person.experience}</Text>
+                </View>
+
+                <View className="bg-white/5 rounded-xl p-3 mb-3">
+                  <Text className="text-white/60 text-xs font-bold mb-1">LOCATION</Text>
+                  <Text className="text-white text-sm">
+                    {person.location.city}, {person.location.country}
+                    {person.location.remote && ' • Remote'}
+                  </Text>
                 </View>
 
                 <View className="flex-row gap-2">

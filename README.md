@@ -57,6 +57,13 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
 **Last Updated**: 2026-01-13 (**COMPREHENSIVE AUDIT COMPLETE** + **ALL FIXES APPLIED** - Perfect 100/100 score)
 
 ### Latest Update (2026-01-13):
+✅ **Marketplace Integration Fixed** - Team Management Recommended tab now uses real marketplace data:
+  - Shows 6 available executives and apprentices from MARKETPLACE_EXECUTIVES
+  - Displays actual marketplace profiles with ratings, experience, location, specialties
+  - Each person shows role badge (Executive/Apprentice), cost per day, and rating
+  - Links to Community tab to browse full marketplace
+  - Approve/Reject functionality ready for implementation
+
 ✅ **All Financial Data Now Consistent** - Fixed all remaining data inconsistencies across the entire app:
   - **Home Tab Team Stats**: Now shows correct counts (4 executives, 7 apprentices) using organization-seed.ts
   - **Monthly Cost Breakdown**: Now uses real-time calculations from financial-calculations.ts showing:
@@ -69,6 +76,7 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
   - **Financial Overview Card**: Already using real-time runway and metrics
   - **Financial Dashboard**: Already using organization data as source of truth
   - All financial displays now pull from the same centralized calculations
+  - Fixed module-level calculation issues by moving to useMemo inside component
 
 ✅ **Team Management Enhancement** - Clicking on any person in Team Management now opens a detailed modal with:
   - **Info Tab**: Full personal information (email, phone, LinkedIn, bio, start date, costs)
