@@ -59,15 +59,34 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
 
 ---
 
-## 🎮 APP-WIDE PLANNING SYSTEM (Homeworld-Style)
+## 📦 STARTUP PACK ENHANCEMENTS
 
-**Last Updated**: 2026-01-14
+**Latest Update**: 2026-01-14
 
-The app now includes a comprehensive planning system that treats OKRs like a Homeworld build queue, with people-hours as resource units and cash as the only currency.
+### New Features
+
+1. **Setup Wizard** (`/startup-pack/wizard`)
+   - Multi-step company setup questionnaire
+   - Collects company details, founders, fundraising intent, compliance needs
+   - Generates personalized setup plan based on answers
+   - Progress indicator with step-by-step navigation
+
+2. **Interactive Checklist Modal**
+   - Tap any checklist item to open detailed view
+   - Status selector (Not Started → In Progress → Complete)
+   - View estimated hours and suggested owner
+   - Quick access to related templates and external links
+   - "Mark as Complete" action button
+
+3. **Companies House Form Templates**
+   - **IN01** - Company incorporation guide with section-by-section walkthrough
+   - **CS01** - Annual confirmation statement guide
+   - **SH01** - Share allotment notification guide
+   - **PSC Register** - Persons with Significant Control maintenance guide
 
 ### Queue ↔ OKR Sync
 
-The Build Queue now **syncs with OKRs**:
+The Build Queue now syncs with OKRs:
 - Starting an OKR in the queue marks it as "Active" on the Decide tab
 - Pausing, blocking, or completing queue items updates the OKR's queue status
 - Queue status badges appear on OKR cards showing: Active, Queued, Paused, Blocked, Done

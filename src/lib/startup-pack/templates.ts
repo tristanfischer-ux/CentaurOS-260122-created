@@ -1803,6 +1803,600 @@ Links to templates, tools, etc.
     tags: ['sop', 'operations', 'processes'],
     lastUpdatedISO: '2026-01-14',
   },
+
+  // ==================== COMPANIES HOUSE FORMS ====================
+  {
+    id: 'tpl-companies-house-in01',
+    sectionId: 'incorporation',
+    title: 'IN01 - Company Incorporation Guide',
+    description: 'Step-by-step guide to completing the IN01 form for Companies House',
+    format: 'markdown',
+    contentMarkdown: `# IN01 - Application to Register a Company
+
+**Form Purpose:** Register a new private limited company with Companies House
+
+## Before You Start
+
+You'll need:
+- [ ] Proposed company name (checked for availability)
+- [ ] Registered office address in UK
+- [ ] Details of at least one director
+- [ ] Details of at least one shareholder
+- [ ] Share capital information
+- [ ] SIC codes for your business activities
+
+## Section-by-Section Guide
+
+### Section 1: Company Details
+
+| Field | Your Information |
+|-------|------------------|
+| Company name | {{companyName}} |
+| Registered office | {{registeredAddress}} |
+| Type | Private Limited by Shares |
+
+**Name Rules:**
+- Cannot be identical or "too similar" to existing company
+- Cannot use sensitive words without permission
+- Must end in "Limited" or "Ltd"
+
+### Section 2: Directors
+
+**Required for each director:**
+- Full name
+- Date of birth
+- Nationality
+- Business occupation
+- Service address (can be registered office)
+- Residential address (for Companies House records only)
+
+**Director 1:**
+| Field | Information |
+|-------|-------------|
+| Full name | {{director1Name}} |
+| DOB | {{director1DOB}} |
+| Nationality | {{director1Nationality}} |
+| Occupation | {{director1Occupation}} |
+| Service address | {{director1ServiceAddress}} |
+
+### Section 3: Secretary (Optional)
+
+Private companies don't need a company secretary.
+- [ ] No secretary appointed
+- [ ] Secretary appointed: {{secretaryName}}
+
+### Section 4: Subscribers (Shareholders)
+
+**Subscriber 1:**
+| Field | Information |
+|-------|-------------|
+| Name | {{subscriber1Name}} |
+| Address | {{subscriber1Address}} |
+| Shares | {{subscriber1Shares}} shares of £{{nominalValue}} each |
+| Total paid | £{{subscriber1Paid}} |
+
+### Section 5: Statement of Capital
+
+| Share Class | Shares | Nominal Value | Total Nominal | Paid Up | Unpaid |
+|-------------|--------|---------------|---------------|---------|--------|
+| Ordinary | {{totalShares}} | £{{nominalValue}} | £{{totalNominal}} | £{{totalPaid}} | £{{totalUnpaid}} |
+
+### Section 6: Persons with Significant Control (PSC)
+
+Anyone who:
+- Holds >25% of shares
+- Holds >25% of voting rights
+- Has right to appoint/remove majority of directors
+- Has significant influence or control
+
+### Section 7: SIC Codes
+
+Common codes for startups:
+- **62012** - Business and domestic software development
+- **62020** - Information technology consultancy
+- **62090** - Other IT service activities
+- **70229** - Management consultancy activities
+- **73110** - Advertising agencies
+- **82990** - Other business support activities
+
+Your codes: {{sicCodes}}
+
+### Section 8: Articles of Association
+
+- [ ] Using Model Articles (recommended for most startups)
+- [ ] Using bespoke articles (attach separately)
+
+## How to File
+
+**Online (Recommended):**
+1. Go to gov.uk/limited-company-formation
+2. Create or sign in to account
+3. Complete online form
+4. Pay £12 fee
+5. Usually registered same day
+
+**Paper:**
+1. Download IN01 from gov.uk
+2. Complete and sign
+3. Post with £40 fee
+4. Takes 8-10 days
+
+## After Incorporation
+
+You'll receive:
+- Certificate of Incorporation
+- Company number
+- Memorandum of Association
+
+## Next Steps
+
+1. [ ] Open business bank account
+2. [ ] Register for Corporation Tax (within 3 months)
+3. [ ] Consider VAT registration if expecting >£90K turnover
+4. [ ] Set up payroll if employing anyone
+5. [ ] Get appropriate insurance
+
+---
+
+*This is a guide only. Companies House provides the official forms and guidance.*
+`,
+    variables: [
+      { key: 'companyName', label: 'Company Name', required: true },
+      { key: 'registeredAddress', label: 'Registered Office Address' },
+      { key: 'director1Name', label: 'Director 1 Name' },
+      { key: 'director1DOB', label: 'Director 1 DOB' },
+      { key: 'director1Nationality', label: 'Director 1 Nationality', default: 'British' },
+      { key: 'director1Occupation', label: 'Director 1 Occupation' },
+      { key: 'director1ServiceAddress', label: 'Director 1 Service Address' },
+      { key: 'secretaryName', label: 'Secretary Name (if any)' },
+      { key: 'subscriber1Name', label: 'Subscriber 1 Name' },
+      { key: 'subscriber1Address', label: 'Subscriber 1 Address' },
+      { key: 'subscriber1Shares', label: 'Subscriber 1 Shares', default: '1' },
+      { key: 'nominalValue', label: 'Nominal Value per Share', default: '1.00' },
+      { key: 'subscriber1Paid', label: 'Amount Paid', default: '1.00' },
+      { key: 'totalShares', label: 'Total Shares', default: '100' },
+      { key: 'totalNominal', label: 'Total Nominal Value', default: '100' },
+      { key: 'totalPaid', label: 'Total Paid Up', default: '100' },
+      { key: 'totalUnpaid', label: 'Total Unpaid', default: '0' },
+      { key: 'sicCodes', label: 'SIC Codes', default: '62012' },
+    ],
+    tags: ['companies-house', 'incorporation', 'IN01', 'forms'],
+    disclaimers: [
+      'This is a guide only - use official Companies House forms.',
+      'Information requirements may change - check gov.uk for current guidance.',
+    ],
+    lastUpdatedISO: '2026-01-14',
+  },
+
+  {
+    id: 'tpl-companies-house-cs01',
+    sectionId: 'incorporation',
+    title: 'CS01 - Annual Confirmation Statement Guide',
+    description: 'Guide to filing your annual confirmation statement with Companies House',
+    format: 'markdown',
+    contentMarkdown: `# CS01 - Confirmation Statement
+
+**Form Purpose:** Confirm your company details are correct with Companies House (required annually)
+
+## Key Information
+
+- **Due:** At least once every 12 months from incorporation or last CS01
+- **Fee:** £13 online / £40 paper
+- **Penalty:** Company can be struck off for non-filing
+
+## What You're Confirming
+
+The confirmation statement confirms that information at Companies House is correct as of the statement date.
+
+### 1. Registered Office
+Current address: {{registeredAddress}}
+
+- [ ] Address is correct
+- [ ] Need to update (file AD01 first)
+
+### 2. Directors
+| Name | Appointed | Current |
+|------|-----------|---------|
+| {{director1Name}} | {{director1Appointed}} | [ ] Correct |
+
+- [ ] All directors listed are current
+- [ ] Need to add new director (file AP01)
+- [ ] Need to remove director (file TM01)
+
+### 3. Company Secretary
+- [ ] No secretary
+- [ ] Secretary: {{secretaryName}} - [ ] Correct
+
+### 4. Share Capital
+
+**Statement of Capital:**
+| Class | Number | Nominal | Total | Paid | Unpaid |
+|-------|--------|---------|-------|------|--------|
+| Ordinary | {{totalShares}} | £{{nominalValue}} | £{{totalNominal}} | £{{totalPaid}} | £{{totalUnpaid}} |
+
+- [ ] Share capital is correct
+- [ ] Shares have been issued since last CS01 (include SH01)
+
+### 5. Shareholders
+
+| Name | Shares | % |
+|------|--------|---|
+| {{shareholder1Name}} | {{shareholder1Shares}} | {{shareholder1Percent}}% |
+
+- [ ] Shareholder list is correct
+- [ ] Transfers have occurred (file stock transfer forms)
+
+### 6. Persons with Significant Control (PSC)
+
+| PSC | Nature of Control |
+|-----|-------------------|
+| {{psc1Name}} | {{psc1Control}} |
+
+- [ ] PSC register is correct
+- [ ] Need to update (file PSC01-PSC09 as needed)
+
+### 7. SIC Codes
+
+Current codes: {{sicCodes}}
+
+- [ ] SIC codes are correct
+- [ ] Business activities have changed
+
+### 8. Trading Status
+
+- [ ] Company is trading
+- [ ] Company is dormant (different filing requirements)
+
+## How to File
+
+**Online (Recommended):**
+1. Log in to Companies House WebFiling
+2. Select "File a confirmation statement"
+3. Review all sections
+4. Make any updates needed
+5. Confirm and pay £13
+6. Instant confirmation
+
+**Paper:**
+1. Download CS01 from Companies House
+2. Complete all sections
+3. Sign and date
+4. Post with £40 fee to Companies House
+5. Allow 8-10 days for processing
+
+## Common Mistakes to Avoid
+
+1. **Missing the deadline** - Set calendar reminder
+2. **Not updating PSC info** - Must be current
+3. **Wrong share numbers** - Check against your records
+4. **Forgetting dormant status** - Different requirements apply
+
+## Filing Timeline
+
+| Event | When |
+|-------|------|
+| Incorporation | Day 0 |
+| First CS01 due | Within 12 months |
+| Each subsequent CS01 | Within 12 months of last |
+
+Your next due date: {{nextDueDate}}
+
+---
+
+*Always check Companies House for the latest requirements and fees.*
+`,
+    variables: [
+      { key: 'companyName', label: 'Company Name', required: true },
+      { key: 'registeredAddress', label: 'Registered Office Address' },
+      { key: 'director1Name', label: 'Director 1 Name' },
+      { key: 'director1Appointed', label: 'Director 1 Appointment Date' },
+      { key: 'secretaryName', label: 'Secretary Name' },
+      { key: 'totalShares', label: 'Total Shares' },
+      { key: 'nominalValue', label: 'Nominal Value', default: '1.00' },
+      { key: 'totalNominal', label: 'Total Nominal Value' },
+      { key: 'totalPaid', label: 'Total Paid Up' },
+      { key: 'totalUnpaid', label: 'Total Unpaid', default: '0' },
+      { key: 'shareholder1Name', label: 'Shareholder 1 Name' },
+      { key: 'shareholder1Shares', label: 'Shareholder 1 Shares' },
+      { key: 'shareholder1Percent', label: 'Shareholder 1 %' },
+      { key: 'psc1Name', label: 'PSC 1 Name' },
+      { key: 'psc1Control', label: 'PSC 1 Nature of Control' },
+      { key: 'sicCodes', label: 'SIC Codes' },
+      { key: 'nextDueDate', label: 'Next CS01 Due Date' },
+    ],
+    tags: ['companies-house', 'confirmation-statement', 'CS01', 'annual-return'],
+    lastUpdatedISO: '2026-01-14',
+  },
+
+  {
+    id: 'tpl-companies-house-sh01',
+    sectionId: 'share-structure',
+    title: 'SH01 - Share Allotment Guide',
+    description: 'Guide to notifying Companies House of new share allotments',
+    format: 'markdown',
+    contentMarkdown: `# SH01 - Return of Allotment of Shares
+
+**Form Purpose:** Notify Companies House when you issue new shares
+
+## When to File
+
+File SH01 within **one month** of allotting new shares.
+
+**Triggers:**
+- Issuing shares to new investors
+- Issuing shares to employees (EMI/options exercise)
+- Issuing shares for services
+- Converting loan notes to equity
+
+## Information Required
+
+### Company Details
+- Company name: {{companyName}}
+- Company number: {{companyNumber}}
+
+### Allotment Details
+
+**Date of allotment:** {{allotmentDate}}
+
+| Share Class | Number Allotted | Nominal Value | Total Nominal | Amount Paid | Amount Unpaid |
+|-------------|-----------------|---------------|---------------|-------------|---------------|
+| {{shareClass}} | {{sharesAllotted}} | £{{nominalValue}} | £{{totalNominal}} | £{{amountPaid}} | £{{amountUnpaid}} |
+
+### Consideration (Payment)
+
+How were shares paid for?
+- [ ] Cash: £{{cashAmount}}
+- [ ] Non-cash consideration: {{nonCashDescription}}
+- [ ] Both cash and non-cash
+
+### New Statement of Capital (After Allotment)
+
+| Share Class | Total Issued | Nominal Value | Total Nominal | Paid Up | Unpaid |
+|-------------|--------------|---------------|---------------|---------|--------|
+| Ordinary | {{newTotalShares}} | £{{nominalValue}} | £{{newTotalNominal}} | £{{newTotalPaid}} | £{{newTotalUnpaid}} |
+
+### Shareholder Details (New Allottees)
+
+| Name | Address | Shares Allotted |
+|------|---------|-----------------|
+| {{allottee1Name}} | {{allottee1Address}} | {{allottee1Shares}} |
+
+## Process
+
+### Before Filing SH01
+
+1. **Board Resolution** - Directors must approve the allotment
+2. **Shareholder Authority** - Check articles/SHA for authority limits
+3. **Pre-emption** - Existing shareholders may have first right
+4. **Subscription Agreement** - Document the investment terms
+5. **Share Certificates** - Prepare certificates for new shareholders
+6. **Update Cap Table** - Record new shareholdings
+
+### Filing
+
+**Online:**
+1. Log in to Companies House WebFiling
+2. Select "File a document"
+3. Choose SH01
+4. Complete details
+5. No filing fee
+6. Immediate confirmation
+
+**Paper:**
+1. Download SH01 from Companies House
+2. Complete and sign
+3. Post to Companies House
+4. No fee
+5. Allow 8-10 days
+
+### After Filing
+
+1. [ ] Update cap table
+2. [ ] Issue share certificates
+3. [ ] Update PSC register if needed
+4. [ ] Update shareholders agreement signatories
+5. [ ] For SEIS/EIS: File compliance statement
+
+## Common Scenarios
+
+### Seed Investment
+- Investor subscribes for new shares
+- File SH01 with cash consideration
+- Update PSC if >25% ownership
+
+### Employee Options Exercise
+- Employee exercises vested options
+- File SH01 with cash (option price)
+- Usually small number of shares
+
+### Conversion of Loan Notes
+- Convertible notes convert to equity
+- Non-cash consideration
+- Describe loan note conversion
+
+## Penalties
+
+**Late filing can result in:**
+- Company officers liable to fine
+- No specific deadline penalty, but non-compliance is an offence
+
+---
+
+*File within one month of allotment. Keep accurate cap table records.*
+`,
+    variables: [
+      { key: 'companyName', label: 'Company Name', required: true },
+      { key: 'companyNumber', label: 'Company Number' },
+      { key: 'allotmentDate', label: 'Date of Allotment' },
+      { key: 'shareClass', label: 'Share Class', default: 'Ordinary' },
+      { key: 'sharesAllotted', label: 'Shares Allotted' },
+      { key: 'nominalValue', label: 'Nominal Value', default: '0.01' },
+      { key: 'totalNominal', label: 'Total Nominal (This Allotment)' },
+      { key: 'amountPaid', label: 'Amount Paid (This Allotment)' },
+      { key: 'amountUnpaid', label: 'Amount Unpaid', default: '0' },
+      { key: 'cashAmount', label: 'Cash Consideration' },
+      { key: 'nonCashDescription', label: 'Non-Cash Consideration Description' },
+      { key: 'newTotalShares', label: 'New Total Shares (After Allotment)' },
+      { key: 'newTotalNominal', label: 'New Total Nominal Value' },
+      { key: 'newTotalPaid', label: 'New Total Paid Up' },
+      { key: 'newTotalUnpaid', label: 'New Total Unpaid' },
+      { key: 'allottee1Name', label: 'Allottee 1 Name' },
+      { key: 'allottee1Address', label: 'Allottee 1 Address' },
+      { key: 'allottee1Shares', label: 'Allottee 1 Shares' },
+    ],
+    tags: ['companies-house', 'shares', 'SH01', 'allotment'],
+    lastUpdatedISO: '2026-01-14',
+  },
+
+  {
+    id: 'tpl-companies-house-psc',
+    sectionId: 'incorporation',
+    title: 'PSC Register Guide',
+    description: 'Guide to maintaining your Persons with Significant Control register',
+    format: 'markdown',
+    contentMarkdown: `# Persons with Significant Control (PSC) Register
+
+**Purpose:** Identify and record individuals who ultimately own or control your company
+
+## Who is a PSC?
+
+Someone is a PSC if they meet one or more of these conditions:
+
+### Condition 1: Shareholding
+Holds **more than 25%** of shares
+
+### Condition 2: Voting Rights
+Holds **more than 25%** of voting rights
+
+### Condition 3: Director Appointment
+Has the right to appoint or remove the **majority of directors**
+
+### Condition 4: Significant Influence
+Has the right to exercise, or actually exercises, **significant influence or control**
+
+### Condition 5: Trust/Firm Control
+Has the right to exercise, or actually exercises, significant influence or control over a trust or firm that meets conditions 1-4
+
+## Registerable Details
+
+For each PSC, record:
+
+| Field | PSC 1 |
+|-------|-------|
+| Full name | {{psc1Name}} |
+| Date of birth | {{psc1DOB}} |
+| Nationality | {{psc1Nationality}} |
+| Country of residence | {{psc1Country}} |
+| Service address | {{psc1ServiceAddress}} |
+| Usual residential address | {{psc1ResAddress}} |
+| Date became PSC | {{psc1Date}} |
+| Nature of control | {{psc1Control}} |
+
+### Nature of Control Categories
+
+**For shareholding (Condition 1):**
+- Over 25% up to (and including) 50%
+- More than 50% up to (and including) 75%
+- More than 75%
+
+**For voting rights (Condition 2):**
+- Over 25% up to (and including) 50%
+- More than 50% up to (and including) 75%
+- More than 75%
+
+**For other conditions:**
+- Right to appoint and remove directors
+- Significant influence or control
+- As a trust or firm, meets conditions 1-4
+
+## Companies House Forms
+
+| Form | Purpose |
+|------|---------|
+| PSC01 | Notification of PSC individual |
+| PSC02 | Notification of relevant legal entity (RLE) |
+| PSC03 | Notification of other registerable person (ORP) |
+| PSC04 | Change of PSC details |
+| PSC07 | Notification that PSC has ceased |
+| PSC08 | Update statement of no PSC |
+| PSC09 | Notification that steps have been taken |
+
+## Common Scenarios
+
+### Scenario 1: Solo Founder
+- Founder owns 100% of shares
+- One PSC entry required
+- Nature: More than 75% of shares and voting rights
+
+### Scenario 2: Two Equal Co-founders (50/50)
+- Each founder owns 50%
+- Each is a PSC
+- Nature: More than 25% up to 50% of shares and voting rights
+
+### Scenario 3: Post-Investment
+After a funding round where investors get 20%:
+- Founders may still be PSCs (if >25% individually)
+- Check if any investor holds >25%
+- Voting rights may differ from economic rights
+
+### Scenario 4: Relevant Legal Entity (RLE)
+If a company (not individual) meets PSC conditions:
+- File PSC02 for the RLE
+- The RLE must have its own PSC register
+- "Chain" continues until natural persons identified
+
+## Filing Requirements
+
+### Initial Registration
+- PSC information included in IN01 at incorporation
+- Or file PSC01/02/03 within 14 days of company knowing
+
+### Changes
+- File within 14 days of change
+- Includes new PSC, cessation, or detail changes
+
+### Confirmation Statement
+- PSC information confirmed annually in CS01
+- Must be accurate as of statement date
+
+## Penalties
+
+**Failure to maintain PSC register:**
+- Company and officers liable to fine
+- Daily default fine for continued non-compliance
+
+**False statements:**
+- Criminal offence
+- Up to 2 years imprisonment and/or fine
+
+## Your PSC Register
+
+| Name | Nature of Control | Date | Status |
+|------|-------------------|------|--------|
+| {{psc1Name}} | {{psc1Control}} | {{psc1Date}} | Current |
+
+---
+
+*Keep your PSC register current. Review after any share transfers or new investments.*
+`,
+    variables: [
+      { key: 'companyName', label: 'Company Name', required: true },
+      { key: 'psc1Name', label: 'PSC 1 Full Name' },
+      { key: 'psc1DOB', label: 'PSC 1 Date of Birth' },
+      { key: 'psc1Nationality', label: 'PSC 1 Nationality' },
+      { key: 'psc1Country', label: 'PSC 1 Country of Residence' },
+      { key: 'psc1ServiceAddress', label: 'PSC 1 Service Address' },
+      { key: 'psc1ResAddress', label: 'PSC 1 Residential Address' },
+      { key: 'psc1Date', label: 'PSC 1 Date Became PSC' },
+      { key: 'psc1Control', label: 'PSC 1 Nature of Control' },
+    ],
+    tags: ['companies-house', 'PSC', 'significant-control', 'register'],
+    disclaimers: [
+      'PSC requirements are complex - seek professional advice if unsure.',
+      'Maintain accurate records to avoid penalties.',
+    ],
+    lastUpdatedISO: '2026-01-14',
+  },
 ];
 
 export function getTemplatesBySectionId(sectionId: string): StartupTemplate[] {

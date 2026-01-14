@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, Pressable, Linking } from 'react-native';
+import { View, Text, ScrollView, Pressable, Linking, Modal } from 'react-native';
 import { useState, useMemo } from 'react';
 import { router, Stack, useLocalSearchParams } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -15,6 +15,10 @@ import {
   Clock,
   AlertTriangle,
   Circle,
+  X,
+  Play,
+  User,
+  Users,
 } from 'lucide-react-native';
 import { useStartupPackStore } from '@/lib/startup-pack';
 import { useCurrentWorkspace, useCurrentMembership } from '@/lib/state/app-store';
@@ -66,6 +70,7 @@ export default function SectionDetailScreen() {
   // Local state
   const [activeTab, setActiveTab] = useState<TabType>('guide');
   const [expandedArticle, setExpandedArticle] = useState<string | null>(articles[0]?.id ?? null);
+  const [selectedChecklistItem, setSelectedChecklistItem] = useState<StartupChecklistItem | null>(null);
 
   // Theme colors
   const bgPrimary = isDark ? 'bg-slate-950' : isOffWhite ? 'bg-orange-50' : 'bg-gray-50';
@@ -306,9 +311,8 @@ export default function SectionDetailScreen() {
               entering={FadeInDown.delay(index * 30).duration(300)}
             >
               <Pressable
-                onPress={() => handleChecklistToggle(item)}
+                onPress={() => setSelectedChecklistItem(item)}
                 className={`${bgCard} border ${borderColor} rounded-xl p-4 mb-3 active:opacity-70`}
-                disabled={!canEdit(userRole)}
               >
                 <View className="flex-row items-start">
                   {/* Status indicator */}
@@ -449,6 +453,187 @@ export default function SectionDetailScreen() {
     </View>
   );
 
+  const renderChecklistModal = () => {
+    if (!selectedChecklistItem) return null;
+
+    const state = getChecklistItemState(workspaceId, selectedChecklistItem.id);
+    const status = state?.status ?? 'not_started';
+    const priorityColor = PRIORITY_COLORS[selectedChecklistItem.priority];
+
+    const setStatus = (newStatus: StartupChecklistStatus) => {
+      updateChecklistItemState(workspaceId, selectedChecklistItem.id, { status: newStatus });
+    };
+
+    return (
+      <Modal
+        visible={!!selectedChecklistItem}
+        animationType="slide"
+        transparent
+        onRequestClose={() => setSelectedChecklistItem(null)}
+      >
+        <View className="flex-1 bg-black/50 justify-end">
+          <View
+            className={`${isDark ? 'bg-slate-900' : 'bg-white'} rounded-t-3xl`}
+            style={{ paddingBottom: insets.bottom + 16, maxHeight: '85%' }}
+          >
+            {/* Header */}
+            <View className="flex-row items-center justify-between px-5 py-4 border-b border-gray-200 dark:border-slate-700">
+              <View className="flex-1 mr-4">
+                <View className="flex-row items-center gap-2 mb-1">
+                  <View
+                    className="px-2 py-0.5 rounded"
+                    style={{ backgroundColor: priorityColor.bg }}
+                  >
+                    <Text className="text-white text-xs font-bold">
+                      {selectedChecklistItem.priority.toUpperCase()}
+                    </Text>
+                  </View>
+                  {selectedChecklistItem.estimatedHours && (
+                    <View className="flex-row items-center">
+                      <Clock size={12} color="#64748b" />
+                      <Text className={`${textMuted} text-xs ml-1`}>
+                        ~{selectedChecklistItem.estimatedHours}h
+                      </Text>
+                    </View>
+                  )}
+                </View>
+                <Text className={`${textPrimary} font-bold text-lg`}>
+                  {selectedChecklistItem.title}
+                </Text>
+              </View>
+              <Pressable
+                onPress={() => setSelectedChecklistItem(null)}
+                className="w-8 h-8 rounded-full bg-gray-200 dark:bg-slate-700 items-center justify-center"
+              >
+                <X size={18} color={isDark ? '#fff' : '#374151'} />
+              </Pressable>
+            </View>
+
+            <ScrollView className="px-5 py-4" showsVerticalScrollIndicator={false}>
+              {/* Description */}
+              <Text className={`${textSecondary} mb-6`}>
+                {selectedChecklistItem.description}
+              </Text>
+
+              {/* Status Selector */}
+              <Text className={`${textPrimary} font-semibold mb-3`}>Status</Text>
+              <View className="flex-row gap-2 mb-6">
+                <Pressable
+                  onPress={() => setStatus('not_started')}
+                  disabled={!canEdit(userRole)}
+                  className={`flex-1 py-3 rounded-xl items-center border ${
+                    status === 'not_started'
+                      ? 'bg-gray-500/20 border-gray-500'
+                      : `${bgCard} ${borderColor}`
+                  }`}
+                >
+                  <Circle size={18} color={status === 'not_started' ? '#6b7280' : '#64748b'} />
+                  <Text className={`mt-1 text-xs font-semibold ${status === 'not_started' ? 'text-gray-500' : textMuted}`}>
+                    Not Started
+                  </Text>
+                </Pressable>
+                <Pressable
+                  onPress={() => setStatus('in_progress')}
+                  disabled={!canEdit(userRole)}
+                  className={`flex-1 py-3 rounded-xl items-center border ${
+                    status === 'in_progress'
+                      ? 'bg-amber-500/20 border-amber-500'
+                      : `${bgCard} ${borderColor}`
+                  }`}
+                >
+                  <Play size={18} color={status === 'in_progress' ? '#f59e0b' : '#64748b'} />
+                  <Text className={`mt-1 text-xs font-semibold ${status === 'in_progress' ? 'text-amber-500' : textMuted}`}>
+                    In Progress
+                  </Text>
+                </Pressable>
+                <Pressable
+                  onPress={() => setStatus('done')}
+                  disabled={!canEdit(userRole)}
+                  className={`flex-1 py-3 rounded-xl items-center border ${
+                    status === 'done'
+                      ? 'bg-emerald-500/20 border-emerald-500'
+                      : `${bgCard} ${borderColor}`
+                  }`}
+                >
+                  <Check size={18} color={status === 'done' ? '#10b981' : '#64748b'} />
+                  <Text className={`mt-1 text-xs font-semibold ${status === 'done' ? 'text-emerald-500' : textMuted}`}>
+                    Complete
+                  </Text>
+                </Pressable>
+              </View>
+
+              {/* Owner Role Hint */}
+              {selectedChecklistItem.ownerRoleHint && (
+                <View className={`${bgCard} border ${borderColor} rounded-xl p-4 mb-4`}>
+                  <View className="flex-row items-center mb-2">
+                    <User size={16} color="#3b82f6" />
+                    <Text className={`${textPrimary} font-semibold ml-2`}>Suggested Owner</Text>
+                  </View>
+                  <Text className={textSecondary}>{selectedChecklistItem.ownerRoleHint}</Text>
+                </View>
+              )}
+
+              {/* External Links */}
+              {selectedChecklistItem.links && selectedChecklistItem.links.length > 0 && (
+                <View className="mb-4">
+                  <Text className={`${textPrimary} font-semibold mb-3`}>Helpful Links</Text>
+                  {selectedChecklistItem.links.map((link, idx) => (
+                    <Pressable
+                      key={idx}
+                      onPress={() => Linking.openURL(link.url)}
+                      className={`${bgCard} border ${borderColor} rounded-xl p-4 mb-2 flex-row items-center active:opacity-70`}
+                    >
+                      <ExternalLink size={16} color="#3b82f6" />
+                      <Text className="text-blue-500 font-semibold ml-3 flex-1">{link.label}</Text>
+                      <ChevronRight size={16} color="#64748b" />
+                    </Pressable>
+                  ))}
+                </View>
+              )}
+
+              {/* Related Templates */}
+              {selectedChecklistItem.templateIds && selectedChecklistItem.templateIds.length > 0 && (
+                <View className="mb-4">
+                  <Text className={`${textPrimary} font-semibold mb-3`}>Related Templates</Text>
+                  {selectedChecklistItem.templateIds.map((tplId, idx) => (
+                    <Pressable
+                      key={idx}
+                      onPress={() => {
+                        setSelectedChecklistItem(null);
+                        router.push(`/startup-pack/template/${tplId}`);
+                      }}
+                      className={`${bgCard} border ${borderColor} rounded-xl p-4 mb-2 flex-row items-center active:opacity-70`}
+                    >
+                      <FileText size={16} color="#a855f7" />
+                      <Text className="text-purple-500 font-semibold ml-3 flex-1">View Template</Text>
+                      <ChevronRight size={16} color="#64748b" />
+                    </Pressable>
+                  ))}
+                </View>
+              )}
+            </ScrollView>
+
+            {/* Action Buttons */}
+            {canEdit(userRole) && status !== 'done' && (
+              <View className="px-5 pt-2">
+                <Pressable
+                  onPress={() => {
+                    setStatus('done');
+                    setSelectedChecklistItem(null);
+                  }}
+                  className="bg-emerald-500 rounded-xl py-4 flex-row items-center justify-center active:opacity-70"
+                >
+                  <Check size={20} color="#fff" />
+                  <Text className="text-white font-bold ml-2">Mark as Complete</Text>
+                </Pressable>
+              </View>
+            )}
+          </View>
+        </View>
+      </Modal>
+    );
+  };
+
   return (
     <View className={`flex-1 ${bgPrimary}`}>
       <Stack.Screen options={{ headerShown: false }} />
@@ -485,6 +670,9 @@ export default function SectionDetailScreen() {
         {activeTab === 'checklist' && renderChecklistTab()}
         {activeTab === 'templates' && renderTemplatesTab()}
       </ScrollView>
+
+      {/* Checklist Item Detail Modal */}
+      {renderChecklistModal()}
     </View>
   );
 }
