@@ -1,10 +1,11 @@
 import { View, Text, ScrollView, Pressable, Modal, TextInput, Alert, KeyboardAvoidingView, Platform } from 'react-native';
 import { useState, useEffect, useMemo } from 'react';
-import { Target, Plus, X, ChevronDown, ChevronRight, CheckCircle2, Circle, Clock, Users, DollarSign, Lightbulb, ChevronUp, UserPlus, Zap, AlertTriangle, AlertCircle, TrendingDown, CalendarClock, ArrowRight } from 'lucide-react-native';
+import { Target, Plus, X, ChevronDown, ChevronRight, CheckCircle2, Circle, Clock, Users, DollarSign, Lightbulb, ChevronUp, UserPlus, Zap, AlertTriangle, AlertCircle, TrendingDown, CalendarClock, ArrowRight, Layers, Activity } from 'lucide-react-native';
 import { useCurrentWorkspace, useCurrentMembership } from '@/lib/state/app-store';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useQueueStore } from '@/lib/state/okr-queue-store';
 import type { Function as BusinessFunction } from '@/types';
 import { useOKRStore, type OKR, type Objective } from '@/lib/state/okr-store';
 import { OKR_CATEGORIES, OKR_SUGGESTIONS, type OKRSuggestion, type OKRCategory } from '@/lib/okr-suggestions';
@@ -21,6 +22,8 @@ if (useOKRStore.getState().okrs.length === 0) {
 if (useWorkPlanStore.getState().workPlans.length === 0) {
   useWorkPlanStore.getState().initializeWorkPlans();
 }
+
+const DEFAULT_WORKSPACE_ID = 'workspace-demo-company';
 
 interface WorkPlanItem {
   id: string;
@@ -49,6 +52,10 @@ export default function DecideScreen() {
   const approveRequest = useMarketplaceRequestsStore((s) => s.approveRequest);
   const rejectRequest = useMarketplaceRequestsStore((s) => s.rejectRequest);
   const addMember = useOrganizationStore((s) => s.addMember);
+
+  // Queue store
+  const getQueueSummary = useQueueStore((s) => s.getQueueSummary);
+  const queueSummary = useMemo(() => getQueueSummary(currentWorkspace?.id ?? DEFAULT_WORKSPACE_ID), [currentWorkspace?.id]);
 
   // Filter pending requests with useMemo
   const pendingRequests = useMemo(() => {
@@ -341,6 +348,18 @@ export default function DecideScreen() {
           </View>
           <View className="flex-row gap-2">
             <Pressable
+              onPress={() => router.push('/okr-queue')}
+              className="bg-white/20 rounded-xl p-2.5 active:opacity-70"
+            >
+              <Layers size={20} color="#fff" />
+            </Pressable>
+            <Pressable
+              onPress={() => router.push('/capacity')}
+              className="bg-white/20 rounded-xl p-2.5 active:opacity-70"
+            >
+              <Activity size={20} color="#fff" />
+            </Pressable>
+            <Pressable
               onPress={() => setShowCreateModal(true)}
               className="bg-white/20 rounded-xl p-2.5 active:opacity-70"
             >
@@ -356,6 +375,12 @@ export default function DecideScreen() {
         </View>
         {/* Quick Health Indicators */}
         <View className="flex-row gap-4">
+          {queueSummary.inProgress > 0 && (
+            <Pressable onPress={() => router.push('/okr-queue')} className="flex-row items-center">
+              <View className="w-2 h-2 rounded-full mr-1.5 bg-emerald-400" />
+              <Text className="text-white/90 text-xs">{queueSummary.inProgress} building</Text>
+            </Pressable>
+          )}
           {decisionItems.totalCritical > 0 && (
             <View className="flex-row items-center">
               <View className="w-2 h-2 rounded-full mr-1.5 bg-red-400" />

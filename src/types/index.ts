@@ -346,6 +346,7 @@ export interface Task {
   workspaceId: string;
   projectId?: string;
   objectiveId?: string; // Link task to an objective
+  okrId?: string; // Direct link to OKR for planning
   title: string;
   description?: string;
   assigneeId?: string;
@@ -358,6 +359,12 @@ export interface Task {
   updatedAt: string;
   completedAt?: string;
   attachments?: Attachment[];
+  // Planning system extensions
+  estimatedHours?: number; // Required for capacity planning
+  actualHours?: number; // Logged hours on this task
+  reopenedCount?: number; // Rework tracking (tasks sent back)
+  blockerId?: string; // What's blocking this task (task/supplier ID)
+  blockerType?: 'task' | 'supplier' | 'approval' | 'external';
 }
 
 // Time Entry

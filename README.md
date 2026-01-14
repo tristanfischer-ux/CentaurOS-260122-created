@@ -54,8 +54,64 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
 
 ## 🚨 PRODUCTION READINESS STATUS
 
-**Last Updated**: 2026-01-14 (**MODAL UX EXCELLENCE AUDIT** - Complete theme conformity + consulting enhancements)
+**Last Updated**: 2026-01-14 (**PLANNING SYSTEM** - Homeworld-style build queue + capacity engine)
 **Status**: ✅ **READY FOR APP STORE** - All features complete!
+
+---
+
+## 🎮 APP-WIDE PLANNING SYSTEM (Homeworld-Style)
+
+**Last Updated**: 2026-01-14
+
+The app now includes a comprehensive planning system that treats OKRs like a Homeworld build queue, with people-hours as resource units and cash as the only currency.
+
+### Core Concepts
+
+1. **OKRs as Build Queue Items** - Each OKR sits in a queue, some running in parallel, some serial
+2. **People-Hours as Resources** - Every team member has base capacity per week based on role
+3. **Cash is ONLY Currency** - No secondary currencies like "Fuel", everything in £GBP
+4. **Time Has Economic Weight** - Burn/week, runway risk, time value of money
+5. **Coordination Overhead** - Too many people reduces effective throughput: `OverheadPct = 0.10 + 0.04*(teamSize-1) + 0.03*(crossFunctionCount-1) + 0.06*(overload)`
+6. **AI Tools Boost Output** - Weapon/Armor/Utility/Support slots with speedMult, qualityMult, overheadDelta
+
+### New Screens
+
+| Screen | Route | Description |
+|--------|-------|-------------|
+| **OKR Planner** | `/okr-planner?okrId=xxx` | Configure resource allocation, apply presets, see forecast |
+| **Build Queue** | `/okr-queue` | Homeworld-style queue with parallel lanes per function |
+| **Capacity** | `/capacity` | Person-level utilization, burnout risk, allocation breakdown |
+
+### New Stores & Engines
+
+| File | Purpose |
+|------|---------|
+| `src/lib/state/finance-store.ts` | Cash balance, weekly burn, runway, revenue tracking |
+| `src/lib/state/okr-queue-store.ts` | Build queue with lanes, dependencies, ETA calculations |
+| `src/lib/okr/forecast-engine.ts` | Deterministic math for ETA, cost, overhead, rework risk |
+| `src/lib/okr/capacity-engine.ts` | Team utilization, burnout detection, allocation impact |
+| `src/lib/okr/tool-effects-map.ts` | AI tool effects (speed, quality, overhead, rework) |
+| `src/lib/okr/recommendation-engine.ts` | Plan presets scoring and recommendations |
+| `src/lib/okr/bottleneck-detector.ts` | Detects coordination, skill, review, rework bottlenecks |
+| `src/lib/okr/plan-library.ts` | 8 strategic presets (Speed Run, Lean Baseline, etc.) |
+
+### 8 Plan Presets
+
+1. **Speed Run** - All hands on deck, maximum parallelization
+2. **Lean Baseline** - Single apprentice, minimal coordination
+3. **Expert Burst** - Fractional exec + apprentice factory
+4. **Two-Track** - Discovery + Delivery in parallel
+5. **Manufacturing Loop** - Tight iteration with supplier coordination
+6. **Quality Shield** - Verification-first, zero rework tolerance
+7. **Revenue Strike** - Sales blitz, everyone selling
+8. **Overhead Reset** - Split team to reduce coordination chaos
+
+### Access from Decide Tab
+
+The Decide tab header now includes:
+- **Layers icon** → Build Queue screen
+- **Activity icon** → Capacity screen
+- **"X building" badge** → Shows active OKRs in queue
 
 ### 🏆 ELITE CONSULTING MODAL AUDIT (ENHANCED!)
 
