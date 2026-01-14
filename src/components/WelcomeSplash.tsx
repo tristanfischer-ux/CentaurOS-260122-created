@@ -1,8 +1,9 @@
-import { View, Text, Animated } from 'react-native';
+import { View, Text, Animated, Dimensions } from 'react-native';
 import { useEffect, useRef } from 'react';
 import { LinearGradient } from 'expo-linear-gradient';
-import { CentaurLogo } from './CentaurLogo';
-import { Sparkles } from 'lucide-react-native';
+import { Zap } from 'lucide-react-native';
+
+const { width, height } = Dimensions.get('window');
 
 // Curated collection of inspiring business quotes
 const BUSINESS_QUOTES = [
@@ -23,10 +24,6 @@ const BUSINESS_QUOTES = [
     author: "Guy Kawasaki"
   },
   {
-    quote: "Don't worry about failure. Worry about the chances you miss.",
-    author: "Jack Canfield"
-  },
-  {
     quote: "Move fast and break things.",
     author: "Mark Zuckerberg"
   },
@@ -35,28 +32,12 @@ const BUSINESS_QUOTES = [
     author: "Steve Jobs"
   },
   {
-    quote: "The best time to plant a tree was 20 years ago. The second best time is now.",
-    author: "Chinese Proverb"
-  },
-  {
     quote: "Done is better than perfect.",
     author: "Sheryl Sandberg"
   },
   {
-    quote: "Your work is going to fill a large part of your life, and the only way to be truly satisfied is to do what you believe is great work.",
-    author: "Steve Jobs"
-  },
-  {
-    quote: "The biggest risk is not taking any risk.",
-    author: "Mark Zuckerberg"
-  },
-  {
     quote: "Build something people want.",
     author: "Paul Graham"
-  },
-  {
-    quote: "Make every detail perfect and limit the number of details to perfect.",
-    author: "Jack Dorsey"
   },
   {
     quote: "Execution is everything.",
@@ -67,10 +48,6 @@ const BUSINESS_QUOTES = [
     author: "Walt Disney"
   },
   {
-    quote: "Focus on signal over noise.",
-    author: "Naval Ravikant"
-  },
-  {
     quote: "Simplicity is the ultimate sophistication.",
     author: "Leonardo da Vinci"
   },
@@ -78,14 +55,6 @@ const BUSINESS_QUOTES = [
     quote: "Think big, start small, move fast.",
     author: "Anonymous"
   },
-  {
-    quote: "The hard thing about hard things is that there are no easy answers.",
-    author: "Ben Horowitz"
-  },
-  {
-    quote: "Success is not final, failure is not fatal: it is the courage to continue that counts.",
-    author: "Winston Churchill"
-  }
 ];
 
 interface WelcomeSplashProps {
@@ -94,63 +63,104 @@ interface WelcomeSplashProps {
 
 export function WelcomeSplash({ onComplete }: WelcomeSplashProps) {
   const fadeAnim = useRef(new Animated.Value(0)).current;
-  const logoScale = useRef(new Animated.Value(0.8)).current;
-  const quoteSlide = useRef(new Animated.Value(30)).current;
+  const logoScale = useRef(new Animated.Value(0.5)).current;
+  const logoRotate = useRef(new Animated.Value(0)).current;
+  const textSlide = useRef(new Animated.Value(40)).current;
+  const quoteOpacity = useRef(new Animated.Value(0)).current;
+  const ringScale1 = useRef(new Animated.Value(0.8)).current;
+  const ringScale2 = useRef(new Animated.Value(0.6)).current;
+  const ringScale3 = useRef(new Animated.Value(0.4)).current;
 
   // Get random quote
   const randomQuote = BUSINESS_QUOTES[Math.floor(Math.random() * BUSINESS_QUOTES.length)];
 
   useEffect(() => {
-    // Animate in
-    Animated.parallel([
-      Animated.timing(fadeAnim, {
+    // Animate in - staggered sequence
+    Animated.sequence([
+      // First: fade in background and rings
+      Animated.parallel([
+        Animated.timing(fadeAnim, {
+          toValue: 1,
+          duration: 600,
+          useNativeDriver: true,
+        }),
+        Animated.spring(ringScale1, {
+          toValue: 1,
+          friction: 8,
+          tension: 40,
+          useNativeDriver: true,
+        }),
+      ]),
+      // Then: logo appears
+      Animated.parallel([
+        Animated.spring(logoScale, {
+          toValue: 1,
+          friction: 6,
+          tension: 50,
+          useNativeDriver: true,
+        }),
+        Animated.spring(ringScale2, {
+          toValue: 1,
+          friction: 8,
+          tension: 40,
+          useNativeDriver: true,
+        }),
+        Animated.timing(logoRotate, {
+          toValue: 1,
+          duration: 800,
+          useNativeDriver: true,
+        }),
+      ]),
+      // Then: text slides in
+      Animated.parallel([
+        Animated.spring(textSlide, {
+          toValue: 0,
+          friction: 8,
+          tension: 40,
+          useNativeDriver: true,
+        }),
+        Animated.spring(ringScale3, {
+          toValue: 1,
+          friction: 8,
+          tension: 40,
+          useNativeDriver: true,
+        }),
+      ]),
+      // Finally: quote fades in
+      Animated.timing(quoteOpacity, {
         toValue: 1,
-        duration: 800,
-        useNativeDriver: true,
-      }),
-      Animated.spring(logoScale, {
-        toValue: 1,
-        friction: 8,
-        tension: 40,
-        useNativeDriver: true,
-      }),
-      Animated.timing(quoteSlide, {
-        toValue: 0,
-        duration: 600,
-        delay: 300,
+        duration: 500,
         useNativeDriver: true,
       }),
     ]).start();
 
-    // Auto-dismiss after 3 seconds
+    // Auto-dismiss after 3.5 seconds
     const timer = setTimeout(() => {
       Animated.timing(fadeAnim, {
         toValue: 0,
-        duration: 600,
+        duration: 500,
         useNativeDriver: true,
       }).start(() => {
         onComplete();
       });
-    }, 3000);
+    }, 3500);
 
     return () => clearTimeout(timer);
-  }, [fadeAnim, logoScale, quoteSlide, onComplete]);
+  }, [fadeAnim, logoScale, logoRotate, textSlide, quoteOpacity, ringScale1, ringScale2, ringScale3, onComplete]);
+
+  const spin = logoRotate.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0deg', '360deg'],
+  });
 
   return (
     <View className="absolute inset-0 z-50">
       <LinearGradient
-        colors={['#0f172a', '#1e1b4b', '#312e81']}
+        colors={['#0a0a0a', '#0f172a', '#020617']}
         style={{ flex: 1 }}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
       >
-        {/* Subtle background pattern */}
-        <View className="absolute inset-0 opacity-10">
-          <View className="absolute top-20 right-10 w-40 h-40 rounded-full bg-purple-500" />
-          <View className="absolute bottom-40 left-10 w-32 h-32 rounded-full bg-blue-500" />
-          <View className="absolute top-1/2 right-20 w-24 h-24 rounded-full bg-indigo-500" />
-        </View>
-
         <Animated.View
           style={{
             flex: 1,
@@ -160,84 +170,188 @@ export function WelcomeSplash({ onComplete }: WelcomeSplashProps) {
             opacity: fadeAnim,
           }}
         >
-          {/* Logo */}
+          {/* Animated Rings Background */}
+          <View className="absolute" style={{ top: height * 0.3 }}>
+            <Animated.View
+              style={{
+                position: 'absolute',
+                width: 300,
+                height: 300,
+                borderRadius: 150,
+                borderWidth: 1,
+                borderColor: 'rgba(139, 92, 246, 0.15)',
+                transform: [{ scale: ringScale1 }],
+                left: -150,
+                top: -150,
+              }}
+            />
+            <Animated.View
+              style={{
+                position: 'absolute',
+                width: 220,
+                height: 220,
+                borderRadius: 110,
+                borderWidth: 1,
+                borderColor: 'rgba(99, 102, 241, 0.2)',
+                transform: [{ scale: ringScale2 }],
+                left: -110,
+                top: -110,
+              }}
+            />
+            <Animated.View
+              style={{
+                position: 'absolute',
+                width: 140,
+                height: 140,
+                borderRadius: 70,
+                borderWidth: 1,
+                borderColor: 'rgba(59, 130, 246, 0.25)',
+                transform: [{ scale: ringScale3 }],
+                left: -70,
+                top: -70,
+              }}
+            />
+          </View>
+
+          {/* Floating Orbs */}
+          <View className="absolute top-32 left-8 w-2 h-2 rounded-full bg-purple-500/40" />
+          <View className="absolute top-48 right-12 w-3 h-3 rounded-full bg-blue-500/30" />
+          <View className="absolute bottom-48 left-16 w-2 h-2 rounded-full bg-indigo-500/40" />
+          <View className="absolute bottom-64 right-8 w-1.5 h-1.5 rounded-full bg-violet-500/50" />
+
+          {/* Logo Section */}
           <Animated.View
             style={{
               transform: [{ scale: logoScale }],
-              marginBottom: 24,
+              marginBottom: 32,
             }}
           >
-            <View className="bg-white/10 rounded-3xl p-6 border border-white/20">
-              <CentaurLogo size={160} variant="full" />
-            </View>
+            {/* Glowing backdrop */}
+            <View
+              className="absolute rounded-full"
+              style={{
+                width: 120,
+                height: 120,
+                backgroundColor: 'rgba(139, 92, 246, 0.15)',
+                left: -10,
+                top: -10,
+                shadowColor: '#8b5cf6',
+                shadowOffset: { width: 0, height: 0 },
+                shadowOpacity: 0.5,
+                shadowRadius: 40,
+              }}
+            />
+
+            {/* Main Logo Container */}
+            <Animated.View
+              style={{
+                width: 100,
+                height: 100,
+                borderRadius: 28,
+                backgroundColor: '#1e1b4b',
+                borderWidth: 1,
+                borderColor: 'rgba(139, 92, 246, 0.3)',
+                justifyContent: 'center',
+                alignItems: 'center',
+                transform: [{ rotate: spin }],
+                shadowColor: '#8b5cf6',
+                shadowOffset: { width: 0, height: 4 },
+                shadowOpacity: 0.3,
+                shadowRadius: 20,
+              }}
+            >
+              {/* Inner gradient effect */}
+              <LinearGradient
+                colors={['rgba(139, 92, 246, 0.2)', 'rgba(59, 130, 246, 0.1)', 'transparent']}
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  borderRadius: 27,
+                }}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+              />
+
+              {/* Logo Icon */}
+              <View className="bg-gradient-to-br from-purple-500 to-blue-500">
+                <Animated.View style={{ transform: [{ rotate: spin }] }}>
+                  <Text className="text-4xl font-black text-white">C</Text>
+                </Animated.View>
+              </View>
+            </Animated.View>
           </Animated.View>
 
-          {/* Welcome Text */}
-          <View className="items-center mb-8">
-            <View className="flex-row items-center mb-2">
-              <Sparkles size={20} color="#fbbf24" />
-              <Text className="text-amber-400 text-sm font-bold ml-2 tracking-widest">
+          {/* Brand Text */}
+          <Animated.View
+            style={{
+              transform: [{ translateY: textSlide }],
+              alignItems: 'center',
+              marginBottom: 40,
+            }}
+          >
+            <View className="flex-row items-center mb-3">
+              <View className="w-8 h-px bg-gradient-to-r from-transparent to-purple-500/50" />
+              <Text className="text-purple-400/80 text-xs font-semibold tracking-[0.3em] mx-3">
                 WELCOME TO
               </Text>
-              <Sparkles size={20} color="#fbbf24" />
+              <View className="w-8 h-px bg-gradient-to-l from-transparent to-purple-500/50" />
             </View>
-            <Text className="text-white text-4xl font-black text-center tracking-tight">
-              Centaur OS
+
+            <Text className="text-white text-4xl font-black tracking-tight mb-2">
+              Centaur<Text className="text-purple-400">OS</Text>
             </Text>
-            <Text className="text-slate-400 text-base mt-2 text-center">
+
+            <Text className="text-slate-500 text-sm tracking-wide">
               The Operating System for Lean Startups
             </Text>
-          </View>
+          </Animated.View>
 
           {/* Quote Section */}
           <Animated.View
             style={{
-              transform: [{ translateY: quoteSlide }],
-              opacity: fadeAnim,
+              opacity: quoteOpacity,
               width: '100%',
+              maxWidth: 320,
             }}
           >
-            <View className="bg-white/5 rounded-2xl p-6 border border-white/10">
-              <View className="mb-4">
-                <Text className="text-slate-200 text-lg font-medium text-center leading-7 italic">
-                  "{randomQuote.quote}"
+            <View className="relative">
+              {/* Quote marks */}
+              <Text className="absolute -top-2 -left-1 text-purple-500/20 text-5xl font-serif">"</Text>
+
+              <View className="px-4 py-3">
+                <Text className="text-slate-400 text-base text-center leading-6 font-light">
+                  {randomQuote.quote}
                 </Text>
+                <View className="flex-row items-center justify-center mt-3">
+                  <View className="w-4 h-px bg-slate-700" />
+                  <Text className="text-slate-600 text-xs font-medium mx-2">
+                    {randomQuote.author}
+                  </Text>
+                  <View className="w-4 h-px bg-slate-700" />
+                </View>
               </View>
-              <Text className="text-slate-500 text-sm text-center font-semibold">
-                — {randomQuote.author}
-              </Text>
             </View>
           </Animated.View>
 
-          {/* Loading Indicator */}
-          <View className="mt-10 flex-row items-center gap-3">
-            <Animated.View
-              style={{
-                width: 10,
-                height: 10,
-                borderRadius: 5,
-                backgroundColor: '#8b5cf6',
-                opacity: fadeAnim,
-              }}
-            />
-            <Animated.View
-              style={{
-                width: 10,
-                height: 10,
-                borderRadius: 5,
-                backgroundColor: '#6366f1',
-                opacity: fadeAnim,
-              }}
-            />
-            <Animated.View
-              style={{
-                width: 10,
-                height: 10,
-                borderRadius: 5,
-                backgroundColor: '#3b82f6',
-                opacity: fadeAnim,
-              }}
-            />
+          {/* Loading Bar */}
+          <View className="absolute bottom-16 w-32">
+            <View className="h-0.5 bg-slate-800 rounded-full overflow-hidden">
+              <Animated.View
+                style={{
+                  height: '100%',
+                  backgroundColor: '#8b5cf6',
+                  width: '100%',
+                  opacity: fadeAnim,
+                }}
+              />
+            </View>
+            <View className="flex-row items-center justify-center mt-3">
+              <Zap size={12} color="#8b5cf6" />
+              <Text className="text-slate-600 text-xs ml-1.5">Loading</Text>
+            </View>
           </View>
         </Animated.View>
       </LinearGradient>
