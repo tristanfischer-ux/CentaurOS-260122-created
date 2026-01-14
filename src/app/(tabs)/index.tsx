@@ -106,6 +106,33 @@ export default function HomeScreen() {
     activeAI: (aiAgents || []).filter(a => a.status === 'active').length,
   }), [members, aiAgents]);
 
+  // Calculate OKRs by function
+  const okrsByFunction = useMemo(() => {
+    const functions: BusinessFunction[] = ['Marketing', 'Sales', 'Engineering', 'Ops', 'Finance', 'Admin'];
+    return functions.map(func => {
+      const functionOKRs = okrs.filter(okr => okr.function === func);
+      const avgProgress = functionOKRs.length > 0
+        ? Math.round(functionOKRs.reduce((sum, okr) => {
+            const okrProgress = okr.objectives.reduce((oSum, obj) => oSum + obj.progress, 0) / okr.objectives.length;
+            return sum + okrProgress;
+          }, 0) / functionOKRs.length)
+        : 0;
+
+      // Determine overall status for the function
+      const statuses = functionOKRs.map(okr => okr.status);
+      const status = statuses.includes('off-track') ? 'off-track'
+        : statuses.includes('at-risk') ? 'at-risk'
+        : 'on-track';
+
+      return {
+        function: func,
+        okrs: functionOKRs.length,
+        status,
+        progress: avgProgress,
+      };
+    }).filter(item => item.okrs > 0); // Only show functions with OKRs
+  }, [okrs]);
+
   // Demo data for the dashboard - now using centralized stores
   const FOUNDER_DATA = {
     okrs: okrCounts,
@@ -330,14 +357,7 @@ const APPRENTICE_DATA = {
               </View>
 
               <View className="gap-2">
-                {[
-                  { function: 'Marketing', okrs: 1, status: 'on-track', progress: 65 },
-                  { function: 'Sales', okrs: 1, status: 'on-track', progress: 67 },
-                  { function: 'Engineering', okrs: 2, status: 'at-risk', progress: 58 },
-                  { function: 'Ops', okrs: 1, status: 'on-track', progress: 72 },
-                  { function: 'Finance', okrs: 2, status: 'on-track', progress: 80 },
-                  { function: 'Admin', okrs: 1, status: 'on-track', progress: 75 },
-                ].map((item, idx) => {
+                {okrsByFunction.map((item, idx) => {
                   const functionColor = getFunctionColor(item.function as BusinessFunction);
                   return (
                     <Pressable
