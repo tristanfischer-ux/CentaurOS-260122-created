@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useAppStore } from '../state/app-store';
 import { useSupplierStore } from '../state/supplier-store';
 import { useOrganizationStore } from '../state/organization-store';
+import { useOKRPlannerStore } from '../state/okr-planner-store';
 import { db } from '../storage';
 import { seedDemoData } from '../api/seed';
 import { seedArmoryDemo } from '../armory/seed-demo';
@@ -14,6 +15,7 @@ export function useInitializeApp() {
   const initialize = useAppStore((s) => s.initialize);
   const initializeSuppliers = useSupplierStore((s) => s.initializeSuppliers);
   const initializeOrganization = useOrganizationStore((s) => s.initializeOrganization);
+  const initializePlans = useOKRPlannerStore((s) => s.initializePlans);
   const setWorkspaces = useAppStore((s) => s.setWorkspaces);
   const setMemberships = useAppStore((s) => s.setMemberships);
   const setUsers = useAppStore((s) => s.setUsers);
@@ -40,6 +42,9 @@ export function useInitializeApp() {
 
         // Initialize organization (from seed data)
         initializeOrganization();
+
+        // Initialize OKR Planner store
+        await initializePlans();
 
         // Load all data from storage
         const [

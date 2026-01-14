@@ -1,9 +1,9 @@
 import { View, Text, ScrollView, Pressable, Modal, TextInput, Alert, KeyboardAvoidingView, Platform } from 'react-native';
 import { useState, useEffect, useMemo } from 'react';
-import { Target, Plus, X, ChevronDown, ChevronRight, CheckCircle2, Circle, Clock, Users, DollarSign, Lightbulb, ChevronUp, UserPlus } from 'lucide-react-native';
+import { Target, Plus, X, ChevronDown, ChevronRight, CheckCircle2, Circle, Clock, Users, DollarSign, Lightbulb, ChevronUp, UserPlus, Zap } from 'lucide-react-native';
 import { useCurrentWorkspace, useCurrentMembership } from '@/lib/state/app-store';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import type { Function as BusinessFunction } from '@/types';
 import { useOKRStore, type OKR, type Objective } from '@/lib/state/okr-store';
 import { OKR_CATEGORIES, OKR_SUGGESTIONS, type OKRSuggestion, type OKRCategory } from '@/lib/okr-suggestions';
@@ -26,6 +26,7 @@ interface WorkPlanItem {
 
 export default function DecideScreen() {
   const insets = useSafeAreaInsets();
+  const router = useRouter();
   const currentWorkspace = useCurrentWorkspace();
   const currentMembership = useCurrentMembership();
   const params = useLocalSearchParams<{ function?: string }>();
@@ -490,6 +491,21 @@ export default function DecideScreen() {
                         </View>
                       </View>
                     ))}
+                  </View>
+                )}
+
+                {/* Plan OKR Button */}
+                {isExpanded && (
+                  <View className="mt-3">
+                    <Pressable
+                      onPress={() => router.push(`/okr-planner?okrId=${okr.id}`)}
+                      className="bg-blue-500 rounded-xl py-3 flex-row items-center justify-center gap-2"
+                    >
+                      <Zap size={18} color="#fff" />
+                      <Text className="text-white text-sm font-semibold">
+                        Plan Resources
+                      </Text>
+                    </Pressable>
                   </View>
                 )}
               </View>
