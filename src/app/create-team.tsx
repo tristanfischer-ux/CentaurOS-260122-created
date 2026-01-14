@@ -950,26 +950,26 @@ function CreateSquadModal({
 
   return (
     <Modal visible={visible} transparent animationType="slide" statusBarTranslucent>
-      <View className="flex-1 bg-black/90 justify-end">
-        <View className="bg-slate-900 rounded-t-3xl max-h-[95%]">
-          <View className="px-6 py-5 border-b border-white/10 flex-row items-center justify-between">
+      <View className="flex-1 bg-black/50 dark:bg-black/90 justify-end">
+        <View className="bg-white dark:bg-slate-900 rounded-t-3xl max-h-[95%]">
+          <View className="px-6 py-5 border-b border-gray-200 dark:border-white/10 flex-row items-center justify-between">
             <View>
-              <Text className="text-white text-xl font-black">Create Squad</Text>
-              <Text className="text-white/50 text-xs mt-1">Define purpose, ownership & success criteria</Text>
+              <Text className="text-gray-900 dark:text-white text-xl font-black">Create Squad</Text>
+              <Text className="text-gray-500 dark:text-white/50 text-xs mt-1">Define purpose, ownership & success criteria</Text>
             </View>
-            <Pressable onPress={onClose} className="w-10 h-10 items-center justify-center rounded-full bg-white/10 active:opacity-70">
-              <X size={24} color="white" />
+            <Pressable onPress={onClose} className="w-10 h-10 items-center justify-center rounded-full bg-gray-100 dark:bg-white/10 active:opacity-70">
+              <X size={24} className="text-gray-700 dark:text-white" />
             </Pressable>
           </View>
 
           <ScrollView className="px-6 py-6" showsVerticalScrollIndicator={false}>
             {/* Squad Name */}
             <View className="mb-4">
-              <Text className="text-white font-bold mb-2">Squad Name <Text className="text-red-400">*</Text></Text>
+              <Text className="text-gray-900 dark:text-white font-bold mb-2">Squad Name <Text className="text-red-400 dark:text-red-400">*</Text></Text>
               <TextInput
-                className="bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white"
+                className="bg-gray-100 dark:bg-white/10 border border-gray-300 dark:border-white/20 rounded-xl px-4 py-3 text-gray-900 dark:text-white"
                 placeholder="Engineering Team Alpha"
-                placeholderTextColor="rgba(255,255,255,0.4)"
+                placeholderTextColor="rgba(156,163,175,0.6)"
                 value={name}
                 onChangeText={setName}
               />
@@ -979,28 +979,28 @@ function CreateSquadModal({
             <View className="mb-4">
               <View className="flex-row items-center mb-2">
                 <Target size={16} color="#8b5cf6" />
-                <Text className="text-white font-bold ml-2">Squad Purpose</Text>
+                <Text className="text-gray-900 dark:text-white font-bold ml-2">Squad Purpose</Text>
               </View>
               <TextInput
-                className="bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white min-h-[80px]"
+                className="bg-gray-100 dark:bg-white/10 border border-gray-300 dark:border-white/20 rounded-xl px-4 py-3 text-gray-900 dark:text-white min-h-[80px]"
                 placeholder="What is this squad responsible for? What outcomes will they drive?"
-                placeholderTextColor="rgba(255,255,255,0.4)"
+                placeholderTextColor="rgba(156,163,175,0.6)"
                 value={purpose}
                 onChangeText={setPurpose}
                 multiline
                 textAlignVertical="top"
               />
-              <Text className="text-white/40 text-xs mt-1">A clear purpose increases squad effectiveness by 40% (BCG research)</Text>
+              <Text className="text-gray-500 dark:text-white/40 text-xs mt-1">A clear purpose increases squad effectiveness by 40% (BCG research)</Text>
             </View>
 
             {/* OKR Alignment */}
             <View className="mb-4">
               <View className="flex-row items-center mb-2">
                 <ChevronRight size={16} color="#10b981" />
-                <Text className="text-white font-bold ml-2">Link to OKR</Text>
+                <Text className="text-gray-900 dark:text-white font-bold ml-2">Link to OKR</Text>
               </View>
               <View className="bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-3 mb-2">
-                <Text className="text-emerald-300 text-xs">Squads linked to OKRs are 2.3x more likely to hit targets</Text>
+                <Text className="text-emerald-700 dark:text-emerald-300 text-xs">Squads linked to OKRs are 2.3x more likely to hit targets</Text>
               </View>
               <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ flexGrow: 0 }}>
                 <View className="flex-row gap-2">
@@ -1010,10 +1010,10 @@ function CreateSquadModal({
                       onPress={() => setLinkedOKR(linkedOKR === okr ? '' : okr)}
                       className={cn(
                         'px-3 py-2 rounded-xl border',
-                        linkedOKR === okr ? 'bg-emerald-500 border-emerald-500' : 'bg-white/5 border-white/20'
+                        linkedOKR === okr ? 'bg-emerald-500 border-emerald-500' : 'bg-gray-200 dark:bg-white/5 border-gray-300 dark:border-white/20'
                       )}
                     >
-                      <Text className={cn('text-sm', linkedOKR === okr ? 'text-white font-bold' : 'text-white/60')} numberOfLines={1}>
+                      <Text className={cn('text-sm', linkedOKR === okr ? 'text-white font-bold' : 'text-gray-500 dark:text-white/60')} numberOfLines={1}>
                         {okr}
                       </Text>
                     </Pressable>
@@ -1024,7 +1024,7 @@ function CreateSquadModal({
 
             {/* Function */}
             <View className="mb-4">
-              <Text className="text-white font-bold mb-2">Function <Text className="text-red-400">*</Text></Text>
+              <Text className="text-gray-900 dark:text-white font-bold mb-2">Function <Text className="text-red-400">*</Text></Text>
               <View className="flex-row flex-wrap gap-2">
                 {['Engineering', 'Sales', 'Marketing', 'Finance', 'Ops'].map((func) => (
                   <Pressable
@@ -1035,10 +1035,10 @@ function CreateSquadModal({
                     }}
                     className={cn(
                       'px-4 py-2 rounded-xl border',
-                      selectedFunction === func ? 'bg-violet-500 border-violet-500' : 'bg-white/5 border-white/20'
+                      selectedFunction === func ? 'bg-violet-500 border-violet-500' : 'bg-gray-200 dark:bg-white/5 border-gray-300 dark:border-white/20'
                     )}
                   >
-                    <Text className={cn('font-bold', selectedFunction === func ? 'text-white' : 'text-white/60')}>
+                    <Text className={cn('font-bold', selectedFunction === func ? 'text-white' : 'text-gray-600 dark:text-white/60')}>
                       {func}
                     </Text>
                   </Pressable>
@@ -1050,9 +1050,9 @@ function CreateSquadModal({
             <View className="mb-4">
               <View className="flex-row items-center mb-2">
                 <BarChart3 size={16} color="#f59e0b" />
-                <Text className="text-white font-bold ml-2">Success Metrics</Text>
+                <Text className="text-gray-900 dark:text-white font-bold ml-2">Success Metrics</Text>
               </View>
-              <Text className="text-white/50 text-xs mb-2">Select 2-4 metrics to track squad performance</Text>
+              <Text className="text-gray-500 dark:text-white/50 text-xs mb-2">Select 2-4 metrics to track squad performance</Text>
               <View className="flex-row flex-wrap gap-2">
                 {suggestedMetrics[selectedFunction]?.map((metric) => (
                   <Pressable
@@ -1060,17 +1060,17 @@ function CreateSquadModal({
                     onPress={() => toggleMetric(metric)}
                     className={cn(
                       'px-3 py-2 rounded-xl border',
-                      successMetrics.includes(metric) ? 'bg-amber-500 border-amber-500' : 'bg-white/5 border-white/20'
+                      successMetrics.includes(metric) ? 'bg-amber-500 border-amber-500' : 'bg-gray-200 dark:bg-white/5 border-gray-300 dark:border-white/20'
                     )}
                   >
-                    <Text className={cn('text-sm', successMetrics.includes(metric) ? 'text-white font-bold' : 'text-white/60')}>
+                    <Text className={cn('text-sm', successMetrics.includes(metric) ? 'text-white font-bold' : 'text-gray-600 dark:text-white/60')}>
                       {metric}
                     </Text>
                   </Pressable>
                 ))}
               </View>
               {successMetrics.length > 0 && (
-                <Text className="text-amber-400 text-xs mt-2">{successMetrics.length} metric{successMetrics.length > 1 ? 's' : ''} selected</Text>
+                <Text className="text-amber-600 dark:text-amber-400 text-xs mt-2">{successMetrics.length} metric{successMetrics.length > 1 ? 's' : ''} selected</Text>
               )}
             </View>
 
@@ -1078,7 +1078,7 @@ function CreateSquadModal({
             <View className="mb-4">
               <View className="flex-row items-center mb-2">
                 <Users size={16} color="#3b82f6" />
-                <Text className="text-white font-bold ml-2">Target Team Size</Text>
+                <Text className="text-gray-900 dark:text-white font-bold ml-2">Target Team Size</Text>
               </View>
               <View className="flex-row gap-2">
                 {['2', '3', '4', '5', '6+'].map((size) => (
@@ -1087,24 +1087,24 @@ function CreateSquadModal({
                     onPress={() => setTargetCapacity(size.replace('+', ''))}
                     className={cn(
                       'flex-1 py-3 rounded-xl border items-center',
-                      targetCapacity === size.replace('+', '') ? 'bg-blue-500 border-blue-500' : 'bg-white/5 border-white/20'
+                      targetCapacity === size.replace('+', '') ? 'bg-blue-500 border-blue-500' : 'bg-gray-200 dark:bg-white/5 border-gray-300 dark:border-white/20'
                     )}
                   >
-                    <Text className={cn('font-bold', targetCapacity === size.replace('+', '') ? 'text-white' : 'text-white/60')}>
+                    <Text className={cn('font-bold', targetCapacity === size.replace('+', '') ? 'text-white' : 'text-gray-600 dark:text-white/60')}>
                       {size}
                     </Text>
                   </Pressable>
                 ))}
               </View>
-              <Text className="text-white/40 text-xs mt-1">Optimal squad size is 3-5 members (Amazon two-pizza rule)</Text>
+              <Text className="text-gray-500 dark:text-white/40 text-xs mt-1">Optimal squad size is 3-5 members (Amazon two-pizza rule)</Text>
             </View>
 
             {/* Select Leader */}
             <View className="mb-6">
-              <Text className="text-white font-bold mb-2">Select Leader (Executive) <Text className="text-red-400">*</Text></Text>
+              <Text className="text-gray-900 dark:text-white font-bold mb-2">Select Leader (Executive) <Text className="text-red-400">*</Text></Text>
               {execs.length === 0 ? (
                 <View className="bg-red-500/10 border border-red-500/30 rounded-xl p-4">
-                  <Text className="text-red-300 text-sm">No executives available. Add executives to your team first.</Text>
+                  <Text className="text-red-600 dark:text-red-300 text-sm">No executives available. Add executives to your team first.</Text>
                 </View>
               ) : (
                 execs.map((exec) => (
@@ -1112,14 +1112,14 @@ function CreateSquadModal({
                     key={exec.id}
                     onPress={() => setSelectedLeader(exec.id)}
                     className={cn(
-                      'bg-white/5 border rounded-xl p-4 mb-2',
-                      selectedLeader === exec.id ? 'border-violet-500 bg-violet-500/10' : 'border-white/10'
+                      'border rounded-xl p-4 mb-2',
+                      selectedLeader === exec.id ? 'border-violet-500 bg-violet-500/10' : 'bg-gray-100 dark:bg-white/5 border-gray-300 dark:border-white/10'
                     )}
                   >
                     <View className="flex-row items-center justify-between">
                       <View>
-                        <Text className="text-white font-bold">{exec.name}</Text>
-                        <Text className="text-white/60 text-sm">{exec.function}</Text>
+                        <Text className="text-gray-900 dark:text-white font-bold">{exec.name}</Text>
+                        <Text className="text-gray-600 dark:text-white/60 text-sm">{exec.function}</Text>
                       </View>
                       {selectedLeader === exec.id && (
                         <View className="bg-violet-500 px-2 py-1 rounded-lg">
@@ -1134,27 +1134,27 @@ function CreateSquadModal({
 
             {/* Summary Card */}
             {name.trim() && selectedLeader && (
-              <View className="bg-white/5 border border-white/10 rounded-xl p-4 mb-4">
-                <Text className="text-white font-bold mb-2">Squad Summary</Text>
+              <View className="bg-gray-100 dark:bg-white/5 border border-gray-300 dark:border-white/10 rounded-xl p-4 mb-4">
+                <Text className="text-gray-900 dark:text-white font-bold mb-2">Squad Summary</Text>
                 <View className="flex-row justify-between mb-1">
-                  <Text className="text-white/60 text-sm">Name:</Text>
-                  <Text className="text-white font-medium text-sm">{name}</Text>
+                  <Text className="text-gray-600 dark:text-white/60 text-sm">Name:</Text>
+                  <Text className="text-gray-900 dark:text-white font-medium text-sm">{name}</Text>
                 </View>
                 <View className="flex-row justify-between mb-1">
-                  <Text className="text-white/60 text-sm">Function:</Text>
-                  <Text className="text-white font-medium text-sm">{selectedFunction}</Text>
+                  <Text className="text-gray-600 dark:text-white/60 text-sm">Function:</Text>
+                  <Text className="text-gray-900 dark:text-white font-medium text-sm">{selectedFunction}</Text>
                 </View>
                 <View className="flex-row justify-between mb-1">
-                  <Text className="text-white/60 text-sm">OKR Linked:</Text>
-                  <Text className="text-white font-medium text-sm" numberOfLines={1}>{linkedOKR || 'None'}</Text>
+                  <Text className="text-gray-600 dark:text-white/60 text-sm">OKR Linked:</Text>
+                  <Text className="text-gray-900 dark:text-white font-medium text-sm" numberOfLines={1}>{linkedOKR || 'None'}</Text>
                 </View>
                 <View className="flex-row justify-between mb-1">
-                  <Text className="text-white/60 text-sm">Success Metrics:</Text>
-                  <Text className="text-white font-medium text-sm">{successMetrics.length} defined</Text>
+                  <Text className="text-gray-600 dark:text-white/60 text-sm">Success Metrics:</Text>
+                  <Text className="text-gray-900 dark:text-white font-medium text-sm">{successMetrics.length} defined</Text>
                 </View>
                 <View className="flex-row justify-between">
-                  <Text className="text-white/60 text-sm">Target Size:</Text>
-                  <Text className="text-white font-medium text-sm">{targetCapacity} members</Text>
+                  <Text className="text-gray-600 dark:text-white/60 text-sm">Target Size:</Text>
+                  <Text className="text-gray-900 dark:text-white font-medium text-sm">{targetCapacity} members</Text>
                 </View>
               </View>
             )}
@@ -1165,10 +1165,10 @@ function CreateSquadModal({
               disabled={!name.trim() || !selectedLeader}
               className={cn(
                 'rounded-2xl py-4 items-center',
-                name.trim() && selectedLeader ? 'bg-violet-500' : 'bg-white/10'
+                name.trim() && selectedLeader ? 'bg-violet-500' : 'bg-gray-200 dark:bg-white/10'
               )}
             >
-              <Text className={cn('font-black', name.trim() && selectedLeader ? 'text-white' : 'text-white/40')}>
+              <Text className={cn('font-black', name.trim() && selectedLeader ? 'text-white' : 'text-gray-400 dark:text-white/40')}>
                 Create Squad
               </Text>
             </Pressable>
@@ -1211,41 +1211,41 @@ function AddMemberToSquadModal({
 
   return (
     <Modal visible={visible} transparent animationType="slide" statusBarTranslucent>
-      <View className="flex-1 bg-black/90 justify-end">
-        <View className="bg-slate-900 rounded-t-3xl max-h-[70%]">
-          <View className="px-6 py-5 border-b border-white/10 flex-row items-center justify-between">
-            <Text className="text-white text-xl font-black">Add to {squad.name}</Text>
-            <Pressable onPress={onClose} className="w-10 h-10 items-center justify-center rounded-full bg-white/10 active:opacity-70">
-              <X size={24} color="white" />
+      <View className="flex-1 bg-black/50 dark:bg-black/90 justify-end">
+        <View className="bg-white dark:bg-slate-900 rounded-t-3xl max-h-[70%]">
+          <View className="px-6 py-5 border-b border-gray-200 dark:border-white/10 flex-row items-center justify-between">
+            <Text className="text-gray-900 dark:text-white text-xl font-black">Add to {squad.name}</Text>
+            <Pressable onPress={onClose} className="w-10 h-10 items-center justify-center rounded-full bg-gray-100 dark:bg-white/10 active:opacity-70">
+              <X size={24} className="text-gray-700 dark:text-white" />
             </Pressable>
           </View>
 
           <ScrollView className="px-6 py-6" showsVerticalScrollIndicator={false}>
             {availableMembers.length === 0 ? (
               <View className="py-12 items-center">
-                <Users size={48} color="rgba(255,255,255,0.2)" />
-                <Text className="text-white/40 text-center mt-4">
+                <Users size={48} color="rgba(156,163,175,0.4)" />
+                <Text className="text-gray-500 dark:text-white/40 text-center mt-4">
                   No available apprentices to add
                 </Text>
               </View>
             ) : (
               <>
-                <Text className="text-white/60 text-sm mb-4">
+                <Text className="text-gray-600 dark:text-white/60 text-sm mb-4">
                   Select an apprentice to add to the squad:
                 </Text>
                 {availableMembers.map((member) => (
                   <Pressable
                     key={member.id}
                     onPress={() => handleAdd(member.id)}
-                    className="bg-white/5 border border-white/10 rounded-xl p-4 mb-3 active:bg-white/10"
+                    className="bg-gray-100 dark:bg-white/5 border border-gray-300 dark:border-white/10 rounded-xl p-4 mb-3 active:opacity-70"
                   >
                     <View className="flex-row items-center justify-between">
                       <View className="flex-1">
-                        <Text className="text-white font-bold text-base">{member.name}</Text>
-                        <Text className="text-white/60 text-sm mt-1">{member.function}</Text>
+                        <Text className="text-gray-900 dark:text-white font-bold text-base">{member.name}</Text>
+                        <Text className="text-gray-600 dark:text-white/60 text-sm mt-1">{member.function}</Text>
                       </View>
                       <View className="bg-emerald-500/20 px-3 py-1 rounded-lg">
-                        <Text className="text-emerald-300 text-xs font-bold">{member.role}</Text>
+                        <Text className="text-emerald-700 dark:text-emerald-300 text-xs font-bold">{member.role}</Text>
                       </View>
                     </View>
                   </Pressable>
@@ -1723,18 +1723,18 @@ function PersonDetailModal({
 
         {/* Confirm Remove Modal */}
         <Modal visible={showConfirmRemove} transparent animationType="fade" onRequestClose={() => setShowConfirmRemove(false)}>
-          <View className="flex-1 bg-black/80 justify-center items-center px-6">
-            <View className="bg-slate-900 rounded-2xl p-6 w-full max-w-sm">
-              <Text className="text-white text-xl font-black mb-3">Remove {person.name}?</Text>
-              <Text className="text-white/60 text-sm mb-6">
+          <View className="flex-1 bg-black/50 dark:bg-black/80 justify-center items-center px-6">
+            <View className="bg-white dark:bg-slate-900 rounded-2xl p-6 w-full max-w-sm">
+              <Text className="text-gray-900 dark:text-white text-xl font-black mb-3">Remove {person.name}?</Text>
+              <Text className="text-gray-600 dark:text-white/60 text-sm mb-6">
                 This will mark them as inactive. They won't be deleted and can be reactivated later.
               </Text>
               <View className="flex-row gap-3">
                 <Pressable
                   onPress={() => setShowConfirmRemove(false)}
-                  className="flex-1 bg-white/10 rounded-xl py-3 items-center active:opacity-70"
+                  className="flex-1 bg-gray-200 dark:bg-white/10 rounded-xl py-3 items-center active:opacity-70"
                 >
-                  <Text className="text-white font-bold">Cancel</Text>
+                  <Text className="text-gray-700 dark:text-white font-bold">Cancel</Text>
                 </Pressable>
                 <Pressable
                   onPress={handleRemove}
