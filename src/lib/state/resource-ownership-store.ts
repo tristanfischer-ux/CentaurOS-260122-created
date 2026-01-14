@@ -196,7 +196,7 @@ export const initializeDemoOwnerships = (workspaceId: string) => {
   // Don't reinitialize if we already have data for this workspace
   if (store.ownerships.some(own => own.workspaceId === workspaceId)) return;
 
-  // Sample AI Tools with owners
+  // Sample AI Tools with owners (including apprentices)
   const aiTools = [
     {
       resourceId: 'ai-chatgpt',
@@ -219,9 +219,16 @@ export const initializeDemoOwnerships = (workspaceId: string) => {
       ownerName: 'Priya Sharma',
       ownerRole: 'FractionalExec' as const,
     },
+    {
+      resourceId: 'ai-google-vertex',
+      resourceName: 'Google Vertex AI',
+      ownerId: 'apprentice-1',
+      ownerName: 'Alex Thompson',
+      ownerRole: 'Apprentice' as const,
+    },
   ];
 
-  // Sample Suppliers with owners
+  // Sample Suppliers with owners (including apprentices)
   const suppliers = [
     {
       resourceId: 'supplier-aws',
@@ -236,6 +243,13 @@ export const initializeDemoOwnerships = (workspaceId: string) => {
       ownerId: 'exec-2',
       ownerName: 'Mike Chen',
       ownerRole: 'FractionalExec' as const,
+    },
+    {
+      resourceId: 'supplier-notion',
+      resourceName: 'Notion',
+      ownerId: 'apprentice-2',
+      ownerName: 'Jordan Lee',
+      ownerRole: 'Apprentice' as const,
     },
   ];
 
