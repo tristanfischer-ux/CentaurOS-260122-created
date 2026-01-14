@@ -40,6 +40,7 @@ interface OrganizationState {
   getEngagementById: (id: string) => SupplierEngagement | undefined;
   getEngagementsByStatus: (status: SupplierEngagement['status']) => SupplierEngagement[];
   getEngagementsByAssignee: (assignedTo: string) => SupplierEngagement[];
+  updateSupplierEngagement: (id: string, updates: Partial<SupplierEngagement>) => void;
 
   // Calculated metrics
   getTotalAISpend: () => number;
@@ -126,6 +127,14 @@ export const useOrganizationStore = create<OrganizationState>((set, get) => ({
 
   getEngagementsByAssignee: (assignedTo: string) => {
     return get().supplierEngagements.filter(e => e.assignedTo === assignedTo);
+  },
+
+  updateSupplierEngagement: (id: string, updates: Partial<SupplierEngagement>) => {
+    set((state) => ({
+      supplierEngagements: state.supplierEngagements.map(e =>
+        e.id === id ? { ...e, ...updates } : e
+      )
+    }));
   },
 
   // Calculated metrics

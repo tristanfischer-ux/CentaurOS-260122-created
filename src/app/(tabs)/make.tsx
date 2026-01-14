@@ -75,6 +75,7 @@ export default function MakeScreen() {
   const members = useOrganizationStore((s) => s.members);
   const getTotalAISpend = useOrganizationStore((s) => s.getTotalAISpend);
   const getTotalSupplierSpend = useOrganizationStore((s) => s.getTotalSupplierSpend);
+  const updateSupplierEngagement = useOrganizationStore((s) => s.updateSupplierEngagement);
 
   // Ownership store
   const getOwnershipsForUser = useResourceOwnershipStore(s => s.getOwnershipsForUser);
@@ -101,6 +102,7 @@ export default function MakeScreen() {
   const [selectedAI, setSelectedAI] = useState<AIAgent | null>(null);
   const [selectedOwnership, setSelectedOwnership] = useState<ResourceOwnership | null>(null);
   const [showApprovalHistory, setShowApprovalHistory] = useState(false);
+  const [showPersonPicker, setShowPersonPicker] = useState(false);
 
   // All roles can view this tab (Founder, FractionalExec, Apprentice)
   const canView = true; // Everyone has access now
@@ -734,6 +736,80 @@ export default function MakeScreen() {
                     </View>
                   </View>
 
+                  {/* Assigned Person Section */}
+                  <View className="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-xl p-4 mb-4">
+                    <View className="flex-row items-center justify-between mb-3">
+                      <View className="flex-row items-center">
+                        <User size={18} color="#8b5cf6" />
+                        <Text className="text-purple-900 dark:text-purple-100 font-bold ml-2">Assigned Owner</Text>
+                      </View>
+                      <Pressable
+                        onPress={() => setShowPersonPicker(true)}
+                        className="bg-purple-500 px-3 py-1.5 rounded-lg active:opacity-70"
+                      >
+                        <Text className="text-white text-xs font-bold">Change</Text>
+                      </Pressable>
+                    </View>
+                    {(() => {
+                      const assignedMember = members.find(m => m.id === selectedSupplier.assignedTo || m.name === selectedSupplier.assignedTo);
+                      if (assignedMember) {
+                        return (
+                          <View className="flex-row items-center bg-white dark:bg-slate-800 rounded-lg p-3">
+                            <View
+                              className="w-10 h-10 rounded-full items-center justify-center mr-3"
+                              style={{
+                                backgroundColor:
+                                  assignedMember.role === 'Founder' ? '#8b5cf6' :
+                                  assignedMember.role === 'FractionalExec' ? '#3b82f6' : '#10b981'
+                              }}
+                            >
+                              <Text className="text-white font-bold text-sm">
+                                {assignedMember.name.split(' ').map(n => n[0]).join('')}
+                              </Text>
+                            </View>
+                            <View className="flex-1">
+                              <Text className="text-gray-900 dark:text-white font-semibold">{assignedMember.name}</Text>
+                              <View className="flex-row items-center gap-2 mt-0.5">
+                                <View
+                                  className="px-1.5 py-0.5 rounded"
+                                  style={{
+                                    backgroundColor:
+                                      assignedMember.role === 'Founder' ? '#8b5cf620' :
+                                      assignedMember.role === 'FractionalExec' ? '#3b82f620' : '#10b98120'
+                                  }}
+                                >
+                                  <Text
+                                    className="text-[10px] font-semibold"
+                                    style={{
+                                      color:
+                                        assignedMember.role === 'Founder' ? '#8b5cf6' :
+                                        assignedMember.role === 'FractionalExec' ? '#3b82f6' : '#10b981'
+                                    }}
+                                  >
+                                    {assignedMember.role === 'FractionalExec' ? 'Executive' : assignedMember.role}
+                                  </Text>
+                                </View>
+                                <Text className="text-gray-500 dark:text-slate-400 text-xs">{assignedMember.function}</Text>
+                              </View>
+                            </View>
+                          </View>
+                        );
+                      } else {
+                        return (
+                          <Pressable
+                            onPress={() => setShowPersonPicker(true)}
+                            className="flex-row items-center justify-center bg-white dark:bg-slate-800 rounded-lg p-4 border-2 border-dashed border-purple-300 dark:border-purple-700"
+                          >
+                            <User size={20} color="#8b5cf6" />
+                            <Text className="text-purple-600 dark:text-purple-400 font-semibold ml-2">
+                              Assign someone to this engagement
+                            </Text>
+                          </Pressable>
+                        );
+                      }
+                    })()}
+                  </View>
+
                   {/* Notes */}
                   {selectedSupplier.notes && (
                     <View className="mb-4">
@@ -942,6 +1018,168 @@ export default function MakeScreen() {
             </View>
           )}
         </View>
+      </Modal>
+
+      {/* Person Picker Modal */}
+      <Modal
+        visible={showPersonPicker && selectedSupplier !== null}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setShowPersonPicker(false)}
+      >
+        <Pressable
+          className="flex-1 bg-black/70 justify-end"
+          onPress={() => setShowPersonPicker(false)}
+        >
+          <Pressable onPress={(e) => e.stopPropagation()}>
+            <View className="bg-white dark:bg-slate-900 rounded-t-3xl" style={{ maxHeight: '70%' }}>
+              {/* Header */}
+              <View className="px-6 pt-6 pb-4 border-b border-gray-200 dark:border-slate-800">
+                <View className="flex-row items-center justify-between">
+                  <Text className="text-gray-900 dark:text-white text-xl font-bold">Assign Person</Text>
+                  <Pressable
+                    onPress={() => setShowPersonPicker(false)}
+                    className="w-10 h-10 items-center justify-center rounded-full bg-gray-100 dark:bg-slate-800 active:opacity-70"
+                  >
+                    <X size={24} color="#64748b" />
+                  </Pressable>
+                </View>
+                <Text className="text-gray-500 dark:text-slate-400 text-sm mt-1">
+                  Select a team member to own this engagement
+                </Text>
+              </View>
+
+              {/* Person List */}
+              <ScrollView className="px-6 py-4">
+                {/* Founders */}
+                {members.filter(m => m.role === 'Founder' && m.status === 'active').length > 0 && (
+                  <View className="mb-4">
+                    <Text className="text-purple-600 dark:text-purple-400 text-xs font-bold mb-2">FOUNDERS</Text>
+                    {members.filter(m => m.role === 'Founder' && m.status === 'active').map(member => (
+                      <Pressable
+                        key={member.id}
+                        onPress={() => {
+                          if (selectedSupplier) {
+                            updateSupplierEngagement(selectedSupplier.id, { assignedTo: member.id });
+                            setSelectedSupplier({ ...selectedSupplier, assignedTo: member.id });
+                            setShowPersonPicker(false);
+                          }
+                        }}
+                        className={`flex-row items-center p-3 rounded-xl mb-2 ${
+                          selectedSupplier?.assignedTo === member.id || selectedSupplier?.assignedTo === member.name
+                            ? 'bg-purple-100 dark:bg-purple-900/30 border-2 border-purple-500'
+                            : 'bg-gray-50 dark:bg-slate-800'
+                        } active:opacity-70`}
+                      >
+                        <View className="w-10 h-10 rounded-full items-center justify-center mr-3 bg-purple-500">
+                          <Text className="text-white font-bold text-sm">
+                            {member.name.split(' ').map(n => n[0]).join('')}
+                          </Text>
+                        </View>
+                        <View className="flex-1">
+                          <Text className="text-gray-900 dark:text-white font-semibold">{member.name}</Text>
+                          <Text className="text-gray-500 dark:text-slate-400 text-xs">{member.function}</Text>
+                        </View>
+                        {(selectedSupplier?.assignedTo === member.id || selectedSupplier?.assignedTo === member.name) && (
+                          <CheckCircle2 size={20} color="#8b5cf6" />
+                        )}
+                      </Pressable>
+                    ))}
+                  </View>
+                )}
+
+                {/* Executives */}
+                {members.filter(m => m.role === 'FractionalExec' && m.status === 'active').length > 0 && (
+                  <View className="mb-4">
+                    <Text className="text-blue-600 dark:text-blue-400 text-xs font-bold mb-2">EXECUTIVES</Text>
+                    {members.filter(m => m.role === 'FractionalExec' && m.status === 'active').map(member => (
+                      <Pressable
+                        key={member.id}
+                        onPress={() => {
+                          if (selectedSupplier) {
+                            updateSupplierEngagement(selectedSupplier.id, { assignedTo: member.id });
+                            setSelectedSupplier({ ...selectedSupplier, assignedTo: member.id });
+                            setShowPersonPicker(false);
+                          }
+                        }}
+                        className={`flex-row items-center p-3 rounded-xl mb-2 ${
+                          selectedSupplier?.assignedTo === member.id || selectedSupplier?.assignedTo === member.name
+                            ? 'bg-blue-100 dark:bg-blue-900/30 border-2 border-blue-500'
+                            : 'bg-gray-50 dark:bg-slate-800'
+                        } active:opacity-70`}
+                      >
+                        <View className="w-10 h-10 rounded-full items-center justify-center mr-3 bg-blue-500">
+                          <Text className="text-white font-bold text-sm">
+                            {member.name.split(' ').map(n => n[0]).join('')}
+                          </Text>
+                        </View>
+                        <View className="flex-1">
+                          <Text className="text-gray-900 dark:text-white font-semibold">{member.name}</Text>
+                          <Text className="text-gray-500 dark:text-slate-400 text-xs">{member.function}</Text>
+                        </View>
+                        {(selectedSupplier?.assignedTo === member.id || selectedSupplier?.assignedTo === member.name) && (
+                          <CheckCircle2 size={20} color="#3b82f6" />
+                        )}
+                      </Pressable>
+                    ))}
+                  </View>
+                )}
+
+                {/* Apprentices */}
+                {members.filter(m => m.role === 'Apprentice' && m.status === 'active').length > 0 && (
+                  <View className="mb-4">
+                    <Text className="text-emerald-600 dark:text-emerald-400 text-xs font-bold mb-2">APPRENTICES</Text>
+                    {members.filter(m => m.role === 'Apprentice' && m.status === 'active').map(member => (
+                      <Pressable
+                        key={member.id}
+                        onPress={() => {
+                          if (selectedSupplier) {
+                            updateSupplierEngagement(selectedSupplier.id, { assignedTo: member.id });
+                            setSelectedSupplier({ ...selectedSupplier, assignedTo: member.id });
+                            setShowPersonPicker(false);
+                          }
+                        }}
+                        className={`flex-row items-center p-3 rounded-xl mb-2 ${
+                          selectedSupplier?.assignedTo === member.id || selectedSupplier?.assignedTo === member.name
+                            ? 'bg-emerald-100 dark:bg-emerald-900/30 border-2 border-emerald-500'
+                            : 'bg-gray-50 dark:bg-slate-800'
+                        } active:opacity-70`}
+                      >
+                        <View className="w-10 h-10 rounded-full items-center justify-center mr-3 bg-emerald-500">
+                          <Text className="text-white font-bold text-sm">
+                            {member.name.split(' ').map(n => n[0]).join('')}
+                          </Text>
+                        </View>
+                        <View className="flex-1">
+                          <Text className="text-gray-900 dark:text-white font-semibold">{member.name}</Text>
+                          <Text className="text-gray-500 dark:text-slate-400 text-xs">{member.function}</Text>
+                        </View>
+                        {(selectedSupplier?.assignedTo === member.id || selectedSupplier?.assignedTo === member.name) && (
+                          <CheckCircle2 size={20} color="#10b981" />
+                        )}
+                      </Pressable>
+                    ))}
+                  </View>
+                )}
+
+                {/* Clear Assignment */}
+                <Pressable
+                  onPress={() => {
+                    if (selectedSupplier) {
+                      updateSupplierEngagement(selectedSupplier.id, { assignedTo: '' });
+                      setSelectedSupplier({ ...selectedSupplier, assignedTo: '' });
+                      setShowPersonPicker(false);
+                    }
+                  }}
+                  className="flex-row items-center justify-center p-3 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 mb-6 active:opacity-70"
+                >
+                  <X size={16} color="#ef4444" />
+                  <Text className="text-red-600 dark:text-red-400 font-semibold ml-2">Remove Assignment</Text>
+                </Pressable>
+              </ScrollView>
+            </View>
+          </Pressable>
+        </Pressable>
       </Modal>
     </View>
   );
