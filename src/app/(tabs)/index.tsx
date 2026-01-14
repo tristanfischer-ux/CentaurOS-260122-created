@@ -29,6 +29,7 @@ import {
   MessageSquare,
   HelpCircle,
   Activity,
+  Trophy,
 } from 'lucide-react-native';
 import { useCurrentWorkspace, useCurrentMembership, useCurrentUser } from '@/lib/state/app-store';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -1008,6 +1009,15 @@ export default function HomeScreen() {
                 </Pressable>
               </View>
               <View className="flex-row gap-2">
+                <Pressable
+                  onPress={() => router.push('/leaderboard')}
+                  className="flex-1 bg-yellow-500 rounded-xl p-3 active:opacity-70"
+                >
+                  <View className="flex-row items-center justify-center">
+                    <Trophy size={18} color="#fff" />
+                    <Text className="text-white font-bold text-sm ml-1.5">Rankings</Text>
+                  </View>
+                </Pressable>
                 <Pressable
                   onPress={() => router.push('/calendar')}
                   className="flex-1 bg-amber-500 rounded-xl p-3 active:opacity-70"

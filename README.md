@@ -54,8 +54,59 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
 
 ## 🚨 PRODUCTION READINESS STATUS
 
-**Last Updated**: 2026-01-14 (**COMPANY AIM SYSTEM** - Founders can define their company's high-level macro aim (ultimate purpose) and see it throughout the app to ensure all activities align with the company's true goal)
+**Last Updated**: 2026-01-14 (**COMPETITIVE LEADERBOARDS** - Companies can now see how they rank against other startups on key metrics: time to market, revenue velocity, capital efficiency, and team efficiency)
 **Status**: ✅ **READY FOR APP STORE** - All features complete!
+
+---
+
+## 🏆 COMPETITIVE LEADERBOARDS
+
+**Latest Update**: 2026-01-14
+
+### Gamified Benchmarking
+See how your startup compares to others using the platform across four critical metrics. This creates healthy competition and provides valuable benchmarking data.
+
+### Four Key Metrics
+1. **Time to Market** ⏱️
+   - Days from founding to product launch
+   - Lower is better (faster to market)
+   - Shows execution speed and lean approach
+
+2. **Revenue Velocity** 📈
+   - £ revenue per day since founding
+   - Higher is better
+   - Indicates growth momentum and traction
+
+3. **Capital Efficiency** ⚡
+   - £ revenue / £ capital spent
+   - Higher is better (more revenue per pound spent)
+   - Shows how well you use resources
+
+4. **Team Efficiency** 👥
+   - £ revenue per team member
+   - Higher is better
+   - Demonstrates productivity and lean operations
+
+### Features
+- **Live Rankings**: See top companies ranked by selected metric
+- **Your Position**: Highlighted card showing your rank and score
+- **Company Details**: Revenue, team size, and launch day for each company
+- **Rank Badges**: Gold (1st), Silver (2nd), Bronze (3rd) medals
+- **Metric Selector**: Tap any metric to view different leaderboards
+- **Industry Tags**: See what industry each company operates in
+
+### Access
+- **Quick Actions**: Yellow "Rankings" button in Founder Home tab
+- **Direct Link**: `/leaderboard` route
+
+### Demo Data
+Includes 8 example companies across different industries (SaaS, Hardware, E-commerce, etc.) to show realistic competitive landscape.
+
+### Purpose
+- **Motivation**: See what's possible and aim higher
+- **Validation**: Understand if you're on track compared to peers
+- **Learning**: Identify which metrics you should focus on improving
+- **Accountability**: Public rankings encourage better performance
 
 ---
 
