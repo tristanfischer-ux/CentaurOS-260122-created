@@ -6,6 +6,7 @@ import {
   Briefcase,
   TrendingUp,
   AlertCircle,
+  AlertTriangle,
   CheckCircle2,
   Clock,
   Bot,
@@ -16,6 +17,10 @@ import {
   Award,
   Sparkles,
   Building2,
+  PlayCircle,
+  Plus,
+  DollarSign,
+  TrendingDown,
 } from 'lucide-react-native';
 import { useCurrentWorkspace, useCurrentMembership, useCurrentUser } from '@/lib/state/app-store';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -144,6 +149,23 @@ export default function HomeScreen() {
     }).filter(item => item.okrs > 0); // Only show functions with OKRs
   }, [okrs]);
 
+  // Calculate urgent items that need attention
+  const urgentItems = useMemo(() => {
+    const offTrackOKRs = okrs.filter(o => o.status === 'off-track');
+    const atRiskOKRs = okrs.filter(o => o.status === 'at-risk');
+    const blockedPlans = workPlans.filter(wp => wp.status === 'blocked');
+    const pendingSubmissions = workPlans.filter(wp => wp.status === 'in-progress' && wp.progress >= 90);
+
+    return {
+      offTrackOKRs,
+      atRiskOKRs,
+      blockedPlans,
+      pendingSubmissions,
+      totalUrgent: offTrackOKRs.length + blockedPlans.length,
+      totalWarning: atRiskOKRs.length,
+    };
+  }, [okrs, workPlans]);
+
   // Demo data for the dashboard - now using centralized stores
   const FOUNDER_DATA = {
     okrs: okrCounts,
@@ -168,55 +190,146 @@ export default function HomeScreen() {
     pendingApprovals: 1, // This would need a separate approval store in the future
   };
 
-const EXECUTIVE_DATA = {
-  myWorkPlans: {
-    total: 3,
-    inProgress: 2,
-    completed: 1,
-  },
-  apprentices: [
-    { name: 'Emily Carter', workPlans: 2, progress: 75 },
-    { name: 'David Kim', workPlans: 1, progress: 40 },
-  ],
-  pendingReviews: 2,
-  myFunction: 'Marketing' as BusinessFunction,
-  linkedOKRs: 2,
-  aiUsage: {
-    thisWeek: 12,
-    tools: ['ChatGPT', 'Midjourney', 'Claude'],
-  },
-  aiAgents: [
-    { name: 'ChatGPT Enterprise', status: 'active' },
-    { name: 'Claude Pro', status: 'active' },
-    { name: 'Midjourney', status: 'active' },
-  ],
-};
+  // Executive data - derived from stores based on current user
+  const executiveData = useMemo(() => {
+    // Find current user's function (if they're an executive)
+    const currentMember = members.find(m => m.name === currentUser?.name);
+    const myFunction = currentMember?.function || 'Marketing';
 
-const APPRENTICE_DATA = {
-  myWorkPlans: {
-    active: 3,
-    completed: 5,
-  },
-  assignedBy: {
-    executive: 'Priya Sharma',
-    founder: 'Sarah Johnson',
-  },
-  linkedOKR: {
-    title: 'Build Brand Awareness & Generate Leads',
-    function: 'Marketing' as BusinessFunction,
-    progress: 65,
-  },
-  recentWork: [
-    { title: 'Social Media Content Calendar', progress: 80, dueDate: '2026-01-20' },
-    { title: 'Competitor Research', progress: 45, dueDate: '2026-01-25' },
-    { title: 'Email Campaign Design', progress: 100, dueDate: '2026-01-15' },
-  ],
-  aiTools: ['ChatGPT', 'Canva AI', 'Grammarly'],
-  teamMembers: [
-    { name: 'Priya Sharma', role: 'Executive', function: 'Marketing' },
-    { name: 'Sarah Johnson', role: 'Founder' },
-  ],
-};
+    // Get work plans in my function (assigned by executives in my function)
+    const functionWorkPlans = workPlans.filter(wp => wp.function === myFunction);
+    const myInProgress = functionWorkPlans.filter(wp => wp.status === 'in-progress').length;
+    const myCompleted = functionWorkPlans.filter(wp => wp.status === 'completed').length;
+
+    // Get apprentices in my function
+    const myApprentices = members
+      .filter(m => m.role === 'Apprentice' && m.function === myFunction && m.status === 'active')
+      .map(apprentice => {
+        const apprenticeWorkPlans = workPlans.filter(wp => wp.assignedBy === apprentice.name || wp.function === myFunction);
+        const avgProgress = apprenticeWorkPlans.length > 0
+          ? Math.round(apprenticeWorkPlans.reduce((sum, wp) => sum + wp.progress, 0) / apprenticeWorkPlans.length)
+          : 0;
+        return {
+          name: apprentice.name,
+          workPlans: apprenticeWorkPlans.filter(wp => wp.function === myFunction).length,
+          progress: avgProgress,
+        };
+      });
+
+    // Get pending reviews (work plans ready for review)
+    const pendingReviews = workPlans.filter(wp =>
+      wp.status === 'in-progress' &&
+      wp.progress >= 90 &&
+      wp.function === myFunction
+    ).length;
+
+    // Get OKRs for my function
+    const functionOKRs = okrs.filter(okr => okr.function === myFunction);
+
+    // Get AI tools from armory
+    const myLoadout = personLoadouts.find(l => l.memberId === currentMember?.id);
+    const equippedToolIds = myLoadout?.aiToolIds || [];
+    const equippedTools = equippedToolIds
+      .map(id => THIRD_PARTY_AI_TOOLS.find(t => t.id === id)?.name)
+      .filter(Boolean) as string[];
+
+    return {
+      myWorkPlans: {
+        total: functionWorkPlans.length,
+        inProgress: myInProgress,
+        completed: myCompleted,
+      },
+      apprentices: myApprentices.slice(0, 3), // Show max 3
+      pendingReviews,
+      myFunction: myFunction as BusinessFunction,
+      linkedOKRs: functionOKRs.length,
+      aiUsage: {
+        thisWeek: equippedTools.length * 4, // Approximate usage
+        tools: equippedTools.slice(0, 3),
+      },
+      aiAgents: aiAgents.filter(a => a.status === 'active').slice(0, 3),
+    };
+  }, [members, workPlans, okrs, currentUser, personLoadouts, aiAgents]);
+
+  // Apprentice data - derived from stores based on current user
+  const apprenticeData = useMemo(() => {
+    // Find current user's member record
+    const currentMember = members.find(m => m.name === currentUser?.name);
+    const myFunction = currentMember?.function || 'Marketing';
+
+    // Get work plans in my function (for the apprentice)
+    const myWorkPlans = workPlans.filter(wp => wp.function === myFunction);
+    const activeCount = myWorkPlans.filter(wp => wp.status !== 'completed').length;
+    const completedCount = myWorkPlans.filter(wp => wp.status === 'completed').length;
+
+    // Find my executive (supervisor)
+    const myExecutive = members.find(m =>
+      m.role === 'FractionalExec' &&
+      m.function === myFunction &&
+      m.status === 'active'
+    );
+
+    // Find the founder
+    const founder = members.find(m => m.role === 'Founder' && m.status === 'active');
+
+    // Get linked OKR for my function
+    const myOKR = okrs.find(okr => okr.function === myFunction);
+    const okrProgress = myOKR
+      ? Math.round(myOKR.objectives.reduce((sum, obj) => sum + obj.progress, 0) / myOKR.objectives.length)
+      : 0;
+
+    // Recent work - my active work plans sorted by due date
+    const recentWork = myWorkPlans
+      .filter(wp => wp.status !== 'completed')
+      .sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime())
+      .slice(0, 3)
+      .map(wp => ({
+        title: wp.title,
+        progress: wp.progress,
+        dueDate: wp.dueDate,
+      }));
+
+    // Get my AI tools from armory
+    const myLoadout = personLoadouts.find(l => l.memberId === currentMember?.id);
+    const equippedToolIds = myLoadout?.aiToolIds || [];
+    const equippedTools = equippedToolIds
+      .map(id => THIRD_PARTY_AI_TOOLS.find(t => t.id === id)?.name)
+      .filter(Boolean) as string[];
+
+    // Team members I work with
+    const teamMembers: Array<{ name: string; role: 'Executive' | 'Founder'; function?: string }> = [];
+    if (myExecutive) {
+      teamMembers.push({ name: myExecutive.name, role: 'Executive', function: myFunction });
+    }
+    if (founder) {
+      teamMembers.push({ name: founder.name, role: 'Founder', function: undefined });
+    }
+
+    return {
+      myWorkPlans: {
+        active: activeCount,
+        completed: completedCount,
+      },
+      assignedBy: {
+        executive: myExecutive?.name || 'Not assigned',
+        founder: founder?.name || 'Not assigned',
+      },
+      linkedOKR: myOKR ? {
+        title: myOKR.title,
+        function: myOKR.function,
+        progress: okrProgress,
+      } : {
+        title: 'No OKR assigned',
+        function: myFunction as BusinessFunction,
+        progress: 0,
+      },
+      recentWork: recentWork.length > 0 ? recentWork : [
+        { title: 'No active work plans', progress: 0, dueDate: new Date().toISOString().split('T')[0] }
+      ],
+      aiTools: equippedTools.length > 0 ? equippedTools : ['No tools equipped'],
+      teamMembers,
+    };
+  }, [members, workPlans, okrs, currentUser, personLoadouts]);
 
   const [isLoading] = useState(false);
 
@@ -278,98 +391,202 @@ const APPRENTICE_DATA = {
   if (isFounder) {
     return (
       <View className="flex-1 bg-white dark:bg-slate-950">
-        {/* Role Header */}
+        {/* Role Header - Compact with Key Metrics */}
         <LinearGradient
           colors={getRoleGradient()}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 0 }}
-          style={{ paddingHorizontal: 24, paddingTop: insets.top + 20, paddingBottom: 20 }}
+          style={{ paddingHorizontal: 24, paddingTop: insets.top + 16, paddingBottom: 16 }}
         >
-          <View className="flex-row items-center justify-between mb-2">
+          <View className="flex-row items-center justify-between mb-3">
             <View className="flex-1">
-              <Text className="text-white/80 text-sm font-medium">FOUNDER COMMAND CENTER</Text>
-              <Text className="text-white text-2xl font-bold mt-1">
+              <Text className="text-white/70 text-xs font-medium">COMMAND CENTER</Text>
+              <Text className="text-white text-xl font-bold">
                 {currentWorkspace.name}
               </Text>
             </View>
-            <View className="bg-white/20 px-3 py-1.5 rounded-full">
-              <Text className="text-white text-xs font-bold">FOUNDER</Text>
+            <Pressable
+              onPress={() => router.push('/financial-dashboard')}
+              className="bg-white/20 px-3 py-2 rounded-xl active:opacity-70"
+            >
+              <Text className="text-white/80 text-xs font-medium">RUNWAY</Text>
+              <Text className="text-white text-lg font-bold">
+                {FOUNDER_DATA.financials.runway >= 999 ? '∞' : `${FOUNDER_DATA.financials.runway.toFixed(0)}mo`}
+              </Text>
+            </Pressable>
+          </View>
+          {/* Quick Health Indicators */}
+          <View className="flex-row gap-4">
+            <View className="flex-row items-center">
+              <View className={`w-2 h-2 rounded-full mr-1.5 ${urgentItems.totalUrgent > 0 ? 'bg-red-400' : 'bg-emerald-400'}`} />
+              <Text className="text-white/90 text-xs">
+                {FOUNDER_DATA.okrs.onTrack}/{FOUNDER_DATA.okrs.total} OKRs on track
+              </Text>
+            </View>
+            <View className="flex-row items-center">
+              <View className={`w-2 h-2 rounded-full mr-1.5 ${FOUNDER_DATA.financials.netCashFlow >= 0 ? 'bg-emerald-400' : 'bg-amber-400'}`} />
+              <Text className="text-white/90 text-xs">
+                {FOUNDER_DATA.financials.netCashFlow >= 0 ? '+' : ''}£{(FOUNDER_DATA.financials.netCashFlow / 1000).toFixed(0)}K/mo
+              </Text>
             </View>
           </View>
-          <Text className="text-white/90 text-sm">
-            Overall company oversight • Strategy • Approvals
-          </Text>
         </LinearGradient>
 
         <ScrollView className="flex-1">
-          <View className="px-6 py-4">
-            {/* Quick Stats */}
-            <View className="flex-row gap-3 mb-4">
-              <Pressable
-                onPress={() => router.push('/financial-dashboard')}
-                className="flex-1 bg-purple-50 dark:bg-purple-900/20 rounded-xl p-3 border border-purple-200 dark:border-purple-800 active:opacity-70"
-              >
-                <Text className="text-purple-700 dark:text-purple-300 text-xs font-semibold mb-1">
-                  RUNWAY
+          <View className="px-5 py-4">
+            {/* ATTENTION REQUIRED - Most Critical */}
+            {(urgentItems.totalUrgent > 0 || urgentItems.totalWarning > 0 || FOUNDER_DATA.pendingApprovals > 0) && (
+              <View className="mb-4">
+                <Text className="text-gray-500 dark:text-slate-500 text-xs font-bold mb-2 tracking-wide">
+                  ATTENTION REQUIRED
                 </Text>
-                <Text className="text-purple-900 dark:text-purple-100 text-2xl font-bold">
-                  {FOUNDER_DATA.financials.runway.toFixed(1)}
-                </Text>
-                <Text className="text-purple-600 dark:text-purple-400 text-xs">months</Text>
-              </Pressable>
-              <Pressable
-                onPress={() => router.push('/(tabs)/decide')}
-                className="flex-1 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl p-3 border border-emerald-200 dark:border-emerald-800 active:opacity-70"
-              >
-                <Text className="text-emerald-700 dark:text-emerald-300 text-xs font-semibold mb-1">
-                  OKRs ON TRACK
-                </Text>
-                <Text className="text-emerald-900 dark:text-emerald-100 text-2xl font-bold">
-                  {FOUNDER_DATA.okrs.onTrack}/{FOUNDER_DATA.okrs.total}
-                </Text>
-                <Text className="text-emerald-600 dark:text-emerald-400 text-xs">75% healthy</Text>
-              </Pressable>
-            </View>
+                <View className="gap-2">
+                  {/* Off-Track OKRs - Critical */}
+                  {urgentItems.offTrackOKRs.length > 0 && (
+                    <Pressable
+                      onPress={() => router.push('/(tabs)/decide')}
+                      className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-3 active:opacity-70"
+                    >
+                      <View className="flex-row items-center">
+                        <View className="w-9 h-9 bg-red-500 rounded-lg items-center justify-center">
+                          <AlertTriangle size={18} color="#fff" />
+                        </View>
+                        <View className="ml-3 flex-1">
+                          <Text className="text-red-900 dark:text-red-100 font-bold text-sm">
+                            {urgentItems.offTrackOKRs.length} OKR{urgentItems.offTrackOKRs.length > 1 ? 's' : ''} Off-Track
+                          </Text>
+                          <Text className="text-red-700 dark:text-red-300 text-xs">
+                            Needs immediate intervention
+                          </Text>
+                        </View>
+                        <ArrowRight size={18} color="#ef4444" />
+                      </View>
+                    </Pressable>
+                  )}
 
-            {/* Pending Approvals */}
-            {FOUNDER_DATA.pendingApprovals > 0 && (
-              <Pressable
-                onPress={() => router.push('/(tabs)/decide')}
-                className="bg-amber-50 dark:bg-amber-900/20 border-2 border-amber-300 dark:border-amber-700 rounded-2xl p-4 mb-4 active:opacity-70"
-              >
-                <View className="flex-row items-center justify-between">
-                  <View className="flex-row items-center flex-1">
-                    <View className="w-10 h-10 bg-amber-500 rounded-full items-center justify-center">
-                      <AlertCircle size={24} color="#fff" />
-                    </View>
-                    <View className="ml-3 flex-1">
-                      <Text className="text-amber-900 dark:text-amber-100 font-bold text-base">
-                        {FOUNDER_DATA.pendingApprovals} Pending Approvals
-                      </Text>
-                      <Text className="text-amber-700 dark:text-amber-300 text-sm">
-                        Resource allocation requests need review
-                      </Text>
-                    </View>
-                  </View>
-                  <ArrowRight size={20} color="#f59e0b" />
+                  {/* Blocked Work Plans */}
+                  {urgentItems.blockedPlans.length > 0 && (
+                    <Pressable
+                      onPress={() => router.push('/(tabs)/do')}
+                      className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-3 active:opacity-70"
+                    >
+                      <View className="flex-row items-center">
+                        <View className="w-9 h-9 bg-amber-500 rounded-lg items-center justify-center">
+                          <AlertCircle size={18} color="#fff" />
+                        </View>
+                        <View className="ml-3 flex-1">
+                          <Text className="text-amber-900 dark:text-amber-100 font-bold text-sm">
+                            {urgentItems.blockedPlans.length} Work Plan{urgentItems.blockedPlans.length > 1 ? 's' : ''} Blocked
+                          </Text>
+                          <Text className="text-amber-700 dark:text-amber-300 text-xs">
+                            Team waiting for resolution
+                          </Text>
+                        </View>
+                        <ArrowRight size={18} color="#f59e0b" />
+                      </View>
+                    </Pressable>
+                  )}
+
+                  {/* Pending Approvals */}
+                  {FOUNDER_DATA.pendingApprovals > 0 && (
+                    <Pressable
+                      onPress={() => router.push('/(tabs)/decide')}
+                      className="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-xl p-3 active:opacity-70"
+                    >
+                      <View className="flex-row items-center">
+                        <View className="w-9 h-9 bg-purple-500 rounded-lg items-center justify-center">
+                          <Clock size={18} color="#fff" />
+                        </View>
+                        <View className="ml-3 flex-1">
+                          <Text className="text-purple-900 dark:text-purple-100 font-bold text-sm">
+                            {FOUNDER_DATA.pendingApprovals} Pending Approval{FOUNDER_DATA.pendingApprovals > 1 ? 's' : ''}
+                          </Text>
+                          <Text className="text-purple-700 dark:text-purple-300 text-xs">
+                            Resource allocation requests
+                          </Text>
+                        </View>
+                        <ArrowRight size={18} color="#a855f7" />
+                      </View>
+                    </Pressable>
+                  )}
+
+                  {/* At-Risk Warning */}
+                  {urgentItems.atRiskOKRs.length > 0 && (
+                    <Pressable
+                      onPress={() => router.push('/(tabs)/decide')}
+                      className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-xl p-3 active:opacity-70"
+                    >
+                      <View className="flex-row items-center">
+                        <View className="w-9 h-9 bg-yellow-500 rounded-lg items-center justify-center">
+                          <TrendingDown size={18} color="#fff" />
+                        </View>
+                        <View className="ml-3 flex-1">
+                          <Text className="text-yellow-900 dark:text-yellow-100 font-bold text-sm">
+                            {urgentItems.atRiskOKRs.length} OKR{urgentItems.atRiskOKRs.length > 1 ? 's' : ''} At Risk
+                          </Text>
+                          <Text className="text-yellow-700 dark:text-yellow-300 text-xs">
+                            May need course correction
+                          </Text>
+                        </View>
+                        <ArrowRight size={18} color="#eab308" />
+                      </View>
+                    </Pressable>
+                  )}
                 </View>
-              </Pressable>
+              </View>
             )}
 
-            {/* OKRs by Function */}
+            {/* QUICK ACTIONS */}
             <View className="mb-4">
-              <View className="flex-row items-center justify-between mb-3">
-                <Text className="text-gray-900 dark:text-white text-lg font-bold">
-                  OKRs by Function
+              <Text className="text-gray-500 dark:text-slate-500 text-xs font-bold mb-2 tracking-wide">
+                QUICK ACTIONS
+              </Text>
+              <View className="flex-row gap-2">
+                <Pressable
+                  onPress={() => router.push('/(tabs)/decide')}
+                  className="flex-1 bg-purple-500 rounded-xl p-3 active:opacity-70"
+                >
+                  <View className="flex-row items-center justify-center">
+                    <Plus size={18} color="#fff" />
+                    <Text className="text-white font-bold text-sm ml-1.5">New OKR</Text>
+                  </View>
+                </Pressable>
+                <Pressable
+                  onPress={() => router.push('/(tabs)/evaluate')}
+                  className="flex-1 bg-blue-500 rounded-xl p-3 active:opacity-70"
+                >
+                  <View className="flex-row items-center justify-center">
+                    <CheckCircle2 size={18} color="#fff" />
+                    <Text className="text-white font-bold text-sm ml-1.5">Review</Text>
+                  </View>
+                </Pressable>
+                <Pressable
+                  onPress={() => router.push('/financial-dashboard')}
+                  className="flex-1 bg-emerald-500 rounded-xl p-3 active:opacity-70"
+                >
+                  <View className="flex-row items-center justify-center">
+                    <DollarSign size={18} color="#fff" />
+                    <Text className="text-white font-bold text-sm ml-1.5">Finance</Text>
+                  </View>
+                </Pressable>
+              </View>
+            </View>
+
+            {/* OKRs by Function - Compact Grid */}
+            <View className="mb-4">
+              <View className="flex-row items-center justify-between mb-2">
+                <Text className="text-gray-500 dark:text-slate-500 text-xs font-bold tracking-wide">
+                  OKR PROGRESS
                 </Text>
                 <Pressable onPress={() => router.push('/(tabs)/decide')}>
-                  <Text className="text-blue-500 text-sm font-semibold">View All</Text>
+                  <Text className="text-purple-500 text-xs font-semibold">View All</Text>
                 </Pressable>
               </View>
 
-              <View className="gap-2">
+              <View className="flex-row flex-wrap gap-2">
                 {okrsByFunction.map((item, idx) => {
                   const functionColor = getFunctionColor(item.function as BusinessFunction);
+                  const statusColor = item.status === 'off-track' ? '#ef4444' : item.status === 'at-risk' ? '#f59e0b' : '#10b981';
                   return (
                     <Pressable
                       key={idx}
@@ -378,32 +595,31 @@ const APPRENTICE_DATA = {
                         params: { function: item.function }
                       })}
                       className="bg-gray-100 dark:bg-slate-900 rounded-xl p-3 active:opacity-70"
+                      style={{ width: '48%' }}
                     >
-                      <View className="flex-row items-center justify-between mb-2">
-                        <View className="flex-row items-center flex-1">
-                          <View
-                            className="w-8 h-8 rounded-lg items-center justify-center"
-                            style={{ backgroundColor: functionColor + '20' }}
-                          >
-                            <Target size={16} color={functionColor} />
-                          </View>
-                          <View className="ml-3 flex-1">
-                            <Text className="text-gray-900 dark:text-white font-semibold text-sm">
-                              {item.function}
-                            </Text>
-                            <Text className="text-gray-600 dark:text-slate-400 text-xs">
-                              {item.okrs} OKR{item.okrs !== 1 ? 's' : ''} • {item.status.replace('-', ' ')}
-                            </Text>
-                          </View>
+                      <View className="flex-row items-center mb-2">
+                        <View
+                          className="w-7 h-7 rounded-lg items-center justify-center"
+                          style={{ backgroundColor: functionColor + '20' }}
+                        >
+                          <Target size={14} color={functionColor} />
                         </View>
-                        <Text className="text-gray-900 dark:text-white font-bold text-base">
+                        <Text className="text-gray-900 dark:text-white font-semibold text-sm ml-2 flex-1" numberOfLines={1}>
+                          {item.function}
+                        </Text>
+                      </View>
+                      <View className="flex-row items-center justify-between mb-1.5">
+                        <Text className="text-gray-500 dark:text-slate-400 text-xs">
+                          {item.okrs} OKR{item.okrs !== 1 ? 's' : ''}
+                        </Text>
+                        <Text className="font-bold text-sm" style={{ color: statusColor }}>
                           {item.progress}%
                         </Text>
                       </View>
-                      <View className="bg-gray-200 dark:bg-slate-700 rounded-full h-1.5 overflow-hidden">
+                      <View className="bg-gray-200 dark:bg-slate-700 rounded-full h-1 overflow-hidden">
                         <View
-                          className="h-full bg-emerald-500"
-                          style={{ width: `${item.progress}%` }}
+                          className="h-full rounded-full"
+                          style={{ width: `${item.progress}%`, backgroundColor: statusColor }}
                         />
                       </View>
                     </Pressable>
@@ -412,249 +628,98 @@ const APPRENTICE_DATA = {
               </View>
             </View>
 
-            {/* Work Plans Overview */}
+            {/* EXECUTION STATUS - Work Plans + Team Combined */}
             <View className="mb-4">
-              <View className="flex-row items-center justify-between mb-3">
-                <View>
-                  <Text className="text-gray-900 dark:text-white text-lg font-bold">
-                    Work Plans
-                  </Text>
-                  <Text className="text-gray-600 dark:text-slate-400 text-xs mt-0.5">
-                    Structured tasks assigned to apprentices
-                  </Text>
-                </View>
-                <Pressable onPress={() => router.push('/(tabs)/do')}>
-                  <Text className="text-blue-500 text-sm font-semibold">View All</Text>
-                </Pressable>
-              </View>
-
-              <View className="flex-row gap-3">
-                <Pressable
-                  onPress={() => router.push('/(tabs)/do')}
-                  className="flex-1 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4 active:opacity-70"
-                >
-                  <Briefcase size={24} color="#3b82f6" />
-                  <Text className="text-blue-900 dark:text-blue-100 text-2xl font-bold mt-2">
-                    {FOUNDER_DATA.workPlans.inProgress}
-                  </Text>
-                  <Text className="text-blue-600 dark:text-blue-400 text-xs">Active Now</Text>
-                </Pressable>
-                <Pressable
-                  onPress={() => router.push('/(tabs)/evaluate')}
-                  className="flex-1 bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-xl p-4 active:opacity-70"
-                >
-                  <Clock size={24} color="#a855f7" />
-                  <Text className="text-purple-900 dark:text-purple-100 text-2xl font-bold mt-2">
-                    {FOUNDER_DATA.workPlans.active}
-                  </Text>
-                  <Text className="text-purple-600 dark:text-purple-400 text-xs">Total Active</Text>
-                </Pressable>
-              </View>
-            </View>
-
-            {/* Team Overview */}
-            <View className="mb-4">
-              <Text className="text-gray-900 dark:text-white text-lg font-bold mb-3">
-                Team
+              <Text className="text-gray-500 dark:text-slate-500 text-xs font-bold mb-2 tracking-wide">
+                EXECUTION STATUS
               </Text>
 
-              <View className="bg-gray-100 dark:bg-slate-900 rounded-xl p-4 border border-gray-300 dark:border-slate-800">
-                <Pressable
-                  onPress={() => router.push('/create-team')}
-                  className="flex-row items-center justify-between mb-3 active:opacity-70"
-                >
-                  <View className="flex-row items-center">
-                    <Users size={20} color="#3b82f6" />
-                    <Text className="text-gray-900 dark:text-white font-semibold ml-2">
-                      {FOUNDER_DATA.team.executives} Executives
-                    </Text>
-                  </View>
-                  <ArrowRight size={20} color="#3b82f6" />
-                </Pressable>
-
-                <Pressable
-                  onPress={() => router.push('/create-team')}
-                  className="flex-row items-center justify-between mb-3 active:opacity-70"
-                >
-                  <View className="flex-row items-center">
-                    <Award size={20} color="#10b981" />
-                    <Text className="text-gray-900 dark:text-white font-semibold ml-2">
-                      {FOUNDER_DATA.team.apprentices} Apprentices
-                    </Text>
-                  </View>
-                  <ArrowRight size={20} color="#10b981" />
-                </Pressable>
-
-                <Pressable
-                  onPress={() => router.push('/create-team')}
-                  className="flex-row items-center justify-between mb-4 active:opacity-70"
-                >
-                  <View className="flex-row items-center">
-                    <Bot size={20} color="#8b5cf6" />
-                    <Text className="text-gray-900 dark:text-white font-semibold ml-2">
-                      {FOUNDER_DATA.team.aiAgents} AI Agents
-                    </Text>
-                  </View>
-                  <ArrowRight size={20} color="#8b5cf6" />
-                </Pressable>
-
-                {/* Manage Team Button */}
-                <Pressable
-                  onPress={() => router.push('/create-team')}
-                  className="bg-blue-500 rounded-xl py-3 items-center active:opacity-80"
-                >
-                  <Text className="text-white text-sm font-bold">
-                    Manage Team
-                  </Text>
-                </Pressable>
-              </View>
-            </View>
-
-            {/* Financial Overview */}
-            <View className="mb-4">
-              <View className="flex-row items-center justify-between mb-3">
-                <Text className="text-gray-900 dark:text-white text-lg font-bold">
-                  Financial Overview
-                </Text>
-                <Pressable onPress={() => router.push('/financial-dashboard')}>
-                  <Text className="text-blue-500 text-sm font-semibold">Full Dashboard</Text>
-                </Pressable>
-              </View>
-
+              {/* Work Plans Row */}
               <Pressable
-                onPress={() => router.push('/financial-dashboard')}
-                className="active:opacity-80"
+                onPress={() => router.push('/(tabs)/do')}
+                className="bg-gray-100 dark:bg-slate-900 rounded-xl p-3 mb-2 active:opacity-70"
               >
-                <LinearGradient
-                  colors={['#10b981', '#14b8a6']}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 0 }}
-                  style={{ borderRadius: 16, padding: 16, marginBottom: 12 }}
-                >
-                  <View className="flex-row items-center justify-between mb-4">
-                    <View>
-                      <Text className="text-emerald-100 text-xs font-semibold mb-1">RUNWAY</Text>
-                      <Text className="text-white text-3xl font-bold">
-                        {FOUNDER_DATA.financials.runway.toFixed(1)} months
-                      </Text>
+                <View className="flex-row items-center justify-between">
+                  <View className="flex-row items-center">
+                    <View className="w-9 h-9 bg-blue-100 dark:bg-blue-900/30 rounded-lg items-center justify-center">
+                      <Briefcase size={18} color="#3b82f6" />
                     </View>
-                    <BarChart3 size={32} color="#fff" />
-                  </View>
-
-                  <View className="h-px bg-white/20 mb-3" />
-
-                  <View className="flex-row gap-4 mb-2">
-                    <View className="flex-1">
-                      <Text className="text-emerald-100 text-xs mb-1">Monthly Revenue</Text>
-                      <Text className="text-white text-lg font-bold">
-                        £{(FOUNDER_DATA.financials.revenue / 1000).toFixed(0)}K
-                      </Text>
-                    </View>
-                    <View className="flex-1">
-                      <Text className="text-emerald-100 text-xs mb-1">Monthly Burn</Text>
-                      <Text className="text-white text-lg font-bold">
-                        £{(FOUNDER_DATA.financials.burnRate / 1000).toFixed(0)}K
+                    <View className="ml-3">
+                      <Text className="text-gray-900 dark:text-white font-semibold text-sm">Work Plans</Text>
+                      <Text className="text-gray-500 dark:text-slate-400 text-xs">
+                        {FOUNDER_DATA.workPlans.inProgress} in progress • {FOUNDER_DATA.workPlans.completed} done
                       </Text>
                     </View>
                   </View>
-
-                  <View className="flex-row gap-4 mb-2">
-                    <View className="flex-1">
-                      <Text className="text-emerald-100 text-xs mb-1">Net Cash Flow</Text>
-                      <Text className="text-white text-lg font-bold">
-                        {FOUNDER_DATA.financials.netCashFlow >= 0 ? '+' : ''}£{(FOUNDER_DATA.financials.netCashFlow / 1000).toFixed(0)}K
-                      </Text>
-                    </View>
-                    <View className="flex-1">
-                      <Text className="text-emerald-100 text-xs mb-1">Cash Position</Text>
-                      <Text className="text-white text-lg font-bold">
-                        £{((FOUNDER_DATA.financials.runway * FOUNDER_DATA.financials.burnRate) / 1000).toFixed(0)}K
-                      </Text>
-                    </View>
+                  <View className="items-end">
+                    <Text className="text-blue-500 font-bold text-lg">{FOUNDER_DATA.workPlans.active}</Text>
+                    <Text className="text-gray-500 dark:text-slate-500 text-xs">active</Text>
                   </View>
-
-                  <View className="flex-row items-center justify-center mt-2">
-                    <Text className="text-white text-sm font-semibold">Tap for detailed breakdown</Text>
-                    <ArrowRight size={16} color="#fff" className="ml-1" />
-                  </View>
-                </LinearGradient>
+                </View>
               </Pressable>
 
-              {/* Cost Breakdown */}
+              {/* Team Row */}
+              <Pressable
+                onPress={() => router.push('/create-team')}
+                className="bg-gray-100 dark:bg-slate-900 rounded-xl p-3 active:opacity-70"
+              >
+                <View className="flex-row items-center justify-between">
+                  <View className="flex-row items-center">
+                    <View className="w-9 h-9 bg-purple-100 dark:bg-purple-900/30 rounded-lg items-center justify-center">
+                      <Users size={18} color="#8b5cf6" />
+                    </View>
+                    <View className="ml-3">
+                      <Text className="text-gray-900 dark:text-white font-semibold text-sm">Team</Text>
+                      <Text className="text-gray-500 dark:text-slate-400 text-xs">
+                        {FOUNDER_DATA.team.executives} execs • {FOUNDER_DATA.team.apprentices} apprentices • {FOUNDER_DATA.team.aiAgents} AI
+                      </Text>
+                    </View>
+                  </View>
+                  <ArrowRight size={18} color="#64748b" />
+                </View>
+              </Pressable>
+            </View>
+
+            {/* FINANCIAL SNAPSHOT - Simplified */}
+            <View className="mb-6">
+              <View className="flex-row items-center justify-between mb-2">
+                <Text className="text-gray-500 dark:text-slate-500 text-xs font-bold tracking-wide">
+                  FINANCIAL SNAPSHOT
+                </Text>
+                <Pressable onPress={() => router.push('/financial-dashboard')}>
+                  <Text className="text-emerald-500 text-xs font-semibold">Details</Text>
+                </Pressable>
+              </View>
+
               <Pressable
                 onPress={() => router.push('/financial-dashboard')}
-                className="bg-gray-100 dark:bg-slate-900 rounded-xl p-4 border border-gray-300 dark:border-slate-800 active:opacity-70"
+                className="bg-gray-100 dark:bg-slate-900 rounded-xl p-4 active:opacity-70"
               >
-                <View className="flex-row items-center justify-between mb-3">
-                  <Text className="text-gray-900 dark:text-white font-bold text-sm">
-                    Monthly Cost Breakdown
-                  </Text>
-                  <ArrowRight size={20} color="#64748b" />
-                </View>
-
-                <View className="gap-3">
-                  <View className="flex-row items-center justify-between">
-                    <View className="flex-row items-center flex-1">
-                      <View className="w-2 h-2 rounded-full bg-blue-500 mr-2" />
-                      <Text className="text-gray-700 dark:text-slate-300 text-sm">
-                        Team ({orgCounts.executives} Execs + {orgCounts.apprentices} Apprentices)
-                      </Text>
-                    </View>
-                    <Text className="text-gray-900 dark:text-white font-bold text-sm">
-                      £{Math.round(costBreakdown.team / 1000)}K
-                    </Text>
-                  </View>
-
-                  <View className="flex-row items-center justify-between">
-                    <View className="flex-row items-center flex-1">
-                      <View className="w-2 h-2 rounded-full bg-purple-500 mr-2" />
-                      <Text className="text-gray-700 dark:text-slate-300 text-sm">Manufacturing & Suppliers</Text>
-                    </View>
-                    <Text className="text-gray-900 dark:text-white font-bold text-sm">
-                      £{Math.round(costBreakdown.manufacturing / 1000)}K
-                    </Text>
-                  </View>
-
-                  <View className="flex-row items-center justify-between">
-                    <View className="flex-row items-center flex-1">
-                      <View className="w-2 h-2 rounded-full bg-cyan-500 mr-2" />
-                      <Text className="text-gray-700 dark:text-slate-300 text-sm">
-                        AI Tools & Software ({personLoadouts.flatMap(l => l.aiToolIds || []).length} equipped)
-                      </Text>
-                    </View>
-                    <Text className="text-gray-900 dark:text-white font-bold text-sm">
-                      £{Math.round(actualAIToolCost / 1000)}K
-                    </Text>
-                  </View>
-
-                  <View className="flex-row items-center justify-between">
-                    <View className="flex-row items-center flex-1">
-                      <View className="w-2 h-2 rounded-full bg-amber-500 mr-2" />
-                      <Text className="text-gray-700 dark:text-slate-300 text-sm">Infrastructure & Ops</Text>
-                    </View>
-                    <Text className="text-gray-900 dark:text-white font-bold text-sm">
-                      £{Math.round(costBreakdown.infrastructure / 1000)}K
-                    </Text>
-                  </View>
-
-                  <View className="flex-row items-center justify-between">
-                    <View className="flex-row items-center flex-1">
-                      <View className="w-2 h-2 rounded-full bg-pink-500 mr-2" />
-                      <Text className="text-gray-700 dark:text-slate-300 text-sm">Marketing & Sales</Text>
-                    </View>
-                    <Text className="text-gray-900 dark:text-white font-bold text-sm">
-                      £{Math.round(costBreakdown.marketing / 1000)}K
-                    </Text>
-                  </View>
-
-                  <View className="h-px bg-gray-300 dark:bg-slate-700 my-1" />
-
-                  <View className="flex-row items-center justify-between">
-                    <Text className="text-gray-900 dark:text-white font-bold text-sm">Total Monthly Burn</Text>
+                <View className="flex-row justify-between mb-3">
+                  <View className="flex-1">
+                    <Text className="text-gray-500 dark:text-slate-400 text-xs mb-0.5">Revenue</Text>
                     <Text className="text-gray-900 dark:text-white font-bold text-base">
-                      £{Math.round(adjustedMonthlyBurn / 1000)}K
+                      £{(FOUNDER_DATA.financials.revenue / 1000).toFixed(0)}K
                     </Text>
                   </View>
+                  <View className="flex-1">
+                    <Text className="text-gray-500 dark:text-slate-400 text-xs mb-0.5">Burn</Text>
+                    <Text className="text-gray-900 dark:text-white font-bold text-base">
+                      £{(FOUNDER_DATA.financials.burnRate / 1000).toFixed(0)}K
+                    </Text>
+                  </View>
+                  <View className="flex-1">
+                    <Text className="text-gray-500 dark:text-slate-400 text-xs mb-0.5">Net Flow</Text>
+                    <Text className={`font-bold text-base ${FOUNDER_DATA.financials.netCashFlow >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
+                      {FOUNDER_DATA.financials.netCashFlow >= 0 ? '+' : ''}£{(FOUNDER_DATA.financials.netCashFlow / 1000).toFixed(0)}K
+                    </Text>
+                  </View>
+                </View>
+                <View className="flex-row items-center justify-between pt-3 border-t border-gray-200 dark:border-slate-700">
+                  <Text className="text-gray-500 dark:text-slate-400 text-xs">Cash Position</Text>
+                  <Text className="text-gray-900 dark:text-white font-bold">
+                    £{(financialMetrics.cashPosition / 1000).toFixed(0)}K
+                  </Text>
                 </View>
               </Pressable>
             </View>
@@ -666,7 +731,7 @@ const APPRENTICE_DATA = {
 
   // Executive View
   if (isExecutive) {
-    const functionColor = getFunctionColor(EXECUTIVE_DATA.myFunction);
+    const functionColor = getFunctionColor(executiveData.myFunction);
 
     return (
       <View className="flex-1 bg-white dark:bg-slate-950">
@@ -681,7 +746,7 @@ const APPRENTICE_DATA = {
             <View className="flex-1">
               <Text className="text-white/80 text-sm font-medium">EXECUTIVE DASHBOARD</Text>
               <Text className="text-white text-2xl font-bold mt-1">
-                {EXECUTIVE_DATA.myFunction}
+                {executiveData.myFunction}
               </Text>
             </View>
             <View className="bg-white/20 px-3 py-1.5 rounded-full">
@@ -696,7 +761,7 @@ const APPRENTICE_DATA = {
         <ScrollView className="flex-1">
           <View className="px-6 py-4">
             {/* Pending Reviews Alert */}
-            {EXECUTIVE_DATA.pendingReviews > 0 && (
+            {executiveData.pendingReviews > 0 && (
               <Pressable
                 onPress={() => router.push('/(tabs)/evaluate')}
                 className="bg-purple-50 dark:bg-purple-900/20 border-2 border-purple-300 dark:border-purple-700 rounded-2xl p-4 mb-4 active:opacity-70"
@@ -708,7 +773,7 @@ const APPRENTICE_DATA = {
                     </View>
                     <View className="ml-3 flex-1">
                       <Text className="text-purple-900 dark:text-purple-100 font-bold text-base">
-                        {EXECUTIVE_DATA.pendingReviews} Work Submissions to Review
+                        {executiveData.pendingReviews} Work Submissions to Review
                       </Text>
                       <Text className="text-purple-700 dark:text-purple-300 text-sm">
                         Apprentices waiting for your feedback
@@ -737,7 +802,7 @@ const APPRENTICE_DATA = {
                     IN PROGRESS
                   </Text>
                   <Text className="text-blue-900 dark:text-blue-100 text-2xl font-bold">
-                    {EXECUTIVE_DATA.myWorkPlans.inProgress}
+                    {executiveData.myWorkPlans.inProgress}
                   </Text>
                 </View>
                 <View className="flex-1 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-xl p-3">
@@ -745,7 +810,7 @@ const APPRENTICE_DATA = {
                     COMPLETED
                   </Text>
                   <Text className="text-emerald-900 dark:text-emerald-100 text-2xl font-bold">
-                    {EXECUTIVE_DATA.myWorkPlans.completed}
+                    {executiveData.myWorkPlans.completed}
                   </Text>
                 </View>
               </View>
@@ -760,7 +825,7 @@ const APPRENTICE_DATA = {
               <Pressable
                 onPress={() => router.push({
                   pathname: '/(tabs)/decide',
-                  params: { function: EXECUTIVE_DATA.myFunction }
+                  params: { function: executiveData.myFunction }
                 })}
                 className="bg-gray-100 dark:bg-slate-900 rounded-xl p-4 border border-gray-300 dark:border-slate-800 active:opacity-70"
               >
@@ -773,10 +838,10 @@ const APPRENTICE_DATA = {
                   </View>
                   <View className="ml-3 flex-1">
                     <Text className="text-gray-900 dark:text-white font-bold text-base">
-                      {EXECUTIVE_DATA.myFunction}
+                      {executiveData.myFunction}
                     </Text>
                     <Text className="text-gray-600 dark:text-slate-400 text-sm">
-                      {EXECUTIVE_DATA.linkedOKRs} linked OKRs
+                      {executiveData.linkedOKRs} linked OKRs
                     </Text>
                   </View>
                   <ArrowRight size={20} color="#64748b" />
@@ -796,7 +861,7 @@ const APPRENTICE_DATA = {
               </View>
 
               <View className="gap-2">
-                {EXECUTIVE_DATA.apprentices.map((apprentice, idx) => (
+                {executiveData.apprentices.map((apprentice, idx) => (
                   <Pressable
                     key={idx}
                     onPress={() => router.push('/create-team')}
@@ -853,13 +918,13 @@ const APPRENTICE_DATA = {
                     </View>
                     <View className="flex-row items-center">
                       <Text className="text-gray-900 dark:text-white font-bold mr-2">
-                        {EXECUTIVE_DATA.aiUsage.thisWeek}
+                        {executiveData.aiUsage.thisWeek}
                       </Text>
                       <ArrowRight size={16} color="#64748b" />
                     </View>
                   </View>
                   <View className="flex-row flex-wrap gap-2">
-                    {EXECUTIVE_DATA.aiUsage.tools.map((tool, idx) => (
+                    {executiveData.aiUsage.tools.map((tool, idx) => (
                       <View key={idx} className="bg-purple-100 dark:bg-purple-900/30 px-2 py-1 rounded">
                         <Text className="text-purple-700 dark:text-purple-300 text-xs">{tool}</Text>
                       </View>
@@ -880,7 +945,7 @@ const APPRENTICE_DATA = {
                     </View>
                     <View className="flex-row items-center">
                       <Text className="text-gray-900 dark:text-white font-bold mr-2">
-                        {EXECUTIVE_DATA.aiAgents.length}
+                        {executiveData.aiAgents.length}
                       </Text>
                       <ArrowRight size={16} color="#64748b" />
                     </View>
@@ -925,7 +990,7 @@ const APPRENTICE_DATA = {
 
   // Apprentice View
   if (isApprentice) {
-    const functionColor = getFunctionColor(APPRENTICE_DATA.linkedOKR.function);
+    const functionColor = getFunctionColor(apprenticeData.linkedOKR.function);
 
     return (
       <View className="flex-1 bg-white dark:bg-slate-950">
@@ -966,7 +1031,7 @@ const APPRENTICE_DATA = {
                     ACTIVE
                   </Text>
                   <Text className="text-emerald-900 dark:text-emerald-100 text-2xl font-bold">
-                    {APPRENTICE_DATA.myWorkPlans.active}
+                    {apprenticeData.myWorkPlans.active}
                   </Text>
                 </View>
                 <View className="flex-1 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-3">
@@ -974,7 +1039,7 @@ const APPRENTICE_DATA = {
                     COMPLETED
                   </Text>
                   <Text className="text-blue-900 dark:text-blue-100 text-2xl font-bold">
-                    {APPRENTICE_DATA.myWorkPlans.completed}
+                    {apprenticeData.myWorkPlans.completed}
                   </Text>
                 </View>
               </View>
@@ -1003,22 +1068,22 @@ const APPRENTICE_DATA = {
                         className="text-xs font-bold px-2 py-0.5 rounded"
                         style={{ backgroundColor: functionColor + '20', color: functionColor }}
                       >
-                        {APPRENTICE_DATA.linkedOKR.function}
+                        {apprenticeData.linkedOKR.function}
                       </Text>
                     </View>
                     <Text className="text-gray-900 dark:text-white font-bold text-sm">
-                      {APPRENTICE_DATA.linkedOKR.title}
+                      {apprenticeData.linkedOKR.title}
                     </Text>
                   </View>
                 </View>
                 <View className="bg-gray-200 dark:bg-slate-700 rounded-full h-2 overflow-hidden mb-1">
                   <View
                     className="h-full bg-emerald-500"
-                    style={{ width: `${APPRENTICE_DATA.linkedOKR.progress}%` }}
+                    style={{ width: `${apprenticeData.linkedOKR.progress}%` }}
                   />
                 </View>
                 <Text className="text-gray-600 dark:text-slate-400 text-xs">
-                  {APPRENTICE_DATA.linkedOKR.progress}% progress • Your work contributes to this
+                  {apprenticeData.linkedOKR.progress}% progress • Your work contributes to this
                 </Text>
               </Pressable>
             </View>
@@ -1035,7 +1100,7 @@ const APPRENTICE_DATA = {
               </View>
 
               <View className="gap-2">
-                {APPRENTICE_DATA.recentWork.map((work, idx) => (
+                {apprenticeData.recentWork.map((work, idx) => (
                   <Pressable
                     key={idx}
                     onPress={() => router.push('/(tabs)/do')}
@@ -1086,7 +1151,7 @@ const APPRENTICE_DATA = {
                 onPress={() => router.push('/create-team')}
                 className="bg-gray-100 dark:bg-slate-900 rounded-xl p-4 border border-gray-300 dark:border-slate-800 active:opacity-70"
               >
-                {APPRENTICE_DATA.teamMembers.map((member, idx) => (
+                {apprenticeData.teamMembers.map((member, idx) => (
                   <View key={idx} className={`flex-row items-center justify-between ${idx > 0 ? 'pt-3 mt-3 border-t border-gray-300 dark:border-slate-700' : ''}`}>
                     <View className="flex-row items-center flex-1">
                       <View className={`w-10 h-10 rounded-full items-center justify-center ${
@@ -1105,7 +1170,7 @@ const APPRENTICE_DATA = {
                         </Text>
                       </View>
                     </View>
-                    {idx === APPRENTICE_DATA.teamMembers.length - 1 && (
+                    {idx === apprenticeData.teamMembers.length - 1 && (
                       <ArrowRight size={16} color="#64748b" />
                     )}
                   </View>
@@ -1150,7 +1215,7 @@ const APPRENTICE_DATA = {
                     <ArrowRight size={20} color="#fff" />
                   </View>
                   <View className="flex-row flex-wrap gap-2">
-                    {APPRENTICE_DATA.aiTools.map((tool, idx) => (
+                    {apprenticeData.aiTools.map((tool, idx) => (
                       <View key={idx} className="bg-white/20 px-3 py-1 rounded-full">
                         <Text className="text-white text-xs font-semibold">{tool}</Text>
                       </View>
