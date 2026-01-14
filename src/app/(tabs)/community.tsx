@@ -801,9 +801,15 @@ export default function CommunityScreen() {
       </ScrollView>
 
       {/* Profile Detail Modal */}
-      <Modal visible={showProfileModal} transparent animationType="slide" onRequestClose={() => setShowProfileModal(false)}>
-        <View className="flex-1 bg-black/70">
-          <View className="flex-1 bg-white dark:bg-slate-950 mt-16 rounded-t-3xl">
+      <Modal
+        visible={showProfileModal}
+        transparent
+        animationType="slide"
+        presentationStyle="pageSheet"
+        onRequestClose={() => setShowProfileModal(false)}
+      >
+        <View className="flex-1 bg-black/70 justify-end">
+          <View className="bg-white dark:bg-slate-950 rounded-t-3xl flex-1" style={{ maxHeight: '90%' }}>
             {/* Header */}
             <View className="px-6 pt-6 pb-4 border-b border-gray-300 dark:border-slate-800">
               <View className="flex-row items-center justify-between">
@@ -816,6 +822,7 @@ export default function CommunityScreen() {
                     setSelectedCandidate(null);
                     selectSupplier(null);
                   }}
+                  hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                   className="w-10 h-10 items-center justify-center rounded-full bg-gray-100 dark:bg-slate-900 active:opacity-70"
                 >
                   <X size={24} color="#64748b" />
@@ -1323,18 +1330,25 @@ export default function CommunityScreen() {
       </Modal>
 
       {/* Allocation Request Modal */}
-      <Modal visible={showRequestModal} transparent animationType="fade" onRequestClose={() => setShowRequestModal(false)}>
-        <KeyboardAvoidingView
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-          className="flex-1"
-        >
-          <View className="flex-1 bg-black/70 justify-center items-center px-6">
-            <View className="bg-gray-100 dark:bg-slate-900 rounded-3xl w-full" style={{ maxHeight: '70%' }}>
+      <Modal
+        visible={showRequestModal}
+        transparent
+        animationType="slide"
+        presentationStyle="pageSheet"
+        onRequestClose={() => setShowRequestModal(false)}
+      >
+        <View className="flex-1 bg-black/70 justify-end">
+          <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} className="flex-1">
+            <View className="bg-gray-100 dark:bg-slate-900 rounded-t-3xl flex-1" style={{ maxHeight: '90%' }}>
               <View className="px-6 pt-6 pb-4 border-b border-gray-300 dark:border-slate-800">
                 <View className="flex-row items-center justify-between">
                   <Text className="text-gray-900 dark:text-white text-xl font-bold">Request Allocation</Text>
-                  <Pressable onPress={() => setShowRequestModal(false)}>
-                    <X size={24} color="#94a3b8" />
+                  <Pressable
+                    onPress={() => setShowRequestModal(false)}
+                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                    className="w-10 h-10 items-center justify-center rounded-full bg-gray-200 dark:bg-slate-800 active:opacity-70"
+                  >
+                    <X size={24} color="#64748b" />
                   </Pressable>
                 </View>
               </View>
@@ -1375,25 +1389,32 @@ export default function CommunityScreen() {
               </Pressable>
             </ScrollView>
           </View>
+          </KeyboardAvoidingView>
         </View>
-        </KeyboardAvoidingView>
       </Modal>
 
       {/* Application Modal */}
-      <Modal visible={showApplicationModal} transparent animationType="fade" onRequestClose={() => setShowApplicationModal(false)}>
-        <KeyboardAvoidingView
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-          className="flex-1"
-        >
-          <View className="flex-1 bg-black/70 justify-center items-center px-6">
-            <View className="bg-gray-100 dark:bg-slate-900 rounded-3xl w-full" style={{ maxHeight: '85%' }}>
+      <Modal
+        visible={showApplicationModal}
+        transparent
+        animationType="slide"
+        presentationStyle="pageSheet"
+        onRequestClose={() => setShowApplicationModal(false)}
+      >
+        <View className="flex-1 bg-black/70 justify-end">
+          <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} className="flex-1">
+            <View className="bg-gray-100 dark:bg-slate-900 rounded-t-3xl flex-1" style={{ maxHeight: '90%' }}>
               <View className="px-6 pt-6 pb-4 border-b border-gray-300 dark:border-slate-800">
                 <View className="flex-row items-center justify-between">
                   <Text className="text-gray-900 dark:text-white text-xl font-bold">
                     Apply as {applicationType === 'executive' ? 'Executive' : applicationType === 'apprentice' ? 'Apprentice' : 'Supplier'}
                   </Text>
-                  <Pressable onPress={() => setShowApplicationModal(false)}>
-                    <X size={24} color="#94a3b8" />
+                  <Pressable
+                    onPress={() => setShowApplicationModal(false)}
+                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                    className="w-10 h-10 items-center justify-center rounded-full bg-gray-200 dark:bg-slate-800 active:opacity-70"
+                  >
+                    <X size={24} color="#64748b" />
                   </Pressable>
                 </View>
               </View>
@@ -1532,21 +1553,31 @@ export default function CommunityScreen() {
               </Pressable>
             </ScrollView>
           </View>
+          </KeyboardAvoidingView>
         </View>
-        </KeyboardAvoidingView>
       </Modal>
 
       {/* AI Agent Detail Modal */}
-      <Modal visible={selectedAIAgent !== null} transparent animationType="fade" onRequestClose={() => setSelectedAIAgent(null)}>
-        <View className="flex-1 bg-black/70 justify-center items-center px-4">
+      <Modal
+        visible={selectedAIAgent !== null}
+        transparent
+        animationType="slide"
+        presentationStyle="pageSheet"
+        onRequestClose={() => setSelectedAIAgent(null)}
+      >
+        <View className="flex-1 bg-black/70 justify-end">
           {selectedAIAgent && (
-            <View className="bg-gray-100 dark:bg-slate-900 rounded-3xl w-full" style={{ maxHeight: '95%', height: '95%' }}>
+            <View className="bg-gray-100 dark:bg-slate-900 rounded-t-3xl" style={{ maxHeight: '90%' }}>
               {/* Header */}
               <View className="px-6 pt-6 pb-4 border-b border-gray-300 dark:border-slate-800">
                 <View className="flex-row items-center justify-between mb-2">
                   <Text className="text-gray-900 dark:text-white text-2xl font-bold flex-1" numberOfLines={2}>{selectedAIAgent.name}</Text>
-                  <Pressable onPress={() => setSelectedAIAgent(null)} className="ml-2">
-                    <X size={28} color="#94a3b8" />
+                  <Pressable
+                    onPress={() => setSelectedAIAgent(null)}
+                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                    className="w-10 h-10 items-center justify-center rounded-full bg-gray-200 dark:bg-slate-800 active:opacity-70 ml-2"
+                  >
+                    <X size={24} color="#64748b" />
                   </Pressable>
                 </View>
                 <View className="flex-row items-center gap-2 mb-3">

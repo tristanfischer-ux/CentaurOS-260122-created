@@ -394,14 +394,24 @@ export default function SettingsScreen() {
       </View>
 
       {/* About Modal */}
-      <Modal visible={showAbout} transparent animationType="fade" onRequestClose={() => setShowAbout(false)}>
-        <View className="flex-1 bg-black/70 justify-center items-center px-6">
-          <View className="bg-gray-100 dark:bg-slate-900 rounded-3xl w-full" style={{ maxHeight: '90%', minHeight: '60%' }}>
+      <Modal
+        visible={showAbout}
+        transparent
+        animationType="slide"
+        presentationStyle="pageSheet"
+        onRequestClose={() => setShowAbout(false)}
+      >
+        <View className="flex-1 bg-black/70 justify-end">
+          <View className="bg-gray-100 dark:bg-slate-900 rounded-t-3xl" style={{ maxHeight: '90%' }}>
             <View className="p-6 border-b border-gray-200 dark:border-slate-800">
               <View className="flex-row items-center justify-between">
                 <Text className="text-gray-900 dark:text-white text-2xl font-bold">About Centaur OS</Text>
-                <Pressable onPress={() => setShowAbout(false)}>
-                  <X size={24} color="#94a3b8" />
+                <Pressable
+                  onPress={() => setShowAbout(false)}
+                  hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                  className="w-10 h-10 items-center justify-center rounded-full bg-gray-200 dark:bg-slate-800 active:opacity-70"
+                >
+                  <X size={24} color="#64748b" />
                 </Pressable>
               </View>
             </View>
@@ -550,9 +560,15 @@ export default function SettingsScreen() {
       </Modal>
 
       {/* Data Management Modal */}
-      <Modal visible={showDataManagement} transparent animationType="fade" onRequestClose={() => setShowDataManagement(false)}>
-        <View className="flex-1 bg-black/70 justify-center items-center px-6">
-          <View className="bg-gray-100 dark:bg-slate-900 rounded-3xl w-full" style={{ maxHeight: '90%', minHeight: '60%' }}>
+      <Modal
+        visible={showDataManagement}
+        transparent
+        animationType="slide"
+        presentationStyle="pageSheet"
+        onRequestClose={() => setShowDataManagement(false)}
+      >
+        <View className="flex-1 bg-black/70 justify-end">
+          <View className="bg-gray-100 dark:bg-slate-900 rounded-t-3xl" style={{ maxHeight: '90%' }}>
             <View className="p-6 border-b border-gray-200 dark:border-slate-800">
               <View className="flex-row items-center justify-between">
                 <View className="flex-row items-center gap-3">
@@ -564,8 +580,12 @@ export default function SettingsScreen() {
                     <Text className="text-gray-600 dark:text-slate-400 text-xs">Bulk import & export data</Text>
                   </View>
                 </View>
-                <Pressable onPress={() => setShowDataManagement(false)}>
-                  <X size={24} color="#94a3b8" />
+                <Pressable
+                  onPress={() => setShowDataManagement(false)}
+                  hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                  className="w-10 h-10 items-center justify-center rounded-full bg-gray-200 dark:bg-slate-800 active:opacity-70"
+                >
+                  <X size={24} color="#64748b" />
                 </Pressable>
               </View>
             </View>

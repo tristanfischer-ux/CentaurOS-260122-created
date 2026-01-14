@@ -280,15 +280,25 @@ export default function DoScreen() {
         </ScrollView>
 
         {/* Submit Work Modal */}
-        <Modal visible={showSubmitModal} transparent animationType="fade" onRequestClose={() => setShowSubmitModal(false)}>
-          <View className="flex-1 bg-black/70 justify-center items-center px-6">
-            <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} className="w-full">
-              <View className="bg-gray-100 dark:bg-slate-900 rounded-3xl w-full" style={{ maxHeight: '70%' }}>
+        <Modal
+          visible={showSubmitModal}
+          transparent
+          animationType="slide"
+          presentationStyle="pageSheet"
+          onRequestClose={() => setShowSubmitModal(false)}
+        >
+          <View className="flex-1 bg-black/70 justify-end">
+            <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} className="flex-1">
+              <View className="bg-gray-100 dark:bg-slate-900 rounded-t-3xl flex-1" style={{ maxHeight: '90%' }}>
                 <View className="px-6 pt-6 pb-4 border-b border-gray-300 dark:border-slate-800">
                   <View className="flex-row items-center justify-between">
                     <Text className="text-gray-900 dark:text-white text-xl font-bold">Submit Work</Text>
-                    <Pressable onPress={() => setShowSubmitModal(false)}>
-                      <X size={24} color="#94a3b8" />
+                    <Pressable
+                      onPress={() => setShowSubmitModal(false)}
+                      hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                      className="w-10 h-10 items-center justify-center rounded-full bg-gray-200 dark:bg-slate-800 active:opacity-70"
+                    >
+                      <X size={24} color="#64748b" />
                     </Pressable>
                   </View>
                 </View>

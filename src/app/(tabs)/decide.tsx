@@ -600,20 +600,35 @@ export default function DecideScreen() {
       </Modal>
 
       {/* Create OKR Modal */}
-      <Modal visible={showCreateModal} transparent animationType="fade" onRequestClose={() => setShowCreateModal(false)}>
-        <View className="flex-1 bg-black/70 justify-center items-center px-6">
-          <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} className="w-full">
-            <View className="bg-gray-100 dark:bg-slate-900 rounded-3xl w-full" style={{ maxHeight: '85%' }}>
+      <Modal
+        visible={showCreateModal}
+        transparent
+        animationType="slide"
+        presentationStyle="pageSheet"
+        onRequestClose={() => {
+          setShowCreateModal(false);
+          setSelectedSuggestion(null);
+          setWorkPlanItems([]);
+          setShowWorkPlanSection(false);
+        }}
+      >
+        <View className="flex-1 bg-black/70 justify-end">
+          <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} className="flex-1">
+            <View className="bg-gray-100 dark:bg-slate-900 rounded-t-3xl flex-1" style={{ maxHeight: '90%' }}>
               <View className="px-6 pt-6 pb-4 border-b border-gray-300 dark:border-slate-800">
                 <View className="flex-row items-center justify-between">
                   <Text className="text-gray-900 dark:text-white text-xl font-bold">Create OKR</Text>
-                  <Pressable onPress={() => {
-                    setShowCreateModal(false);
-                    setSelectedSuggestion(null);
-                    setWorkPlanItems([]);
-                    setShowWorkPlanSection(false);
-                  }}>
-                    <X size={24} color="#94a3b8" />
+                  <Pressable
+                    onPress={() => {
+                      setShowCreateModal(false);
+                      setSelectedSuggestion(null);
+                      setWorkPlanItems([]);
+                      setShowWorkPlanSection(false);
+                    }}
+                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                    className="w-10 h-10 items-center justify-center rounded-full bg-gray-200 dark:bg-slate-800 active:opacity-70"
+                  >
+                    <X size={24} color="#64748b" />
                   </Pressable>
                 </View>
               </View>
@@ -837,14 +852,24 @@ export default function DecideScreen() {
       </Modal>
 
       {/* Approval Queue Modal */}
-      <Modal visible={showApprovalQueue} transparent animationType="fade" onRequestClose={() => setShowApprovalQueue(false)}>
-        <View className="flex-1 bg-black/70 justify-center items-center px-6">
-          <View className="bg-gray-100 dark:bg-slate-900 rounded-3xl w-full" style={{ maxHeight: '85%' }}>
+      <Modal
+        visible={showApprovalQueue}
+        transparent
+        animationType="slide"
+        presentationStyle="pageSheet"
+        onRequestClose={() => setShowApprovalQueue(false)}
+      >
+        <View className="flex-1 bg-black/70 justify-end">
+          <View className="bg-gray-100 dark:bg-slate-900 rounded-t-3xl" style={{ maxHeight: '90%' }}>
             <View className="px-6 pt-6 pb-4 border-b border-gray-300 dark:border-slate-800">
               <View className="flex-row items-center justify-between">
                 <Text className="text-gray-900 dark:text-white text-xl font-bold">Approval Queue</Text>
-                <Pressable onPress={() => setShowApprovalQueue(false)}>
-                  <X size={24} color="#94a3b8" />
+                <Pressable
+                  onPress={() => setShowApprovalQueue(false)}
+                  hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                  className="w-10 h-10 items-center justify-center rounded-full bg-gray-200 dark:bg-slate-800 active:opacity-70"
+                >
+                  <X size={24} color="#64748b" />
                 </Pressable>
               </View>
             </View>

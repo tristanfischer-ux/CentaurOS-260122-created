@@ -504,15 +504,25 @@ export default function EvaluateScreen() {
       </ScrollView>
 
       {/* Create Work Plan Modal */}
-      <Modal visible={showCreateModal} transparent animationType="fade" onRequestClose={() => setShowCreateModal(false)}>
-        <View className="flex-1 bg-black/70 justify-center items-center px-6">
-          <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} className="w-full">
-            <View className="bg-gray-100 dark:bg-slate-900 rounded-3xl w-full" style={{ maxHeight: '85%' }}>
+      <Modal
+        visible={showCreateModal}
+        transparent
+        animationType="slide"
+        presentationStyle="pageSheet"
+        onRequestClose={() => setShowCreateModal(false)}
+      >
+        <View className="flex-1 bg-black/70 justify-end">
+          <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} className="flex-1">
+            <View className="bg-gray-100 dark:bg-slate-900 rounded-t-3xl flex-1" style={{ maxHeight: '90%' }}>
               <View className="px-6 pt-6 pb-4 border-b border-gray-300 dark:border-slate-800">
                 <View className="flex-row items-center justify-between">
                   <Text className="text-gray-900 dark:text-white text-xl font-bold">Create Work Plan</Text>
-                  <Pressable onPress={() => setShowCreateModal(false)}>
-                    <X size={24} color="#94a3b8" />
+                  <Pressable
+                    onPress={() => setShowCreateModal(false)}
+                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                    className="w-10 h-10 items-center justify-center rounded-full bg-gray-200 dark:bg-slate-800 active:opacity-70"
+                  >
+                    <X size={24} color="#64748b" />
                   </Pressable>
                 </View>
               </View>
@@ -538,14 +548,24 @@ export default function EvaluateScreen() {
       </Modal>
 
       {/* Submission Review Modal */}
-      <Modal visible={showSubmissionModal} transparent animationType="fade" onRequestClose={() => setShowSubmissionModal(false)}>
-        <View className="flex-1 bg-black/70 justify-center items-center px-6">
-          <View className="bg-gray-100 dark:bg-slate-900 rounded-3xl w-full" style={{ maxHeight: '80%' }}>
+      <Modal
+        visible={showSubmissionModal}
+        transparent
+        animationType="slide"
+        presentationStyle="pageSheet"
+        onRequestClose={() => setShowSubmissionModal(false)}
+      >
+        <View className="flex-1 bg-black/70 justify-end">
+          <View className="bg-gray-100 dark:bg-slate-900 rounded-t-3xl" style={{ maxHeight: '90%' }}>
             <View className="px-6 pt-6 pb-4 border-b border-gray-300 dark:border-slate-800">
               <View className="flex-row items-center justify-between">
                 <Text className="text-gray-900 dark:text-white text-xl font-bold">Review Submission</Text>
-                <Pressable onPress={() => setShowSubmissionModal(false)}>
-                  <X size={24} color="#94a3b8" />
+                <Pressable
+                  onPress={() => setShowSubmissionModal(false)}
+                  hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                  className="w-10 h-10 items-center justify-center rounded-full bg-gray-200 dark:bg-slate-800 active:opacity-70"
+                >
+                  <X size={24} color="#64748b" />
                 </Pressable>
               </View>
             </View>
