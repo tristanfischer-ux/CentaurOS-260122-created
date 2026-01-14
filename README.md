@@ -77,6 +77,31 @@ All hardcoded dark colors (bg-slate-900, text-white, etc.) have been replaced wi
 
 ---
 
+## 🛠️ ARMORY TOOL SLOTS SYSTEM
+
+**Latest Update**: 2026-01-14
+
+### Enhanced AI Tool Management
+The Armory now features a slot-based system for managing AI tools:
+
+**Key Features:**
+- **4 Initial Slots** - Always displays 4 tool slots per team member
+- **Empty Slot UI** - Empty slots show a dashed border with a "+" icon, clickable to add tools
+- **Automatic Expansion** - When all 4 slots are filled, a new "Add Another Tool" button appears
+- **Unlimited Slots** - Can add as many AI tools as needed, slots expand dynamically
+- **Quick Delete** - Each filled slot has a delete button (trash icon) for instant removal
+- **Visual Hierarchy** - Filled slots show full tool details, empty slots invite interaction
+
+**User Flow:**
+1. View team member in Armory
+2. See 4 tool slots (some filled, some empty)
+3. Click empty slot or "+" button to add a tool
+4. Click trash icon on filled slot to remove a tool
+5. When all 4 slots are filled, "Add Another Tool" button appears
+6. Slots automatically collapse when tools are removed
+
+---
+
 ## 📦 STARTUP PACK ENHANCEMENTS
 
 **Latest Update**: 2026-01-14

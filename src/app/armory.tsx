@@ -7,6 +7,7 @@ import {
   X,
   DollarSign,
   Trash2,
+  Plus,
 } from 'lucide-react-native';
 import { useAppStore } from '@/lib/state/app-store';
 import { useOrganizationStore } from '@/lib/state/organization-store';
@@ -404,30 +405,73 @@ function CharacterSheetModal({
               </View>
             )}
 
-            {/* AI Tools List */}
-            <View className="flex-row items-center justify-between mb-3">
-              <Text className={`${textPrimary} text-lg font-black`}>AI Tools ({equippedTools.length})</Text>
-              {canManage && (
-                <Pressable onPress={() => setShowAddTool(true)} className="bg-blue-500 rounded-lg px-3 py-2 active:opacity-80">
-                  <Text className="text-white font-bold text-sm">+ Add</Text>
-                </Pressable>
-              )}
-            </View>
+            {/* AI Tools Slots */}
+            <View className="mb-3">
+              <Text className={`${textPrimary} text-lg font-black mb-3`}>AI Tools ({equippedTools.length})</Text>
 
-            {equippedTools.length === 0 ? (
-              <View className={`${bgSecondary} rounded-2xl p-8 items-center`}>
-                <Text className={`${textMuted} text-center`}>No AI tools equipped yet</Text>
-                {canManage && (
-                  <Pressable onPress={() => setShowAddTool(true)} className="bg-blue-500 rounded-xl px-6 py-3 mt-4 active:opacity-80">
-                    <Text className="text-white font-bold">Add First Tool</Text>
-                  </Pressable>
-                )}
-              </View>
-            ) : (
-              equippedTools.map((tool) => {
+              {/* Render slots - always show at least 4, expand as tools are added */}
+              {[0, 1, 2, 3].map((index) => {
+                const tool = equippedTools[index];
+                const toolEffects = tool ? getToolEffects(tool.id) : null;
+
+                return (
+                  <View key={index} className={`${bgSecondary} border ${borderColor} rounded-2xl p-4 mb-3`}>
+                    {tool ? (
+                      // Filled slot
+                      <>
+                        <View className="flex-row items-start justify-between mb-2">
+                          <View className="flex-1 mr-3">
+                            <Text className={`${textPrimary} font-black text-base`}>{tool.name}</Text>
+                            <Text className={`${textSecondary} text-sm mt-1`}>{tool.purpose}</Text>
+                          </View>
+                          <View className="items-end">
+                            <View className="bg-blue-500/20 px-3 py-1 rounded-lg mb-2">
+                              <Text className="text-blue-300 text-xs font-bold">£{tool.costPerMonth}/mo</Text>
+                            </View>
+                            {canManage && (
+                              <Pressable
+                                onPress={() => handleRemoveTool(tool.id)}
+                                className="bg-red-500/20 p-2 rounded-lg active:opacity-70"
+                              >
+                                <Trash2 size={16} color="#f87171" />
+                              </Pressable>
+                            )}
+                          </View>
+                        </View>
+                        {toolEffects && (
+                          <View className="flex-row flex-wrap gap-1 mt-2">
+                            {toolEffects.effectTags.map((tag, idx) => (
+                              <View key={idx} className="bg-emerald-500/20 px-2 py-1 rounded">
+                                <Text className="text-emerald-300 text-xs font-bold">{tag}</Text>
+                              </View>
+                            ))}
+                          </View>
+                        )}
+                      </>
+                    ) : (
+                      // Empty slot
+                      <Pressable
+                        onPress={() => canManage && setShowAddTool(true)}
+                        disabled={!canManage}
+                        className="items-center py-4 active:opacity-70"
+                      >
+                        <View className={`w-12 h-12 rounded-full ${bgSecondary} border-2 border-dashed ${borderColor} items-center justify-center mb-2`}>
+                          <Plus size={24} color={isDark ? '#94a3b8' : '#6b7280'} />
+                        </View>
+                        <Text className={`${textMuted} text-sm`}>
+                          {canManage ? 'Add AI Tool' : 'Empty Slot'}
+                        </Text>
+                      </Pressable>
+                    )}
+                  </View>
+                );
+              })}
+
+              {/* Show additional slots if more than 4 tools are equipped */}
+              {equippedTools.slice(4).map((tool, index) => {
                 const toolEffects = getToolEffects(tool.id);
                 return (
-                  <View key={tool.id} className={`${bgSecondary} border ${borderColor} rounded-2xl p-4 mb-3`}>
+                  <View key={`extra-${index}`} className={`${bgSecondary} border ${borderColor} rounded-2xl p-4 mb-3`}>
                     <View className="flex-row items-start justify-between mb-2">
                       <View className="flex-1 mr-3">
                         <Text className={`${textPrimary} font-black text-base`}>{tool.name}</Text>
@@ -458,8 +502,21 @@ function CharacterSheetModal({
                     )}
                   </View>
                 );
-              })
-            )}
+              })}
+
+              {/* Add new slot button if all current slots are filled */}
+              {equippedTools.length >= 4 && canManage && (
+                <Pressable
+                  onPress={() => setShowAddTool(true)}
+                  className={`${bgSecondary} border-2 border-dashed ${borderColor} rounded-2xl p-4 mb-3 items-center active:opacity-70`}
+                >
+                  <View className="flex-row items-center gap-2">
+                    <Plus size={20} color={isDark ? '#fff' : '#374151'} />
+                    <Text className={`${textPrimary} font-bold`}>Add Another Tool</Text>
+                  </View>
+                </Pressable>
+              )}
+            </View>
 
             {/* Remove from Armory */}
             {canManage && (
