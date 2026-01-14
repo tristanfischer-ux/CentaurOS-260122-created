@@ -210,8 +210,9 @@ export default function CommunityScreen() {
     const topExecs = scoredExecutives.slice(0, 3);
     const topApprentices = scoredApprentices.slice(0, 2);
     const topAI = getAIToolsByFunction('all').slice(0, 2);
-    return { topExecs, topApprentices, topAI };
-  }, [scoredExecutives, scoredApprentices]);
+    const topSuppliers = suppliers.slice(0, 3);
+    return { topExecs, topApprentices, topAI, topSuppliers };
+  }, [scoredExecutives, scoredApprentices, suppliers]);
 
   // Shortlisted items
   const shortlistedExecutives = scoredExecutives.filter(e => shortlistedIds.has(e.id));
@@ -718,8 +719,8 @@ export default function CommunityScreen() {
         {/* DISCOVER TAB - Smart recommendations */}
         {activeTab === 'discover' && (
           <View className="px-5 py-4">
-            {/* Quick Stats */}
-            <View className="flex-row gap-3 mb-5">
+            {/* Quick Stats - Row 1 */}
+            <View className="flex-row gap-3 mb-3">
               <Pressable
                 onPress={() => setActiveTab('executives')}
                 className="flex-1 bg-emerald-500 rounded-2xl p-4 active:opacity-90"
@@ -735,6 +736,17 @@ export default function CommunityScreen() {
                 <GraduationCap size={24} color="#fff" />
                 <Text className="text-white/80 text-xs mt-2">Apprentices</Text>
                 <Text className="text-white text-2xl font-bold">{apprentices.length}</Text>
+              </Pressable>
+            </View>
+            {/* Quick Stats - Row 2 */}
+            <View className="flex-row gap-3 mb-5">
+              <Pressable
+                onPress={() => setActiveTab('suppliers')}
+                className="flex-1 bg-amber-500 rounded-2xl p-4 active:opacity-90"
+              >
+                <Factory size={24} color="#fff" />
+                <Text className="text-white/80 text-xs mt-2">Suppliers</Text>
+                <Text className="text-white text-2xl font-bold">{suppliers.length}</Text>
               </Pressable>
               <Pressable
                 onPress={() => setActiveTab('ai-agents')}
@@ -822,6 +834,79 @@ export default function CommunityScreen() {
                           <Text className="text-gray-600 dark:text-slate-400 text-xs">{func}</Text>
                         </View>
                       ))}
+                    </View>
+                  </Pressable>
+                </Animated.View>
+              ))}
+            </View>
+
+            {/* Top Suppliers */}
+            <View className="mb-5">
+              <View className="flex-row items-center justify-between mb-3">
+                <View className="flex-row items-center">
+                  <Factory size={20} color="#f59e0b" />
+                  <Text className="text-gray-900 dark:text-white font-bold text-lg ml-2">Supply Chain Partners</Text>
+                </View>
+                <Pressable
+                  onPress={() => setActiveTab('suppliers')}
+                  className="flex-row items-center active:opacity-70"
+                >
+                  <Text className="text-blue-500 font-semibold text-sm mr-1">See All</Text>
+                  <ChevronRight size={16} color="#3b82f6" />
+                </Pressable>
+              </View>
+              {topPicks.topSuppliers.map((supplier, idx) => (
+                <Animated.View key={supplier.id} entering={FadeInDown.delay(idx * 50).duration(300)}>
+                  <Pressable
+                    onPress={() => {
+                      selectSupplier(supplier);
+                      setActiveTab('suppliers');
+                    }}
+                    className="bg-white dark:bg-slate-900 rounded-2xl p-4 mb-3 border border-gray-200 dark:border-slate-800 active:opacity-90"
+                  >
+                    <View className="flex-row items-start justify-between mb-2">
+                      <View className="flex-1">
+                        <View className="flex-row items-center">
+                          <Text className="text-gray-900 dark:text-white font-bold text-base">{supplier.name}</Text>
+                          {(supplier.rating ?? 0) >= 4.5 && (
+                            <View className="ml-2 bg-amber-100 dark:bg-amber-900/30 px-1.5 py-0.5 rounded">
+                              <Text className="text-amber-700 dark:text-amber-300 text-[10px] font-bold">TOP RATED</Text>
+                            </View>
+                          )}
+                        </View>
+                        <Text className="text-gray-500 dark:text-slate-400 text-sm">{supplier.location.city}, {supplier.location.country}</Text>
+                      </View>
+                      {supplier.rating && (
+                        <View className="bg-amber-100 dark:bg-amber-900/30 px-2 py-1 rounded">
+                          <Text className="text-amber-700 dark:text-amber-300 text-xs font-bold">{supplier.rating.toFixed(1)} ★</Text>
+                        </View>
+                      )}
+                    </View>
+                    <View className="flex-row flex-wrap gap-1 mb-2">
+                      {supplier.capabilities.slice(0, 3).map((cap, i) => (
+                        <View key={i} className="bg-gray-100 dark:bg-slate-800 px-2 py-1 rounded">
+                          <Text className="text-gray-600 dark:text-slate-400 text-xs">{cap}</Text>
+                        </View>
+                      ))}
+                      {supplier.capabilities.length > 3 && (
+                        <View className="bg-gray-100 dark:bg-slate-800 px-2 py-1 rounded">
+                          <Text className="text-gray-500 dark:text-slate-500 text-xs">+{supplier.capabilities.length - 3}</Text>
+                        </View>
+                      )}
+                    </View>
+                    <View className="flex-row items-center gap-3">
+                      {supplier.leadTimeWeeks && (
+                        <View className="flex-row items-center">
+                          <Clock size={12} color="#64748b" />
+                          <Text className="text-gray-500 dark:text-slate-400 text-xs ml-1">{supplier.leadTimeWeeks} weeks</Text>
+                        </View>
+                      )}
+                      {supplier.minimumOrderQuantity && (
+                        <View className="flex-row items-center">
+                          <DollarSign size={12} color="#64748b" />
+                          <Text className="text-gray-500 dark:text-slate-400 text-xs ml-1">MOQ: {supplier.minimumOrderQuantity}</Text>
+                        </View>
+                      )}
                     </View>
                   </Pressable>
                 </Animated.View>
