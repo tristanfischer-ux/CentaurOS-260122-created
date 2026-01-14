@@ -6,7 +6,7 @@ import {
   TrendingUp, Clock, Target, Zap, Settings2, ChevronDown, ChevronUp,
   Sparkles, Shield, BarChart3, User, Briefcase, Rocket, HelpCircle
 } from 'lucide-react-native';
-import { useAppStore, useCurrentUser, useCurrentMembership } from '@/lib/state/app-store';
+import { useAppStore, useCurrentUser, useCurrentMembership, useCurrentWorkspace } from '@/lib/state/app-store';
 import { router } from 'expo-router';
 import { useState, useMemo } from 'react';
 import type { ThemeMode } from '@/types';
@@ -16,6 +16,16 @@ import { useTheme } from '@/lib/ThemeContext';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { HelpModal, HelpButton, type HelpContent } from '@/components/HelpModal';
+import * as FileSystem from 'expo-file-system';
+import * as Sharing from 'expo-sharing';
+import {
+  exportData,
+  generateTemplate,
+  arrayToCSV,
+  CSV_TEMPLATES,
+  generateGoogleSheetsURL,
+  getAllDataForSync,
+} from '@/lib/data-export';
 
 const SETTINGS_HELP: HelpContent = {
   title: 'Operations & Config',
@@ -87,6 +97,7 @@ export default function SettingsScreen() {
   const insets = useSafeAreaInsets();
   const currentUser = useCurrentUser();
   const currentMembership = useCurrentMembership();
+  const currentWorkspace = useCurrentWorkspace();
   const logout = useAppStore((s) => s.logout);
   const setCurrentUser = useAppStore((s) => s.setCurrentUser);
   const { theme, themeMode, setThemeMode, isOffWhite } = useTheme();
@@ -444,20 +455,93 @@ export default function SettingsScreen() {
     setThemeMode(mode);
   };
 
-  const handleExportCSV = (dataType: string) => {
-    Alert.alert(
-      'Export Successful',
-      `${dataType} data exported to Downloads folder as ${dataType.toLowerCase().replace(/ /g, '_')}_export.csv`,
-      [{ text: 'OK' }]
-    );
+  const handleExportCSV = async (dataType: string) => {
+    if (!currentWorkspace) {
+      Alert.alert('Error', 'No workspace selected');
+      return;
+    }
+
+    try {
+      let csvData: string[][];
+
+      // Map display names to export function keys
+      const typeMap: Record<string, keyof typeof exportData> = {
+        'Tasks': 'tasks',
+        'OKRs': 'okrs',
+        'Team Members': 'team',
+        'Suppliers': 'suppliers',
+        'AI Agents': 'aiAgents',
+        'Financial Data': 'capacity', // Using capacity as placeholder
+      };
+
+      const exportKey = typeMap[dataType];
+      if (exportKey && exportData[exportKey]) {
+        csvData = exportData[exportKey](currentWorkspace.id);
+      } else {
+        Alert.alert('Error', `Export not available for ${dataType}`);
+        return;
+      }
+
+      const csvString = arrayToCSV(csvData);
+      const fileName = `${dataType.toLowerCase().replace(/ /g, '_')}_export_${new Date().toISOString().split('T')[0]}.csv`;
+      const fileUri = `${FileSystem.documentDirectory}${fileName}`;
+
+      await FileSystem.writeAsStringAsync(fileUri, csvString, {
+        encoding: FileSystem.EncodingType.UTF8,
+      });
+
+      if (await Sharing.isAvailableAsync()) {
+        await Sharing.shareAsync(fileUri, {
+          mimeType: 'text/csv',
+          dialogTitle: `Export ${dataType}`,
+        });
+      }
+
+      Alert.alert(
+        'Export Successful',
+        `${dataType} data exported successfully.\n\n${csvData.length - 1} records exported.`,
+        [{ text: 'OK' }]
+      );
+    } catch (error) {
+      console.error('Export error:', error);
+      Alert.alert('Export Failed', 'Could not export data. Please try again.');
+    }
   };
 
-  const handleDownloadTemplate = (dataType: string) => {
-    Alert.alert(
-      'Template Downloaded',
-      `${dataType} CSV template downloaded to Downloads folder as ${dataType.toLowerCase().replace(/ /g, '_')}_template.csv\n\nThis template includes all required columns with example data to help you format your import file correctly.`,
-      [{ text: 'OK' }]
-    );
+  const handleDownloadTemplate = async (dataType: string) => {
+    try {
+      const templateKey = dataType as keyof typeof CSV_TEMPLATES;
+      const template = CSV_TEMPLATES[templateKey];
+
+      if (!template) {
+        Alert.alert('Error', `Template not available for ${dataType}`);
+        return;
+      }
+
+      const csvString = generateTemplate(templateKey);
+      const fileName = `${dataType.toLowerCase().replace(/ /g, '_')}_template.csv`;
+      const fileUri = `${FileSystem.documentDirectory}${fileName}`;
+
+      await FileSystem.writeAsStringAsync(fileUri, csvString, {
+        encoding: FileSystem.EncodingType.UTF8,
+      });
+
+      if (await Sharing.isAvailableAsync()) {
+        await Sharing.shareAsync(fileUri, {
+          mimeType: 'text/csv',
+          dialogTitle: `${dataType} Template`,
+        });
+      }
+
+      Alert.alert(
+        'Template Downloaded',
+        `${dataType} CSV template downloaded.\n\nThis template includes all required columns with example data to help you format your import file correctly.`,
+        [{ text: 'OK' }]
+      );
+    } catch (error) {
+      console.error('Template download error:', error);
+      Alert.alert('Download Failed', 'Could not download template. Please try again.');
+    }
   };
 
   const handleImportCSV = (dataType: string) => {
@@ -473,33 +557,72 @@ export default function SettingsScreen() {
   };
 
   const handleGoogleSheetsSync = async () => {
+    if (!currentWorkspace) {
+      Alert.alert('Error', 'No workspace selected');
+      return;
+    }
+
     setSyncStatus('syncing');
-    setTimeout(() => {
-      setSyncStatus('success');
-      Alert.alert(
-        'Sync Complete',
-        'All data synchronized with Google Sheets:\n\n' +
-        '✓ Tasks (234 records)\n' +
-        '✓ OKRs (12 objectives, 45 key results)\n' +
-        '✓ Team Members (13 people)\n' +
-        '✓ Suppliers (30 companies)\n' +
-        '✓ AI Agents (36 tools)\n' +
-        '✓ Financial Data (12 months)',
-        [{ text: 'OK', onPress: () => setTimeout(() => setSyncStatus('idle'), 500) }]
-      );
-    }, 2000);
+
+    try {
+      // Get all data for sync
+      const allData = getAllDataForSync(currentWorkspace.id);
+
+      // Count records
+      const counts = {
+        tasks: allData.tasks.length - 1,
+        okrs: allData.okrs.length - 1,
+        team: allData.team.length - 1,
+        suppliers: allData.suppliers.length - 1,
+        aiAgents: allData.aiAgents.length - 1,
+        capacity: allData.capacity.length - 1,
+      };
+
+      setTimeout(() => {
+        setSyncStatus('success');
+        Alert.alert(
+          'Sync Complete',
+          `All data ready for Google Sheets:\n\n` +
+          `✓ Tasks (${counts.tasks} records)\n` +
+          `✓ OKRs (${counts.okrs} records)\n` +
+          `✓ Team Members (${counts.team} records)\n` +
+          `✓ Suppliers (${counts.suppliers} records)\n` +
+          `✓ AI Agents (${counts.aiAgents} records)\n` +
+          `✓ Capacity Data (${counts.capacity} records)\n\n` +
+          `Use "Connect Google Sheets" to set up automatic sync.`,
+          [{ text: 'OK', onPress: () => setTimeout(() => setSyncStatus('idle'), 500) }]
+        );
+      }, 2000);
+    } catch (error) {
+      console.error('Sync error:', error);
+      setSyncStatus('error');
+      Alert.alert('Sync Failed', 'Could not prepare data for sync. Please try again.');
+      setTimeout(() => setSyncStatus('idle'), 2000);
+    }
   };
 
   const handleOpenGoogleSheets = () => {
     Alert.alert(
       'Google Sheets Integration',
       'To sync your data with Google Sheets:\n\n' +
-      '1. Create a new Google Sheet or use an existing one\n' +
-      '2. The sheet will be automatically populated with your data\n' +
-      '3. Any changes in the sheet will sync back to Centaur OS\n\n' +
-      'Would you like to open Google Sheets now?',
+      '1. Create a new Google Sheet\n' +
+      '2. Download CSV templates for each data type\n' +
+      '3. Import CSVs into separate tabs in your sheet\n' +
+      '4. Any changes in the sheet can be re-imported via CSV\n\n' +
+      'Would you like to:\n' +
+      '• Download all templates now\n' +
+      '• Open Google Sheets\n',
       [
         { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Download Templates',
+          onPress: async () => {
+            // Download all templates
+            for (const type of ['Tasks', 'OKRs', 'Team', 'Suppliers', 'AI Agents']) {
+              await handleDownloadTemplate(type);
+            }
+          },
+        },
         { text: 'Open Google Sheets', onPress: () => Linking.openURL('https://sheets.google.com') },
       ]
     );
