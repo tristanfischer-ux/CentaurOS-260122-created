@@ -47,6 +47,8 @@ import { CapacityHeatMap } from '@/components/CapacityHeatMap';
 import { CapacityBreakdownModal } from '@/components/CapacityBreakdownModal';
 import { useMessagesStore, initializeDemoMessages } from '@/lib/state/messages-store';
 import { useCalendarStore } from '@/lib/state/calendar-store';
+import { GoalQuestionnaireModal } from '@/components/GoalQuestionnaireModal';
+import { StrategyResultsModal } from '@/components/StrategyResultsModal';
 
 // Help content for each role
 const FOUNDER_HELP: HelpContent = {
@@ -122,6 +124,11 @@ export default function HomeScreen() {
 
   // Capacity breakdown modal state
   const [showCapacityModal, setShowCapacityModal] = useState(false);
+
+  // Goal questionnaire modal states
+  const [showGoalQuestionnaire, setShowGoalQuestionnaire] = useState(false);
+  const [showStrategyResults, setShowStrategyResults] = useState(false);
+  const [goalResponses, setGoalResponses] = useState<Record<string, string>>({});
 
   // Use centralized stores - select primitive values to avoid infinite loops
   const okrs = useOKRStore(s => s.okrs);
@@ -685,6 +692,20 @@ export default function HomeScreen() {
     }
   };
 
+  // Goal questionnaire handlers
+  const handleGoalQuestionnaireComplete = (responses: Record<string, string>) => {
+    setGoalResponses(responses);
+    setShowGoalQuestionnaire(false);
+    setShowStrategyResults(true);
+  };
+
+  const handleCreateOKRs = (okrRecommendations: any[]) => {
+    // Here we would create the OKRs in the store
+    // For now, just show an alert and navigate to Decide tab
+    setShowStrategyResults(false);
+    router.push('/(tabs)/decide');
+  };
+
   // Founder View
   if (isFounder) {
     return (
@@ -702,6 +723,20 @@ export default function HomeScreen() {
           onClose={() => setShowCapacityModal(false)}
           memberCapacities={memberCapacities}
           totalAvailableTU={teamCapacitySummary.totalAvailableTU}
+        />
+
+        {/* Goal Questionnaire Modals */}
+        <GoalQuestionnaireModal
+          visible={showGoalQuestionnaire}
+          onClose={() => setShowGoalQuestionnaire(false)}
+          onComplete={handleGoalQuestionnaireComplete}
+        />
+
+        <StrategyResultsModal
+          visible={showStrategyResults}
+          onClose={() => setShowStrategyResults(false)}
+          responses={goalResponses}
+          onCreateOKRs={handleCreateOKRs}
         />
 
         {/* Role Header - Compact with Key Metrics */}
@@ -851,6 +886,46 @@ export default function HomeScreen() {
                 </View>
               </View>
             )}
+
+            {/* DEFINE YOUR GOALS - Strategic Planning */}
+            <View className="mb-4">
+              <Pressable
+                onPress={() => setShowGoalQuestionnaire(true)}
+                className="active:opacity-70"
+              >
+                <LinearGradient
+                  colors={['#8b5cf6', '#6366f1']}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  style={{ borderRadius: 16, padding: 20 }}
+                >
+                  <View className="flex-row items-center mb-3">
+                    <View className="w-12 h-12 bg-white/20 rounded-xl items-center justify-center">
+                      <Target size={24} color="#fff" />
+                    </View>
+                    <View className="flex-1 ml-4">
+                      <Text className="text-white font-bold text-lg">Define Your Goals</Text>
+                      <Text className="text-white/80 text-sm">
+                        5-minute strategic questionnaire
+                      </Text>
+                    </View>
+                    <ArrowRight size={20} color="#fff" />
+                  </View>
+
+                  <View className="bg-white/10 rounded-xl p-3">
+                    <Text className="text-white/90 text-xs leading-relaxed mb-2">
+                      Answer 5 strategic questions about your vision, metrics, and priorities. Our AI will generate actionable next steps and OKR recommendations.
+                    </Text>
+                    <View className="flex-row items-center">
+                      <Sparkles size={14} color="#fff" />
+                      <Text className="text-white font-semibold text-xs ml-1.5">
+                        AI-Powered Strategic Planning
+                      </Text>
+                    </View>
+                  </View>
+                </LinearGradient>
+              </Pressable>
+            </View>
 
             {/* QUICK ACTIONS */}
             <View className="mb-4">

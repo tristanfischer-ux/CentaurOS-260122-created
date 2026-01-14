@@ -54,7 +54,7 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
 
 ## 🚨 PRODUCTION READINESS STATUS
 
-**Last Updated**: 2026-01-14 (**HOME TAB ENHANCED** - Team capacity now fully interactive with breakdown modal, OKR progress shows top 4 in scrollable list, all clickable to navigate)
+**Last Updated**: 2026-01-14 (**GOAL SETTING SYSTEM** - Founders can now define their goals through a 5-question AI-powered questionnaire that generates strategic next steps and OKR recommendations)
 **Status**: ✅ **READY FOR APP STORE** - All features complete!
 
 ---
@@ -88,6 +88,11 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
 
 ### Founder Home Tab
 The Command Center now provides comprehensive visibility:
+- **Define Your Goals**: AI-powered strategic planning questionnaire
+  - 5-question interactive survey about vision, metrics, challenges, and priorities
+  - AI generates actionable next steps with priority levels and timeframes
+  - Creates OKR recommendations that can be added to the Decide tab
+  - Beautiful gradient card design with progress tracking
 - **Upcoming Deadlines Section**: Shows overdue tasks, due this week, and tasks awaiting review
 - **Top Urgent Tasks**: List of the 3 most urgent tasks across all functions with due dates
 - **Team Capacity Heat Map**:
