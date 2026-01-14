@@ -2,16 +2,16 @@ import { View, Text, Pressable, ScrollView, Modal, Alert, Linking } from 'react-
 import {
   LogOut, ChevronRight, Sun, Moon, Smartphone, FileText, Info, X, Database,
   Download, Upload, RefreshCw, Check, ExternalLink, Sheet, Play, Library, Eye,
-  Mail, Users, Award, Building2, CheckCircle2, Circle, AlertTriangle,
+  Mail, Users, Award, Building2, CheckCircle2,
   TrendingUp, Clock, Target, Zap, Settings2, ChevronDown, ChevronUp,
-  Sparkles, Shield, BarChart3, Calendar, Bell, User, Briefcase
+  Sparkles, Shield, BarChart3, User, Briefcase
 } from 'lucide-react-native';
 import { useAppStore, useCurrentUser, useCurrentMembership } from '@/lib/state/app-store';
 import { router } from 'expo-router';
 import { useState, useMemo } from 'react';
 import type { ThemeMode } from '@/types';
 import { resetOnboarding } from '@/lib/onboarding';
-import Animated, { FadeInDown, FadeInUp, useAnimatedStyle, withSpring, useSharedValue, withTiming } from 'react-native-reanimated';
+import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useTheme } from '@/lib/ThemeContext';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';

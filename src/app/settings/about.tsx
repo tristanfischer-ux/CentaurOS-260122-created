@@ -77,21 +77,19 @@ export default function AboutScreen() {
       title: 'Template Library',
       description: 'Pre-built work plan templates across Marketing, Engineering, Sales, and Product functions to accelerate productivity.',
       color: '#f43f5e',
-      badge: 'NEW',
     },
     {
       icon: BarChart3,
-      title: 'Analytics & Benchmarking',
-      description: 'Real-time team velocity, OKR health tracking, resource utilization, AI usage analytics, and industry benchmarking.',
+      title: 'Homeworld-Style Planning',
+      description: 'Build queue system with OKRs as queue items, people-hours as resources, and capacity tracking with burnout detection.',
       color: '#14b8a6',
       badge: 'NEW',
     },
     {
       icon: Smile,
-      title: 'Haptic Feedback',
-      description: 'iOS-grade tactile feedback on every interaction for a native, delightful user experience.',
+      title: 'Elite UX Design',
+      description: 'iOS-grade tactile feedback, consulting-firm methodology, and Clay/IDEO/Goji design standards throughout.',
       color: '#8b5cf6',
-      badge: 'NEW',
     },
   ];
 
@@ -388,7 +386,7 @@ export default function AboutScreen() {
             © 2026 Centaur OS. All rights reserved.
           </Text>
           <Text className="text-gray-500 dark:text-slate-500 text-xs mt-1">
-            Version 1.0.0 • Build 2026.01.13
+            Version 1.1.0 • Build 2026.01.14
           </Text>
         </View>
       </ScrollView>

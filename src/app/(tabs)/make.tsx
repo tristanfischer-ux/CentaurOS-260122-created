@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, Pressable, Modal, Linking } from 'react-native';
+import { View, Text, ScrollView, Pressable, Modal, Linking, Alert } from 'react-native';
 import { useState, useEffect } from 'react';
 import { router, useLocalSearchParams } from 'expo-router';
 import {
@@ -593,6 +593,11 @@ export default function MakeScreen() {
                       </View>
                     </Pressable>
                     <Pressable
+                      onPress={() => Alert.alert(
+                        'Contract',
+                        `Contract documents for ${selectedSupplier.supplierName} would be displayed here. Upload contracts in your document management system.`,
+                        [{ text: 'OK', style: 'default' }]
+                      )}
                       className="flex-1 bg-gray-300 dark:bg-slate-700 py-3 rounded-xl items-center active:opacity-70"
                     >
                       <View className="flex-row items-center">
