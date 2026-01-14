@@ -915,9 +915,6 @@ export default function HomeScreen() {
                 <Text className="text-gray-500 dark:text-slate-500 text-xs font-bold tracking-wide">
                   TEAM CAPACITY (10-DAY)
                 </Text>
-                <Pressable onPress={() => router.push('/capacity')}>
-                  <Text className="text-emerald-500 text-xs font-semibold">View Details</Text>
-                </Pressable>
               </View>
 
               {/* Quick Stats Row */}

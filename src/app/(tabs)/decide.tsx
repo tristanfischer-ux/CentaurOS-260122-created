@@ -1,6 +1,6 @@
 import { View, Text, ScrollView, Pressable, Modal, TextInput, Alert, KeyboardAvoidingView, Platform } from 'react-native';
 import { useState, useEffect, useMemo } from 'react';
-import { Target, Plus, X, ChevronDown, ChevronRight, CheckCircle2, Circle, Clock, Users, DollarSign, Lightbulb, ChevronUp, UserPlus, Zap, AlertTriangle, AlertCircle, TrendingDown, CalendarClock, ArrowRight, Activity, HelpCircle } from 'lucide-react-native';
+import { Target, Plus, X, ChevronDown, ChevronRight, CheckCircle2, Circle, Clock, Users, DollarSign, Lightbulb, ChevronUp, UserPlus, Zap, AlertTriangle, AlertCircle, TrendingDown, CalendarClock, ArrowRight, HelpCircle } from 'lucide-react-native';
 import { useCurrentWorkspace, useCurrentMembership } from '@/lib/state/app-store';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -425,12 +425,6 @@ export default function DecideScreen() {
           </View>
           <View className="flex-row gap-2">
             <HelpButton onPress={() => setShowHelp(true)} />
-            <Pressable
-              onPress={() => router.push('/capacity')}
-              className="bg-white/20 rounded-xl p-2.5 active:opacity-70"
-            >
-              <Activity size={20} color="#fff" />
-            </Pressable>
             <Pressable
               onPress={() => setShowCreateModal(true)}
               className="bg-white/20 rounded-xl p-2.5 active:opacity-70"
