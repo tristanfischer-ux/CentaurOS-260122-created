@@ -231,7 +231,7 @@ export default function DoScreen() {
 
                     {/* Expanded Actions */}
                     {isExpanded && (
-                      <View className="mt-2 ml-4 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl p-3">
+                      <View className="mt-2 ml-4 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-800 rounded-xl p-3">
                         <Text className="text-gray-900 dark:text-white text-sm mb-2">{plan.description}</Text>
 
                         <View className="flex-row gap-2 mt-3">

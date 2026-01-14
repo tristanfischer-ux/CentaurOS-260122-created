@@ -396,7 +396,7 @@ export default function SettingsScreen() {
       {/* About Modal */}
       <Modal visible={showAbout} transparent animationType="fade" onRequestClose={() => setShowAbout(false)}>
         <View className="flex-1 bg-black/70 justify-center items-center px-6">
-          <View className="bg-white dark:bg-gray-100 dark:bg-slate-900 rounded-3xl w-full" style={{ maxHeight: '90%', minHeight: '60%' }}>
+          <View className="bg-gray-100 dark:bg-slate-900 rounded-3xl w-full" style={{ maxHeight: '90%', minHeight: '60%' }}>
             <View className="p-6 border-b border-gray-200 dark:border-slate-800">
               <View className="flex-row items-center justify-between">
                 <Text className="text-gray-900 dark:text-white text-2xl font-bold">About Centaur OS</Text>
@@ -552,7 +552,7 @@ export default function SettingsScreen() {
       {/* Data Management Modal */}
       <Modal visible={showDataManagement} transparent animationType="fade" onRequestClose={() => setShowDataManagement(false)}>
         <View className="flex-1 bg-black/70 justify-center items-center px-6">
-          <View className="bg-white dark:bg-gray-100 dark:bg-slate-900 rounded-3xl w-full" style={{ maxHeight: '90%', minHeight: '60%' }}>
+          <View className="bg-gray-100 dark:bg-slate-900 rounded-3xl w-full" style={{ maxHeight: '90%', minHeight: '60%' }}>
             <View className="p-6 border-b border-gray-200 dark:border-slate-800">
               <View className="flex-row items-center justify-between">
                 <View className="flex-row items-center gap-3">

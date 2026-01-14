@@ -433,7 +433,7 @@ export default function DecideScreen() {
                   </View>
 
                   {/* Quick Stats */}
-                  <View className="flex-row items-center gap-2 pt-2 border-t border-gray-300 dark:border-slate-700">
+                  <View className="flex-row items-center gap-2 pt-2 border-t border-gray-300 dark:border-slate-800">
                     <Text className="text-gray-600 dark:text-slate-400 text-xs">
                       {okr.objectives.length} Key Results
                     </Text>
@@ -458,7 +458,7 @@ export default function DecideScreen() {
                     {okr.objectives.map((objective: Objective) => (
                       <View
                         key={objective.id}
-                        className="bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl p-3"
+                        className="bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-800 rounded-xl p-3"
                       >
                         <View className="flex-row items-start justify-between mb-2">
                           <View className="flex-1">
@@ -559,7 +559,7 @@ export default function DecideScreen() {
                   <Pressable
                     key={suggestion.id}
                     onPress={() => handleSelectSuggestion(suggestion)}
-                    className="bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-2xl p-4 mb-3 active:opacity-70"
+                    className="bg-gray-100 dark:bg-slate-900 border border-gray-300 dark:border-slate-800 rounded-2xl p-4 mb-3 active:opacity-70"
                   >
                     <Text className="text-gray-900 dark:text-white font-bold text-base mb-2">
                       {suggestion.title}
@@ -633,7 +633,7 @@ export default function DecideScreen() {
                   onChangeText={setNewOKRTitle}
                   placeholder="e.g., Achieve Product-Market Fit"
                   placeholderTextColor="#94a3b8"
-                  className="bg-gray-200 dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-xl px-4 py-3 text-gray-900 dark:text-white mb-4"
+                  className="bg-gray-200 dark:bg-slate-800 border border-gray-300 dark:border-slate-800 rounded-xl px-4 py-3 text-gray-900 dark:text-white mb-4"
                 />
 
                 {/* Description Input */}
@@ -645,7 +645,7 @@ export default function DecideScreen() {
                   placeholderTextColor="#94a3b8"
                   multiline
                   numberOfLines={3}
-                  className="bg-gray-200 dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-xl px-4 py-3 text-gray-900 dark:text-white mb-4"
+                  className="bg-gray-200 dark:bg-slate-800 border border-gray-300 dark:border-slate-800 rounded-xl px-4 py-3 text-gray-900 dark:text-white mb-4"
                   style={{ minHeight: 80, textAlignVertical: 'top' }}
                 />
 
@@ -653,7 +653,7 @@ export default function DecideScreen() {
                 <Text className="text-gray-900 dark:text-white font-semibold mb-2">Owner</Text>
                 <Pressable
                   onPress={() => setShowOwnerDropdown(!showOwnerDropdown)}
-                  className="bg-gray-200 dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-xl px-4 py-3 flex-row items-center justify-between mb-2"
+                  className="bg-gray-200 dark:bg-slate-800 border border-gray-300 dark:border-slate-800 rounded-xl px-4 py-3 flex-row items-center justify-between mb-2"
                 >
                   <Text className={`text-base ${newOKROwner ? 'text-gray-900 dark:text-white' : 'text-gray-500'}`}>
                     {newOKROwner || 'Select an owner...'}
@@ -667,7 +667,7 @@ export default function DecideScreen() {
 
                 {/* Dropdown */}
                 {showOwnerDropdown && (
-                  <View className="bg-gray-200 dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-xl mb-4 max-h-60">
+                  <View className="bg-gray-200 dark:bg-slate-800 border border-gray-300 dark:border-slate-800 rounded-xl mb-4 max-h-60">
                     <ScrollView>
                       {allTeamMembers.map((member, index) => (
                         <Pressable
@@ -677,7 +677,7 @@ export default function DecideScreen() {
                             setNewOKROwnerRole(member.role);
                             setShowOwnerDropdown(false);
                           }}
-                          className="px-4 py-3 border-b border-gray-300 dark:border-slate-700 active:bg-gray-300 dark:active:bg-slate-700"
+                          className="px-4 py-3 border-b border-gray-300 dark:border-slate-800 active:bg-gray-300 dark:active:bg-slate-700"
                         >
                           <View className="flex-row items-center justify-between">
                             <View className="flex-1">
@@ -779,7 +779,7 @@ export default function DecideScreen() {
                           onChangeText={(val) => handleUpdateWorkPlanItem(item.id, 'title', val)}
                           placeholder="e.g., Create social media strategy"
                           placeholderTextColor="#94a3b8"
-                          className="bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-700 rounded-lg px-3 py-2 text-gray-900 dark:text-white mb-2 text-sm"
+                          className="bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-800 rounded-lg px-3 py-2 text-gray-900 dark:text-white mb-2 text-sm"
                         />
                         <Text className="text-gray-700 dark:text-slate-300 text-xs mb-1">Assign to:</Text>
                         <View className="flex-row flex-wrap gap-2">
@@ -793,7 +793,7 @@ export default function DecideScreen() {
                               className={`px-2 py-1 rounded ${
                                 item.assignedTo === member.name
                                   ? 'bg-blue-500'
-                                  : 'bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-700'
+                                  : 'bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-800'
                               }`}
                             >
                               <Text className={`text-xs ${item.assignedTo === member.name ? 'text-white font-semibold' : 'text-gray-700 dark:text-slate-300'}`}>

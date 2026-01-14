@@ -387,7 +387,7 @@ export default function CommunityScreen() {
                   ))}
                 </View>
 
-                <View className="flex-row items-center justify-between pt-2 border-t border-gray-300 dark:border-slate-700">
+                <View className="flex-row items-center justify-between pt-2 border-t border-gray-300 dark:border-slate-800">
                   <Text className="text-gray-600 dark:text-slate-400 text-xs">
                     {exec.experience}
                   </Text>
@@ -493,7 +493,7 @@ export default function CommunityScreen() {
                   ))}
                 </View>
 
-                <View className="flex-row items-center justify-between pt-2 border-t border-gray-300 dark:border-slate-700">
+                <View className="flex-row items-center justify-between pt-2 border-t border-gray-300 dark:border-slate-800">
                   <Text className="text-gray-600 dark:text-slate-400 text-xs">
                     {apprentice.experience}
                   </Text>
@@ -609,7 +609,7 @@ export default function CommunityScreen() {
                   </Text>
                 </View>
 
-                <View className="flex-row items-center justify-between pt-2 border-t border-gray-300 dark:border-slate-700">
+                <View className="flex-row items-center justify-between pt-2 border-t border-gray-300 dark:border-slate-800">
                   <Text className="text-gray-600 dark:text-slate-400 text-xs">
                     {supplier.certifications.join(', ')}
                   </Text>
@@ -716,7 +716,7 @@ export default function CommunityScreen() {
                     )}
                   </View>
 
-                  <View className="flex-row items-center justify-between pt-2 border-t border-gray-300 dark:border-slate-700">
+                  <View className="flex-row items-center justify-between pt-2 border-t border-gray-300 dark:border-slate-800">
                     <Text className="text-emerald-600 dark:text-emerald-400 font-semibold">
                       £{tool.costPerMonth}/mo
                     </Text>
@@ -891,7 +891,7 @@ export default function CommunityScreen() {
                     </Text>
                     <View className="flex-row flex-wrap gap-2">
                       {selectedCandidate.skills.map((skill, idx) => (
-                        <View key={idx} className="bg-gray-200 dark:bg-slate-800 px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-700">
+                        <View key={idx} className="bg-gray-200 dark:bg-slate-800 px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-800">
                           <Text className="text-gray-800 dark:text-slate-200 text-sm">{skill}</Text>
                         </View>
                       ))}

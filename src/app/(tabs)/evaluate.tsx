@@ -433,7 +433,7 @@ export default function EvaluateScreen() {
                   {isExpanded && (
                     <View className="mt-2 ml-4">
                       {/* Assigned Apprentices */}
-                      <View className="bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl p-3 mb-2">
+                      <View className="bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-800 rounded-xl p-3 mb-2">
                         <Text className="text-gray-900 dark:text-white font-semibold text-sm mb-2">
                           Assigned Apprentices
                         </Text>
@@ -449,7 +449,7 @@ export default function EvaluateScreen() {
 
                       {/* Submissions */}
                       {plan.submissions.length > 0 && (
-                        <View className="bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl p-3">
+                        <View className="bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-800 rounded-xl p-3">
                           <Text className="text-gray-900 dark:text-white font-semibold text-sm mb-2">
                             Work Submissions ({plan.submissions.length})
                           </Text>
