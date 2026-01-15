@@ -760,6 +760,18 @@ The Armory now features a slot-based system for managing AI tools:
 
 **Latest Update**: 2026-01-15
 
+### Hub Quick Actions (3x2 Grid)
+
+The Startup Pack hub now features a prominent 3x2 grid of quick actions:
+
+**First Row (Top Priority)**:
+- **Events** (Amber) - Access networking events and workshops for founders
+- **Guild** (Emerald) - Connect with fellow founders and community
+
+**Second Row**:
+- **My Setup Plan** (Blue) - View personalized setup checklist
+- **Setup Wizard** (Purple) - Generate customized company setup plan
+
 ### New Features
 
 1. **Setup Wizard** (`/startup-pack/wizard`)

@@ -24,6 +24,8 @@ import {
   Target,
   Sparkles,
   X,
+  Calendar,
+  UserPlus,
 } from 'lucide-react-native';
 import { useStartupPackStore } from '@/lib/startup-pack';
 import { useCurrentWorkspace, useCurrentMembership } from '@/lib/state/app-store';
@@ -349,26 +351,55 @@ export default function StartupPackScreen() {
               </View>
             </Animated.View>
 
-            {/* Quick Actions */}
+            {/* Quick Actions - 3x2 Grid */}
             {canCreatePlan(userRole) && (
               <Animated.View entering={FadeInDown.delay(100).duration(300)}>
-                <View className="flex-row gap-3 mb-4">
-                  <Pressable
-                    onPress={handleMyPlanPress}
-                    className="flex-1 bg-blue-500 rounded-xl p-4 active:opacity-70"
-                  >
-                    <Sparkles size={24} color="#fff" />
-                    <Text className="text-white font-bold mt-2">My Setup Plan</Text>
-                    <Text className="text-white/70 text-xs">View personalized checklist</Text>
-                  </Pressable>
-                  <Pressable
-                    onPress={() => router.push('/startup-pack/wizard')}
-                    className="flex-1 bg-purple-500 rounded-xl p-4 active:opacity-70"
-                  >
-                    <Rocket size={24} color="#fff" />
-                    <Text className="text-white font-bold mt-2">Setup Wizard</Text>
-                    <Text className="text-white/70 text-xs">Generate your plan</Text>
-                  </Pressable>
+                <View className="mb-4">
+                  {/* First Row - Events & Guild */}
+                  <View className="flex-row gap-3 mb-3">
+                    <Pressable
+                      onPress={() => {
+                        // Navigate to events/community features
+                        router.push('/(tabs)/community');
+                      }}
+                      className="flex-1 bg-amber-500 rounded-xl p-4 active:opacity-70"
+                    >
+                      <Calendar size={24} color="#fff" />
+                      <Text className="text-white font-bold mt-2">Events</Text>
+                      <Text className="text-white/70 text-xs">Networking & workshops</Text>
+                    </Pressable>
+                    <Pressable
+                      onPress={() => {
+                        // Navigate to guild/community
+                        router.push('/(tabs)/community');
+                      }}
+                      className="flex-1 bg-emerald-500 rounded-xl p-4 active:opacity-70"
+                    >
+                      <UserPlus size={24} color="#fff" />
+                      <Text className="text-white font-bold mt-2">Guild</Text>
+                      <Text className="text-white/70 text-xs">Connect with founders</Text>
+                    </Pressable>
+                  </View>
+
+                  {/* Second Row - Setup Plan & Wizard */}
+                  <View className="flex-row gap-3">
+                    <Pressable
+                      onPress={handleMyPlanPress}
+                      className="flex-1 bg-blue-500 rounded-xl p-4 active:opacity-70"
+                    >
+                      <Sparkles size={24} color="#fff" />
+                      <Text className="text-white font-bold mt-2">My Setup Plan</Text>
+                      <Text className="text-white/70 text-xs">View personalized checklist</Text>
+                    </Pressable>
+                    <Pressable
+                      onPress={() => router.push('/startup-pack/wizard')}
+                      className="flex-1 bg-purple-500 rounded-xl p-4 active:opacity-70"
+                    >
+                      <Rocket size={24} color="#fff" />
+                      <Text className="text-white font-bold mt-2">Setup Wizard</Text>
+                      <Text className="text-white/70 text-xs">Generate your plan</Text>
+                    </Pressable>
+                  </View>
                 </View>
               </Animated.View>
             )}
