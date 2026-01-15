@@ -34,6 +34,7 @@ import {
   GripVertical,
   UserPlus,
   CalendarClock,
+  Gauge,
 } from 'lucide-react-native';
 import { useCurrentWorkspace, useCurrentMembership, useCurrentUser } from '@/lib/state/app-store';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -920,6 +921,15 @@ export default function HomeScreen() {
             </View>
             <View className="flex-row items-center gap-2">
               <HelpButton onPress={() => setShowHelp(true)} />
+              <Pressable
+                onPress={() => router.push('/tu-dashboard')}
+                className="bg-purple-500/30 px-3 py-2 rounded-xl active:opacity-70 border border-purple-400/50"
+              >
+                <View className="flex-row items-center gap-1">
+                  <Gauge size={14} color="#e9d5ff" />
+                  <Text className="text-purple-100 text-xs font-medium">TU</Text>
+                </View>
+              </Pressable>
               <Pressable
                 onPress={() => router.push('/financial-dashboard')}
                 className="bg-white/20 px-3 py-2 rounded-xl active:opacity-70"
