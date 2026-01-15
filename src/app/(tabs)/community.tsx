@@ -221,7 +221,13 @@ export default function CommunityScreen() {
       supplier.capabilities.some(spec => spec.toLowerCase().includes(searchQuery.toLowerCase())) ||
       `${supplier.location.city}, ${supplier.location.country}`.toLowerCase().includes(searchQuery.toLowerCase());
 
-    const matchesType = selectedSupplierType === 'all' || true;
+    // Filter by service type
+    const matchesType = selectedSupplierType === 'all' ||
+      (selectedSupplierType === 'manufacturing' && (supplier.serviceType === 'manufacturing' || !supplier.serviceType)) ||
+      (selectedSupplierType === 'bank' && supplier.serviceType === 'bank') ||
+      (selectedSupplierType === 'lawyer' && supplier.serviceType === 'lawyer') ||
+      (selectedSupplierType === 'accountant' && supplier.serviceType === 'accountant') ||
+      (selectedSupplierType === 'professional-services' && ['bank', 'lawyer', 'accountant'].includes(supplier.serviceType || ''));
 
     return matchesSearch && matchesType;
   });
@@ -1044,7 +1050,7 @@ export default function CommunityScreen() {
         {/* SUPPLIERS TAB */}
         {activeTab === 'suppliers' && (
           <View className="px-5 py-4">
-            {/* Type Filter */}
+            {/* Service Type Filter */}
             <ScrollView
               horizontal
               showsHorizontalScrollIndicator={false}
@@ -1052,17 +1058,23 @@ export default function CommunityScreen() {
               contentContainerStyle={{ gap: 8 }}
             >
               {[
-                { value: 'all', label: 'All Suppliers' },
-                { value: 'contract-manufacturer', label: 'Manufacturers' },
-                { value: 'component-supplier', label: 'Components' },
-                { value: 'fulfillment', label: 'Fulfillment' },
+                { value: 'all', label: 'All' },
+                { value: 'manufacturing', label: 'Manufacturing' },
+                { value: 'professional-services', label: 'Professional' },
+                { value: 'bank', label: 'Banks' },
+                { value: 'lawyer', label: 'Lawyers' },
+                { value: 'accountant', label: 'Accountants' },
               ].map((type) => (
                 <Pressable
                   key={type.value}
                   onPress={() => setSelectedSupplierType(type.value)}
                   className={`px-4 py-2 rounded-full ${
                     selectedSupplierType === type.value
-                      ? 'bg-amber-500'
+                      ? type.value === 'bank' ? 'bg-blue-500' :
+                        type.value === 'lawyer' ? 'bg-purple-500' :
+                        type.value === 'accountant' ? 'bg-green-500' :
+                        type.value === 'professional-services' ? 'bg-indigo-500' :
+                        'bg-amber-500'
                       : 'bg-gray-200 dark:bg-slate-800'
                   } active:opacity-70`}
                 >
@@ -1088,7 +1100,25 @@ export default function CommunityScreen() {
                 >
                   <View className="flex-row items-start justify-between mb-2">
                     <View className="flex-1">
-                      <Text className="text-gray-900 dark:text-white font-bold text-base">{supplier.name}</Text>
+                      <View className="flex-row items-center gap-2 flex-wrap">
+                        <Text className="text-gray-900 dark:text-white font-bold text-base">{supplier.name}</Text>
+                        {/* Service Type Badge */}
+                        {supplier.serviceType === 'bank' && (
+                          <View className="bg-blue-100 dark:bg-blue-900/30 px-2 py-0.5 rounded-full">
+                            <Text className="text-blue-700 dark:text-blue-300 text-xs font-semibold">Bank</Text>
+                          </View>
+                        )}
+                        {supplier.serviceType === 'lawyer' && (
+                          <View className="bg-purple-100 dark:bg-purple-900/30 px-2 py-0.5 rounded-full">
+                            <Text className="text-purple-700 dark:text-purple-300 text-xs font-semibold">Lawyer</Text>
+                          </View>
+                        )}
+                        {supplier.serviceType === 'accountant' && (
+                          <View className="bg-green-100 dark:bg-green-900/30 px-2 py-0.5 rounded-full">
+                            <Text className="text-green-700 dark:text-green-300 text-xs font-semibold">Accountant</Text>
+                          </View>
+                        )}
+                      </View>
                       <View className="flex-row items-center mt-1">
                         <MapPin size={12} color="#64748b" />
                         <Text className="text-gray-500 dark:text-slate-400 text-sm ml-1">
@@ -1110,33 +1140,79 @@ export default function CommunityScreen() {
                     {supplier.description}
                   </Text>
 
+                  {/* Show specialties for professional services, capabilities for manufacturing */}
                   <View className="flex-row flex-wrap gap-1 mb-3">
-                    {supplier.capabilities.slice(0, 3).map((cap, i) => (
-                      <View key={i} className="bg-amber-100 dark:bg-amber-900/30 px-2 py-1 rounded">
-                        <Text className="text-amber-700 dark:text-amber-300 text-xs">{cap}</Text>
-                      </View>
-                    ))}
-                    {supplier.capabilities.length > 3 && (
-                      <View className="bg-gray-100 dark:bg-slate-800 px-2 py-1 rounded">
-                        <Text className="text-gray-500 dark:text-slate-500 text-xs">+{supplier.capabilities.length - 3}</Text>
-                      </View>
+                    {supplier.serviceType && ['bank', 'lawyer', 'accountant'].includes(supplier.serviceType) ? (
+                      // Professional services - show specialties
+                      <>
+                        {(supplier.specialties || []).slice(0, 3).map((spec, i) => (
+                          <View key={i} className={`px-2 py-1 rounded ${
+                            supplier.serviceType === 'bank' ? 'bg-blue-100 dark:bg-blue-900/30' :
+                            supplier.serviceType === 'lawyer' ? 'bg-purple-100 dark:bg-purple-900/30' :
+                            'bg-green-100 dark:bg-green-900/30'
+                          }`}>
+                            <Text className={`text-xs ${
+                              supplier.serviceType === 'bank' ? 'text-blue-700 dark:text-blue-300' :
+                              supplier.serviceType === 'lawyer' ? 'text-purple-700 dark:text-purple-300' :
+                              'text-green-700 dark:text-green-300'
+                            }`}>{spec}</Text>
+                          </View>
+                        ))}
+                        {(supplier.specialties || []).length > 3 && (
+                          <View className="bg-gray-100 dark:bg-slate-800 px-2 py-1 rounded">
+                            <Text className="text-gray-500 dark:text-slate-500 text-xs">+{(supplier.specialties || []).length - 3}</Text>
+                          </View>
+                        )}
+                      </>
+                    ) : (
+                      // Manufacturing - show capabilities
+                      <>
+                        {supplier.capabilities.slice(0, 3).map((cap, i) => (
+                          <View key={i} className="bg-amber-100 dark:bg-amber-900/30 px-2 py-1 rounded">
+                            <Text className="text-amber-700 dark:text-amber-300 text-xs">{cap}</Text>
+                          </View>
+                        ))}
+                        {supplier.capabilities.length > 3 && (
+                          <View className="bg-gray-100 dark:bg-slate-800 px-2 py-1 rounded">
+                            <Text className="text-gray-500 dark:text-slate-500 text-xs">+{supplier.capabilities.length - 3}</Text>
+                          </View>
+                        )}
+                      </>
                     )}
                   </View>
 
                   <View className="flex-row items-center justify-between pt-3 border-t border-gray-100 dark:border-slate-800">
-                    <View className="flex-row gap-4">
-                      <Text className="text-gray-500 dark:text-slate-500 text-xs">
-                        MOQ: {supplier.minimumOrderQuantity}
-                      </Text>
-                      <Text className="text-gray-500 dark:text-slate-500 text-xs">
-                        Lead: {supplier.leadTimeWeeks}w
-                      </Text>
-                    </View>
+                    {/* Show relevant info based on service type */}
+                    {supplier.serviceType && ['bank', 'lawyer', 'accountant'].includes(supplier.serviceType) ? (
+                      <View className="flex-row gap-4">
+                        {supplier.pricing?.perUnit && (
+                          <Text className="text-gray-500 dark:text-slate-500 text-xs" numberOfLines={1}>
+                            {supplier.pricing.perUnit.slice(0, 30)}{supplier.pricing.perUnit.length > 30 ? '...' : ''}
+                          </Text>
+                        )}
+                      </View>
+                    ) : (
+                      <View className="flex-row gap-4">
+                        <Text className="text-gray-500 dark:text-slate-500 text-xs">
+                          MOQ: {supplier.minimumOrderQuantity}
+                        </Text>
+                        <Text className="text-gray-500 dark:text-slate-500 text-xs">
+                          Lead: {supplier.leadTimeWeeks}w
+                        </Text>
+                      </View>
+                    )}
                     <Pressable
                       onPress={() => handleQuickOnboard('supplier', supplier)}
-                      className="bg-amber-500 px-4 py-2 rounded-lg active:opacity-80"
+                      className={`px-4 py-2 rounded-lg active:opacity-80 ${
+                        supplier.serviceType === 'bank' ? 'bg-blue-500' :
+                        supplier.serviceType === 'lawyer' ? 'bg-purple-500' :
+                        supplier.serviceType === 'accountant' ? 'bg-green-500' :
+                        'bg-amber-500'
+                      }`}
                     >
-                      <Text className="text-white text-xs font-bold">Request</Text>
+                      <Text className="text-white text-xs font-bold">
+                        {supplier.serviceType && ['bank', 'lawyer', 'accountant'].includes(supplier.serviceType) ? 'Contact' : 'Request'}
+                      </Text>
                     </Pressable>
                   </View>
                 </Pressable>

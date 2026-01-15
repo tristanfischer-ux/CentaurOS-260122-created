@@ -70,6 +70,9 @@ export type SupplierStatus = 'pending_approval' | 'approved' | 'verified' | 'sus
 
 export type SupplierRegion = 'UK' | 'EU' | 'North America' | 'Asia' | 'Global';
 
+// Professional service types for filtering
+export type ServiceType = 'manufacturing' | 'bank' | 'lawyer' | 'accountant';
+
 // User
 export interface User {
   id: string;
@@ -528,6 +531,7 @@ export interface Supplier {
   id: string;
   name: string;
   description: string;
+  serviceType?: ServiceType; // Type of professional service (manufacturing, bank, lawyer, accountant)
   capabilities: ManufacturingCapability[];
   region: SupplierRegion;
   location: {

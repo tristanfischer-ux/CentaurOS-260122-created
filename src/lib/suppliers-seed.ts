@@ -2,12 +2,13 @@
 // This creates a shared supplier network across all Centaur OS workspaces
 
 import { v4 as uuidv4 } from 'uuid';
-import type { Supplier, ManufacturingCapability } from '@/types';
+import type { Supplier, ManufacturingCapability, ServiceType } from '@/types';
 
 export const UK_SUPPLIERS: Omit<Supplier, 'id' | 'createdAt' | 'updatedAt'>[] = [
   {
     name: 'Proto Labs UK',
     description: 'Digital manufacturing for custom prototypes and low-volume production parts',
+    serviceType: 'manufacturing',
     detailedDescription: 'Proto Labs is the world\'s fastest digital manufacturing source for custom prototypes and on-demand production parts. Our automated quoting and manufacturing systems transform your digital designs into custom parts in as fast as 1 day. We offer CNC machining, injection molding, 3D printing, and sheet metal fabrication with no minimum order quantities.',
     capabilities: [
       'CNC Machining',
@@ -151,6 +152,7 @@ export const UK_SUPPLIERS: Omit<Supplier, 'id' | 'createdAt' | 'updatedAt'>[] = 
   {
     name: 'Omega Plastics',
     description: 'Injection moulding specialists for production volumes from 1,000 to 1,000,000+ units',
+    serviceType: 'manufacturing',
     capabilities: [
       'Injection Molding',
       'Overmolding',
@@ -185,6 +187,7 @@ export const UK_SUPPLIERS: Omit<Supplier, 'id' | 'createdAt' | 'updatedAt'>[] = 
   },
   {
     name: 'Laser Master UK',
+    serviceType: 'manufacturing',
     description: 'Precision laser cutting and engraving services for metals, plastics, and composites',
     capabilities: [
       'Laser Cutting',
@@ -220,6 +223,7 @@ export const UK_SUPPLIERS: Omit<Supplier, 'id' | 'createdAt' | 'updatedAt'>[] = 
   },
   {
     name: 'RPWORLD UK',
+    serviceType: 'manufacturing',
     description: 'One-stop rapid prototyping and low-volume manufacturing service',
     capabilities: [
       'Additive Manufacturing - Plastic',
@@ -257,6 +261,7 @@ export const UK_SUPPLIERS: Omit<Supplier, 'id' | 'createdAt' | 'updatedAt'>[] = 
   },
   {
     name: 'Newbury Electronics',
+    serviceType: 'manufacturing',
     description: 'PCB assembly and electronic manufacturing services',
     capabilities: [
       'PCB Assembly',
@@ -293,6 +298,7 @@ export const UK_SUPPLIERS: Omit<Supplier, 'id' | 'createdAt' | 'updatedAt'>[] = 
   },
   {
     name: 'Formero',
+    serviceType: 'manufacturing',
     description: 'Vacuum forming, pressure forming and thermoforming specialists',
     capabilities: [
       'Vacuum Forming',
@@ -327,6 +333,7 @@ export const UK_SUPPLIERS: Omit<Supplier, 'id' | 'createdAt' | 'updatedAt'>[] = 
   },
   {
     name: 'MJN Neuro',
+    serviceType: 'manufacturing',
     description: 'Specialist in EPS molding, EPP molding, and expanded foam products',
     capabilities: [
       'EPS Molding',
@@ -362,6 +369,7 @@ export const UK_SUPPLIERS: Omit<Supplier, 'id' | 'createdAt' | 'updatedAt'>[] = 
   },
   {
     name: 'EMS UK',
+    serviceType: 'manufacturing',
     description: 'Full-service electronics manufacturing - from design to finished product',
     capabilities: [
       'PCB Assembly',
@@ -399,6 +407,7 @@ export const UK_SUPPLIERS: Omit<Supplier, 'id' | 'createdAt' | 'updatedAt'>[] = 
   },
   {
     name: 'Brandauer',
+    serviceType: 'manufacturing',
     description: 'Precision stamping, tooling, and metal fabrication since 1862',
     capabilities: [
       'Sheet Metal Fabrication',
@@ -434,6 +443,7 @@ export const UK_SUPPLIERS: Omit<Supplier, 'id' | 'createdAt' | 'updatedAt'>[] = 
   },
   {
     name: 'Tharsus',
+    serviceType: 'manufacturing',
     description: 'Robotic and automated assembly solutions with full production capabilities',
     capabilities: [
       'Electronic Assembly',
@@ -470,6 +480,7 @@ export const UK_SUPPLIERS: Omit<Supplier, 'id' | 'createdAt' | 'updatedAt'>[] = 
   },
   {
     name: '3D Hubs (Protolabs Network)',
+    serviceType: 'manufacturing',
     description: 'On-demand manufacturing network connecting designers with verified UK manufacturers for rapid prototyping',
     capabilities: [
       'Additive Manufacturing - Plastic',
@@ -505,6 +516,7 @@ export const UK_SUPPLIERS: Omit<Supplier, 'id' | 'createdAt' | 'updatedAt'>[] = 
   },
   {
     name: 'XYZ Machine Tools',
+    serviceType: 'manufacturing',
     description: 'CNC machine tool supplier offering contract machining and manufacturing services',
     capabilities: [
       'CNC Machining',
@@ -539,6 +551,7 @@ export const UK_SUPPLIERS: Omit<Supplier, 'id' | 'createdAt' | 'updatedAt'>[] = 
   },
   {
     name: 'Paragon Rapid Technologies',
+    serviceType: 'manufacturing',
     description: 'Additive manufacturing specialists offering SLA, SLS, and FDM 3D printing with post-processing',
     capabilities: [
       'Additive Manufacturing - Plastic',
@@ -574,6 +587,7 @@ export const UK_SUPPLIERS: Omit<Supplier, 'id' | 'createdAt' | 'updatedAt'>[] = 
   },
   {
     name: 'Olympus Metal Finishing',
+    serviceType: 'manufacturing',
     description: 'Specialist metal finishing services including anodizing, plating, and powder coating',
     capabilities: [
       'Anodizing',
@@ -609,6 +623,7 @@ export const UK_SUPPLIERS: Omit<Supplier, 'id' | 'createdAt' | 'updatedAt'>[] = 
   },
   {
     name: 'Abbey Plastics',
+    serviceType: 'manufacturing',
     description: 'Custom injection moulding and toolmaking for low to high volume production',
     capabilities: [
       'Injection Molding',
@@ -644,6 +659,7 @@ export const UK_SUPPLIERS: Omit<Supplier, 'id' | 'createdAt' | 'updatedAt'>[] = 
   },
   {
     name: 'European Springs & Pressings',
+    serviceType: 'manufacturing',
     description: 'Precision spring manufacturing and wire forming specialists',
     capabilities: [
       'CNC Machining',
@@ -678,6 +694,7 @@ export const UK_SUPPLIERS: Omit<Supplier, 'id' | 'createdAt' | 'updatedAt'>[] = 
   },
   {
     name: 'Airedale Springs',
+    serviceType: 'manufacturing',
     description: 'Precision spring and wireform manufacturer for engineering applications',
     capabilities: [
       'CNC Machining',
@@ -712,6 +729,7 @@ export const UK_SUPPLIERS: Omit<Supplier, 'id' | 'createdAt' | 'updatedAt'>[] = 
   },
   {
     name: 'Fastenright Ltd',
+    serviceType: 'manufacturing',
     description: 'Specialist fixings and fasteners supplier with custom manufacturing capabilities',
     capabilities: [
       'CNC Machining',
@@ -746,6 +764,7 @@ export const UK_SUPPLIERS: Omit<Supplier, 'id' | 'createdAt' | 'updatedAt'>[] = 
   },
   {
     name: 'V&F Sheet Metal',
+    serviceType: 'manufacturing',
     description: 'Precision sheet metal fabrication specialists with laser cutting and folding capabilities',
     capabilities: [
       'Sheet Metal Fabrication',
@@ -781,6 +800,7 @@ export const UK_SUPPLIERS: Omit<Supplier, 'id' | 'createdAt' | 'updatedAt'>[] = 
   },
   {
     name: 'Dean Group International',
+    serviceType: 'manufacturing',
     description: 'Investment casting and precision machining for complex metal components',
     capabilities: [
       'Investment Casting',
@@ -816,6 +836,7 @@ export const UK_SUPPLIERS: Omit<Supplier, 'id' | 'createdAt' | 'updatedAt'>[] = 
   },
   {
     name: 'Gooch & Housego',
+    serviceType: 'manufacturing',
     description: 'Precision optical components and photonics manufacturing',
     capabilities: [
       'CNC Machining',
@@ -850,6 +871,7 @@ export const UK_SUPPLIERS: Omit<Supplier, 'id' | 'createdAt' | 'updatedAt'>[] = 
   },
   {
     name: 'Stadium Export',
+    serviceType: 'manufacturing',
     description: 'Contract electronics manufacturer specializing in PCB assembly and box build',
     capabilities: [
       'PCB Assembly',
@@ -886,6 +908,7 @@ export const UK_SUPPLIERS: Omit<Supplier, 'id' | 'createdAt' | 'updatedAt'>[] = 
   },
   {
     name: 'Qualitetch',
+    serviceType: 'manufacturing',
     description: 'Chemical etching and photo etching specialists for precision metal components',
     capabilities: [
       'Sheet Metal Fabrication',
@@ -920,6 +943,7 @@ export const UK_SUPPLIERS: Omit<Supplier, 'id' | 'createdAt' | 'updatedAt'>[] = 
   },
   {
     name: 'J & L Engineering',
+    serviceType: 'manufacturing',
     description: 'CNC turning and milling specialists for precision engineering components',
     capabilities: [
       'CNC Machining',
@@ -954,6 +978,7 @@ export const UK_SUPPLIERS: Omit<Supplier, 'id' | 'createdAt' | 'updatedAt'>[] = 
   },
   {
     name: 'Grainger & Worrall',
+    serviceType: 'manufacturing',
     description: 'Aluminium and magnesium casting specialists with full machining capabilities',
     capabilities: [
       'Die Casting',
@@ -989,6 +1014,7 @@ export const UK_SUPPLIERS: Omit<Supplier, 'id' | 'createdAt' | 'updatedAt'>[] = 
   },
   {
     name: 'Weston Aerospace',
+    serviceType: 'manufacturing',
     description: 'Precision machining and fabrication for aerospace and defense sectors',
     capabilities: [
       'CNC Machining',
@@ -1024,6 +1050,7 @@ export const UK_SUPPLIERS: Omit<Supplier, 'id' | 'createdAt' | 'updatedAt'>[] = 
   },
   {
     name: 'Airedale Group',
+    serviceType: 'manufacturing',
     description: 'Full-service manufacturer offering PCB assembly, cable assembly, and box build',
     capabilities: [
       'PCB Assembly',
@@ -1060,6 +1087,7 @@ export const UK_SUPPLIERS: Omit<Supplier, 'id' | 'createdAt' | 'updatedAt'>[] = 
   },
   {
     name: 'Plastic Concepts',
+    serviceType: 'manufacturing',
     description: 'Injection moulding and product design specialists for consumer products',
     capabilities: [
       'Injection Molding',
@@ -1095,6 +1123,7 @@ export const UK_SUPPLIERS: Omit<Supplier, 'id' | 'createdAt' | 'updatedAt'>[] = 
   },
   {
     name: 'Cooksongold',
+    serviceType: 'manufacturing',
     description: 'Precious metals casting, finishing and jewellery manufacturing services',
     capabilities: [
       'Investment Casting',
@@ -1130,6 +1159,7 @@ export const UK_SUPPLIERS: Omit<Supplier, 'id' | 'createdAt' | 'updatedAt'>[] = 
   },
   {
     name: 'Produmax',
+    serviceType: 'manufacturing',
     description: 'Automated manufacturing solutions with robotic assembly and production line integration',
     capabilities: [
       'Electronic Assembly',
@@ -1166,6 +1196,7 @@ export const UK_SUPPLIERS: Omit<Supplier, 'id' | 'createdAt' | 'updatedAt'>[] = 
   // ==================== BUSINESS BANKS FOR SMEs ====================
   {
     name: 'Tide Business Banking',
+    serviceType: 'bank',
     description: 'Digital business banking designed for SMEs with instant account opening and no monthly fees',
     detailedDescription: 'Tide is the UK\'s leading digital business banking platform built specifically for small businesses and startups. Open a business account in minutes, manage finances on mobile, and access integrated accounting tools. No credit checks, no monthly fees on the Free plan, and instant payments.',
     capabilities: [] as ManufacturingCapability[],
@@ -1252,6 +1283,7 @@ export const UK_SUPPLIERS: Omit<Supplier, 'id' | 'createdAt' | 'updatedAt'>[] = 
   },
   {
     name: 'Starling Bank Business',
+    serviceType: 'bank',
     description: 'Award-winning digital business bank with integrated accounting and spending controls',
     detailedDescription: 'Starling Bank offers full UK business banking with no monthly fees, real-time notifications, and powerful spending analytics. Fully licensed UK bank with FSCS protection. Integrate with Xero, FreeAgent, and other accounting software. Get corporate debit cards for your team with customizable spending limits.',
     capabilities: [] as ManufacturingCapability[],
@@ -1324,6 +1356,7 @@ export const UK_SUPPLIERS: Omit<Supplier, 'id' | 'createdAt' | 'updatedAt'>[] = 
   },
   {
     name: 'NatWest Business Banking',
+    serviceType: 'bank',
     description: 'Traditional high-street bank with comprehensive SME banking and relationship management',
     detailedDescription: 'NatWest provides full-service business banking for UK SMEs with dedicated relationship managers, business loans, overdrafts, and nationwide branch network. Access to business support programs, startup accelerators, and networking events. Ideal for established businesses needing comprehensive banking services.',
     capabilities: [] as ManufacturingCapability[],
@@ -1397,6 +1430,7 @@ export const UK_SUPPLIERS: Omit<Supplier, 'id' | 'createdAt' | 'updatedAt'>[] = 
   // ==================== LAWYERS FOR STARTUPS & SMEs ====================
   {
     name: 'SeedLegals',
+    serviceType: 'lawyer',
     description: 'Legal platform for startups covering incorporation, fundraising, employee options, and contracts',
     detailedDescription: 'SeedLegals is the UK\'s #1 platform for startup legal work. Handle company formation, SEIS/EIS advance assurance, fundraising rounds, EMI option schemes, shareholder agreements, and contracts all online. Transparent fixed pricing, fast turnaround, and backed by real lawyers for complex questions.',
     capabilities: [] as ManufacturingCapability[],
@@ -1501,6 +1535,7 @@ export const UK_SUPPLIERS: Omit<Supplier, 'id' | 'createdAt' | 'updatedAt'>[] = 
   },
   {
     name: 'Taylor Vinters',
+    serviceType: 'lawyer',
     description: 'Leading technology and life sciences law firm specializing in startups and scaleups',
     detailedDescription: 'Taylor Vinters is one of the UK\'s premier law firms for tech and life sciences companies. Providing full-service legal support including corporate, commercial, IP, employment, and fundraising. Known for working with high-growth startups from formation through IPO. Strong connections with VC community.',
     capabilities: [] as ManufacturingCapability[],
@@ -1573,6 +1608,7 @@ export const UK_SUPPLIERS: Omit<Supplier, 'id' | 'createdAt' | 'updatedAt'>[] = 
   },
   {
     name: 'Keystone Law',
+    serviceType: 'lawyer',
     description: 'Flexible commercial law firm with specialist startup and IP lawyers',
     detailedDescription: 'Keystone Law operates a unique model with experienced lawyers working flexibly across the UK. Specializing in commercial contracts, IP protection, employment law, and corporate transactions for SMEs and startups. Lower overheads mean competitive pricing with Big Law expertise.',
     capabilities: [] as ManufacturingCapability[],
@@ -1646,6 +1682,7 @@ export const UK_SUPPLIERS: Omit<Supplier, 'id' | 'createdAt' | 'updatedAt'>[] = 
   // ==================== ACCOUNTANTS FOR STARTUPS & SMEs ====================
   {
     name: 'Crunch',
+    serviceType: 'accountant',
     description: 'Online accountancy platform for freelancers, contractors, and small businesses',
     detailedDescription: 'Crunch is the UK\'s leading online accountancy service combining smart software with real accountants. Perfect for startups, freelancers, and SMEs. Includes bookkeeping, VAT returns, payroll, self-assessment, year-end accounts, and Companies House filing. Flat monthly fee with unlimited support.',
     capabilities: [] as ManufacturingCapability[],
@@ -1739,6 +1776,7 @@ export const UK_SUPPLIERS: Omit<Supplier, 'id' | 'createdAt' | 'updatedAt'>[] = 
   },
   {
     name: 'Mazuma',
+    serviceType: 'accountant',
     description: 'Award-winning online accountants for small businesses with transparent pricing',
     detailedDescription: 'Mazuma provides comprehensive online accounting services for UK small businesses. Includes bookkeeping, VAT, payroll, tax returns, and year-end accounts with a dedicated accountant. Cloud-based platform with real-time dashboards. Specializes in helping startups with SEIS/EIS claims and growth stage financial planning.',
     capabilities: [] as ManufacturingCapability[],
@@ -1811,6 +1849,7 @@ export const UK_SUPPLIERS: Omit<Supplier, 'id' | 'createdAt' | 'updatedAt'>[] = 
   },
   {
     name: 'Haines Watts',
+    serviceType: 'accountant',
     description: 'Top 15 UK accountancy firm with specialist SME and manufacturing expertise',
     detailedDescription: 'Haines Watts is one of the UK\'s leading mid-tier accountancy firms with 34 offices nationwide. Provides comprehensive accounting, audit, tax advisory, and business consultancy services. Strong manufacturing sector expertise with R&D tax credit specialists. Ideal for established SMEs and growing hardware companies.',
     capabilities: [] as ManufacturingCapability[],
