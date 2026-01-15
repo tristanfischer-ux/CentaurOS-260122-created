@@ -35,6 +35,7 @@ interface OrganizationState {
   getAIAgentById: (id: string) => AIAgent | undefined;
   getAIAgentsByFunction: (func: string) => AIAgent[];
   getActiveAIAgents: () => AIAgent[];
+  deleteAIAgent: (id: string) => void;
 
   // Supplier Engagement methods
   getEngagementById: (id: string) => SupplierEngagement | undefined;
@@ -116,6 +117,12 @@ export const useOrganizationStore = create<OrganizationState>((set, get) => ({
 
   getActiveAIAgents: () => {
     return get().aiAgents.filter(a => a.status === 'active');
+  },
+
+  deleteAIAgent: (id: string) => {
+    set((state) => ({
+      aiAgents: state.aiAgents.filter(agent => agent.id !== id)
+    }));
   },
 
   // Supplier Engagement methods

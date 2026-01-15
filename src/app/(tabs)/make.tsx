@@ -28,6 +28,7 @@ import {
   RefreshCw,
   HelpCircle,
   User,
+  Trash2,
 } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useCurrentMembership, useCurrentWorkspace, useCurrentUser } from '@/lib/state/app-store';
@@ -85,12 +86,14 @@ export default function MakeScreen() {
   const getTotalAISpend = useOrganizationStore((s) => s.getTotalAISpend);
   const getTotalSupplierSpend = useOrganizationStore((s) => s.getTotalSupplierSpend);
   const updateSupplierEngagement = useOrganizationStore((s) => s.updateSupplierEngagement);
+  const deleteAIAgent = useOrganizationStore((s) => s.deleteAIAgent);
 
   // Work plan store for task linkage
   const workPlans = useWorkPlanStore(s => s.workPlans);
 
   // Armory store for AI tool usage
   const getMembersUsingAITool = useArmoryStore(s => s.getMembersUsingAITool);
+  const removeAIToolFromAllLoadouts = useArmoryStore(s => s.removeAIToolFromAllLoadouts);
 
   // Ownership store
   const getOwnershipsForUser = useResourceOwnershipStore(s => s.getOwnershipsForUser);
@@ -180,6 +183,31 @@ export default function MakeScreen() {
   const handleOwnerClick = (ownership: ResourceOwnership) => {
     setSelectedOwnership(ownership);
     setShowApprovalHistory(true);
+  };
+
+  const handleDeleteAIAgent = async (aiAgentId: string, aiAgentName: string) => {
+    Alert.alert(
+      'Delete AI Agent',
+      `Are you sure you want to delete "${aiAgentName}"? This will remove it from all team members who are currently using it.`,
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            // Remove from all loadouts first
+            await removeAIToolFromAllLoadouts(aiAgentId);
+            // Then delete the agent
+            deleteAIAgent(aiAgentId);
+            // Close modal
+            setSelectedAI(null);
+          },
+        },
+      ]
+    );
   };
 
   const tabs: { value: MakeTab; label: string; icon: any }[] = [
@@ -1291,6 +1319,17 @@ export default function MakeScreen() {
                       </Text>
                     )}
                   </View>
+
+                  {/* Delete Button */}
+                  <Pressable
+                    onPress={() => handleDeleteAIAgent(selectedAI.id, selectedAI.name)}
+                    className="flex-row items-center justify-center bg-red-50 dark:bg-red-900/20 border-2 border-red-200 dark:border-red-800 rounded-xl p-4 mb-6 active:opacity-70"
+                  >
+                    <Trash2 size={20} color="#ef4444" />
+                    <Text className="text-red-600 dark:text-red-400 font-bold ml-2">
+                      Delete AI Agent
+                    </Text>
+                  </Pressable>
                 </View>
               </ScrollView>
             </View>

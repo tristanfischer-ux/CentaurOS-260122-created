@@ -46,6 +46,7 @@ interface ArmoryState {
 
   // Utility
   getMembersUsingAITool: (aiToolId: string) => string[]; // Returns array of member IDs
+  removeAIToolFromAllLoadouts: (aiToolId: string) => Promise<void>; // Remove tool from everyone when deleted
   reset: () => Promise<void>;
 }
 
@@ -364,6 +365,23 @@ export const useArmoryStore = create<ArmoryState>((set, get) => ({
     return loadouts
       .filter(loadout => loadout.aiToolIds.includes(aiToolId))
       .map(loadout => loadout.memberId);
+  },
+
+  removeAIToolFromAllLoadouts: async (aiToolId: string) => {
+    const loadouts = get().personLoadouts;
+    const updatedLoadouts = loadouts.map(loadout => {
+      // Remove from aiToolIds array
+      const updatedAIToolIds = loadout.aiToolIds.filter(id => id !== aiToolId);
+
+      return {
+        ...loadout,
+        aiToolIds: updatedAIToolIds,
+        updatedAt: new Date().toISOString(),
+      };
+    });
+
+    set({ personLoadouts: updatedLoadouts });
+    await get().saveToStorage();
   },
 
   reset: async () => {
