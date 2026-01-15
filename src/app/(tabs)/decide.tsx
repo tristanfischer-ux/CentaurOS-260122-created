@@ -32,20 +32,18 @@ import { TaskDetailsModal } from '@/components/TaskDetailsModal';
 
 const DECIDE_HELP: HelpContent = {
   title: 'Strategic Decisions',
-  subtitle: 'Set direction and allocate resources',
-  description: 'The Decide tab is where you set strategic direction through OKRs (Objectives & Key Results), allocate resources, and make critical decisions that impact your startup\'s trajectory.',
+  subtitle: 'Allocate resources to tasks',
+  description: 'The Decide tab is where you manage all tasks, allocate team resources, and track progress. Tasks are organized into Active (with resources) and Queued (awaiting resources).',
   tips: [
-    'Address "Needs Your Decision" items first - these are blocking progress',
-    'Review at-risk OKRs weekly to catch problems before they become critical',
-    'Use the Build Queue to see how OKRs are progressing and ETA',
-    'Approve hiring requests promptly to unblock resource needs',
-    'Create new OKRs using the Ideas button for inspiration',
+    'Tap a task to see details and allocate resources from the pool above',
+    'Tap team members in the resource pool, then tap tasks to allocate their time',
+    'Swipe left on tasks to delete and free up resources',
+    'Use the Ideas button for task suggestions',
   ],
   quickActions: [
-    { label: 'Build Queue', description: 'View your OKR build queue with ETAs and resource allocation' },
-    { label: 'Capacity', description: 'Check team capacity and workload distribution' },
-    { label: 'Create OKR', description: 'Add a new strategic objective with key results' },
-    { label: 'OKR Ideas', description: 'Browse suggested OKRs by category for inspiration' },
+    { label: 'Resource Pool', description: 'View team capacity and available time units' },
+    { label: 'Create Task', description: 'Add a new task to the queue' },
+    { label: 'Task Ideas', description: 'Browse suggested tasks by category' },
   ],
 };
 
@@ -1804,7 +1802,7 @@ export default function DecideScreen() {
             <View className="bg-gray-100 dark:bg-slate-900 rounded-t-3xl" style={{ maxHeight: '90%' }}>
               <View className="px-6 pt-6 pb-4 border-b border-gray-300 dark:border-slate-800">
                 <View className="flex-row items-center justify-between">
-                  <Text className="text-gray-900 dark:text-white text-xl font-bold">Create OKR</Text>
+                  <Text className="text-gray-900 dark:text-white text-xl font-bold">Create Tasks</Text>
                   <Pressable
                     onPress={() => {
                       setShowCreateModal(false);
@@ -1833,7 +1831,7 @@ export default function DecideScreen() {
                 )}
 
                 <Text className="text-blue-700 dark:text-blue-300 text-sm mb-4">
-                  Create a new OKR and assign it to a team member. You can also create initial work items.
+                  Create new tasks and assign them to team members. Tasks will appear in the Queued section until you allocate resources.
                 </Text>
 
                 {/* Title Input */}
