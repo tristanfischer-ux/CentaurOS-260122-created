@@ -563,134 +563,73 @@ export function UnifiedTaskAllocationModal({ visible, onClose, workPlan }: Props
                 </Text>
               </Animated.View>
 
-              {/* Total TUs Adjustment */}
+              {/* Task Requirements - Display Only */}
               <Animated.View
                 entering={FadeInDown.delay(150)}
-                className="bg-white dark:bg-slate-900 rounded-xl p-4 mb-4 border border-gray-200 dark:border-slate-700"
+                className="bg-blue-50 dark:bg-blue-900/10 rounded-xl p-4 mb-4 border-2 border-blue-200 dark:border-blue-800"
               >
-                <View className="flex-row items-center justify-between mb-3">
-                  <View className="flex-row items-center">
-                    <Target size={20} color="#3b82f6" />
-                    <Text className="text-gray-900 dark:text-white font-semibold ml-2">
-                      Total TUs Required
+                <View className="flex-row items-center justify-between">
+                  <View>
+                    <Text className="text-blue-900 dark:text-blue-100 text-sm font-medium mb-1">
+                      Task Requirement
+                    </Text>
+                    <Text className="text-blue-600 dark:text-blue-400 text-3xl font-bold">
+                      {totalTUs}□
+                    </Text>
+                    <Text className="text-blue-700 dark:text-blue-300 text-xs mt-1">
+                      {totalTUs * 4} hours of work needed
                     </Text>
                   </View>
-                  <View className="flex-row items-center gap-3">
-                    <Pressable
-                      onPress={() => setTotalTUs(Math.max(1, totalTUs - 1))}
-                      className="w-10 h-10 bg-gray-100 dark:bg-slate-800 rounded-full items-center justify-center"
-                    >
-                      <Minus size={18} color="#374151" />
-                    </Pressable>
-                    <Text className="text-2xl font-bold text-blue-600 dark:text-blue-400 w-12 text-center">
-                      {totalTUs}
+
+                  <View className="items-end">
+                    <Text className="text-blue-900 dark:text-blue-100 text-sm font-medium mb-1">
+                      Allocated
                     </Text>
-                    <Pressable
-                      onPress={() => setTotalTUs(totalTUs + 1)}
-                      className="w-10 h-10 bg-blue-500 rounded-full items-center justify-center"
-                    >
-                      <Plus size={18} color="white" />
-                    </Pressable>
+                    <Text className={`text-3xl font-bold ${
+                      calculations.totalAllocatedPerWeek >= totalTUs
+                        ? 'text-emerald-600 dark:text-emerald-400'
+                        : 'text-orange-600 dark:text-orange-400'
+                    }`}>
+                      {calculations.totalAllocatedPerWeek}□
+                    </Text>
+                    <Text className={`text-xs mt-1 font-semibold ${
+                      calculations.totalAllocatedPerWeek >= totalTUs
+                        ? 'text-emerald-700 dark:text-emerald-300'
+                        : 'text-orange-700 dark:text-orange-300'
+                    }`}>
+                      {calculations.totalAllocatedPerWeek >= totalTUs ? '✓ Fully allocated' : `Need ${totalTUs - calculations.totalAllocatedPerWeek}□ more`}
+                    </Text>
                   </View>
                 </View>
-                <Text className="text-gray-500 dark:text-slate-400 text-xs">
-                  1□ = 4 hours of work • {totalTUs}□ = {totalTUs * 4} hours total
-                </Text>
 
-                {/* Progress indicator */}
-                {workPlan.tusExpended > 0 && (
-                  <View className="mt-3 pt-3 border-t border-gray-100 dark:border-slate-800">
-                    <View className="flex-row items-center justify-between">
-                      <Text className="text-gray-600 dark:text-slate-400 text-sm">
-                        Already spent: {workPlan.tusExpended}□
-                      </Text>
-                      <Text className="text-emerald-600 dark:text-emerald-400 text-sm font-semibold">
-                        Remaining: {calculations.tusRemaining}□
-                      </Text>
-                    </View>
-                    <View className="h-2 bg-gray-100 dark:bg-slate-800 rounded-full mt-2 overflow-hidden">
-                      <View
-                        className="h-full bg-emerald-500 rounded-full"
-                        style={{ width: `${(workPlan.tusExpended / totalTUs) * 100}%` }}
-                      />
-                    </View>
-                  </View>
-                )}
-              </Animated.View>
-
-              {/* AI Productivity Tools */}
-              <Animated.View
-                entering={FadeInDown.delay(200)}
-                className="bg-white dark:bg-slate-900 rounded-xl p-4 mb-4 border border-gray-200 dark:border-slate-700"
-              >
-                <Pressable
-                  onPress={() => setExpandedSection(expandedSection === 'ai' ? null : 'ai')}
-                  className="flex-row items-center justify-between"
-                >
-                  <View className="flex-row items-center">
-                    <Bot size={20} color="#8b5cf6" />
-                    <Text className="text-gray-900 dark:text-white font-semibold ml-2">
-                      AI Productivity Boost
-                    </Text>
-                  </View>
-                  <View className="flex-row items-center">
-                    {calculations.aiMultiplier > 1 && (
-                      <View className="bg-purple-100 dark:bg-purple-900/30 px-2 py-1 rounded mr-2">
-                        <Text className="text-purple-700 dark:text-purple-300 text-sm font-bold">
-                          {calculations.aiMultiplier}x
-                        </Text>
-                      </View>
-                    )}
-                    <ChevronRight
-                      size={20}
-                      color="#6b7280"
-                      style={{ transform: [{ rotate: expandedSection === 'ai' ? '90deg' : '0deg' }] }}
+                {/* Progress bar */}
+                <View className="mt-4">
+                  <View className="h-3 bg-blue-100 dark:bg-blue-900/20 rounded-full overflow-hidden">
+                    <View
+                      className={`h-full rounded-full ${
+                        calculations.totalAllocatedPerWeek >= totalTUs
+                          ? 'bg-emerald-500'
+                          : 'bg-orange-500'
+                      }`}
+                      style={{ width: `${Math.min(100, (calculations.totalAllocatedPerWeek / totalTUs) * 100)}%` }}
                     />
                   </View>
-                </Pressable>
+                  <Text className="text-blue-600 dark:text-blue-400 text-xs text-center mt-1">
+                    {Math.round((calculations.totalAllocatedPerWeek / totalTUs) * 100)}% allocated
+                  </Text>
+                </View>
 
-                {expandedSection === 'ai' && (
-                  <View className="mt-4">
-                    {AI_PRODUCTIVITY_TOOLS.map((tool) => (
-                      <Pressable
-                        key={tool.id}
-                        onPress={() => setSelectedAITool(tool.id)}
-                        className={`flex-row items-center justify-between p-3 rounded-lg mb-2 ${
-                          selectedAITool === tool.id
-                            ? 'bg-purple-100 dark:bg-purple-900/30 border border-purple-300 dark:border-purple-700'
-                            : 'bg-gray-50 dark:bg-slate-800'
-                        }`}
-                      >
-                        <View className="flex-1">
-                          <Text className={`font-semibold ${
-                            selectedAITool === tool.id
-                              ? 'text-purple-700 dark:text-purple-300'
-                              : 'text-gray-700 dark:text-slate-300'
-                          }`}>
-                            {tool.name}
-                          </Text>
-                          <Text className="text-gray-500 dark:text-slate-400 text-xs">
-                            {tool.description}
-                          </Text>
-                        </View>
-                        {tool.costPerSquare > 0 && (
-                          <Text className="text-gray-600 dark:text-slate-400 text-sm">
-                            £{tool.costPerSquare}/□
-                          </Text>
-                        )}
-                      </Pressable>
-                    ))}
-
-                    {calculations.aiMultiplier > 1 && (
-                      <View className="bg-purple-50 dark:bg-purple-900/10 rounded-lg p-3 mt-2">
-                        <Text className="text-purple-700 dark:text-purple-300 text-sm">
-                          With {calculations.aiMultiplier}x AI boost: {totalTUs}□ → {calculations.effectiveTUs}□ effective
-                        </Text>
-                        <Text className="text-purple-600 dark:text-purple-400 text-xs mt-1">
-                          AI cost: £{calculations.aiCostTotal} total
-                        </Text>
-                      </View>
-                    )}
+                {/* Progress indicator for in-progress tasks */}
+                {workPlan.tusExpended > 0 && (
+                  <View className="mt-3 pt-3 border-t border-blue-200 dark:border-blue-800">
+                    <View className="flex-row items-center justify-between">
+                      <Text className="text-blue-700 dark:text-blue-300 text-sm">
+                        Already completed: {workPlan.tusExpended}□
+                      </Text>
+                      <Text className="text-blue-600 dark:text-blue-400 text-sm font-semibold">
+                        Remaining: {Math.max(0, totalTUs - workPlan.tusExpended)}□
+                      </Text>
+                    </View>
                   </View>
                 )}
               </Animated.View>
