@@ -857,6 +857,83 @@ export default function DecideScreen() {
     );
   }, [workPlans, updateWorkPlan]);
 
+  // Auto-allocate a single task
+  const handleAutoAllocateTask = useCallback((taskId: string) => {
+    const task = workPlans.find(wp => wp.id === taskId);
+    if (!task) return;
+
+    const orgMembers = useOrganizationStore.getState().members.filter(m => m.status === 'active');
+
+    // Calculate available capacity for each member
+    const memberAvailability = orgMembers.map(member => {
+      const totalCapacity = member.role === 'Founder' || member.role === 'Apprentice' ? 10 : (member.daysPerWeek || 2) * 2;
+      const allocated = workPlans
+        .filter(wp => wp.status !== 'completed' && wp.status !== 'abandoned')
+        .reduce((total, wp) => {
+          const allocation = wp.allocations?.find(a => a.memberId === member.id);
+          return total + (allocation?.squaresPerWeek || 0);
+        }, 0);
+      const available = totalCapacity - allocated;
+      const costPerTU = member.role === 'Founder' ? 960 :
+                        member.role === 'FractionalExec' ? Math.round((member.costPerDay || 800) / 2) :
+                        70;
+
+      return { ...member, available, costPerTU };
+    });
+
+    // Find members matching the task function first
+    const matchingMembers = memberAvailability
+      .filter(m => m.function === task.function && m.available > 0)
+      .sort((a, b) => a.costPerTU - b.costPerTU); // Prefer lower cost
+
+    // Then find other available members
+    const otherMembers = memberAvailability
+      .filter(m => m.function !== task.function && m.available > 0)
+      .sort((a, b) => a.costPerTU - b.costPerTU);
+
+    const availableMembers = [...matchingMembers, ...otherMembers];
+
+    if (availableMembers.length === 0) {
+      Alert.alert('No Available Resources', 'No team members have available capacity for this task.');
+      return;
+    }
+
+    let needed = task.estimatedTimeUnits;
+    const newAllocations: Array<{ memberId: string; memberName: string; squaresPerWeek: number; costPerSquare: number }> = [];
+
+    availableMembers.forEach(member => {
+      if (needed <= 0 || member.available <= 0) return;
+
+      const allocateAmount = Math.min(needed, member.available, 2); // Allocate max 2 TUs at a time for distribution
+
+      newAllocations.push({
+        memberId: member.id,
+        memberName: member.name,
+        squaresPerWeek: allocateAmount,
+        costPerSquare: member.costPerTU,
+      });
+
+      member.available -= allocateAmount;
+      needed -= allocateAmount;
+    });
+
+    if (newAllocations.length > 0) {
+      updateWorkPlan(task.id, {
+        allocations: newAllocations,
+        assignedMemberIds: newAllocations.map(a => a.memberId),
+        allocatedTimeUnitsPerWeek: newAllocations.reduce((sum, a) => sum + a.squaresPerWeek, 0),
+        status: 'in-progress' as const,
+      });
+
+      Alert.alert(
+        'Task Auto-Allocated',
+        `Resources allocated to "${task.title}"!\n\n${newAllocations.map(a => `• ${a.memberName}: ${a.squaresPerWeek}□/wk`).join('\n')}`
+      );
+    } else {
+      Alert.alert('Unable to Allocate', 'No available capacity to allocate to this task.');
+    }
+  }, [workPlans, updateWorkPlan]);
+
   // Auto-fix TU optimization opportunity
   const handleAutoFixOpportunity = useCallback((opportunity: TUOpportunity) => {
     if (opportunity.type === 'skill_mismatch') {
@@ -2021,7 +2098,7 @@ export default function DecideScreen() {
                       onPress={() => handleTaskPress(plan)}
                     >
                       <View
-                        className={`bg-white dark:bg-slate-800 border-2 rounded-xl p-3 ${
+                        className={`bg-white dark:bg-slate-800 border-2 rounded-xl ${
                           selectedTaskForAllocation?.id === plan.id
                             ? 'border-blue-400 dark:border-blue-500' // Highlight selected task
                             : selectedPersonId
@@ -2029,54 +2106,78 @@ export default function DecideScreen() {
                             : 'border-orange-200 dark:border-orange-800'
                         }`}
                       >
-                        <View className="flex-row items-start justify-between mb-2">
-                          <View className="flex-1 mr-2">
-                            <Text className="text-gray-900 dark:text-white font-semibold text-sm" numberOfLines={2}>
-                              {plan.title}
-                            </Text>
-                            <View className="flex-row items-center mt-1 gap-2">
-                              <View className={`px-1.5 py-0.5 rounded ${
-                                plan.status === 'completed' ? 'bg-emerald-500/20' :
-                                plan.status === 'in-progress' ? 'bg-blue-500/20' :
-                                plan.status === 'blocked' ? 'bg-red-500/20' : 'bg-gray-500/20'
-                              }`}>
-                                <Text className={`text-[10px] font-semibold ${
-                                  plan.status === 'completed' ? 'text-emerald-600 dark:text-emerald-400' :
-                                  plan.status === 'in-progress' ? 'text-blue-600 dark:text-blue-400' :
-                                  plan.status === 'blocked' ? 'text-red-600 dark:text-red-400' : 'text-gray-600 dark:text-gray-400'
-                                }`}>{plan.status}</Text>
+                        {/* Card Header */}
+                        <View className="p-3 pb-0">
+                          <View className="flex-row items-start justify-between mb-2">
+                            <View className="flex-1 mr-2">
+                              <Text className="text-gray-900 dark:text-white font-semibold text-sm" numberOfLines={2}>
+                                {plan.title}
+                              </Text>
+                              <View className="flex-row items-center mt-1 gap-2">
+                                <View className={`px-1.5 py-0.5 rounded ${
+                                  plan.status === 'completed' ? 'bg-emerald-500/20' :
+                                  plan.status === 'in-progress' ? 'bg-blue-500/20' :
+                                  plan.status === 'blocked' ? 'bg-red-500/20' : 'bg-gray-500/20'
+                                }`}>
+                                  <Text className={`text-[10px] font-semibold ${
+                                    plan.status === 'completed' ? 'text-emerald-600 dark:text-emerald-400' :
+                                    plan.status === 'in-progress' ? 'text-blue-600 dark:text-blue-400' :
+                                    plan.status === 'blocked' ? 'text-red-600 dark:text-red-400' : 'text-gray-600 dark:text-gray-400'
+                                  }`}>{plan.status}</Text>
+                                </View>
+                                <View className="bg-purple-100 dark:bg-purple-900/30 px-1.5 py-0.5 rounded">
+                                  <Text className="text-purple-600 dark:text-purple-400 text-[10px] font-semibold">
+                                    {plan.function}
+                                  </Text>
+                                </View>
                               </View>
-                              <View className="bg-purple-100 dark:bg-purple-900/30 px-1.5 py-0.5 rounded">
-                                <Text className="text-purple-600 dark:text-purple-400 text-[10px] font-semibold">
-                                  {plan.function}
-                                </Text>
-                              </View>
+                            </View>
+
+                            {/* Estimated Days Badge */}
+                            <View className="bg-orange-100 dark:bg-orange-900/30 px-2 py-1 rounded-lg mr-2">
+                              <Text className="text-orange-700 dark:text-orange-300 text-xs font-bold">
+                                ~{estimatedDays}d
+                              </Text>
+                            </View>
+
+                            {/* Empty avatar placeholder */}
+                            <View className="w-8 h-8 rounded-full items-center justify-center bg-gray-200 dark:bg-slate-700 border-2 border-dashed border-gray-400 dark:border-slate-500">
+                              <Plus size={14} color="#9ca3af" />
                             </View>
                           </View>
 
-                          {/* Estimated Days Badge */}
-                          <View className="bg-orange-100 dark:bg-orange-900/30 px-2 py-1 rounded-lg mr-2">
-                            <Text className="text-orange-700 dark:text-orange-300 text-xs font-bold">
-                              ~{estimatedDays}d
-                            </Text>
-                          </View>
-
-                          {/* Empty avatar placeholder */}
-                          <View className="w-8 h-8 rounded-full items-center justify-center bg-gray-200 dark:bg-slate-700 border-2 border-dashed border-gray-400 dark:border-slate-500">
-                            <Plus size={14} color="#9ca3af" />
+                          {/* Squares Display */}
+                          <View className="mt-2 flex-row items-center justify-between">
+                            <View className="flex-row items-center gap-2">
+                              <Text className="text-gray-600 dark:text-slate-400 text-xs">
+                                Needs {plan.estimatedTimeUnits}□
+                              </Text>
+                            </View>
                           </View>
                         </View>
 
-                        {/* Squares Display */}
-                        <View className="mt-2 flex-row items-center justify-between">
-                          <View className="flex-row items-center gap-2">
-                            <Text className="text-gray-600 dark:text-slate-400 text-xs">
-                              Needs {plan.estimatedTimeUnits}□
-                            </Text>
-                          </View>
-                          <Text className="text-orange-600 dark:text-orange-400 text-[10px] font-semibold">
-                            Tap to allocate
-                          </Text>
+                        {/* Action Buttons */}
+                        <View className="px-3 pb-3 pt-2 flex-row gap-2">
+                          <Pressable
+                            onPress={(e) => {
+                              e.stopPropagation();
+                              handleAutoAllocateTask(plan.id);
+                            }}
+                            className="flex-1 bg-emerald-500 rounded-lg py-2.5 px-3 flex-row items-center justify-center active:opacity-70"
+                          >
+                            <Zap size={14} color="#fff" />
+                            <Text className="text-white text-xs font-bold ml-1.5">Auto-Allocate</Text>
+                          </Pressable>
+                          <Pressable
+                            onPress={(e) => {
+                              e.stopPropagation();
+                              handleTaskPress(plan);
+                            }}
+                            className="flex-1 bg-purple-500 rounded-lg py-2.5 px-3 flex-row items-center justify-center active:opacity-70"
+                          >
+                            <UserPlus size={14} color="#fff" />
+                            <Text className="text-white text-xs font-bold ml-1.5">Choose Team</Text>
+                          </Pressable>
                         </View>
                       </View>
                     </SwipeableTaskCard>
