@@ -117,9 +117,15 @@ export default function MissionControlHome() {
     }, 0);
 
     // Calculate allocated from work plans (excluding completed/abandoned)
+    // Match Decide tab logic: count tasks with team assigned (assignedMemberIds)
     const allocated = activeMembers.reduce((sum, member) => {
       const memberAllocated = workPlans
-        .filter(wp => wp.status !== 'completed' && wp.status !== 'abandoned')
+        .filter(wp =>
+          wp.status !== 'completed' &&
+          wp.status !== 'abandoned' &&
+          wp.assignedMemberIds &&
+          wp.assignedMemberIds.length > 0
+        )
         .reduce((wpSum, wp) => {
           const allocation = wp.allocations?.find(a => a.memberId === member.id);
           return wpSum + (allocation?.squaresPerWeek || 0);
@@ -627,13 +633,21 @@ export default function MissionControlHome() {
                   </Text>
                   {members
                     .map((member) => {
-                      // Calculate member's workload
+                      // Calculate member's workload - match Decide tab logic
                       const memberTasks = workPlans.filter(wp =>
-                        wp.status === 'in-progress' &&
+                        wp.status !== 'completed' &&
+                        wp.status !== 'abandoned' &&
+                        wp.assignedMemberIds &&
+                        wp.assignedMemberIds.length > 0 &&
                         wp.allocations?.some(a => a.memberId === member.id)
                       );
                       const allocatedTU = workPlans
-                        .filter(wp => wp.status === 'in-progress')
+                        .filter(wp =>
+                          wp.status !== 'completed' &&
+                          wp.status !== 'abandoned' &&
+                          wp.assignedMemberIds &&
+                          wp.assignedMemberIds.length > 0
+                        )
                         .reduce((sum, wp) => {
                           const allocation = wp.allocations?.find(a => a.memberId === member.id);
                           return sum + (allocation?.squaresPerWeek || 0);

@@ -15,7 +15,13 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
 
 ## 🔄 Recent Updates (Jan 2026)
 
-### Decide Tab Enhancements (Latest)
+### Mission Control Team Health Fix
+- **Synchronized with Decide Tab**: Team health metrics now accurately reflect Decide tab allocations
+  - Utilization percentage matches actual task allocations
+  - Available TU correctly shows remaining capacity
+  - "Who's Doing What" section counts all active tasks (with team assigned), not just in-progress status
+
+### Decide Tab Enhancements
 - **Three-Section Layout**: Redesigned for clarity and workflow optimization
   - **Top**: Task Timeline Gantt Chart - visual overview of all tasks across 13-week timeline
   - **Middle**: Task Queue - scrollable list of current activities (in progress) and future activities (queued)
