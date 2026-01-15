@@ -54,7 +54,7 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
 
 ## 🚨 PRODUCTION READINESS STATUS
 
-**Last Updated**: 2026-01-15 (**HOME TAB REDESIGNED** - New "Perceive → Act → Reflect" framework for solo entrepreneurs. Home tab now organized around how founders make decisions.)
+**Last Updated**: 2026-01-15 (**HOME TAB REDESIGNED** - New "Perceive → Act → Reflect" framework with temporal awareness. Home tab shows This Week vs Next Week, with actionable timeline for immediate response.)
 **Status**: ✅ **READY FOR APP STORE** - All features complete!
 
 ---
@@ -569,7 +569,25 @@ The Home tab is now organized around how solo entrepreneurs make decisions:
 #### 🔍 PERCEIVING
 *"Where am I? Where am I going? What's the health of my business?"*
 
-Critical business metrics at a glance:
+**Temporal Awareness (This Week vs Next Week)**:
+- **This Week Card**: Shows active tasks count and any blocked items
+  - Blue gradient design for current work
+  - Displays blockers inline for immediate visibility
+- **Next Week Card**: Shows queued tasks ready to start and pending decisions
+  - Purple gradient design for upcoming work
+  - Helps plan allocation before the week starts
+
+**What's Happening Timeline**:
+- **This Week (In Progress)**: Top 3 active tasks with owner and ETA
+  - Each task is tappable → navigates to Do tab for management
+  - Shows days remaining for each task
+  - "View All Active Tasks" button at bottom
+- **Coming Up Next (Ready to Start)**: Top 3 queued tasks with TU estimates
+  - Each task is tappable → navigates to Decide tab for allocation
+  - Shows business function and effort required
+  - "Allocate & Start Tasks" button at bottom
+
+**Critical Business Metrics**:
 - **Financial Runway**: Months remaining with color-coded health status (Critical/Monitor/Healthy)
   - Shows cash position, runway calculation, and net cash flow
   - Taps through to detailed Financial Dashboard

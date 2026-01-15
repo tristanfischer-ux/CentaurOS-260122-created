@@ -419,9 +419,10 @@ export default function MissionControlHome() {
                   </View>
                 </View>
                 {tuAllocation.topActiveTasks.slice(0, 3).map((task) => (
-                  <View
+                  <Pressable
                     key={task.id}
-                    className="flex-row items-center justify-between py-2 border-b border-slate-200 dark:border-slate-800 last:border-b-0"
+                    onPress={() => router.push('/(tabs)/do')}
+                    className="flex-row items-center justify-between py-2 border-b border-slate-200 dark:border-slate-800 last:border-b-0 active:opacity-70"
                   >
                     <View className="flex-1">
                       <Text className="text-slate-900 dark:text-white text-sm font-medium" numberOfLines={1}>
@@ -431,15 +432,27 @@ export default function MissionControlHome() {
                         {task.ownerInitials}
                       </Text>
                     </View>
-                    {task.etaDays && (
-                      <View className="bg-blue-500/10 px-2.5 py-1 rounded-lg">
-                        <Text className="text-blue-600 dark:text-blue-400 text-xs font-bold">
-                          {task.etaDays}d left
-                        </Text>
-                      </View>
-                    )}
-                  </View>
+                    <View className="flex-row items-center gap-2">
+                      {task.etaDays && (
+                        <View className="bg-blue-500/10 px-2.5 py-1 rounded-lg">
+                          <Text className="text-blue-600 dark:text-blue-400 text-xs font-bold">
+                            {task.etaDays}d left
+                          </Text>
+                        </View>
+                      )}
+                      <ChevronRight size={16} color="#64748b" />
+                    </View>
+                  </Pressable>
                 ))}
+                <Pressable
+                  onPress={() => router.push('/(tabs)/do')}
+                  className="flex-row items-center justify-center gap-1 mt-3 pt-3 border-t border-slate-200 dark:border-slate-800 active:opacity-70"
+                >
+                  <Text className="text-blue-600 dark:text-blue-400 text-xs font-bold">
+                    View All Active Tasks
+                  </Text>
+                  <ChevronRight size={14} color="#3b82f6" />
+                </Pressable>
               </View>
             )}
 
@@ -460,9 +473,10 @@ export default function MissionControlHome() {
                   .filter(wp => wp.status === 'not-started')
                   .slice(0, 3)
                   .map((plan) => (
-                    <View
+                    <Pressable
                       key={plan.id}
-                      className="flex-row items-center justify-between py-2 border-b border-slate-200 dark:border-slate-800 last:border-b-0"
+                      onPress={() => router.push('/(tabs)/decide')}
+                      className="flex-row items-center justify-between py-2 border-b border-slate-200 dark:border-slate-800 last:border-b-0 active:opacity-70"
                     >
                       <View className="flex-1">
                         <Text className="text-slate-900 dark:text-white text-sm font-medium" numberOfLines={1}>
@@ -472,16 +486,19 @@ export default function MissionControlHome() {
                           {plan.function}
                         </Text>
                       </View>
-                      <View className="bg-purple-500/10 px-2.5 py-1 rounded-lg">
-                        <Text className="text-purple-600 dark:text-purple-400 text-xs font-bold">
-                          {plan.estimatedTimeUnits} TU
-                        </Text>
+                      <View className="flex-row items-center gap-2">
+                        <View className="bg-purple-500/10 px-2.5 py-1 rounded-lg">
+                          <Text className="text-purple-600 dark:text-purple-400 text-xs font-bold">
+                            {plan.estimatedTimeUnits} TU
+                          </Text>
+                        </View>
+                        <ChevronRight size={16} color="#64748b" />
                       </View>
-                    </View>
+                    </Pressable>
                   ))}
                 <Pressable
                   onPress={() => router.push('/(tabs)/decide')}
-                  className="flex-row items-center justify-center gap-1 mt-3 pt-3 border-t border-slate-200 dark:border-slate-800"
+                  className="flex-row items-center justify-center gap-1 mt-3 pt-3 border-t border-slate-200 dark:border-slate-800 active:opacity-70"
                 >
                   <Text className="text-purple-600 dark:text-purple-400 text-xs font-bold">
                     Allocate & Start Tasks
