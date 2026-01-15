@@ -12,12 +12,14 @@ import {
   Target,
   Trophy,
   AlertTriangle,
+  AlertCircle,
   Clock,
   Zap,
   TrendingUp,
   TrendingDown,
   DollarSign,
   Users,
+  User,
   Sparkles,
   ChevronRight,
   CheckCircle2,
@@ -49,6 +51,8 @@ import {
 import { HelpModal, HelpButton, type HelpContent } from '@/components/HelpModal';
 import { autoSeedDemoDataIfNeeded } from '@/lib/seed-demo-data';
 import { getWeekCounterInfo } from '@/lib/time-utils';
+import { useMarketplaceRequestsStore } from '@/lib/state/marketplace-requests-store';
+import { useRequestStore } from '@/lib/state/request-store';
 
 const HOME_HELP: HelpContent = {
   title: 'Mission Control',
@@ -84,6 +88,14 @@ export default function MissionControlHome() {
   const workPlans = useWorkPlanStore((s) => s.workPlans);
   const members = useOrganizationStore((s) => s.members);
   const okrs = useOKRStore((s) => s.okrs);
+
+  // Decision stores
+  const pendingHiringRequests = useMarketplaceRequestsStore((s) => s.getPendingRequests());
+  const pendingTaskRequests = useRequestStore((s) => s.getPendingRequests());
+  const approveHiringRequest = useMarketplaceRequestsStore((s) => s.approveRequest);
+  const rejectHiringRequest = useMarketplaceRequestsStore((s) => s.rejectRequest);
+  const approveTaskRequest = useRequestStore((s) => s.approveRequest);
+  const rejectTaskRequest = useRequestStore((s) => s.rejectRequest);
 
   useEffect(() => {
     initialize();
@@ -187,6 +199,113 @@ export default function MissionControlHome() {
           <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
         }
       >
+        {/* FOUNDER DECISIONS - Critical items needing immediate attention */}
+        {(pendingHiringRequests.length > 0 || pendingTaskRequests.length > 0) && (
+          <View className="px-6 pt-6">
+            <View className="flex-row items-center gap-2 mb-3">
+              <AlertCircle size={20} color="#ef4444" />
+              <Text className="text-gray-900 dark:text-white text-lg font-bold">DECISIONS NEEDED</Text>
+              <View className="bg-red-500 px-2 py-0.5 rounded-full">
+                <Text className="text-white text-xs font-bold">
+                  {pendingHiringRequests.length + pendingTaskRequests.length}
+                </Text>
+              </View>
+            </View>
+
+            <View className="gap-3">
+              {/* Hiring Requests */}
+              {pendingHiringRequests.map((request) => (
+                <View
+                  key={request.id}
+                  className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-4 shadow-sm"
+                >
+                  <View className="flex-row items-start justify-between mb-3">
+                    <View className="flex-1">
+                      <View className="flex-row items-center gap-2 mb-1">
+                        <User size={16} color="#f59e0b" />
+                        <Text className="text-amber-600 dark:text-amber-400 text-xs font-bold">HIRING REQUEST</Text>
+                      </View>
+                      <Text className="text-gray-900 dark:text-white text-base font-bold mb-1">
+                        {request.candidateName}
+                      </Text>
+                      <Text className="text-gray-600 dark:text-slate-400 text-sm mb-2">
+                        {request.candidateRole} • {request.candidateFunction}
+                      </Text>
+                      <Text className="text-gray-700 dark:text-slate-300 text-sm">
+                        {request.proposedDaysPerWeek} days/week @ £{request.proposedDayRate}/day
+                      </Text>
+                    </View>
+                  </View>
+                  <View className="flex-row gap-2">
+                    <Pressable
+                      onPress={() => {
+                        approveHiringRequest(request.id, 'Founder');
+                        router.push('/(tabs)/community');
+                      }}
+                      className="flex-1 bg-emerald-500 rounded-xl py-3 items-center active:opacity-70"
+                    >
+                      <Text className="text-white text-sm font-bold">Approve</Text>
+                    </Pressable>
+                    <Pressable
+                      onPress={() => rejectHiringRequest(request.id, 'Founder')}
+                      className="flex-1 bg-gray-200 dark:bg-slate-800 rounded-xl py-3 items-center active:opacity-70"
+                    >
+                      <Text className="text-gray-700 dark:text-slate-300 text-sm font-bold">Reject</Text>
+                    </Pressable>
+                  </View>
+                </View>
+              ))}
+
+              {/* Task Requests */}
+              {pendingTaskRequests.map((request) => (
+                <View
+                  key={request.id}
+                  className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4 shadow-sm"
+                >
+                  <View className="flex-row items-start justify-between mb-3">
+                    <View className="flex-1">
+                      <View className="flex-row items-center gap-2 mb-1">
+                        <CheckCircle2 size={16} color="#3b82f6" />
+                        <Text className="text-blue-600 dark:text-blue-400 text-xs font-bold">
+                          {request.type === 'task' ? 'TASK REQUEST' : 'OKR REQUEST'}
+                        </Text>
+                      </View>
+                      <Text className="text-gray-900 dark:text-white text-base font-bold mb-1">
+                        {request.title}
+                      </Text>
+                      <Text className="text-gray-600 dark:text-slate-400 text-sm mb-2">
+                        Requested by {request.requestedByName} ({request.requestedByRole})
+                      </Text>
+                      {request.type === 'task' && (
+                        <Text className="text-gray-700 dark:text-slate-300 text-sm">
+                          {request.estimatedTimeUnits} TU • {request.function}
+                        </Text>
+                      )}
+                    </View>
+                  </View>
+                  <View className="flex-row gap-2">
+                    <Pressable
+                      onPress={() => {
+                        approveTaskRequest(request.id);
+                        router.push('/(tabs)/decide');
+                      }}
+                      className="flex-1 bg-emerald-500 rounded-xl py-3 items-center active:opacity-70"
+                    >
+                      <Text className="text-white text-sm font-bold">Approve</Text>
+                    </Pressable>
+                    <Pressable
+                      onPress={() => rejectTaskRequest(request.id)}
+                      className="flex-1 bg-gray-200 dark:bg-slate-800 rounded-xl py-3 items-center active:opacity-70"
+                    >
+                      <Text className="text-gray-700 dark:text-slate-300 text-sm font-bold">Reject</Text>
+                    </Pressable>
+                  </View>
+                </View>
+              ))}
+            </View>
+          </View>
+        )}
+
         {/* MAIN QUEST */}
         <View className="px-6 pt-6">
           <View className="flex-row items-center gap-2 mb-3">
