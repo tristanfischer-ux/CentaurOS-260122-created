@@ -31,6 +31,9 @@ import {
   FileText,
   Book,
   Rocket,
+  Wallet,
+  BarChart3,
+  PieChart,
 } from 'lucide-react-native';
 
 // Stores
@@ -167,6 +170,21 @@ export default function MissionControlHome() {
     revenuePerMonth: 2000,
   }), []);
 
+  // Calculate comprehensive financial metrics
+  const netCashFlow = financials.revenuePerMonth - financials.burnPerMonth;
+  const runway = netCashFlow >= 0 ? 999 : financials.totalCash / Math.abs(netCashFlow);
+  const grossMargin = ((financials.revenuePerMonth - 500) / financials.revenuePerMonth) * 100; // Assuming £500 COGS
+
+  // Determine financial health status
+  const getHealthStatus = () => {
+    if (netCashFlow >= 0) return { color: ['#10b981', '#059669'], label: 'Healthy', score: 95 };
+    if (runway >= 18) return { color: ['#3b82f6', '#2563eb'], label: 'Strong', score: 85 };
+    if (runway >= 12) return { color: ['#f59e0b', '#d97706'], label: 'Monitor', score: 70 };
+    return { color: ['#ef4444', '#dc2626'], label: 'Critical', score: 45 };
+  };
+
+  const healthStatus = getHealthStatus();
+
   const handleRefresh = async () => {
     setRefreshing(true);
     // Refresh logic here
@@ -241,41 +259,82 @@ export default function MissionControlHome() {
           <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
         }
       >
-        {/* FINANCIAL OVERVIEW */}
+        {/* FINANCIAL OVERVIEW - Comprehensive Dashboard */}
         <View className="px-6 pt-6">
           <View className="flex-row items-center gap-2 mb-3">
-            <DollarSign size={20} color="#10b981" />
+            <Activity size={20} color="#10b981" />
             <Text className="text-gray-900 dark:text-white text-lg font-bold">FINANCIAL OVERVIEW</Text>
           </View>
 
-          <View className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-xl p-4 shadow-sm">
-            <View className="flex-row flex-wrap gap-3">
-              <View className="flex-1 min-w-[45%]">
-                <Text className="text-gray-600 dark:text-slate-400 text-xs mb-1">Cash in Bank</Text>
-                <Text className="text-emerald-400 text-2xl font-bold">
-                  £{(financials.totalCash / 1000).toFixed(0)}K
-                </Text>
+          <LinearGradient
+            colors={healthStatus.color as [string, string]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={{ borderRadius: 16, padding: 16, marginBottom: 12 }}
+          >
+            <View className="flex-row items-start justify-between mb-4">
+              <View>
+                <Text className="text-white/70 text-xs font-semibold mb-1">FINANCIAL HEALTH</Text>
+                <Text className="text-white text-2xl font-bold">{healthStatus.label}</Text>
+                <Text className="text-white/80 text-sm mt-1">Score: {healthStatus.score}/100</Text>
               </View>
-              <View className="flex-1 min-w-[45%]">
-                <Text className="text-gray-600 dark:text-slate-400 text-xs mb-1">This Week's Cost</Text>
-                <Text className="text-gray-900 dark:text-white text-xl font-bold">
-                  £{(financials.burnPerMonth / 4 / 1000).toFixed(1)}K
-                </Text>
-              </View>
-              <View className="flex-1 min-w-[45%]">
-                <Text className="text-gray-600 dark:text-slate-400 text-xs mb-1">Runway</Text>
-                <Text className="text-emerald-400 text-2xl font-bold">
-                  {runwayDisplay}
-                </Text>
-              </View>
-              <View className="flex-1 min-w-[45%]">
-                <Text className="text-gray-600 dark:text-slate-400 text-xs mb-1">Monthly Burn</Text>
-                <Text className="text-gray-900 dark:text-white text-xl font-bold">
-                  £{(financials.burnPerMonth / 1000).toFixed(1)}K/mo
-                </Text>
+              <View className="bg-white/20 rounded-xl p-3">
+                <Wallet size={28} color="#fff" />
               </View>
             </View>
-          </View>
+
+            <View className="bg-white/10 rounded-xl p-4">
+              <View className="flex-row justify-between mb-3">
+                <View className="flex-1">
+                  <Text className="text-white/60 text-xs mb-1">Cash Position</Text>
+                  <Text className="text-white text-xl font-bold">£{(financials.totalCash / 1000).toFixed(0)}K</Text>
+                </View>
+                <View className="flex-1">
+                  <Text className="text-white/60 text-xs mb-1">Runway</Text>
+                  <Text className="text-white text-xl font-bold">
+                    {runway === 999 ? '∞' : `${runway.toFixed(1)}mo`}
+                  </Text>
+                </View>
+                <View className="flex-1">
+                  <Text className="text-white/60 text-xs mb-1">Net Cash Flow</Text>
+                  <View className="flex-row items-center">
+                    {netCashFlow >= 0 ? <TrendingUp size={16} color="#fff" /> : <TrendingDown size={16} color="#fff" />}
+                    <Text className="text-white text-xl font-bold ml-1">
+                      {netCashFlow >= 0 ? '+' : ''}£{(netCashFlow / 1000).toFixed(0)}K
+                    </Text>
+                  </View>
+                </View>
+              </View>
+
+              {/* Additional Metrics Row */}
+              <View className="flex-row justify-between pt-3 border-t border-white/20">
+                <View className="flex-1">
+                  <Text className="text-white/60 text-xs mb-1">Monthly Revenue</Text>
+                  <Text className="text-white text-base font-bold">£{(financials.revenuePerMonth / 1000).toFixed(0)}K</Text>
+                </View>
+                <View className="flex-1">
+                  <Text className="text-white/60 text-xs mb-1">Monthly Burn</Text>
+                  <Text className="text-white text-base font-bold">£{(financials.burnPerMonth / 1000).toFixed(0)}K</Text>
+                </View>
+                <View className="flex-1">
+                  <Text className="text-white/60 text-xs mb-1">Gross Margin</Text>
+                  <Text className="text-white text-base font-bold">{grossMargin.toFixed(0)}%</Text>
+                </View>
+              </View>
+            </View>
+
+            {/* Quick Link to Full Dashboard */}
+            <Pressable
+              onPress={() => router.push('/financial-dashboard')}
+              className="bg-white/10 rounded-xl p-3 mt-3 flex-row items-center justify-between active:opacity-70"
+            >
+              <View className="flex-row items-center">
+                <BarChart3 size={16} color="#fff" />
+                <Text className="text-white font-semibold text-sm ml-2">View Full Dashboard</Text>
+              </View>
+              <ChevronRight size={18} color="#fff" />
+            </Pressable>
+          </LinearGradient>
         </View>
 
         {/* RESOURCE UTILIZATION */}

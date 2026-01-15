@@ -516,11 +516,16 @@ The Decide tab is focused purely on **resource allocation** - assigning people a
 
 The Home tab now provides a comprehensive dashboard with key operational metrics:
 
-**Financial Overview**:
-- Cash in Bank
-- This Week's Cost
-- Runway (months remaining)
-- Monthly Burn Rate
+**Financial Overview** (Enhanced Dashboard-Style):
+- **Financial Health Score**: Color-coded gradient card showing overall health status
+  - 🟢 Healthy (95/100) - Cash flow positive
+  - 🔵 Strong (85/100) - 18+ months runway
+  - 🟡 Monitor (70/100) - 12-18 months runway
+  - 🔴 Critical (45/100) - <12 months runway
+- **Primary Metrics**: Cash Position, Runway, Net Cash Flow (with trend indicators)
+- **Secondary Metrics**: Monthly Revenue, Monthly Burn, Gross Margin
+- **Quick Link**: Direct access to full Financial Dashboard with P&L, insights, and cost management
+- **Visual Design**: Gradient background adapts to financial health (green → blue → amber → red)
 
 **Resource Utilization**:
 - Shows how many squares are allocated this week vs total capacity
