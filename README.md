@@ -255,9 +255,9 @@ Location: `/src/components/UnifiedTaskAllocationModal.tsx`
 
 **THE single source of truth for TU allocation across the entire app.** All tasks in all tabs (Home, Decide, Do, Evaluate) use this one unified modal for consistency.
 
-#### Tap-to-Add Interface
+#### Tap-to-Add Interface with Full Capacity Visibility
 
-The allocation system uses a **tap-based interface** inspired by RTS games:
+The allocation system uses a **tap-based interface** inspired by RTS games, showing ALL team capacity at once:
 
 1. **View Task Details**: See task title, description, function, linked OKR, and current status
 2. **Adjust Total TUs**: Increase/decrease the expected effort using +/- buttons
@@ -268,25 +268,37 @@ The allocation system uses a **tap-based interface** inspired by RTS games:
    - AI Heavy (10x) - AI does most work
    - AI Autonomous (20x) - AI handles everything
 
-4. **Allocate Team TUs - TAP TO ADD**:
+4. **Allocate Team TUs - TAP TO ADD (ALL MEMBERS VISIBLE)**:
+   - **See ALL team members** with their full capacity displayed as squares
    - **Tap any team member** to ADD their default TU increment:
      - Founders: +2 TUs per tap
      - Executives: +2 TUs per tap
      - Apprentices: +2 TUs per tap
-   - **Visual squares** fill in real-time as you tap
+   - **Visual squares** show total capacity (gray = available, blue = allocated)
+   - **"X allocated • Y free"** shows capacity status at a glance
    - **Small X button** to remove all allocated TUs from a person
    - **FIT badge** shown for members whose function matches task function
-   - **Available capacity** displayed for each person (e.g., "4/10□ available")
+   - **MISMATCH badge** + red background for wrong skill allocation
    - **Cost per TU** shown per person
 
-5. **Real-Time Calculations**:
+5. **Skill Mismatch System**:
+   - **Can allocate ANY member** to any task (no restrictions)
+   - **Mismatched skills get 50% efficiency penalty**:
+     - Example: Finance executive on Marketing task → 50% slower
+   - **Red warning banner** appears when mismatch detected
+   - **Effective TUs increased** by penalty (e.g., 10□ task → 20□ with mismatch)
+   - **Red squares** show mismatched allocation visually
+   - **Founders and "General" function** = no mismatch (can do anything)
+
+6. **Real-Time Calculations**:
    - Total cost (sum of person TUs × their cost per TU)
    - AI cost component
    - Time to complete (weeks) based on TUs allocated per week
    - Team efficiency multiplier (Brooks' Law - communication overhead)
+   - Skill mismatch penalties applied to effective TUs
    - TUs spent to date and cost to date (for in-progress tasks)
 
-6. **Complete or Abandon**:
+7. **Complete or Abandon**:
    - **Complete**: Creates audit record (cost, time, resources used)
    - **Abandon**: If resources spent → incomplete list showing waste. If no resources → task disappears
 

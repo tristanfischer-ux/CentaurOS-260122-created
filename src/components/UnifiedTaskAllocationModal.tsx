@@ -75,16 +75,6 @@ export function UnifiedTaskAllocationModal({ visible, onClose, workPlan }: Props
     }
   }, [workPlan]);
 
-  // Get active members grouped by role
-  const membersByRole = useMemo(() => {
-    const active = members.filter(m => m.status === 'active');
-    return {
-      founders: active.filter(m => m.role === 'Founder'),
-      executives: active.filter(m => m.role === 'FractionalExec'),
-      apprentices: active.filter(m => m.role === 'Apprentice'),
-    };
-  }, [members]);
-
   // Calculate member capacity (squares per week)
   const getMemberCapacity = useCallback((member: OrganizationMember) => {
     if (member.role === 'Founder') return 10; // 10 squares/week (+ up to 5 overtime)
@@ -109,6 +99,15 @@ export function UnifiedTaskAllocationModal({ visible, onClose, workPlan }: Props
     return member.function === workPlan.function || member.function === 'General';
   }, [workPlan]);
 
+  // Check if member is mismatched for this task
+  const isMismatch = useCallback((member: OrganizationMember) => {
+    if (!workPlan) return false;
+    // Founders and General can do anything - no mismatch
+    if (member.role === 'Founder' || member.function === 'General') return false;
+    // Mismatch if specialized function doesn't match task
+    return member.function !== workPlan.function;
+  }, [workPlan]);
+
   // Get AI tool by ID
   const getAITool = useCallback((toolId: string) => {
     return AI_PRODUCTIVITY_TOOLS.find(t => t.id === toolId) ?? AI_PRODUCTIVITY_TOOLS[0];
@@ -119,8 +118,19 @@ export function UnifiedTaskAllocationModal({ visible, onClose, workPlan }: Props
     const aiTool = getAITool(selectedAITool);
     const aiMultiplier = aiTool.multiplier;
 
-    // Effective TUs needed (after AI boost)
-    const effectiveTUs = Math.ceil(totalTUs / aiMultiplier);
+    // Calculate skill mismatch penalty
+    let skillMismatchPenalty = 1.0; // No penalty by default
+    const mismatchedMembers = Object.keys(allocations).filter(memberId => {
+      const member = members.find(m => m.id === memberId);
+      return member && isMismatch(member) && allocations[memberId] > 0;
+    });
+
+    if (mismatchedMembers.length > 0) {
+      skillMismatchPenalty = 0.5; // 50% efficiency penalty for skill mismatch
+    }
+
+    // Effective TUs needed (after AI boost and skill penalties)
+    const effectiveTUs = Math.ceil(totalTUs / (aiMultiplier * skillMismatchPenalty));
 
     // Total allocated per week from all people
     const totalAllocatedPerWeek = Object.values(allocations).reduce((sum, sq) => sum + sq, 0);
@@ -165,8 +175,10 @@ export function UnifiedTaskAllocationModal({ visible, onClose, workPlan }: Props
       aiCostTotal,
       totalCost,
       costToDate,
+      skillMismatchPenalty,
+      mismatchedMembers,
     };
-  }, [totalTUs, allocations, selectedAITool, workPlan, members, getAITool, getCostPerSquare]);
+  }, [totalTUs, allocations, selectedAITool, workPlan, members, getAITool, getCostPerSquare, isMismatch]);
 
   // Save allocations
   const handleSave = useCallback(() => {
@@ -323,14 +335,19 @@ export function UnifiedTaskAllocationModal({ visible, onClose, workPlan }: Props
     const capacity = getMemberCapacity(member);
     const costPerSquare = getCostPerSquare(member);
     const isMatch = isFunctionMatch(member);
+    const isMismatched = isMismatch(member);
     const defaultIncrement = getDefaultIncrement(member);
-    const remaining = capacity - currentAllocation;
+    const available = capacity - currentAllocation;
 
     return (
       <Pressable
         key={member.id}
         onPress={() => handleMemberTap(member.id)}
-        className="bg-white dark:bg-slate-900 rounded-xl p-4 mb-3 border-2 border-gray-200 dark:border-slate-700 active:border-blue-400 active:bg-blue-50 dark:active:bg-blue-900/10"
+        className={`rounded-xl p-4 mb-3 border-2 active:bg-blue-50 dark:active:bg-blue-900/10 ${
+          isMismatched && currentAllocation > 0
+            ? 'bg-red-50 dark:bg-red-900/10 border-red-300 dark:border-red-700 active:border-red-400'
+            : 'bg-white dark:bg-slate-900 border-gray-200 dark:border-slate-700 active:border-blue-400'
+        }`}
       >
         <Animated.View entering={FadeInDown.delay(50).duration(200)}>
           <View className="flex-row items-center justify-between mb-3">
@@ -344,7 +361,7 @@ export function UnifiedTaskAllocationModal({ visible, onClose, workPlan }: Props
                 {member.role === 'Apprentice' && <GraduationCap size={18} color="white" />}
               </View>
               <View className="flex-1">
-                <View className="flex-row items-center gap-2">
+                <View className="flex-row items-center gap-2 flex-wrap">
                   <Text className="text-gray-900 dark:text-white font-semibold">
                     {member.name}
                   </Text>
@@ -355,9 +372,16 @@ export function UnifiedTaskAllocationModal({ visible, onClose, workPlan }: Props
                       </Text>
                     </View>
                   )}
+                  {isMismatched && currentAllocation > 0 && (
+                    <View className="bg-red-100 dark:bg-red-900/30 px-1.5 py-0.5 rounded">
+                      <Text className="text-red-700 dark:text-red-300 text-[10px] font-bold">
+                        MISMATCH
+                      </Text>
+                    </View>
+                  )}
                 </View>
                 <Text className="text-gray-500 dark:text-slate-400 text-xs">
-                  {member.function} • £{costPerSquare}/□ • {remaining}/{capacity}□ available
+                  {member.function} • £{costPerSquare}/□
                 </Text>
               </View>
             </View>
@@ -388,34 +412,46 @@ export function UnifiedTaskAllocationModal({ visible, onClose, workPlan }: Props
             </View>
           </View>
 
-          {/* Visual squares showing real-time allocation */}
-          <View className="flex-row flex-wrap gap-1">
-            {Array.from({ length: capacity }).map((_, idx) => (
-              <View
-                key={idx}
-                className={`w-6 h-6 rounded border ${
-                  idx < currentAllocation
-                    ? 'bg-blue-500 border-blue-600'
-                    : 'bg-gray-100 dark:bg-slate-800 border-gray-300 dark:border-slate-600'
-                }`}
-              />
-            ))}
+          {/* Visual squares showing ALL capacity with allocation */}
+          <View className="mb-2">
+            <View className="flex-row items-center justify-between mb-1">
+              <Text className="text-gray-600 dark:text-slate-400 text-xs font-medium">
+                Capacity: {currentAllocation}□ allocated • {available}□ free
+              </Text>
+              {currentAllocation > 0 && (
+                <Text className="text-blue-600 dark:text-blue-400 text-xs font-semibold">
+                  £{(currentAllocation * costPerSquare).toFixed(0)}/wk
+                </Text>
+              )}
+            </View>
+            <View className="flex-row flex-wrap gap-1">
+              {Array.from({ length: capacity }).map((_, idx) => (
+                <View
+                  key={idx}
+                  className={`w-7 h-7 rounded border ${
+                    idx < currentAllocation
+                      ? isMismatched
+                        ? 'bg-red-500 border-red-600'
+                        : 'bg-blue-500 border-blue-600'
+                      : 'bg-gray-100 dark:bg-slate-800 border-gray-300 dark:border-slate-600'
+                  }`}
+                />
+              ))}
+            </View>
           </View>
 
-          {currentAllocation > 0 && (
-            <View className="flex-row items-center justify-between mt-3 pt-3 border-t border-gray-200 dark:border-slate-700">
-              <Text className="text-blue-600 dark:text-blue-400 text-xs font-semibold">
-                £{(currentAllocation * costPerSquare).toFixed(0)}/week allocated
-              </Text>
-              <Text className="text-gray-500 dark:text-slate-400 text-xs">
-                {currentAllocation}□ × £{costPerSquare}/□
+          {isMismatched && currentAllocation > 0 && (
+            <View className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-2 flex-row items-start">
+              <AlertTriangle size={14} color="#ef4444" />
+              <Text className="text-red-700 dark:text-red-300 text-xs ml-2 flex-1">
+                <Text className="font-bold">Skill Mismatch:</Text> {member.function} working on {workPlan?.function} task. 50% efficiency penalty applied.
               </Text>
             </View>
           )}
         </Animated.View>
       </Pressable>
     );
-  }, [allocations, getMemberCapacity, getCostPerSquare, isFunctionMatch, getDefaultIncrement, handleMemberTap, handleRemoveTUs]);
+  }, [allocations, getMemberCapacity, getCostPerSquare, isFunctionMatch, isMismatch, getDefaultIncrement, handleMemberTap, handleRemoveTUs, workPlan]);
 
   if (!workPlan) return null;
 
@@ -604,25 +640,40 @@ export function UnifiedTaskAllocationModal({ visible, onClose, workPlan }: Props
                   <View className="flex-row items-center">
                     <Users size={20} color="#3b82f6" />
                     <Text className="text-gray-900 dark:text-white font-semibold ml-2">
-                      Team Allocation
+                      Team Allocation ({calculations.totalAllocatedPerWeek}□/wk assigned)
                     </Text>
                   </View>
-                  <View className="flex-row items-center">
-                    <View className="bg-blue-100 dark:bg-blue-900/30 px-2 py-1 rounded mr-2">
-                      <Text className="text-blue-700 dark:text-blue-300 text-sm font-semibold">
-                        {calculations.totalAllocatedPerWeek}□/wk
-                      </Text>
-                    </View>
-                    <ChevronRight
-                      size={20}
-                      color="#6b7280"
-                      style={{ transform: [{ rotate: expandedSection === 'people' ? '90deg' : '0deg' }] }}
-                    />
-                  </View>
+                  <ChevronRight
+                    size={20}
+                    color="#6b7280"
+                    style={{ transform: [{ rotate: expandedSection === 'people' ? '90deg' : '0deg' }] }}
+                  />
                 </Pressable>
 
                 {expandedSection === 'people' && (
                   <>
+                    {/* Skill Mismatch Warning */}
+                    {calculations.mismatchedMembers.length > 0 && (
+                      <View className="bg-red-50 dark:bg-red-900/10 border-2 border-red-300 dark:border-red-700 rounded-xl p-4 mb-3">
+                        <View className="flex-row items-start">
+                          <AlertTriangle size={20} color="#ef4444" />
+                          <View className="ml-3 flex-1">
+                            <Text className="text-red-800 dark:text-red-300 font-bold text-sm">
+                              Skill Mismatch Detected
+                            </Text>
+                            <Text className="text-red-700 dark:text-red-400 text-xs mt-1">
+                              {calculations.mismatchedMembers.length} team member{calculations.mismatchedMembers.length > 1 ? 's are' : ' is'} working outside their specialty on this {workPlan.function} task. This reduces efficiency by 50%.
+                            </Text>
+                            <View className="mt-2 bg-red-100 dark:bg-red-900/30 rounded-lg p-2">
+                              <Text className="text-red-800 dark:text-red-300 text-xs font-semibold">
+                                Effective TUs increased: {Math.round(totalTUs / calculations.aiMultiplier)}□ → {calculations.effectiveTUs}□
+                              </Text>
+                            </View>
+                          </View>
+                        </View>
+                      </View>
+                    )}
+
                     {/* Team efficiency indicator */}
                     {calculations.teamSize > 0 && (
                       <View className={`rounded-lg p-3 mb-3 ${
@@ -663,40 +714,18 @@ export function UnifiedTaskAllocationModal({ visible, onClose, workPlan }: Props
                       <View className="flex-row items-center">
                         <Zap size={14} color="#3b82f6" />
                         <Text className="text-blue-700 dark:text-blue-300 text-xs ml-1">
-                          This is a <Text className="font-bold">{workPlan.function}</Text> task. Members with matching function are marked with FIT.
+                          This is a <Text className="font-bold">{workPlan.function}</Text> task. Tap any team member below to allocate their TUs. Members with <Text className="font-bold">FIT</Text> badge work at full efficiency. Others get 50% penalty.
                         </Text>
                       </View>
                     </View>
 
-                    {/* Founders */}
-                    {membersByRole.founders.length > 0 && (
-                      <View className="mb-4">
-                        <Text className="text-purple-600 dark:text-purple-400 text-xs font-bold tracking-wide mb-2">
-                          FOUNDERS
-                        </Text>
-                        {membersByRole.founders.map(renderMemberRow)}
-                      </View>
-                    )}
-
-                    {/* Executives */}
-                    {membersByRole.executives.length > 0 && (
-                      <View className="mb-4">
-                        <Text className="text-blue-600 dark:text-blue-400 text-xs font-bold tracking-wide mb-2">
-                          EXECUTIVES
-                        </Text>
-                        {membersByRole.executives.map(renderMemberRow)}
-                      </View>
-                    )}
-
-                    {/* Apprentices */}
-                    {membersByRole.apprentices.length > 0 && (
-                      <View className="mb-4">
-                        <Text className="text-emerald-600 dark:text-emerald-400 text-xs font-bold tracking-wide mb-2">
-                          APPRENTICES
-                        </Text>
-                        {membersByRole.apprentices.map(renderMemberRow)}
-                      </View>
-                    )}
+                    {/* All Team Members - Single List */}
+                    <View className="mb-4">
+                      <Text className="text-gray-500 dark:text-slate-400 text-xs font-bold tracking-wide mb-3">
+                        ALL TEAM MEMBERS • TAP TO ALLOCATE
+                      </Text>
+                      {members.filter(m => m.status === 'active').map(renderMemberRow)}
+                    </View>
                   </>
                 )}
               </Animated.View>
