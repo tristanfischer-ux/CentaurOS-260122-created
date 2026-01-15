@@ -41,6 +41,8 @@ interface OrganizationState {
   getEngagementsByStatus: (status: SupplierEngagement['status']) => SupplierEngagement[];
   getEngagementsByAssignee: (assignedTo: string) => SupplierEngagement[];
   updateSupplierEngagement: (id: string, updates: Partial<SupplierEngagement>) => void;
+  linkWorkPlanToSupplier: (engagementId: string, workPlanId: string) => void;
+  unlinkWorkPlanFromSupplier: (engagementId: string, workPlanId: string) => void;
 
   // Calculated metrics
   getTotalAISpend: () => number;
@@ -133,6 +135,32 @@ export const useOrganizationStore = create<OrganizationState>((set, get) => ({
     set((state) => ({
       supplierEngagements: state.supplierEngagements.map(e =>
         e.id === id ? { ...e, ...updates } : e
+      )
+    }));
+  },
+
+  linkWorkPlanToSupplier: (engagementId: string, workPlanId: string) => {
+    set((state) => ({
+      supplierEngagements: state.supplierEngagements.map(e =>
+        e.id === engagementId
+          ? {
+              ...e,
+              linkedWorkPlanIds: [...(e.linkedWorkPlanIds || []), workPlanId]
+            }
+          : e
+      )
+    }));
+  },
+
+  unlinkWorkPlanFromSupplier: (engagementId: string, workPlanId: string) => {
+    set((state) => ({
+      supplierEngagements: state.supplierEngagements.map(e =>
+        e.id === engagementId
+          ? {
+              ...e,
+              linkedWorkPlanIds: (e.linkedWorkPlanIds || []).filter(id => id !== workPlanId)
+            }
+          : e
       )
     }));
   },

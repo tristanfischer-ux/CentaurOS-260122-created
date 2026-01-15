@@ -726,6 +726,128 @@ export default function MakeScreen() {
                     </View>
                   </View>
 
+                  {/* Linked Tasks & Team Members - NEW */}
+                  {(() => {
+                    const linkedWorkPlanIds = selectedSupplier.linkedWorkPlanIds || [];
+                    if (linkedWorkPlanIds.length === 0) return null;
+
+                    // Get work plans from the store
+                    const { useWorkPlanStore } = require('@/lib/state/work-plan-store');
+                    const workPlans = useWorkPlanStore.getState().workPlans;
+                    const linkedWorkPlans = workPlans.filter((wp: any) => linkedWorkPlanIds.includes(wp.id));
+
+                    if (linkedWorkPlans.length === 0) return null;
+
+                    return (
+                      <View className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4 mb-4">
+                        <View className="flex-row items-center mb-3">
+                          <Target size={18} color="#3b82f6" />
+                          <Text className="text-blue-900 dark:text-blue-100 font-bold ml-2">Linked Tasks</Text>
+                        </View>
+
+                        {linkedWorkPlans.map((workPlan: any) => {
+                          // Get people working on this task
+                          const peopleOnTask = workPlan.allocations?.map((alloc: any) => {
+                            return members.find(m => m.id === alloc.memberId);
+                          }).filter(Boolean) || [];
+
+                          return (
+                            <View key={workPlan.id} className="bg-white dark:bg-slate-800 rounded-lg p-3 mb-2">
+                              <View className="flex-row items-start justify-between mb-2">
+                                <View className="flex-1">
+                                  <Text className="text-gray-900 dark:text-white font-semibold text-sm">
+                                    {workPlan.title}
+                                  </Text>
+                                  <Text className="text-gray-600 dark:text-slate-400 text-xs mt-0.5">
+                                    {workPlan.function} • {workPlan.status.replace(/-/g, ' ')}
+                                  </Text>
+                                  {workPlan.componentBeingMade && (
+                                    <View className="mt-1 flex-row items-center">
+                                      <Package size={12} color="#3b82f6" />
+                                      <Text className="text-blue-600 dark:text-blue-400 text-xs ml-1">
+                                        Making: {workPlan.componentBeingMade}
+                                      </Text>
+                                    </View>
+                                  )}
+                                  {workPlan.manufacturingProcess && (
+                                    <Text className="text-gray-500 dark:text-slate-500 text-xs mt-1">
+                                      {workPlan.manufacturingProcess}
+                                    </Text>
+                                  )}
+                                </View>
+                                <View className="bg-blue-100 dark:bg-blue-900/50 px-2 py-1 rounded">
+                                  <Text className="text-blue-700 dark:text-blue-300 text-xs font-bold">
+                                    {workPlan.progress}%
+                                  </Text>
+                                </View>
+                              </View>
+
+                              {/* People working on this task */}
+                              {peopleOnTask.length > 0 && (
+                                <View className="mt-2 pt-2 border-t border-gray-200 dark:border-slate-700">
+                                  <Text className="text-gray-600 dark:text-slate-400 text-xs font-semibold mb-1.5">
+                                    Team Members:
+                                  </Text>
+                                  <View className="flex-row flex-wrap gap-2">
+                                    {peopleOnTask.map((person: any) => {
+                                      if (!person) return null;
+                                      const allocation = workPlan.allocations?.find((a: any) => a.memberId === person.id);
+                                      return (
+                                        <View
+                                          key={person.id}
+                                          className="flex-row items-center bg-gray-100 dark:bg-slate-700 rounded-lg px-2 py-1"
+                                        >
+                                          <View
+                                            className="w-5 h-5 rounded-full items-center justify-center mr-1.5"
+                                            style={{
+                                              backgroundColor:
+                                                person.role === 'Founder' ? '#8b5cf6' :
+                                                person.role === 'FractionalExec' ? '#3b82f6' : '#10b981'
+                                            }}
+                                          >
+                                            <Text className="text-white text-[10px] font-bold">
+                                              {person.name.split(' ').map((n: string) => n[0]).join('')}
+                                            </Text>
+                                          </View>
+                                          <Text className="text-gray-900 dark:text-white text-xs font-medium">
+                                            {person.name}
+                                          </Text>
+                                          {allocation && (
+                                            <Text className="text-gray-500 dark:text-slate-400 text-xs ml-1">
+                                              ({allocation.squaresPerWeek} TU/wk)
+                                            </Text>
+                                          )}
+                                        </View>
+                                      );
+                                    })}
+                                  </View>
+                                </View>
+                              )}
+                            </View>
+                          );
+                        })}
+
+                        {selectedSupplier.componentName && (
+                          <View className="mt-2 bg-blue-100 dark:bg-blue-900/50 rounded-lg p-2">
+                            <Text className="text-blue-700 dark:text-blue-300 text-xs font-medium">
+                              Component: {selectedSupplier.componentName}
+                            </Text>
+                            {selectedSupplier.processDescription && (
+                              <Text className="text-blue-600 dark:text-blue-400 text-xs mt-1">
+                                {selectedSupplier.processDescription}
+                              </Text>
+                            )}
+                            {selectedSupplier.estimatedDuration && (
+                              <Text className="text-blue-600 dark:text-blue-400 text-xs mt-1">
+                                Duration: {selectedSupplier.estimatedDuration} days
+                              </Text>
+                            )}
+                          </View>
+                        )}
+                      </View>
+                    );
+                  })()}
+
                   {/* Contact Information */}
                   <View className="bg-gray-100 dark:bg-slate-800/50 rounded-xl p-4 mb-4">
                     <Text className="text-gray-900 dark:text-white font-bold mb-3">Contact Information</Text>

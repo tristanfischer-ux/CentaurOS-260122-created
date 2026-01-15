@@ -41,7 +41,11 @@ export interface SupplierEngagement {
   paidToDate: number;
   deliveryDate: string;
   startDate: string;
-  tasks: string[];
+  tasks: string[]; // Legacy: task names
+  linkedWorkPlanIds?: string[]; // NEW: IDs of work plans using this supplier
+  componentName?: string; // NEW: What is being made/manufactured
+  processDescription?: string; // NEW: Description of the manufacturing process
+  estimatedDuration?: number; // NEW: How long the process takes (in days)
   contactPerson: string;
   contactEmail: string;
   contactPhone: string;

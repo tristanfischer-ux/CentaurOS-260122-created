@@ -1484,8 +1484,19 @@ Previous Updates:
 
 ✅ **Home Tab Header Fixed** - The gradient ribbon now extends edge-to-edge to the top of the screen without clashing with the iOS status bar (time, WiFi, battery). Applied to all three role views (Founder Command Center, Executive Dashboard, Apprentice Workspace). The header gradient now properly sits behind the status bar while content remains appropriately spaced.
 
-### Current Status: ✅ **Weekly Time Allocation Chart Added**
+### Current Status: ✅ **Task-to-Supplier Manufacturing Link Complete**
 
+✅ **Task-to-Supplier Manufacturing Link**: Backend infrastructure ready for connecting Decide tasks to Make suppliers
+  - **WorkPlan fields added**: linkedSupplierEngagementId, componentBeingMade, manufacturingProcess
+  - **SupplierEngagement fields added**: linkedWorkPlanIds[], componentName, processDescription, estimatedDuration
+  - **Make tab enhanced**: Supplier detail modal now shows "Linked Tasks" section displaying:
+    - All work plans connected to this supplier
+    - Task title, business function, status, and completion progress
+    - Component being manufactured and process description
+    - Team members working on each task with their TU/week allocations
+    - Color-coded role badges (purple=Founder, blue=Exec, green=Apprentice)
+  - **Organization store helpers**: linkWorkPlanToSupplier() and unlinkWorkPlanFromSupplier()
+  - Next step: Add UI in Decide tab for users to select supplier/component when creating manufacturing tasks
 ✅ **Weekly Time Allocation Chart**: New visual breakdown shows where team time is being spent across business functions
   - Colorful horizontal bar chart showing proportion of time: Marketing (pink), Sales (green), Engineering (blue), Ops (amber), Finance (purple), Admin (gray)
   - Detailed list with TU amounts and percentages, sorted by highest allocation
