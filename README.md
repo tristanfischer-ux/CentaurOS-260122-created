@@ -16,17 +16,23 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
 ## 🔄 Recent Updates (Jan 2026)
 
 ### Decide Tab Enhancements (Latest)
-- **Mini Gantt Chart Timeline**: Interactive weekly timeline with smart scrolling
-  - **Auto-scrolls to today**: Opens with current week at far left, showing future ahead
+- **Mini Gantt Chart Timeline**: Interactive weekly timeline with synchronized scrolling
+  - **Team Avatars on Timeline**: Avatars positioned immediately to the left of each task bar
+  - **Synced Scrolling**: Timeline header and task content scroll together horizontally
+  - **Auto-scrolls to today**: Opens with current week ("This Week") at far left
   - Visual task bars color-coded by status (not-started, in-progress, blocked)
   - Shows 13 weeks: 6 weeks past, current week (highlighted), 6 weeks future
   - **Vertical scrolling**: Shows 5 tasks at a time, scroll to see more
   - Tap any task to view full details
   - Smart start date calculation based on estimated time units
-- **Optimized Resource Pool**: Shows 5 team members at a time
+- **Optimized Resource Pool**: Fixed to show exactly 5 team members at a time
   - Scroll up/down to see your entire team
   - Visual scroll indicator for easy navigation
   - Maintains full capacity view with allocation status
+- **Team Avatars on Active Tasks**: Avatars positioned immediately to the left of task cards
+  - Stacked display (right to left) showing up to 3 team members
+  - "+N" indicator for additional team members beyond 3
+  - Color-coded by role (purple: Founders, blue: Execs, green: Apprentices)
 - **Removed AI Productivity Boost Box**: Streamlined UI by removing the AI tools section from Decide tab
 
 ### Make Tab Integration

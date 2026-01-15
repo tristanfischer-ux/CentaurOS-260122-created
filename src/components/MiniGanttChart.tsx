@@ -52,6 +52,23 @@ export function MiniGanttChart({ workPlans, members, onTaskPress }: MiniGanttCha
   const headerScrollRef = useRef<ScrollView>(null);
   const contentScrollRef = useRef<ScrollView>(null);
 
+  // Helper to get initials from name
+  const getInitials = (name: string): string => {
+    const parts = name.split(' ');
+    if (parts.length >= 2) {
+      return `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase();
+    }
+    return name.substring(0, 2).toUpperCase();
+  };
+
+  // Helper to get assigned members for a task
+  const getAssignedMembers = (task: WorkPlan) => {
+    const memberIds = task.assignedMemberIds || [];
+    return memberIds
+      .map(id => members.find(m => m.id === id))
+      .filter((m): m is OrganizationMember => m !== undefined);
+  };
+
   // Generate 13 weeks: 6 weeks before, current week, 6 weeks after
   const weeks = useMemo(() => {
     const result = [];
@@ -153,8 +170,9 @@ export function MiniGanttChart({ workPlans, members, onTaskPress }: MiniGanttCha
         <ScrollView
           ref={headerScrollRef}
           horizontal
-          showsHorizontalScrollIndicator={true}
+          showsHorizontalScrollIndicator={false}
           className="border-b border-gray-200 dark:border-slate-700"
+          scrollEnabled={false}
         >
           <View className="flex-row">
             {weeks.map((week, idx) => (
@@ -186,7 +204,13 @@ export function MiniGanttChart({ workPlans, members, onTaskPress }: MiniGanttCha
         <ScrollView
           ref={contentScrollRef}
           horizontal
-          showsHorizontalScrollIndicator={false}
+          showsHorizontalScrollIndicator={true}
+          onScroll={(e) => {
+            // Sync header scroll with content scroll
+            const offsetX = e.nativeEvent.contentOffset.x;
+            headerScrollRef.current?.scrollTo({ x: offsetX, y: 0, animated: false });
+          }}
+          scrollEventThrottle={16}
         >
           <ScrollView
             showsVerticalScrollIndicator={true}
@@ -205,42 +229,84 @@ export function MiniGanttChart({ workPlans, members, onTaskPress }: MiniGanttCha
                 const colors = STATUS_COLORS[bar.task.status] || STATUS_COLORS['not-started'];
                 const leftPosition = WEEK_WIDTH * (bar.startOffset + 6); // +6 to account for weeks before
                 const barWidth = WEEK_WIDTH * bar.widthInWeeks - 8; // -8 for padding
+                const assignedMembers = getAssignedMembers(bar.task);
+                const AVATAR_WIDTH = 32; // Width for avatar section
 
                 return (
-                  <Pressable
+                  <View
                     key={bar.task.id}
-                    onPress={() => onTaskPress?.(bar.task.id)}
-                    className="mb-2"
+                    className="mb-2 flex-row items-center"
                     style={{
-                      marginLeft: Math.max(0, leftPosition) + 4,
-                      width: Math.max(60, barWidth),
+                      marginLeft: Math.max(0, leftPosition) - AVATAR_WIDTH - 4,
                       height: TASK_HEIGHT,
                     }}
                   >
-                    <View
-                      className={`flex-row items-center px-2 py-1 rounded-lg border-2 ${colors.bg} ${colors.border} active:opacity-70`}
-                      style={{ height: TASK_HEIGHT }}
-                    >
-                      <View className="flex-1">
-                        <Text
-                          className={`text-[10px] font-semibold ${colors.text}`}
-                          numberOfLines={1}
-                        >
-                          {bar.task.title}
-                        </Text>
-                        <Text
-                          className={`text-[8px] ${colors.text} opacity-80`}
-                          numberOfLines={1}
-                        >
-                          {bar.task.function} • {bar.task.progress}%
-                        </Text>
-                      </View>
-                      {/* Progress indicator */}
-                      {bar.task.status === 'in-progress' && (
-                        <View className="ml-1 w-1 h-1 rounded-full bg-white" />
-                      )}
+                    {/* Team Avatars - positioned immediately to the left of the task bar */}
+                    <View className="mr-1" style={{ width: AVATAR_WIDTH }}>
+                      {assignedMembers.length > 0 ? (
+                        <View className="flex-row justify-end" style={{ flexDirection: 'row-reverse' }}>
+                          {assignedMembers.slice(0, 2).reverse().map((member, idx) => (
+                            <View
+                              key={member.id}
+                              style={{ marginLeft: idx > 0 ? -6 : 0, zIndex: idx }}
+                            >
+                              <View
+                                className="w-6 h-6 rounded-full items-center justify-center border border-white dark:border-slate-900"
+                                style={{ backgroundColor: ROLE_COLORS[member.role] }}
+                              >
+                                <Text className="text-white font-bold text-[8px]">
+                                  {getInitials(member.name)}
+                                </Text>
+                              </View>
+                            </View>
+                          ))}
+                          {assignedMembers.length > 2 && (
+                            <View
+                              className="w-6 h-6 rounded-full items-center justify-center bg-gray-500 border border-white dark:border-slate-900"
+                              style={{ marginLeft: -6, zIndex: 2 }}
+                            >
+                              <Text className="text-white font-bold text-[8px]">
+                                +{assignedMembers.length - 2}
+                              </Text>
+                            </View>
+                          )}
+                        </View>
+                      ) : null}
                     </View>
-                  </Pressable>
+
+                    {/* Task Bar */}
+                    <Pressable
+                      onPress={() => onTaskPress?.(bar.task.id)}
+                      style={{
+                        width: Math.max(60, barWidth),
+                        height: TASK_HEIGHT,
+                      }}
+                    >
+                      <View
+                        className={`flex-row items-center px-2 py-1 rounded-lg border-2 ${colors.bg} ${colors.border} active:opacity-70`}
+                        style={{ height: TASK_HEIGHT }}
+                      >
+                        <View className="flex-1">
+                          <Text
+                            className={`text-[10px] font-semibold ${colors.text}`}
+                            numberOfLines={1}
+                          >
+                            {bar.task.title}
+                          </Text>
+                          <Text
+                            className={`text-[8px] ${colors.text} opacity-80`}
+                            numberOfLines={1}
+                          >
+                            {bar.task.function} • {bar.task.progress}%
+                          </Text>
+                        </View>
+                        {/* Progress indicator */}
+                        {bar.task.status === 'in-progress' && (
+                          <View className="ml-1 w-1 h-1 rounded-full bg-white" />
+                        )}
+                      </View>
+                    </Pressable>
+                  </View>
                 );
               })}
 
