@@ -16,16 +16,16 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
 ## 🔄 Recent Updates (Jan 2026)
 
 ### Decide Tab Enhancements (Latest)
-- **Simplified UI**: Removed cluttered sections for cleaner, more focused experience
-  - Removed TU Optimization Opportunities section
-  - Removed Completed Tasks section (historical task audit)
-  - Removed Abandoned Tasks section (deleted task tracking)
-  - Removed Company Aim Banner (duplicate of workspace settings)
-- **Core Focus**: Tab now focuses on the essential workflow:
-  - Weekly Resource Pool for team capacity
-  - Mini Gantt Chart for visual task timeline
-  - Task allocation panel for resource assignment
-  - Active and queued task management
+- **Three-Section Layout**: Redesigned for clarity and workflow optimization
+  - **Top**: Task Timeline Gantt Chart - visual overview of all tasks across 13-week timeline
+  - **Middle**: Task Queue - scrollable list of current activities (in progress) and future activities (queued)
+  - **Bottom**: Weekly Resource Pool - team capacity and availability at a glance
+- **Workflow Focus**: See the impact of adding/removing people on task completion times
+  - View task timeline and resource pool on same screen
+  - Allocate resources and immediately see timeline changes
+  - Current activities show tasks with team assigned and estimated completion
+  - Future activities show queued tasks awaiting allocation
+- **Clear Section Headers**: Each section has descriptive title and subtitle for instant understanding
 - **Mini Gantt Chart Timeline**: Interactive weekly timeline with synchronized scrolling
   - **13-Week Scrollable View**: 4 weeks past, current week, 8 weeks future - scroll left/right to navigate full timeline
   - **Dynamic Week Width**: Each visible week spans exactly 1/3 of screen width for optimal space

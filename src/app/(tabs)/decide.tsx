@@ -1517,13 +1517,7 @@ export default function DecideScreen() {
         </View>
       </LinearGradient>
 
-      {/* Resource Pool Header - Always visible */}
-      <ResourcePoolHeader
-        selectedPersonId={selectedPersonId}
-        onPersonSelect={handlePersonSelect}
-      />
-
-      {/* Mini Gantt Chart - Task Timeline */}
+      {/* SECTION 1: TASK TIMELINE GANTT CHART - TOP */}
       <MiniGanttChart
         workPlans={workPlans}
         members={orgMembers}
@@ -1536,7 +1530,18 @@ export default function DecideScreen() {
         }}
       />
 
+      {/* SECTION 2: TASK QUEUE - MIDDLE (Scrollable) */}
       <ScrollView className="flex-1 px-5 py-4">
+        {/* Section Title */}
+        <View className="mb-4">
+          <Text className="text-gray-900 dark:text-white text-lg font-bold">
+            Task Queue
+          </Text>
+          <Text className="text-gray-600 dark:text-slate-400 text-xs mt-0.5">
+            Current activities and upcoming work
+          </Text>
+        </View>
+
         {/* Selected Task Allocation Panel - Appears below resource pool */}
         {selectedTaskForAllocation && (
           <Animated.View
@@ -1783,12 +1788,17 @@ export default function DecideScreen() {
           return activeTasks.length > 0 ? (
             <View className="mb-6">
               <View className="flex-row items-center justify-between mb-3">
-                <Text className="text-gray-900 dark:text-white text-sm font-bold">
-                  Active Tasks
-                </Text>
+                <View>
+                  <Text className="text-gray-900 dark:text-white text-base font-bold">
+                    Current Activities
+                  </Text>
+                  <Text className="text-gray-600 dark:text-slate-400 text-xs mt-0.5">
+                    Tasks in progress with team assigned
+                  </Text>
+                </View>
                 <View className="bg-emerald-500/10 dark:bg-emerald-500/20 px-3 py-1 rounded-full">
                   <Text className="text-emerald-600 dark:text-emerald-400 text-xs font-bold">
-                    {activeTasks.length} in progress
+                    {activeTasks.length} active
                   </Text>
                 </View>
               </View>
@@ -1928,12 +1938,17 @@ export default function DecideScreen() {
           return queuedTasks.length > 0 ? (
             <View className="mb-6">
               <View className="flex-row items-center justify-between mb-3">
-                <Text className="text-gray-900 dark:text-white text-sm font-bold">
-                  Queued Tasks
-                </Text>
+                <View>
+                  <Text className="text-gray-900 dark:text-white text-base font-bold">
+                    Future Activities
+                  </Text>
+                  <Text className="text-gray-600 dark:text-slate-400 text-xs mt-0.5">
+                    Upcoming tasks awaiting resource allocation
+                  </Text>
+                </View>
                 <View className="bg-orange-500/10 dark:bg-orange-500/20 px-3 py-1 rounded-full">
                   <Text className="text-orange-600 dark:text-orange-400 text-xs font-bold">
-                    {queuedTasks.length} awaiting resources
+                    {queuedTasks.length} queued
                   </Text>
                 </View>
               </View>
@@ -2040,6 +2055,22 @@ export default function DecideScreen() {
           ) : null;
         })()}
       </ScrollView>
+
+      {/* SECTION 3: WEEKLY RESOURCE POOL - BOTTOM */}
+      <View className="border-t-2 border-gray-200 dark:border-slate-700">
+        <View className="px-5 pt-3 pb-2 bg-gray-50 dark:bg-slate-900">
+          <Text className="text-gray-900 dark:text-white text-lg font-bold">
+            Weekly Resource Pool
+          </Text>
+          <Text className="text-gray-600 dark:text-slate-400 text-xs mt-0.5">
+            Team capacity and availability
+          </Text>
+        </View>
+        <ResourcePoolHeader
+          selectedPersonId={selectedPersonId}
+          onPersonSelect={handlePersonSelect}
+        />
+      </View>
 
       {/* OKR Ideas Modal */}
       <Modal
