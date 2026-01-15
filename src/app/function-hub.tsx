@@ -1,7 +1,7 @@
 // Function Hub - Central resource library for all business functions
 // Access function-specific people, suppliers, AI tools, templates, guides, and advice
 
-import { View, Text, ScrollView, Pressable, TextInput } from 'react-native';
+import { View, Text, ScrollView, Pressable, TextInput, Modal } from 'react-native';
 import { useState } from 'react';
 import { router } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -18,6 +18,9 @@ import {
   Lightbulb,
   Target,
   ExternalLink,
+  X,
+  Globe,
+  Zap,
 } from 'lucide-react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { getAllFunctionProfiles, type FunctionProfile, type FunctionResource } from '@/lib/function-library';
@@ -54,6 +57,8 @@ export default function FunctionHubScreen() {
   const [selectedFunction, setSelectedFunction] = useState<FunctionProfile | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [activeTab, setActiveTab] = useState<'resources' | 'advice' | 'okrs'>('resources');
+  const [selectedResource, setSelectedResource] = useState<FunctionResource | null>(null);
+  const [showResourceModal, setShowResourceModal] = useState(false);
 
   // If user has a function, pre-select it
   const userFunction = currentMembership?.function;
@@ -227,6 +232,10 @@ export default function FunctionHubScreen() {
                   color={currentProfile.color}
                   isDark={isDark}
                   isOffWhite={isOffWhite}
+                  onResourcePress={(resource: FunctionResource) => {
+                    setSelectedResource(resource);
+                    setShowResourceModal(true);
+                  }}
                 />
               )}
 
@@ -239,6 +248,10 @@ export default function FunctionHubScreen() {
                   color={currentProfile.color}
                   isDark={isDark}
                   isOffWhite={isOffWhite}
+                  onResourcePress={(resource: FunctionResource) => {
+                    setSelectedResource(resource);
+                    setShowResourceModal(true);
+                  }}
                 />
               )}
 
@@ -251,6 +264,10 @@ export default function FunctionHubScreen() {
                   color={currentProfile.color}
                   isDark={isDark}
                   isOffWhite={isOffWhite}
+                  onResourcePress={(resource: FunctionResource) => {
+                    setSelectedResource(resource);
+                    setShowResourceModal(true);
+                  }}
                 />
               )}
 
@@ -263,6 +280,10 @@ export default function FunctionHubScreen() {
                   color={currentProfile.color}
                   isDark={isDark}
                   isOffWhite={isOffWhite}
+                  onResourcePress={(resource: FunctionResource) => {
+                    setSelectedResource(resource);
+                    setShowResourceModal(true);
+                  }}
                 />
               )}
 
@@ -275,6 +296,10 @@ export default function FunctionHubScreen() {
                   color={currentProfile.color}
                   isDark={isDark}
                   isOffWhite={isOffWhite}
+                  onResourcePress={(resource: FunctionResource) => {
+                    setSelectedResource(resource);
+                    setShowResourceModal(true);
+                  }}
                 />
               )}
 
@@ -287,6 +312,10 @@ export default function FunctionHubScreen() {
                   color={currentProfile.color}
                   isDark={isDark}
                   isOffWhite={isOffWhite}
+                  onResourcePress={(resource: FunctionResource) => {
+                    setSelectedResource(resource);
+                    setShowResourceModal(true);
+                  }}
                 />
               )}
             </View>
@@ -401,6 +430,97 @@ export default function FunctionHubScreen() {
             </View>
           )}
         </ScrollView>
+
+        {/* Resource Details Modal */}
+        <Modal
+          visible={showResourceModal}
+          transparent
+          animationType="fade"
+          onRequestClose={() => setShowResourceModal(false)}
+        >
+          <Pressable
+            className="flex-1 bg-black/70 justify-end"
+            onPress={() => setShowResourceModal(false)}
+          >
+            <Pressable
+              onPress={(e) => e.stopPropagation()}
+              className={`${bgPrimary} rounded-t-3xl max-h-[90%]`}
+            >
+              {selectedResource && (
+                <ScrollView showsVerticalScrollIndicator={false}>
+                  {/* Header */}
+                  <View className={`px-6 py-6 border-b ${borderColor}`}>
+                    <View className="flex-row items-start justify-between mb-3">
+                      <View className="flex-1 mr-4">
+                        <Text className={`${textPrimary} text-2xl font-bold mb-2`}>
+                          {selectedResource.title}
+                        </Text>
+                        <Text className={`${textSecondary} text-base leading-relaxed`}>
+                          {selectedResource.description}
+                        </Text>
+                      </View>
+                      <Pressable
+                        onPress={() => setShowResourceModal(false)}
+                        className={`${bgCard} rounded-full p-2 active:opacity-70`}
+                      >
+                        <X size={20} color={iconColor} />
+                      </Pressable>
+                    </View>
+
+                    {/* Tags */}
+                    <View className="flex-row flex-wrap gap-2">
+                      {selectedResource.tags.map((tag) => (
+                        <View key={tag} className={`${bgCard} rounded-full px-3 py-1.5 border ${borderColor}`}>
+                          <Text className={`${textSecondary} text-xs font-medium`}>{tag}</Text>
+                        </View>
+                      ))}
+                    </View>
+                  </View>
+
+                  {/* Content */}
+                  <View className="px-6 py-6">
+                    {/* Category */}
+                    <View className="mb-6">
+                      <View className="flex-row items-center mb-3">
+                        <View className={`${bgCard} rounded-lg px-3 py-1.5 border ${borderColor}`}>
+                          <Text className={`${textSecondary} text-sm font-semibold`}>
+                            {selectedResource.category}
+                          </Text>
+                        </View>
+                      </View>
+                    </View>
+
+                    {/* Description */}
+                    <View className="mb-6">
+                      <Text className={`${textPrimary} text-lg font-bold mb-3`}>
+                        About
+                      </Text>
+                      <Text className={`${textSecondary} text-base leading-relaxed`}>
+                        {selectedResource.description}
+                      </Text>
+                    </View>
+
+                    {/* Link */}
+                    {selectedResource.url && (
+                      <Pressable
+                        onPress={() => {
+                          // In a real app, open the URL
+                          console.log('Opening URL:', selectedResource.url);
+                        }}
+                        className="bg-purple-500 rounded-xl py-4 px-6 flex-row items-center justify-center active:opacity-80"
+                      >
+                        <Globe size={20} color="#fff" />
+                        <Text className="text-white text-base font-bold ml-2">
+                          Visit Website
+                        </Text>
+                      </Pressable>
+                    )}
+                  </View>
+                </ScrollView>
+              )}
+            </Pressable>
+          </Pressable>
+        </Modal>
       </SafeAreaView>
     </View>
   );
@@ -414,6 +534,7 @@ function ResourceSection({
   color,
   isDark,
   isOffWhite,
+  onResourcePress,
 }: {
   title: string;
   icon: any;
@@ -421,6 +542,7 @@ function ResourceSection({
   color: string;
   isDark: boolean;
   isOffWhite: boolean;
+  onResourcePress: (resource: FunctionResource) => void;
 }) {
   // Theme-aware colors
   const bgCard = isDark ? 'bg-slate-900' : isOffWhite ? 'bg-stone-100' : 'bg-gray-100';
@@ -443,6 +565,7 @@ function ResourceSection({
       {resources.map((resource) => (
         <Pressable
           key={resource.id}
+          onPress={() => onResourcePress(resource)}
           className={`${bgCard} rounded-xl p-4 mb-3 border ${borderColor} active:opacity-80`}
         >
           <View className="flex-row items-start">
