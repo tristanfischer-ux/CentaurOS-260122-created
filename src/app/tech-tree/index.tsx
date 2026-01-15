@@ -86,7 +86,7 @@ export default function TechTreeScreen() {
   const xpPercent = (currentXP / xpToNextLevel) * 100;
 
   return (
-    <View className="flex-1 bg-white dark:bg-slate-950">
+    <View className="flex-1 bg-gray-50 dark:bg-slate-950">
       <Stack.Screen
         options={{
           headerShown: true,
@@ -102,7 +102,7 @@ export default function TechTreeScreen() {
       />
 
       {/* Header: XP & Level */}
-      <View className="px-5 py-4 border-b border-gray-200 dark:border-slate-800">
+      <View className="px-5 py-4 bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-800">
         <View className="flex-row items-center justify-between mb-3">
           <View>
             <View className="flex-row items-center gap-2 mb-1">
@@ -118,9 +118,9 @@ export default function TechTreeScreen() {
             <Text className="text-gray-600 dark:text-slate-400 text-xs mb-1">
               {currentXP} / {xpToNextLevel} XP
             </Text>
-            <View className="w-32 h-2 bg-gray-200 dark:bg-slate-800 rounded-full overflow-hidden">
+            <View className="w-32 h-2.5 bg-gray-200 dark:bg-slate-800 rounded-full overflow-hidden">
               <View
-                className="h-full bg-gradient-to-r from-purple-500 to-blue-500"
+                className="h-full bg-purple-500"
                 style={{ width: `${xpPercent}%` }}
               />
             </View>
@@ -133,9 +133,9 @@ export default function TechTreeScreen() {
             {activeBuffs.map((buff) => (
               <View
                 key={buff.id}
-                className="bg-purple-500/20 border border-purple-500 px-3 py-1 rounded-full"
+                className="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 px-3 py-1 rounded-full"
               >
-                <Text className="text-purple-300 text-xs font-medium">
+                <Text className="text-purple-600 dark:text-purple-300 text-xs font-medium">
                   ⚡ {buff.name}
                 </Text>
               </View>
@@ -150,15 +150,15 @@ export default function TechTreeScreen() {
           <Pressable
             key={act}
             onPress={() => setSelectedAct(act as 1 | 2 | 3)}
-            className={`flex-1 py-3 rounded-xl border-2 ${
+            className={`flex-1 py-3 rounded-xl border ${
               selectedAct === act
-                ? 'bg-purple-500/20 border-purple-500'
-                : 'bg-gray-50 dark:bg-slate-900 border-gray-200 dark:border-slate-800'
+                ? 'bg-purple-50 dark:bg-purple-900/20 border-purple-500'
+                : 'bg-white dark:bg-slate-900 border-gray-200 dark:border-slate-800'
             }`}
           >
             <Text
               className={`text-center font-semibold ${
-                selectedAct === act ? 'text-purple-400' : 'text-gray-600 dark:text-slate-400'
+                selectedAct === act ? 'text-purple-600 dark:text-purple-400' : 'text-gray-600 dark:text-slate-400'
               }`}
             >
               ACT {act}

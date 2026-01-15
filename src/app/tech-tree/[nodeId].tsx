@@ -46,7 +46,7 @@ export default function TechTreeNodeDetailScreen() {
 
   if (!node) {
     return (
-      <View className="flex-1 bg-white dark:bg-slate-950 items-center justify-center">
+      <View className="flex-1 bg-gray-50 dark:bg-slate-950 items-center justify-center">
         <Text className="text-gray-900 dark:text-white text-lg">Node not found</Text>
       </View>
     );
@@ -91,7 +91,7 @@ export default function TechTreeNodeDetailScreen() {
   };
 
   return (
-    <View className="flex-1 bg-white dark:bg-slate-950">
+    <View className="flex-1 bg-gray-50 dark:bg-slate-950">
       <Stack.Screen
         options={{
           headerShown: true,
@@ -111,7 +111,7 @@ export default function TechTreeNodeDetailScreen() {
         contentContainerStyle={{ paddingBottom: insets.bottom + 100 }}
       >
         {/* Node Header */}
-        <View className="px-5 pt-6 pb-4 border-b border-gray-200 dark:border-slate-800">
+        <View className="px-5 pt-6 pb-4 bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-800">
           <View className="flex-row items-center gap-3 mb-3">
             <View
               className={`w-16 h-16 rounded-full border-4 items-center justify-center ${
@@ -135,15 +135,15 @@ export default function TechTreeNodeDetailScreen() {
               <View className="flex-row items-center gap-2 flex-wrap mb-1">
                 <Text className="text-gray-900 dark:text-white text-xl font-bold">{node.title}</Text>
                 {node.type === 'side-quest' && (
-                  <View className="bg-purple-500/20 border border-purple-500 px-2 py-0.5 rounded">
-                    <Text className="text-purple-400 text-[10px] font-bold">
+                  <View className="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 px-2 py-0.5 rounded">
+                    <Text className="text-purple-600 dark:text-purple-400 text-[10px] font-bold">
                       SIDE QUEST
                     </Text>
                   </View>
                 )}
                 {node.isBossGate && (
-                  <View className="bg-red-500/20 border border-red-500 px-2 py-0.5 rounded">
-                    <Text className="text-red-400 text-[10px] font-bold">BOSS GATE</Text>
+                  <View className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 px-2 py-0.5 rounded">
+                    <Text className="text-red-600 dark:text-red-400 text-[10px] font-bold">BOSS GATE</Text>
                   </View>
                 )}
               </View>
@@ -155,18 +155,18 @@ export default function TechTreeNodeDetailScreen() {
 
           {/* Rewards */}
           <View className="mt-4 flex-row gap-3">
-            <View className="flex-1 bg-blue-900/20 border border-blue-500 rounded-xl p-3">
+            <View className="flex-1 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-3">
               <View className="flex-row items-center gap-2 mb-1">
                 <Zap size={16} color="#3b82f6" />
-                <Text className="text-blue-400 text-xs font-medium">XP Reward</Text>
+                <Text className="text-blue-600 dark:text-blue-400 text-xs font-medium">XP Reward</Text>
               </View>
               <Text className="text-gray-900 dark:text-white text-lg font-bold">+{node.xpReward} XP</Text>
             </View>
 
-            <View className="flex-1 bg-purple-900/20 border border-purple-500 rounded-xl p-3">
+            <View className="flex-1 bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-xl p-3">
               <View className="flex-row items-center gap-2 mb-1">
                 <Clock size={16} color="#a855f7" />
-                <Text className="text-purple-400 text-xs font-medium">Time Estimate</Text>
+                <Text className="text-purple-600 dark:text-purple-400 text-xs font-medium">Time Estimate</Text>
               </View>
               <Text className="text-gray-900 dark:text-white text-lg font-bold">
                 {node.taskPack.totalTUEstimate} TU
@@ -187,7 +187,7 @@ export default function TechTreeNodeDetailScreen() {
               {node.unlocks.map((unlock, idx) => (
                 <View
                   key={idx}
-                  className="bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-xl p-4"
+                  className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-xl p-4 shadow-sm"
                 >
                   <Text className="text-gray-900 dark:text-white text-base font-semibold mb-1">
                     {unlock.title}
@@ -207,13 +207,13 @@ export default function TechTreeNodeDetailScreen() {
               <Text className="text-gray-900 dark:text-white text-lg font-semibold">Permanent Buff</Text>
             </View>
 
-            <View className="bg-purple-900/20 border border-purple-500 rounded-xl p-4">
-              <Text className="text-purple-300 text-base font-semibold mb-2">
+            <View className="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-xl p-4 shadow-sm">
+              <Text className="text-purple-600 dark:text-purple-300 text-base font-semibold mb-2">
                 ⚡ {node.buff.name}
               </Text>
               <Text className="text-gray-700 dark:text-slate-300 text-sm mb-3">{node.buff.description}</Text>
-              <View className="bg-purple-500/20 px-3 py-2 rounded-lg">
-                <Text className="text-purple-200 text-sm font-medium">
+              <View className="bg-purple-100 dark:bg-purple-500/20 px-3 py-2 rounded-lg">
+                <Text className="text-purple-700 dark:text-purple-200 text-sm font-medium">
                   Effect: {node.buff.effect.type} ×{node.buff.effect.value}
                 </Text>
               </View>
@@ -242,10 +242,10 @@ export default function TechTreeNodeDetailScreen() {
                   key={task.id}
                   onPress={() => handleToggleTask(task.id)}
                   disabled={nodeState === 'completed' || nodeState === 'locked'}
-                  className={`border-2 rounded-xl p-4 ${
+                  className={`border rounded-xl p-4 shadow-sm ${
                     isCompleted
-                      ? 'bg-emerald-900/20 border-emerald-500'
-                      : 'bg-gray-50 dark:bg-slate-900 border-gray-200 dark:border-slate-800'
+                      ? 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800'
+                      : 'bg-white dark:bg-slate-900 border-gray-200 dark:border-slate-800'
                   }`}
                 >
                   <View className="flex-row items-start gap-3">
