@@ -361,10 +361,10 @@ export function calculateTUAllocation(
           .map((n: string) => n[0])
           .join('') || '??';
 
-      // Simple ETA calculation using estimatedTimeUnits
+      // Calculate days to completion (matches Decide tab logic)
       const etaDays =
         tuAllocated > 0 && wp.estimatedTimeUnits
-          ? Math.ceil((wp.estimatedTimeUnits / tuAllocated) * 7)
+          ? Math.ceil((wp.estimatedTimeUnits / tuAllocated)) * 5 // weeks * 5 working days
           : null;
 
       return {
@@ -375,7 +375,13 @@ export function calculateTUAllocation(
         tuAllocated,
       };
     })
-    .sort((a, b) => b.tuAllocated - a.tuAllocated)
+    // Sort by days to completion (shortest first) - matches Decide tab
+    .sort((a, b) => {
+      // If no ETA, push to end
+      if (a.etaDays === null) return 1;
+      if (b.etaDays === null) return -1;
+      return a.etaDays - b.etaDays;
+    })
     .slice(0, 5);
 
   return {
