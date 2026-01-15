@@ -154,6 +154,7 @@ export default function DecideScreen() {
   const [selectedPersonId, setSelectedPersonId] = useState<string | null>(null);
   const [selectedTaskForAllocation, setSelectedTaskForAllocation] = useState<WorkPlan | null>(null);
   const [editedTaskTitle, setEditedTaskTitle] = useState<string>('');
+  const [editedTaskDescription, setEditedTaskDescription] = useState<string>('');
 
   // Task details modal state (for completed/abandoned tasks)
   const [showTaskDetailsModal, setShowTaskDetailsModal] = useState(false);
@@ -631,15 +632,23 @@ export default function DecideScreen() {
   // Confirm allocation changes
   const handleConfirmAllocation = useCallback(() => {
     if (selectedTaskForAllocation) {
-      // Save title if it was edited
+      // Save title and description if they were edited
+      const updates: Partial<WorkPlan> = {};
       if (editedTaskTitle && editedTaskTitle !== selectedTaskForAllocation.title) {
-        updateWorkPlan(selectedTaskForAllocation.id, { title: editedTaskTitle });
+        updates.title = editedTaskTitle;
+      }
+      if (editedTaskDescription && editedTaskDescription !== selectedTaskForAllocation.description) {
+        updates.description = editedTaskDescription;
+      }
+      if (Object.keys(updates).length > 0) {
+        updateWorkPlan(selectedTaskForAllocation.id, updates);
       }
       setSelectedTaskForAllocation(null);
       setEditedTaskTitle('');
+      setEditedTaskDescription('');
       Alert.alert('Confirmed', 'Resource allocation confirmed!');
     }
-  }, [selectedTaskForAllocation, editedTaskTitle, updateWorkPlan]);
+  }, [selectedTaskForAllocation, editedTaskTitle, editedTaskDescription, updateWorkPlan]);
 
   // Handle saving task title
   const handleSaveTaskTitle = useCallback(() => {
@@ -649,12 +658,22 @@ export default function DecideScreen() {
     }
   }, [selectedTaskForAllocation, editedTaskTitle, updateWorkPlan]);
 
-  // Initialize edited title when task is selected
+  // Handle saving task description
+  const handleSaveTaskDescription = useCallback(() => {
+    if (selectedTaskForAllocation && editedTaskDescription && editedTaskDescription !== selectedTaskForAllocation.description) {
+      updateWorkPlan(selectedTaskForAllocation.id, { description: editedTaskDescription });
+      setSelectedTaskForAllocation(prev => prev ? { ...prev, description: editedTaskDescription } : null);
+    }
+  }, [selectedTaskForAllocation, editedTaskDescription, updateWorkPlan]);
+
+  // Initialize edited title and description when task is selected
   useEffect(() => {
     if (selectedTaskForAllocation) {
       setEditedTaskTitle(selectedTaskForAllocation.title);
+      setEditedTaskDescription(selectedTaskForAllocation.description || '');
     } else {
       setEditedTaskTitle('');
+      setEditedTaskDescription('');
     }
   }, [selectedTaskForAllocation?.id]);
 
@@ -1207,9 +1226,22 @@ export default function DecideScreen() {
               />
             </View>
 
-            <Text className="text-blue-700 dark:text-blue-300 text-sm mb-3">
-              {selectedTaskForAllocation.description}
-            </Text>
+            {/* Editable Description */}
+            <View className="mb-3">
+              <Text className="text-blue-600 dark:text-blue-400 text-xs font-semibold mb-1">
+                Description
+              </Text>
+              <TextInput
+                value={editedTaskDescription}
+                onChangeText={setEditedTaskDescription}
+                onBlur={handleSaveTaskDescription}
+                className="text-blue-700 dark:text-blue-300 text-sm bg-white dark:bg-slate-800 rounded-lg px-3 py-2 border border-blue-200 dark:border-blue-700"
+                placeholder="Enter task description"
+                placeholderTextColor="#94a3b8"
+                multiline
+                numberOfLines={2}
+              />
+            </View>
 
             {/* Resource allocation display */}
             <View className="bg-white dark:bg-slate-800 rounded-lg p-3 mb-3">
