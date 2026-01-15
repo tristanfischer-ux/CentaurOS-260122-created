@@ -128,6 +128,7 @@ export default function DecideScreen() {
   const measureDropZone = useCallback(() => {
     if (dropZoneRef.current) {
       dropZoneRef.current.measureInWindow((x, y, width, height) => {
+        console.log('[MeasureDropZone]', { x, y, width, height, center: y + height / 2 });
         if (y > 0) {
           setDropZoneY(y + height / 2);
         }
@@ -448,17 +449,28 @@ export default function DecideScreen() {
   // Handle OKR drag move for drop zone detection
   const handleOKRDragMove = useCallback((okrId: string, absoluteY: number) => {
     // Use the actual drop zone Y position with a threshold
-    const threshold = 50; // pixels of tolerance
+    const threshold = 100; // pixels of tolerance (increased for better detection)
 
     if (draggingOKRId) {
       const isFromActive = activeOKRs.some(o => o.id === okrId);
 
+      console.log('[DragMove]', {
+        okrId,
+        absoluteY,
+        dropZoneY,
+        isFromActive,
+        diff: absoluteY - dropZoneY,
+        threshold,
+      });
+
       // If dragging from active section and cursor is below the drop zone, activate queue drop
       if (isFromActive && dropZoneY > 0 && absoluteY > dropZoneY - threshold) {
+        console.log('[DragMove] Activating QUEUED drop zone');
         setDropZoneActive('queued');
       }
       // If dragging from queue and cursor is above the drop zone, activate active drop
       else if (!isFromActive && dropZoneY > 0 && absoluteY < dropZoneY + threshold) {
+        console.log('[DragMove] Activating ACTIVE drop zone');
         setDropZoneActive('active');
       }
       else {
