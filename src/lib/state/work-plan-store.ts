@@ -152,6 +152,7 @@ const INITIAL_WORK_PLANS: WorkPlan[] = [
     allocations: [
       { memberId: 'apprentice-1', memberName: 'Alex Thompson', squaresPerWeek: 4, costPerSquare: 50 }
     ],
+    assignedMemberIds: ['apprentice-1'],
     appliedAITools: [],
     tusExpended: 5,
     sprintMode: true,
@@ -172,6 +173,7 @@ const INITIAL_WORK_PLANS: WorkPlan[] = [
     allocations: [
       { memberId: 'apprentice-2', memberName: 'Jordan Lee', squaresPerWeek: 3, costPerSquare: 50 }
     ],
+    assignedMemberIds: ['apprentice-2'],
     appliedAITools: [],
     tusExpended: 2,
     sprintMode: true,
@@ -220,6 +222,7 @@ const INITIAL_WORK_PLANS: WorkPlan[] = [
     allocations: [
       { memberId: 'exec-1', memberName: 'Priya Sharma', squaresPerWeek: 2, costPerSquare: 150 }
     ],
+    assignedMemberIds: ['exec-1'],
     appliedAITools: [],
     tusExpended: 6,
     sprintMode: false,
@@ -241,6 +244,7 @@ const INITIAL_WORK_PLANS: WorkPlan[] = [
       { memberId: 'exec-2', memberName: 'Sarah Mitchell', squaresPerWeek: 2, costPerSquare: 125 },
       { memberId: 'apprentice-2', memberName: 'Jordan Lee', squaresPerWeek: 4, costPerSquare: 50 }
     ],
+    assignedMemberIds: ['exec-2', 'apprentice-2'],
     appliedAITools: [
       { toolId: 'ai-copilot', toolName: 'AI Copilot', multiplier: 5, costPerSquare: 15 }
     ],
@@ -289,6 +293,7 @@ const INITIAL_WORK_PLANS: WorkPlan[] = [
       { memberId: 'exec-4', memberName: 'Thomas Anderson', squaresPerWeek: 2, costPerSquare: 175 },
       { memberId: 'apprentice-3', memberName: 'Taylor Morgan', squaresPerWeek: 2, costPerSquare: 50 }
     ],
+    assignedMemberIds: ['exec-4', 'apprentice-3'],
     appliedAITools: [],
     tusExpended: 5,
     sprintMode: false,
@@ -310,6 +315,7 @@ const INITIAL_WORK_PLANS: WorkPlan[] = [
       { memberId: 'founder-1', memberName: 'Sarah Chen', squaresPerWeek: 2, costPerSquare: 200 },
       { memberId: 'exec-5', memberName: 'James Chen', squaresPerWeek: 2, costPerSquare: 150 }
     ],
+    assignedMemberIds: ['founder-1', 'exec-5'],
     appliedAITools: [
       { toolId: 'ai-assist', toolName: 'AI Assist', multiplier: 2, costPerSquare: 5 }
     ],
