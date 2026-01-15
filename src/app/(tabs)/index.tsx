@@ -661,7 +661,7 @@ export default function MissionControlHome() {
                       };
                     })
                     .sort((a, b) => b.allocatedTU - a.allocatedTU) // Sort by workload (highest first)
-                    .slice(0, 4) // Top 4 team members
+                    .slice(0, 5) // Top 5 team members
                     .map((member) => (
                       <View
                         key={member.id}

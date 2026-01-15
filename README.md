@@ -1484,8 +1484,9 @@ Previous Updates:
 
 ✅ **Home Tab Header Fixed** - The gradient ribbon now extends edge-to-edge to the top of the screen without clashing with the iOS status bar (time, WiFi, battery). Applied to all three role views (Founder Command Center, Executive Dashboard, Apprentice Workspace). The header gradient now properly sits behind the status bar while content remains appropriately spaced.
 
-### Current Status: ✅ **Business Improvements - Elite Consulting Insights**
+### Current Status: ✅ **Home Tab Resource Pool Optimized**
 
+✅ **Home Tab**: "Who's Doing What" section now limited to top 5 busiest team members for better information density and faster scanning
 ✅ **Business Improvements**: Strategic recommendations from McKinsey, BCG, Bain, Deloitte, and more now surface on Home tab
   - Auto-syncs with Reports Dashboard when you generate consulting analysis
   - Shows Critical, Important, and Growth Opportunity recommendations with clear priorities
