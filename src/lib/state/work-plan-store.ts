@@ -59,6 +59,7 @@ interface WorkPlanState {
   selectWorkPlan: (workPlan: WorkPlan | null) => void;
   addWorkPlan: (workPlan: WorkPlan) => void;
   updateWorkPlan: (id: string, updates: Partial<WorkPlan>) => void;
+  completeWorkPlan: (id: string) => void; // Mark as complete and free resources
   deleteWorkPlan: (id: string) => void;
   getCounts: () => {
     total: number;
@@ -255,6 +256,21 @@ export const useWorkPlanStore = create<WorkPlanState>((set, get) => ({
   updateWorkPlan: (id: string, updates: Partial<WorkPlan>) => {
     set(state => ({
       workPlans: state.workPlans.map(wp => (wp.id === id ? { ...wp, ...updates } : wp)),
+    }));
+  },
+
+  completeWorkPlan: (id: string) => {
+    set(state => ({
+      workPlans: state.workPlans.map(wp =>
+        wp.id === id
+          ? {
+              ...wp,
+              status: 'completed',
+              progress: 100,
+              assignedMemberIds: [], // Free up all assigned members
+            }
+          : wp
+      ),
     }));
   },
 

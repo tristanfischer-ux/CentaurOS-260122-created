@@ -47,6 +47,7 @@ import { useOrganizationStore } from '@/lib/state/organization-store';
 import { useArmoryStore } from '@/lib/state/armory-store';
 import { useCapacityStore } from '@/lib/state/capacity-store';
 import { useMarketplaceRequestsStore } from '@/lib/state/marketplace-requests-store';
+import { useRequestStore } from '@/lib/state/request-store';
 import { THIRD_PARTY_AI_TOOLS } from '@/lib/third-party-ai-tools';
 import { HelpModal, HelpButton, type HelpContent } from '@/components/HelpModal';
 import { CapacityHeatMap } from '@/components/CapacityHeatMap';
@@ -340,6 +341,21 @@ export default function HomeScreen() {
     }).filter(item => item.okrs > 0); // Only show functions with OKRs
   }, [okrs]);
 
+  // Task/OKR requests
+  const taskOKRRequests = useRequestStore(s => s.requests);
+  const initializeDemoRequests = useRequestStore(s => s.initializeDemoRequests);
+
+  // Initialize demo requests on mount
+  useEffect(() => {
+    if (taskOKRRequests.length === 0) {
+      initializeDemoRequests();
+    }
+  }, []);
+
+  const pendingTaskOKRRequests = useMemo(() => {
+    return taskOKRRequests.filter(req => req.status === 'pending');
+  }, [taskOKRRequests]);
+
   // Calculate urgent items that need attention (moved from Decide tab)
   const urgentItems = useMemo(() => {
     const offTrackOKRs = okrs.filter(o => o.status === 'off-track');
@@ -366,10 +382,11 @@ export default function HomeScreen() {
       okrsWithoutPlans,
       stalledPlans,
       pendingApprovals: pendingRequests.length,
-      totalUrgent: offTrackOKRs.length + blockedPlans.length + pendingRequests.length,
+      pendingTaskOKRRequests,
+      totalUrgent: offTrackOKRs.length + blockedPlans.length + pendingRequests.length + pendingTaskOKRRequests.length,
       totalWarning: atRiskOKRs.length + okrsWithoutPlans.length + stalledPlans.length,
     };
-  }, [okrs, workPlans, pendingRequests]);
+  }, [okrs, workPlans, pendingRequests, pendingTaskOKRRequests]);
 
   // Get recent messages (top 2)
   const recentMessages = useMemo(() => {
@@ -1022,6 +1039,30 @@ export default function HomeScreen() {
                       </View>
                     </Pressable>
                   )}
+
+                  {/* Pending Task/OKR Requests */}
+                  {urgentItems.pendingTaskOKRRequests.map((request) => (
+                    <Pressable
+                      key={request.id}
+                      onPress={() => router.push('/(tabs)/decide')}
+                      className="bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-800 rounded-xl p-3 active:opacity-70"
+                    >
+                      <View className="flex-row items-center">
+                        <View className="w-9 h-9 bg-indigo-500 rounded-lg items-center justify-center">
+                          {request.type === 'okr' ? <Target size={18} color="#fff" /> : <Briefcase size={18} color="#fff" />}
+                        </View>
+                        <View className="ml-3 flex-1">
+                          <Text className="text-indigo-900 dark:text-indigo-100 font-bold text-sm" numberOfLines={1}>
+                            {request.title}
+                          </Text>
+                          <Text className="text-indigo-700 dark:text-indigo-300 text-xs">
+                            {request.type.toUpperCase()} • Requested by {request.requestedByName}
+                          </Text>
+                        </View>
+                        <ArrowRight size={16} color="#6366f1" />
+                      </View>
+                    </Pressable>
+                  ))}
                 </View>
 
                 {/* NEEDS REVIEW Section */}

@@ -17,6 +17,7 @@ import { MARKETPLACE_EXECUTIVES } from '@/lib/marketplace-executives';
 import { useOrganizationStore } from '@/lib/state/organization-store';
 import { type OrganizationMember, type AIAgent, AI_AGENTS } from '@/lib/organization-seed';
 import { useWorkPlanStore, type WorkPlan } from '@/lib/state/work-plan-store';
+import { useRequestStore, type Request } from '@/lib/state/request-store';
 import { HelpModal, HelpButton, type HelpContent } from '@/components/HelpModal';
 import HireResourceModal from '@/components/HireResourceModal';
 import { SwipeableOKRCard, SwipeableTaskCard } from '@/components/SwipeableOKRCard';
@@ -78,6 +79,26 @@ export default function DecideScreen() {
   // Work plans for decision context
   const workPlans = useWorkPlanStore(s => s.workPlans);
   const addWorkPlan = useWorkPlanStore(s => s.addWorkPlan);
+  const updateWorkPlan = useWorkPlanStore(s => s.updateWorkPlan);
+  const completeWorkPlan = useWorkPlanStore(s => s.completeWorkPlan);
+
+  // Task/OKR requests
+  const taskOKRRequests = useRequestStore(s => s.requests);
+  const approveTaskOKRRequest = useRequestStore(s => s.approveRequest);
+  const rejectTaskOKRRequest = useRequestStore(s => s.rejectRequest);
+  const initializeDemoRequests = useRequestStore(s => s.initializeDemoRequests);
+
+  // Initialize demo requests on mount
+  useEffect(() => {
+    if (taskOKRRequests.length === 0) {
+      initializeDemoRequests();
+    }
+  }, []);
+
+  // Filter pending task/OKR requests
+  const pendingTaskOKRRequests = useMemo(() => {
+    return taskOKRRequests.filter(req => req.status === 'pending');
+  }, [taskOKRRequests]);
 
   // Marketplace requests
   const allRequests = useMarketplaceRequestsStore((s) => s.requests);
@@ -161,7 +182,6 @@ export default function DecideScreen() {
 
   // Organization members for assignment
   const orgMembers = useOrganizationStore(s => s.members);
-  const updateWorkPlan = useWorkPlanStore(s => s.updateWorkPlan);
 
   // Initialize organization if empty
   useEffect(() => {
@@ -1272,7 +1292,90 @@ export default function DecideScreen() {
           </View>
         )}
 
-        {/* SECTION 5: QUEUED OKRs (no resources allocated yet) */}
+        {/* SECTION 5: QUEUED - Pending Requests First */}
+        {pendingTaskOKRRequests.length > 0 && (
+          <View className="mb-4">
+            <View className="flex-row items-center justify-between mb-2">
+              <Text className="text-purple-600 dark:text-purple-400 text-xs font-bold tracking-wide">
+                PENDING REQUESTS - AWAITING APPROVAL
+              </Text>
+              <View className="bg-purple-100 dark:bg-purple-900/30 px-2 py-0.5 rounded">
+                <Text className="text-purple-700 dark:text-purple-300 text-xs font-semibold">
+                  {pendingTaskOKRRequests.length} request{pendingTaskOKRRequests.length !== 1 ? 's' : ''}
+                </Text>
+              </View>
+            </View>
+
+            <View className="gap-2">
+              {pendingTaskOKRRequests.map((request, index) => {
+                const functionColor = getFunctionColor(request.function as BusinessFunction);
+                return (
+                  <View key={request.id} className="bg-purple-50 dark:bg-purple-900/10 border border-purple-200 dark:border-purple-800 rounded-xl p-4">
+                    <View className="flex-row items-start justify-between mb-2">
+                      <View className="flex-1">
+                        <View className="flex-row items-center mb-2">
+                          <View className="w-8 h-8 bg-purple-500/20 rounded-lg items-center justify-center mr-2">
+                            <Text className="text-purple-600 dark:text-purple-400 text-sm font-bold">
+                              #{index + 1}
+                            </Text>
+                          </View>
+                          <View
+                            className="px-2 py-1 rounded"
+                            style={{ backgroundColor: functionColor + '20' }}
+                          >
+                            <Text className="text-xs font-semibold" style={{ color: functionColor }}>
+                              {request.function}
+                            </Text>
+                          </View>
+                          <View className="px-2 py-1 rounded bg-purple-500/20 ml-1">
+                            <Text className="text-xs font-semibold text-purple-600 dark:text-purple-400">
+                              {request.type.toUpperCase()}
+                            </Text>
+                          </View>
+                        </View>
+                        <Text className="text-gray-900 dark:text-white font-bold text-base mb-1">
+                          {request.title}
+                        </Text>
+                        <Text className="text-gray-600 dark:text-slate-400 text-sm mb-2">
+                          {request.description}
+                        </Text>
+                        <View className="flex-row items-center gap-3">
+                          <Text className="text-gray-500 dark:text-slate-500 text-xs">
+                            Requested by {request.requestedByName} ({request.requestedByRole})
+                          </Text>
+                          {request.type === 'task' && (
+                            <Text className="text-purple-600 dark:text-purple-400 text-xs font-semibold">
+                              {(request as any).estimatedTimeUnits}□ estimated
+                            </Text>
+                          )}
+                        </View>
+                      </View>
+                    </View>
+                    <View className="flex-row gap-2 mt-3">
+                      <Pressable
+                        onPress={() => {
+                          approveTaskOKRRequest(request.id);
+                          // TODO: Create actual OKR or work plan from request
+                        }}
+                        className="flex-1 bg-purple-500 rounded-lg py-2.5 active:opacity-70"
+                      >
+                        <Text className="text-white text-center font-semibold">Approve & Add to Queue</Text>
+                      </Pressable>
+                      <Pressable
+                        onPress={() => rejectTaskOKRRequest(request.id)}
+                        className="bg-gray-300 dark:bg-slate-700 rounded-lg px-4 py-2.5 active:opacity-70"
+                      >
+                        <Text className="text-gray-700 dark:text-slate-300 text-center font-semibold">Reject</Text>
+                      </Pressable>
+                    </View>
+                  </View>
+                );
+              })}
+            </View>
+          </View>
+        )}
+
+        {/* SECTION 6: QUEUED OKRs (no resources allocated yet) */}
         <View className="mb-4">
           <View className="flex-row items-center justify-between mb-2">
             <Text className="text-blue-600 dark:text-blue-400 text-xs font-bold tracking-wide">
@@ -1422,6 +1525,73 @@ export default function DecideScreen() {
             </View>
           )}
         </View>
+
+        {/* SECTION 7: COMPLETED TASKS - Clearly separated at the bottom */}
+        {workPlans.filter(wp => wp.status === 'completed').length > 0 && (
+          <View className="mt-8 pt-6 border-t-2 border-gray-300 dark:border-slate-700">
+            <View className="flex-row items-center justify-between mb-3">
+              <Text className="text-emerald-600 dark:text-emerald-400 text-xs font-bold tracking-wide">
+                ✓ COMPLETED TASKS
+              </Text>
+              <View className="bg-emerald-100 dark:bg-emerald-900/30 px-2 py-0.5 rounded">
+                <Text className="text-emerald-700 dark:text-emerald-300 text-xs font-semibold">
+                  {workPlans.filter(wp => wp.status === 'completed').length} done
+                </Text>
+              </View>
+            </View>
+
+            <View className="gap-2">
+              {workPlans
+                .filter(wp => wp.status === 'completed')
+                .sort((a, b) => {
+                  // Sort by last submission date, most recent first
+                  const dateA = a.lastSubmittedAt ? new Date(a.lastSubmittedAt).getTime() : 0;
+                  const dateB = b.lastSubmittedAt ? new Date(b.lastSubmittedAt).getTime() : 0;
+                  return dateB - dateA;
+                })
+                .map((plan) => {
+                  const functionColor = getFunctionColor(plan.function as BusinessFunction);
+                  const completedDate = plan.lastSubmittedAt
+                    ? new Date(plan.lastSubmittedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+                    : 'Recently';
+
+                  return (
+                    <View key={plan.id} className="bg-emerald-50 dark:bg-emerald-900/10 border border-emerald-200 dark:border-emerald-800 rounded-xl p-3 opacity-70">
+                      <View className="flex-row items-start justify-between">
+                        <View className="flex-1">
+                          <View className="flex-row items-center mb-1 gap-1">
+                            <CheckCircle2 size={16} color="#10b981" />
+                            <View
+                              className="px-1.5 py-0.5 rounded"
+                              style={{ backgroundColor: functionColor + '20' }}
+                            >
+                              <Text className="text-xs font-semibold" style={{ color: functionColor }}>
+                                {plan.function}
+                              </Text>
+                            </View>
+                            <Text className="text-emerald-600 dark:text-emerald-400 text-xs">
+                              • {completedDate}
+                            </Text>
+                          </View>
+                          <Text className="text-gray-700 dark:text-slate-300 font-semibold text-sm mb-1">
+                            {plan.title}
+                          </Text>
+                          <Text className="text-gray-500 dark:text-slate-400 text-xs">
+                            Linked to: {plan.linkedOKRTitle}
+                          </Text>
+                        </View>
+                        <View className="bg-emerald-500/20 px-2 py-1 rounded">
+                          <Text className="text-emerald-700 dark:text-emerald-300 text-xs font-bold">
+                            100%
+                          </Text>
+                        </View>
+                      </View>
+                    </View>
+                  );
+                })}
+            </View>
+          </View>
+        )}
       </ScrollView>
 
       {/* OKR Ideas Modal */}
