@@ -219,23 +219,25 @@ export default function CommunityScreen() {
       .sort((a, b) => b.score.overall - a.score.overall);
   }, [searchQuery, selectedFunction]);
 
-  // Filter suppliers
-  const filteredSuppliers = suppliers.filter((supplier) => {
-    const matchesSearch = searchQuery === '' ||
-      supplier.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      supplier.capabilities.some(spec => spec.toLowerCase().includes(searchQuery.toLowerCase())) ||
-      `${supplier.location.city}, ${supplier.location.country}`.toLowerCase().includes(searchQuery.toLowerCase());
+  // Filter suppliers - memoized to prevent re-calculation on every render
+  const filteredSuppliers = useMemo(() => {
+    return suppliers.filter((supplier) => {
+      const matchesSearch = searchQuery === '' ||
+        supplier.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        supplier.capabilities.some(spec => spec.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        `${supplier.location.city}, ${supplier.location.country}`.toLowerCase().includes(searchQuery.toLowerCase());
 
-    // Filter by service type
-    const matchesType = selectedSupplierType === 'all' ||
-      (selectedSupplierType === 'manufacturing' && (supplier.serviceType === 'manufacturing' || !supplier.serviceType)) ||
-      (selectedSupplierType === 'bank' && supplier.serviceType === 'bank') ||
-      (selectedSupplierType === 'lawyer' && supplier.serviceType === 'lawyer') ||
-      (selectedSupplierType === 'accountant' && supplier.serviceType === 'accountant') ||
-      (selectedSupplierType === 'professional-services' && ['bank', 'lawyer', 'accountant'].includes(supplier.serviceType || ''));
+      // Filter by service type
+      const matchesType = selectedSupplierType === 'all' ||
+        (selectedSupplierType === 'manufacturing' && (supplier.serviceType === 'manufacturing' || !supplier.serviceType)) ||
+        (selectedSupplierType === 'bank' && supplier.serviceType === 'bank') ||
+        (selectedSupplierType === 'lawyer' && supplier.serviceType === 'lawyer') ||
+        (selectedSupplierType === 'accountant' && supplier.serviceType === 'accountant') ||
+        (selectedSupplierType === 'professional-services' && ['bank', 'lawyer', 'accountant'].includes(supplier.serviceType || ''));
 
-    return matchesSearch && matchesType;
-  });
+      return matchesSearch && matchesType;
+    });
+  }, [suppliers, searchQuery, selectedSupplierType]);
 
   // Top picks - best matches across all categories
   const topPicks = useMemo(() => {
