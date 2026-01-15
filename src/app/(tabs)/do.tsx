@@ -151,6 +151,40 @@ export default function DoScreen() {
     return [];
   }, [allWorkPlans, currentUserMemberId, isApprentice, isExecutive, currentMembership?.function]);
 
+  // Calculate priority and enrich work plans - defined before categorizedTasks uses it
+  const enrichWorkPlan = (plan: WorkPlan): PrioritizedPlan => {
+    const today = new Date();
+    const dueDate = new Date(plan.dueDate);
+    const daysUntilDue = Math.ceil((dueDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+
+    // Find linked OKR
+    const linkedOKR = okrs.find(o => o.title === plan.linkedOKRTitle);
+    const okrHealth = linkedOKR?.status || 'on-track';
+    const okrProgress = linkedOKR?.objectives && linkedOKR.objectives.length > 0
+      ? Math.round(linkedOKR.objectives.reduce((sum, obj) => sum + obj.progress, 0) / linkedOKR.objectives.length)
+      : 0;
+
+    // Calculate priority
+    let priority: 'critical' | 'high' | 'medium' | 'low';
+    if (plan.status === 'blocked' || daysUntilDue <= 2 || okrHealth === 'off-track') {
+      priority = 'critical';
+    } else if (daysUntilDue <= 7 || okrHealth === 'at-risk') {
+      priority = 'high';
+    } else if (daysUntilDue <= 14) {
+      priority = 'medium';
+    } else {
+      priority = 'low';
+    }
+
+    return {
+      ...plan,
+      priority,
+      daysUntilDue,
+      okrHealth,
+      okrProgress,
+    };
+  };
+
   // Categorize tasks by status for proper ordering
   const categorizedTasks = useMemo(() => {
     const enriched = myWorkPlans.map(enrichWorkPlan);
@@ -201,40 +235,6 @@ export default function DoScreen() {
       effectiveOutputPerWeek,
       remainingSquares,
       weeksToComplete,
-    };
-  };
-
-  // Calculate priority and enrich work plans
-  const enrichWorkPlan = (plan: WorkPlan): PrioritizedPlan => {
-    const today = new Date();
-    const dueDate = new Date(plan.dueDate);
-    const daysUntilDue = Math.ceil((dueDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-
-    // Find linked OKR
-    const linkedOKR = okrs.find(o => o.title === plan.linkedOKRTitle);
-    const okrHealth = linkedOKR?.status || 'on-track';
-    const okrProgress = linkedOKR?.objectives && linkedOKR.objectives.length > 0
-      ? Math.round(linkedOKR.objectives.reduce((sum, obj) => sum + obj.progress, 0) / linkedOKR.objectives.length)
-      : 0;
-
-    // Calculate priority
-    let priority: 'critical' | 'high' | 'medium' | 'low';
-    if (plan.status === 'blocked' || daysUntilDue <= 2 || okrHealth === 'off-track') {
-      priority = 'critical';
-    } else if (daysUntilDue <= 7 || okrHealth === 'at-risk') {
-      priority = 'high';
-    } else if (daysUntilDue <= 14) {
-      priority = 'medium';
-    } else {
-      priority = 'low';
-    }
-
-    return {
-      ...plan,
-      priority,
-      daysUntilDue,
-      okrHealth,
-      okrProgress,
     };
   };
 
