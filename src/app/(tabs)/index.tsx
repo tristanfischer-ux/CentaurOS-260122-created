@@ -1325,58 +1325,6 @@ export default function HomeScreen() {
               </View>
             )}
 
-            {/* EXECUTION STATUS - Work Plans + Team Combined */}
-            <View className="mb-4">
-              <Text className="text-gray-500 dark:text-slate-500 text-xs font-bold mb-2 tracking-wide">
-                EXECUTION STATUS
-              </Text>
-
-              {/* Work Plans Row */}
-              <Pressable
-                onPress={() => router.push('/(tabs)/do')}
-                className="bg-gray-100 dark:bg-slate-900 rounded-xl p-3 mb-2 active:opacity-70"
-              >
-                <View className="flex-row items-center justify-between">
-                  <View className="flex-row items-center">
-                    <View className="w-9 h-9 bg-blue-100 dark:bg-blue-900/30 rounded-lg items-center justify-center">
-                      <Briefcase size={18} color="#3b82f6" />
-                    </View>
-                    <View className="ml-3">
-                      <Text className="text-gray-900 dark:text-white font-semibold text-sm">Work Plans</Text>
-                      <Text className="text-gray-500 dark:text-slate-400 text-xs">
-                        {FOUNDER_DATA.workPlans.inProgress} in progress • {FOUNDER_DATA.workPlans.completed} done
-                      </Text>
-                    </View>
-                  </View>
-                  <View className="items-end">
-                    <Text className="text-blue-500 font-bold text-lg">{FOUNDER_DATA.workPlans.active}</Text>
-                    <Text className="text-gray-500 dark:text-slate-500 text-xs">active</Text>
-                  </View>
-                </View>
-              </Pressable>
-
-              {/* Team Row */}
-              <Pressable
-                onPress={() => router.push('/create-team')}
-                className="bg-gray-100 dark:bg-slate-900 rounded-xl p-3 active:opacity-70"
-              >
-                <View className="flex-row items-center justify-between">
-                  <View className="flex-row items-center">
-                    <View className="w-9 h-9 bg-purple-100 dark:bg-purple-900/30 rounded-lg items-center justify-center">
-                      <Users size={18} color="#8b5cf6" />
-                    </View>
-                    <View className="ml-3">
-                      <Text className="text-gray-900 dark:text-white font-semibold text-sm">Team</Text>
-                      <Text className="text-gray-500 dark:text-slate-400 text-xs">
-                        {FOUNDER_DATA.team.executives} execs • {FOUNDER_DATA.team.apprentices} apprentices • {FOUNDER_DATA.team.aiAgents} AI
-                      </Text>
-                    </View>
-                  </View>
-                  <ArrowRight size={18} color="#64748b" />
-                </View>
-              </Pressable>
-            </View>
-
             {/* FINANCIAL SNAPSHOT - Simplified */}
             <View className="mb-6">
               <View className="flex-row items-center justify-between mb-2">
