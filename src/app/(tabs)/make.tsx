@@ -299,10 +299,10 @@ export default function MakeScreen() {
 
             {visibleSuppliers.map((engagement) => {
               const statusColors: Record<string, string> = {
-                active: 'bg-emerald-500/20 text-emerald-400',
-                negotiating: 'bg-blue-500/20 text-blue-400',
-                completed: 'bg-gray-500/20 text-gray-600 dark:text-slate-400',
-                onHold: 'bg-orange-500/20 text-orange-400',
+                active: 'bg-emerald-500 text-white',
+                negotiating: 'bg-blue-500 text-white',
+                completed: 'bg-gray-500 text-white',
+                onHold: 'bg-orange-500 text-white',
               };
 
               const statusColor = statusColors[engagement.status] || statusColors.active;
@@ -427,12 +427,12 @@ export default function MakeScreen() {
 
             {visibleAIAgents.sort((a, b) => b.costPerMonth - a.costPerMonth).map(agent => {
               const providerColors: Record<string, string> = {
-                OpenAI: 'bg-blue-500/20 text-blue-400',
-                Anthropic: 'bg-purple-500/20 text-purple-400',
-                Google: 'bg-emerald-500/20 text-emerald-400',
-                ElevenLabs: 'bg-orange-500/20 text-orange-400',
-                Vibecode: 'bg-pink-500/20 text-pink-400',
-                Other: 'bg-slate-500/20 text-gray-600 dark:text-slate-400',
+                OpenAI: 'bg-blue-500 text-white',
+                Anthropic: 'bg-purple-500 text-white',
+                Google: 'bg-emerald-500 text-white',
+                ElevenLabs: 'bg-orange-500 text-white',
+                Vibecode: 'bg-pink-500 text-white',
+                Other: 'bg-slate-500 text-white',
               };
 
               const providerColor = providerColors[agent.provider] || providerColors.Other;
