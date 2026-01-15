@@ -850,52 +850,8 @@ export default function DoScreen() {
             </View>
           )}
 
-          {/* ACTIVE TASKS - In Progress, ordered by days to completion */}
-          {categorizedTasks.activeTasks.length > 0 && (
-            <View className="mb-6">
-              <View className="flex-row items-center justify-between mb-3">
-                <View>
-                  <Text className="text-blue-600 dark:text-blue-400 text-sm font-bold">
-                    🔵 Active Tasks
-                  </Text>
-                  <Text className="text-gray-500 dark:text-slate-400 text-xs mt-0.5">
-                    Currently in progress
-                  </Text>
-                </View>
-                <View className="bg-blue-100 dark:bg-blue-900/30 px-2.5 py-1 rounded-lg">
-                  <Text className="text-blue-700 dark:text-blue-300 text-sm font-bold">
-                    {categorizedTasks.activeTasks.length}
-                  </Text>
-                </View>
-              </View>
-              {categorizedTasks.activeTasks.map(task => renderCompactTaskCard(task))}
-            </View>
-          )}
-
-          {/* NOT STARTED TASKS */}
-          {categorizedTasks.notStartedTasks.length > 0 && (
-            <View className="mb-6">
-              <View className="flex-row items-center justify-between mb-3">
-                <View>
-                  <Text className="text-gray-600 dark:text-slate-300 text-sm font-bold">
-                    ⚪ Queued Tasks
-                  </Text>
-                  <Text className="text-gray-500 dark:text-slate-400 text-xs mt-0.5">
-                    Ready to start
-                  </Text>
-                </View>
-                <View className="bg-gray-100 dark:bg-slate-800 px-2.5 py-1 rounded-lg">
-                  <Text className="text-gray-600 dark:text-slate-400 text-sm font-bold">
-                    {categorizedTasks.notStartedTasks.length}
-                  </Text>
-                </View>
-              </View>
-              {categorizedTasks.notStartedTasks.map(task => renderCompactTaskCard(task))}
-            </View>
-          )}
-
-          {/* ABANDONED TASKS */}
-          {categorizedTasks.abandonedTasks.length > 0 && (
+          {/* Blocked tasks view - only show blocked tasks */}
+          {viewMode === 'blocked' && filteredPlans.length > 0 && (
             <View className="mb-6">
               <View className="flex-row items-center justify-between mb-3">
                 <View>
@@ -908,7 +864,7 @@ export default function DoScreen() {
                 </View>
                 <View className="bg-red-100 dark:bg-red-900/30 px-2.5 py-1 rounded-lg">
                   <Text className="text-red-600 dark:text-red-400 text-sm font-bold">
-                    {categorizedTasks.abandonedTasks.length}
+                    {filteredPlans.length}
                   </Text>
                 </View>
               </View>
@@ -916,50 +872,129 @@ export default function DoScreen() {
                 <View className="flex-row items-center">
                   <AlertTriangle size={14} color="#ef4444" />
                   <Text className="text-red-600 dark:text-red-400 text-xs ml-2 flex-1">
-                    These tasks were started but are now blocked. Tap them to see details and unblock.
+                    These tasks are blocked. Tap them to see details and unblock.
                   </Text>
                 </View>
               </View>
-              {categorizedTasks.abandonedTasks.map(task => renderCompactTaskCard(task))}
+              {filteredPlans.map(task => renderCompactTaskCard(task))}
             </View>
           )}
 
-          {/* COMPLETED TASKS */}
-          {categorizedTasks.completedTasks.length > 0 && (
-            <View className="mb-6">
-              <View className="flex-row items-center justify-between mb-3">
-                <View>
-                  <Text className="text-emerald-600 dark:text-emerald-400 text-sm font-bold">
-                    ✅ Completed Tasks
-                  </Text>
-                  <Text className="text-gray-500 dark:text-slate-400 text-xs mt-0.5">
-                    Finished work
-                  </Text>
+          {/* Regular task sections - only show when NOT in blocked view */}
+          {viewMode !== 'blocked' && (
+            <>
+              {/* ACTIVE TASKS - In Progress, ordered by days to completion */}
+              {categorizedTasks.activeTasks.length > 0 && (
+                <View className="mb-6">
+                  <View className="flex-row items-center justify-between mb-3">
+                    <View>
+                      <Text className="text-blue-600 dark:text-blue-400 text-sm font-bold">
+                        🔵 Active Tasks
+                      </Text>
+                      <Text className="text-gray-500 dark:text-slate-400 text-xs mt-0.5">
+                        Currently in progress
+                      </Text>
+                    </View>
+                    <View className="bg-blue-100 dark:bg-blue-900/30 px-2.5 py-1 rounded-lg">
+                      <Text className="text-blue-700 dark:text-blue-300 text-sm font-bold">
+                        {categorizedTasks.activeTasks.length}
+                      </Text>
+                    </View>
+                  </View>
+                  {categorizedTasks.activeTasks.map(task => renderCompactTaskCard(task))}
                 </View>
-                <View className="bg-emerald-100 dark:bg-emerald-900/30 px-2.5 py-1 rounded-lg">
-                  <Text className="text-emerald-700 dark:text-emerald-300 text-sm font-bold">
-                    {categorizedTasks.completedTasks.length}
-                  </Text>
-                </View>
-              </View>
-              {categorizedTasks.completedTasks.map(task => renderCompactTaskCard(task))}
-            </View>
-          )}
+              )}
 
-          {/* Empty State */}
-          {categorizedTasks.activeTasks.length === 0 &&
-           categorizedTasks.notStartedTasks.length === 0 &&
-           categorizedTasks.abandonedTasks.length === 0 &&
-           categorizedTasks.completedTasks.length === 0 && (
-            <View className="items-center justify-center py-12 bg-white dark:bg-slate-900 rounded-xl">
-              <CheckCircle2 size={48} color="#10b981" />
-              <Text className="text-emerald-600 dark:text-emerald-400 text-center font-semibold text-lg mt-4">
-                No Tasks Assigned
-              </Text>
-              <Text className="text-gray-500 dark:text-slate-400 text-center mt-2">
-                Tasks assigned to you will appear here
-              </Text>
-            </View>
+              {/* NOT STARTED TASKS */}
+              {categorizedTasks.notStartedTasks.length > 0 && (
+                <View className="mb-6">
+                  <View className="flex-row items-center justify-between mb-3">
+                    <View>
+                      <Text className="text-gray-600 dark:text-slate-300 text-sm font-bold">
+                        ⚪ Queued Tasks
+                      </Text>
+                      <Text className="text-gray-500 dark:text-slate-400 text-xs mt-0.5">
+                        Ready to start
+                      </Text>
+                    </View>
+                    <View className="bg-gray-100 dark:bg-slate-800 px-2.5 py-1 rounded-lg">
+                      <Text className="text-gray-600 dark:text-slate-400 text-sm font-bold">
+                        {categorizedTasks.notStartedTasks.length}
+                      </Text>
+                    </View>
+                  </View>
+                  {categorizedTasks.notStartedTasks.map(task => renderCompactTaskCard(task))}
+                </View>
+              )}
+
+              {/* ABANDONED TASKS */}
+              {categorizedTasks.abandonedTasks.length > 0 && (
+                <View className="mb-6">
+                  <View className="flex-row items-center justify-between mb-3">
+                    <View>
+                      <Text className="text-red-600 dark:text-red-400 text-sm font-bold">
+                        🔴 Blocked Tasks
+                      </Text>
+                      <Text className="text-gray-500 dark:text-slate-400 text-xs mt-0.5">
+                        Need attention to continue
+                      </Text>
+                    </View>
+                    <View className="bg-red-100 dark:bg-red-900/30 px-2.5 py-1 rounded-lg">
+                      <Text className="text-red-600 dark:text-red-400 text-sm font-bold">
+                        {categorizedTasks.abandonedTasks.length}
+                      </Text>
+                    </View>
+                  </View>
+                  <View className="bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-800/50 rounded-xl p-3 mb-3">
+                    <View className="flex-row items-center">
+                      <AlertTriangle size={14} color="#ef4444" />
+                      <Text className="text-red-600 dark:text-red-400 text-xs ml-2 flex-1">
+                        These tasks were started but are now blocked. Tap them to see details and unblock.
+                      </Text>
+                    </View>
+                  </View>
+                  {categorizedTasks.abandonedTasks.map(task => renderCompactTaskCard(task))}
+                </View>
+              )}
+
+              {/* COMPLETED TASKS */}
+              {categorizedTasks.completedTasks.length > 0 && (
+                <View className="mb-6">
+                  <View className="flex-row items-center justify-between mb-3">
+                    <View>
+                      <Text className="text-emerald-600 dark:text-emerald-400 text-sm font-bold">
+                        ✅ Completed Tasks
+                      </Text>
+                      <Text className="text-gray-500 dark:text-slate-400 text-xs mt-0.5">
+                        Finished work
+                      </Text>
+                    </View>
+                    <View className="bg-emerald-100 dark:bg-emerald-900/30 px-2.5 py-1 rounded-lg">
+                      <Text className="text-emerald-700 dark:text-emerald-300 text-sm font-bold">
+                        {categorizedTasks.completedTasks.length}
+                      </Text>
+                    </View>
+                  </View>
+                  {categorizedTasks.completedTasks.map(task => renderCompactTaskCard(task))}
+                </View>
+              )}
+
+              {/* Empty State */}
+              {categorizedTasks.activeTasks.length === 0 &&
+               categorizedTasks.notStartedTasks.length === 0 &&
+               categorizedTasks.abandonedTasks.length === 0 &&
+               categorizedTasks.completedTasks.length === 0 && (
+                <View className="items-center justify-center py-12 bg-white dark:bg-slate-900 rounded-xl">
+                  <CheckCircle2 size={48} color="#10b981" />
+                  <Text className="text-emerald-600 dark:text-emerald-400 text-center font-semibold text-lg mt-4">
+                    No Tasks Assigned
+                  </Text>
+                  <Text className="text-gray-500 dark:text-slate-400 text-center mt-2">
+                    Tasks assigned to you will appear here
+                  </Text>
+                </View>
+              )}
+            </>
           )}
 
           <View className="h-8" />
