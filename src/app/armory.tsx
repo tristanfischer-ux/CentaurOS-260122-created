@@ -368,7 +368,7 @@ function CharacterSheetModal({
                       key={days}
                       onPress={() => handleDaysPerWeekChange(days)}
                       className={cn(
-                        'flex-1 rounded-xl py-3 border',
+                        'flex-1 rounded-xl py-3 border active:opacity-70',
                         daysPerWeek === days
                           ? 'bg-blue-500 border-blue-500'
                           : `${bgSecondary} ${borderColor}`
@@ -376,7 +376,7 @@ function CharacterSheetModal({
                     >
                       <Text
                         className={cn(
-                          'text-center font-bold',
+                          'text-center font-bold text-base',
                           daysPerWeek === days ? 'text-white' : textSecondary
                         )}
                       >
@@ -386,7 +386,7 @@ function CharacterSheetModal({
                   ))}
                 </View>
                 <Text className={`${textMuted} text-xs mt-2`}>
-                  {member.costPerDay && `£${Math.round(member.costPerDay / 2)}/□ × ${daysPerWeek * 2}□/wk × 4.33 weeks = £${Math.round(personCostPerMonth).toLocaleString()}/month`}
+                  Cost: {member.costPerDay && `£${Math.round(member.costPerDay / 2)}/TU × ${daysPerWeek * 2} TU/week × 4.33 weeks = £${Math.round(personCostPerMonth).toLocaleString()}/month`}
                 </Text>
               </View>
             )}
