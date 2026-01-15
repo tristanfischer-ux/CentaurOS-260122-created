@@ -285,7 +285,7 @@ export function getCriticalItems(
         description: wp.linkedOKRTitle || 'No description',
         severity,
         impact: `${blockedTU} TU blocked`,
-        deepLink: `/work-plan/${wp.id}`,
+        deepLink: '/do',
         primaryCTA: 'Resolve',
       };
 
