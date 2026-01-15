@@ -1845,25 +1845,25 @@ export default function DecideScreen() {
                     <View key={plan.id} className="flex-row items-center gap-2">
                       {/* Team Avatars - positioned immediately to the left */}
                       {assignedMembers.length > 0 ? (
-                        <View className="flex-row" style={{ flexDirection: 'row-reverse' }}>
-                          {assignedMembers.slice(0, 3).reverse().map((member, idx) => (
-                            <View
-                              key={member.id}
-                              style={{ marginLeft: idx > 0 ? -8 : 0, zIndex: idx }}
-                            >
-                              <View
-                                className="w-7 h-7 rounded-full items-center justify-center border-2 border-white dark:border-slate-900"
-                                style={{ backgroundColor: getRoleColor(member.role) }}
-                              >
-                                <Text className="text-white font-bold text-[9px]">{getInitials(member.name)}</Text>
-                              </View>
-                            </View>
-                          ))}
+                        <View className="flex-row">
                           {assignedMembers.length > 3 && (
-                            <View className="w-7 h-7 rounded-full items-center justify-center bg-gray-400 border-2 border-white dark:border-slate-900" style={{ marginLeft: -8, zIndex: 3 }}>
+                            <View className="w-7 h-7 rounded-full items-center justify-center bg-gray-400 border-2 border-white dark:border-slate-900" style={{ marginRight: -8, zIndex: 0 }}>
                               <Text className="text-white font-bold text-[9px]">+{assignedMembers.length - 3}</Text>
                             </View>
                           )}
+                          {assignedMembers.slice(0, 3).map((member, idx) => (
+                            <View
+                              key={member.id}
+                              className="w-7 h-7 rounded-full items-center justify-center border-2 border-white dark:border-slate-900"
+                              style={{
+                                backgroundColor: getRoleColor(member.role),
+                                marginRight: idx < assignedMembers.slice(0, 3).length - 1 ? -8 : 0,
+                                zIndex: idx + 1
+                              }}
+                            >
+                              <Text className="text-white font-bold text-[9px]">{getInitials(member.name)}</Text>
+                            </View>
+                          ))}
                         </View>
                       ) : (
                         <View className="w-7 h-7 rounded-full items-center justify-center bg-gray-200 dark:bg-slate-700 border-2 border-dashed border-gray-400 dark:border-slate-500">

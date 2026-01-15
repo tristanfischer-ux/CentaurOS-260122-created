@@ -242,35 +242,35 @@ export function MiniGanttChart({ workPlans, members, onTaskPress }: MiniGanttCha
                     }}
                   >
                     {/* Team Avatars - positioned immediately to the left of the task bar */}
-                    <View className="mr-1" style={{ width: AVATAR_WIDTH }}>
+                    <View className="mr-1" style={{ width: AVATAR_WIDTH, flexDirection: 'row', justifyContent: 'flex-end' }}>
                       {assignedMembers.length > 0 ? (
-                        <View className="flex-row justify-end" style={{ flexDirection: 'row-reverse' }}>
-                          {assignedMembers.slice(0, 2).reverse().map((member, idx) => (
-                            <View
-                              key={member.id}
-                              style={{ marginLeft: idx > 0 ? -6 : 0, zIndex: idx }}
-                            >
-                              <View
-                                className="w-6 h-6 rounded-full items-center justify-center border border-white dark:border-slate-900"
-                                style={{ backgroundColor: ROLE_COLORS[member.role] }}
-                              >
-                                <Text className="text-white font-bold text-[8px]">
-                                  {getInitials(member.name)}
-                                </Text>
-                              </View>
-                            </View>
-                          ))}
+                        <>
                           {assignedMembers.length > 2 && (
                             <View
                               className="w-6 h-6 rounded-full items-center justify-center bg-gray-500 border border-white dark:border-slate-900"
-                              style={{ marginLeft: -6, zIndex: 2 }}
+                              style={{ marginRight: -6, zIndex: 0 }}
                             >
                               <Text className="text-white font-bold text-[8px]">
                                 +{assignedMembers.length - 2}
                               </Text>
                             </View>
                           )}
-                        </View>
+                          {assignedMembers.slice(0, 2).map((member, idx) => (
+                            <View
+                              key={member.id}
+                              className="w-6 h-6 rounded-full items-center justify-center border border-white dark:border-slate-900"
+                              style={{
+                                backgroundColor: ROLE_COLORS[member.role],
+                                marginRight: idx < assignedMembers.slice(0, 2).length - 1 ? -6 : 0,
+                                zIndex: idx + 1
+                              }}
+                            >
+                              <Text className="text-white font-bold text-[8px]">
+                                {getInitials(member.name)}
+                              </Text>
+                            </View>
+                          ))}
+                        </>
                       ) : null}
                     </View>
 
