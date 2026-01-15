@@ -165,8 +165,8 @@ export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress
 
   const screenWidth = Dimensions.get('window').width;
   const WEEK_WIDTH = screenWidth / 3; // Divide screen width by 3 weeks to fill entire width
-  const TASK_HEIGHT = 21; // Height of each task bar (reduced by 20%)
-  const MAX_VISIBLE_TASKS = 5; // Show 5 tasks at a time (reduced by 20%)
+  const TASK_HEIGHT = 36; // Height of each task bar (increased for better tap targets)
+  const MAX_VISIBLE_TASKS = 6; // Show 6 tasks at a time
 
   // State for task info popup
   const [selectedTask, setSelectedTask] = useState<WorkPlan | null>(null);
@@ -345,13 +345,13 @@ export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress
                       >
                         <View className="flex-1">
                           <Text
-                            className={`text-[10px] font-semibold ${colors.text}`}
+                            className={`text-xs font-semibold ${colors.text}`}
                             numberOfLines={1}
                           >
                             {bar.task.title}
                           </Text>
                           <Text
-                            className={`text-[8px] ${colors.text} opacity-80`}
+                            className={`text-[10px] ${colors.text} opacity-80`}
                             numberOfLines={1}
                           >
                             {bar.task.function} • {bar.task.progress}%
@@ -359,14 +359,14 @@ export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress
                         </View>
                         {/* Progress indicator */}
                         {bar.task.status === 'in-progress' && (
-                          <View className="ml-1 w-1 h-1 rounded-full bg-white" />
+                          <View className="ml-1 w-1.5 h-1.5 rounded-full bg-white" />
                         )}
                       </View>
                     </Pressable>
 
                     {/* Cost Display - to the immediate right of task bar */}
                     <View className="ml-2 bg-gray-100 dark:bg-slate-800 px-2 py-1 rounded-md">
-                      <Text className="text-gray-700 dark:text-gray-300 text-[9px] font-bold">
+                      <Text className="text-gray-700 dark:text-gray-300 text-[10px] font-bold">
                         £{taskCost.toLocaleString()}
                       </Text>
                     </View>
