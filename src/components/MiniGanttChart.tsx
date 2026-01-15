@@ -168,8 +168,8 @@ export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress
 
   // Auto-scroll to show today at far left when component mounts
   useEffect(() => {
-    // Scroll to position where current week (index 6) appears at the far left
-    const scrollPosition = WEEK_WIDTH * 6;
+    // Scroll to position where current week (index 1) appears at the far left
+    const scrollPosition = WEEK_WIDTH * 1;
 
     setTimeout(() => {
       headerScrollRef.current?.scrollTo({ x: scrollPosition, y: 0, animated: true });
@@ -247,14 +247,14 @@ export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress
               {/* Current week indicator line */}
               <View
                 className="absolute top-0 bottom-0 w-0.5 bg-blue-500 dark:bg-blue-400 opacity-50"
-                style={{ left: WEEK_WIDTH * 6 + WEEK_WIDTH / 2 }}
+                style={{ left: WEEK_WIDTH * 1 + WEEK_WIDTH / 2 }}
               />
 
               {/* Task bars */}
               <View className="py-2">
               {taskBars.map((bar, idx) => {
                 const colors = STATUS_COLORS[bar.task.status] || STATUS_COLORS['not-started'];
-                const leftPosition = WEEK_WIDTH * (bar.startOffset + 6); // +6 to account for weeks before
+                const leftPosition = WEEK_WIDTH * (bar.startOffset + 1); // +1 to account for 1 week before
                 const barWidth = WEEK_WIDTH * bar.widthInWeeks - 8; // -8 for padding
                 const assignedMembers = getAssignedMembers(bar.task);
                 const AVATAR_WIDTH = 32; // Width for avatar section
