@@ -518,8 +518,8 @@ export default function MakeScreen() {
         >
           <View className="flex-1" />
           {selectedSupplier && (
-            <Pressable onPress={(e) => e.stopPropagation()}>
-              <View className="bg-gray-100 dark:bg-slate-900 rounded-t-3xl" style={{ maxHeight: '95%' }}>
+            <Pressable onPress={(e) => e.stopPropagation()} style={{ maxHeight: '90%' }}>
+              <View className="bg-gray-100 dark:bg-slate-900 rounded-t-3xl">
               {/* Fixed Header */}
               <View className="px-6 pt-6 pb-4 border-b border-gray-300 dark:border-slate-800">
                 <View className="flex-row items-center justify-between mb-2">
@@ -538,7 +538,7 @@ export default function MakeScreen() {
               </View>
 
               {/* Scrollable Content */}
-              <ScrollView showsVerticalScrollIndicator={true} bounces={false} className="flex-1">
+              <ScrollView showsVerticalScrollIndicator={true} bounces={false} contentContainerStyle={{ flexGrow: 1 }}>
                 <View className="px-6 py-4">
                   {/* Performance KPIs (BCG Supplier Scorecard) */}
                   <View className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4 mb-4">
@@ -870,8 +870,8 @@ export default function MakeScreen() {
         >
           <View className="flex-1" />
           {selectedAI && (
-            <Pressable onPress={(e) => e.stopPropagation()}>
-              <View className="bg-gray-100 dark:bg-slate-900 rounded-t-3xl" style={{ maxHeight: '90%' }}>
+            <Pressable onPress={(e) => e.stopPropagation()} style={{ maxHeight: '90%' }}>
+              <View className="bg-gray-100 dark:bg-slate-900 rounded-t-3xl">
               {/* Fixed Header */}
               <View className="px-6 pt-6 pb-4 border-b border-gray-300 dark:border-slate-800">
                 <View className="flex-row items-center justify-between mb-2">
@@ -892,7 +892,7 @@ export default function MakeScreen() {
               </View>
 
               {/* Scrollable Content */}
-              <ScrollView showsVerticalScrollIndicator={true} bounces={false} className="flex-1">
+              <ScrollView showsVerticalScrollIndicator={true} bounces={false} contentContainerStyle={{ flexGrow: 1 }}>
                 <View className="px-6 py-4">
                   <View className="bg-gray-200 dark:bg-slate-800 rounded-xl p-4 mb-4">
                     <View className="flex-row justify-between items-center">
