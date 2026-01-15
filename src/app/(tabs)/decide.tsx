@@ -169,6 +169,8 @@ export default function DecideScreen() {
   const [showTaskDetailsModal, setShowTaskDetailsModal] = useState(false);
   const [selectedTaskForDetails, setSelectedTaskForDetails] = useState<WorkPlan | null>(null);
 
+  // TU Opportunities section
+  const [showOpportunities, setShowOpportunities] = useState(false);
 
   // Old drag and drop state (to be removed)
   const [draggingOKRId, setDraggingOKRId] = useState<string | null>(null);
@@ -1524,224 +1526,666 @@ export default function DecideScreen() {
         />
       </View>
 
-      {/* Task Edit Modal - Bottom sheet that keeps resource pool visible */}
-      <Modal
-        visible={!!selectedTaskForAllocation}
-        transparent
-        animationType="slide"
-        onRequestClose={() => setSelectedTaskForAllocation(null)}
-      >
-        <Pressable className="flex-1 bg-black/50" onPress={() => setSelectedTaskForAllocation(null)}>
-          <View className="flex-1" /> {/* Spacer pushes content down */}
-          <Pressable onPress={(e) => e.stopPropagation()}>
-            {selectedTaskForAllocation && (
-              <View className="bg-white dark:bg-slate-900 rounded-t-3xl" style={{ maxHeight: '70%' }}>
-                <ScrollView className="px-5 py-4" contentContainerStyle={{ flexGrow: 1 }}>
-                  {/* Close button */}
+      {/* SECTION 2: SCROLLABLE TASK QUEUE */}
+      <ScrollView className="flex-1 px-5 py-4">
+        {/* Company Aim Banner */}
+        {currentWorkspace && (
+          <CompanyAimBanner
+            workspaceId={currentWorkspace.id}
+            onEdit={() => setShowCompanyAimModal(true)}
+          />
+        )}
+
+        {/* Selected Task Allocation Panel - Appears when a task is selected */}
+        {selectedTaskForAllocation && (
+          <Animated.View
+            entering={FadeIn.duration(200)}
+            exiting={FadeOut.duration(200)}
+            className="mb-6 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 border-2 border-blue-400 dark:border-blue-600 rounded-2xl p-4 shadow-lg"
+          >
+            {/* Close button */}
+            <Pressable
+              onPress={() => setSelectedTaskForAllocation(null)}
+              className="absolute top-3 right-3 z-10 bg-white dark:bg-slate-800 rounded-full p-1"
+            >
+              <X size={16} color="#3b82f6" />
+            </Pressable>
+
+            {/* Editable Title */}
+            <View className="mb-2">
+              <Text className="text-blue-600 dark:text-blue-400 text-xs font-semibold mb-1">
+                Task Name
+              </Text>
+              <TextInput
+                value={editedTaskTitle}
+                onChangeText={setEditedTaskTitle}
+                onBlur={handleSaveTaskTitle}
+                className="text-blue-900 dark:text-blue-100 font-bold text-base bg-white dark:bg-slate-800 rounded-lg px-3 py-2 border border-blue-200 dark:border-blue-700"
+                placeholder="Enter task name"
+                placeholderTextColor="#94a3b8"
+                multiline
+              />
+            </View>
+
+            {/* Editable Description */}
+            <View className="mb-3">
+              <Text className="text-blue-600 dark:text-blue-400 text-xs font-semibold mb-1">
+                Description
+              </Text>
+              <TextInput
+                value={editedTaskDescription}
+                onChangeText={setEditedTaskDescription}
+                onBlur={handleSaveTaskDescription}
+                className="text-blue-700 dark:text-blue-300 text-sm bg-white dark:bg-slate-800 rounded-lg px-3 py-2 border border-blue-200 dark:border-blue-700"
+                placeholder="Enter task description"
+                placeholderTextColor="#94a3b8"
+                multiline
+                numberOfLines={2}
+              />
+            </View>
+
+            {/* Resource allocation display */}
+            <View className="bg-white dark:bg-slate-800 rounded-lg p-3 mb-3">
+              <View className="flex-row items-center justify-between mb-2">
+                {/* Required field with +/- buttons */}
+                <View className="flex-row items-center gap-2">
+                  <Text className="text-gray-600 dark:text-slate-400 text-xs mr-1">Required:</Text>
+
+                  {/* Minus button */}
                   <Pressable
-                    onPress={() => setSelectedTaskForAllocation(null)}
-                    className="absolute top-3 right-3 z-10 bg-gray-200 dark:bg-slate-800 rounded-full p-1.5"
+                    onPress={() => handleAdjustEstimatedTimeUnits(selectedTaskForAllocation.id, -1)}
+                    className="bg-red-100 dark:bg-red-900/30 w-7 h-7 rounded-full items-center justify-center active:opacity-70"
                   >
-                    <X size={16} color="#3b82f6" />
+                    <Minus size={14} color="#ef4444" />
                   </Pressable>
 
-                  {/* Modal Title */}
-                  <Text className="text-blue-600 dark:text-blue-400 text-base font-bold mb-3 pr-8">
-                    Edit Task
+                  {/* Display */}
+                  <View className="bg-gray-50 dark:bg-slate-900 px-3 py-1 rounded">
+                    <Text className="text-gray-900 dark:text-white font-bold">
+                      {selectedTaskForAllocation.estimatedTimeUnits}□
+                    </Text>
+                  </View>
+
+                  {/* Plus button */}
+                  <Pressable
+                    onPress={() => handleAdjustEstimatedTimeUnits(selectedTaskForAllocation.id, 1)}
+                    className="bg-emerald-100 dark:bg-emerald-900/30 w-7 h-7 rounded-full items-center justify-center active:opacity-70"
+                  >
+                    <Plus size={14} color="#10b981" />
+                  </Pressable>
+                </View>
+
+                {/* Allocated field */}
+                <Text className={`font-semibold ${
+                  (selectedTaskForAllocation.allocations?.reduce((sum, a) => sum + a.squaresPerWeek, 0) || 0) >= selectedTaskForAllocation.estimatedTimeUnits
+                    ? 'text-emerald-600 dark:text-emerald-400'
+                    : 'text-orange-600 dark:text-orange-400'
+                }`}>
+                  Allocated: {selectedTaskForAllocation.allocations?.reduce((sum, a) => sum + a.squaresPerWeek, 0) || 0}□
+                </Text>
+              </View>
+
+              {/* Progress bar */}
+              <View className="h-2 bg-gray-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                <View
+                  className={`h-full ${
+                    (selectedTaskForAllocation.allocations?.reduce((sum, a) => sum + a.squaresPerWeek, 0) || 0) >= selectedTaskForAllocation.estimatedTimeUnits
+                      ? 'bg-emerald-500'
+                      : 'bg-orange-500'
+                  }`}
+                  style={{
+                    width: `${Math.min(100, ((selectedTaskForAllocation.allocations?.reduce((sum, a) => sum + a.squaresPerWeek, 0) || 0) / selectedTaskForAllocation.estimatedTimeUnits) * 100)}%`
+                  }}
+                />
+              </View>
+
+              {/* Team members allocated */}
+              {selectedTaskForAllocation.allocations && selectedTaskForAllocation.allocations.length > 0 && (
+                <View className="mt-3 pt-3 border-t border-gray-200 dark:border-slate-700">
+                  <Text className="text-gray-600 dark:text-slate-400 text-xs font-semibold mb-2">
+                    Team Members:
                   </Text>
-
-                  {/* Editable Title */}
-                  <View className="mb-3">
-                    <Text className="text-gray-700 dark:text-slate-300 text-xs font-semibold mb-1">
-                      Task Name
-                    </Text>
-                    <TextInput
-                      value={editedTaskTitle}
-                      onChangeText={setEditedTaskTitle}
-                      onBlur={handleSaveTaskTitle}
-                      className="text-gray-900 dark:text-white font-bold text-base bg-gray-50 dark:bg-slate-800 rounded-lg px-3 py-2 border border-gray-300 dark:border-slate-700"
-                      placeholder="Enter task name"
-                      placeholderTextColor="#94a3b8"
-                      multiline
-                    />
-                  </View>
-
-                  {/* Editable Description */}
-                  <View className="mb-3">
-                    <Text className="text-gray-700 dark:text-slate-300 text-xs font-semibold mb-1">
-                      Description
-                    </Text>
-                    <TextInput
-                      value={editedTaskDescription}
-                      onChangeText={setEditedTaskDescription}
-                      onBlur={handleSaveTaskDescription}
-                      className="text-gray-900 dark:text-white text-sm bg-gray-50 dark:bg-slate-800 rounded-lg px-3 py-2 border border-gray-300 dark:border-slate-700"
-                      placeholder="Enter task description"
-                      placeholderTextColor="#94a3b8"
-                      multiline
-                      numberOfLines={2}
-                    />
-                  </View>
-
-                  {/* Resource allocation display */}
-                  <View className="bg-gray-50 dark:bg-slate-800 rounded-lg p-3 mb-3 border border-gray-200 dark:border-slate-700">
-                    <View className="flex-row items-center justify-between mb-2">
-                      {/* Required field with +/- buttons */}
+                  {selectedTaskForAllocation.allocations.map((alloc) => (
+                    <View key={alloc.memberId} className="flex-row items-center justify-between mb-2 bg-gray-50 dark:bg-slate-900 rounded-lg p-2">
+                      <Text className="text-gray-900 dark:text-white text-sm flex-1">
+                        {alloc.memberName}
+                      </Text>
                       <View className="flex-row items-center gap-2">
-                        <Text className="text-gray-600 dark:text-slate-400 text-xs mr-1">Required:</Text>
-
                         {/* Minus button */}
                         <Pressable
-                          onPress={() => handleAdjustEstimatedTimeUnits(selectedTaskForAllocation.id, -1)}
+                          onPress={() => handleAdjustAllocation(selectedTaskForAllocation.id, alloc.memberId, -1)}
                           className="bg-red-100 dark:bg-red-900/30 w-7 h-7 rounded-full items-center justify-center active:opacity-70"
                         >
                           <Minus size={14} color="#ef4444" />
                         </Pressable>
 
-                        {/* Display */}
-                        <View className="bg-white dark:bg-slate-900 px-3 py-1 rounded">
-                          <Text className="text-gray-900 dark:text-white font-bold">
-                            {selectedTaskForAllocation.estimatedTimeUnits}□
+                        {/* Allocation display */}
+                        <View className="bg-white dark:bg-slate-800 px-2 py-1 rounded">
+                          <Text className="text-gray-900 dark:text-white text-sm font-semibold">
+                            {alloc.squaresPerWeek}□/wk
                           </Text>
                         </View>
 
                         {/* Plus button */}
                         <Pressable
-                          onPress={() => handleAdjustEstimatedTimeUnits(selectedTaskForAllocation.id, 1)}
+                          onPress={() => handleAdjustAllocation(selectedTaskForAllocation.id, alloc.memberId, 1)}
                           className="bg-emerald-100 dark:bg-emerald-900/30 w-7 h-7 rounded-full items-center justify-center active:opacity-70"
                         >
                           <Plus size={14} color="#10b981" />
                         </Pressable>
-                      </View>
 
-                      {/* Allocated field */}
-                      <Text className={`font-semibold ${
-                        (selectedTaskForAllocation.allocations?.reduce((sum, a) => sum + a.squaresPerWeek, 0) || 0) >= selectedTaskForAllocation.estimatedTimeUnits
-                          ? 'text-emerald-600 dark:text-emerald-400'
-                          : 'text-orange-600 dark:text-orange-400'
-                      }`}>
-                        Allocated: {selectedTaskForAllocation.allocations?.reduce((sum, a) => sum + a.squaresPerWeek, 0) || 0}□
-                      </Text>
-                    </View>
-
-                    {/* Progress bar */}
-                    <View className="h-2 bg-gray-200 dark:bg-slate-700 rounded-full overflow-hidden">
-                      <View
-                        className={`h-full ${
-                          (selectedTaskForAllocation.allocations?.reduce((sum, a) => sum + a.squaresPerWeek, 0) || 0) >= selectedTaskForAllocation.estimatedTimeUnits
-                            ? 'bg-emerald-500'
-                            : 'bg-orange-500'
-                        }`}
-                        style={{
-                          width: `${Math.min(100, ((selectedTaskForAllocation.allocations?.reduce((sum, a) => sum + a.squaresPerWeek, 0) || 0) / selectedTaskForAllocation.estimatedTimeUnits) * 100)}%`
-                        }}
-                      />
-                    </View>
-
-                    {/* Team members allocated */}
-                    {selectedTaskForAllocation.allocations && selectedTaskForAllocation.allocations.length > 0 && (
-                      <View className="mt-3 pt-3 border-t border-gray-200 dark:border-slate-700">
-                        <Text className="text-gray-600 dark:text-slate-400 text-xs font-semibold mb-2">
-                          Team Members:
+                        <Text className="text-gray-500 dark:text-slate-500 text-xs ml-1">
+                          £{alloc.costPerSquare * alloc.squaresPerWeek}/wk
                         </Text>
-                        {selectedTaskForAllocation.allocations.map((alloc) => (
-                          <View key={alloc.memberId} className="flex-row items-center justify-between mb-2 bg-white dark:bg-slate-900 rounded-lg p-2">
-                            <Text className="text-gray-900 dark:text-white text-sm flex-1">
-                              {alloc.memberName}
-                            </Text>
-                            <View className="flex-row items-center gap-2">
-                              {/* Minus button */}
-                              <Pressable
-                                onPress={() => handleAdjustAllocation(selectedTaskForAllocation.id, alloc.memberId, -1)}
-                                className="bg-red-100 dark:bg-red-900/30 w-7 h-7 rounded-full items-center justify-center active:opacity-70"
-                              >
-                                <Minus size={14} color="#ef4444" />
-                              </Pressable>
+                      </View>
+                    </View>
+                  ))}
+                </View>
+              )}
+            </View>
 
-                              {/* Allocation display */}
-                              <View className="bg-gray-50 dark:bg-slate-800 px-2 py-1 rounded">
-                                <Text className="text-gray-900 dark:text-white text-sm font-semibold">
-                                  {alloc.squaresPerWeek}□/wk
+            {/* Cost and timeline calculation */}
+            <View className="flex-row gap-2">
+              <View className="flex-1 bg-white dark:bg-slate-800 rounded-lg p-2">
+                <Text className="text-gray-600 dark:text-slate-400 text-xs mb-1">
+                  Total Cost
+                </Text>
+                <Text className="text-gray-900 dark:text-white font-bold">
+                  £{Math.round(
+                    (selectedTaskForAllocation.allocations?.reduce((sum, a) => sum + (a.costPerSquare * a.squaresPerWeek), 0) || 0) *
+                    (selectedTaskForAllocation.estimatedTimeUnits / Math.max(1, selectedTaskForAllocation.allocations?.reduce((sum, a) => sum + a.squaresPerWeek, 0) || 1))
+                  ).toLocaleString()}
+                </Text>
+              </View>
+              <View className="flex-1 bg-white dark:bg-slate-800 rounded-lg p-2">
+                <Text className="text-gray-600 dark:text-slate-400 text-xs mb-1">
+                  Completion Time
+                </Text>
+                <Text className="text-gray-900 dark:text-white font-bold">
+                  {(() => {
+                    const weeks = Math.ceil(
+                      selectedTaskForAllocation.estimatedTimeUnits /
+                      Math.max(1, selectedTaskForAllocation.allocations?.reduce((sum, a) => sum + a.squaresPerWeek, 0) || 1)
+                    );
+                    const days = weeks * 5;
+                    return `${days} day${days !== 1 ? 's' : ''}`;
+                  })()}
+                </Text>
+              </View>
+            </View>
+
+            {/* Instructions */}
+            <View className="mt-3 bg-blue-100 dark:bg-blue-900/30 rounded-lg p-2">
+              <Text className="text-blue-800 dark:text-blue-200 text-xs text-center">
+                Tap team members in the resource pool above to allocate their time to this task
+              </Text>
+            </View>
+
+            {/* Confirm button */}
+            <Pressable
+              onPress={handleConfirmAllocation}
+              className="mt-3 bg-emerald-500 py-3 rounded-lg active:opacity-80"
+            >
+              <Text className="text-white font-bold text-center text-base">
+                Confirm Allocation
+              </Text>
+            </Pressable>
+
+            {/* Delete button */}
+            <Pressable
+              onPress={() => {
+                Alert.alert(
+                  'Delete Task',
+                  'Delete this task and free all allocated resources?',
+                  [
+                    { text: 'Cancel', style: 'cancel' },
+                    {
+                      text: 'Delete',
+                      style: 'destructive',
+                      onPress: () => {
+                        abandonWorkPlan(selectedTaskForAllocation.id, 'Deleted by user');
+                        setSelectedTaskForAllocation(null);
+                      }
+                    }
+                  ]
+                );
+              }}
+              className="mt-2 bg-red-100 dark:bg-red-900/30 py-2 rounded-lg active:opacity-70"
+            >
+              <Text className="text-red-600 dark:text-red-400 font-semibold text-center text-sm">
+                Delete Task & Free Resources
+              </Text>
+            </Pressable>
+          </Animated.View>
+        )}
+
+        {/* ACTIVE TASKS (with resources allocated) */}
+        {(() => {
+          const calculateDaysToCompletion = (plan: WorkPlan): number => {
+            const totalAllocated = plan.allocations?.reduce((sum, a) => sum + a.squaresPerWeek, 0) || 0;
+            if (totalAllocated === 0) return Infinity;
+            const weeks = Math.ceil(plan.estimatedTimeUnits / totalAllocated);
+            return weeks * 5;
+          };
+
+          const activeTasks = workPlans
+            .filter(wp =>
+              (selectedFunction === 'all' || wp.function === selectedFunction) &&
+              wp.status !== 'completed' &&
+              wp.status !== 'abandoned' &&
+              wp.assignedMemberIds &&
+              wp.assignedMemberIds.length > 0
+            )
+            .sort((a, b) => calculateDaysToCompletion(a) - calculateDaysToCompletion(b));
+
+          return activeTasks.length > 0 ? (
+            <View className="mb-6">
+              <View className="flex-row items-center justify-between mb-3">
+                <Text className="text-gray-900 dark:text-white text-sm font-bold">
+                  Active Tasks
+                </Text>
+                <View className="bg-emerald-500/10 dark:bg-emerald-500/20 px-3 py-1 rounded-full">
+                  <Text className="text-emerald-600 dark:text-emerald-400 text-xs font-bold">
+                    {activeTasks.length} in progress
+                  </Text>
+                </View>
+              </View>
+
+              <View className="gap-3">
+                {activeTasks.map((plan) => {
+                  const assignedMembers = getAssignedMembers(plan);
+                  const taskCost = calculateTaskCost(plan);
+                  const daysToCompletion = calculateDaysToCompletion(plan);
+
+                  return (
+                    <View key={plan.id} className="flex-row items-center gap-2">
+                      {/* Team Avatars */}
+                      {assignedMembers.length > 0 ? (
+                        <View className="flex-row">
+                          {assignedMembers.length > 3 && (
+                            <View className="w-8 h-8 rounded-full items-center justify-center bg-gray-400 border-2 border-white dark:border-slate-950" style={{ marginRight: -10, zIndex: 0 }}>
+                              <Text className="text-white font-bold text-[10px]">+{assignedMembers.length - 3}</Text>
+                            </View>
+                          )}
+                          {assignedMembers.slice(0, 3).map((member, idx) => (
+                            <View
+                              key={member.id}
+                              className="w-8 h-8 rounded-full items-center justify-center border-2 border-white dark:border-slate-950"
+                              style={{
+                                backgroundColor: getRoleColor(member.role),
+                                marginRight: idx < assignedMembers.slice(0, 3).length - 1 ? -10 : 0,
+                                zIndex: idx + 1
+                              }}
+                            >
+                              <Text className="text-white font-bold text-[10px]">{getInitials(member.name)}</Text>
+                            </View>
+                          ))}
+                        </View>
+                      ) : null}
+
+                      {/* Task Card */}
+                      <View className="flex-1">
+                        <SwipeableTaskCard
+                          taskId={plan.id}
+                          onSwipeLeft={handleTaskSwipeLeft}
+                          onPress={() => handleTaskPress(plan)}
+                        >
+                          <View
+                            className={`bg-white dark:bg-slate-800 border rounded-2xl p-4 shadow-sm ${
+                              selectedTaskForAllocation?.id === plan.id
+                                ? 'border-blue-500 dark:border-blue-400'
+                                : 'border-gray-200 dark:border-slate-700'
+                            }`}
+                          >
+                            <View className="flex-row items-start justify-between mb-2">
+                              <View className="flex-1 mr-2">
+                                <Text className="text-gray-900 dark:text-white font-semibold text-sm" numberOfLines={2}>
+                                  {plan.title}
                                 </Text>
+                                <View className="flex-row items-center mt-1 gap-2">
+                                  <View className={`px-1.5 py-0.5 rounded ${
+                                    plan.status === 'completed' ? 'bg-emerald-500/20' :
+                                    plan.status === 'in-progress' ? 'bg-blue-500/20' :
+                                    plan.status === 'blocked' ? 'bg-red-500/20' : 'bg-gray-500/20'
+                                  }`}>
+                                    <Text className={`text-[10px] font-semibold ${
+                                      plan.status === 'completed' ? 'text-emerald-600 dark:text-emerald-400' :
+                                      plan.status === 'in-progress' ? 'text-blue-600 dark:text-blue-400' :
+                                      plan.status === 'blocked' ? 'text-red-600 dark:text-red-400' : 'text-gray-600 dark:text-gray-400'
+                                    }`}>{plan.status}</Text>
+                                  </View>
+                                  <Text className="text-gray-500 dark:text-slate-400 text-[10px]">{plan.progress}%</Text>
+                                  <View className="bg-purple-100 dark:bg-purple-900/30 px-1.5 py-0.5 rounded">
+                                    <Text className="text-purple-600 dark:text-purple-400 text-[10px] font-semibold">
+                                      {plan.function}
+                                    </Text>
+                                  </View>
+                                </View>
                               </View>
 
-                              {/* Plus button */}
-                              <Pressable
-                                onPress={() => handleAdjustAllocation(selectedTaskForAllocation.id, alloc.memberId, 1)}
-                                className="bg-emerald-100 dark:bg-emerald-900/30 w-7 h-7 rounded-full items-center justify-center active:opacity-70"
-                              >
-                                <Plus size={14} color="#10b981" />
-                              </Pressable>
+                              {/* Days to Completion Badge */}
+                              <View className="bg-blue-100 dark:bg-blue-900/30 px-2 py-1 rounded-lg">
+                                <Text className="text-blue-700 dark:text-blue-300 text-xs font-bold">
+                                  {daysToCompletion}d
+                                </Text>
+                              </View>
+                            </View>
 
-                              <Text className="text-gray-500 dark:text-slate-500 text-xs ml-1">
-                                £{alloc.costPerSquare * alloc.squaresPerWeek}/wk
+                            {/* Progress Bar */}
+                            <View className="bg-gray-200 dark:bg-slate-700 rounded-full h-1.5 overflow-hidden">
+                              <View
+                                className={`h-full ${
+                                  plan.status === 'completed' ? 'bg-emerald-500' :
+                                  plan.status === 'blocked' ? 'bg-red-500' : 'bg-blue-500'
+                                }`}
+                                style={{ width: `${plan.progress}%` }}
+                              />
+                            </View>
+
+                            {/* Squares & Cost Display */}
+                            <View className="mt-2 flex-row items-center justify-between">
+                              <View className="flex-row items-center gap-2">
+                                <SquaresDisplay
+                                  totalSquares={plan.estimatedTimeUnits}
+                                  completedSquares={Math.round((plan.progress / 100) * plan.estimatedTimeUnits)}
+                                  variant="compact"
+                                  statusColor={
+                                    plan.status === 'completed' ? '#10b981' :
+                                    plan.status === 'blocked' ? '#ef4444' : '#3b82f6'
+                                  }
+                                />
+                                <Text className="text-gray-400 dark:text-slate-500 text-[10px]">
+                                  {taskCost.allocatedPerWeek}□/wk
+                                </Text>
+                              </View>
+                              <Text className="text-gray-600 dark:text-slate-400 text-[10px] font-semibold">
+                                £{taskCost.cumulativeCost.toLocaleString()}
                               </Text>
                             </View>
                           </View>
-                        ))}
+                        </SwipeableTaskCard>
                       </View>
-                    )}
-                  </View>
-
-                  {/* Cost and timeline calculation */}
-                  <View className="flex-row gap-2 mb-3">
-                    <View className="flex-1 bg-gray-50 dark:bg-slate-800 rounded-lg p-3 border border-gray-200 dark:border-slate-700">
-                      <Text className="text-gray-600 dark:text-slate-400 text-xs mb-1">
-                        Total Cost
-                      </Text>
-                      <Text className="text-gray-900 dark:text-white font-bold text-lg">
-                        £{(() => {
-                          const totalWeeklyCost = selectedTaskForAllocation.allocations?.reduce((sum, a) => sum + (a.costPerSquare * a.squaresPerWeek), 0) || 0;
-                          const totalAllocated = selectedTaskForAllocation.allocations?.reduce((sum, a) => sum + a.squaresPerWeek, 0) || 0;
-                          const weeks = totalAllocated > 0 ? Math.ceil(selectedTaskForAllocation.estimatedTimeUnits / totalAllocated) : 0;
-                          return (totalWeeklyCost * weeks).toLocaleString();
-                        })()}
-                      </Text>
                     </View>
-                    <View className="flex-1 bg-gray-50 dark:bg-slate-800 rounded-lg p-3 border border-gray-200 dark:border-slate-700">
-                      <Text className="text-gray-600 dark:text-slate-400 text-xs mb-1">
-                        Weeks to Complete
-                      </Text>
-                      <Text className="text-gray-900 dark:text-white font-bold text-lg">
-                        {(() => {
-                          const totalAllocated = selectedTaskForAllocation.allocations?.reduce((sum, a) => sum + a.squaresPerWeek, 0) || 0;
-                          return totalAllocated > 0 ? Math.ceil(selectedTaskForAllocation.estimatedTimeUnits / totalAllocated) : '∞';
-                        })()}
-                      </Text>
-                    </View>
-                  </View>
-
-                  {/* Delete button */}
-                  <Pressable
-                    onPress={() => {
-                      Alert.alert(
-                        'Delete Task',
-                        'Delete this task and free all allocated resources?',
-                        [
-                          { text: 'Cancel', style: 'cancel' },
-                          {
-                            text: 'Delete',
-                            style: 'destructive',
-                            onPress: () => {
-                              abandonWorkPlan(selectedTaskForAllocation.id, 'Deleted by user');
-                              setSelectedTaskForAllocation(null);
-                            }
-                          }
-                        ]
-                      );
-                    }}
-                    className="mt-2 bg-red-100 dark:bg-red-900/30 py-3 rounded-lg active:opacity-70"
-                  >
-                    <Text className="text-red-600 dark:text-red-400 font-semibold text-center text-sm">
-                      Delete Task & Free Resources
-                    </Text>
-                  </Pressable>
-                </ScrollView>
+                  );
+                })}
               </View>
+            </View>
+          ) : null;
+        })()}
+
+        {/* QUEUED TASKS (no resources allocated) */}
+        {(() => {
+          const queuedTasks = workPlans
+            .filter(wp =>
+              (selectedFunction === 'all' || wp.function === selectedFunction) &&
+              wp.status !== 'completed' &&
+              wp.status !== 'abandoned' &&
+              (!wp.assignedMemberIds || wp.assignedMemberIds.length === 0)
+            )
+            .sort((a, b) => a.estimatedTimeUnits - b.estimatedTimeUnits);
+
+          return queuedTasks.length > 0 ? (
+            <View className="mb-6">
+              <View className="flex-row items-center justify-between mb-3">
+                <Text className="text-gray-900 dark:text-white text-sm font-bold">
+                  Queued Tasks
+                </Text>
+                <View className="bg-orange-500/10 dark:bg-orange-500/20 px-3 py-1 rounded-full">
+                  <Text className="text-orange-600 dark:text-orange-400 text-xs font-bold">
+                    {queuedTasks.length} awaiting resources
+                  </Text>
+                </View>
+              </View>
+
+              <View className="gap-3">
+                {queuedTasks.map((plan) => {
+                  const estimatedDays = Math.ceil(plan.estimatedTimeUnits / 1) * 5;
+
+                  return (
+                    <SwipeableTaskCard
+                      key={plan.id}
+                      taskId={plan.id}
+                      onSwipeLeft={handleTaskSwipeLeft}
+                      onPress={() => handleTaskPress(plan)}
+                    >
+                      <View
+                        className={`bg-white dark:bg-slate-800 border rounded-2xl shadow-sm ${
+                          selectedTaskForAllocation?.id === plan.id
+                            ? 'border-blue-500 dark:border-blue-400'
+                            : 'border-gray-200 dark:border-slate-700'
+                        }`}
+                      >
+                        {/* Card Header */}
+                        <View className="p-3 pb-0">
+                          <View className="flex-row items-start justify-between mb-2">
+                            <View className="flex-1 mr-2">
+                              <Text className="text-gray-900 dark:text-white font-semibold text-sm" numberOfLines={2}>
+                                {plan.title}
+                              </Text>
+                              <View className="flex-row items-center mt-1 gap-2">
+                                <View className={`px-1.5 py-0.5 rounded ${
+                                  plan.status === 'completed' ? 'bg-emerald-500/20' :
+                                  plan.status === 'in-progress' ? 'bg-blue-500/20' :
+                                  plan.status === 'blocked' ? 'bg-red-500/20' : 'bg-gray-500/20'
+                                }`}>
+                                  <Text className={`text-[10px] font-semibold ${
+                                    plan.status === 'completed' ? 'text-emerald-600 dark:text-emerald-400' :
+                                    plan.status === 'in-progress' ? 'text-blue-600 dark:text-blue-400' :
+                                    plan.status === 'blocked' ? 'text-red-600 dark:text-red-400' : 'text-gray-600 dark:text-gray-400'
+                                  }`}>{plan.status}</Text>
+                                </View>
+                                <View className="bg-purple-100 dark:bg-purple-900/30 px-1.5 py-0.5 rounded">
+                                  <Text className="text-purple-600 dark:text-purple-400 text-[10px] font-semibold">
+                                    {plan.function}
+                                  </Text>
+                                </View>
+                              </View>
+                            </View>
+
+                            {/* Estimated Days Badge */}
+                            <View className="bg-orange-100 dark:bg-orange-900/30 px-2 py-1 rounded-lg mr-2">
+                              <Text className="text-orange-700 dark:text-orange-300 text-xs font-bold">
+                                ~{estimatedDays}d
+                              </Text>
+                            </View>
+
+                            {/* Empty avatar placeholder */}
+                            <View className="w-8 h-8 rounded-full items-center justify-center bg-gray-200 dark:bg-slate-700 border-2 border-dashed border-gray-400 dark:border-slate-500">
+                              <Plus size={14} color="#9ca3af" />
+                            </View>
+                          </View>
+
+                          {/* Squares Display */}
+                          <View className="mt-2 flex-row items-center justify-between">
+                            <View className="flex-row items-center gap-2">
+                              <Text className="text-gray-600 dark:text-slate-400 text-xs">
+                                Needs {plan.estimatedTimeUnits}□
+                              </Text>
+                            </View>
+                          </View>
+                        </View>
+
+                        {/* Action Buttons */}
+                        <View className="px-3 pb-3 pt-2 flex-row gap-2">
+                          <Pressable
+                            onPress={(e) => {
+                              e.stopPropagation();
+                              handleAutoAllocateTask(plan.id);
+                            }}
+                            className="flex-1 bg-emerald-500 rounded-lg py-2.5 px-3 flex-row items-center justify-center active:opacity-70"
+                          >
+                            <Zap size={14} color="#fff" />
+                            <Text className="text-white text-xs font-bold ml-1.5">Auto-Allocate</Text>
+                          </Pressable>
+                          <Pressable
+                            onPress={(e) => {
+                              e.stopPropagation();
+                              handleTaskPress(plan);
+                            }}
+                            className="flex-1 bg-purple-500 rounded-lg py-2.5 px-3 flex-row items-center justify-center active:opacity-70"
+                          >
+                            <UserPlus size={14} color="#fff" />
+                            <Text className="text-white text-xs font-bold ml-1.5">Choose Team</Text>
+                          </Pressable>
+                        </View>
+                      </View>
+                    </SwipeableTaskCard>
+                  );
+                })}
+              </View>
+            </View>
+          ) : null;
+        })()}
+
+        {/* TU OPTIMIZATION OPPORTUNITIES */}
+        {tuOpportunities.length > 0 && (
+          <View className="mt-8 pt-6 border-t-2 border-gray-300 dark:border-slate-700">
+            <Pressable
+              onPress={() => setShowOpportunities(!showOpportunities)}
+              className="flex-row items-center justify-between mb-3 active:opacity-70"
+            >
+              <View className="flex-row items-center gap-2">
+                <Lightbulb size={18} color="#f59e0b" />
+                <Text className="text-amber-600 dark:text-amber-400 text-xs font-bold tracking-wide">
+                  OPTIMIZATION OPPORTUNITIES
+                </Text>
+              </View>
+              <View className="flex-row items-center gap-2">
+                <View className="bg-amber-100 dark:bg-amber-900/30 px-2 py-0.5 rounded">
+                  <Text className="text-amber-700 dark:text-amber-300 text-xs font-semibold">
+                    {tuOpportunities.length} found
+                  </Text>
+                </View>
+                <ChevronRight
+                  size={16}
+                  color="#f59e0b"
+                  style={{ transform: [{ rotate: showOpportunities ? '90deg' : '0deg' }] }}
+                />
+              </View>
+            </Pressable>
+
+            {showOpportunities && (
+              <>
+                {/* Auto-Fix All Button */}
+                <Pressable
+                  onPress={handleAutoFixAll}
+                  className="bg-emerald-500 rounded-xl px-4 py-3 mb-3 flex-row items-center justify-center active:opacity-70"
+                >
+                  <Zap size={18} color="#fff" />
+                  <Text className="text-white font-bold ml-2">Auto-Fix All</Text>
+                </Pressable>
+
+                <View className="gap-3">
+                  {tuOpportunities.map((opp, i) => (
+                    <View
+                      key={i}
+                      className={`rounded-xl p-4 border-2 ${
+                        opp.priority === 'high'
+                          ? 'bg-red-50 dark:bg-red-900/10 border-red-300 dark:border-red-800'
+                          : opp.priority === 'medium'
+                          ? 'bg-amber-50 dark:bg-amber-900/10 border-amber-300 dark:border-amber-800'
+                          : 'bg-blue-50 dark:bg-blue-900/10 border-blue-300 dark:border-blue-800'
+                      }`}
+                    >
+                      {/* Header */}
+                      <View className="flex-row items-start justify-between mb-2">
+                        <View className="flex-1 mr-2">
+                          <View className="flex-row items-center gap-2 mb-1">
+                            {opp.type === 'skill_mismatch' ? (
+                              <AlertTriangle size={16} color={opp.priority === 'high' ? '#ef4444' : '#f59e0b'} />
+                            ) : opp.type === 'underutilization' ? (
+                              <Clock size={16} color={opp.priority === 'high' ? '#ef4444' : '#f59e0b'} />
+                            ) : (
+                              <Zap size={16} color="#8b5cf6" />
+                            )}
+                            <View
+                              className={`px-2 py-0.5 rounded ${
+                                opp.priority === 'high'
+                                  ? 'bg-red-200 dark:bg-red-900/50'
+                                  : opp.priority === 'medium'
+                                  ? 'bg-amber-200 dark:bg-amber-900/50'
+                                  : 'bg-blue-200 dark:bg-blue-900/50'
+                              }`}
+                            >
+                              <Text
+                                className={`text-[10px] font-bold uppercase ${
+                                  opp.priority === 'high'
+                                    ? 'text-red-700 dark:text-red-300'
+                                    : opp.priority === 'medium'
+                                    ? 'text-amber-700 dark:text-amber-300'
+                                    : 'text-blue-700 dark:text-blue-300'
+                                }`}
+                              >
+                                {opp.priority}
+                              </Text>
+                            </View>
+                          </View>
+                          <Text className="text-gray-900 dark:text-white font-bold text-sm mb-1">
+                            {opp.title}
+                          </Text>
+                          <Text className="text-gray-600 dark:text-slate-400 text-xs mb-2">
+                            {opp.description}
+                          </Text>
+                          <View className="bg-white dark:bg-slate-900 rounded-lg p-2 mb-2">
+                            <Text className="text-gray-700 dark:text-slate-300 text-xs">
+                              <Text className="font-semibold">Impact: </Text>
+                              {opp.impact}
+                            </Text>
+                          </View>
+                          <View className="flex-row items-center gap-2">
+                            <DollarSign size={14} color="#10b981" />
+                            <Text className="text-emerald-600 dark:text-emerald-400 font-bold text-sm">
+                              Save £{(opp.savings / 1000).toFixed(1)}k
+                            </Text>
+                          </View>
+                        </View>
+                      </View>
+
+                      {/* Action Button */}
+                      <Pressable
+                        onPress={() => handleAutoFixOpportunity(opp)}
+                        className={`mt-3 rounded-lg px-4 py-2.5 flex-row items-center justify-center ${
+                          opp.type === 'skill_mismatch'
+                            ? 'bg-emerald-500 active:opacity-70'
+                            : 'bg-gray-300 dark:bg-slate-700'
+                        }`}
+                        disabled={opp.type !== 'skill_mismatch'}
+                      >
+                        {opp.type === 'skill_mismatch' ? (
+                          <>
+                            <CheckCircle2 size={16} color="#fff" />
+                            <Text className="text-white font-bold text-sm ml-2">Auto-Fix Now</Text>
+                          </>
+                        ) : (
+                          <Text className="text-gray-600 dark:text-slate-400 font-semibold text-sm">
+                            {opp.type === 'ai_adoption' ? 'Add AI tools in allocation panel' : 'Use Auto-Allocate'}
+                          </Text>
+                        )}
+                      </Pressable>
+
+                      {/* Affected Tasks */}
+                      {opp.affectedTasks.length > 0 && (
+                        <View className="mt-3 pt-3 border-t border-gray-200 dark:border-slate-700">
+                          <Text className="text-gray-500 dark:text-slate-500 text-[10px] font-semibold mb-1">
+                            AFFECTED TASKS ({opp.affectedTasks.length}):
+                          </Text>
+                          <Text className="text-gray-700 dark:text-slate-300 text-xs">
+                            {opp.affectedTasks.slice(0, 3).join(', ')}
+                            {opp.affectedTasks.length > 3 && ` +${opp.affectedTasks.length - 3} more`}
+                          </Text>
+                        </View>
+                      )}
+                    </View>
+                  ))}
+                </View>
+              </>
             )}
-          </Pressable>
-        </Pressable>
-      </Modal>
+          </View>
+        )}
+
+        {/* Bottom padding */}
+        <View className="h-20" />
+      </ScrollView>
 
       {/* OKR Ideas Modal */}
       <Modal
