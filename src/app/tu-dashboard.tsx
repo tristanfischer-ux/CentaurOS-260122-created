@@ -47,7 +47,8 @@ export default function TUDashboardScreen() {
 
   // Data
   const workPlans = useWorkPlanStore(s => s.workPlans);
-  const members = useOrganizationStore(s => s.members.filter(m => m.status === 'active'));
+  const allMembers = useOrganizationStore(s => s.members);
+  const members = useMemo(() => allMembers.filter(m => m.status === 'active'), [allMembers]);
 
   // Calculations
   const metrics = useMemo(() =>
