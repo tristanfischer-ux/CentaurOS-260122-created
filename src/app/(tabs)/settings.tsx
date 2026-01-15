@@ -1110,7 +1110,6 @@ export default function SettingsScreen() {
         visible={showDataManagement}
         transparent
         animationType="slide"
-        presentationStyle="pageSheet"
         onRequestClose={() => setShowDataManagement(false)}
       >
         <View className="flex-1 bg-black/70 justify-end">

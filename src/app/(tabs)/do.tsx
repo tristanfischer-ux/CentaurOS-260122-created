@@ -1045,7 +1045,6 @@ export default function DoScreen() {
           visible={showSubmitModal}
           transparent
           animationType="slide"
-          presentationStyle="pageSheet"
           onRequestClose={() => setShowSubmitModal(false)}
         >
           <View className="flex-1 bg-black/70 justify-end">

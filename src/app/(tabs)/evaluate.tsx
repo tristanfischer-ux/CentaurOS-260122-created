@@ -1649,7 +1649,6 @@ export default function EvaluateScreen() {
         visible={showSubmissionModal}
         transparent
         animationType="slide"
-        presentationStyle="pageSheet"
         onRequestClose={() => setShowSubmissionModal(false)}
       >
         <View className="flex-1 bg-black/70 justify-end">
@@ -1975,7 +1974,6 @@ export default function EvaluateScreen() {
         visible={showPerformanceModal}
         transparent
         animationType="slide"
-        presentationStyle="pageSheet"
         onRequestClose={() => setShowPerformanceModal(false)}
       >
         <View className="flex-1 bg-black/70 justify-end">

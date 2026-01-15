@@ -1767,7 +1767,6 @@ export default function DecideScreen() {
         visible={showIdeasModal}
         transparent
         animationType="slide"
-        presentationStyle="pageSheet"
         onRequestClose={() => setShowIdeasModal(false)}
       >
         <View className="flex-1 bg-black/70 justify-end">
@@ -1859,7 +1858,6 @@ export default function DecideScreen() {
         visible={showCreateModal}
         transparent
         animationType="slide"
-        presentationStyle="pageSheet"
         onRequestClose={() => {
           setShowCreateModal(false);
           setSelectedSuggestion(null);
@@ -2111,7 +2109,6 @@ export default function DecideScreen() {
         visible={showApprovalQueue}
         transparent
         animationType="slide"
-        presentationStyle="pageSheet"
         onRequestClose={() => setShowApprovalQueue(false)}
       >
         <View className="flex-1 bg-black/70 justify-end">
@@ -2268,7 +2265,6 @@ export default function DecideScreen() {
         visible={showGetResourcesModal}
         transparent
         animationType="slide"
-        presentationStyle="pageSheet"
         onRequestClose={() => setShowGetResourcesModal(false)}
       >
         <View className="flex-1 bg-black/70 justify-end">

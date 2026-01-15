@@ -99,7 +99,7 @@ export function TimeTrackingModal({ visible, task, onClose }: TimeTrackingModalP
   const totalHours = timeEntries.reduce((sum, entry) => sum + entry.hours, 0);
 
   return (
-    <Modal visible={visible} animationType="slide" transparent presentationStyle="pageSheet" onRequestClose={onClose}>
+    <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={{ flex: 1 }}
