@@ -43,8 +43,9 @@ export function SwipeableOKRCard({
 
   const panGesture = Gesture.Pan()
     .enabled(!disabled)
-    .activeOffsetX([-10, 10])
-    .failOffsetY([-10, 10])
+    .activeOffsetX([-15, 15])
+    .failOffsetY([-20, 20])
+    .maxPointers(1)
     .onChange((e) => {
       // Only allow left swipe (negative values)
       if (e.translationX < 0) {
@@ -139,8 +140,9 @@ export function SwipeableTaskCard({
 
   const panGesture = Gesture.Pan()
     .enabled(!disabled)
-    .activeOffsetX([-10, 10])
-    .failOffsetY([-10, 10])
+    .activeOffsetX([-15, 15])
+    .failOffsetY([-20, 20])
+    .maxPointers(1)
     .onChange((e) => {
       // Only allow left swipe (negative values)
       if (e.translationX < 0) {
