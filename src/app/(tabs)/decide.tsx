@@ -959,14 +959,6 @@ export default function DecideScreen() {
         </View>
       </LinearGradient>
 
-      {/* Resource Bar - Team with Squares */}
-      <ResourceBar
-        workspaceId={currentWorkspace?.id || ''}
-        onPersonPress={(person) => setSelectedMemberForAssign(selectedMemberForAssign === person.id ? null : person.id)}
-        selectedPersonId={selectedMemberForAssign || undefined}
-        compact
-      />
-
       <ScrollView className="flex-1 px-5 py-4">
         {/* Company Aim Banner */}
         {currentWorkspace && (
@@ -1186,22 +1178,16 @@ export default function DecideScreen() {
                               taskId={plan.id}
                               onSwipeLeft={handleTaskSwipeLeft}
                               onPress={() => {
-                                if (selectedMemberForAssign) {
-                                  handleAssignMember(plan.id, selectedMemberForAssign);
-                                } else {
-                                  // Open task allocation modal
-                                  setSelectedTaskForAllocation(plan);
-                                  setShowTaskAllocationModal(true);
-                                }
+                                // Always open task allocation modal
+                                setSelectedTaskForAllocation(plan);
+                                setShowTaskAllocationModal(true);
                               }}
                             >
                               <View
                                 className={`bg-white dark:bg-slate-800 border rounded-xl p-3 ${
-                                  selectedMemberForAssign
-                                    ? 'border-purple-400 dark:border-purple-600 border-2'
-                                    : draggingTaskId === plan.id
-                                      ? 'border-purple-400 dark:border-purple-500'
-                                      : 'border-gray-200 dark:border-slate-700'
+                                  draggingTaskId === plan.id
+                                    ? 'border-purple-400 dark:border-purple-500'
+                                    : 'border-gray-200 dark:border-slate-700'
                                 }`}
                               >
                                 <View className="flex-row items-start justify-between mb-2">
