@@ -49,6 +49,7 @@ function TappableSquare({
   isSelectedTask,
   onPress,
   disabled,
+  isAvailable,
 }: {
   index: number;
   filled: boolean;
@@ -57,6 +58,7 @@ function TappableSquare({
   isSelectedTask: boolean;
   onPress: () => void;
   disabled: boolean;
+  isAvailable: boolean;
 }) {
   const scale = useSharedValue(1);
 
@@ -74,33 +76,36 @@ function TappableSquare({
   };
 
   const getBgColor = () => {
-    if (allocatedToTask && isSelectedTask) {
+    if (isSelectedTask) {
       // This square is allocated to the currently selected task
-      return 'bg-purple-500';
+      return overtime ? 'bg-purple-400' : 'bg-purple-500';
     }
     if (filled) {
       // Allocated to another task
-      return overtime ? 'bg-amber-400' : 'bg-emerald-500';
+      return overtime ? 'bg-emerald-400/60' : 'bg-emerald-500';
     }
-    // Available
-    return overtime ? 'bg-amber-200/30' : 'bg-slate-700';
+    // Available - overtime is dimmed
+    return overtime ? 'bg-slate-800/50' : 'bg-slate-700';
   };
 
   const getBorderStyle = () => {
-    if (isSelectedTask && !disabled) {
-      return 'border border-purple-400';
+    if (!disabled && isAvailable && !isSelectedTask) {
+      return 'border border-slate-600';
     }
-    return '';
+    if (isSelectedTask) {
+      return 'border border-purple-300';
+    }
+    return overtime ? 'border border-slate-700/50' : '';
   };
 
   return (
     <Pressable onPress={handlePress} disabled={disabled}>
       <Animated.View
-        style={animatedStyle}
-        className={`w-6 h-6 rounded ${getBgColor()} ${getBorderStyle()} items-center justify-center`}
+        style={[animatedStyle, { width: 18, height: 18, borderRadius: 3, opacity: overtime && !filled && !isSelectedTask ? 0.4 : 1 }]}
+        className={`${getBgColor()} ${getBorderStyle()} items-center justify-center`}
       >
-        {allocatedToTask && isSelectedTask && (
-          <Text className="text-white text-[8px] font-bold">✓</Text>
+        {isSelectedTask && (
+          <Text className="text-white text-[7px] font-bold">✓</Text>
         )}
       </Animated.View>
     </Pressable>
@@ -122,23 +127,6 @@ function PersonRow({
   taskAllocations: Map<string, { personId: string; squares: number }[]>;
 }) {
   const maxSquares = person.baseSquaresPerWeek + (person.overtimeEnabled ? person.overtimeSquaresPerWeek : 0);
-  const availableSquares = maxSquares - person.allocatedSquares;
-
-  // Find which task each square is allocated to
-  const getSquareAllocation = (squareIndex: number): { taskId: string; isForSelectedTask: boolean } | null => {
-    let currentIndex = 0;
-
-    for (const [taskId, allocations] of taskAllocations) {
-      const personAlloc = allocations.find(a => a.personId === person.id);
-      if (personAlloc) {
-        if (squareIndex >= currentIndex && squareIndex < currentIndex + personAlloc.squares) {
-          return { taskId, isForSelectedTask: taskId === selectedTaskId };
-        }
-        currentIndex += personAlloc.squares;
-      }
-    }
-    return null;
-  };
 
   // Get current allocation for selected task
   const getCurrentAllocationForTask = () => {
@@ -151,25 +139,35 @@ function PersonRow({
 
   const currentTaskAllocation = getCurrentAllocationForTask();
 
+  // Calculate how many squares are used by THIS task vs OTHER tasks
+  const squaresForSelectedTask = currentTaskAllocation;
+  const squaresForOtherTasks = person.allocatedSquares - currentTaskAllocation;
+  const availableSquares = maxSquares - person.allocatedSquares;
+
   const handleSquarePress = (index: number) => {
     if (!selectedTaskId) return;
 
-    const allocation = getSquareAllocation(index);
+    // Determine what this square represents
+    const isAllocatedToSelectedTask = index < squaresForSelectedTask;
+    const isAllocatedToOtherTask = index >= squaresForSelectedTask && index < person.allocatedSquares;
+    const isAvailable = index >= person.allocatedSquares && index < maxSquares;
 
-    if (allocation?.isForSelectedTask) {
-      // Deallocate one square
+    if (isAllocatedToSelectedTask) {
+      // Clicking on a square allocated to selected task - remove it
       if (currentTaskAllocation > 1) {
         onAllocate(person.id, currentTaskAllocation - 1);
       } else {
         onDeallocate(person.id);
       }
-    } else if (!allocation && index < maxSquares) {
-      // Allocate one more square
-      if (index < person.allocatedSquares + (maxSquares - person.allocatedSquares)) {
-        onAllocate(person.id, currentTaskAllocation + 1);
-      }
+    } else if (isAvailable) {
+      // Clicking on available square - add to selected task
+      onAllocate(person.id, currentTaskAllocation + 1);
     }
+    // Can't click on squares allocated to other tasks
   };
+
+  // Round cost to nearest £100
+  const roundedCost = Math.round(person.costPerSquare / 100) * 100;
 
   return (
     <Animated.View
@@ -177,12 +175,12 @@ function PersonRow({
       className="flex-row items-center py-3 border-b border-slate-700/50"
     >
       {/* Person Info - Left */}
-      <View className="flex-row items-center w-28">
+      <View className="flex-row items-center w-24">
         <View
-          className="w-10 h-10 rounded-full items-center justify-center mr-2"
+          className="w-8 h-8 rounded-full items-center justify-center mr-2"
           style={{ backgroundColor: person.avatarColor }}
         >
-          <Text className="text-white font-bold text-sm">{person.initials}</Text>
+          <Text className="text-white font-bold text-xs">{person.initials}</Text>
         </View>
         <View className="flex-1">
           <Text className="text-white font-medium text-xs" numberOfLines={1}>
@@ -197,49 +195,58 @@ function PersonRow({
         </View>
       </View>
 
-      {/* Squares Grid - Middle */}
-      <View className="flex-1 flex-row flex-wrap gap-1 px-2">
+      {/* Squares Grid - Middle - All on one row */}
+      <View className="flex-1 flex-row items-center gap-[3px] px-1">
         {/* Base squares */}
         {Array.from({ length: person.baseSquaresPerWeek }).map((_, i) => {
-          const allocation = getSquareAllocation(i);
+          const isForSelectedTask = i < squaresForSelectedTask;
+          const isForOtherTask = i >= squaresForSelectedTask && i < person.allocatedSquares;
+          const isFilled = i < person.allocatedSquares;
+          const isAvailableSquare = i >= person.allocatedSquares;
+
           return (
             <TappableSquare
               key={`base-${i}`}
               index={i}
-              filled={i < person.allocatedSquares}
+              filled={isFilled}
               overtime={false}
-              allocatedToTask={allocation !== null}
-              isSelectedTask={allocation?.isForSelectedTask || false}
+              allocatedToTask={isFilled}
+              isSelectedTask={isForSelectedTask}
               onPress={() => handleSquarePress(i)}
-              disabled={!selectedTaskId}
+              disabled={!selectedTaskId || isForOtherTask}
+              isAvailable={isAvailableSquare}
             />
           );
         })}
 
-        {/* Overtime squares */}
-        {person.overtimeEnabled &&
-          Array.from({ length: person.overtimeSquaresPerWeek }).map((_, i) => {
-            const realIndex = person.baseSquaresPerWeek + i;
-            const allocation = getSquareAllocation(realIndex);
-            return (
-              <TappableSquare
-                key={`ot-${i}`}
-                index={realIndex}
-                filled={realIndex < person.allocatedSquares}
-                overtime={true}
-                allocatedToTask={allocation !== null}
-                isSelectedTask={allocation?.isForSelectedTask || false}
-                onPress={() => handleSquarePress(realIndex)}
-                disabled={!selectedTaskId}
-              />
-            );
-          })}
+        {/* Overtime squares - always show them dimmed */}
+        {Array.from({ length: person.overtimeSquaresPerWeek }).map((_, i) => {
+          const realIndex = person.baseSquaresPerWeek + i;
+          const isForSelectedTask = realIndex < squaresForSelectedTask;
+          const isForOtherTask = realIndex >= squaresForSelectedTask && realIndex < person.allocatedSquares;
+          const isFilled = realIndex < person.allocatedSquares;
+          const isAvailableSquare = realIndex >= person.allocatedSquares && person.overtimeEnabled;
+
+          return (
+            <TappableSquare
+              key={`ot-${i}`}
+              index={realIndex}
+              filled={isFilled}
+              overtime={true}
+              allocatedToTask={isFilled}
+              isSelectedTask={isForSelectedTask}
+              onPress={() => handleSquarePress(realIndex)}
+              disabled={!selectedTaskId || isForOtherTask || !person.overtimeEnabled}
+              isAvailable={isAvailableSquare}
+            />
+          );
+        })}
       </View>
 
       {/* Cost - Right */}
-      <View className="items-end w-16">
+      <View className="items-end w-14">
         <Text className="text-white font-bold text-sm">
-          £{person.costPerSquare}
+          £{roundedCost}
         </Text>
         <Text className="text-slate-400 text-[10px]">per □</Text>
       </View>
@@ -454,7 +461,7 @@ export function CapacityAllocationView({
           {/* People Grid */}
           <ScrollView className="flex-1 px-5 py-4">
             {/* Legend */}
-            <View className="flex-row items-center justify-center mb-4 flex-wrap gap-4">
+            <View className="flex-row items-center justify-center mb-4 flex-wrap gap-3">
               <View className="flex-row items-center">
                 <View className="w-4 h-4 rounded bg-slate-700 mr-1.5" />
                 <Text className="text-slate-400 text-xs">Available</Text>
@@ -468,16 +475,16 @@ export function CapacityAllocationView({
                 <Text className="text-slate-400 text-xs">Selected Task</Text>
               </View>
               <View className="flex-row items-center">
-                <View className="w-4 h-4 rounded bg-amber-400 mr-1.5" />
-                <Text className="text-slate-400 text-xs">Overtime</Text>
+                <View className="w-4 h-4 rounded bg-slate-800/50 mr-1.5 opacity-40 border border-slate-700/50" />
+                <Text className="text-slate-400 text-xs">Extra Time</Text>
               </View>
             </View>
 
             {/* Column Headers */}
             <View className="flex-row items-center pb-2 mb-2 border-b border-slate-700">
-              <Text className="w-28 text-slate-500 text-xs font-semibold">PERSON</Text>
-              <Text className="flex-1 text-slate-500 text-xs font-semibold px-2">SQUARES / WEEK</Text>
-              <Text className="w-16 text-slate-500 text-xs font-semibold text-right">COST</Text>
+              <Text className="w-24 text-slate-500 text-xs font-semibold">PERSON</Text>
+              <Text className="flex-1 text-slate-500 text-xs font-semibold px-1">SQUARES / WEEK</Text>
+              <Text className="w-14 text-slate-500 text-xs font-semibold text-right">COST</Text>
             </View>
 
             {renderPersonSection(founders, 'Founders', PERSON_CLASS_COLORS.Founder)}
