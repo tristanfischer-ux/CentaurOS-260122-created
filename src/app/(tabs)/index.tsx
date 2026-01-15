@@ -638,10 +638,14 @@ export default function MissionControlHome() {
                           return sum + (allocation?.squaresPerWeek || 0);
                         }, 0);
 
-                      // Calculate capacity based on role
-                      const maxCapacity = member.role === 'Founder' ? 10 :
-                                         member.role === 'Apprentice' ? 10 :
-                                         (member.daysPerWeek || 2) * 2; // Execs: 2 TU per day
+                      // Calculate capacity based on role (including overtime to match header)
+                      const maxCapacity = member.role === 'Founder' || member.role === 'Apprentice' ? 15 :
+                                         (() => {
+                                           const daysPerWeek = member.daysPerWeek || 2;
+                                           const normalSquares = daysPerWeek * 2;
+                                           const overtimeSquares = Math.min((5 - daysPerWeek) * 2, 10);
+                                           return normalSquares + overtimeSquares;
+                                         })();
 
                       const utilizationPercent = maxCapacity > 0
                         ? Math.round((allocatedTU / maxCapacity) * 100)
