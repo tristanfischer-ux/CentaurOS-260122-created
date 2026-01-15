@@ -1964,151 +1964,171 @@ export default function CommunityScreen() {
         animationType="slide"
         onRequestClose={() => setSelectedAIAgent(null)}
       >
-        <View className="flex-1 bg-black/70 justify-end">
-          {selectedAIAgent && (
-            <View className="bg-white dark:bg-slate-900 rounded-t-3xl" style={{ maxHeight: '90%' }}>
-              {/* Header */}
-              <View className="px-6 pt-6 pb-4 border-b border-gray-200 dark:border-slate-800">
-                <View className="flex-row items-center justify-between mb-2">
-                  <View className="flex-row items-center flex-1">
-                    <View className="w-12 h-12 bg-cyan-500 rounded-xl items-center justify-center mr-3">
-                      <Bot size={24} color="#fff" />
+        <Pressable className="flex-1 bg-black/70" onPress={() => setSelectedAIAgent(null)}>
+          <View className="flex-1" />
+          <Pressable onPress={(e) => e.stopPropagation()} style={{ maxHeight: '90%' }}>
+            {selectedAIAgent && (
+              <View className="bg-white dark:bg-slate-950 rounded-t-3xl flex-1">
+                {/* Header */}
+                <View className="px-6 pt-6 pb-4 border-b border-gray-200 dark:border-slate-800">
+                  <View className="flex-row items-center justify-between">
+                    <Text className="text-gray-900 dark:text-white text-2xl font-bold">
+                      AI Agent Details
+                    </Text>
+                    <Pressable
+                      onPress={() => setSelectedAIAgent(null)}
+                      hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                      className="w-10 h-10 items-center justify-center rounded-full bg-gray-100 dark:bg-slate-900 active:opacity-70"
+                    >
+                      <X size={24} color="#64748b" />
+                    </Pressable>
+                  </View>
+                </View>
+
+                <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
+                  <View className="px-6 py-6">
+                    {/* Name and Provider */}
+                    <View className="mb-6">
+                      <View className="flex-row items-center mb-3">
+                        <View className="w-16 h-16 bg-cyan-500 rounded-xl items-center justify-center">
+                          <Bot size={32} color="#fff" />
+                        </View>
+                        <View className="ml-4 flex-1">
+                          <Text className="text-gray-900 dark:text-white text-2xl font-bold">
+                            {selectedAIAgent.name}
+                          </Text>
+                          <Text className="text-gray-600 dark:text-slate-400 text-base">
+                            {selectedAIAgent.provider}
+                          </Text>
+                        </View>
+                      </View>
                     </View>
-                    <View className="flex-1">
-                      <Text className="text-gray-900 dark:text-white text-xl font-bold" numberOfLines={1}>{selectedAIAgent.name}</Text>
-                      <Text className="text-gray-500 dark:text-slate-400 text-sm">{selectedAIAgent.provider}</Text>
+
+                    {/* Cost and Rating */}
+                    <View className="flex-row gap-3 mb-6">
+                      <View className="flex-1 bg-gray-100 dark:bg-slate-800 rounded-xl p-4">
+                        <Text className="text-gray-500 dark:text-slate-400 text-xs mb-1">Monthly Cost</Text>
+                        <Text className="text-emerald-600 dark:text-emerald-400 text-xl font-bold">
+                          £{selectedAIAgent.costPerMonth}
+                        </Text>
+                      </View>
+                      {selectedAIAgent.reviews && (
+                        <View className="flex-1 bg-gray-100 dark:bg-slate-800 rounded-xl p-4">
+                          <Text className="text-gray-500 dark:text-slate-400 text-xs mb-1">Rating</Text>
+                          <View className="flex-row items-center">
+                            <Star size={16} color="#f59e0b" fill="#f59e0b" />
+                            <Text className="text-amber-600 dark:text-amber-400 text-xl font-bold ml-1">
+                              {selectedAIAgent.reviews.rating}
+                            </Text>
+                          </View>
+                          <Text className="text-gray-500 dark:text-slate-500 text-xs">
+                            {selectedAIAgent.reviews.totalReviews} reviews
+                          </Text>
+                        </View>
+                      )}
+                      {selectedAIAgent.setup?.timeToValue && (
+                        <View className="flex-1 bg-gray-100 dark:bg-slate-800 rounded-xl p-4">
+                          <Text className="text-gray-500 dark:text-slate-400 text-xs mb-1">Setup Time</Text>
+                          <Text className="text-blue-600 dark:text-blue-400 text-xl font-bold">
+                            {selectedAIAgent.setup.timeToValue}
+                          </Text>
+                        </View>
+                      )}
+                    </View>
+
+                    {/* Description */}
+                    <View className="mb-6">
+                      <Text className="text-gray-900 dark:text-white font-bold text-lg mb-2">About</Text>
+                      <Text className="text-gray-700 dark:text-slate-300 text-base leading-6">
+                        {selectedAIAgent.description || selectedAIAgent.purpose}
+                      </Text>
+                    </View>
+
+                    {/* Business Functions */}
+                    <View className="mb-6">
+                      <Text className="text-gray-900 dark:text-white font-bold text-lg mb-3">Functions</Text>
+                      <View className="flex-row flex-wrap gap-2">
+                        {selectedAIAgent.functions.map((func, idx) => (
+                          <View key={idx} className="bg-blue-100 dark:bg-blue-900/30 px-3 py-2 rounded-lg">
+                            <Text className="text-blue-700 dark:text-blue-300 font-semibold">{func}</Text>
+                          </View>
+                        ))}
+                      </View>
+                    </View>
+
+                    {/* Capabilities */}
+                    <View className="mb-6">
+                      <Text className="text-gray-900 dark:text-white font-bold text-lg mb-3">Capabilities</Text>
+                      <View className="bg-gray-100 dark:bg-slate-800 rounded-xl p-4">
+                        {selectedAIAgent.capabilities.map((cap, idx) => (
+                          <View key={idx} className="flex-row items-start mb-2">
+                            <CheckCircle2 size={16} color="#10b981" />
+                            <Text className="text-gray-700 dark:text-slate-300 flex-1 ml-2">{cap}</Text>
+                          </View>
+                        ))}
+                      </View>
+                    </View>
+
+                    {/* Integrations */}
+                    <View className="mb-6">
+                      <Text className="text-gray-900 dark:text-white font-bold text-lg mb-3">Integrations</Text>
+                      <View className="flex-row flex-wrap gap-2">
+                        {selectedAIAgent.integrations.map((int, idx) => (
+                          <View key={idx} className="bg-gray-200 dark:bg-slate-700 px-3 py-2 rounded-lg">
+                            <Text className="text-gray-700 dark:text-slate-300">{int}</Text>
+                          </View>
+                        ))}
+                      </View>
+                    </View>
+
+                    {/* Setup Info */}
+                    {selectedAIAgent.setup && (
+                      <View className="mb-6">
+                        <Text className="text-gray-900 dark:text-white font-bold text-lg mb-3">Setup</Text>
+                        <View className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-4">
+                          {selectedAIAgent.setup.difficulty && (
+                            <View className="flex-row justify-between mb-2">
+                              <Text className="text-gray-600 dark:text-slate-400">Difficulty</Text>
+                              <Text className="text-amber-700 dark:text-amber-300 font-semibold">{selectedAIAgent.setup.difficulty}</Text>
+                            </View>
+                          )}
+                          {selectedAIAgent.setup.timeToValue && (
+                            <View className="flex-row justify-between">
+                              <Text className="text-gray-600 dark:text-slate-400">Time to Value</Text>
+                              <Text className="text-amber-700 dark:text-amber-300 font-semibold">{selectedAIAgent.setup.timeToValue}</Text>
+                            </View>
+                          )}
+                        </View>
+                      </View>
+                    )}
+
+                    {/* Website Link */}
+                    <View className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4 mb-6">
+                      <Text className="text-blue-700 dark:text-blue-300 font-semibold mb-1">Website</Text>
+                      <Text className="text-blue-600 dark:text-blue-400">{selectedAIAgent.website}</Text>
                     </View>
                   </View>
+                </ScrollView>
+
+                {/* Action Button */}
+                <View className="px-6 py-4 border-t border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-950">
                   <Pressable
                     onPress={() => {
-                      console.log('[Community] Closing AI modal');
+                      Alert.alert('Learn More', `Visit ${selectedAIAgent.website} to get started with ${selectedAIAgent.name}.`);
                       setSelectedAIAgent(null);
                     }}
-                    className="w-10 h-10 items-center justify-center rounded-full bg-gray-100 dark:bg-slate-800 active:opacity-70"
+                    className="bg-cyan-500 rounded-xl py-4 items-center active:opacity-70"
                   >
-                    <X size={24} color="#64748b" />
+                    <View className="flex-row items-center">
+                      <ArrowUpRight size={20} color="#fff" />
+                      <Text className="text-white font-bold text-base ml-2">Visit Website</Text>
+                    </View>
                   </Pressable>
                 </View>
               </View>
-
-              <ScrollView className="flex-1" showsVerticalScrollIndicator={true}>
-                <View className="px-6 py-4">
-                  {/* Cost and Rating */}
-                  <View className="flex-row gap-3 mb-6">
-                    <View className="flex-1 bg-gray-100 dark:bg-slate-800 rounded-xl p-4">
-                      <Text className="text-gray-500 dark:text-slate-400 text-xs mb-1">Monthly Cost</Text>
-                      <Text className="text-emerald-600 dark:text-emerald-400 text-2xl font-bold">
-                        £{selectedAIAgent.costPerMonth}
-                      </Text>
-                    </View>
-                    {selectedAIAgent.reviews && (
-                      <View className="flex-1 bg-gray-100 dark:bg-slate-800 rounded-xl p-4">
-                        <Text className="text-gray-500 dark:text-slate-400 text-xs mb-1">Rating</Text>
-                        <View className="flex-row items-center">
-                          <Star size={16} color="#f59e0b" fill="#f59e0b" />
-                          <Text className="text-amber-600 dark:text-amber-400 text-2xl font-bold ml-1">
-                            {selectedAIAgent.reviews.rating}
-                          </Text>
-                        </View>
-                        <Text className="text-gray-500 dark:text-slate-500 text-xs">
-                          {selectedAIAgent.reviews.totalReviews} reviews
-                        </Text>
-                      </View>
-                    )}
-                  </View>
-
-                  {/* Description */}
-                  <View className="mb-6">
-                    <Text className="text-gray-900 dark:text-white font-bold text-lg mb-2">About</Text>
-                    <Text className="text-gray-700 dark:text-slate-300 text-base leading-6">
-                      {selectedAIAgent.description || selectedAIAgent.purpose}
-                    </Text>
-                  </View>
-
-                  {/* Business Functions */}
-                  <View className="mb-6">
-                    <Text className="text-gray-900 dark:text-white font-bold text-lg mb-3">Functions</Text>
-                    <View className="flex-row flex-wrap gap-2">
-                      {selectedAIAgent.functions.map((func, idx) => (
-                        <View key={idx} className="bg-blue-100 dark:bg-blue-900/30 px-3 py-2 rounded-lg">
-                          <Text className="text-blue-700 dark:text-blue-300 font-semibold">{func}</Text>
-                        </View>
-                      ))}
-                    </View>
-                  </View>
-
-                  {/* Capabilities */}
-                  <View className="mb-6">
-                    <Text className="text-gray-900 dark:text-white font-bold text-lg mb-3">Capabilities</Text>
-                    <View className="bg-gray-100 dark:bg-slate-800 rounded-xl p-4">
-                      {selectedAIAgent.capabilities.map((cap, idx) => (
-                        <View key={idx} className="flex-row items-start mb-2">
-                          <CheckCircle2 size={14} color="#10b981" />
-                          <Text className="text-gray-700 dark:text-slate-300 flex-1 ml-2">{cap}</Text>
-                        </View>
-                      ))}
-                    </View>
-                  </View>
-
-                  {/* Integrations */}
-                  <View className="mb-6">
-                    <Text className="text-gray-900 dark:text-white font-bold text-lg mb-3">Integrations</Text>
-                    <View className="flex-row flex-wrap gap-2">
-                      {selectedAIAgent.integrations.map((int, idx) => (
-                        <View key={idx} className="bg-gray-200 dark:bg-slate-700 px-3 py-2 rounded-lg">
-                          <Text className="text-gray-700 dark:text-slate-300">{int}</Text>
-                        </View>
-                      ))}
-                    </View>
-                  </View>
-
-                  {/* Setup Info */}
-                  {selectedAIAgent.setup && (
-                    <View className="mb-6">
-                      <Text className="text-gray-900 dark:text-white font-bold text-lg mb-3">Setup</Text>
-                      <View className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-4">
-                        {selectedAIAgent.setup.difficulty && (
-                          <View className="flex-row justify-between mb-2">
-                            <Text className="text-gray-600 dark:text-slate-400">Difficulty</Text>
-                            <Text className="text-amber-700 dark:text-amber-300 font-semibold">{selectedAIAgent.setup.difficulty}</Text>
-                          </View>
-                        )}
-                        {selectedAIAgent.setup.timeToValue && (
-                          <View className="flex-row justify-between">
-                            <Text className="text-gray-600 dark:text-slate-400">Time to Value</Text>
-                            <Text className="text-amber-700 dark:text-amber-300 font-semibold">{selectedAIAgent.setup.timeToValue}</Text>
-                          </View>
-                        )}
-                      </View>
-                    </View>
-                  )}
-
-                  {/* Website Link */}
-                  <View className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4 mb-6">
-                    <Text className="text-blue-700 dark:text-blue-300 font-semibold mb-1">Website</Text>
-                    <Text className="text-blue-600 dark:text-blue-400">{selectedAIAgent.website}</Text>
-                  </View>
-                </View>
-              </ScrollView>
-
-              {/* Action Button */}
-              <View className="px-6 py-4 border-t border-gray-200 dark:border-slate-800">
-                <Pressable
-                  onPress={() => {
-                    Alert.alert('Learn More', `Visit ${selectedAIAgent.website} to get started with ${selectedAIAgent.name}.`);
-                    setSelectedAIAgent(null);
-                  }}
-                  className="bg-cyan-500 rounded-xl py-4 items-center active:opacity-70"
-                >
-                  <View className="flex-row items-center">
-                    <ArrowUpRight size={20} color="#fff" />
-                    <Text className="text-white font-bold text-base ml-2">Visit Website</Text>
-                  </View>
-                </Pressable>
-              </View>
-            </View>
-          )}
-        </View>
+            )}
+          </Pressable>
+        </Pressable>
       </Modal>
 
       {/* Candidate Comparison Modal */}
