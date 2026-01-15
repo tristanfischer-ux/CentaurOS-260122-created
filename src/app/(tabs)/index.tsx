@@ -61,6 +61,7 @@ import {
 
 // Components
 import { HelpModal, HelpButton, type HelpContent } from '@/components/HelpModal';
+import { BusinessImprovements } from '@/components/BusinessImprovements';
 import { autoSeedDemoDataIfNeeded } from '@/lib/seed-demo-data';
 import { getWeekCounterInfo } from '@/lib/time-utils';
 import { useMarketplaceRequestsStore } from '@/lib/state/marketplace-requests-store';
@@ -1502,6 +1503,11 @@ export default function MissionControlHome() {
               <ChevronRight size={20} color="#64748b" />
             </Pressable>
           </View>
+        </View>
+
+        {/* Business Improvements - Elite Consulting Insights */}
+        <View className="pt-6">
+          <BusinessImprovements isDark={false} />
         </View>
 
         {/* Essential Tools Section */}

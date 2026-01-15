@@ -14,6 +14,7 @@ import {
   ChevronRight, Award, Zap, Brain, Building2, LineChart, Gauge
 } from 'lucide-react-native';
 import { useAppStore } from '@/lib/state/app-store';
+import { useBusinessImprovementsStore, type BusinessImprovement, type ConsultingFirm, type InsightCategory } from '@/lib/state/business-improvements-store';
 import { useTheme } from '@/lib/ThemeContext';
 import { generateReport } from '@/lib/reports/generator';
 import { exportBoardPack, exportReportAsCSV, exportReportAsJSON } from '@/lib/reports/export-board-pack';
@@ -104,6 +105,8 @@ export default function ReportsScreen() {
   const userId = currentUser?.id;
   const role = currentMembership?.role;
 
+  const setImprovements = useBusinessImprovementsStore((s) => s.setImprovements);
+
   const initialPeriod = (params.period as ReportPeriod) || 'week';
   const [period, setPeriod] = useState<ReportPeriod>(initialPeriod);
   const [generatedReport, setGeneratedReport] = useState<Report | null>(null);
@@ -158,6 +161,154 @@ export default function ReportsScreen() {
     },
     onSuccess: (report) => {
       setGeneratedReport(report);
+
+      // Extract all consulting insights and store them for Home tab
+      if (role === 'Founder' && report.data) {
+        const data = report.data as FounderReportData;
+        const improvements: BusinessImprovement[] = [];
+
+        // Helper to assign firm based on category (simulating different consulting perspectives)
+        const getFirmForCategory = (category: InsightCategory, index: number): ConsultingFirm => {
+          const firmsByCategory: Record<InsightCategory, ConsultingFirm[]> = {
+            strategy: ['McKinsey', 'BCG', 'Bain'],
+            operations: ['McKinsey', 'Deloitte', 'Oliver Wyman'],
+            finance: ['BCG', 'Deloitte', 'PwC'],
+            talent: ['Mercer', 'Deloitte', 'Accenture'],
+            process: ['Deloitte', 'Accenture', 'KPMG'],
+            overview: ['McKinsey', 'BCG', 'Bain'],
+          };
+          const firms = firmsByCategory[category];
+          return firms[index % firms.length];
+        };
+
+        // Extract from recommendations array (overview/general)
+        if (data.recommendations && Array.isArray(data.recommendations)) {
+          data.recommendations.forEach((rec: any, idx: number) => {
+            improvements.push({
+              id: `overview-${rec.id || idx}`,
+              category: 'overview',
+              firm: getFirmForCategory('overview', idx),
+              priority: rec.priority || 2,
+              title: rec.title,
+              rationale: rec.rationale || '',
+              expectedImpact: rec.expectedImpact || '',
+              impactMetrics: rec.impactMetrics,
+              owner: rec.owner || 'Founder',
+              timeline: rec.timeline || 'TBD',
+              estimatedEffort: rec.estimatedEffort,
+              convertedToTask: false,
+              createdAt: report.generatedAt,
+            });
+          });
+        }
+
+        // Extract from consulting analysis sections
+        if (data.consultingAnalysis) {
+          // Operations recommendations
+          if (data.consultingAnalysis.operations?.recommendations && Array.isArray(data.consultingAnalysis.operations.recommendations)) {
+            data.consultingAnalysis.operations.recommendations.forEach((rec: any, idx: number) => {
+              improvements.push({
+                id: `operations-${idx}`,
+                category: 'operations',
+                firm: getFirmForCategory('operations', idx),
+                priority: rec.priority === 'critical' ? 1 : rec.priority === 'high' ? 2 : 3,
+                title: rec.title || rec.recommendation,
+                rationale: rec.rationale || rec.insight || '',
+                expectedImpact: rec.impact || rec.expectedImpact || '',
+                owner: 'Founder',
+                timeline: rec.timeline || 'TBD',
+                estimatedEffort: rec.effort,
+                convertedToTask: false,
+                createdAt: report.generatedAt,
+              });
+            });
+          }
+
+          // Talent insights
+          if (data.consultingAnalysis.talent?.insights && Array.isArray(data.consultingAnalysis.talent.insights)) {
+            data.consultingAnalysis.talent.insights.forEach((insight: any, idx: number) => {
+              if (insight.actionRequired || insight.severity === 'critical' || insight.severity === 'warning') {
+                improvements.push({
+                  id: `talent-${idx}`,
+                  category: 'talent',
+                  firm: getFirmForCategory('talent', idx),
+                  priority: insight.severity === 'critical' ? 1 : insight.severity === 'warning' ? 2 : 3,
+                  title: insight.title || insight.insight,
+                  rationale: insight.description || insight.insight || '',
+                  expectedImpact: insight.recommendation || '',
+                  owner: 'Founder',
+                  timeline: 'TBD',
+                  convertedToTask: false,
+                  createdAt: report.generatedAt,
+                });
+              }
+            });
+          }
+
+          // Process recommendations
+          if (data.consultingAnalysis.process?.recommendations && Array.isArray(data.consultingAnalysis.process.recommendations)) {
+            data.consultingAnalysis.process.recommendations.forEach((rec: any, idx: number) => {
+              improvements.push({
+                id: `process-${idx}`,
+                category: 'process',
+                firm: getFirmForCategory('process', idx),
+                priority: 2,
+                title: rec.title || rec.recommendation,
+                rationale: rec.rationale || '',
+                expectedImpact: rec.impact || rec.benefit || '',
+                owner: 'Founder',
+                timeline: rec.timeline || 'TBD',
+                estimatedEffort: rec.effort,
+                convertedToTask: false,
+                createdAt: report.generatedAt,
+              });
+            });
+          }
+
+          // Strategy recommendations
+          if (data.consultingAnalysis.strategy?.recommendations && Array.isArray(data.consultingAnalysis.strategy.recommendations)) {
+            data.consultingAnalysis.strategy.recommendations.forEach((rec: any, idx: number) => {
+              improvements.push({
+                id: `strategy-${idx}`,
+                category: 'strategy',
+                firm: getFirmForCategory('strategy', idx),
+                priority: rec.priority === 'critical' ? 1 : rec.priority === 'high' ? 2 : 3,
+                title: rec.title || rec.recommendation,
+                rationale: rec.rationale || '',
+                expectedImpact: rec.impact || rec.expectedImpact || '',
+                owner: 'Founder',
+                timeline: rec.timeline || 'TBD',
+                estimatedEffort: rec.effort,
+                convertedToTask: false,
+                createdAt: report.generatedAt,
+              });
+            });
+          }
+
+          // Finance recommendations
+          if (data.consultingAnalysis.finance?.recommendations && Array.isArray(data.consultingAnalysis.finance.recommendations)) {
+            data.consultingAnalysis.finance.recommendations.forEach((rec: any, idx: number) => {
+              improvements.push({
+                id: `finance-${idx}`,
+                category: 'finance',
+                firm: getFirmForCategory('finance', idx),
+                priority: rec.priority === 'critical' ? 1 : rec.priority === 'high' ? 2 : 3,
+                title: rec.title || rec.recommendation,
+                rationale: rec.rationale || '',
+                expectedImpact: rec.impact || rec.expectedImpact || '',
+                owner: 'Founder',
+                timeline: rec.timeline || 'TBD',
+                estimatedEffort: rec.effort,
+                convertedToTask: false,
+                createdAt: report.generatedAt,
+              });
+            });
+          }
+        }
+
+        // Store improvements
+        setImprovements(improvements);
+      }
     },
     onError: (error: Error) => {
       Alert.alert('Error', error.message);

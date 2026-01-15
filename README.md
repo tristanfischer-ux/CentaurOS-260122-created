@@ -1484,8 +1484,15 @@ Previous Updates:
 
 ✅ **Home Tab Header Fixed** - The gradient ribbon now extends edge-to-edge to the top of the screen without clashing with the iOS status bar (time, WiFi, battery). Applied to all three role views (Founder Command Center, Executive Dashboard, Apprentice Workspace). The header gradient now properly sits behind the status bar while content remains appropriately spaced.
 
-### Current Status: ✅ **Armory Days Per Week Selector Fixed**
+### Current Status: ✅ **Business Improvements - Elite Consulting Insights**
 
+✅ **Business Improvements**: Strategic recommendations from McKinsey, BCG, Bain, Deloitte, and more now surface on Home tab
+  - Auto-syncs with Reports Dashboard when you generate consulting analysis
+  - Shows Critical, Important, and Growth Opportunity recommendations with clear priorities
+  - One-click conversion to actionable tasks in Decide tab
+  - Firm attribution badges (McKinsey for strategy, Mercer for talent, etc.)
+  - Full explanation of rationale, expected impact, timeline, and effort
+  - Refreshes automatically when you return to Home tab after generating new reports
 ✅ **Armory Fix**: Days per week selector for fractional executives now properly updates and shows visual feedback immediately
 ✅ **Reports Dashboard**: Analysis now auto-generates on page load and when switching between 7/30/90 day periods
 ✅ **Make Tab Fix**: Changed supplier/AI agent status badges from light text on transparent backgrounds to white text on solid colors for excellent readability
