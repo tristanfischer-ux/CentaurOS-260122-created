@@ -1,5 +1,5 @@
 import { View, Text, ScrollView, Pressable, Dimensions } from 'react-native';
-import { useMemo, useRef, useEffect } from 'react';
+import { useMemo, useRef, useEffect, useState } from 'react';
 import { type WorkPlan } from '@/lib/state/work-plan-store';
 import { type OrganizationMember } from '@/lib/organization-seed';
 
@@ -51,6 +51,15 @@ export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress
   // Refs for auto-scrolling to today
   const headerScrollRef = useRef<ScrollView>(null);
   const contentScrollRef = useRef<ScrollView>(null);
+
+  // Filter state
+  const [selectedFunction, setSelectedFunction] = useState<string>('All');
+
+  // Get unique functions from workPlans
+  const functions = useMemo(() => {
+    const uniqueFunctions = new Set(workPlans.map(wp => wp.function));
+    return ['All', ...Array.from(uniqueFunctions).sort()];
+  }, [workPlans]);
 
   // Helper to get initials from name
   const getInitials = (name: string): string => {
@@ -119,17 +128,18 @@ export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress
     return result;
   }, [today]);
 
-  // Filter active tasks (not completed or abandoned)
+  // Filter active tasks (not completed or abandoned) and by selected function
   const activeTasks = useMemo(() => {
     return workPlans
       .filter(wp => wp.status !== 'completed' && wp.status !== 'abandoned')
+      .filter(wp => selectedFunction === 'All' || wp.function === selectedFunction)
       .sort((a, b) => {
         // Sort by due date
         const aDate = a.dueDate ? new Date(a.dueDate).getTime() : Infinity;
         const bDate = b.dueDate ? new Date(b.dueDate).getTime() : Infinity;
         return aDate - bDate;
       });
-  }, [workPlans]);
+  }, [workPlans, selectedFunction]);
 
   // Calculate task position and width for each task
   const taskBars = useMemo(() => {
@@ -165,7 +175,7 @@ export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress
   const screenWidth = Dimensions.get('window').width;
   const WEEK_WIDTH = screenWidth / 3; // Divide screen width by 3 weeks to fill entire width
   const TASK_HEIGHT = 32; // Height of each task bar
-  const MAX_VISIBLE_TASKS = 5; // Show 5 tasks at a time
+  const MAX_VISIBLE_TASKS = 8; // Show 8 tasks at a time (increased from 5)
 
   // Auto-scroll to show today at far left when component mounts
   useEffect(() => {
@@ -182,7 +192,7 @@ export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress
     <View className="bg-white dark:bg-slate-900 border-b-2 border-gray-200 dark:border-slate-700">
       {/* Header */}
       <View className="px-4 pt-2 pb-1.5 border-b border-gray-200 dark:border-slate-700">
-        <View className="flex-row items-center justify-between">
+        <View className="flex-row items-center justify-between mb-2">
           <Text className="text-gray-900 dark:text-white text-xs font-bold">
             TASK TIMELINE
           </Text>
@@ -190,6 +200,37 @@ export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress
             {activeTasks.length} active task{activeTasks.length !== 1 ? 's' : ''}
           </Text>
         </View>
+
+        {/* Function Filter Buttons */}
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={{ flexGrow: 0 }}
+        >
+          <View className="flex-row gap-2">
+            {functions.map((func) => (
+              <Pressable
+                key={func}
+                onPress={() => setSelectedFunction(func)}
+                className={`px-3 py-1.5 rounded-full ${
+                  selectedFunction === func
+                    ? 'bg-blue-500 dark:bg-blue-600'
+                    : 'bg-gray-200 dark:bg-slate-700'
+                }`}
+              >
+                <Text
+                  className={`text-[10px] font-semibold ${
+                    selectedFunction === func
+                      ? 'text-white'
+                      : 'text-gray-700 dark:text-gray-300'
+                  }`}
+                >
+                  {func}
+                </Text>
+              </Pressable>
+            ))}
+          </View>
+        </ScrollView>
       </View>
 
       {/* Timeline Content */}

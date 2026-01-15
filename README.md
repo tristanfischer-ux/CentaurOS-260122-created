@@ -17,6 +17,10 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
 
 ### Decide Tab Enhancements (Latest)
 - **Mini Gantt Chart Timeline**: Interactive weekly timeline with synchronized scrolling
+  - **Function Filter Toggle**: Filter tasks by function (All, Marketing, Sales, Finance, etc.) with pill-style toggle buttons
+  - **3-Week View**: Shows current week, next week, and week after - spanning full screen width for optimal space
+  - **Dynamic Week Width**: Each week column automatically adjusts to fill exactly 1/3 of screen width
+  - **Expanded Task View**: Shows 8 tasks at a time (increased from 5) with vertical scrolling
   - **Direct Resource Allocation**: Click any task in the timeline to select it, then click team members in the resource pool to allocate them
   - **Visual Selection Feedback**: Selected tasks are highlighted with blue border
   - **Allocation Workflow**:
@@ -34,11 +38,9 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
   - **Synced Scrolling**: Timeline header and task content scroll together horizontally
   - **Auto-scrolls to today**: Opens with current week ("This Week") at far left
   - Visual task bars color-coded by status (not-started, in-progress, blocked)
-  - Shows 13 weeks: 6 weeks past, current week (highlighted), 6 weeks future
-  - **Vertical scrolling**: Shows 5 tasks at a time, scroll to see more
   - Smart start date calculation based on estimated time units
-- **Optimized Resource Pool**: Compact height showing approximately 4 team members
-  - Reduced height from 240px to 200px for better space utilization
+- **Expanded Resource Pool**: Shows 8 team members at a time (up from 4)
+  - Increased height from 200px to 320px for better visibility
   - Scroll up/down to see your entire team
   - Visual scroll indicator for easy navigation
   - Maintains full capacity view with allocation status
