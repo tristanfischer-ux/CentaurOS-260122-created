@@ -47,7 +47,6 @@ import { useWorkPlanStore, type WorkPlan } from '@/lib/state/work-plan-store';
 import { useOrganizationStore } from '@/lib/state/organization-store';
 import { HelpModal, HelpButton, type HelpContent } from '@/components/HelpModal';
 import { SquaresDisplay } from '@/components/SquaresDisplay';
-import { ResourceBar } from '@/components/ResourceBar';
 import { UnifiedTaskAllocationModal } from '@/components/UnifiedTaskAllocationModal';
 import { useResourceStore, getTeamSizeEfficiency } from '@/lib/state/resource-store';
 
@@ -700,12 +699,6 @@ export default function EvaluateScreen() {
           </View>
         </View>
       </LinearGradient>
-
-      {/* Resource Bar */}
-      <ResourceBar
-        workspaceId={currentWorkspace?.id || ''}
-        compact
-      />
 
       {/* View Tabs - Below Header */}
       <View className="px-5 py-3 bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-800">
