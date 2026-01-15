@@ -2034,6 +2034,14 @@ export default function HomeScreen() {
             {/* Quick Actions */}
             <View className="flex-row gap-3 mb-4">
               <Pressable
+                onPress={() => router.push('/tech-tree')}
+                className="flex-1 bg-gradient-to-r from-purple-600 to-blue-600 rounded-xl p-4 active:opacity-70"
+                style={{ backgroundColor: '#7c3aed' }}
+              >
+                <Trophy size={24} color="#fff" />
+                <Text className="text-white font-bold text-sm mt-2">Tech Tree</Text>
+              </Pressable>
+              <Pressable
                 onPress={() => router.push('/(tabs)/evaluate')}
                 className="flex-1 bg-blue-500 rounded-xl p-4 active:opacity-70"
               >
@@ -2047,6 +2055,8 @@ export default function HomeScreen() {
                 <Calendar size={24} color="#fff" />
                 <Text className="text-white font-bold text-sm mt-2">Calendar</Text>
               </Pressable>
+            </View>
+            <View className="flex-row gap-3 mb-4">
               <Pressable
                 onPress={() => router.push('/messages')}
                 className="flex-1 bg-cyan-500 rounded-xl p-4 active:opacity-70"
@@ -2608,6 +2618,14 @@ export default function HomeScreen() {
             {/* Quick Actions */}
             <View className="flex-row gap-3 mb-4">
               <Pressable
+                onPress={() => router.push('/tech-tree')}
+                className="flex-1 bg-gradient-to-r from-purple-600 to-blue-600 rounded-xl p-4 active:opacity-70"
+                style={{ backgroundColor: '#7c3aed' }}
+              >
+                <Trophy size={24} color="#fff" />
+                <Text className="text-white font-bold text-sm mt-2">Tech Tree</Text>
+              </Pressable>
+              <Pressable
                 onPress={() => router.push('/(tabs)/do')}
                 className="flex-1 bg-emerald-500 rounded-xl p-4 active:opacity-70"
               >
@@ -2621,6 +2639,8 @@ export default function HomeScreen() {
                 <Calendar size={24} color="#fff" />
                 <Text className="text-white font-bold text-sm mt-2">Calendar</Text>
               </Pressable>
+            </View>
+            <View className="flex-row gap-3 mb-4">
               <Pressable
                 onPress={() => router.push('/messages')}
                 className="flex-1 bg-cyan-500 rounded-xl p-4 active:opacity-70"
