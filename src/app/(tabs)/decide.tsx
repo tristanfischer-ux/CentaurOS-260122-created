@@ -35,12 +35,14 @@ const DECIDE_HELP: HelpContent = {
   subtitle: 'Allocate resources to tasks',
   description: 'The Decide tab is where you manage all tasks, allocate team resources, and track progress. Tasks are organized into Active (with resources) and Queued (awaiting resources).',
   tips: [
+    'Tap the ⚡ Auto-Allocate button to intelligently assign available resources to tasks',
     'Tap a task to see details and allocate resources from the pool above',
     'Tap team members in the resource pool, then tap tasks to allocate their time',
     'Swipe left on tasks to delete and free up resources',
     'Use the Ideas button for task suggestions',
   ],
   quickActions: [
+    { label: 'Auto-Allocate', description: 'Automatically distribute available capacity to tasks' },
     { label: 'Resource Pool', description: 'View team capacity and available time units' },
     { label: 'Create Task', description: 'Add a new task to the queue' },
     { label: 'Task Ideas', description: 'Browse suggested tasks by category' },
@@ -677,6 +679,131 @@ export default function DecideScreen() {
     }
   }, [selectedTaskForAllocation?.id]);
 
+  // Auto-allocate resources to tasks intelligently
+  const handleAutoAllocate = useCallback(() => {
+    const orgMembers = useOrganizationStore.getState().members.filter(m => m.status === 'active');
+
+    // Calculate available capacity for each member
+    const memberAvailability = orgMembers.map(member => {
+      const totalCapacity = member.role === 'Founder' || member.role === 'Apprentice'
+        ? 10
+        : (member.daysPerWeek || 2) * 2;
+
+      const allocated = workPlans
+        .filter(wp => wp.status !== 'completed' && wp.status !== 'abandoned')
+        .reduce((total, wp) => {
+          const allocation = wp.allocations.find(a => a.memberId === member.id);
+          return total + (allocation?.squaresPerWeek || 0);
+        }, 0);
+
+      const available = totalCapacity - allocated;
+      const costPerTU = member.role === 'Founder'
+        ? 960
+        : member.role === 'FractionalExec'
+          ? Math.round((member.costPerDay || 800) / 2)
+          : 70;
+
+      return {
+        id: member.id,
+        name: member.name,
+        role: member.role,
+        function: member.function,
+        available,
+        costPerTU,
+      };
+    }).filter(m => m.available > 0); // Only members with availability
+
+    // Get tasks that need resources (prioritize active tasks with partial allocation, then queued tasks)
+    const tasksNeedingResources = workPlans
+      .filter(wp =>
+        wp.status !== 'completed' &&
+        wp.status !== 'abandoned'
+      )
+      .map(wp => {
+        const currentAllocation = wp.allocations?.reduce((sum, a) => sum + a.squaresPerWeek, 0) || 0;
+        const needed = wp.estimatedTimeUnits - currentAllocation;
+        const hasPartialAllocation = currentAllocation > 0 && needed > 0;
+        const isQueued = !wp.assignedMemberIds || wp.assignedMemberIds.length === 0;
+
+        return {
+          task: wp,
+          needed,
+          hasPartialAllocation,
+          isQueued,
+          priority: hasPartialAllocation ? 1 : isQueued ? 2 : 3, // Active partial > Queued > Active full
+        };
+      })
+      .filter(t => t.needed > 0)
+      .sort((a, b) => a.priority - b.priority); // Sort by priority
+
+    if (tasksNeedingResources.length === 0) {
+      Alert.alert('Auto-Allocate', 'All tasks are fully allocated!');
+      return;
+    }
+
+    if (memberAvailability.length === 0) {
+      Alert.alert('Auto-Allocate', 'No available capacity to allocate!');
+      return;
+    }
+
+    let allocationsAdded = 0;
+
+    // Allocate resources
+    tasksNeedingResources.forEach(({ task, needed }) => {
+      // Find members matching the task function first
+      const matchingMembers = memberAvailability
+        .filter(m => m.function === task.function && m.available > 0)
+        .sort((a, b) => a.costPerTU - b.costPerTU); // Prefer lower cost
+
+      // Then find other available members
+      const otherMembers = memberAvailability
+        .filter(m => m.function !== task.function && m.available > 0)
+        .sort((a, b) => a.costPerTU - b.costPerTU);
+
+      const availableMembers = [...matchingMembers, ...otherMembers];
+
+      let remaining = needed;
+
+      availableMembers.forEach(member => {
+        if (remaining <= 0 || member.available <= 0) return;
+
+        const allocateAmount = Math.min(remaining, member.available, 2); // Allocate max 2 TUs at a time for distribution
+
+        const existingAlloc = task.allocations.find(a => a.memberId === member.id);
+        const newAllocations = existingAlloc
+          ? task.allocations.map(a =>
+              a.memberId === member.id
+                ? { ...a, squaresPerWeek: a.squaresPerWeek + allocateAmount }
+                : a
+            )
+          : [
+              ...task.allocations,
+              {
+                memberId: member.id,
+                memberName: member.name,
+                squaresPerWeek: allocateAmount,
+                costPerSquare: member.costPerTU,
+              }
+            ];
+
+        updateWorkPlan(task.id, {
+          allocations: newAllocations,
+          assignedMemberIds: newAllocations.map(a => a.memberId),
+          status: 'in-progress' as const,
+        });
+
+        member.available -= allocateAmount;
+        remaining -= allocateAmount;
+        allocationsAdded++;
+      });
+    });
+
+    Alert.alert(
+      'Auto-Allocate Complete',
+      `Successfully allocated resources to tasks!\n\n${allocationsAdded} allocation${allocationsAdded !== 1 ? 's' : ''} added.`
+    );
+  }, [workPlans, updateWorkPlan]);
+
   // Confirm moving OKR to queue or abandoning task
   const confirmMoveToQueue = useCallback(() => {
     if (pendingQueueOKR) {
@@ -1131,6 +1258,12 @@ export default function DecideScreen() {
           </View>
           <View className="flex-row gap-2">
             <HelpButton onPress={() => setShowHelp(true)} />
+            <Pressable
+              onPress={handleAutoAllocate}
+              className="bg-emerald-500/90 rounded-xl p-2.5 active:opacity-70"
+            >
+              <Zap size={20} color="#fff" />
+            </Pressable>
             <Pressable
               onPress={() => setShowCreateModal(true)}
               className="bg-white/20 rounded-xl p-2.5 active:opacity-70"
