@@ -445,6 +445,11 @@ export default function OKRPlannerScreen() {
 
         {/* Resource Deployment */}
         <View className="px-5 pt-6">
+          {/* DEBUG MARKER */}
+          <View className="bg-green-500 px-3 py-2 rounded-lg mb-3">
+            <Text className="text-white text-sm font-bold text-center">✓ TAP-TO-ADD SQUARES INTERFACE ACTIVE</Text>
+          </View>
+
           <View className="flex-row items-center gap-2 mb-4">
             <Users size={20} color="#8b5cf6" />
             <Text className="text-white text-lg font-semibold">
