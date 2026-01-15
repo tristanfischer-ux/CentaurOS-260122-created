@@ -159,9 +159,9 @@ export function ResourcePoolHeader({ selectedPersonId, onPersonSelect }: Resourc
         </View>
       </View>
 
-      {/* Resource List - Vertical scroll */}
+      {/* Resource List - Vertical scroll - Show 5 at a time, scroll for more */}
       <ScrollView
-        className="max-h-[280px]"
+        style={{ maxHeight: 56 * 5 }}
         showsVerticalScrollIndicator={true}
       >
         {members.map((member) => {

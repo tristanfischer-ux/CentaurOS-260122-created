@@ -1,5 +1,5 @@
 import { View, Text, ScrollView, Pressable } from 'react-native';
-import { useMemo } from 'react';
+import { useMemo, useRef, useEffect } from 'react';
 import { type WorkPlan } from '@/lib/state/work-plan-store';
 import { Calendar } from 'lucide-react-native';
 
@@ -39,6 +39,10 @@ const STATUS_COLORS: Record<string, { bg: string; border: string; text: string }
 export function MiniGanttChart({ workPlans, onTaskPress }: MiniGanttChartProps) {
   const today = useMemo(() => new Date(), []);
   const currentWeek = useMemo(() => getWeekNumber(today), [today]);
+
+  // Refs for auto-scrolling to today
+  const headerScrollRef = useRef<ScrollView>(null);
+  const contentScrollRef = useRef<ScrollView>(null);
 
   // Generate 13 weeks: 6 weeks before, current week, 6 weeks after
   const weeks = useMemo(() => {
@@ -107,6 +111,18 @@ export function MiniGanttChart({ workPlans, onTaskPress }: MiniGanttChartProps) 
 
   const WEEK_WIDTH = 80; // Width of each week column in pixels
   const TASK_HEIGHT = 32; // Height of each task bar
+  const MAX_VISIBLE_TASKS = 5; // Show 5 tasks at a time
+
+  // Auto-scroll to show today at far left when component mounts
+  useEffect(() => {
+    // Scroll to position where current week (index 6) appears at the far left
+    const scrollPosition = WEEK_WIDTH * 6;
+
+    setTimeout(() => {
+      headerScrollRef.current?.scrollTo({ x: scrollPosition, y: 0, animated: true });
+      contentScrollRef.current?.scrollTo({ x: scrollPosition, y: 0, animated: true });
+    }, 100);
+  }, []);
 
   return (
     <View className="mb-4 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-2xl overflow-hidden">
@@ -127,9 +143,9 @@ export function MiniGanttChart({ workPlans, onTaskPress }: MiniGanttChartProps) 
       <View className="relative">
         {/* Week Headers */}
         <ScrollView
+          ref={headerScrollRef}
           horizontal
           showsHorizontalScrollIndicator={true}
-          contentOffset={{ x: WEEK_WIDTH * 5.5, y: 0 }} // Start slightly before current week
           className="border-b border-gray-200 dark:border-slate-700"
         >
           <View className="flex-row">
@@ -158,22 +174,25 @@ export function MiniGanttChart({ workPlans, onTaskPress }: MiniGanttChartProps) 
           </View>
         </ScrollView>
 
-        {/* Task Bars */}
+        {/* Task Bars - Horizontal and Vertical Scroll */}
         <ScrollView
+          ref={contentScrollRef}
           horizontal
           showsHorizontalScrollIndicator={false}
-          contentOffset={{ x: WEEK_WIDTH * 5.5, y: 0 }} // Start slightly before current week
-          className="max-h-[280px]"
         >
-          <View style={{ width: WEEK_WIDTH * weeks.length }}>
-            {/* Current week indicator line */}
-            <View
-              className="absolute top-0 bottom-0 w-0.5 bg-blue-500 dark:bg-blue-400 opacity-50"
-              style={{ left: WEEK_WIDTH * 6 + WEEK_WIDTH / 2 }}
-            />
+          <ScrollView
+            showsVerticalScrollIndicator={true}
+            style={{ maxHeight: TASK_HEIGHT * MAX_VISIBLE_TASKS + 16 }} // 5 tasks + padding
+          >
+            <View style={{ width: WEEK_WIDTH * weeks.length }}>
+              {/* Current week indicator line */}
+              <View
+                className="absolute top-0 bottom-0 w-0.5 bg-blue-500 dark:bg-blue-400 opacity-50"
+                style={{ left: WEEK_WIDTH * 6 + WEEK_WIDTH / 2 }}
+              />
 
-            {/* Task bars */}
-            <View className="py-2">
+              {/* Task bars */}
+              <View className="py-2">
               {taskBars.map((bar, idx) => {
                 const colors = STATUS_COLORS[bar.task.status] || STATUS_COLORS['not-started'];
                 const leftPosition = WEEK_WIDTH * (bar.startOffset + 6); // +6 to account for weeks before
@@ -227,6 +246,7 @@ export function MiniGanttChart({ workPlans, onTaskPress }: MiniGanttChartProps) 
               )}
             </View>
           </View>
+        </ScrollView>
         </ScrollView>
 
         {/* Legend */}
