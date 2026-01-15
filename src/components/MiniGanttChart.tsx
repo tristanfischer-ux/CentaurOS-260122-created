@@ -97,10 +97,10 @@ export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress
     return cumulativeCost;
   };
 
-  // Generate 13 weeks: 6 weeks before, current week, 6 weeks after
+  // Generate 3 weeks: 1 week before, current week, 1 week after
   const weeks = useMemo(() => {
     const result = [];
-    for (let i = -6; i <= 6; i++) {
+    for (let i = -1; i <= 1; i++) {
       const weekDate = new Date(today);
       weekDate.setDate(today.getDate() + i * 7);
       const weekStart = getWeekStart(weekDate);
