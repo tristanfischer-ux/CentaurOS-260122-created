@@ -80,7 +80,7 @@ export default function OKRPlannerScreen() {
     }
   }, [okr?.id, currentWorkspace?.id]);
 
-  // Get ALL active members (not just relevant function)
+  // Get ALL active members (not filtered by function - show everyone!)
   const allMembers = useMemo(() => {
     return members.filter((m) => m.status === 'active');
   }, [members]);
