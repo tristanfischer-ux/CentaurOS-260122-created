@@ -9,23 +9,29 @@
  * - Squares (filled = allocated, empty = available)
  * - Overtime toggle
  * - Cost per square
+ *
+ * CLICKABLE: Opens expanded capacity allocation view
  */
 
 import { View, Text, Pressable, ScrollView } from 'react-native';
 import { useState } from 'react';
-import { Plus, Clock, DollarSign, Zap } from 'lucide-react-native';
+import { Plus, Clock, DollarSign, Zap, ChevronRight } from 'lucide-react-native';
+import * as Haptics from 'expo-haptics';
 import {
   useResourceStore,
   type PersonResource,
   type PersonClass,
   PERSON_CLASS_COLORS,
 } from '@/lib/state/resource-store';
+import { CapacityAllocationView } from './CapacityAllocationView';
 
 interface ResourceBarProps {
   workspaceId: string;
   onPersonPress?: (person: PersonResource) => void;
   selectedPersonId?: string;
   compact?: boolean;
+  selectedTaskId?: string | null;
+  onTaskSelect?: (taskId: string | null) => void;
 }
 
 // Single square component
@@ -239,7 +245,10 @@ export function ResourceBar({
   onPersonPress,
   selectedPersonId,
   compact = false,
+  selectedTaskId,
+  onTaskSelect,
 }: ResourceBarProps) {
+  const [showAllocationView, setShowAllocationView] = useState(false);
   const people = useResourceStore(s => s.people);
   const getTotalCapacity = useResourceStore(s => s.getTotalCapacity);
 
@@ -252,170 +261,209 @@ export function ResourceBar({
     ? Math.round((capacity.allocated / capacity.total) * 100)
     : 0;
 
+  const handleOpenAllocationView = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    setShowAllocationView(true);
+  };
+
   if (compact) {
     return (
-      <View className="bg-slate-800 rounded-xl p-3">
-        {/* Capacity Summary */}
-        <View className="flex-row items-center justify-between mb-3">
-          <Text className="text-white/70 text-xs font-semibold">TEAM CAPACITY</Text>
-          <View className="flex-row items-center">
-            <View className="flex-row items-center gap-1 mr-3">
-              {Array.from({ length: Math.min(capacity.total, 10) }).map((_, i) => (
-                <View
-                  key={i}
-                  className={`w-2 h-2 rounded-sm ${
-                    i < capacity.allocated ? 'bg-emerald-500' : 'bg-slate-600'
-                  }`}
+      <>
+        <Pressable
+          onPress={handleOpenAllocationView}
+          className="bg-slate-800 rounded-xl p-3 active:bg-slate-700"
+        >
+          {/* Capacity Summary - Clickable Header */}
+          <View className="flex-row items-center justify-between mb-3">
+            <View className="flex-row items-center">
+              <Text className="text-white/70 text-xs font-semibold">TEAM CAPACITY</Text>
+              <ChevronRight size={14} color="#94a3b8" style={{ marginLeft: 4 }} />
+            </View>
+            <View className="flex-row items-center">
+              <View className="flex-row items-center gap-1 mr-3">
+                {Array.from({ length: Math.min(capacity.total, 10) }).map((_, i) => (
+                  <View
+                    key={i}
+                    className={`w-2 h-2 rounded-sm ${
+                      i < capacity.allocated ? 'bg-emerald-500' : 'bg-slate-600'
+                    }`}
+                  />
+                ))}
+                {capacity.total > 10 && (
+                  <Text className="text-slate-400 text-[10px]">+{capacity.total - 10}</Text>
+                )}
+              </View>
+              <Text className="text-white font-bold text-sm">
+                {utilizationPercent}%
+              </Text>
+            </View>
+          </View>
+
+          {/* People Row */}
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} scrollEnabled={false}>
+            <View className="flex-row items-start">
+              {/* Founders */}
+              {founders.map(person => (
+                <PersonCard
+                  key={person.id}
+                  person={person}
+                  onPress={() => onPersonPress?.(person)}
+                  isSelected={selectedPersonId === person.id}
+                  compact
                 />
               ))}
-              {capacity.total > 10 && (
-                <Text className="text-slate-400 text-[10px]">+{capacity.total - 10}</Text>
+
+              {/* Divider */}
+              {founders.length > 0 && executives.length > 0 && (
+                <View className="w-px h-12 bg-slate-600 mr-3" />
               )}
+
+              {/* Executives */}
+              {executives.map(person => (
+                <PersonCard
+                  key={person.id}
+                  person={person}
+                  onPress={() => onPersonPress?.(person)}
+                  isSelected={selectedPersonId === person.id}
+                  compact
+                />
+              ))}
+
+              {/* Divider */}
+              {executives.length > 0 && apprentices.length > 0 && (
+                <View className="w-px h-12 bg-slate-600 mr-3" />
+              )}
+
+              {/* Apprentices */}
+              {apprentices.map(person => (
+                <PersonCard
+                  key={person.id}
+                  person={person}
+                  onPress={() => onPersonPress?.(person)}
+                  isSelected={selectedPersonId === person.id}
+                  compact
+                />
+              ))}
             </View>
-            <Text className="text-white font-bold text-sm">
-              {utilizationPercent}%
-            </Text>
-          </View>
-        </View>
+          </ScrollView>
+        </Pressable>
 
-        {/* People Row */}
-        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          <View className="flex-row items-start">
-            {/* Founders */}
-            {founders.map(person => (
-              <PersonCard
-                key={person.id}
-                person={person}
-                onPress={() => onPersonPress?.(person)}
-                isSelected={selectedPersonId === person.id}
-                compact
-              />
-            ))}
-
-            {/* Divider */}
-            {founders.length > 0 && executives.length > 0 && (
-              <View className="w-px h-12 bg-slate-600 mr-3" />
-            )}
-
-            {/* Executives */}
-            {executives.map(person => (
-              <PersonCard
-                key={person.id}
-                person={person}
-                onPress={() => onPersonPress?.(person)}
-                isSelected={selectedPersonId === person.id}
-                compact
-              />
-            ))}
-
-            {/* Divider */}
-            {executives.length > 0 && apprentices.length > 0 && (
-              <View className="w-px h-12 bg-slate-600 mr-3" />
-            )}
-
-            {/* Apprentices */}
-            {apprentices.map(person => (
-              <PersonCard
-                key={person.id}
-                person={person}
-                onPress={() => onPersonPress?.(person)}
-                isSelected={selectedPersonId === person.id}
-                compact
-              />
-            ))}
-          </View>
-        </ScrollView>
-      </View>
+        {/* Capacity Allocation View Modal */}
+        <CapacityAllocationView
+          visible={showAllocationView}
+          onClose={() => setShowAllocationView(false)}
+          selectedTaskId={selectedTaskId}
+          onTaskSelect={onTaskSelect}
+          workspaceId={workspaceId}
+        />
+      </>
     );
   }
 
   return (
-    <View className="bg-white dark:bg-slate-950">
-      {/* Header */}
-      <View className="flex-row items-center justify-between px-4 py-3 border-b border-gray-100 dark:border-slate-800">
-        <View>
-          <Text className="text-gray-500 dark:text-slate-400 text-xs font-semibold">
-            TEAM RESOURCES
-          </Text>
-          <Text className="text-gray-900 dark:text-white font-bold text-lg">
-            {capacity.allocated}/{capacity.total} squares allocated
-          </Text>
-        </View>
-        <View className="items-end">
-          <Text className="text-gray-500 dark:text-slate-400 text-xs">Utilization</Text>
-          <View className="flex-row items-center">
-            <View
-              className={`w-3 h-3 rounded-full mr-1.5 ${
-                utilizationPercent > 80
-                  ? 'bg-emerald-500'
-                  : utilizationPercent > 50
-                    ? 'bg-amber-500'
-                    : 'bg-red-500'
-              }`}
-            />
-            <Text className="text-gray-900 dark:text-white font-bold text-xl">
-              {utilizationPercent}%
+    <>
+      <Pressable
+        onPress={handleOpenAllocationView}
+        className="bg-white dark:bg-slate-950 active:bg-gray-50 dark:active:bg-slate-900"
+      >
+        {/* Header */}
+        <View className="flex-row items-center justify-between px-4 py-3 border-b border-gray-100 dark:border-slate-800">
+          <View>
+            <View className="flex-row items-center">
+              <Text className="text-gray-500 dark:text-slate-400 text-xs font-semibold">
+                TEAM RESOURCES
+              </Text>
+              <ChevronRight size={14} color="#94a3b8" style={{ marginLeft: 4 }} />
+            </View>
+            <Text className="text-gray-900 dark:text-white font-bold text-lg">
+              {capacity.allocated}/{capacity.total} squares allocated
             </Text>
           </View>
+          <View className="items-end">
+            <Text className="text-gray-500 dark:text-slate-400 text-xs">Utilization</Text>
+            <View className="flex-row items-center">
+              <View
+                className={`w-3 h-3 rounded-full mr-1.5 ${
+                  utilizationPercent > 80
+                    ? 'bg-emerald-500'
+                    : utilizationPercent > 50
+                      ? 'bg-amber-500'
+                      : 'bg-red-500'
+                }`}
+              />
+              <Text className="text-gray-900 dark:text-white font-bold text-xl">
+                {utilizationPercent}%
+              </Text>
+            </View>
+          </View>
         </View>
-      </View>
 
-      {/* People by Class */}
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} className="px-4 py-3">
-        <View className="flex-row">
-          {/* Founders Section */}
-          {founders.length > 0 && (
-            <View className="mr-4">
-              <ClassHeader personClass="Founder" count={founders.length} />
-              <View className="flex-row">
-                {founders.map(person => (
-                  <PersonCard
-                    key={person.id}
-                    person={person}
-                    onPress={() => onPersonPress?.(person)}
-                    isSelected={selectedPersonId === person.id}
-                  />
-                ))}
+        {/* People by Class */}
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} className="px-4 py-3" scrollEnabled={false}>
+          <View className="flex-row">
+            {/* Founders Section */}
+            {founders.length > 0 && (
+              <View className="mr-4">
+                <ClassHeader personClass="Founder" count={founders.length} />
+                <View className="flex-row">
+                  {founders.map(person => (
+                    <PersonCard
+                      key={person.id}
+                      person={person}
+                      onPress={() => onPersonPress?.(person)}
+                      isSelected={selectedPersonId === person.id}
+                    />
+                  ))}
+                </View>
               </View>
-            </View>
-          )}
+            )}
 
-          {/* Executives Section */}
-          {executives.length > 0 && (
-            <View className="mr-4">
-              <ClassHeader personClass="Executive" count={executives.length} />
-              <View className="flex-row">
-                {executives.map(person => (
-                  <PersonCard
-                    key={person.id}
-                    person={person}
-                    onPress={() => onPersonPress?.(person)}
-                    isSelected={selectedPersonId === person.id}
-                  />
-                ))}
+            {/* Executives Section */}
+            {executives.length > 0 && (
+              <View className="mr-4">
+                <ClassHeader personClass="Executive" count={executives.length} />
+                <View className="flex-row">
+                  {executives.map(person => (
+                    <PersonCard
+                      key={person.id}
+                      person={person}
+                      onPress={() => onPersonPress?.(person)}
+                      isSelected={selectedPersonId === person.id}
+                    />
+                  ))}
+                </View>
               </View>
-            </View>
-          )}
+            )}
 
-          {/* Apprentices Section */}
-          {apprentices.length > 0 && (
-            <View>
-              <ClassHeader personClass="Apprentice" count={apprentices.length} />
-              <View className="flex-row">
-                {apprentices.map(person => (
-                  <PersonCard
-                    key={person.id}
-                    person={person}
-                    onPress={() => onPersonPress?.(person)}
-                    isSelected={selectedPersonId === person.id}
-                  />
-                ))}
+            {/* Apprentices Section */}
+            {apprentices.length > 0 && (
+              <View>
+                <ClassHeader personClass="Apprentice" count={apprentices.length} />
+                <View className="flex-row">
+                  {apprentices.map(person => (
+                    <PersonCard
+                      key={person.id}
+                      person={person}
+                      onPress={() => onPersonPress?.(person)}
+                      isSelected={selectedPersonId === person.id}
+                    />
+                  ))}
+                </View>
               </View>
-            </View>
-          )}
-        </View>
-      </ScrollView>
-    </View>
+            )}
+          </View>
+        </ScrollView>
+      </Pressable>
+
+      {/* Capacity Allocation View Modal */}
+      <CapacityAllocationView
+        visible={showAllocationView}
+        onClose={() => setShowAllocationView(false)}
+        selectedTaskId={selectedTaskId}
+        onTaskSelect={onTaskSelect}
+        workspaceId={workspaceId}
+      />
+    </>
   );
 }
 
