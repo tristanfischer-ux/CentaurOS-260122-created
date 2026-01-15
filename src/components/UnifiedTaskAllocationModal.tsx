@@ -316,38 +316,30 @@ export function UnifiedTaskAllocationModal({ visible, onClose, workPlan }: Props
     if (!workPlan) return;
 
     Alert.alert(
-      'Abandon Task',
+      'Delete Task & Free Resources',
       workPlan.tusExpended > 0
-        ? `This task has ${workPlan.tusExpended}□ already spent. It will be moved to the incomplete list showing wasted resources.`
-        : 'This task has no resources spent. It will be removed from the queue.',
+        ? `This task has ${workPlan.tusExpended}□ already spent. All allocated resources will be freed and the task will be moved to abandoned tasks.`
+        : 'This task will be deleted and all allocated resources will be freed.',
       [
         { text: 'Cancel', style: 'cancel' },
         {
-          text: 'Abandon',
+          text: 'Delete',
           style: 'destructive',
           onPress: () => {
-            if (workPlan.tusExpended > 0) {
-              updateWorkPlan(workPlan.id, {
-                status: 'blocked',
-                allocations: [],
-                assignedMemberIds: [],
-                allocatedTimeUnitsPerWeek: 0,
-                auditRecord: {
-                  abandonedAt: new Date().toISOString(),
-                  totalTUsSpent: workPlan.tusExpended,
-                  totalCost: calculations.costToDate,
-                  totalWeeks: 0,
-                  reason: 'Abandoned by user',
-                },
-              });
-            } else {
-              // No resources spent - just remove
-              updateWorkPlan(workPlan.id, {
-                status: 'blocked',
-                allocations: [],
-                assignedMemberIds: [],
-              });
-            }
+            // Always use 'abandoned' status to properly free resources
+            updateWorkPlan(workPlan.id, {
+              status: 'abandoned',
+              allocations: [],
+              assignedMemberIds: [],
+              allocatedTimeUnitsPerWeek: 0,
+              auditRecord: {
+                abandonedAt: new Date().toISOString(),
+                totalTUsSpent: workPlan.tusExpended,
+                totalCost: calculations.costToDate,
+                totalWeeks: 0,
+                reason: 'Deleted by user - resources freed',
+              },
+            });
             onClose();
           },
         },
@@ -906,8 +898,8 @@ export function UnifiedTaskAllocationModal({ visible, onClose, workPlan }: Props
                 >
                   <View className="flex-row items-center">
                     <Archive size={18} color="#ef4444" />
-                    <Text className="text-red-600 dark:text-red-400 font-semibold ml-2">
-                      Abandon
+                    <Text className="text-red-600 dark:text-red-400 font-semibold ml-2 text-xs">
+                      Delete & Free
                     </Text>
                   </View>
                 </Pressable>
@@ -920,7 +912,7 @@ export function UnifiedTaskAllocationModal({ visible, onClose, workPlan }: Props
                   <View className="flex-row items-center">
                     <CheckCircle2 size={18} color="white" />
                     <Text className="text-white font-semibold ml-2">
-                      Save Allocation
+                      Allocate Resources
                     </Text>
                   </View>
                 </Pressable>
