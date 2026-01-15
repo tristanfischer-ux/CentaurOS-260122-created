@@ -1,5 +1,5 @@
 import { View, Text, Pressable, ScrollView } from 'react-native';
-import { useState } from 'react';
+import { useMemo } from 'react';
 import { User, Zap } from 'lucide-react-native';
 import { useOrganizationStore } from '@/lib/state/organization-store';
 import { type OrganizationMember } from '@/lib/organization-seed';
@@ -10,7 +10,7 @@ interface ResourcePoolHeaderProps {
   onPersonSelect: (personId: string) => void;
 }
 
-const ROLE_COLORS = {
+const ROLE_COLORS: Record<string, string> = {
   Founder: '#8b5cf6',     // Purple
   FractionalExec: '#3b82f6', // Blue
   Apprentice: '#10b981',  // Green
@@ -36,8 +36,15 @@ const getAllocatedTUs = (memberId: string, workPlans: WorkPlan[]): number => {
 };
 
 export function ResourcePoolHeader({ selectedPersonId, onPersonSelect }: ResourcePoolHeaderProps) {
-  const members = useOrganizationStore(s => s.members.filter(m => m.status === 'active'));
+  // Select raw arrays, then filter with useMemo to avoid infinite loop
+  const allMembers = useOrganizationStore(s => s.members);
   const workPlans = useWorkPlanStore(s => s.workPlans);
+
+  // Memoize the filtered members to avoid creating new array each render
+  const members = useMemo(() =>
+    allMembers.filter(m => m.status === 'active'),
+    [allMembers]
+  );
 
   return (
     <View className="bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-700">

@@ -228,6 +228,7 @@ export default function DecideScreen() {
   }, [resourcePeople.length, currentWorkspace]);
 
   // Calculate unallocated TUs for warning
+  // Note: getTotalCapacity is a stable function from Zustand, no need to include in deps
   const capacityInfo = useMemo(() => {
     const capacity = getTotalCapacity();
     const unallocatedTUs = capacity.available;
@@ -238,7 +239,8 @@ export default function DecideScreen() {
       : 100;
     const wastedPotentialCost = Math.round(unallocatedTUs * avgCostPerTU);
     return { unallocatedTUs, utilizationPercent, wastedPotentialCost, total: capacity.total, allocated: capacity.allocated };
-  }, [getTotalCapacity, resourcePeople]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [resourcePeople]);
 
   // Get team members grouped by role
   const teamMembers = useMemo(() => {
