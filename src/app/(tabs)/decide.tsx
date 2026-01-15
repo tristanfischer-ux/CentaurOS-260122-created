@@ -1030,51 +1030,6 @@ export default function DecideScreen() {
           />
         )}
 
-        {/* Unallocated TU Warning Banner */}
-        {capacityInfo.unallocatedTUs > 0 && capacityInfo.utilizationPercent < 80 && (
-          <View className="bg-amber-50 dark:bg-amber-900/20 border border-amber-300 dark:border-amber-700 rounded-xl p-4 mb-4">
-            <View className="flex-row items-start">
-              <View className="w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-800/30 items-center justify-center mr-3">
-                <AlertTriangle size={20} color="#f59e0b" />
-              </View>
-              <View className="flex-1">
-                <Text className="text-amber-800 dark:text-amber-200 font-bold text-sm mb-1">
-                  {capacityInfo.unallocatedTUs} TUs Unallocated This Week
-                </Text>
-                <Text className="text-amber-700 dark:text-amber-300 text-xs mb-2">
-                  Your team has capacity that isn't being used. Unallocated TUs represent a cost of ~£{capacityInfo.wastedPotentialCost.toLocaleString()}/week in underutilized resources.
-                </Text>
-                <View className="flex-row items-center gap-3 mb-2">
-                  <View className="flex-row items-center gap-1">
-                    {Array.from({ length: Math.min(capacityInfo.total, 10) }).map((_, i) => (
-                      <View
-                        key={i}
-                        className={`w-2 h-2 rounded-sm ${
-                          i < capacityInfo.allocated ? 'bg-emerald-500' : 'bg-amber-400'
-                        }`}
-                      />
-                    ))}
-                    {capacityInfo.total > 10 && (
-                      <Text className="text-amber-600 text-[10px]">+{capacityInfo.total - 10}</Text>
-                    )}
-                  </View>
-                  <Text className="text-amber-700 dark:text-amber-300 text-xs font-semibold">
-                    {capacityInfo.utilizationPercent}% utilized
-                  </Text>
-                </View>
-                {queuedOKRs.length > 0 && (
-                  <View className="bg-amber-100/50 dark:bg-amber-800/20 rounded-lg px-3 py-2 flex-row items-center">
-                    <Lightbulb size={14} color="#d97706" />
-                    <Text className="text-amber-700 dark:text-amber-300 text-xs ml-2 flex-1">
-                      You have {queuedOKRs.length} OKR{queuedOKRs.length !== 1 ? 's' : ''} in queue. Consider allocating resources to start one.
-                    </Text>
-                  </View>
-                )}
-              </View>
-            </View>
-          </View>
-        )}
-
         {/* Function Filter */}
         <View className="mb-3">
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
