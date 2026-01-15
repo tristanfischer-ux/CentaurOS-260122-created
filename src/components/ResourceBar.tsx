@@ -23,7 +23,6 @@ import {
   type PersonClass,
   PERSON_CLASS_COLORS,
 } from '@/lib/state/resource-store';
-import { CapacityAllocationView } from './CapacityAllocationView';
 
 interface ResourceBarProps {
   workspaceId: string;
@@ -248,7 +247,6 @@ export function ResourceBar({
   selectedTaskId,
   onTaskSelect,
 }: ResourceBarProps) {
-  const [showAllocationView, setShowAllocationView] = useState(false);
   const people = useResourceStore(s => s.people);
   const getTotalCapacity = useResourceStore(s => s.getTotalCapacity);
 
@@ -261,18 +259,11 @@ export function ResourceBar({
     ? Math.round((capacity.allocated / capacity.total) * 100)
     : 0;
 
-  const handleOpenAllocationView = () => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    setShowAllocationView(true);
-  };
-
   if (compact) {
     return (
-      <>
-        <Pressable
-          onPress={handleOpenAllocationView}
-          className="bg-slate-800 rounded-xl p-3 active:bg-slate-700"
-        >
+      <Pressable
+        className="bg-slate-800 rounded-xl p-3"
+      >
           {/* Capacity Summary - Clickable Header */}
           <View className="flex-row items-center justify-between mb-3">
             <View className="flex-row items-center">
@@ -347,25 +338,13 @@ export function ResourceBar({
             </View>
           </ScrollView>
         </Pressable>
-
-        {/* Capacity Allocation View Modal */}
-        <CapacityAllocationView
-          visible={showAllocationView}
-          onClose={() => setShowAllocationView(false)}
-          selectedTaskId={selectedTaskId}
-          onTaskSelect={onTaskSelect}
-          workspaceId={workspaceId}
-        />
-      </>
     );
   }
 
   return (
-    <>
-      <Pressable
-        onPress={handleOpenAllocationView}
-        className="bg-white dark:bg-slate-950 active:bg-gray-50 dark:active:bg-slate-900"
-      >
+    <Pressable
+      className="bg-white dark:bg-slate-950"
+    >
         {/* Header */}
         <View className="flex-row items-center justify-between px-4 py-3 border-b border-gray-100 dark:border-slate-800">
           <View>
@@ -454,16 +433,6 @@ export function ResourceBar({
           </View>
         </ScrollView>
       </Pressable>
-
-      {/* Capacity Allocation View Modal */}
-      <CapacityAllocationView
-        visible={showAllocationView}
-        onClose={() => setShowAllocationView(false)}
-        selectedTaskId={selectedTaskId}
-        onTaskSelect={onTaskSelect}
-        workspaceId={workspaceId}
-      />
-    </>
   );
 }
 

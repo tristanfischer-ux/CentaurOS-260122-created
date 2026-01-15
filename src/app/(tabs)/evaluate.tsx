@@ -48,6 +48,7 @@ import { useOrganizationStore } from '@/lib/state/organization-store';
 import { HelpModal, HelpButton, type HelpContent } from '@/components/HelpModal';
 import { SquaresDisplay } from '@/components/SquaresDisplay';
 import { ResourceBar } from '@/components/ResourceBar';
+import { UnifiedTaskAllocationModal } from '@/components/UnifiedTaskAllocationModal';
 import { useResourceStore, getTeamSizeEfficiency } from '@/lib/state/resource-store';
 
 const EVALUATE_HELP: HelpContent = {
@@ -353,6 +354,8 @@ export default function EvaluateScreen() {
   const [selectedPerformance, setSelectedPerformance] = useState<PerformanceMetrics | null>(null);
   const [reviewNotes, setReviewNotes] = useState('');
   const [qualityScore, setQualityScore] = useState(80);
+  const [showAllocationModal, setShowAllocationModal] = useState(false);
+  const [allocationPlan, setAllocationPlan] = useState<WorkPlan | null>(null);
 
   const functions: BusinessFunction[] = ['Marketing', 'Sales', 'Engineering', 'Ops', 'Finance', 'Admin'];
   const isFounder = currentMembership?.role === 'Founder';
@@ -901,7 +904,10 @@ export default function EvaluateScreen() {
                 return (
                   <Animated.View key={plan.id} entering={FadeInDown.delay(idx * 50).duration(300)}>
                     <Pressable
-                      onPress={() => togglePlan(plan.id)}
+                      onPress={() => {
+                        setAllocationPlan(plan);
+                        setShowAllocationModal(true);
+                      }}
                       className={`bg-white dark:bg-slate-900 rounded-xl p-4 mb-3 border ${riskColors.border} active:opacity-90`}
                     >
                       <View className="flex-row items-start justify-between mb-2">
@@ -979,7 +985,10 @@ export default function EvaluateScreen() {
                   return (
                     <Animated.View key={plan.id} entering={FadeInDown.delay(idx * 30).duration(300)}>
                       <Pressable
-                        onPress={() => togglePlan(plan.id)}
+                        onPress={() => {
+                        setAllocationPlan(plan);
+                        setShowAllocationModal(true);
+                      }}
                         className={`bg-white dark:bg-slate-900 rounded-xl p-4 mb-3 border border-blue-200 dark:border-blue-800 active:opacity-90`}
                       >
                         <View className="flex-row items-start justify-between mb-2">
@@ -1071,7 +1080,10 @@ export default function EvaluateScreen() {
                   return (
                     <Animated.View key={plan.id} entering={FadeInDown.delay(idx * 30).duration(300)}>
                       <Pressable
-                        onPress={() => togglePlan(plan.id)}
+                        onPress={() => {
+                        setAllocationPlan(plan);
+                        setShowAllocationModal(true);
+                      }}
                         className="bg-white dark:bg-slate-900 rounded-xl p-4 mb-3 border border-gray-200 dark:border-slate-800 active:opacity-90"
                       >
                         <View className="flex-row items-start justify-between mb-2">
@@ -1313,7 +1325,10 @@ export default function EvaluateScreen() {
                   return (
                     <Animated.View key={plan.id} entering={FadeInDown.delay(idx * 30).duration(300)}>
                       <Pressable
-                        onPress={() => togglePlan(plan.id)}
+                        onPress={() => {
+                        setAllocationPlan(plan);
+                        setShowAllocationModal(true);
+                      }}
                         className={`bg-white dark:bg-slate-900 rounded-xl mb-3 border ${riskColors.border} overflow-hidden active:opacity-90`}
                       >
                         <View className="p-4">
@@ -2115,6 +2130,18 @@ export default function EvaluateScreen() {
           </View>
         </View>
       </Modal>
+
+      {/* Unified TU Allocation Modal */}
+      {allocationPlan && (
+        <UnifiedTaskAllocationModal
+          visible={showAllocationModal}
+          onClose={() => {
+            setShowAllocationModal(false);
+            setAllocationPlan(null);
+          }}
+          workPlan={allocationPlan}
+        />
+      )}
     </View>
   );
 }

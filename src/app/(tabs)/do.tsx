@@ -18,6 +18,7 @@ import { SquaresDisplay } from '@/components/SquaresDisplay';
 import { ResourceBar } from '@/components/ResourceBar';
 import { useResourceStore, getTeamSizeEfficiency } from '@/lib/state/resource-store';
 import { useOrganizationStore } from '@/lib/state/organization-store';
+import { UnifiedTaskAllocationModal } from '@/components/UnifiedTaskAllocationModal';
 
 const DO_HELP_APPRENTICE: HelpContent = {
   title: 'Task Execution',
@@ -101,6 +102,8 @@ export default function DoScreen() {
   const [timeFilter, setTimeFilter] = useState<TimeFilter>('week');
   const [activeTimer, setActiveTimer] = useState<string | null>(null);
   const [showHelp, setShowHelp] = useState(false);
+  const [showAllocationModal, setShowAllocationModal] = useState(false);
+  const [allocationPlan, setAllocationPlan] = useState<WorkPlan | null>(null);
 
   // Enhanced submission state
   const [hoursSpent, setHoursSpent] = useState('');
@@ -453,134 +456,153 @@ export default function DoScreen() {
 
     return (
       <View key={plan.id} className="mb-2">
-        <Pressable
-          onPress={() => togglePlan(plan.id)}
-          className={cn(
-            'rounded-xl p-3 active:opacity-70 border',
-            plan.status === 'blocked'
-              ? 'bg-red-50 dark:bg-red-900/10 border-red-200 dark:border-red-800'
-              : 'bg-white dark:bg-slate-900 border-gray-200 dark:border-slate-800'
-          )}
-        >
-          <View className="flex-row items-center justify-between mb-2">
-            <View className="flex-1 mr-3">
-              <Text className="text-gray-900 dark:text-white font-bold text-sm">
-                {plan.title}
-              </Text>
-            </View>
-
-            <View className="flex-row items-center gap-2">
-              {/* Squares Badge */}
-              <View className="flex-row items-center gap-0.5 bg-gray-100 dark:bg-slate-800 px-1.5 py-0.5 rounded">
-                {Array.from({ length: Math.min(plan.estimatedTimeUnits, 5) }).map((_, i) => (
-                  <View
-                    key={i}
-                    className="w-2 h-2 rounded-sm"
-                    style={{
-                      backgroundColor: i < Math.round((plan.progress / 100) * plan.estimatedTimeUnits)
-                        ? (plan.status === 'blocked' ? '#ef4444' : '#10b981')
-                        : '#d1d5db',
-                    }}
-                  />
-                ))}
-                <Text className="text-gray-600 dark:text-slate-400 text-[10px] font-bold ml-1">
-                  {plan.estimatedTimeUnits}□
+        <View className="flex-col">
+          {/* Main task card - tappable to open allocation modal */}
+          <Pressable
+            onPress={() => {
+              setAllocationPlan(plan);
+              setShowAllocationModal(true);
+            }}
+            className={cn(
+              'rounded-xl p-3 active:opacity-70 border',
+              plan.status === 'blocked'
+                ? 'bg-red-50 dark:bg-red-900/10 border-red-200 dark:border-red-800'
+                : 'bg-white dark:bg-slate-900 border-gray-200 dark:border-slate-800'
+            )}
+          >
+            <View className="flex-row items-center justify-between mb-2">
+              <View className="flex-1 mr-3">
+                <Text className="text-gray-900 dark:text-white font-bold text-sm">
+                  {plan.title}
                 </Text>
               </View>
 
-              {/* Priority Badge */}
-              <View
-                className="px-1.5 py-0.5 rounded-full"
-                style={{ backgroundColor: priorityStyle.bg }}
-              >
-                <Text className="text-white text-xs font-bold">{priorityStyle.text[0]}</Text>
-              </View>
+              <View className="flex-row items-center gap-2">
+                {/* Squares Badge */}
+                <View className="flex-row items-center gap-0.5 bg-gray-100 dark:bg-slate-800 px-1.5 py-0.5 rounded">
+                  {Array.from({ length: Math.min(plan.estimatedTimeUnits, 5) }).map((_, i) => (
+                    <View
+                      key={i}
+                      className="w-2 h-2 rounded-sm"
+                      style={{
+                        backgroundColor: i < Math.round((plan.progress / 100) * plan.estimatedTimeUnits)
+                          ? (plan.status === 'blocked' ? '#ef4444' : '#10b981')
+                          : '#d1d5db',
+                      }}
+                    />
+                  ))}
+                  <Text className="text-gray-600 dark:text-slate-400 text-[10px] font-bold ml-1">
+                    {plan.estimatedTimeUnits}□
+                  </Text>
+                </View>
 
-              {/* Due Date */}
-              <View className={cn(
-                'px-2 py-0.5 rounded',
-                plan.daysUntilDue <= 2 ? 'bg-red-100 dark:bg-red-900/30' :
-                plan.daysUntilDue <= 7 ? 'bg-amber-100 dark:bg-amber-900/30' :
-                'bg-gray-100 dark:bg-slate-800'
-              )}>
-                <Text className={cn(
-                  'text-xs font-semibold',
-                  plan.daysUntilDue <= 2 ? 'text-red-600 dark:text-red-400' :
-                  plan.daysUntilDue <= 7 ? 'text-amber-600 dark:text-amber-400' :
-                  'text-gray-600 dark:text-slate-400'
+                {/* Priority Badge */}
+                <View
+                  className="px-1.5 py-0.5 rounded-full"
+                  style={{ backgroundColor: priorityStyle.bg }}
+                >
+                  <Text className="text-white text-xs font-bold">{priorityStyle.text[0]}</Text>
+                </View>
+
+                {/* Due Date */}
+                <View className={cn(
+                  'px-2 py-0.5 rounded',
+                  plan.daysUntilDue <= 2 ? 'bg-red-100 dark:bg-red-900/30' :
+                  plan.daysUntilDue <= 7 ? 'bg-amber-100 dark:bg-amber-900/30' :
+                  'bg-gray-100 dark:bg-slate-800'
                 )}>
-                  {plan.daysUntilDue}d
-                </Text>
+                  <Text className={cn(
+                    'text-xs font-semibold',
+                    plan.daysUntilDue <= 2 ? 'text-red-600 dark:text-red-400' :
+                    plan.daysUntilDue <= 7 ? 'text-amber-600 dark:text-amber-400' :
+                    'text-gray-600 dark:text-slate-400'
+                  )}>
+                    {plan.daysUntilDue}d
+                  </Text>
+                </View>
               </View>
             </View>
-          </View>
 
-          {/* Progress Bar */}
-          <View className="mb-2">
-            <View className="bg-gray-200 dark:bg-slate-700 rounded-full h-1.5 overflow-hidden">
-              <View
-                className={cn(
-                  'h-full rounded-full',
-                  plan.status === 'completed' ? 'bg-emerald-500' :
-                  plan.status === 'blocked' ? 'bg-red-500' :
-                  'bg-blue-500'
-                )}
-                style={{ width: `${plan.progress}%` }}
+            {/* Progress Bar */}
+            <View className="mb-2">
+              <View className="bg-gray-200 dark:bg-slate-700 rounded-full h-1.5 overflow-hidden">
+                <View
+                  className={cn(
+                    'h-full rounded-full',
+                    plan.status === 'completed' ? 'bg-emerald-500' :
+                    plan.status === 'blocked' ? 'bg-red-500' :
+                    'bg-blue-500'
+                  )}
+                  style={{ width: `${plan.progress}%` }}
+                />
+              </View>
+            </View>
+
+            {/* Squares Display */}
+            <View className="mb-2">
+              <SquaresDisplay
+                totalSquares={plan.estimatedTimeUnits}
+                completedSquares={Math.round((plan.progress / 100) * plan.estimatedTimeUnits)}
+                variant="compact"
+                statusColor={
+                  plan.status === 'completed' ? '#10b981' :
+                  plan.status === 'blocked' ? '#ef4444' : '#3b82f6'
+                }
               />
             </View>
-          </View>
 
-          {/* Squares Display */}
-          <View className="mb-2">
-            <SquaresDisplay
-              totalSquares={plan.estimatedTimeUnits}
-              completedSquares={Math.round((plan.progress / 100) * plan.estimatedTimeUnits)}
-              variant="compact"
-              statusColor={
-                plan.status === 'completed' ? '#10b981' :
-                plan.status === 'blocked' ? '#ef4444' : '#3b82f6'
-              }
-            />
-          </View>
+            {/* Quick Actions Row */}
+            <View className="flex-row items-center justify-between">
+              <View className={cn('px-2 py-0.5 rounded', statusStyle.bg)}>
+                <Text className={cn('text-xs font-semibold', statusStyle.text)}>{getStatusText(plan.status)}</Text>
+              </View>
 
-          {/* Quick Actions Row */}
-          <View className="flex-row items-center justify-between">
-            <View className={cn('px-2 py-0.5 rounded', statusStyle.bg)}>
-              <Text className={cn('text-xs font-semibold', statusStyle.text)}>{getStatusText(plan.status)}</Text>
+              <View className="flex-row items-center gap-2">
+                {/* Timer */}
+                <Pressable
+                  onPress={(e) => {
+                    e.stopPropagation();
+                    toggleTimer(plan.id);
+                  }}
+                  className={cn(
+                    'w-7 h-7 rounded-lg items-center justify-center',
+                    isTimerActive ? 'bg-blue-500' : 'bg-gray-200 dark:bg-slate-700'
+                  )}
+                >
+                  {isTimerActive ? <Pause size={14} color="#fff" /> : <Play size={14} color="#64748b" />}
+                </Pressable>
+
+                {/* Blocked Toggle */}
+                <Pressable
+                  onPress={(e) => {
+                    e.stopPropagation();
+                    handleToggleBlocked(plan);
+                  }}
+                  className={cn(
+                    'w-7 h-7 rounded-lg items-center justify-center',
+                    plan.status === 'blocked' ? 'bg-red-500' : 'bg-gray-200 dark:bg-slate-700'
+                  )}
+                >
+                  <AlertTriangle size={14} color={plan.status === 'blocked' ? '#fff' : '#64748b'} />
+                </Pressable>
+
+                {/* Expand */}
+                <Pressable
+                  onPress={(e) => {
+                    e.stopPropagation();
+                    togglePlan(plan.id);
+                  }}
+                >
+                  {isExpanded ? (
+                    <ChevronDown size={18} color="#64748b" />
+                  ) : (
+                    <ChevronRight size={18} color="#64748b" />
+                  )}
+                </Pressable>
+              </View>
             </View>
-
-            <View className="flex-row items-center gap-2">
-              {/* Timer */}
-              <Pressable
-                onPress={() => toggleTimer(plan.id)}
-                className={cn(
-                  'w-7 h-7 rounded-lg items-center justify-center',
-                  isTimerActive ? 'bg-blue-500' : 'bg-gray-200 dark:bg-slate-700'
-                )}
-              >
-                {isTimerActive ? <Pause size={14} color="#fff" /> : <Play size={14} color="#64748b" />}
-              </Pressable>
-
-              {/* Blocked Toggle */}
-              <Pressable
-                onPress={() => handleToggleBlocked(plan)}
-                className={cn(
-                  'w-7 h-7 rounded-lg items-center justify-center',
-                  plan.status === 'blocked' ? 'bg-red-500' : 'bg-gray-200 dark:bg-slate-700'
-                )}
-              >
-                <AlertTriangle size={14} color={plan.status === 'blocked' ? '#fff' : '#64748b'} />
-              </Pressable>
-
-              {/* Expand */}
-              {isExpanded ? (
-                <ChevronDown size={18} color="#64748b" />
-              ) : (
-                <ChevronRight size={18} color="#64748b" />
-              )}
-            </View>
-          </View>
-        </Pressable>
+          </Pressable>
+        </View>
 
         {/* Expanded Actions */}
         {isExpanded && (
@@ -1067,6 +1089,18 @@ export default function DoScreen() {
             </KeyboardAvoidingView>
           </View>
         </Modal>
+
+        {/* Unified TU Allocation Modal */}
+        {allocationPlan && (
+          <UnifiedTaskAllocationModal
+            visible={showAllocationModal}
+            onClose={() => {
+              setShowAllocationModal(false);
+              setAllocationPlan(null);
+            }}
+            workPlan={allocationPlan}
+          />
+        )}
       </View>
     );
   }
@@ -1221,6 +1255,18 @@ export default function DoScreen() {
 
           <View className="h-8" />
         </ScrollView>
+
+        {/* Unified TU Allocation Modal */}
+        {allocationPlan && (
+          <UnifiedTaskAllocationModal
+            visible={showAllocationModal}
+            onClose={() => {
+              setShowAllocationModal(false);
+              setAllocationPlan(null);
+            }}
+            workPlan={allocationPlan}
+          />
+        )}
       </View>
     );
   }
@@ -1302,6 +1348,18 @@ export default function DoScreen() {
           </Text>
           <View className="h-8" />
         </ScrollView>
+
+        {/* Unified TU Allocation Modal */}
+        {allocationPlan && (
+          <UnifiedTaskAllocationModal
+            visible={showAllocationModal}
+            onClose={() => {
+              setShowAllocationModal(false);
+              setAllocationPlan(null);
+            }}
+            workPlan={allocationPlan}
+          />
+        )}
       </View>
     );
   }
