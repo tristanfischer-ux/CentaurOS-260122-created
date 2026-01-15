@@ -54,7 +54,7 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
 
 ## 🚨 PRODUCTION READINESS STATUS
 
-**Last Updated**: 2026-01-15 (**TAB REORGANIZATION** - Moved decision items from Decide to Home tab, Decide tab now focuses purely on resource allocation)
+**Last Updated**: 2026-01-15 (**TU ALLOCATION MODAL** - Added comprehensive task allocation modal with AI boost, completed/abandoned task audit trails, and unallocated TU warnings)
 **Status**: ✅ **READY FOR APP STORE** - All features complete!
 
 ---
@@ -192,6 +192,53 @@ The Build Queue is inspired by RTS games like Homeworld - tasks queue up and con
 - **QA Reviewer**: Assign senior team member for quality review
 - **Quality Metrics**: Real-time confidence and rework risk display
 - **Predicted Timeline**: End date calculation based on all factors
+
+### TU Allocation Modal
+
+Location: `/src/components/TaskAllocationModal.tsx`
+
+The comprehensive task allocation interface allows you to:
+
+1. **View Task Details**: See task title, description, function, and current status
+2. **Adjust Total TUs**: Increase/decrease the expected effort using +/- buttons
+3. **Select AI Tools**: Choose AI productivity boosters (2x-20x multiplier)
+4. **Allocate Team TUs**:
+   - Tap squares on team member rows to allocate
+   - Members matching task function marked with "FIT" badge
+   - See cost per TU for each person
+5. **View Cost Breakdown**:
+   - Total estimated cost
+   - Weekly cost based on allocation
+   - AI cost component
+   - Time to complete estimate
+   - TUs spent to date (for in-progress tasks)
+6. **Complete or Abandon**:
+   - Mark task as complete (creates audit record)
+   - Abandon task with reason (tracks wasted TUs/cost)
+
+### Audit Trail System
+
+#### Completed Tasks Section
+- Shows all tasks with status 'completed'
+- Displays completion date, TUs spent, and final cost
+- Sorted by most recent completion first
+- Visual indicator of audit record saved
+
+#### Abandoned/Incomplete Tasks Section
+- Shows tasks that were started but abandoned (blocked with progress > 0)
+- Highlights wasted resources:
+  - TUs wasted
+  - Cost lost
+  - Abandonment reason
+- Warning banner emphasizes resource waste
+
+### Unallocated TU Warnings
+
+When team capacity is under 80% utilized, a warning banner shows:
+- Number of unallocated TUs this week
+- Estimated cost of underutilized resources
+- Visual capacity bar showing allocated vs available
+- Suggestion to start queued OKRs if any exist
 
 #### Task Creation
 - **Effort Estimation**: Easy +/- controls for square count

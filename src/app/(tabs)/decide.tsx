@@ -26,6 +26,7 @@ import { CompanyAimModal } from '@/components/CompanyAimModal';
 import { SquaresDisplay } from '@/components/SquaresDisplay';
 import { ResourceBar } from '@/components/ResourceBar';
 import { useResourceStore, type PersonResource } from '@/lib/state/resource-store';
+import { TaskAllocationModal } from '@/components/TaskAllocationModal';
 
 const DECIDE_HELP: HelpContent = {
   title: 'Strategic Decisions',
@@ -136,6 +137,14 @@ export default function DecideScreen() {
   const [pendingQueueOKR, setPendingQueueOKR] = useState<OKR | null>(null);
   const [pendingQueueTask, setPendingQueueTask] = useState<WorkPlan | null>(null);
 
+  // Task allocation modal state
+  const [showTaskAllocationModal, setShowTaskAllocationModal] = useState(false);
+  const [selectedTaskForAllocation, setSelectedTaskForAllocation] = useState<WorkPlan | null>(null);
+
+  // Completed and abandoned task sections
+  const [showCompletedTasks, setShowCompletedTasks] = useState(false);
+  const [showAbandonedTasks, setShowAbandonedTasks] = useState(false);
+
   // Old drag and drop state (to be removed)
   const [draggingOKRId, setDraggingOKRId] = useState<string | null>(null);
   const [draggingTaskId, setDraggingTaskId] = useState<string | null>(null);
@@ -193,11 +202,25 @@ export default function DecideScreen() {
   // Initialize resource store if empty
   const resourcePeople = useResourceStore(s => s.people);
   const seedResourceData = useResourceStore(s => s.seedDemoData);
+  const getTotalCapacity = useResourceStore(s => s.getTotalCapacity);
   useEffect(() => {
     if (resourcePeople.length === 0 && currentWorkspace) {
       seedResourceData(currentWorkspace.id);
     }
   }, [resourcePeople.length, currentWorkspace]);
+
+  // Calculate unallocated TUs for warning
+  const capacityInfo = useMemo(() => {
+    const capacity = getTotalCapacity();
+    const unallocatedTUs = capacity.available;
+    const utilizationPercent = capacity.total > 0 ? Math.round((capacity.allocated / capacity.total) * 100) : 0;
+    // Calculate cost of unallocated TUs (opportunity cost)
+    const avgCostPerTU = resourcePeople.length > 0
+      ? resourcePeople.reduce((sum, p) => sum + p.costPerSquare, 0) / resourcePeople.length
+      : 100;
+    const wastedPotentialCost = Math.round(unallocatedTUs * avgCostPerTU);
+    return { unallocatedTUs, utilizationPercent, wastedPotentialCost, total: capacity.total, allocated: capacity.allocated };
+  }, [getTotalCapacity, resourcePeople]);
 
   // Get team members grouped by role
   const teamMembers = useMemo(() => {
@@ -935,6 +958,51 @@ export default function DecideScreen() {
           />
         )}
 
+        {/* Unallocated TU Warning Banner */}
+        {capacityInfo.unallocatedTUs > 0 && capacityInfo.utilizationPercent < 80 && (
+          <View className="bg-amber-50 dark:bg-amber-900/20 border border-amber-300 dark:border-amber-700 rounded-xl p-4 mb-4">
+            <View className="flex-row items-start">
+              <View className="w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-800/30 items-center justify-center mr-3">
+                <AlertTriangle size={20} color="#f59e0b" />
+              </View>
+              <View className="flex-1">
+                <Text className="text-amber-800 dark:text-amber-200 font-bold text-sm mb-1">
+                  {capacityInfo.unallocatedTUs} TUs Unallocated This Week
+                </Text>
+                <Text className="text-amber-700 dark:text-amber-300 text-xs mb-2">
+                  Your team has capacity that isn't being used. Unallocated TUs represent a cost of ~£{capacityInfo.wastedPotentialCost.toLocaleString()}/week in underutilized resources.
+                </Text>
+                <View className="flex-row items-center gap-3 mb-2">
+                  <View className="flex-row items-center gap-1">
+                    {Array.from({ length: Math.min(capacityInfo.total, 10) }).map((_, i) => (
+                      <View
+                        key={i}
+                        className={`w-2 h-2 rounded-sm ${
+                          i < capacityInfo.allocated ? 'bg-emerald-500' : 'bg-amber-400'
+                        }`}
+                      />
+                    ))}
+                    {capacityInfo.total > 10 && (
+                      <Text className="text-amber-600 text-[10px]">+{capacityInfo.total - 10}</Text>
+                    )}
+                  </View>
+                  <Text className="text-amber-700 dark:text-amber-300 text-xs font-semibold">
+                    {capacityInfo.utilizationPercent}% utilized
+                  </Text>
+                </View>
+                {queuedOKRs.length > 0 && (
+                  <View className="bg-amber-100/50 dark:bg-amber-800/20 rounded-lg px-3 py-2 flex-row items-center">
+                    <Lightbulb size={14} color="#d97706" />
+                    <Text className="text-amber-700 dark:text-amber-300 text-xs ml-2 flex-1">
+                      You have {queuedOKRs.length} OKR{queuedOKRs.length !== 1 ? 's' : ''} in queue. Consider allocating resources to start one.
+                    </Text>
+                  </View>
+                )}
+              </View>
+            </View>
+          </View>
+        )}
+
         {/* Function Filter */}
         <View className="mb-3">
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
@@ -1102,6 +1170,10 @@ export default function DecideScreen() {
                               onPress={() => {
                                 if (selectedMemberForAssign) {
                                   handleAssignMember(plan.id, selectedMemberForAssign);
+                                } else {
+                                  // Open task allocation modal
+                                  setSelectedTaskForAllocation(plan);
+                                  setShowTaskAllocationModal(true);
                                 }
                               }}
                             >
@@ -1589,6 +1661,109 @@ export default function DecideScreen() {
                           <Text className="text-emerald-700 dark:text-emerald-300 text-xs font-bold">
                             100%
                           </Text>
+                        </View>
+                      </View>
+                      {/* Audit Info: TUs spent and cost */}
+                      <View className="mt-2 pt-2 border-t border-emerald-200/50 dark:border-emerald-800/50 flex-row items-center justify-between">
+                        <View className="flex-row items-center gap-3">
+                          <View className="flex-row items-center">
+                            <Clock size={10} color="#10b981" />
+                            <Text className="text-emerald-600 dark:text-emerald-400 text-[10px] ml-1">
+                              {plan.estimatedTimeUnits} TUs
+                            </Text>
+                          </View>
+                          <View className="flex-row items-center">
+                            <DollarSign size={10} color="#10b981" />
+                            <Text className="text-emerald-600 dark:text-emerald-400 text-[10px] ml-0.5">
+                              £{calculateTaskCost(plan).cumulativeCost.toLocaleString()}
+                            </Text>
+                          </View>
+                        </View>
+                        <Text className="text-emerald-500/60 dark:text-emerald-500/40 text-[10px]">
+                          Audit record saved
+                        </Text>
+                      </View>
+                    </View>
+                  );
+                })}
+            </View>
+          </View>
+        )}
+
+        {/* SECTION 8: INCOMPLETE/ABANDONED TASKS - Shows wasted resources */}
+        {workPlans.filter(wp => wp.status === 'blocked' && wp.progress > 0).length > 0 && (
+          <View className="mt-6 pt-4 border-t border-red-200 dark:border-red-900/30">
+            <View className="flex-row items-center justify-between mb-3">
+              <Text className="text-red-500 dark:text-red-400 text-xs font-bold tracking-wide">
+                INCOMPLETE - ABANDONED TASKS
+              </Text>
+              <View className="bg-red-100 dark:bg-red-900/30 px-2 py-0.5 rounded">
+                <Text className="text-red-600 dark:text-red-400 text-xs font-semibold">
+                  {workPlans.filter(wp => wp.status === 'blocked' && wp.progress > 0).length} abandoned
+                </Text>
+              </View>
+            </View>
+
+            <View className="bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-800/50 rounded-xl p-3 mb-3">
+              <View className="flex-row items-center">
+                <AlertTriangle size={14} color="#ef4444" />
+                <Text className="text-red-600 dark:text-red-400 text-xs ml-2 flex-1">
+                  These tasks were started but abandoned. TUs and costs shown represent wasted resources.
+                </Text>
+              </View>
+            </View>
+
+            <View className="gap-2">
+              {workPlans
+                .filter(wp => wp.status === 'blocked' && wp.progress > 0)
+                .map((plan) => {
+                  const functionColor = getFunctionColor(plan.function as BusinessFunction);
+                  const taskCost = calculateTaskCost(plan);
+                  const wastedTUs = Math.round((plan.progress / 100) * plan.estimatedTimeUnits);
+                  const wastedCost = Math.round((plan.progress / 100) * taskCost.cumulativeCost);
+                  const abandonReason = plan.submissionData?.notes || 'No reason provided';
+
+                  return (
+                    <View key={plan.id} className="bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-800/50 rounded-xl p-3">
+                      <View className="flex-row items-start justify-between">
+                        <View className="flex-1">
+                          <View className="flex-row items-center mb-1 gap-1">
+                            <X size={14} color="#ef4444" />
+                            <View
+                              className="px-1.5 py-0.5 rounded"
+                              style={{ backgroundColor: functionColor + '20' }}
+                            >
+                              <Text className="text-xs font-semibold" style={{ color: functionColor }}>
+                                {plan.function}
+                              </Text>
+                            </View>
+                            <View className="bg-red-500/20 px-1.5 py-0.5 rounded">
+                              <Text className="text-red-600 dark:text-red-400 text-[10px] font-semibold">
+                                {plan.progress}% when abandoned
+                              </Text>
+                            </View>
+                          </View>
+                          <Text className="text-gray-700 dark:text-slate-300 font-semibold text-sm mb-1">
+                            {plan.title}
+                          </Text>
+                          <Text className="text-gray-500 dark:text-slate-500 text-xs italic mb-2">
+                            Reason: {abandonReason}
+                          </Text>
+                          {/* Wasted Resources */}
+                          <View className="flex-row items-center gap-3 bg-red-100/50 dark:bg-red-900/20 px-2 py-1.5 rounded-lg">
+                            <View className="flex-row items-center">
+                              <Clock size={12} color="#ef4444" />
+                              <Text className="text-red-600 dark:text-red-400 text-xs font-semibold ml-1">
+                                {wastedTUs} TUs wasted
+                              </Text>
+                            </View>
+                            <View className="flex-row items-center">
+                              <DollarSign size={12} color="#ef4444" />
+                              <Text className="text-red-600 dark:text-red-400 text-xs font-semibold ml-0.5">
+                                £{wastedCost.toLocaleString()} lost
+                              </Text>
+                            </View>
+                          </View>
                         </View>
                       </View>
                     </View>
@@ -2438,6 +2613,44 @@ export default function DecideScreen() {
           </View>
         </View>
       </Modal>
+
+      {/* Task Allocation Modal */}
+      <TaskAllocationModal
+        visible={showTaskAllocationModal}
+        onClose={() => {
+          setShowTaskAllocationModal(false);
+          setSelectedTaskForAllocation(null);
+        }}
+        workPlan={selectedTaskForAllocation}
+        workspaceId={currentWorkspace?.id || ''}
+        onComplete={(workPlanId) => {
+          completeWorkPlan(workPlanId);
+          setShowTaskAllocationModal(false);
+          setSelectedTaskForAllocation(null);
+        }}
+        onAbandon={(workPlanId, reason) => {
+          // Mark as abandoned (using blocked status with notes)
+          updateWorkPlan(workPlanId, {
+            status: 'blocked',
+            assignedMemberIds: [],
+            submissionData: {
+              notes: reason || 'Task abandoned',
+              hoursSpent: 0,
+              blockersEncountered: ['Abandoned by user'],
+              confidenceLevel: 'low',
+              qualityChecklist: {
+                requirementsMet: false,
+                testedLocally: false,
+                documentationUpdated: false,
+                peerReviewed: false,
+              },
+              estimatedQuality: 0,
+            },
+          });
+          setShowTaskAllocationModal(false);
+          setSelectedTaskForAllocation(null);
+        }}
+      />
     </View>
   );
 }
