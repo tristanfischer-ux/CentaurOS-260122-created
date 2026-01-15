@@ -15,6 +15,12 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
 
 ## 🔄 Recent Updates (Jan 2026)
 
+### Bug Fixes
+- **Fixed Critical Infinite Loop Errors**: Resolved "Maximum update depth exceeded" in both BusinessImprovements and IntelligenceHub (Hub tab) components
+  - **Root Cause**: Zustand store selector functions that return new arrays on every call (e.g., `getUnconvertedImprovements()`) were causing infinite re-renders
+  - **Solution**: Changed to select raw data (`s.improvements`) and memoize filtering with `useMemo` to ensure React properly tracks data changes
+  - **Impact**: App no longer crashes when viewing Home tab or Hub tab
+
 ### Do Tab Improvements
 - **Removed Resource Bar for Apprentices**: Cleaner, distraction-free execution view for team members
 - **Team Member Avatars on Task Cards**: Now showing colored circles with initials of all assigned members directly on task cards (max 5 visible, +N for more)

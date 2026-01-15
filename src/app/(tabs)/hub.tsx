@@ -62,7 +62,12 @@ export default function IntelligenceHub() {
   const okrs = useOKRStore(s => s.okrs);
   const getCashBalance = useFinanceStore(s => s.getCashBalance);
   const getWeeklyBurn = useFinanceStore(s => s.getWeeklyBurn);
-  const improvements = useBusinessImprovementsStore(s => s.getUnconvertedImprovements());
+  const allImprovements = useBusinessImprovementsStore(s => s.improvements);
+
+  // Memoize filtered improvements to prevent infinite re-renders
+  const improvements = useMemo(() => {
+    return allImprovements.filter(imp => !imp.convertedToTask);
+  }, [allImprovements]);
 
   const handleRefresh = async () => {
     setRefreshing(true);
