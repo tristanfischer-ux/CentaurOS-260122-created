@@ -512,9 +512,14 @@ export default function MakeScreen() {
         animationType="slide"
         onRequestClose={() => setSelectedSupplier(null)}
       >
-        <View className="flex-1 bg-black/70 justify-end">
+        <Pressable
+          className="flex-1 bg-black/70"
+          onPress={() => setSelectedSupplier(null)}
+        >
+          <View className="flex-1" />
           {selectedSupplier && (
-            <View className="bg-gray-100 dark:bg-slate-900 rounded-t-3xl" style={{ maxHeight: '95%' }}>
+            <Pressable onPress={(e) => e.stopPropagation()}>
+              <View className="bg-gray-100 dark:bg-slate-900 rounded-t-3xl" style={{ maxHeight: '95%' }}>
               {/* Fixed Header */}
               <View className="px-6 pt-6 pb-4 border-b border-gray-300 dark:border-slate-800">
                 <View className="flex-row items-center justify-between mb-2">
@@ -847,8 +852,9 @@ export default function MakeScreen() {
                 </View>
               </ScrollView>
             </View>
+            </Pressable>
           )}
-        </View>
+        </Pressable>
       </Modal>
 
       {/* AI Agent Detail Modal */}
@@ -858,9 +864,14 @@ export default function MakeScreen() {
         animationType="slide"
         onRequestClose={() => setSelectedAI(null)}
       >
-        <View className="flex-1 bg-black/70 justify-end">
+        <Pressable
+          className="flex-1 bg-black/70"
+          onPress={() => setSelectedAI(null)}
+        >
+          <View className="flex-1" />
           {selectedAI && (
-            <View className="bg-gray-100 dark:bg-slate-900 rounded-t-3xl" style={{ maxHeight: '90%' }}>
+            <Pressable onPress={(e) => e.stopPropagation()}>
+              <View className="bg-gray-100 dark:bg-slate-900 rounded-t-3xl" style={{ maxHeight: '90%' }}>
               {/* Fixed Header */}
               <View className="px-6 pt-6 pb-4 border-b border-gray-300 dark:border-slate-800">
                 <View className="flex-row items-center justify-between mb-2">
@@ -1014,8 +1025,9 @@ export default function MakeScreen() {
                 </View>
               </ScrollView>
             </View>
+            </Pressable>
           )}
-        </View>
+        </Pressable>
       </Modal>
 
       {/* Person Picker Modal */}
