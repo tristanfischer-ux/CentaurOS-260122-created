@@ -13,6 +13,25 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
 
 ---
 
+## 🔄 Recent Updates (Jan 2026)
+
+### Do Tab Improvements
+- **Removed Resource Bar for Apprentices**: Cleaner, distraction-free execution view for team members
+- **Team Member Avatars on Task Cards**: Now showing colored circles with initials of all assigned members directly on task cards (max 5 visible, +N for more)
+- **Enhanced Modal Scrolling**: Fixed UnifiedTaskAllocationModal to scroll properly on smaller screens
+
+### Business Improvements Component
+- **Fixed Infinite Loop Error**: Resolved "Maximum update depth exceeded" by properly memoizing filtered improvements and priority groups
+- **Performance Optimization**: Used `useMemo` to prevent unnecessary re-renders
+
+### Color Coding
+- **Role Colors in Avatars**:
+  - Purple: Founders
+  - Blue: Fractional Executives
+  - Green: Apprentices
+
+---
+
 ## 📚 Documentation Hub
 
 ### For Users

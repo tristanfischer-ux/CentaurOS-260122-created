@@ -577,7 +577,7 @@ export function UnifiedTaskAllocationModal({ visible, onClose, workPlan }: Props
       <Pressable className="flex-1 bg-black/70" onPress={onClose}>
         <View className="flex-1" />
         <Pressable onPress={(e) => e.stopPropagation()} style={{ maxHeight: '92%' }}>
-          <View className="bg-gray-50 dark:bg-slate-950 rounded-t-3xl">
+          <View className="bg-gray-50 dark:bg-slate-950 rounded-t-3xl" style={{ height: '100%' }}>
             {/* Header */}
             <View className="flex-row items-center justify-between px-5 py-4 border-b border-gray-200 dark:border-slate-800">
               <View className="flex-1">
@@ -601,6 +601,7 @@ export function UnifiedTaskAllocationModal({ visible, onClose, workPlan }: Props
             </View>
 
             <ScrollView
+              style={{ flex: 1 }}
               className="px-5"
               showsVerticalScrollIndicator={false}
               contentContainerStyle={{ paddingBottom: 100 }}

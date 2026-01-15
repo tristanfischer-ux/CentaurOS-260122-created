@@ -313,6 +313,15 @@ export default function DoScreen() {
     }
   };
 
+  const getRoleColor = (role: string) => {
+    switch (role) {
+      case 'Founder': return '#8b5cf6'; // Purple
+      case 'FractionalExec': return '#3b82f6'; // Blue
+      case 'Apprentice': return '#10b981'; // Green
+      default: return '#64748b'; // Gray
+    }
+  };
+
   const handleSubmitWork = () => {
     if (!selectedPlan) return;
 
@@ -471,6 +480,11 @@ export default function DoScreen() {
     const priorityStyle = getPriorityColor(plan.priority);
     const isTimerActive = activeTimer === plan.id;
 
+    // Get assigned members for this task
+    const assignedMembers = orgMembers.filter(m =>
+      plan.assignedMemberIds?.includes(m.id)
+    );
+
     return (
       <View key={plan.id} className="mb-2">
         <View className="flex-col">
@@ -492,6 +506,29 @@ export default function DoScreen() {
                 <Text className="text-gray-900 dark:text-white font-bold text-sm">
                   {plan.title}
                 </Text>
+                {/* Team Member Avatars */}
+                {assignedMembers.length > 0 && (
+                  <View className="flex-row items-center gap-1 mt-1.5">
+                    {assignedMembers.slice(0, 5).map((member) => (
+                      <View
+                        key={member.id}
+                        className="w-5 h-5 rounded-full items-center justify-center"
+                        style={{ backgroundColor: getRoleColor(member.role) }}
+                      >
+                        <Text className="text-white text-[8px] font-bold">
+                          {member.name.split(' ').map((n) => n[0]).join('')}
+                        </Text>
+                      </View>
+                    ))}
+                    {assignedMembers.length > 5 && (
+                      <View className="w-5 h-5 rounded-full items-center justify-center bg-gray-400 dark:bg-slate-600">
+                        <Text className="text-white text-[8px] font-bold">
+                          +{assignedMembers.length - 5}
+                        </Text>
+                      </View>
+                    )}
+                  </View>
+                )}
               </View>
 
               <View className="flex-row items-center gap-2">
@@ -750,10 +787,13 @@ export default function DoScreen() {
         </LinearGradient>
 
         {/* Resource Bar */}
-        <ResourceBar
-          workspaceId={currentWorkspace?.id || ''}
-          compact
-        />
+        {/* Resource Bar - Only show for Founders and Executives, not Apprentices */}
+        {!isApprentice && (
+          <ResourceBar
+            workspaceId={currentWorkspace?.id || ''}
+            compact
+          />
+        )}
 
         {/* View Tabs */}
         <View className="px-5 py-3 bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-800">
