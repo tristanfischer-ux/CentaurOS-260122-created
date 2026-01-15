@@ -1,6 +1,6 @@
 import { View, Text, ScrollView, Pressable, Modal, TextInput, Alert, KeyboardAvoidingView, Platform, LayoutChangeEvent } from 'react-native';
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
-import { Target, Plus, X, ChevronDown, ChevronRight, CheckCircle2, Circle, Clock, Users, DollarSign, Lightbulb, ChevronUp, UserPlus, Zap, AlertTriangle, AlertCircle, TrendingDown, CalendarClock, ArrowRight, HelpCircle, Bot, Briefcase, GraduationCap, CheckCircle, GripVertical } from 'lucide-react-native';
+import { Target, Plus, X, ChevronDown, ChevronRight, CheckCircle2, Circle, Clock, Users, DollarSign, Lightbulb, ChevronUp, UserPlus, Zap, AlertTriangle, AlertCircle, TrendingDown, CalendarClock, ArrowRight, HelpCircle, Bot, Briefcase, GraduationCap, CheckCircle, GripVertical, Archive } from 'lucide-react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, { useSharedValue, useAnimatedStyle, withSpring, runOnJS, FadeIn, FadeOut, Layout } from 'react-native-reanimated';
 import { useCurrentWorkspace, useCurrentMembership } from '@/lib/state/app-store';
@@ -19,7 +19,7 @@ import { type OrganizationMember, type AIAgent, AI_AGENTS } from '@/lib/organiza
 import { useWorkPlanStore, type WorkPlan } from '@/lib/state/work-plan-store';
 import { HelpModal, HelpButton, type HelpContent } from '@/components/HelpModal';
 import HireResourceModal from '@/components/HireResourceModal';
-import { DraggableOKRCard, DraggableTaskCard } from '@/components/DraggableOKRCard';
+import { SwipeableOKRCard, SwipeableTaskCard } from '@/components/SwipeableOKRCard';
 import { CompanyAimBanner } from '@/components/CompanyAimBanner';
 import { CompanyAimModal } from '@/components/CompanyAimModal';
 import { SquaresDisplay } from '@/components/SquaresDisplay';
@@ -110,7 +110,12 @@ export default function DecideScreen() {
   const [hireFunction, setHireFunction] = useState<BusinessFunction>('Marketing');
   const [selectedAI, setSelectedAI] = useState<AIAgent | null>(null);
 
-  // Drag and drop state
+  // Swipe-to-queue confirmation modal state
+  const [showQueueConfirmModal, setShowQueueConfirmModal] = useState(false);
+  const [pendingQueueOKR, setPendingQueueOKR] = useState<OKR | null>(null);
+  const [pendingQueueTask, setPendingQueueTask] = useState<WorkPlan | null>(null);
+
+  // Old drag and drop state (to be removed)
   const [draggingOKRId, setDraggingOKRId] = useState<string | null>(null);
   const [draggingTaskId, setDraggingTaskId] = useState<string | null>(null);
   const [dropTargetTaskId, setDropTargetTaskId] = useState<string | null>(null);
@@ -380,6 +385,42 @@ export default function DecideScreen() {
 
     return { activeOKRs: active, queuedOKRs: queued };
   }, [filteredOKRs, workPlans]);
+
+  // Handle swipe-left on OKR to move to queue
+  const handleOKRSwipeLeft = useCallback((okrId: string) => {
+    const okr = activeOKRs.find(o => o.id === okrId);
+    if (okr) {
+      setPendingQueueOKR(okr);
+      setShowQueueConfirmModal(true);
+    }
+  }, [activeOKRs]);
+
+  // Handle swipe-left on task to pause
+  const handleTaskSwipeLeft = useCallback((taskId: string) => {
+    const task = workPlans.find(wp => wp.id === taskId);
+    if (task) {
+      setPendingQueueTask(task);
+      setShowQueueConfirmModal(true);
+    }
+  }, [workPlans]);
+
+  // Confirm moving OKR to queue
+  const confirmMoveToQueue = useCallback(() => {
+    if (pendingQueueOKR) {
+      // Move OKR to queue - remove all assigned members from linked work plans
+      const linkedPlans = workPlans.filter(wp => wp.linkedOKRTitle === pendingQueueOKR.title);
+      linkedPlans.forEach(plan => {
+        updateWorkPlan(plan.id, { assignedMemberIds: [], status: 'not-started' });
+      });
+    } else if (pendingQueueTask) {
+      // Pause task - unassign all members
+      updateWorkPlan(pendingQueueTask.id, { assignedMemberIds: [], status: 'not-started' });
+    }
+
+    setShowQueueConfirmModal(false);
+    setPendingQueueOKR(null);
+    setPendingQueueTask(null);
+  }, [pendingQueueOKR, pendingQueueTask, workPlans, updateWorkPlan]);
 
   // Drag and drop handlers for OKR reordering
   const handleOKRDragEnd = useCallback((okrId: string, translationY: number, absoluteY: number, isActive: boolean) => {
@@ -925,14 +966,10 @@ export default function DecideScreen() {
 
                 return (
                   <View key={okr.id}>
-                    <DraggableOKRCard
+                    <SwipeableOKRCard
                       okrId={okr.id}
-                      onDragStart={(id) => { measureDropZone(); setDraggingOKRId(id); }}
-                      onDragEnd={(id, translationY, absoluteY) => handleOKRDragEnd(id, translationY, absoluteY, true)}
-                      onDragMove={handleOKRDragMove}
+                      onSwipeLeft={handleOKRSwipeLeft}
                       onPress={() => toggleOKR(okr.id)}
-                      isDragging={draggingOKRId === okr.id}
-                      isDropTarget={dropZoneActive === 'active' && !activeOKRs.some(o => o.id === okr.id)}
                     >
                       <View
                         className={`bg-emerald-50 dark:bg-emerald-900/10 border rounded-xl p-3 ${
@@ -1024,29 +1061,24 @@ export default function DecideScreen() {
                           )}
                         </View>
                       </View>
-                    </DraggableOKRCard>
+                    </SwipeableOKRCard>
 
                     {isExpanded && (
                       <View className="mt-2 ml-4 gap-2">
-                        {/* Work Plans (Tasks) with Assigned Members - Draggable */}
+                        {/* Work Plans (Tasks) with Assigned Members - Swipeable */}
                         {linkedPlans.map((plan) => {
                           const assignedMembers = getAssignedMembers(plan);
                           const taskCost = calculateTaskCost(plan);
                           return (
-                            <DraggableTaskCard
+                            <SwipeableTaskCard
                               key={plan.id}
                               taskId={plan.id}
-                              onDragStart={(id) => { measureDropZone(); setDraggingTaskId(id); }}
-                              onDragEnd={(id, translationY, absoluteY) => handleTaskDragEnd(id, translationY, absoluteY, okr.title)}
-                              onDragMove={handleTaskDragMove}
+                              onSwipeLeft={handleTaskSwipeLeft}
                               onPress={() => {
                                 if (selectedMemberForAssign) {
                                   handleAssignMember(plan.id, selectedMemberForAssign);
                                 }
                               }}
-                              isDragging={draggingTaskId === plan.id}
-                              isDropTarget={draggingTaskId !== null && draggingTaskId !== plan.id && dropTargetTaskId === plan.id}
-                              isBeingDraggedOver={draggingTaskId !== null && draggingTaskId !== plan.id}
                             >
                               <View
                                 className={`bg-white dark:bg-slate-800 border rounded-xl p-3 ${
@@ -1163,7 +1195,7 @@ export default function DecideScreen() {
                                   </View>
                                 )}
                               </View>
-                            </DraggableTaskCard>
+                            </SwipeableTaskCard>
                           );
                         })}
 
@@ -1283,14 +1315,11 @@ export default function DecideScreen() {
 
                 return (
                   <View key={okr.id}>
-                    <DraggableOKRCard
+                    <SwipeableOKRCard
                       okrId={okr.id}
-                      onDragStart={(id) => { measureDropZone(); setDraggingOKRId(id); }}
-                      onDragEnd={(id, translationY, absoluteY) => handleOKRDragEnd(id, translationY, absoluteY, false)}
-                      onDragMove={handleOKRDragMove}
+                      onSwipeLeft={handleOKRSwipeLeft}
                       onPress={() => toggleOKR(okr.id)}
-                      isDragging={draggingOKRId === okr.id}
-                      isDropTarget={dropZoneActive === 'queued' && activeOKRs.some(o => o.id === draggingOKRId)}
+                      disabled={true}
                     >
                       <View
                         className={`bg-blue-50 dark:bg-blue-900/10 border rounded-xl p-3 ${
@@ -1348,7 +1377,7 @@ export default function DecideScreen() {
                           )}
                         </View>
                       </View>
-                    </DraggableOKRCard>
+                    </SwipeableOKRCard>
 
                     {isExpanded && (
                       <View className="mt-2 ml-4 gap-2">
@@ -2179,6 +2208,56 @@ export default function DecideScreen() {
                 <Text className={`text-center font-semibold ${
                   renameOKRTitle.trim() ? 'text-white' : 'text-gray-500'
                 }`}>Create OKR</Text>
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Queue Confirmation Modal */}
+      <Modal
+        visible={showQueueConfirmModal}
+        transparent
+        animationType="fade"
+        onRequestClose={() => {
+          setShowQueueConfirmModal(false);
+          setPendingQueueOKR(null);
+          setPendingQueueTask(null);
+        }}
+      >
+        <View className="flex-1 bg-black/70 items-center justify-center p-5">
+          <View className="bg-white dark:bg-slate-900 rounded-2xl p-5 w-full max-w-sm">
+            <View className="items-center mb-4">
+              <View className="w-14 h-14 rounded-full bg-red-100 dark:bg-red-900/30 items-center justify-center mb-3">
+                <Archive size={28} color="#ef4444" />
+              </View>
+              <Text className="text-gray-900 dark:text-white text-lg font-bold mb-2 text-center">
+                {pendingQueueOKR ? 'Move OKR to Queue?' : 'Pause Task?'}
+              </Text>
+              <Text className="text-gray-600 dark:text-slate-400 text-sm text-center">
+                {pendingQueueOKR
+                  ? `All team members will be unassigned from "${pendingQueueOKR.title}" and work will be paused.`
+                  : pendingQueueTask
+                  ? `All team members will be unassigned from "${pendingQueueTask.title}" and the task will be paused.`
+                  : ''}
+              </Text>
+            </View>
+            <View className="flex-row gap-3">
+              <Pressable
+                onPress={() => {
+                  setShowQueueConfirmModal(false);
+                  setPendingQueueOKR(null);
+                  setPendingQueueTask(null);
+                }}
+                className="flex-1 bg-gray-200 dark:bg-slate-800 py-3 rounded-xl active:opacity-70"
+              >
+                <Text className="text-gray-700 dark:text-slate-300 text-center font-semibold">Cancel</Text>
+              </Pressable>
+              <Pressable
+                onPress={confirmMoveToQueue}
+                className="flex-1 bg-red-500 py-3 rounded-xl active:opacity-70"
+              >
+                <Text className="text-white text-center font-semibold">Move to Queue</Text>
               </Pressable>
             </View>
           </View>
