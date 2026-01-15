@@ -141,65 +141,42 @@ export default function MissionControlHome() {
       <LinearGradient
         colors={['#7c3aed', '#6d28d9', '#5b21b6']}
         start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
+        end={{ x: 1, y: 0 }}
         style={{
           paddingHorizontal: 24,
-          paddingTop: insets.top + 20,
-          paddingBottom: 20,
+          paddingTop: insets.top + 16,
+          paddingBottom: 16,
         }}
       >
-        <View className="flex-row items-center justify-between mb-2">
+        <View className="flex-row items-center justify-between mb-3">
           <View className="flex-1">
-            <Text className="text-purple-200 text-sm font-medium">
+            <Text className="text-white/70 text-xs font-medium">
               MISSION CONTROL
             </Text>
-            <Text className="text-white text-2xl font-bold mt-1">
-              {currentWorkspace?.name || 'Fractional Foundry'}
+            <Text className="text-white text-xl font-bold">
+              Home
             </Text>
-            {weekInfo && (
-              <View className="mt-1.5 flex-row items-center gap-2">
-                <View className="bg-white/20 px-2 py-1 rounded">
-                  <Text className="text-white text-[10px] font-semibold">
-                    {weekInfo.displayText}
-                  </Text>
-                </View>
-                {weekInfo.weeksSinceFounding > 0 && (
-                  <View className="bg-purple-500/40 px-2 py-1 rounded">
-                    <Text className="text-white text-[10px] font-semibold">
-                      WEEK {weekInfo.weeksSinceFounding}
-                    </Text>
-                  </View>
-                )}
+          </View>
+          <View className="flex-row items-center gap-2">
+            <HelpButton onPress={() => setShowHelp(true)} />
+            {tuBankRemaining < 10 && (
+              <View className="bg-white/20 px-3 py-2 rounded-xl">
+                <Text className="text-white/80 text-xs font-medium">LOW TU</Text>
+                <Text className="text-white text-lg font-bold">{tuBankRemaining}</Text>
               </View>
             )}
           </View>
-          <HelpButton onPress={() => setShowHelp(true)} />
         </View>
-
-        {/* Status Chips */}
-        <View className="flex-row flex-wrap gap-2 mt-2">
-          <View className="bg-white/20 px-3 py-1.5 rounded-full">
-            <Text className="text-white text-xs font-semibold">
-              Runway: {runwayDisplay}
-            </Text>
+        {/* Quick Health Indicators */}
+        <View className="flex-row gap-4">
+          <View className="flex-row items-center">
+            <View className="w-2 h-2 rounded-full mr-1.5 bg-purple-300" />
+            <Text className="text-white/90 text-xs">Level {currentLevel}</Text>
           </View>
-          <View className="bg-blue-500/40 px-3 py-1.5 rounded-full">
-            <Text className="text-white text-xs font-semibold">
-              TU Bank: {tuBankRemaining}
-            </Text>
+          <View className="flex-row items-center">
+            <View className="w-2 h-2 rounded-full mr-1.5 bg-white" />
+            <Text className="text-white/90 text-xs">{runwayDisplay} runway</Text>
           </View>
-          <View className="bg-purple-500/40 px-3 py-1.5 rounded-full">
-            <Text className="text-white text-xs font-semibold">
-              Level {currentLevel}
-            </Text>
-          </View>
-          {activeBuffs.length > 0 && (
-            <View className="bg-amber-500/40 px-3 py-1.5 rounded-full">
-              <Text className="text-white text-xs font-semibold">
-                {activeBuffs.length} Buff{activeBuffs.length > 1 ? 's' : ''}
-              </Text>
-            </View>
-          )}
         </View>
       </LinearGradient>
 
