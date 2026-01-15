@@ -118,6 +118,33 @@
     Horizontal ScrollViews will expand vertically to fill flex containers. Add `style={{ flexGrow: 0 }}` to constrain height to content.
   </styling>
 
+  <modals>
+    CRITICAL: Modals frequently break. Follow this exact pattern:
+
+    ```jsx
+    <Modal visible={showModal} transparent animationType="slide" onRequestClose={() => setShowModal(false)}>
+      <Pressable className="flex-1 bg-black/70" onPress={() => setShowModal(false)}>
+        <View className="flex-1" /> {/* Spacer pushes content down */}
+        <Pressable onPress={(e) => e.stopPropagation()} style={{ maxHeight: '90%' }}>
+          {/* Modal content with ScrollView */}
+          <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+            {/* Content here */}
+          </ScrollView>
+        </Pressable>
+      </Pressable>
+    </Modal>
+    ```
+
+    Key rules:
+    1. Outer Pressable allows tap-outside-to-dismiss
+    2. Inner Pressable with stopPropagation prevents dismiss when tapping content
+    3. Use maxHeight on content container (NOT the outer wrapper)
+    4. ScrollView needs contentContainerStyle={{ flexGrow: 1 }} to scroll properly
+    5. Add a spacer View with flex-1 to push content to bottom for slide-up modals
+    6. Always include onRequestClose for Android back button
+    7. Place Modal at END of component JSX (not nested inside other Views)
+  </modals>
+
   <camera>
     Use CameraView from expo-camera, NOT the deprecated Camera import.
     import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';

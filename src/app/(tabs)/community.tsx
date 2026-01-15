@@ -2112,8 +2112,16 @@ export default function CommunityScreen() {
         animationType="slide"
         onRequestClose={() => setShowCompareModal(false)}
       >
-        <View className="flex-1 bg-black/70 justify-end">
-          <View className="bg-white dark:bg-slate-950 rounded-t-3xl" style={{ maxHeight: '95%' }}>
+        <Pressable
+          className="flex-1 bg-black/70"
+          onPress={() => setShowCompareModal(false)}
+        >
+          <View className="flex-1" />
+          <Pressable
+            onPress={(e) => e.stopPropagation()}
+            className="bg-white dark:bg-slate-950 rounded-t-3xl"
+            style={{ maxHeight: '90%' }}
+          >
             {/* Header */}
             <View className="px-6 pt-6 pb-4 border-b border-gray-200 dark:border-slate-800">
               <View className="flex-row items-center justify-between">
@@ -2135,7 +2143,10 @@ export default function CommunityScreen() {
               </View>
             </View>
 
-            <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
+            <ScrollView
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={{ flexGrow: 1 }}
+            >
               {(() => {
                 const candidatesToCompare = compareIds.map(id => {
                   const exec = scoredExecutives.find(e => e.id === id);
@@ -2458,8 +2469,8 @@ export default function CommunityScreen() {
                 );
               })()}
             </ScrollView>
-          </View>
-        </View>
+          </Pressable>
+        </Pressable>
       </Modal>
     </View>
   );
