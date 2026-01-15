@@ -342,6 +342,10 @@ export const SUPPLIER_ENGAGEMENTS: SupplierEngagement[] = [
       'Quality testing',
       'Full production run (500 units)',
     ],
+    linkedWorkPlanIds: ['wp-f1'], // Linked to PCB design task
+    componentName: 'Main Circuit Board v2.0',
+    processDescription: 'PCB fabrication with component assembly and testing',
+    estimatedDuration: 45, // days
     contactPerson: 'John Smith',
     contactEmail: 'john.smith@precisioncomponents.co.uk',
     contactPhone: '+44 1234 567890',
@@ -373,6 +377,10 @@ export const SUPPLIER_ENGAGEMENTS: SupplierEngagement[] = [
       'Color matching',
       'Full production (500 units)',
     ],
+    linkedWorkPlanIds: ['wp-f2'], // Linked to product housing design task
+    componentName: 'Product Housing Shell',
+    processDescription: 'Injection molding with UV-resistant ABS plastic',
+    estimatedDuration: 60, // days
     contactPerson: 'Emily Watson',
     contactEmail: 'emily@ukplastics.co.uk',
     contactPhone: '+44 1234 567891',
