@@ -306,20 +306,15 @@ const INITIAL_WORK_PLANS: WorkPlan[] = [
     function: 'Finance',
     linkedOKRTitle: 'Raise £2M Seed Round',
     dueDate: '2026-01-20',
-    status: 'in-progress',
-    progress: 85,
+    status: 'not-started',
+    progress: 0,
     assignedBy: 'James Chen',
     needsSubmission: false,
     estimatedTimeUnits: 6,
-    allocations: [
-      { memberId: 'founder-1', memberName: 'Sarah Chen', squaresPerWeek: 2, costPerSquare: 200 },
-      { memberId: 'exec-5', memberName: 'James Chen', squaresPerWeek: 2, costPerSquare: 150 }
-    ],
-    assignedMemberIds: ['founder-1', 'exec-5'],
-    appliedAITools: [
-      { toolId: 'ai-assist', toolName: 'AI Assist', multiplier: 2, costPerSquare: 5 }
-    ],
-    tusExpended: 5,
+    allocations: [],
+    assignedMemberIds: [],
+    appliedAITools: [],
+    tusExpended: 0,
     sprintMode: true,
   },
 ];
