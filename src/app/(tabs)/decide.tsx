@@ -1303,10 +1303,14 @@ export default function DecideScreen() {
                   Completion Time
                 </Text>
                 <Text className="text-gray-900 dark:text-white font-bold">
-                  {Math.ceil(
-                    selectedTaskForAllocation.estimatedTimeUnits /
-                    Math.max(1, selectedTaskForAllocation.allocations?.reduce((sum, a) => sum + a.squaresPerWeek, 0) || 1)
-                  )} weeks
+                  {(() => {
+                    const weeks = Math.ceil(
+                      selectedTaskForAllocation.estimatedTimeUnits /
+                      Math.max(1, selectedTaskForAllocation.allocations?.reduce((sum, a) => sum + a.squaresPerWeek, 0) || 1)
+                    );
+                    const days = weeks * 5; // 5 working days per week
+                    return `${days} day${days !== 1 ? 's' : ''}`;
+                  })()}
                 </Text>
               </View>
             </View>
