@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, Pressable } from 'react-native';
+import { View, Text, ScrollView, Pressable, Dimensions } from 'react-native';
 import { useMemo, useRef, useEffect } from 'react';
 import { type WorkPlan } from '@/lib/state/work-plan-store';
 import { type OrganizationMember } from '@/lib/organization-seed';
@@ -162,7 +162,8 @@ export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress
     });
   }, [activeTasks, currentWeek]);
 
-  const WEEK_WIDTH = 80; // Width of each week column in pixels
+  const screenWidth = Dimensions.get('window').width;
+  const WEEK_WIDTH = screenWidth / 3; // Divide screen width by 3 weeks to fill entire width
   const TASK_HEIGHT = 32; // Height of each task bar
   const MAX_VISIBLE_TASKS = 5; // Show 5 tasks at a time
 
