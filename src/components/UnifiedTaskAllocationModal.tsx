@@ -388,6 +388,11 @@ export function UnifiedTaskAllocationModal({ visible, onClose, workPlan }: Props
     });
   }, []);
 
+  // Clear all allocations
+  const handleClearAll = useCallback(() => {
+    setAllocations({});
+  }, []);
+
   // Render member row
   const renderMemberRow = useCallback((member: OrganizationMember) => {
     const currentAllocation = allocations[member.id] ?? 0;
@@ -691,22 +696,34 @@ export function UnifiedTaskAllocationModal({ visible, onClose, workPlan }: Props
                 entering={FadeInDown.delay(250)}
                 className="mb-4"
               >
-                <Pressable
-                  onPress={() => setExpandedSection(expandedSection === 'people' ? null : 'people')}
-                  className="flex-row items-center justify-between mb-3"
-                >
-                  <View className="flex-row items-center">
+                <View className="flex-row items-center justify-between mb-3">
+                  <Pressable
+                    onPress={() => setExpandedSection(expandedSection === 'people' ? null : 'people')}
+                    className="flex-row items-center flex-1"
+                  >
                     <Users size={20} color="#3b82f6" />
                     <Text className="text-gray-900 dark:text-white font-semibold ml-2">
                       Team Allocation ({calculations.totalAllocatedPerWeek}□/wk assigned)
                     </Text>
-                  </View>
-                  <ChevronRight
-                    size={20}
-                    color="#6b7280"
-                    style={{ transform: [{ rotate: expandedSection === 'people' ? '90deg' : '0deg' }] }}
-                  />
-                </Pressable>
+                    <ChevronRight
+                      size={20}
+                      color="#6b7280"
+                      style={{ transform: [{ rotate: expandedSection === 'people' ? '90deg' : '0deg' }], marginLeft: 8 }}
+                    />
+                  </Pressable>
+
+                  {/* Clear All button */}
+                  {calculations.totalAllocatedPerWeek > 0 && (
+                    <Pressable
+                      onPress={handleClearAll}
+                      className="bg-red-100 dark:bg-red-900/30 px-3 py-1.5 rounded-lg active:opacity-70"
+                    >
+                      <Text className="text-red-700 dark:text-red-300 text-xs font-bold">
+                        Clear All
+                      </Text>
+                    </Pressable>
+                  )}
+                </View>
 
                 {expandedSection === 'people' && (
                   <>
