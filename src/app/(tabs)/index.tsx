@@ -652,6 +652,251 @@ export default function MissionControlHome() {
             </Pressable>
           </View>
 
+          {/* Team Composition Analysis: Apprentices vs Executives */}
+          <View className="mt-4">
+            <Text className="text-slate-700 dark:text-slate-300 text-sm font-bold mb-3">
+              Team Composition Strategy
+            </Text>
+
+            <View className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 mb-4">
+              <Text className="text-slate-600 dark:text-slate-400 text-xs mb-4 leading-relaxed">
+                Should you hire many apprentices with AI tools, or a few experienced executives? Compare output vs cost:
+              </Text>
+
+              {/* Comparison Cards */}
+              <View className="gap-3">
+                {/* Many Apprentices + AI */}
+                <View className="bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-900/10 dark:to-teal-900/10 border-2 border-emerald-200 dark:border-emerald-800 rounded-xl p-4">
+                  <View className="flex-row items-center justify-between mb-3">
+                    <View className="flex-row items-center gap-2">
+                      <Text className="text-2xl">👥</Text>
+                      <View>
+                        <Text className="text-slate-900 dark:text-white font-bold text-sm">
+                          Many Apprentices + AI
+                        </Text>
+                        <Text className="text-slate-600 dark:text-slate-400 text-xs">
+                          High volume, AI-assisted
+                        </Text>
+                      </View>
+                    </View>
+                    <View className="bg-emerald-100 dark:bg-emerald-900/30 px-2 py-1 rounded-lg">
+                      <Text className="text-emerald-600 dark:text-emerald-400 text-xs font-bold">
+                        SCALABLE
+                      </Text>
+                    </View>
+                  </View>
+
+                  <View className="gap-2 mb-3">
+                    <View className="flex-row justify-between">
+                      <Text className="text-slate-600 dark:text-slate-400 text-xs">
+                        Team Size:
+                      </Text>
+                      <Text className="text-slate-900 dark:text-white text-xs font-bold">
+                        5 Apprentices
+                      </Text>
+                    </View>
+                    <View className="flex-row justify-between">
+                      <Text className="text-slate-600 dark:text-slate-400 text-xs">
+                        Base Capacity:
+                      </Text>
+                      <Text className="text-slate-900 dark:text-white text-xs font-bold">
+                        50 TU/week (10 each)
+                      </Text>
+                    </View>
+                    <View className="flex-row justify-between">
+                      <Text className="text-slate-600 dark:text-slate-400 text-xs">
+                        With AI (5x):
+                      </Text>
+                      <Text className="text-emerald-600 dark:text-emerald-400 text-xs font-bold">
+                        250 TU/week effective
+                      </Text>
+                    </View>
+                    <View className="flex-row justify-between">
+                      <Text className="text-slate-600 dark:text-slate-400 text-xs">
+                        Monthly Cost:
+                      </Text>
+                      <Text className="text-emerald-600 dark:text-emerald-400 text-xs font-bold">
+                        £10K (£2K each)
+                      </Text>
+                    </View>
+                    <View className="flex-row justify-between">
+                      <Text className="text-slate-600 dark:text-slate-400 text-xs">
+                        Cost per TU:
+                      </Text>
+                      <Text className="text-emerald-600 dark:text-emerald-400 text-xs font-bold">
+                        £40/TU
+                      </Text>
+                    </View>
+                  </View>
+
+                  <View className="border-t border-emerald-200 dark:border-emerald-800 pt-3">
+                    <Text className="text-slate-700 dark:text-slate-300 text-xs font-semibold mb-1">
+                      ✅ Pros: Low cost, high output, easily scalable
+                    </Text>
+                    <Text className="text-slate-700 dark:text-slate-300 text-xs font-semibold">
+                      ❌ Cons: Need oversight, AI dependency, quality varies
+                    </Text>
+                  </View>
+                </View>
+
+                {/* Balanced Mix */}
+                <View className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/10 dark:to-indigo-900/10 border-2 border-blue-300 dark:border-blue-700 rounded-xl p-4">
+                  <View className="flex-row items-center justify-between mb-3">
+                    <View className="flex-row items-center gap-2">
+                      <Text className="text-2xl">⚖️</Text>
+                      <View>
+                        <Text className="text-slate-900 dark:text-white font-bold text-sm">
+                          Balanced Mix
+                        </Text>
+                        <Text className="text-slate-600 dark:text-slate-400 text-xs">
+                          Executives + Apprentices
+                        </Text>
+                      </View>
+                    </View>
+                    <View className="bg-blue-100 dark:bg-blue-900/30 px-2 py-1 rounded-lg">
+                      <Text className="text-blue-600 dark:text-blue-400 text-xs font-bold">
+                        RECOMMENDED
+                      </Text>
+                    </View>
+                  </View>
+
+                  <View className="gap-2 mb-3">
+                    <View className="flex-row justify-between">
+                      <Text className="text-slate-600 dark:text-slate-400 text-xs">
+                        Team Size:
+                      </Text>
+                      <Text className="text-slate-900 dark:text-white text-xs font-bold">
+                        2 Execs + 3 Apprentices
+                      </Text>
+                    </View>
+                    <View className="flex-row justify-between">
+                      <Text className="text-slate-600 dark:text-slate-400 text-xs">
+                        Base Capacity:
+                      </Text>
+                      <Text className="text-slate-900 dark:text-white text-xs font-bold">
+                        38 TU/week (8+30)
+                      </Text>
+                    </View>
+                    <View className="flex-row justify-between">
+                      <Text className="text-slate-600 dark:text-slate-400 text-xs">
+                        With AI (3x avg):
+                      </Text>
+                      <Text className="text-blue-600 dark:text-blue-400 text-xs font-bold">
+                        114 TU/week effective
+                      </Text>
+                    </View>
+                    <View className="flex-row justify-between">
+                      <Text className="text-slate-600 dark:text-slate-400 text-xs">
+                        Monthly Cost:
+                      </Text>
+                      <Text className="text-blue-600 dark:text-blue-400 text-xs font-bold">
+                        £14K (£4K each exec)
+                      </Text>
+                    </View>
+                    <View className="flex-row justify-between">
+                      <Text className="text-slate-600 dark:text-slate-400 text-xs">
+                        Cost per TU:
+                      </Text>
+                      <Text className="text-blue-600 dark:text-blue-400 text-xs font-bold">
+                        £123/TU
+                      </Text>
+                    </View>
+                  </View>
+
+                  <View className="border-t border-blue-300 dark:border-blue-700 pt-3">
+                    <Text className="text-slate-700 dark:text-slate-300 text-xs font-semibold mb-1">
+                      ✅ Pros: High quality, good mentorship, balanced cost
+                    </Text>
+                    <Text className="text-slate-700 dark:text-slate-300 text-xs font-semibold">
+                      ⚠️ Cons: More expensive per TU than pure apprentices
+                    </Text>
+                  </View>
+                </View>
+
+                {/* Few Executives */}
+                <View className="bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-purple-900/10 dark:to-indigo-900/10 border-2 border-purple-200 dark:border-purple-800 rounded-xl p-4">
+                  <View className="flex-row items-center justify-between mb-3">
+                    <View className="flex-row items-center gap-2">
+                      <Text className="text-2xl">👔</Text>
+                      <View>
+                        <Text className="text-slate-900 dark:text-white font-bold text-sm">
+                          Few Executives
+                        </Text>
+                        <Text className="text-slate-600 dark:text-slate-400 text-xs">
+                          High expertise, premium cost
+                        </Text>
+                      </View>
+                    </View>
+                    <View className="bg-purple-100 dark:bg-purple-900/30 px-2 py-1 rounded-lg">
+                      <Text className="text-purple-600 dark:text-purple-400 text-xs font-bold">
+                        QUALITY
+                      </Text>
+                    </View>
+                  </View>
+
+                  <View className="gap-2 mb-3">
+                    <View className="flex-row justify-between">
+                      <Text className="text-slate-600 dark:text-slate-400 text-xs">
+                        Team Size:
+                      </Text>
+                      <Text className="text-slate-900 dark:text-white text-xs font-bold">
+                        3 Executives
+                      </Text>
+                    </View>
+                    <View className="flex-row justify-between">
+                      <Text className="text-slate-600 dark:text-slate-400 text-xs">
+                        Base Capacity:
+                      </Text>
+                      <Text className="text-slate-900 dark:text-white text-xs font-bold">
+                        12 TU/week (4 each)
+                      </Text>
+                    </View>
+                    <View className="flex-row justify-between">
+                      <Text className="text-slate-600 dark:text-slate-400 text-xs">
+                        With AI (2x):
+                      </Text>
+                      <Text className="text-purple-600 dark:text-purple-400 text-xs font-bold">
+                        24 TU/week effective
+                      </Text>
+                    </View>
+                    <View className="flex-row justify-between">
+                      <Text className="text-slate-600 dark:text-slate-400 text-xs">
+                        Monthly Cost:
+                      </Text>
+                      <Text className="text-purple-600 dark:text-purple-400 text-xs font-bold">
+                        £12K (£4K each)
+                      </Text>
+                    </View>
+                    <View className="flex-row justify-between">
+                      <Text className="text-slate-600 dark:text-slate-400 text-xs">
+                        Cost per TU:
+                      </Text>
+                      <Text className="text-purple-600 dark:text-purple-400 text-xs font-bold">
+                        £500/TU
+                      </Text>
+                    </View>
+                  </View>
+
+                  <View className="border-t border-purple-200 dark:border-purple-800 pt-3">
+                    <Text className="text-slate-700 dark:text-slate-300 text-xs font-semibold mb-1">
+                      ✅ Pros: Highest quality, strategic thinking, self-sufficient
+                    </Text>
+                    <Text className="text-slate-700 dark:text-slate-300 text-xs font-semibold">
+                      ❌ Cons: Very expensive, limited capacity, hard to scale
+                    </Text>
+                  </View>
+                </View>
+              </View>
+
+              {/* Key Insight */}
+              <View className="mt-4 bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-800 rounded-xl p-3">
+                <Text className="text-amber-700 dark:text-amber-400 text-xs font-semibold leading-relaxed">
+                  💡 Key Insight: With 5x AI multiplier, 5 apprentices (£10K) deliver 10x more output than 3 executives (£12K) at similar cost. But executives provide strategy and quality oversight.
+                </Text>
+              </View>
+            </View>
+          </View>
+
           {/* Pace & Runway Scenarios: Tortoise vs Hare */}
           <View className="mt-4">
             <Text className="text-slate-700 dark:text-slate-300 text-sm font-bold mb-3">
