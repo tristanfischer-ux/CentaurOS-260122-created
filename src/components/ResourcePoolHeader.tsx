@@ -64,13 +64,47 @@ export function ResourcePoolHeader({ selectedPersonId, onPersonSelect }: Resourc
     [allMembers]
   );
 
+  // Calculate total allocated and unallocated squares across all members
+  const { totalAllocated, totalUnallocated } = useMemo(() => {
+    let allocated = 0;
+    let total = 0;
+
+    members.forEach((member) => {
+      const capacity = getCapacityPerWeek(member);
+      const totalCapacity = capacity.normal + capacity.overtime;
+      const memberAllocated = getAllocatedTUs(member.id, workPlans);
+
+      allocated += memberAllocated;
+      total += totalCapacity;
+    });
+
+    return {
+      totalAllocated: allocated,
+      totalUnallocated: total - allocated,
+    };
+  }, [members, workPlans]);
+
   return (
     <View className="bg-white dark:bg-slate-900 border-b-2 border-gray-200 dark:border-slate-700">
       {/* Header */}
-      <View className="px-4 pt-2 pb-1.5 border-b border-gray-200 dark:border-slate-700">
+      <View className="px-4 pt-2 pb-1.5 border-b border-gray-200 dark:border-slate-700 flex-row items-center justify-between">
         <Text className="text-gray-900 dark:text-white text-xs font-bold">
-          RESOURCE POOL
+          WEEKLY RESOURCE POOL
         </Text>
+        <View className="flex-row items-center gap-3">
+          <View className="flex-row items-center">
+            <View className="w-2 h-2 rounded-full bg-red-500 mr-1" />
+            <Text className="text-gray-600 dark:text-slate-400 text-[10px] font-semibold">
+              {totalAllocated} allocated
+            </Text>
+          </View>
+          <View className="flex-row items-center">
+            <View className="w-2 h-2 rounded-full bg-emerald-500 mr-1" />
+            <Text className="text-gray-600 dark:text-slate-400 text-[10px] font-semibold">
+              {totalUnallocated} available
+            </Text>
+          </View>
+        </View>
       </View>
 
       {/* Resource List - Vertical scroll */}
