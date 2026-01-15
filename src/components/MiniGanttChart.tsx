@@ -106,10 +106,10 @@ export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress
     return cumulativeCost;
   };
 
-  // Generate 3 weeks: current week, next week, week after
+  // Generate weeks: 4 weeks before, current week, 8 weeks after (13 weeks total, showing 3 at a time)
   const weeks = useMemo(() => {
     const result = [];
-    for (let i = 0; i <= 2; i++) {
+    for (let i = -4; i <= 8; i++) {
       const weekDate = new Date(today);
       weekDate.setDate(today.getDate() + i * 7);
       const weekStart = getWeekStart(weekDate);
@@ -179,8 +179,8 @@ export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress
 
   // Auto-scroll to show today at far left when component mounts
   useEffect(() => {
-    // Scroll to position where current week (index 0) appears at the far left
-    const scrollPosition = 0; // No scroll needed, "This Week" is already at the start
+    // Scroll to position where current week (index 4) appears at the far left
+    const scrollPosition = WEEK_WIDTH * 4; // Scroll past the 4 weeks before current week
 
     setTimeout(() => {
       headerScrollRef.current?.scrollTo({ x: scrollPosition, y: 0, animated: true });
@@ -289,14 +289,14 @@ export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress
               {/* Current week indicator line */}
               <View
                 className="absolute top-0 bottom-0 w-0.5 bg-blue-500 dark:bg-blue-400 opacity-50"
-                style={{ left: WEEK_WIDTH / 2 }}
+                style={{ left: WEEK_WIDTH * 4 + WEEK_WIDTH / 2 }}
               />
 
               {/* Task bars */}
               <View className="py-2">
               {taskBars.map((bar, idx) => {
                 const colors = STATUS_COLORS[bar.task.status] || STATUS_COLORS['not-started'];
-                const leftPosition = WEEK_WIDTH * bar.startOffset; // No offset needed, week 0 is current week
+                const leftPosition = WEEK_WIDTH * (bar.startOffset + 4); // +4 to account for 4 weeks before current week
                 const barWidth = WEEK_WIDTH * bar.widthInWeeks - 8; // -8 for padding
                 const assignedMembers = getAssignedMembers(bar.task);
                 const AVATAR_WIDTH = 32; // Width for avatar section
