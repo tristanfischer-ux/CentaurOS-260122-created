@@ -651,6 +651,230 @@ export default function MissionControlHome() {
               )}
             </Pressable>
           </View>
+
+          {/* Pace & Runway Scenarios: Tortoise vs Hare */}
+          <View className="mt-4">
+            <Text className="text-slate-700 dark:text-slate-300 text-sm font-bold mb-3">
+              Pace & Runway Scenarios
+            </Text>
+
+            <View className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4">
+              <Text className="text-slate-600 dark:text-slate-400 text-xs mb-4 leading-relaxed">
+                Should you sprint fast and risk running out of cash, or move slowly and risk missing the market? Compare three scenarios:
+              </Text>
+
+              {/* Scenario Cards */}
+              <View className="gap-3">
+                {/* HARE: Fast Sprint */}
+                <View className="bg-gradient-to-br from-red-50 to-orange-50 dark:from-red-900/10 dark:to-orange-900/10 border-2 border-red-200 dark:border-red-800 rounded-xl p-4">
+                  <View className="flex-row items-center justify-between mb-3">
+                    <View className="flex-row items-center gap-2">
+                      <Text className="text-2xl">🐇</Text>
+                      <View>
+                        <Text className="text-slate-900 dark:text-white font-bold text-sm">
+                          Hare (Sprint)
+                        </Text>
+                        <Text className="text-slate-600 dark:text-slate-400 text-xs">
+                          Max speed, high burn
+                        </Text>
+                      </View>
+                    </View>
+                    <View className="bg-red-100 dark:bg-red-900/30 px-2 py-1 rounded-lg">
+                      <Text className="text-red-600 dark:text-red-400 text-xs font-bold">
+                        RISKY
+                      </Text>
+                    </View>
+                  </View>
+
+                  <View className="gap-2 mb-3">
+                    <View className="flex-row justify-between">
+                      <Text className="text-slate-600 dark:text-slate-400 text-xs">
+                        Team Size:
+                      </Text>
+                      <Text className="text-slate-900 dark:text-white text-xs font-bold">
+                        {members.length + 2} (+2 hires)
+                      </Text>
+                    </View>
+                    <View className="flex-row justify-between">
+                      <Text className="text-slate-600 dark:text-slate-400 text-xs">
+                        Monthly Burn:
+                      </Text>
+                      <Text className="text-red-600 dark:text-red-400 text-xs font-bold">
+                        £{((financials.burnPerMonth * 1.6) / 1000).toFixed(1)}K
+                      </Text>
+                    </View>
+                    <View className="flex-row justify-between">
+                      <Text className="text-slate-600 dark:text-slate-400 text-xs">
+                        Time to Launch:
+                      </Text>
+                      <Text className="text-emerald-600 dark:text-emerald-400 text-xs font-bold">
+                        ~2 months
+                      </Text>
+                    </View>
+                    <View className="flex-row justify-between">
+                      <Text className="text-slate-600 dark:text-slate-400 text-xs">
+                        Runway Left:
+                      </Text>
+                      <Text className="text-red-600 dark:text-red-400 text-xs font-bold">
+                        {Math.floor(financials.totalCash / (financials.burnPerMonth * 1.6))}mo
+                      </Text>
+                    </View>
+                  </View>
+
+                  <View className="border-t border-red-200 dark:border-red-800 pt-3">
+                    <Text className="text-slate-700 dark:text-slate-300 text-xs font-semibold mb-1">
+                      ✅ Pros: Fast to market, capitalize on opportunity
+                    </Text>
+                    <Text className="text-slate-700 dark:text-slate-300 text-xs font-semibold">
+                      ❌ Cons: Risk running out of cash before revenue
+                    </Text>
+                  </View>
+                </View>
+
+                {/* BALANCED: Middle Ground */}
+                <View className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/10 dark:to-indigo-900/10 border-2 border-blue-300 dark:border-blue-700 rounded-xl p-4">
+                  <View className="flex-row items-center justify-between mb-3">
+                    <View className="flex-row items-center gap-2">
+                      <Text className="text-2xl">⚖️</Text>
+                      <View>
+                        <Text className="text-slate-900 dark:text-white font-bold text-sm">
+                          Balanced
+                        </Text>
+                        <Text className="text-slate-600 dark:text-slate-400 text-xs">
+                          Steady pace, managed risk
+                        </Text>
+                      </View>
+                    </View>
+                    <View className="bg-blue-100 dark:bg-blue-900/30 px-2 py-1 rounded-lg">
+                      <Text className="text-blue-600 dark:text-blue-400 text-xs font-bold">
+                        RECOMMENDED
+                      </Text>
+                    </View>
+                  </View>
+
+                  <View className="gap-2 mb-3">
+                    <View className="flex-row justify-between">
+                      <Text className="text-slate-600 dark:text-slate-400 text-xs">
+                        Team Size:
+                      </Text>
+                      <Text className="text-slate-900 dark:text-white text-xs font-bold">
+                        {members.length + 1} (+1 hire)
+                      </Text>
+                    </View>
+                    <View className="flex-row justify-between">
+                      <Text className="text-slate-600 dark:text-slate-400 text-xs">
+                        Monthly Burn:
+                      </Text>
+                      <Text className="text-amber-600 dark:text-amber-400 text-xs font-bold">
+                        £{((financials.burnPerMonth * 1.2) / 1000).toFixed(1)}K
+                      </Text>
+                    </View>
+                    <View className="flex-row justify-between">
+                      <Text className="text-slate-600 dark:text-slate-400 text-xs">
+                        Time to Launch:
+                      </Text>
+                      <Text className="text-blue-600 dark:text-blue-400 text-xs font-bold">
+                        ~4 months
+                      </Text>
+                    </View>
+                    <View className="flex-row justify-between">
+                      <Text className="text-slate-600 dark:text-slate-400 text-xs">
+                        Runway Left:
+                      </Text>
+                      <Text className="text-blue-600 dark:text-blue-400 text-xs font-bold">
+                        {Math.floor(financials.totalCash / (financials.burnPerMonth * 1.2))}mo
+                      </Text>
+                    </View>
+                  </View>
+
+                  <View className="border-t border-blue-300 dark:border-blue-700 pt-3">
+                    <Text className="text-slate-700 dark:text-slate-300 text-xs font-semibold mb-1">
+                      ✅ Pros: Good speed, sustainable runway, time to pivot
+                    </Text>
+                    <Text className="text-slate-700 dark:text-slate-300 text-xs font-semibold">
+                      ⚠️ Cons: May miss fleeting opportunities
+                    </Text>
+                  </View>
+                </View>
+
+                {/* TORTOISE: Slow & Steady */}
+                <View className="bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-900/10 dark:to-teal-900/10 border-2 border-emerald-200 dark:border-emerald-800 rounded-xl p-4">
+                  <View className="flex-row items-center justify-between mb-3">
+                    <View className="flex-row items-center gap-2">
+                      <Text className="text-2xl">🐢</Text>
+                      <View>
+                        <Text className="text-slate-900 dark:text-white font-bold text-sm">
+                          Tortoise (Steady)
+                        </Text>
+                        <Text className="text-slate-600 dark:text-slate-400 text-xs">
+                          Low burn, long runway
+                        </Text>
+                      </View>
+                    </View>
+                    <View className="bg-emerald-100 dark:bg-emerald-900/30 px-2 py-1 rounded-lg">
+                      <Text className="text-emerald-600 dark:text-emerald-400 text-xs font-bold">
+                        SAFE
+                      </Text>
+                    </View>
+                  </View>
+
+                  <View className="gap-2 mb-3">
+                    <View className="flex-row justify-between">
+                      <Text className="text-slate-600 dark:text-slate-400 text-xs">
+                        Team Size:
+                      </Text>
+                      <Text className="text-slate-900 dark:text-white text-xs font-bold">
+                        {members.length} (current)
+                      </Text>
+                    </View>
+                    <View className="flex-row justify-between">
+                      <Text className="text-slate-600 dark:text-slate-400 text-xs">
+                        Monthly Burn:
+                      </Text>
+                      <Text className="text-emerald-600 dark:text-emerald-400 text-xs font-bold">
+                        £{(financials.burnPerMonth / 1000).toFixed(1)}K
+                      </Text>
+                    </View>
+                    <View className="flex-row justify-between">
+                      <Text className="text-slate-600 dark:text-slate-400 text-xs">
+                        Time to Launch:
+                      </Text>
+                      <Text className="text-amber-600 dark:text-amber-400 text-xs font-bold">
+                        ~6 months
+                      </Text>
+                    </View>
+                    <View className="flex-row justify-between">
+                      <Text className="text-slate-600 dark:text-slate-400 text-xs">
+                        Runway Left:
+                      </Text>
+                      <Text className="text-emerald-600 dark:text-emerald-400 text-xs font-bold">
+                        {Math.floor(financials.totalCash / financials.burnPerMonth)}mo
+                      </Text>
+                    </View>
+                  </View>
+
+                  <View className="border-t border-emerald-200 dark:border-emerald-800 pt-3">
+                    <Text className="text-slate-700 dark:text-slate-300 text-xs font-semibold mb-1">
+                      ✅ Pros: Maximum runway, time to iterate, less risk
+                    </Text>
+                    <Text className="text-slate-700 dark:text-slate-300 text-xs font-semibold">
+                      ❌ Cons: Slow to market, may miss opportunity window
+                    </Text>
+                  </View>
+                </View>
+              </View>
+
+              {/* Action CTA */}
+              <Pressable
+                onPress={() => router.push('/financial-dashboard')}
+                className="mt-4 bg-blue-500 rounded-xl py-3 items-center active:opacity-70"
+              >
+                <Text className="text-white text-sm font-bold">
+                  Explore Financial Scenarios
+                </Text>
+              </Pressable>
+            </View>
+          </View>
         </View>
 
         {/* ===== ACTING ===== */}
