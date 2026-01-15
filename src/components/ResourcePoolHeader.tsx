@@ -1,6 +1,5 @@
 import { View, Text, Pressable, ScrollView } from 'react-native';
 import { useMemo } from 'react';
-import { User, Zap } from 'lucide-react-native';
 import { useOrganizationStore } from '@/lib/state/organization-store';
 import { type OrganizationMember } from '@/lib/organization-seed';
 import { useWorkPlanStore, type WorkPlan } from '@/lib/state/work-plan-store';
@@ -17,12 +16,15 @@ const ROLE_COLORS: Record<string, string> = {
 };
 
 // Calculate TU capacity per week based on role
-const getCapacityPerWeek = (member: OrganizationMember): number => {
+const getCapacityPerWeek = (member: OrganizationMember): { normal: number; overtime: number } => {
   if (member.role === 'Founder' || member.role === 'Apprentice') {
-    return 10; // 10 squares per week (40 hours)
+    return { normal: 10, overtime: 5 }; // 10 normal + 5 overtime = 15 max
   }
   // Fractional exec: days per week * 2 squares per day
-  return (member.daysPerWeek || 2) * 2;
+  const daysPerWeek = member.daysPerWeek || 2;
+  const normalSquares = daysPerWeek * 2; // 2 squares per day
+  const overtimeSquares = Math.min((5 - daysPerWeek) * 2, 10); // Can increase up to 5 days max
+  return { normal: normalSquares, overtime: overtimeSquares };
 };
 
 // Calculate allocated TUs for a person across all tasks
@@ -47,133 +49,151 @@ export function ResourcePoolHeader({ selectedPersonId, onPersonSelect }: Resourc
   );
 
   return (
-    <View className="bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-700">
-      <View className="px-4 pt-3 pb-2">
-        <View className="flex-row items-center justify-between mb-2">
-          <Text className="text-gray-900 dark:text-white text-sm font-bold">
-            RESOURCE POOL
-          </Text>
-          <View className="flex-row items-center gap-2">
-            <View className="w-2 h-2 rounded-full bg-emerald-400" />
-            <Text className="text-gray-600 dark:text-slate-400 text-xs">
-              Available
-            </Text>
-            <View className="w-2 h-2 rounded-full bg-red-400" />
-            <Text className="text-gray-600 dark:text-slate-400 text-xs">
-              Allocated
-            </Text>
-          </View>
-        </View>
-        <Text className="text-gray-500 dark:text-slate-400 text-xs mb-3">
-          Tap a person to select, then tap a task to allocate their TUs
+    <View className="bg-white dark:bg-slate-900 border-b-2 border-gray-200 dark:border-slate-700">
+      {/* Header */}
+      <View className="px-4 pt-3 pb-2 border-b border-gray-200 dark:border-slate-700">
+        <Text className="text-gray-900 dark:text-white text-sm font-bold mb-1">
+          RESOURCE POOL
+        </Text>
+        <Text className="text-gray-500 dark:text-slate-400 text-xs">
+          Tap a person, then tap a task to allocate their TUs
         </Text>
       </View>
 
+      {/* Resource List - Vertical scroll */}
       <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        className="px-4 pb-3"
-        contentContainerStyle={{ gap: 8 }}
+        className="max-h-[300px]"
+        showsVerticalScrollIndicator={false}
       >
         {members.map((member) => {
-          const totalCapacity = getCapacityPerWeek(member);
+          const capacity = getCapacityPerWeek(member);
+          const totalCapacity = capacity.normal + capacity.overtime;
           const allocated = getAllocatedTUs(member.id, workPlans);
           const available = totalCapacity - allocated;
           const isSelected = selectedPersonId === member.id;
           const roleColor = ROLE_COLORS[member.role];
 
-          // Calculate percentage bars
-          const allocatedPercent = (allocated / totalCapacity) * 100;
-          const availablePercent = (available / totalCapacity) * 100;
+          // Render 15 squares (capacity.normal + capacity.overtime)
+          const squares = [];
+          for (let i = 0; i < 15; i++) {
+            let squareState: 'hidden' | 'available' | 'overtime-available' | 'allocated' | 'overtime-allocated' = 'hidden';
+
+            if (i < capacity.normal) {
+              // Normal capacity squares
+              squareState = i < allocated ? 'allocated' : 'available';
+            } else if (i < totalCapacity) {
+              // Overtime squares
+              squareState = i < allocated ? 'overtime-allocated' : 'overtime-available';
+            }
+
+            squares.push({
+              index: i,
+              state: squareState,
+            });
+          }
 
           return (
             <Pressable
               key={member.id}
               onPress={() => onPersonSelect(isSelected ? '' : member.id)}
-              className={`bg-white dark:bg-slate-800 rounded-xl border-2 p-3 min-w-[140px] active:opacity-70 ${
-                isSelected
-                  ? 'border-purple-500 dark:border-purple-400 shadow-lg'
-                  : 'border-gray-200 dark:border-slate-700'
+              className={`flex-row items-center px-4 py-3 border-b border-gray-100 dark:border-slate-800 active:bg-gray-50 dark:active:bg-slate-800 ${
+                isSelected ? 'bg-purple-50 dark:bg-purple-900/20' : ''
               }`}
             >
-              {/* Header with initials */}
-              <View className="flex-row items-center justify-between mb-2">
-                <View
-                  className="w-10 h-10 rounded-full items-center justify-center"
-                  style={{ backgroundColor: roleColor + '20' }}
-                >
-                  <Text className="font-bold text-sm" style={{ color: roleColor }}>
-                    {member.name.split(' ').map(n => n[0]).join('')}
+              {/* Left: Name and Role */}
+              <View className="w-32 mr-3">
+                <View className="flex-row items-center gap-2 mb-0.5">
+                  {/* Initials circle */}
+                  <View
+                    className="w-8 h-8 rounded-full items-center justify-center"
+                    style={{ backgroundColor: roleColor + '20' }}
+                  >
+                    <Text className="font-bold text-[10px]" style={{ color: roleColor }}>
+                      {member.name.split(' ').map(n => n[0]).join('')}
+                    </Text>
+                  </View>
+
+                  {/* Name */}
+                  <Text className="text-gray-900 dark:text-white text-sm font-semibold flex-1" numberOfLines={1}>
+                    {member.name}
                   </Text>
                 </View>
-                {isSelected && (
-                  <View className="w-3 h-3 rounded-full bg-purple-500" />
-                )}
+
+                {/* Role badge */}
+                <View
+                  className="px-2 py-0.5 rounded-full self-start ml-10"
+                  style={{ backgroundColor: roleColor + '15' }}
+                >
+                  <Text className="text-[9px] font-semibold" style={{ color: roleColor }}>
+                    {member.role === 'FractionalExec'
+                      ? `Exec (${member.daysPerWeek || 2}d/wk)`
+                      : member.role}
+                  </Text>
+                </View>
               </View>
 
-              {/* Name */}
-              <Text className="text-gray-900 dark:text-white text-xs font-semibold mb-1" numberOfLines={1}>
-                {member.name.split(' ')[0]}
-              </Text>
+              {/* Right: TU Squares Grid */}
+              <View className="flex-1 flex-row items-center gap-1">
+                {squares.map((square) => {
+                  if (square.state === 'hidden') {
+                    return <View key={square.index} className="w-5 h-5" />;
+                  }
 
-              {/* Role badge */}
-              <View
-                className="px-2 py-0.5 rounded-full mb-2 self-start"
-                style={{ backgroundColor: roleColor + '20' }}
-              >
-                <Text className="text-[10px] font-semibold" style={{ color: roleColor }}>
-                  {member.role === 'FractionalExec' ? 'Exec' : member.role}
+                  let bgColor = 'bg-gray-200 dark:bg-slate-700'; // available
+                  let borderColor = 'border-gray-300 dark:border-slate-600';
+
+                  if (square.state === 'allocated') {
+                    bgColor = 'bg-red-500';
+                    borderColor = 'border-red-600';
+                  } else if (square.state === 'overtime-available') {
+                    bgColor = 'bg-amber-100 dark:bg-amber-900/30';
+                    borderColor = 'border-amber-300 dark:border-amber-700';
+                  } else if (square.state === 'overtime-allocated') {
+                    bgColor = 'bg-orange-500';
+                    borderColor = 'border-orange-600';
+                  } else if (square.state === 'available') {
+                    bgColor = 'bg-emerald-100 dark:bg-emerald-900/30';
+                    borderColor = 'border-emerald-300 dark:border-emerald-700';
+                  }
+
+                  return (
+                    <View
+                      key={square.index}
+                      className={`w-5 h-5 rounded border ${bgColor} ${borderColor}`}
+                    />
+                  );
+                })}
+
+                {/* Available count */}
+                <Text className="text-gray-600 dark:text-slate-400 text-xs font-semibold ml-2">
+                  {available}/{totalCapacity}
                 </Text>
               </View>
 
-              {/* TU Capacity Bar */}
-              <View className="mb-1">
-                <View className="flex-row justify-between mb-1">
-                  <Text className="text-gray-600 dark:text-slate-400 text-[10px]">
-                    TUs/week
-                  </Text>
-                  <Text className="text-gray-900 dark:text-white text-[10px] font-bold">
-                    {available}/{totalCapacity}
-                  </Text>
-                </View>
-                <View className="h-2 bg-gray-200 dark:bg-slate-700 rounded-full overflow-hidden flex-row">
-                  {/* Allocated portion (red) */}
-                  {allocated > 0 && (
-                    <View
-                      className="bg-red-500"
-                      style={{ width: `${allocatedPercent}%` }}
-                    />
-                  )}
-                  {/* Available portion (green) */}
-                  {available > 0 && (
-                    <View
-                      className="bg-emerald-500"
-                      style={{ width: `${availablePercent}%` }}
-                    />
-                  )}
-                </View>
-              </View>
-
-              {/* Available count */}
-              {available > 0 ? (
-                <View className="flex-row items-center gap-1 mt-1">
-                  <View className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                  <Text className="text-emerald-600 dark:text-emerald-400 text-[10px] font-semibold">
-                    {available} available
-                  </Text>
-                </View>
-              ) : (
-                <View className="flex-row items-center gap-1 mt-1">
-                  <View className="w-1.5 h-1.5 rounded-full bg-red-500" />
-                  <Text className="text-red-600 dark:text-red-400 text-[10px] font-semibold">
-                    Fully allocated
-                  </Text>
-                </View>
+              {/* Selection indicator */}
+              {isSelected && (
+                <View className="w-2 h-2 rounded-full bg-purple-500 ml-2" />
               )}
             </Pressable>
           );
         })}
       </ScrollView>
+
+      {/* Legend */}
+      <View className="px-4 py-2 border-t border-gray-200 dark:border-slate-700 flex-row items-center justify-end gap-4">
+        <View className="flex-row items-center gap-1.5">
+          <View className="w-3 h-3 rounded border bg-emerald-100 border-emerald-300" />
+          <Text className="text-gray-600 dark:text-slate-400 text-[10px]">Available</Text>
+        </View>
+        <View className="flex-row items-center gap-1.5">
+          <View className="w-3 h-3 rounded border bg-red-500 border-red-600" />
+          <Text className="text-gray-600 dark:text-slate-400 text-[10px]">Allocated</Text>
+        </View>
+        <View className="flex-row items-center gap-1.5">
+          <View className="w-3 h-3 rounded border bg-amber-100 border-amber-300" />
+          <Text className="text-gray-600 dark:text-slate-400 text-[10px]">Overtime</Text>
+        </View>
+      </View>
     </View>
   );
 }
