@@ -52,6 +52,7 @@ interface Props {
 
 export function UnifiedTaskAllocationModal({ visible, onClose, workPlan }: Props) {
   const updateWorkPlan = useWorkPlanStore(s => s.updateWorkPlan);
+  const workPlans = useWorkPlanStore(s => s.workPlans);
   const members = useOrganizationStore(s => s.members);
 
   // Local state for editing
@@ -91,14 +92,45 @@ export function UnifiedTaskAllocationModal({ visible, onClose, workPlan }: Props
     return Math.floor(normalCapacity * 1.5); // 10 → 15, 4 → 6, etc.
   }, [getMemberCapacity]);
 
-  // Check if member is in overtime (allocated beyond normal capacity)
+  // Get TUs allocated to OTHER projects (LOCKED capacity)
+  const getOtherProjectAllocations = useCallback((memberId: string) => {
+    if (!workPlan) return 0;
+
+    // Sum up allocations from ALL OTHER in-progress work plans
+    return workPlans
+      .filter(wp => wp.id !== workPlan.id && wp.status === 'in-progress')
+      .reduce((total, wp) => {
+        const allocation = wp.allocations?.find(a => a.memberId === memberId);
+        return total + (allocation?.squaresPerWeek ?? 0);
+      }, 0);
+  }, [workPlans, workPlan]);
+
+  // Get actual remaining capacity (total - locked by other projects)
+  const getRemainingCapacity = useCallback((memberId: string) => {
+    const member = members.find(m => m.id === memberId);
+    if (!member) return 0;
+
+    const maxCapacity = getMaxCapacity(member);
+    const lockedByOthers = getOtherProjectAllocations(memberId);
+    const currentAllocation = allocations[memberId] ?? 0;
+
+    // Remaining = max capacity - locked capacity + current allocation to THIS project
+    // (We add back current allocation because it's not "locked" - user can remove it)
+    return Math.max(0, maxCapacity - lockedByOthers);
+  }, [members, getMaxCapacity, getOtherProjectAllocations, allocations]);
+
+  // Check if member is in overtime (total allocation across ALL projects > normal capacity)
   const isOvertime = useCallback((memberId: string) => {
     const member = members.find(m => m.id === memberId);
     if (!member) return false;
-    const allocation = allocations[memberId] ?? 0;
+
+    const currentAllocation = allocations[memberId] ?? 0;
+    const lockedByOthers = getOtherProjectAllocations(memberId);
+    const totalAllocation = currentAllocation + lockedByOthers;
     const normalCapacity = getMemberCapacity(member);
-    return allocation > normalCapacity;
-  }, [members, allocations, getMemberCapacity]);
+
+    return totalAllocation > normalCapacity;
+  }, [members, allocations, getMemberCapacity, getOtherProjectAllocations]);
 
   // Calculate cost per square for a member
   const getCostPerSquare = useCallback((member: OrganizationMember) => {
@@ -338,14 +370,14 @@ export function UnifiedTaskAllocationModal({ visible, onClose, workPlan }: Props
 
     const increment = getDefaultIncrement(member);
     const currentAllocation = allocations[memberId] ?? 0;
-    const maxCapacity = getMaxCapacity(member); // Use max capacity (with overtime)
+    const remainingCapacity = getRemainingCapacity(memberId);
 
-    // Add default increment, capped at MAX capacity (including overtime)
-    const newValue = Math.min(maxCapacity, currentAllocation + increment);
-    if (newValue === currentAllocation) return; // Already at max capacity
+    // Can only allocate up to remaining capacity (respects locked TUs from other projects)
+    const newValue = Math.min(remainingCapacity, currentAllocation + increment);
+    if (newValue === currentAllocation) return; // No capacity left
 
     setAllocations(prev => ({ ...prev, [memberId]: newValue }));
-  }, [members, allocations, getDefaultIncrement, getMaxCapacity]);
+  }, [members, allocations, getDefaultIncrement, getRemainingCapacity]);
 
   // Handle remove TUs (entire allocation)
   const handleRemoveTUs = useCallback((memberId: string, e: any) => {
@@ -361,15 +393,17 @@ export function UnifiedTaskAllocationModal({ visible, onClose, workPlan }: Props
     const currentAllocation = allocations[member.id] ?? 0;
     const normalCapacity = getMemberCapacity(member);
     const maxCapacity = getMaxCapacity(member);
+    const lockedByOthers = getOtherProjectAllocations(member.id);
+    const remainingCapacity = getRemainingCapacity(member.id);
     const costPerSquare = getCostPerSquare(member);
     const isMatch = isFunctionMatch(member);
     const isMismatched = isMismatch(member);
     const defaultIncrement = getDefaultIncrement(member);
-    const available = maxCapacity - currentAllocation;
+    const available = remainingCapacity - currentAllocation;
     const inOvertime = isOvertime(member.id);
 
     // DEBUG LOG
-    console.log(`[UnifiedTaskAllocationModal] Rendering ${member.name} with capacity ${normalCapacity}, max ${maxCapacity}, allocated ${currentAllocation}`);
+    console.log(`[UnifiedTaskAllocationModal] Rendering ${member.name} with normal ${normalCapacity}, max ${maxCapacity}, locked ${lockedByOthers}, current ${currentAllocation}, remaining ${remainingCapacity}`);
 
     return (
       <Pressable
@@ -459,7 +493,7 @@ export function UnifiedTaskAllocationModal({ visible, onClose, workPlan }: Props
           <View className="mb-2">
             <View className="flex-row items-center justify-between mb-1">
               <Text className="text-gray-600 dark:text-slate-400 text-xs font-medium">
-                Capacity: {currentAllocation}□ allocated • {available}□ free {inOvertime ? '(OVERTIME)' : ''}
+                Capacity: {currentAllocation}□ here • {lockedByOthers}□ locked • {available}□ free
               </Text>
               {currentAllocation > 0 && (
                 <Text className={`text-xs font-semibold ${
@@ -472,27 +506,45 @@ export function UnifiedTaskAllocationModal({ visible, onClose, workPlan }: Props
             <View className="flex-row flex-wrap gap-1">
               {Array.from({ length: maxCapacity }).map((_, idx) => {
                 const isNormalRange = idx < normalCapacity;
-                const isAllocated = idx < currentAllocation;
+
+                // Calculate cumulative allocations
+                const totalAllocated = currentAllocation + lockedByOthers;
+                const isAllocatedHere = idx < currentAllocation;
+                const isLockedByOthers = !isAllocatedHere && idx < totalAllocated;
+                const isFree = idx >= totalAllocated;
 
                 return (
                   <View
                     key={idx}
                     className={`w-7 h-7 rounded border ${
-                      isAllocated
+                      isAllocatedHere
                         ? isMismatched
-                          ? 'bg-red-500 border-red-600'
+                          ? 'bg-red-500 border-red-600' // Skill mismatch
                           : !isNormalRange
-                            ? 'bg-orange-500 border-orange-600' // Overtime squares
-                            : 'bg-blue-500 border-blue-600' // Normal squares
-                        : isNormalRange
-                          ? 'bg-gray-100 dark:bg-slate-800 border-gray-300 dark:border-slate-600' // Normal free
-                          : 'bg-orange-100 dark:bg-orange-900/20 border-orange-300 dark:border-orange-600' // Overtime free
+                            ? 'bg-orange-500 border-orange-600' // Overtime
+                            : 'bg-blue-500 border-blue-600' // Normal allocation here
+                        : isLockedByOthers
+                          ? 'bg-yellow-500 border-yellow-600' // LOCKED by other projects
+                          : isFree
+                            ? isNormalRange
+                              ? 'bg-gray-100 dark:bg-slate-800 border-gray-300 dark:border-slate-600' // Free normal
+                              : 'bg-orange-100 dark:bg-orange-900/20 border-orange-300 dark:border-orange-600' // Free overtime
+                            : 'bg-gray-100 dark:bg-slate-800 border-gray-300 dark:border-slate-600'
                     }`}
                   />
                 );
               })}
             </View>
           </View>
+
+          {lockedByOthers > 0 && (
+            <View className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-2 flex-row items-start mb-2">
+              <AlertCircle size={14} color="#eab308" />
+              <Text className="text-yellow-700 dark:text-yellow-300 text-xs ml-2 flex-1">
+                <Text className="font-bold">Locked:</Text> {lockedByOthers}□ allocated to other projects. Remove from other tasks to free up capacity.
+              </Text>
+            </View>
+          )}
 
           {inOvertime && (
             <View className="bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-lg p-2 flex-row items-start mb-2">
@@ -514,7 +566,7 @@ export function UnifiedTaskAllocationModal({ visible, onClose, workPlan }: Props
         </Animated.View>
       </Pressable>
     );
-  }, [allocations, getMemberCapacity, getMaxCapacity, getCostPerSquare, isFunctionMatch, isMismatch, getDefaultIncrement, handleMemberTap, handleRemoveTUs, workPlan, isOvertime]);
+  }, [allocations, getMemberCapacity, getMaxCapacity, getOtherProjectAllocations, getRemainingCapacity, getCostPerSquare, isFunctionMatch, isMismatch, getDefaultIncrement, handleMemberTap, handleRemoveTUs, workPlan, isOvertime]);
 
   if (!workPlan) return null;
 
