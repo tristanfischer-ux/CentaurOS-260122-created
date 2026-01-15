@@ -153,6 +153,7 @@ export default function DecideScreen() {
   // Then you tap people in the pool to allocate to the selected task
   const [selectedPersonId, setSelectedPersonId] = useState<string | null>(null);
   const [selectedTaskForAllocation, setSelectedTaskForAllocation] = useState<WorkPlan | null>(null);
+  const [editedTaskTitle, setEditedTaskTitle] = useState<string>('');
 
   // Task details modal state (for completed/abandoned tasks)
   const [showTaskDetailsModal, setShowTaskDetailsModal] = useState(false);
@@ -630,10 +631,32 @@ export default function DecideScreen() {
   // Confirm allocation changes
   const handleConfirmAllocation = useCallback(() => {
     if (selectedTaskForAllocation) {
+      // Save title if it was edited
+      if (editedTaskTitle && editedTaskTitle !== selectedTaskForAllocation.title) {
+        updateWorkPlan(selectedTaskForAllocation.id, { title: editedTaskTitle });
+      }
       setSelectedTaskForAllocation(null);
+      setEditedTaskTitle('');
       Alert.alert('Confirmed', 'Resource allocation confirmed!');
     }
-  }, [selectedTaskForAllocation]);
+  }, [selectedTaskForAllocation, editedTaskTitle, updateWorkPlan]);
+
+  // Handle saving task title
+  const handleSaveTaskTitle = useCallback(() => {
+    if (selectedTaskForAllocation && editedTaskTitle && editedTaskTitle !== selectedTaskForAllocation.title) {
+      updateWorkPlan(selectedTaskForAllocation.id, { title: editedTaskTitle });
+      setSelectedTaskForAllocation(prev => prev ? { ...prev, title: editedTaskTitle } : null);
+    }
+  }, [selectedTaskForAllocation, editedTaskTitle, updateWorkPlan]);
+
+  // Initialize edited title when task is selected
+  useEffect(() => {
+    if (selectedTaskForAllocation) {
+      setEditedTaskTitle(selectedTaskForAllocation.title);
+    } else {
+      setEditedTaskTitle('');
+    }
+  }, [selectedTaskForAllocation?.id]);
 
   // Confirm moving OKR to queue or abandoning task
   const confirmMoveToQueue = useCallback(() => {
@@ -1168,9 +1191,22 @@ export default function DecideScreen() {
               <X size={16} color="#3b82f6" />
             </Pressable>
 
-            <Text className="text-blue-900 dark:text-blue-100 font-bold text-base mb-2">
-              {selectedTaskForAllocation.title}
-            </Text>
+            {/* Editable Title */}
+            <View className="mb-2">
+              <Text className="text-blue-600 dark:text-blue-400 text-xs font-semibold mb-1">
+                Task Name
+              </Text>
+              <TextInput
+                value={editedTaskTitle}
+                onChangeText={setEditedTaskTitle}
+                onBlur={handleSaveTaskTitle}
+                className="text-blue-900 dark:text-blue-100 font-bold text-base bg-white dark:bg-slate-800 rounded-lg px-3 py-2 border border-blue-200 dark:border-blue-700"
+                placeholder="Enter task name"
+                placeholderTextColor="#94a3b8"
+                multiline
+              />
+            </View>
+
             <Text className="text-blue-700 dark:text-blue-300 text-sm mb-3">
               {selectedTaskForAllocation.description}
             </Text>
