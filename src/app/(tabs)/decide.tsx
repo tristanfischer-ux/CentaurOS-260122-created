@@ -1558,13 +1558,23 @@ export default function DecideScreen() {
 
         {/* ACTIVE TASKS (with resources allocated) */}
         {(() => {
-          const activeTasks = workPlans.filter(wp =>
-            (selectedFunction === 'all' || wp.function === selectedFunction) &&
-            wp.status !== 'completed' &&
-            wp.status !== 'abandoned' &&
-            wp.assignedMemberIds &&
-            wp.assignedMemberIds.length > 0
-          );
+          // Helper to calculate days to completion
+          const calculateDaysToCompletion = (plan: WorkPlan): number => {
+            const totalAllocated = plan.allocations?.reduce((sum, a) => sum + a.squaresPerWeek, 0) || 0;
+            if (totalAllocated === 0) return Infinity; // No allocation = infinite days
+            const weeks = Math.ceil(plan.estimatedTimeUnits / totalAllocated);
+            return weeks * 5; // 5 working days per week
+          };
+
+          const activeTasks = workPlans
+            .filter(wp =>
+              (selectedFunction === 'all' || wp.function === selectedFunction) &&
+              wp.status !== 'completed' &&
+              wp.status !== 'abandoned' &&
+              wp.assignedMemberIds &&
+              wp.assignedMemberIds.length > 0
+            )
+            .sort((a, b) => calculateDaysToCompletion(a) - calculateDaysToCompletion(b)); // Sort by days (shortest first)
 
           return activeTasks.length > 0 ? (
             <View className="mb-4">
@@ -1583,6 +1593,8 @@ export default function DecideScreen() {
                 {activeTasks.map((plan) => {
                   const assignedMembers = getAssignedMembers(plan);
                   const taskCost = calculateTaskCost(plan);
+                  const daysToCompletion = calculateDaysToCompletion(plan);
+
                   return (
                     <SwipeableTaskCard
                       key={plan.id}
@@ -1623,6 +1635,13 @@ export default function DecideScreen() {
                                 </Text>
                               </View>
                             </View>
+                          </View>
+
+                          {/* Days to Completion Badge */}
+                          <View className="bg-blue-100 dark:bg-blue-900/30 px-2 py-1 rounded-lg mr-2">
+                            <Text className="text-blue-700 dark:text-blue-300 text-xs font-bold">
+                              {daysToCompletion}d
+                            </Text>
                           </View>
 
                           {/* Assigned Members Avatars */}
@@ -1698,12 +1717,14 @@ export default function DecideScreen() {
 
         {/* QUEUED TASKS (no resources allocated) */}
         {(() => {
-          const queuedTasks = workPlans.filter(wp =>
-            (selectedFunction === 'all' || wp.function === selectedFunction) &&
-            wp.status !== 'completed' &&
-            wp.status !== 'abandoned' &&
-            (!wp.assignedMemberIds || wp.assignedMemberIds.length === 0)
-          );
+          const queuedTasks = workPlans
+            .filter(wp =>
+              (selectedFunction === 'all' || wp.function === selectedFunction) &&
+              wp.status !== 'completed' &&
+              wp.status !== 'abandoned' &&
+              (!wp.assignedMemberIds || wp.assignedMemberIds.length === 0)
+            )
+            .sort((a, b) => a.estimatedTimeUnits - b.estimatedTimeUnits); // Sort by required TUs (smallest first)
 
           return queuedTasks.length > 0 ? (
             <View className="mb-4">
@@ -1722,6 +1743,9 @@ export default function DecideScreen() {
                 {queuedTasks.map((plan) => {
                   const assignedMembers = getAssignedMembers(plan);
                   const taskCost = calculateTaskCost(plan);
+                  // Estimate days if allocated minimum (1 TU per week)
+                  const estimatedDays = Math.ceil(plan.estimatedTimeUnits / 1) * 5; // Assume 1 TU/week minimum
+
                   return (
                     <SwipeableTaskCard
                       key={plan.id}
@@ -1761,6 +1785,13 @@ export default function DecideScreen() {
                                 </Text>
                               </View>
                             </View>
+                          </View>
+
+                          {/* Estimated Days Badge */}
+                          <View className="bg-orange-100 dark:bg-orange-900/30 px-2 py-1 rounded-lg mr-2">
+                            <Text className="text-orange-700 dark:text-orange-300 text-xs font-bold">
+                              ~{estimatedDays}d
+                            </Text>
                           </View>
 
                           {/* Empty avatar placeholder */}
