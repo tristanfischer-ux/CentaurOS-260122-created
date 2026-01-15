@@ -16,28 +16,16 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
 ## 🔄 Recent Updates (Jan 2026)
 
 ### Decide Tab Enhancements (Latest)
-- **Quick Stats Dashboard**: Real-time metrics and insights at a glance
-  - **Active Tasks Card**: Live count of in-progress tasks with emerald gradient background
-  - **Queued Tasks Card**: Displays tasks awaiting resource allocation with orange gradient
-  - **Team Utilization Card**: Real-time capacity tracking with utilization percentage and TU allocation (X/Y TU)
-  - **Weekly Cost Display**: Automatic calculation of total weekly cost based on current allocations
-  - **Smart Progress Bar**: Color-coded capacity indicator (purple <70%, orange 70-90%, red >90%)
-- **Smart Insights & Warnings**: AI-powered recommendations and proactive alerts
-  - **Over-Capacity Alert**: Warns when utilization exceeds 90% with actionable suggestions
-  - **Queue Notification**: Alerts when more than 5 tasks are queued, prompting auto-allocation
-  - **Blocked Tasks Warning**: Highlights tasks requiring immediate attention to maintain momentum
-  - **Capacity Opportunities**: Identifies underutilization (<50%) when work is queued
-  - **Visual Icons**: Color-coded badges (red/orange/emerald) with icons for instant recognition
-- **Enhanced UX & Visual Design**: Complete redesign for improved clarity and usability
-  - **Cleaner Information Hierarchy**: Simplified section headers with clear visual distinction
-  - **Improved Spacing**: Increased gap between sections (gap-3 vs gap-2) for better readability
-  - **Modernized Card Design**: Rounded cards (rounded-2xl) with subtle shadows and cleaner borders
-  - **Better Typography**: Consistent use of text-sm font-bold for section headers
-  - **Status Badge Redesign**: Pill-shaped badges with transparent backgrounds for modern look
-  - **Larger Avatars**: Increased from 7px to 8px with better overlap for clearer team visibility
-  - **Removed Redundant Elements**: Eliminated duplicate function filter (kept only in Gantt chart)
-  - **Enhanced Allocation Panel**: More prominent styling with gradient background for selected tasks
-  - **Streamlined Task Cards**: Cleaner borders and more breathing room in all sections
+- **Simplified UI**: Removed cluttered sections for cleaner, more focused experience
+  - Removed TU Optimization Opportunities section
+  - Removed Completed Tasks section (historical task audit)
+  - Removed Abandoned Tasks section (deleted task tracking)
+  - Removed Company Aim Banner (duplicate of workspace settings)
+- **Core Focus**: Tab now focuses on the essential workflow:
+  - Weekly Resource Pool for team capacity
+  - Mini Gantt Chart for visual task timeline
+  - Task allocation panel for resource assignment
+  - Active and queued task management
 - **Mini Gantt Chart Timeline**: Interactive weekly timeline with synchronized scrolling
   - **13-Week Scrollable View**: 4 weeks past, current week, 8 weeks future - scroll left/right to navigate full timeline
   - **Dynamic Week Width**: Each visible week spans exactly 1/3 of screen width for optimal space
