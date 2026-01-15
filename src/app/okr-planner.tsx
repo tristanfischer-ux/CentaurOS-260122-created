@@ -80,11 +80,46 @@ export default function OKRPlannerScreen() {
     }
   }, [okr?.id, currentWorkspace?.id]);
 
-  // Filter members by function
-  const relevantMembers = useMemo(() => {
-    if (!okr) return [];
-    return members.filter((m) => m.function === okr.function || m.role === 'Founder');
-  }, [members, okr?.function]);
+  // Get ALL active members (not just relevant function)
+  const allMembers = useMemo(() => {
+    return members.filter((m) => m.status === 'active');
+  }, [members]);
+
+  // Check if member function matches task (for FIT badge)
+  const isFunctionMatch = (member: any) => {
+    if (!okr) return false;
+    if (member.role === 'Founder') return true;
+    return member.function === okr.function || member.function === 'General';
+  };
+
+  // Check if member is mismatched for this task
+  const isMismatch = (member: any) => {
+    if (!okr) return false;
+    if (member.role === 'Founder' || member.function === 'General') return false;
+    return member.function !== okr.function;
+  };
+
+  // Get member's ACTUAL remaining capacity (accounting for OTHER projects)
+  const getActualRemainingCapacity = (memberId: string) => {
+    const member = members.find(m => m.id === memberId);
+    if (!member) return 0;
+
+    const totalCapacity = getMemberCapacity(member);
+
+    // Get allocations from ALL OTHER work plans (in-progress only, not planning)
+    const allocatedToOtherPlans = workPlans
+      .filter(wp => wp.status === 'in-progress')
+      .reduce((total, wp) => {
+        const allocation = wp.allocations?.find(a => a.memberId === memberId);
+        return total + (allocation?.squaresPerWeek ?? 0);
+      }, 0);
+
+    // Get current allocation to THIS plan
+    const currentPlanAllocation = getTUAllocation(memberId);
+
+    // Remaining = total - other plans (not including this plan)
+    return Math.max(0, totalCapacity - allocatedToOtherPlans + currentPlanAllocation);
+  };
 
   // Build current plan for forecast
   const currentPlan = useMemo<OKRPlan | null>(() => {
@@ -178,7 +213,7 @@ export default function OKRPlannerScreen() {
 
   // Get TU allocation from percentage
   const getTUAllocation = (memberId: string) => {
-    const member = relevantMembers.find(m => m.id === memberId);
+    const member = allMembers.find((m: any) => m.id === memberId);
     if (!member) return 0;
     const allocation = planAllocations.find(a => a.memberId === memberId);
     if (!allocation) return 0;
@@ -193,7 +228,7 @@ export default function OKRPlannerScreen() {
       savePlanSnapshot(activePlan.id);
     }
 
-    const member = relevantMembers.find(m => m.id === memberId);
+    const member = allMembers.find((m: any) => m.id === memberId);
     if (!member) return;
 
     const currentTUs = getTUAllocation(memberId);
@@ -235,18 +270,18 @@ export default function OKRPlannerScreen() {
 
     // Select members based on preset
     const { defaultAllocations } = preset;
-    const apprentices = relevantMembers
-      .filter((m) => m.role === 'Apprentice')
+    const apprentices = allMembers
+      .filter((m: any) => m.role === 'Apprentice')
       .slice(0, defaultAllocations.apprenticeCount);
-    const execs = relevantMembers
-      .filter((m) => m.role === 'FractionalExec')
+    const execs = allMembers
+      .filter((m: any) => m.role === 'FractionalExec')
       .slice(0, defaultAllocations.execCount);
     const founder = defaultAllocations.founderInvolved
-      ? relevantMembers.filter((m) => m.role === 'Founder').slice(0, 1)
+      ? allMembers.filter((m: any) => m.role === 'Founder').slice(0, 1)
       : [];
 
     const newAllocations: MemberAllocation[] = [...founder, ...execs, ...apprentices].map(
-      (m) => ({
+      (m: any) => ({
         memberId: m.id,
         allocationPct: defaultAllocations.allocationPct,
       })
@@ -457,11 +492,11 @@ export default function OKRPlannerScreen() {
             </Text>
           </View>
 
-          {relevantMembers.length === 0 ? (
+          {allMembers.length === 0 ? (
             <View className="bg-gray-900 border border-gray-800 rounded-xl p-6 items-center">
               <Users size={32} color="#6b7280" />
               <Text className="text-gray-400 text-center mt-3">
-                No team members available for {okr.function} function.
+                No team members available.
               </Text>
               <Text className="text-gray-500 text-center text-xs mt-2">
                 Add team members in the Team Management screen.
@@ -469,23 +504,45 @@ export default function OKRPlannerScreen() {
             </View>
           ) : (
             <View className="gap-3">
-              {relevantMembers.map((member) => {
+              {allMembers.map((member: any) => {
                 const currentTUs = getTUAllocation(member.id);
                 const capacity = getMemberCapacity(member);
                 const costPerTU = getCostPerTU(member);
-                const available = capacity - currentTUs;
+                const actualRemaining = getActualRemainingCapacity(member.id);
+                const isMatch = isFunctionMatch(member);
+                const isMismatched = isMismatch(member);
 
                 return (
                   <Pressable
                     key={member.id}
                     onPress={() => handleAddTUs(member.id)}
-                    className="bg-gray-900 border-2 border-gray-800 rounded-xl p-4 active:border-blue-500"
+                    className={`border-2 rounded-xl p-4 active:border-blue-500 ${
+                      isMismatched && currentTUs > 0
+                        ? 'bg-red-900/20 border-red-700'
+                        : 'bg-gray-900 border-gray-800'
+                    }`}
                   >
                     <View className="flex-row items-center justify-between mb-3">
                       <View className="flex-1">
-                        <Text className="text-white text-base font-medium">
-                          {member.name}
-                        </Text>
+                        <View className="flex-row items-center gap-2 flex-wrap">
+                          <Text className="text-white text-base font-medium">
+                            {member.name}
+                          </Text>
+                          {isMatch && (
+                            <View className="bg-emerald-500/20 px-2 py-0.5 rounded">
+                              <Text className="text-emerald-400 text-[10px] font-bold">
+                                FIT
+                              </Text>
+                            </View>
+                          )}
+                          {isMismatched && currentTUs > 0 && (
+                            <View className="bg-red-500/20 px-2 py-0.5 rounded">
+                              <Text className="text-red-400 text-[10px] font-bold">
+                                MISMATCH
+                              </Text>
+                            </View>
+                          )}
+                        </View>
                         <Text className="text-gray-400 text-sm">
                           {member.role} • {member.function} • £{costPerTU}/□
                         </Text>
@@ -524,7 +581,7 @@ export default function OKRPlannerScreen() {
                     <View className="mb-2">
                       <View className="flex-row items-center justify-between mb-1">
                         <Text className="text-gray-400 text-xs font-medium">
-                          Capacity: {currentTUs}□ allocated • {available}□ free
+                          Total: {capacity}□ • This plan: {currentTUs}□ • Available: {actualRemaining}□
                         </Text>
                         {currentTUs > 0 && (
                           <Text className="text-blue-400 text-xs font-semibold">
@@ -533,18 +590,41 @@ export default function OKRPlannerScreen() {
                         )}
                       </View>
                       <View className="flex-row flex-wrap gap-1">
-                        {Array.from({ length: capacity }).map((_, idx) => (
-                          <View
-                            key={idx}
-                            className={`w-7 h-7 rounded border ${
-                              idx < currentTUs
-                                ? 'bg-blue-500 border-blue-600'
-                                : 'bg-gray-800 border-gray-700'
-                            }`}
-                          />
-                        ))}
+                        {Array.from({ length: capacity }).map((_, idx) => {
+                          const allocatedToOther = capacity - actualRemaining - currentTUs;
+                          const isAllocatedHere = idx < currentTUs;
+                          const isAllocatedElsewhere = !isAllocatedHere && idx < currentTUs + allocatedToOther;
+
+                          return (
+                            <View
+                              key={idx}
+                              className={`w-7 h-7 rounded border ${
+                                isAllocatedHere
+                                  ? isMismatched
+                                    ? 'bg-red-500 border-red-600'
+                                    : 'bg-blue-500 border-blue-600'
+                                  : isAllocatedElsewhere
+                                    ? 'bg-yellow-500 border-yellow-600'
+                                    : 'bg-gray-800 border-gray-700'
+                              }`}
+                            />
+                          );
+                        })}
                       </View>
+                      {actualRemaining < capacity - currentTUs && (
+                        <Text className="text-yellow-400 text-xs mt-1">
+                          ⚠ {capacity - actualRemaining - currentTUs}□ allocated to other projects
+                        </Text>
+                      )}
                     </View>
+
+                    {isMismatched && currentTUs > 0 && (
+                      <View className="bg-red-900/20 border border-red-800 rounded-lg p-2 flex-row items-start">
+                        <Text className="text-red-400 text-xs ml-2 flex-1">
+                          <Text className="font-bold">Skill Mismatch:</Text> {member.function} on {okr?.function} task. 50% penalty.
+                        </Text>
+                      </View>
+                    )}
                   </Pressable>
                 );
               })}
