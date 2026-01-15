@@ -24,7 +24,6 @@ import { SwipeableOKRCard, SwipeableTaskCard } from '@/components/SwipeableOKRCa
 import { CompanyAimBanner } from '@/components/CompanyAimBanner';
 import { CompanyAimModal } from '@/components/CompanyAimModal';
 import { SquaresDisplay } from '@/components/SquaresDisplay';
-import { ResourceBar } from '@/components/ResourceBar';
 import { useResourceStore, type PersonResource, getTeamSizeEfficiency } from '@/lib/state/resource-store';
 import { UnifiedTaskAllocationModal } from '@/components/UnifiedTaskAllocationModal';
 
@@ -187,10 +186,6 @@ export default function DecideScreen() {
   const [workPlanItems, setWorkPlanItems] = useState<WorkPlanItem[]>([]);
   const [showWorkPlanSection, setShowWorkPlanSection] = useState(false);
 
-  // Team member assignment state
-  const [selectedMemberForAssign, setSelectedMemberForAssign] = useState<string | null>(null);
-  const [showTeamDock, setShowTeamDock] = useState(true);
-
   // Organization members for assignment
   const orgMembers = useOrganizationStore(s => s.members);
 
@@ -248,31 +243,6 @@ export default function DecideScreen() {
       case 'FractionalExec': return '#10b981'; // Emerald
       case 'Apprentice': return '#3b82f6'; // Blue
     }
-  };
-
-  // Handle assigning a member to a work plan
-  const handleAssignMember = (workPlanId: string, memberId: string) => {
-    const workPlan = workPlans.find(wp => wp.id === workPlanId);
-    if (!workPlan) return;
-
-    const currentAssigned = workPlan.assignedMemberIds || [];
-    if (!currentAssigned.includes(memberId)) {
-      updateWorkPlan(workPlanId, {
-        assignedMemberIds: [...currentAssigned, memberId]
-      });
-    }
-    setSelectedMemberForAssign(null);
-  };
-
-  // Handle removing a member from a work plan
-  const handleRemoveMember = (workPlanId: string, memberId: string) => {
-    const workPlan = workPlans.find(wp => wp.id === workPlanId);
-    if (!workPlan) return;
-
-    const currentAssigned = workPlan.assignedMemberIds || [];
-    updateWorkPlan(workPlanId, {
-      assignedMemberIds: currentAssigned.filter(id => id !== memberId)
-    });
   };
 
   // Get assigned members for a work plan
@@ -1216,9 +1186,8 @@ export default function DecideScreen() {
                                     {assignedMembers.length > 0 ? (
                                       <View className="flex-row -space-x-2">
                                         {assignedMembers.slice(0, 4).map((member, idx) => (
-                                          <Pressable
+                                          <View
                                             key={member.id}
-                                            onPress={() => handleRemoveMember(plan.id, member.id)}
                                             style={{ marginLeft: idx > 0 ? -8 : 0, zIndex: 10 - idx }}
                                           >
                                             <View
@@ -1227,7 +1196,7 @@ export default function DecideScreen() {
                                             >
                                               <Text className="text-white font-bold text-[10px]">{getInitials(member.name)}</Text>
                                             </View>
-                                          </Pressable>
+                                          </View>
                                         ))}
                                         {assignedMembers.length > 4 && (
                                           <View className="w-8 h-8 rounded-full items-center justify-center bg-gray-400 border-2 border-white dark:border-slate-800" style={{ marginLeft: -8 }}>
