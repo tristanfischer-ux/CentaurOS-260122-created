@@ -92,7 +92,8 @@ export function computeForecast(inputs: ForecastInputs): ForecastMetrics {
   const effectiveThroughput = baseThroughputHours * (1 - overheadPct);
 
   // F) Calculate ETA
-  const etaWeeksP50 = effectiveThroughput > 0 ? remainingHours / effectiveThroughput : 999;
+  // Return null/inf if no throughput (prevents showing unrealistic 999 weeks)
+  const etaWeeksP50 = effectiveThroughput > 0 ? remainingHours / effectiveThroughput : Infinity;
 
   // G) Calculate rework risk
   const reworkRiskPct = calculateReworkRisk(plan, members, aiAgents, overheadPct, calibration);
@@ -479,7 +480,7 @@ function calculateBaselineComparison(
   const baselineHoursPerWeek = HOURS_PER_WEEK.Apprentice;
   const baselineOverhead = MIN_OVERHEAD; // Single person, minimal overhead
   const baselineEffectiveThroughput = baselineHoursPerWeek * (1 - baselineOverhead);
-  const baselineEta = baselineEffectiveThroughput > 0 ? remainingHours / baselineEffectiveThroughput : 999;
+  const baselineEta = baselineEffectiveThroughput > 0 ? remainingHours / baselineEffectiveThroughput : Infinity;
 
   const apprenticeDailyRate = apprentice.costPerDay || 0;
   const apprenticeDaysPerWeek = apprentice.daysPerWeek || 5;

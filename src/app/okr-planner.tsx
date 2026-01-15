@@ -467,7 +467,7 @@ export default function OKRPlannerScreen() {
                     <View className="flex-row items-center justify-between">
                       <Text className="text-gray-500 text-xs">ETA:</Text>
                       <Text className="text-white text-sm font-medium">
-                        {rec.forecast.etaWeeksP50.toFixed(1)} weeks
+                        {!isFinite(rec.forecast.etaWeeksP50) ? '—' : `${rec.forecast.etaWeeksP50.toFixed(1)} weeks`}
                       </Text>
                     </View>
                     <View className="flex-row items-center justify-between">
@@ -790,7 +790,7 @@ export default function OKRPlannerScreen() {
                 <Text className="text-gray-400 text-xs">Delivery Time</Text>
               </View>
               <Text className="text-white text-lg font-bold">
-                {forecast.etaWeeksP50.toFixed(1)} weeks
+                {!isFinite(forecast.etaWeeksP50) ? '—' : `${forecast.etaWeeksP50.toFixed(1)} weeks`}
               </Text>
             </View>
 
