@@ -12,6 +12,7 @@ import {
   Circle,
   ArrowLeft,
   X,
+  RotateCcw,
 } from 'lucide-react-native';
 import { useTechTreeStore } from '@/lib/state/tech-tree-store';
 import { TECH_TREE_NODES } from '@/lib/data/tech-tree-nodes';
@@ -20,15 +21,24 @@ import type { TechNode, NodeState } from '@/lib/types/tech-tree-types';
 export default function GettingStartedScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
+  const [showResetConfirm, setShowResetConfirm] = useState(false);
 
   // Store
   const initialize = useTechTreeStore((s) => s.initialize);
   const totalNodesCompleted = useTechTreeStore((s) => s.totalNodesCompleted);
   const getNodeState = useTechTreeStore((s) => s.getNodeState);
+  const resetProgress = useTechTreeStore((s) => s.resetProgress);
 
   useEffect(() => {
+    console.log('[GettingStarted] Screen mounted, calling initialize');
     initialize();
   }, []);
+
+  const handleReset = () => {
+    console.log('[GettingStarted] Resetting progress');
+    resetProgress();
+    setShowResetConfirm(false);
+  };
 
   const handleNodePress = (node: TechNode) => {
     const state = getNodeState(node.id);
@@ -59,9 +69,14 @@ export default function GettingStartedScreen() {
             </Pressable>
           ),
           headerRight: () => (
-            <Pressable onPress={handleDismiss} className="ml-4">
-              <X size={24} color="#fff" />
-            </Pressable>
+            <View className="flex-row items-center gap-4">
+              <Pressable onPress={() => setShowResetConfirm(true)}>
+                <RotateCcw size={20} color="#fff" />
+              </Pressable>
+              <Pressable onPress={handleDismiss}>
+                <X size={24} color="#fff" />
+              </Pressable>
+            </View>
           ),
         }}
       />
@@ -99,6 +114,11 @@ export default function GettingStartedScreen() {
             const isCompleted = nodeState === 'completed';
             const isAvailable = nodeState === 'available' || nodeState === 'in-progress';
             const isLocked = nodeState === 'locked';
+
+            // Debug logging
+            if (index === 0) {
+              console.log('[GettingStarted] First node state:', { nodeId: node.id, nodeState, isAvailable, isLocked });
+            }
 
             return (
               <Pressable
@@ -193,6 +213,44 @@ export default function GettingStartedScreen() {
           </View>
         )}
       </ScrollView>
+
+      {/* Reset Confirmation Modal */}
+      {showResetConfirm && (
+        <Pressable
+          className="absolute inset-0 bg-black/70 items-center justify-center"
+          onPress={() => setShowResetConfirm(false)}
+        >
+          <Pressable
+            onPress={(e) => e.stopPropagation()}
+            className="bg-white dark:bg-slate-900 rounded-2xl p-6 mx-5 w-80 max-w-full"
+          >
+            <Text className="text-gray-900 dark:text-white text-xl font-bold mb-3">
+              Reset Progress?
+            </Text>
+            <Text className="text-gray-600 dark:text-slate-400 text-sm mb-6">
+              This will reset all your progress in the Getting Started checklist. This action cannot be undone.
+            </Text>
+            <View className="flex-row gap-3">
+              <Pressable
+                onPress={() => setShowResetConfirm(false)}
+                className="flex-1 bg-gray-200 dark:bg-slate-800 rounded-xl py-3 items-center"
+              >
+                <Text className="text-gray-900 dark:text-white text-base font-semibold">
+                  Cancel
+                </Text>
+              </Pressable>
+              <Pressable
+                onPress={handleReset}
+                className="flex-1 bg-red-500 rounded-xl py-3 items-center"
+              >
+                <Text className="text-white text-base font-semibold">
+                  Reset
+                </Text>
+              </Pressable>
+            </View>
+          </Pressable>
+        </Pressable>
+      )}
     </View>
   );
 }

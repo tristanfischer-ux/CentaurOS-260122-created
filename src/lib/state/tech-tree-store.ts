@@ -70,21 +70,32 @@ export const useTechTreeStore = create<TechTreeStore>()(
 
       initialize: () => {
         const state = get();
-        if (Object.keys(state.nodeProgress).length === 0) {
-          // First time initialization - unlock the first node
-          const firstNode = TECH_TREE_NODES.find((n: TechNode) => n.prerequisiteNodeIds.length === 0);
-          if (firstNode) {
-            set({
-              nodeProgress: {
-                [firstNode.id]: {
-                  nodeId: firstNode.id,
-                  state: 'available',
-                  tuInvestedInResearch: 0,
-                  completedTaskIds: [],
-                },
+        console.log('[TechTree] Initialize called, nodeProgress keys:', Object.keys(state.nodeProgress).length);
+
+        // Always ensure the first node is unlocked if no progress exists
+        const firstNode = TECH_TREE_NODES.find((n: TechNode) => n.prerequisiteNodeIds.length === 0);
+
+        if (!firstNode) {
+          console.warn('[TechTree] No first node found!');
+          return;
+        }
+
+        // If no progress at all, or first node is missing, initialize it
+        if (Object.keys(state.nodeProgress).length === 0 || !state.nodeProgress[firstNode.id]) {
+          console.log('[TechTree] Initializing first node:', firstNode.id);
+          set({
+            nodeProgress: {
+              ...state.nodeProgress,
+              [firstNode.id]: {
+                nodeId: firstNode.id,
+                state: 'available',
+                tuInvestedInResearch: 0,
+                completedTaskIds: [],
               },
-            });
-          }
+            },
+          });
+        } else {
+          console.log('[TechTree] Already initialized, first node state:', state.nodeProgress[firstNode.id]?.state);
         }
       },
 
