@@ -71,7 +71,7 @@ export default function DecideScreen() {
   const router = useRouter();
   const currentWorkspace = useCurrentWorkspace();
   const currentMembership = useCurrentMembership();
-  const params = useLocalSearchParams<{ function?: string }>();
+  const params = useLocalSearchParams<{ function?: string; showApprovalQueue?: string }>();
 
   // Use centralized OKR store
   const okrs = useOKRStore(s => s.okrs);
@@ -387,6 +387,13 @@ export default function DecideScreen() {
       setSelectedFunction(params.function as BusinessFunction);
     }
   }, [params.function]);
+
+  // Auto-open approval queue if requested from home tab
+  useEffect(() => {
+    if (params.showApprovalQueue === 'true' && pendingRequests.length > 0) {
+      setShowApprovalQueue(true);
+    }
+  }, [params.showApprovalQueue, pendingRequests.length]);
 
   // Initialize queue to sync statuses with OKRs
   useEffect(() => {

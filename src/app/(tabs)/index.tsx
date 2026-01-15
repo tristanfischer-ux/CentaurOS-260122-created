@@ -1066,7 +1066,7 @@ export default function HomeScreen() {
                   {/* Pending Hiring Requests */}
                   {pendingRequests.length > 0 && (
                     <Pressable
-                      onPress={() => router.push('/(tabs)/decide')}
+                      onPress={() => router.push('/(tabs)/decide?showApprovalQueue=true')}
                       className="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-xl p-3 active:opacity-70"
                     >
                       <View className="flex-row items-center">
