@@ -164,8 +164,8 @@ export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress
 
   const screenWidth = Dimensions.get('window').width;
   const WEEK_WIDTH = screenWidth / 3; // Divide screen width by 3 weeks to fill entire width
-  const TASK_HEIGHT = 32; // Height of each task bar
-  const MAX_VISIBLE_TASKS = 8; // Show 8 tasks at a time (increased from 5)
+  const TASK_HEIGHT = 26; // Height of each task bar (reduced from 32)
+  const MAX_VISIBLE_TASKS = 6; // Show 6 tasks at a time (reduced from 8 for 25% height reduction)
 
   // Auto-scroll to show today at far left when component mounts
   useEffect(() => {
@@ -257,7 +257,7 @@ export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress
         >
           <ScrollView
             showsVerticalScrollIndicator={true}
-            style={{ maxHeight: TASK_HEIGHT * MAX_VISIBLE_TASKS + 16 }} // 5 tasks + padding
+            style={{ maxHeight: TASK_HEIGHT * MAX_VISIBLE_TASKS + 12 }} // 6 tasks + compact padding
           >
             <View style={{ width: WEEK_WIDTH * weeks.length }}>
               {/* Current week indicator line */}
