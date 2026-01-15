@@ -1,7 +1,8 @@
-import { View, Text, ScrollView, Pressable, Dimensions } from 'react-native';
-import { useMemo, useRef, useEffect } from 'react';
+import { View, Text, ScrollView, Pressable, Dimensions, Modal } from 'react-native';
+import { useMemo, useRef, useEffect, useState } from 'react';
 import { type WorkPlan } from '@/lib/state/work-plan-store';
 import { type OrganizationMember } from '@/lib/organization-seed';
+import { X, Calendar, Clock, Users, DollarSign, AlertCircle } from 'lucide-react-native';
 
 interface MiniGanttChartProps {
   workPlans: WorkPlan[];
@@ -164,8 +165,12 @@ export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress
 
   const screenWidth = Dimensions.get('window').width;
   const WEEK_WIDTH = screenWidth / 3; // Divide screen width by 3 weeks to fill entire width
-  const TASK_HEIGHT = 26; // Height of each task bar (reduced from 32)
-  const MAX_VISIBLE_TASKS = 6; // Show 6 tasks at a time (reduced from 8 for 25% height reduction)
+  const TASK_HEIGHT = 21; // Height of each task bar (reduced by 20%)
+  const MAX_VISIBLE_TASKS = 5; // Show 5 tasks at a time (reduced by 20%)
+
+  // State for task info popup
+  const [selectedTask, setSelectedTask] = useState<WorkPlan | null>(null);
+  const [showTaskModal, setShowTaskModal] = useState(false);
 
   // Auto-scroll to show today at far left when component mounts
   useEffect(() => {
@@ -257,7 +262,7 @@ export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress
         >
           <ScrollView
             showsVerticalScrollIndicator={true}
-            style={{ maxHeight: TASK_HEIGHT * MAX_VISIBLE_TASKS + 12 }} // 6 tasks + compact padding
+            style={{ maxHeight: TASK_HEIGHT * MAX_VISIBLE_TASKS + 10 }} // 5 tasks + compact padding
           >
             <View style={{ width: WEEK_WIDTH * weeks.length }}>
               {/* Current week indicator line */}
@@ -320,7 +325,10 @@ export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress
 
                     {/* Task Bar */}
                     <Pressable
-                      onPress={() => onTaskPress?.(bar.task.id)}
+                      onPress={() => {
+                        setSelectedTask(bar.task);
+                        setShowTaskModal(true);
+                      }}
                       style={{
                         width: Math.max(60, barWidth),
                         height: TASK_HEIGHT,
@@ -378,6 +386,153 @@ export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress
         </ScrollView>
         </ScrollView>
       </View>
+
+      {/* Task Info Modal */}
+      <Modal
+        visible={showTaskModal}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowTaskModal(false)}
+      >
+        <Pressable
+          className="flex-1 bg-black/60"
+          onPress={() => setShowTaskModal(false)}
+        >
+          <View className="flex-1" />
+          <Pressable onPress={(e) => e.stopPropagation()}>
+            {selectedTask && (
+              <View className="mx-4 mb-8 bg-white dark:bg-slate-800 rounded-2xl overflow-hidden shadow-2xl">
+                {/* Header */}
+                <View className={`px-4 py-3 ${STATUS_COLORS[selectedTask.status]?.bg || 'bg-gray-200'}`}>
+                  <View className="flex-row items-start justify-between">
+                    <View className="flex-1 mr-3">
+                      <Text className={`text-base font-bold ${STATUS_COLORS[selectedTask.status]?.text || 'text-gray-900'}`}>
+                        {selectedTask.title}
+                      </Text>
+                      <Text className={`text-xs mt-0.5 ${STATUS_COLORS[selectedTask.status]?.text || 'text-gray-700'} opacity-80`}>
+                        {selectedTask.function} • {selectedTask.status.replace('-', ' ')}
+                      </Text>
+                    </View>
+                    <Pressable
+                      onPress={() => setShowTaskModal(false)}
+                      className="p-1 rounded-full bg-black/10"
+                    >
+                      <X size={16} color={selectedTask.status === 'not-started' ? '#374151' : '#ffffff'} />
+                    </Pressable>
+                  </View>
+                </View>
+
+                {/* Content */}
+                <View className="p-4">
+                  {/* Progress Bar */}
+                  <View className="mb-4">
+                    <View className="flex-row justify-between mb-1">
+                      <Text className="text-xs text-gray-500 dark:text-slate-400">Progress</Text>
+                      <Text className="text-xs font-semibold text-gray-700 dark:text-gray-300">{selectedTask.progress}%</Text>
+                    </View>
+                    <View className="h-2 bg-gray-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                      <View
+                        className="h-full bg-blue-500 rounded-full"
+                        style={{ width: `${selectedTask.progress}%` }}
+                      />
+                    </View>
+                  </View>
+
+                  {/* Info Grid */}
+                  <View className="flex-row flex-wrap gap-3 mb-4">
+                    {/* Due Date */}
+                    <View className="flex-row items-center bg-gray-100 dark:bg-slate-700 px-3 py-2 rounded-lg">
+                      <Calendar size={14} color="#6b7280" />
+                      <Text className="text-xs text-gray-600 dark:text-gray-300 ml-2">
+                        {selectedTask.dueDate
+                          ? new Date(selectedTask.dueDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
+                          : 'No due date'}
+                      </Text>
+                    </View>
+
+                    {/* Time Units */}
+                    <View className="flex-row items-center bg-gray-100 dark:bg-slate-700 px-3 py-2 rounded-lg">
+                      <Clock size={14} color="#6b7280" />
+                      <Text className="text-xs text-gray-600 dark:text-gray-300 ml-2">
+                        {selectedTask.estimatedTimeUnits} TUs
+                      </Text>
+                    </View>
+
+                    {/* Cost */}
+                    <View className="flex-row items-center bg-gray-100 dark:bg-slate-700 px-3 py-2 rounded-lg">
+                      <DollarSign size={14} color="#6b7280" />
+                      <Text className="text-xs text-gray-600 dark:text-gray-300 ml-2">
+                        £{calculateTaskCost(selectedTask).toLocaleString()}
+                      </Text>
+                    </View>
+                  </View>
+
+                  {/* Assigned Members */}
+                  {(() => {
+                    const taskMembers = getAssignedMembers(selectedTask);
+                    if (taskMembers.length === 0) return null;
+                    return (
+                      <View className="mb-4">
+                        <View className="flex-row items-center mb-2">
+                          <Users size={14} color="#6b7280" />
+                          <Text className="text-xs text-gray-500 dark:text-slate-400 ml-2">Assigned Team</Text>
+                        </View>
+                        <View className="flex-row flex-wrap gap-2">
+                          {taskMembers.map((member) => (
+                            <View
+                              key={member.id}
+                              className="flex-row items-center px-2 py-1.5 rounded-lg"
+                              style={{ backgroundColor: ROLE_COLORS[member.role] + '15' }}
+                            >
+                              <View
+                                className="w-5 h-5 rounded-full items-center justify-center mr-1.5"
+                                style={{ backgroundColor: ROLE_COLORS[member.role] + '30' }}
+                              >
+                                <Text className="text-[8px] font-bold" style={{ color: ROLE_COLORS[member.role] }}>
+                                  {getInitials(member.name)}
+                                </Text>
+                              </View>
+                              <Text className="text-xs font-medium" style={{ color: ROLE_COLORS[member.role] }}>
+                                {member.name.split(' ')[0]}
+                              </Text>
+                            </View>
+                          ))}
+                        </View>
+                      </View>
+                    );
+                  })()}
+
+                  {/* Blockers */}
+                  {selectedTask.status === 'blocked' && (
+                    <View className="bg-red-50 dark:bg-red-900/20 p-3 rounded-lg">
+                      <View className="flex-row items-center mb-1">
+                        <AlertCircle size={14} color="#ef4444" />
+                        <Text className="text-xs font-semibold text-red-600 dark:text-red-400 ml-2">Blocked</Text>
+                      </View>
+                      <Text className="text-xs text-red-600 dark:text-red-400">
+                        This task has blockers that need to be resolved.
+                      </Text>
+                    </View>
+                  )}
+
+                  {/* Go to Decide Button */}
+                  <Pressable
+                    onPress={() => {
+                      setShowTaskModal(false);
+                      onTaskPress?.(selectedTask.id);
+                    }}
+                    className="mt-4 bg-blue-500 py-3 rounded-xl active:bg-blue-600"
+                  >
+                    <Text className="text-white text-center text-sm font-semibold">
+                      Manage Task
+                    </Text>
+                  </Pressable>
+                </View>
+              </View>
+            )}
+          </Pressable>
+        </Pressable>
+      </Modal>
     </View>
   );
 }
