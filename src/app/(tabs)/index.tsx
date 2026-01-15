@@ -89,9 +89,12 @@ export default function MissionControlHome() {
   const members = useOrganizationStore((s) => s.members);
   const okrs = useOKRStore((s) => s.okrs);
 
-  // Decision stores
-  const pendingHiringRequests = useMarketplaceRequestsStore((s) => s.getPendingRequests());
-  const pendingTaskRequests = useRequestStore((s) => s.getPendingRequests());
+  // Decision stores - select the method, then call it
+  const getPendingHiringRequests = useMarketplaceRequestsStore((s) => s.getPendingRequests);
+  const getPendingTaskRequests = useRequestStore((s) => s.getPendingRequests);
+  const pendingHiringRequests = useMemo(() => getPendingHiringRequests(), [getPendingHiringRequests]);
+  const pendingTaskRequests = useMemo(() => getPendingTaskRequests(), [getPendingTaskRequests]);
+
   const approveHiringRequest = useMarketplaceRequestsStore((s) => s.approveRequest);
   const rejectHiringRequest = useMarketplaceRequestsStore((s) => s.rejectRequest);
   const approveTaskRequest = useRequestStore((s) => s.approveRequest);
