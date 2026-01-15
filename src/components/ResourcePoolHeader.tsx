@@ -164,7 +164,7 @@ export function ResourcePoolHeader({ selectedPersonId, onPersonSelect }: Resourc
         className="max-h-[280px]"
         showsVerticalScrollIndicator={false}
       >
-        {members.map((member) => {
+        {members.slice(0, 5).map((member) => {
           const capacity = getCapacityPerWeek(member);
           const totalCapacity = capacity.normal + capacity.overtime;
           const allocated = getAllocatedTUs(member.id, workPlans);

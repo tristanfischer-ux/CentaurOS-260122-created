@@ -15,6 +15,24 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
 
 ## 🔄 Recent Updates (Jan 2026)
 
+### Decide Tab Enhancements (Latest)
+- **Mini Gantt Chart Timeline**: Added horizontal scrolling weekly timeline showing all active tasks with start/end dates
+  - Visual task bars color-coded by status (not-started, in-progress, blocked)
+  - Shows 13 weeks: 6 weeks past, current week (highlighted), 6 weeks future
+  - Tap any task to view full details
+  - Smart start date calculation based on estimated time units
+- **Focused Resource Pool**: Limited weekly resource pool to 5 people for cleaner interface
+- **Removed AI Productivity Boost Box**: Streamlined UI by removing the AI tools section from Decide tab
+
+### Make Tab Integration
+- **Task Linkage on Supplier Cards**: Supplier engagement cards now show:
+  - Linked task title and progress percentage
+  - Team member avatars (colored by role: purple for Founders, blue for Execs, green for Apprentices)
+  - Up to 5 avatars visible, "+N" indicator for additional team members
+- **AI Agent Deletion**: Added ability to delete AI agents from Make tab
+  - Removes agent from all team member loadouts system-wide
+  - Confirmation dialog prevents accidental deletion
+
 ### Bug Fixes
 - **Fixed Critical Infinite Loop Errors**: Resolved "Maximum update depth exceeded" in both BusinessImprovements and IntelligenceHub (Hub tab) components
   - **Root Cause**: Zustand store selector functions that return new arrays on every call (e.g., `getUnconvertedImprovements()`) were causing infinite re-renders
