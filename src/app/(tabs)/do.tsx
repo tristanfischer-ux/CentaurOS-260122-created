@@ -54,6 +54,23 @@ const DO_HELP_EXECUTIVE: HelpContent = {
   ],
 };
 
+const DO_HELP_FOUNDER: HelpContent = {
+  title: 'Execution Overview',
+  subtitle: 'Company-wide execution',
+  description: 'The Do tab gives you a bird\'s-eye view of all work across all business functions. Monitor team execution, identify bottlenecks, and ensure aligned progress toward company goals.',
+  tips: [
+    'Filter by business function to focus on specific areas',
+    'Track active vs completed tasks across the entire company',
+    'Monitor blocked tasks that need founder intervention',
+    'See real-time progress on all OKRs and work plans',
+  ],
+  quickActions: [
+    { label: 'Function Filter', description: 'View tasks for a specific business function' },
+    { label: 'Blocked Tasks', description: 'Identify and resolve blockers across the company' },
+    { label: 'Task Details', description: 'Tap any task to allocate resources and manage progress' },
+  ],
+};
+
 // Initialize work plan store once
 if (useWorkPlanStore.getState().workPlans.length === 0) {
   useWorkPlanStore.getState().initializeWorkPlans();
@@ -1280,6 +1297,15 @@ export default function DoScreen() {
 
     return (
       <View className="flex-1 bg-gray-50 dark:bg-slate-950">
+        {/* Help Modal */}
+        <HelpModal
+          visible={showHelp}
+          onClose={() => setShowHelp(false)}
+          content={DO_HELP_FOUNDER}
+          gradientColors={['#8b5cf6', '#6366f1']}
+        />
+
+        {/* Header */}
         <LinearGradient
           colors={['#8b5cf6', '#6366f1']}
           start={{ x: 0, y: 0 }}
@@ -1291,12 +1317,15 @@ export default function DoScreen() {
               <Text className="text-white/70 text-xs font-medium">EXECUTION OVERVIEW</Text>
               <Text className="text-white text-xl font-bold">Do</Text>
             </View>
-            {blockedCount > 0 && (
-              <View className="bg-white/20 px-3 py-2 rounded-xl">
-                <Text className="text-white/80 text-xs font-medium">BLOCKED</Text>
-                <Text className="text-white text-lg font-bold">{blockedCount}</Text>
-              </View>
-            )}
+            <View className="flex-row items-center gap-2">
+              <HelpButton onPress={() => setShowHelp(true)} />
+              {blockedCount > 0 && (
+                <View className="bg-white/20 px-3 py-2 rounded-xl">
+                  <Text className="text-white/80 text-xs font-medium">BLOCKED</Text>
+                  <Text className="text-white text-lg font-bold">{blockedCount}</Text>
+                </View>
+              )}
+            </View>
           </View>
           <View className="flex-row gap-4">
             <View className="flex-row items-center">

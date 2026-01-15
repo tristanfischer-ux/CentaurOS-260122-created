@@ -671,6 +671,13 @@ AI tools can make individuals 1x to 20x more efficient:
 
 The Do tab now features intelligent priority sorting to help users focus on what matters most:
 
+**Help & Guidance:**
+- **Question Mark Icon**: Each role view includes a help button (?) in the top-right header
+- **Context-Specific Help**: Different help content for Apprentices, Executives, and Founders
+- **Apprentice Help**: Focus on task execution, submission workflow, and time tracking
+- **Executive Help**: OKR-driven execution, team oversight, and unblocking strategies
+- **Founder Help**: Company-wide execution overview, function filtering, and bottleneck identification
+
 **For Apprentices:**
 - OKRs are sorted by highest priority task they contain
 - Tasks within each OKR are sorted by priority (Critical → High → Medium → Low)
@@ -682,6 +689,12 @@ The Do tab now features intelligent priority sorting to help users focus on what
 - Tasks nested under OKRs, sorted by priority and due date
 - Clear visibility into team execution priorities
 - Quick access to blocked or at-risk work
+
+**For Founders:**
+- Company-wide execution overview across all functions
+- Filter by business function (Marketing, Sales, Engineering, Ops, Finance, Admin)
+- Track active vs completed tasks across entire company
+- Monitor blocked tasks requiring founder intervention
 
 **Priority Calculation:**
 - **Critical**: Blocked tasks, due within 2 days, or OKR is off-track
