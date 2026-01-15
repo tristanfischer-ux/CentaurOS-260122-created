@@ -21,7 +21,9 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
   - Shows 13 weeks: 6 weeks past, current week (highlighted), 6 weeks future
   - Tap any task to view full details
   - Smart start date calculation based on estimated time units
-- **Focused Resource Pool**: Limited weekly resource pool to 5 people for cleaner interface
+- **Scrollable Resource Pool**: Weekly resource pool now shows all team members with vertical scrolling
+  - Scroll up/down to see your entire team
+  - Visual scroll indicator for easy navigation
 - **Removed AI Productivity Boost Box**: Streamlined UI by removing the AI tools section from Decide tab
 
 ### Make Tab Integration

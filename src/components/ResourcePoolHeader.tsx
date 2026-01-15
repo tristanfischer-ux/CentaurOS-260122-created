@@ -162,9 +162,9 @@ export function ResourcePoolHeader({ selectedPersonId, onPersonSelect }: Resourc
       {/* Resource List - Vertical scroll */}
       <ScrollView
         className="max-h-[280px]"
-        showsVerticalScrollIndicator={false}
+        showsVerticalScrollIndicator={true}
       >
-        {members.slice(0, 5).map((member) => {
+        {members.map((member) => {
           const capacity = getCapacityPerWeek(member);
           const totalCapacity = capacity.normal + capacity.overtime;
           const allocated = getAllocatedTUs(member.id, workPlans);
