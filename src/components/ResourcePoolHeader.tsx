@@ -3,6 +3,8 @@ import { useMemo } from 'react';
 import { useOrganizationStore } from '@/lib/state/organization-store';
 import { type OrganizationMember } from '@/lib/organization-seed';
 import { useWorkPlanStore, type WorkPlan } from '@/lib/state/work-plan-store';
+import { useFinanceStore } from '@/lib/state/finance-store';
+import { useCurrentWorkspace } from '@/lib/state/app-store';
 
 interface ResourcePoolHeaderProps {
   selectedPersonId: string | null;
@@ -57,6 +59,8 @@ export function ResourcePoolHeader({ selectedPersonId, onPersonSelect }: Resourc
   // Select raw arrays, then filter with useMemo to avoid infinite loop
   const allMembers = useOrganizationStore(s => s.members);
   const workPlans = useWorkPlanStore(s => s.workPlans);
+  const currentWorkspace = useCurrentWorkspace();
+  const getCashBalance = useFinanceStore(s => s.getCashBalance);
 
   // Memoize the filtered members to avoid creating new array each render
   const members = useMemo(() =>
@@ -84,25 +88,68 @@ export function ResourcePoolHeader({ selectedPersonId, onPersonSelect }: Resourc
     };
   }, [members, workPlans]);
 
+  // Calculate weekly cost based on allocated tasks
+  const weeklyCost = useMemo(() => {
+    let cost = 0;
+
+    members.forEach((member) => {
+      const memberAllocated = getAllocatedTUs(member.id, workPlans);
+      const costPerTU = getCostPerTU(member);
+      cost += memberAllocated * costPerTU;
+    });
+
+    return Math.round(cost);
+  }, [members, workPlans]);
+
+  // Get cash balance
+  const cashBalance = currentWorkspace ? getCashBalance(currentWorkspace.id) : 0;
+  const remainingCash = cashBalance - weeklyCost;
+
   return (
     <View className="bg-white dark:bg-slate-900 border-b-2 border-gray-200 dark:border-slate-700">
       {/* Header */}
-      <View className="px-4 pt-2 pb-1.5 border-b border-gray-200 dark:border-slate-700 flex-row items-center justify-between">
-        <Text className="text-gray-900 dark:text-white text-xs font-bold">
-          WEEKLY RESOURCE POOL
-        </Text>
-        <View className="flex-row items-center gap-3">
-          <View className="flex-row items-center">
-            <View className="w-2 h-2 rounded-full bg-red-500 mr-1" />
-            <Text className="text-gray-600 dark:text-slate-400 text-[10px] font-semibold">
-              {totalAllocated} allocated
-            </Text>
+      <View className="px-4 pt-2 pb-1.5 border-b border-gray-200 dark:border-slate-700">
+        <View className="flex-row items-center justify-between mb-2">
+          <Text className="text-gray-900 dark:text-white text-xs font-bold">
+            WEEKLY RESOURCE POOL
+          </Text>
+          <View className="flex-row items-center gap-3">
+            <View className="flex-row items-center">
+              <View className="w-2 h-2 rounded-full bg-red-500 mr-1" />
+              <Text className="text-gray-600 dark:text-slate-400 text-[10px] font-semibold">
+                {totalAllocated} allocated
+              </Text>
+            </View>
+            <View className="flex-row items-center">
+              <View className="w-2 h-2 rounded-full bg-emerald-500 mr-1" />
+              <Text className="text-gray-600 dark:text-slate-400 text-[10px] font-semibold">
+                {totalUnallocated} available
+              </Text>
+            </View>
           </View>
-          <View className="flex-row items-center">
-            <View className="w-2 h-2 rounded-full bg-emerald-500 mr-1" />
-            <Text className="text-gray-600 dark:text-slate-400 text-[10px] font-semibold">
-              {totalUnallocated} available
-            </Text>
+        </View>
+
+        {/* Financial Summary */}
+        <View className="flex-row items-center justify-between pt-2 border-t border-gray-100 dark:border-slate-800">
+          <View className="flex-row items-center gap-3">
+            <View className="flex-row items-center">
+              <Text className="text-gray-500 dark:text-slate-500 text-[9px] mr-1">Bank:</Text>
+              <Text className="text-gray-900 dark:text-white text-[10px] font-bold">
+                £{(cashBalance / 1000).toFixed(0)}k
+              </Text>
+            </View>
+            <View className="flex-row items-center">
+              <Text className="text-gray-500 dark:text-slate-500 text-[9px] mr-1">Weekly Cost:</Text>
+              <Text className="text-orange-600 dark:text-orange-400 text-[10px] font-bold">
+                £{(weeklyCost / 1000).toFixed(1)}k
+              </Text>
+            </View>
+            <View className="flex-row items-center">
+              <Text className="text-gray-500 dark:text-slate-500 text-[9px] mr-1">After Week:</Text>
+              <Text className={`text-[10px] font-bold ${remainingCash > 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
+                £{(remainingCash / 1000).toFixed(0)}k
+              </Text>
+            </View>
           </View>
         </View>
       </View>
