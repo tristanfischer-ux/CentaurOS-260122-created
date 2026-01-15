@@ -508,6 +508,149 @@ export default function MissionControlHome() {
               </View>
             )}
           </View>
+
+          {/* Team Health & People Intelligence */}
+          <View className="mt-4">
+            <Text className="text-slate-700 dark:text-slate-300 text-sm font-bold mb-3">
+              Team Health
+            </Text>
+
+            <Pressable
+              onPress={() => router.push('/(tabs)/community')}
+              className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 active:opacity-70"
+            >
+              {/* Team Summary Header */}
+              <View className="flex-row items-center justify-between mb-4">
+                <View className="flex-row items-center gap-2">
+                  <Users size={18} color="#10b981" />
+                  <Text className="text-slate-900 dark:text-white font-bold text-sm">
+                    {members.length} Team Members
+                  </Text>
+                </View>
+                <ChevronRight size={18} color="#64748b" />
+              </View>
+
+              {/* Capacity Overview */}
+              <View className="flex-row gap-3 mb-4">
+                <View className="flex-1 bg-emerald-50 dark:bg-emerald-900/10 rounded-lg p-3">
+                  <Text className="text-emerald-600 dark:text-emerald-400 text-xs font-semibold mb-1">
+                    UTILIZED
+                  </Text>
+                  <Text className="text-emerald-900 dark:text-emerald-100 text-xl font-bold">
+                    {Math.round((resourceCapacity.allocated / resourceCapacity.total) * 100)}%
+                  </Text>
+                </View>
+                <View className="flex-1 bg-blue-50 dark:bg-blue-900/10 rounded-lg p-3">
+                  <Text className="text-blue-600 dark:text-blue-400 text-xs font-semibold mb-1">
+                    AVAILABLE
+                  </Text>
+                  <Text className="text-blue-900 dark:text-blue-100 text-xl font-bold">
+                    {resourceCapacity.available} TU
+                  </Text>
+                </View>
+              </View>
+
+              {/* Top Contributors */}
+              {members.length > 0 && (
+                <View>
+                  <Text className="text-slate-600 dark:text-slate-400 text-xs font-semibold mb-2 uppercase">
+                    Who's Doing What
+                  </Text>
+                  {members
+                    .map((member) => {
+                      // Calculate member's workload
+                      const memberTasks = workPlans.filter(wp =>
+                        wp.status === 'in-progress' &&
+                        wp.allocations?.some(a => a.memberId === member.id)
+                      );
+                      const allocatedTU = workPlans
+                        .filter(wp => wp.status === 'in-progress')
+                        .reduce((sum, wp) => {
+                          const allocation = wp.allocations?.find(a => a.memberId === member.id);
+                          return sum + (allocation?.squaresPerWeek || 0);
+                        }, 0);
+
+                      // Calculate capacity based on role
+                      const maxCapacity = member.role === 'Founder' ? 10 :
+                                         member.role === 'Apprentice' ? 10 :
+                                         (member.daysPerWeek || 2) * 2; // Execs: 2 TU per day
+
+                      const utilizationPercent = Math.round((allocatedTU / maxCapacity) * 100);
+
+                      return {
+                        ...member,
+                        allocatedTU,
+                        maxCapacity,
+                        utilizationPercent,
+                        activeTasks: memberTasks.length,
+                      };
+                    })
+                    .sort((a, b) => b.allocatedTU - a.allocatedTU) // Sort by workload (highest first)
+                    .slice(0, 4) // Top 4 team members
+                    .map((member) => (
+                      <View
+                        key={member.id}
+                        className="flex-row items-center justify-between py-2 border-b border-slate-200 dark:border-slate-800 last:border-b-0"
+                      >
+                        <View className="flex-1">
+                          <View className="flex-row items-center gap-2 mb-1">
+                            <Text className="text-slate-900 dark:text-white text-sm font-semibold">
+                              {member.name}
+                            </Text>
+                            {member.utilizationPercent >= 100 && (
+                              <View className="bg-red-100 dark:bg-red-900/30 px-1.5 py-0.5 rounded">
+                                <Text className="text-red-600 dark:text-red-400 text-xs font-bold">
+                                  FULL
+                                </Text>
+                              </View>
+                            )}
+                            {member.utilizationPercent === 0 && (
+                              <View className="bg-amber-100 dark:bg-amber-900/30 px-1.5 py-0.5 rounded">
+                                <Text className="text-amber-600 dark:text-amber-400 text-xs font-bold">
+                                  IDLE
+                                </Text>
+                              </View>
+                            )}
+                          </View>
+                          <Text className="text-slate-500 dark:text-slate-500 text-xs">
+                            {member.role} • {member.function} • {member.activeTasks} {member.activeTasks === 1 ? 'task' : 'tasks'}
+                          </Text>
+                        </View>
+                        <View className="items-end">
+                          <Text className="text-slate-900 dark:text-white text-sm font-bold">
+                            {member.allocatedTU}/{member.maxCapacity} TU
+                          </Text>
+                          <Text className={`text-xs font-semibold ${
+                            member.utilizationPercent >= 100 ? 'text-red-500' :
+                            member.utilizationPercent >= 80 ? 'text-amber-500' :
+                            member.utilizationPercent === 0 ? 'text-slate-400' :
+                            'text-emerald-500'
+                          }`}>
+                            {member.utilizationPercent}%
+                          </Text>
+                        </View>
+                      </View>
+                    ))}
+                </View>
+              )}
+
+              {/* Capacity Alert */}
+              {resourceCapacity.available < 5 && resourceCapacity.available > 0 && (
+                <View className="mt-3 bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-800 rounded-lg p-3">
+                  <Text className="text-amber-700 dark:text-amber-400 text-xs font-semibold">
+                    ⚠️ Low Capacity: Only {resourceCapacity.available} TU available. Consider hiring or reallocating.
+                  </Text>
+                </View>
+              )}
+              {resourceCapacity.available === 0 && (
+                <View className="mt-3 bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-800 rounded-lg p-3">
+                  <Text className="text-red-700 dark:text-red-400 text-xs font-semibold">
+                    🚨 No Capacity: Team is fully allocated. Cannot start new work without hiring or pausing tasks.
+                  </Text>
+                </View>
+              )}
+            </Pressable>
+          </View>
         </View>
 
         {/* ===== ACTING ===== */}
