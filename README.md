@@ -17,6 +17,8 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
 
 ### Decide Tab Enhancements (Latest)
 - **Mini Gantt Chart Timeline**: Interactive weekly timeline with synchronized scrolling
+  - **Cost Display**: Total task cost shown immediately to the right of each task bar
+  - **Full Width Layout**: Timeline spans entire screen width, aligned with resource pool
   - **Unified Styling**: Header and spacing match Weekly Resource Pool for consistency
   - **Light Avatar Style**: Avatars use 20% opacity backgrounds matching resource pool design
   - **Task Details Modal**: Clicking any task opens the full task details card with allocation controls
@@ -29,7 +31,8 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
   - Shows 13 weeks: 6 weeks past, current week (highlighted), 6 weeks future
   - **Vertical scrolling**: Shows 5 tasks at a time, scroll to see more
   - Smart start date calculation based on estimated time units
-- **Optimized Resource Pool**: Fixed to show exactly 5 team members at a time
+- **Optimized Resource Pool**: Compact height showing approximately 4 team members
+  - Reduced height from 240px to 200px for better space utilization
   - Scroll up/down to see your entire team
   - Visual scroll indicator for easy navigation
   - Maintains full capacity view with allocation status

@@ -71,6 +71,31 @@ export function MiniGanttChart({ workPlans, members, onTaskPress }: MiniGanttCha
       .sort((a, b) => roleOrder[a.role] - roleOrder[b.role]); // Most senior first
   };
 
+  // Calculate task cost
+  const calculateTaskCost = (workPlan: WorkPlan) => {
+    const assignedMembers = getAssignedMembers(workPlan);
+    const totalSquares = workPlan.estimatedTimeUnits;
+
+    // Calculate average cost per square from assigned members
+    // Cost per square = costPerDay / 2 (since 1 day = 2 squares)
+    let avgCostPerSquare = 0;
+    if (assignedMembers.length > 0) {
+      const totalCostPerSquare = assignedMembers.reduce((sum, member) => {
+        const costPerSquare = (member.costPerDay || 0) / 2;
+        return sum + costPerSquare;
+      }, 0);
+      avgCostPerSquare = totalCostPerSquare / assignedMembers.length;
+    } else {
+      // Default estimate if no members assigned (use apprentice rate)
+      avgCostPerSquare = 75; // £150/day / 2
+    }
+
+    // Cumulative cost = total squares × average cost per square
+    const cumulativeCost = Math.round(totalSquares * avgCostPerSquare);
+
+    return cumulativeCost;
+  };
+
   // Generate 13 weeks: 6 weeks before, current week, 6 weeks after
   const weeks = useMemo(() => {
     const result = [];
@@ -232,6 +257,7 @@ export function MiniGanttChart({ workPlans, members, onTaskPress }: MiniGanttCha
                 const barWidth = WEEK_WIDTH * bar.widthInWeeks - 8; // -8 for padding
                 const assignedMembers = getAssignedMembers(bar.task);
                 const AVATAR_WIDTH = 32; // Width for avatar section
+                const taskCost = calculateTaskCost(bar.task);
 
                 return (
                   <View
@@ -307,6 +333,13 @@ export function MiniGanttChart({ workPlans, members, onTaskPress }: MiniGanttCha
                         )}
                       </View>
                     </Pressable>
+
+                    {/* Cost Display - to the immediate right of task bar */}
+                    <View className="ml-2 bg-gray-100 dark:bg-slate-800 px-2 py-1 rounded-md">
+                      <Text className="text-gray-700 dark:text-gray-300 text-[9px] font-bold">
+                        £{taskCost.toLocaleString()}
+                      </Text>
+                    </View>
                   </View>
                 );
               })}
