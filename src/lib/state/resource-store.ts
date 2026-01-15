@@ -187,6 +187,7 @@ export type TeamSizeEfficiency = {
 
 /**
  * Calculate team efficiency based on number of people assigned to a task
+ * This implements Brooks' Law efficiency modifiers.
  *
  * 1 person: No efficiency barrier (1.0x)
  * 2 people: 10% efficiency boost (1.1x) - pair programming/collaboration benefit

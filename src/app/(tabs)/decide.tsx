@@ -28,6 +28,8 @@ import { ResourceBar } from '@/components/ResourceBar';
 import { useResourceStore, type PersonResource, getTeamSizeEfficiency } from '@/lib/state/resource-store';
 import { TaskAllocationModal } from '@/components/TaskAllocationModal';
 
+// Team efficiency types
+
 const DECIDE_HELP: HelpContent = {
   title: 'Strategic Decisions',
   subtitle: 'Set direction and allocate resources',
