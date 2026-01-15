@@ -1183,50 +1183,35 @@ export default function DecideScreen() {
 
   const handleCreateOKR = () => {
     if (!newOKRTitle.trim()) {
-      Alert.alert('Error', 'Please enter an OKR title');
+      Alert.alert('Error', 'Please enter a task title');
       return;
     }
     if (!newOKRDescription.trim()) {
-      Alert.alert('Error', 'Please enter an OKR description');
-      return;
-    }
-    if (!newOKROwner.trim()) {
-      Alert.alert('Error', 'Please select an owner');
+      Alert.alert('Error', 'Please enter a task description');
       return;
     }
 
-    // Create objectives from key results if using suggestion
-    const objectives: Objective[] = selectedSuggestion
-      ? selectedSuggestion.keyResults.map((kr, index) => ({
-          id: `kr-${Date.now()}-${index}`,
-          title: kr.title,
-          target: `${kr.targetValue} ${kr.unit}`,
-          current: '0',
-          progress: 0,
-          status: 'on-track' as const,
-        }))
-      : [];
-
-    const newOKR: OKR = {
-      id: `okr-${Date.now()}`,
+    // Create a work plan (task) instead of an OKR
+    const newWorkPlan: WorkPlan = {
+      id: `wp-${Date.now()}`,
       workspaceId: currentWorkspace?.id || 'workspace-demo-company',
-      function: newOKRFunction,
       title: newOKRTitle,
       description: newOKRDescription,
-      owner: newOKROwner,
-      startDate: 'Q1 2026',
-      endDate: 'Q4 2026',
-      status: 'on-track',
-      objectives,
-      isExpanded: false,
+      function: newOKRFunction,
+      linkedOKRTitle: '',
+      dueDate: '',
+      status: 'not-started',
+      progress: 0,
+      assignedBy: 'User',
+      needsSubmission: false,
+      estimatedTimeUnits: 8, // Default 8 TUs (can be adjusted later)
+      allocations: [],
+      appliedAITools: [],
+      assignedMemberIds: [],
+      tusExpended: 0,
     };
 
-    addOKR(newOKR);
-
-    // Show work plan success message
-    const workPlanMessage = workPlanItems.length > 0
-      ? `\n\n${workPlanItems.length} work items have been created and assigned to the team.`
-      : '';
+    addWorkPlan(newWorkPlan);
 
     // Reset form
     setNewOKRTitle('');
@@ -1239,7 +1224,7 @@ export default function DecideScreen() {
     setSelectedSuggestion(null);
     setShowCreateModal(false);
 
-    Alert.alert('Success', `OKR created successfully!${workPlanMessage}`);
+    Alert.alert('Success', 'Task created successfully! You can now allocate resources to it.');
   };
 
   return (
