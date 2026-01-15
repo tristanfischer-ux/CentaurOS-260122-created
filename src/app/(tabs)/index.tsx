@@ -32,6 +32,8 @@ import {
   Trophy,
   ListOrdered,
   GripVertical,
+  UserPlus,
+  CalendarClock,
 } from 'lucide-react-native';
 import { useCurrentWorkspace, useCurrentMembership, useCurrentUser } from '@/lib/state/app-store';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -44,6 +46,7 @@ import { useWorkPlanStore } from '@/lib/state/work-plan-store';
 import { useOrganizationStore } from '@/lib/state/organization-store';
 import { useArmoryStore } from '@/lib/state/armory-store';
 import { useCapacityStore } from '@/lib/state/capacity-store';
+import { useMarketplaceRequestsStore } from '@/lib/state/marketplace-requests-store';
 import { THIRD_PARTY_AI_TOOLS } from '@/lib/third-party-ai-tools';
 import { HelpModal, HelpButton, type HelpContent } from '@/components/HelpModal';
 import { CapacityHeatMap } from '@/components/CapacityHeatMap';
@@ -54,7 +57,6 @@ import { GoalQuestionnaireModal } from '@/components/GoalQuestionnaireModal';
 import { StrategyResultsModal } from '@/components/StrategyResultsModal';
 import { CompanyAimModal } from '@/components/CompanyAimModal';
 import { CompanyAimBanner } from '@/components/CompanyAimBanner';
-import { ResourceBar } from '@/components/ResourceBar';
 import { useResourceStore } from '@/lib/state/resource-store';
 import Animated, {
   useSharedValue,
@@ -222,16 +224,18 @@ export default function HomeScreen() {
   // Initialize resource store if empty
   const resourcePeople = useResourceStore(s => s.people);
   const seedResourceData = useResourceStore(s => s.seedDemoData);
-  const getTotalCapacity = useResourceStore(s => s.getTotalCapacity);
+
+  // Marketplace requests for pending approvals
+  const allRequests = useMarketplaceRequestsStore(s => s.requests);
+  const pendingRequests = useMemo(() => {
+    return allRequests.filter(req => req.status === 'pending');
+  }, [allRequests]);
 
   useEffect(() => {
     if (resourcePeople.length === 0 && currentWorkspace) {
       seedResourceData(currentWorkspace.id);
     }
   }, [resourcePeople.length, currentWorkspace]);
-
-  // Get resource utilization
-  const resourceCapacity = getTotalCapacity();
 
   // Calculate capacity on mount and when dependencies change
   useEffect(() => {
@@ -336,22 +340,36 @@ export default function HomeScreen() {
     }).filter(item => item.okrs > 0); // Only show functions with OKRs
   }, [okrs]);
 
-  // Calculate urgent items that need attention
+  // Calculate urgent items that need attention (moved from Decide tab)
   const urgentItems = useMemo(() => {
     const offTrackOKRs = okrs.filter(o => o.status === 'off-track');
     const atRiskOKRs = okrs.filter(o => o.status === 'at-risk');
     const blockedPlans = workPlans.filter(wp => wp.status === 'blocked');
     const pendingSubmissions = workPlans.filter(wp => wp.status === 'in-progress' && wp.progress >= 90);
 
+    // OKRs without any linked work plans (need resource allocation)
+    const okrsWithoutPlans = okrs.filter(okr => {
+      const linkedPlans = workPlans.filter(wp => wp.linkedOKRTitle === okr.title);
+      return linkedPlans.length === 0;
+    });
+
+    // Stalled work plans - in progress but low completion
+    const stalledPlans = workPlans.filter(wp =>
+      wp.status === 'in-progress' && wp.progress < 10
+    );
+
     return {
       offTrackOKRs,
       atRiskOKRs,
       blockedPlans,
       pendingSubmissions,
-      totalUrgent: offTrackOKRs.length + blockedPlans.length,
-      totalWarning: atRiskOKRs.length,
+      okrsWithoutPlans,
+      stalledPlans,
+      pendingApprovals: pendingRequests.length,
+      totalUrgent: offTrackOKRs.length + blockedPlans.length + pendingRequests.length,
+      totalWarning: atRiskOKRs.length + okrsWithoutPlans.length + stalledPlans.length,
     };
-  }, [okrs, workPlans]);
+  }, [okrs, workPlans, pendingRequests]);
 
   // Get recent messages (top 2)
   const recentMessages = useMemo(() => {
@@ -892,12 +910,6 @@ export default function HomeScreen() {
           </View>
         </LinearGradient>
 
-        {/* Resource Bar - Team with Squares */}
-        <ResourceBar
-          workspaceId={currentWorkspace?.id || ''}
-          compact
-        />
-
         {/* Edit Mode Banner */}
         {isEditMode && (
           <View className="bg-purple-600 py-3 px-5 flex-row items-center justify-between">
@@ -933,39 +945,41 @@ export default function HomeScreen() {
               </Animated.View>
             </Pressable>
 
-            {/* ATTENTION REQUIRED - Most Critical */}
-            {(urgentItems.totalUrgent > 0 || urgentItems.totalWarning > 0 || FOUNDER_DATA.pendingApprovals > 0) && (
+            {/* ATTENTION REQUIRED - Most Critical (moved from Decide tab) */}
+            {(urgentItems.totalUrgent > 0 || urgentItems.totalWarning > 0) && (
               <View className="mb-4">
-                <Text className="text-gray-500 dark:text-slate-500 text-xs font-bold mb-2 tracking-wide">
-                  ATTENTION REQUIRED
+                <Text className="text-red-600 dark:text-red-400 text-xs font-bold mb-2 tracking-wide">
+                  NEEDS YOUR DECISION
                 </Text>
                 <View className="gap-2">
                   {/* Off-Track OKRs - Critical */}
-                  {urgentItems.offTrackOKRs.length > 0 && (
+                  {urgentItems.offTrackOKRs.map((okr) => (
                     <Pressable
-                      onPress={() => router.push('/(tabs)/decide')}
+                      key={okr.id}
+                      onPress={() => router.push(`/okr-planner?okrId=${okr.id}`)}
                       className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-3 active:opacity-70"
                     >
                       <View className="flex-row items-center">
                         <View className="w-9 h-9 bg-red-500 rounded-lg items-center justify-center">
-                          <AlertTriangle size={18} color="#fff" />
+                          <TrendingDown size={18} color="#fff" />
                         </View>
                         <View className="ml-3 flex-1">
-                          <Text className="text-red-900 dark:text-red-100 font-bold text-sm">
-                            {urgentItems.offTrackOKRs.length} OKR{urgentItems.offTrackOKRs.length > 1 ? 's' : ''} Off-Track
+                          <Text className="text-red-900 dark:text-red-100 font-bold text-sm" numberOfLines={1}>
+                            {okr.title}
                           </Text>
                           <Text className="text-red-700 dark:text-red-300 text-xs">
-                            Needs immediate intervention
+                            {okr.function} • Off-track • Needs intervention
                           </Text>
                         </View>
-                        <ArrowRight size={18} color="#ef4444" />
+                        <ArrowRight size={16} color="#ef4444" />
                       </View>
                     </Pressable>
-                  )}
+                  ))}
 
                   {/* Blocked Work Plans */}
-                  {urgentItems.blockedPlans.length > 0 && (
+                  {urgentItems.blockedPlans.map((wp) => (
                     <Pressable
+                      key={wp.id}
                       onPress={() => router.push('/(tabs)/do')}
                       className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-3 active:opacity-70"
                     >
@@ -974,64 +988,99 @@ export default function HomeScreen() {
                           <AlertCircle size={18} color="#fff" />
                         </View>
                         <View className="ml-3 flex-1">
-                          <Text className="text-amber-900 dark:text-amber-100 font-bold text-sm">
-                            {urgentItems.blockedPlans.length} Work Plan{urgentItems.blockedPlans.length > 1 ? 's' : ''} Blocked
+                          <Text className="text-amber-900 dark:text-amber-100 font-bold text-sm" numberOfLines={1}>
+                            {wp.title}
                           </Text>
                           <Text className="text-amber-700 dark:text-amber-300 text-xs">
-                            Team waiting for resolution
+                            {wp.function} • Blocked • Team waiting
                           </Text>
                         </View>
-                        <ArrowRight size={18} color="#f59e0b" />
+                        <ArrowRight size={16} color="#f59e0b" />
                       </View>
                     </Pressable>
-                  )}
+                  ))}
 
-                  {/* Pending Approvals */}
-                  {FOUNDER_DATA.pendingApprovals > 0 && (
+                  {/* Pending Hiring Requests */}
+                  {pendingRequests.length > 0 && (
                     <Pressable
                       onPress={() => router.push('/(tabs)/decide')}
                       className="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-xl p-3 active:opacity-70"
                     >
                       <View className="flex-row items-center">
                         <View className="w-9 h-9 bg-purple-500 rounded-lg items-center justify-center">
-                          <Clock size={18} color="#fff" />
+                          <UserPlus size={18} color="#fff" />
                         </View>
                         <View className="ml-3 flex-1">
                           <Text className="text-purple-900 dark:text-purple-100 font-bold text-sm">
-                            {FOUNDER_DATA.pendingApprovals} Pending Approval{FOUNDER_DATA.pendingApprovals > 1 ? 's' : ''}
+                            {pendingRequests.length} Hiring Request{pendingRequests.length > 1 ? 's' : ''}
                           </Text>
                           <Text className="text-purple-700 dark:text-purple-300 text-xs">
-                            Resource allocation requests
+                            Marketplace candidates awaiting approval
                           </Text>
                         </View>
-                        <ArrowRight size={18} color="#a855f7" />
-                      </View>
-                    </Pressable>
-                  )}
-
-                  {/* At-Risk Warning */}
-                  {urgentItems.atRiskOKRs.length > 0 && (
-                    <Pressable
-                      onPress={() => router.push('/(tabs)/decide')}
-                      className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-xl p-3 active:opacity-70"
-                    >
-                      <View className="flex-row items-center">
-                        <View className="w-9 h-9 bg-yellow-500 rounded-lg items-center justify-center">
-                          <TrendingDown size={18} color="#fff" />
-                        </View>
-                        <View className="ml-3 flex-1">
-                          <Text className="text-yellow-900 dark:text-yellow-100 font-bold text-sm">
-                            {urgentItems.atRiskOKRs.length} OKR{urgentItems.atRiskOKRs.length > 1 ? 's' : ''} At Risk
-                          </Text>
-                          <Text className="text-yellow-700 dark:text-yellow-300 text-xs">
-                            May need course correction
-                          </Text>
-                        </View>
-                        <ArrowRight size={18} color="#eab308" />
+                        <ArrowRight size={16} color="#a855f7" />
                       </View>
                     </Pressable>
                   )}
                 </View>
+
+                {/* NEEDS REVIEW Section */}
+                {urgentItems.totalWarning > 0 && (
+                  <View className="mt-3">
+                    <Text className="text-amber-600 dark:text-amber-400 text-xs font-bold mb-2 tracking-wide">
+                      NEEDS REVIEW
+                    </Text>
+                    <View className="gap-2">
+                      {/* At-Risk OKRs */}
+                      {urgentItems.atRiskOKRs.slice(0, 3).map((okr) => (
+                        <Pressable
+                          key={okr.id}
+                          onPress={() => router.push('/(tabs)/decide')}
+                          className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-xl p-3 active:opacity-70"
+                        >
+                          <View className="flex-row items-center">
+                            <View className="w-8 h-8 bg-yellow-500 rounded-lg items-center justify-center">
+                              <AlertTriangle size={16} color="#fff" />
+                            </View>
+                            <View className="ml-3 flex-1">
+                              <Text className="text-yellow-900 dark:text-yellow-100 font-semibold text-sm" numberOfLines={1}>
+                                {okr.title}
+                              </Text>
+                              <Text className="text-yellow-700 dark:text-yellow-300 text-xs">
+                                {okr.function} • At risk
+                              </Text>
+                            </View>
+                            <ArrowRight size={16} color="#eab308" />
+                          </View>
+                        </Pressable>
+                      ))}
+
+                      {/* OKRs Without Resource Plans */}
+                      {urgentItems.okrsWithoutPlans.slice(0, 2).map((okr) => (
+                        <Pressable
+                          key={okr.id}
+                          onPress={() => router.push(`/okr-planner?okrId=${okr.id}`)}
+                          className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-3 active:opacity-70"
+                        >
+                          <View className="flex-row items-center">
+                            <View className="w-8 h-8 bg-blue-500 rounded-lg items-center justify-center">
+                              <CalendarClock size={16} color="#fff" />
+                            </View>
+                            <View className="ml-3 flex-1">
+                              <Text className="text-blue-900 dark:text-blue-100 font-semibold text-sm" numberOfLines={1}>
+                                {okr.title}
+                              </Text>
+                              <Text className="text-blue-700 dark:text-blue-300 text-xs">
+                                {okr.function} • No resource plan
+                              </Text>
+                            </View>
+                            <Text className="text-blue-500 text-xs font-semibold">Plan →</Text>
+                          </View>
+                        </Pressable>
+                      ))}
+                    </View>
+                  </View>
+                )}
               </View>
             )}
 

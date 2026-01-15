@@ -54,14 +54,14 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
 
 ## 🚨 PRODUCTION READINESS STATUS
 
-**Last Updated**: 2026-01-14 (**SQUARES RESOURCE SYSTEM** - Complete time unit system with person capacity, AI multipliers, cost calculations, and resource allocation across all tabs)
+**Last Updated**: 2026-01-15 (**TAB REORGANIZATION** - Moved decision items from Decide to Home tab, Decide tab now focuses purely on resource allocation)
 **Status**: ✅ **READY FOR APP STORE** - All features complete!
 
 ---
 
 ## ⬜ SQUARES RESOURCE SYSTEM
 
-**Latest Update**: 2026-01-14
+**Latest Update**: 2026-01-15
 
 ### The Fundamental Resource Unit
 
@@ -142,7 +142,7 @@ Key features:
 
 ## 🏗️ BUILD QUEUE SYSTEM
 
-**Latest Update**: 2026-01-14
+**Latest Update**: 2026-01-15
 
 ### Homeworld-Style Task Execution
 The Build Queue is inspired by RTS games like Homeworld - tasks queue up and consume "time units" (squares) that represent actual work capacity. This makes resource allocation visual and tangible.
@@ -220,7 +220,7 @@ The Build Queue is inspired by RTS games like Homeworld - tasks queue up and con
 
 ## 🏆 COMPETITIVE LEADERBOARDS
 
-**Latest Update**: 2026-01-14
+**Latest Update**: 2026-01-15
 
 ### Gamified Benchmarking
 See how your startup compares to others using the platform across four critical metrics. This creates healthy competition and provides valuable benchmarking data.
@@ -271,7 +271,7 @@ Includes 8 example companies across different industries (SaaS, Hardware, E-comm
 
 ## 🎯 COMPANY AIM SYSTEM
 
-**Latest Update**: 2026-01-14
+**Latest Update**: 2026-01-15
 
 ### High-Level Macro Purpose
 Every company needs a fundamental reason for existing - not just valuation or metrics, but the meaningful change it wants to create. The Company Aim System helps founders define and stay connected to this purpose.
@@ -304,7 +304,10 @@ The aim is separate from OKRs and goals - it's the unchanging purpose that gives
 
 ## 🔄 DRAG & DROP SYSTEM (Decide Tab)
 
-**Latest Update**: 2026-01-14
+**Latest Update**: 2026-01-15
+
+### Tab Purpose
+The Decide tab is focused purely on **resource allocation** - assigning people and AI to OKRs and tasks. Decision-making items (off-track OKRs, blocked plans, pending approvals) have been moved to the Home tab for better visibility.
 
 ### How to Use
 1. **Long-press** (hold) on any OKR or task to start dragging
@@ -344,7 +347,7 @@ The aim is separate from OKRs and goals - it's the unchanging purpose that gives
 
 ## 🏠 ROLE-SPECIFIC HOME TAB ENHANCEMENTS
 
-**Latest Update**: 2026-01-14
+**Latest Update**: 2026-01-15
 
 ### Founder Home Tab
 The Command Center now provides comprehensive visibility:
@@ -356,18 +359,20 @@ The Command Center now provides comprehensive visibility:
   - AI generates actionable next steps with priority levels and timeframes
   - Creates OKR recommendations that can be added to the Decide tab
   - Beautiful gradient card design with progress tracking
-- **Upcoming Deadlines Section**: Shows overdue tasks, due this week, and tasks awaiting review
-- **Top Urgent Tasks**: List of the 3 most urgent tasks across all functions with due dates
-- **Team Capacity Heat Map**:
-  - 10-day rolling view of team utilization spanning full width
-  - **Interactive Capacity Breakdown**: Click on "Available TU" to see detailed capacity breakdown modal
-  - View which team members are stretched, fully allocated, or have spare capacity
-  - Individual member capacity details including AI boost multipliers
+- **Needs Your Decision Section**: Items requiring founder action
+  - Off-track OKRs needing intervention
+  - Blocked work plans requiring escalation
+  - Pending hiring approvals from team
+- **Needs Review Section**: Items to monitor and review
+  - At-risk OKRs that need attention
+  - OKRs without work plans assigned
+  - Stalled work plans with low progress
+- **Recent Messages**: Latest conversations requiring attention
+- **Upcoming Calendar**: Next scheduled events and deadlines
 - **OKR Progress**:
   - Horizontal scrollable list showing top 4 OKRs
   - Click any OKR card to navigate to Decide tab
   - Visual progress bars with status colors (on-track, at-risk, off-track)
-- **Attention Required**: Off-track OKRs, blocked plans, and pending approvals
 - **Quick Actions**: New OKR, Review, Finance, Calendar, Messages
 
 ### Executive Home Tab
@@ -390,7 +395,7 @@ Task-focused execution view with motivation elements:
 
 ## ⏱️ CAPACITY MANAGEMENT SYSTEM
 
-**Latest Update**: 2026-01-14
+**Latest Update**: 2026-01-15
 
 ### Time Unit System
 
@@ -449,7 +454,7 @@ AI tools can make individuals 1x to 20x more efficient:
 
 ## 🎯 DO & EVALUATE TAB ENHANCEMENTS
 
-**Latest Update**: 2026-01-14
+**Latest Update**: 2026-01-15
 
 ### Do Tab - Priority-Driven Execution
 
@@ -504,7 +509,7 @@ The Evaluate tab now distinguishes between different types of work:
 
 ## 🎨 THEME CONFORMITY UPDATES
 
-**Latest Update**: 2026-01-14
+**Latest Update**: 2026-01-15
 
 ### Fixed Theme Support
 All screens now properly conform to the app's theme system (Dark, Light, Off-White):
@@ -522,7 +527,7 @@ All hardcoded dark colors (bg-slate-900, text-white, etc.) have been replaced wi
 
 ## 🛠️ ARMORY TOOL SLOTS SYSTEM
 
-**Latest Update**: 2026-01-14
+**Latest Update**: 2026-01-15
 
 ### Enhanced AI Tool Management
 The Armory now features a slot-based system for managing AI tools:
@@ -547,7 +552,7 @@ The Armory now features a slot-based system for managing AI tools:
 
 ## 📦 STARTUP PACK ENHANCEMENTS
 
-**Latest Update**: 2026-01-14
+**Latest Update**: 2026-01-15
 
 ### New Features
 
@@ -574,7 +579,7 @@ The Armory now features a slot-based system for managing AI tools:
 
 ## 💰 RESOURCE HIRING SYSTEM
 
-**Latest Update**: 2026-01-14
+**Latest Update**: 2026-01-15
 
 ### Speed Up OKRs by Hiring Resources
 
