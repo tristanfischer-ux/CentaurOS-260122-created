@@ -32,6 +32,7 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { useCurrentMembership, useCurrentWorkspace, useCurrentUser } from '@/lib/state/app-store';
 import { useOrganizationStore } from '@/lib/state/organization-store';
+import { useWorkPlanStore } from '@/lib/state/work-plan-store';
 import { useArmoryStore } from '@/lib/state/armory-store';
 import type { SupplierEngagement, AIAgent } from '@/lib/organization-seed';
 import { TabDescription } from '@/components/TabDescription';
@@ -84,6 +85,9 @@ export default function MakeScreen() {
   const getTotalAISpend = useOrganizationStore((s) => s.getTotalAISpend);
   const getTotalSupplierSpend = useOrganizationStore((s) => s.getTotalSupplierSpend);
   const updateSupplierEngagement = useOrganizationStore((s) => s.updateSupplierEngagement);
+
+  // Work plan store for task linkage
+  const workPlans = useWorkPlanStore(s => s.workPlans);
 
   // Armory store for AI tool usage
   const getMembersUsingAITool = useArmoryStore(s => s.getMembersUsingAITool);
@@ -316,6 +320,16 @@ export default function MakeScreen() {
                 ? getOwnershipByResource(currentWorkspace.id, engagement.id)
                 : null;
 
+              // Get linked work plans
+              const linkedWorkPlanIds = engagement.linkedWorkPlanIds || [];
+              const linkedWorkPlans = workPlans.filter(wp => linkedWorkPlanIds.includes(wp.id));
+              const linkedWorkPlan = linkedWorkPlans[0]; // Show first task for summary
+
+              // Get team members from linked task
+              const teamMembers = linkedWorkPlan?.assignedMemberIds
+                ?.map(memberId => members.find(m => m.id === memberId))
+                .filter(Boolean) || [];
+
               return (
                 <Pressable
                   key={engagement.id}
@@ -355,6 +369,54 @@ export default function MakeScreen() {
                     </View>
                     <ChevronRight size={16} color="#64748b" />
                   </View>
+
+                  {/* Linked Task Info */}
+                  {linkedWorkPlan && (
+                    <View className="mt-3 pt-3 border-t border-gray-200 dark:border-slate-800">
+                      <View className="flex-row items-start justify-between mb-2">
+                        <View className="flex-1">
+                          <Text className="text-gray-500 dark:text-slate-400 text-xs mb-0.5">
+                            Linked Task
+                          </Text>
+                          <Text className="text-gray-900 dark:text-white text-sm font-semibold">
+                            {linkedWorkPlan.title}
+                          </Text>
+                        </View>
+                        <View className="bg-blue-100 dark:bg-blue-900/30 px-2 py-1 rounded">
+                          <Text className="text-blue-600 dark:text-blue-400 text-xs font-bold">
+                            {linkedWorkPlan.progress}%
+                          </Text>
+                        </View>
+                      </View>
+
+                      {/* Team Avatars */}
+                      {teamMembers.length > 0 && (
+                        <View className="flex-row items-center gap-1 mt-1">
+                          <Text className="text-gray-500 dark:text-slate-400 text-xs mr-1">
+                            Team:
+                          </Text>
+                          {teamMembers.slice(0, 5).map((member: any) => (
+                            <View
+                              key={member.id}
+                              className="w-5 h-5 rounded-full items-center justify-center"
+                              style={{ backgroundColor: getRoleColor(member.role) === 'bg-purple-500' ? '#8b5cf6' : getRoleColor(member.role) === 'bg-blue-500' ? '#3b82f6' : '#10b981' }}
+                            >
+                              <Text className="text-white text-[8px] font-bold">
+                                {member.name.split(' ').map((n: string) => n[0]).join('')}
+                              </Text>
+                            </View>
+                          ))}
+                          {teamMembers.length > 5 && (
+                            <View className="w-5 h-5 rounded-full items-center justify-center bg-gray-400 dark:bg-slate-600">
+                              <Text className="text-white text-[8px] font-bold">
+                                +{teamMembers.length - 5}
+                              </Text>
+                            </View>
+                          )}
+                        </View>
+                      )}
+                    </View>
+                  )}
 
                   {/* Owner Badge */}
                   {ownership && (
