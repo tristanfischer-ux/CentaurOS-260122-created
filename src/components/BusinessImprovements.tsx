@@ -2,7 +2,7 @@
 // Shows actionable recommendations from McKinsey, BCG, Bain, Deloitte, etc.
 
 import { View, Text, Pressable, ScrollView } from 'react-native';
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { router } from 'expo-router';
 import {
   Lightbulb,
@@ -50,7 +50,7 @@ export function BusinessImprovements({ isDark = false, onRefresh }: BusinessImpr
   const importantImprovements = improvements.filter(imp => imp.priority === 2);
   const niceToHaveImprovements = improvements.filter(imp => imp.priority === 3);
 
-  const handleConvertToTask = (improvement: BusinessImprovement) => {
+  const handleConvertToTask = useCallback((improvement: BusinessImprovement) => {
     if (!currentWorkspace) return;
 
     // Create a work plan from the improvement
@@ -79,7 +79,7 @@ export function BusinessImprovements({ isDark = false, onRefresh }: BusinessImpr
 
     // Navigate to Decide tab
     router.push('/(tabs)/decide');
-  };
+  }, [currentWorkspace, addWorkPlan, markAsConverted]);
 
   if (improvements.length === 0) {
     return (
