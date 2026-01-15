@@ -249,28 +249,46 @@ The Build Queue is inspired by RTS games like Homeworld - tasks queue up and con
 - **Quality Metrics**: Real-time confidence and rework risk display
 - **Predicted Timeline**: End date calculation based on all factors
 
-### TU Allocation Modal
+### Unified TU Allocation System
 
-Location: `/src/components/TaskAllocationModal.tsx`
+Location: `/src/components/UnifiedTaskAllocationModal.tsx`
 
-The comprehensive task allocation interface allows you to:
+**THE single source of truth for TU allocation across the entire app.** All tasks in all tabs (Home, Decide, Do, Evaluate) use this one unified modal for consistency.
 
-1. **View Task Details**: See task title, description, function, and current status
+#### Tap-to-Add Interface
+
+The allocation system uses a **tap-based interface** inspired by RTS games:
+
+1. **View Task Details**: See task title, description, function, linked OKR, and current status
 2. **Adjust Total TUs**: Increase/decrease the expected effort using +/- buttons
-3. **Select AI Tools**: Choose AI productivity boosters (2x-20x multiplier)
-4. **Allocate Team TUs**:
-   - Tap squares on team member rows to allocate
-   - Members matching task function marked with "FIT" badge
-   - See cost per TU for each person
-5. **View Cost Breakdown**:
-   - Total estimated cost
-   - Weekly cost based on allocation
+3. **Select AI Tools**: Choose AI productivity multipliers:
+   - No AI (1x) - Manual work only
+   - AI Assist (2x) - Basic AI help
+   - AI Copilot (5x) - AI handles routine tasks
+   - AI Heavy (10x) - AI does most work
+   - AI Autonomous (20x) - AI handles everything
+
+4. **Allocate Team TUs - TAP TO ADD**:
+   - **Tap any team member** to ADD their default TU increment:
+     - Founders: +2 TUs per tap
+     - Executives: +2 TUs per tap
+     - Apprentices: +2 TUs per tap
+   - **Visual squares** fill in real-time as you tap
+   - **Small X button** to remove all allocated TUs from a person
+   - **FIT badge** shown for members whose function matches task function
+   - **Available capacity** displayed for each person (e.g., "4/10□ available")
+   - **Cost per TU** shown per person
+
+5. **Real-Time Calculations**:
+   - Total cost (sum of person TUs × their cost per TU)
    - AI cost component
-   - Time to complete estimate
-   - TUs spent to date (for in-progress tasks)
+   - Time to complete (weeks) based on TUs allocated per week
+   - Team efficiency multiplier (Brooks' Law - communication overhead)
+   - TUs spent to date and cost to date (for in-progress tasks)
+
 6. **Complete or Abandon**:
-   - Mark task as complete (creates audit record)
-   - Abandon task with reason (tracks wasted TUs/cost)
+   - **Complete**: Creates audit record (cost, time, resources used)
+   - **Abandon**: If resources spent → incomplete list showing waste. If no resources → task disappears
 
 ### Audit Trail System
 

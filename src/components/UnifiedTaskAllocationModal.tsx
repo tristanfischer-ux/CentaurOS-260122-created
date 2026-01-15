@@ -168,22 +168,6 @@ export function UnifiedTaskAllocationModal({ visible, onClose, workPlan }: Props
     };
   }, [totalTUs, allocations, selectedAITool, workPlan, members, getAITool, getCostPerSquare]);
 
-  // Handle allocation change for a member
-  const handleAllocationChange = useCallback((memberId: string, delta: number) => {
-    setAllocations(prev => {
-      const current = prev[memberId] ?? 0;
-      const member = members.find(m => m.id === memberId);
-      const capacity = member ? getMemberCapacity(member) : 10;
-      const newValue = Math.max(0, Math.min(capacity, current + delta));
-
-      if (newValue === 0) {
-        const { [memberId]: _, ...rest } = prev;
-        return rest;
-      }
-      return { ...prev, [memberId]: newValue };
-    });
-  }, [members, getMemberCapacity]);
-
   // Save allocations
   const handleSave = useCallback(() => {
     if (!workPlan) return;
@@ -300,107 +284,138 @@ export function UnifiedTaskAllocationModal({ visible, onClose, workPlan }: Props
     );
   }, [workPlan, calculations, updateWorkPlan, onClose]);
 
+  // Get default TU increment for each role
+  const getDefaultIncrement = useCallback((member: OrganizationMember) => {
+    if (member.role === 'Founder') return 2;
+    if (member.role === 'FractionalExec') return 2;
+    // Apprentices: use 2 TUs as default increment (was previously unclear from user example)
+    return 2;
+  }, []);
+
+  // Handle tap on member to ADD their default TUs
+  const handleMemberTap = useCallback((memberId: string) => {
+    const member = members.find(m => m.id === memberId);
+    if (!member) return;
+
+    const increment = getDefaultIncrement(member);
+    const currentAllocation = allocations[memberId] ?? 0;
+    const capacity = getMemberCapacity(member);
+
+    // Add default increment, capped at capacity
+    const newValue = Math.min(capacity, currentAllocation + increment);
+    if (newValue === currentAllocation) return; // Already at capacity
+
+    setAllocations(prev => ({ ...prev, [memberId]: newValue }));
+  }, [members, allocations, getDefaultIncrement, getMemberCapacity]);
+
+  // Handle remove TUs (entire allocation)
+  const handleRemoveTUs = useCallback((memberId: string, e: any) => {
+    e?.stopPropagation(); // Prevent triggering the add tap
+    setAllocations(prev => {
+      const { [memberId]: _, ...rest } = prev;
+      return rest;
+    });
+  }, []);
+
   // Render member row
   const renderMemberRow = useCallback((member: OrganizationMember) => {
     const currentAllocation = allocations[member.id] ?? 0;
     const capacity = getMemberCapacity(member);
     const costPerSquare = getCostPerSquare(member);
     const isMatch = isFunctionMatch(member);
+    const defaultIncrement = getDefaultIncrement(member);
+    const remaining = capacity - currentAllocation;
 
     return (
-      <Animated.View
+      <Pressable
         key={member.id}
-        entering={FadeInDown.delay(50).duration(200)}
-        className="bg-white dark:bg-slate-900 rounded-xl p-4 mb-3 border border-gray-200 dark:border-slate-700"
+        onPress={() => handleMemberTap(member.id)}
+        className="bg-white dark:bg-slate-900 rounded-xl p-4 mb-3 border-2 border-gray-200 dark:border-slate-700 active:border-blue-400 active:bg-blue-50 dark:active:bg-blue-900/10"
       >
-        <View className="flex-row items-center justify-between mb-3">
-          <View className="flex-row items-center flex-1">
-            <View className={`w-10 h-10 rounded-full items-center justify-center mr-3 ${
-              member.role === 'Founder' ? 'bg-purple-500' :
-              member.role === 'FractionalExec' ? 'bg-blue-500' : 'bg-emerald-500'
-            }`}>
-              {member.role === 'Founder' && <Crown size={18} color="white" />}
-              {member.role === 'FractionalExec' && <Briefcase size={18} color="white" />}
-              {member.role === 'Apprentice' && <GraduationCap size={18} color="white" />}
-            </View>
-            <View className="flex-1">
-              <View className="flex-row items-center gap-2">
-                <Text className="text-gray-900 dark:text-white font-semibold">
-                  {member.name}
+        <Animated.View entering={FadeInDown.delay(50).duration(200)}>
+          <View className="flex-row items-center justify-between mb-3">
+            <View className="flex-row items-center flex-1">
+              <View className={`w-10 h-10 rounded-full items-center justify-center mr-3 ${
+                member.role === 'Founder' ? 'bg-purple-500' :
+                member.role === 'FractionalExec' ? 'bg-blue-500' : 'bg-emerald-500'
+              }`}>
+                {member.role === 'Founder' && <Crown size={18} color="white" />}
+                {member.role === 'FractionalExec' && <Briefcase size={18} color="white" />}
+                {member.role === 'Apprentice' && <GraduationCap size={18} color="white" />}
+              </View>
+              <View className="flex-1">
+                <View className="flex-row items-center gap-2">
+                  <Text className="text-gray-900 dark:text-white font-semibold">
+                    {member.name}
+                  </Text>
+                  {isMatch && (
+                    <View className="bg-emerald-100 dark:bg-emerald-900/30 px-1.5 py-0.5 rounded">
+                      <Text className="text-emerald-700 dark:text-emerald-300 text-[10px] font-bold">
+                        FIT
+                      </Text>
+                    </View>
+                  )}
+                </View>
+                <Text className="text-gray-500 dark:text-slate-400 text-xs">
+                  {member.function} • £{costPerSquare}/□ • {remaining}/{capacity}□ available
                 </Text>
-                {isMatch && (
-                  <View className="bg-emerald-100 dark:bg-emerald-900/30 px-1.5 py-0.5 rounded">
-                    <Text className="text-emerald-700 dark:text-emerald-300 text-[10px] font-bold">
-                      FIT
+              </View>
+            </View>
+
+            {/* Current allocation badge and remove button */}
+            <View className="flex-row items-center gap-2">
+              {currentAllocation > 0 ? (
+                <>
+                  <View className="bg-blue-500 px-3 py-1.5 rounded-lg">
+                    <Text className="text-white font-bold text-base">
+                      {currentAllocation}□
                     </Text>
                   </View>
-                )}
-              </View>
+                  <Pressable
+                    onPress={(e) => handleRemoveTUs(member.id, e)}
+                    className="w-8 h-8 bg-red-100 dark:bg-red-900/30 rounded-full items-center justify-center active:opacity-70"
+                  >
+                    <X size={14} color="#ef4444" />
+                  </Pressable>
+                </>
+              ) : (
+                <View className="bg-gray-100 dark:bg-slate-800 px-3 py-1.5 rounded-lg">
+                  <Text className="text-gray-400 dark:text-slate-500 font-semibold text-sm">
+                    Tap +{defaultIncrement}□
+                  </Text>
+                </View>
+              )}
+            </View>
+          </View>
+
+          {/* Visual squares showing real-time allocation */}
+          <View className="flex-row flex-wrap gap-1">
+            {Array.from({ length: capacity }).map((_, idx) => (
+              <View
+                key={idx}
+                className={`w-6 h-6 rounded border ${
+                  idx < currentAllocation
+                    ? 'bg-blue-500 border-blue-600'
+                    : 'bg-gray-100 dark:bg-slate-800 border-gray-300 dark:border-slate-600'
+                }`}
+              />
+            ))}
+          </View>
+
+          {currentAllocation > 0 && (
+            <View className="flex-row items-center justify-between mt-3 pt-3 border-t border-gray-200 dark:border-slate-700">
+              <Text className="text-blue-600 dark:text-blue-400 text-xs font-semibold">
+                £{(currentAllocation * costPerSquare).toFixed(0)}/week allocated
+              </Text>
               <Text className="text-gray-500 dark:text-slate-400 text-xs">
-                {member.function} • £{costPerSquare}/□ • {capacity}□/wk capacity
+                {currentAllocation}□ × £{costPerSquare}/□
               </Text>
             </View>
-          </View>
-
-          {/* Allocation controls */}
-          <View className="flex-row items-center gap-2">
-            <Pressable
-              onPress={() => handleAllocationChange(member.id, -1)}
-              className="w-8 h-8 bg-gray-100 dark:bg-slate-800 rounded-full items-center justify-center active:opacity-70"
-              disabled={currentAllocation === 0}
-            >
-              <Minus size={16} color={currentAllocation === 0 ? '#9ca3af' : '#374151'} />
-            </Pressable>
-
-            <View className="w-12 items-center">
-              <Text className={`text-lg font-bold ${
-                currentAllocation > 0 ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400'
-              }`}>
-                {currentAllocation}□
-              </Text>
-            </View>
-
-            <Pressable
-              onPress={() => handleAllocationChange(member.id, 1)}
-              className="w-8 h-8 bg-blue-500 rounded-full items-center justify-center active:opacity-70"
-              disabled={currentAllocation >= capacity}
-            >
-              <Plus size={16} color="white" />
-            </Pressable>
-          </View>
-        </View>
-
-        {/* Visual squares */}
-        <View className="flex-row flex-wrap gap-1">
-          {Array.from({ length: capacity }).map((_, idx) => (
-            <Pressable
-              key={idx}
-              onPress={() => {
-                if (idx < currentAllocation) {
-                  // Remove this square
-                  handleAllocationChange(member.id, -(currentAllocation - idx));
-                } else {
-                  // Add up to this square
-                  handleAllocationChange(member.id, idx + 1 - currentAllocation);
-                }
-              }}
-              className={`w-6 h-6 rounded border ${
-                idx < currentAllocation
-                  ? 'bg-blue-500 border-blue-600'
-                  : 'bg-gray-100 dark:bg-slate-800 border-gray-300 dark:border-slate-600'
-              }`}
-            />
-          ))}
-        </View>
-
-        {currentAllocation > 0 && (
-          <Text className="text-blue-600 dark:text-blue-400 text-xs mt-2">
-            £{currentAllocation * costPerSquare}/week allocated
-          </Text>
-        )}
-      </Animated.View>
+          )}
+        </Animated.View>
+      </Pressable>
     );
-  }, [allocations, getMemberCapacity, getCostPerSquare, isFunctionMatch, handleAllocationChange]);
+  }, [allocations, getMemberCapacity, getCostPerSquare, isFunctionMatch, getDefaultIncrement, handleMemberTap, handleRemoveTUs]);
 
   if (!workPlan) return null;
 
