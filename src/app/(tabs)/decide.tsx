@@ -1457,6 +1457,118 @@ export default function DecideScreen() {
           />
         )}
 
+        {/* AI Tools Productivity Boost Section */}
+        <View className="mb-4 bg-gradient-to-r from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20 border border-purple-200 dark:border-purple-800 rounded-2xl p-4">
+          <View className="flex-row items-start justify-between mb-3">
+            <View className="flex-1">
+              <View className="flex-row items-center mb-1">
+                <Zap size={18} color="#8b5cf6" />
+                <Text className="text-purple-900 dark:text-purple-100 text-base font-bold ml-2">
+                  AI Productivity Boost
+                </Text>
+              </View>
+              <Text className="text-purple-700 dark:text-purple-300 text-xs leading-relaxed">
+                Your team is using {aiAgents.filter(a => a.status === 'active').length} AI tools to boost productivity
+              </Text>
+            </View>
+            <Pressable
+              onPress={() => router.push('/armory')}
+              className="bg-purple-500 rounded-xl px-3 py-2 active:opacity-70"
+            >
+              <Text className="text-white text-xs font-semibold">View All</Text>
+            </Pressable>
+          </View>
+
+          {/* Active AI Tools Grid */}
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 12 }}>
+            {aiAgents.filter(a => a.status === 'active').slice(0, 6).map(agent => (
+              <Pressable
+                key={agent.id}
+                onPress={() => router.push('/armory')}
+                className="bg-white dark:bg-slate-900 border border-purple-200 dark:border-purple-800 rounded-xl p-3 w-40 active:opacity-70"
+              >
+                <View className="flex-row items-center justify-between mb-2">
+                  <View className="bg-purple-100 dark:bg-purple-900/30 w-8 h-8 rounded-lg items-center justify-center">
+                    <Bot size={16} color="#8b5cf6" />
+                  </View>
+                  <View className="bg-emerald-100 dark:bg-emerald-900/30 px-2 py-0.5 rounded">
+                    <Text className="text-emerald-700 dark:text-emerald-300 text-xs font-semibold">
+                      {agent.usageStats ? `${agent.usageStats.successRate}%` : '98%'}
+                    </Text>
+                  </View>
+                </View>
+                <Text className="text-gray-900 dark:text-white text-sm font-semibold mb-1" numberOfLines={1}>
+                  {agent.name}
+                </Text>
+                <Text className="text-gray-600 dark:text-slate-400 text-xs mb-2" numberOfLines={2}>
+                  {agent.purpose}
+                </Text>
+                <View className="flex-row items-center">
+                  <Users size={10} color="#8b5cf6" />
+                  <Text className="text-purple-600 dark:text-purple-400 text-xs ml-1">
+                    {agent.usedBy.length} users
+                  </Text>
+                </View>
+              </Pressable>
+            ))}
+
+            {/* Add More AI Tools Card */}
+            <Pressable
+              onPress={() => router.push('/armory')}
+              className="bg-purple-100 dark:bg-purple-900/30 border-2 border-dashed border-purple-300 dark:border-purple-700 rounded-xl p-3 w-40 items-center justify-center active:opacity-70"
+            >
+              <View className="bg-purple-200 dark:bg-purple-800 w-10 h-10 rounded-full items-center justify-center mb-2">
+                <Plus size={20} color="#8b5cf6" />
+              </View>
+              <Text className="text-purple-700 dark:text-purple-300 text-sm font-semibold text-center">
+                Add AI Tool
+              </Text>
+              <Text className="text-purple-600 dark:text-purple-400 text-xs text-center mt-1">
+                Boost productivity
+              </Text>
+            </Pressable>
+          </ScrollView>
+
+          {/* Quick Stats */}
+          <View className="mt-4 pt-3 border-t border-purple-200 dark:border-purple-800 flex-row items-center justify-between">
+            <View className="flex-row items-center gap-4">
+              <View>
+                <Text className="text-purple-600 dark:text-purple-400 text-xs font-medium">
+                  AVG BOOST
+                </Text>
+                <Text className="text-purple-900 dark:text-purple-100 text-lg font-bold">
+                  2.4x
+                </Text>
+              </View>
+              <View>
+                <Text className="text-purple-600 dark:text-purple-400 text-xs font-medium">
+                  COST/MONTH
+                </Text>
+                <Text className="text-purple-900 dark:text-purple-100 text-lg font-bold">
+                  £{Math.round(aiAgents.filter(a => a.status === 'active').reduce((sum, a) => sum + a.costPerMonth, 0))}
+                </Text>
+              </View>
+              <View>
+                <Text className="text-purple-600 dark:text-purple-400 text-xs font-medium">
+                  ROI
+                </Text>
+                <Text className="text-emerald-600 dark:text-emerald-400 text-lg font-bold">
+                  +340%
+                </Text>
+              </View>
+            </View>
+            <Pressable
+              onPress={() => router.push('/armory')}
+              className="flex-row items-center gap-1"
+            >
+              <Text className="text-purple-600 dark:text-purple-400 text-xs font-semibold">
+                Manage
+              </Text>
+              <ArrowRight size={12} color="#8b5cf6" />
+            </Pressable>
+          </View>
+        </View>
+
         {/* Selected Task Allocation Panel - Appears below resource pool */}
         {selectedTaskForAllocation && (
           <Animated.View
