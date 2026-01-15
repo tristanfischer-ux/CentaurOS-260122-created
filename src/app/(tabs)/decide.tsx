@@ -27,7 +27,6 @@ import { SquaresDisplay } from '@/components/SquaresDisplay';
 import { useResourceStore, type PersonResource, getTeamSizeEfficiency } from '@/lib/state/resource-store';
 import { ResourcePoolHeader } from '@/components/ResourcePoolHeader';
 import { TaskDetailsModal } from '@/components/TaskDetailsModal';
-import { MiniGanttChart } from '@/components/MiniGanttChart';
 import { identifyTUOpportunities, type TUOpportunity } from '@/lib/reports/tu-analytics';
 
 // Team efficiency types
@@ -1517,41 +1516,27 @@ export default function DecideScreen() {
         </View>
       </LinearGradient>
 
-      {/* SECTION 1: TASK TIMELINE GANTT CHART - TOP */}
-      <MiniGanttChart
-        workPlans={workPlans}
-        members={orgMembers}
-        selectedTaskId={selectedTaskForAllocation?.id}
-        onTaskPress={(taskId) => {
-          const task = workPlans.find(wp => wp.id === taskId);
-          if (task) {
-            handleTaskPress(task);
-          }
-        }}
-      />
-
-      {/* SECTION 2: WEEKLY RESOURCE POOL - BOTTOM */}
-      <View className="border-t-2 border-gray-200 dark:border-slate-700">
+      {/* SECTION 1: WEEKLY RESOURCE POOL - TOP */}
+      <View className="border-b-2 border-gray-200 dark:border-slate-700">
         <ResourcePoolHeader
           selectedPersonId={selectedPersonId}
           onPersonSelect={handlePersonSelect}
         />
       </View>
 
-      {/* Task Edit Modal - Overlays over timeline, resource pool stays clickable below */}
+      {/* Task Edit Modal - Bottom sheet that keeps resource pool visible */}
       <Modal
         visible={!!selectedTaskForAllocation}
         transparent
-        animationType="fade"
+        animationType="slide"
         onRequestClose={() => setSelectedTaskForAllocation(null)}
       >
-        <View className="flex-1" pointerEvents="box-none">
-          {/* Modal positioned to the right side, timeline stays visible on left */}
-          <View className="flex-1 flex-row justify-end" style={{ height: '60%' }} pointerEvents="box-none">
-            <Pressable onPress={(e) => e.stopPropagation()} pointerEvents="box-none">
-              {selectedTaskForAllocation && (
-                <View className="bg-white dark:bg-slate-900 rounded-l-2xl border-l-2 border-t-2 border-b-2 border-blue-400 dark:border-blue-600 shadow-2xl" style={{ width: '45%', height: '100%' }}>
-                <ScrollView className="px-4 py-3" contentContainerStyle={{ flexGrow: 1 }}>
+        <Pressable className="flex-1 bg-black/50" onPress={() => setSelectedTaskForAllocation(null)}>
+          <View className="flex-1" /> {/* Spacer pushes content down */}
+          <Pressable onPress={(e) => e.stopPropagation()}>
+            {selectedTaskForAllocation && (
+              <View className="bg-white dark:bg-slate-900 rounded-t-3xl" style={{ maxHeight: '70%' }}>
+                <ScrollView className="px-5 py-4" contentContainerStyle={{ flexGrow: 1 }}>
                   {/* Close button */}
                   <Pressable
                     onPress={() => setSelectedTaskForAllocation(null)}
@@ -1755,11 +1740,7 @@ export default function DecideScreen() {
               </View>
             )}
           </Pressable>
-        </View>
-
-        {/* Bottom 40% remains transparent and clickable (for resource pool) */}
-        <View style={{ height: '40%' }} pointerEvents="box-none" />
-      </View>
+        </Pressable>
       </Modal>
 
       {/* OKR Ideas Modal */}

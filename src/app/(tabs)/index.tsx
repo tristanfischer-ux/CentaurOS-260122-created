@@ -66,6 +66,7 @@ import { autoSeedDemoDataIfNeeded } from '@/lib/seed-demo-data';
 import { getWeekCounterInfo } from '@/lib/time-utils';
 import { useMarketplaceRequestsStore } from '@/lib/state/marketplace-requests-store';
 import { useRequestStore } from '@/lib/state/request-store';
+import { MiniGanttChart } from '@/components/MiniGanttChart';
 
 const HOME_HELP: HelpContent = {
   title: 'Mission Control',
@@ -264,6 +265,16 @@ export default function MissionControlHome() {
           <HelpButton onPress={() => setShowHelp(true)} />
         </View>
       </LinearGradient>
+
+      {/* Task Timeline Gantt Chart */}
+      <MiniGanttChart
+        workPlans={workPlans}
+        members={members}
+        onTaskPress={(taskId) => {
+          // Navigate to decide tab when task is pressed
+          router.push('/(tabs)/decide');
+        }}
+      />
 
       <ScrollView
         className="flex-1"
