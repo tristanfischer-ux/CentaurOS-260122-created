@@ -61,12 +61,15 @@ export function MiniGanttChart({ workPlans, members, onTaskPress }: MiniGanttCha
     return name.substring(0, 2).toUpperCase();
   };
 
-  // Helper to get assigned members for a task
+  // Helper to get assigned members for a task, sorted by seniority
   const getAssignedMembers = (task: WorkPlan) => {
     const memberIds = task.assignedMemberIds || [];
+    const roleOrder = { Founder: 0, FractionalExec: 1, Apprentice: 2 };
+
     return memberIds
       .map(id => members.find(m => m.id === id))
-      .filter((m): m is OrganizationMember => m !== undefined);
+      .filter((m): m is OrganizationMember => m !== undefined)
+      .sort((a, b) => roleOrder[a.role] - roleOrder[b.role]); // Most senior first
   };
 
   // Generate 13 weeks: 6 weeks before, current week, 6 weeks after
@@ -150,9 +153,9 @@ export function MiniGanttChart({ workPlans, members, onTaskPress }: MiniGanttCha
   }, []);
 
   return (
-    <View className="mb-4 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-2xl overflow-hidden">
+    <View className="mb-4">
       {/* Header */}
-      <View className="px-4 py-3 border-b border-gray-200 dark:border-slate-700 flex-row items-center justify-between">
+      <View className="px-4 py-3 border-b border-gray-200 dark:border-slate-700 flex-row items-center justify-between bg-white dark:bg-slate-900">
         <View className="flex-row items-center gap-2">
           <Calendar size={18} color="#6b7280" />
           <Text className="text-gray-900 dark:text-white text-sm font-bold">
@@ -165,7 +168,7 @@ export function MiniGanttChart({ workPlans, members, onTaskPress }: MiniGanttCha
       </View>
 
       {/* Timeline Content */}
-      <View className="relative">
+      <View className="relative bg-white dark:bg-slate-900">
         {/* Week Headers */}
         <ScrollView
           ref={headerScrollRef}
@@ -324,7 +327,7 @@ export function MiniGanttChart({ workPlans, members, onTaskPress }: MiniGanttCha
         </ScrollView>
 
         {/* Legend */}
-        <View className="px-4 py-2 border-t border-gray-200 dark:border-slate-700 flex-row items-center justify-end gap-3">
+        <View className="px-4 py-2 border-t border-gray-200 dark:border-slate-700 flex-row items-center justify-end gap-3 bg-white dark:bg-slate-900">
           <View className="flex-row items-center gap-1">
             <View className="w-2.5 h-2.5 rounded border-2 bg-gray-200 border-gray-400" />
             <Text className="text-gray-600 dark:text-slate-400 text-[9px]">Not Started</Text>

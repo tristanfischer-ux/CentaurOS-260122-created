@@ -269,12 +269,15 @@ export default function DecideScreen() {
     }
   };
 
-  // Get assigned members for a work plan
+  // Get assigned members for a work plan, sorted by seniority
   const getAssignedMembers = (workPlan: WorkPlan) => {
     const memberIds = workPlan.assignedMemberIds || [];
+    const roleOrder = { Founder: 0, FractionalExec: 1, Apprentice: 2 };
+
     return memberIds
       .map(id => orgMembers.find(m => m.id === id))
-      .filter((m): m is OrganizationMember => m !== undefined);
+      .filter((m): m is OrganizationMember => m !== undefined)
+      .sort((a, b) => roleOrder[a.role] - roleOrder[b.role]); // Most senior first
   };
 
   // Calculate task costs based on assigned members and squares
