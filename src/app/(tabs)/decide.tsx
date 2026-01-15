@@ -1842,8 +1842,38 @@ export default function DecideScreen() {
                   const daysToCompletion = calculateDaysToCompletion(plan);
 
                   return (
+                    <View key={plan.id} className="flex-row items-center gap-2">
+                      {/* Team Avatars - positioned immediately to the left */}
+                      {assignedMembers.length > 0 ? (
+                        <View className="flex-row" style={{ flexDirection: 'row-reverse' }}>
+                          {assignedMembers.slice(0, 3).reverse().map((member, idx) => (
+                            <View
+                              key={member.id}
+                              style={{ marginLeft: idx > 0 ? -8 : 0, zIndex: idx }}
+                            >
+                              <View
+                                className="w-7 h-7 rounded-full items-center justify-center border-2 border-white dark:border-slate-900"
+                                style={{ backgroundColor: getRoleColor(member.role) }}
+                              >
+                                <Text className="text-white font-bold text-[9px]">{getInitials(member.name)}</Text>
+                              </View>
+                            </View>
+                          ))}
+                          {assignedMembers.length > 3 && (
+                            <View className="w-7 h-7 rounded-full items-center justify-center bg-gray-400 border-2 border-white dark:border-slate-900" style={{ marginLeft: -8, zIndex: 3 }}>
+                              <Text className="text-white font-bold text-[9px]">+{assignedMembers.length - 3}</Text>
+                            </View>
+                          )}
+                        </View>
+                      ) : (
+                        <View className="w-7 h-7 rounded-full items-center justify-center bg-gray-200 dark:bg-slate-700 border-2 border-dashed border-gray-400 dark:border-slate-500">
+                          <Plus size={12} color="#9ca3af" />
+                        </View>
+                      )}
+
+                      {/* Task Card */}
+                      <View className="flex-1">
                     <SwipeableTaskCard
-                      key={plan.id}
                       taskId={plan.id}
                       onSwipeLeft={handleTaskSwipeLeft}
                       onPress={() => handleTaskPress(plan)}
@@ -1851,90 +1881,60 @@ export default function DecideScreen() {
                       <View
                         className={`bg-white dark:bg-slate-800 border-2 rounded-xl p-3 ${
                           selectedTaskForAllocation?.id === plan.id
-                            ? 'border-blue-400 dark:border-blue-500' // Highlight selected task
+                            ? 'border-blue-400 dark:border-blue-500'
                             : selectedPersonId
-                            ? 'border-purple-400 dark:border-purple-500' // Highlight when person selected for allocation
+                            ? 'border-purple-400 dark:border-purple-500'
                             : 'border-gray-200 dark:border-slate-700'
                         }`}
                       >
-                        <View className="flex-row items-start justify-between mb-2">
-                          <View className="flex-1 mr-2">
-                            <Text className="text-gray-900 dark:text-white font-semibold text-sm" numberOfLines={2}>
-                              {plan.title}
-                            </Text>
-                            <View className="flex-row items-center mt-1 gap-2">
-                              <View className={`px-1.5 py-0.5 rounded ${
-                                plan.status === 'completed' ? 'bg-emerald-500/20' :
-                                plan.status === 'in-progress' ? 'bg-blue-500/20' :
-                                plan.status === 'blocked' ? 'bg-red-500/20' : 'bg-gray-500/20'
-                              }`}>
-                                <Text className={`text-[10px] font-semibold ${
-                                  plan.status === 'completed' ? 'text-emerald-600 dark:text-emerald-400' :
-                                  plan.status === 'in-progress' ? 'text-blue-600 dark:text-blue-400' :
-                                  plan.status === 'blocked' ? 'text-red-600 dark:text-red-400' : 'text-gray-600 dark:text-gray-400'
-                                }`}>{plan.status}</Text>
+                            <View className="flex-row items-start justify-between mb-2">
+                            <View className="flex-1 mr-2">
+                              <Text className="text-gray-900 dark:text-white font-semibold text-sm" numberOfLines={2}>
+                                {plan.title}
+                              </Text>
+                              <View className="flex-row items-center mt-1 gap-2">
+                                <View className={`px-1.5 py-0.5 rounded ${
+                                  plan.status === 'completed' ? 'bg-emerald-500/20' :
+                                  plan.status === 'in-progress' ? 'bg-blue-500/20' :
+                                  plan.status === 'blocked' ? 'bg-red-500/20' : 'bg-gray-500/20'
+                                }`}>
+                                  <Text className={`text-[10px] font-semibold ${
+                                    plan.status === 'completed' ? 'text-emerald-600 dark:text-emerald-400' :
+                                    plan.status === 'in-progress' ? 'text-blue-600 dark:text-blue-400' :
+                                    plan.status === 'blocked' ? 'text-red-600 dark:text-red-400' : 'text-gray-600 dark:text-gray-400'
+                                  }`}>{plan.status}</Text>
+                                </View>
+                                <Text className="text-gray-500 dark:text-slate-400 text-[10px]">{plan.progress}%</Text>
+                                <View className="bg-purple-100 dark:bg-purple-900/30 px-1.5 py-0.5 rounded">
+                                  <Text className="text-purple-600 dark:text-purple-400 text-[10px] font-semibold">
+                                    {plan.function}
+                                  </Text>
+                                </View>
                               </View>
-                              <Text className="text-gray-500 dark:text-slate-400 text-[10px]">{plan.progress}%</Text>
-                              <View className="bg-purple-100 dark:bg-purple-900/30 px-1.5 py-0.5 rounded">
-                                <Text className="text-purple-600 dark:text-purple-400 text-[10px] font-semibold">
-                                  {plan.function}
-                                </Text>
-                              </View>
+                            </View>
+
+                            {/* Days to Completion Badge */}
+                            <View className="bg-blue-100 dark:bg-blue-900/30 px-2 py-1 rounded-lg">
+                              <Text className="text-blue-700 dark:text-blue-300 text-xs font-bold">
+                                {daysToCompletion}d
+                              </Text>
                             </View>
                           </View>
 
-                          {/* Days to Completion Badge */}
-                          <View className="bg-blue-100 dark:bg-blue-900/30 px-2 py-1 rounded-lg mr-2">
-                            <Text className="text-blue-700 dark:text-blue-300 text-xs font-bold">
-                              {daysToCompletion}d
-                            </Text>
+                          {/* Progress Bar */}
+                          <View className="bg-gray-200 dark:bg-slate-700 rounded-full h-1.5 overflow-hidden">
+                            <View
+                              className={`h-full ${
+                                plan.status === 'completed' ? 'bg-emerald-500' :
+                                plan.status === 'blocked' ? 'bg-red-500' : 'bg-blue-500'
+                              }`}
+                              style={{ width: `${plan.progress}%` }}
+                            />
                           </View>
 
-                          {/* Assigned Members Avatars */}
-                          <View className="flex-row items-center">
-                            {assignedMembers.length > 0 ? (
-                              <View className="flex-row -space-x-2">
-                                {assignedMembers.slice(0, 4).map((member, idx) => (
-                                  <View
-                                    key={member.id}
-                                    style={{ marginLeft: idx > 0 ? -8 : 0, zIndex: 10 - idx }}
-                                  >
-                                    <View
-                                      className="w-8 h-8 rounded-full items-center justify-center border-2 border-white dark:border-slate-800"
-                                      style={{ backgroundColor: getRoleColor(member.role) }}
-                                    >
-                                      <Text className="text-white font-bold text-[10px]">{getInitials(member.name)}</Text>
-                                    </View>
-                                  </View>
-                                ))}
-                                {assignedMembers.length > 4 && (
-                                  <View className="w-8 h-8 rounded-full items-center justify-center bg-gray-400 border-2 border-white dark:border-slate-800" style={{ marginLeft: -8 }}>
-                                    <Text className="text-white font-bold text-[10px]">+{assignedMembers.length - 4}</Text>
-                                  </View>
-                                )}
-                              </View>
-                            ) : (
-                              <View className="w-8 h-8 rounded-full items-center justify-center bg-gray-200 dark:bg-slate-700 border-2 border-dashed border-gray-400 dark:border-slate-500">
-                                <Plus size={14} color="#9ca3af" />
-                              </View>
-                            )}
-                          </View>
-                        </View>
-
-                        {/* Progress Bar */}
-                        <View className="bg-gray-200 dark:bg-slate-700 rounded-full h-1.5 overflow-hidden">
-                          <View
-                            className={`h-full ${
-                              plan.status === 'completed' ? 'bg-emerald-500' :
-                              plan.status === 'blocked' ? 'bg-red-500' : 'bg-blue-500'
-                            }`}
-                            style={{ width: `${plan.progress}%` }}
-                          />
-                        </View>
-
-                        {/* Squares & Cost Display */}
-                        <View className="mt-2 flex-row items-center justify-between">
-                          <View className="flex-row items-center gap-2">
+                          {/* Squares & Cost Display */}
+                          <View className="mt-2 flex-row items-center justify-between">
+                            <View className="flex-row items-center gap-2">
                             <SquaresDisplay
                               totalSquares={plan.estimatedTimeUnits}
                               completedSquares={Math.round((plan.progress / 100) * plan.estimatedTimeUnits)}
@@ -1954,7 +1954,9 @@ export default function DecideScreen() {
                         </View>
                       </View>
                     </SwipeableTaskCard>
-                  );
+                  </View>
+                </View>
+                );
                 })}
               </View>
             </View>
