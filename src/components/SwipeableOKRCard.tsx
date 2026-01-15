@@ -138,6 +138,17 @@ export function SwipeableTaskCard({
     onSwipeLeft(taskId);
   }, [taskId, onSwipeLeft]);
 
+  const handlePress = useCallback(() => {
+    onPress();
+  }, [onPress]);
+
+  // Tap gesture for quick taps
+  const tapGesture = Gesture.Tap()
+    .enabled(!disabled)
+    .onEnd(() => {
+      runOnJS(handlePress)();
+    });
+
   const panGesture = Gesture.Pan()
     .enabled(!disabled)
     .activeOffsetX([-15, 15])
@@ -168,6 +179,9 @@ export function SwipeableTaskCard({
       actionTriggered.value = false;
     });
 
+  // Compose gestures: tap OR pan (exclusive)
+  const composedGesture = Gesture.Exclusive(tapGesture, panGesture);
+
   const animatedCardStyle = useAnimatedStyle(() => ({
     transform: [{ translateX: translateX.value }],
   }));
@@ -197,12 +211,10 @@ export function SwipeableTaskCard({
         <Text className="text-white text-xs font-bold mt-1">DELETE</Text>
       </Animated.View>
 
-      {/* Swipeable card */}
-      <GestureDetector gesture={panGesture}>
+      {/* Swipeable card with tap support */}
+      <GestureDetector gesture={composedGesture}>
         <Animated.View style={animatedCardStyle}>
-          <Pressable onPress={onPress} className="flex-1">
-            {children}
-          </Pressable>
+          {children}
         </Animated.View>
       </GestureDetector>
     </View>
