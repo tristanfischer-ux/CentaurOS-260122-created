@@ -1273,7 +1273,7 @@ export default function DecideScreen() {
             wp.assignedMemberIds.length > 0
           );
 
-          return activeTasks.length > 0 && (
+          return activeTasks.length > 0 ? (
             <View className="mb-4">
               <View className="flex-row items-center justify-between mb-2">
                 <Text className="text-emerald-600 dark:text-emerald-400 text-xs font-bold tracking-wide">
@@ -1400,7 +1400,7 @@ export default function DecideScreen() {
                 })}
               </View>
             </View>
-          );
+          ) : null;
         })()}
 
         {/* QUEUED TASKS (no resources allocated) */}
@@ -1412,7 +1412,7 @@ export default function DecideScreen() {
             (!wp.assignedMemberIds || wp.assignedMemberIds.length === 0)
           );
 
-          return queuedTasks.length > 0 && (
+          return queuedTasks.length > 0 ? (
             <View className="mb-4">
               <View className="flex-row items-center justify-between mb-2">
                 <Text className="text-orange-600 dark:text-orange-400 text-xs font-bold tracking-wide">
@@ -1493,7 +1493,7 @@ export default function DecideScreen() {
                 })}
               </View>
             </View>
-          );
+          ) : null;
         })()}
 
         {/* SECTION 7: COMPLETED TASKS - Clearly separated at the bottom */}
