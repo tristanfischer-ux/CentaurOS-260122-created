@@ -1529,6 +1529,19 @@ export default function DecideScreen() {
         onPersonSelect={handlePersonSelect}
       />
 
+      {/* Mini Gantt Chart - Task Timeline */}
+      <MiniGanttChart
+        workPlans={workPlans}
+        members={orgMembers}
+        onTaskPress={(taskId) => {
+          const task = workPlans.find(wp => wp.id === taskId);
+          if (task) {
+            setSelectedTaskForDetails(task);
+            setShowTaskDetailsModal(true);
+          }
+        }}
+      />
+
       <ScrollView className="flex-1 px-5 py-4">
         {/* Company Aim Banner */}
         {currentWorkspace && (
@@ -1537,19 +1550,6 @@ export default function DecideScreen() {
             onEdit={() => setShowCompanyAimModal(true)}
           />
         )}
-
-        {/* Mini Gantt Chart - Task Timeline */}
-        <MiniGanttChart
-          workPlans={workPlans}
-          members={orgMembers}
-          onTaskPress={(taskId) => {
-            const task = workPlans.find(wp => wp.id === taskId);
-            if (task) {
-              setSelectedTaskForDetails(task);
-              setShowTaskDetailsModal(true);
-            }
-          }}
-        />
 
         {/* Selected Task Allocation Panel - Appears below resource pool */}
         {selectedTaskForAllocation && (

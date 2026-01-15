@@ -152,7 +152,7 @@ export function MiniGanttChart({ workPlans, members, onTaskPress }: MiniGanttCha
   }, []);
 
   return (
-    <View className="mb-4 bg-white dark:bg-slate-900 border-b-2 border-gray-200 dark:border-slate-700">
+    <View className="bg-white dark:bg-slate-900 border-b-2 border-gray-200 dark:border-slate-700">
       {/* Header */}
       <View className="px-4 pt-2 pb-1.5 border-b border-gray-200 dark:border-slate-700">
         <View className="flex-row items-center justify-between">
