@@ -84,6 +84,16 @@ export default function DecideScreen() {
   const updateWorkPlan = useWorkPlanStore(s => s.updateWorkPlan);
   const completeWorkPlan = useWorkPlanStore(s => s.completeWorkPlan);
 
+  // Debug: Log when workPlans changes
+  useEffect(() => {
+    console.log('[Decide] workPlans updated, count:', workPlans.length);
+    workPlans.forEach(wp => {
+      if (wp.assignedMemberIds && wp.assignedMemberIds.length > 0) {
+        console.log('[Decide] Task with resources:', wp.title, 'members:', wp.assignedMemberIds.length);
+      }
+    });
+  }, [workPlans]);
+
   // Task/OKR requests
   const taskOKRRequests = useRequestStore(s => s.requests);
   const approveTaskOKRRequest = useRequestStore(s => s.approveRequest);
