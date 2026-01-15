@@ -28,6 +28,9 @@ import {
   Package,
   ShoppingCart,
   HelpCircle,
+  FileText,
+  Book,
+  Rocket,
 } from 'lucide-react-native';
 
 // Stores
@@ -135,6 +138,13 @@ export default function MissionControlHome() {
     return calculateCompanyHealth(financials, okrs);
   }, [okrs]);
 
+  // Financials for display (should come from a real finance store in production)
+  const financials = useMemo(() => ({
+    totalCash: 50000,
+    burnPerMonth: 5000,
+    revenuePerMonth: 2000,
+  }), []);
+
   const handleRefresh = async () => {
     setRefreshing(true);
     // Refresh logic here
@@ -209,6 +219,43 @@ export default function MissionControlHome() {
           <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
         }
       >
+        {/* FINANCIAL OVERVIEW */}
+        <View className="px-6 pt-6">
+          <View className="flex-row items-center gap-2 mb-3">
+            <DollarSign size={20} color="#10b981" />
+            <Text className="text-gray-900 dark:text-white text-lg font-bold">FINANCIAL OVERVIEW</Text>
+          </View>
+
+          <View className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-xl p-4 shadow-sm">
+            <View className="flex-row flex-wrap gap-3">
+              <View className="flex-1 min-w-[45%]">
+                <Text className="text-gray-600 dark:text-slate-400 text-xs mb-1">Cash in Bank</Text>
+                <Text className="text-emerald-400 text-2xl font-bold">
+                  £{(financials.totalCash / 1000).toFixed(0)}K
+                </Text>
+              </View>
+              <View className="flex-1 min-w-[45%]">
+                <Text className="text-gray-600 dark:text-slate-400 text-xs mb-1">This Week's Cost</Text>
+                <Text className="text-gray-900 dark:text-white text-xl font-bold">
+                  £{(financials.burnPerMonth / 4 / 1000).toFixed(1)}K
+                </Text>
+              </View>
+              <View className="flex-1 min-w-[45%]">
+                <Text className="text-gray-600 dark:text-slate-400 text-xs mb-1">Runway</Text>
+                <Text className="text-emerald-400 text-2xl font-bold">
+                  {runwayDisplay}
+                </Text>
+              </View>
+              <View className="flex-1 min-w-[45%]">
+                <Text className="text-gray-600 dark:text-slate-400 text-xs mb-1">Monthly Burn</Text>
+                <Text className="text-gray-900 dark:text-white text-xl font-bold">
+                  £{(financials.burnPerMonth / 1000).toFixed(1)}K/mo
+                </Text>
+              </View>
+            </View>
+          </View>
+        </View>
+
         {/* FOUNDER DECISIONS - Critical items needing immediate attention */}
         {(pendingHiringRequests.length > 0 || pendingTaskRequests.length > 0) && (
           <View className="px-6 pt-6">
@@ -315,142 +362,6 @@ export default function MissionControlHome() {
             </View>
           </View>
         )}
-
-        {/* MAIN QUEST */}
-        <View className="px-6 pt-6">
-          <View className="flex-row items-center gap-2 mb-3">
-            <Trophy size={20} color="#a855f7" />
-            <Text className="text-gray-900 dark:text-white text-lg font-bold">MAIN QUEST</Text>
-          </View>
-
-          {mainQuest ? (
-            <View className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm">
-              {/* Quest Header */}
-              <View className="flex-row items-start justify-between mb-4">
-                <View className="flex-1">
-                  <Text className="text-purple-600 dark:text-purple-400 text-xs font-semibold mb-1">
-                    ACT {mainQuest.node.actId} •{' '}
-                    {mainQuest.node.type === 'main' ? 'MAIN' : 'SIDE QUEST'}
-                  </Text>
-                  <Text className="text-gray-900 dark:text-white text-xl font-bold mb-1">
-                    {mainQuest.node.title}
-                  </Text>
-                  <Text className="text-gray-600 dark:text-slate-400 text-sm">
-                    {mainQuest.node.subtitle}
-                  </Text>
-                </View>
-                {mainQuest.node.isBossGate && (
-                  <View className="bg-red-500/20 border border-red-500 px-2 py-1 rounded">
-                    <Text className="text-red-400 text-xs font-bold">BOSS</Text>
-                  </View>
-                )}
-              </View>
-
-              {/* Progress */}
-              <View className="mb-4">
-                <View className="flex-row items-center justify-between mb-2">
-                  <Text className="text-gray-700 dark:text-slate-300 text-sm font-medium">
-                    Progress: {mainQuest.progressTU}/{mainQuest.totalTU} TU
-                  </Text>
-                  <Text className="text-purple-400 text-sm font-bold">
-                    {mainQuest.progressPercent.toFixed(0)}%
-                  </Text>
-                </View>
-                <View className="h-2.5 bg-gray-200 dark:bg-slate-800 rounded-full overflow-hidden">
-                  <View
-                    className="h-full bg-purple-500"
-                    style={{ width: `${mainQuest.progressPercent}%` }}
-                  />
-                </View>
-              </View>
-
-              {/* ETA */}
-              <View className="flex-row items-center gap-4 mb-4">
-                <View className="flex-1 bg-gray-50 dark:bg-slate-800 rounded-xl p-3">
-                  <View className="flex-row items-center gap-2 mb-1">
-                    <Clock size={14} color="#9ca3af" />
-                    <Text className="text-gray-600 dark:text-slate-400 text-xs">ETA</Text>
-                  </View>
-                  <Text className="text-gray-900 dark:text-white text-base font-bold">
-                    {mainQuest.etaWeeks !== null
-                      ? `${mainQuest.etaWeeks.toFixed(1)}w`
-                      : 'N/A'}
-                  </Text>
-                </View>
-                <View className="flex-1 bg-gray-50 dark:bg-slate-800 rounded-xl p-3">
-                  <View className="flex-row items-center gap-2 mb-1">
-                    <Zap size={14} color="#9ca3af" />
-                    <Text className="text-gray-600 dark:text-slate-400 text-xs">Allocated</Text>
-                  </View>
-                  <Text className="text-gray-900 dark:text-white text-base font-bold">
-                    {mainQuest.allocatedTUPerWeek} TU/wk
-                  </Text>
-                </View>
-              </View>
-
-              {/* Blockers */}
-              {mainQuest.blockers.length > 0 && (
-                <View className="mb-4">
-                  {mainQuest.blockers.slice(0, 2).map((blocker, idx) => (
-                    <View
-                      key={idx}
-                      className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-3 flex-row items-center gap-2 mb-2"
-                    >
-                      <AlertTriangle size={16} color="#f59e0b" />
-                      <Text className="text-amber-700 dark:text-amber-300 text-sm flex-1">
-                        {blocker.title}
-                      </Text>
-                    </View>
-                  ))}
-                </View>
-              )}
-
-              {/* CTAs */}
-              <View className="flex-row gap-2">
-                <Pressable
-                  onPress={() => router.push(`/tech-tree/${mainQuest.node.id}` as any)}
-                  className="flex-1 bg-purple-500 rounded-xl py-3 items-center active:opacity-70"
-                >
-                  <Text className="text-white text-sm font-bold">View Quest</Text>
-                </Pressable>
-                <Pressable
-                  onPress={() => router.push('/(tabs)/decide')}
-                  className="flex-1 bg-blue-500 rounded-xl py-3 items-center active:opacity-70"
-                >
-                  <Text className="text-white text-sm font-bold">Allocate TUs</Text>
-                </Pressable>
-              </View>
-
-              {mainQuest.nextStep && (
-                <Pressable
-                  onPress={() => router.push(mainQuest.nextStep!.deepLink as any)}
-                  className="mt-2 bg-emerald-500 rounded-xl py-3 flex-row items-center justify-center gap-2 active:opacity-70"
-                >
-                  <Text className="text-white text-sm font-bold">
-                    Next Step: {mainQuest.nextStep.title}
-                  </Text>
-                  <ArrowRight size={16} color="#fff" />
-                </Pressable>
-              )}
-            </View>
-          ) : (
-            <View className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-2xl p-5 items-center shadow-sm">
-              <Trophy size={48} color="#6b7280" />
-              <Text className="text-gray-900 dark:text-white text-lg font-bold mt-3 mb-2">
-                Choose Your Quest
-              </Text>
-              <Text className="text-gray-600 dark:text-slate-400 text-sm text-center mb-4">
-                No active quest. Visit the Tech Tree to begin your journey.
-              </Text>
-              <Pressable
-                onPress={() => router.push('/tech-tree')}
-                className="bg-purple-500 rounded-xl px-6 py-3 active:opacity-70"
-              >
-                <Text className="text-white font-bold">Open Tech Tree</Text>
-              </Pressable>
-            </View>
-          )}
-        </View>
 
         {/* CRITICAL */}
         {criticalItems.length > 0 && (
@@ -671,6 +582,73 @@ export default function MissionControlHome() {
           </Pressable>
         </View>
 
+        {/* STARTUP HUB */}
+        <View className="px-6 pt-6">
+          <View className="flex-row items-center gap-2 mb-3">
+            <Rocket size={20} color="#8b5cf6" />
+            <Text className="text-gray-900 dark:text-white text-lg font-bold">STARTUP HUB</Text>
+          </View>
+
+          <Pressable
+            onPress={() => router.push('/startup-pack/wizard')}
+            className="bg-white dark:bg-slate-900 border border-purple-200 dark:border-purple-800 rounded-xl p-4 shadow-sm active:opacity-70"
+          >
+            <View className="flex-row items-center justify-between">
+              <View className="flex-1">
+                <Text className="text-purple-600 dark:text-purple-400 text-base font-bold mb-1">
+                  Startup Pack Wizard
+                </Text>
+                <Text className="text-gray-600 dark:text-slate-400 text-sm">
+                  Guides, templates, and checklists for your startup
+                </Text>
+              </View>
+              <ChevronRight size={24} color="#8b5cf6" />
+            </View>
+          </Pressable>
+        </View>
+
+        {/* REPORTS & ANALYTICS */}
+        <View className="px-6 pt-6">
+          <View className="flex-row items-center gap-2 mb-3">
+            <FileText size={20} color="#3b82f6" />
+            <Text className="text-gray-900 dark:text-white text-lg font-bold">REPORTS & ANALYTICS</Text>
+          </View>
+
+          <Pressable
+            onPress={() => router.push('/analytics')}
+            className="bg-white dark:bg-slate-900 border border-blue-200 dark:border-blue-800 rounded-xl p-4 shadow-sm active:opacity-70 mb-3"
+          >
+            <View className="flex-row items-center justify-between">
+              <View className="flex-1">
+                <Text className="text-blue-600 dark:text-blue-400 text-base font-bold mb-1">
+                  TU Analytics Dashboard
+                </Text>
+                <Text className="text-gray-600 dark:text-slate-400 text-sm">
+                  View detailed reports and insights
+                </Text>
+              </View>
+              <ChevronRight size={24} color="#3b82f6" />
+            </View>
+          </Pressable>
+
+          <Pressable
+            onPress={() => router.push('/reports')}
+            className="bg-white dark:bg-slate-900 border border-blue-200 dark:border-blue-800 rounded-xl p-4 shadow-sm active:opacity-70"
+          >
+            <View className="flex-row items-center justify-between">
+              <View className="flex-1">
+                <Text className="text-blue-600 dark:text-blue-400 text-base font-bold mb-1">
+                  Export Reports
+                </Text>
+                <Text className="text-gray-600 dark:text-slate-400 text-sm">
+                  Generate and download board packs & reports
+                </Text>
+              </View>
+              <ChevronRight size={24} color="#3b82f6" />
+            </View>
+          </Pressable>
+        </View>
+
         {/* Quick Links */}
         <View className="px-6 pt-6">
           <Text className="text-gray-600 dark:text-slate-400 text-sm font-semibold mb-3">QUICK LINKS</Text>
@@ -697,21 +675,6 @@ export default function MissionControlHome() {
               <Text className="text-gray-900 dark:text-white font-semibold text-sm mt-2">Tech Tree</Text>
             </Pressable>
           </View>
-          <Pressable
-            onPress={() => router.push('/analytics')}
-            className="bg-white dark:bg-slate-900 border border-blue-200 dark:border-blue-800 rounded-xl p-4 shadow-sm active:opacity-70"
-          >
-            <View className="flex-row items-center justify-between">
-              <View className="flex-row items-center gap-3">
-                <Activity size={24} color="#3b82f6" />
-                <View>
-                  <Text className="text-gray-900 dark:text-white font-bold text-base">TU Analytics Dashboard</Text>
-                  <Text className="text-gray-600 dark:text-slate-400 text-xs mt-0.5">View detailed reports and insights</Text>
-                </View>
-              </View>
-              <ChevronRight size={24} color="#3b82f6" />
-            </View>
-          </Pressable>
         </View>
       </ScrollView>
     </View>
