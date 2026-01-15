@@ -1530,23 +1530,15 @@ export default function DecideScreen() {
         }}
       />
 
-      {/* SECTION 3: WEEKLY RESOURCE POOL - BOTTOM */}
+      {/* SECTION 2: WEEKLY RESOURCE POOL - BOTTOM */}
       <View className="border-t-2 border-gray-200 dark:border-slate-700">
-        <View className="px-5 pt-3 pb-2 bg-gray-50 dark:bg-slate-900">
-          <Text className="text-gray-900 dark:text-white text-lg font-bold">
-            Weekly Resource Pool
-          </Text>
-          <Text className="text-gray-600 dark:text-slate-400 text-xs mt-0.5">
-            Team capacity and availability
-          </Text>
-        </View>
         <ResourcePoolHeader
           selectedPersonId={selectedPersonId}
           onPersonSelect={handlePersonSelect}
         />
       </View>
 
-      {/* Task Edit Modal - Overlays when task selected, resource pool remains clickable below */}
+      {/* Task Edit Modal - Overlays over timeline, resource pool stays visible below */}
       <Modal
         visible={!!selectedTaskForAllocation}
         transparent
@@ -1554,12 +1546,15 @@ export default function DecideScreen() {
         onRequestClose={() => setSelectedTaskForAllocation(null)}
       >
         <Pressable
-          className="flex-1 bg-black/50 justify-end"
+          className="flex-1 bg-black/50"
           onPress={() => setSelectedTaskForAllocation(null)}
         >
+          {/* Spacer to position modal in upper portion (over timeline) */}
+          <View className="flex-1" style={{ maxHeight: '40%' }} />
+
           <Pressable onPress={(e) => e.stopPropagation()}>
             {selectedTaskForAllocation && (
-              <View className="bg-white dark:bg-slate-900 rounded-t-3xl border-t-2 border-blue-400 dark:border-blue-600 shadow-2xl" style={{ maxHeight: '60%' }}>
+              <View className="bg-white dark:bg-slate-900 rounded-2xl mx-4 border-2 border-blue-400 dark:border-blue-600 shadow-2xl" style={{ maxHeight: '50%' }}>
                 <ScrollView className="px-5 py-4" contentContainerStyle={{ flexGrow: 1 }}>
                   {/* Close button */}
                   <Pressable

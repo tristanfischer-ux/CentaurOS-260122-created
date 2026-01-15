@@ -15,22 +15,24 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
 
 ## 🔄 Recent Updates (Jan 2026)
 
-### Decide Tab - Two-Section Layout with Modal (Latest)
-- **Simplified Layout**: Only two sections - Timeline (top) and Resource Pool (bottom)
+### Decide Tab - Modal Over Timeline (Latest)
+- **Two-Section Layout**: Timeline (top) and Resource Pool (bottom)
   - **Top**: Task Timeline Gantt Chart with function and status filters
   - **Bottom**: Weekly Resource Pool - always visible and clickable
-  - **Modal Overlay**: Task edit panel appears as overlay when task selected
-- **Modal Workflow**: Click task → modal overlays on timeline → resource pool remains clickable
-  - Select task from timeline to open edit modal in overlay
-  - Modal slides up from bottom, covering ~60% of screen
-  - Resource pool at bottom stays visible and clickable
-  - Click people in resource pool to allocate to selected task in modal
-  - See immediate impact on timeline when adjusting allocations
+- **Modal Positioning**: Task edit modal appears over timeline section only
+  - Modal overlays in upper portion of screen (over timeline area)
+  - Resource pool at bottom remains fully visible and clickable
+  - Click outside modal or close button to dismiss
+- **Workflow**:
+  1. Click task in timeline → modal appears over timeline
+  2. Modal shows task details, allocations, cost, timeline estimates
+  3. Resource pool stays visible at bottom
+  4. Click people in resource pool to allocate to selected task
+  5. Adjust allocations with +/- buttons in modal
+  6. Close modal → see updated timeline
 - **Timeline Filters**: Filter by function AND status simultaneously
   - Function: All, Marketing, Sales, Finance, etc.
   - Status: All, live (in-progress), queued (not-started), blocked, completed, abandoned
-  - View all tasks including historical work
-- **Direct Resource Allocation**: While modal is open, tap people below to allocate
 
 ### Mission Control Team Health Fix
 - **Synchronized with Decide Tab**: Team health metrics now accurately reflect Decide tab allocations
