@@ -1,6 +1,8 @@
 // Organization structure seed data
 // Shows reporting lines, supplier engagements, and AI agent assignments
 
+import type { AIReadiness, PersonLoadout } from './ai-tools-system';
+
 // Default workspaceId for demo company
 const DEFAULT_WORKSPACE_ID = 'workspace-demo-company';
 
@@ -20,6 +22,10 @@ export interface OrganizationMember {
   status: 'active' | 'inactive';
   linkedIn?: string; // LinkedIn profile URL
   bio?: string; // Professional bio
+
+  // AI Readiness & Loadout (NEW)
+  aiReadiness?: AIReadiness; // AI comfort level & constraints
+  aiLoadout?: PersonLoadout; // Equipped AI tools per slot
 }
 
 export interface SupplierEngagement {
