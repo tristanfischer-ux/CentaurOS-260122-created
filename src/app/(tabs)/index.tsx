@@ -2041,6 +2041,102 @@ export default function HomeScreen() {
               </View>
             </View>
 
+            {/* RECENT MESSAGES - Executive */}
+            {recentMessages.length > 0 && (
+              <View className="mb-4">
+                <View className="flex-row items-center justify-between mb-2">
+                  <Text className="text-gray-500 dark:text-slate-500 text-xs font-bold tracking-wide">
+                    RECENT MESSAGES
+                  </Text>
+                  <Pressable onPress={() => router.push('/messages')}>
+                    <Text className="text-blue-500 text-xs font-semibold">View All</Text>
+                  </Pressable>
+                </View>
+
+                <View className="gap-2">
+                  {recentMessages.map((conv) => (
+                    <Pressable
+                      key={conv.id}
+                      onPress={() => router.push('/messages')}
+                      className="bg-gray-100 dark:bg-slate-900 rounded-xl p-3 active:opacity-70"
+                    >
+                      <View className="flex-row items-start justify-between mb-1">
+                        <View className="flex-1">
+                          <Text className="text-gray-900 dark:text-white font-semibold text-sm mb-0.5">
+                            {conv.name}
+                          </Text>
+                          <Text className="text-gray-600 dark:text-slate-400 text-xs" numberOfLines={2}>
+                            {conv.lastMessage?.content}
+                          </Text>
+                        </View>
+                        {conv.unreadCount > 0 && (
+                          <View className="bg-blue-500 rounded-full w-5 h-5 items-center justify-center ml-2">
+                            <Text className="text-white text-xs font-bold">{conv.unreadCount}</Text>
+                          </View>
+                        )}
+                      </View>
+                      <Text className="text-gray-500 dark:text-slate-500 text-xs">
+                        {new Date(conv.lastMessage?.timestamp || '').toLocaleTimeString([], {
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        })}
+                      </Text>
+                    </Pressable>
+                  ))}
+                </View>
+              </View>
+            )}
+
+            {/* UPCOMING CALENDAR - Executive */}
+            {upcomingEvents.length > 0 && (
+              <View className="mb-4">
+                <View className="flex-row items-center justify-between mb-2">
+                  <Text className="text-gray-500 dark:text-slate-500 text-xs font-bold tracking-wide">
+                    UPCOMING
+                  </Text>
+                  <Pressable onPress={() => router.push('/calendar')}>
+                    <Text className="text-emerald-500 text-xs font-semibold">View Calendar</Text>
+                  </Pressable>
+                </View>
+
+                <View className="gap-2">
+                  {upcomingEvents.map((event) => {
+                    const eventDate = new Date(event.startDate);
+                    const isToday = eventDate.toDateString() === new Date().toDateString();
+                    const isTomorrow = eventDate.toDateString() === new Date(Date.now() + 86400000).toDateString();
+
+                    let dateLabel = eventDate.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' });
+                    if (isToday) dateLabel = 'Today';
+                    else if (isTomorrow) dateLabel = 'Tomorrow';
+
+                    return (
+                      <Pressable
+                        key={event.id}
+                        onPress={() => router.push('/calendar')}
+                        className="bg-gray-100 dark:bg-slate-900 rounded-xl p-3 active:opacity-70"
+                      >
+                        <View className="flex-row items-center mb-1">
+                          <View
+                            className="w-1 h-8 rounded-full mr-3"
+                            style={{ backgroundColor: event.color }}
+                          />
+                          <View className="flex-1">
+                            <Text className="text-gray-900 dark:text-white font-semibold text-sm mb-0.5">
+                              {event.title}
+                            </Text>
+                            <Text className="text-gray-600 dark:text-slate-400 text-xs">
+                              {dateLabel}
+                              {!event.allDay && ` • ${eventDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`}
+                            </Text>
+                          </View>
+                        </View>
+                      </Pressable>
+                    );
+                  })}
+                </View>
+              </View>
+            )}
+
             {/* Quick Actions */}
             <View className="flex-row gap-3 mb-4">
               <Pressable
@@ -2498,6 +2594,102 @@ export default function HomeScreen() {
                 </View>
               </Pressable>
             </View>
+
+            {/* RECENT MESSAGES - Apprentice */}
+            {recentMessages.length > 0 && (
+              <View className="mb-4">
+                <View className="flex-row items-center justify-between mb-2">
+                  <Text className="text-gray-500 dark:text-slate-500 text-xs font-bold tracking-wide">
+                    RECENT MESSAGES
+                  </Text>
+                  <Pressable onPress={() => router.push('/messages')}>
+                    <Text className="text-cyan-500 text-xs font-semibold">View All</Text>
+                  </Pressable>
+                </View>
+
+                <View className="gap-2">
+                  {recentMessages.map((conv) => (
+                    <Pressable
+                      key={conv.id}
+                      onPress={() => router.push('/messages')}
+                      className="bg-gray-100 dark:bg-slate-900 rounded-xl p-3 active:opacity-70"
+                    >
+                      <View className="flex-row items-start justify-between mb-1">
+                        <View className="flex-1">
+                          <Text className="text-gray-900 dark:text-white font-semibold text-sm mb-0.5">
+                            {conv.name}
+                          </Text>
+                          <Text className="text-gray-600 dark:text-slate-400 text-xs" numberOfLines={2}>
+                            {conv.lastMessage?.content}
+                          </Text>
+                        </View>
+                        {conv.unreadCount > 0 && (
+                          <View className="bg-cyan-500 rounded-full w-5 h-5 items-center justify-center ml-2">
+                            <Text className="text-white text-xs font-bold">{conv.unreadCount}</Text>
+                          </View>
+                        )}
+                      </View>
+                      <Text className="text-gray-500 dark:text-slate-500 text-xs">
+                        {new Date(conv.lastMessage?.timestamp || '').toLocaleTimeString([], {
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        })}
+                      </Text>
+                    </Pressable>
+                  ))}
+                </View>
+              </View>
+            )}
+
+            {/* UPCOMING CALENDAR - Apprentice */}
+            {upcomingEvents.length > 0 && (
+              <View className="mb-4">
+                <View className="flex-row items-center justify-between mb-2">
+                  <Text className="text-gray-500 dark:text-slate-500 text-xs font-bold tracking-wide">
+                    UPCOMING
+                  </Text>
+                  <Pressable onPress={() => router.push('/calendar')}>
+                    <Text className="text-purple-500 text-xs font-semibold">View Calendar</Text>
+                  </Pressable>
+                </View>
+
+                <View className="gap-2">
+                  {upcomingEvents.map((event) => {
+                    const eventDate = new Date(event.startDate);
+                    const isToday = eventDate.toDateString() === new Date().toDateString();
+                    const isTomorrow = eventDate.toDateString() === new Date(Date.now() + 86400000).toDateString();
+
+                    let dateLabel = eventDate.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' });
+                    if (isToday) dateLabel = 'Today';
+                    else if (isTomorrow) dateLabel = 'Tomorrow';
+
+                    return (
+                      <Pressable
+                        key={event.id}
+                        onPress={() => router.push('/calendar')}
+                        className="bg-gray-100 dark:bg-slate-900 rounded-xl p-3 active:opacity-70"
+                      >
+                        <View className="flex-row items-center mb-1">
+                          <View
+                            className="w-1 h-8 rounded-full mr-3"
+                            style={{ backgroundColor: event.color }}
+                          />
+                          <View className="flex-1">
+                            <Text className="text-gray-900 dark:text-white font-semibold text-sm mb-0.5">
+                              {event.title}
+                            </Text>
+                            <Text className="text-gray-600 dark:text-slate-400 text-xs">
+                              {dateLabel}
+                              {!event.allDay && ` • ${eventDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`}
+                            </Text>
+                          </View>
+                        </View>
+                      </Pressable>
+                    );
+                  })}
+                </View>
+              </View>
+            )}
 
             {/* Quick Actions */}
             <View className="flex-row gap-3 mb-4">
