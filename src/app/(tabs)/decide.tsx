@@ -1538,6 +1538,7 @@ export default function DecideScreen() {
         {/* Mini Gantt Chart - Task Timeline */}
         <MiniGanttChart
           workPlans={workPlans}
+          members={orgMembers}
           onTaskPress={(taskId) => {
             const task = workPlans.find(wp => wp.id === taskId);
             if (task) {

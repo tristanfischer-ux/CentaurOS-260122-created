@@ -1,10 +1,12 @@
 import { View, Text, ScrollView, Pressable } from 'react-native';
 import { useMemo, useRef, useEffect } from 'react';
 import { type WorkPlan } from '@/lib/state/work-plan-store';
+import { type OrganizationMember } from '@/lib/organization-seed';
 import { Calendar } from 'lucide-react-native';
 
 interface MiniGanttChartProps {
   workPlans: WorkPlan[];
+  members: OrganizationMember[];
   onTaskPress?: (taskId: string) => void;
 }
 
@@ -36,7 +38,13 @@ const STATUS_COLORS: Record<string, { bg: string; border: string; text: string }
   'abandoned': { bg: 'bg-gray-300 dark:bg-gray-800', border: 'border-gray-500 dark:border-gray-700', text: 'text-gray-600 dark:text-gray-400' },
 };
 
-export function MiniGanttChart({ workPlans, onTaskPress }: MiniGanttChartProps) {
+const ROLE_COLORS: Record<string, string> = {
+  Founder: '#8b5cf6',
+  FractionalExec: '#3b82f6',
+  Apprentice: '#10b981',
+};
+
+export function MiniGanttChart({ workPlans, members, onTaskPress }: MiniGanttChartProps) {
   const today = useMemo(() => new Date(), []);
   const currentWeek = useMemo(() => getWeekNumber(today), [today]);
 
