@@ -51,10 +51,10 @@ import type { Supplier } from '@/types';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { HelpModal, HelpButton, type HelpContent } from '@/components/HelpModal';
 
-const COMMUNITY_HELP: HelpContent = {
+const HUB_HELP: HelpContent = {
   title: 'Talent Marketplace',
   subtitle: 'Build your team',
-  description: 'The Community tab is your talent marketplace. Discover and hire fractional executives, apprentices, find suppliers, and explore AI tools to build your startup\'s capabilities.',
+  description: 'The Hub is your talent marketplace. Discover and hire fractional executives, apprentices, find suppliers, and explore AI tools to build your startup\'s capabilities.',
   tips: [
     'Use the shortlist feature to save candidates for later comparison',
     'Check candidate availability and cost per day before reaching out',
@@ -69,7 +69,7 @@ const COMMUNITY_HELP: HelpContent = {
   ],
 };
 
-type CommunityTab = 'discover' | 'executives' | 'apprentices' | 'suppliers' | 'ai-agents' | 'shortlist' | 'apply';
+type HubTab = 'discover' | 'executives' | 'apprentices' | 'suppliers' | 'ai-agents' | 'shortlist' | 'apply';
 
 // Talent scoring algorithm - headhunter-grade matching
 interface TalentScore {
@@ -128,7 +128,7 @@ export default function CommunityScreen() {
   const selectedSupplierFromStore = useSupplierStore((s) => s.selectedSupplier);
   const searchSuppliers = useSupplierStore((s) => s.searchSuppliers);
 
-  const [activeTab, setActiveTab] = useState<CommunityTab>('discover');
+  const [activeTab, setActiveTab] = useState<HubTab>('discover');
   const [showHelp, setShowHelp] = useState(false);
   const [selectedCandidate, setSelectedCandidate] = useState<Candidate | null>(null);
   const [selectedAIAgent, setSelectedAIAgent] = useState<ThirdPartyAITool | null>(null);
@@ -564,7 +564,7 @@ export default function CommunityScreen() {
       <HelpModal
         visible={showHelp}
         onClose={() => setShowHelp(false)}
-        content={COMMUNITY_HELP}
+        content={HUB_HELP}
         gradientColors={['#f59e0b', '#d97706']}
       />
 
@@ -578,7 +578,7 @@ export default function CommunityScreen() {
         <View className="flex-row items-center justify-between mb-3">
           <View className="flex-1">
             <Text className="text-white/70 text-xs font-medium">TALENT MARKETPLACE</Text>
-            <Text className="text-white text-xl font-bold">Talent Hub</Text>
+            <Text className="text-white text-xl font-bold">Hub</Text>
           </View>
           <View className="flex-row gap-2">
             <HelpButton onPress={() => setShowHelp(true)} />
@@ -635,7 +635,7 @@ export default function CommunityScreen() {
           ].map((tab) => (
             <Pressable
               key={tab.value}
-              onPress={() => setActiveTab(tab.value as CommunityTab)}
+              onPress={() => setActiveTab(tab.value as HubTab)}
               className={`flex-row items-center px-4 py-2 rounded-full ${
                 activeTab === tab.value
                   ? 'bg-amber-500'

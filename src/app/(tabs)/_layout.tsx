@@ -128,11 +128,11 @@ export default function TabLayout() {
         }}
       />
 
-      {/* Community - Events + Hiring */}
+      {/* Hub - Events + Hiring */}
       <Tabs.Screen
         name="community"
         options={{
-          title: 'Community',
+          title: 'Hub',
           headerShown: false,
           tabBarIcon: ({ color }) => <TabBarIcon Icon={Users} color={color} />,
         }}
