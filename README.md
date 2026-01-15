@@ -15,22 +15,23 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
 
 ## 🔄 Recent Updates (Jan 2026)
 
-### Decide Tab - Modal Over Timeline with Clickable Resource Pool (Latest)
+### Decide Tab - Side Panel Modal (Latest)
 - **Two-Section Layout**: Timeline (top) and Resource Pool (bottom)
-  - **Top**: Task Timeline Gantt Chart with function and status filters
+  - **Top**: Task Timeline Gantt Chart - left 55% remains visible and usable
   - **Bottom**: Weekly Resource Pool - always visible and fully clickable
-- **Modal Positioning**: Task edit modal appears over timeline only
-  - Modal overlays top 60% of screen (over timeline area)
-  - Dark overlay only covers timeline, not resource pool
-  - Bottom 40% (resource pool) remains transparent and clickable
-  - Using `pointerEvents="box-none"` to allow clicks through to resource pool below
+- **Side Panel Modal**: Task edit panel appears on the right side
+  - Panel slides in from right, taking up 45% of screen width
+  - Left 55% of timeline remains visible and interactive
+  - No dark overlay - full visibility of timeline
+  - Rounded left corners, attached to right edge
 - **Workflow**:
-  1. Click task in timeline → modal appears over timeline
-  2. Modal shows task details, allocations, cost, timeline estimates
-  3. Resource pool stays visible AND clickable at bottom
-  4. **Click people in resource pool** to allocate to selected task (works while modal is open!)
-  5. Adjust allocations with +/- buttons in modal
-  6. Close modal → see updated timeline
+  1. Click task in timeline → side panel appears on right
+  2. Panel shows task details, allocations, cost, timeline estimates
+  3. Timeline on left stays visible and usable
+  4. Resource pool at bottom stays fully clickable
+  5. Click people in resource pool to allocate to selected task
+  6. Adjust allocations with +/- buttons in panel
+  7. Close panel → see full timeline again
 - **Timeline Filters**: Filter by function AND status simultaneously
   - Function: All, Marketing, Sales, Finance, etc.
   - Status: All, live (in-progress), queued (not-started), blocked, completed, abandoned

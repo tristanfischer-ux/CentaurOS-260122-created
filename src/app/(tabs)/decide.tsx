@@ -1546,29 +1546,22 @@ export default function DecideScreen() {
         onRequestClose={() => setSelectedTaskForAllocation(null)}
       >
         <View className="flex-1" pointerEvents="box-none">
-          {/* Darkened area over timeline - dismisses modal when tapped */}
-          <Pressable
-            className="bg-black/50"
-            style={{ height: '60%' }}
-            onPress={() => setSelectedTaskForAllocation(null)}
-          >
-            {/* Spacer to position modal in middle of darkened area */}
-            <View className="flex-1" style={{ maxHeight: '20%' }} />
-
-            <Pressable onPress={(e) => e.stopPropagation()}>
+          {/* Modal positioned to the right side, timeline stays visible on left */}
+          <View className="flex-1 flex-row justify-end" style={{ height: '60%' }} pointerEvents="box-none">
+            <Pressable onPress={(e) => e.stopPropagation()} pointerEvents="box-none">
               {selectedTaskForAllocation && (
-                <View className="bg-white dark:bg-slate-900 rounded-2xl mx-4 border-2 border-blue-400 dark:border-blue-600 shadow-2xl" style={{ maxHeight: '80%' }}>
-                <ScrollView className="px-5 py-4" contentContainerStyle={{ flexGrow: 1 }}>
+                <View className="bg-white dark:bg-slate-900 rounded-l-2xl border-l-2 border-t-2 border-b-2 border-blue-400 dark:border-blue-600 shadow-2xl" style={{ width: '45%', height: '100%' }}>
+                <ScrollView className="px-4 py-3" contentContainerStyle={{ flexGrow: 1 }}>
                   {/* Close button */}
                   <Pressable
                     onPress={() => setSelectedTaskForAllocation(null)}
-                    className="absolute top-4 right-4 z-10 bg-gray-200 dark:bg-slate-800 rounded-full p-2"
+                    className="absolute top-3 right-3 z-10 bg-gray-200 dark:bg-slate-800 rounded-full p-1.5"
                   >
-                    <X size={20} color="#3b82f6" />
+                    <X size={16} color="#3b82f6" />
                   </Pressable>
 
                   {/* Modal Title */}
-                  <Text className="text-blue-600 dark:text-blue-400 text-lg font-bold mb-4 pr-12">
+                  <Text className="text-blue-600 dark:text-blue-400 text-base font-bold mb-3 pr-8">
                     Edit Task
                   </Text>
 
@@ -1762,7 +1755,7 @@ export default function DecideScreen() {
               </View>
             )}
           </Pressable>
-        </Pressable>
+        </View>
 
         {/* Bottom 40% remains transparent and clickable (for resource pool) */}
         <View style={{ height: '40%' }} pointerEvents="box-none" />
