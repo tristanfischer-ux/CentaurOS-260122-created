@@ -15,19 +15,20 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
 
 ## 🔄 Recent Updates (Jan 2026)
 
-### Decide Tab - Modal Over Timeline (Latest)
+### Decide Tab - Modal Over Timeline with Clickable Resource Pool (Latest)
 - **Two-Section Layout**: Timeline (top) and Resource Pool (bottom)
   - **Top**: Task Timeline Gantt Chart with function and status filters
-  - **Bottom**: Weekly Resource Pool - always visible and clickable
-- **Modal Positioning**: Task edit modal appears over timeline section only
-  - Modal overlays in upper portion of screen (over timeline area)
-  - Resource pool at bottom remains fully visible and clickable
-  - Click outside modal or close button to dismiss
+  - **Bottom**: Weekly Resource Pool - always visible and fully clickable
+- **Modal Positioning**: Task edit modal appears over timeline only
+  - Modal overlays top 60% of screen (over timeline area)
+  - Dark overlay only covers timeline, not resource pool
+  - Bottom 40% (resource pool) remains transparent and clickable
+  - Using `pointerEvents="box-none"` to allow clicks through to resource pool below
 - **Workflow**:
   1. Click task in timeline → modal appears over timeline
   2. Modal shows task details, allocations, cost, timeline estimates
-  3. Resource pool stays visible at bottom
-  4. Click people in resource pool to allocate to selected task
+  3. Resource pool stays visible AND clickable at bottom
+  4. **Click people in resource pool** to allocate to selected task (works while modal is open!)
   5. Adjust allocations with +/- buttons in modal
   6. Close modal → see updated timeline
 - **Timeline Filters**: Filter by function AND status simultaneously

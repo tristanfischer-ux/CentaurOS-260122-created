@@ -1538,23 +1538,26 @@ export default function DecideScreen() {
         />
       </View>
 
-      {/* Task Edit Modal - Overlays over timeline, resource pool stays visible below */}
+      {/* Task Edit Modal - Overlays over timeline, resource pool stays clickable below */}
       <Modal
         visible={!!selectedTaskForAllocation}
         transparent
         animationType="fade"
         onRequestClose={() => setSelectedTaskForAllocation(null)}
       >
-        <Pressable
-          className="flex-1 bg-black/50"
-          onPress={() => setSelectedTaskForAllocation(null)}
-        >
-          {/* Spacer to position modal in upper portion (over timeline) */}
-          <View className="flex-1" style={{ maxHeight: '40%' }} />
+        <View className="flex-1" pointerEvents="box-none">
+          {/* Darkened area over timeline - dismisses modal when tapped */}
+          <Pressable
+            className="bg-black/50"
+            style={{ height: '60%' }}
+            onPress={() => setSelectedTaskForAllocation(null)}
+          >
+            {/* Spacer to position modal in middle of darkened area */}
+            <View className="flex-1" style={{ maxHeight: '20%' }} />
 
-          <Pressable onPress={(e) => e.stopPropagation()}>
-            {selectedTaskForAllocation && (
-              <View className="bg-white dark:bg-slate-900 rounded-2xl mx-4 border-2 border-blue-400 dark:border-blue-600 shadow-2xl" style={{ maxHeight: '50%' }}>
+            <Pressable onPress={(e) => e.stopPropagation()}>
+              {selectedTaskForAllocation && (
+                <View className="bg-white dark:bg-slate-900 rounded-2xl mx-4 border-2 border-blue-400 dark:border-blue-600 shadow-2xl" style={{ maxHeight: '80%' }}>
                 <ScrollView className="px-5 py-4" contentContainerStyle={{ flexGrow: 1 }}>
                   {/* Close button */}
                   <Pressable
@@ -1760,6 +1763,10 @@ export default function DecideScreen() {
             )}
           </Pressable>
         </Pressable>
+
+        {/* Bottom 40% remains transparent and clickable (for resource pool) */}
+        <View style={{ height: '40%' }} pointerEvents="box-none" />
+      </View>
       </Modal>
 
       {/* OKR Ideas Modal */}
