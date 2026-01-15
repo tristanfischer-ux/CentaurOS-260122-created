@@ -26,6 +26,7 @@ import { CompanyAimModal } from '@/components/CompanyAimModal';
 import { SquaresDisplay } from '@/components/SquaresDisplay';
 import { useResourceStore, type PersonResource, getTeamSizeEfficiency } from '@/lib/state/resource-store';
 import { UnifiedTaskAllocationModal } from '@/components/UnifiedTaskAllocationModal';
+import { ResourcePoolHeader } from '@/components/ResourcePoolHeader';
 
 // Team efficiency types
 
@@ -152,6 +153,10 @@ export default function DecideScreen() {
   // Task allocation modal state
   const [showTaskAllocationModal, setShowTaskAllocationModal] = useState(false);
   const [selectedTaskForAllocation, setSelectedTaskForAllocation] = useState<WorkPlan | null>(null);
+
+  // Resource allocation flow state (tap person → tap task)
+  const [selectedPersonId, setSelectedPersonId] = useState<string | null>(null);
+  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
 
   // Completed and abandoned task sections
   const [showCompletedTasks, setShowCompletedTasks] = useState(false);
@@ -450,6 +455,69 @@ export default function DecideScreen() {
       setShowQueueConfirmModal(true);
     }
   }, [workPlans]);
+
+  // Handle task card press for allocation
+  const handleTaskPress = useCallback((task: WorkPlan) => {
+    if (selectedPersonId) {
+      // Allocation mode: allocate person's TUs to this task
+      const member = useOrganizationStore.getState().members.find(m => m.id === selectedPersonId);
+      if (!member) return;
+
+      // Calculate available TUs for this person
+      const totalCapacity = member.role === 'Founder' || member.role === 'Apprentice' ? 10 : (member.daysPerWeek || 2) * 2;
+      const allocated = workPlans
+        .filter(wp => wp.status !== 'completed' && wp.status !== 'abandoned')
+        .reduce((total, wp) => {
+          const allocation = wp.allocations.find(a => a.memberId === selectedPersonId);
+          return total + (allocation?.squaresPerWeek || 0);
+        }, 0);
+      const available = totalCapacity - allocated;
+
+      if (available <= 0) {
+        Alert.alert('No Available TUs', `${member.name} has no available time units to allocate.`);
+        return;
+      }
+
+      // Default allocation: allocate 1 TU to start (user can adjust in modal)
+      const allocateAmount = Math.min(1, available);
+
+      // Add allocation to task
+      const existingAlloc = task.allocations.find(a => a.memberId === selectedPersonId);
+      const newAllocations = existingAlloc
+        ? task.allocations.map(a =>
+            a.memberId === selectedPersonId
+              ? { ...a, squaresPerWeek: a.squaresPerWeek + allocateAmount }
+              : a
+          )
+        : [
+            ...task.allocations,
+            {
+              memberId: selectedPersonId,
+              memberName: member.name,
+              squaresPerWeek: allocateAmount,
+              costPerSquare: member.costPerDay ? (member.costPerDay / 2) : 50, // Rough estimate
+            }
+          ];
+
+      updateWorkPlan(task.id, {
+        allocations: newAllocations,
+        assignedMemberIds: newAllocations.map(a => a.memberId),
+        status: 'in-progress' as const,
+      });
+
+      // Clear selection after allocation
+      setSelectedPersonId(null);
+
+      Alert.alert(
+        'TUs Allocated',
+        `${allocateAmount} TU${allocateAmount !== 1 ? 's' : ''} from ${member.name} allocated to "${task.title}". Tap the task again to adjust allocation.`
+      );
+    } else {
+      // No person selected: open allocation modal
+      setSelectedTaskForAllocation(task);
+      setShowTaskAllocationModal(true);
+    }
+  }, [selectedPersonId, workPlans, updateWorkPlan]);
 
   // Confirm moving OKR to queue or abandoning task
   const confirmMoveToQueue = useCallback(() => {
@@ -940,6 +1008,12 @@ export default function DecideScreen() {
         </View>
       </LinearGradient>
 
+      {/* Resource Pool Header - Always visible */}
+      <ResourcePoolHeader
+        selectedPersonId={selectedPersonId}
+        onPersonSelect={setSelectedPersonId}
+      />
+
       <ScrollView className="flex-1 px-5 py-4">
         {/* Company Aim Banner */}
         {currentWorkspace && (
@@ -1158,15 +1232,13 @@ export default function DecideScreen() {
                               key={plan.id}
                               taskId={plan.id}
                               onSwipeLeft={handleTaskSwipeLeft}
-                              onPress={() => {
-                                // Always open task allocation modal
-                                setSelectedTaskForAllocation(plan);
-                                setShowTaskAllocationModal(true);
-                              }}
+                              onPress={() => handleTaskPress(plan)}
                             >
                               <View
-                                className={`bg-white dark:bg-slate-800 border rounded-xl p-3 ${
-                                  draggingTaskId === plan.id
+                                className={`bg-white dark:bg-slate-800 border-2 rounded-xl p-3 ${
+                                  selectedPersonId
+                                    ? 'border-purple-400 dark:border-purple-500' // Highlight when person selected for allocation
+                                    : draggingTaskId === plan.id
                                     ? 'border-purple-400 dark:border-purple-500'
                                     : 'border-gray-200 dark:border-slate-700'
                                 }`}
