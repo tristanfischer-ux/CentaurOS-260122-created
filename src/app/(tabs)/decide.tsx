@@ -27,6 +27,7 @@ import { SquaresDisplay } from '@/components/SquaresDisplay';
 import { useResourceStore, type PersonResource, getTeamSizeEfficiency } from '@/lib/state/resource-store';
 import { UnifiedTaskAllocationModal } from '@/components/UnifiedTaskAllocationModal';
 import { ResourcePoolHeader } from '@/components/ResourcePoolHeader';
+import { TaskDetailsModal } from '@/components/TaskDetailsModal';
 
 // Team efficiency types
 
@@ -157,6 +158,10 @@ export default function DecideScreen() {
   // Resource allocation flow state (tap person → tap task)
   const [selectedPersonId, setSelectedPersonId] = useState<string | null>(null);
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
+
+  // Task details modal state (for completed/abandoned tasks)
+  const [showTaskDetailsModal, setShowTaskDetailsModal] = useState(false);
+  const [selectedTaskForDetails, setSelectedTaskForDetails] = useState<WorkPlan | null>(null);
 
   // Completed and abandoned task sections
   const [showCompletedTasks, setShowCompletedTasks] = useState(false);
@@ -1689,8 +1694,16 @@ export default function DecideScreen() {
                     : 'Recently';
 
                   return (
-                    <View key={plan.id} className="bg-emerald-50 dark:bg-emerald-900/10 border border-emerald-200 dark:border-emerald-800 rounded-xl p-3 opacity-70">
-                      <View className="flex-row items-start justify-between">
+                    <Pressable
+                      key={plan.id}
+                      onPress={() => {
+                        setSelectedTaskForDetails(plan);
+                        setShowTaskDetailsModal(true);
+                      }}
+                      className="active:opacity-70"
+                    >
+                      <View className="bg-emerald-50 dark:bg-emerald-900/10 border border-emerald-200 dark:border-emerald-800 rounded-xl p-3 opacity-70">
+                        <View className="flex-row items-start justify-between">
                         <View className="flex-1">
                           <View className="flex-row items-center mb-1 gap-1">
                             <CheckCircle2 size={16} color="#10b981" />
@@ -1740,7 +1753,8 @@ export default function DecideScreen() {
                         </Text>
                       </View>
                     </View>
-                  );
+                  </Pressable>
+                );
                 })}
             </View>
           </View>
@@ -1789,8 +1803,16 @@ export default function DecideScreen() {
                     : 'Recently';
 
                   return (
-                    <View key={plan.id} className="bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-800/50 rounded-xl p-3 opacity-60">
-                      <View className="flex-row items-start justify-between">
+                    <Pressable
+                      key={plan.id}
+                      onPress={() => {
+                        setSelectedTaskForDetails(plan);
+                        setShowTaskDetailsModal(true);
+                      }}
+                      className="active:opacity-70"
+                    >
+                      <View className="bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-800/50 rounded-xl p-3 opacity-60">
+                        <View className="flex-row items-start justify-between">
                         <View className="flex-1">
                           <View className="flex-row items-center mb-1 gap-1">
                             <X size={14} color="#ef4444" />
@@ -1830,7 +1852,8 @@ export default function DecideScreen() {
                         </View>
                       </View>
                     </View>
-                  );
+                  </Pressable>
+                );
                 })}
             </View>
           </View>
@@ -2687,6 +2710,16 @@ export default function DecideScreen() {
           setSelectedTaskForAllocation(null);
         }}
         workPlan={selectedTaskForAllocation}
+      />
+
+      {/* Task Details Modal (for completed/abandoned tasks) */}
+      <TaskDetailsModal
+        visible={showTaskDetailsModal}
+        onClose={() => {
+          setShowTaskDetailsModal(false);
+          setSelectedTaskForDetails(null);
+        }}
+        task={selectedTaskForDetails}
       />
     </View>
   );
