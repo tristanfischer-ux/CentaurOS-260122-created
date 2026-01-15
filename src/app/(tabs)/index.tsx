@@ -664,7 +664,7 @@ export default function MissionControlHome() {
         {/* Quick Links */}
         <View className="px-6 pt-6">
           <Text className="text-gray-600 dark:text-slate-400 text-sm font-semibold mb-3">QUICK LINKS</Text>
-          <View className="flex-row gap-3">
+          <View className="flex-row gap-3 mb-3">
             <Pressable
               onPress={() => router.push('/(tabs)/make')}
               className="flex-1 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-xl p-4 shadow-sm active:opacity-70"
@@ -687,6 +687,21 @@ export default function MissionControlHome() {
               <Text className="text-gray-900 dark:text-white font-semibold text-sm mt-2">Tech Tree</Text>
             </Pressable>
           </View>
+          <Pressable
+            onPress={() => router.push('/analytics')}
+            className="bg-white dark:bg-slate-900 border border-blue-200 dark:border-blue-800 rounded-xl p-4 shadow-sm active:opacity-70"
+          >
+            <View className="flex-row items-center justify-between">
+              <View className="flex-row items-center gap-3">
+                <Activity size={24} color="#3b82f6" />
+                <View>
+                  <Text className="text-gray-900 dark:text-white font-bold text-base">TU Analytics Dashboard</Text>
+                  <Text className="text-gray-600 dark:text-slate-400 text-xs mt-0.5">View detailed reports and insights</Text>
+                </View>
+              </View>
+              <ChevronRight size={24} color="#3b82f6" />
+            </View>
+          </Pressable>
         </View>
       </ScrollView>
     </View>
