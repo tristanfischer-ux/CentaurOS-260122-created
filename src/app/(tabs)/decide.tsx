@@ -1556,7 +1556,7 @@ export default function DecideScreen() {
           <Animated.View
             entering={FadeIn.duration(200)}
             exiting={FadeOut.duration(200)}
-            className="mb-4 bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-300 dark:border-blue-700 rounded-xl p-4"
+            className="mb-6 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 border-2 border-blue-400 dark:border-blue-600 rounded-2xl p-4 shadow-lg"
           >
             {/* Close button */}
             <Pressable
@@ -1774,37 +1774,6 @@ export default function DecideScreen() {
           </Animated.View>
         )}
 
-        {/* Function Filter */}
-        <View className="mb-3">
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            <View className="flex-row gap-2">
-              <Pressable
-                onPress={() => setSelectedFunction('all')}
-                className={`px-3 py-1.5 rounded-lg ${selectedFunction === 'all' ? 'bg-purple-500' : 'bg-gray-200 dark:bg-slate-800'}`}
-              >
-                <Text className={`text-xs font-semibold ${selectedFunction === 'all' ? 'text-white' : 'text-gray-600 dark:text-slate-400'}`}>
-                  All ({workPlans.filter(wp => wp.status !== 'completed' && wp.status !== 'abandoned').length})
-                </Text>
-              </Pressable>
-              {functions.map((func) => {
-                const count = workPlans.filter(wp => wp.function === func && wp.status !== 'completed' && wp.status !== 'abandoned').length;
-                if (count === 0) return null;
-                return (
-                  <Pressable
-                    key={func}
-                    onPress={() => setSelectedFunction(func)}
-                    className={`px-3 py-1.5 rounded-lg ${selectedFunction === func ? 'bg-purple-500' : 'bg-gray-200 dark:bg-slate-800'}`}
-                  >
-                    <Text className={`text-xs font-semibold ${selectedFunction === func ? 'text-white' : 'text-gray-600 dark:text-slate-400'}`}>
-                      {func} ({count})
-                    </Text>
-                  </Pressable>
-                );
-              })}
-            </View>
-          </ScrollView>
-        </View>
-
         {/* ACTIVE TASKS (with resources allocated) */}
         {(() => {
           // Helper to calculate days to completion
@@ -1826,20 +1795,19 @@ export default function DecideScreen() {
             .sort((a, b) => calculateDaysToCompletion(a) - calculateDaysToCompletion(b)); // Sort by days (shortest first)
 
           return activeTasks.length > 0 ? (
-            <View className="mb-4">
-              <View className="flex-row items-center justify-between mb-2">
-                <Text className="text-emerald-600 dark:text-emerald-400 text-xs font-bold tracking-wide">
-                  ACTIVE - RESOURCES ALLOCATED
+            <View className="mb-6">
+              <View className="flex-row items-center justify-between mb-3">
+                <Text className="text-gray-900 dark:text-white text-sm font-bold">
+                  Active Tasks
                 </Text>
-                <View className="bg-emerald-100 dark:bg-emerald-900/30 px-2 py-0.5 rounded">
-                  <Text className="text-emerald-700 dark:text-emerald-300 text-xs font-semibold">
-                    {activeTasks.length} task{activeTasks.length !== 1 ? 's' : ''}
+                <View className="bg-emerald-500/10 dark:bg-emerald-500/20 px-3 py-1 rounded-full">
+                  <Text className="text-emerald-600 dark:text-emerald-400 text-xs font-bold">
+                    {activeTasks.length} in progress
                   </Text>
                 </View>
               </View>
 
-              <View className="gap-2">
-                {activeTasks.map((plan) => {
+              <View className="gap-3">{activeTasks.map((plan) => {
                   const assignedMembers = getAssignedMembers(plan);
                   const taskCost = calculateTaskCost(plan);
                   const daysToCompletion = calculateDaysToCompletion(plan);
@@ -1850,29 +1818,25 @@ export default function DecideScreen() {
                       {assignedMembers.length > 0 ? (
                         <View className="flex-row">
                           {assignedMembers.length > 3 && (
-                            <View className="w-7 h-7 rounded-full items-center justify-center bg-gray-400 border-2 border-white dark:border-slate-900" style={{ marginRight: -8, zIndex: 0 }}>
-                              <Text className="text-white font-bold text-[9px]">+{assignedMembers.length - 3}</Text>
+                            <View className="w-8 h-8 rounded-full items-center justify-center bg-gray-400 border-2 border-white dark:border-slate-950" style={{ marginRight: -10, zIndex: 0 }}>
+                              <Text className="text-white font-bold text-[10px]">+{assignedMembers.length - 3}</Text>
                             </View>
                           )}
                           {assignedMembers.slice(0, 3).map((member, idx) => (
                             <View
                               key={member.id}
-                              className="w-7 h-7 rounded-full items-center justify-center border-2 border-white dark:border-slate-900"
+                              className="w-8 h-8 rounded-full items-center justify-center border-2 border-white dark:border-slate-950"
                               style={{
                                 backgroundColor: getRoleColor(member.role),
-                                marginRight: idx < assignedMembers.slice(0, 3).length - 1 ? -8 : 0,
+                                marginRight: idx < assignedMembers.slice(0, 3).length - 1 ? -10 : 0,
                                 zIndex: idx + 1
                               }}
                             >
-                              <Text className="text-white font-bold text-[9px]">{getInitials(member.name)}</Text>
+                              <Text className="text-white font-bold text-[10px]">{getInitials(member.name)}</Text>
                             </View>
                           ))}
                         </View>
-                      ) : (
-                        <View className="w-7 h-7 rounded-full items-center justify-center bg-gray-200 dark:bg-slate-700 border-2 border-dashed border-gray-400 dark:border-slate-500">
-                          <Plus size={12} color="#9ca3af" />
-                        </View>
-                      )}
+                      ) : null}
 
                       {/* Task Card */}
                       <View className="flex-1">
@@ -1882,11 +1846,9 @@ export default function DecideScreen() {
                       onPress={() => handleTaskPress(plan)}
                     >
                       <View
-                        className={`bg-white dark:bg-slate-800 border-2 rounded-xl p-3 ${
+                        className={`bg-white dark:bg-slate-800 border rounded-2xl p-4 shadow-sm ${
                           selectedTaskForAllocation?.id === plan.id
-                            ? 'border-blue-400 dark:border-blue-500'
-                            : selectedPersonId
-                            ? 'border-purple-400 dark:border-purple-500'
+                            ? 'border-blue-500 dark:border-blue-400'
                             : 'border-gray-200 dark:border-slate-700'
                         }`}
                       >
@@ -1978,20 +1940,19 @@ export default function DecideScreen() {
             .sort((a, b) => a.estimatedTimeUnits - b.estimatedTimeUnits); // Sort by required TUs (smallest first)
 
           return queuedTasks.length > 0 ? (
-            <View className="mb-4">
-              <View className="flex-row items-center justify-between mb-2">
-                <Text className="text-orange-600 dark:text-orange-400 text-xs font-bold tracking-wide">
-                  QUEUED - AWAITING RESOURCES
+            <View className="mb-6">
+              <View className="flex-row items-center justify-between mb-3">
+                <Text className="text-gray-900 dark:text-white text-sm font-bold">
+                  Queued Tasks
                 </Text>
-                <View className="bg-orange-100 dark:bg-orange-900/30 px-2 py-0.5 rounded">
-                  <Text className="text-orange-700 dark:text-orange-300 text-xs font-semibold">
-                    {queuedTasks.length} task{queuedTasks.length !== 1 ? 's' : ''}
+                <View className="bg-orange-500/10 dark:bg-orange-500/20 px-3 py-1 rounded-full">
+                  <Text className="text-orange-600 dark:text-orange-400 text-xs font-bold">
+                    {queuedTasks.length} awaiting resources
                   </Text>
                 </View>
               </View>
 
-              <View className="gap-2">
-                {queuedTasks.map((plan) => {
+              <View className="gap-3">{queuedTasks.map((plan) => {
                   const assignedMembers = getAssignedMembers(plan);
                   const taskCost = calculateTaskCost(plan);
                   // Estimate days if allocated minimum (1 TU per week)
@@ -2005,12 +1966,10 @@ export default function DecideScreen() {
                       onPress={() => handleTaskPress(plan)}
                     >
                       <View
-                        className={`bg-white dark:bg-slate-800 border-2 rounded-xl ${
+                        className={`bg-white dark:bg-slate-800 border rounded-2xl shadow-sm ${
                           selectedTaskForAllocation?.id === plan.id
-                            ? 'border-blue-400 dark:border-blue-500' // Highlight selected task
-                            : selectedPersonId
-                            ? 'border-purple-400 dark:border-purple-500' // Highlight when person selected for allocation
-                            : 'border-orange-200 dark:border-orange-800'
+                            ? 'border-blue-500 dark:border-blue-400'
+                            : 'border-gray-200 dark:border-slate-700'
                         }`}
                       >
                         {/* Card Header */}
@@ -2243,20 +2202,19 @@ export default function DecideScreen() {
 
         {/* SECTION 7: COMPLETED TASKS - Clearly separated at the bottom */}
         {workPlans.filter(wp => wp.status === 'completed').length > 0 && (
-          <View className="mt-8 pt-6 border-t-2 border-gray-300 dark:border-slate-700">
+          <View className="mb-6">
             <View className="flex-row items-center justify-between mb-3">
-              <Text className="text-emerald-600 dark:text-emerald-400 text-xs font-bold tracking-wide">
-                ✓ COMPLETED TASKS
+              <Text className="text-gray-900 dark:text-white text-sm font-bold">
+                Completed
               </Text>
-              <View className="bg-emerald-100 dark:bg-emerald-900/30 px-2 py-0.5 rounded">
-                <Text className="text-emerald-700 dark:text-emerald-300 text-xs font-semibold">
-                  {workPlans.filter(wp => wp.status === 'completed').length} done
+              <View className="bg-emerald-500/10 dark:bg-emerald-500/20 px-3 py-1 rounded-full">
+                <Text className="text-emerald-600 dark:text-emerald-400 text-xs font-bold">
+                  {workPlans.filter(wp => wp.status === 'completed').length} completed
                 </Text>
               </View>
             </View>
 
-            <View className="gap-2">
-              {workPlans
+            <View className="gap-3">{workPlans
                 .filter(wp => wp.status === 'completed')
                 .sort((a, b) => {
                   // Sort by last submission date, most recent first

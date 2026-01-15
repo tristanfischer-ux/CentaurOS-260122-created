@@ -16,10 +16,20 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
 ## 🔄 Recent Updates (Jan 2026)
 
 ### Decide Tab Enhancements (Latest)
+- **Enhanced UX & Visual Design**: Complete redesign for improved clarity and usability
+  - **Cleaner Information Hierarchy**: Simplified section headers with clear visual distinction
+  - **Improved Spacing**: Increased gap between sections (gap-3 vs gap-2) for better readability
+  - **Modernized Card Design**: Rounded cards (rounded-2xl) with subtle shadows and cleaner borders
+  - **Better Typography**: Consistent use of text-sm font-bold for section headers
+  - **Status Badge Redesign**: Pill-shaped badges with transparent backgrounds for modern look
+  - **Larger Avatars**: Increased from 7px to 8px with better overlap for clearer team visibility
+  - **Removed Redundant Elements**: Eliminated duplicate function filter (kept only in Gantt chart)
+  - **Enhanced Allocation Panel**: More prominent styling with gradient background for selected tasks
+  - **Streamlined Task Cards**: Cleaner borders and more breathing room in all sections
 - **Mini Gantt Chart Timeline**: Interactive weekly timeline with synchronized scrolling
+  - **13-Week Scrollable View**: 4 weeks past, current week, 8 weeks future - scroll left/right to navigate full timeline
+  - **Dynamic Week Width**: Each visible week spans exactly 1/3 of screen width for optimal space
   - **Function Filter Toggle**: Filter tasks by function (All, Marketing, Sales, Finance, etc.) with pill-style toggle buttons
-  - **3-Week View**: Shows current week, next week, and week after - spanning full screen width for optimal space
-  - **Dynamic Week Width**: Each week column automatically adjusts to fill exactly 1/3 of screen width
   - **Expanded Task View**: Shows 8 tasks at a time (increased from 5) with vertical scrolling
   - **Direct Resource Allocation**: Click any task in the timeline to select it, then click team members in the resource pool to allocate them
   - **Visual Selection Feedback**: Selected tasks are highlighted with blue border
