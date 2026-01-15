@@ -266,16 +266,6 @@ export default function MissionControlHome() {
         </View>
       </LinearGradient>
 
-      {/* Task Timeline Gantt Chart */}
-      <MiniGanttChart
-        workPlans={workPlans}
-        members={members}
-        onTaskPress={(taskId) => {
-          // Navigate to decide tab when task is pressed
-          router.push('/(tabs)/decide');
-        }}
-      />
-
       <ScrollView
         className="flex-1"
         contentContainerStyle={{ paddingBottom: insets.bottom + 20 }}
@@ -1732,6 +1722,15 @@ export default function MissionControlHome() {
           </View>
         </View>
       </ScrollView>
+
+      {/* Task Timeline Gantt Chart - Fixed at bottom */}
+      <MiniGanttChart
+        workPlans={workPlans}
+        members={members}
+        onTaskPress={(taskId) => {
+          router.push('/(tabs)/decide');
+        }}
+      />
     </View>
   );
 }

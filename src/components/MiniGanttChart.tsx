@@ -1,5 +1,5 @@
 import { View, Text, ScrollView, Pressable, Dimensions } from 'react-native';
-import { useMemo, useRef, useEffect, useState } from 'react';
+import { useMemo, useRef, useEffect } from 'react';
 import { type WorkPlan } from '@/lib/state/work-plan-store';
 import { type OrganizationMember } from '@/lib/organization-seed';
 
@@ -51,19 +51,6 @@ export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress
   // Refs for auto-scrolling to today
   const headerScrollRef = useRef<ScrollView>(null);
   const contentScrollRef = useRef<ScrollView>(null);
-
-  // Filter state
-  const [selectedFunction, setSelectedFunction] = useState<string>('All');
-  const [selectedStatus, setSelectedStatus] = useState<string>('All');
-
-  // Get unique functions from workPlans
-  const functions = useMemo(() => {
-    const uniqueFunctions = new Set(workPlans.map(wp => wp.function));
-    return ['All', ...Array.from(uniqueFunctions).sort()];
-  }, [workPlans]);
-
-  // Status options
-  const statuses = ['All', 'in-progress', 'not-started', 'blocked', 'completed', 'abandoned'];
 
   // Helper to get initials from name
   const getInitials = (name: string): string => {
@@ -132,18 +119,17 @@ export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress
     return result;
   }, [today]);
 
-  // Filter tasks by function and status
+  // Show all non-completed/abandoned tasks, sorted by due date
   const filteredTasks = useMemo(() => {
     return workPlans
-      .filter(wp => selectedFunction === 'All' || wp.function === selectedFunction)
-      .filter(wp => selectedStatus === 'All' || wp.status === selectedStatus)
+      .filter(wp => wp.status !== 'completed' && wp.status !== 'abandoned')
       .sort((a, b) => {
         // Sort by due date
         const aDate = a.dueDate ? new Date(a.dueDate).getTime() : Infinity;
         const bDate = b.dueDate ? new Date(b.dueDate).getTime() : Infinity;
         return aDate - bDate;
       });
-  }, [workPlans, selectedFunction, selectedStatus]);
+  }, [workPlans]);
 
   // Calculate task position and width for each task
   const taskBars = useMemo(() => {
@@ -193,80 +179,15 @@ export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress
   }, []);
 
   return (
-    <View className="bg-white dark:bg-slate-900 border-b-2 border-gray-200 dark:border-slate-700">
-      {/* Header */}
-      <View className="px-4 pt-2 pb-1.5 border-b border-gray-200 dark:border-slate-700">
-        <View className="flex-row items-center justify-between mb-2">
-          <Text className="text-gray-900 dark:text-white text-xs font-bold">
-            TASK TIMELINE
-          </Text>
-          <Text className="text-gray-600 dark:text-slate-400 text-[10px] font-semibold">
-            {filteredTasks.length} task{filteredTasks.length !== 1 ? 's' : ''}
-          </Text>
-        </View>
-
-        {/* Function Filter Buttons */}
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          style={{ flexGrow: 0 }}
-          className="mb-2"
-        >
-          <View className="flex-row gap-2">
-            {functions.map((func) => (
-              <Pressable
-                key={func}
-                onPress={() => setSelectedFunction(func)}
-                className={`px-3 py-1.5 rounded-full ${
-                  selectedFunction === func
-                    ? 'bg-blue-500 dark:bg-blue-600'
-                    : 'bg-gray-200 dark:bg-slate-700'
-                }`}
-              >
-                <Text
-                  className={`text-[10px] font-semibold ${
-                    selectedFunction === func
-                      ? 'text-white'
-                      : 'text-gray-700 dark:text-gray-300'
-                  }`}
-                >
-                  {func}
-                </Text>
-              </Pressable>
-            ))}
-          </View>
-        </ScrollView>
-
-        {/* Status Filter Buttons */}
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          style={{ flexGrow: 0 }}
-        >
-          <View className="flex-row gap-2">
-            {statuses.map((status) => (
-              <Pressable
-                key={status}
-                onPress={() => setSelectedStatus(status)}
-                className={`px-3 py-1.5 rounded-full ${
-                  selectedStatus === status
-                    ? 'bg-purple-500 dark:bg-purple-600'
-                    : 'bg-gray-200 dark:bg-slate-700'
-                }`}
-              >
-                <Text
-                  className={`text-[10px] font-semibold ${
-                    selectedStatus === status
-                      ? 'text-white'
-                      : 'text-gray-700 dark:text-gray-300'
-                  }`}
-                >
-                  {status === 'not-started' ? 'queued' : status === 'in-progress' ? 'live' : status}
-                </Text>
-              </Pressable>
-            ))}
-          </View>
-        </ScrollView>
+    <View className="bg-white dark:bg-slate-900 border-t-2 border-gray-200 dark:border-slate-700">
+      {/* Header - Compact */}
+      <View className="px-4 py-2 flex-row items-center justify-between border-b border-gray-200 dark:border-slate-700">
+        <Text className="text-gray-900 dark:text-white text-xs font-bold">
+          TASK TIMELINE
+        </Text>
+        <Text className="text-gray-600 dark:text-slate-400 text-[10px] font-semibold">
+          {filteredTasks.length} task{filteredTasks.length !== 1 ? 's' : ''}
+        </Text>
       </View>
 
       {/* Timeline Content */}
