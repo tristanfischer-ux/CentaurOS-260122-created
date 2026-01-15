@@ -5,7 +5,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { View, Text, ScrollView, Pressable, ActivityIndicator, Alert, Dimensions } from 'react-native';
 import { useMutation } from '@tanstack/react-query';
-import { useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams, router } from 'expo-router';
 import Animated, { FadeInDown, FadeInUp, FadeIn } from 'react-native-reanimated';
 import {
   FileText, Download, TrendingUp, TrendingDown, Users, Target, AlertTriangle,
@@ -276,6 +276,27 @@ export default function ReportsScreen() {
               </Pressable>
             ))}
           </View>
+        </Animated.View>
+
+        {/* TU Analytics Dashboard Button - NEW */}
+        <Animated.View entering={FadeInDown.delay(250).springify()} className="px-5 pb-4">
+          <Pressable
+            onPress={() => router.push('/tu-dashboard')}
+            className="py-4 rounded-xl border-2 border-purple-500 bg-purple-500/10 active:opacity-70"
+          >
+            <View className="flex-row items-center justify-center">
+              <Gauge size={20} color="#a855f7" />
+              <View className="ml-3">
+                <Text className="text-purple-600 dark:text-purple-400 font-bold text-base">
+                  Time Unit Analytics Dashboard
+                </Text>
+                <Text className={cn("text-xs mt-0.5", textSecondary)}>
+                  TU efficiency, forecasting, team performance & exports
+                </Text>
+              </View>
+              <ChevronRight size={18} color="#a855f7" className="ml-auto" />
+            </View>
+          </Pressable>
         </Animated.View>
 
         {/* Generate Button */}
