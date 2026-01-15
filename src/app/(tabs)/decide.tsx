@@ -1530,257 +1530,6 @@ export default function DecideScreen() {
         }}
       />
 
-      {/* SECTION 2: TASK QUEUE - MIDDLE (Scrollable) */}
-      <ScrollView className="flex-1 px-5 py-4">
-        {/* Section Title */}
-        <View className="mb-4">
-          <Text className="text-gray-900 dark:text-white text-lg font-bold">
-            Task Queue
-          </Text>
-          <Text className="text-gray-600 dark:text-slate-400 text-xs mt-0.5">
-            Current activities and upcoming work
-          </Text>
-        </View>
-
-        {/* Selected Task Allocation Panel - Appears below resource pool */}
-        {selectedTaskForAllocation && (
-          <Animated.View
-            entering={FadeIn.duration(200)}
-            exiting={FadeOut.duration(200)}
-            className="mb-6 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 border-2 border-blue-400 dark:border-blue-600 rounded-2xl p-4 shadow-lg"
-          >
-            {/* Close button */}
-            <Pressable
-              onPress={() => setSelectedTaskForAllocation(null)}
-              className="absolute top-3 right-3 z-10 bg-white dark:bg-slate-800 rounded-full p-1"
-            >
-              <X size={16} color="#3b82f6" />
-            </Pressable>
-
-            {/* Editable Title */}
-            <View className="mb-2">
-              <Text className="text-blue-600 dark:text-blue-400 text-xs font-semibold mb-1">
-                Task Name
-              </Text>
-              <TextInput
-                value={editedTaskTitle}
-                onChangeText={setEditedTaskTitle}
-                onBlur={handleSaveTaskTitle}
-                className="text-blue-900 dark:text-blue-100 font-bold text-base bg-white dark:bg-slate-800 rounded-lg px-3 py-2 border border-blue-200 dark:border-blue-700"
-                placeholder="Enter task name"
-                placeholderTextColor="#94a3b8"
-                multiline
-              />
-            </View>
-
-            {/* Editable Description */}
-            <View className="mb-3">
-              <Text className="text-blue-600 dark:text-blue-400 text-xs font-semibold mb-1">
-                Description
-              </Text>
-              <TextInput
-                value={editedTaskDescription}
-                onChangeText={setEditedTaskDescription}
-                onBlur={handleSaveTaskDescription}
-                className="text-blue-700 dark:text-blue-300 text-sm bg-white dark:bg-slate-800 rounded-lg px-3 py-2 border border-blue-200 dark:border-blue-700"
-                placeholder="Enter task description"
-                placeholderTextColor="#94a3b8"
-                multiline
-                numberOfLines={2}
-              />
-            </View>
-
-            {/* Resource allocation display */}
-            <View className="bg-white dark:bg-slate-800 rounded-lg p-3 mb-3">
-              <View className="flex-row items-center justify-between mb-2">
-                {/* Required field with +/- buttons */}
-                <View className="flex-row items-center gap-2">
-                  <Text className="text-gray-600 dark:text-slate-400 text-xs mr-1">Required:</Text>
-
-                  {/* Minus button */}
-                  <Pressable
-                    onPress={() => handleAdjustEstimatedTimeUnits(selectedTaskForAllocation.id, -1)}
-                    className="bg-red-100 dark:bg-red-900/30 w-7 h-7 rounded-full items-center justify-center active:opacity-70"
-                  >
-                    <Minus size={14} color="#ef4444" />
-                  </Pressable>
-
-                  {/* Display */}
-                  <View className="bg-gray-50 dark:bg-slate-900 px-3 py-1 rounded">
-                    <Text className="text-gray-900 dark:text-white font-bold">
-                      {selectedTaskForAllocation.estimatedTimeUnits}□
-                    </Text>
-                  </View>
-
-                  {/* Plus button */}
-                  <Pressable
-                    onPress={() => handleAdjustEstimatedTimeUnits(selectedTaskForAllocation.id, 1)}
-                    className="bg-emerald-100 dark:bg-emerald-900/30 w-7 h-7 rounded-full items-center justify-center active:opacity-70"
-                  >
-                    <Plus size={14} color="#10b981" />
-                  </Pressable>
-                </View>
-
-                {/* Allocated field */}
-                <Text className={`font-semibold ${
-                  (selectedTaskForAllocation.allocations?.reduce((sum, a) => sum + a.squaresPerWeek, 0) || 0) >= selectedTaskForAllocation.estimatedTimeUnits
-                    ? 'text-emerald-600 dark:text-emerald-400'
-                    : 'text-orange-600 dark:text-orange-400'
-                }`}>
-                  Allocated: {selectedTaskForAllocation.allocations?.reduce((sum, a) => sum + a.squaresPerWeek, 0) || 0}□
-                </Text>
-              </View>
-
-              {/* Progress bar */}
-              <View className="h-2 bg-gray-200 dark:bg-slate-700 rounded-full overflow-hidden">
-                <View
-                  className={`h-full ${
-                    (selectedTaskForAllocation.allocations?.reduce((sum, a) => sum + a.squaresPerWeek, 0) || 0) >= selectedTaskForAllocation.estimatedTimeUnits
-                      ? 'bg-emerald-500'
-                      : 'bg-orange-500'
-                  }`}
-                  style={{
-                    width: `${Math.min(100, ((selectedTaskForAllocation.allocations?.reduce((sum, a) => sum + a.squaresPerWeek, 0) || 0) / selectedTaskForAllocation.estimatedTimeUnits) * 100)}%`
-                  }}
-                />
-              </View>
-
-              {/* Team members allocated */}
-              {selectedTaskForAllocation.allocations && selectedTaskForAllocation.allocations.length > 0 && (
-                <View className="mt-3 pt-3 border-t border-gray-200 dark:border-slate-700">
-                  <Text className="text-gray-600 dark:text-slate-400 text-xs font-semibold mb-2">
-                    Team Members:
-                  </Text>
-                  {selectedTaskForAllocation.allocations.map((alloc) => (
-                    <View key={alloc.memberId} className="flex-row items-center justify-between mb-2 bg-gray-50 dark:bg-slate-900 rounded-lg p-2">
-                      <Text className="text-gray-900 dark:text-white text-sm flex-1">
-                        {alloc.memberName}
-                      </Text>
-                      <View className="flex-row items-center gap-2">
-                        {/* Minus button */}
-                        <Pressable
-                          onPress={() => handleAdjustAllocation(selectedTaskForAllocation.id, alloc.memberId, -1)}
-                          className="bg-red-100 dark:bg-red-900/30 w-7 h-7 rounded-full items-center justify-center active:opacity-70"
-                        >
-                          <Minus size={14} color="#ef4444" />
-                        </Pressable>
-
-                        {/* Allocation display */}
-                        <View className="bg-white dark:bg-slate-800 px-2 py-1 rounded">
-                          <Text className="text-gray-900 dark:text-white text-sm font-semibold">
-                            {alloc.squaresPerWeek}□/wk
-                          </Text>
-                        </View>
-
-                        {/* Plus button */}
-                        <Pressable
-                          onPress={() => handleAdjustAllocation(selectedTaskForAllocation.id, alloc.memberId, 1)}
-                          className="bg-emerald-100 dark:bg-emerald-900/30 w-7 h-7 rounded-full items-center justify-center active:opacity-70"
-                        >
-                          <Plus size={14} color="#10b981" />
-                        </Pressable>
-
-                        <Text className="text-gray-500 dark:text-slate-500 text-xs ml-1">
-                          £{alloc.costPerSquare * alloc.squaresPerWeek}/wk
-                        </Text>
-                      </View>
-                    </View>
-                  ))}
-                </View>
-              )}
-            </View>
-
-            {/* Cost and timeline calculation */}
-            <View className="flex-row gap-2">
-              <View className="flex-1 bg-white dark:bg-slate-800 rounded-lg p-2">
-                <Text className="text-gray-600 dark:text-slate-400 text-xs mb-1">
-                  Total Cost
-                </Text>
-                <Text className="text-gray-900 dark:text-white font-bold">
-                  £{Math.round(
-                    (selectedTaskForAllocation.allocations?.reduce((sum, a) => sum + (a.costPerSquare * a.squaresPerWeek), 0) || 0) *
-                    (selectedTaskForAllocation.estimatedTimeUnits / Math.max(1, selectedTaskForAllocation.allocations?.reduce((sum, a) => sum + a.squaresPerWeek, 0) || 1))
-                  ).toLocaleString()}
-                </Text>
-              </View>
-              <View className="flex-1 bg-white dark:bg-slate-800 rounded-lg p-2">
-                <Text className="text-gray-600 dark:text-slate-400 text-xs mb-1">
-                  Completion Time
-                </Text>
-                <Text className="text-gray-900 dark:text-white font-bold">
-                  {(() => {
-                    const weeks = Math.ceil(
-                      selectedTaskForAllocation.estimatedTimeUnits /
-                      Math.max(1, selectedTaskForAllocation.allocations?.reduce((sum, a) => sum + a.squaresPerWeek, 0) || 1)
-                    );
-                    const days = weeks * 5; // 5 working days per week
-                    return `${days} day${days !== 1 ? 's' : ''}`;
-                  })()}
-                </Text>
-              </View>
-            </View>
-
-            {/* Instructions */}
-            <View className="mt-3 bg-blue-100 dark:bg-blue-900/30 rounded-lg p-2">
-              <Text className="text-blue-800 dark:text-blue-200 text-xs text-center">
-                💡 Tap team members in the resource pool above to allocate their time to this task
-              </Text>
-            </View>
-
-            {/* Confirm button */}
-            <Pressable
-              onPress={handleConfirmAllocation}
-              className="mt-3 bg-emerald-500 py-3 rounded-lg active:opacity-80"
-            >
-              <Text className="text-white font-bold text-center text-base">
-                ✓ Confirm Allocation
-              </Text>
-            </Pressable>
-
-            {/* Delete button */}
-            <Pressable
-              onPress={() => {
-                Alert.alert(
-                  'Delete Task',
-                  'Delete this task and free all allocated resources?',
-                  [
-                    { text: 'Cancel', style: 'cancel' },
-                    {
-                      text: 'Delete',
-                      style: 'destructive',
-                      onPress: () => {
-                        abandonWorkPlan(selectedTaskForAllocation.id, 'Deleted by user');
-                        setSelectedTaskForAllocation(null);
-                      }
-                    }
-                  ]
-                );
-              }}
-              className="mt-2 bg-red-100 dark:bg-red-900/30 py-2 rounded-lg active:opacity-70"
-            >
-              <Text className="text-red-600 dark:text-red-400 font-semibold text-center text-sm">
-                Delete Task & Free Resources
-              </Text>
-            </Pressable>
-          </Animated.View>
-        )}
-
-        {/* Empty state when no task selected */}
-        {!selectedTaskForAllocation && (
-          <View className="flex-1 items-center justify-center py-20">
-            <Target size={48} color="#94a3b8" />
-            <Text className="text-gray-500 dark:text-slate-400 text-sm font-semibold mt-4">
-              Select a task from the timeline above
-            </Text>
-            <Text className="text-gray-400 dark:text-slate-500 text-xs mt-1 text-center px-8">
-              Tap any task in the timeline to edit details and allocate resources
-            </Text>
-          </View>
-        )}
-      </ScrollView>
-
-      {/* SECTION 3: WEEKLY RESOURCE POOL - BOTTOM */}
-
       {/* SECTION 3: WEEKLY RESOURCE POOL - BOTTOM */}
       <View className="border-t-2 border-gray-200 dark:border-slate-700">
         <View className="px-5 pt-3 pb-2 bg-gray-50 dark:bg-slate-900">
@@ -1796,6 +1545,227 @@ export default function DecideScreen() {
           onPersonSelect={handlePersonSelect}
         />
       </View>
+
+      {/* Task Edit Modal - Overlays when task selected, resource pool remains clickable below */}
+      <Modal
+        visible={!!selectedTaskForAllocation}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setSelectedTaskForAllocation(null)}
+      >
+        <Pressable
+          className="flex-1 bg-black/50 justify-end"
+          onPress={() => setSelectedTaskForAllocation(null)}
+        >
+          <Pressable onPress={(e) => e.stopPropagation()}>
+            {selectedTaskForAllocation && (
+              <View className="bg-white dark:bg-slate-900 rounded-t-3xl border-t-2 border-blue-400 dark:border-blue-600 shadow-2xl" style={{ maxHeight: '60%' }}>
+                <ScrollView className="px-5 py-4" contentContainerStyle={{ flexGrow: 1 }}>
+                  {/* Close button */}
+                  <Pressable
+                    onPress={() => setSelectedTaskForAllocation(null)}
+                    className="absolute top-4 right-4 z-10 bg-gray-200 dark:bg-slate-800 rounded-full p-2"
+                  >
+                    <X size={20} color="#3b82f6" />
+                  </Pressable>
+
+                  {/* Modal Title */}
+                  <Text className="text-blue-600 dark:text-blue-400 text-lg font-bold mb-4 pr-12">
+                    Edit Task
+                  </Text>
+
+                  {/* Editable Title */}
+                  <View className="mb-3">
+                    <Text className="text-gray-700 dark:text-slate-300 text-xs font-semibold mb-1">
+                      Task Name
+                    </Text>
+                    <TextInput
+                      value={editedTaskTitle}
+                      onChangeText={setEditedTaskTitle}
+                      onBlur={handleSaveTaskTitle}
+                      className="text-gray-900 dark:text-white font-bold text-base bg-gray-50 dark:bg-slate-800 rounded-lg px-3 py-2 border border-gray-300 dark:border-slate-700"
+                      placeholder="Enter task name"
+                      placeholderTextColor="#94a3b8"
+                      multiline
+                    />
+                  </View>
+
+                  {/* Editable Description */}
+                  <View className="mb-3">
+                    <Text className="text-gray-700 dark:text-slate-300 text-xs font-semibold mb-1">
+                      Description
+                    </Text>
+                    <TextInput
+                      value={editedTaskDescription}
+                      onChangeText={setEditedTaskDescription}
+                      onBlur={handleSaveTaskDescription}
+                      className="text-gray-900 dark:text-white text-sm bg-gray-50 dark:bg-slate-800 rounded-lg px-3 py-2 border border-gray-300 dark:border-slate-700"
+                      placeholder="Enter task description"
+                      placeholderTextColor="#94a3b8"
+                      multiline
+                      numberOfLines={2}
+                    />
+                  </View>
+
+                  {/* Resource allocation display */}
+                  <View className="bg-gray-50 dark:bg-slate-800 rounded-lg p-3 mb-3 border border-gray-200 dark:border-slate-700">
+                    <View className="flex-row items-center justify-between mb-2">
+                      {/* Required field with +/- buttons */}
+                      <View className="flex-row items-center gap-2">
+                        <Text className="text-gray-600 dark:text-slate-400 text-xs mr-1">Required:</Text>
+
+                        {/* Minus button */}
+                        <Pressable
+                          onPress={() => handleAdjustEstimatedTimeUnits(selectedTaskForAllocation.id, -1)}
+                          className="bg-red-100 dark:bg-red-900/30 w-7 h-7 rounded-full items-center justify-center active:opacity-70"
+                        >
+                          <Minus size={14} color="#ef4444" />
+                        </Pressable>
+
+                        {/* Display */}
+                        <View className="bg-white dark:bg-slate-900 px-3 py-1 rounded">
+                          <Text className="text-gray-900 dark:text-white font-bold">
+                            {selectedTaskForAllocation.estimatedTimeUnits}□
+                          </Text>
+                        </View>
+
+                        {/* Plus button */}
+                        <Pressable
+                          onPress={() => handleAdjustEstimatedTimeUnits(selectedTaskForAllocation.id, 1)}
+                          className="bg-emerald-100 dark:bg-emerald-900/30 w-7 h-7 rounded-full items-center justify-center active:opacity-70"
+                        >
+                          <Plus size={14} color="#10b981" />
+                        </Pressable>
+                      </View>
+
+                      {/* Allocated field */}
+                      <Text className={`font-semibold ${
+                        (selectedTaskForAllocation.allocations?.reduce((sum, a) => sum + a.squaresPerWeek, 0) || 0) >= selectedTaskForAllocation.estimatedTimeUnits
+                          ? 'text-emerald-600 dark:text-emerald-400'
+                          : 'text-orange-600 dark:text-orange-400'
+                      }`}>
+                        Allocated: {selectedTaskForAllocation.allocations?.reduce((sum, a) => sum + a.squaresPerWeek, 0) || 0}□
+                      </Text>
+                    </View>
+
+                    {/* Progress bar */}
+                    <View className="h-2 bg-gray-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                      <View
+                        className={`h-full ${
+                          (selectedTaskForAllocation.allocations?.reduce((sum, a) => sum + a.squaresPerWeek, 0) || 0) >= selectedTaskForAllocation.estimatedTimeUnits
+                            ? 'bg-emerald-500'
+                            : 'bg-orange-500'
+                        }`}
+                        style={{
+                          width: `${Math.min(100, ((selectedTaskForAllocation.allocations?.reduce((sum, a) => sum + a.squaresPerWeek, 0) || 0) / selectedTaskForAllocation.estimatedTimeUnits) * 100)}%`
+                        }}
+                      />
+                    </View>
+
+                    {/* Team members allocated */}
+                    {selectedTaskForAllocation.allocations && selectedTaskForAllocation.allocations.length > 0 && (
+                      <View className="mt-3 pt-3 border-t border-gray-200 dark:border-slate-700">
+                        <Text className="text-gray-600 dark:text-slate-400 text-xs font-semibold mb-2">
+                          Team Members:
+                        </Text>
+                        {selectedTaskForAllocation.allocations.map((alloc) => (
+                          <View key={alloc.memberId} className="flex-row items-center justify-between mb-2 bg-white dark:bg-slate-900 rounded-lg p-2">
+                            <Text className="text-gray-900 dark:text-white text-sm flex-1">
+                              {alloc.memberName}
+                            </Text>
+                            <View className="flex-row items-center gap-2">
+                              {/* Minus button */}
+                              <Pressable
+                                onPress={() => handleAdjustAllocation(selectedTaskForAllocation.id, alloc.memberId, -1)}
+                                className="bg-red-100 dark:bg-red-900/30 w-7 h-7 rounded-full items-center justify-center active:opacity-70"
+                              >
+                                <Minus size={14} color="#ef4444" />
+                              </Pressable>
+
+                              {/* Allocation display */}
+                              <View className="bg-gray-50 dark:bg-slate-800 px-2 py-1 rounded">
+                                <Text className="text-gray-900 dark:text-white text-sm font-semibold">
+                                  {alloc.squaresPerWeek}□/wk
+                                </Text>
+                              </View>
+
+                              {/* Plus button */}
+                              <Pressable
+                                onPress={() => handleAdjustAllocation(selectedTaskForAllocation.id, alloc.memberId, 1)}
+                                className="bg-emerald-100 dark:bg-emerald-900/30 w-7 h-7 rounded-full items-center justify-center active:opacity-70"
+                              >
+                                <Plus size={14} color="#10b981" />
+                              </Pressable>
+
+                              <Text className="text-gray-500 dark:text-slate-500 text-xs ml-1">
+                                £{alloc.costPerSquare * alloc.squaresPerWeek}/wk
+                              </Text>
+                            </View>
+                          </View>
+                        ))}
+                      </View>
+                    )}
+                  </View>
+
+                  {/* Cost and timeline calculation */}
+                  <View className="flex-row gap-2 mb-3">
+                    <View className="flex-1 bg-gray-50 dark:bg-slate-800 rounded-lg p-3 border border-gray-200 dark:border-slate-700">
+                      <Text className="text-gray-600 dark:text-slate-400 text-xs mb-1">
+                        Total Cost
+                      </Text>
+                      <Text className="text-gray-900 dark:text-white font-bold text-lg">
+                        £{(() => {
+                          const totalWeeklyCost = selectedTaskForAllocation.allocations?.reduce((sum, a) => sum + (a.costPerSquare * a.squaresPerWeek), 0) || 0;
+                          const totalAllocated = selectedTaskForAllocation.allocations?.reduce((sum, a) => sum + a.squaresPerWeek, 0) || 0;
+                          const weeks = totalAllocated > 0 ? Math.ceil(selectedTaskForAllocation.estimatedTimeUnits / totalAllocated) : 0;
+                          return (totalWeeklyCost * weeks).toLocaleString();
+                        })()}
+                      </Text>
+                    </View>
+                    <View className="flex-1 bg-gray-50 dark:bg-slate-800 rounded-lg p-3 border border-gray-200 dark:border-slate-700">
+                      <Text className="text-gray-600 dark:text-slate-400 text-xs mb-1">
+                        Weeks to Complete
+                      </Text>
+                      <Text className="text-gray-900 dark:text-white font-bold text-lg">
+                        {(() => {
+                          const totalAllocated = selectedTaskForAllocation.allocations?.reduce((sum, a) => sum + a.squaresPerWeek, 0) || 0;
+                          return totalAllocated > 0 ? Math.ceil(selectedTaskForAllocation.estimatedTimeUnits / totalAllocated) : '∞';
+                        })()}
+                      </Text>
+                    </View>
+                  </View>
+
+                  {/* Delete button */}
+                  <Pressable
+                    onPress={() => {
+                      Alert.alert(
+                        'Delete Task',
+                        'Delete this task and free all allocated resources?',
+                        [
+                          { text: 'Cancel', style: 'cancel' },
+                          {
+                            text: 'Delete',
+                            style: 'destructive',
+                            onPress: () => {
+                              abandonWorkPlan(selectedTaskForAllocation.id, 'Deleted by user');
+                              setSelectedTaskForAllocation(null);
+                            }
+                          }
+                        ]
+                      );
+                    }}
+                    className="mt-2 bg-red-100 dark:bg-red-900/30 py-3 rounded-lg active:opacity-70"
+                  >
+                    <Text className="text-red-600 dark:text-red-400 font-semibold text-center text-sm">
+                      Delete Task & Free Resources
+                    </Text>
+                  </Pressable>
+                </ScrollView>
+              </View>
+            )}
+          </Pressable>
+        </Pressable>
+      </Modal>
 
       {/* OKR Ideas Modal */}
       <Modal

@@ -15,19 +15,22 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
 
 ## 🔄 Recent Updates (Jan 2026)
 
-### Decide Tab - Simplified Workflow (Latest)
-- **Timeline Filters**: Task timeline now supports filtering by both function AND status
-  - Function filters: All, Marketing, Sales, Finance, etc.
-  - Status filters: All, live (in-progress), queued (not-started), blocked, completed, abandoned
-  - See all tasks including historical completed and abandoned work
-- **Streamlined Middle Section**: Removed task lists - middle section now only shows task edit modal
-  - Select any task from timeline to edit and allocate resources
-  - Clean empty state when no task selected with clear instruction
-  - Direct workflow: Timeline → Edit Modal → Resource Pool
-- **Three-Section Layout**: Top (Timeline) → Middle (Edit Modal) → Bottom (Resource Pool)
-  - Top: Visual timeline with all tasks, filtered by function and status
-  - Middle: Selected task details and resource allocation panel
-  - Bottom: Team capacity and availability
+### Decide Tab - Two-Section Layout with Modal (Latest)
+- **Simplified Layout**: Only two sections - Timeline (top) and Resource Pool (bottom)
+  - **Top**: Task Timeline Gantt Chart with function and status filters
+  - **Bottom**: Weekly Resource Pool - always visible and clickable
+  - **Modal Overlay**: Task edit panel appears as overlay when task selected
+- **Modal Workflow**: Click task → modal overlays on timeline → resource pool remains clickable
+  - Select task from timeline to open edit modal in overlay
+  - Modal slides up from bottom, covering ~60% of screen
+  - Resource pool at bottom stays visible and clickable
+  - Click people in resource pool to allocate to selected task in modal
+  - See immediate impact on timeline when adjusting allocations
+- **Timeline Filters**: Filter by function AND status simultaneously
+  - Function: All, Marketing, Sales, Finance, etc.
+  - Status: All, live (in-progress), queued (not-started), blocked, completed, abandoned
+  - View all tasks including historical work
+- **Direct Resource Allocation**: While modal is open, tap people below to allocate
 
 ### Mission Control Team Health Fix
 - **Synchronized with Decide Tab**: Team health metrics now accurately reflect Decide tab allocations
