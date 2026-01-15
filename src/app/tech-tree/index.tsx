@@ -1,79 +1,34 @@
 /**
- * Tech Tree Screen
- * RPG-style progression with constellation map
+ * Getting Started Checklist Screen
+ * Simple linear checklist for onboarding
  */
 
-import { View, Text, ScrollView, Pressable, Dimensions } from 'react-native';
+import { View, Text, ScrollView, Pressable } from 'react-native';
 import { useState, useEffect } from 'react';
 import { useRouter, Stack } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
-  Star,
-  Lock,
   CheckCircle2,
-  Zap,
-  Trophy,
+  Circle,
   ArrowLeft,
-  Sparkles,
+  X,
 } from 'lucide-react-native';
 import { useTechTreeStore } from '@/lib/state/tech-tree-store';
 import { TECH_TREE_NODES } from '@/lib/data/tech-tree-nodes';
 import type { TechNode, NodeState } from '@/lib/types/tech-tree-types';
 
-const SCREEN_WIDTH = Dimensions.get('window').width;
-const NODE_SIZE = 80;
-
-export default function TechTreeScreen() {
+export default function GettingStartedScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
-  const [selectedAct, setSelectedAct] = useState<1 | 2 | 3>(1);
 
   // Store
   const initialize = useTechTreeStore((s) => s.initialize);
-  const currentLevel = useTechTreeStore((s) => s.currentLevel);
-  const currentXP = useTechTreeStore((s) => s.currentXP);
-  const xpToNextLevel = useTechTreeStore((s) => s.xpToNextLevel);
   const totalNodesCompleted = useTechTreeStore((s) => s.totalNodesCompleted);
   const getNodeState = useTechTreeStore((s) => s.getNodeState);
-  const activeBuffs = useTechTreeStore((s) => s.activeBuffs);
 
   useEffect(() => {
     initialize();
   }, []);
-
-  const actNodes = TECH_TREE_NODES.filter((node) => node.actId === selectedAct);
-
-  const getNodeStateColor = (state: NodeState) => {
-    switch (state) {
-      case 'completed':
-        return { bg: 'bg-emerald-500', border: 'border-emerald-400', text: 'text-emerald-400' };
-      case 'in-progress':
-        return { bg: 'bg-blue-500', border: 'border-blue-400', text: 'text-blue-400' };
-      case 'available':
-        return { bg: 'bg-purple-500', border: 'border-purple-400', text: 'text-purple-400' };
-      case 'locked':
-      default:
-        return { bg: 'bg-gray-300 dark:bg-slate-700', border: 'border-gray-400 dark:border-slate-600', text: 'text-gray-500 dark:text-slate-400' };
-    }
-  };
-
-  const getNodeStateIcon = (state: NodeState, isBoss: boolean) => {
-    if (isBoss && state === 'completed') {
-      return <Trophy size={32} color="#10b981" />;
-    }
-
-    switch (state) {
-      case 'completed':
-        return <CheckCircle2 size={32} color="#10b981" />;
-      case 'in-progress':
-        return <Zap size={32} color="#3b82f6" />;
-      case 'available':
-        return <Star size={32} color="#a855f7" />;
-      case 'locked':
-      default:
-        return <Lock size={32} color="#6b7280" />;
-    }
-  };
 
   const handleNodePress = (node: TechNode) => {
     const state = getNodeState(node.id);
@@ -83,14 +38,19 @@ export default function TechTreeScreen() {
     router.push(`/tech-tree/${node.id}` as any);
   };
 
-  const xpPercent = (currentXP / xpToNextLevel) * 100;
+  const handleDismiss = () => {
+    router.back();
+  };
+
+  const totalSteps = TECH_TREE_NODES.length;
+  const completionPercent = (totalNodesCompleted / totalSteps) * 100;
 
   return (
     <View className="flex-1 bg-gray-50 dark:bg-slate-950">
       <Stack.Screen
         options={{
           headerShown: true,
-          headerTitle: 'Tech Tree',
+          headerTitle: 'Getting Started',
           headerStyle: { backgroundColor: '#030712' },
           headerTintColor: '#fff',
           headerLeft: () => (
@@ -98,202 +58,140 @@ export default function TechTreeScreen() {
               <ArrowLeft size={24} color="#fff" />
             </Pressable>
           ),
+          headerRight: () => (
+            <Pressable onPress={handleDismiss} className="ml-4">
+              <X size={24} color="#fff" />
+            </Pressable>
+          ),
         }}
       />
 
-      {/* Header: XP & Level */}
+      {/* Progress Header */}
       <View className="px-5 py-4 bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-800">
         <View className="flex-row items-center justify-between mb-3">
           <View>
-            <View className="flex-row items-center gap-2 mb-1">
-              <Sparkles size={20} color="#f59e0b" />
-              <Text className="text-gray-900 dark:text-white text-2xl font-bold">Level {currentLevel}</Text>
-            </View>
-            <Text className="text-gray-600 dark:text-slate-400 text-sm">
-              {totalNodesCompleted} nodes completed
+            <Text className="text-gray-900 dark:text-white text-2xl font-bold">
+              {totalNodesCompleted} of {totalSteps} complete
             </Text>
-          </View>
-
-          <View className="items-end">
-            <Text className="text-gray-600 dark:text-slate-400 text-xs mb-1">
-              {currentXP} / {xpToNextLevel} XP
+            <Text className="text-gray-600 dark:text-slate-400 text-sm mt-1">
+              Learn the basics of managing your business
             </Text>
-            <View className="w-32 h-2.5 bg-gray-200 dark:bg-slate-800 rounded-full overflow-hidden">
-              <View
-                className="h-full bg-purple-500"
-                style={{ width: `${xpPercent}%` }}
-              />
-            </View>
           </View>
         </View>
 
-        {/* Active Buffs */}
-        {activeBuffs.length > 0 && (
-          <View className="flex-row flex-wrap gap-2 mt-2">
-            {activeBuffs.map((buff) => (
-              <View
-                key={buff.id}
-                className="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 px-3 py-1 rounded-full"
-              >
-                <Text className="text-purple-600 dark:text-purple-300 text-xs font-medium">
-                  ⚡ {buff.name}
-                </Text>
-              </View>
-            ))}
-          </View>
-        )}
+        {/* Progress Bar */}
+        <View className="w-full h-2.5 bg-gray-200 dark:bg-slate-800 rounded-full overflow-hidden">
+          <View
+            className="h-full bg-purple-500"
+            style={{ width: `${completionPercent}%` }}
+          />
+        </View>
       </View>
 
-      {/* Act Selector */}
-      <View className="flex-row px-5 py-4 gap-3">
-        {[1, 2, 3].map((act) => (
-          <Pressable
-            key={act}
-            onPress={() => setSelectedAct(act as 1 | 2 | 3)}
-            className={`flex-1 py-3 rounded-xl border ${
-              selectedAct === act
-                ? 'bg-purple-50 dark:bg-purple-900/20 border-purple-500'
-                : 'bg-white dark:bg-slate-900 border-gray-200 dark:border-slate-800'
-            }`}
-          >
-            <Text
-              className={`text-center font-semibold ${
-                selectedAct === act ? 'text-purple-600 dark:text-purple-400' : 'text-gray-600 dark:text-slate-400'
-              }`}
-            >
-              ACT {act}
-            </Text>
-            <Text className="text-center text-xs text-gray-500 dark:text-slate-400 mt-1">
-              {act === 1
-                ? 'Foundations'
-                : act === 2
-                ? 'Scaling'
-                : 'Mastery'}
-            </Text>
-          </Pressable>
-        ))}
-      </View>
-
-      {/* Constellation Map */}
+      {/* Checklist */}
       <ScrollView
         className="flex-1"
         contentContainerStyle={{ paddingBottom: insets.bottom + 20 }}
       >
-        <View className="px-5 py-6">
-          <View className="relative" style={{ minHeight: 600 }}>
-            {/* Render connection lines first (behind nodes) */}
-            {actNodes.map((node) => {
-              const nodeState = getNodeState(node.id);
-              const nodeColors = getNodeStateColor(nodeState);
+        <View className="px-5 py-6 gap-3">
+          {TECH_TREE_NODES.map((node, index) => {
+            const nodeState = getNodeState(node.id);
+            const isCompleted = nodeState === 'completed';
+            const isAvailable = nodeState === 'available' || nodeState === 'in-progress';
+            const isLocked = nodeState === 'locked';
 
-              return node.prerequisiteNodeIds.map((prereqId) => {
-                const prereqNode = actNodes.find((n) => n.id === prereqId);
-                if (!prereqNode) return null;
-
-                return (
-                  <View
-                    key={`${prereqId}-${node.id}`}
-                    className={`absolute border-t-2 ${nodeColors.border} opacity-30`}
-                    style={{
-                      top: prereqNode.position.y + NODE_SIZE / 2,
-                      left: prereqNode.position.x + NODE_SIZE,
-                      width: node.position.x - prereqNode.position.x - NODE_SIZE,
-                      height: node.position.y - prereqNode.position.y,
-                      transform: [
-                        {
-                          rotate: `${Math.atan2(
-                            node.position.y - prereqNode.position.y,
-                            node.position.x - prereqNode.position.x
-                          ) * (180 / Math.PI)}deg`,
-                        },
-                      ],
-                    }}
-                  />
-                );
-              });
-            })}
-
-            {/* Render nodes */}
-            {actNodes.map((node) => {
-              const nodeState = getNodeState(node.id);
-              const nodeColors = getNodeStateColor(nodeState);
-              const isLocked = nodeState === 'locked';
-
-              return (
-                <Pressable
-                  key={node.id}
-                  onPress={() => handleNodePress(node)}
-                  disabled={isLocked}
-                  className={`absolute`}
-                  style={{
-                    top: node.position.y,
-                    left: node.position.x,
-                    width: NODE_SIZE * 2,
-                  }}
-                >
-                  {/* Node Circle */}
-                  <View
-                    className={`w-20 h-20 rounded-full border-4 ${nodeColors.border} ${nodeColors.bg} items-center justify-center mb-2 ${
-                      isLocked ? 'opacity-50' : 'opacity-100'
-                    }`}
-                  >
-                    {getNodeStateIcon(nodeState, node.isBossGate)}
+            return (
+              <Pressable
+                key={node.id}
+                onPress={() => handleNodePress(node)}
+                disabled={isLocked}
+                className={`border rounded-xl p-4 shadow-sm ${
+                  isCompleted
+                    ? 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800'
+                    : isAvailable
+                    ? 'bg-white dark:bg-slate-900 border-purple-200 dark:border-purple-800'
+                    : 'bg-gray-100 dark:bg-slate-800 border-gray-200 dark:border-slate-700 opacity-50'
+                }`}
+              >
+                <View className="flex-row items-start gap-3">
+                  {/* Step Number / Checkmark */}
+                  <View className="items-center justify-center w-8 h-8 rounded-full border-2 border-gray-300 dark:border-slate-600 mt-0.5">
+                    {isCompleted ? (
+                      <CheckCircle2 size={28} color="#10b981" />
+                    ) : (
+                      <Text className="text-gray-600 dark:text-slate-400 text-sm font-bold">
+                        {index + 1}
+                      </Text>
+                    )}
                   </View>
 
-                  {/* Node Title */}
-                  <Text
-                    className={`text-center font-semibold text-xs ${nodeColors.text} ${
-                      isLocked ? 'opacity-50' : 'opacity-100'
-                    }`}
-                    numberOfLines={2}
-                  >
-                    {node.title}
-                  </Text>
+                  {/* Content */}
+                  <View className="flex-1">
+                    <Text
+                      className={`text-base font-semibold mb-1 ${
+                        isCompleted
+                          ? 'text-emerald-600 dark:text-emerald-400'
+                          : isAvailable
+                          ? 'text-gray-900 dark:text-white'
+                          : 'text-gray-500 dark:text-slate-500'
+                      }`}
+                    >
+                      {node.title}
+                    </Text>
+                    <Text className="text-gray-600 dark:text-slate-400 text-sm mb-2">
+                      {node.subtitle}
+                    </Text>
 
-                  {/* Type Badge */}
-                  {node.type === 'side-quest' && (
-                    <View className="absolute -top-2 -right-2 bg-purple-500 px-2 py-0.5 rounded-full">
-                      <Text className="text-white text-[10px] font-bold">SQ</Text>
-                    </View>
-                  )}
-
-                  {node.isBossGate && (
-                    <View className="absolute -top-2 -right-2 bg-red-500 px-2 py-0.5 rounded-full">
-                      <Text className="text-white text-[10px] font-bold">BOSS</Text>
-                    </View>
-                  )}
-                </Pressable>
-              );
-            })}
-          </View>
+                    {/* Status Badge */}
+                    {isCompleted && (
+                      <View className="bg-emerald-100 dark:bg-emerald-900/30 px-2 py-1 rounded self-start">
+                        <Text className="text-emerald-600 dark:text-emerald-400 text-xs font-medium">
+                          ✓ Complete
+                        </Text>
+                      </View>
+                    )}
+                    {isAvailable && !isCompleted && (
+                      <View className="bg-purple-100 dark:bg-purple-900/30 px-2 py-1 rounded self-start">
+                        <Text className="text-purple-600 dark:text-purple-400 text-xs font-medium">
+                          Tap to start →
+                        </Text>
+                      </View>
+                    )}
+                    {isLocked && (
+                      <View className="bg-gray-200 dark:bg-slate-700 px-2 py-1 rounded self-start">
+                        <Text className="text-gray-500 dark:text-slate-500 text-xs font-medium">
+                          Complete previous step first
+                        </Text>
+                      </View>
+                    )}
+                  </View>
+                </View>
+              </Pressable>
+            );
+          })}
         </View>
 
-        {/* Legend */}
-        <View className="px-5 pb-6">
-          <Text className="text-gray-900 dark:text-white text-sm font-semibold mb-3">Legend</Text>
-          <View className="flex-row flex-wrap gap-4">
-            <View className="flex-row items-center gap-2">
-              <Lock size={16} color="#6b7280" />
-              <Text className="text-gray-600 dark:text-slate-400 text-xs">Locked</Text>
-            </View>
-            <View className="flex-row items-center gap-2">
-              <Star size={16} color="#a855f7" />
-              <Text className="text-gray-600 dark:text-slate-400 text-xs">Available</Text>
-            </View>
-            <View className="flex-row items-center gap-2">
-              <Zap size={16} color="#3b82f6" />
-              <Text className="text-gray-600 dark:text-slate-400 text-xs">In Progress</Text>
-            </View>
-            <View className="flex-row items-center gap-2">
-              <CheckCircle2 size={16} color="#10b981" />
-              <Text className="text-gray-600 dark:text-slate-400 text-xs">Completed</Text>
-            </View>
-            <View className="flex-row items-center gap-2">
-              <Trophy size={16} color="#10b981" />
-              <Text className="text-gray-600 dark:text-slate-400 text-xs">Boss Gate</Text>
+        {/* Completion Message */}
+        {totalNodesCompleted === totalSteps && (
+          <View className="px-5 pb-6">
+            <View className="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-xl p-6">
+              <Text className="text-purple-900 dark:text-purple-100 text-xl font-bold mb-2 text-center">
+                Congratulations! 🎉
+              </Text>
+              <Text className="text-purple-700 dark:text-purple-300 text-sm text-center mb-4">
+                You've completed the getting started guide. You're ready to build your business!
+              </Text>
+              <Pressable
+                onPress={handleDismiss}
+                className="bg-purple-500 rounded-xl py-3 items-center"
+              >
+                <Text className="text-white text-base font-semibold">
+                  Close Checklist
+                </Text>
+              </Pressable>
             </View>
           </View>
-        </View>
+        )}
       </ScrollView>
     </View>
   );

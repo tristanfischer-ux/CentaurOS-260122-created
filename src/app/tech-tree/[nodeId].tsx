@@ -1,44 +1,30 @@
 /**
- * Tech Tree Node Detail Screen
- * Shows task pack, progress, and allows completing tasks
+ * Getting Started Step Detail Screen
+ * Shows task details for a single onboarding step
  */
 
-import { View, Text, ScrollView, Pressable, Modal, TextInput } from 'react-native';
-import { useState } from 'react';
+import { View, Text, ScrollView, Pressable } from 'react-native';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
-  Star,
   CheckCircle2,
   Circle,
-  Trophy,
-  Zap,
-  Clock,
-  Gift,
-  Target,
   ArrowLeft,
-  Upload,
-  AlertCircle,
 } from 'lucide-react-native';
 import { useTechTreeStore } from '@/lib/state/tech-tree-store';
 import { TECH_TREE_NODES } from '@/lib/data/tech-tree-nodes';
 
-export default function TechTreeNodeDetailScreen() {
+export default function StepDetailScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const params = useLocalSearchParams<{ nodeId: string }>();
 
-  const [showCompleteModal, setShowCompleteModal] = useState(false);
-  const [proofText, setProofText] = useState('');
-
   // Store
   const getNodeState = useTechTreeStore((s) => s.getNodeState);
   const getNodeProgress = useTechTreeStore((s) => s.getNodeProgress);
-  const startResearch = useTechTreeStore((s) => s.startResearch);
   const startTaskPack = useTechTreeStore((s) => s.startTaskPack);
   const completeTask = useTechTreeStore((s) => s.completeTask);
   const completeNode = useTechTreeStore((s) => s.completeNode);
-  const submitProof = useTechTreeStore((s) => s.submitProof);
 
   const node = TECH_TREE_NODES.find((n) => n.id === params.nodeId);
   const nodeState = node ? getNodeState(node.id) : 'locked';
@@ -47,7 +33,7 @@ export default function TechTreeNodeDetailScreen() {
   if (!node) {
     return (
       <View className="flex-1 bg-gray-50 dark:bg-slate-950 items-center justify-center">
-        <Text className="text-gray-900 dark:text-white text-lg">Node not found</Text>
+        <Text className="text-gray-900 dark:text-white text-lg">Step not found</Text>
       </View>
     );
   }
@@ -58,7 +44,6 @@ export default function TechTreeNodeDetailScreen() {
 
   const handleStartNode = () => {
     if (nodeState === 'available') {
-      startResearch(node.id);
       startTaskPack(node.id);
     }
   };
@@ -76,17 +61,7 @@ export default function TechTreeNodeDetailScreen() {
   const handleCompleteNode = () => {
     if (!allTasksCompleted) return;
 
-    if (node.isBossGate && !proofText.trim()) {
-      alert('Boss gates require proof of completion');
-      return;
-    }
-
-    if (node.isBossGate && proofText.trim()) {
-      submitProof(node.id, 'text', proofText);
-    }
-
     completeNode(node.id);
-    setShowCompleteModal(false);
     router.back();
   };
 
@@ -110,124 +85,25 @@ export default function TechTreeNodeDetailScreen() {
         className="flex-1"
         contentContainerStyle={{ paddingBottom: insets.bottom + 100 }}
       >
-        {/* Node Header */}
+        {/* Step Header */}
         <View className="px-5 pt-6 pb-4 bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-800">
-          <View className="flex-row items-center gap-3 mb-3">
-            <View
-              className={`w-16 h-16 rounded-full border-4 items-center justify-center ${
-                nodeState === 'completed'
-                  ? 'bg-emerald-500 border-emerald-400'
-                  : nodeState === 'in-progress'
-                  ? 'bg-blue-500 border-blue-400'
-                  : nodeState === 'available'
-                  ? 'bg-purple-500 border-purple-400'
-                  : 'bg-gray-300 dark:bg-slate-700 border-gray-600'
-              }`}
-            >
-              {node.isBossGate ? (
-                <Trophy size={28} color="#fff" />
-              ) : (
-                <Star size={28} color="#fff" />
-              )}
-            </View>
-
-            <View className="flex-1">
-              <View className="flex-row items-center gap-2 flex-wrap mb-1">
-                <Text className="text-gray-900 dark:text-white text-xl font-bold">{node.title}</Text>
-                {node.type === 'side-quest' && (
-                  <View className="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 px-2 py-0.5 rounded">
-                    <Text className="text-purple-600 dark:text-purple-400 text-[10px] font-bold">
-                      SIDE QUEST
-                    </Text>
-                  </View>
-                )}
-                {node.isBossGate && (
-                  <View className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 px-2 py-0.5 rounded">
-                    <Text className="text-red-600 dark:text-red-400 text-[10px] font-bold">BOSS GATE</Text>
-                  </View>
-                )}
-              </View>
-              <Text className="text-gray-600 dark:text-slate-400 text-sm">{node.subtitle}</Text>
-            </View>
-          </View>
-
-          <Text className="text-gray-700 dark:text-slate-300 text-base leading-6">{node.description}</Text>
-
-          {/* Rewards */}
-          <View className="mt-4 flex-row gap-3">
-            <View className="flex-1 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-3">
-              <View className="flex-row items-center gap-2 mb-1">
-                <Zap size={16} color="#3b82f6" />
-                <Text className="text-blue-600 dark:text-blue-400 text-xs font-medium">XP Reward</Text>
-              </View>
-              <Text className="text-gray-900 dark:text-white text-lg font-bold">+{node.xpReward} XP</Text>
-            </View>
-
-            <View className="flex-1 bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-xl p-3">
-              <View className="flex-row items-center gap-2 mb-1">
-                <Clock size={16} color="#a855f7" />
-                <Text className="text-purple-600 dark:text-purple-400 text-xs font-medium">Time Estimate</Text>
-              </View>
-              <Text className="text-gray-900 dark:text-white text-lg font-bold">
-                {node.taskPack.totalTUEstimate} TU
-              </Text>
-            </View>
-          </View>
+          <Text className="text-gray-900 dark:text-white text-2xl font-bold mb-2">
+            {node.title}
+          </Text>
+          <Text className="text-gray-600 dark:text-slate-400 text-sm mb-3">
+            {node.subtitle}
+          </Text>
+          <Text className="text-gray-700 dark:text-slate-300 text-base leading-6">
+            {node.description}
+          </Text>
         </View>
 
-        {/* Unlocks */}
-        {node.unlocks.length > 0 && (
-          <View className="px-5 pt-6">
-            <View className="flex-row items-center gap-2 mb-3">
-              <Gift size={20} color="#f59e0b" />
-              <Text className="text-gray-900 dark:text-white text-lg font-semibold">Unlocks</Text>
-            </View>
-
-            <View className="gap-3">
-              {node.unlocks.map((unlock, idx) => (
-                <View
-                  key={idx}
-                  className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-xl p-4 shadow-sm"
-                >
-                  <Text className="text-gray-900 dark:text-white text-base font-semibold mb-1">
-                    {unlock.title}
-                  </Text>
-                  <Text className="text-gray-600 dark:text-slate-400 text-sm">{unlock.description}</Text>
-                </View>
-              ))}
-            </View>
-          </View>
-        )}
-
-        {/* Buff (for side quests) */}
-        {node.buff && (
-          <View className="px-5 pt-6">
-            <View className="flex-row items-center gap-2 mb-3">
-              <Zap size={20} color="#a855f7" />
-              <Text className="text-gray-900 dark:text-white text-lg font-semibold">Permanent Buff</Text>
-            </View>
-
-            <View className="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-xl p-4 shadow-sm">
-              <Text className="text-purple-600 dark:text-purple-300 text-base font-semibold mb-2">
-                ⚡ {node.buff.name}
-              </Text>
-              <Text className="text-gray-700 dark:text-slate-300 text-sm mb-3">{node.buff.description}</Text>
-              <View className="bg-purple-100 dark:bg-purple-500/20 px-3 py-2 rounded-lg">
-                <Text className="text-purple-700 dark:text-purple-200 text-sm font-medium">
-                  Effect: {node.buff.effect.type} ×{node.buff.effect.value}
-                </Text>
-              </View>
-            </View>
-          </View>
-        )}
-
-        {/* Task Pack */}
+        {/* Tasks */}
         <View className="px-5 pt-6">
           <View className="flex-row items-center justify-between mb-3">
-            <View className="flex-row items-center gap-2">
-              <Target size={20} color="#3b82f6" />
-              <Text className="text-gray-900 dark:text-white text-lg font-semibold">Task Pack</Text>
-            </View>
+            <Text className="text-gray-900 dark:text-white text-lg font-semibold">
+              Steps to Complete
+            </Text>
             <Text className="text-gray-600 dark:text-slate-400 text-sm">
               {completedTasksCount} / {totalTasksCount}
             </Text>
@@ -260,19 +136,14 @@ export default function TechTreeNodeDetailScreen() {
                     <View className="flex-1">
                       <Text
                         className={`text-base font-semibold mb-2 ${
-                          isCompleted ? 'text-emerald-400 line-through' : 'text-gray-900 dark:text-white'
+                          isCompleted ? 'text-emerald-600 dark:text-emerald-400 line-through' : 'text-gray-900 dark:text-white'
                         }`}
                       >
                         {task.title}
                       </Text>
-                      <Text className="text-gray-600 dark:text-slate-400 text-sm mb-2">
+                      <Text className="text-gray-600 dark:text-slate-400 text-sm">
                         {task.description}
                       </Text>
-                      <View className="bg-gray-200 dark:bg-slate-800 px-2 py-1 rounded self-start">
-                        <Text className="text-gray-600 dark:text-slate-400 text-xs">
-                          {task.tuEstimate} TU
-                        </Text>
-                      </View>
                     </View>
                   </View>
                 </Pressable>
@@ -280,27 +151,6 @@ export default function TechTreeNodeDetailScreen() {
             })}
           </View>
         </View>
-
-        {/* Boss Gate Proof Requirements */}
-        {node.isBossGate && node.proofRequired && (
-          <View className="px-5 pt-6">
-            <View className="flex-row items-center gap-2 mb-3">
-              <AlertCircle size={20} color="#f59e0b" />
-              <Text className="text-gray-900 dark:text-white text-lg font-semibold">Proof Required</Text>
-            </View>
-
-            <View className="bg-amber-900/20 border border-amber-500 rounded-xl p-4">
-              {node.proofRequired.map((proof, idx) => (
-                <View key={idx} className="flex-row items-start gap-2 mb-2">
-                  <Text className="text-amber-400">•</Text>
-                  <Text className="text-gray-700 dark:text-slate-300 text-sm flex-1">
-                    {proof.description}
-                  </Text>
-                </View>
-              ))}
-            </View>
-          </View>
-        )}
 
         <View className="h-10" />
       </ScrollView>
@@ -313,7 +163,7 @@ export default function TechTreeNodeDetailScreen() {
         {nodeState === 'locked' && (
           <View className="bg-gray-200 dark:bg-slate-800 rounded-xl py-3 items-center">
             <Text className="text-gray-600 dark:text-slate-400 text-base font-semibold">
-              Locked - Complete Prerequisites
+              Complete previous steps first
             </Text>
           </View>
         )}
@@ -323,24 +173,24 @@ export default function TechTreeNodeDetailScreen() {
             onPress={handleStartNode}
             className="bg-purple-500 rounded-xl py-3 items-center"
           >
-            <Text className="text-white text-base font-semibold">Start Node</Text>
+            <Text className="text-white text-base font-semibold">Start Step</Text>
           </Pressable>
         )}
 
         {nodeState === 'in-progress' && !allTasksCompleted && (
-          <View className="bg-blue-500/20 border border-blue-500 rounded-xl py-3 items-center">
-            <Text className="text-blue-400 text-base font-semibold">
-              Complete All Tasks ({completedTasksCount}/{totalTasksCount})
+          <View className="bg-purple-500/20 border border-purple-500 rounded-xl py-3 items-center">
+            <Text className="text-purple-600 dark:text-purple-400 text-base font-semibold">
+              Complete All Steps ({completedTasksCount}/{totalTasksCount})
             </Text>
           </View>
         )}
 
         {nodeState === 'in-progress' && allTasksCompleted && (
           <Pressable
-            onPress={() => setShowCompleteModal(true)}
+            onPress={handleCompleteNode}
             className="bg-emerald-500 rounded-xl py-3 items-center"
           >
-            <Text className="text-white text-base font-semibold">Complete Node</Text>
+            <Text className="text-white text-base font-semibold">Mark as Complete</Text>
           </Pressable>
         )}
 
@@ -352,86 +202,6 @@ export default function TechTreeNodeDetailScreen() {
           </View>
         )}
       </View>
-
-      {/* Completion Modal (for boss gates with proof) */}
-      <Modal
-        visible={showCompleteModal}
-        transparent
-        animationType="slide"
-        onRequestClose={() => setShowCompleteModal(false)}
-      >
-        <Pressable
-          className="flex-1 bg-black/70"
-          onPress={() => setShowCompleteModal(false)}
-        >
-          <View className="flex-1" />
-          <Pressable
-            onPress={(e) => e.stopPropagation()}
-            style={{ maxHeight: '90%' }}
-          >
-            <View className="bg-gray-50 dark:bg-slate-900 rounded-t-3xl">
-              <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-                <View className="p-6">
-                  <Text className="text-gray-900 dark:text-white text-2xl font-bold mb-4">
-                    Complete Node
-                  </Text>
-
-                  {node.isBossGate && (
-                    <>
-                      <View className="bg-amber-900/20 border border-amber-500 rounded-xl p-4 mb-4">
-                        <View className="flex-row items-center gap-2 mb-2">
-                          <Upload size={20} color="#f59e0b" />
-                          <Text className="text-amber-400 font-semibold">
-                            Boss Gate - Proof Required
-                          </Text>
-                        </View>
-                        <Text className="text-gray-700 dark:text-slate-300 text-sm">
-                          Submit proof of completion (screenshot URL, metrics, etc.)
-                        </Text>
-                      </View>
-
-                      <TextInput
-                        className="bg-gray-200 dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-xl px-4 py-3 text-gray-900 dark:text-white mb-4"
-                        placeholder="Enter proof URL or description..."
-                        placeholderTextColor="#6b7280"
-                        value={proofText}
-                        onChangeText={setProofText}
-                        multiline
-                        numberOfLines={4}
-                        textAlignVertical="top"
-                      />
-                    </>
-                  )}
-
-                  <Text className="text-gray-600 dark:text-slate-400 text-sm mb-6">
-                    Complete this node to earn {node.xpReward} XP and unlock rewards.
-                  </Text>
-
-                  <View className="flex-row gap-3">
-                    <Pressable
-                      onPress={() => setShowCompleteModal(false)}
-                      className="flex-1 bg-gray-200 dark:bg-slate-800 rounded-xl py-3 items-center"
-                    >
-                      <Text className="text-gray-700 dark:text-slate-300 text-base font-semibold">
-                        Cancel
-                      </Text>
-                    </Pressable>
-
-                    <Pressable
-                      onPress={handleCompleteNode}
-                      className="flex-1 bg-emerald-500 rounded-xl py-3 items-center"
-                    >
-                      <Text className="text-white text-base font-semibold">
-                        Complete
-                      </Text>
-                    </Pressable>
-                  </View>
-                </View>
-              </ScrollView>
-            </View>
-          </Pressable>
-        </Pressable>
-      </Modal>
     </View>
   );
 }

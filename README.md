@@ -54,8 +54,38 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
 
 ## 🚨 PRODUCTION READINESS STATUS
 
-**Last Updated**: 2026-01-15 (**TU ANALYTICS DASHBOARD** - Added elite consulting-grade Time Unit analytics with variance tracking, efficiency metrics, AI ROI, forecasting, team leaderboards, and multi-format exports)
+**Last Updated**: 2026-01-15 (**GETTING STARTED SIMPLIFIED** - Replaced complex Tech Tree with simple 8-step onboarding checklist. Removed RPG mechanics and constellation map in favor of clear, linear progression.)
 **Status**: ✅ **READY FOR APP STORE** - All features complete!
+
+---
+
+## 📋 GETTING STARTED CHECKLIST
+
+**Location**: `/tech-tree` route (accessed from Settings or first launch)
+
+The Getting Started screen is a simple 8-step checklist that introduces new users to the core workflow:
+
+1. **Create Your First Task** - Learn task creation in Decide tab
+2. **Add a Team Member** - Add someone in Community tab
+3. **Allocate a Task** - Assign work to team members
+4. **Start a Task** - Begin execution in Do tab
+5. **Submit Your Work** - Request founder review
+6. **Evaluate Submissions** - Review and approve team work
+7. **Monitor Your Progress** - Check metrics on Home screen
+8. **You're All Set!** - Complete onboarding
+
+**Key Features**:
+- Simple linear checklist (no complex tree or RPG mechanics)
+- Progressive unlocking (complete previous step to unlock next)
+- Clear visual feedback (numbered steps, checkmarks, progress bar)
+- Dismissible after completion
+- No XP, levels, or buffs - just straightforward guidance
+
+**Implementation**:
+- `/src/lib/data/tech-tree-nodes.ts` - 8 onboarding steps (down from 30+ nodes)
+- `/src/app/tech-tree/index.tsx` - Linear checklist UI (replaced constellation map)
+- `/src/app/tech-tree/[nodeId].tsx` - Step detail screen (simplified from RPG detail)
+- State managed by existing `useTechTreeStore` (reused for simplicity)
 
 ---
 
