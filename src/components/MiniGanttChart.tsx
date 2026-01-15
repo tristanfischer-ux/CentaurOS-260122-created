@@ -180,14 +180,31 @@ export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress
 
   return (
     <View className="bg-white dark:bg-slate-900 border-t-2 border-gray-200 dark:border-slate-700">
-      {/* Header - Compact */}
+      {/* Header - Compact with inline legend */}
       <View className="px-4 py-2 flex-row items-center justify-between border-b border-gray-200 dark:border-slate-700">
-        <Text className="text-gray-900 dark:text-white text-xs font-bold">
-          TASK TIMELINE
-        </Text>
-        <Text className="text-gray-600 dark:text-slate-400 text-[10px] font-semibold">
-          {filteredTasks.length} task{filteredTasks.length !== 1 ? 's' : ''}
-        </Text>
+        <View className="flex-row items-center gap-3">
+          <Text className="text-gray-900 dark:text-white text-xs font-bold">
+            TIMELINE
+          </Text>
+          <Text className="text-gray-500 dark:text-slate-400 text-[10px]">
+            {filteredTasks.length}
+          </Text>
+        </View>
+        {/* Inline status legend */}
+        <View className="flex-row items-center gap-2">
+          <View className="flex-row items-center gap-1">
+            <View className="w-2 h-2 rounded-sm bg-gray-300 dark:bg-gray-600" />
+            <Text className="text-gray-500 dark:text-slate-400 text-[8px]">Queued</Text>
+          </View>
+          <View className="flex-row items-center gap-1">
+            <View className="w-2 h-2 rounded-sm bg-blue-400" />
+            <Text className="text-gray-500 dark:text-slate-400 text-[8px]">Live</Text>
+          </View>
+          <View className="flex-row items-center gap-1">
+            <View className="w-2 h-2 rounded-sm bg-red-400" />
+            <Text className="text-gray-500 dark:text-slate-400 text-[8px]">Blocked</Text>
+          </View>
+        </View>
       </View>
 
       {/* Timeline Content */}
@@ -360,22 +377,6 @@ export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress
           </View>
         </ScrollView>
         </ScrollView>
-
-        {/* Legend */}
-        <View className="px-4 py-1.5 border-t border-gray-200 dark:border-slate-700 flex-row items-center justify-end gap-3 bg-white dark:bg-slate-900">
-          <View className="flex-row items-center gap-1">
-            <View className="w-2.5 h-2.5 rounded-sm border bg-gray-200 border-gray-300" />
-            <Text className="text-gray-600 dark:text-slate-400 text-[9px]">Not Started</Text>
-          </View>
-          <View className="flex-row items-center gap-1">
-            <View className="w-2.5 h-2.5 rounded-sm border bg-blue-400 border-blue-600" />
-            <Text className="text-gray-600 dark:text-slate-400 text-[9px]">In Progress</Text>
-          </View>
-          <View className="flex-row items-center gap-1">
-            <View className="w-2.5 h-2.5 rounded-sm border bg-red-400 border-red-600" />
-            <Text className="text-gray-600 dark:text-slate-400 text-[9px]">Blocked</Text>
-          </View>
-        </View>
       </View>
     </View>
   );
