@@ -1,6 +1,6 @@
 import { View, Text, ScrollView, Pressable, Modal, TextInput, Alert, KeyboardAvoidingView, Platform, LayoutChangeEvent } from 'react-native';
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
-import { Target, Plus, X, ChevronDown, ChevronRight, CheckCircle2, Circle, Clock, Users, DollarSign, Lightbulb, ChevronUp, UserPlus, Zap, AlertTriangle, AlertCircle, TrendingDown, CalendarClock, ArrowRight, HelpCircle, Bot, Briefcase, GraduationCap, CheckCircle, GripVertical, Archive } from 'lucide-react-native';
+import { Target, Plus, Minus, X, ChevronDown, ChevronRight, CheckCircle2, Circle, Clock, Users, DollarSign, Lightbulb, ChevronUp, UserPlus, Zap, AlertTriangle, AlertCircle, TrendingDown, CalendarClock, ArrowRight, HelpCircle, Bot, Briefcase, GraduationCap, CheckCircle, GripVertical, Archive } from 'lucide-react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, { useSharedValue, useAnimatedStyle, withSpring, runOnJS, FadeIn, FadeOut, Layout } from 'react-native-reanimated';
 import { useCurrentWorkspace, useCurrentMembership } from '@/lib/state/app-store';
@@ -576,6 +576,64 @@ export default function DecideScreen() {
       setSelectedTaskForAllocation(task);
     }
   }, [selectedPersonId, workPlans, updateWorkPlan]);
+
+  // Handle adjusting allocation amount for a team member
+  const handleAdjustAllocation = useCallback((taskId: string, memberId: string, change: number) => {
+    const task = workPlans.find(wp => wp.id === taskId);
+    if (!task) return;
+
+    const member = useOrganizationStore.getState().members.find(m => m.id === memberId);
+    if (!member) return;
+
+    // Calculate available TUs for this person
+    const totalCapacity = member.role === 'Founder' || member.role === 'Apprentice' ? 10 : (member.daysPerWeek || 2) * 2;
+    const allocated = workPlans
+      .filter(wp => wp.status !== 'completed' && wp.status !== 'abandoned' && wp.id !== taskId)
+      .reduce((total, wp) => {
+        const allocation = wp.allocations.find(a => a.memberId === memberId);
+        return total + (allocation?.squaresPerWeek || 0);
+      }, 0);
+    const available = totalCapacity - allocated;
+
+    const currentAlloc = task.allocations.find(a => a.memberId === memberId);
+    if (!currentAlloc) return;
+
+    const newAmount = currentAlloc.squaresPerWeek + change;
+
+    // Don't allow going below 1 or above available capacity
+    if (newAmount < 1) {
+      Alert.alert('Minimum Allocation', 'Allocation must be at least 1□/wk. Use the delete button to remove this person entirely.');
+      return;
+    }
+
+    if (change > 0 && change > available) {
+      Alert.alert('Insufficient Capacity', `${member.name} only has ${available}□ available.`);
+      return;
+    }
+
+    // Update allocation
+    const newAllocations = task.allocations.map(a =>
+      a.memberId === memberId
+        ? { ...a, squaresPerWeek: newAmount }
+        : a
+    );
+
+    updateWorkPlan(taskId, {
+      allocations: newAllocations,
+      assignedMemberIds: newAllocations.map(a => a.memberId),
+    });
+
+    // Update the selected task state to reflect changes
+    setSelectedTaskForAllocation(prev => prev ? { ...prev, allocations: newAllocations } : null);
+  }, [workPlans, updateWorkPlan]);
+
+  // Confirm allocation changes
+  const handleConfirmAllocation = useCallback(() => {
+    if (selectedTaskForAllocation) {
+      setSelectedTaskForAllocation(null);
+      Alert.alert('Confirmed', 'Resource allocation confirmed!');
+    }
+  }, [selectedTaskForAllocation]);
 
   // Confirm moving OKR to queue or abandoning task
   const confirmMoveToQueue = useCallback(() => {
@@ -1153,15 +1211,35 @@ export default function DecideScreen() {
                     Team Members:
                   </Text>
                   {selectedTaskForAllocation.allocations.map((alloc) => (
-                    <View key={alloc.memberId} className="flex-row items-center justify-between mb-1">
-                      <Text className="text-gray-900 dark:text-white text-sm">
+                    <View key={alloc.memberId} className="flex-row items-center justify-between mb-2 bg-gray-50 dark:bg-slate-900 rounded-lg p-2">
+                      <Text className="text-gray-900 dark:text-white text-sm flex-1">
                         {alloc.memberName}
                       </Text>
                       <View className="flex-row items-center gap-2">
-                        <Text className="text-gray-600 dark:text-slate-400 text-sm">
-                          {alloc.squaresPerWeek}□/wk
-                        </Text>
-                        <Text className="text-gray-500 dark:text-slate-500 text-xs">
+                        {/* Minus button */}
+                        <Pressable
+                          onPress={() => handleAdjustAllocation(selectedTaskForAllocation.id, alloc.memberId, -1)}
+                          className="bg-red-100 dark:bg-red-900/30 w-7 h-7 rounded-full items-center justify-center active:opacity-70"
+                        >
+                          <Minus size={14} color="#ef4444" />
+                        </Pressable>
+
+                        {/* Allocation display */}
+                        <View className="bg-white dark:bg-slate-800 px-2 py-1 rounded">
+                          <Text className="text-gray-900 dark:text-white text-sm font-semibold">
+                            {alloc.squaresPerWeek}□/wk
+                          </Text>
+                        </View>
+
+                        {/* Plus button */}
+                        <Pressable
+                          onPress={() => handleAdjustAllocation(selectedTaskForAllocation.id, alloc.memberId, 1)}
+                          className="bg-emerald-100 dark:bg-emerald-900/30 w-7 h-7 rounded-full items-center justify-center active:opacity-70"
+                        >
+                          <Plus size={14} color="#10b981" />
+                        </Pressable>
+
+                        <Text className="text-gray-500 dark:text-slate-500 text-xs ml-1">
                           £{alloc.costPerSquare * alloc.squaresPerWeek}/wk
                         </Text>
                       </View>
@@ -1204,6 +1282,16 @@ export default function DecideScreen() {
               </Text>
             </View>
 
+            {/* Confirm button */}
+            <Pressable
+              onPress={handleConfirmAllocation}
+              className="mt-3 bg-emerald-500 py-3 rounded-lg active:opacity-80"
+            >
+              <Text className="text-white font-bold text-center text-base">
+                ✓ Confirm Allocation
+              </Text>
+            </Pressable>
+
             {/* Delete button */}
             <Pressable
               onPress={() => {
@@ -1223,7 +1311,7 @@ export default function DecideScreen() {
                   ]
                 );
               }}
-              className="mt-3 bg-red-100 dark:bg-red-900/30 py-2 rounded-lg active:opacity-70"
+              className="mt-2 bg-red-100 dark:bg-red-900/30 py-2 rounded-lg active:opacity-70"
             >
               <Text className="text-red-600 dark:text-red-400 font-semibold text-center text-sm">
                 Delete Task & Free Resources
