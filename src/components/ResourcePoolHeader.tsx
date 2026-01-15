@@ -1,10 +1,11 @@
 import { View, Text, Pressable, ScrollView } from 'react-native';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useOrganizationStore } from '@/lib/state/organization-store';
 import { type OrganizationMember } from '@/lib/organization-seed';
 import { useWorkPlanStore, type WorkPlan } from '@/lib/state/work-plan-store';
 import { useFinanceStore } from '@/lib/state/finance-store';
 import { useCurrentWorkspace } from '@/lib/state/app-store';
+import { PersonDetailsModal } from './PersonDetailsModal';
 
 interface ResourcePoolHeaderProps {
   selectedPersonId: string | null;
@@ -61,6 +62,10 @@ export function ResourcePoolHeader({ selectedPersonId, onPersonSelect }: Resourc
   const workPlans = useWorkPlanStore(s => s.workPlans);
   const currentWorkspace = useCurrentWorkspace();
   const getCashBalance = useFinanceStore(s => s.getCashBalance);
+
+  // Modal state
+  const [showPersonModal, setShowPersonModal] = useState(false);
+  const [selectedMember, setSelectedMember] = useState<OrganizationMember | null>(null);
 
   // Memoize the filtered members to avoid creating new array each render
   const members = useMemo(() =>
@@ -191,6 +196,10 @@ export function ResourcePoolHeader({ selectedPersonId, onPersonSelect }: Resourc
             <Pressable
               key={member.id}
               onPress={() => onPersonSelect(isSelected ? '' : member.id)}
+              onLongPress={() => {
+                setSelectedMember(member);
+                setShowPersonModal(true);
+              }}
               className={`flex-row items-center px-3 py-1.5 border-b border-gray-100 dark:border-slate-800 active:bg-gray-50 dark:active:bg-slate-800 ${
                 isSelected ? 'bg-purple-50 dark:bg-purple-900/20' : ''
               }`}
@@ -283,6 +292,16 @@ export function ResourcePoolHeader({ selectedPersonId, onPersonSelect }: Resourc
           <Text className="text-gray-600 dark:text-slate-400 text-[9px]">OT</Text>
         </View>
       </View>
+
+      {/* Person Details Modal */}
+      <PersonDetailsModal
+        visible={showPersonModal}
+        onClose={() => {
+          setShowPersonModal(false);
+          setSelectedMember(null);
+        }}
+        member={selectedMember}
+      />
     </View>
   );
 }
