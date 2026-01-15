@@ -29,6 +29,12 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
   - Linked task title and progress percentage
   - Team member avatars (colored by role: purple for Founders, blue for Execs, green for Apprentices)
   - Up to 5 avatars visible, "+N" indicator for additional team members
+- **AI Agent Team Management**: Full control over AI agent access
+  - View all team members with Add/Remove buttons for each
+  - Shows access count (e.g., "Team Access (3/8)")
+  - Warning displayed when no team members have access
+  - Confirmation dialog when removing access
+  - Changes sync instantly with Armory system
 - **AI Agent Deletion**: Added ability to delete AI agents from Make tab
   - Removes agent from all team member loadouts system-wide
   - Confirmation dialog prevents accidental deletion

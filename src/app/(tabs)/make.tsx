@@ -29,6 +29,8 @@ import {
   HelpCircle,
   User,
   Trash2,
+  UserPlus,
+  UserMinus,
 } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useCurrentMembership, useCurrentWorkspace, useCurrentUser } from '@/lib/state/app-store';
@@ -94,6 +96,8 @@ export default function MakeScreen() {
   // Armory store for AI tool usage
   const getMembersUsingAITool = useArmoryStore(s => s.getMembersUsingAITool);
   const removeAIToolFromAllLoadouts = useArmoryStore(s => s.removeAIToolFromAllLoadouts);
+  const addAITool = useArmoryStore(s => s.addAITool);
+  const removeAITool = useArmoryStore(s => s.removeAITool);
 
   // Ownership store
   const getOwnershipsForUser = useResourceOwnershipStore(s => s.getOwnershipsForUser);
@@ -204,6 +208,30 @@ export default function MakeScreen() {
             deleteAIAgent(aiAgentId);
             // Close modal
             setSelectedAI(null);
+          },
+        },
+      ]
+    );
+  };
+
+  const handleAddMemberToAI = async (memberId: string, memberName: string, aiAgentId: string) => {
+    await addAITool(memberId, aiAgentId);
+  };
+
+  const handleRemoveMemberFromAI = async (memberId: string, memberName: string, aiAgentId: string, aiAgentName: string) => {
+    Alert.alert(
+      'Remove Access',
+      `Remove "${memberName}" from "${aiAgentName}"?`,
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Remove',
+          style: 'destructive',
+          onPress: async () => {
+            await removeAITool(memberId, aiAgentId);
           },
         },
       ]
@@ -1184,43 +1212,39 @@ export default function MakeScreen() {
                     </View>
                   )}
 
-                  {/* Used By Team - Live from Armory Store */}
+                  {/* Team Access Management - Interactive */}
                   {(() => {
                     const memberIdsUsingTool = getMembersUsingAITool(selectedAI.id);
-                    const membersUsingTool = memberIdsUsingTool
-                      .map(memberId => members.find(m => m.id === memberId))
-                      .filter(Boolean);
+                    const getRoleColor = (role: string) => {
+                      switch (role) {
+                        case 'Founder': return '#8b5cf6';
+                        case 'FractionalExec': return '#3b82f6';
+                        case 'Apprentice': return '#10b981';
+                        default: return '#64748b';
+                      }
+                    };
 
-                    if (membersUsingTool.length === 0) return null;
+                    const getRoleLabel = (role: string) => {
+                      switch (role) {
+                        case 'Founder': return 'Founder';
+                        case 'FractionalExec': return 'Executive';
+                        case 'Apprentice': return 'Apprentice';
+                        default: return role;
+                      }
+                    };
 
                     return (
                       <View className="mb-4">
                         <Text className="text-gray-900 dark:text-white font-semibold mb-3">
-                          Used By Team ({membersUsingTool.length})
+                          Team Access ({memberIdsUsingTool.length}/{members.length})
                         </Text>
                         <View className="bg-gray-200 dark:bg-slate-800 rounded-xl p-3">
-                          <View className="gap-3">
-                            {membersUsingTool.map((member: any) => {
-                              const getRoleColor = (role: string) => {
-                                switch (role) {
-                                  case 'Founder': return '#8b5cf6';
-                                  case 'FractionalExec': return '#3b82f6';
-                                  case 'Apprentice': return '#10b981';
-                                  default: return '#64748b';
-                                }
-                              };
-
-                              const getRoleLabel = (role: string) => {
-                                switch (role) {
-                                  case 'Founder': return 'Founder';
-                                  case 'FractionalExec': return 'Executive';
-                                  case 'Apprentice': return 'Apprentice';
-                                  default: return role;
-                                }
-                              };
+                          <View className="gap-2">
+                            {members.map((member: any) => {
+                              const hasAccess = memberIdsUsingTool.includes(member.id);
 
                               return (
-                                <View key={member.id} className="flex-row items-center justify-between">
+                                <View key={member.id} className="flex-row items-center justify-between py-1">
                                   <View className="flex-row items-center flex-1">
                                     <View
                                       className="w-8 h-8 rounded-full items-center justify-center mr-3"
@@ -1230,25 +1254,49 @@ export default function MakeScreen() {
                                         {member.name.split(' ').map((n: string) => n[0]).join('')}
                                       </Text>
                                     </View>
-                                    <View>
+                                    <View className="flex-1">
                                       <Text className="text-gray-900 dark:text-white font-medium">
                                         {member.name}
                                       </Text>
                                       <Text className="text-gray-600 dark:text-slate-400 text-xs">
-                                        {member.function}
+                                        {getRoleLabel(member.role)} • {member.function}
                                       </Text>
                                     </View>
                                   </View>
-                                  <View className="bg-gray-300 dark:bg-slate-700 px-2 py-1 rounded">
-                                    <Text className="text-gray-700 dark:text-slate-300 text-xs font-semibold">
-                                      {getRoleLabel(member.role)}
-                                    </Text>
-                                  </View>
+
+                                  {/* Add/Remove Button */}
+                                  {hasAccess ? (
+                                    <Pressable
+                                      onPress={() => handleRemoveMemberFromAI(member.id, member.name, selectedAI.id, selectedAI.name)}
+                                      className="bg-red-100 dark:bg-red-900/30 border border-red-300 dark:border-red-700 px-3 py-1.5 rounded-lg flex-row items-center active:opacity-70"
+                                    >
+                                      <UserMinus size={14} color="#ef4444" />
+                                      <Text className="text-red-600 dark:text-red-400 text-xs font-semibold ml-1">
+                                        Remove
+                                      </Text>
+                                    </Pressable>
+                                  ) : (
+                                    <Pressable
+                                      onPress={() => handleAddMemberToAI(member.id, member.name, selectedAI.id)}
+                                      className="bg-emerald-100 dark:bg-emerald-900/30 border border-emerald-300 dark:border-emerald-700 px-3 py-1.5 rounded-lg flex-row items-center active:opacity-70"
+                                    >
+                                      <UserPlus size={14} color="#10b981" />
+                                      <Text className="text-emerald-600 dark:text-emerald-400 text-xs font-semibold ml-1">
+                                        Add
+                                      </Text>
+                                    </Pressable>
+                                  )}
                                 </View>
                               );
                             })}
                           </View>
                         </View>
+
+                        {memberIdsUsingTool.length === 0 && (
+                          <Text className="text-orange-600 dark:text-orange-400 text-xs mt-2">
+                            ⚠️ No team members have access to this AI agent
+                          </Text>
+                        )}
                       </View>
                     );
                   })()}
