@@ -706,24 +706,45 @@ export default function DoScreen() {
               <Text className="text-white/70 text-xs font-medium">MY TASKS</Text>
               <Text className="text-white text-xl font-bold">Do</Text>
             </View>
-            <View className="flex-row items-center gap-2">
-              <HelpButton onPress={() => setShowHelp(true)} />
-              {blockedCount > 0 && (
-                <View className="bg-white/20 px-3 py-2 rounded-xl">
-                  <Text className="text-white/80 text-xs font-medium">BLOCKED</Text>
-                  <Text className="text-white text-lg font-bold">{blockedCount}</Text>
-                </View>
-              )}
-            </View>
+            <HelpButton onPress={() => setShowHelp(true)} />
           </View>
+
+          {/* Task Status Overview */}
+          <View className="flex-row gap-2 mb-2">
+            {categorizedTasks.activeTasks.length > 0 && (
+              <View className="bg-white/20 px-3 py-1.5 rounded-lg">
+                <Text className="text-white/70 text-[10px] font-medium uppercase">Active</Text>
+                <Text className="text-white text-base font-bold">{categorizedTasks.activeTasks.length}</Text>
+              </View>
+            )}
+            {categorizedTasks.notStartedTasks.length > 0 && (
+              <View className="bg-white/20 px-3 py-1.5 rounded-lg">
+                <Text className="text-white/70 text-[10px] font-medium uppercase">Queued</Text>
+                <Text className="text-white text-base font-bold">{categorizedTasks.notStartedTasks.length}</Text>
+              </View>
+            )}
+            {categorizedTasks.abandonedTasks.length > 0 && (
+              <View className="bg-red-500/30 border border-red-400/50 px-3 py-1.5 rounded-lg">
+                <Text className="text-white/90 text-[10px] font-medium uppercase">Blocked</Text>
+                <Text className="text-white text-base font-bold">{categorizedTasks.abandonedTasks.length}</Text>
+              </View>
+            )}
+            {categorizedTasks.completedTasks.length > 0 && (
+              <View className="bg-white/20 px-3 py-1.5 rounded-lg">
+                <Text className="text-white/70 text-[10px] font-medium uppercase">Done</Text>
+                <Text className="text-white text-base font-bold">{categorizedTasks.completedTasks.length}</Text>
+              </View>
+            )}
+          </View>
+
           <View className="flex-row gap-4">
             <View className="flex-row items-center">
               <View className="w-2 h-2 rounded-full mr-1.5 bg-emerald-300" />
-              <Text className="text-white/90 text-xs">{filteredPlans.length} tasks</Text>
+              <Text className="text-white/90 text-xs">{myWorkPlans.length} total</Text>
             </View>
             <View className="flex-row items-center">
               <View className="w-2 h-2 rounded-full mr-1.5 bg-white" />
-              <Text className="text-white/90 text-xs">{velocity.avgProgress}% avg</Text>
+              <Text className="text-white/90 text-xs">{velocity.avgProgress}% avg progress</Text>
             </View>
           </View>
         </LinearGradient>
@@ -833,12 +854,17 @@ export default function DoScreen() {
           {categorizedTasks.activeTasks.length > 0 && (
             <View className="mb-6">
               <View className="flex-row items-center justify-between mb-3">
-                <Text className="text-blue-600 dark:text-blue-400 text-xs font-bold tracking-wide">
-                  ACTIVE - IN PROGRESS
-                </Text>
-                <View className="bg-blue-100 dark:bg-blue-900/30 px-2 py-0.5 rounded">
-                  <Text className="text-blue-700 dark:text-blue-300 text-xs font-semibold">
-                    {categorizedTasks.activeTasks.length} task{categorizedTasks.activeTasks.length !== 1 ? 's' : ''}
+                <View>
+                  <Text className="text-blue-600 dark:text-blue-400 text-sm font-bold">
+                    🔵 Active Tasks
+                  </Text>
+                  <Text className="text-gray-500 dark:text-slate-400 text-xs mt-0.5">
+                    Currently in progress
+                  </Text>
+                </View>
+                <View className="bg-blue-100 dark:bg-blue-900/30 px-2.5 py-1 rounded-lg">
+                  <Text className="text-blue-700 dark:text-blue-300 text-sm font-bold">
+                    {categorizedTasks.activeTasks.length}
                   </Text>
                 </View>
               </View>
@@ -850,12 +876,17 @@ export default function DoScreen() {
           {categorizedTasks.notStartedTasks.length > 0 && (
             <View className="mb-6">
               <View className="flex-row items-center justify-between mb-3">
-                <Text className="text-gray-500 dark:text-slate-400 text-xs font-bold tracking-wide">
-                  NOT STARTED
-                </Text>
-                <View className="bg-gray-100 dark:bg-slate-800 px-2 py-0.5 rounded">
-                  <Text className="text-gray-600 dark:text-slate-400 text-xs font-semibold">
-                    {categorizedTasks.notStartedTasks.length} task{categorizedTasks.notStartedTasks.length !== 1 ? 's' : ''}
+                <View>
+                  <Text className="text-gray-600 dark:text-slate-300 text-sm font-bold">
+                    ⚪ Queued Tasks
+                  </Text>
+                  <Text className="text-gray-500 dark:text-slate-400 text-xs mt-0.5">
+                    Ready to start
+                  </Text>
+                </View>
+                <View className="bg-gray-100 dark:bg-slate-800 px-2.5 py-1 rounded-lg">
+                  <Text className="text-gray-600 dark:text-slate-400 text-sm font-bold">
+                    {categorizedTasks.notStartedTasks.length}
                   </Text>
                 </View>
               </View>
@@ -867,12 +898,17 @@ export default function DoScreen() {
           {categorizedTasks.abandonedTasks.length > 0 && (
             <View className="mb-6">
               <View className="flex-row items-center justify-between mb-3">
-                <Text className="text-red-500 dark:text-red-400 text-xs font-bold tracking-wide">
-                  ABANDONED
-                </Text>
-                <View className="bg-red-100 dark:bg-red-900/30 px-2 py-0.5 rounded">
-                  <Text className="text-red-600 dark:text-red-400 text-xs font-semibold">
-                    {categorizedTasks.abandonedTasks.length} task{categorizedTasks.abandonedTasks.length !== 1 ? 's' : ''}
+                <View>
+                  <Text className="text-red-600 dark:text-red-400 text-sm font-bold">
+                    🔴 Blocked Tasks
+                  </Text>
+                  <Text className="text-gray-500 dark:text-slate-400 text-xs mt-0.5">
+                    Need attention to continue
+                  </Text>
+                </View>
+                <View className="bg-red-100 dark:bg-red-900/30 px-2.5 py-1 rounded-lg">
+                  <Text className="text-red-600 dark:text-red-400 text-sm font-bold">
+                    {categorizedTasks.abandonedTasks.length}
                   </Text>
                 </View>
               </View>
@@ -880,7 +916,7 @@ export default function DoScreen() {
                 <View className="flex-row items-center">
                   <AlertTriangle size={14} color="#ef4444" />
                   <Text className="text-red-600 dark:text-red-400 text-xs ml-2 flex-1">
-                    These tasks were started but abandoned. TUs shown represent wasted effort.
+                    These tasks were started but are now blocked. Tap them to see details and unblock.
                   </Text>
                 </View>
               </View>
@@ -892,12 +928,17 @@ export default function DoScreen() {
           {categorizedTasks.completedTasks.length > 0 && (
             <View className="mb-6">
               <View className="flex-row items-center justify-between mb-3">
-                <Text className="text-emerald-600 dark:text-emerald-400 text-xs font-bold tracking-wide">
-                  COMPLETED
-                </Text>
-                <View className="bg-emerald-100 dark:bg-emerald-900/30 px-2 py-0.5 rounded">
-                  <Text className="text-emerald-700 dark:text-emerald-300 text-xs font-semibold">
-                    {categorizedTasks.completedTasks.length} task{categorizedTasks.completedTasks.length !== 1 ? 's' : ''}
+                <View>
+                  <Text className="text-emerald-600 dark:text-emerald-400 text-sm font-bold">
+                    ✅ Completed Tasks
+                  </Text>
+                  <Text className="text-gray-500 dark:text-slate-400 text-xs mt-0.5">
+                    Finished work
+                  </Text>
+                </View>
+                <View className="bg-emerald-100 dark:bg-emerald-900/30 px-2.5 py-1 rounded-lg">
+                  <Text className="text-emerald-700 dark:text-emerald-300 text-sm font-bold">
+                    {categorizedTasks.completedTasks.length}
                   </Text>
                 </View>
               </View>
