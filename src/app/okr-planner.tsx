@@ -199,6 +199,21 @@ export default function OKRPlannerScreen() {
     return 10; // Apprentices
   };
 
+  // Get MAX capacity including overtime (50% more)
+  const getMaxCapacity = (member: any) => {
+    const normalCapacity = getMemberCapacity(member);
+    return Math.floor(normalCapacity * 1.5); // 10 → 15, 4 → 6, etc.
+  };
+
+  // Check if member is in overtime
+  const isInOvertime = (memberId: string) => {
+    const member = allMembers.find((m: any) => m.id === memberId);
+    if (!member) return false;
+    const currentTUs = getTUAllocation(memberId);
+    const normalCapacity = getMemberCapacity(member);
+    return currentTUs > normalCapacity;
+  };
+
   // Get cost per TU
   const getCostPerTU = (member: any) => {
     const costPerDay = member.costPerDay ?? 0;
@@ -232,10 +247,10 @@ export default function OKRPlannerScreen() {
     if (!member) return;
 
     const currentTUs = getTUAllocation(memberId);
-    const capacity = getMemberCapacity(member);
-    const newTUs = Math.min(capacity, currentTUs + 2);
+    const maxCapacity = getMaxCapacity(member); // Use max capacity (with overtime)
+    const newTUs = Math.min(maxCapacity, currentTUs + 2);
 
-    if (newTUs === currentTUs) return; // Already at capacity
+    if (newTUs === currentTUs) return; // Already at max capacity
 
     const newPct = tuToPercentage(newTUs, member);
 
@@ -506,11 +521,13 @@ export default function OKRPlannerScreen() {
             <View className="gap-3">
               {allMembers.map((member: any) => {
                 const currentTUs = getTUAllocation(member.id);
-                const capacity = getMemberCapacity(member);
+                const normalCapacity = getMemberCapacity(member);
+                const maxCapacity = getMaxCapacity(member);
                 const costPerTU = getCostPerTU(member);
                 const actualRemaining = getActualRemainingCapacity(member.id);
                 const isMatch = isFunctionMatch(member);
                 const isMismatched = isMismatch(member);
+                const inOvertime = isInOvertime(member.id);
 
                 return (
                   <Pressable
@@ -519,7 +536,9 @@ export default function OKRPlannerScreen() {
                     className={`border-2 rounded-xl p-4 active:border-blue-500 ${
                       isMismatched && currentTUs > 0
                         ? 'bg-red-900/20 border-red-700'
-                        : 'bg-gray-900 border-gray-800'
+                        : inOvertime
+                          ? 'bg-orange-900/20 border-orange-700'
+                          : 'bg-gray-900 border-gray-800'
                     }`}
                   >
                     <View className="flex-row items-center justify-between mb-3">
@@ -539,6 +558,13 @@ export default function OKRPlannerScreen() {
                             <View className="bg-red-500/20 px-2 py-0.5 rounded">
                               <Text className="text-red-400 text-[10px] font-bold">
                                 MISMATCH
+                              </Text>
+                            </View>
+                          )}
+                          {inOvertime && (
+                            <View className="bg-orange-500/20 px-2 py-0.5 rounded">
+                              <Text className="text-orange-400 text-[10px] font-bold">
+                                OVERTIME
                               </Text>
                             </View>
                           )}
@@ -581,19 +607,22 @@ export default function OKRPlannerScreen() {
                     <View className="mb-2">
                       <View className="flex-row items-center justify-between mb-1">
                         <Text className="text-gray-400 text-xs font-medium">
-                          Total: {capacity}□ • This plan: {currentTUs}□ • Available: {actualRemaining}□
+                          Total: {maxCapacity}□ • This plan: {currentTUs}□ • Available: {actualRemaining}□
                         </Text>
                         {currentTUs > 0 && (
-                          <Text className="text-blue-400 text-xs font-semibold">
+                          <Text className={`text-xs font-semibold ${
+                            inOvertime ? 'text-orange-400' : 'text-blue-400'
+                          }`}>
                             £{(currentTUs * costPerTU).toFixed(0)}/wk
                           </Text>
                         )}
                       </View>
                       <View className="flex-row flex-wrap gap-1">
-                        {Array.from({ length: capacity }).map((_, idx) => {
-                          const allocatedToOther = capacity - actualRemaining - currentTUs;
+                        {Array.from({ length: maxCapacity }).map((_, idx) => {
+                          const allocatedToOther = maxCapacity - actualRemaining - currentTUs;
                           const isAllocatedHere = idx < currentTUs;
                           const isAllocatedElsewhere = !isAllocatedHere && idx < currentTUs + allocatedToOther;
+                          const isNormalRange = idx < normalCapacity;
 
                           return (
                             <View
@@ -602,21 +631,33 @@ export default function OKRPlannerScreen() {
                                 isAllocatedHere
                                   ? isMismatched
                                     ? 'bg-red-500 border-red-600'
-                                    : 'bg-blue-500 border-blue-600'
+                                    : !isNormalRange
+                                      ? 'bg-orange-500 border-orange-600' // Overtime squares
+                                      : 'bg-blue-500 border-blue-600' // Normal squares
                                   : isAllocatedElsewhere
-                                    ? 'bg-yellow-500 border-yellow-600'
-                                    : 'bg-gray-800 border-gray-700'
+                                    ? 'bg-yellow-500 border-yellow-600' // Allocated to other projects
+                                    : isNormalRange
+                                      ? 'bg-gray-800 border-gray-700' // Normal free
+                                      : 'bg-orange-900/20 border-orange-600' // Overtime free
                               }`}
                             />
                           );
                         })}
                       </View>
-                      {actualRemaining < capacity - currentTUs && (
+                      {actualRemaining < maxCapacity - currentTUs && (
                         <Text className="text-yellow-400 text-xs mt-1">
-                          ⚠ {capacity - actualRemaining - currentTUs}□ allocated to other projects
+                          ⚠ {maxCapacity - actualRemaining - currentTUs}□ allocated to other projects
                         </Text>
                       )}
                     </View>
+
+                    {inOvertime && (
+                      <View className="bg-orange-900/20 border border-orange-800 rounded-lg p-2 flex-row items-start mb-2">
+                        <Text className="text-orange-400 text-xs ml-2 flex-1">
+                          <Text className="font-bold">Overtime Mode:</Text> Working beyond normal capacity. 20% efficiency penalty.
+                        </Text>
+                      </View>
+                    )}
 
                     {isMismatched && currentTUs > 0 && (
                       <View className="bg-red-900/20 border border-red-800 rounded-lg p-2 flex-row items-start">

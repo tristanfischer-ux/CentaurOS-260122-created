@@ -78,12 +78,27 @@ export function UnifiedTaskAllocationModal({ visible, onClose, workPlan }: Props
 
   // Calculate member capacity (squares per week)
   const getMemberCapacity = useCallback((member: OrganizationMember) => {
-    if (member.role === 'Founder') return 10; // 10 squares/week (+ up to 5 overtime)
+    if (member.role === 'Founder') return 10; // 10 squares/week normal
     if (member.role === 'FractionalExec') {
       return (member.daysPerWeek ?? 2) * 2; // 2 squares per day
     }
-    return 10; // Apprentices: 10 squares/week
+    return 10; // Apprentices: 10 squares/week normal
   }, []);
+
+  // Get MAX capacity including overtime (50% more)
+  const getMaxCapacity = useCallback((member: OrganizationMember) => {
+    const normalCapacity = getMemberCapacity(member);
+    return Math.floor(normalCapacity * 1.5); // 10 → 15, 4 → 6, etc.
+  }, [getMemberCapacity]);
+
+  // Check if member is in overtime (allocated beyond normal capacity)
+  const isOvertime = useCallback((memberId: string) => {
+    const member = members.find(m => m.id === memberId);
+    if (!member) return false;
+    const allocation = allocations[memberId] ?? 0;
+    const normalCapacity = getMemberCapacity(member);
+    return allocation > normalCapacity;
+  }, [members, allocations, getMemberCapacity]);
 
   // Calculate cost per square for a member
   const getCostPerSquare = useCallback((member: OrganizationMember) => {
@@ -130,8 +145,17 @@ export function UnifiedTaskAllocationModal({ visible, onClose, workPlan }: Props
       skillMismatchPenalty = 0.5; // 50% efficiency penalty for skill mismatch
     }
 
-    // Effective TUs needed (after AI boost and skill penalties)
-    const effectiveTUs = Math.ceil(totalTUs / (aiMultiplier * skillMismatchPenalty));
+    // Calculate overtime penalty (20% efficiency hit when working overtime)
+    const overtimeMembers = Object.keys(allocations).filter(memberId => {
+      return isOvertime(memberId);
+    });
+    let overtimePenalty = 1.0;
+    if (overtimeMembers.length > 0) {
+      overtimePenalty = 0.8; // 20% efficiency penalty for overtime
+    }
+
+    // Effective TUs needed (after AI boost, skill penalties, and overtime penalties)
+    const effectiveTUs = Math.ceil(totalTUs / (aiMultiplier * skillMismatchPenalty * overtimePenalty));
 
     // Total allocated per week from all people
     const totalAllocatedPerWeek = Object.values(allocations).reduce((sum, sq) => sum + sq, 0);
@@ -178,8 +202,10 @@ export function UnifiedTaskAllocationModal({ visible, onClose, workPlan }: Props
       costToDate,
       skillMismatchPenalty,
       mismatchedMembers,
+      overtimePenalty,
+      overtimeMembers,
     };
-  }, [totalTUs, allocations, selectedAITool, workPlan, members, getAITool, getCostPerSquare, isMismatch]);
+  }, [totalTUs, allocations, selectedAITool, workPlan, members, getAITool, getCostPerSquare, isMismatch, isOvertime]);
 
   // Save allocations
   const handleSave = useCallback(() => {
@@ -312,14 +338,14 @@ export function UnifiedTaskAllocationModal({ visible, onClose, workPlan }: Props
 
     const increment = getDefaultIncrement(member);
     const currentAllocation = allocations[memberId] ?? 0;
-    const capacity = getMemberCapacity(member);
+    const maxCapacity = getMaxCapacity(member); // Use max capacity (with overtime)
 
-    // Add default increment, capped at capacity
-    const newValue = Math.min(capacity, currentAllocation + increment);
-    if (newValue === currentAllocation) return; // Already at capacity
+    // Add default increment, capped at MAX capacity (including overtime)
+    const newValue = Math.min(maxCapacity, currentAllocation + increment);
+    if (newValue === currentAllocation) return; // Already at max capacity
 
     setAllocations(prev => ({ ...prev, [memberId]: newValue }));
-  }, [members, allocations, getDefaultIncrement, getMemberCapacity]);
+  }, [members, allocations, getDefaultIncrement, getMaxCapacity]);
 
   // Handle remove TUs (entire allocation)
   const handleRemoveTUs = useCallback((memberId: string, e: any) => {
@@ -333,15 +359,17 @@ export function UnifiedTaskAllocationModal({ visible, onClose, workPlan }: Props
   // Render member row
   const renderMemberRow = useCallback((member: OrganizationMember) => {
     const currentAllocation = allocations[member.id] ?? 0;
-    const capacity = getMemberCapacity(member);
+    const normalCapacity = getMemberCapacity(member);
+    const maxCapacity = getMaxCapacity(member);
     const costPerSquare = getCostPerSquare(member);
     const isMatch = isFunctionMatch(member);
     const isMismatched = isMismatch(member);
     const defaultIncrement = getDefaultIncrement(member);
-    const available = capacity - currentAllocation;
+    const available = maxCapacity - currentAllocation;
+    const inOvertime = isOvertime(member.id);
 
     // DEBUG LOG
-    console.log(`[UnifiedTaskAllocationModal] Rendering ${member.name} with capacity ${capacity}, allocated ${currentAllocation}`);
+    console.log(`[UnifiedTaskAllocationModal] Rendering ${member.name} with capacity ${normalCapacity}, max ${maxCapacity}, allocated ${currentAllocation}`);
 
     return (
       <Pressable
@@ -350,7 +378,9 @@ export function UnifiedTaskAllocationModal({ visible, onClose, workPlan }: Props
         className={`rounded-xl p-4 mb-3 border-2 active:bg-blue-50 dark:active:bg-blue-900/10 ${
           isMismatched && currentAllocation > 0
             ? 'bg-red-50 dark:bg-red-900/10 border-red-300 dark:border-red-700 active:border-red-400'
-            : 'bg-white dark:bg-slate-900 border-gray-200 dark:border-slate-700 active:border-blue-400'
+            : inOvertime
+              ? 'bg-orange-50 dark:bg-orange-900/10 border-orange-300 dark:border-orange-700 active:border-orange-400'
+              : 'bg-white dark:bg-slate-900 border-gray-200 dark:border-slate-700 active:border-blue-400'
         }`}
       >
         <Animated.View entering={FadeInDown.delay(50).duration(200)}>
@@ -383,6 +413,13 @@ export function UnifiedTaskAllocationModal({ visible, onClose, workPlan }: Props
                       </Text>
                     </View>
                   )}
+                  {inOvertime && (
+                    <View className="bg-orange-100 dark:bg-orange-900/30 px-1.5 py-0.5 rounded">
+                      <Text className="text-orange-700 dark:text-orange-300 text-[10px] font-bold">
+                        OVERTIME
+                      </Text>
+                    </View>
+                  )}
                 </View>
                 <Text className="text-gray-500 dark:text-slate-400 text-xs">
                   {member.function} • £{costPerSquare}/□
@@ -394,7 +431,9 @@ export function UnifiedTaskAllocationModal({ visible, onClose, workPlan }: Props
             <View className="flex-row items-center gap-2">
               {currentAllocation > 0 ? (
                 <>
-                  <View className="bg-blue-500 px-3 py-1.5 rounded-lg">
+                  <View className={`px-3 py-1.5 rounded-lg ${
+                    inOvertime ? 'bg-orange-500' : 'bg-blue-500'
+                  }`}>
                     <Text className="text-white font-bold text-base">
                       {currentAllocation}□
                     </Text>
@@ -420,29 +459,49 @@ export function UnifiedTaskAllocationModal({ visible, onClose, workPlan }: Props
           <View className="mb-2">
             <View className="flex-row items-center justify-between mb-1">
               <Text className="text-gray-600 dark:text-slate-400 text-xs font-medium">
-                Capacity: {currentAllocation}□ allocated • {available}□ free
+                Capacity: {currentAllocation}□ allocated • {available}□ free {inOvertime ? '(OVERTIME)' : ''}
               </Text>
               {currentAllocation > 0 && (
-                <Text className="text-blue-600 dark:text-blue-400 text-xs font-semibold">
+                <Text className={`text-xs font-semibold ${
+                  inOvertime ? 'text-orange-600 dark:text-orange-400' : 'text-blue-600 dark:text-blue-400'
+                }`}>
                   £{(currentAllocation * costPerSquare).toFixed(0)}/wk
                 </Text>
               )}
             </View>
             <View className="flex-row flex-wrap gap-1">
-              {Array.from({ length: capacity }).map((_, idx) => (
-                <View
-                  key={idx}
-                  className={`w-7 h-7 rounded border ${
-                    idx < currentAllocation
-                      ? isMismatched
-                        ? 'bg-red-500 border-red-600'
-                        : 'bg-blue-500 border-blue-600'
-                      : 'bg-gray-100 dark:bg-slate-800 border-gray-300 dark:border-slate-600'
-                  }`}
-                />
-              ))}
+              {Array.from({ length: maxCapacity }).map((_, idx) => {
+                const isNormalRange = idx < normalCapacity;
+                const isAllocated = idx < currentAllocation;
+
+                return (
+                  <View
+                    key={idx}
+                    className={`w-7 h-7 rounded border ${
+                      isAllocated
+                        ? isMismatched
+                          ? 'bg-red-500 border-red-600'
+                          : !isNormalRange
+                            ? 'bg-orange-500 border-orange-600' // Overtime squares
+                            : 'bg-blue-500 border-blue-600' // Normal squares
+                        : isNormalRange
+                          ? 'bg-gray-100 dark:bg-slate-800 border-gray-300 dark:border-slate-600' // Normal free
+                          : 'bg-orange-100 dark:bg-orange-900/20 border-orange-300 dark:border-orange-600' // Overtime free
+                    }`}
+                  />
+                );
+              })}
             </View>
           </View>
+
+          {inOvertime && (
+            <View className="bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-lg p-2 flex-row items-start mb-2">
+              <AlertTriangle size={14} color="#f97316" />
+              <Text className="text-orange-700 dark:text-orange-300 text-xs ml-2 flex-1">
+                <Text className="font-bold">Overtime Mode:</Text> Working beyond normal capacity. 20% efficiency penalty applied.
+              </Text>
+            </View>
+          )}
 
           {isMismatched && currentAllocation > 0 && (
             <View className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-2 flex-row items-start">
@@ -455,7 +514,7 @@ export function UnifiedTaskAllocationModal({ visible, onClose, workPlan }: Props
         </Animated.View>
       </Pressable>
     );
-  }, [allocations, getMemberCapacity, getCostPerSquare, isFunctionMatch, isMismatch, getDefaultIncrement, handleMemberTap, handleRemoveTUs, workPlan]);
+  }, [allocations, getMemberCapacity, getMaxCapacity, getCostPerSquare, isFunctionMatch, isMismatch, getDefaultIncrement, handleMemberTap, handleRemoveTUs, workPlan, isOvertime]);
 
   if (!workPlan) return null;
 
@@ -660,6 +719,28 @@ export function UnifiedTaskAllocationModal({ visible, onClose, workPlan }: Props
 
                 {expandedSection === 'people' && (
                   <>
+                    {/* Overtime Warning */}
+                    {calculations.overtimeMembers.length > 0 && (
+                      <View className="bg-orange-50 dark:bg-orange-900/10 border-2 border-orange-300 dark:border-orange-700 rounded-xl p-4 mb-3">
+                        <View className="flex-row items-start">
+                          <AlertTriangle size={20} color="#f97316" />
+                          <View className="ml-3 flex-1">
+                            <Text className="text-orange-800 dark:text-orange-300 font-bold text-sm">
+                              Overtime Mode Active
+                            </Text>
+                            <Text className="text-orange-700 dark:text-orange-400 text-xs mt-1">
+                              {calculations.overtimeMembers.length} team member{calculations.overtimeMembers.length > 1 ? 's are' : ' is'} working overtime (sprint mode). This reduces efficiency by 20%.
+                            </Text>
+                            <View className="mt-2 bg-orange-100 dark:bg-orange-900/30 rounded-lg p-2">
+                              <Text className="text-orange-800 dark:text-orange-300 text-xs font-semibold">
+                                Normal: 10□/week • Sprint: up to 15□/week (50% increase)
+                              </Text>
+                            </View>
+                          </View>
+                        </View>
+                      </View>
+                    )}
+
                     {/* Skill Mismatch Warning */}
                     {calculations.mismatchedMembers.length > 0 && (
                       <View className="bg-red-50 dark:bg-red-900/10 border-2 border-red-300 dark:border-red-700 rounded-xl p-4 mb-3">
