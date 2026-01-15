@@ -2049,9 +2049,13 @@ export default function CommunityScreen() {
       >
         <Pressable className="flex-1 bg-black/70" onPress={() => setSelectedAIAgent(null)}>
           <View className="flex-1" />
-          <Pressable onPress={(e) => e.stopPropagation()} style={{ maxHeight: '90%' }}>
+          <Pressable
+            onPress={(e) => e.stopPropagation()}
+            className="bg-white dark:bg-slate-950 rounded-t-3xl"
+            style={{ maxHeight: '90%' }}
+          >
             {selectedAIAgent && (
-              <View className="bg-white dark:bg-slate-950 rounded-t-3xl flex-1">
+              <>
                 {/* Header */}
                 <View className="px-6 pt-6 pb-4 border-b border-gray-200 dark:border-slate-800">
                   <View className="flex-row items-center justify-between">
@@ -2068,7 +2072,7 @@ export default function CommunityScreen() {
                   </View>
                 </View>
 
-                <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
+                <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ flexGrow: 1 }}>
                   <View className="px-6 py-6">
                     {/* Name and Provider */}
                     <View className="mb-6">
@@ -2208,7 +2212,7 @@ export default function CommunityScreen() {
                     </View>
                   </Pressable>
                 </View>
-              </View>
+              </>
             )}
           </Pressable>
         </Pressable>
