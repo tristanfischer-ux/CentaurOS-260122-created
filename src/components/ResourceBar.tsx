@@ -250,9 +250,14 @@ export function ResourceBar({
   const people = useResourceStore(s => s.people);
   const getTotalCapacity = useResourceStore(s => s.getTotalCapacity);
 
+  // Sort people: Founders (as-is), then Executives (by function), then Apprentices (by function)
   const founders = people.filter(p => p.personClass === 'Founder');
-  const executives = people.filter(p => p.personClass === 'Executive');
-  const apprentices = people.filter(p => p.personClass === 'Apprentice');
+  const executives = people
+    .filter(p => p.personClass === 'Executive')
+    .sort((a, b) => a.function.localeCompare(b.function));
+  const apprentices = people
+    .filter(p => p.personClass === 'Apprentice')
+    .sort((a, b) => a.function.localeCompare(b.function));
 
   const capacity = getTotalCapacity();
   const utilizationPercent = capacity.total > 0

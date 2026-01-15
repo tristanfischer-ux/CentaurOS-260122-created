@@ -150,7 +150,7 @@ const INITIAL_WORK_PLANS: WorkPlan[] = [
     lastSubmittedAt: '2026-01-12 14:30',
     estimatedTimeUnits: 8,
     allocations: [
-      { memberId: 'apprentice-1', memberName: 'Alex Thompson', squaresPerWeek: 4, costPerSquare: 50 }
+      { memberId: 'apprentice-1', memberName: 'Alex Rivera', squaresPerWeek: 4, costPerSquare: 50 }
     ],
     assignedMemberIds: ['apprentice-1'],
     appliedAITools: [],
@@ -220,7 +220,7 @@ const INITIAL_WORK_PLANS: WorkPlan[] = [
     estimatedTimeUnits: 10,
     allocatedTimeUnitsPerWeek: 2,
     allocations: [
-      { memberId: 'exec-1', memberName: 'Priya Sharma', squaresPerWeek: 2, costPerSquare: 150 }
+      { memberId: 'exec-1', memberName: 'Jordan Martinez', squaresPerWeek: 2, costPerSquare: 150 }
     ],
     assignedMemberIds: ['exec-1'],
     appliedAITools: [],
