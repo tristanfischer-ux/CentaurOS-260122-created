@@ -33,20 +33,26 @@ import { identifyTUOpportunities, type TUOpportunity } from '@/lib/reports/tu-an
 
 const DECIDE_HELP: HelpContent = {
   title: 'Strategic Decisions',
-  subtitle: 'Allocate resources to tasks',
-  description: 'The Decide tab is where you manage all tasks, allocate team resources, and track progress. Tasks are organized into Active (with resources) and Queued (awaiting resources).',
+  subtitle: 'Allocate resources and optimize with AI',
+  description: 'The Decide tab is your strategic command center for resource allocation. Fractional Foundry uses Time Units (TU = 4 hours) as the fundamental unit of work. Here you allocate team capacity to tasks, leverage AI tools to boost productivity, and optimize your resource allocation based on real-time analytics.',
   tips: [
-    'Tap the ⚡ Auto-Allocate button to intelligently assign available resources to tasks',
-    'Tap a task to see details and allocate resources from the pool above',
-    'Tap team members in the resource pool, then tap tasks to allocate their time',
-    'Swipe left on tasks to delete and free up resources',
-    'Use the Ideas button for task suggestions',
+    'Use the ⚡ Auto-Allocate button to intelligently distribute available capacity across queued tasks',
+    'Check Optimization Opportunities for skill mismatches, underutilization, and AI adoption recommendations—use "Auto-Fix All" to resolve issues instantly',
+    'Tap the purple Gauge icon to access the TU Analytics Dashboard for deep insights into efficiency, forecasting, and team performance',
+    'Tasks show AI efficiency badges when team members have AI tools equipped—these boost effective output per TU',
+    'Tap a task to allocate resources, view details, and see AI boost options that can increase speed, quality, or flow',
+    'The Resource Pool shows available capacity per person—Founders/Apprentices have 10 TU/week, Execs have 2 TU per day worked',
+    'Swipe left on tasks to delete and free up allocated resources back to the pool',
+    'Use the Ideas button for AI-powered task suggestions by business function',
   ],
   quickActions: [
-    { label: 'Auto-Allocate', description: 'Automatically distribute available capacity to tasks' },
-    { label: 'Resource Pool', description: 'View team capacity and available time units' },
-    { label: 'Create Task', description: 'Add a new task to the queue' },
-    { label: 'Task Ideas', description: 'Browse suggested tasks by category' },
+    { label: '⚡ Auto-Allocate', description: 'Automatically distribute available capacity to queued tasks based on skills and availability' },
+    { label: 'TU Analytics', description: 'Access comprehensive Time Unit analytics: efficiency, variance, forecasting, AI ROI, and team performance' },
+    { label: 'Optimization Opportunities', description: 'View detected issues (skill mismatches, underutilization, AI gaps) with auto-fix capabilities' },
+    { label: 'Resource Pool', description: 'View team capacity in Time Units (1 TU = 4 hours). Shows available vs. allocated capacity per person' },
+    { label: 'Create Task', description: 'Add a new task with title, function, estimated TU, and priority. Tasks enter the queue until resources are allocated' },
+    { label: 'Task Ideas', description: 'Browse AI-suggested tasks organized by business function: Build, Make, Sell, Serve, Ops' },
+    { label: 'AI Loadout Display', description: 'Each person\'s equipped AI tools (Think/Create/Verify/Execute/Ops slots) boost their effective output per TU allocated' },
   ],
 };
 

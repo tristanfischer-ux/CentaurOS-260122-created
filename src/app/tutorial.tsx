@@ -21,6 +21,7 @@ import {
   Factory,
   ChevronRight,
   X,
+  AlertCircle,
 } from 'lucide-react-native';
 import Animated, {
   FadeIn,
@@ -75,84 +76,84 @@ const TUTORIAL_SLIDES: Record<Role, TutorialSlide[]> = {
   Founder: [
     {
       title: "Your Startup,\nSuperpowered",
-      subtitle: "Build a £10M company with a £100K budget",
+      subtitle: "Build a £10M company with 2-3 core team members",
       gradient: ['#3b82f6', '#2563eb', '#1e40af'],
       icon: Rocket,
       stats: [
         { label: 'Traditional Team Cost', value: '£500K+/year', color: '#ef4444' },
-        { label: 'With Centaur OS', value: '£95K/year', color: '#10b981' },
+        { label: 'With Fractional Foundry', value: '£95K/year', color: '#10b981' },
         { label: 'Savings', value: '81%', color: '#8b5cf6' },
       ],
-      description: "Most hardware startups fail because they run out of money before finding product-market fit. You need a £500K team but only have £100K. That's where Centaur OS changes everything.",
+      description: "Most hardware startups fail because they run out of money before finding product-market fit. Fractional Foundry helps you operate with 2-3 core team members using Time Units (TU = 4 hours), per-person AI tools, and supply chain orchestration—not manufacturing ownership.",
     },
     {
-      title: "Hire World-Class\nExpertise, Not FTEs",
-      subtitle: "Access 60+ fractional executives & apprentices",
+      title: "Time Units (TU),\nNot Hours",
+      subtitle: "1 TU = 4 hours of focused work",
       gradient: ['#8b5cf6', '#7c3aed', '#6d28d9'],
-      icon: Award,
+      icon: Clock,
       features: [
         {
-          title: 'Marketing Executive',
-          detail: '£800/day, 2 days/week',
-          value: '£6,400/month',
-          fullTime: '£120K/year equivalent',
+          title: 'Founders',
+          detail: '10 TU/week capacity',
+          value: '£960/TU',
+          fullTime: '40 hours/week at £9,600/week',
         },
         {
-          title: 'Sales Executive',
-          detail: '£850/day, 1 day/week',
-          value: '£3,400/month',
-          fullTime: '£140K/year equivalent',
+          title: 'Fractional Executives',
+          detail: '2 TU/day × days worked',
+          value: '£400-475/TU',
+          fullTime: 'Work 2-5 days/week per startup',
         },
         {
-          title: 'Finance CFO',
-          detail: '£950/day, 1 day/week',
-          value: '£3,800/month',
-          fullTime: '£160K/year equivalent',
+          title: 'Apprentices',
+          detail: '10 TU/week capacity',
+          value: '£70/TU',
+          fullTime: '40 hours/week at £700/week',
         },
       ],
-      description: "Hire fractional executives with 10-20 years experience for a fraction of the cost. Get VP-level talent working on exactly what matters, when it matters.",
+      description: "Every resource is measured in Time Units. Capacity = TU/week. Cost = £/TU. AI tools multiply effective TU output via speed, quality, and flow multipliers.",
     },
     {
-      title: "Your Team Works\nfor You 24/7",
-      subtitle: "AI agents + apprentices = unstoppable execution",
+      title: "AI Tools\nPer Person",
+      subtitle: "Equip each team member in 5 slots",
       gradient: ['#10b981', '#059669', '#047857'],
       icon: Bot,
       realExample: {
         task: "Launch 30-day social media campaign",
-        before: "You: 20 hours/week trying to do marketing + build product",
+        before: "You: 20 TU trying to do marketing + build product = burnout",
         after: [
-          "Marketing Exec: Creates strategy (4 hours)",
-          "AI Agent (Jasper): Writes 30 posts (1 hour)",
-          "Apprentice: Schedules posts, tracks analytics (2 hours/week)",
+          "Marketing Exec: Creates strategy (1 TU = 4 hours)",
+          "Exec equips Cursor Pro (Create slot): Drafts 30 posts (0.5 TU thanks to 2× speed)",
+          "Apprentice equips Linear AI (Ops slot): Schedules posts, tracks analytics (0.5 TU/week)",
           "Result: Professional marketing on autopilot, you focus on product",
         ],
       },
-      description: "Combine human expertise with AI automation and junior talent. Get work done 10x faster at 1/10th the cost.",
+      description: "Each person equips AI tools in 5 slots: Think (research), Create (draft/design), Verify (QA), Execute (code/automation), Ops (workflow/PM). Effective TU = TU × speed × quality × flow.",
     },
     {
-      title: "Everything You Need\nIn One Place",
-      subtitle: "OKRs, work plans, team, suppliers, AI tools",
+      title: "Orchestrate Suppliers,\nDon't Manufacture",
+      subtitle: "Track Quote → PO → Production → QC → Acceptance",
       gradient: ['#f59e0b', '#d97706', '#b45309'],
-      icon: Target,
+      icon: Factory,
       dashboard: [
-        { label: 'OKRs', status: '6 on track, 2 at risk', icon: Target },
-        { label: 'Active Work', status: '12 in progress', icon: Zap },
-        { label: 'Team', status: '2 execs, 3 apprentices', icon: Users },
-        { label: 'Runway', status: '13.7 months', icon: TrendingUp },
+        { label: 'Value Delivered', status: '£45K accepted this month', icon: CheckCircle2 },
+        { label: 'Value In Flight', status: '£120K in progress (not accepted yet)', icon: Clock },
+        { label: 'Cash at Risk', status: '£18K late/disputed/at-risk', icon: AlertCircle },
+        { label: 'Engagements', status: '8 active, 12 completed', icon: Factory },
       ],
-      description: "Stop switching between 10 different tools. Centaur OS is your single dashboard to run your entire startup.",
+      description: "You don't own factories. You orchestrate suppliers. 'Done' = Accepted with evidence (POD, photos, inspection reports), NOT shipped. Multi-hop logistics supported (Supplier A → B → Customer).",
     },
     {
-      title: "Find the Right\nSuppliers, Fast",
-      subtitle: "Access 31 verified UK manufacturers",
+      title: "TU Analytics\nDashboard",
+      subtitle: "Elite consulting-grade metrics",
       gradient: ['#ec4899', '#db2777', '#be185d'],
-      icon: Factory,
+      icon: TrendingUp,
       suppliers: [
-        { name: 'Proto Labs', capability: 'CNC + 3D Printing', lead: '1 week' },
-        { name: 'Swindon Silicon', capability: 'PCB Assembly', lead: '2 weeks' },
-        { name: 'Olympic Plastics', capability: 'Injection Molding', lead: '3 weeks' },
+        { name: 'TU Efficiency', capability: 'Track actual vs. estimated per person', lead: 'Live' },
+        { name: 'AI ROI', capability: 'Tool costs vs. TU saved & quality gains', lead: 'Real-time' },
+        { name: 'Optimization Opportunities', capability: 'Skill mismatches, underutilization, AI gaps', lead: 'Auto-fix' },
       ],
-      description: "Browse verified suppliers, compare capabilities, see reviews, and contract directly through the platform. No more endless Googling and cold emails.",
+      description: "Track TU variance, efficiency, forecasting, team performance, and AI tool impact. Get optimization opportunities with auto-fix for skill mismatches and underutilization.",
     },
     {
       title: "The Result?\nYou Move Fast",
@@ -162,16 +163,16 @@ const TUTORIAL_SLIDES: Record<Role, TutorialSlide[]> = {
       testimonials: [
         {
           founder: "Sarah Chen, Hardware Startup",
-          quote: "Went from idea to first 100 customers in 8 months with just £95K spend. Centaur OS made it possible.",
+          quote: "Ran with 2 founders + 1 fractional exec + 2 apprentices. Equipped everyone with AI tools. Went from idea to first 100 customers in 8 months at £95K total spend.",
           metric: "0 → £500K ARR in 12 months",
         },
         {
           founder: "Marcus Thompson, IoT Company",
-          quote: "Hired a fractional CFO who helped raise £2M. Would have cost £160K full-time, paid £3,800/month.",
-          metric: "Raised £2M seed round",
+          quote: "Orchestrated 6 suppliers across 3 countries without owning a factory. TU Analytics helped us identify 15% efficiency gains. AI tools saved 8 TU/week across the team.",
+          metric: "Raised £2M seed, 18-month runway",
         },
       ],
-      description: "This isn't theory. Real founders are building real companies with lean teams and getting real results.",
+      description: "This isn't theory. Real founders are building real companies with lean teams, TU allocation, AI tools, and supplier orchestration—getting real results.",
     },
   ],
   FractionalExec: [
@@ -716,7 +717,7 @@ export default function TutorialScreen() {
                   <Text className="text-white/90 text-base">{slide.comparison.traditional}</Text>
                 </View>
                 <View className="bg-emerald-500/25 backdrop-blur-xl rounded-2xl p-5 border border-emerald-400/30">
-                  <Text className="text-emerald-200 text-sm font-bold mb-3">Centaur OS</Text>
+                  <Text className="text-emerald-200 text-sm font-bold mb-3">Fractional Foundry</Text>
                   <Text className="text-white text-base font-semibold">{slide.comparison.centaurOS}</Text>
                 </View>
               </View>

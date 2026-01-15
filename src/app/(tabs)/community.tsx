@@ -52,20 +52,25 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { HelpModal, HelpButton, type HelpContent } from '@/components/HelpModal';
 
 const HUB_HELP: HelpContent = {
-  title: 'Talent Marketplace',
-  subtitle: 'Build your team',
-  description: 'The Hub is your talent marketplace. Discover and hire fractional executives, apprentices, find suppliers, and explore AI tools to build your startup\'s capabilities.',
+  title: 'Marketplace & AI Tools',
+  subtitle: 'Build your team & AI capabilities',
+  description: 'The Hub is your marketplace for talent, suppliers, and AI tools. Hire fractional executives and apprentices, find suppliers for orchestration, and equip your team with AI tools that boost productivity. Each person can equip tools in 5 slots: Think (research), Create (draft/design), Verify (QA), Execute (code/automation), Ops (workflow/PM).',
   tips: [
-    'Use the shortlist feature to save candidates for later comparison',
-    'Check candidate availability and cost per day before reaching out',
-    'Compare candidates side-by-side using the compare mode',
-    'Review skills and experience scores to find the best fit for your needs',
+    'Take the AI Readiness Assessment (6 questions, 2 minutes) to unlock tool recommendations for each person',
+    'AI tools are licensed per-seat with monthly costs—budget tool spend in your financials',
+    'Each tool has setupTU (one-time onboarding cost) and riskTier (green/amber/red for safety)',
+    'Tools boost productivity: speedMult (faster), qualityMult (less rework), flowMultDelta (less blocked time)',
+    'Match tools to AI readiness scores—higher-risk tools require higher readiness (75+ for red-tier)',
+    'Use shortlist to compare candidates or tools side-by-side before hiring/purchasing',
+    'For orchestration: browse UK suppliers by category (PCB, Plastics, Machining, Assembly, etc.)',
   ],
   quickActions: [
-    { label: 'Executives', description: 'Browse fractional executives available for hire' },
-    { label: 'Apprentices', description: 'Find talented apprentices to execute your work plans' },
-    { label: 'AI Agents', description: 'Discover AI tools to boost your team\'s productivity' },
-    { label: 'Suppliers', description: 'Find UK-based suppliers for manufacturing needs' },
+    { label: 'AI Readiness Assessment', description: 'Take 6-question quiz to determine AI comfort, constraints, and recommended tools per person' },
+    { label: 'AI Tools Marketplace', description: 'Browse 12+ tools across 5 slots. View pricing (£8-30/mo), setupTU, effects, and risk tier' },
+    { label: 'Equip Loadout', description: 'Assign AI tools to each person\'s 5 slots. View current loadout and productivity multipliers.' },
+    { label: 'Hire Executives', description: 'Browse fractional executives by function (Build/Make/Sell/Serve/Ops). Work 2-5 days/week.' },
+    { label: 'Hire Apprentices', description: 'Find talented apprentices with 10 TU/week capacity at £70/TU' },
+    { label: 'Find Suppliers', description: 'Discover UK-based suppliers for outsourced work (orchestration, not manufacturing)' },
   ],
 };
 

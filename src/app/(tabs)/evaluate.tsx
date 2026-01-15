@@ -52,18 +52,22 @@ import { useResourceStore, getTeamSizeEfficiency } from '@/lib/state/resource-st
 
 const EVALUATE_HELP: HelpContent = {
   title: 'Performance Insights',
-  subtitle: 'Review and improve',
-  description: 'The Evaluate tab is your executive dashboard for reviewing apprentice work, tracking performance metrics, and identifying coaching opportunities.',
+  subtitle: 'Review, coach, and optimize',
+  description: 'The Evaluate tab is your executive dashboard for reviewing work, tracking TU efficiency, measuring AI tool ROI, and identifying coaching opportunities. Track how effectively your team converts allocated TU into value, and how AI tools multiply their output.',
   tips: [
-    'Review pending submissions within 48 hours to keep apprentices unblocked',
-    'Use quality scores to identify patterns and coaching opportunities',
-    'Check the Insights tab for automated recommendations on team performance',
-    'Track individual apprentice trends to catch declining performance early',
+    'Review pending submissions within 48 hours to keep team unblocked—blocked time wastes TU capacity',
+    'Monitor TU efficiency per person—effective output = TU × speed × quality × flow (AI tools boost these multipliers)',
+    'Track AI ROI: compare per-seat tool costs vs. TU saved and quality improvements',
+    'Use quality scores to identify skill gaps—consider targeted training or AI tool adoption',
+    'Check TU Analytics for variance analysis—large variance indicates estimation or execution issues',
+    'AI-equipped team members should show higher effective TU output—if not, reassess tool fit or readiness',
   ],
   quickActions: [
-    { label: 'Review Queue', description: 'See all work submissions waiting for your approval' },
-    { label: 'Performance', description: 'View individual apprentice performance metrics and trends' },
-    { label: 'Insights', description: 'AI-generated recommendations for improving team output' },
+    { label: 'Review Queue', description: 'See all work submissions waiting for approval. Fast reviews improve team velocity.' },
+    { label: 'TU Performance', description: 'View TU efficiency per person: actual vs. estimated, variance, and AI tool impact' },
+    { label: 'AI ROI Dashboard', description: 'Track AI tool costs vs. TU saved, quality improvements, and productivity multipliers per person' },
+    { label: 'Team Insights', description: 'AI-generated recommendations: skill mismatches, underutilization, AI adoption opportunities' },
+    { label: 'Coaching Opportunities', description: 'Identify trends in declining performance, high variance, or low AI readiness scores' },
   ],
 };
 

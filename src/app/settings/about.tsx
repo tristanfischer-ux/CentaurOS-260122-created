@@ -32,83 +32,85 @@ export default function AboutScreen() {
   const features = [
     {
       icon: Target,
-      title: 'OKR Management',
-      description: 'Set company-wide objectives, track key results, and maintain strategic alignment across all functions.',
+      title: 'Time Unit (TU) System',
+      description: '1 TU = 4 hours of focused work. All capacity, allocation, and costing is measured in TU. Track efficiency, variance, forecasting, and AI ROI.',
       color: '#3b82f6',
+      badge: 'CORE',
+    },
+    {
+      icon: Cpu,
+      title: 'Per-Person AI Tools',
+      description: 'Equip each team member with AI tools in 5 slots (Think/Create/Verify/Execute/Ops). Tools multiply effective output per TU via speed, quality, and flow.',
+      color: '#a855f7',
+      badge: 'NEW',
+    },
+    {
+      icon: Factory,
+      title: 'Supply Chain Orchestration',
+      description: 'Track engagements from Quote → PO → Production → QC → Shipment → Delivery → ACCEPTANCE. Multi-hop logistics. "Done" = Accepted with evidence.',
+      color: '#f59e0b',
+      badge: 'NEW',
     },
     {
       icon: Users,
-      title: 'Team Collaboration',
-      description: 'Connect founders, fractional executives, and apprentices in a structured workflow that scales.',
+      title: 'Fractional Team Structure',
+      description: 'Founders (10 TU/week), Fractional Execs (2 TU/day × days worked), Apprentices (10 TU/week). Build a team optimized for lean execution.',
       color: '#8b5cf6',
     },
     {
       icon: Zap,
-      title: 'Work Execution',
-      description: 'Create, assign, and track work plans linked to your strategic goals with real-time progress updates.',
+      title: 'AI Readiness Assessment',
+      description: '6-question quiz (2 minutes) determines each person\'s AI comfort level, constraints, and tool recommendations. Scores range from AI Avoidant to AI Ready.',
       color: '#eab308',
     },
     {
+      icon: BarChart3,
+      title: 'TU Analytics Dashboard',
+      description: 'Elite consulting-grade analytics: efficiency, variance, AI ROI, forecasting, team performance, and optimization opportunities with auto-fix.',
+      color: '#14b8a6',
+    },
+    {
       icon: Award,
-      title: 'Performance Tracking',
-      description: 'Monitor individual and team performance with detailed analytics and achievement celebrations.',
+      title: 'OKR & Strategic Alignment',
+      description: 'Set company-wide objectives across 5 business functions (Build/Make/Sell/Serve/Ops). Link tasks to OKRs and track progress in real-time.',
       color: '#10b981',
     },
     {
-      icon: Factory,
-      title: 'Manufacturing Network',
-      description: 'Access 30+ UK manufacturers for prototyping, PCB assembly, injection molding, and more.',
-      color: '#f59e0b',
-    },
-    {
-      icon: Cpu,
-      title: 'AI Tools Library',
-      description: 'Browse 25+ third-party AI tools organized by business function - Finance, Sales, Marketing, Ops, Engineering, and Admin.',
-      color: '#a855f7',
-    },
-    {
       icon: MessageSquare,
-      title: 'In-App Messaging',
-      description: 'Direct and group messaging with file attachments, read receipts, and typing indicators.',
+      title: 'In-App Collaboration',
+      description: 'Direct and group messaging with file attachments, read receipts, typing indicators. Calendar integration for scheduling.',
       color: '#06b6d4',
     },
     {
       icon: FileText,
-      title: 'Template Library',
-      description: 'Pre-built work plan templates across Marketing, Engineering, Sales, and Product functions to accelerate productivity.',
+      title: 'Engagement AI Agents',
+      description: 'Orchestration AI: RFQ Bot, Quote Normaliser, Expeditor, QC Gatekeeper, Invoice Matcher. Save TU on supply chain operations.',
       color: '#f43f5e',
-    },
-    {
-      icon: BarChart3,
-      title: 'Homeworld-Style Planning',
-      description: 'Build queue system with OKRs as queue items, people-hours as resources, and capacity tracking with burnout detection.',
-      color: '#14b8a6',
-      badge: 'NEW',
     },
     {
       icon: Smile,
       title: 'Elite UX Design',
-      description: 'iOS-grade tactile feedback, consulting-firm methodology, and Clay/IDEO/Goji design standards throughout.',
+      description: 'iOS-grade tactile feedback, consulting-firm methodology, and Clay/IDEO/Goji design standards throughout. Built for mobile-first execution.',
       color: '#8b5cf6',
     },
   ];
 
   const principles = [
     {
-      title: 'Lean by Design',
-      description: 'Built specifically for small teams doing big things. No bloat, just what you need to execute.',
+      title: 'Time Units, Not Hours',
+      description: 'Resources measured in 4-hour blocks (TU). Capacity = TU/week. Cost = £/TU. AI tools multiply effective TU output.',
     },
     {
-      title: 'Role-Based Access',
-      description: 'Founders get full visibility, executives get focused dashboards, apprentices get clear tasks.',
+      title: 'Orchestrate, Don\'t Manufacture',
+      description: 'Hardware startups shouldn\'t own factories. Orchestrate suppliers, track acceptance with evidence, manage multi-hop logistics.',
     },
     {
-      title: 'Manufacturing-First',
-      description: 'Hardware startups need more than software. Access real suppliers, track BOMs, manage production.',
+      title: 'AI Per Person, Not Per Team',
+      description: 'Each person equips AI tools in 5 slots matched to their readiness. Productivity = TU × speed × quality × flow.',
     },
     {
-      title: 'Execution Over Planning',
-      description: 'Beautiful interfaces that make you want to get work done, not endless planning sessions.',
+      title: 'Done = Accepted, Not Shipped',
+      description: 'Goods may ship to other suppliers or customers. Only Accepted engagements (with evidence) count as complete.',
     },
   ];
 
@@ -122,7 +124,7 @@ export default function AboutScreen() {
         >
           <ArrowLeft size={20} color="#64748b" />
         </Pressable>
-        <Text className="text-gray-900 dark:text-white text-2xl font-bold">About Centaur OS</Text>
+        <Text className="text-gray-900 dark:text-white text-2xl font-bold">About Fractional Foundry</Text>
       </View>
 
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
@@ -139,10 +141,10 @@ export default function AboutScreen() {
                 <Rocket size={40} color="#ffffff" strokeWidth={2} />
               </View>
               <Text className="text-white text-3xl font-bold text-center mb-3">
-                The Operating System for{'\n'}Lean Hardware Startups
+                The Operating System for{'\n'}Super-Lean Hardware Startups
               </Text>
               <Text className="text-white/90 text-base text-center leading-6">
-                Centaur OS empowers hardware startups to operate with the efficiency of a large company while maintaining the agility of a small team.
+                Fractional Foundry empowers hardware startups to operate with 2-3 core team members, leveraging Time Units (4-hour blocks), per-person AI tools, and supply chain orchestration to execute with elite efficiency.
               </Text>
             </View>
           </LinearGradient>
@@ -156,9 +158,11 @@ export default function AboutScreen() {
               <Text className="text-gray-900 dark:text-white text-xl font-bold">Our Mission</Text>
             </View>
             <Text className="text-gray-700 dark:text-slate-300 text-base leading-7">
-              We believe hardware innovation shouldn't require a massive team or complex enterprise software.
-              Centaur OS gives founders the tools to run their entire company with 2-3 core team members,
-              leveraging fractional executives and skilled apprentices to execute at scale.
+              We believe hardware innovation shouldn't require a massive team, complex enterprise software, or in-house manufacturing.
+              Fractional Foundry gives founders the tools to run their entire company with 2-3 core team members,
+              orchestrating suppliers instead of owning factories, and multiplying team productivity with AI tools equipped per person
+              across 5 slots: Think, Create, Verify, Execute, and Ops. Every resource is measured in Time Units (TU = 4 hours),
+              and "Done" means Accepted with evidence—never just shipped.
             </Text>
           </View>
         </View>
@@ -230,7 +234,7 @@ export default function AboutScreen() {
         {/* Who It's For */}
         <View className="px-6 pb-6">
           <Text className="text-gray-900 dark:text-white text-2xl font-bold mb-4">
-            Who Is Centaur OS For?
+            Who Is Fractional Foundry For?
           </Text>
 
           <View className="gap-4">
@@ -243,8 +247,7 @@ export default function AboutScreen() {
                 <Text className="text-white text-xl font-bold flex-1">Founders</Text>
               </View>
               <Text className="text-white/90 text-base leading-6">
-                Get complete visibility across your entire operation. Manage OKRs, track work,
-                build your team, connect with suppliers, and run your startup like a seasoned CEO—even if it's your first rodeo.
+                Run your entire hardware startup with 2-3 core team members. Allocate TU capacity strategically, orchestrate suppliers, equip your team with AI tools, and track everything from OKRs to engagements—all in one place.
               </Text>
             </View>
 
@@ -257,8 +260,7 @@ export default function AboutScreen() {
                 <Text className="text-white text-xl font-bold flex-1">Fractional Executives</Text>
               </View>
               <Text className="text-white/90 text-base leading-6">
-                Offer your expertise to multiple startups simultaneously. Create structured work,
-                review submissions, mentor apprentices, and help founders execute your vision across your function.
+                Offer your expertise to multiple startups (2-5 days/week per startup). Manage your function (Build/Make/Sell/Serve/Ops), allocate your 2 TU/day capacity, equip your team with AI tools, and deliver results efficiently.
               </Text>
             </View>
 
@@ -271,8 +273,7 @@ export default function AboutScreen() {
                 <Text className="text-white text-xl font-bold flex-1">Apprentices</Text>
               </View>
               <Text className="text-white/90 text-base leading-6">
-                Build your career by executing real work for real startups. Learn from experienced executives,
-                complete structured tasks, track your progress, and level up your skills with every submission.
+                Build your career executing real work for real startups (10 TU/week at £70/TU). Take the AI Readiness Assessment, equip tools to boost your productivity, learn from experienced executives, and level up with every task.
               </Text>
             </View>
           </View>
@@ -285,8 +286,8 @@ export default function AboutScreen() {
           </Text>
           <View className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-6 border border-gray-300 dark:border-slate-800">
             <Text className="text-gray-700 dark:text-slate-300 text-base leading-7 mb-4">
-              Centaur OS is built with React Native and Expo SDK 53, delivering a native mobile experience
-              with beautiful animations, smooth gestures, and offline-first architecture.
+              Fractional Foundry is built with React Native and Expo SDK 53, delivering a native mobile experience
+              with beautiful animations, smooth gestures, offline-first architecture, and elite iOS-grade UX.
             </Text>
             <View className="flex-row flex-wrap gap-2">
               {['React Native 0.76', 'Expo SDK 53', 'TypeScript', 'Zustand', 'React Query', 'NativeWind', 'Reanimated'].map((tech, index) => (
@@ -312,7 +313,7 @@ export default function AboutScreen() {
                 </View>
                 <View className="w-px bg-gray-300 dark:bg-slate-800" />
                 <View className="items-center">
-                  <Text className="text-gray-900 dark:text-white text-4xl font-bold mb-1">50+</Text>
+                  <Text className="text-gray-900 dark:text-white text-4xl font-bold mb-1">12+</Text>
                   <Text className="text-gray-600 dark:text-slate-400 text-sm">AI Tools</Text>
                 </View>
                 <View className="w-px bg-gray-300 dark:bg-slate-800" />
@@ -386,7 +387,7 @@ export default function AboutScreen() {
             © 2026 Centaur OS. All rights reserved.
           </Text>
           <Text className="text-gray-500 dark:text-slate-500 text-xs mt-1">
-            Version 1.1.0 • Build 2026.01.14
+            Version 2.0.0 • Build 2026.01.15
           </Text>
         </View>
       </ScrollView>

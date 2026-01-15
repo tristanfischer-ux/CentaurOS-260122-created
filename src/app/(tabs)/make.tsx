@@ -40,18 +40,25 @@ import { useResourceOwnershipStore, initializeDemoOwnerships, type ResourceOwner
 import { ApprovalHistoryModal } from '@/components/ApprovalHistoryModal';
 
 const MAKE_HELP: HelpContent = {
-  title: 'Operations Center',
-  subtitle: 'Suppliers & AI tools',
-  description: 'The Make tab manages your manufacturing operations. Track supplier engagements, delivery schedules, and AI tool subscriptions that power your team.',
+  title: 'Orchestration Center',
+  subtitle: 'Supply chain & engagements',
+  description: 'The Make tab is your supply chain orchestration command center. You do NOT manufacture—you orchestrate outsourced work with suppliers. Track engagements from Quote → PO → Production → QC → Shipment → Delivery → ACCEPTANCE. "Done" means Accepted with evidence, NOT just shipped. Goods may ship to other suppliers or customers (multi-hop logistics).',
   tips: [
-    'Review supplier delivery schedules weekly to catch delays early',
-    'Monitor AI tool usage and costs to optimize your tech stack',
-    'Track quality scores and lead times when evaluating suppliers',
-    'Use supplier ratings to inform future procurement decisions',
+    'CRITICAL: An engagement is only complete when Accepted with evidence (POD, photos, inspection reports)—not when shipped',
+    'Track milestone progress with weights—Production Complete (20%), QC Passed (15%), Delivered (3%), Accepted (2%)',
+    'Monitor Cash at Risk: value that\'s late, disputed, blocked, or at-risk and not yet accepted',
+    'Multi-hop shipments are common: Supplier A → Supplier B → Customer. Track each leg separately.',
+    'Use AI agents to save TU: RFQ Bot, Quote Normaliser, Expeditor, QC Gatekeeper, Invoice Matcher',
+    'Review acceptance gates: ensure required evidence is collected before marking engagements complete',
+    'Disputed or Blocked engagements need immediate attention—they tie up cash and delay downstream work',
   ],
   quickActions: [
-    { label: 'Suppliers', description: 'View all supplier engagements, contracts, and delivery schedules' },
-    { label: 'AI Tools', description: 'Manage your AI subscriptions and monitor monthly spend' },
+    { label: 'Value Delivered', description: '£ of engagements Accepted this month—the true "done" metric, not shipped value' },
+    { label: 'Value In Flight', description: '£ issued via PO but not yet accepted—track progress via milestones' },
+    { label: 'Cash at Risk', description: '£ in late, disputed, blocked, or at-risk engagements—requires urgent action' },
+    { label: 'Engagement Details', description: 'Tap engagement to view milestones, shipment legs, acceptance status, and evidence' },
+    { label: 'AI Agents', description: 'Activate orchestration AI agents to automate RFQs, normalize quotes, expedite, gate QC, and match invoices' },
+    { label: 'Supplier Scorecard', description: 'View supplier quality %, on-time %, acceptance pass rate, and dispute rate to inform future sourcing' },
   ],
 };
 
