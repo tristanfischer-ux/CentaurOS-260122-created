@@ -44,7 +44,7 @@ export interface WorkPlan {
   title: string;
   description: string;
   function: BusinessFunction;
-  linkedOKRTitle: string;
+  linkedOKRTitle?: string; // Optional - OKRs are now hidden from users
   dueDate: string;
   status: 'not-started' | 'in-progress' | 'completed' | 'blocked' | 'abandoned';
   progress: number;

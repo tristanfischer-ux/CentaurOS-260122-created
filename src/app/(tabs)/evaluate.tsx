@@ -1368,7 +1368,7 @@ export default function EvaluateScreen() {
                               <View className="flex-row items-center">
                                 <Target size={12} color="#8b5cf6" />
                                 <Text className="text-purple-600 dark:text-purple-400 text-xs ml-1" numberOfLines={1}>
-                                  {plan.linkedOKRTitle.slice(0, 25)}...
+                                  {plan.function}
                                 </Text>
                               </View>
                               {/* Time Units */}
@@ -1690,14 +1690,12 @@ export default function EvaluateScreen() {
                         <Text className="text-blue-700 dark:text-blue-300 text-xs">
                           Due {new Date(selectedSubmission.plan.dueDate).toLocaleDateString()}
                         </Text>
-                        {selectedSubmission.plan.linkedOKRTitle && (
-                          <View className="flex-row items-center">
-                            <Target size={12} color="#3b82f6" />
-                            <Text className="text-blue-600 dark:text-blue-400 text-xs ml-1" numberOfLines={1}>
-                              {selectedSubmission.plan.linkedOKRTitle}
-                            </Text>
-                          </View>
-                        )}
+                        <View className="flex-row items-center">
+                          <Target size={12} color="#3b82f6" />
+                          <Text className="text-blue-600 dark:text-blue-400 text-xs ml-1" numberOfLines={1}>
+                            {selectedSubmission.plan.function}
+                          </Text>
+                        </View>
                       </View>
                     </View>
 

@@ -2180,7 +2180,7 @@ export default function DecideScreen() {
                             {plan.title}
                           </Text>
                           <Text className="text-gray-500 dark:text-slate-400 text-xs">
-                            Linked to: {plan.linkedOKRTitle}
+                            {plan.function}
                           </Text>
                         </View>
                         <View className="bg-emerald-500/20 px-2 py-1 rounded">

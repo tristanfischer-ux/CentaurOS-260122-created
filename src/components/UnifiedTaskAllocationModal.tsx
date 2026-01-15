@@ -586,7 +586,7 @@ export function UnifiedTaskAllocationModal({ visible, onClose, workPlan }: Props
                   <Text className="text-white text-xs font-bold">✓ NEW TAP-TO-ADD INTERFACE</Text>
                 </View>
                 <Text className="text-gray-500 dark:text-slate-400 text-xs font-medium">
-                  {workPlan.function} • {workPlan.linkedOKRTitle}
+                  {workPlan.function}
                 </Text>
                 <Text className="text-gray-900 dark:text-white text-lg font-bold" numberOfLines={2}>
                   {workPlan.title}

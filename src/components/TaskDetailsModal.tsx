@@ -145,13 +145,13 @@ export function TaskDetailsModal({ visible, onClose, task }: TaskDetailsModalPro
               </Text>
             </View>
 
-            {/* Linked OKR */}
+            {/* Function/Category */}
             <View className="px-5 py-4 border-b border-gray-200 dark:border-slate-700">
               <Text className="text-gray-500 dark:text-slate-400 text-xs mb-1">
-                LINKED TO
+                CATEGORY
               </Text>
               <Text className="text-gray-900 dark:text-white font-semibold">
-                {task.linkedOKRTitle}
+                {task.function}
               </Text>
             </View>
 

@@ -912,7 +912,7 @@ export default function DoScreen() {
                         <View className="flex-row items-center mt-2">
                           <Target size={14} color="#3b82f6" />
                           <Text className="text-blue-700 dark:text-blue-300 text-xs ml-1">
-                            Linked to: {selectedPlan.linkedOKRTitle}
+                            Category: {selectedPlan.function}
                           </Text>
                         </View>
                       </View>
