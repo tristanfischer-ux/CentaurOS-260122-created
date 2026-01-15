@@ -512,6 +512,49 @@ The Decide tab is focused purely on **resource allocation** - assigning people a
 
 **Latest Update**: 2026-01-15
 
+### Mission Control Home Tab (All Roles)
+
+The Home tab now provides a comprehensive dashboard with key operational metrics:
+
+**Financial Overview**:
+- Cash in Bank
+- This Week's Cost
+- Runway (months remaining)
+- Monthly Burn Rate
+
+**Resource Utilization**:
+- Shows how many squares are allocated this week vs total capacity
+- Visual progress bar with status indicator:
+  - **Fully Allocated** (0 squares available) - Green - All resources in use
+  - **Near Capacity** (<5 squares available) - Amber - Running hot
+  - **Under-allocated** (5+ squares available) - Blue - Capacity available
+- Helps founders quickly see if team is being utilized efficiently
+
+**Manufacturing**:
+- Shows active suppliers from Community tab (favorites marked as manufacturing)
+- Quick access to supplier details
+- Link to full supplier list in Community tab
+- Only displays when active manufacturing suppliers exist
+
+**Upcoming Events**:
+- Links to Startup Hub events and resources
+- Access to networking events, workshops, and founder resources
+
+**Decisions Needed**:
+- Pending hiring requests requiring approval
+- Task allocation requests from team
+- Quick approve/reject actions
+
+**Critical Items**:
+- Blocked tasks with TU impact
+- "Resolve" button now correctly navigates to Do tab
+- Shows most critical blocker with severity and impact
+
+**Startup Hub & Reports**:
+- Quick access to Startup Pack Wizard
+- Links to TU Analytics Dashboard
+- Export Reports for board packs
+
 ### Founder Home Tab
 The Command Center now provides comprehensive visibility:
 - **Company Aim Banner**: Purple gradient banner showing the company's ultimate purpose at the top

@@ -39,6 +39,8 @@ import { useWorkPlanStore } from '@/lib/state/work-plan-store';
 import { useOrganizationStore } from '@/lib/state/organization-store';
 import { useOKRStore } from '@/lib/state/okr-store';
 import { useCurrentWorkspace } from '@/lib/state/app-store';
+import { useResourceStore } from '@/lib/state/resource-store';
+import { useSupplierStore } from '@/lib/state/supplier-store';
 
 // Mission Control Logic
 import {
@@ -92,6 +94,19 @@ export default function MissionControlHome() {
   const members = useOrganizationStore((s) => s.members);
   const okrs = useOKRStore((s) => s.okrs);
 
+  // Resource utilization
+  const getTotalCapacity = useResourceStore((s) => s.getTotalCapacity);
+  const resourceCapacity = useMemo(() => getTotalCapacity(), [getTotalCapacity]);
+
+  // Supplier/Manufacturing data
+  const suppliers = useSupplierStore((s) => s.suppliers);
+  const getFavoriteSupplierIds = useSupplierStore((s) => s.getFavoriteSupplierIds);
+  const favoriteSupplierIds = currentWorkspace ? getFavoriteSupplierIds(currentWorkspace.id) : [];
+  const activeSuppliers = useMemo(() =>
+    suppliers.filter(s => favoriteSupplierIds.includes(s.id) && s.serviceType === 'manufacturing'),
+    [suppliers, favoriteSupplierIds]
+  );
+
   // Decision stores - select data directly, not through getter functions
   const allHiringRequests = useMarketplaceRequestsStore((s) => s.requests);
   const allTaskRequests = useRequestStore((s) => s.requests);
@@ -110,10 +125,17 @@ export default function MissionControlHome() {
   const approveTaskRequest = useRequestStore((s) => s.approveRequest);
   const rejectTaskRequest = useRequestStore((s) => s.rejectRequest);
 
+  // Initialize stores
+  const initializeSuppliers = useSupplierStore((s) => s.initializeSuppliers);
+
   useEffect(() => {
     initialize();
     autoSeedDemoDataIfNeeded();
-  }, []);
+    // Initialize suppliers if empty
+    if (suppliers.length === 0) {
+      initializeSuppliers();
+    }
+  }, [initialize, initializeSuppliers, suppliers.length]);
 
   // Compute Mission Control state
   const mainQuest = useMemo<MainQuest | null>(() => {
@@ -253,6 +275,123 @@ export default function MissionControlHome() {
                 </Text>
               </View>
             </View>
+          </View>
+        </View>
+
+        {/* RESOURCE UTILIZATION */}
+        <View className="px-6 pt-6">
+          <View className="flex-row items-center gap-2 mb-3">
+            <Zap size={20} color="#3b82f6" />
+            <Text className="text-gray-900 dark:text-white text-lg font-bold">RESOURCE UTILIZATION</Text>
+          </View>
+
+          <View className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-xl p-4 shadow-sm">
+            <View className="flex-row items-center justify-between mb-3">
+              <View className="flex-1">
+                <Text className="text-gray-600 dark:text-slate-400 text-xs mb-1">This Week</Text>
+                <Text className="text-gray-900 dark:text-white text-lg font-bold">
+                  {resourceCapacity.allocated} / {resourceCapacity.total} Squares
+                </Text>
+                <Text className="text-gray-500 dark:text-slate-500 text-xs mt-1">
+                  {resourceCapacity.available} available
+                </Text>
+              </View>
+              <View className={`px-4 py-2 rounded-xl ${
+                resourceCapacity.available === 0 ? 'bg-emerald-100 dark:bg-emerald-900/30' :
+                resourceCapacity.available < 5 ? 'bg-amber-100 dark:bg-amber-900/30' :
+                'bg-blue-100 dark:bg-blue-900/30'
+              }`}>
+                <Text className={`text-center font-bold ${
+                  resourceCapacity.available === 0 ? 'text-emerald-600 dark:text-emerald-400' :
+                  resourceCapacity.available < 5 ? 'text-amber-600 dark:text-amber-400' :
+                  'text-blue-600 dark:text-blue-400'
+                }`}>
+                  {resourceCapacity.available === 0 ? 'Fully Allocated' :
+                   resourceCapacity.available < 5 ? 'Near Capacity' :
+                   'Under-allocated'}
+                </Text>
+              </View>
+            </View>
+
+            {/* Progress Bar */}
+            <View className="bg-gray-200 dark:bg-slate-700 rounded-full h-2 overflow-hidden">
+              <View
+                className={`h-full ${
+                  resourceCapacity.available === 0 ? 'bg-emerald-500' :
+                  resourceCapacity.available < 5 ? 'bg-amber-500' :
+                  'bg-blue-500'
+                }`}
+                style={{ width: `${(resourceCapacity.allocated / resourceCapacity.total) * 100}%` }}
+              />
+            </View>
+          </View>
+        </View>
+
+        {/* MANUFACTURING & EVENTS */}
+        {activeSuppliers.length > 0 && (
+          <View className="px-6 pt-6">
+            <View className="flex-row items-center gap-2 mb-3">
+              <Package size={20} color="#8b5cf6" />
+              <Text className="text-gray-900 dark:text-white text-lg font-bold">MANUFACTURING</Text>
+            </View>
+
+            <View className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-xl p-4 shadow-sm">
+              <Text className="text-gray-600 dark:text-slate-400 text-sm mb-3">Active Suppliers</Text>
+              <View className="gap-2">
+                {activeSuppliers.slice(0, 3).map((supplier) => (
+                  <Pressable
+                    key={supplier.id}
+                    onPress={() => router.push('/(tabs)/community')}
+                    className="flex-row items-center justify-between p-2 bg-purple-50 dark:bg-purple-900/10 rounded-lg active:opacity-70"
+                  >
+                    <View className="flex-1">
+                      <Text className="text-gray-900 dark:text-white text-sm font-semibold">
+                        {supplier.name}
+                      </Text>
+                      <Text className="text-gray-500 dark:text-slate-500 text-xs">
+                        {supplier.location.city}, {supplier.location.country}
+                      </Text>
+                    </View>
+                    <ChevronRight size={16} color="#64748b" />
+                  </Pressable>
+                ))}
+              </View>
+              {activeSuppliers.length > 3 && (
+                <Pressable
+                  onPress={() => router.push('/(tabs)/community')}
+                  className="mt-3 py-2 items-center active:opacity-70"
+                >
+                  <Text className="text-purple-600 dark:text-purple-400 text-sm font-semibold">
+                    View all {activeSuppliers.length} suppliers →
+                  </Text>
+                </Pressable>
+              )}
+            </View>
+          </View>
+        )}
+
+        {/* Upcoming Events from Startup Hub */}
+        <View className="px-6 pt-6">
+          <View className="flex-row items-center gap-2 mb-3">
+            <Activity size={20} color="#f59e0b" />
+            <Text className="text-gray-900 dark:text-white text-lg font-bold">UPCOMING EVENTS</Text>
+          </View>
+
+          <View className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-xl p-4 shadow-sm">
+            <Pressable
+              onPress={() => router.push('/startup-pack/wizard')}
+              className="flex-row items-center justify-between active:opacity-70"
+            >
+              <View className="flex-1">
+                <Text className="text-gray-900 dark:text-white text-base font-semibold mb-1">
+                  Startup Hub Events
+                </Text>
+                <Text className="text-gray-600 dark:text-slate-400 text-sm">
+                  Access networking events, workshops, and resources for founders
+                </Text>
+              </View>
+              <ChevronRight size={20} color="#64748b" />
+            </Pressable>
           </View>
         </View>
 
