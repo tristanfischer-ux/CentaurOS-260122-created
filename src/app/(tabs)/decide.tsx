@@ -1049,22 +1049,36 @@ export default function DecideScreen() {
         </View>
         {/* Quick Health Indicators */}
         <View className="flex-row gap-4">
-          {activeOKRs.length > 0 && (
-            <View className="flex-row items-center">
-              <View className="w-2 h-2 rounded-full mr-1.5 bg-emerald-400" />
-              <Text className="text-white/90 text-xs">{activeOKRs.length} active</Text>
-            </View>
-          )}
-          {queuedOKRs.length > 0 && (
-            <View className="flex-row items-center">
-              <View className="w-2 h-2 rounded-full mr-1.5 bg-blue-400" />
-              <Text className="text-white/90 text-xs">{queuedOKRs.length} queued</Text>
-            </View>
-          )}
-          <View className="flex-row items-center">
-            <View className="w-2 h-2 rounded-full mr-1.5 bg-emerald-400" />
-            <Text className="text-white/90 text-xs">{totalOKRs} OKRs tracked</Text>
-          </View>
+          {(() => {
+            const activeTasks = workPlans.filter(wp =>
+              wp.status !== 'completed' &&
+              wp.status !== 'abandoned' &&
+              wp.assignedMemberIds &&
+              wp.assignedMemberIds.length > 0
+            );
+            const queuedTasks = workPlans.filter(wp =>
+              wp.status !== 'completed' &&
+              wp.status !== 'abandoned' &&
+              (!wp.assignedMemberIds || wp.assignedMemberIds.length === 0)
+            );
+
+            return (
+              <>
+                {activeTasks.length > 0 && (
+                  <View className="flex-row items-center">
+                    <View className="w-2 h-2 rounded-full mr-1.5 bg-emerald-400" />
+                    <Text className="text-white/90 text-xs">{activeTasks.length} active</Text>
+                  </View>
+                )}
+                {queuedTasks.length > 0 && (
+                  <View className="flex-row items-center">
+                    <View className="w-2 h-2 rounded-full mr-1.5 bg-blue-400" />
+                    <Text className="text-white/90 text-xs">{queuedTasks.length} queued</Text>
+                  </View>
+                )}
+              </>
+            );
+          })()}
         </View>
       </LinearGradient>
 
@@ -1229,11 +1243,11 @@ export default function DecideScreen() {
                 className={`px-3 py-1.5 rounded-lg ${selectedFunction === 'all' ? 'bg-purple-500' : 'bg-gray-200 dark:bg-slate-800'}`}
               >
                 <Text className={`text-xs font-semibold ${selectedFunction === 'all' ? 'text-white' : 'text-gray-600 dark:text-slate-400'}`}>
-                  All ({okrs.length})
+                  All ({workPlans.filter(wp => wp.status !== 'completed' && wp.status !== 'abandoned').length})
                 </Text>
               </Pressable>
               {functions.map((func) => {
-                const count = okrs.filter(o => o.function === func).length;
+                const count = workPlans.filter(wp => wp.function === func && wp.status !== 'completed' && wp.status !== 'abandoned').length;
                 if (count === 0) return null;
                 return (
                   <Pressable
@@ -1251,565 +1265,238 @@ export default function DecideScreen() {
           </ScrollView>
         </View>
 
-        {/* SECTION 4: ACTIVE OKRs (with resources allocated) */}
-        {activeOKRs.length > 0 && (
-          <View className="mb-4">
-            <View className="flex-row items-center justify-between mb-2">
-              <Text className="text-emerald-600 dark:text-emerald-400 text-xs font-bold tracking-wide">
-                ACTIVE - RESOURCES ALLOCATED
-              </Text>
-              <View className="bg-emerald-100 dark:bg-emerald-900/30 px-2 py-0.5 rounded">
-                <Text className="text-emerald-700 dark:text-emerald-300 text-xs font-semibold">
-                  {activeOKRs.length} OKR{activeOKRs.length !== 1 ? 's' : ''}
+        {/* ACTIVE TASKS (with resources allocated) */}
+        {(() => {
+          const activeTasks = workPlans.filter(wp =>
+            (selectedFunction === 'all' || wp.function === selectedFunction) &&
+            wp.status !== 'completed' &&
+            wp.status !== 'abandoned' &&
+            wp.assignedMemberIds &&
+            wp.assignedMemberIds.length > 0
+          );
+
+          return activeTasks.length > 0 && (
+            <View className="mb-4">
+              <View className="flex-row items-center justify-between mb-2">
+                <Text className="text-emerald-600 dark:text-emerald-400 text-xs font-bold tracking-wide">
+                  ACTIVE - RESOURCES ALLOCATED
                 </Text>
+                <View className="bg-emerald-100 dark:bg-emerald-900/30 px-2 py-0.5 rounded">
+                  <Text className="text-emerald-700 dark:text-emerald-300 text-xs font-semibold">
+                    {activeTasks.length} task{activeTasks.length !== 1 ? 's' : ''}
+                  </Text>
+                </View>
               </View>
-            </View>
 
-            <View className="gap-2">
-              {activeOKRs.map((okr: OKR, index: number) => {
-                const isExpanded = okr.isExpanded || false;
-                const functionColor = getFunctionColor(okr.function);
-                const linkedPlans = workPlans.filter(wp => wp.linkedOKRTitle === okr.title);
-                const totalProgress = linkedPlans.length > 0
-                  ? Math.round(linkedPlans.reduce((sum, p) => sum + p.progress, 0) / linkedPlans.length)
-                  : 0;
-
-                return (
-                  <View key={okr.id}>
-                    <SwipeableOKRCard
-                      okrId={okr.id}
-                      onSwipeLeft={handleOKRSwipeLeft}
-                      onPress={() => toggleOKR(okr.id)}
+              <View className="gap-2">
+                {activeTasks.map((plan) => {
+                  const assignedMembers = getAssignedMembers(plan);
+                  const taskCost = calculateTaskCost(plan);
+                  return (
+                    <SwipeableTaskCard
+                      key={plan.id}
+                      taskId={plan.id}
+                      onSwipeLeft={handleTaskSwipeLeft}
+                      onPress={() => handleTaskPress(plan)}
                     >
                       <View
-                        className={`bg-emerald-50 dark:bg-emerald-900/10 border rounded-xl p-3 ${
-                          draggingOKRId === okr.id ? 'border-purple-400 dark:border-purple-600' :
-                          okr.status === 'off-track'
-                            ? 'border-red-300 dark:border-red-800'
-                            : okr.status === 'at-risk'
-                            ? 'border-amber-300 dark:border-amber-800'
-                            : 'border-emerald-200 dark:border-emerald-800'
+                        className={`bg-white dark:bg-slate-800 border-2 rounded-xl p-3 ${
+                          selectedTaskForAllocation?.id === plan.id
+                            ? 'border-blue-400 dark:border-blue-500' // Highlight selected task
+                            : selectedPersonId
+                            ? 'border-purple-400 dark:border-purple-500' // Highlight when person selected for allocation
+                            : 'border-gray-200 dark:border-slate-700'
                         }`}
                       >
-                        <View className="flex-row items-center">
-                          <View
-                            className="w-1.5 h-12 rounded-full mr-3"
-                            style={{
-                              backgroundColor:
-                                okr.status === 'off-track' ? '#ef4444' :
-                                okr.status === 'at-risk' ? '#f59e0b' : '#10b981'
-                            }}
-                          />
-
-                          <View className="flex-1">
-                            <View className="flex-row items-center mb-1 flex-wrap gap-1">
-                              <View
-                                className="px-1.5 py-0.5 rounded"
-                                style={{ backgroundColor: functionColor + '20' }}
-                              >
-                                <Text className="text-xs font-semibold" style={{ color: functionColor }}>
-                                  {okr.function}
-                                </Text>
-                              </View>
-                              <View className={`px-1.5 py-0.5 rounded ${getStatusColor(okr.status)}`}>
-                                <Text className="text-xs font-semibold">{getStatusText(okr.status)}</Text>
-                              </View>
-                              <View className="px-1.5 py-0.5 rounded bg-emerald-500/20">
-                                <Text className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">
-                                  {totalProgress}% done
-                                </Text>
-                              </View>
-                            </View>
-
-                            <Text className="text-gray-900 dark:text-white font-semibold text-sm" numberOfLines={1}>
-                              {okr.title}
+                        <View className="flex-row items-start justify-between mb-2">
+                          <View className="flex-1 mr-2">
+                            <Text className="text-gray-900 dark:text-white font-semibold text-sm" numberOfLines={2}>
+                              {plan.title}
                             </Text>
-
-                            <View className="flex-row items-center mt-1 gap-3 flex-wrap">
-                              <Text className="text-emerald-600 dark:text-emerald-400 text-xs font-medium">
-                                {linkedPlans.length} task{linkedPlans.length !== 1 ? 's' : ''}
-                              </Text>
-                              <Text className="text-gray-500 dark:text-slate-400 text-xs">
-                                {okr.objectives.length} KRs
-                              </Text>
-                              {linkedPlans.length > 0 && (
-                                <>
-                                  <View className="flex-row items-center">
-                                    <View className="flex-row items-center gap-0.5">
-                                      {Array.from({ length: Math.min(linkedPlans.reduce((sum, p) => sum + p.estimatedTimeUnits, 0), 5) }).map((_, i) => {
-                                        const completedSquares = linkedPlans.reduce((sum, p) => sum + Math.round((p.progress / 100) * p.estimatedTimeUnits), 0);
-                                        return (
-                                          <View
-                                            key={i}
-                                            className="w-2 h-2 rounded-sm"
-                                            style={{
-                                              backgroundColor: i < completedSquares ? '#10b981' : '#d1d5db',
-                                            }}
-                                          />
-                                        );
-                                      })}
-                                    </View>
-                                    <Text className="text-gray-500 dark:text-slate-400 text-[10px] ml-1">
-                                      {linkedPlans.reduce((sum, p) => sum + p.estimatedTimeUnits, 0)}□
-                                    </Text>
-                                  </View>
-                                  {/* OKR Total Cost */}
-                                  <View className="bg-emerald-50 dark:bg-emerald-900/20 px-1.5 py-0.5 rounded">
-                                    <Text className="text-emerald-700 dark:text-emerald-300 text-[10px] font-semibold">
-                                      £{linkedPlans.reduce((sum, p) => sum + calculateTaskCost(p).cumulativeCost, 0).toLocaleString()}
-                                    </Text>
-                                  </View>
-                                </>
-                              )}
+                            <View className="flex-row items-center mt-1 gap-2">
+                              <View className={`px-1.5 py-0.5 rounded ${
+                                plan.status === 'completed' ? 'bg-emerald-500/20' :
+                                plan.status === 'in-progress' ? 'bg-blue-500/20' :
+                                plan.status === 'blocked' ? 'bg-red-500/20' : 'bg-gray-500/20'
+                              }`}>
+                                <Text className={`text-[10px] font-semibold ${
+                                  plan.status === 'completed' ? 'text-emerald-600 dark:text-emerald-400' :
+                                  plan.status === 'in-progress' ? 'text-blue-600 dark:text-blue-400' :
+                                  plan.status === 'blocked' ? 'text-red-600 dark:text-red-400' : 'text-gray-600 dark:text-gray-400'
+                                }`}>{plan.status}</Text>
+                              </View>
+                              <Text className="text-gray-500 dark:text-slate-400 text-[10px]">{plan.progress}%</Text>
+                              <View className="bg-purple-100 dark:bg-purple-900/30 px-1.5 py-0.5 rounded">
+                                <Text className="text-purple-600 dark:text-purple-400 text-[10px] font-semibold">
+                                  {plan.function}
+                                </Text>
+                              </View>
                             </View>
                           </View>
 
-                          {isExpanded ? (
-                            <ChevronDown size={18} color="#64748b" />
-                          ) : (
-                            <ChevronRight size={18} color="#64748b" />
-                          )}
-                        </View>
-                      </View>
-                    </SwipeableOKRCard>
-
-                    {isExpanded && (
-                      <View className="mt-2 ml-4 gap-2">
-                        {/* Work Plans (Tasks) with Assigned Members - Swipeable */}
-                        {linkedPlans.map((plan) => {
-                          const assignedMembers = getAssignedMembers(plan);
-                          const taskCost = calculateTaskCost(plan);
-                          return (
-                            <SwipeableTaskCard
-                              key={plan.id}
-                              taskId={plan.id}
-                              onSwipeLeft={handleTaskSwipeLeft}
-                              onPress={() => handleTaskPress(plan)}
-                            >
-                              <View
-                                className={`bg-white dark:bg-slate-800 border-2 rounded-xl p-3 ${
-                                  selectedPersonId
-                                    ? 'border-purple-400 dark:border-purple-500' // Highlight when person selected for allocation
-                                    : draggingTaskId === plan.id
-                                    ? 'border-purple-400 dark:border-purple-500'
-                                    : 'border-gray-200 dark:border-slate-700'
-                                }`}
-                              >
-                                <View className="flex-row items-start justify-between mb-2">
-                                  <View className="flex-1 mr-2">
-                                    <Text className="text-gray-900 dark:text-white font-semibold text-sm" numberOfLines={2}>
-                                      {plan.title}
-                                    </Text>
-                                    <View className="flex-row items-center mt-1 gap-2">
-                                      <View className={`px-1.5 py-0.5 rounded ${
-                                        plan.status === 'completed' ? 'bg-emerald-500/20' :
-                                        plan.status === 'in-progress' ? 'bg-blue-500/20' :
-                                        plan.status === 'blocked' ? 'bg-red-500/20' : 'bg-gray-500/20'
-                                      }`}>
-                                        <Text className={`text-[10px] font-semibold ${
-                                          plan.status === 'completed' ? 'text-emerald-600 dark:text-emerald-400' :
-                                          plan.status === 'in-progress' ? 'text-blue-600 dark:text-blue-400' :
-                                          plan.status === 'blocked' ? 'text-red-600 dark:text-red-400' : 'text-gray-600 dark:text-gray-400'
-                                        }`}>{plan.status}</Text>
-                                      </View>
-                                      <Text className="text-gray-500 dark:text-slate-400 text-[10px]">{plan.progress}%</Text>
-                                    </View>
-                                  </View>
-
-                                  {/* Assigned Members Avatars */}
-                                  <View className="flex-row items-center">
-                                    {assignedMembers.length > 0 ? (
-                                      <View className="flex-row -space-x-2">
-                                        {assignedMembers.slice(0, 4).map((member, idx) => (
-                                          <View
-                                            key={member.id}
-                                            style={{ marginLeft: idx > 0 ? -8 : 0, zIndex: 10 - idx }}
-                                          >
-                                            <View
-                                              className="w-8 h-8 rounded-full items-center justify-center border-2 border-white dark:border-slate-800"
-                                              style={{ backgroundColor: getRoleColor(member.role) }}
-                                            >
-                                              <Text className="text-white font-bold text-[10px]">{getInitials(member.name)}</Text>
-                                            </View>
-                                          </View>
-                                        ))}
-                                        {assignedMembers.length > 4 && (
-                                          <View className="w-8 h-8 rounded-full items-center justify-center bg-gray-400 border-2 border-white dark:border-slate-800" style={{ marginLeft: -8 }}>
-                                            <Text className="text-white font-bold text-[10px]">+{assignedMembers.length - 4}</Text>
-                                          </View>
-                                        )}
-                                      </View>
-                                    ) : (
-                                      <View className="w-8 h-8 rounded-full items-center justify-center bg-gray-200 dark:bg-slate-700 border-2 border-dashed border-gray-400 dark:border-slate-500">
-                                        <Plus size={14} color="#9ca3af" />
-                                      </View>
-                                    )}
-                                  </View>
-                                </View>
-
-                                {/* Progress Bar */}
-                                <View className="bg-gray-200 dark:bg-slate-700 rounded-full h-1.5 overflow-hidden">
+                          {/* Assigned Members Avatars */}
+                          <View className="flex-row items-center">
+                            {assignedMembers.length > 0 ? (
+                              <View className="flex-row -space-x-2">
+                                {assignedMembers.slice(0, 4).map((member, idx) => (
                                   <View
-                                    className={`h-full ${
-                                      plan.status === 'completed' ? 'bg-emerald-500' :
-                                      plan.status === 'blocked' ? 'bg-red-500' : 'bg-blue-500'
-                                    }`}
-                                    style={{ width: `${plan.progress}%` }}
-                                  />
-                                </View>
-
-                                {/* Squares & Cost Display */}
-                                <View className="mt-2 flex-row items-center justify-between">
-                                  <View className="flex-row items-center gap-2">
-                                    <SquaresDisplay
-                                      totalSquares={plan.estimatedTimeUnits}
-                                      completedSquares={Math.round((plan.progress / 100) * plan.estimatedTimeUnits)}
-                                      variant="compact"
-                                      statusColor={
-                                        plan.status === 'completed' ? '#10b981' :
-                                        plan.status === 'blocked' ? '#ef4444' : '#3b82f6'
-                                      }
-                                    />
-                                    <Text className="text-gray-400 dark:text-slate-500 text-[10px]">
-                                      {taskCost.allocatedPerWeek}□/wk
-                                    </Text>
-                                  </View>
-
-                                  {/* Cost Information */}
-                                  <View className="flex-row items-center gap-2">
-                                    <View className="bg-emerald-50 dark:bg-emerald-900/20 px-1.5 py-0.5 rounded">
-                                      <Text className="text-emerald-700 dark:text-emerald-300 text-[10px] font-semibold">
-                                        £{taskCost.cumulativeCost.toLocaleString()} total
-                                      </Text>
-                                    </View>
-                                    <View className="bg-blue-50 dark:bg-blue-900/20 px-1.5 py-0.5 rounded">
-                                      <Text className="text-blue-700 dark:text-blue-300 text-[10px] font-semibold">
-                                        £{taskCost.costPerWeek}/wk
-                                      </Text>
+                                    key={member.id}
+                                    style={{ marginLeft: idx > 0 ? -8 : 0, zIndex: 10 - idx }}
+                                  >
+                                    <View
+                                      className="w-8 h-8 rounded-full items-center justify-center border-2 border-white dark:border-slate-800"
+                                      style={{ backgroundColor: getRoleColor(member.role) }}
+                                    >
+                                      <Text className="text-white font-bold text-[10px]">{getInitials(member.name)}</Text>
                                     </View>
                                   </View>
-                                </View>
-
-                                {/* Time to complete estimate */}
-                                {plan.progress < 100 && taskCost.weeksToComplete > 0 && (
-                                  <View className="mt-1.5 flex-row items-center">
-                                    <Clock size={10} color="#9ca3af" />
-                                    <Text className="text-gray-400 dark:text-slate-500 text-[10px] ml-1">
-                                      {taskCost.weeksToComplete} wk{taskCost.weeksToComplete !== 1 ? 's' : ''} remaining • £{taskCost.remainingCost.toLocaleString()} left
-                                    </Text>
+                                ))}
+                                {assignedMembers.length > 4 && (
+                                  <View className="w-8 h-8 rounded-full items-center justify-center bg-gray-400 border-2 border-white dark:border-slate-800" style={{ marginLeft: -8 }}>
+                                    <Text className="text-white font-bold text-[10px]">+{assignedMembers.length - 4}</Text>
                                   </View>
                                 )}
                               </View>
-                            </SwipeableTaskCard>
-                          );
-                        })}
-
-                        {/* Key Results Summary */}
-                        <View className="bg-gray-50 dark:bg-slate-800/50 rounded-lg p-2">
-                          <Text className="text-gray-500 dark:text-slate-400 text-[10px] font-semibold mb-1">KEY RESULTS</Text>
-                          {okr.objectives.slice(0, 3).map((objective: Objective) => (
-                            <View key={objective.id} className="flex-row items-center justify-between py-1">
-                              <Text className="text-gray-700 dark:text-slate-300 text-xs flex-1 mr-2" numberOfLines={1}>
-                                {objective.title}
-                              </Text>
-                              <Text className={`text-xs font-semibold ${
-                                objective.status === 'on-track' ? 'text-emerald-500' :
-                                objective.status === 'at-risk' ? 'text-amber-500' : 'text-red-500'
-                              }`}>{objective.progress}%</Text>
-                            </View>
-                          ))}
+                            ) : (
+                              <View className="w-8 h-8 rounded-full items-center justify-center bg-gray-200 dark:bg-slate-700 border-2 border-dashed border-gray-400 dark:border-slate-500">
+                                <Plus size={14} color="#9ca3af" />
+                              </View>
+                            )}
+                          </View>
                         </View>
 
-                        <View className="gap-2">
-                          <Pressable
-                            onPress={() => router.push(`/okr-planner?okrId=${okr.id}`)}
-                            className="bg-purple-500 rounded-lg py-2.5 flex-row items-center justify-center gap-2 active:opacity-70"
-                          >
-                            <Zap size={16} color="#fff" />
-                            <Text className="text-white text-sm font-semibold">View Resource Plan</Text>
-                          </Pressable>
+                        {/* Progress Bar */}
+                        <View className="bg-gray-200 dark:bg-slate-700 rounded-full h-1.5 overflow-hidden">
+                          <View
+                            className={`h-full ${
+                              plan.status === 'completed' ? 'bg-emerald-500' :
+                              plan.status === 'blocked' ? 'bg-red-500' : 'bg-blue-500'
+                            }`}
+                            style={{ width: `${plan.progress}%` }}
+                          />
+                        </View>
+
+                        {/* Squares & Cost Display */}
+                        <View className="mt-2 flex-row items-center justify-between">
+                          <View className="flex-row items-center gap-2">
+                            <SquaresDisplay
+                              totalSquares={plan.estimatedTimeUnits}
+                              completedSquares={Math.round((plan.progress / 100) * plan.estimatedTimeUnits)}
+                              variant="compact"
+                              statusColor={
+                                plan.status === 'completed' ? '#10b981' :
+                                plan.status === 'blocked' ? '#ef4444' : '#3b82f6'
+                              }
+                            />
+                            <Text className="text-gray-400 dark:text-slate-500 text-[10px]">
+                              {taskCost.allocatedPerWeek}□/wk
+                            </Text>
+                          </View>
+                          <Text className="text-gray-600 dark:text-slate-400 text-[10px] font-semibold">
+                            £{taskCost.cumulativeCost.toLocaleString()}
+                          </Text>
                         </View>
                       </View>
-                    )}
-                  </View>
-                );
-              })}
-            </View>
-          </View>
-        )}
-
-        {/* Drop Zone / Divider between Active and Queued */}
-        {(activeOKRs.length > 0 || queuedOKRs.length > 0) && (
-          <View
-            ref={dropZoneRef}
-            className="my-3"
-            onLayout={measureDropZone}
-          >
-            {(draggingOKRId || draggingTaskId) ? (
-              <View
-                className={`border-2 border-dashed rounded-xl p-4 items-center justify-center ${
-                  dropZoneActive === 'queued'
-                    ? 'bg-blue-100 dark:bg-blue-900/30 border-blue-400 dark:border-blue-500'
-                    : 'bg-gray-100 dark:bg-slate-800 border-gray-300 dark:border-slate-600'
-                }`}
-              >
-                <Text className={`text-sm font-semibold ${
-                  dropZoneActive === 'queued'
-                    ? 'text-blue-600 dark:text-blue-400'
-                    : 'text-gray-500 dark:text-slate-400'
-                }`}>
-                  {dropZoneActive === 'queued'
-                    ? '↓ Drop here to pause work & free resources'
-                    : '↓ Drag below this line to queue'}
-                </Text>
+                    </SwipeableTaskCard>
+                  );
+                })}
               </View>
-            ) : (
-              <View className="flex-row items-center">
-                <View className="flex-1 h-0.5 bg-gray-300 dark:bg-slate-700" />
-                <View className="bg-gray-200 dark:bg-slate-800 px-3 py-1 rounded-full mx-2">
-                  <Text className="text-gray-500 dark:text-slate-400 text-[10px] font-bold">
-                    HOLD & DRAG TO REORDER
+            </View>
+          );
+        })()}
+
+        {/* QUEUED TASKS (no resources allocated) */}
+        {(() => {
+          const queuedTasks = workPlans.filter(wp =>
+            (selectedFunction === 'all' || wp.function === selectedFunction) &&
+            wp.status !== 'completed' &&
+            wp.status !== 'abandoned' &&
+            (!wp.assignedMemberIds || wp.assignedMemberIds.length === 0)
+          );
+
+          return queuedTasks.length > 0 && (
+            <View className="mb-4">
+              <View className="flex-row items-center justify-between mb-2">
+                <Text className="text-orange-600 dark:text-orange-400 text-xs font-bold tracking-wide">
+                  QUEUED - AWAITING RESOURCES
+                </Text>
+                <View className="bg-orange-100 dark:bg-orange-900/30 px-2 py-0.5 rounded">
+                  <Text className="text-orange-700 dark:text-orange-300 text-xs font-semibold">
+                    {queuedTasks.length} task{queuedTasks.length !== 1 ? 's' : ''}
                   </Text>
                 </View>
-                <View className="flex-1 h-0.5 bg-gray-300 dark:bg-slate-700" />
               </View>
-            )}
-          </View>
-        )}
 
-        {/* SECTION 5: QUEUED - Pending Requests First */}
-        {pendingTaskOKRRequests.length > 0 && (
-          <View className="mb-4">
-            <View className="flex-row items-center justify-between mb-2">
-              <Text className="text-purple-600 dark:text-purple-400 text-xs font-bold tracking-wide">
-                PENDING REQUESTS - AWAITING APPROVAL
-              </Text>
-              <View className="bg-purple-100 dark:bg-purple-900/30 px-2 py-0.5 rounded">
-                <Text className="text-purple-700 dark:text-purple-300 text-xs font-semibold">
-                  {pendingTaskOKRRequests.length} request{pendingTaskOKRRequests.length !== 1 ? 's' : ''}
-                </Text>
-              </View>
-            </View>
-
-            <View className="gap-2">
-              {pendingTaskOKRRequests.map((request, index) => {
-                const functionColor = getFunctionColor(request.function as BusinessFunction);
-                return (
-                  <View key={request.id} className="bg-purple-50 dark:bg-purple-900/10 border border-purple-200 dark:border-purple-800 rounded-xl p-4">
-                    <View className="flex-row items-start justify-between mb-2">
-                      <View className="flex-1">
-                        <View className="flex-row items-center mb-2">
-                          <View className="w-8 h-8 bg-purple-500/20 rounded-lg items-center justify-center mr-2">
-                            <Text className="text-purple-600 dark:text-purple-400 text-sm font-bold">
-                              #{index + 1}
-                            </Text>
-                          </View>
-                          <View
-                            className="px-2 py-1 rounded"
-                            style={{ backgroundColor: functionColor + '20' }}
-                          >
-                            <Text className="text-xs font-semibold" style={{ color: functionColor }}>
-                              {request.function}
-                            </Text>
-                          </View>
-                          <View className="px-2 py-1 rounded bg-purple-500/20 ml-1">
-                            <Text className="text-xs font-semibold text-purple-600 dark:text-purple-400">
-                              {request.type.toUpperCase()}
-                            </Text>
-                          </View>
-                        </View>
-                        <Text className="text-gray-900 dark:text-white font-bold text-base mb-1">
-                          {request.title}
-                        </Text>
-                        <Text className="text-gray-600 dark:text-slate-400 text-sm mb-2">
-                          {request.description}
-                        </Text>
-                        <View className="flex-row items-center gap-3">
-                          <Text className="text-gray-500 dark:text-slate-500 text-xs">
-                            Requested by {request.requestedByName} ({request.requestedByRole})
-                          </Text>
-                          {request.type === 'task' && (
-                            <Text className="text-purple-600 dark:text-purple-400 text-xs font-semibold">
-                              {(request as any).estimatedTimeUnits}□ estimated
-                            </Text>
-                          )}
-                        </View>
-                      </View>
-                    </View>
-                    <View className="flex-row gap-2 mt-3">
-                      <Pressable
-                        onPress={() => {
-                          approveTaskOKRRequest(request.id);
-                          // TODO: Create actual OKR or work plan from request
-                        }}
-                        className="flex-1 bg-purple-500 rounded-lg py-2.5 active:opacity-70"
-                      >
-                        <Text className="text-white text-center font-semibold">Approve & Add to Queue</Text>
-                      </Pressable>
-                      <Pressable
-                        onPress={() => rejectTaskOKRRequest(request.id)}
-                        className="bg-gray-300 dark:bg-slate-700 rounded-lg px-4 py-2.5 active:opacity-70"
-                      >
-                        <Text className="text-gray-700 dark:text-slate-300 text-center font-semibold">Reject</Text>
-                      </Pressable>
-                    </View>
-                  </View>
-                );
-              })}
-            </View>
-          </View>
-        )}
-
-        {/* SECTION 6: QUEUED OKRs (no resources allocated yet) */}
-        <View className="mb-4">
-          <View className="flex-row items-center justify-between mb-2">
-            <Text className="text-blue-600 dark:text-blue-400 text-xs font-bold tracking-wide">
-              QUEUED - AWAITING RESOURCES
-            </Text>
-            <View className="bg-blue-100 dark:bg-blue-900/30 px-2 py-0.5 rounded">
-              <Text className="text-blue-700 dark:text-blue-300 text-xs font-semibold">
-                {queuedOKRs.length} OKR{queuedOKRs.length !== 1 ? 's' : ''}
-              </Text>
-            </View>
-          </View>
-
-          {queuedOKRs.length === 0 && activeOKRs.length === 0 ? (
-            <View className="items-center justify-center py-8 bg-gray-100 dark:bg-slate-900 rounded-xl">
-              <Target size={32} color="#64748b" />
-              <Text className="text-gray-600 dark:text-slate-400 text-center font-semibold mt-3">
-                No OKRs Found
-              </Text>
-              <Text className="text-gray-500 dark:text-slate-400 text-center text-sm mt-1">
-                {selectedFunction === 'all' ? 'Create your first OKR' : `No OKRs for ${selectedFunction}`}
-              </Text>
-              <Pressable
-                onPress={() => setShowCreateModal(true)}
-                className="bg-purple-500 rounded-lg px-4 py-2 mt-3 active:opacity-70"
-              >
-                <Text className="text-white text-sm font-semibold">Create OKR</Text>
-              </Pressable>
-            </View>
-          ) : queuedOKRs.length === 0 ? (
-            <View className="bg-blue-50 dark:bg-blue-900/10 border border-blue-200 dark:border-blue-800 rounded-xl p-4">
-              <Text className="text-blue-700 dark:text-blue-300 text-sm text-center">
-                All OKRs have resources allocated. Create a new OKR to add to the queue.
-              </Text>
-            </View>
-          ) : (
-            <View className="gap-2">
-              {queuedOKRs.map((okr: OKR, index: number) => {
-                const isExpanded = okr.isExpanded || false;
-                const functionColor = getFunctionColor(okr.function);
-
-                return (
-                  <View key={okr.id}>
-                    <SwipeableOKRCard
-                      okrId={okr.id}
-                      onSwipeLeft={handleOKRSwipeLeft}
-                      onPress={() => toggleOKR(okr.id)}
-                      disabled={true}
+              <View className="gap-2">
+                {queuedTasks.map((plan) => {
+                  const assignedMembers = getAssignedMembers(plan);
+                  const taskCost = calculateTaskCost(plan);
+                  return (
+                    <SwipeableTaskCard
+                      key={plan.id}
+                      taskId={plan.id}
+                      onSwipeLeft={handleTaskSwipeLeft}
+                      onPress={() => handleTaskPress(plan)}
                     >
                       <View
-                        className={`bg-blue-50 dark:bg-blue-900/10 border rounded-xl p-3 ${
-                          draggingOKRId === okr.id ? 'border-purple-400 dark:border-purple-600' :
-                          okr.status === 'off-track'
-                            ? 'border-red-300 dark:border-red-800'
-                            : okr.status === 'at-risk'
-                            ? 'border-amber-300 dark:border-amber-800'
-                            : 'border-blue-200 dark:border-blue-800'
+                        className={`bg-white dark:bg-slate-800 border-2 rounded-xl p-3 ${
+                          selectedTaskForAllocation?.id === plan.id
+                            ? 'border-blue-400 dark:border-blue-500' // Highlight selected task
+                            : selectedPersonId
+                            ? 'border-purple-400 dark:border-purple-500' // Highlight when person selected for allocation
+                            : 'border-orange-200 dark:border-orange-800'
                         }`}
                       >
-                        <View className="flex-row items-center">
-                          {/* Queue Position */}
-                          <View className="w-8 h-8 bg-blue-500/20 rounded-lg items-center justify-center mr-3">
-                            <Text className="text-blue-600 dark:text-blue-400 text-sm font-bold">
-                              #{index + 1}
+                        <View className="flex-row items-start justify-between mb-2">
+                          <View className="flex-1 mr-2">
+                            <Text className="text-gray-900 dark:text-white font-semibold text-sm" numberOfLines={2}>
+                              {plan.title}
                             </Text>
-                          </View>
-
-                          <View className="flex-1">
-                            <View className="flex-row items-center mb-1 flex-wrap gap-1">
-                              <View
-                                className="px-1.5 py-0.5 rounded"
-                                style={{ backgroundColor: functionColor + '20' }}
-                              >
-                                <Text className="text-xs font-semibold" style={{ color: functionColor }}>
-                                  {okr.function}
-                                </Text>
+                            <View className="flex-row items-center mt-1 gap-2">
+                              <View className={`px-1.5 py-0.5 rounded ${
+                                plan.status === 'completed' ? 'bg-emerald-500/20' :
+                                plan.status === 'in-progress' ? 'bg-blue-500/20' :
+                                plan.status === 'blocked' ? 'bg-red-500/20' : 'bg-gray-500/20'
+                              }`}>
+                                <Text className={`text-[10px] font-semibold ${
+                                  plan.status === 'completed' ? 'text-emerald-600 dark:text-emerald-400' :
+                                  plan.status === 'in-progress' ? 'text-blue-600 dark:text-blue-400' :
+                                  plan.status === 'blocked' ? 'text-red-600 dark:text-red-400' : 'text-gray-600 dark:text-gray-400'
+                                }`}>{plan.status}</Text>
                               </View>
-                              <View className={`px-1.5 py-0.5 rounded ${getStatusColor(okr.status)}`}>
-                                <Text className="text-xs font-semibold">{getStatusText(okr.status)}</Text>
-                              </View>
-                              <View className="px-1.5 py-0.5 rounded bg-blue-500/20">
-                                <Text className="text-xs font-semibold text-blue-600 dark:text-blue-400">
-                                  No resources
+                              <View className="bg-purple-100 dark:bg-purple-900/30 px-1.5 py-0.5 rounded">
+                                <Text className="text-purple-600 dark:text-purple-400 text-[10px] font-semibold">
+                                  {plan.function}
                                 </Text>
                               </View>
                             </View>
-
-                            <Text className="text-gray-900 dark:text-white font-semibold text-sm" numberOfLines={1}>
-                              {okr.title}
-                            </Text>
-
-                            <View className="flex-row items-center mt-1 gap-3">
-                              <Text className="text-gray-500 dark:text-slate-400 text-xs">
-                                {okr.objectives.length} KRs
-                              </Text>
-                            </View>
                           </View>
 
-                          {isExpanded ? (
-                            <ChevronDown size={18} color="#64748b" />
-                          ) : (
-                            <ChevronRight size={18} color="#64748b" />
-                          )}
-                        </View>
-                      </View>
-                    </SwipeableOKRCard>
-
-                    {isExpanded && (
-                      <View className="mt-2 ml-4 gap-2">
-                        {/* Info Card - Needs Resources */}
-                        <View className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-3">
-                          <View className="flex-row items-center">
-                            <AlertCircle size={16} color="#f59e0b" />
-                            <Text className="text-amber-800 dark:text-amber-200 text-xs ml-2 flex-1">
-                              This OKR needs a resource plan. Create work plans and assign team members to move it to Active.
-                            </Text>
+                          {/* Empty avatar placeholder */}
+                          <View className="w-8 h-8 rounded-full items-center justify-center bg-gray-200 dark:bg-slate-700 border-2 border-dashed border-gray-400 dark:border-slate-500">
+                            <Plus size={14} color="#9ca3af" />
                           </View>
                         </View>
 
-                        {/* Key Results */}
-                        <View className="bg-gray-50 dark:bg-slate-800/50 rounded-lg p-2">
-                          <Text className="text-gray-500 dark:text-slate-400 text-[10px] font-semibold mb-1">KEY RESULTS</Text>
-                          {okr.objectives.map((objective: Objective) => (
-                            <View key={objective.id} className="flex-row items-center justify-between py-1.5 border-b border-gray-200 dark:border-slate-700 last:border-0">
-                              <Text className="text-gray-700 dark:text-slate-300 text-xs flex-1 mr-2" numberOfLines={1}>
-                                {objective.title}
-                              </Text>
-                              <Text className={`text-xs font-semibold ${
-                                objective.status === 'on-track' ? 'text-emerald-500' :
-                                objective.status === 'at-risk' ? 'text-amber-500' : 'text-red-500'
-                              }`}>{objective.progress}%</Text>
-                            </View>
-                          ))}
+                        {/* Squares Display */}
+                        <View className="mt-2 flex-row items-center justify-between">
+                          <View className="flex-row items-center gap-2">
+                            <Text className="text-gray-600 dark:text-slate-400 text-xs">
+                              Needs {plan.estimatedTimeUnits}□
+                            </Text>
+                          </View>
+                          <Text className="text-orange-600 dark:text-orange-400 text-[10px] font-semibold">
+                            Tap to allocate
+                          </Text>
                         </View>
-
-                        <Pressable
-                          onPress={() => router.push(`/okr-planner?okrId=${okr.id}`)}
-                          className="bg-purple-500 rounded-lg py-2.5 flex-row items-center justify-center gap-2 active:opacity-70"
-                        >
-                          <Zap size={16} color="#fff" />
-                          <Text className="text-white text-sm font-semibold">Create Resource Plan</Text>
-                        </Pressable>
                       </View>
-                    )}
-                  </View>
-                );
-              })}
+                    </SwipeableTaskCard>
+                  );
+                })}
+              </View>
             </View>
-          )}
-        </View>
+          );
+        })()}
 
         {/* SECTION 7: COMPLETED TASKS - Clearly separated at the bottom */}
         {workPlans.filter(wp => wp.status === 'completed').length > 0 && (
