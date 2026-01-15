@@ -67,18 +67,18 @@ import { useRequestStore } from '@/lib/state/request-store';
 
 const HOME_HELP: HelpContent = {
   title: 'Mission Control',
-  subtitle: 'Your command center',
-  description: 'Everything you need to sense your business state, take immediate action, and access critical tools - all in one place.',
+  subtitle: 'Perceive → Act → Reflect',
+  description: 'Your command center organized around how entrepreneurs make decisions: understand where you are, take immediate action, and reflect deeply on strategy.',
   tips: [
-    'Business Dashboard shows runway, tasks, blockers, and team utilization at a glance',
-    'Quick Actions section lets you approve requests, unblock tasks, and allocate resources instantly',
-    'Tools & Resources provides one-tap access to AI tools, Function Hub, and templates',
-    'All metrics are real-time and actionable - tap any card to drill deeper',
+    'PERCEIVING shows business health, runway, progress, and blockers at a glance',
+    'ACTING surfaces decisions and tasks that need immediate attention right now',
+    'REFLECTING provides tools for deep analysis of performance, market, and customers',
+    'All sections are real-time and actionable - tap any card to drill deeper',
   ],
   quickActions: [
-    { label: 'View Dashboard', description: 'See comprehensive financial and operational metrics' },
-    { label: 'Take Action', description: 'Respond to pending decisions and unblock tasks' },
-    { label: 'Access Tools', description: 'Open Function Hub, AI tools, or startup resources' },
+    { label: 'Perceive', description: 'Understand your current business state and trajectory' },
+    { label: 'Act', description: 'Make decisions and unblock progress immediately' },
+    { label: 'Reflect', description: 'Analyze performance, market, and strategic direction' },
   ],
 };
 
@@ -230,14 +230,17 @@ export default function MissionControlHome() {
           <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
         }
       >
-        {/* ===== BUSINESS SENSING DASHBOARD ===== */}
+        {/* ===== PERCEIVING ===== */}
         <View className="px-5 pt-5">
           <View className="flex-row items-center gap-2 mb-3">
             <Activity size={18} color="#3b82f6" />
             <Text className="text-slate-900 dark:text-white text-base font-bold uppercase tracking-wide">
-              Business Dashboard
+              Perceiving
             </Text>
           </View>
+          <Text className="text-slate-600 dark:text-slate-400 text-xs mb-4 leading-relaxed">
+            Where am I? Where am I going? What's the health of my business?
+          </Text>
 
           {/* Critical Metrics Grid */}
           <View className="flex-row gap-3 mb-3">
@@ -350,14 +353,17 @@ export default function MissionControlHome() {
           )}
         </View>
 
-        {/* ===== QUICK ACTIONS ===== */}
+        {/* ===== ACTING ===== */}
         <View className="px-5 pt-6">
           <View className="flex-row items-center gap-2 mb-3">
             <Zap size={18} color="#f59e0b" />
             <Text className="text-slate-900 dark:text-white text-base font-bold uppercase tracking-wide">
-              Quick Actions
+              Acting
             </Text>
           </View>
+          <Text className="text-slate-600 dark:text-slate-400 text-xs mb-4 leading-relaxed">
+            What must I do right now based on what I perceive?
+          </Text>
 
           {/* Decisions Needed */}
           {totalDecisions > 0 && (
@@ -522,106 +528,110 @@ export default function MissionControlHome() {
           </View>
         </View>
 
-        {/* ===== TOOLS & RESOURCES ===== */}
+        {/* ===== REFLECTING ===== */}
         <View className="px-5 pt-6">
           <View className="flex-row items-center gap-2 mb-3">
             <Sparkles size={18} color="#8b5cf6" />
             <Text className="text-slate-900 dark:text-white text-base font-bold uppercase tracking-wide">
-              Tools & Resources
+              Reflecting
             </Text>
           </View>
+          <Text className="text-slate-600 dark:text-slate-400 text-xs mb-4 leading-relaxed">
+            Deep analysis to think carefully about performance, market, and customers
+          </Text>
 
-          {/* Primary Tools */}
+          {/* Analysis & Performance Tools */}
           <View className="gap-3">
-            {/* Function Hub */}
+            {/* Financial Dashboard - Deep dive */}
             <Pressable
-              onPress={() => router.push('/function-hub')}
-              className="bg-gradient-to-r from-purple-500 to-indigo-500 rounded-2xl p-4 flex-row items-center justify-between active:opacity-80"
+              onPress={() => router.push('/financial-dashboard')}
+              className="bg-gradient-to-r from-emerald-500 to-teal-500 rounded-2xl p-4 flex-row items-center justify-between active:opacity-80"
             >
               <View className="flex-row items-center gap-3 flex-1">
                 <View className="bg-white/20 rounded-xl p-3">
-                  <Briefcase size={24} color="#fff" />
+                  <Wallet size={24} color="#fff" />
                 </View>
                 <View className="flex-1">
-                  <Text className="text-white font-bold text-base">Function Hub</Text>
+                  <Text className="text-white font-bold text-base">Financial Analysis</Text>
                   <Text className="text-white/80 text-xs mt-0.5">
-                    People, AI agents, templates & guides
+                    Deep dive into cash, burn, revenue & margins
                   </Text>
                 </View>
               </View>
               <ChevronRight size={20} color="#fff" />
             </Pressable>
 
-            {/* AI Tools / Armory */}
+            {/* Analytics & Reports */}
             <Pressable
-              onPress={() => router.push('/armory')}
-              className="bg-white dark:bg-slate-900 border-2 border-purple-200 dark:border-purple-800 rounded-2xl p-4 flex-row items-center justify-between active:opacity-70"
-            >
-              <View className="flex-row items-center gap-3 flex-1">
-                <View className="bg-purple-100 dark:bg-purple-900/30 rounded-xl p-3">
-                  <Zap size={24} color="#8b5cf6" />
-                </View>
-                <View className="flex-1">
-                  <Text className="text-slate-900 dark:text-white font-bold text-base">AI Armory</Text>
-                  <Text className="text-slate-600 dark:text-slate-400 text-xs mt-0.5">
-                    Manage your AI productivity tools
-                  </Text>
-                </View>
-              </View>
-              <ChevronRight size={20} color="#64748b" />
-            </Pressable>
-
-            {/* Getting Started / Tech Tree */}
-            <Pressable
-              onPress={() => router.push('/tech-tree')}
-              className="bg-white dark:bg-slate-900 border-2 border-amber-200 dark:border-amber-800 rounded-2xl p-4 flex-row items-center justify-between active:opacity-70"
-            >
-              <View className="flex-row items-center gap-3 flex-1">
-                <View className="bg-amber-100 dark:bg-amber-900/30 rounded-xl p-3">
-                  <Trophy size={24} color="#f59e0b" />
-                </View>
-                <View className="flex-1">
-                  <Text className="text-slate-900 dark:text-white font-bold text-base">Getting Started</Text>
-                  <Text className="text-slate-600 dark:text-slate-400 text-xs mt-0.5">
-                    Progress through startup milestones
-                  </Text>
-                </View>
-              </View>
-              <ChevronRight size={20} color="#64748b" />
-            </Pressable>
-
-            {/* Startup Hub */}
-            <Pressable
-              onPress={() => router.push('/startup-pack/wizard')}
+              onPress={() => router.push('/analytics')}
               className="bg-white dark:bg-slate-900 border-2 border-blue-200 dark:border-blue-800 rounded-2xl p-4 flex-row items-center justify-between active:opacity-70"
             >
               <View className="flex-row items-center gap-3 flex-1">
                 <View className="bg-blue-100 dark:bg-blue-900/30 rounded-xl p-3">
-                  <Rocket size={24} color="#3b82f6" />
+                  <BarChart3 size={24} color="#3b82f6" />
                 </View>
                 <View className="flex-1">
-                  <Text className="text-slate-900 dark:text-white font-bold text-base">Startup Hub</Text>
+                  <Text className="text-slate-900 dark:text-white font-bold text-base">Performance Analytics</Text>
                   <Text className="text-slate-600 dark:text-slate-400 text-xs mt-0.5">
-                    Events, workshops & founder resources
+                    TU efficiency, team velocity & task completion
                   </Text>
                 </View>
               </View>
               <ChevronRight size={20} color="#64748b" />
             </Pressable>
 
-            {/* Reports & Analytics */}
+            {/* OKR Progress - Strategic Goals */}
             <Pressable
-              onPress={() => router.push('/analytics')}
-              className="bg-white dark:bg-slate-900 border-2 border-emerald-200 dark:border-emerald-800 rounded-2xl p-4 flex-row items-center justify-between active:opacity-70"
+              onPress={() => router.push('/(tabs)/evaluate')}
+              className="bg-white dark:bg-slate-900 border-2 border-purple-200 dark:border-purple-800 rounded-2xl p-4 flex-row items-center justify-between active:opacity-70"
             >
               <View className="flex-row items-center gap-3 flex-1">
-                <View className="bg-emerald-100 dark:bg-emerald-900/30 rounded-xl p-3">
-                  <BarChart3 size={24} color="#10b981" />
+                <View className="bg-purple-100 dark:bg-purple-900/30 rounded-xl p-3">
+                  <Target size={24} color="#8b5cf6" />
                 </View>
                 <View className="flex-1">
-                  <Text className="text-slate-900 dark:text-white font-bold text-base">Analytics</Text>
+                  <Text className="text-slate-900 dark:text-white font-bold text-base">Goals & Objectives</Text>
                   <Text className="text-slate-600 dark:text-slate-400 text-xs mt-0.5">
-                    Reports, insights & board packs
+                    Review OKR progress and strategic alignment
+                  </Text>
+                </View>
+              </View>
+              <ChevronRight size={20} color="#64748b" />
+            </Pressable>
+
+            {/* Market & Customer Insights - Placeholder for future */}
+            <View className="bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/10 dark:to-orange-900/10 border-2 border-amber-200 dark:border-amber-800 rounded-2xl p-4">
+              <View className="flex-row items-center gap-3 mb-3">
+                <View className="bg-amber-100 dark:bg-amber-900/30 rounded-xl p-3">
+                  <Users size={24} color="#f59e0b" />
+                </View>
+                <View className="flex-1">
+                  <Text className="text-slate-900 dark:text-white font-bold text-base">Market & Customers</Text>
+                  <Text className="text-slate-600 dark:text-slate-400 text-xs mt-0.5">
+                    Understand your market position and customer insights
+                  </Text>
+                </View>
+              </View>
+              <View className="bg-white dark:bg-slate-900 rounded-lg p-3 border border-amber-200 dark:border-amber-800">
+                <Text className="text-slate-500 dark:text-slate-400 text-xs text-center">
+                  Coming soon: Customer feedback, market analysis, competitive intelligence
+                </Text>
+              </View>
+            </View>
+
+            {/* Reports & Board Packs */}
+            <Pressable
+              onPress={() => router.push('/reports')}
+              className="bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-800 rounded-2xl p-4 flex-row items-center justify-between active:opacity-70"
+            >
+              <View className="flex-row items-center gap-3 flex-1">
+                <View className="bg-slate-100 dark:bg-slate-800 rounded-xl p-3">
+                  <FileText size={24} color="#64748b" />
+                </View>
+                <View className="flex-1">
+                  <Text className="text-slate-900 dark:text-white font-bold text-base">Reports & Exports</Text>
+                  <Text className="text-slate-600 dark:text-slate-400 text-xs mt-0.5">
+                    Generate board packs and detailed reports
                   </Text>
                 </View>
               </View>
@@ -630,39 +640,58 @@ export default function MissionControlHome() {
           </View>
         </View>
 
-        {/* Quick Nav Footer */}
-        <View className="px-5 pt-6 pb-2">
+        {/* Essential Tools Section */}
+        <View className="px-5 pt-6">
           <Text className="text-slate-500 dark:text-slate-500 text-xs font-semibold mb-3 uppercase tracking-wider">
-            Quick Navigation
+            Essential Tools
           </Text>
-          <View className="flex-row gap-3">
+          <View className="gap-3">
+            {/* Function Hub */}
             <Pressable
-              onPress={() => router.push('/(tabs)/make')}
-              className="flex-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-3 items-center active:opacity-70"
+              onPress={() => router.push('/function-hub')}
+              className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-3 flex-row items-center justify-between active:opacity-70"
             >
-              <Package size={20} color="#8b5cf6" />
-              <Text className="text-slate-900 dark:text-white font-semibold text-xs mt-1.5">Make</Text>
+              <View className="flex-row items-center gap-3 flex-1">
+                <Briefcase size={20} color="#8b5cf6" />
+                <Text className="text-slate-900 dark:text-white font-semibold text-sm">Function Hub</Text>
+              </View>
+              <ChevronRight size={16} color="#64748b" />
             </Pressable>
+
+            {/* AI Armory */}
             <Pressable
-              onPress={() => router.push('/(tabs)/evaluate')}
-              className="flex-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-3 items-center active:opacity-70"
+              onPress={() => router.push('/armory')}
+              className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-3 flex-row items-center justify-between active:opacity-70"
             >
-              <CheckCircle2 size={20} color="#10b981" />
-              <Text className="text-slate-900 dark:text-white font-semibold text-xs mt-1.5">Evaluate</Text>
+              <View className="flex-row items-center gap-3 flex-1">
+                <Zap size={20} color="#f59e0b" />
+                <Text className="text-slate-900 dark:text-white font-semibold text-sm">AI Armory</Text>
+              </View>
+              <ChevronRight size={16} color="#64748b" />
             </Pressable>
+
+            {/* Getting Started */}
             <Pressable
-              onPress={() => router.push('/financial-dashboard')}
-              className="flex-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-3 items-center active:opacity-70"
+              onPress={() => router.push('/tech-tree')}
+              className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-3 flex-row items-center justify-between active:opacity-70"
             >
-              <Wallet size={20} color="#3b82f6" />
-              <Text className="text-slate-900 dark:text-white font-semibold text-xs mt-1.5">Finance</Text>
+              <View className="flex-row items-center gap-3 flex-1">
+                <Trophy size={20} color="#10b981" />
+                <Text className="text-slate-900 dark:text-white font-semibold text-sm">Getting Started</Text>
+              </View>
+              <ChevronRight size={16} color="#64748b" />
             </Pressable>
+
+            {/* Startup Hub */}
             <Pressable
-              onPress={() => router.push('/reports')}
-              className="flex-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-3 items-center active:opacity-70"
+              onPress={() => router.push('/startup-pack/wizard')}
+              className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-3 flex-row items-center justify-between active:opacity-70"
             >
-              <FileText size={20} color="#f59e0b" />
-              <Text className="text-slate-900 dark:text-white font-semibold text-xs mt-1.5">Reports</Text>
+              <View className="flex-row items-center gap-3 flex-1">
+                <Rocket size={20} color="#3b82f6" />
+                <Text className="text-slate-900 dark:text-white font-semibold text-sm">Startup Hub</Text>
+              </View>
+              <ChevronRight size={16} color="#64748b" />
             </Pressable>
           </View>
         </View>

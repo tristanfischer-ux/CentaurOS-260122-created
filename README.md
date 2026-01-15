@@ -54,7 +54,7 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
 
 ## 🚨 PRODUCTION READINESS STATUS
 
-**Last Updated**: 2026-01-15 (**GETTING STARTED SIMPLIFIED** - Replaced complex Tech Tree with simple 8-step onboarding checklist. Removed RPG mechanics and constellation map in favor of clear, linear progression.)
+**Last Updated**: 2026-01-15 (**HOME TAB REDESIGNED** - New "Perceive → Act → Reflect" framework for solo entrepreneurs. Home tab now organized around how founders make decisions.)
 **Status**: ✅ **READY FOR APP STORE** - All features complete!
 
 ---
@@ -561,30 +561,74 @@ The Home tab now provides a comprehensive dashboard with key operational metrics
 - Export Reports for board packs
 
 ### Founder Home Tab
-The Command Center now provides comprehensive visibility:
-- **Company Aim Banner**: Purple gradient banner showing the company's ultimate purpose at the top
-  - Tap to edit or define your company's high-level macro aim
-  - Visible reminder to ensure all activities align with the company's true goal
-- **Define Your Goals**: AI-powered strategic planning questionnaire
-  - 5-question interactive survey about vision, metrics, challenges, and priorities
-  - AI generates actionable next steps with priority levels and timeframes
-  - Creates OKR recommendations that can be added to the Decide tab
-  - Beautiful gradient card design with progress tracking
-- **Needs Your Decision Section**: Items requiring founder action
-  - Off-track OKRs needing intervention
-  - Blocked work plans requiring escalation
-  - Pending hiring approvals from team
-- **Needs Review Section**: Items to monitor and review
-  - At-risk OKRs that need attention
-  - OKRs without work plans assigned
-  - Stalled work plans with low progress
-- **Recent Messages**: Latest conversations requiring attention
-- **Upcoming Calendar**: Next scheduled events and deadlines
-- **OKR Progress**:
-  - Horizontal scrollable list showing top 4 OKRs
-  - Click any OKR card to navigate to Decide tab
-  - Visual progress bars with status colors (on-track, at-risk, off-track)
-- **Quick Actions**: New OKR, Review, Finance, Calendar, Messages
+
+**Latest Update**: 2026-01-15 - **Perceive → Act → Reflect Framework**
+
+The Home tab is now organized around how solo entrepreneurs make decisions:
+
+#### 🔍 PERCEIVING
+*"Where am I? Where am I going? What's the health of my business?"*
+
+Critical business metrics at a glance:
+- **Financial Runway**: Months remaining with color-coded health status (Critical/Monitor/Healthy)
+  - Shows cash position, runway calculation, and net cash flow
+  - Taps through to detailed Financial Dashboard
+- **Active Tasks ETA**: Average completion time with count of active tasks
+  - Shows fastest task completion estimate
+  - Links to Decide tab for full view
+- **OKR Progress**: Goals on track vs total objectives
+  - Displays completion percentage
+  - Opens Evaluate tab for detailed review
+- **Team Utilization**: Resource allocation percentage
+  - Shows TU allocated vs total capacity
+  - Links to Community tab for team management
+- **Blockers Banner**: Prominent alert when items need attention
+  - Counts blocked tasks and pending decisions
+  - Color-coded urgent gradient design
+  - Direct link to Do tab to resolve blockers
+
+#### ⚡ ACTING
+*"What must I do right now based on what I perceive?"*
+
+Immediate actions you can take:
+- **Decisions Needed**: Inline approve/reject for hiring and task requests
+  - Shows first request with full details
+  - Quick approve/reject buttons without leaving home
+  - Counter badge shows total pending decisions
+- **Start Task**: Navigate to Decide tab (shows count of not-started tasks)
+- **Unblock**: Jump to blocked tasks in Do tab (shows blocker count)
+- **Hire**: Access team hiring in Community tab (shows current team size)
+- **Allocate**: Allocate TUs in Decide tab (shows remaining TU bank)
+
+#### 💭 REFLECTING
+*"Deep analysis to think carefully about performance, market, and customers"*
+
+Strategic analysis tools:
+- **Financial Analysis**: Deep dive into cash, burn, revenue & margins
+  - Full financial dashboard with comprehensive metrics
+  - Gradient emerald card for emphasis
+- **Performance Analytics**: TU efficiency, team velocity & task completion
+  - Analytics dashboard with detailed reports
+  - Track productivity over time
+- **Goals & Objectives**: Review OKR progress and strategic alignment
+  - Connect tasks to company objectives
+  - Evaluate strategic direction
+- **Market & Customers**: (Coming soon placeholder)
+  - Customer feedback integration
+  - Market analysis tools
+  - Competitive intelligence
+- **Reports & Exports**: Generate board packs and detailed reports
+  - Export functionality for stakeholders
+  - Professional reporting templates
+
+#### Essential Tools (Quick Access)
+Compact list for frequently needed resources:
+- Function Hub (People, AI agents, templates & guides)
+- AI Armory (Manage AI productivity tools)
+- Getting Started (Onboarding checklist)
+- Startup Hub (Events, workshops & resources)
+
+**Design Philosophy**: The new framework mirrors the entrepreneurial decision-making process - first understand the situation (perceive), then take immediate action (act), finally analyze deeply for strategy (reflect). Each section has a descriptive subtitle explaining its purpose.
 
 ### Executive Home Tab
 Function-focused dashboard with clear workload separation:
