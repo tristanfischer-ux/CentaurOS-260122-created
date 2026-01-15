@@ -25,7 +25,6 @@ import { CompanyAimBanner } from '@/components/CompanyAimBanner';
 import { CompanyAimModal } from '@/components/CompanyAimModal';
 import { SquaresDisplay } from '@/components/SquaresDisplay';
 import { useResourceStore, type PersonResource, getTeamSizeEfficiency } from '@/lib/state/resource-store';
-import { UnifiedTaskAllocationModal } from '@/components/UnifiedTaskAllocationModal';
 import { ResourcePoolHeader } from '@/components/ResourcePoolHeader';
 import { TaskDetailsModal } from '@/components/TaskDetailsModal';
 
@@ -151,13 +150,11 @@ export default function DecideScreen() {
   const [pendingQueueOKR, setPendingQueueOKR] = useState<OKR | null>(null);
   const [pendingQueueTask, setPendingQueueTask] = useState<WorkPlan | null>(null);
 
-  // Task allocation modal state
-  const [showTaskAllocationModal, setShowTaskAllocationModal] = useState(false);
-  const [selectedTaskForAllocation, setSelectedTaskForAllocation] = useState<WorkPlan | null>(null);
-
-  // Resource allocation flow state (tap person → tap task)
+  // Resource allocation flow state
+  // When a task is selected, it appears below the resource pool
+  // Then you tap people in the pool to allocate to the selected task
   const [selectedPersonId, setSelectedPersonId] = useState<string | null>(null);
-  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
+  const [selectedTaskForAllocation, setSelectedTaskForAllocation] = useState<WorkPlan | null>(null);
 
   // Task details modal state (for completed/abandoned tasks)
   const [showTaskDetailsModal, setShowTaskDetailsModal] = useState(false);
@@ -430,6 +427,16 @@ export default function DecideScreen() {
     return { activeOKRs: active, queuedOKRs: queued };
   }, [filteredOKRs, workPlans]);
 
+  // Keep selected task synchronized with latest workPlans data
+  useEffect(() => {
+    if (selectedTaskForAllocation) {
+      const updatedTask = workPlans.find(wp => wp.id === selectedTaskForAllocation.id);
+      if (updatedTask) {
+        setSelectedTaskForAllocation(updatedTask);
+      }
+    }
+  }, [workPlans, selectedTaskForAllocation]);
+
   // Handle swipe-left on OKR to move to queue
   const handleOKRSwipeLeft = useCallback((okrId: string) => {
     const okr = activeOKRs.find(o => o.id === okrId);
@@ -447,6 +454,68 @@ export default function DecideScreen() {
       setShowQueueConfirmModal(true);
     }
   }, [workPlans]);
+
+  // Handle person selection from resource pool
+  // If a task is already selected, allocate this person's TUs to it
+  // Otherwise, just select the person for later allocation
+  const handlePersonSelect = useCallback((personId: string) => {
+    if (selectedTaskForAllocation) {
+      // Task is selected: allocate this person's TUs to the task
+      const member = orgMembers.find(m => m.id === personId);
+      if (!member) return;
+
+      // Calculate available TUs for this person
+      const totalCapacity = member.role === 'Founder' || member.role === 'Apprentice' ? 10 : (member.daysPerWeek || 2) * 2;
+      const allocated = workPlans
+        .filter(wp => wp.status !== 'completed' && wp.status !== 'abandoned')
+        .reduce((total, wp) => {
+          const allocation = wp.allocations.find(a => a.memberId === personId);
+          return total + (allocation?.squaresPerWeek || 0);
+        }, 0);
+      const available = totalCapacity - allocated;
+
+      if (available <= 0) {
+        Alert.alert('No Available TUs', `${member.name} has no available time units to allocate.`);
+        return;
+      }
+
+      // Allocate 1 TU to the selected task
+      const allocateAmount = Math.min(1, available);
+
+      // Add allocation to task
+      const existingAlloc = selectedTaskForAllocation.allocations.find(a => a.memberId === personId);
+      const newAllocations = existingAlloc
+        ? selectedTaskForAllocation.allocations.map(a =>
+            a.memberId === personId
+              ? { ...a, squaresPerWeek: a.squaresPerWeek + allocateAmount }
+              : a
+          )
+        : [
+            ...selectedTaskForAllocation.allocations,
+            {
+              memberId: personId,
+              memberName: member.name,
+              squaresPerWeek: allocateAmount,
+              costPerSquare: member.costPerDay ? (member.costPerDay / 2) : 50,
+            }
+          ];
+
+      updateWorkPlan(selectedTaskForAllocation.id, {
+        allocations: newAllocations,
+        assignedMemberIds: newAllocations.map(a => a.memberId),
+        status: 'in-progress' as const,
+      });
+
+      // Update the selected task state to show new allocations
+      const updatedTask = workPlans.find(wp => wp.id === selectedTaskForAllocation.id);
+      if (updatedTask) {
+        setSelectedTaskForAllocation(updatedTask);
+      }
+    } else {
+      // No task selected: just select this person for later allocation
+      setSelectedPersonId(personId);
+    }
+  }, [selectedTaskForAllocation, orgMembers, workPlans, updateWorkPlan, setSelectedPersonId]);
 
   // Handle task card press for allocation
   const handleTaskPress = useCallback((task: WorkPlan) => {
@@ -505,9 +574,8 @@ export default function DecideScreen() {
         `${allocateAmount} TU${allocateAmount !== 1 ? 's' : ''} from ${member.name} allocated to "${task.title}". Tap the task again to adjust allocation.`
       );
     } else {
-      // No person selected: open allocation modal
+      // No person selected: select this task to show details panel below resource pool
       setSelectedTaskForAllocation(task);
-      setShowTaskAllocationModal(true);
     }
   }, [selectedPersonId, workPlans, updateWorkPlan]);
 
@@ -1003,7 +1071,7 @@ export default function DecideScreen() {
       {/* Resource Pool Header - Always visible */}
       <ResourcePoolHeader
         selectedPersonId={selectedPersonId}
-        onPersonSelect={setSelectedPersonId}
+        onPersonSelect={handlePersonSelect}
       />
 
       <ScrollView className="flex-1 px-5 py-4">
@@ -1013,6 +1081,143 @@ export default function DecideScreen() {
             workspaceId={currentWorkspace.id}
             onEdit={() => setShowCompanyAimModal(true)}
           />
+        )}
+
+        {/* Selected Task Allocation Panel - Appears below resource pool */}
+        {selectedTaskForAllocation && (
+          <Animated.View
+            entering={FadeIn.duration(200)}
+            exiting={FadeOut.duration(200)}
+            className="mb-4 bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-300 dark:border-blue-700 rounded-xl p-4"
+          >
+            {/* Close button */}
+            <Pressable
+              onPress={() => setSelectedTaskForAllocation(null)}
+              className="absolute top-3 right-3 z-10 bg-white dark:bg-slate-800 rounded-full p-1"
+            >
+              <X size={16} color="#3b82f6" />
+            </Pressable>
+
+            <Text className="text-blue-900 dark:text-blue-100 font-bold text-base mb-2">
+              {selectedTaskForAllocation.title}
+            </Text>
+            <Text className="text-blue-700 dark:text-blue-300 text-sm mb-3">
+              {selectedTaskForAllocation.description}
+            </Text>
+
+            {/* Resource allocation display */}
+            <View className="bg-white dark:bg-slate-800 rounded-lg p-3 mb-3">
+              <View className="flex-row items-center justify-between mb-2">
+                <Text className="text-gray-900 dark:text-white font-semibold">
+                  Required: {selectedTaskForAllocation.estimatedTimeUnits}□
+                </Text>
+                <Text className={`font-semibold ${
+                  (selectedTaskForAllocation.allocations?.reduce((sum, a) => sum + a.squaresPerWeek, 0) || 0) >= selectedTaskForAllocation.estimatedTimeUnits
+                    ? 'text-emerald-600 dark:text-emerald-400'
+                    : 'text-orange-600 dark:text-orange-400'
+                }`}>
+                  Allocated: {selectedTaskForAllocation.allocations?.reduce((sum, a) => sum + a.squaresPerWeek, 0) || 0}□
+                </Text>
+              </View>
+
+              {/* Progress bar */}
+              <View className="h-2 bg-gray-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                <View
+                  className={`h-full ${
+                    (selectedTaskForAllocation.allocations?.reduce((sum, a) => sum + a.squaresPerWeek, 0) || 0) >= selectedTaskForAllocation.estimatedTimeUnits
+                      ? 'bg-emerald-500'
+                      : 'bg-orange-500'
+                  }`}
+                  style={{
+                    width: `${Math.min(100, ((selectedTaskForAllocation.allocations?.reduce((sum, a) => sum + a.squaresPerWeek, 0) || 0) / selectedTaskForAllocation.estimatedTimeUnits) * 100)}%`
+                  }}
+                />
+              </View>
+
+              {/* Team members allocated */}
+              {selectedTaskForAllocation.allocations && selectedTaskForAllocation.allocations.length > 0 && (
+                <View className="mt-3 pt-3 border-t border-gray-200 dark:border-slate-700">
+                  <Text className="text-gray-600 dark:text-slate-400 text-xs font-semibold mb-2">
+                    Team Members:
+                  </Text>
+                  {selectedTaskForAllocation.allocations.map((alloc) => (
+                    <View key={alloc.memberId} className="flex-row items-center justify-between mb-1">
+                      <Text className="text-gray-900 dark:text-white text-sm">
+                        {alloc.memberName}
+                      </Text>
+                      <View className="flex-row items-center gap-2">
+                        <Text className="text-gray-600 dark:text-slate-400 text-sm">
+                          {alloc.squaresPerWeek}□/wk
+                        </Text>
+                        <Text className="text-gray-500 dark:text-slate-500 text-xs">
+                          £{alloc.costPerSquare * alloc.squaresPerWeek}/wk
+                        </Text>
+                      </View>
+                    </View>
+                  ))}
+                </View>
+              )}
+            </View>
+
+            {/* Cost and timeline calculation */}
+            <View className="flex-row gap-2">
+              <View className="flex-1 bg-white dark:bg-slate-800 rounded-lg p-2">
+                <Text className="text-gray-600 dark:text-slate-400 text-xs mb-1">
+                  Total Cost
+                </Text>
+                <Text className="text-gray-900 dark:text-white font-bold">
+                  £{Math.round(
+                    (selectedTaskForAllocation.allocations?.reduce((sum, a) => sum + (a.costPerSquare * a.squaresPerWeek), 0) || 0) *
+                    (selectedTaskForAllocation.estimatedTimeUnits / Math.max(1, selectedTaskForAllocation.allocations?.reduce((sum, a) => sum + a.squaresPerWeek, 0) || 1))
+                  ).toLocaleString()}
+                </Text>
+              </View>
+              <View className="flex-1 bg-white dark:bg-slate-800 rounded-lg p-2">
+                <Text className="text-gray-600 dark:text-slate-400 text-xs mb-1">
+                  Completion Time
+                </Text>
+                <Text className="text-gray-900 dark:text-white font-bold">
+                  {Math.ceil(
+                    selectedTaskForAllocation.estimatedTimeUnits /
+                    Math.max(1, selectedTaskForAllocation.allocations?.reduce((sum, a) => sum + a.squaresPerWeek, 0) || 1)
+                  )} weeks
+                </Text>
+              </View>
+            </View>
+
+            {/* Instructions */}
+            <View className="mt-3 bg-blue-100 dark:bg-blue-900/30 rounded-lg p-2">
+              <Text className="text-blue-800 dark:text-blue-200 text-xs text-center">
+                💡 Tap team members in the resource pool above to allocate their time to this task
+              </Text>
+            </View>
+
+            {/* Delete button */}
+            <Pressable
+              onPress={() => {
+                Alert.alert(
+                  'Delete Task',
+                  'Delete this task and free all allocated resources?',
+                  [
+                    { text: 'Cancel', style: 'cancel' },
+                    {
+                      text: 'Delete',
+                      style: 'destructive',
+                      onPress: () => {
+                        abandonWorkPlan(selectedTaskForAllocation.id, 'Deleted by user');
+                        setSelectedTaskForAllocation(null);
+                      }
+                    }
+                  ]
+                );
+              }}
+              className="mt-3 bg-red-100 dark:bg-red-900/30 py-2 rounded-lg active:opacity-70"
+            >
+              <Text className="text-red-600 dark:text-red-400 font-semibold text-center text-sm">
+                Delete Task & Free Resources
+              </Text>
+            </Pressable>
+          </Animated.View>
         )}
 
         {/* Function Filter */}
@@ -2643,16 +2848,6 @@ export default function DecideScreen() {
           </View>
         </View>
       </Modal>
-
-      {/* Task Allocation Modal */}
-      <UnifiedTaskAllocationModal
-        visible={showTaskAllocationModal}
-        onClose={() => {
-          setShowTaskAllocationModal(false);
-          setSelectedTaskForAllocation(null);
-        }}
-        workPlan={selectedTaskForAllocation}
-      />
 
       {/* Task Details Modal (for completed/abandoned tasks) */}
       <TaskDetailsModal
