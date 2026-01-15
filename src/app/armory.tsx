@@ -232,7 +232,7 @@ function LoadoutsTab({
 
 function CharacterSheetModal({
   visible,
-  member,
+  member: initialMember,
   aiAgents,
   canManage,
   onClose,
@@ -249,6 +249,10 @@ function CharacterSheetModal({
 
   const { theme, isOffWhite } = useTheme();
   const isDark = theme === 'dark';
+
+  // Get the fresh member data from the store to reflect updates
+  const getMemberById = useOrganizationStore((s) => s.getMemberById);
+  const member = getMemberById(initialMember.id) || initialMember;
 
   const loadout = useArmoryStore((s) => s.getLoadoutForMember(member.id));
   const addAITool = useArmoryStore((s) => s.addAITool);
