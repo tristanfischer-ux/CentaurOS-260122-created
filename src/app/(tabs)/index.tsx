@@ -59,6 +59,7 @@ import { StrategyResultsModal } from '@/components/StrategyResultsModal';
 import { CompanyAimModal } from '@/components/CompanyAimModal';
 import { CompanyAimBanner } from '@/components/CompanyAimBanner';
 import { useResourceStore } from '@/lib/state/resource-store';
+import { getWeekCounterInfo } from '@/lib/time-utils';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -896,6 +897,26 @@ export default function HomeScreen() {
               <Text className="text-white text-xl font-bold">
                 {currentWorkspace.name}
               </Text>
+              {/* Week Counter */}
+              {(() => {
+                const weekInfo = getWeekCounterInfo(currentWorkspace.createdAt);
+                return (
+                  <View className="mt-1 flex-row items-center gap-2">
+                    <View className="bg-white/20 px-2 py-1 rounded">
+                      <Text className="text-white text-[10px] font-semibold">
+                        {weekInfo.displayText}
+                      </Text>
+                    </View>
+                    {weekInfo.weeksSinceFounding > 0 && (
+                      <View className="bg-purple-500/40 px-2 py-1 rounded">
+                        <Text className="text-white text-[10px] font-semibold">
+                          {weekInfo.foundingText}
+                        </Text>
+                      </View>
+                    )}
+                  </View>
+                );
+              })()}
             </View>
             <View className="flex-row items-center gap-2">
               <HelpButton onPress={() => setShowHelp(true)} />
@@ -1540,6 +1561,26 @@ export default function HomeScreen() {
               <Text className="text-white text-2xl font-bold mt-1">
                 {executiveData.myFunction}
               </Text>
+              {/* Week Counter */}
+              {(() => {
+                const weekInfo = getWeekCounterInfo(currentWorkspace.createdAt);
+                return (
+                  <View className="mt-1.5 flex-row items-center gap-2">
+                    <View className="bg-white/20 px-2 py-1 rounded">
+                      <Text className="text-white text-[10px] font-semibold">
+                        {weekInfo.displayText}
+                      </Text>
+                    </View>
+                    {weekInfo.weeksSinceFounding > 0 && (
+                      <View className="bg-blue-500/40 px-2 py-1 rounded">
+                        <Text className="text-white text-[10px] font-semibold">
+                          {weekInfo.foundingText}
+                        </Text>
+                      </View>
+                    )}
+                  </View>
+                );
+              })()}
             </View>
             <View className="flex-row items-center gap-2">
               <HelpButton onPress={() => setShowHelp(true)} />
@@ -2025,6 +2066,26 @@ export default function HomeScreen() {
               <Text className="text-white text-2xl font-bold mt-1">
                 My Work
               </Text>
+              {/* Week Counter */}
+              {(() => {
+                const weekInfo = getWeekCounterInfo(currentWorkspace.createdAt);
+                return (
+                  <View className="mt-1.5 flex-row items-center gap-2">
+                    <View className="bg-white/20 px-2 py-1 rounded">
+                      <Text className="text-white text-[10px] font-semibold">
+                        {weekInfo.displayText}
+                      </Text>
+                    </View>
+                    {weekInfo.weeksSinceFounding > 0 && (
+                      <View className="bg-emerald-500/40 px-2 py-1 rounded">
+                        <Text className="text-white text-[10px] font-semibold">
+                          {weekInfo.foundingText}
+                        </Text>
+                      </View>
+                    )}
+                  </View>
+                );
+              })()}
             </View>
             <View className="flex-row items-center gap-2">
               <HelpButton onPress={() => setShowHelp(true)} />
