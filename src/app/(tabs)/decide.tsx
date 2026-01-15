@@ -1,6 +1,6 @@
 import { View, Text, ScrollView, Pressable, Modal, TextInput, Alert, KeyboardAvoidingView, Platform, LayoutChangeEvent } from 'react-native';
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
-import { Target, Plus, Minus, X, ChevronDown, ChevronRight, CheckCircle2, Circle, Clock, Users, DollarSign, Lightbulb, ChevronUp, UserPlus, Zap, AlertTriangle, AlertCircle, TrendingDown, CalendarClock, ArrowRight, HelpCircle, Bot, Briefcase, GraduationCap, CheckCircle, GripVertical, Archive } from 'lucide-react-native';
+import { Target, Plus, Minus, X, ChevronDown, ChevronRight, CheckCircle2, Circle, Clock, Users, DollarSign, Lightbulb, ChevronUp, UserPlus, Zap, AlertTriangle, AlertCircle, TrendingDown, CalendarClock, ArrowRight, HelpCircle, Bot, Briefcase, GraduationCap, CheckCircle, GripVertical, Archive, Gauge } from 'lucide-react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, { useSharedValue, useAnimatedStyle, withSpring, runOnJS, FadeIn, FadeOut, Layout } from 'react-native-reanimated';
 import { useCurrentWorkspace, useCurrentMembership } from '@/lib/state/app-store';
@@ -27,6 +27,7 @@ import { SquaresDisplay } from '@/components/SquaresDisplay';
 import { useResourceStore, type PersonResource, getTeamSizeEfficiency } from '@/lib/state/resource-store';
 import { ResourcePoolHeader } from '@/components/ResourcePoolHeader';
 import { TaskDetailsModal } from '@/components/TaskDetailsModal';
+import { identifyTUOpportunities, type TUOpportunity } from '@/lib/reports/tu-analytics';
 
 // Team efficiency types
 
@@ -166,6 +167,9 @@ export default function DecideScreen() {
   const [showCompletedTasks, setShowCompletedTasks] = useState(false);
   const [showAbandonedTasks, setShowAbandonedTasks] = useState(false);
 
+  // TU Opportunities section
+  const [showOpportunities, setShowOpportunities] = useState(false);
+
   // Old drag and drop state (to be removed)
   const [draggingOKRId, setDraggingOKRId] = useState<string | null>(null);
   const [draggingTaskId, setDraggingTaskId] = useState<string | null>(null);
@@ -233,6 +237,12 @@ export default function DecideScreen() {
     const apprenticeMembers = orgMembers.filter(m => m.role === 'Apprentice' && m.status === 'active');
     return { founders, executives, apprentices: apprenticeMembers };
   }, [orgMembers]);
+
+  // Calculate TU optimization opportunities
+  const tuOpportunities = useMemo(() => {
+    const activeMembers = orgMembers.filter(m => m.status === 'active');
+    return identifyTUOpportunities(workPlans, activeMembers);
+  }, [workPlans, orgMembers]);
 
   // Get initials from name
   const getInitials = (name: string) => {
@@ -841,6 +851,91 @@ export default function DecideScreen() {
     );
   }, [workPlans, updateWorkPlan]);
 
+  // Auto-fix TU optimization opportunity
+  const handleAutoFixOpportunity = useCallback((opportunity: TUOpportunity) => {
+    if (opportunity.type === 'skill_mismatch') {
+      // Find tasks with skill mismatches and try to reassign
+      const tasksToFix = workPlans.filter(wp => opportunity.affectedTasks.includes(wp.title));
+
+      tasksToFix.forEach(task => {
+        // Find mismatched allocations
+        const mismatchedAllocs = task.allocations?.filter(alloc => {
+          const member = orgMembers.find(m => m.id === alloc.memberId);
+          return member && member.function !== task.function;
+        }) || [];
+
+        // Try to find matching replacements
+        mismatchedAllocs.forEach(alloc => {
+          const replacementMember = orgMembers.find(m =>
+            m.status === 'active' &&
+            m.function === task.function &&
+            !task.allocations?.some(a => a.memberId === m.id)
+          );
+
+          if (replacementMember) {
+            // Calculate capacity
+            const totalCapacity = replacementMember.role === 'Founder' || replacementMember.role === 'Apprentice'
+              ? 10
+              : (replacementMember.daysPerWeek || 2) * 2;
+
+            const allocated = workPlans
+              .filter(wp => wp.status !== 'completed' && wp.status !== 'abandoned' && wp.id !== task.id)
+              .reduce((total, wp) => {
+                const allocation = wp.allocations?.find(a => a.memberId === replacementMember.id);
+                return total + (allocation?.squaresPerWeek || 0);
+              }, 0);
+
+            const available = totalCapacity - allocated;
+
+            if (available >= alloc.squaresPerWeek) {
+              // Remove old allocation and add new one
+              const newAllocations = [
+                ...(task.allocations?.filter(a => a.memberId !== alloc.memberId) || []),
+                {
+                  memberId: replacementMember.id,
+                  memberName: replacementMember.name,
+                  squaresPerWeek: alloc.squaresPerWeek,
+                  costPerSquare: replacementMember.role === 'Founder' ? 960 :
+                                 replacementMember.role === 'FractionalExec' ? Math.round((replacementMember.costPerDay || 800) / 2) :
+                                 70,
+                }
+              ];
+
+              updateWorkPlan(task.id, {
+                allocations: newAllocations,
+                assignedMemberIds: newAllocations.map(a => a.memberId),
+              });
+            }
+          }
+        });
+      });
+
+      Alert.alert('Fixed', `Skill mismatches resolved for ${tasksToFix.length} task(s).`);
+    } else if (opportunity.type === 'ai_adoption') {
+      Alert.alert('AI Tools', 'Navigate to the task allocation panel to add AI tools with multipliers (2x-20x).');
+    } else if (opportunity.type === 'underutilization') {
+      Alert.alert('Underutilization', 'Use the ⚡ Auto-Allocate button to distribute spare capacity to queued tasks.');
+    }
+  }, [workPlans, orgMembers, updateWorkPlan]);
+
+  // Apply all opportunity fixes
+  const handleAutoFixAll = useCallback(() => {
+    let fixedCount = 0;
+
+    tuOpportunities.forEach(opp => {
+      if (opp.type === 'skill_mismatch') {
+        handleAutoFixOpportunity(opp);
+        fixedCount++;
+      }
+    });
+
+    if (fixedCount > 0) {
+      Alert.alert('Auto-Fix Complete', `Applied ${fixedCount} optimization fix(es).`);
+    } else {
+      Alert.alert('Auto-Fix', 'No automatic fixes available. Some optimizations require manual intervention.');
+    }
+  }, [tuOpportunities, handleAutoFixOpportunity]);
+
   // Confirm moving OKR to queue or abandoning task
   const confirmMoveToQueue = useCallback(() => {
     if (pendingQueueOKR) {
@@ -1280,6 +1375,12 @@ export default function DecideScreen() {
           </View>
           <View className="flex-row gap-2">
             <HelpButton onPress={() => setShowHelp(true)} />
+            <Pressable
+              onPress={() => router.push('/tu-dashboard')}
+              className="bg-purple-500/90 rounded-xl p-2.5 active:opacity-70"
+            >
+              <Gauge size={20} color="#fff" />
+            </Pressable>
             <Pressable
               onPress={handleAutoAllocate}
               className="bg-emerald-500/90 rounded-xl p-2.5 active:opacity-70"
@@ -1867,6 +1968,152 @@ export default function DecideScreen() {
             </View>
           ) : null;
         })()}
+
+        {/* SECTION 6.5: TU OPTIMIZATION OPPORTUNITIES */}
+        {tuOpportunities.length > 0 && (
+          <View className="mt-8 pt-6 border-t-2 border-gray-300 dark:border-slate-700">
+            <Pressable
+              onPress={() => setShowOpportunities(!showOpportunities)}
+              className="flex-row items-center justify-between mb-3 active:opacity-70"
+            >
+              <View className="flex-row items-center gap-2">
+                <Lightbulb size={18} color="#f59e0b" />
+                <Text className="text-amber-600 dark:text-amber-400 text-xs font-bold tracking-wide">
+                  ⚡ OPTIMIZATION OPPORTUNITIES
+                </Text>
+              </View>
+              <View className="flex-row items-center gap-2">
+                <View className="bg-amber-100 dark:bg-amber-900/30 px-2 py-0.5 rounded">
+                  <Text className="text-amber-700 dark:text-amber-300 text-xs font-semibold">
+                    {tuOpportunities.length} found
+                  </Text>
+                </View>
+                <ChevronRight
+                  size={16}
+                  color="#f59e0b"
+                  style={{ transform: [{ rotate: showOpportunities ? '90deg' : '0deg' }] }}
+                />
+              </View>
+            </Pressable>
+
+            {showOpportunities && (
+              <>
+                {/* Auto-Fix All Button */}
+                <Pressable
+                  onPress={handleAutoFixAll}
+                  className="bg-emerald-500 rounded-xl px-4 py-3 mb-3 flex-row items-center justify-center active:opacity-70"
+                >
+                  <Zap size={18} color="#fff" />
+                  <Text className="text-white font-bold ml-2">Auto-Fix All</Text>
+                </Pressable>
+
+                <View className="gap-3">
+                  {tuOpportunities.map((opp, i) => (
+                    <View
+                      key={i}
+                      className={`rounded-xl p-4 border-2 ${
+                        opp.priority === 'high'
+                          ? 'bg-red-50 dark:bg-red-900/10 border-red-300 dark:border-red-800'
+                          : opp.priority === 'medium'
+                          ? 'bg-amber-50 dark:bg-amber-900/10 border-amber-300 dark:border-amber-800'
+                          : 'bg-blue-50 dark:bg-blue-900/10 border-blue-300 dark:border-blue-800'
+                      }`}
+                    >
+                      {/* Header */}
+                      <View className="flex-row items-start justify-between mb-2">
+                        <View className="flex-1 mr-2">
+                          <View className="flex-row items-center gap-2 mb-1">
+                            {opp.type === 'skill_mismatch' ? (
+                              <AlertTriangle size={16} color={opp.priority === 'high' ? '#ef4444' : '#f59e0b'} />
+                            ) : opp.type === 'underutilization' ? (
+                              <Clock size={16} color={opp.priority === 'high' ? '#ef4444' : '#f59e0b'} />
+                            ) : (
+                              <Zap size={16} color="#8b5cf6" />
+                            )}
+                            <View
+                              className={`px-2 py-0.5 rounded ${
+                                opp.priority === 'high'
+                                  ? 'bg-red-200 dark:bg-red-900/50'
+                                  : opp.priority === 'medium'
+                                  ? 'bg-amber-200 dark:bg-amber-900/50'
+                                  : 'bg-blue-200 dark:bg-blue-900/50'
+                              }`}
+                            >
+                              <Text
+                                className={`text-[10px] font-bold uppercase ${
+                                  opp.priority === 'high'
+                                    ? 'text-red-700 dark:text-red-300'
+                                    : opp.priority === 'medium'
+                                    ? 'text-amber-700 dark:text-amber-300'
+                                    : 'text-blue-700 dark:text-blue-300'
+                                }`}
+                              >
+                                {opp.priority}
+                              </Text>
+                            </View>
+                          </View>
+                          <Text className="text-gray-900 dark:text-white font-bold text-sm mb-1">
+                            {opp.title}
+                          </Text>
+                          <Text className="text-gray-600 dark:text-slate-400 text-xs mb-2">
+                            {opp.description}
+                          </Text>
+                          <View className="bg-white dark:bg-slate-900 rounded-lg p-2 mb-2">
+                            <Text className="text-gray-700 dark:text-slate-300 text-xs">
+                              <Text className="font-semibold">Impact: </Text>
+                              {opp.impact}
+                            </Text>
+                          </View>
+                          <View className="flex-row items-center gap-2">
+                            <DollarSign size={14} color="#10b981" />
+                            <Text className="text-emerald-600 dark:text-emerald-400 font-bold text-sm">
+                              Save £{(opp.savings / 1000).toFixed(1)}k
+                            </Text>
+                          </View>
+                        </View>
+                      </View>
+
+                      {/* Action Button */}
+                      <Pressable
+                        onPress={() => handleAutoFixOpportunity(opp)}
+                        className={`mt-3 rounded-lg px-4 py-2.5 flex-row items-center justify-center ${
+                          opp.type === 'skill_mismatch'
+                            ? 'bg-emerald-500 active:opacity-70'
+                            : 'bg-gray-300 dark:bg-slate-700'
+                        }`}
+                        disabled={opp.type !== 'skill_mismatch'}
+                      >
+                        {opp.type === 'skill_mismatch' ? (
+                          <>
+                            <CheckCircle2 size={16} color="#fff" />
+                            <Text className="text-white font-bold text-sm ml-2">Auto-Fix Now</Text>
+                          </>
+                        ) : (
+                          <Text className="text-gray-600 dark:text-slate-400 font-semibold text-sm">
+                            {opp.type === 'ai_adoption' ? 'Add AI tools in allocation panel' : 'Use ⚡ Auto-Allocate'}
+                          </Text>
+                        )}
+                      </Pressable>
+
+                      {/* Affected Tasks */}
+                      {opp.affectedTasks.length > 0 && (
+                        <View className="mt-3 pt-3 border-t border-gray-200 dark:border-slate-700">
+                          <Text className="text-gray-500 dark:text-slate-500 text-[10px] font-semibold mb-1">
+                            AFFECTED TASKS ({opp.affectedTasks.length}):
+                          </Text>
+                          <Text className="text-gray-700 dark:text-slate-300 text-xs">
+                            {opp.affectedTasks.slice(0, 3).join(', ')}
+                            {opp.affectedTasks.length > 3 && ` +${opp.affectedTasks.length - 3} more`}
+                          </Text>
+                        </View>
+                      )}
+                    </View>
+                  ))}
+                </View>
+              </>
+            )}
+          </View>
+        )}
 
         {/* SECTION 7: COMPLETED TASKS - Clearly separated at the bottom */}
         {workPlans.filter(wp => wp.status === 'completed').length > 0 && (
