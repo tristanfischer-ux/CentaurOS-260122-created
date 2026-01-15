@@ -340,6 +340,9 @@ export function UnifiedTaskAllocationModal({ visible, onClose, workPlan }: Props
     const defaultIncrement = getDefaultIncrement(member);
     const available = capacity - currentAllocation;
 
+    // DEBUG LOG
+    console.log(`[UnifiedTaskAllocationModal] Rendering ${member.name} with capacity ${capacity}, allocated ${currentAllocation}`);
+
     return (
       <Pressable
         key={member.id}
