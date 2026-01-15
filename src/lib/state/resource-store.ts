@@ -626,13 +626,13 @@ export const useResourceStore = create<ResourceState>()(
         const { companyAnnualCost, workingHoursPerYear } = get();
         const founderCostPerSquare = (companyAnnualCost / workingHoursPerYear) * 4;
 
-        // Demo people
+        // Demo people - matches organization-seed.ts (13 team members)
         const demoPeople: PersonResource[] = [
-          // Founders
+          // Founders (2)
           {
             id: 'founder-1',
-            name: 'Alex Chen',
-            initials: 'AC',
+            name: 'Sarah Chen',
+            initials: 'SC',
             personClass: 'Founder',
             function: 'Admin',
             baseSquaresPerWeek: 10,
@@ -644,8 +644,8 @@ export const useResourceStore = create<ResourceState>()(
           },
           {
             id: 'founder-2',
-            name: 'Sam Wilson',
-            initials: 'SW',
+            name: 'Marcus Thompson',
+            initials: 'MT',
             personClass: 'Founder',
             function: 'Engineering',
             baseSquaresPerWeek: 10,
@@ -655,74 +655,154 @@ export const useResourceStore = create<ResourceState>()(
             allocatedSquares: 0,
             avatarColor: '#7c3aed',
           },
-          // Executives
+          // Executives (4)
           {
             id: 'exec-1',
-            name: 'Sarah Mitchell',
-            initials: 'SM',
+            name: 'Jordan Martinez',
+            initials: 'JM',
             personClass: 'Executive',
-            function: 'Sales',
-            baseSquaresPerWeek: 4,
-            overtimeSquaresPerWeek: 11, // Can go up to 15 total
+            function: 'Finance',
+            baseSquaresPerWeek: 6, // 3 days/week = 6 squares
+            overtimeSquaresPerWeek: 9,
             overtimeEnabled: false,
-            costPerSquare: 400, // £800/day = £400/square
-            dayRate: 800,
+            costPerSquare: 400, // £850/day ÷ 2 squares/day ≈ £400
+            dayRate: 850,
             allocatedSquares: 0,
             avatarColor: '#3b82f6',
           },
           {
             id: 'exec-2',
-            name: 'Priya Sharma',
-            initials: 'PS',
+            name: 'Emma Richardson',
+            initials: 'ER',
             personClass: 'Executive',
-            function: 'Marketing',
-            baseSquaresPerWeek: 2,
-            overtimeSquaresPerWeek: 13,
+            function: 'Sales',
+            baseSquaresPerWeek: 6, // 3 days/week
+            overtimeSquaresPerWeek: 9,
             overtimeEnabled: false,
-            costPerSquare: 350,
-            dayRate: 700,
+            costPerSquare: 500, // £920/day ÷ 2 ≈ £500
+            dayRate: 920,
             allocatedSquares: 0,
             avatarColor: '#2563eb',
           },
-          // Apprentices
+          {
+            id: 'exec-3',
+            name: 'David Park',
+            initials: 'DP',
+            personClass: 'Executive',
+            function: 'Engineering',
+            baseSquaresPerWeek: 6, // 3 days/week
+            overtimeSquaresPerWeek: 9,
+            overtimeEnabled: false,
+            costPerSquare: 600, // £1100/day ÷ 2 ≈ £600
+            dayRate: 1100,
+            allocatedSquares: 0,
+            avatarColor: '#1d4ed8',
+          },
+          {
+            id: 'exec-4',
+            name: 'Sophie Adams',
+            initials: 'SA',
+            personClass: 'Executive',
+            function: 'Marketing',
+            baseSquaresPerWeek: 4, // 2 days/week
+            overtimeSquaresPerWeek: 11,
+            overtimeEnabled: false,
+            costPerSquare: 400, // £780/day ÷ 2 ≈ £400
+            dayRate: 780,
+            allocatedSquares: 0,
+            avatarColor: '#4f46e5',
+          },
+          // Apprentices (7)
           {
             id: 'apprentice-1',
-            name: 'Jordan Lee',
-            initials: 'JL',
+            name: 'Alex Rivera',
+            initials: 'AR',
             personClass: 'Apprentice',
-            function: 'Marketing',
+            function: 'Finance',
             baseSquaresPerWeek: 10,
             overtimeSquaresPerWeek: 5,
             overtimeEnabled: false,
-            costPerSquare: 50, // Lower cost
+            costPerSquare: 70, // £140/day ÷ 2 = £70
             allocatedSquares: 0,
             avatarColor: '#10b981',
           },
           {
             id: 'apprentice-2',
-            name: 'Emma Watson',
-            initials: 'EW',
+            name: 'Priya Sharma',
+            initials: 'PS',
             personClass: 'Apprentice',
-            function: 'Sales',
+            function: 'Finance',
             baseSquaresPerWeek: 10,
             overtimeSquaresPerWeek: 5,
             overtimeEnabled: false,
-            costPerSquare: 50,
+            costPerSquare: 70, // £135/day ÷ 2 ≈ £70
             allocatedSquares: 0,
             avatarColor: '#059669',
           },
           {
             id: 'apprentice-3',
-            name: 'Mike Chen',
-            initials: 'MC',
+            name: 'James Wilson',
+            initials: 'JW',
+            personClass: 'Apprentice',
+            function: 'Sales',
+            baseSquaresPerWeek: 10,
+            overtimeSquaresPerWeek: 5,
+            overtimeEnabled: false,
+            costPerSquare: 70, // £145/day ÷ 2 ≈ £70
+            allocatedSquares: 0,
+            avatarColor: '#047857',
+          },
+          {
+            id: 'apprentice-4',
+            name: 'Lily Chen',
+            initials: 'LC',
+            personClass: 'Apprentice',
+            function: 'Sales',
+            baseSquaresPerWeek: 10,
+            overtimeSquaresPerWeek: 5,
+            overtimeEnabled: false,
+            costPerSquare: 80, // £150/day ÷ 2 ≈ £80
+            allocatedSquares: 0,
+            avatarColor: '#065f46',
+          },
+          {
+            id: 'apprentice-5',
+            name: 'Omar Hassan',
+            initials: 'OH',
             personClass: 'Apprentice',
             function: 'Engineering',
             baseSquaresPerWeek: 10,
             overtimeSquaresPerWeek: 5,
             overtimeEnabled: false,
-            costPerSquare: 60,
+            costPerSquare: 80, // £155/day ÷ 2 ≈ £80
             allocatedSquares: 0,
-            avatarColor: '#047857',
+            avatarColor: '#0d9488',
+          },
+          {
+            id: 'apprentice-6',
+            name: 'Maya Patel',
+            initials: 'MP',
+            personClass: 'Apprentice',
+            function: 'Engineering',
+            baseSquaresPerWeek: 10,
+            overtimeSquaresPerWeek: 5,
+            overtimeEnabled: false,
+            costPerSquare: 80, // £160/day ÷ 2 = £80
+            allocatedSquares: 0,
+            avatarColor: '#14b8a6',
+          },
+          {
+            id: 'apprentice-7',
+            name: 'Lucas Silva',
+            initials: 'LS',
+            personClass: 'Apprentice',
+            function: 'Marketing',
+            baseSquaresPerWeek: 10,
+            overtimeSquaresPerWeek: 5,
+            overtimeEnabled: false,
+            costPerSquare: 70, // £142/day ÷ 2 ≈ £70
+            allocatedSquares: 0,
+            avatarColor: '#34d399',
           },
         ];
 
@@ -740,8 +820,8 @@ export const useResourceStore = create<ResourceState>()(
             aiCostPerSquare: 15,
             effectiveSquaresRequired: 4,
             allocations: [
-              { personId: 'exec-2', squaresPerWeek: 2 },
-              { personId: 'apprentice-1', squaresPerWeek: 4 },
+              { personId: 'exec-4', squaresPerWeek: 2 }, // Sophie Adams (Marketing exec)
+              { personId: 'apprentice-7', squaresPerWeek: 4 }, // Lucas Silva (Marketing apprentice)
             ],
             squaresAllocatedThisWeek: 6,
             estimatedWeeksToComplete: 1,
@@ -764,8 +844,8 @@ export const useResourceStore = create<ResourceState>()(
             aiCostPerSquare: 5,
             effectiveSquaresRequired: 8,
             allocations: [
-              { personId: 'exec-1', squaresPerWeek: 2 },
-              { personId: 'apprentice-2', squaresPerWeek: 3 },
+              { personId: 'exec-2', squaresPerWeek: 2 }, // Emma Richardson (Sales exec)
+              { personId: 'apprentice-3', squaresPerWeek: 3 }, // James Wilson (Sales apprentice)
             ],
             squaresAllocatedThisWeek: 5,
             estimatedWeeksToComplete: 2,
