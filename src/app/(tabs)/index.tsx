@@ -98,9 +98,32 @@ export default function MissionControlHome() {
   const members = useOrganizationStore((s) => s.members);
   const okrs = useOKRStore((s) => s.okrs);
 
-  // Resource utilization
-  const getTotalCapacity = useResourceStore((s) => s.getTotalCapacity);
-  const resourceCapacity = useMemo(() => getTotalCapacity(), [getTotalCapacity]);
+  // Resource utilization - Calculate directly from organization members
+  const resourceCapacity = useMemo(() => {
+    const activeMembers = members.filter(m => m.status === 'active');
+
+    const total = activeMembers.reduce((sum, member) => {
+      if (member.role === 'Founder') return sum + 10; // Founders: 10 TU/week
+      if (member.role === 'Apprentice') return sum + 10; // Apprentices: 10 TU/week
+      // Executives: 2 TU per day
+      return sum + ((member.daysPerWeek || 2) * 2);
+    }, 0);
+
+    // Calculate allocated from work plans
+    const allocated = activeMembers.reduce((sum, member) => {
+      const memberAllocated = workPlans
+        .filter(wp => wp.status === 'in-progress')
+        .reduce((wpSum, wp) => {
+          const allocation = wp.allocations?.find(a => a.memberId === member.id);
+          return wpSum + (allocation?.squaresPerWeek || 0);
+        }, 0);
+      return sum + memberAllocated;
+    }, 0);
+
+    const available = total - allocated;
+
+    return { total, allocated, available };
+  }, [members, workPlans]);
 
   // Supplier/Manufacturing data
   const suppliers = useSupplierStore((s) => s.suppliers);
@@ -558,7 +581,12 @@ export default function MissionControlHome() {
                     UTILIZED
                   </Text>
                   <Text className="text-emerald-900 dark:text-emerald-100 text-xl font-bold">
-                    {Math.round((resourceCapacity.allocated / resourceCapacity.total) * 100)}%
+                    {resourceCapacity.total > 0
+                      ? `${Math.round((resourceCapacity.allocated / resourceCapacity.total) * 100)}%`
+                      : '0%'}
+                  </Text>
+                  <Text className="text-emerald-600 dark:text-emerald-400 text-xs mt-1">
+                    {resourceCapacity.allocated} of {resourceCapacity.total} TU
                   </Text>
                 </View>
                 <View className="flex-1 bg-blue-50 dark:bg-blue-900/10 rounded-lg p-3">
@@ -567,6 +595,13 @@ export default function MissionControlHome() {
                   </Text>
                   <Text className="text-blue-900 dark:text-blue-100 text-xl font-bold">
                     {resourceCapacity.available} TU
+                  </Text>
+                  <Text className="text-blue-600 dark:text-blue-400 text-xs mt-1">
+                    {resourceCapacity.available > 0
+                      ? 'Can start new work'
+                      : resourceCapacity.total === 0
+                        ? 'No team members'
+                        : 'Team at capacity'}
                   </Text>
                 </View>
               </View>
@@ -596,7 +631,9 @@ export default function MissionControlHome() {
                                          member.role === 'Apprentice' ? 10 :
                                          (member.daysPerWeek || 2) * 2; // Execs: 2 TU per day
 
-                      const utilizationPercent = Math.round((allocatedTU / maxCapacity) * 100);
+                      const utilizationPercent = maxCapacity > 0
+                        ? Math.round((allocatedTU / maxCapacity) * 100)
+                        : 0;
 
                       return {
                         ...member,
