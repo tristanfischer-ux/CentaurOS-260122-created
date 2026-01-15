@@ -54,7 +54,7 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
 
 ## 🚨 PRODUCTION READINESS STATUS
 
-**Last Updated**: 2026-01-15 (**TU ALLOCATION MODAL** - Added comprehensive task allocation modal with AI boost, completed/abandoned task audit trails, and unallocated TU warnings)
+**Last Updated**: 2026-01-15 (**DO/EVALUATE TAB UPDATE** - Updated Do tab to show only user's assigned tasks and Evaluate tab to show only evaluator's tasks, both with categorized views: Active → Not Started → Abandoned → Completed)
 **Status**: ✅ **READY FOR APP STORE** - All features complete!
 
 ---

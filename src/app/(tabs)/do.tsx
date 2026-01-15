@@ -3,7 +3,8 @@ import { useState, useMemo, useEffect } from 'react';
 import {
   Briefcase, Plus, X, Clock, Target, CheckCircle2, Circle, AlertCircle, ChevronDown, ChevronRight,
   Flame, Calendar, AlertTriangle, Play, Pause, ArrowRight, TrendingUp, Zap, Filter,
-  CalendarDays, CalendarClock, BarChart3, RefreshCw, Send, MessageSquare, Flag, Timer, HelpCircle
+  CalendarDays, CalendarClock, BarChart3, RefreshCw, Send, MessageSquare, Flag, Timer, HelpCircle,
+  DollarSign, Users
 } from 'lucide-react-native';
 import { useCurrentWorkspace, useCurrentMembership } from '@/lib/state/app-store';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -15,7 +16,8 @@ import { cn } from '@/lib/cn';
 import { HelpModal, HelpButton, type HelpContent } from '@/components/HelpModal';
 import { SquaresDisplay } from '@/components/SquaresDisplay';
 import { ResourceBar } from '@/components/ResourceBar';
-import { useResourceStore } from '@/lib/state/resource-store';
+import { useResourceStore, getTeamSizeEfficiency } from '@/lib/state/resource-store';
+import { useOrganizationStore } from '@/lib/state/organization-store';
 
 const DO_HELP_APPRENTICE: HelpContent = {
   title: 'Task Execution',
@@ -116,12 +118,91 @@ export default function DoScreen() {
   const isExecutive = currentMembership?.role === 'FractionalExec';
   const isApprentice = currentMembership?.role === 'Apprentice';
 
-  // Get work plans for current user
-  const myWorkPlans = isApprentice
-    ? getApprenticeWorkPlans()
-    : isExecutive
-      ? getExecutiveWorkPlans((currentMembership?.function || 'Marketing') as BusinessFunction)
-      : [];
+  // Get all work plans
+  const allWorkPlans = useWorkPlanStore(s => s.workPlans);
+
+  // Get current user's member ID from organization store
+  const orgMembers = useOrganizationStore(s => s.members);
+  const currentUserMemberId = useMemo(() => {
+    // Find the member that matches the current user
+    // For demo, match by role and function
+    const member = orgMembers.find(m =>
+      m.role === currentMembership?.role &&
+      (currentMembership?.role !== 'FractionalExec' || m.function === currentMembership?.function)
+    );
+    return member?.id;
+  }, [orgMembers, currentMembership]);
+
+  // Get work plans for current user - filter by assignedMemberIds
+  const myWorkPlans = useMemo(() => {
+    // If we have a specific member ID, filter by it
+    if (currentUserMemberId) {
+      return allWorkPlans.filter(wp =>
+        wp.assignedMemberIds?.includes(currentUserMemberId)
+      );
+    }
+    // Fallback to role-based filtering for demo
+    if (isApprentice) {
+      return getApprenticeWorkPlans();
+    }
+    if (isExecutive) {
+      return getExecutiveWorkPlans((currentMembership?.function || 'Marketing') as BusinessFunction);
+    }
+    return [];
+  }, [allWorkPlans, currentUserMemberId, isApprentice, isExecutive, currentMembership?.function]);
+
+  // Categorize tasks by status for proper ordering
+  const categorizedTasks = useMemo(() => {
+    const enriched = myWorkPlans.map(enrichWorkPlan);
+
+    // Active tasks (in-progress) - ordered by days to completion
+    const activeTasks = enriched
+      .filter(t => t.status === 'in-progress')
+      .sort((a, b) => a.daysUntilDue - b.daysUntilDue);
+
+    // Not started tasks
+    const notStartedTasks = enriched
+      .filter(t => t.status === 'not-started')
+      .sort((a, b) => a.daysUntilDue - b.daysUntilDue);
+
+    // Abandoned tasks (blocked with progress > 0)
+    const abandonedTasks = enriched
+      .filter(t => t.status === 'blocked' && t.progress > 0)
+      .sort((a, b) => b.progress - a.progress); // Higher progress = more wasted
+
+    // Completed tasks
+    const completedTasks = enriched
+      .filter(t => t.status === 'completed')
+      .sort((a, b) => {
+        // Sort by completion date if available
+        const dateA = a.lastSubmittedAt ? new Date(a.lastSubmittedAt).getTime() : 0;
+        const dateB = b.lastSubmittedAt ? new Date(b.lastSubmittedAt).getTime() : 0;
+        return dateB - dateA;
+      });
+
+    return { activeTasks, notStartedTasks, abandonedTasks, completedTasks };
+  }, [myWorkPlans]);
+
+  // Calculate task cost and team efficiency
+  const calculateTaskCost = (plan: WorkPlan) => {
+    const teamSize = plan.assignedMemberIds?.length || 1;
+    const teamEfficiency = getTeamSizeEfficiency(teamSize);
+    const totalSquares = plan.estimatedTimeUnits;
+    const allocatedPerWeek = plan.allocatedTimeUnitsPerWeek || 2;
+    const effectiveOutputPerWeek = allocatedPerWeek * teamEfficiency.efficiencyMultiplier;
+    const remainingSquares = Math.ceil(totalSquares * (1 - plan.progress / 100));
+    const weeksToComplete = effectiveOutputPerWeek > 0 ? Math.ceil(remainingSquares / effectiveOutputPerWeek) : 0;
+
+    return {
+      teamSize,
+      teamEfficiency,
+      totalSquares,
+      allocatedPerWeek,
+      effectiveOutputPerWeek,
+      remainingSquares,
+      weeksToComplete,
+    };
+  };
 
   // Calculate priority and enrich work plans
   const enrichWorkPlan = (plan: WorkPlan): PrioritizedPlan => {
@@ -677,82 +758,96 @@ export default function DoScreen() {
         </View>
 
         <ScrollView className="flex-1 px-5 py-4">
-          {tasksByOKR.length === 0 ? (
+          {/* ACTIVE TASKS - In Progress, ordered by days to completion */}
+          {categorizedTasks.activeTasks.length > 0 && (
+            <View className="mb-6">
+              <View className="flex-row items-center justify-between mb-3">
+                <Text className="text-blue-600 dark:text-blue-400 text-xs font-bold tracking-wide">
+                  ACTIVE - IN PROGRESS
+                </Text>
+                <View className="bg-blue-100 dark:bg-blue-900/30 px-2 py-0.5 rounded">
+                  <Text className="text-blue-700 dark:text-blue-300 text-xs font-semibold">
+                    {categorizedTasks.activeTasks.length} task{categorizedTasks.activeTasks.length !== 1 ? 's' : ''}
+                  </Text>
+                </View>
+              </View>
+              {categorizedTasks.activeTasks.map(task => renderCompactTaskCard(task))}
+            </View>
+          )}
+
+          {/* NOT STARTED TASKS */}
+          {categorizedTasks.notStartedTasks.length > 0 && (
+            <View className="mb-6">
+              <View className="flex-row items-center justify-between mb-3">
+                <Text className="text-gray-500 dark:text-slate-400 text-xs font-bold tracking-wide">
+                  NOT STARTED
+                </Text>
+                <View className="bg-gray-100 dark:bg-slate-800 px-2 py-0.5 rounded">
+                  <Text className="text-gray-600 dark:text-slate-400 text-xs font-semibold">
+                    {categorizedTasks.notStartedTasks.length} task{categorizedTasks.notStartedTasks.length !== 1 ? 's' : ''}
+                  </Text>
+                </View>
+              </View>
+              {categorizedTasks.notStartedTasks.map(task => renderCompactTaskCard(task))}
+            </View>
+          )}
+
+          {/* ABANDONED TASKS */}
+          {categorizedTasks.abandonedTasks.length > 0 && (
+            <View className="mb-6">
+              <View className="flex-row items-center justify-between mb-3">
+                <Text className="text-red-500 dark:text-red-400 text-xs font-bold tracking-wide">
+                  ABANDONED
+                </Text>
+                <View className="bg-red-100 dark:bg-red-900/30 px-2 py-0.5 rounded">
+                  <Text className="text-red-600 dark:text-red-400 text-xs font-semibold">
+                    {categorizedTasks.abandonedTasks.length} task{categorizedTasks.abandonedTasks.length !== 1 ? 's' : ''}
+                  </Text>
+                </View>
+              </View>
+              <View className="bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-800/50 rounded-xl p-3 mb-3">
+                <View className="flex-row items-center">
+                  <AlertTriangle size={14} color="#ef4444" />
+                  <Text className="text-red-600 dark:text-red-400 text-xs ml-2 flex-1">
+                    These tasks were started but abandoned. TUs shown represent wasted effort.
+                  </Text>
+                </View>
+              </View>
+              {categorizedTasks.abandonedTasks.map(task => renderCompactTaskCard(task))}
+            </View>
+          )}
+
+          {/* COMPLETED TASKS */}
+          {categorizedTasks.completedTasks.length > 0 && (
+            <View className="mb-6">
+              <View className="flex-row items-center justify-between mb-3">
+                <Text className="text-emerald-600 dark:text-emerald-400 text-xs font-bold tracking-wide">
+                  COMPLETED
+                </Text>
+                <View className="bg-emerald-100 dark:bg-emerald-900/30 px-2 py-0.5 rounded">
+                  <Text className="text-emerald-700 dark:text-emerald-300 text-xs font-semibold">
+                    {categorizedTasks.completedTasks.length} task{categorizedTasks.completedTasks.length !== 1 ? 's' : ''}
+                  </Text>
+                </View>
+              </View>
+              {categorizedTasks.completedTasks.map(task => renderCompactTaskCard(task))}
+            </View>
+          )}
+
+          {/* Empty State */}
+          {categorizedTasks.activeTasks.length === 0 &&
+           categorizedTasks.notStartedTasks.length === 0 &&
+           categorizedTasks.abandonedTasks.length === 0 &&
+           categorizedTasks.completedTasks.length === 0 && (
             <View className="items-center justify-center py-12 bg-white dark:bg-slate-900 rounded-xl">
               <CheckCircle2 size={48} color="#10b981" />
               <Text className="text-emerald-600 dark:text-emerald-400 text-center font-semibold text-lg mt-4">
-                All Clear!
+                No Tasks Assigned
               </Text>
               <Text className="text-gray-500 dark:text-slate-400 text-center mt-2">
-                No tasks matching your filters
+                Tasks assigned to you will appear here
               </Text>
             </View>
-          ) : (
-            <>
-              {/* Critical Alert */}
-              {criticalCount > 0 && viewMode !== 'blocked' && (
-                <View className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-4 mb-4">
-                  <View className="flex-row items-center">
-                    <Flame size={20} color="#ef4444" />
-                    <Text className="text-red-700 dark:text-red-300 font-bold ml-2">
-                      {criticalCount} Critical Task{criticalCount > 1 ? 's' : ''}
-                    </Text>
-                  </View>
-                </View>
-              )}
-
-              {/* Tasks grouped by OKR */}
-              {tasksByOKR.map(({ okr, tasks }) => {
-                const isExpanded = expandedOKRs.has(okr.id);
-                const okrProgress = okr.objectives.length > 0
-                  ? Math.round(okr.objectives.reduce((sum, obj) => sum + obj.progress, 0) / okr.objectives.length)
-                  : 0;
-
-                return (
-                  <View key={okr.id} className="mb-4">
-                    {/* OKR Header */}
-                    <Pressable
-                      onPress={() => toggleOKR(okr.id)}
-                      className="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-xl p-4 mb-2 active:opacity-70"
-                    >
-                      <View className="flex-row items-center justify-between mb-2">
-                        <View className="flex-1 mr-3">
-                          <View className="flex-row items-center mb-1">
-                            <Target size={16} color="#8b5cf6" />
-                            <Text className="text-purple-900 dark:text-purple-100 font-bold text-sm ml-2">
-                              {okr.title}
-                            </Text>
-                          </View>
-                          <Text className="text-purple-600 dark:text-purple-400 text-xs">
-                            {tasks.length} task{tasks.length !== 1 ? 's' : ''} • {okrProgress}% complete
-                          </Text>
-                        </View>
-                        {isExpanded ? (
-                          <ChevronDown size={20} color="#8b5cf6" />
-                        ) : (
-                          <ChevronRight size={20} color="#8b5cf6" />
-                        )}
-                      </View>
-
-                      {/* OKR Progress Bar */}
-                      <View className="bg-purple-200 dark:bg-purple-800 rounded-full h-2 overflow-hidden">
-                        <View
-                          className="bg-purple-500 h-full rounded-full"
-                          style={{ width: `${okrProgress}%` }}
-                        />
-                      </View>
-                    </Pressable>
-
-                    {/* Tasks under this OKR */}
-                    {isExpanded && (
-                      <View className="ml-3">
-                        {tasks.map(task => renderCompactTaskCard(task))}
-                      </View>
-                    )}
-                  </View>
-                );
-              })}
-            </>
           )}
 
           <View className="h-8" />

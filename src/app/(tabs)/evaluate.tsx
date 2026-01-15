@@ -48,7 +48,7 @@ import { useOrganizationStore } from '@/lib/state/organization-store';
 import { HelpModal, HelpButton, type HelpContent } from '@/components/HelpModal';
 import { SquaresDisplay } from '@/components/SquaresDisplay';
 import { ResourceBar } from '@/components/ResourceBar';
-import { useResourceStore } from '@/lib/state/resource-store';
+import { useResourceStore, getTeamSizeEfficiency } from '@/lib/state/resource-store';
 
 const EVALUATE_HELP: HelpContent = {
   title: 'Performance Insights',
@@ -68,7 +68,7 @@ const EVALUATE_HELP: HelpContent = {
 };
 
 // Enhanced types for executive-grade evaluation
-type EvaluateView = 'dashboard' | 'queue' | 'performance' | 'insights';
+type EvaluateView = 'dashboard' | 'tasks' | 'queue' | 'performance' | 'insights';
 
 interface WorkSubmission {
   id: string;
@@ -477,6 +477,77 @@ export default function EvaluateScreen() {
     generateInsights(enrichedWorkPlans, performanceData),
   [enrichedWorkPlans, performanceData]);
 
+  // Get current executive's member info for filtering
+  const currentExecMember = useMemo(() => {
+    if (!currentUser || !isExecutive) return null;
+    return members.find(m =>
+      m.name === currentUser.name ||
+      (m.role === 'FractionalExec' && m.function === currentMembership?.function)
+    );
+  }, [members, currentUser, isExecutive, currentMembership]);
+
+  // Categorize tasks for the executive's function (tasks they're evaluating)
+  const categorizedTasks = useMemo(() => {
+    // Filter to only tasks in executive's function that they would evaluate
+    const execFunction = currentMembership?.function as BusinessFunction | undefined;
+    const tasksToEvaluate = enrichedWorkPlans.filter(wp => {
+      // For executives, show tasks in their function
+      if (isExecutive && !isFounder && execFunction) {
+        return wp.function === execFunction;
+      }
+      // For founders, show all tasks
+      return true;
+    });
+
+    // Active tasks (in-progress) - ordered by days to completion
+    const activeTasks = tasksToEvaluate
+      .filter(t => t.status === 'in-progress')
+      .sort((a, b) => a.daysUntilDue - b.daysUntilDue);
+
+    // Not started tasks
+    const notStartedTasks = tasksToEvaluate
+      .filter(t => t.status === 'not-started')
+      .sort((a, b) => a.daysUntilDue - b.daysUntilDue);
+
+    // Abandoned tasks (blocked with progress > 0)
+    const abandonedTasks = tasksToEvaluate
+      .filter(t => t.status === 'blocked' && t.progress > 0)
+      .sort((a, b) => b.progress - a.progress); // Higher progress = more wasted
+
+    // Completed tasks
+    const completedTasks = tasksToEvaluate
+      .filter(t => t.status === 'completed')
+      .sort((a, b) => {
+        // Sort by due date as proxy for completion date
+        const dateA = new Date(a.dueDate).getTime();
+        const dateB = new Date(b.dueDate).getTime();
+        return dateB - dateA;
+      });
+
+    return { activeTasks, notStartedTasks, abandonedTasks, completedTasks };
+  }, [enrichedWorkPlans, isExecutive, isFounder, currentMembership]);
+
+  // Calculate task cost and team efficiency
+  const calculateTaskCost = (plan: EvaluationWorkPlan) => {
+    const teamSize = plan.assignedTo?.length || 1;
+    const teamEfficiency = getTeamSizeEfficiency(teamSize);
+    const totalSquares = plan.estimatedTimeUnits;
+    const allocatedPerWeek = plan.allocatedTimeUnitsPerWeek || 2;
+    const effectiveOutputPerWeek = allocatedPerWeek * teamEfficiency.efficiencyMultiplier;
+    const remainingSquares = Math.ceil(totalSquares * (1 - plan.progress / 100));
+    const weeksToComplete = effectiveOutputPerWeek > 0 ? Math.ceil(remainingSquares / effectiveOutputPerWeek) : 0;
+
+    return {
+      teamSize,
+      teamEfficiency,
+      totalSquares,
+      allocatedPerWeek,
+      effectiveOutputPerWeek,
+      remainingSquares,
+      weeksToComplete,
+    };
+  };
+
   // Summary stats
   const stats = useMemo(() => {
     const pending = submissions.filter(s => s.status === 'pending').length;
@@ -642,6 +713,7 @@ export default function EvaluateScreen() {
         >
           {[
             { value: 'dashboard', label: 'Dashboard', icon: BarChart3 },
+            { value: 'tasks', label: 'All Tasks', icon: Briefcase, count: categorizedTasks.activeTasks.length + categorizedTasks.notStartedTasks.length },
             { value: 'queue', label: 'Review Queue', icon: FileCheck, count: stats.pending },
             { value: 'performance', label: 'Performance', icon: UserCheck },
             { value: 'insights', label: 'Insights', icon: Lightbulb, count: insights.length },
@@ -881,6 +953,300 @@ export default function EvaluateScreen() {
                 );
               })}
             </View>
+          </View>
+        )}
+
+        {/* ALL TASKS VIEW - Categorized like Decide tab */}
+        {activeView === 'tasks' && (
+          <View className="px-5 py-4">
+            {/* ACTIVE TASKS - In Progress, ordered by days to completion */}
+            {categorizedTasks.activeTasks.length > 0 && (
+              <View className="mb-6">
+                <View className="flex-row items-center justify-between mb-3">
+                  <Text className="text-blue-600 dark:text-blue-400 text-xs font-bold tracking-wide">
+                    ACTIVE - IN PROGRESS
+                  </Text>
+                  <View className="bg-blue-100 dark:bg-blue-900/30 px-2 py-0.5 rounded">
+                    <Text className="text-blue-700 dark:text-blue-300 text-xs font-semibold">
+                      {categorizedTasks.activeTasks.length} task{categorizedTasks.activeTasks.length !== 1 ? 's' : ''}
+                    </Text>
+                  </View>
+                </View>
+                {categorizedTasks.activeTasks.map((plan, idx) => {
+                  const riskColors = getRiskColor(plan.riskLevel);
+                  const funcColor = getFunctionColor(plan.function);
+                  const taskCost = calculateTaskCost(plan);
+                  return (
+                    <Animated.View key={plan.id} entering={FadeInDown.delay(idx * 30).duration(300)}>
+                      <Pressable
+                        onPress={() => togglePlan(plan.id)}
+                        className={`bg-white dark:bg-slate-900 rounded-xl p-4 mb-3 border border-blue-200 dark:border-blue-800 active:opacity-90`}
+                      >
+                        <View className="flex-row items-start justify-between mb-2">
+                          <View className="flex-1">
+                            <View className="flex-row items-center gap-2 mb-1">
+                              <View
+                                className="px-2 py-0.5 rounded"
+                                style={{ backgroundColor: funcColor + '20' }}
+                              >
+                                <Text className="text-xs font-semibold" style={{ color: funcColor }}>
+                                  {plan.function}
+                                </Text>
+                              </View>
+                              {/* Team Efficiency Badge */}
+                              <View className={`px-2 py-0.5 rounded ${
+                                taskCost.teamEfficiency.efficiencyMultiplier >= 1 ? 'bg-emerald-100 dark:bg-emerald-900/30' :
+                                taskCost.teamEfficiency.efficiencyMultiplier >= 0.9 ? 'bg-amber-100 dark:bg-amber-900/30' :
+                                'bg-red-100 dark:bg-red-900/30'
+                              }`}>
+                                <Text className={`text-xs font-semibold ${
+                                  taskCost.teamEfficiency.efficiencyMultiplier >= 1 ? 'text-emerald-700 dark:text-emerald-300' :
+                                  taskCost.teamEfficiency.efficiencyMultiplier >= 0.9 ? 'text-amber-700 dark:text-amber-300' :
+                                  'text-red-700 dark:text-red-300'
+                                }`}>
+                                  {taskCost.teamSize}👤 {Math.round(taskCost.teamEfficiency.efficiencyMultiplier * 100)}%
+                                </Text>
+                              </View>
+                            </View>
+                            <Text className="text-gray-900 dark:text-white font-bold text-base">
+                              {plan.title}
+                            </Text>
+                          </View>
+                          <View className="items-end ml-3">
+                            <View className={`px-2 py-1 rounded ${
+                              plan.daysUntilDue <= 2 ? 'bg-red-100 dark:bg-red-900/30' :
+                              plan.daysUntilDue <= 7 ? 'bg-amber-100 dark:bg-amber-900/30' :
+                              'bg-gray-100 dark:bg-slate-800'
+                            }`}>
+                              <Text className={`text-xs font-bold ${
+                                plan.daysUntilDue <= 2 ? 'text-red-600 dark:text-red-400' :
+                                plan.daysUntilDue <= 7 ? 'text-amber-600 dark:text-amber-400' :
+                                'text-gray-600 dark:text-slate-400'
+                              }`}>
+                                {plan.daysUntilDue <= 0 ? 'Overdue' : `${plan.daysUntilDue}d`}
+                              </Text>
+                            </View>
+                          </View>
+                        </View>
+                        {/* Progress and Squares */}
+                        <View className="flex-row items-center justify-between">
+                          <SquaresDisplay
+                            totalSquares={plan.estimatedTimeUnits}
+                            completedSquares={Math.round((plan.progress / 100) * plan.estimatedTimeUnits)}
+                            variant="compact"
+                            statusColor="#3b82f6"
+                          />
+                          <View className="flex-row items-center gap-2">
+                            <Text className="text-gray-600 dark:text-slate-400 text-xs">
+                              {plan.progress}%
+                            </Text>
+                            <Text className="text-gray-400 dark:text-slate-500 text-xs">
+                              ~{taskCost.weeksToComplete}w
+                            </Text>
+                          </View>
+                        </View>
+                      </Pressable>
+                    </Animated.View>
+                  );
+                })}
+              </View>
+            )}
+
+            {/* NOT STARTED TASKS */}
+            {categorizedTasks.notStartedTasks.length > 0 && (
+              <View className="mb-6">
+                <View className="flex-row items-center justify-between mb-3">
+                  <Text className="text-gray-500 dark:text-slate-400 text-xs font-bold tracking-wide">
+                    NOT STARTED
+                  </Text>
+                  <View className="bg-gray-100 dark:bg-slate-800 px-2 py-0.5 rounded">
+                    <Text className="text-gray-600 dark:text-slate-400 text-xs font-semibold">
+                      {categorizedTasks.notStartedTasks.length} task{categorizedTasks.notStartedTasks.length !== 1 ? 's' : ''}
+                    </Text>
+                  </View>
+                </View>
+                {categorizedTasks.notStartedTasks.map((plan, idx) => {
+                  const funcColor = getFunctionColor(plan.function);
+                  const taskCost = calculateTaskCost(plan);
+                  return (
+                    <Animated.View key={plan.id} entering={FadeInDown.delay(idx * 30).duration(300)}>
+                      <Pressable
+                        onPress={() => togglePlan(plan.id)}
+                        className="bg-white dark:bg-slate-900 rounded-xl p-4 mb-3 border border-gray-200 dark:border-slate-800 active:opacity-90"
+                      >
+                        <View className="flex-row items-start justify-between mb-2">
+                          <View className="flex-1">
+                            <View className="flex-row items-center gap-2 mb-1">
+                              <View
+                                className="px-2 py-0.5 rounded"
+                                style={{ backgroundColor: funcColor + '20' }}
+                              >
+                                <Text className="text-xs font-semibold" style={{ color: funcColor }}>
+                                  {plan.function}
+                                </Text>
+                              </View>
+                              <View className={`px-2 py-0.5 rounded ${
+                                taskCost.teamEfficiency.efficiencyMultiplier >= 1 ? 'bg-emerald-100 dark:bg-emerald-900/30' :
+                                taskCost.teamEfficiency.efficiencyMultiplier >= 0.9 ? 'bg-amber-100 dark:bg-amber-900/30' :
+                                'bg-red-100 dark:bg-red-900/30'
+                              }`}>
+                                <Text className={`text-xs font-semibold ${
+                                  taskCost.teamEfficiency.efficiencyMultiplier >= 1 ? 'text-emerald-700 dark:text-emerald-300' :
+                                  taskCost.teamEfficiency.efficiencyMultiplier >= 0.9 ? 'text-amber-700 dark:text-amber-300' :
+                                  'text-red-700 dark:text-red-300'
+                                }`}>
+                                  {taskCost.teamSize}👤 {Math.round(taskCost.teamEfficiency.efficiencyMultiplier * 100)}%
+                                </Text>
+                              </View>
+                            </View>
+                            <Text className="text-gray-900 dark:text-white font-bold text-base">
+                              {plan.title}
+                            </Text>
+                          </View>
+                          <View className={`px-2 py-1 rounded ${
+                            plan.daysUntilDue <= 7 ? 'bg-amber-100 dark:bg-amber-900/30' : 'bg-gray-100 dark:bg-slate-800'
+                          }`}>
+                            <Text className={`text-xs font-bold ${
+                              plan.daysUntilDue <= 7 ? 'text-amber-600 dark:text-amber-400' : 'text-gray-600 dark:text-slate-400'
+                            }`}>
+                              {plan.daysUntilDue}d
+                            </Text>
+                          </View>
+                        </View>
+                        <SquaresDisplay
+                          totalSquares={plan.estimatedTimeUnits}
+                          completedSquares={0}
+                          variant="compact"
+                          statusColor="#64748b"
+                        />
+                      </Pressable>
+                    </Animated.View>
+                  );
+                })}
+              </View>
+            )}
+
+            {/* ABANDONED TASKS */}
+            {categorizedTasks.abandonedTasks.length > 0 && (
+              <View className="mb-6">
+                <View className="flex-row items-center justify-between mb-3">
+                  <Text className="text-red-500 dark:text-red-400 text-xs font-bold tracking-wide">
+                    ABANDONED
+                  </Text>
+                  <View className="bg-red-100 dark:bg-red-900/30 px-2 py-0.5 rounded">
+                    <Text className="text-red-600 dark:text-red-400 text-xs font-semibold">
+                      {categorizedTasks.abandonedTasks.length} task{categorizedTasks.abandonedTasks.length !== 1 ? 's' : ''}
+                    </Text>
+                  </View>
+                </View>
+                <View className="bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-800/50 rounded-xl p-3 mb-3">
+                  <View className="flex-row items-center">
+                    <AlertTriangle size={14} color="#ef4444" />
+                    <Text className="text-red-600 dark:text-red-400 text-xs ml-2 flex-1">
+                      These tasks were started but abandoned. TUs shown represent wasted effort.
+                    </Text>
+                  </View>
+                </View>
+                {categorizedTasks.abandonedTasks.map((plan, idx) => {
+                  const funcColor = getFunctionColor(plan.function);
+                  const wastedSquares = Math.round((plan.progress / 100) * plan.estimatedTimeUnits);
+                  return (
+                    <Animated.View key={plan.id} entering={FadeInDown.delay(idx * 30).duration(300)}>
+                      <Pressable
+                        className="bg-red-50 dark:bg-red-900/10 rounded-xl p-4 mb-3 border border-red-200 dark:border-red-800 active:opacity-90"
+                      >
+                        <View className="flex-row items-start justify-between mb-2">
+                          <View className="flex-1">
+                            <View className="flex-row items-center gap-2 mb-1">
+                              <View
+                                className="px-2 py-0.5 rounded"
+                                style={{ backgroundColor: funcColor + '20' }}
+                              >
+                                <Text className="text-xs font-semibold" style={{ color: funcColor }}>
+                                  {plan.function}
+                                </Text>
+                              </View>
+                              <View className="px-2 py-0.5 rounded bg-red-100 dark:bg-red-900/30">
+                                <Text className="text-red-600 dark:text-red-400 text-xs font-semibold">
+                                  BLOCKED
+                                </Text>
+                              </View>
+                            </View>
+                            <Text className="text-gray-900 dark:text-white font-bold text-base">
+                              {plan.title}
+                            </Text>
+                          </View>
+                          <View className="items-end">
+                            <Text className="text-red-600 dark:text-red-400 text-xs font-bold">
+                              {wastedSquares}□ wasted
+                            </Text>
+                            <Text className="text-red-500 dark:text-red-500 text-xs">
+                              {plan.progress}% done
+                            </Text>
+                          </View>
+                        </View>
+                      </Pressable>
+                    </Animated.View>
+                  );
+                })}
+              </View>
+            )}
+
+            {/* COMPLETED TASKS */}
+            {categorizedTasks.completedTasks.length > 0 && (
+              <View className="mb-6">
+                <View className="flex-row items-center justify-between mb-3">
+                  <Text className="text-emerald-600 dark:text-emerald-400 text-xs font-bold tracking-wide">
+                    COMPLETED
+                  </Text>
+                  <View className="bg-emerald-100 dark:bg-emerald-900/30 px-2 py-0.5 rounded">
+                    <Text className="text-emerald-700 dark:text-emerald-300 text-xs font-semibold">
+                      {categorizedTasks.completedTasks.length} task{categorizedTasks.completedTasks.length !== 1 ? 's' : ''}
+                    </Text>
+                  </View>
+                </View>
+                {categorizedTasks.completedTasks.slice(0, 5).map((plan, idx) => {
+                  const funcColor = getFunctionColor(plan.function);
+                  return (
+                    <Animated.View key={plan.id} entering={FadeInDown.delay(idx * 30).duration(300)}>
+                      <Pressable
+                        className="bg-emerald-50 dark:bg-emerald-900/10 rounded-xl p-4 mb-3 border border-emerald-200 dark:border-emerald-800 active:opacity-90"
+                      >
+                        <View className="flex-row items-center justify-between">
+                          <View className="flex-row items-center flex-1">
+                            <CheckCircle2 size={20} color="#10b981" />
+                            <View className="ml-3 flex-1">
+                              <Text className="text-gray-900 dark:text-white font-semibold" numberOfLines={1}>
+                                {plan.title}
+                              </Text>
+                              <Text className="text-emerald-600 dark:text-emerald-400 text-xs">
+                                {plan.estimatedTimeUnits}□ • {plan.function}
+                              </Text>
+                            </View>
+                          </View>
+                        </View>
+                      </Pressable>
+                    </Animated.View>
+                  );
+                })}
+              </View>
+            )}
+
+            {/* Empty State */}
+            {categorizedTasks.activeTasks.length === 0 &&
+             categorizedTasks.notStartedTasks.length === 0 &&
+             categorizedTasks.abandonedTasks.length === 0 &&
+             categorizedTasks.completedTasks.length === 0 && (
+              <View className="items-center justify-center py-12 bg-white dark:bg-slate-900 rounded-xl">
+                <Briefcase size={48} color="#3b82f6" />
+                <Text className="text-blue-600 dark:text-blue-400 text-center font-semibold text-lg mt-4">
+                  No Tasks to Evaluate
+                </Text>
+                <Text className="text-gray-500 dark:text-slate-400 text-center mt-2">
+                  Tasks in your function will appear here
+                </Text>
+              </View>
+            )}
           </View>
         )}
 
