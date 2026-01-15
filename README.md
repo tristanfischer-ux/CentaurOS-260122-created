@@ -17,6 +17,9 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
 
 ### Decide Tab Enhancements (Latest)
 - **Mini Gantt Chart Timeline**: Interactive weekly timeline with synchronized scrolling
+  - **Unified Styling**: Header and spacing match Weekly Resource Pool for consistency
+  - **Light Avatar Style**: Avatars use 20% opacity backgrounds matching resource pool design
+  - **Task Details Modal**: Clicking any task opens the full task details card with allocation controls
   - **Borderless Design**: Removed outer box border for maximum screen space utilization
   - **Senior-First Avatar Display**: Most senior team member (Founder > Exec > Apprentice) appears immediately to the left of task bar
   - **Team Avatars on Timeline**: Avatars positioned immediately to the left of each task bar, stacked left to right by seniority
@@ -25,7 +28,6 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
   - Visual task bars color-coded by status (not-started, in-progress, blocked)
   - Shows 13 weeks: 6 weeks past, current week (highlighted), 6 weeks future
   - **Vertical scrolling**: Shows 5 tasks at a time, scroll to see more
-  - Tap any task to view full details
   - Smart start date calculation based on estimated time units
 - **Optimized Resource Pool**: Fixed to show exactly 5 team members at a time
   - Scroll up/down to see your entire team

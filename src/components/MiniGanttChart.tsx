@@ -2,7 +2,6 @@ import { View, Text, ScrollView, Pressable } from 'react-native';
 import { useMemo, useRef, useEffect } from 'react';
 import { type WorkPlan } from '@/lib/state/work-plan-store';
 import { type OrganizationMember } from '@/lib/organization-seed';
-import { Calendar } from 'lucide-react-native';
 
 interface MiniGanttChartProps {
   workPlans: WorkPlan[];
@@ -153,18 +152,17 @@ export function MiniGanttChart({ workPlans, members, onTaskPress }: MiniGanttCha
   }, []);
 
   return (
-    <View className="mb-4">
+    <View className="mb-4 bg-white dark:bg-slate-900 border-b-2 border-gray-200 dark:border-slate-700">
       {/* Header */}
-      <View className="px-4 py-3 border-b border-gray-200 dark:border-slate-700 flex-row items-center justify-between bg-white dark:bg-slate-900">
-        <View className="flex-row items-center gap-2">
-          <Calendar size={18} color="#6b7280" />
-          <Text className="text-gray-900 dark:text-white text-sm font-bold">
+      <View className="px-4 pt-2 pb-1.5 border-b border-gray-200 dark:border-slate-700">
+        <View className="flex-row items-center justify-between">
+          <Text className="text-gray-900 dark:text-white text-xs font-bold">
             TASK TIMELINE
           </Text>
+          <Text className="text-gray-600 dark:text-slate-400 text-[10px] font-semibold">
+            {activeTasks.length} active task{activeTasks.length !== 1 ? 's' : ''}
+          </Text>
         </View>
-        <Text className="text-gray-500 dark:text-slate-400 text-xs">
-          {activeTasks.length} active tasks
-        </Text>
       </View>
 
       {/* Timeline Content */}
@@ -250,10 +248,10 @@ export function MiniGanttChart({ workPlans, members, onTaskPress }: MiniGanttCha
                         <>
                           {assignedMembers.length > 2 && (
                             <View
-                              className="w-6 h-6 rounded-full items-center justify-center bg-gray-500 border border-white dark:border-slate-900"
-                              style={{ marginRight: -6, zIndex: 0 }}
+                              className="w-6 h-6 rounded-full items-center justify-center"
+                              style={{ backgroundColor: '#9ca3af20', marginRight: -6, zIndex: 0 }}
                             >
-                              <Text className="text-white font-bold text-[8px]">
+                              <Text className="font-bold text-[8px] text-gray-600 dark:text-gray-400">
                                 +{assignedMembers.length - 2}
                               </Text>
                             </View>
@@ -261,14 +259,14 @@ export function MiniGanttChart({ workPlans, members, onTaskPress }: MiniGanttCha
                           {assignedMembers.slice(0, 2).map((member, idx) => (
                             <View
                               key={member.id}
-                              className="w-6 h-6 rounded-full items-center justify-center border border-white dark:border-slate-900"
+                              className="w-6 h-6 rounded-full items-center justify-center"
                               style={{
-                                backgroundColor: ROLE_COLORS[member.role],
+                                backgroundColor: ROLE_COLORS[member.role] + '20',
                                 marginRight: idx < assignedMembers.slice(0, 2).length - 1 ? -6 : 0,
                                 zIndex: idx + 1
                               }}
                             >
-                              <Text className="text-white font-bold text-[8px]">
+                              <Text className="font-bold text-[8px]" style={{ color: ROLE_COLORS[member.role] }}>
                                 {getInitials(member.name)}
                               </Text>
                             </View>
@@ -327,17 +325,17 @@ export function MiniGanttChart({ workPlans, members, onTaskPress }: MiniGanttCha
         </ScrollView>
 
         {/* Legend */}
-        <View className="px-4 py-2 border-t border-gray-200 dark:border-slate-700 flex-row items-center justify-end gap-3 bg-white dark:bg-slate-900">
+        <View className="px-4 py-1.5 border-t border-gray-200 dark:border-slate-700 flex-row items-center justify-end gap-3 bg-white dark:bg-slate-900">
           <View className="flex-row items-center gap-1">
-            <View className="w-2.5 h-2.5 rounded border-2 bg-gray-200 border-gray-400" />
+            <View className="w-2.5 h-2.5 rounded-sm border bg-gray-200 border-gray-300" />
             <Text className="text-gray-600 dark:text-slate-400 text-[9px]">Not Started</Text>
           </View>
           <View className="flex-row items-center gap-1">
-            <View className="w-2.5 h-2.5 rounded border-2 bg-blue-400 border-blue-600" />
+            <View className="w-2.5 h-2.5 rounded-sm border bg-blue-400 border-blue-600" />
             <Text className="text-gray-600 dark:text-slate-400 text-[9px]">In Progress</Text>
           </View>
           <View className="flex-row items-center gap-1">
-            <View className="w-2.5 h-2.5 rounded border-2 bg-red-400 border-red-600" />
+            <View className="w-2.5 h-2.5 rounded-sm border bg-red-400 border-red-600" />
             <Text className="text-gray-600 dark:text-slate-400 text-[9px]">Blocked</Text>
           </View>
         </View>
