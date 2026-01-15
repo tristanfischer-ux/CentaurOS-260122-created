@@ -389,7 +389,12 @@ export default function DecideScreen() {
 
     filteredOKRs.forEach(okr => {
       const linkedPlans = workPlans.filter(wp => wp.linkedOKRTitle === okr.title);
-      if (linkedPlans.length > 0) {
+      // An OKR is active if it has work plans WITH assigned members
+      const hasActiveWork = linkedPlans.some(plan =>
+        plan.assignedMemberIds && plan.assignedMemberIds.length > 0
+      );
+
+      if (hasActiveWork) {
         active.push(okr);
       } else {
         queued.push(okr);
