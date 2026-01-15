@@ -6,16 +6,17 @@
  * Flow:
  * 1. Click on a task → see explanation and default TU estimate
  * 2. Adjust total TUs up/down
- * 3. Tap on people to add their TUs (squares become allocated)
+ * 3. TAP on people to add their TUs (all squares visible, tap-to-add interface)
  * 4. Select AI tools for productivity boost
  * 5. See cost breakdown, timeline, and team efficiency
  * 6. Complete or Abandon task
  *
  * Key Features:
- * - Per-person TU allocation with visual squares
+ * - Tap-to-add TU allocation with full capacity visibility
+ * - ALL team members shown with their complete capacity grid
+ * - Skill mismatch warnings with 50% efficiency penalty
  * - AI productivity multipliers (2x, 5x, 10x, 20x)
  * - Team size efficiency (Brooks' Law)
- * - Skill-based recommendations
  * - Cost tracking and audit trail
  * - Unallocated TU warnings
  */
