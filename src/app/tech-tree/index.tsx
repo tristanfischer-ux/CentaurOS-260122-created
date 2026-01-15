@@ -53,7 +53,7 @@ export default function TechTreeScreen() {
         return { bg: 'bg-purple-500', border: 'border-purple-400', text: 'text-purple-400' };
       case 'locked':
       default:
-        return { bg: 'bg-gray-700', border: 'border-gray-600', text: 'text-gray-500' };
+        return { bg: 'bg-gray-300 dark:bg-slate-700', border: 'border-gray-400 dark:border-slate-600', text: 'text-gray-500 dark:text-slate-400' };
     }
   };
 
@@ -86,7 +86,7 @@ export default function TechTreeScreen() {
   const xpPercent = (currentXP / xpToNextLevel) * 100;
 
   return (
-    <View className="flex-1 bg-gray-950">
+    <View className="flex-1 bg-white dark:bg-slate-950">
       <Stack.Screen
         options={{
           headerShown: true,
@@ -102,23 +102,23 @@ export default function TechTreeScreen() {
       />
 
       {/* Header: XP & Level */}
-      <View className="px-5 py-4 border-b border-gray-800">
+      <View className="px-5 py-4 border-b border-gray-200 dark:border-slate-800">
         <View className="flex-row items-center justify-between mb-3">
           <View>
             <View className="flex-row items-center gap-2 mb-1">
               <Sparkles size={20} color="#f59e0b" />
-              <Text className="text-white text-2xl font-bold">Level {currentLevel}</Text>
+              <Text className="text-gray-900 dark:text-white text-2xl font-bold">Level {currentLevel}</Text>
             </View>
-            <Text className="text-gray-400 text-sm">
+            <Text className="text-gray-600 dark:text-slate-400 text-sm">
               {totalNodesCompleted} nodes completed
             </Text>
           </View>
 
           <View className="items-end">
-            <Text className="text-gray-400 text-xs mb-1">
+            <Text className="text-gray-600 dark:text-slate-400 text-xs mb-1">
               {currentXP} / {xpToNextLevel} XP
             </Text>
-            <View className="w-32 h-2 bg-gray-800 rounded-full overflow-hidden">
+            <View className="w-32 h-2 bg-gray-200 dark:bg-slate-800 rounded-full overflow-hidden">
               <View
                 className="h-full bg-gradient-to-r from-purple-500 to-blue-500"
                 style={{ width: `${xpPercent}%` }}
@@ -153,17 +153,17 @@ export default function TechTreeScreen() {
             className={`flex-1 py-3 rounded-xl border-2 ${
               selectedAct === act
                 ? 'bg-purple-500/20 border-purple-500'
-                : 'bg-gray-900 border-gray-800'
+                : 'bg-gray-50 dark:bg-slate-900 border-gray-200 dark:border-slate-800'
             }`}
           >
             <Text
               className={`text-center font-semibold ${
-                selectedAct === act ? 'text-purple-400' : 'text-gray-400'
+                selectedAct === act ? 'text-purple-400' : 'text-gray-600 dark:text-slate-400'
               }`}
             >
               ACT {act}
             </Text>
-            <Text className="text-center text-xs text-gray-500 mt-1">
+            <Text className="text-center text-xs text-gray-500 dark:text-slate-400 mt-1">
               {act === 1
                 ? 'Foundations'
                 : act === 2
@@ -270,27 +270,27 @@ export default function TechTreeScreen() {
 
         {/* Legend */}
         <View className="px-5 pb-6">
-          <Text className="text-white text-sm font-semibold mb-3">Legend</Text>
+          <Text className="text-gray-900 dark:text-white text-sm font-semibold mb-3">Legend</Text>
           <View className="flex-row flex-wrap gap-4">
             <View className="flex-row items-center gap-2">
               <Lock size={16} color="#6b7280" />
-              <Text className="text-gray-400 text-xs">Locked</Text>
+              <Text className="text-gray-600 dark:text-slate-400 text-xs">Locked</Text>
             </View>
             <View className="flex-row items-center gap-2">
               <Star size={16} color="#a855f7" />
-              <Text className="text-gray-400 text-xs">Available</Text>
+              <Text className="text-gray-600 dark:text-slate-400 text-xs">Available</Text>
             </View>
             <View className="flex-row items-center gap-2">
               <Zap size={16} color="#3b82f6" />
-              <Text className="text-gray-400 text-xs">In Progress</Text>
+              <Text className="text-gray-600 dark:text-slate-400 text-xs">In Progress</Text>
             </View>
             <View className="flex-row items-center gap-2">
               <CheckCircle2 size={16} color="#10b981" />
-              <Text className="text-gray-400 text-xs">Completed</Text>
+              <Text className="text-gray-600 dark:text-slate-400 text-xs">Completed</Text>
             </View>
             <View className="flex-row items-center gap-2">
               <Trophy size={16} color="#10b981" />
-              <Text className="text-gray-400 text-xs">Boss Gate</Text>
+              <Text className="text-gray-600 dark:text-slate-400 text-xs">Boss Gate</Text>
             </View>
           </View>
         </View>

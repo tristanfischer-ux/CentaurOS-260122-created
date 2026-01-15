@@ -48,7 +48,6 @@ import {
 // Components
 import { HelpModal, HelpButton, type HelpContent } from '@/components/HelpModal';
 import { autoSeedDemoDataIfNeeded } from '@/lib/seed-demo-data';
-import { getWeekCounterInfo } from '@/lib/time-utils';
 
 const HOME_HELP: HelpContent = {
   title: 'Mission Control',
@@ -125,10 +124,8 @@ export default function MissionControlHome() {
       ? `${companyHealth.runwayMonths.toFixed(1)}mo`
       : '∞';
 
-  const weekInfo = currentWorkspace ? getWeekCounterInfo(currentWorkspace.createdAt) : null;
-
   return (
-    <View className="flex-1 bg-white dark:bg-slate-950">
+    <View className="flex-1 bg-gray-950">
       {/* Help Modal */}
       <HelpModal
         visible={showHelp}
@@ -143,12 +140,12 @@ export default function MissionControlHome() {
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={{
-          paddingHorizontal: 24,
+          paddingHorizontal: 20,
           paddingTop: insets.top + 20,
           paddingBottom: 20,
         }}
       >
-        <View className="flex-row items-center justify-between mb-2">
+        <View className="flex-row items-center justify-between mb-3">
           <View className="flex-1">
             <Text className="text-purple-200 text-sm font-medium">
               MISSION CONTROL
@@ -156,28 +153,12 @@ export default function MissionControlHome() {
             <Text className="text-white text-2xl font-bold mt-1">
               {currentWorkspace?.name || 'Fractional Foundry'}
             </Text>
-            {weekInfo && (
-              <View className="mt-1.5 flex-row items-center gap-2">
-                <View className="bg-white/20 px-2 py-1 rounded">
-                  <Text className="text-white text-[10px] font-semibold">
-                    {weekInfo.displayText}
-                  </Text>
-                </View>
-                {weekInfo.weeksSinceFounding > 0 && (
-                  <View className="bg-purple-500/40 px-2 py-1 rounded">
-                    <Text className="text-white text-[10px] font-semibold">
-                      WEEK {weekInfo.weeksSinceFounding}
-                    </Text>
-                  </View>
-                )}
-              </View>
-            )}
           </View>
           <HelpButton onPress={() => setShowHelp(true)} />
         </View>
 
         {/* Status Chips */}
-        <View className="flex-row flex-wrap gap-2 mt-2">
+        <View className="flex-row flex-wrap gap-2">
           <View className="bg-white/20 px-3 py-1.5 rounded-full">
             <Text className="text-white text-xs font-semibold">
               Runway: {runwayDisplay}
@@ -211,10 +192,10 @@ export default function MissionControlHome() {
         }
       >
         {/* MAIN QUEST */}
-        <View className="px-6 pt-6">
+        <View className="px-5 pt-6">
           <View className="flex-row items-center gap-2 mb-3">
             <Trophy size={20} color="#a855f7" />
-            <Text className="text-gray-900 dark:text-white text-lg font-bold">MAIN QUEST</Text>
+            <Text className="text-white text-lg font-bold">MAIN QUEST</Text>
           </View>
 
           {mainQuest ? (
@@ -226,10 +207,10 @@ export default function MissionControlHome() {
                     ACT {mainQuest.node.actId} •{' '}
                     {mainQuest.node.type === 'main' ? 'MAIN' : 'SIDE QUEST'}
                   </Text>
-                  <Text className="text-gray-900 dark:text-white text-xl font-bold mb-1">
+                  <Text className="text-white text-xl font-bold mb-1">
                     {mainQuest.node.title}
                   </Text>
-                  <Text className="text-gray-600 dark:text-slate-400 text-sm">
+                  <Text className="text-gray-400 text-sm">
                     {mainQuest.node.subtitle}
                   </Text>
                 </View>
@@ -243,14 +224,14 @@ export default function MissionControlHome() {
               {/* Progress */}
               <View className="mb-4">
                 <View className="flex-row items-center justify-between mb-2">
-                  <Text className="text-gray-700 dark:text-slate-300 text-sm font-medium">
+                  <Text className="text-gray-300 text-sm font-medium">
                     Progress: {mainQuest.progressTU}/{mainQuest.totalTU} TU
                   </Text>
                   <Text className="text-purple-400 text-sm font-bold">
                     {mainQuest.progressPercent.toFixed(0)}%
                   </Text>
                 </View>
-                <View className="h-2 bg-gray-200 dark:bg-slate-800 rounded-full overflow-hidden">
+                <View className="h-2 bg-gray-800 rounded-full overflow-hidden">
                   <View
                     className="h-full bg-gradient-to-r from-purple-500 to-blue-500"
                     style={{ width: `${mainQuest.progressPercent}%` }}
@@ -260,23 +241,23 @@ export default function MissionControlHome() {
 
               {/* ETA */}
               <View className="flex-row items-center gap-4 mb-4">
-                <View className="flex-1 bg-gray-50 dark:bg-slate-900/50 rounded-xl p-3">
+                <View className="flex-1 bg-gray-900/50 rounded-xl p-3">
                   <View className="flex-row items-center gap-2 mb-1">
                     <Clock size={14} color="#9ca3af" />
-                    <Text className="text-gray-600 dark:text-slate-400 text-xs">ETA</Text>
+                    <Text className="text-gray-400 text-xs">ETA</Text>
                   </View>
-                  <Text className="text-gray-900 dark:text-white text-base font-bold">
+                  <Text className="text-white text-base font-bold">
                     {mainQuest.etaWeeks !== null
                       ? `${mainQuest.etaWeeks.toFixed(1)}w`
                       : 'N/A'}
                   </Text>
                 </View>
-                <View className="flex-1 bg-gray-50 dark:bg-slate-900/50 rounded-xl p-3">
+                <View className="flex-1 bg-gray-900/50 rounded-xl p-3">
                   <View className="flex-row items-center gap-2 mb-1">
                     <Zap size={14} color="#9ca3af" />
-                    <Text className="text-gray-600 dark:text-slate-400 text-xs">Allocated</Text>
+                    <Text className="text-gray-400 text-xs">Allocated</Text>
                   </View>
-                  <Text className="text-gray-900 dark:text-white text-base font-bold">
+                  <Text className="text-white text-base font-bold">
                     {mainQuest.allocatedTUPerWeek} TU/wk
                   </Text>
                 </View>
@@ -305,13 +286,13 @@ export default function MissionControlHome() {
                   onPress={() => router.push(`/tech-tree/${mainQuest.node.id}` as any)}
                   className="flex-1 bg-purple-500 rounded-xl py-3 items-center active:opacity-70"
                 >
-                  <Text className="text-gray-900 dark:text-white text-sm font-bold">View Quest</Text>
+                  <Text className="text-white text-sm font-bold">View Quest</Text>
                 </Pressable>
                 <Pressable
                   onPress={() => router.push('/(tabs)/decide')}
                   className="flex-1 bg-blue-500 rounded-xl py-3 items-center active:opacity-70"
                 >
-                  <Text className="text-gray-900 dark:text-white text-sm font-bold">Allocate TUs</Text>
+                  <Text className="text-white text-sm font-bold">Allocate TUs</Text>
                 </Pressable>
               </View>
 
@@ -320,7 +301,7 @@ export default function MissionControlHome() {
                   onPress={() => router.push(mainQuest.nextStep!.deepLink as any)}
                   className="mt-2 bg-emerald-500 rounded-xl py-3 flex-row items-center justify-center gap-2 active:opacity-70"
                 >
-                  <Text className="text-gray-900 dark:text-white text-sm font-bold">
+                  <Text className="text-white text-sm font-bold">
                     Next Step: {mainQuest.nextStep.title}
                   </Text>
                   <ArrowRight size={16} color="#fff" />
@@ -328,19 +309,19 @@ export default function MissionControlHome() {
               )}
             </View>
           ) : (
-            <View className="bg-gray-50 dark:bg-slate-900 border-2 border-gray-200 dark:border-slate-800 rounded-2xl p-5 items-center">
+            <View className="bg-gray-900 border-2 border-gray-800 rounded-2xl p-5 items-center">
               <Trophy size={48} color="#6b7280" />
-              <Text className="text-gray-900 dark:text-white text-lg font-bold mt-3 mb-2">
+              <Text className="text-white text-lg font-bold mt-3 mb-2">
                 Choose Your Quest
               </Text>
-              <Text className="text-gray-600 dark:text-slate-400 text-sm text-center mb-4">
+              <Text className="text-gray-400 text-sm text-center mb-4">
                 No active quest. Visit the Tech Tree to begin your journey.
               </Text>
               <Pressable
                 onPress={() => router.push('/tech-tree')}
                 className="bg-purple-500 rounded-xl px-6 py-3 active:opacity-70"
               >
-                <Text className="text-gray-900 dark:text-white font-bold">Open Tech Tree</Text>
+                <Text className="text-white font-bold">Open Tech Tree</Text>
               </Pressable>
             </View>
           )}
@@ -348,13 +329,13 @@ export default function MissionControlHome() {
 
         {/* CRITICAL */}
         {criticalItems.length > 0 && (
-          <View className="px-6 pt-6">
+          <View className="px-5 pt-6">
             <View className="flex-row items-center justify-between mb-3">
               <View className="flex-row items-center gap-2">
                 <AlertTriangle size={20} color="#ef4444" />
-                <Text className="text-gray-900 dark:text-white text-lg font-bold">CRITICAL</Text>
+                <Text className="text-white text-lg font-bold">CRITICAL</Text>
               </View>
-              <Text className="text-gray-600 dark:text-slate-400 text-sm">{criticalItems.length}</Text>
+              <Text className="text-gray-400 text-sm">{criticalItems.length}</Text>
             </View>
 
             {criticalItems.slice(0, 1).map((item) => (
@@ -368,13 +349,13 @@ export default function MissionControlHome() {
               >
                 <View className="flex-row items-start justify-between mb-2">
                   <View className="flex-1">
-                    <Text className="text-gray-900 dark:text-white text-base font-bold mb-1">
+                    <Text className="text-white text-base font-bold mb-1">
                       {item.title}
                     </Text>
-                    <Text className="text-gray-600 dark:text-slate-400 text-sm mb-2">
+                    <Text className="text-gray-400 text-sm mb-2">
                       {item.description}
                     </Text>
-                    <View className="bg-gray-50 dark:bg-slate-900/50 px-2 py-1 rounded self-start">
+                    <View className="bg-gray-900/50 px-2 py-1 rounded self-start">
                       <Text className="text-amber-400 text-xs font-semibold">
                         {item.impact}
                       </Text>
@@ -385,7 +366,7 @@ export default function MissionControlHome() {
                   onPress={() => router.push(item.deepLink as any)}
                   className="bg-red-500 rounded-lg py-2 items-center active:opacity-70"
                 >
-                  <Text className="text-gray-900 dark:text-white text-sm font-bold">
+                  <Text className="text-white text-sm font-bold">
                     {item.primaryCTA}
                   </Text>
                 </Pressable>
@@ -407,29 +388,29 @@ export default function MissionControlHome() {
         )}
 
         {/* THIS WEEK'S TU PLAN */}
-        <View className="px-6 pt-6">
+        <View className="px-5 pt-6">
           <View className="flex-row items-center gap-2 mb-3">
             <Activity size={20} color="#3b82f6" />
-            <Text className="text-gray-900 dark:text-white text-lg font-bold">THIS WEEK'S TU PLAN</Text>
+            <Text className="text-white text-lg font-bold">THIS WEEK'S TU PLAN</Text>
           </View>
 
-          <View className="bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-xl p-4">
+          <View className="bg-gray-900 border border-gray-800 rounded-xl p-4">
             {/* Summary */}
             <View className="flex-row justify-between mb-4">
               <View>
-                <Text className="text-gray-600 dark:text-slate-400 text-xs mb-1">Allocated</Text>
-                <Text className="text-gray-900 dark:text-white text-xl font-bold">
+                <Text className="text-gray-400 text-xs mb-1">Allocated</Text>
+                <Text className="text-white text-xl font-bold">
                   {tuAllocation.totalAllocated} TU
                 </Text>
               </View>
               <View>
-                <Text className="text-gray-600 dark:text-slate-400 text-xs mb-1">Available</Text>
-                <Text className="text-gray-900 dark:text-white text-xl font-bold">
+                <Text className="text-gray-400 text-xs mb-1">Available</Text>
+                <Text className="text-white text-xl font-bold">
                   {tuAllocation.totalAvailable} TU
                 </Text>
               </View>
               <View>
-                <Text className="text-gray-600 dark:text-slate-400 text-xs mb-1">Blocked</Text>
+                <Text className="text-gray-400 text-xs mb-1">Blocked</Text>
                 <Text className="text-red-400 text-xl font-bold">
                   {tuAllocation.blockedTU} TU
                 </Text>
@@ -441,7 +422,7 @@ export default function MissionControlHome() {
                 <Text className="text-purple-300 text-xs font-semibold mb-1">
                   Main Quest Allocation
                 </Text>
-                <Text className="text-gray-900 dark:text-white text-lg font-bold">
+                <Text className="text-white text-lg font-bold">
                   {tuAllocation.mainQuestAllocation} TU/wk
                 </Text>
               </View>
@@ -450,22 +431,22 @@ export default function MissionControlHome() {
             {/* Top Tasks */}
             {tuAllocation.topActiveTasks.length > 0 && (
               <View className="mb-4">
-                <Text className="text-gray-600 dark:text-slate-400 text-xs font-semibold mb-2">
+                <Text className="text-gray-400 text-xs font-semibold mb-2">
                   TOP ACTIVE TASKS
                 </Text>
                 {tuAllocation.topActiveTasks.map((task) => (
                   <View
                     key={task.id}
-                    className="flex-row items-center justify-between py-2 border-b border-gray-200 dark:border-slate-800"
+                    className="flex-row items-center justify-between py-2 border-b border-gray-800"
                   >
                     <View className="flex-1">
-                      <Text className="text-gray-900 dark:text-white text-sm font-medium" numberOfLines={1}>
+                      <Text className="text-white text-sm font-medium" numberOfLines={1}>
                         {task.title}
                       </Text>
                     </View>
                     <View className="flex-row items-center gap-3">
-                      <View className="bg-gray-200 dark:bg-slate-800 px-2 py-1 rounded">
-                        <Text className="text-gray-600 dark:text-slate-400 text-xs">{task.ownerInitials}</Text>
+                      <View className="bg-gray-800 px-2 py-1 rounded">
+                        <Text className="text-gray-400 text-xs">{task.ownerInitials}</Text>
                       </View>
                       {task.etaDays && (
                         <View className="bg-blue-500/20 px-2 py-1 rounded">
@@ -485,28 +466,28 @@ export default function MissionControlHome() {
               onPress={() => router.push('/(tabs)/decide')}
               className="bg-blue-500 rounded-xl py-3 items-center active:opacity-70"
             >
-              <Text className="text-gray-900 dark:text-white text-sm font-bold">Open Decide</Text>
+              <Text className="text-white text-sm font-bold">Open Decide</Text>
             </Pressable>
           </View>
         </View>
 
         {/* COMPANY HEALTH */}
-        <View className="px-6 pt-6">
+        <View className="px-5 pt-6">
           <View className="flex-row items-center gap-2 mb-3">
             <TrendingUp size={20} color="#10b981" />
-            <Text className="text-gray-900 dark:text-white text-lg font-bold">COMPANY HEALTH</Text>
+            <Text className="text-white text-lg font-bold">COMPANY HEALTH</Text>
           </View>
 
-          <View className="bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-xl p-4">
+          <View className="bg-gray-900 border border-gray-800 rounded-xl p-4">
             <View className="flex-row flex-wrap gap-3">
               <View className="flex-1 min-w-[45%]">
-                <Text className="text-gray-600 dark:text-slate-400 text-xs mb-1">Runway</Text>
+                <Text className="text-gray-400 text-xs mb-1">Runway</Text>
                 <Text className="text-emerald-400 text-2xl font-bold">
                   {runwayDisplay}
                 </Text>
               </View>
               <View className="flex-1 min-w-[45%]">
-                <Text className="text-gray-600 dark:text-slate-400 text-xs mb-1">Net Flow</Text>
+                <Text className="text-gray-400 text-xs mb-1">Net Flow</Text>
                 <View className="flex-row items-center gap-1">
                   {companyHealth.netFlowMonthly >= 0 ? (
                     <TrendingUp size={16} color="#10b981" />
@@ -525,14 +506,14 @@ export default function MissionControlHome() {
                 </View>
               </View>
               <View className="flex-1 min-w-[45%]">
-                <Text className="text-gray-600 dark:text-slate-400 text-xs mb-1">Burn</Text>
-                <Text className="text-gray-900 dark:text-white text-xl font-bold">
+                <Text className="text-gray-400 text-xs mb-1">Burn</Text>
+                <Text className="text-white text-xl font-bold">
                   £{(companyHealth.burnMonthly / 1000).toFixed(1)}K/mo
                 </Text>
               </View>
               <View className="flex-1 min-w-[45%]">
-                <Text className="text-gray-600 dark:text-slate-400 text-xs mb-1">OKRs</Text>
-                <Text className="text-gray-900 dark:text-white text-xl font-bold">
+                <Text className="text-gray-400 text-xs mb-1">OKRs</Text>
+                <Text className="text-white text-xl font-bold">
                   {companyHealth.okrsOnTrack}/{companyHealth.okrsTotal}
                 </Text>
               </View>
@@ -541,10 +522,10 @@ export default function MissionControlHome() {
         </View>
 
         {/* HUB / UPGRADES */}
-        <View className="px-6 pt-6">
+        <View className="px-5 pt-6">
           <View className="flex-row items-center gap-2 mb-3">
             <Sparkles size={20} color="#f59e0b" />
-            <Text className="text-gray-900 dark:text-white text-lg font-bold">UPGRADES</Text>
+            <Text className="text-white text-lg font-bold">UPGRADES</Text>
           </View>
 
           <Pressable
@@ -556,7 +537,7 @@ export default function MissionControlHome() {
                 <Text className="text-amber-300 text-base font-bold mb-1">
                   Visit Hub Marketplace
                 </Text>
-                <Text className="text-gray-600 dark:text-slate-400 text-sm">
+                <Text className="text-gray-400 text-sm">
                   Hire talent, find suppliers, equip AI tools
                 </Text>
               </View>
@@ -566,29 +547,29 @@ export default function MissionControlHome() {
         </View>
 
         {/* Quick Links */}
-        <View className="px-6 pt-6">
-          <Text className="text-gray-600 dark:text-slate-400 text-sm font-semibold mb-3">QUICK LINKS</Text>
+        <View className="px-5 pt-6">
+          <Text className="text-gray-400 text-sm font-semibold mb-3">QUICK LINKS</Text>
           <View className="flex-row gap-3">
             <Pressable
               onPress={() => router.push('/(tabs)/make')}
-              className="flex-1 bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-xl p-4 active:opacity-70"
+              className="flex-1 bg-gray-900 border border-gray-800 rounded-xl p-4 active:opacity-70"
             >
               <Package size={24} color="#8b5cf6" />
-              <Text className="text-gray-900 dark:text-white font-semibold text-sm mt-2">Make</Text>
+              <Text className="text-white font-semibold text-sm mt-2">Make</Text>
             </Pressable>
             <Pressable
               onPress={() => router.push('/(tabs)/evaluate')}
-              className="flex-1 bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-xl p-4 active:opacity-70"
+              className="flex-1 bg-gray-900 border border-gray-800 rounded-xl p-4 active:opacity-70"
             >
               <CheckCircle2 size={24} color="#10b981" />
-              <Text className="text-gray-900 dark:text-white font-semibold text-sm mt-2">Evaluate</Text>
+              <Text className="text-white font-semibold text-sm mt-2">Evaluate</Text>
             </Pressable>
             <Pressable
               onPress={() => router.push('/tech-tree')}
-              className="flex-1 bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-xl p-4 active:opacity-70"
+              className="flex-1 bg-gray-900 border border-gray-800 rounded-xl p-4 active:opacity-70"
             >
               <Trophy size={24} color="#a855f7" />
-              <Text className="text-gray-900 dark:text-white font-semibold text-sm mt-2">Tech Tree</Text>
+              <Text className="text-white font-semibold text-sm mt-2">Tech Tree</Text>
             </Pressable>
           </View>
         </View>
