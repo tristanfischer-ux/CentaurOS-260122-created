@@ -441,8 +441,8 @@ function CharacterSheetModal({
                         {toolEffects && (
                           <View className="flex-row flex-wrap gap-1 mt-2">
                             {toolEffects.effectTags.map((tag, idx) => (
-                              <View key={idx} className="bg-emerald-500/20 px-2 py-1 rounded">
-                                <Text className="text-emerald-300 text-xs font-bold">{tag}</Text>
+                              <View key={idx} className="bg-emerald-500 px-2 py-1 rounded">
+                                <Text className="text-white text-xs font-bold">{tag}</Text>
                               </View>
                             ))}
                           </View>
@@ -494,8 +494,8 @@ function CharacterSheetModal({
                     {toolEffects && (
                       <View className="flex-row flex-wrap gap-1 mt-2">
                         {toolEffects.effectTags.map((tag, idx) => (
-                          <View key={idx} className="bg-emerald-500/20 px-2 py-1 rounded">
-                            <Text className="text-emerald-300 text-xs font-bold">{tag}</Text>
+                          <View key={idx} className="bg-emerald-500 px-2 py-1 rounded">
+                            <Text className="text-white text-xs font-bold">{tag}</Text>
                           </View>
                         ))}
                       </View>
@@ -675,8 +675,8 @@ function AddToolModal({
                       {toolEffects && (
                         <View className="flex-row flex-wrap gap-1 mt-2">
                           {toolEffects.effectTags.map((tag, idx) => (
-                            <View key={idx} className="bg-emerald-500/20 px-2 py-1 rounded">
-                              <Text className="text-emerald-300 text-xs font-bold">{tag}</Text>
+                            <View key={idx} className="bg-emerald-500 px-2 py-1 rounded">
+                              <Text className="text-white text-xs font-bold">{tag}</Text>
                             </View>
                           ))}
                         </View>

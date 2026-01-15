@@ -54,7 +54,7 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
 
 ## 🚨 PRODUCTION READINESS STATUS
 
-**Last Updated**: 2026-01-15 (**ARMORY IMPROVED** - Enhanced Days Per Week selector for fractional executives with better visual feedback and clearer cost calculations.)
+**Last Updated**: 2026-01-15 (**ARMORY CONTRAST FIXED** - AI tool effect tags now use white text on solid emerald background for much better readability.)
 **Status**: ✅ **READY FOR APP STORE** - All features complete!
 
 ---
