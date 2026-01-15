@@ -1,5 +1,5 @@
-import { View, Text, ScrollView, Pressable, Modal, TextInput, Alert, KeyboardAvoidingView, Platform } from 'react-native';
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { View, Text, ScrollView, Pressable, Modal, TextInput, Alert, KeyboardAvoidingView, Platform, LayoutChangeEvent } from 'react-native';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { Target, Plus, X, ChevronDown, ChevronRight, CheckCircle2, Circle, Clock, Users, DollarSign, Lightbulb, ChevronUp, UserPlus, Zap, AlertTriangle, AlertCircle, TrendingDown, CalendarClock, ArrowRight, HelpCircle, Bot, Briefcase, GraduationCap, CheckCircle, GripVertical } from 'lucide-react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, { useSharedValue, useAnimatedStyle, withSpring, runOnJS, FadeIn, FadeOut, Layout } from 'react-native-reanimated';
@@ -153,6 +153,21 @@ export default function DecideScreen() {
   const [showRenameOKRModal, setShowRenameOKRModal] = useState(false);
   const [renameOKRTitle, setRenameOKRTitle] = useState('');
   const [pendingMergeTaskIds, setPendingMergeTaskIds] = useState<string[]>([]);
+
+  // Drop zone position tracking
+  const [dropZoneY, setDropZoneY] = useState<number>(0);
+  const dropZoneRef = useRef<View>(null);
+
+  // Re-measure drop zone position
+  const measureDropZone = useCallback(() => {
+    if (dropZoneRef.current) {
+      dropZoneRef.current.measureInWindow((x, y, width, height) => {
+        if (y > 0) {
+          setDropZoneY(y + height / 2);
+        }
+      });
+    }
+  }, []);
 
   // Dropdown states
   const [showOwnerDropdown, setShowOwnerDropdown] = useState(false);
@@ -466,20 +481,25 @@ export default function DecideScreen() {
 
   // Handle OKR drag move for drop zone detection
   const handleOKRDragMove = useCallback((okrId: string, absoluteY: number) => {
-    // Get screen regions - simplified detection
-    const screenMidpoint = 400; // Approximate midpoint
+    // Use the actual drop zone Y position with a threshold
+    const threshold = 50; // pixels of tolerance
 
     if (draggingOKRId) {
       const isFromActive = activeOKRs.some(o => o.id === okrId);
-      if (isFromActive && absoluteY > screenMidpoint + 100) {
+
+      // If dragging from active section and cursor is below the drop zone, activate queue drop
+      if (isFromActive && dropZoneY > 0 && absoluteY > dropZoneY - threshold) {
         setDropZoneActive('queued');
-      } else if (!isFromActive && absoluteY < screenMidpoint - 100) {
+      }
+      // If dragging from queue and cursor is above the drop zone, activate active drop
+      else if (!isFromActive && dropZoneY > 0 && absoluteY < dropZoneY + threshold) {
         setDropZoneActive('active');
-      } else {
+      }
+      else {
         setDropZoneActive(null);
       }
     }
-  }, [draggingOKRId, activeOKRs]);
+  }, [draggingOKRId, activeOKRs, dropZoneY]);
 
   // Handle task drag for merging or moving between OKRs
   const handleTaskDragEnd = useCallback((taskId: string, translationY: number, absoluteY: number, parentOKRTitle: string) => {
@@ -525,15 +545,15 @@ export default function DecideScreen() {
 
   // Handle task drag move for drop zone detection
   const handleTaskDragMove = useCallback((taskId: string, absoluteY: number) => {
-    // Detect if we're over the queued section
-    const screenMidpoint = 400;
+    // Use the actual drop zone Y position
+    const threshold = 50;
 
-    if (absoluteY > screenMidpoint + 150) {
+    if (dropZoneY > 0 && absoluteY > dropZoneY - threshold) {
       setDropZoneActive('queued');
     } else {
       setDropZoneActive(null);
     }
-  }, []);
+  }, [dropZoneY]);
 
   // Confirm merge of tasks into OKR
   const handleConfirmTaskMerge = useCallback(() => {
@@ -1076,7 +1096,7 @@ export default function DecideScreen() {
                   <View key={okr.id}>
                     <DraggableOKRCard
                       okrId={okr.id}
-                      onDragStart={(id) => setDraggingOKRId(id)}
+                      onDragStart={(id) => { measureDropZone(); setDraggingOKRId(id); }}
                       onDragEnd={(id, translationY, absoluteY) => handleOKRDragEnd(id, translationY, absoluteY, true)}
                       onDragMove={handleOKRDragMove}
                       onPress={() => toggleOKR(okr.id)}
@@ -1185,7 +1205,7 @@ export default function DecideScreen() {
                             <DraggableTaskCard
                               key={plan.id}
                               taskId={plan.id}
-                              onDragStart={(id) => setDraggingTaskId(id)}
+                              onDragStart={(id) => { measureDropZone(); setDraggingTaskId(id); }}
                               onDragEnd={(id, translationY, absoluteY) => handleTaskDragEnd(id, translationY, absoluteY, okr.title)}
                               onDragMove={handleTaskDragMove}
                               onPress={() => {
@@ -1352,7 +1372,11 @@ export default function DecideScreen() {
 
         {/* Drop Zone / Divider between Active and Queued */}
         {(activeOKRs.length > 0 || queuedOKRs.length > 0) && (
-          <View className="my-3">
+          <View
+            ref={dropZoneRef}
+            className="my-3"
+            onLayout={measureDropZone}
+          >
             {(draggingOKRId || draggingTaskId) ? (
               <View
                 className={`border-2 border-dashed rounded-xl p-4 items-center justify-center ${
@@ -1430,7 +1454,7 @@ export default function DecideScreen() {
                   <View key={okr.id}>
                     <DraggableOKRCard
                       okrId={okr.id}
-                      onDragStart={(id) => setDraggingOKRId(id)}
+                      onDragStart={(id) => { measureDropZone(); setDraggingOKRId(id); }}
                       onDragEnd={(id, translationY, absoluteY) => handleOKRDragEnd(id, translationY, absoluteY, false)}
                       onDragMove={handleOKRDragMove}
                       onPress={() => toggleOKR(okr.id)}
