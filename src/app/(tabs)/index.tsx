@@ -727,6 +727,147 @@ export default function MissionControlHome() {
             </Pressable>
           </View>
 
+          {/* Time Allocation by Function - NEW */}
+          <View className="mt-4">
+            <Text className="text-slate-700 dark:text-slate-300 text-sm font-bold mb-3">
+              Weekly Time Allocation
+            </Text>
+            <View className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4">
+              <Text className="text-slate-600 dark:text-slate-400 text-xs mb-3">
+                Where is your team spending time this week?
+              </Text>
+
+              {(() => {
+                // Calculate TU allocation by function
+                const functionAllocation: Record<string, number> = {
+                  'Marketing': 0,
+                  'Sales': 0,
+                  'Engineering': 0,
+                  'Ops': 0,
+                  'Finance': 0,
+                  'Admin': 0,
+                };
+
+                // Sum up allocations from active work plans
+                workPlans
+                  .filter(wp => wp.status === 'in-progress' || wp.status === 'not-started')
+                  .forEach(wp => {
+                    const weeklyAllocation = wp.allocations?.reduce((sum, alloc) => sum + alloc.squaresPerWeek, 0) || 0;
+                    if (wp.function && functionAllocation.hasOwnProperty(wp.function)) {
+                      functionAllocation[wp.function] += weeklyAllocation;
+                    }
+                  });
+
+                const totalAllocated = Object.values(functionAllocation).reduce((sum, val) => sum + val, 0);
+
+                // Function colors
+                const functionColors: Record<string, string> = {
+                  'Marketing': '#ec4899',
+                  'Sales': '#10b981',
+                  'Engineering': '#3b82f6',
+                  'Ops': '#f59e0b',
+                  'Finance': '#8b5cf6',
+                  'Admin': '#64748b',
+                };
+
+                // Sort by allocation (highest first)
+                const sortedFunctions = Object.entries(functionAllocation)
+                  .sort(([, a], [, b]) => b - a)
+                  .filter(([, allocation]) => allocation > 0);
+
+                if (totalAllocated === 0) {
+                  return (
+                    <View className="py-6 items-center">
+                      <Text className="text-slate-400 dark:text-slate-500 text-xs text-center">
+                        No active work allocated yet
+                      </Text>
+                    </View>
+                  );
+                }
+
+                return (
+                  <>
+                    {/* Visual Bar Chart */}
+                    <View className="mb-4">
+                      <View className="flex-row h-2 rounded-full overflow-hidden">
+                        {sortedFunctions.map(([func, allocation]) => {
+                          const percentage = (allocation / totalAllocated) * 100;
+                          if (percentage < 1) return null; // Hide tiny segments
+                          return (
+                            <View
+                              key={func}
+                              style={{
+                                width: `${percentage}%`,
+                                backgroundColor: functionColors[func],
+                              }}
+                            />
+                          );
+                        })}
+                      </View>
+                    </View>
+
+                    {/* Function Breakdown */}
+                    <View className="gap-2">
+                      {sortedFunctions.map(([func, allocation]) => {
+                        const percentage = totalAllocated > 0 ? Math.round((allocation / totalAllocated) * 100) : 0;
+                        return (
+                          <View key={func} className="flex-row items-center justify-between">
+                            <View className="flex-row items-center gap-2 flex-1">
+                              <View
+                                className="w-3 h-3 rounded"
+                                style={{ backgroundColor: functionColors[func] }}
+                              />
+                              <Text className="text-slate-700 dark:text-slate-300 text-xs font-medium">
+                                {func}
+                              </Text>
+                            </View>
+                            <View className="flex-row items-center gap-2">
+                              <Text className="text-slate-500 dark:text-slate-400 text-xs">
+                                {allocation} TU
+                              </Text>
+                              <Text className="text-slate-900 dark:text-white text-xs font-bold w-10 text-right">
+                                {percentage}%
+                              </Text>
+                            </View>
+                          </View>
+                        );
+                      })}
+                    </View>
+
+                    {/* Total */}
+                    <View className="mt-3 pt-3 border-t border-slate-200 dark:border-slate-800 flex-row justify-between">
+                      <Text className="text-slate-700 dark:text-slate-300 text-xs font-bold">
+                        Total Allocated
+                      </Text>
+                      <Text className="text-slate-900 dark:text-white text-xs font-bold">
+                        {totalAllocated} TU/week
+                      </Text>
+                    </View>
+
+                    {/* Insights */}
+                    {(() => {
+                      const topFunction = sortedFunctions[0];
+                      if (!topFunction) return null;
+                      const [funcName, allocation] = topFunction;
+                      const percentage = Math.round((allocation / totalAllocated) * 100);
+
+                      if (percentage > 50) {
+                        return (
+                          <View className="mt-3 bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-800 rounded-lg p-2">
+                            <Text className="text-amber-700 dark:text-amber-400 text-xs">
+                              ⚠️ {percentage}% of time on {funcName} - consider if this aligns with current priorities
+                            </Text>
+                          </View>
+                        );
+                      }
+                      return null;
+                    })()}
+                  </>
+                );
+              })()}
+            </View>
+          </View>
+
           {/* Team Composition Analysis: Apprentices vs Executives */}
           <View className="mt-4">
             <Text className="text-slate-700 dark:text-slate-300 text-sm font-bold mb-3">
