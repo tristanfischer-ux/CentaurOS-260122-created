@@ -399,9 +399,12 @@ export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress
           onPress={() => setShowTaskModal(false)}
         >
           <View className="flex-1" />
-          <Pressable onPress={(e) => e.stopPropagation()}>
+          <Pressable
+            onPress={(e) => e.stopPropagation()}
+            style={{ maxHeight: '80%' }}
+          >
             {selectedTask && (
-              <View className="mx-4 mb-8 bg-white dark:bg-slate-800 rounded-2xl overflow-hidden shadow-2xl">
+              <View className="mx-4 bg-white dark:bg-slate-800 rounded-2xl overflow-hidden shadow-2xl">
                 {/* Header */}
                 <View className={`px-4 py-3 ${STATUS_COLORS[selectedTask.status]?.bg || 'bg-gray-200'}`}>
                   <View className="flex-row items-start justify-between">
@@ -422,8 +425,9 @@ export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress
                   </View>
                 </View>
 
-                {/* Content */}
-                <View className="p-4">
+                {/* Content - Scrollable */}
+                <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ flexGrow: 1 }}>
+                  <View className="p-4">
                   {/* Progress Bar */}
                   <View className="mb-4">
                     <View className="flex-row justify-between mb-1">
@@ -528,6 +532,7 @@ export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress
                     </Text>
                   </Pressable>
                 </View>
+                </ScrollView>
               </View>
             )}
           </Pressable>
