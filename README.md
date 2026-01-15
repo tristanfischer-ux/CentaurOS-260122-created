@@ -1484,8 +1484,21 @@ Previous Updates:
 
 ✅ **Home Tab Header Fixed** - The gradient ribbon now extends edge-to-edge to the top of the screen without clashing with the iOS status bar (time, WiFi, battery). Applied to all three role views (Founder Command Center, Executive Dashboard, Apprentice Workspace). The header gradient now properly sits behind the status bar while content remains appropriately spaced.
 
-### Current Status: ✅ **AI Tool User Tracking - Live from Armory Store**
+### Current Status: ✅ **Intelligence Hub - Actionable Business Insights**
 
+✅ **Intelligence Hub**: Transformed Hub tab from generic marketplace to smart business intelligence center
+  - **Real-time scanning**: Analyzes organization data, work plans, OKRs, financials, and consulting insights
+  - **Smart recommendations**: Surfaces Critical/Important/Opportunity alerts with full context
+  - **Issue detection**:
+    - **Capacity**: No availability (100% utilization), low capacity (<10 TU), individual overload
+    - **OKRs**: At-risk or off-track objectives, low progress warnings
+    - **Finance**: Critical runway (<6mo), below-target runway (<12mo)
+    - **Team**: Missing executives/apprentices, imbalanced team composition
+    - **Process**: Blocked tasks, available consulting insights from McKinsey/BCG/Bain
+  - **Rich cards**: Impact description, key metrics (with red highlighting for negatives), direct action buttons
+  - **Priority sorting**: Critical → Important → Opportunity
+  - **Quick actions**: Jump to marketplace, reports, or armory
+  - Old marketplace preserved at /community route for reference
 ✅ **AI Tool User Tracking**: Real-time visibility into who's using which AI tools
   - **Single source of truth**: Armory store `PersonLoadout.aiToolIds` tracks equipped tools per person
   - **AI agent cards**: Show user avatars (initials in colored circles) for up to 8 users, "+N" for overflow

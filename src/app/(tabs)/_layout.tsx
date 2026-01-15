@@ -128,13 +128,21 @@ export default function TabLayout() {
         }}
       />
 
-      {/* Hub - Events + Hiring */}
+      {/* Hub - Intelligence + Recommendations */}
       <Tabs.Screen
-        name="community"
+        name="hub"
         options={{
           title: 'Hub',
           headerShown: false,
           tabBarIcon: ({ color }) => <TabBarIcon Icon={Users} color={color} />,
+        }}
+      />
+
+      {/* Keep old community as backup */}
+      <Tabs.Screen
+        name="community"
+        options={{
+          href: null, // Hide from tabs
         }}
       />
 
