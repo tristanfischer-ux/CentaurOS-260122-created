@@ -604,9 +604,24 @@ export default function DecideScreen() {
 
     const newAmount = currentAlloc.squaresPerWeek + change;
 
-    // Don't allow going below 1 or above available capacity
-    if (newAmount < 1) {
-      Alert.alert('Minimum Allocation', 'Allocation must be at least 1□/wk. Use the delete button to remove this person entirely.');
+    // If going to 0 or below, remove the person entirely
+    if (newAmount <= 0) {
+      const newAllocations = task.allocations.filter(a => a.memberId !== memberId);
+
+      updateWorkPlan(taskId, {
+        allocations: newAllocations,
+        assignedMemberIds: newAllocations.map(a => a.memberId),
+        // If no one is allocated, move to not-started
+        status: newAllocations.length === 0 ? 'not-started' : task.status,
+      });
+
+      // Update the selected task state to reflect changes
+      setSelectedTaskForAllocation(prev => prev ? {
+        ...prev,
+        allocations: newAllocations,
+        assignedMemberIds: newAllocations.map(a => a.memberId),
+        status: newAllocations.length === 0 ? 'not-started' : prev.status,
+      } : null);
       return;
     }
 
