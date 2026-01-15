@@ -473,6 +473,10 @@ export function UnifiedTaskAllocationModal({ visible, onClose, workPlan }: Props
             {/* Header */}
             <View className="flex-row items-center justify-between px-5 py-4 border-b border-gray-200 dark:border-slate-800">
               <View className="flex-1">
+                {/* DEBUG MARKER - REMOVE AFTER VERIFICATION */}
+                <View className="bg-green-500 px-2 py-1 rounded mb-2">
+                  <Text className="text-white text-xs font-bold">✓ NEW TAP-TO-ADD INTERFACE</Text>
+                </View>
                 <Text className="text-gray-500 dark:text-slate-400 text-xs font-medium">
                   {workPlan.function} • {workPlan.linkedOKRTitle}
                 </Text>
