@@ -46,7 +46,7 @@ export interface WorkPlan {
   function: BusinessFunction;
   linkedOKRTitle: string;
   dueDate: string;
-  status: 'not-started' | 'in-progress' | 'completed' | 'blocked';
+  status: 'not-started' | 'in-progress' | 'completed' | 'blocked' | 'abandoned';
   progress: number;
   assignedBy: string;
   needsSubmission: boolean;
@@ -111,6 +111,7 @@ interface WorkPlanState {
   addWorkPlan: (workPlan: WorkPlan) => void;
   updateWorkPlan: (id: string, updates: Partial<WorkPlan>) => void;
   completeWorkPlan: (id: string) => void; // Mark as complete and free resources
+  abandonWorkPlan: (id: string, reason?: string) => void; // Abandon task and free resources
   deleteWorkPlan: (id: string) => void;
   getCounts: () => {
     total: number;
@@ -118,6 +119,7 @@ interface WorkPlanState {
     inProgress: number;
     completed: number;
     blocked: number;
+    abandoned: number;
   };
 
   // Multi-tenancy methods
@@ -371,9 +373,38 @@ export const useWorkPlanStore = create<WorkPlanState>((set, get) => ({
         wp.id === id
           ? {
               ...wp,
-              status: 'completed',
+              status: 'completed' as const,
               progress: 100,
               assignedMemberIds: [], // Free up all assigned members
+              allocations: [], // Free all TU allocations
+              auditRecord: {
+                completedAt: new Date().toISOString(),
+                totalTUsSpent: wp.tusExpended,
+                totalCost: wp.allocations.reduce((sum, a) => sum + (a.squaresPerWeek * a.costPerSquare), 0),
+                totalWeeks: 1, // TODO: calculate actual weeks
+              },
+            }
+          : wp
+      ),
+    }));
+  },
+
+  abandonWorkPlan: (id: string, reason?: string) => {
+    set(state => ({
+      workPlans: state.workPlans.map(wp =>
+        wp.id === id
+          ? {
+              ...wp,
+              status: 'abandoned' as const,
+              assignedMemberIds: [], // Free up all assigned members
+              allocations: [], // Free all TU allocations - returns resources to pool
+              auditRecord: {
+                abandonedAt: new Date().toISOString(),
+                totalTUsSpent: wp.tusExpended,
+                totalCost: wp.allocations.reduce((sum, a) => sum + (a.squaresPerWeek * a.costPerSquare), 0),
+                totalWeeks: 1, // TODO: calculate actual weeks
+                reason: reason || 'Task abandoned via swipe',
+              },
             }
           : wp
       ),
@@ -394,6 +425,7 @@ export const useWorkPlanStore = create<WorkPlanState>((set, get) => ({
       inProgress: workPlans.filter(wp => wp.status === 'in-progress').length,
       completed: workPlans.filter(wp => wp.status === 'completed').length,
       blocked: workPlans.filter(wp => wp.status === 'blocked').length,
+      abandoned: workPlans.filter(wp => wp.status === 'abandoned').length,
     };
   },
 

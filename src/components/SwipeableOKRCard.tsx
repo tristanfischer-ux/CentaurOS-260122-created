@@ -193,8 +193,8 @@ export function SwipeableTaskCard({
         className="absolute right-0 top-0 bottom-0 rounded-xl justify-center items-end px-6"
         pointerEvents="none"
       >
-        <Archive size={20} color="#fff" />
-        <Text className="text-white text-xs font-bold mt-1">PAUSE</Text>
+        <Trash2 size={20} color="#fff" />
+        <Text className="text-white text-xs font-bold mt-1">DELETE</Text>
       </Animated.View>
 
       {/* Swipeable card */}

@@ -83,6 +83,7 @@ export default function DecideScreen() {
   const addWorkPlan = useWorkPlanStore(s => s.addWorkPlan);
   const updateWorkPlan = useWorkPlanStore(s => s.updateWorkPlan);
   const completeWorkPlan = useWorkPlanStore(s => s.completeWorkPlan);
+  const abandonWorkPlan = useWorkPlanStore(s => s.abandonWorkPlan);
 
   // Debug: Log when workPlans changes
   useEffect(() => {
@@ -441,7 +442,7 @@ export default function DecideScreen() {
     }
   }, [activeOKRs]);
 
-  // Handle swipe-left on task to pause
+  // Handle swipe-left on task to abandon (delete)
   const handleTaskSwipeLeft = useCallback((taskId: string) => {
     const task = workPlans.find(wp => wp.id === taskId);
     if (task) {
@@ -450,7 +451,7 @@ export default function DecideScreen() {
     }
   }, [workPlans]);
 
-  // Confirm moving OKR to queue
+  // Confirm moving OKR to queue or abandoning task
   const confirmMoveToQueue = useCallback(() => {
     if (pendingQueueOKR) {
       // Move OKR to queue - remove all assigned members from linked work plans
@@ -459,14 +460,14 @@ export default function DecideScreen() {
         updateWorkPlan(plan.id, { assignedMemberIds: [], status: 'not-started' });
       });
     } else if (pendingQueueTask) {
-      // Pause task - unassign all members
-      updateWorkPlan(pendingQueueTask.id, { assignedMemberIds: [], status: 'not-started' });
+      // Abandon task - frees all TU allocations and moves to abandoned list
+      abandonWorkPlan(pendingQueueTask.id, 'User deleted task via swipe');
     }
 
     setShowQueueConfirmModal(false);
     setPendingQueueOKR(null);
     setPendingQueueTask(null);
-  }, [pendingQueueOKR, pendingQueueTask, workPlans, updateWorkPlan]);
+  }, [pendingQueueOKR, pendingQueueTask, workPlans, updateWorkPlan, abandonWorkPlan]);
 
   // Drag and drop handlers for OKR reordering
   const handleOKRDragEnd = useCallback((okrId: string, translationY: number, absoluteY: number, isActive: boolean) => {
@@ -1673,16 +1674,16 @@ export default function DecideScreen() {
           </View>
         )}
 
-        {/* SECTION 8: INCOMPLETE/ABANDONED TASKS - Shows wasted resources */}
-        {workPlans.filter(wp => wp.status === 'blocked' && wp.progress > 0).length > 0 && (
+        {/* SECTION 8: ABANDONED TASKS - Shows tasks deleted via swipe */}
+        {workPlans.filter(wp => wp.status === 'abandoned').length > 0 && (
           <View className="mt-6 pt-4 border-t border-red-200 dark:border-red-900/30">
             <View className="flex-row items-center justify-between mb-3">
               <Text className="text-red-500 dark:text-red-400 text-xs font-bold tracking-wide">
-                INCOMPLETE - ABANDONED TASKS
+                🗑️ ABANDONED TASKS
               </Text>
               <View className="bg-red-100 dark:bg-red-900/30 px-2 py-0.5 rounded">
                 <Text className="text-red-600 dark:text-red-400 text-xs font-semibold">
-                  {workPlans.filter(wp => wp.status === 'blocked' && wp.progress > 0).length} abandoned
+                  {workPlans.filter(wp => wp.status === 'abandoned').length} abandoned
                 </Text>
               </View>
             </View>
@@ -1691,23 +1692,32 @@ export default function DecideScreen() {
               <View className="flex-row items-center">
                 <AlertTriangle size={14} color="#ef4444" />
                 <Text className="text-red-600 dark:text-red-400 text-xs ml-2 flex-1">
-                  These tasks were started but abandoned. TUs and costs shown represent wasted resources.
+                  These tasks were deleted. All allocated TUs have been returned to the resource pool.
                 </Text>
               </View>
             </View>
 
             <View className="gap-2">
               {workPlans
-                .filter(wp => wp.status === 'blocked' && wp.progress > 0)
+                .filter(wp => wp.status === 'abandoned')
+                .sort((a, b) => {
+                  // Sort by abandon date, most recent first
+                  const dateA = a.auditRecord?.abandonedAt ? new Date(a.auditRecord.abandonedAt).getTime() : 0;
+                  const dateB = b.auditRecord?.abandonedAt ? new Date(b.auditRecord.abandonedAt).getTime() : 0;
+                  return dateB - dateA;
+                })
                 .map((plan) => {
                   const functionColor = getFunctionColor(plan.function as BusinessFunction);
                   const taskCost = calculateTaskCost(plan);
-                  const wastedTUs = Math.round((plan.progress / 100) * plan.estimatedTimeUnits);
-                  const wastedCost = Math.round((plan.progress / 100) * taskCost.cumulativeCost);
-                  const abandonReason = plan.submissionData?.notes || 'No reason provided';
+                  const wastedTUs = plan.auditRecord?.totalTUsSpent || plan.tusExpended || 0;
+                  const wastedCost = plan.auditRecord?.totalCost || 0;
+                  const abandonReason = plan.auditRecord?.reason || 'No reason provided';
+                  const abandonedDate = plan.auditRecord?.abandonedAt
+                    ? new Date(plan.auditRecord.abandonedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+                    : 'Recently';
 
                   return (
-                    <View key={plan.id} className="bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-800/50 rounded-xl p-3">
+                    <View key={plan.id} className="bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-800/50 rounded-xl p-3 opacity-60">
                       <View className="flex-row items-start justify-between">
                         <View className="flex-1">
                           <View className="flex-row items-center mb-1 gap-1">
@@ -1720,17 +1730,15 @@ export default function DecideScreen() {
                                 {plan.function}
                               </Text>
                             </View>
-                            <View className="bg-red-500/20 px-1.5 py-0.5 rounded">
-                              <Text className="text-red-600 dark:text-red-400 text-[10px] font-semibold">
-                                {plan.progress}% when abandoned
-                              </Text>
-                            </View>
+                            <Text className="text-red-600 dark:text-red-400 text-xs">
+                              • {abandonedDate}
+                            </Text>
                           </View>
                           <Text className="text-gray-700 dark:text-slate-300 font-semibold text-sm mb-1">
                             {plan.title}
                           </Text>
                           <Text className="text-gray-500 dark:text-slate-500 text-xs italic mb-2">
-                            Reason: {abandonReason}
+                            {abandonReason}
                           </Text>
                           {/* Wasted Resources */}
                           <View className="flex-row items-center gap-3 bg-red-100/50 dark:bg-red-900/20 px-2 py-1.5 rounded-lg">
@@ -2565,13 +2573,13 @@ export default function DecideScreen() {
                 <Archive size={28} color="#ef4444" />
               </View>
               <Text className="text-gray-900 dark:text-white text-lg font-bold mb-2 text-center">
-                {pendingQueueOKR ? 'Move OKR to Queue?' : 'Pause Task?'}
+                {pendingQueueOKR ? 'Move OKR to Queue?' : 'Delete Task?'}
               </Text>
               <Text className="text-gray-600 dark:text-slate-400 text-sm text-center">
                 {pendingQueueOKR
                   ? `All team members will be unassigned from "${pendingQueueOKR.title}" and work will be paused.`
                   : pendingQueueTask
-                  ? `All team members will be unassigned from "${pendingQueueTask.title}" and the task will be paused.`
+                  ? `All team members will be unassigned from "${pendingQueueTask.title}" and all allocated TUs will be returned to the resource pool. The task will move to the abandoned tasks list at the bottom.`
                   : ''}
               </Text>
             </View>
@@ -2590,7 +2598,9 @@ export default function DecideScreen() {
                 onPress={confirmMoveToQueue}
                 className="flex-1 bg-red-500 py-3 rounded-xl active:opacity-70"
               >
-                <Text className="text-white text-center font-semibold">Move to Queue</Text>
+                <Text className="text-white text-center font-semibold">
+                  {pendingQueueOKR ? 'Move to Queue' : 'Delete Task'}
+                </Text>
               </Pressable>
             </View>
           </View>
