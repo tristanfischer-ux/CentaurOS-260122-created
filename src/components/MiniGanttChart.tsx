@@ -326,6 +326,7 @@ export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress
                     {/* Task Bar */}
                     <Pressable
                       onPress={() => {
+                        console.log('[MiniGanttChart] Task pressed:', bar.task.title);
                         setSelectedTask(bar.task);
                         setShowTaskModal(true);
                       }}
@@ -392,18 +393,29 @@ export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress
         visible={showTaskModal}
         transparent
         animationType="fade"
-        onRequestClose={() => setShowTaskModal(false)}
+        onRequestClose={() => {
+          console.log('[MiniGanttChart] Modal closing');
+          setShowTaskModal(false);
+        }}
       >
         <Pressable
           className="flex-1 bg-black/60"
-          onPress={() => setShowTaskModal(false)}
+          onPress={() => {
+            console.log('[MiniGanttChart] Backdrop pressed');
+            setShowTaskModal(false);
+          }}
         >
           <View className="flex-1" />
           <Pressable
-            onPress={(e) => e.stopPropagation()}
+            onPress={(e) => {
+              console.log('[MiniGanttChart] Modal content pressed');
+              e.stopPropagation();
+            }}
             style={{ maxHeight: '80%' }}
           >
-            {selectedTask && (
+            {selectedTask && (() => {
+              console.log('[MiniGanttChart] Rendering modal for task:', selectedTask.title);
+              return (
               <View className="mx-4 bg-white dark:bg-slate-800 rounded-2xl overflow-hidden shadow-2xl">
                 {/* Header */}
                 <View className={`px-4 py-3 ${STATUS_COLORS[selectedTask.status]?.bg || 'bg-gray-200'}`}>
@@ -534,7 +546,8 @@ export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress
                 </View>
                 </ScrollView>
               </View>
-            )}
+              );
+            })()}
           </Pressable>
         </Pressable>
       </Modal>
