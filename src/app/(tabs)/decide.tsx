@@ -78,7 +78,7 @@ export default function DecideScreen() {
   const router = useRouter();
   const currentWorkspace = useCurrentWorkspace();
   const currentMembership = useCurrentMembership();
-  const params = useLocalSearchParams<{ function?: string; showApprovalQueue?: string }>();
+  const params = useLocalSearchParams<{ function?: string; showApprovalQueue?: string; selectedTaskId?: string }>();
 
   // Use centralized OKR store
   const okrs = useOKRStore(s => s.okrs);
@@ -386,6 +386,19 @@ export default function DecideScreen() {
       setShowApprovalQueue(true);
     }
   }, [params.showApprovalQueue, pendingRequests.length]);
+
+  // Auto-select task if coming from timeline
+  useEffect(() => {
+    if (params.selectedTaskId) {
+      console.log('[Decide] Auto-selecting task from timeline:', params.selectedTaskId);
+      const task = workPlans.find(wp => wp.id === params.selectedTaskId);
+      if (task) {
+        setSelectedTaskForAllocation(task);
+        setEditedTaskTitle(task.title);
+        setEditedTaskDescription(task.description || '');
+      }
+    }
+  }, [params.selectedTaskId, workPlans]);
 
   // Initialize queue to sync statuses with OKRs
   useEffect(() => {

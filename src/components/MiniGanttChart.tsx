@@ -327,8 +327,7 @@ export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress
                     <Pressable
                       onPress={() => {
                         console.log('[MiniGanttChart] Task pressed:', bar.task.title);
-                        setSelectedTask(bar.task);
-                        setShowTaskModal(true);
+                        onTaskPress?.(bar.task.id);
                       }}
                       style={{
                         width: Math.max(60, barWidth),

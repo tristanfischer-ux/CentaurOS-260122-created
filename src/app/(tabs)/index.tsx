@@ -1728,7 +1728,11 @@ export default function MissionControlHome() {
         workPlans={workPlans}
         members={members}
         onTaskPress={(taskId) => {
-          router.push('/(tabs)/decide');
+          console.log('[Home] Navigating to decide with task:', taskId);
+          router.push({
+            pathname: '/(tabs)/decide',
+            params: { selectedTaskId: taskId }
+          });
         }}
       />
     </View>
