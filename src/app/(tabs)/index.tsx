@@ -1276,19 +1276,6 @@ export default function HomeScreen() {
                       </View>
                     </Pressable>
                   </View>
-                  <View className="flex-row gap-2 mt-2">
-                    <Pressable
-                      onPress={() => !isEditMode && router.push('/build-queue')}
-                      className="flex-1 bg-indigo-500 rounded-xl p-3 active:opacity-70"
-                    >
-                      <View className="flex-row items-center justify-center">
-                        <ListOrdered size={18} color="#fff" />
-                        <Text className="text-white font-bold text-sm ml-1.5">Build Queue</Text>
-                      </View>
-                    </Pressable>
-                    <View className="flex-1" />
-                    <View className="flex-1" />
-                  </View>
                 </View>
                 {isEditMode && (
                   <View className="absolute -left-1 top-0 bottom-0 justify-center">
