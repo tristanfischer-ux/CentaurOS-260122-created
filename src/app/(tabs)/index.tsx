@@ -242,6 +242,53 @@ export default function MissionControlHome() {
             Where am I? Where am I going? What's the health of my business?
           </Text>
 
+          {/* Time Horizon: This Week vs Next Week */}
+          <View className="mb-4">
+            <View className="flex-row gap-3">
+              {/* This Week */}
+              <View className="flex-1 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl p-4">
+                <View className="flex-row items-center justify-between mb-2">
+                  <Text className="text-white/80 text-xs font-bold uppercase">This Week</Text>
+                  <Clock size={16} color="#fff" />
+                </View>
+                <Text className="text-white text-2xl font-bold mb-1">
+                  {activeTasks}
+                </Text>
+                <Text className="text-white/80 text-xs">
+                  Active tasks
+                </Text>
+                {blockedTasks > 0 && (
+                  <View className="mt-2 bg-white/20 rounded-lg px-2 py-1">
+                    <Text className="text-white text-xs font-semibold">
+                      {blockedTasks} blocked
+                    </Text>
+                  </View>
+                )}
+              </View>
+
+              {/* Next Week */}
+              <View className="flex-1 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl p-4">
+                <View className="flex-row items-center justify-between mb-2">
+                  <Text className="text-white/80 text-xs font-bold uppercase">Next Week</Text>
+                  <ArrowRight size={16} color="#fff" />
+                </View>
+                <Text className="text-white text-2xl font-bold mb-1">
+                  {queuedTasks}
+                </Text>
+                <Text className="text-white/80 text-xs">
+                  Ready to start
+                </Text>
+                {totalDecisions > 0 && (
+                  <View className="mt-2 bg-white/20 rounded-lg px-2 py-1">
+                    <Text className="text-white text-xs font-semibold">
+                      {totalDecisions} decisions
+                    </Text>
+                  </View>
+                )}
+              </View>
+            </View>
+          </View>
+
           {/* Critical Metrics Grid */}
           <View className="flex-row gap-3 mb-3">
             {/* Financial Runway */}
@@ -351,6 +398,99 @@ export default function MissionControlHome() {
               <ChevronRight size={20} color="#fff" />
             </Pressable>
           )}
+
+          {/* What's Happening: Weekly Activity Timeline */}
+          <View className="mt-4">
+            <Text className="text-slate-700 dark:text-slate-300 text-sm font-bold mb-3">
+              What's Happening
+            </Text>
+
+            {/* This Week's Active Tasks */}
+            {tuAllocation.topActiveTasks.length > 0 && (
+              <View className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 mb-3">
+                <View className="flex-row items-center justify-between mb-3">
+                  <Text className="text-slate-600 dark:text-slate-400 text-xs font-semibold uppercase">
+                    This Week
+                  </Text>
+                  <View className="bg-blue-100 dark:bg-blue-900/30 px-2 py-1 rounded-full">
+                    <Text className="text-blue-600 dark:text-blue-400 text-xs font-bold">
+                      In Progress
+                    </Text>
+                  </View>
+                </View>
+                {tuAllocation.topActiveTasks.slice(0, 3).map((task) => (
+                  <View
+                    key={task.id}
+                    className="flex-row items-center justify-between py-2 border-b border-slate-200 dark:border-slate-800 last:border-b-0"
+                  >
+                    <View className="flex-1">
+                      <Text className="text-slate-900 dark:text-white text-sm font-medium" numberOfLines={1}>
+                        {task.title}
+                      </Text>
+                      <Text className="text-slate-500 dark:text-slate-500 text-xs mt-0.5">
+                        {task.ownerInitials}
+                      </Text>
+                    </View>
+                    {task.etaDays && (
+                      <View className="bg-blue-500/10 px-2.5 py-1 rounded-lg">
+                        <Text className="text-blue-600 dark:text-blue-400 text-xs font-bold">
+                          {task.etaDays}d left
+                        </Text>
+                      </View>
+                    )}
+                  </View>
+                ))}
+              </View>
+            )}
+
+            {/* Next Week's Queued Tasks */}
+            {queuedTasks > 0 && (
+              <View className="bg-white dark:bg-slate-900 border border-purple-200 dark:border-purple-800 rounded-2xl p-4">
+                <View className="flex-row items-center justify-between mb-3">
+                  <Text className="text-slate-600 dark:text-slate-400 text-xs font-semibold uppercase">
+                    Coming Up Next
+                  </Text>
+                  <View className="bg-purple-100 dark:bg-purple-900/30 px-2 py-1 rounded-full">
+                    <Text className="text-purple-600 dark:text-purple-400 text-xs font-bold">
+                      Ready to Start
+                    </Text>
+                  </View>
+                </View>
+                {workPlans
+                  .filter(wp => wp.status === 'not-started')
+                  .slice(0, 3)
+                  .map((plan) => (
+                    <View
+                      key={plan.id}
+                      className="flex-row items-center justify-between py-2 border-b border-slate-200 dark:border-slate-800 last:border-b-0"
+                    >
+                      <View className="flex-1">
+                        <Text className="text-slate-900 dark:text-white text-sm font-medium" numberOfLines={1}>
+                          {plan.title}
+                        </Text>
+                        <Text className="text-slate-500 dark:text-slate-500 text-xs mt-0.5">
+                          {plan.function}
+                        </Text>
+                      </View>
+                      <View className="bg-purple-500/10 px-2.5 py-1 rounded-lg">
+                        <Text className="text-purple-600 dark:text-purple-400 text-xs font-bold">
+                          {plan.estimatedTimeUnits} TU
+                        </Text>
+                      </View>
+                    </View>
+                  ))}
+                <Pressable
+                  onPress={() => router.push('/(tabs)/decide')}
+                  className="flex-row items-center justify-center gap-1 mt-3 pt-3 border-t border-slate-200 dark:border-slate-800"
+                >
+                  <Text className="text-purple-600 dark:text-purple-400 text-xs font-bold">
+                    Allocate & Start Tasks
+                  </Text>
+                  <ChevronRight size={14} color="#8b5cf6" />
+                </Pressable>
+              </View>
+            )}
+          </View>
         </View>
 
         {/* ===== ACTING ===== */}
