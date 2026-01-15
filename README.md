@@ -54,7 +54,7 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
 
 ## 🚨 PRODUCTION READINESS STATUS
 
-**Last Updated**: 2026-01-15 (**DO/EVALUATE TAB UPDATE** - Updated Do tab to show only user's assigned tasks and Evaluate tab to show only evaluator's tasks, both with categorized views: Active → Not Started → Abandoned → Completed)
+**Last Updated**: 2026-01-15 (**UNIFIED TU ALLOCATION** - Implemented single source of truth for TU allocation with per-person allocations, AI productivity tools, team efficiency, skill-based recommendations, and audit trails)
 **Status**: ✅ **READY FOR APP STORE** - All features complete!
 
 ---
@@ -114,6 +114,38 @@ Team size affects productivity due to communication overhead (Brooks' Law). The 
 - Weeks to complete: 20 ÷ 7.2 = 3 weeks (vs 2.5 weeks without penalty)
 
 **Hiring Impact**: You can increase/decrease available TUs by hiring or reducing team members, but larger teams have diminishing returns due to coordination costs.
+
+### Unified TU Allocation System
+
+**Location**: `/src/components/UnifiedTaskAllocationModal.tsx`
+
+The unified allocation modal is THE single way to allocate TUs across the entire app. Click on any task to open it.
+
+**Allocation Flow**:
+1. **View Task Details**: See task description and default TU estimate
+2. **Adjust Total TUs**: Increase/decrease the total TUs required
+3. **Allocate People**: Tap on team members to add their TUs
+   - Visual squares show capacity and allocation
+   - FIT badge shows skill match for the task's function
+   - See cost per person per week
+4. **Select AI Tools**: Choose AI productivity boost (2x to 20x)
+5. **Review Summary**: See total cost, timeline, team efficiency
+6. **Save or Complete/Abandon**: Apply changes or finalize task
+
+**Key Features**:
+- **Per-Person Allocations**: Each person's contribution is tracked individually
+- **Skill Matching**: Finance tasks should have finance people (FIT badge)
+- **Real-Time Costs**: See cost breakdown as you allocate
+- **Audit Trail**: Completed/abandoned tasks record total TUs spent and cost
+- **Unallocated Warning**: Tasks without allocations show a warning
+
+**Data Model** (`WorkPlan` in `/src/lib/state/work-plan-store.ts`):
+```typescript
+allocations: TUAllocation[];      // Per-person allocations
+appliedAITools: AppliedAITool[];  // AI tools boosting productivity
+tusExpended: number;              // TUs already spent
+auditRecord?: TaskAuditRecord;    // For completed/abandoned tasks
+```
 
 ### Task Cost Calculation
 

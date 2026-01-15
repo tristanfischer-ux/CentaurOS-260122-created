@@ -26,7 +26,7 @@ import { CompanyAimModal } from '@/components/CompanyAimModal';
 import { SquaresDisplay } from '@/components/SquaresDisplay';
 import { ResourceBar } from '@/components/ResourceBar';
 import { useResourceStore, type PersonResource, getTeamSizeEfficiency } from '@/lib/state/resource-store';
-import { TaskAllocationModal } from '@/components/TaskAllocationModal';
+import { UnifiedTaskAllocationModal } from '@/components/UnifiedTaskAllocationModal';
 
 // Team efficiency types
 
@@ -2626,41 +2626,13 @@ export default function DecideScreen() {
       </Modal>
 
       {/* Task Allocation Modal */}
-      <TaskAllocationModal
+      <UnifiedTaskAllocationModal
         visible={showTaskAllocationModal}
         onClose={() => {
           setShowTaskAllocationModal(false);
           setSelectedTaskForAllocation(null);
         }}
         workPlan={selectedTaskForAllocation}
-        workspaceId={currentWorkspace?.id || ''}
-        onComplete={(workPlanId) => {
-          completeWorkPlan(workPlanId);
-          setShowTaskAllocationModal(false);
-          setSelectedTaskForAllocation(null);
-        }}
-        onAbandon={(workPlanId, reason) => {
-          // Mark as abandoned (using blocked status with notes)
-          updateWorkPlan(workPlanId, {
-            status: 'blocked',
-            assignedMemberIds: [],
-            submissionData: {
-              notes: reason || 'Task abandoned',
-              hoursSpent: 0,
-              blockersEncountered: ['Abandoned by user'],
-              confidenceLevel: 'low',
-              qualityChecklist: {
-                requirementsMet: false,
-                testedLocally: false,
-                documentationUpdated: false,
-                peerReviewed: false,
-              },
-              estimatedQuality: 0,
-            },
-          });
-          setShowTaskAllocationModal(false);
-          setSelectedTaskForAllocation(null);
-        }}
       />
     </View>
   );

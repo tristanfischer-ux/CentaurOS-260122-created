@@ -182,6 +182,9 @@ export default function SetupPlanScreen() {
             assignedBy: 'Startup Pack',
             needsSubmission: false,
             estimatedTimeUnits,
+            allocations: [],
+            appliedAITools: [],
+            tusExpended: 0,
             sprintMode: true,
           });
           workPlansCreated++;

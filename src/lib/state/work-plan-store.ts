@@ -1,10 +1,42 @@
 /**
  * Centralized Work Plan Store
  * Single source of truth for all work plan data across the app
+ *
+ * UNIFIED TU ALLOCATION SYSTEM:
+ * - Every task stores per-person TU allocations
+ * - AI tools provide productivity multipliers
+ * - Team efficiency affects output based on team size
+ * - Cost tracking per task with audit trail
  */
 
 import { create } from 'zustand';
 import type { Function as BusinessFunction } from '@/types';
+
+// Per-person TU allocation for a task
+export interface TUAllocation {
+  memberId: string;          // Organization member ID
+  memberName: string;        // For display
+  squaresPerWeek: number;    // TUs this person contributes per week
+  costPerSquare: number;     // £ cost per TU for this person
+}
+
+// AI tool applied to a task
+export interface AppliedAITool {
+  toolId: string;
+  toolName: string;
+  multiplier: number;        // 2x, 5x, 10x, 20x
+  costPerSquare: number;     // Additional AI cost per effective TU
+}
+
+// Audit record for completed/abandoned tasks
+export interface TaskAuditRecord {
+  completedAt?: string;
+  abandonedAt?: string;
+  totalTUsSpent: number;
+  totalCost: number;
+  totalWeeks: number;
+  reason?: string;           // For abandoned tasks
+}
 
 export interface WorkPlan {
   id: string;
@@ -21,11 +53,30 @@ export interface WorkPlan {
   lastSubmittedAt?: string;
   feedback?: string;
 
-  // Squares Allocation System
-  // 1 Square (□) = Half Day (4 hours), 1 Day = 2□, 1 Week = 10□
+  // ========================================
+  // UNIFIED TU ALLOCATION SYSTEM
+  // ========================================
+
+  // Total TUs required for task (adjustable)
   estimatedTimeUnits: number;           // Total squares for task (min: 1)
-  allocatedTimeUnitsPerWeek?: number;   // For spread mode (optional)
-  assignedMemberIds?: string[];         // Who is working on this task
+
+  // Per-person allocations (THE source of truth)
+  allocations: TUAllocation[];          // Who is contributing and how much
+
+  // AI productivity tools applied
+  appliedAITools: AppliedAITool[];      // AI tools boosting productivity
+
+  // Calculated fields (derived from allocations)
+  allocatedTimeUnitsPerWeek?: number;   // Sum of all person allocations
+  assignedMemberIds?: string[];         // Derived from allocations
+
+  // TUs already expended (progress tracking)
+  tusExpended: number;                  // TUs spent so far
+
+  // Audit trail for completed/abandoned tasks
+  auditRecord?: TaskAuditRecord;
+
+  // Legacy field (kept for backwards compatibility)
   sprintMode?: boolean;                 // true = ASAP, false = spread over weeks
 
   // Enhanced submission data (Deloitte/Accenture process excellence)
@@ -95,7 +146,12 @@ const INITIAL_WORK_PLANS: WorkPlan[] = [
     assignedBy: 'Priya Sharma',
     needsSubmission: true,
     lastSubmittedAt: '2026-01-12 14:30',
-    estimatedTimeUnits: 8,  // 4 days of work
+    estimatedTimeUnits: 8,
+    allocations: [
+      { memberId: 'apprentice-1', memberName: 'Alex Thompson', squaresPerWeek: 4, costPerSquare: 50 }
+    ],
+    appliedAITools: [],
+    tusExpended: 5,
     sprintMode: true,
   },
   {
@@ -110,7 +166,12 @@ const INITIAL_WORK_PLANS: WorkPlan[] = [
     progress: 40,
     assignedBy: 'Sarah Mitchell',
     needsSubmission: false,
-    estimatedTimeUnits: 6,  // 3 days of work
+    estimatedTimeUnits: 6,
+    allocations: [
+      { memberId: 'apprentice-2', memberName: 'Jordan Lee', squaresPerWeek: 3, costPerSquare: 50 }
+    ],
+    appliedAITools: [],
+    tusExpended: 2,
     sprintMode: true,
   },
   {
@@ -127,7 +188,16 @@ const INITIAL_WORK_PLANS: WorkPlan[] = [
     needsSubmission: false,
     lastSubmittedAt: '2026-01-10 09:15',
     feedback: 'Excellent work! Moving forward with supplier B.',
-    estimatedTimeUnits: 4,  // 2 days of work
+    estimatedTimeUnits: 4,
+    allocations: [],
+    appliedAITools: [],
+    tusExpended: 4,
+    auditRecord: {
+      completedAt: '2026-01-10',
+      totalTUsSpent: 4,
+      totalCost: 200,
+      totalWeeks: 1,
+    },
     sprintMode: true,
   },
   // Founder/Executive work plans
@@ -143,8 +213,13 @@ const INITIAL_WORK_PLANS: WorkPlan[] = [
     progress: 65,
     assignedBy: 'Priya Sharma',
     needsSubmission: true,
-    estimatedTimeUnits: 10,  // 1 week of work
-    allocatedTimeUnitsPerWeek: 2,  // Spread over 5 weeks
+    estimatedTimeUnits: 10,
+    allocatedTimeUnitsPerWeek: 2,
+    allocations: [
+      { memberId: 'exec-1', memberName: 'Priya Sharma', squaresPerWeek: 2, costPerSquare: 150 }
+    ],
+    appliedAITools: [],
+    tusExpended: 6,
     sprintMode: false,
   },
   {
@@ -159,7 +234,15 @@ const INITIAL_WORK_PLANS: WorkPlan[] = [
     progress: 78,
     assignedBy: 'Sarah Mitchell',
     needsSubmission: false,
-    estimatedTimeUnits: 12,  // 6 days of work
+    estimatedTimeUnits: 12,
+    allocations: [
+      { memberId: 'exec-2', memberName: 'Sarah Mitchell', squaresPerWeek: 2, costPerSquare: 125 },
+      { memberId: 'apprentice-2', memberName: 'Jordan Lee', squaresPerWeek: 4, costPerSquare: 50 }
+    ],
+    appliedAITools: [
+      { toolId: 'ai-copilot', toolName: 'AI Copilot', multiplier: 5, costPerSquare: 15 }
+    ],
+    tusExpended: 9,
     sprintMode: true,
   },
   {
@@ -174,7 +257,16 @@ const INITIAL_WORK_PLANS: WorkPlan[] = [
     progress: 100,
     assignedBy: 'Marcus Rodriguez',
     needsSubmission: false,
-    estimatedTimeUnits: 4,  // 2 days of work
+    estimatedTimeUnits: 4,
+    allocations: [],
+    appliedAITools: [],
+    tusExpended: 4,
+    auditRecord: {
+      completedAt: '2026-01-20',
+      totalTUsSpent: 4,
+      totalCost: 400,
+      totalWeeks: 1,
+    },
     sprintMode: true,
   },
   {
@@ -189,8 +281,14 @@ const INITIAL_WORK_PLANS: WorkPlan[] = [
     progress: 25,
     assignedBy: 'Thomas Anderson',
     needsSubmission: false,
-    estimatedTimeUnits: 20,  // 2 weeks of work
-    allocatedTimeUnitsPerWeek: 4,  // Spread over 5 weeks
+    estimatedTimeUnits: 20,
+    allocatedTimeUnitsPerWeek: 4,
+    allocations: [
+      { memberId: 'exec-4', memberName: 'Thomas Anderson', squaresPerWeek: 2, costPerSquare: 175 },
+      { memberId: 'apprentice-3', memberName: 'Taylor Morgan', squaresPerWeek: 2, costPerSquare: 50 }
+    ],
+    appliedAITools: [],
+    tusExpended: 5,
     sprintMode: false,
   },
   {
@@ -205,7 +303,15 @@ const INITIAL_WORK_PLANS: WorkPlan[] = [
     progress: 85,
     assignedBy: 'James Chen',
     needsSubmission: false,
-    estimatedTimeUnits: 6,  // 3 days of work
+    estimatedTimeUnits: 6,
+    allocations: [
+      { memberId: 'founder-1', memberName: 'Sarah Chen', squaresPerWeek: 2, costPerSquare: 200 },
+      { memberId: 'exec-5', memberName: 'James Chen', squaresPerWeek: 2, costPerSquare: 150 }
+    ],
+    appliedAITools: [
+      { toolId: 'ai-assist', toolName: 'AI Assist', multiplier: 2, costPerSquare: 5 }
+    ],
+    tusExpended: 5,
     sprintMode: true,
   },
 ];
