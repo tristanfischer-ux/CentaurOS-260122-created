@@ -646,6 +646,28 @@ export default function DecideScreen() {
     setSelectedTaskForAllocation(prev => prev ? { ...prev, allocations: newAllocations } : null);
   }, [workPlans, updateWorkPlan]);
 
+  // Adjust estimated time units (Required field)
+  const handleAdjustEstimatedTimeUnits = useCallback((taskId: string, change: number) => {
+    const task = workPlans.find(wp => wp.id === taskId);
+    if (!task) return;
+
+    const newEstimatedTimeUnits = task.estimatedTimeUnits + change;
+
+    // Don't allow going below 1 TU
+    if (newEstimatedTimeUnits < 1) {
+      Alert.alert('Minimum Required', 'Task must require at least 1□.');
+      return;
+    }
+
+    // Update work plan
+    updateWorkPlan(taskId, {
+      estimatedTimeUnits: newEstimatedTimeUnits,
+    });
+
+    // Update the selected task state to reflect changes
+    setSelectedTaskForAllocation(prev => prev ? { ...prev, estimatedTimeUnits: newEstimatedTimeUnits } : null);
+  }, [workPlans, updateWorkPlan]);
+
   // Confirm allocation changes
   const handleConfirmAllocation = useCallback(() => {
     if (selectedTaskForAllocation) {
@@ -1379,9 +1401,35 @@ export default function DecideScreen() {
             {/* Resource allocation display */}
             <View className="bg-white dark:bg-slate-800 rounded-lg p-3 mb-3">
               <View className="flex-row items-center justify-between mb-2">
-                <Text className="text-gray-900 dark:text-white font-semibold">
-                  Required: {selectedTaskForAllocation.estimatedTimeUnits}□
-                </Text>
+                {/* Required field with +/- buttons */}
+                <View className="flex-row items-center gap-2">
+                  <Text className="text-gray-600 dark:text-slate-400 text-xs mr-1">Required:</Text>
+
+                  {/* Minus button */}
+                  <Pressable
+                    onPress={() => handleAdjustEstimatedTimeUnits(selectedTaskForAllocation.id, -1)}
+                    className="bg-red-100 dark:bg-red-900/30 w-7 h-7 rounded-full items-center justify-center active:opacity-70"
+                  >
+                    <Minus size={14} color="#ef4444" />
+                  </Pressable>
+
+                  {/* Display */}
+                  <View className="bg-gray-50 dark:bg-slate-900 px-3 py-1 rounded">
+                    <Text className="text-gray-900 dark:text-white font-bold">
+                      {selectedTaskForAllocation.estimatedTimeUnits}□
+                    </Text>
+                  </View>
+
+                  {/* Plus button */}
+                  <Pressable
+                    onPress={() => handleAdjustEstimatedTimeUnits(selectedTaskForAllocation.id, 1)}
+                    className="bg-emerald-100 dark:bg-emerald-900/30 w-7 h-7 rounded-full items-center justify-center active:opacity-70"
+                  >
+                    <Plus size={14} color="#10b981" />
+                  </Pressable>
+                </View>
+
+                {/* Allocated field */}
                 <Text className={`font-semibold ${
                   (selectedTaskForAllocation.allocations?.reduce((sum, a) => sum + a.squaresPerWeek, 0) || 0) >= selectedTaskForAllocation.estimatedTimeUnits
                     ? 'text-emerald-600 dark:text-emerald-400'
