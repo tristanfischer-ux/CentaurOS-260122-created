@@ -413,10 +413,10 @@ export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress
             }}
             style={{ maxHeight: '80%' }}
           >
-            {selectedTask && (() => {
-              console.log('[MiniGanttChart] Rendering modal for task:', selectedTask.title);
-              return (
-              <View className="mx-4 bg-white dark:bg-slate-800 rounded-2xl overflow-hidden shadow-2xl">
+            {selectedTask ? (
+              <>
+                {console.log('[MiniGanttChart] Rendering modal for task:', selectedTask.title)}
+                <View className="mx-4 bg-white dark:bg-slate-800 rounded-2xl overflow-hidden shadow-2xl">
                 {/* Header */}
                 <View className={`px-4 py-3 ${STATUS_COLORS[selectedTask.status]?.bg || 'bg-gray-200'}`}>
                   <View className="flex-row items-start justify-between">
@@ -546,8 +546,8 @@ export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress
                 </View>
                 </ScrollView>
               </View>
-              );
-            })()}
+              </>
+            ) : null}
           </Pressable>
         </Pressable>
       </Modal>
