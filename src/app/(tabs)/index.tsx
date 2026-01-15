@@ -1,5 +1,5 @@
 import { View, Text, ScrollView, Pressable, ActivityIndicator } from 'react-native';
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import {
   Target,
   Users,
@@ -31,6 +31,7 @@ import {
   Activity,
   Trophy,
   ListOrdered,
+  GripVertical,
 } from 'lucide-react-native';
 import { useCurrentWorkspace, useCurrentMembership, useCurrentUser } from '@/lib/state/app-store';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -55,6 +56,18 @@ import { CompanyAimModal } from '@/components/CompanyAimModal';
 import { CompanyAimBanner } from '@/components/CompanyAimBanner';
 import { ResourceBar } from '@/components/ResourceBar';
 import { useResourceStore } from '@/lib/state/resource-store';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withRepeat,
+  withSequence,
+  withTiming,
+  withSpring,
+  runOnJS,
+  cancelAnimation,
+} from 'react-native-reanimated';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
+import * as Haptics from 'expo-haptics';
 
 // Help content for each role
 const FOUNDER_HELP: HelpContent = {
@@ -138,6 +151,44 @@ export default function HomeScreen() {
 
   // Company aim modal state
   const [showCompanyAimModal, setShowCompanyAimModal] = useState(false);
+
+  // Edit mode for draggable sections
+  const [isEditMode, setIsEditMode] = useState(false);
+  const wiggleRotation = useSharedValue(0);
+
+  // Wiggle animation when in edit mode
+  useEffect(() => {
+    if (isEditMode) {
+      wiggleRotation.value = withRepeat(
+        withSequence(
+          withTiming(1.5, { duration: 80 }),
+          withTiming(-1.5, { duration: 80 }),
+          withTiming(1.5, { duration: 80 }),
+          withTiming(0, { duration: 80 })
+        ),
+        -1,
+        true
+      );
+    } else {
+      cancelAnimation(wiggleRotation);
+      wiggleRotation.value = withTiming(0, { duration: 100 });
+    }
+  }, [isEditMode, wiggleRotation]);
+
+  const wiggleStyle = useAnimatedStyle(() => ({
+    transform: [{ rotate: `${wiggleRotation.value}deg` }],
+  }));
+
+  // Long press handler to enter edit mode
+  const handleLongPress = useCallback(() => {
+    setIsEditMode(true);
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+  }, []);
+
+  const exitEditMode = useCallback(() => {
+    setIsEditMode(false);
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+  }, []);
 
   // Use centralized stores - select primitive values to avoid infinite loops
   const okrs = useOKRStore(s => s.okrs);
@@ -847,13 +898,40 @@ export default function HomeScreen() {
           compact
         />
 
+        {/* Edit Mode Banner */}
+        {isEditMode && (
+          <View className="bg-purple-600 py-3 px-5 flex-row items-center justify-between">
+            <View className="flex-row items-center">
+              <GripVertical size={18} color="#fff" />
+              <Text className="text-white font-semibold ml-2">Editing Layout - Hold & Drag to Reorder</Text>
+            </View>
+            <Pressable
+              onPress={exitEditMode}
+              className="bg-white/20 px-4 py-1.5 rounded-full active:opacity-70"
+            >
+              <Text className="text-white font-semibold">Done</Text>
+            </Pressable>
+          </View>
+        )}
+
         <ScrollView className="flex-1">
           <View className="px-5 py-4">
-            {/* Company Aim Banner */}
-            <CompanyAimBanner
-              workspaceId={currentWorkspace.id}
-              onEdit={() => setShowCompanyAimModal(true)}
-            />
+            {/* Company Aim Banner - Long press to edit layout */}
+            <Pressable onLongPress={handleLongPress} delayLongPress={400}>
+              <Animated.View style={isEditMode ? wiggleStyle : undefined}>
+                <CompanyAimBanner
+                  workspaceId={currentWorkspace.id}
+                  onEdit={() => !isEditMode && setShowCompanyAimModal(true)}
+                />
+                {isEditMode && (
+                  <View className="absolute -left-1 top-0 bottom-0 justify-center">
+                    <View className="bg-purple-600/90 rounded-l-lg p-1.5">
+                      <GripVertical size={14} color="#fff" />
+                    </View>
+                  </View>
+                )}
+              </Animated.View>
+            </Pressable>
 
             {/* ATTENTION REQUIRED - Most Critical */}
             {(urgentItems.totalUrgent > 0 || urgentItems.totalWarning > 0 || FOUNDER_DATA.pendingApprovals > 0) && (
@@ -998,82 +1076,93 @@ export default function HomeScreen() {
             </View>
 
             {/* QUICK ACTIONS */}
-            <View className="mb-4">
-              <Text className="text-gray-500 dark:text-slate-500 text-xs font-bold mb-2 tracking-wide">
-                QUICK ACTIONS
-              </Text>
-              <View className="flex-row gap-2 mb-2">
-                <Pressable
-                  onPress={() => router.push('/(tabs)/decide')}
-                  className="flex-1 bg-purple-500 rounded-xl p-3 active:opacity-70"
-                >
-                  <View className="flex-row items-center justify-center">
-                    <Plus size={18} color="#fff" />
-                    <Text className="text-white font-bold text-sm ml-1.5">New OKR</Text>
+            <Pressable onLongPress={handleLongPress} delayLongPress={400}>
+              <Animated.View style={isEditMode ? wiggleStyle : undefined} className="relative">
+                <View className="mb-4">
+                  <Text className="text-gray-500 dark:text-slate-500 text-xs font-bold mb-2 tracking-wide">
+                    QUICK ACTIONS
+                  </Text>
+                  <View className="flex-row gap-2 mb-2">
+                    <Pressable
+                      onPress={() => !isEditMode && router.push('/(tabs)/decide')}
+                      className="flex-1 bg-purple-500 rounded-xl p-3 active:opacity-70"
+                    >
+                      <View className="flex-row items-center justify-center">
+                        <Plus size={18} color="#fff" />
+                        <Text className="text-white font-bold text-sm ml-1.5">New OKR</Text>
+                      </View>
+                    </Pressable>
+                    <Pressable
+                      onPress={() => !isEditMode && router.push('/(tabs)/evaluate')}
+                      className="flex-1 bg-blue-500 rounded-xl p-3 active:opacity-70"
+                    >
+                      <View className="flex-row items-center justify-center">
+                        <CheckCircle2 size={18} color="#fff" />
+                        <Text className="text-white font-bold text-sm ml-1.5">Review</Text>
+                      </View>
+                    </Pressable>
+                    <Pressable
+                      onPress={() => !isEditMode && router.push('/financial-dashboard')}
+                      className="flex-1 bg-emerald-500 rounded-xl p-3 active:opacity-70"
+                    >
+                      <View className="flex-row items-center justify-center">
+                        <DollarSign size={18} color="#fff" />
+                        <Text className="text-white font-bold text-sm ml-1.5">Finance</Text>
+                      </View>
+                    </Pressable>
                   </View>
-                </Pressable>
-                <Pressable
-                  onPress={() => router.push('/(tabs)/evaluate')}
-                  className="flex-1 bg-blue-500 rounded-xl p-3 active:opacity-70"
-                >
-                  <View className="flex-row items-center justify-center">
-                    <CheckCircle2 size={18} color="#fff" />
-                    <Text className="text-white font-bold text-sm ml-1.5">Review</Text>
+                  <View className="flex-row gap-2">
+                    <Pressable
+                      onPress={() => !isEditMode && router.push('/leaderboard')}
+                      className="flex-1 bg-yellow-500 rounded-xl p-3 active:opacity-70"
+                    >
+                      <View className="flex-row items-center justify-center">
+                        <Trophy size={18} color="#fff" />
+                        <Text className="text-white font-bold text-sm ml-1.5">Rankings</Text>
+                      </View>
+                    </Pressable>
+                    <Pressable
+                      onPress={() => !isEditMode && router.push('/calendar')}
+                      className="flex-1 bg-amber-500 rounded-xl p-3 active:opacity-70"
+                    >
+                      <View className="flex-row items-center justify-center">
+                        <Calendar size={18} color="#fff" />
+                        <Text className="text-white font-bold text-sm ml-1.5">Calendar</Text>
+                      </View>
+                    </Pressable>
+                    <Pressable
+                      onPress={() => !isEditMode && router.push('/messages')}
+                      className="flex-1 bg-cyan-500 rounded-xl p-3 active:opacity-70"
+                    >
+                      <View className="flex-row items-center justify-center">
+                        <MessageSquare size={18} color="#fff" />
+                        <Text className="text-white font-bold text-sm ml-1.5">Messages</Text>
+                      </View>
+                    </Pressable>
                   </View>
-                </Pressable>
-                <Pressable
-                  onPress={() => router.push('/financial-dashboard')}
-                  className="flex-1 bg-emerald-500 rounded-xl p-3 active:opacity-70"
-                >
-                  <View className="flex-row items-center justify-center">
-                    <DollarSign size={18} color="#fff" />
-                    <Text className="text-white font-bold text-sm ml-1.5">Finance</Text>
+                  <View className="flex-row gap-2 mt-2">
+                    <Pressable
+                      onPress={() => !isEditMode && router.push('/build-queue')}
+                      className="flex-1 bg-indigo-500 rounded-xl p-3 active:opacity-70"
+                    >
+                      <View className="flex-row items-center justify-center">
+                        <ListOrdered size={18} color="#fff" />
+                        <Text className="text-white font-bold text-sm ml-1.5">Build Queue</Text>
+                      </View>
+                    </Pressable>
+                    <View className="flex-1" />
+                    <View className="flex-1" />
                   </View>
-                </Pressable>
-              </View>
-              <View className="flex-row gap-2">
-                <Pressable
-                  onPress={() => router.push('/leaderboard')}
-                  className="flex-1 bg-yellow-500 rounded-xl p-3 active:opacity-70"
-                >
-                  <View className="flex-row items-center justify-center">
-                    <Trophy size={18} color="#fff" />
-                    <Text className="text-white font-bold text-sm ml-1.5">Rankings</Text>
+                </View>
+                {isEditMode && (
+                  <View className="absolute -left-1 top-0 bottom-0 justify-center">
+                    <View className="bg-purple-600/90 rounded-l-lg p-1.5">
+                      <GripVertical size={14} color="#fff" />
+                    </View>
                   </View>
-                </Pressable>
-                <Pressable
-                  onPress={() => router.push('/calendar')}
-                  className="flex-1 bg-amber-500 rounded-xl p-3 active:opacity-70"
-                >
-                  <View className="flex-row items-center justify-center">
-                    <Calendar size={18} color="#fff" />
-                    <Text className="text-white font-bold text-sm ml-1.5">Calendar</Text>
-                  </View>
-                </Pressable>
-                <Pressable
-                  onPress={() => router.push('/messages')}
-                  className="flex-1 bg-cyan-500 rounded-xl p-3 active:opacity-70"
-                >
-                  <View className="flex-row items-center justify-center">
-                    <MessageSquare size={18} color="#fff" />
-                    <Text className="text-white font-bold text-sm ml-1.5">Messages</Text>
-                  </View>
-                </Pressable>
-              </View>
-              <View className="flex-row gap-2 mt-2">
-                <Pressable
-                  onPress={() => router.push('/build-queue')}
-                  className="flex-1 bg-indigo-500 rounded-xl p-3 active:opacity-70"
-                >
-                  <View className="flex-row items-center justify-center">
-                    <ListOrdered size={18} color="#fff" />
-                    <Text className="text-white font-bold text-sm ml-1.5">Build Queue</Text>
-                  </View>
-                </Pressable>
-                <View className="flex-1" />
-                <View className="flex-1" />
-              </View>
-            </View>
+                )}
+              </Animated.View>
+            </Pressable>
 
             {/* UPCOMING DEADLINES - Shows tasks due soon across the team */}
             {(tasksDueSoon.overdue > 0 || tasksDueSoon.thisWeek > 0 || tasksDueSoon.awaitingReview > 0) && (
