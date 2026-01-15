@@ -25,7 +25,7 @@ import { CompanyAimBanner } from '@/components/CompanyAimBanner';
 import { CompanyAimModal } from '@/components/CompanyAimModal';
 import { SquaresDisplay } from '@/components/SquaresDisplay';
 import { ResourceBar } from '@/components/ResourceBar';
-import { useResourceStore, type PersonResource } from '@/lib/state/resource-store';
+import { useResourceStore, type PersonResource, getTeamSizeEfficiency } from '@/lib/state/resource-store';
 import { TaskAllocationModal } from '@/components/TaskAllocationModal';
 
 const DECIDE_HELP: HelpContent = {
@@ -284,9 +284,13 @@ export default function DecideScreen() {
   // Calculate task costs based on assigned members and squares
   const calculateTaskCost = (workPlan: WorkPlan) => {
     const assignedMembers = getAssignedMembers(workPlan);
+    const teamSize = assignedMembers.length;
     const totalSquares = workPlan.estimatedTimeUnits;
     const allocatedPerWeek = workPlan.allocatedTimeUnitsPerWeek || 2; // Default 2□/week
     const remainingSquares = Math.ceil(totalSquares * (1 - workPlan.progress / 100));
+
+    // Get team efficiency based on team size
+    const teamEfficiency = getTeamSizeEfficiency(teamSize);
 
     // Calculate average cost per square from assigned members
     // Cost per square = costPerDay / 2 (since 1 day = 2 squares)
@@ -302,6 +306,9 @@ export default function DecideScreen() {
       avgCostPerSquare = 75; // £150/day / 2
     }
 
+    // Effective output per week (accounting for team efficiency)
+    const effectiveOutputPerWeek = allocatedPerWeek * teamEfficiency.efficiencyMultiplier;
+
     // Cumulative cost = total squares × average cost per square
     const cumulativeCost = Math.round(totalSquares * avgCostPerSquare);
 
@@ -311,8 +318,8 @@ export default function DecideScreen() {
     // Cost per week = allocated squares per week × average cost per square
     const costPerWeek = Math.round(allocatedPerWeek * avgCostPerSquare);
 
-    // Weeks to complete = remaining squares / allocated per week
-    const weeksToComplete = allocatedPerWeek > 0 ? Math.ceil(remainingSquares / allocatedPerWeek) : 0;
+    // Weeks to complete = remaining squares / effective output per week (with efficiency)
+    const weeksToComplete = effectiveOutputPerWeek > 0 ? Math.ceil(remainingSquares / effectiveOutputPerWeek) : 0;
 
     return {
       cumulativeCost,
@@ -323,6 +330,8 @@ export default function DecideScreen() {
       allocatedPerWeek,
       totalSquares,
       remainingSquares,
+      teamEfficiency,
+      effectiveOutputPerWeek: Math.round(effectiveOutputPerWeek * 10) / 10,
     };
   };
 

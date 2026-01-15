@@ -52,6 +52,7 @@ import {
   type AITool,
   PERSON_CLASS_COLORS,
   DEFAULT_AI_TOOLS,
+  getTeamSizeEfficiency,
 } from '@/lib/state/resource-store';
 import { useWorkPlanStore, type WorkPlan } from '@/lib/state/work-plan-store';
 import { useOrganizationStore } from '@/lib/state/organization-store';
@@ -372,7 +373,11 @@ export function TaskAllocationModal({
   // Calculate total allocated TUs per week
   const totalAllocatedPerWeek = Object.values(allocations).reduce((sum, val) => sum + val, 0);
 
-  // Calculate costs
+  // Calculate team size and efficiency
+  const teamSize = Object.keys(allocations).filter((k) => allocations[k] > 0).length;
+  const teamEfficiency = getTeamSizeEfficiency(teamSize);
+
+  // Calculate costs (with team efficiency factored in)
   const costCalculation = useMemo(() => {
     let personCostPerWeek = 0;
     let totalPersonCost = 0;
@@ -392,9 +397,16 @@ export function TaskAllocationModal({
     }, 0);
     const totalAICost = effectiveTUs * aiCostPerSquare;
 
-    // Weeks to complete
+    // Get current team efficiency
+    const currentTeamSize = Object.keys(allocations).filter((k) => allocations[k] > 0).length;
+    const efficiency = getTeamSizeEfficiency(currentTeamSize);
+
+    // Effective output per week (accounting for team efficiency)
+    const effectiveOutputPerWeek = totalAllocatedPerWeek * efficiency.efficiencyMultiplier;
+
+    // Weeks to complete (with efficiency)
     const remainingTUs = effectiveTUs - Math.round((workPlan?.progress || 0 / 100) * effectiveTUs);
-    const weeksToComplete = totalAllocatedPerWeek > 0 ? Math.ceil(remainingTUs / totalAllocatedPerWeek) : Infinity;
+    const weeksToComplete = effectiveOutputPerWeek > 0 ? Math.ceil(remainingTUs / effectiveOutputPerWeek) : Infinity;
 
     // Total cost
     totalPersonCost = personCostPerWeek * weeksToComplete;
@@ -412,6 +424,8 @@ export function TaskAllocationModal({
       weeksToComplete,
       daysToComplete,
       remainingTUs,
+      effectiveOutputPerWeek: Math.round(effectiveOutputPerWeek * 10) / 10,
+      teamEfficiency: efficiency,
     };
   }, [allocations, selectedAITools, effectiveTUs, totalAllocatedPerWeek, workPlan, activeMembers]);
 
@@ -585,6 +599,47 @@ export function TaskAllocationModal({
                   <Text className="text-blue-400 font-bold text-sm">{totalAllocatedPerWeek} TU/wk</Text>
                 </View>
               </View>
+
+              {/* Team Size Efficiency Indicator */}
+              {teamSize > 0 && (
+                <View className={`rounded-lg p-3 mb-3 ${
+                  teamEfficiency.efficiencyMultiplier > 1 ? 'bg-emerald-500/10 border border-emerald-500/30' :
+                  teamEfficiency.efficiencyMultiplier < 1 ? 'bg-amber-500/10 border border-amber-500/30' :
+                  'bg-slate-700/50'
+                }`}>
+                  <View className="flex-row items-center justify-between">
+                    <View className="flex-row items-center">
+                      <Users size={14} color={
+                        teamEfficiency.efficiencyMultiplier > 1 ? '#10b981' :
+                        teamEfficiency.efficiencyMultiplier < 1 ? '#f59e0b' : '#94a3b8'
+                      } />
+                      <Text className={`text-sm font-semibold ml-2 ${
+                        teamEfficiency.efficiencyMultiplier > 1 ? 'text-emerald-400' :
+                        teamEfficiency.efficiencyMultiplier < 1 ? 'text-amber-400' : 'text-slate-300'
+                      }`}>
+                        {teamEfficiency.label} ({teamSize} {teamSize === 1 ? 'person' : 'people'})
+                      </Text>
+                    </View>
+                    <View className={`px-2 py-0.5 rounded ${
+                      teamEfficiency.efficiencyMultiplier > 1 ? 'bg-emerald-500/20' :
+                      teamEfficiency.efficiencyMultiplier < 1 ? 'bg-amber-500/20' : 'bg-slate-600'
+                    }`}>
+                      <Text className={`text-xs font-bold ${
+                        teamEfficiency.efficiencyMultiplier > 1 ? 'text-emerald-400' :
+                        teamEfficiency.efficiencyMultiplier < 1 ? 'text-amber-400' : 'text-slate-300'
+                      }`}>
+                        {teamEfficiency.efficiencyMultiplier > 1 ? '+' : ''}{Math.round((teamEfficiency.efficiencyMultiplier - 1) * 100)}% efficiency
+                      </Text>
+                    </View>
+                  </View>
+                  <Text className={`text-xs mt-1 ${
+                    teamEfficiency.efficiencyMultiplier > 1 ? 'text-emerald-400/70' :
+                    teamEfficiency.efficiencyMultiplier < 1 ? 'text-amber-400/70' : 'text-slate-400'
+                  }`}>
+                    {teamEfficiency.description}
+                  </Text>
+                </View>
+              )}
 
               <Text className="text-slate-400 text-xs mb-3">
                 Tap squares to allocate. Members with matching skills are marked with FIT.

@@ -91,6 +91,30 @@ AI tools provide a multiplier effect that reduces effort:
 
 **Example**: A 20-square task with 10x AI becomes a 2-square task.
 
+### Team Size Efficiency Modifiers
+
+Team size affects productivity due to communication overhead (Brooks' Law). The system automatically applies efficiency modifiers:
+
+| Team Size | Efficiency | Label | Description |
+|-----------|------------|-------|-------------|
+| 1 person | 1.0x (neutral) | Solo | No coordination overhead |
+| 2 people | 1.1x (+10%) | Pair | Collaboration bonus (pair programming effect) |
+| 3 people | 1.0x (neutral) | Small team | Optimal team size |
+| 4-9 people | 0.9x (-10%) | Medium team | Coordination overhead |
+| 10-19 people | 0.8x (-20%) | Large team | Significant communication overhead |
+| 20+ people | 0.5x (-50%) | Very large team | Major coordination challenges |
+
+**How it works**:
+- Effective output per week = Allocated TUs × Efficiency multiplier
+- Time to complete = Remaining TUs ÷ Effective output per week
+
+**Example**: A 20□ task with 4 people allocating 8□/week total:
+- Team efficiency: 0.9x (medium team penalty)
+- Effective output: 8 × 0.9 = 7.2□/week
+- Weeks to complete: 20 ÷ 7.2 = 3 weeks (vs 2.5 weeks without penalty)
+
+**Hiring Impact**: You can increase/decrease available TUs by hiring or reducing team members, but larger teams have diminishing returns due to coordination costs.
+
 ### Task Cost Calculation
 
 Each task displays:

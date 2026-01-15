@@ -174,31 +174,85 @@ interface ResourceState {
   setCompanyCost: (annualCost: number) => void;
 }
 
+// ============ TEAM SIZE EFFICIENCY MODIFIERS ============
+// Reflects communication overhead and coordination costs
+// Based on Brooks' Law - adding people increases coordination overhead
+
+export type TeamSizeEfficiency = {
+  teamSize: number;
+  efficiencyMultiplier: number;  // < 1 = penalty, > 1 = bonus, 1 = neutral
+  label: string;
+  description: string;
+};
+
+/**
+ * Calculate team efficiency based on number of people assigned to a task
+ *
+ * 1 person: No efficiency barrier (1.0x)
+ * 2 people: 10% efficiency boost (1.1x) - pair programming/collaboration benefit
+ * 3 people: No efficiency penalty (1.0x) - optimal small team
+ * 4-9 people: 10% efficiency loss (0.9x) - coordination overhead
+ * 10-19 people: 20% efficiency loss (0.8x) - significant communication overhead
+ * 20+ people: 50% efficiency loss (0.5x) - major coordination challenges
+ */
+export const getTeamSizeEfficiency = (teamSize: number): TeamSizeEfficiency => {
+  if (teamSize <= 0) {
+    return { teamSize: 0, efficiencyMultiplier: 1, label: 'No team', description: 'No one assigned' };
+  }
+  if (teamSize === 1) {
+    return { teamSize: 1, efficiencyMultiplier: 1, label: 'Solo', description: 'No coordination overhead' };
+  }
+  if (teamSize === 2) {
+    return { teamSize: 2, efficiencyMultiplier: 1.1, label: 'Pair', description: '+10% efficiency from collaboration' };
+  }
+  if (teamSize === 3) {
+    return { teamSize: 3, efficiencyMultiplier: 1, label: 'Small team', description: 'Optimal team size' };
+  }
+  if (teamSize >= 4 && teamSize <= 9) {
+    return { teamSize, efficiencyMultiplier: 0.9, label: 'Medium team', description: '-10% efficiency from coordination' };
+  }
+  if (teamSize >= 10 && teamSize <= 19) {
+    return { teamSize, efficiencyMultiplier: 0.8, label: 'Large team', description: '-20% efficiency from communication overhead' };
+  }
+  // 20+ people
+  return { teamSize, efficiencyMultiplier: 0.5, label: 'Very large team', description: '-50% efficiency from major coordination challenges' };
+};
+
 // Helper to calculate effective squares with AI
 const calculateEffectiveSquares = (total: number, multiplier: number): number => {
   return Math.ceil(total / multiplier);
 };
 
-// Helper to calculate weeks to complete
-const calculateWeeksToComplete = (effectiveSquares: number, squaresPerWeek: number): number => {
+// Helper to calculate weeks to complete (includes team efficiency)
+const calculateWeeksToComplete = (effectiveSquares: number, squaresPerWeek: number, teamSize: number = 1): number => {
   if (squaresPerWeek <= 0) return Infinity;
-  return Math.ceil(effectiveSquares / squaresPerWeek);
+  const efficiency = getTeamSizeEfficiency(teamSize);
+  // Effective output per week = allocated squares * efficiency multiplier
+  const effectiveOutputPerWeek = squaresPerWeek * efficiency.efficiencyMultiplier;
+  return Math.ceil(effectiveSquares / effectiveOutputPerWeek);
 };
 
-// Helper to calculate task cost
+// Helper to calculate task cost (includes team efficiency)
 const calculateTaskCost = (
   task: TaskResource,
   people: PersonResource[],
   aiTools: AITool[]
 ): number => {
+  const teamSize = task.allocations.length;
+  const efficiency = getTeamSizeEfficiency(teamSize);
+
+  // Effective output per week accounting for team efficiency
+  const effectiveOutputPerWeek = task.squaresAllocatedThisWeek * efficiency.efficiencyMultiplier;
+
+  // Weeks to complete with efficiency factored in
+  const weeksToComplete = effectiveOutputPerWeek > 0
+    ? Math.ceil((task.effectiveSquaresRequired - task.squaresCompleted) / effectiveOutputPerWeek)
+    : Infinity;
+
   // Person costs
   const personCost = task.allocations.reduce((sum, alloc) => {
     const person = people.find(p => p.id === alloc.personId);
     if (!person) return sum;
-    const weeksToComplete = calculateWeeksToComplete(
-      task.effectiveSquaresRequired - task.squaresCompleted,
-      task.squaresAllocatedThisWeek
-    );
     return sum + (alloc.squaresPerWeek * person.costPerSquare * weeksToComplete);
   }, 0);
 
