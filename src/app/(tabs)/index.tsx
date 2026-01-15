@@ -246,45 +246,59 @@ export default function MissionControlHome() {
           <View className="mb-4">
             <View className="flex-row gap-3">
               {/* This Week */}
-              <View className="flex-1 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl p-4">
-                <View className="flex-row items-center justify-between mb-2">
-                  <Text className="text-white/80 text-xs font-bold uppercase">This Week</Text>
-                  <Clock size={16} color="#fff" />
-                </View>
-                <Text className="text-white text-2xl font-bold mb-1">
-                  {activeTasks}
-                </Text>
-                <Text className="text-white/80 text-xs">
-                  Active tasks
-                </Text>
-                {blockedTasks > 0 && (
-                  <View className="mt-2 bg-white/20 rounded-lg px-2 py-1">
-                    <Text className="text-white text-xs font-semibold">
-                      {blockedTasks} blocked
-                    </Text>
+              <View className="flex-1">
+                <LinearGradient
+                  colors={['#3b82f6', '#2563eb']}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  style={{ borderRadius: 16, padding: 16 }}
+                >
+                  <View className="flex-row items-center justify-between mb-2">
+                    <Text className="text-white/80 text-xs font-bold uppercase">This Week</Text>
+                    <Clock size={16} color="#fff" />
                   </View>
-                )}
+                  <Text className="text-white text-2xl font-bold mb-1">
+                    {activeTasks}
+                  </Text>
+                  <Text className="text-white/80 text-xs">
+                    Active tasks
+                  </Text>
+                  {blockedTasks > 0 && (
+                    <View className="mt-2 bg-white/20 rounded-lg px-2 py-1">
+                      <Text className="text-white text-xs font-semibold">
+                        {blockedTasks} blocked
+                      </Text>
+                    </View>
+                  )}
+                </LinearGradient>
               </View>
 
               {/* Next Week */}
-              <View className="flex-1 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl p-4">
-                <View className="flex-row items-center justify-between mb-2">
-                  <Text className="text-white/80 text-xs font-bold uppercase">Next Week</Text>
-                  <ArrowRight size={16} color="#fff" />
-                </View>
-                <Text className="text-white text-2xl font-bold mb-1">
-                  {queuedTasks}
-                </Text>
-                <Text className="text-white/80 text-xs">
-                  Ready to start
-                </Text>
-                {totalDecisions > 0 && (
-                  <View className="mt-2 bg-white/20 rounded-lg px-2 py-1">
-                    <Text className="text-white text-xs font-semibold">
-                      {totalDecisions} decisions
-                    </Text>
+              <View className="flex-1">
+                <LinearGradient
+                  colors={['#a855f7', '#9333ea']}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  style={{ borderRadius: 16, padding: 16 }}
+                >
+                  <View className="flex-row items-center justify-between mb-2">
+                    <Text className="text-white/80 text-xs font-bold uppercase">Next Week</Text>
+                    <ArrowRight size={16} color="#fff" />
                   </View>
-                )}
+                  <Text className="text-white text-2xl font-bold mb-1">
+                    {queuedTasks}
+                  </Text>
+                  <Text className="text-white/80 text-xs">
+                    Ready to start
+                  </Text>
+                  {totalDecisions > 0 && (
+                    <View className="mt-2 bg-white/20 rounded-lg px-2 py-1">
+                      <Text className="text-white text-xs font-semibold">
+                        {totalDecisions} decisions
+                      </Text>
+                    </View>
+                  )}
+                </LinearGradient>
               </View>
             </View>
           </View>
@@ -380,22 +394,29 @@ export default function MissionControlHome() {
           {(blockedTasks > 0 || totalDecisions > 0) && (
             <Pressable
               onPress={() => router.push('/(tabs)/do')}
-              className="bg-gradient-to-r from-red-500 to-amber-500 rounded-2xl p-4 flex-row items-center justify-between active:opacity-70"
+              className="active:opacity-70"
             >
-              <View className="flex-row items-center gap-3 flex-1">
-                <View className="bg-white/20 rounded-full p-2">
-                  <AlertTriangle size={20} color="#fff" />
+              <LinearGradient
+                colors={['#ef4444', '#f59e0b']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={{ borderRadius: 16, padding: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}
+              >
+                <View className="flex-row items-center gap-3 flex-1">
+                  <View className="bg-white/20 rounded-full p-2">
+                    <AlertTriangle size={20} color="#fff" />
+                  </View>
+                  <View className="flex-1">
+                    <Text className="text-white font-bold text-base">
+                      {blockedTasks + totalDecisions} Items Need Attention
+                    </Text>
+                    <Text className="text-white/80 text-xs mt-0.5">
+                      {blockedTasks} blocked • {totalDecisions} decisions pending
+                    </Text>
+                  </View>
                 </View>
-                <View className="flex-1">
-                  <Text className="text-white font-bold text-base">
-                    {blockedTasks + totalDecisions} Items Need Attention
-                  </Text>
-                  <Text className="text-white/80 text-xs mt-0.5">
-                    {blockedTasks} blocked • {totalDecisions} decisions pending
-                  </Text>
-                </View>
-              </View>
-              <ChevronRight size={20} color="#fff" />
+                <ChevronRight size={20} color="#fff" />
+              </LinearGradient>
             </Pressable>
           )}
 
@@ -1243,28 +1264,42 @@ export default function MissionControlHome() {
           <View className="flex-row gap-3 mb-3">
             <Pressable
               onPress={() => router.push('/(tabs)/decide')}
-              className="flex-1 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl p-4 active:opacity-80"
+              className="flex-1 active:opacity-80"
             >
-              <View className="bg-white/20 rounded-full p-2 self-start mb-2">
-                <Play size={18} color="#fff" />
-              </View>
-              <Text className="text-white font-bold text-sm">Start Task</Text>
-              <Text className="text-white/80 text-xs mt-1">
-                {queuedTasks} queued
-              </Text>
+              <LinearGradient
+                colors={['#a855f7', '#9333ea']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={{ borderRadius: 16, padding: 16 }}
+              >
+                <View className="bg-white/20 rounded-full p-2 self-start mb-2">
+                  <Play size={18} color="#fff" />
+                </View>
+                <Text className="text-white font-bold text-sm">Start Task</Text>
+                <Text className="text-white/80 text-xs mt-1">
+                  {queuedTasks} queued
+                </Text>
+              </LinearGradient>
             </Pressable>
 
             <Pressable
               onPress={() => router.push('/(tabs)/do')}
-              className="flex-1 bg-gradient-to-br from-red-500 to-red-600 rounded-2xl p-4 active:opacity-80"
+              className="flex-1 active:opacity-80"
             >
-              <View className="bg-white/20 rounded-full p-2 self-start mb-2">
-                <AlertTriangle size={18} color="#fff" />
-              </View>
-              <Text className="text-white font-bold text-sm">Unblock</Text>
-              <Text className="text-white/80 text-xs mt-1">
-                {blockedTasks} blocked
-              </Text>
+              <LinearGradient
+                colors={['#ef4444', '#dc2626']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={{ borderRadius: 16, padding: 16 }}
+              >
+                <View className="bg-white/20 rounded-full p-2 self-start mb-2">
+                  <AlertTriangle size={18} color="#fff" />
+                </View>
+                <Text className="text-white font-bold text-sm">Unblock</Text>
+                <Text className="text-white/80 text-xs mt-1">
+                  {blockedTasks} blocked
+                </Text>
+              </LinearGradient>
             </Pressable>
           </View>
 
@@ -1314,20 +1349,27 @@ export default function MissionControlHome() {
             {/* Financial Dashboard - Deep dive */}
             <Pressable
               onPress={() => router.push('/financial-dashboard')}
-              className="bg-gradient-to-r from-emerald-500 to-teal-500 rounded-2xl p-4 flex-row items-center justify-between active:opacity-80"
+              className="active:opacity-80"
             >
-              <View className="flex-row items-center gap-3 flex-1">
-                <View className="bg-white/20 rounded-xl p-3">
-                  <Wallet size={24} color="#fff" />
+              <LinearGradient
+                colors={['#10b981', '#14b8a6']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={{ borderRadius: 16, padding: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}
+              >
+                <View className="flex-row items-center gap-3 flex-1">
+                  <View className="bg-white/20 rounded-xl p-3">
+                    <Wallet size={24} color="#fff" />
+                  </View>
+                  <View className="flex-1">
+                    <Text className="text-white font-bold text-base">Financial Analysis</Text>
+                    <Text className="text-white/80 text-xs mt-0.5">
+                      Deep dive into cash, burn, revenue & margins
+                    </Text>
+                  </View>
                 </View>
-                <View className="flex-1">
-                  <Text className="text-white font-bold text-base">Financial Analysis</Text>
-                  <Text className="text-white/80 text-xs mt-0.5">
-                    Deep dive into cash, burn, revenue & margins
-                  </Text>
-                </View>
-              </View>
-              <ChevronRight size={20} color="#fff" />
+                <ChevronRight size={20} color="#fff" />
+              </LinearGradient>
             </Pressable>
 
             {/* Analytics & Reports */}
