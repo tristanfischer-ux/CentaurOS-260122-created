@@ -208,6 +208,20 @@ export default function ReportsScreen() {
     { value: 'quarter', label: '90 Days' },
   ];
 
+  // Auto-generate report on initial load
+  useEffect(() => {
+    if (currentWorkspace && userId && role && !generatedReport && !generateReportMutation.isPending) {
+      generateReportMutation.mutate(period);
+    }
+  }, [currentWorkspace?.id, userId, role]);
+
+  // Auto-generate report when period changes
+  useEffect(() => {
+    if (currentWorkspace && userId && role && period) {
+      generateReportMutation.mutate(period);
+    }
+  }, [period]);
+
   useEffect(() => {
     if (params.period && currentWorkspace && userId && role) {
       const timer = setTimeout(() => {
