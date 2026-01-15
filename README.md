@@ -17,11 +17,17 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
 
 ### Decide Tab Enhancements (Latest)
 - **Mini Gantt Chart Timeline**: Interactive weekly timeline with synchronized scrolling
+  - **Direct Resource Allocation**: Click any task in the timeline to select it, then click team members in the resource pool to allocate them
+  - **Visual Selection Feedback**: Selected tasks are highlighted with blue border
+  - **Allocation Workflow**:
+    1. Click a task in the Gantt chart to select it
+    2. Click a person in the Weekly Resource Pool to allocate their time units
+    3. The allocation panel below shows the task details and current allocations
+    4. Adjust allocations using +/- buttons on each team member
   - **Cost Display**: Total task cost shown immediately to the right of each task bar
   - **Full Width Layout**: Timeline spans entire screen width, aligned with resource pool
   - **Unified Styling**: Header and spacing match Weekly Resource Pool for consistency
   - **Light Avatar Style**: Avatars use 20% opacity backgrounds matching resource pool design
-  - **Task Details Modal**: Clicking any task opens the full task details card with allocation controls
   - **Borderless Design**: Removed outer box border for maximum screen space utilization
   - **Senior-First Avatar Display**: Most senior team member (Founder > Exec > Apprentice) appears immediately to the left of task bar
   - **Team Avatars on Timeline**: Avatars positioned immediately to the left of each task bar, stacked left to right by seniority

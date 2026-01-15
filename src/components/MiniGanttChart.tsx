@@ -6,6 +6,7 @@ import { type OrganizationMember } from '@/lib/organization-seed';
 interface MiniGanttChartProps {
   workPlans: WorkPlan[];
   members: OrganizationMember[];
+  selectedTaskId?: string;
   onTaskPress?: (taskId: string) => void;
 }
 
@@ -43,7 +44,7 @@ const ROLE_COLORS: Record<string, string> = {
   Apprentice: '#10b981',
 };
 
-export function MiniGanttChart({ workPlans, members, onTaskPress }: MiniGanttChartProps) {
+export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress }: MiniGanttChartProps) {
   const today = useMemo(() => new Date(), []);
   const currentWeek = useMemo(() => getWeekNumber(today), [today]);
 
@@ -310,7 +311,11 @@ export function MiniGanttChart({ workPlans, members, onTaskPress }: MiniGanttCha
                       }}
                     >
                       <View
-                        className={`flex-row items-center px-2 py-1 rounded-lg border-2 ${colors.bg} ${colors.border} active:opacity-70`}
+                        className={`flex-row items-center px-2 py-1 rounded-lg border-2 ${
+                          selectedTaskId === bar.task.id
+                            ? 'border-blue-500 dark:border-blue-400'
+                            : colors.border
+                        } ${colors.bg} active:opacity-70`}
                         style={{ height: TASK_HEIGHT }}
                       >
                         <View className="flex-1">

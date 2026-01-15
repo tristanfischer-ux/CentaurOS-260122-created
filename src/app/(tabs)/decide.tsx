@@ -1533,11 +1533,11 @@ export default function DecideScreen() {
       <MiniGanttChart
         workPlans={workPlans}
         members={orgMembers}
+        selectedTaskId={selectedTaskForAllocation?.id}
         onTaskPress={(taskId) => {
           const task = workPlans.find(wp => wp.id === taskId);
           if (task) {
-            setSelectedTaskForDetails(task);
-            setShowTaskDetailsModal(true);
+            handleTaskPress(task);
           }
         }}
       />
