@@ -30,7 +30,6 @@ import { useWorkPlanStore } from '@/lib/state/work-plan-store';
 import { useOKRStore } from '@/lib/state/okr-store';
 import { useFinanceStore } from '@/lib/state/finance-store';
 import { useCurrentWorkspace, useCurrentMembership } from '@/lib/state/app-store';
-import { useBusinessImprovementsStore } from '@/lib/state/business-improvements-store';
 
 interface SmartRecommendation {
   id: string;
@@ -62,12 +61,6 @@ export default function IntelligenceHub() {
   const okrs = useOKRStore(s => s.okrs);
   const getCashBalance = useFinanceStore(s => s.getCashBalance);
   const getWeeklyBurn = useFinanceStore(s => s.getWeeklyBurn);
-  const allImprovements = useBusinessImprovementsStore(s => s.improvements);
-
-  // Memoize filtered improvements to prevent infinite re-renders
-  const improvements = useMemo(() => {
-    return allImprovements.filter(imp => !imp.convertedToTask);
-  }, [allImprovements]);
 
   const handleRefresh = async () => {
     setRefreshing(true);
@@ -314,31 +307,12 @@ export default function IntelligenceHub() {
       }
     });
 
-    // Consulting insights available
-    if (improvements.length > 0) {
-      const criticalImprovements = improvements.filter(i => i.priority === 1);
-      if (criticalImprovements.length > 0) {
-        recs.push({
-          id: 'consulting-insights',
-          type: 'important',
-          category: 'process',
-          title: `${criticalImprovements.length} Strategic Recommendation${criticalImprovements.length > 1 ? 's' : ''}`,
-          description: 'Elite consulting insights from McKinsey, BCG, and Bain are available on your Home tab.',
-          impact: 'Strategic improvements identified',
-          action: {
-            label: 'View Insights',
-            route: '/(tabs)/',
-          },
-        });
-      }
-    }
-
     // Sort by priority
     return recs.sort((a, b) => {
       const priorityOrder = { critical: 0, important: 1, opportunity: 2 };
       return priorityOrder[a.type] - priorityOrder[b.type];
     });
-  }, [members, workPlans, okrs, currentWorkspace, getCashBalance, getWeeklyBurn, improvements]);
+  }, [members, workPlans, okrs, currentWorkspace, getCashBalance, getWeeklyBurn]);
 
   const criticalCount = recommendations.filter(r => r.type === 'critical').length;
   const importantCount = recommendations.filter(r => r.type === 'important').length;
