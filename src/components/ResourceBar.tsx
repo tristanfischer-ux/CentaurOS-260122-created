@@ -280,7 +280,7 @@ export function ResourceBar({
               <ChevronRight size={14} color="#94a3b8" style={{ marginLeft: 4 }} />
             </View>
             <View className="flex-row items-center">
-              <View className="flex-row items-center gap-1 mr-3">
+              <View className="flex-row items-center gap-1 mr-3 ml-2">
                 {Array.from({ length: Math.min(capacity.total, 10) }).map((_, i) => (
                   <View
                     key={i}
@@ -290,7 +290,7 @@ export function ResourceBar({
                   />
                 ))}
                 {capacity.total > 10 && (
-                  <Text className="text-slate-400 text-[10px]">+{capacity.total - 10}</Text>
+                  <Text className="text-slate-400 text-[10px] ml-0.5">+{capacity.total - 10}</Text>
                 )}
               </View>
               <Text className="text-white font-bold text-sm">
