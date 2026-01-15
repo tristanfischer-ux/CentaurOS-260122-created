@@ -47,6 +47,7 @@ import { useOKRStore } from '@/lib/state/okr-store';
 import { useCurrentWorkspace } from '@/lib/state/app-store';
 import { useResourceStore } from '@/lib/state/resource-store';
 import { useSupplierStore } from '@/lib/state/supplier-store';
+import { useFinanceStore } from '@/lib/state/finance-store';
 
 // Mission Control Logic
 import {
@@ -98,21 +99,26 @@ export default function MissionControlHome() {
   const members = useOrganizationStore((s) => s.members);
   const okrs = useOKRStore((s) => s.okrs);
 
-  // Resource utilization - Calculate directly from organization members
+  // Resource utilization - Calculate directly from organization members (matching Decide tab logic)
   const resourceCapacity = useMemo(() => {
     const activeMembers = members.filter(m => m.status === 'active');
 
     const total = activeMembers.reduce((sum, member) => {
-      if (member.role === 'Founder') return sum + 10; // Founders: 10 TU/week
-      if (member.role === 'Apprentice') return sum + 10; // Apprentices: 10 TU/week
-      // Executives: 2 TU per day
-      return sum + ((member.daysPerWeek || 2) * 2);
+      // Match ResourcePoolHeader capacity calculation
+      if (member.role === 'Founder' || member.role === 'Apprentice') {
+        return sum + 15; // 10 normal + 5 overtime
+      }
+      // Executives: days per week * 2 TU per day + overtime
+      const daysPerWeek = member.daysPerWeek || 2;
+      const normalSquares = daysPerWeek * 2;
+      const overtimeSquares = Math.min((5 - daysPerWeek) * 2, 10);
+      return sum + normalSquares + overtimeSquares;
     }, 0);
 
-    // Calculate allocated from work plans
+    // Calculate allocated from work plans (excluding completed/abandoned)
     const allocated = activeMembers.reduce((sum, member) => {
       const memberAllocated = workPlans
-        .filter(wp => wp.status === 'in-progress')
+        .filter(wp => wp.status !== 'completed' && wp.status !== 'abandoned')
         .reduce((wpSum, wp) => {
           const allocation = wp.allocations?.find(a => a.memberId === member.id);
           return wpSum + (allocation?.squaresPerWeek || 0);
@@ -176,21 +182,27 @@ export default function MissionControlHome() {
     return calculateTUAllocation(members, workPlans, mainQuest?.node.id);
   }, [members, workPlans, mainQuest]);
 
-  const companyHealth = useMemo(() => {
-    const financials = {
-      totalCash: 50000,
-      burnPerMonth: 5000,
-      revenuePerMonth: 2000,
-    };
-    return calculateCompanyHealth(financials, okrs);
-  }, [okrs]);
+  // Get financials from finance store
+  const getCashBalance = useFinanceStore(s => s.getCashBalance);
+  const getWeeklyBurn = useFinanceStore(s => s.getWeeklyBurn);
+  const getMonthlyRevenue = useFinanceStore(s => s.getMonthlyRevenue);
 
-  // Financials for display
-  const financials = useMemo(() => ({
-    totalCash: 50000,
-    burnPerMonth: 5000,
-    revenuePerMonth: 2000,
-  }), []);
+  const financials = useMemo(() => {
+    const totalCash = currentWorkspace ? getCashBalance(currentWorkspace.id) : 0;
+    const weeklyBurn = currentWorkspace ? getWeeklyBurn(currentWorkspace.id) : 0;
+    const burnPerMonth = weeklyBurn * 4.33; // Convert weekly to monthly (4.33 weeks/month)
+    const revenuePerMonth = currentWorkspace ? getMonthlyRevenue(currentWorkspace.id) : 0;
+
+    return {
+      totalCash,
+      burnPerMonth,
+      revenuePerMonth,
+    };
+  }, [currentWorkspace, getCashBalance, getWeeklyBurn, getMonthlyRevenue]);
+
+  const companyHealth = useMemo(() => {
+    return calculateCompanyHealth(financials, okrs);
+  }, [financials, okrs]);
 
   const netCashFlow = financials.revenuePerMonth - financials.burnPerMonth;
   const runway = netCashFlow >= 0 ? 999 : financials.totalCash / Math.abs(netCashFlow);

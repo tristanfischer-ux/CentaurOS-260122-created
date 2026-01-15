@@ -54,7 +54,7 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
 
 ## 🚨 PRODUCTION READINESS STATUS
 
-**Last Updated**: 2026-01-15 (**ARMORY CONTRAST FIXED** - AI tool effect tags now use white text on solid emerald background for much better readability.)
+**Last Updated**: 2026-01-15 (**DATA CONSISTENCY FIXED** - Home tab now matches Decide tab calculations. Team capacity includes overtime (15 TU for Founders/Apprentices), financials use real finance store data, and work plan filters exclude completed/abandoned tasks.)
 **Status**: ✅ **READY FOR APP STORE** - All features complete!
 
 ---
