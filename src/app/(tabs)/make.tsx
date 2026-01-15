@@ -32,6 +32,7 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { useCurrentMembership, useCurrentWorkspace, useCurrentUser } from '@/lib/state/app-store';
 import { useOrganizationStore } from '@/lib/state/organization-store';
+import { useArmoryStore } from '@/lib/state/armory-store';
 import type { SupplierEngagement, AIAgent } from '@/lib/organization-seed';
 import { TabDescription } from '@/components/TabDescription';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -83,6 +84,9 @@ export default function MakeScreen() {
   const getTotalAISpend = useOrganizationStore((s) => s.getTotalAISpend);
   const getTotalSupplierSpend = useOrganizationStore((s) => s.getTotalSupplierSpend);
   const updateSupplierEngagement = useOrganizationStore((s) => s.updateSupplierEngagement);
+
+  // Armory store for AI tool usage
+  const getMembersUsingAITool = useArmoryStore(s => s.getMembersUsingAITool);
 
   // Ownership store
   const getOwnershipsForUser = useResourceOwnershipStore(s => s.getOwnershipsForUser);
@@ -438,6 +442,12 @@ export default function MakeScreen() {
               const providerColor = providerColors[agent.provider] || providerColors.Other;
               const statusColor = agent.status === 'active' ? 'text-emerald-400' : 'text-gray-600 dark:text-slate-400';
 
+              // Get members using this AI tool
+              const memberIdsUsingTool = getMembersUsingAITool(agent.id);
+              const membersUsingTool = memberIdsUsingTool
+                .map(memberId => members.find(m => m.id === memberId))
+                .filter(Boolean);
+
               // Get ownership info for this AI tool
               const ownership = currentWorkspace
                 ? getOwnershipByResource(currentWorkspace.id, agent.id)
@@ -473,12 +483,43 @@ export default function MakeScreen() {
                     {agent.purpose}
                   </Text>
 
-                  <View className="flex-row items-center justify-between">
+                  <View className="flex-row items-center justify-between mb-2">
                     <Text className="text-gray-600 dark:text-slate-400 text-xs">
                       {agent.model}
                     </Text>
                     <ChevronRight size={16} color="#64748b" />
                   </View>
+
+                  {/* Users using this AI tool - NEW */}
+                  {membersUsingTool.length > 0 && (
+                    <View className="flex-row items-center gap-1.5 flex-wrap mt-2">
+                      <Text className="text-gray-500 dark:text-slate-400 text-xs mr-1">
+                        Used by:
+                      </Text>
+                      {membersUsingTool.slice(0, 8).map((member: any) => (
+                        <View
+                          key={member.id}
+                          className="w-6 h-6 rounded-full items-center justify-center"
+                          style={{
+                            backgroundColor:
+                              member.role === 'Founder' ? '#8b5cf6' :
+                              member.role === 'FractionalExec' ? '#3b82f6' : '#10b981'
+                          }}
+                        >
+                          <Text className="text-white text-[9px] font-bold">
+                            {member.name.split(' ').map((n: string) => n[0]).join('')}
+                          </Text>
+                        </View>
+                      ))}
+                      {membersUsingTool.length > 8 && (
+                        <View className="w-6 h-6 rounded-full bg-gray-300 dark:bg-slate-700 items-center justify-center">
+                          <Text className="text-gray-600 dark:text-slate-300 text-[9px] font-bold">
+                            +{membersUsingTool.length - 8}
+                          </Text>
+                        </View>
+                      )}
+                    </View>
+                  )}
 
                   {/* Owner Badge */}
                   {ownership && (
@@ -1053,37 +1094,74 @@ export default function MakeScreen() {
                     </View>
                   )}
 
-                  {selectedAI.usedBy && selectedAI.usedBy.length > 0 && (
-                    <View className="mb-4">
-                      <Text className="text-gray-900 dark:text-white font-semibold mb-2">Used By Team</Text>
-                      <View className="bg-gray-200 dark:bg-slate-800 rounded-xl p-3">
-                        <View className="gap-2">
-                          {selectedAI.usedBy.map((userId, idx) => {
-                            const member = members.find(m => m.id === userId);
-                            if (!member) return null;
+                  {/* Used By Team - Live from Armory Store */}
+                  {(() => {
+                    const memberIdsUsingTool = getMembersUsingAITool(selectedAI.id);
+                    const membersUsingTool = memberIdsUsingTool
+                      .map(memberId => members.find(m => m.id === memberId))
+                      .filter(Boolean);
 
-                            const getRoleColor = (role: string) => {
-                              switch (role) {
-                                case 'Founder': return 'text-blue-400';
-                                case 'FractionalExec': return 'text-purple-400';
-                                case 'Apprentice': return 'text-emerald-400';
-                                default: return 'text-gray-600 dark:text-slate-400';
-                              }
-                            };
+                    if (membersUsingTool.length === 0) return null;
 
-                            return (
-                              <View key={idx} className="flex-row items-center justify-between">
-                                <Text className="text-gray-900 dark:text-white">{member.name}</Text>
-                                <Text className={`text-xs ${getRoleColor(member.role)}`}>
-                                  {member.role === 'FractionalExec' ? 'Executive' : member.role}
-                                </Text>
-                              </View>
-                            );
-                          })}
+                    return (
+                      <View className="mb-4">
+                        <Text className="text-gray-900 dark:text-white font-semibold mb-3">
+                          Used By Team ({membersUsingTool.length})
+                        </Text>
+                        <View className="bg-gray-200 dark:bg-slate-800 rounded-xl p-3">
+                          <View className="gap-3">
+                            {membersUsingTool.map((member: any) => {
+                              const getRoleColor = (role: string) => {
+                                switch (role) {
+                                  case 'Founder': return '#8b5cf6';
+                                  case 'FractionalExec': return '#3b82f6';
+                                  case 'Apprentice': return '#10b981';
+                                  default: return '#64748b';
+                                }
+                              };
+
+                              const getRoleLabel = (role: string) => {
+                                switch (role) {
+                                  case 'Founder': return 'Founder';
+                                  case 'FractionalExec': return 'Executive';
+                                  case 'Apprentice': return 'Apprentice';
+                                  default: return role;
+                                }
+                              };
+
+                              return (
+                                <View key={member.id} className="flex-row items-center justify-between">
+                                  <View className="flex-row items-center flex-1">
+                                    <View
+                                      className="w-8 h-8 rounded-full items-center justify-center mr-3"
+                                      style={{ backgroundColor: getRoleColor(member.role) }}
+                                    >
+                                      <Text className="text-white text-xs font-bold">
+                                        {member.name.split(' ').map((n: string) => n[0]).join('')}
+                                      </Text>
+                                    </View>
+                                    <View>
+                                      <Text className="text-gray-900 dark:text-white font-medium">
+                                        {member.name}
+                                      </Text>
+                                      <Text className="text-gray-600 dark:text-slate-400 text-xs">
+                                        {member.function}
+                                      </Text>
+                                    </View>
+                                  </View>
+                                  <View className="bg-gray-300 dark:bg-slate-700 px-2 py-1 rounded">
+                                    <Text className="text-gray-700 dark:text-slate-300 text-xs font-semibold">
+                                      {getRoleLabel(member.role)}
+                                    </Text>
+                                  </View>
+                                </View>
+                              );
+                            })}
+                          </View>
                         </View>
                       </View>
-                    </View>
-                  )}
+                    );
+                  })()}
 
                   <View className="mb-4">
                     <Text className="text-gray-900 dark:text-white font-semibold mb-2">Capabilities</Text>

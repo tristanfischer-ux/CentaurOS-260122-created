@@ -45,6 +45,7 @@ interface ArmoryState {
   clearDeployment: (squadId: string) => Promise<void>;
 
   // Utility
+  getMembersUsingAITool: (aiToolId: string) => string[]; // Returns array of member IDs
   reset: () => Promise<void>;
 }
 
@@ -357,6 +358,13 @@ export const useArmoryStore = create<ArmoryState>((set, get) => ({
   },
 
   // ========== UTILITY ==========
+
+  getMembersUsingAITool: (aiToolId: string) => {
+    const loadouts = get().personLoadouts;
+    return loadouts
+      .filter(loadout => loadout.aiToolIds.includes(aiToolId))
+      .map(loadout => loadout.memberId);
+  },
 
   reset: async () => {
     set({

@@ -1484,8 +1484,15 @@ Previous Updates:
 
 ✅ **Home Tab Header Fixed** - The gradient ribbon now extends edge-to-edge to the top of the screen without clashing with the iOS status bar (time, WiFi, battery). Applied to all three role views (Founder Command Center, Executive Dashboard, Apprentice Workspace). The header gradient now properly sits behind the status bar while content remains appropriately spaced.
 
-### Current Status: ✅ **Task-to-Supplier Manufacturing Link Complete**
+### Current Status: ✅ **AI Tool User Tracking - Live from Armory Store**
 
+✅ **AI Tool User Tracking**: Real-time visibility into who's using which AI tools
+  - **Single source of truth**: Armory store `PersonLoadout.aiToolIds` tracks equipped tools per person
+  - **AI agent cards**: Show user avatars (initials in colored circles) for up to 8 users, "+N" for overflow
+  - **AI agent modal**: Enhanced "Used By Team" section with full user details (avatar, name, function, role badge)
+  - **Color coding**: Purple=Founder, Blue=Executive, Green=Apprentice
+  - **Helper function**: `getMembersUsingAITool(aiToolId)` queries armory store
+  - Zero hardcoded data - all connected to live armory loadouts
 ✅ **Task-to-Supplier Manufacturing Link**: Backend infrastructure ready for connecting Decide tasks to Make suppliers
   - **WorkPlan fields added**: linkedSupplierEngagementId, componentBeingMade, manufacturingProcess
   - **SupplierEngagement fields added**: linkedWorkPlanIds[], componentName, processDescription, estimatedDuration
