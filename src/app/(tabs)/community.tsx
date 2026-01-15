@@ -850,7 +850,10 @@ export default function CommunityScreen() {
               {topPicks.topAI.map((tool, idx) => (
                 <Animated.View key={tool.id} entering={FadeInDown.delay(idx * 50).duration(300)}>
                   <Pressable
-                    onPress={() => setSelectedAIAgent(tool)}
+                    onPress={() => {
+                      console.log('[Community] AI Tool clicked:', tool.name, tool);
+                      setSelectedAIAgent(tool);
+                    }}
                     className="bg-white dark:bg-slate-900 rounded-2xl p-4 mb-3 border border-gray-200 dark:border-slate-800 active:opacity-90"
                   >
                     <View className="flex-row items-start justify-between mb-2">
@@ -1977,7 +1980,10 @@ export default function CommunityScreen() {
                     </View>
                   </View>
                   <Pressable
-                    onPress={() => setSelectedAIAgent(null)}
+                    onPress={() => {
+                      console.log('[Community] Closing AI modal');
+                      setSelectedAIAgent(null);
+                    }}
                     className="w-10 h-10 items-center justify-center rounded-full bg-gray-100 dark:bg-slate-800 active:opacity-70"
                   >
                     <X size={24} color="#64748b" />
