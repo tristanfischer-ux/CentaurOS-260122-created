@@ -1543,6 +1543,202 @@ export default function DecideScreen() {
       />
 
       <ScrollView className="flex-1 px-5 py-4">
+        {/* Quick Stats Dashboard */}
+        <View className="mb-4">
+          <View className="flex-row gap-2 mb-2">
+            {/* Active Tasks Card */}
+            {(() => {
+              const activeCount = workPlans.filter(wp =>
+                wp.status !== 'completed' &&
+                wp.status !== 'abandoned' &&
+                wp.assignedMemberIds &&
+                wp.assignedMemberIds.length > 0
+              ).length;
+
+              return (
+                <Pressable
+                  onPress={() => {
+                    // Scroll to active tasks section
+                  }}
+                  className="flex-1 bg-gradient-to-br from-emerald-50 to-emerald-100 dark:from-emerald-900/20 dark:to-emerald-800/20 rounded-2xl p-3 border border-emerald-200 dark:border-emerald-800 active:opacity-80"
+                >
+                  <View className="flex-row items-center justify-between mb-1">
+                    <Text className="text-emerald-600 dark:text-emerald-400 text-xs font-bold">ACTIVE</Text>
+                    <View className="w-6 h-6 rounded-full bg-emerald-500 items-center justify-center">
+                      <CheckCircle2 size={14} color="#fff" />
+                    </View>
+                  </View>
+                  <Text className="text-emerald-900 dark:text-emerald-100 text-2xl font-bold">{activeCount}</Text>
+                  <Text className="text-emerald-600 dark:text-emerald-400 text-[10px]">in progress</Text>
+                </Pressable>
+              );
+            })()}
+
+            {/* Queued Tasks Card */}
+            {(() => {
+              const queuedCount = workPlans.filter(wp =>
+                wp.status !== 'completed' &&
+                wp.status !== 'abandoned' &&
+                (!wp.assignedMemberIds || wp.assignedMemberIds.length === 0)
+              ).length;
+
+              return (
+                <Pressable
+                  onPress={() => {
+                    // Scroll to queued tasks section
+                  }}
+                  className="flex-1 bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20 rounded-2xl p-3 border border-orange-200 dark:border-orange-800 active:opacity-80"
+                >
+                  <View className="flex-row items-center justify-between mb-1">
+                    <Text className="text-orange-600 dark:text-orange-400 text-xs font-bold">QUEUED</Text>
+                    <View className="w-6 h-6 rounded-full bg-orange-500 items-center justify-center">
+                      <Clock size={14} color="#fff" />
+                    </View>
+                  </View>
+                  <Text className="text-orange-900 dark:text-orange-100 text-2xl font-bold">{queuedCount}</Text>
+                  <Text className="text-orange-600 dark:text-orange-400 text-[10px]">awaiting resources</Text>
+                </Pressable>
+              );
+            })()}
+          </View>
+
+          {/* Resource Utilization & Cost Card */}
+          <View className="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 rounded-2xl p-4 border border-purple-200 dark:border-purple-800">
+            {(() => {
+              const totalAllocated = workPlans
+                .filter(wp => wp.status !== 'completed' && wp.status !== 'abandoned')
+                .reduce((sum, wp) => sum + (wp.allocations?.reduce((s, a) => s + a.squaresPerWeek, 0) || 0), 0);
+
+              const totalCapacity = orgMembers.filter(m => m.status === 'active').length * 10; // Simplified
+              const utilizationPercent = totalCapacity > 0 ? Math.round((totalAllocated / totalCapacity) * 100) : 0;
+
+              const weeklyCost = workPlans
+                .filter(wp => wp.status !== 'completed' && wp.status !== 'abandoned')
+                .reduce((sum, wp) => {
+                  return sum + (wp.allocations?.reduce((s, a) => s + (a.costPerSquare * a.squaresPerWeek), 0) || 0);
+                }, 0);
+
+              return (
+                <>
+                  <View className="flex-row items-center justify-between mb-3">
+                    <View>
+                      <Text className="text-purple-600 dark:text-purple-400 text-xs font-bold mb-1">TEAM UTILIZATION</Text>
+                      <View className="flex-row items-baseline">
+                        <Text className="text-purple-900 dark:text-purple-100 text-2xl font-bold">{utilizationPercent}%</Text>
+                        <Text className="text-purple-600 dark:text-purple-400 text-xs ml-2">{totalAllocated}/{totalCapacity} TU</Text>
+                      </View>
+                    </View>
+                    <View className="items-end">
+                      <Text className="text-purple-600 dark:text-purple-400 text-xs font-bold mb-1">WEEKLY COST</Text>
+                      <Text className="text-purple-900 dark:text-purple-100 text-xl font-bold">£{(weeklyCost / 1000).toFixed(1)}k</Text>
+                    </View>
+                  </View>
+
+                  {/* Progress Bar */}
+                  <View className="h-2 bg-purple-200 dark:bg-purple-900/30 rounded-full overflow-hidden">
+                    <View
+                      className={`h-full rounded-full ${
+                        utilizationPercent > 90 ? 'bg-red-500' :
+                        utilizationPercent > 70 ? 'bg-orange-500' :
+                        'bg-purple-500'
+                      }`}
+                      style={{ width: `${Math.min(utilizationPercent, 100)}%` }}
+                    />
+                  </View>
+                </>
+              );
+            })()}
+          </View>
+        </View>
+
+        {/* Smart Insights & Warnings */}
+        {(() => {
+          const insights = [];
+
+          // Check for over-utilization
+          const totalAllocated = workPlans
+            .filter(wp => wp.status !== 'completed' && wp.status !== 'abandoned')
+            .reduce((sum, wp) => sum + (wp.allocations?.reduce((s, a) => s + a.squaresPerWeek, 0) || 0), 0);
+          const totalCapacity = orgMembers.filter(m => m.status === 'active').length * 10;
+          const utilizationPercent = totalCapacity > 0 ? Math.round((totalAllocated / totalCapacity) * 100) : 0;
+
+          if (utilizationPercent > 90) {
+            insights.push({
+              type: 'warning',
+              icon: AlertTriangle,
+              color: 'red',
+              title: 'Team Over-Capacity',
+              message: `${utilizationPercent}% utilization - consider hiring or reducing workload`
+            });
+          }
+
+          // Check for queued tasks needing attention
+          const queuedCount = workPlans.filter(wp =>
+            wp.status !== 'completed' &&
+            wp.status !== 'abandoned' &&
+            (!wp.assignedMemberIds || wp.assignedMemberIds.length === 0)
+          ).length;
+
+          if (queuedCount > 5) {
+            insights.push({
+              type: 'info',
+              icon: AlertCircle,
+              color: 'orange',
+              title: `${queuedCount} Tasks Queued`,
+              message: 'Consider allocating resources or use Auto-Allocate'
+            });
+          }
+
+          // Check for blocked tasks
+          const blockedCount = workPlans.filter(wp => wp.status === 'blocked').length;
+          if (blockedCount > 0) {
+            insights.push({
+              type: 'warning',
+              icon: AlertTriangle,
+              color: 'red',
+              title: `${blockedCount} Blocked Task${blockedCount > 1 ? 's' : ''}`,
+              message: 'Review and unblock to maintain momentum'
+            });
+          }
+
+          // Check for underutilization
+          if (utilizationPercent < 50 && queuedCount > 0) {
+            insights.push({
+              type: 'success',
+              icon: TrendingDown,
+              color: 'emerald',
+              title: 'Capacity Available',
+              message: `${100 - utilizationPercent}% capacity unused - allocate queued tasks`
+            });
+          }
+
+          return insights.length > 0 ? (
+            <View className="mb-4 gap-2">
+              {insights.map((insight, idx) => {
+                const Icon = insight.icon;
+                return (
+                  <View
+                    key={idx}
+                    className={`bg-${insight.color}-50 dark:bg-${insight.color}-900/20 border border-${insight.color}-200 dark:border-${insight.color}-800 rounded-xl p-3 flex-row items-center`}
+                  >
+                    <View className={`w-8 h-8 rounded-full bg-${insight.color}-500 items-center justify-center mr-3`}>
+                      <Icon size={16} color="#fff" />
+                    </View>
+                    <View className="flex-1">
+                      <Text className={`text-${insight.color}-900 dark:text-${insight.color}-100 font-bold text-sm`}>
+                        {insight.title}
+                      </Text>
+                      <Text className={`text-${insight.color}-600 dark:text-${insight.color}-400 text-xs`}>
+                        {insight.message}
+                      </Text>
+                    </View>
+                  </View>
+                );
+              })}
+            </View>
+          ) : null;
+        })()}
+
         {/* Company Aim Banner */}
         {currentWorkspace && (
           <CompanyAimBanner
