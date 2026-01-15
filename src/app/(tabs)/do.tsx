@@ -797,6 +797,38 @@ export default function DoScreen() {
         </View>
 
         <ScrollView className="flex-1 px-5 py-4">
+          {/* Blocked View Helper Banner */}
+          {viewMode === 'blocked' && filteredPlans.length > 0 && (
+            <View className="bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-800/50 rounded-xl p-4 mb-4">
+              <View className="flex-row items-start gap-3">
+                <AlertTriangle size={20} color="#ef4444" />
+                <View className="flex-1">
+                  <Text className="text-red-700 dark:text-red-400 text-sm font-semibold mb-1">
+                    Tasks Need Attention
+                  </Text>
+                  <Text className="text-red-600 dark:text-red-400 text-xs leading-relaxed">
+                    These tasks are marked as blocked and need resolution. Tap the red warning icon on any task to unblock it and continue progress.
+                  </Text>
+                </View>
+              </View>
+            </View>
+          )}
+
+          {/* Empty Blocked View */}
+          {viewMode === 'blocked' && filteredPlans.length === 0 && (
+            <View className="flex-1 items-center justify-center py-20">
+              <View className="bg-emerald-100 dark:bg-emerald-900/30 w-16 h-16 rounded-full items-center justify-center mb-4">
+                <CheckCircle2 size={32} color="#10b981" />
+              </View>
+              <Text className="text-gray-900 dark:text-white text-lg font-semibold mb-2">
+                No Blocked Tasks
+              </Text>
+              <Text className="text-gray-600 dark:text-slate-400 text-sm text-center px-8">
+                Great work! You don't have any blocked tasks at the moment.
+              </Text>
+            </View>
+          )}
+
           {/* ACTIVE TASKS - In Progress, ordered by days to completion */}
           {categorizedTasks.activeTasks.length > 0 && (
             <View className="mb-6">
