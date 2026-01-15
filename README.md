@@ -15,6 +15,20 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
 
 ## 🔄 Recent Updates (Jan 2026)
 
+### Decide Tab - Simplified Workflow (Latest)
+- **Timeline Filters**: Task timeline now supports filtering by both function AND status
+  - Function filters: All, Marketing, Sales, Finance, etc.
+  - Status filters: All, live (in-progress), queued (not-started), blocked, completed, abandoned
+  - See all tasks including historical completed and abandoned work
+- **Streamlined Middle Section**: Removed task lists - middle section now only shows task edit modal
+  - Select any task from timeline to edit and allocate resources
+  - Clean empty state when no task selected with clear instruction
+  - Direct workflow: Timeline → Edit Modal → Resource Pool
+- **Three-Section Layout**: Top (Timeline) → Middle (Edit Modal) → Bottom (Resource Pool)
+  - Top: Visual timeline with all tasks, filtered by function and status
+  - Middle: Selected task details and resource allocation panel
+  - Bottom: Team capacity and availability
+
 ### Mission Control Team Health Fix
 - **Synchronized with Decide Tab**: Team health metrics now accurately reflect Decide tab allocations
   - Utilization percentage matches actual task allocations

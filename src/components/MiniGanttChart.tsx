@@ -54,12 +54,16 @@ export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress
 
   // Filter state
   const [selectedFunction, setSelectedFunction] = useState<string>('All');
+  const [selectedStatus, setSelectedStatus] = useState<string>('All');
 
   // Get unique functions from workPlans
   const functions = useMemo(() => {
     const uniqueFunctions = new Set(workPlans.map(wp => wp.function));
     return ['All', ...Array.from(uniqueFunctions).sort()];
   }, [workPlans]);
+
+  // Status options
+  const statuses = ['All', 'in-progress', 'not-started', 'blocked', 'completed', 'abandoned'];
 
   // Helper to get initials from name
   const getInitials = (name: string): string => {
@@ -128,22 +132,22 @@ export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress
     return result;
   }, [today]);
 
-  // Filter active tasks (not completed or abandoned) and by selected function
-  const activeTasks = useMemo(() => {
+  // Filter tasks by function and status
+  const filteredTasks = useMemo(() => {
     return workPlans
-      .filter(wp => wp.status !== 'completed' && wp.status !== 'abandoned')
       .filter(wp => selectedFunction === 'All' || wp.function === selectedFunction)
+      .filter(wp => selectedStatus === 'All' || wp.status === selectedStatus)
       .sort((a, b) => {
         // Sort by due date
         const aDate = a.dueDate ? new Date(a.dueDate).getTime() : Infinity;
         const bDate = b.dueDate ? new Date(b.dueDate).getTime() : Infinity;
         return aDate - bDate;
       });
-  }, [workPlans, selectedFunction]);
+  }, [workPlans, selectedFunction, selectedStatus]);
 
   // Calculate task position and width for each task
   const taskBars = useMemo(() => {
-    return activeTasks.map(task => {
+    return filteredTasks.map(task => {
       const dueDate = task.dueDate ? new Date(task.dueDate) : new Date(today.getTime() + 14 * 24 * 60 * 60 * 1000); // Default 2 weeks from today
 
       // Calculate start date based on estimated time units (1 TU = 4 hours, assume 8 hours per day)
@@ -170,7 +174,7 @@ export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress
         dueDate,
       };
     });
-  }, [activeTasks, currentWeek]);
+  }, [filteredTasks, currentWeek]);
 
   const screenWidth = Dimensions.get('window').width;
   const WEEK_WIDTH = screenWidth / 3; // Divide screen width by 3 weeks to fill entire width
@@ -197,7 +201,7 @@ export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress
             TASK TIMELINE
           </Text>
           <Text className="text-gray-600 dark:text-slate-400 text-[10px] font-semibold">
-            {activeTasks.length} active task{activeTasks.length !== 1 ? 's' : ''}
+            {filteredTasks.length} task{filteredTasks.length !== 1 ? 's' : ''}
           </Text>
         </View>
 
@@ -206,6 +210,7 @@ export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress
           horizontal
           showsHorizontalScrollIndicator={false}
           style={{ flexGrow: 0 }}
+          className="mb-2"
         >
           <View className="flex-row gap-2">
             {functions.map((func) => (
@@ -226,6 +231,37 @@ export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress
                   }`}
                 >
                   {func}
+                </Text>
+              </Pressable>
+            ))}
+          </View>
+        </ScrollView>
+
+        {/* Status Filter Buttons */}
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={{ flexGrow: 0 }}
+        >
+          <View className="flex-row gap-2">
+            {statuses.map((status) => (
+              <Pressable
+                key={status}
+                onPress={() => setSelectedStatus(status)}
+                className={`px-3 py-1.5 rounded-full ${
+                  selectedStatus === status
+                    ? 'bg-purple-500 dark:bg-purple-600'
+                    : 'bg-gray-200 dark:bg-slate-700'
+                }`}
+              >
+                <Text
+                  className={`text-[10px] font-semibold ${
+                    selectedStatus === status
+                      ? 'text-white'
+                      : 'text-gray-700 dark:text-gray-300'
+                  }`}
+                >
+                  {status === 'not-started' ? 'queued' : status === 'in-progress' ? 'live' : status}
                 </Text>
               </Pressable>
             ))}
