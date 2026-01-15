@@ -155,30 +155,75 @@ export default function OKRPlannerScreen() {
     }
   }, [currentPlan, forecast, okr, planAllocations, members]);
 
-  // Handle allocation change
-  const handleAllocationChange = (memberId: string, allocationPct: number) => {
+  // Get member capacity in TUs per week
+  const getMemberCapacity = (member: any) => {
+    if (member.role === 'Founder') return 10;
+    if (member.role === 'FractionalExec') {
+      return (member.daysPerWeek ?? 2) * 2;
+    }
+    return 10; // Apprentices
+  };
+
+  // Get cost per TU
+  const getCostPerTU = (member: any) => {
+    const costPerDay = member.costPerDay ?? 0;
+    return costPerDay / 2; // 1 day = 2 TUs
+  };
+
+  // Convert TU allocation to percentage for existing forecast logic
+  const tuToPercentage = (tuCount: number, member: any) => {
+    const capacity = getMemberCapacity(member);
+    return Math.round((tuCount / capacity) * 100);
+  };
+
+  // Get TU allocation from percentage
+  const getTUAllocation = (memberId: string) => {
+    const member = relevantMembers.find(m => m.id === memberId);
+    if (!member) return 0;
+    const allocation = planAllocations.find(a => a.memberId === memberId);
+    if (!allocation) return 0;
+    const capacity = getMemberCapacity(member);
+    return Math.round((allocation.allocationPct / 100) * capacity);
+  };
+
+  // Handle TU change (tap to add 2 TUs)
+  const handleAddTUs = (memberId: string) => {
     const activePlan = getActivePlan();
     if (activePlan) {
       savePlanSnapshot(activePlan.id);
     }
 
+    const member = relevantMembers.find(m => m.id === memberId);
+    if (!member) return;
+
+    const currentTUs = getTUAllocation(memberId);
+    const capacity = getMemberCapacity(member);
+    const newTUs = Math.min(capacity, currentTUs + 2);
+
+    if (newTUs === currentTUs) return; // Already at capacity
+
+    const newPct = tuToPercentage(newTUs, member);
+
     setPlanAllocations((prev) => {
       const existing = prev.find((a) => a.memberId === memberId);
       if (existing) {
-        if (allocationPct === 0) {
-          // Remove member
-          return prev.filter((a) => a.memberId !== memberId);
-        } else {
-          // Update allocation
-          return prev.map((a) =>
-            a.memberId === memberId ? { ...a, allocationPct } : a
-          );
-        }
+        return prev.map((a) =>
+          a.memberId === memberId ? { ...a, allocationPct: newPct } : a
+        );
       } else {
-        // Add member
-        return [...prev, { memberId, allocationPct }];
+        return [...prev, { memberId, allocationPct: newPct }];
       }
     });
+  };
+
+  // Handle remove all TUs
+  const handleRemoveTUs = (memberId: string) => {
+    const activePlan = getActivePlan();
+    if (activePlan) {
+      savePlanSnapshot(activePlan.id);
+    }
+
+    setPlanAllocations((prev) => prev.filter((a) => a.memberId !== memberId));
   };
 
   // Apply preset
@@ -420,15 +465,16 @@ export default function OKRPlannerScreen() {
           ) : (
             <View className="gap-3">
               {relevantMembers.map((member) => {
-                const allocation = planAllocations.find(
-                  (a) => a.memberId === member.id
-                );
-                const allocationPct = allocation?.allocationPct || 0;
+                const currentTUs = getTUAllocation(member.id);
+                const capacity = getMemberCapacity(member);
+                const costPerTU = getCostPerTU(member);
+                const available = capacity - currentTUs;
 
                 return (
-                  <View
+                  <Pressable
                     key={member.id}
-                    className="bg-gray-900 border border-gray-800 rounded-xl p-4"
+                    onPress={() => handleAddTUs(member.id)}
+                    className="bg-gray-900 border-2 border-gray-800 rounded-xl p-4 active:border-blue-500"
                   >
                     <View className="flex-row items-center justify-between mb-3">
                       <View className="flex-1">
@@ -436,51 +482,65 @@ export default function OKRPlannerScreen() {
                           {member.name}
                         </Text>
                         <Text className="text-gray-400 text-sm">
-                          {member.role} • {member.function}
+                          {member.role} • {member.function} • £{costPerTU}/□
                         </Text>
                       </View>
-                      {allocationPct > 0 && (
-                        <View className="bg-blue-500/20 px-3 py-1 rounded-lg">
-                          <Text className="text-blue-400 text-sm font-medium">
-                            {allocationPct}%
-                          </Text>
-                        </View>
-                      )}
-                    </View>
 
-                    <View className="flex-row items-center gap-2">
-                      <Pressable
-                        onPress={() =>
-                          handleAllocationChange(
-                            member.id,
-                            Math.max(0, allocationPct - 25)
-                          )
-                        }
-                        className="bg-gray-800 w-10 h-10 rounded-lg items-center justify-center"
-                      >
-                        <Minus size={16} color="#fff" />
-                      </Pressable>
-
-                      <View className="flex-1 h-2 bg-gray-800 rounded-full overflow-hidden">
-                        <View
-                          className="h-full bg-blue-500"
-                          style={{ width: `${allocationPct}%` }}
-                        />
+                      {/* Current allocation badge and remove button */}
+                      <View className="flex-row items-center gap-2">
+                        {currentTUs > 0 ? (
+                          <>
+                            <View className="bg-blue-500 px-3 py-1.5 rounded-lg">
+                              <Text className="text-white font-bold text-base">
+                                {currentTUs}□
+                              </Text>
+                            </View>
+                            <Pressable
+                              onPress={(e) => {
+                                e.stopPropagation();
+                                handleRemoveTUs(member.id);
+                              }}
+                              className="w-8 h-8 bg-red-500/20 rounded-full items-center justify-center active:opacity-70"
+                            >
+                              <Minus size={14} color="#ef4444" />
+                            </Pressable>
+                          </>
+                        ) : (
+                          <View className="bg-gray-800 px-3 py-1.5 rounded-lg">
+                            <Text className="text-gray-400 font-semibold text-sm">
+                              Tap +2□
+                            </Text>
+                          </View>
+                        )}
                       </View>
-
-                      <Pressable
-                        onPress={() =>
-                          handleAllocationChange(
-                            member.id,
-                            Math.min(100, allocationPct + 25)
-                          )
-                        }
-                        className="bg-gray-800 w-10 h-10 rounded-lg items-center justify-center"
-                      >
-                        <Plus size={16} color="#fff" />
-                      </Pressable>
                     </View>
-                  </View>
+
+                    {/* Visual squares showing ALL capacity */}
+                    <View className="mb-2">
+                      <View className="flex-row items-center justify-between mb-1">
+                        <Text className="text-gray-400 text-xs font-medium">
+                          Capacity: {currentTUs}□ allocated • {available}□ free
+                        </Text>
+                        {currentTUs > 0 && (
+                          <Text className="text-blue-400 text-xs font-semibold">
+                            £{(currentTUs * costPerTU).toFixed(0)}/wk
+                          </Text>
+                        )}
+                      </View>
+                      <View className="flex-row flex-wrap gap-1">
+                        {Array.from({ length: capacity }).map((_, idx) => (
+                          <View
+                            key={idx}
+                            className={`w-7 h-7 rounded border ${
+                              idx < currentTUs
+                                ? 'bg-blue-500 border-blue-600'
+                                : 'bg-gray-800 border-gray-700'
+                            }`}
+                          />
+                        ))}
+                      </View>
+                    </View>
+                  </Pressable>
                 );
               })}
             </View>
