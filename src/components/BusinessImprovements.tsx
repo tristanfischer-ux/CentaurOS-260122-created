@@ -2,7 +2,7 @@
 // Shows actionable recommendations from McKinsey, BCG, Bain, Deloitte, etc.
 
 import { View, Text, Pressable, ScrollView } from 'react-native';
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { router } from 'expo-router';
 import {
   Lightbulb,
@@ -39,16 +39,30 @@ interface BusinessImprovementsProps {
 
 export function BusinessImprovements({ isDark = false, onRefresh }: BusinessImprovementsProps) {
   const currentWorkspace = useCurrentWorkspace();
-  const improvements = useBusinessImprovementsStore((s) => s.getUnconvertedImprovements());
+  const allImprovements = useBusinessImprovementsStore((s) => s.improvements);
   const markAsConverted = useBusinessImprovementsStore((s) => s.markAsConverted);
   const addWorkPlan = useWorkPlanStore((s) => s.addWorkPlan);
 
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
+  // Memoize the filtered improvements to prevent infinite re-renders
+  const improvements = useMemo(() => {
+    return allImprovements.filter(imp => !imp.convertedToTask);
+  }, [allImprovements]);
+
   // Group by priority
-  const criticalImprovements = improvements.filter(imp => imp.priority === 1);
-  const importantImprovements = improvements.filter(imp => imp.priority === 2);
-  const niceToHaveImprovements = improvements.filter(imp => imp.priority === 3);
+  const criticalImprovements = useMemo(() =>
+    improvements.filter(imp => imp.priority === 1),
+    [improvements]
+  );
+  const importantImprovements = useMemo(() =>
+    improvements.filter(imp => imp.priority === 2),
+    [improvements]
+  );
+  const niceToHaveImprovements = useMemo(() =>
+    improvements.filter(imp => imp.priority === 3),
+    [improvements]
+  );
 
   const handleConvertToTask = useCallback((improvement: BusinessImprovement) => {
     if (!currentWorkspace) return;
