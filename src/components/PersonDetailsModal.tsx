@@ -1,5 +1,5 @@
 import { View, Text, Modal, Pressable, ScrollView, Linking } from 'react-native';
-import { X, Mail, Phone, Linkedin, Calendar, DollarSign, Briefcase, Users, Clock } from 'lucide-react-native';
+import { X, Mail, Phone, Linkedin, Calendar, DollarSign, Briefcase, Users, Clock, TrendingUp, Zap, UsersRound } from 'lucide-react-native';
 import { type OrganizationMember } from '@/lib/organization-seed';
 import { useWorkPlanStore } from '@/lib/state/work-plan-store';
 import { useOrganizationStore } from '@/lib/state/organization-store';
@@ -241,6 +241,96 @@ export function PersonDetailsModal({ visible, onClose, member }: PersonDetailsMo
                 </View>
               )}
             </View>
+
+            {/* Performance Modifiers */}
+            {(member.teamLeadershipMultiplier || member.collaborationMultiplier || member.aiProficiencyMultiplier) && (
+              <View className="px-6 py-4 border-b border-gray-200 dark:border-slate-800">
+                <Text className="text-gray-900 dark:text-white font-bold text-sm mb-3">
+                  Performance Modifiers
+                </Text>
+                <Text className="text-gray-500 dark:text-slate-400 text-xs mb-3">
+                  These multipliers affect task completion speed when working with teams and AI tools
+                </Text>
+
+                {member.teamLeadershipMultiplier && (
+                  <View className="flex-row items-center justify-between mb-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg p-3">
+                    <View className="flex-row items-center flex-1">
+                      <View className="w-8 h-8 bg-purple-100 dark:bg-purple-900/40 rounded-full items-center justify-center mr-3">
+                        <UsersRound size={16} color="#8b5cf6" />
+                      </View>
+                      <View className="flex-1">
+                        <Text className="text-gray-900 dark:text-white font-semibold text-sm">
+                          Team Leadership
+                        </Text>
+                        <Text className="text-gray-500 dark:text-slate-400 text-xs">
+                          How well they lead teams
+                        </Text>
+                      </View>
+                    </View>
+                    <View className="items-end">
+                      <Text className={`font-bold text-lg ${member.teamLeadershipMultiplier >= 1.0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-orange-600 dark:text-orange-400'}`}>
+                        {member.teamLeadershipMultiplier.toFixed(2)}x
+                      </Text>
+                      <Text className={`text-xs font-semibold ${member.teamLeadershipMultiplier >= 1.0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-orange-600 dark:text-orange-400'}`}>
+                        {member.teamLeadershipMultiplier >= 1.0 ? '+' : ''}{((member.teamLeadershipMultiplier - 1) * 100).toFixed(0)}%
+                      </Text>
+                    </View>
+                  </View>
+                )}
+
+                {member.collaborationMultiplier && (
+                  <View className="flex-row items-center justify-between mb-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg p-3">
+                    <View className="flex-row items-center flex-1">
+                      <View className="w-8 h-8 bg-blue-100 dark:bg-blue-900/40 rounded-full items-center justify-center mr-3">
+                        <TrendingUp size={16} color="#3b82f6" />
+                      </View>
+                      <View className="flex-1">
+                        <Text className="text-gray-900 dark:text-white font-semibold text-sm">
+                          Collaboration
+                        </Text>
+                        <Text className="text-gray-500 dark:text-slate-400 text-xs">
+                          How well they work with others
+                        </Text>
+                      </View>
+                    </View>
+                    <View className="items-end">
+                      <Text className={`font-bold text-lg ${member.collaborationMultiplier >= 1.0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-orange-600 dark:text-orange-400'}`}>
+                        {member.collaborationMultiplier.toFixed(2)}x
+                      </Text>
+                      <Text className={`text-xs font-semibold ${member.collaborationMultiplier >= 1.0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-orange-600 dark:text-orange-400'}`}>
+                        {member.collaborationMultiplier >= 1.0 ? '+' : ''}{((member.collaborationMultiplier - 1) * 100).toFixed(0)}%
+                      </Text>
+                    </View>
+                  </View>
+                )}
+
+                {member.aiProficiencyMultiplier && (
+                  <View className="flex-row items-center justify-between bg-amber-50 dark:bg-amber-900/20 rounded-lg p-3">
+                    <View className="flex-row items-center flex-1">
+                      <View className="w-8 h-8 bg-amber-100 dark:bg-amber-900/40 rounded-full items-center justify-center mr-3">
+                        <Zap size={16} color="#f59e0b" />
+                      </View>
+                      <View className="flex-1">
+                        <Text className="text-gray-900 dark:text-white font-semibold text-sm">
+                          AI Proficiency
+                        </Text>
+                        <Text className="text-gray-500 dark:text-slate-400 text-xs">
+                          How effectively they use AI tools
+                        </Text>
+                      </View>
+                    </View>
+                    <View className="items-end">
+                      <Text className={`font-bold text-lg ${member.aiProficiencyMultiplier >= 1.0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-orange-600 dark:text-orange-400'}`}>
+                        {member.aiProficiencyMultiplier.toFixed(2)}x
+                      </Text>
+                      <Text className={`text-xs font-semibold ${member.aiProficiencyMultiplier >= 1.0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-orange-600 dark:text-orange-400'}`}>
+                        {member.aiProficiencyMultiplier >= 1.0 ? '+' : ''}{((member.aiProficiencyMultiplier - 1) * 100).toFixed(0)}%
+                      </Text>
+                    </View>
+                  </View>
+                )}
+              </View>
+            )}
 
             {/* Current Tasks */}
             {memberWorkload.tasks.length > 0 && (

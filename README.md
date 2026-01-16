@@ -29,8 +29,23 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
   - **Full Functionality**: All features available when expanded:
     - Financial summary (bank balance, weekly cost, after-week balance)
     - Individual team member capacity visualization
-    - Long-press for person details modal
+    - Long-press for person details modal (now shows performance modifiers!)
     - Person selection for task allocation
+
+### Performance Modifiers Display
+- **Person Details Modal Enhancement**: Long-press any team member to view their performance modifiers
+  - **Team Leadership**: How well they lead teams (0.8-1.3x multiplier)
+    - Purple card with UsersRound icon
+    - Shows both multiplier value and percentage impact
+    - Green for positive, orange for negative
+  - **Collaboration**: How well they work with others (1.0-1.25x multiplier)
+    - Blue card with TrendingUp icon
+    - Affects teamwork efficiency
+  - **AI Proficiency**: How effectively they use AI tools (1.15-1.55x multiplier)
+    - Amber card with Zap icon
+    - Critical for AI-augmented tasks
+  - Color-coded backgrounds and icons for each modifier type
+  - Clear explanation: "These multipliers affect task completion speed when working with teams and AI tools"
 
 ### Collapsible Gantt Chart on Home Tab
 - **Dock at Bottom**: Gantt chart now docks at the bottom of the home screen
