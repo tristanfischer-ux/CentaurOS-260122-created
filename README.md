@@ -15,7 +15,52 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
 
 ## 🔄 Recent Updates (Jan 2026)
 
-### Decision → Task Integration - COMPLETE! (Latest) 🔗
+### AI Systems Management on People Cards - COMPLETE! (Latest) 🤖
+**Team member enhancement:** Manage AI tools directly from people cards!
+
+**What Was Done:**
+- ✅ Added AI systems management section to EditPersonModal
+- ✅ Integrated with centralized AI_TOOLS_CATALOG (single source of truth)
+- ✅ Connected to Armory Store for persistent AI tool assignments
+- ✅ Visual slot-based organization (Think, Create, Verify, Execute, Ops)
+- ✅ Real-time add/remove with immediate state updates
+
+**New Features:**
+- **AI Tools Section in Edit Modal**: When editing any team member, see a complete list of available AI systems
+- **One-Tap Management**: Add or remove AI tools with a single tap
+- **Visual Organization**: Each tool shows:
+  - Slot category with color coding (Think=Blue, Create=Purple, Verify=Green, Execute=Orange, Ops=Red)
+  - Tool name, description, vendor
+  - Monthly cost per seat
+  - Active/inactive status
+- **Active Tool Counter**: Header shows how many AI systems are currently assigned
+- **Empty State Guidance**: Helpful message when no AI tools are selected
+
+**Available AI Tools (Centralized Catalog):**
+- **Think Slot**: Perplexity Pro, Claude Sonnet, ChatGPT Pro
+- **Create Slot**: Cursor Pro, Midjourney, Notion AI, GitHub Copilot
+- **Verify Slot**: Grammarly Pro, Codeium QA, Loom
+- **Execute Slot**: Zapier, Make, n8n
+- **Ops Slot**: Linear AI, Asana Intelligence, Notion AI
+
+**Technical Implementation:**
+- **Centralized Source**: `AI_TOOLS_CATALOG` in `/src/lib/ai-tools-system.ts` (551 lines)
+- **State Management**: Connected to `useArmoryStore` for persistent loadouts
+- **UI Component**: Enhanced `/src/components/EditPersonModal.tsx`
+- **Type Safety**: Full TypeScript integration with `AITool` interface
+
+**User Flow:**
+1. Navigate to Who tab → Tap edit icon on any team member card
+2. Scroll to "AI SYSTEMS" section (shows active count)
+3. Browse all available AI tools organized by slot
+4. Tap `+` to add a tool, tap `−` to remove
+5. Changes save automatically to member's loadout
+6. AI tools affect task speed and quality (per productivity model)
+
+**Status:** ✅ IMPLEMENTED
+Location: `/src/components/EditPersonModal.tsx` - AI Systems section
+
+### Decision → Task Integration - COMPLETE! 🔗
 **Major workflow enhancement:** Urgent decisions now automatically create tasks when resolved!
 
 **What Was Done:**

@@ -1,8 +1,10 @@
-import { View, Text, TextInput, Pressable, Modal } from 'react-native';
+import { View, Text, TextInput, Pressable, Modal, ScrollView } from 'react-native';
 import { useState } from 'react';
-import { X, Check, Edit2, Trash2 } from 'lucide-react-native';
+import { X, Check, Edit2, Trash2, Plus, Minus, Cpu } from 'lucide-react-native';
 import { useTheme } from '@/lib/ThemeContext';
 import type { OrganizationMember } from '@/lib/organization-seed';
+import { AI_TOOLS_CATALOG, type AITool } from '@/lib/ai-tools-system';
+import { useArmoryStore } from '@/lib/state/armory-store';
 
 interface EditPersonModalProps {
   visible: boolean;
@@ -35,6 +37,21 @@ export function EditPersonModal({
 
   const functions = ['Finance', 'Sales', 'Marketing', 'Ops', 'Engineering', 'Admin'];
   const [selectedFunction, setSelectedFunction] = useState(member.function);
+
+  // AI Tools management
+  const loadout = useArmoryStore((s) => s.getLoadoutForMember(member.id));
+  const addAITool = useArmoryStore((s) => s.addAITool);
+  const removeAITool = useArmoryStore((s) => s.removeAITool);
+
+  const selectedAIToolIds = loadout?.aiToolIds || [];
+
+  const handleToggleAITool = async (toolId: string) => {
+    if (selectedAIToolIds.includes(toolId)) {
+      await removeAITool(member.id, toolId);
+    } else {
+      await addAITool(member.id, toolId);
+    }
+  };
 
   const handleSave = () => {
     onSave({
@@ -78,9 +95,10 @@ export function EditPersonModal({
             </Pressable>
           </View>
 
-          {/* Content */}
-          <View className="flex-1 px-5 py-6">
-            {/* Name */}
+          {/* Content - Wrapped in ScrollView */}
+          <ScrollView className="flex-1" contentContainerStyle={{ paddingBottom: 20 }}>
+            <View className="px-5 py-6">
+              {/* Name */}
             <View className="mb-4">
               <Text
                 className={`${
@@ -259,7 +277,130 @@ export function EditPersonModal({
                 } rounded-xl px-4 py-3 min-h-[80px]`}
               />
             </View>
+
+            {/* AI Tools Section */}
+            <View className="mb-4">
+              <View className="flex-row items-center justify-between mb-3">
+                <View className="flex-row items-center gap-2">
+                  <Cpu size={16} color={isDark ? '#a78bfa' : '#8b5cf6'} />
+                  <Text
+                    className={`${
+                      isDark ? 'text-slate-400' : 'text-gray-600'
+                    } text-xs font-bold tracking-wide uppercase`}
+                  >
+                    AI SYSTEMS
+                  </Text>
+                </View>
+                <Text className={`${isDark ? 'text-slate-500' : 'text-gray-500'} text-xs`}>
+                  {selectedAIToolIds.length} active
+                </Text>
+              </View>
+
+              {/* AI Tools Grid */}
+              <View className="gap-2">
+                {AI_TOOLS_CATALOG.map((tool) => {
+                  const isSelected = selectedAIToolIds.includes(tool.id);
+                  const slotColors = {
+                    Think: '#3b82f6',
+                    Create: '#8b5cf6',
+                    Verify: '#10b981',
+                    Execute: '#f59e0b',
+                    Ops: '#ef4444',
+                  };
+                  const slotColor = slotColors[tool.slot];
+
+                  return (
+                    <Pressable
+                      key={tool.id}
+                      onPress={() => handleToggleAITool(tool.id)}
+                      className={`flex-row items-center justify-between p-3 rounded-xl border-2 ${
+                        isSelected
+                          ? 'border-purple-500 bg-purple-500/10'
+                          : isDark
+                          ? 'border-slate-700 bg-slate-800/50'
+                          : 'border-gray-200 bg-gray-50'
+                      }`}
+                    >
+                      <View className="flex-1 mr-3">
+                        <View className="flex-row items-center gap-2 mb-1">
+                          <View
+                            className="px-2 py-0.5 rounded"
+                            style={{ backgroundColor: slotColor + '20' }}
+                          >
+                            <Text className="text-xs font-bold" style={{ color: slotColor }}>
+                              {tool.slot}
+                            </Text>
+                          </View>
+                          <Text
+                            className={`font-semibold ${
+                              isSelected
+                                ? isDark
+                                  ? 'text-purple-300'
+                                  : 'text-purple-700'
+                                : isDark
+                                ? 'text-white'
+                                : 'text-gray-900'
+                            }`}
+                          >
+                            {tool.name}
+                          </Text>
+                        </View>
+                        <Text
+                          className={`text-xs ${
+                            isDark ? 'text-slate-400' : 'text-gray-600'
+                          }`}
+                          numberOfLines={1}
+                        >
+                          {tool.description}
+                        </Text>
+                        <Text
+                          className={`text-xs mt-1 ${
+                            isDark ? 'text-slate-500' : 'text-gray-500'
+                          }`}
+                        >
+                          £{tool.pricePerSeatPerMonth}/mo • {tool.vendor}
+                        </Text>
+                      </View>
+
+                      {/* Toggle Button */}
+                      <View
+                        className={`w-8 h-8 rounded-full items-center justify-center ${
+                          isSelected
+                            ? 'bg-purple-500'
+                            : isDark
+                            ? 'bg-slate-700'
+                            : 'bg-gray-200'
+                        }`}
+                      >
+                        {isSelected ? (
+                          <Minus size={16} color="white" />
+                        ) : (
+                          <Plus size={16} color={isDark ? '#94a3b8' : '#64748b'} />
+                        )}
+                      </View>
+                    </Pressable>
+                  );
+                })}
+              </View>
+
+              {selectedAIToolIds.length === 0 && (
+                <View
+                  className={`p-4 rounded-xl mt-2 ${
+                    isDark ? 'bg-slate-800/50' : 'bg-gray-50'
+                  }`}
+                >
+                  <Text
+                    className={`text-sm text-center ${
+                      isDark ? 'text-slate-400' : 'text-gray-600'
+                    }`}
+                  >
+                    No AI systems selected. Tap to add AI tools that boost productivity.
+                  </Text>
+                </View>
+              )}
+            </View>
           </View>
+          </ScrollView>
 
           {/* Footer */}
           <View
