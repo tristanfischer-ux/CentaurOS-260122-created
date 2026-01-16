@@ -180,7 +180,7 @@ function AllocationRequestModal({
 
   const membership = useCurrentMembership();
   const createRequest = useAllocationRequestStore((s) => s.createRequest);
-  const needsApproval = useAllocationRequestStore((s) => s.needsApproval);
+  const delegationSettings = useAllocationRequestStore((s) => s.delegationSettings);
 
   const currentMember = useOrganizationStore((s) =>
     s.members.find((m) => m.id === membership?.userId)
@@ -188,12 +188,14 @@ function AllocationRequestModal({
 
   const isDirectReport = currentMember?.manages?.includes(apprentice?.id ?? '') ?? false;
   const requestedTU = parseInt(timeUnits) || 0;
-  const requiresApproval = needsApproval(
-    currentMember?.id ?? '',
-    apprentice?.id ?? '',
-    isDirectReport,
-    requestedTU
-  );
+
+  // Compute whether approval is needed based on delegation settings
+  const requiresApproval = useMemo(() => {
+    if (delegationSettings.fullDelegation) return false;
+    if (isDirectReport && delegationSettings.directReportDelegation) return false;
+    if (delegationSettings.autoApprovalThreshold > 0 && requestedTU <= delegationSettings.autoApprovalThreshold) return false;
+    return true;
+  }, [delegationSettings, isDirectReport, requestedTU]);
 
   const handleSubmit = () => {
     if (!apprentice || !currentMember || !justification.trim()) return;

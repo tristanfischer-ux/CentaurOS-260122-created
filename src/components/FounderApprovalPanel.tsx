@@ -397,7 +397,14 @@ export function FounderApprovalPanel() {
 
   const membership = useCurrentMembership();
   const { role } = usePermissions();
-  const pendingRequests = useAllocationRequestStore((s) => s.getPendingRequests());
+
+  // Select raw requests array, then filter in useMemo to avoid infinite loops
+  const allRequests = useAllocationRequestStore((s) => s.requests);
+  const pendingRequests = useMemo(
+    () => allRequests.filter((req) => req.status === 'pending'),
+    [allRequests]
+  );
+
   const approveRequest = useAllocationRequestStore((s) => s.approveRequest);
   const rejectRequest = useAllocationRequestStore((s) => s.rejectRequest);
 

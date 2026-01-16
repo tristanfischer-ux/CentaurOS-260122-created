@@ -78,8 +78,12 @@ export function ExecutiveHome() {
   const members = useOrganizationStore((s) => s.members);
   const okrs = useOKRStore((s) => s.okrs);
 
-  // Get pending allocation requests
-  const myRequests = useAllocationRequestStore((s) => s.getRequestsByRequester(currentUser?.id || ''));
+  // Get pending allocation requests - select raw array to avoid infinite loops
+  const allRequests = useAllocationRequestStore((s) => s.requests);
+  const myRequests = useMemo(
+    () => allRequests.filter((req) => req.requesterId === currentUser?.id),
+    [allRequests, currentUser?.id]
+  );
 
   // Find the current user's member profile
   const myMember = useMemo(() => {
