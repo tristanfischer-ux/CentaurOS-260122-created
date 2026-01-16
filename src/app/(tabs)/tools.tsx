@@ -3,11 +3,12 @@
  * Supplier engagements and AI agent management
  */
 
-import { View, Text, ScrollView, Pressable, Modal, Linking } from 'react-native';
+import { View, Text, ScrollView, Pressable, Modal, Linking, TextInput } from 'react-native';
 import { useState, useMemo } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { FadeInDown } from 'react-native-reanimated';
+import { router } from 'expo-router';
 import {
   Wrench,
   Package,
@@ -30,12 +31,18 @@ import {
   HelpCircle,
   Users,
   ExternalLink,
+  MessageSquare,
+  Send,
+  Search,
+  Link,
+  UserCircle,
+  Sparkles,
 } from 'lucide-react-native';
 import { useOrganizationStore } from '@/lib/state/organization-store';
 import { useWorkPlanStore } from '@/lib/state/work-plan-store';
 import { useArmoryStore } from '@/lib/state/armory-store';
 import { useCurrentWorkspace, useCurrentMembership } from '@/lib/state/app-store';
-import type { SupplierEngagement, AIAgent } from '@/lib/organization-seed';
+import type { SupplierEngagement, AIAgent, OrganizationMember } from '@/lib/organization-seed';
 import { HelpModal, HelpButton, type HelpContent } from '@/components/HelpModal';
 import { SettingsGearButton } from '@/components/SettingsGearButton';
 import { THIRD_PARTY_AI_TOOLS, type ThirdPartyAITool } from '@/lib/third-party-ai-tools';
@@ -94,6 +101,10 @@ export default function ToolsScreen() {
   const [selectedAIAgent, setSelectedAIAgent] = useState<AIAgent | null>(null);
   const [selectedAITool, setSelectedAITool] = useState<ThirdPartyAITool | null>(null);
   const [expandedSuppliers, setExpandedSuppliers] = useState<Set<string>>(new Set());
+  const [selectedPerson, setSelectedPerson] = useState<OrganizationMember | null>(null);
+  const [showPersonCard, setShowPersonCard] = useState(false);
+  const [showReachOut, setShowReachOut] = useState(false);
+  const [reachOutType, setReachOutType] = useState<'ai' | 'supplier'>('supplier');
 
   const isFounder = currentMembership?.role === 'Founder';
 
@@ -135,6 +146,7 @@ export default function ToolsScreen() {
     const statusColor = STATUS_COLORS[engagement.status];
     const statusLabel = STATUS_LABELS[engagement.status];
     const linkedTask = getLinkedTask(engagement);
+    const assignedMember = members.find(m => m.id === engagement.assignedTo);
     const progress = engagement.totalCost > 0
       ? Math.round((engagement.paidToDate / engagement.totalCost) * 100)
       : 0;
@@ -148,9 +160,12 @@ export default function ToolsScreen() {
           <View className="p-4">
             <View className="flex-row items-start justify-between mb-2">
               <View className="flex-1 mr-3">
-                <Text className="text-slate-900 dark:text-white font-semibold text-base">
-                  {engagement.supplierName}
-                </Text>
+                <View className="flex-row items-center gap-2">
+                  <Factory size={16} color="#f59e0b" />
+                  <Text className="text-slate-900 dark:text-white font-semibold text-base">
+                    {engagement.supplierName}
+                  </Text>
+                </View>
                 <Text className="text-slate-500 dark:text-slate-400 text-sm mt-0.5">
                   {engagement.projectName}
                 </Text>
@@ -196,17 +211,50 @@ export default function ToolsScreen() {
               />
             </View>
 
-            {/* Linked task */}
+            {/* Linked task - tappable */}
             {linkedTask && (
-              <View className="flex-row items-center gap-2 mt-3 pt-3 border-t border-slate-100 dark:border-slate-700">
-                <CheckCircle2 size={14} color="#3b82f6" />
-                <Text className="text-slate-600 dark:text-slate-300 text-sm flex-1" numberOfLines={1}>
+              <Pressable
+                onPress={() => router.push('/(tabs)/what')}
+                className="flex-row items-center gap-2 mt-3 pt-3 border-t border-slate-100 dark:border-slate-700 active:opacity-70"
+              >
+                <Link size={14} color="#3b82f6" />
+                <Text className="text-blue-500 dark:text-blue-400 text-sm flex-1 font-medium" numberOfLines={1}>
                   {linkedTask.title}
                 </Text>
-                <Text className="text-blue-500 text-xs font-medium">
-                  {linkedTask.progress}%
+                <View className="bg-blue-100 dark:bg-blue-900/30 px-2 py-0.5 rounded">
+                  <Text className="text-blue-600 dark:text-blue-400 text-xs font-medium">
+                    {linkedTask.progress}%
+                  </Text>
+                </View>
+                <ChevronRight size={14} color="#3b82f6" />
+              </Pressable>
+            )}
+
+            {/* Assigned person - tappable */}
+            {assignedMember && (
+              <Pressable
+                onPress={() => {
+                  setSelectedPerson(assignedMember);
+                  setShowPersonCard(true);
+                }}
+                className="flex-row items-center gap-2 mt-2 pt-2 border-t border-slate-100 dark:border-slate-700 active:opacity-70"
+              >
+                <View
+                  className="w-6 h-6 rounded-full items-center justify-center"
+                  style={{ backgroundColor: assignedMember.role === 'Founder' ? '#3b82f620' : assignedMember.role === 'FractionalExec' ? '#8b5cf620' : '#10b98120' }}
+                >
+                  <Text
+                    className="text-xs font-bold"
+                    style={{ color: assignedMember.role === 'Founder' ? '#3b82f6' : assignedMember.role === 'FractionalExec' ? '#8b5cf6' : '#10b981' }}
+                  >
+                    {assignedMember.name.split(' ').map(n => n[0]).join('')}
+                  </Text>
+                </View>
+                <Text className="text-slate-600 dark:text-slate-300 text-sm flex-1">
+                  {assignedMember.name}
                 </Text>
-              </View>
+                <Text className="text-slate-400 text-xs">{assignedMember.role}</Text>
+              </Pressable>
             )}
           </View>
 
@@ -217,30 +265,67 @@ export default function ToolsScreen() {
                 {engagement.description}
               </Text>
 
-              {/* Contact info */}
-              <View className="bg-slate-50 dark:bg-slate-700/50 rounded-lg p-3">
+              {/* Supplier Contact info */}
+              <View className="bg-slate-50 dark:bg-slate-700/50 rounded-lg p-3 mb-3">
                 <Text className="text-slate-500 dark:text-slate-400 text-xs font-medium mb-2 uppercase">
-                  Contact
+                  Supplier Contact
                 </Text>
-                <View className="flex-row items-center gap-2 mb-1">
-                  <Users size={12} color="#64748b" />
-                  <Text className="text-slate-700 dark:text-slate-300 text-sm">
+                <View className="flex-row items-center gap-2 mb-2">
+                  <UserCircle size={14} color="#64748b" />
+                  <Text className="text-slate-700 dark:text-slate-300 text-sm flex-1">
                     {engagement.contactPerson}
                   </Text>
                 </View>
-                <View className="flex-row items-center gap-2 mb-1">
-                  <Mail size={12} color="#64748b" />
-                  <Pressable onPress={() => Linking.openURL(`mailto:${engagement.contactEmail}`)}>
-                    <Text className="text-blue-500 text-sm">{engagement.contactEmail}</Text>
+                <View className="flex-row gap-2">
+                  <Pressable
+                    onPress={() => Linking.openURL(`tel:${engagement.contactPhone}`)}
+                    className="flex-1 bg-green-500/10 rounded-lg py-2 flex-row items-center justify-center gap-2 active:opacity-70"
+                  >
+                    <Phone size={14} color="#22c55e" />
+                    <Text className="text-green-600 dark:text-green-400 text-xs font-medium">Call</Text>
                   </Pressable>
-                </View>
-                <View className="flex-row items-center gap-2">
-                  <Phone size={12} color="#64748b" />
-                  <Pressable onPress={() => Linking.openURL(`tel:${engagement.contactPhone}`)}>
-                    <Text className="text-blue-500 text-sm">{engagement.contactPhone}</Text>
+                  <Pressable
+                    onPress={() => Linking.openURL(`mailto:${engagement.contactEmail}`)}
+                    className="flex-1 bg-blue-500/10 rounded-lg py-2 flex-row items-center justify-center gap-2 active:opacity-70"
+                  >
+                    <Mail size={14} color="#3b82f6" />
+                    <Text className="text-blue-600 dark:text-blue-400 text-xs font-medium">Email</Text>
+                  </Pressable>
+                  <Pressable
+                    onPress={() => Linking.openURL(`sms:${engagement.contactPhone}`)}
+                    className="flex-1 bg-purple-500/10 rounded-lg py-2 flex-row items-center justify-center gap-2 active:opacity-70"
+                  >
+                    <MessageSquare size={14} color="#a855f7" />
+                    <Text className="text-purple-600 dark:text-purple-400 text-xs font-medium">SMS</Text>
                   </Pressable>
                 </View>
               </View>
+
+              {/* Tasks linked to this supplier */}
+              {engagement.linkedWorkPlanIds && engagement.linkedWorkPlanIds.length > 0 && (
+                <View className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-3">
+                  <Text className="text-blue-600 dark:text-blue-400 text-xs font-medium mb-2 uppercase">
+                    Linked Tasks ({engagement.linkedWorkPlanIds.length})
+                  </Text>
+                  {engagement.linkedWorkPlanIds.map((wpId, idx) => {
+                    const wp = workPlans.find(w => w.id === wpId);
+                    if (!wp) return null;
+                    return (
+                      <Pressable
+                        key={wpId}
+                        onPress={() => router.push('/(tabs)/what')}
+                        className="flex-row items-center gap-2 py-1.5 active:opacity-70"
+                      >
+                        <CheckCircle2 size={12} color="#3b82f6" />
+                        <Text className="text-slate-700 dark:text-slate-300 text-sm flex-1" numberOfLines={1}>
+                          {wp.title}
+                        </Text>
+                        <Text className="text-blue-500 text-xs">{wp.progress}%</Text>
+                      </Pressable>
+                    );
+                  })}
+                </View>
+              )}
             </View>
           )}
         </Pressable>
@@ -421,6 +506,18 @@ export default function ToolsScreen() {
         {/* Suppliers Tab */}
         {activeTab === 'suppliers' && (
           <View>
+            {/* Reach Out Button */}
+            <Pressable
+              onPress={() => {
+                setReachOutType('supplier');
+                setShowReachOut(true);
+              }}
+              className="bg-amber-500 rounded-xl p-4 mb-4 flex-row items-center justify-center gap-2 active:opacity-80"
+            >
+              <Search size={18} color="#fff" />
+              <Text className="text-white font-semibold">Find New Suppliers</Text>
+            </Pressable>
+
             {supplierEngagements.length > 0 ? (
               <>
                 <View className="flex-row items-center justify-between mb-4">
@@ -449,6 +546,18 @@ export default function ToolsScreen() {
         {/* AI Agents Tab */}
         {activeTab === 'ai-agents' && (
           <View>
+            {/* Reach Out Button */}
+            <Pressable
+              onPress={() => {
+                setReachOutType('ai');
+                setShowReachOut(true);
+              }}
+              className="bg-purple-500 rounded-xl p-4 mb-4 flex-row items-center justify-center gap-2 active:opacity-80"
+            >
+              <Sparkles size={18} color="#fff" />
+              <Text className="text-white font-semibold">Discover AI Tools</Text>
+            </Pressable>
+
             {aiAgents.length > 0 ? (
               <>
                 <Text className="text-slate-500 dark:text-slate-400 text-sm mb-4">
@@ -481,6 +590,297 @@ export default function ToolsScreen() {
           </View>
         )}
       </ScrollView>
+
+      {/* Person Card Modal */}
+      <Modal
+        visible={showPersonCard}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setShowPersonCard(false)}
+      >
+        <Pressable
+          className="flex-1 bg-black/70"
+          onPress={() => setShowPersonCard(false)}
+        >
+          <View className="flex-1" />
+          <Pressable onPress={(e) => e.stopPropagation()} style={{ maxHeight: '85%' }}>
+            <View className="bg-white dark:bg-slate-900 rounded-t-3xl">
+              {/* Handle */}
+              <View className="items-center py-3">
+                <View className="w-10 h-1 bg-slate-200 dark:bg-slate-700 rounded-full" />
+              </View>
+
+              {selectedPerson && (
+                <ScrollView contentContainerStyle={{ flexGrow: 1, paddingBottom: insets.bottom + 20 }}>
+                  {/* Person Header */}
+                  <View className="px-5 pb-5">
+                    <View className="items-center mb-4">
+                      <View
+                        className="w-20 h-20 rounded-full items-center justify-center mb-3"
+                        style={{
+                          backgroundColor: selectedPerson.role === 'Founder'
+                            ? '#3b82f620'
+                            : selectedPerson.role === 'FractionalExec'
+                            ? '#8b5cf620'
+                            : '#10b98120'
+                        }}
+                      >
+                        <Text
+                          className="text-2xl font-bold"
+                          style={{
+                            color: selectedPerson.role === 'Founder'
+                              ? '#3b82f6'
+                              : selectedPerson.role === 'FractionalExec'
+                              ? '#8b5cf6'
+                              : '#10b981'
+                          }}
+                        >
+                          {selectedPerson.name.split(' ').map(n => n[0]).join('')}
+                        </Text>
+                      </View>
+                      <Text className="text-slate-900 dark:text-white text-xl font-bold">
+                        {selectedPerson.name}
+                      </Text>
+                      <Text className="text-slate-500 dark:text-slate-400 text-sm mt-1">
+                        {selectedPerson.function}
+                      </Text>
+                      <View
+                        className="mt-2 px-3 py-1 rounded-full"
+                        style={{
+                          backgroundColor: selectedPerson.role === 'Founder'
+                            ? '#3b82f620'
+                            : selectedPerson.role === 'FractionalExec'
+                            ? '#8b5cf620'
+                            : '#10b98120'
+                        }}
+                      >
+                        <Text
+                          className="text-xs font-medium"
+                          style={{
+                            color: selectedPerson.role === 'Founder'
+                              ? '#3b82f6'
+                              : selectedPerson.role === 'FractionalExec'
+                              ? '#8b5cf6'
+                              : '#10b981'
+                          }}
+                        >
+                          {selectedPerson.role === 'FractionalExec' ? 'Executive' : selectedPerson.role}
+                        </Text>
+                      </View>
+                    </View>
+
+                    {/* Contact Buttons */}
+                    <View className="bg-slate-50 dark:bg-slate-800 rounded-xl p-4 mb-4">
+                      <Text className="text-slate-500 dark:text-slate-400 text-xs font-medium uppercase mb-3">
+                        Contact
+                      </Text>
+                      <View className="flex-row gap-3">
+                        <Pressable
+                          onPress={() => Linking.openURL(`tel:${selectedPerson.phone || '+1234567890'}`)}
+                          className="flex-1 bg-green-500 rounded-xl py-3 flex-row items-center justify-center gap-2 active:opacity-80"
+                        >
+                          <Phone size={18} color="#fff" />
+                          <Text className="text-white font-semibold">Call</Text>
+                        </Pressable>
+                        <Pressable
+                          onPress={() => Linking.openURL(`mailto:${selectedPerson.email}`)}
+                          className="flex-1 bg-blue-500 rounded-xl py-3 flex-row items-center justify-center gap-2 active:opacity-80"
+                        >
+                          <Mail size={18} color="#fff" />
+                          <Text className="text-white font-semibold">Email</Text>
+                        </Pressable>
+                        <Pressable
+                          onPress={() => Linking.openURL(`sms:${selectedPerson.phone || '+1234567890'}`)}
+                          className="flex-1 bg-purple-500 rounded-xl py-3 flex-row items-center justify-center gap-2 active:opacity-80"
+                        >
+                          <MessageSquare size={18} color="#fff" />
+                          <Text className="text-white font-semibold">SMS</Text>
+                        </Pressable>
+                      </View>
+                    </View>
+
+                    {/* Info */}
+                    <View className="bg-slate-50 dark:bg-slate-800 rounded-xl p-4 mb-4">
+                      <Text className="text-slate-500 dark:text-slate-400 text-xs font-medium uppercase mb-3">
+                        Details
+                      </Text>
+                      <View className="flex-row items-center gap-3 mb-3">
+                        <Mail size={16} color="#64748b" />
+                        <Text className="text-slate-700 dark:text-slate-300 text-sm flex-1">
+                          {selectedPerson.email}
+                        </Text>
+                      </View>
+                      <View className="flex-row items-center gap-3 mb-3">
+                        <Package size={16} color="#64748b" />
+                        <Text className="text-slate-700 dark:text-slate-300 text-sm flex-1">
+                          {selectedPerson.function} Team
+                        </Text>
+                      </View>
+                      {selectedPerson.startDate && (
+                        <View className="flex-row items-center gap-3">
+                          <Clock size={16} color="#64748b" />
+                          <Text className="text-slate-700 dark:text-slate-300 text-sm flex-1">
+                            Joined {new Date(selectedPerson.startDate).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
+                          </Text>
+                        </View>
+                      )}
+                    </View>
+
+                    {/* Skills */}
+                    {selectedPerson.skills && selectedPerson.skills.length > 0 && (
+                      <View className="bg-slate-50 dark:bg-slate-800 rounded-xl p-4">
+                        <Text className="text-slate-500 dark:text-slate-400 text-xs font-medium uppercase mb-3">
+                          Skills
+                        </Text>
+                        <View className="flex-row flex-wrap gap-2">
+                          {selectedPerson.skills.map((skill, idx) => (
+                            <View
+                              key={`skill-${idx}`}
+                              className="bg-amber-100 dark:bg-amber-900/30 px-3 py-1.5 rounded-lg flex-row items-center gap-2"
+                            >
+                              <Star size={12} color="#f59e0b" />
+                              <Text className="text-amber-700 dark:text-amber-400 text-sm">
+                                {skill.name}
+                              </Text>
+                              <Text className="text-amber-500 text-xs">
+                                Lv.{skill.level}
+                              </Text>
+                            </View>
+                          ))}
+                        </View>
+                      </View>
+                    )}
+                  </View>
+                </ScrollView>
+              )}
+            </View>
+          </Pressable>
+        </Pressable>
+      </Modal>
+
+      {/* Reach Out Modal */}
+      <Modal
+        visible={showReachOut}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setShowReachOut(false)}
+      >
+        <Pressable
+          className="flex-1 bg-black/70"
+          onPress={() => setShowReachOut(false)}
+        >
+          <View className="flex-1" />
+          <Pressable onPress={(e) => e.stopPropagation()} style={{ maxHeight: '80%' }}>
+            <View className="bg-white dark:bg-slate-900 rounded-t-3xl">
+              {/* Handle */}
+              <View className="items-center py-3">
+                <View className="w-10 h-1 bg-slate-200 dark:bg-slate-700 rounded-full" />
+              </View>
+
+              <ScrollView contentContainerStyle={{ flexGrow: 1, paddingBottom: insets.bottom + 20 }}>
+                <View className="px-5 pb-5">
+                  <Text className="text-slate-900 dark:text-white text-xl font-bold mb-1">
+                    Find New {reachOutType === 'ai' ? 'AI Tools' : 'Suppliers'}
+                  </Text>
+                  <Text className="text-slate-500 dark:text-slate-400 text-sm mb-4">
+                    {reachOutType === 'ai'
+                      ? 'Discover AI tools to boost your team productivity'
+                      : 'Connect with suppliers for your projects'}
+                  </Text>
+
+                  {/* Search */}
+                  <View className="flex-row items-center bg-slate-100 dark:bg-slate-800 rounded-xl px-4 py-3 mb-4">
+                    <Search size={18} color="#64748b" />
+                    <TextInput
+                      placeholder={`Search ${reachOutType === 'ai' ? 'AI tools' : 'suppliers'}...`}
+                      placeholderTextColor="#94a3b8"
+                      className="flex-1 ml-3 text-slate-900 dark:text-white text-base"
+                    />
+                  </View>
+
+                  {reachOutType === 'ai' ? (
+                    <>
+                      <Text className="text-slate-500 dark:text-slate-400 text-xs font-medium uppercase mb-3">
+                        Recommended AI Tools
+                      </Text>
+                      {THIRD_PARTY_AI_TOOLS.slice(0, 5).map((tool, index) => (
+                        <Pressable
+                          key={tool.id}
+                          onPress={() => {
+                            setShowReachOut(false);
+                            setActiveTab('ai-tools');
+                            setSelectedAITool(tool);
+                          }}
+                          className="bg-slate-50 dark:bg-slate-800 rounded-xl p-4 mb-3 flex-row items-center active:opacity-80"
+                        >
+                          <View className="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900/30 items-center justify-center mr-3">
+                            <Sparkles size={20} color="#3b82f6" />
+                          </View>
+                          <View className="flex-1">
+                            <Text className="text-slate-900 dark:text-white font-semibold">
+                              {tool.name}
+                            </Text>
+                            <Text className="text-slate-500 dark:text-slate-400 text-xs mt-0.5" numberOfLines={1}>
+                              {tool.purpose}
+                            </Text>
+                          </View>
+                          <View className="bg-amber-100 dark:bg-amber-900/30 px-2 py-1 rounded">
+                            <Text className="text-amber-600 dark:text-amber-400 text-xs font-medium">
+                              {tool.efficiencyMultiplier}x
+                            </Text>
+                          </View>
+                        </Pressable>
+                      ))}
+                    </>
+                  ) : (
+                    <>
+                      <Text className="text-slate-500 dark:text-slate-400 text-xs font-medium uppercase mb-3">
+                        Supplier Categories
+                      </Text>
+                      {[
+                        { name: 'Manufacturing', icon: Factory, desc: 'Production & assembly partners' },
+                        { name: 'Materials', icon: Package, desc: 'Raw materials & components' },
+                        { name: 'Logistics', icon: TrendingUp, desc: 'Shipping & distribution' },
+                        { name: 'Professional Services', icon: Users, desc: 'Consulting & specialized services' },
+                      ].map((category, index) => (
+                        <Pressable
+                          key={category.name}
+                          className="bg-slate-50 dark:bg-slate-800 rounded-xl p-4 mb-3 flex-row items-center active:opacity-80"
+                        >
+                          <View className="w-10 h-10 rounded-lg bg-amber-100 dark:bg-amber-900/30 items-center justify-center mr-3">
+                            <category.icon size={20} color="#f59e0b" />
+                          </View>
+                          <View className="flex-1">
+                            <Text className="text-slate-900 dark:text-white font-semibold">
+                              {category.name}
+                            </Text>
+                            <Text className="text-slate-500 dark:text-slate-400 text-xs mt-0.5">
+                              {category.desc}
+                            </Text>
+                          </View>
+                          <ChevronRight size={18} color="#64748b" />
+                        </Pressable>
+                      ))}
+
+                      <View className="mt-4 p-4 bg-amber-50 dark:bg-amber-900/20 rounded-xl">
+                        <Text className="text-amber-800 dark:text-amber-300 text-sm font-medium mb-2">
+                          Need a specific supplier?
+                        </Text>
+                        <Text className="text-amber-600 dark:text-amber-400 text-xs mb-3">
+                          Contact our team to help you find the right supplier for your project needs.
+                        </Text>
+                        <Pressable className="bg-amber-500 rounded-lg py-2.5 items-center active:opacity-80">
+                          <Text className="text-white font-semibold">Request Supplier</Text>
+                        </Pressable>
+                      </View>
+                    </>
+                  )}
+                </View>
+              </ScrollView>
+            </View>
+          </Pressable>
+        </Pressable>
+      </Modal>
     </View>
   );
 }
