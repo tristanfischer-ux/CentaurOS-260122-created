@@ -44,6 +44,16 @@ interface ArmoryState {
   deploySquadToWorkPlan: (squadId: string, workPlanId: string) => Promise<void>;
   clearDeployment: (squadId: string) => Promise<void>;
 
+  // Auto-squad creation for tasks
+  findOrCreateTaskSquad: (
+    workspaceId: string,
+    taskId: string,
+    taskName: string,
+    memberIds: string[],
+    members: OrganizationMember[]
+  ) => Promise<Squad | null>;
+  getSquadByTaskId: (taskId: string) => Squad | undefined;
+
   // Utility
   getMembersUsingAITool: (aiToolId: string) => string[]; // Returns array of member IDs
   removeAIToolFromAllLoadouts: (aiToolId: string) => Promise<void>; // Remove tool from everyone when deleted
@@ -356,6 +366,64 @@ export const useArmoryStore = create<ArmoryState>((set, get) => ({
       deployedOKRId: undefined,
       deployedWorkPlanId: undefined,
     });
+  },
+
+  // ========== AUTO-SQUAD FOR TASKS ==========
+
+  findOrCreateTaskSquad: async (workspaceId, taskId, taskName, memberIds, members) => {
+    // Only create squad if 2+ members are assigned
+    if (memberIds.length < 2) return null;
+
+    // Check if a squad already exists for this task (by checking deployed work plan)
+    const existingSquad = get().squads.find(
+      s => s.name === `Task: ${taskName}` || s.deployedWorkPlanId === taskId
+    );
+
+    if (existingSquad) {
+      // Update members if needed
+      const currentMemberIds = [existingSquad.leaderMemberId, ...existingSquad.apprenticeMemberIds];
+      const newMemberIds = memberIds.filter(id => !currentMemberIds.includes(id));
+
+      for (const memberId of newMemberIds) {
+        await get().assignApprentice(existingSquad.id, memberId);
+      }
+
+      return get().getSquadById(existingSquad.id) || existingSquad;
+    }
+
+    // Find the most senior member to be the leader
+    const assignedMembers = members.filter(m => memberIds.includes(m.id));
+    const founder = assignedMembers.find(m => m.role === 'Founder');
+    const exec = assignedMembers.find(m => m.role === 'FractionalExec');
+    const leader = founder || exec || assignedMembers[0];
+
+    if (!leader) return null;
+
+    // Determine function based on leader or majority
+    const functionCounts: Record<string, number> = {};
+    assignedMembers.forEach(m => {
+      functionCounts[m.function] = (functionCounts[m.function] || 0) + 1;
+    });
+    const dominantFunction = Object.entries(functionCounts)
+      .sort(([, a], [, b]) => b - a)[0]?.[0] as any || 'Ops';
+
+    // Create the squad
+    const apprenticeIds = memberIds.filter(id => id !== leader.id);
+
+    const squad = await get().createSquad({
+      workspaceId,
+      name: `Task: ${taskName}`,
+      function: dominantFunction,
+      leaderMemberId: leader.id,
+      apprenticeMemberIds: apprenticeIds,
+      deployedWorkPlanId: taskId,
+    });
+
+    return squad;
+  },
+
+  getSquadByTaskId: (taskId: string) => {
+    return get().squads.find(s => s.deployedWorkPlanId === taskId);
   },
 
   // ========== UTILITY ==========

@@ -52,6 +52,7 @@ import { HelpModal, HelpButton, type HelpContent } from '@/components/HelpModal'
 import { PersonDetailsModal } from '@/components/PersonDetailsModal';
 import { SettingsGearButton } from '@/components/SettingsGearButton';
 import { useCurrentUser } from '@/lib/state/app-store';
+import { calculateTaskModifiers, calculateTotalMultiplier, formatMultiplierAsPercentage, getModifierColor } from '@/lib/task-modifiers';
 
 const WHO_HELP: HelpContent = {
   title: 'People Management',
@@ -948,7 +949,7 @@ export default function WhoScreen() {
               {isFounder && (
                 <Pressable
                   onPress={() => {
-                    Alert.alert('Create Squad', 'Squad creation UI coming soon');
+                    Alert.alert('Create Squad', 'Use the Armory to create and manage squads');
                   }}
                   className="flex-row items-center gap-1 bg-blue-500 px-3 py-1.5 rounded-lg"
                 >
@@ -972,6 +973,10 @@ export default function WhoScreen() {
               <View>
                 {squads.map((squad, index) => {
                   const squadMembers = members.filter(m => squad.memberIds.includes(m.id));
+                  const modifiers = calculateTaskModifiers(squadMembers);
+                  const totalMultiplier = calculateTotalMultiplier(modifiers);
+                  const hasFounder = squadMembers.some(m => m.role === 'Founder');
+                  const hasExec = squadMembers.some(m => m.role === 'FractionalExec');
 
                   return (
                     <AnimatedPressable
@@ -1002,12 +1007,46 @@ export default function WhoScreen() {
                             </Text>
                           )}
                         </View>
+                        {/* Speed Multiplier Badge */}
+                        <View
+                          className="px-3 py-1.5 rounded-lg"
+                          style={{ backgroundColor: getModifierColor(totalMultiplier) + '20' }}
+                        >
+                          <Text style={{ color: getModifierColor(totalMultiplier) }} className="font-bold text-sm">
+                            {formatMultiplierAsPercentage(totalMultiplier)} Speed
+                          </Text>
+                        </View>
                       </View>
+
+                      {/* Leadership indicators */}
+                      {(hasFounder || hasExec) && (
+                        <View className="flex-row gap-2 mb-3">
+                          {hasFounder && (
+                            <View className="flex-row items-center gap-1 bg-amber-100 dark:bg-amber-900/30 px-2 py-1 rounded-lg">
+                              <Crown size={12} color="#f59e0b" />
+                              <Text className="text-amber-600 dark:text-amber-400 text-xs font-medium">Founder Led</Text>
+                            </View>
+                          )}
+                          {hasExec && !hasFounder && (
+                            <View className="flex-row items-center gap-1 bg-purple-100 dark:bg-purple-900/30 px-2 py-1 rounded-lg">
+                              <Briefcase size={12} color="#a855f7" />
+                              <Text className="text-purple-600 dark:text-purple-400 text-xs font-medium">Exec Led</Text>
+                            </View>
+                          )}
+                        </View>
+                      )}
 
                       {/* Squad Members */}
                       <View className="gap-2">
                         {squadMembers.map(member => (
-                          <View key={member.id} className="flex-row items-center gap-2">
+                          <Pressable
+                            key={member.id}
+                            onPress={() => {
+                              setSelectedMember(member);
+                              setShowMemberDetails(true);
+                            }}
+                            className="flex-row items-center gap-2 active:opacity-70"
+                          >
                             <View
                               className="w-8 h-8 rounded-full items-center justify-center"
                               style={{ backgroundColor: (ROLE_COLORS[member.role as keyof typeof ROLE_COLORS] || '#64748b') + '20' }}
@@ -1022,9 +1061,32 @@ export default function WhoScreen() {
                             <Text className="text-slate-500 dark:text-slate-400 text-xs">
                               {member.role === 'FractionalExec' ? `${member.daysPerWeek || 2}d/wk` : member.role}
                             </Text>
-                          </View>
+                          </Pressable>
                         ))}
                       </View>
+
+                      {/* Active Modifiers */}
+                      {modifiers.length > 0 && (
+                        <View className="mt-3 pt-3 border-t border-slate-100 dark:border-slate-700">
+                          <Text className="text-slate-500 dark:text-slate-400 text-xs mb-2">Active Modifiers</Text>
+                          <View className="flex-row flex-wrap gap-1">
+                            {modifiers.slice(0, 4).map((mod, idx) => (
+                              <View
+                                key={`${mod.id}-${idx}`}
+                                className="px-2 py-1 rounded"
+                                style={{ backgroundColor: getModifierColor(mod.multiplier) + '15' }}
+                              >
+                                <Text
+                                  style={{ color: getModifierColor(mod.multiplier) }}
+                                  className="text-xs"
+                                >
+                                  {mod.name} {formatMultiplierAsPercentage(mod.multiplier)}
+                                </Text>
+                              </View>
+                            ))}
+                          </View>
+                        </View>
+                      )}
 
                       {/* Squad Tasks */}
                       {squad.taskIds && squad.taskIds.length > 0 && (
