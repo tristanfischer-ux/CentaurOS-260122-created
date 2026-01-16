@@ -3,6 +3,7 @@ import { X, Mail, Phone, Linkedin, Calendar, DollarSign, Briefcase, Users, Clock
 import { type OrganizationMember } from '@/lib/organization-seed';
 import { useWorkPlanStore } from '@/lib/state/work-plan-store';
 import { useOrganizationStore } from '@/lib/state/organization-store';
+import { useSquadStore } from '@/lib/state/squad-store';
 import { useMemo } from 'react';
 
 interface PersonDetailsModalProps {
@@ -26,6 +27,7 @@ const ROLE_LABELS: Record<string, string> = {
 export function PersonDetailsModal({ visible, onClose, member }: PersonDetailsModalProps) {
   const workPlans = useWorkPlanStore(s => s.workPlans);
   const allMembers = useOrganizationStore(s => s.members);
+  const squads = useSquadStore(s => s.squads);
 
   // Calculate member's current workload and tasks
   const memberWorkload = useMemo(() => {
@@ -61,6 +63,12 @@ export function PersonDetailsModal({ visible, onClose, member }: PersonDetailsMo
     if (!member?.manages || member.manages.length === 0) return [];
     return allMembers.filter(m => member.manages?.includes(m.id));
   }, [member, allMembers]);
+
+  // Get squads this member belongs to
+  const memberSquads = useMemo(() => {
+    if (!member) return [];
+    return squads.filter(squad => squad.memberIds.includes(member.id));
+  }, [member, squads]);
 
   if (!member) return null;
 
@@ -329,6 +337,91 @@ export function PersonDetailsModal({ visible, onClose, member }: PersonDetailsMo
                     </View>
                   </View>
                 )}
+              </View>
+            )}
+
+            {/* Squads Section */}
+            {memberSquads.length > 0 && (
+              <View className="px-6 py-4 border-b border-gray-200 dark:border-slate-800">
+                <Text className="text-gray-900 dark:text-white font-bold text-sm mb-3">
+                  Squads ({memberSquads.length})
+                </Text>
+                <Text className="text-gray-500 dark:text-slate-400 text-xs mb-3">
+                  Team groupings this person belongs to
+                </Text>
+
+                <View className="gap-3">
+                  {memberSquads.map((squad) => {
+                    const squadMembers = allMembers.filter(m => squad.memberIds.includes(m.id) && m.id !== member.id);
+
+                    return (
+                      <View
+                        key={squad.id}
+                        className="rounded-lg p-3"
+                        style={{
+                          backgroundColor: (squad.color || '#3b82f6') + '15',
+                          borderLeftWidth: 4,
+                          borderLeftColor: squad.color || '#3b82f6',
+                        }}
+                      >
+                        <View className="flex-row items-center justify-between mb-2">
+                          <Text className="text-gray-900 dark:text-white font-semibold text-sm flex-1">
+                            {squad.name}
+                          </Text>
+                          <View className={`px-2 py-0.5 rounded-full ${
+                            squad.type === 'manual' ? 'bg-blue-100 dark:bg-blue-900/30' : 'bg-slate-200 dark:bg-slate-700'
+                          }`}>
+                            <Text className={`text-[10px] font-medium ${
+                              squad.type === 'manual' ? 'text-blue-600 dark:text-blue-400' : 'text-slate-600 dark:text-slate-300'
+                            }`}>
+                              {squad.type === 'manual' ? 'MANUAL' : 'AUTO'}
+                            </Text>
+                          </View>
+                        </View>
+
+                        {squad.function && (
+                          <Text className="text-gray-500 dark:text-slate-400 text-xs mb-2">
+                            {squad.function}
+                          </Text>
+                        )}
+
+                        {/* Other squad members */}
+                        {squadMembers.length > 0 && (
+                          <View className="flex-row flex-wrap gap-1.5 mt-2">
+                            {squadMembers.map(squadMember => (
+                              <View
+                                key={squadMember.id}
+                                className="bg-white dark:bg-slate-800 px-2 py-1 rounded-full flex-row items-center gap-1"
+                              >
+                                <View
+                                  className="w-4 h-4 rounded-full items-center justify-center"
+                                  style={{ backgroundColor: (ROLE_COLORS[squadMember.role] || '#64748b') + '30' }}
+                                >
+                                  <Text
+                                    className="text-[8px] font-bold"
+                                    style={{ color: ROLE_COLORS[squadMember.role] || '#64748b' }}
+                                  >
+                                    {squadMember.name.split(' ')[0][0]}
+                                  </Text>
+                                </View>
+                                <Text className="text-gray-700 dark:text-slate-300 text-xs">
+                                  {squadMember.name.split(' ')[0]}
+                                </Text>
+                              </View>
+                            ))}
+                          </View>
+                        )}
+
+                        {/* Task count if any */}
+                        {squad.taskIds && squad.taskIds.length > 0 && (
+                          <Text className="text-gray-500 dark:text-slate-400 text-xs mt-2">
+                            Working on {squad.taskIds.length} task{squad.taskIds.length !== 1 ? 's' : ''}
+                          </Text>
+                        )}
+                      </View>
+                    );
+                  })}
+                </View>
               </View>
             )}
 
