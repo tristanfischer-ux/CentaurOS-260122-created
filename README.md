@@ -15,7 +15,13 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
 
 ## 🔄 Recent Updates (Jan 2026)
 
-### Decide Tab - Date Management (Latest)
+### Bug Fix - Team Member Data Consistency (Latest)
+- **Fixed Allocation Names**: Corrected member names in work plan allocations to match actual organization members
+  - Now all allocated team members appear correctly in the resource pool
+  - Fixed: exec-3 (David Park), exec-4 (Sophie Adams), apprentice-2 (Priya Sharma), apprentice-3 (James Wilson), apprentice-4 (Lily Chen)
+  - Resolves issue where task allocations showed people not visible in the resource pool
+
+### Decide Tab - Date Management
 - **Start and Delivery Dates**: Task allocation modal now includes date pickers
   - Edit start date and delivery date (due date) directly in the modal
   - Date pickers appear when you click on the date fields

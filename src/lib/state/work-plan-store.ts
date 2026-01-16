@@ -181,7 +181,7 @@ const INITIAL_WORK_PLANS: WorkPlan[] = [
     needsSubmission: false,
     estimatedTimeUnits: 6,
     allocations: [
-      { memberId: 'apprentice-2', memberName: 'Jordan Lee', squaresPerWeek: 3, costPerSquare: 50 }
+      { memberId: 'apprentice-2', memberName: 'Priya Sharma', squaresPerWeek: 3, costPerSquare: 50 }
     ],
     assignedMemberIds: ['apprentice-2'],
     appliedAITools: [],
@@ -232,7 +232,7 @@ const INITIAL_WORK_PLANS: WorkPlan[] = [
     estimatedTimeUnits: 10,
     allocatedTimeUnitsPerWeek: 2,
     allocations: [
-      { memberId: 'exec-3', memberName: 'Marcus Rodriguez', squaresPerWeek: 2, costPerSquare: 150 }
+      { memberId: 'exec-3', memberName: 'David Park', squaresPerWeek: 2, costPerSquare: 150 }
     ],
     assignedMemberIds: ['exec-3'],
     appliedAITools: [],
@@ -257,8 +257,8 @@ const INITIAL_WORK_PLANS: WorkPlan[] = [
     needsSubmission: false,
     estimatedTimeUnits: 12,
     allocations: [
-      { memberId: 'exec-3', memberName: 'Marcus Rodriguez', squaresPerWeek: 2, costPerSquare: 150 },
-      { memberId: 'apprentice-4', memberName: 'Casey Kim', squaresPerWeek: 4, costPerSquare: 50 }
+      { memberId: 'exec-3', memberName: 'David Park', squaresPerWeek: 2, costPerSquare: 150 },
+      { memberId: 'apprentice-4', memberName: 'Lily Chen', squaresPerWeek: 4, costPerSquare: 50 }
     ],
     assignedMemberIds: ['exec-3', 'apprentice-4'],
     appliedAITools: [
@@ -311,8 +311,8 @@ const INITIAL_WORK_PLANS: WorkPlan[] = [
     estimatedTimeUnits: 20,
     allocatedTimeUnitsPerWeek: 4,
     allocations: [
-      { memberId: 'exec-4', memberName: 'Thomas Anderson', squaresPerWeek: 2, costPerSquare: 175 },
-      { memberId: 'apprentice-3', memberName: 'Taylor Morgan', squaresPerWeek: 2, costPerSquare: 50 }
+      { memberId: 'exec-4', memberName: 'Sophie Adams', squaresPerWeek: 2, costPerSquare: 175 },
+      { memberId: 'apprentice-3', memberName: 'James Wilson', squaresPerWeek: 2, costPerSquare: 50 }
     ],
     assignedMemberIds: ['exec-4', 'apprentice-3'],
     appliedAITools: [],
