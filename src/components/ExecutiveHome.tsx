@@ -3,7 +3,7 @@
  * Multi-company view with domain-specific access for fractional executives
  */
 
-import { View, Text, ScrollView, Pressable, RefreshControl } from 'react-native';
+import { View, Text, ScrollView, Pressable, RefreshControl, Modal } from 'react-native';
 import { useState, useMemo } from 'react';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -33,6 +33,10 @@ import { useWorkPlanStore } from '@/lib/state/work-plan-store';
 import { useOrganizationStore } from '@/lib/state/organization-store';
 import { useOKRStore } from '@/lib/state/okr-store';
 import { useAppStore, useCurrentWorkspace } from '@/lib/state/app-store';
+import { useAllocationRequestStore } from '@/lib/state/allocation-request-store';
+
+// Components
+import { ExecutiveTeamDashboard } from '@/components/ExecutiveTeamDashboard';
 
 // Mock data for multi-company engagements (would come from backend in real app)
 const MOCK_ENGAGEMENTS = [
@@ -62,6 +66,7 @@ export function ExecutiveHome() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const [refreshing, setRefreshing] = useState(false);
+  const [showTeamDashboard, setShowTeamDashboard] = useState(false);
 
   // Get current user and workspace
   const currentUser = useAppStore((s) => s.currentUser);
@@ -71,6 +76,9 @@ export function ExecutiveHome() {
   const workPlans = useWorkPlanStore((s) => s.workPlans);
   const members = useOrganizationStore((s) => s.members);
   const okrs = useOKRStore((s) => s.okrs);
+
+  // Get pending allocation requests
+  const myRequests = useAllocationRequestStore((s) => s.getRequestsByRequester(currentUser?.id || ''));
 
   // Find the current user's member profile
   const myMember = useMemo(() => {
@@ -254,11 +262,14 @@ export function ExecutiveHome() {
                   My Apprentices
                 </Text>
               </View>
-              <View className="bg-emerald-100 dark:bg-emerald-900/30 px-2 py-1 rounded-full">
+              <Pressable
+                onPress={() => setShowTeamDashboard(true)}
+                className="bg-emerald-100 dark:bg-emerald-900/30 px-3 py-1 rounded-full"
+              >
                 <Text className="text-emerald-600 dark:text-emerald-400 text-xs font-bold">
-                  {myApprentices.length}
+                  Manage Team
                 </Text>
-              </View>
+              </Pressable>
             </View>
 
             <View className="flex-row gap-3">
@@ -496,6 +507,32 @@ export function ExecutiveHome() {
           </Pressable>
         </View>
       </ScrollView>
+
+      {/* Team Dashboard Modal */}
+      <Modal
+        visible={showTeamDashboard}
+        animationType="slide"
+        presentationStyle="pageSheet"
+        onRequestClose={() => setShowTeamDashboard(false)}
+      >
+        <View className="flex-1 bg-slate-50 dark:bg-slate-950">
+          {/* Modal Header */}
+          <View className="flex-row items-center justify-between px-4 py-4 border-b border-gray-200 dark:border-slate-800">
+            <Text className="text-gray-900 dark:text-white font-bold text-lg">
+              Team Management
+            </Text>
+            <Pressable
+              onPress={() => setShowTeamDashboard(false)}
+              className="bg-gray-100 dark:bg-slate-800 px-4 py-2 rounded-full"
+            >
+              <Text className="text-gray-700 dark:text-slate-300 font-medium">Done</Text>
+            </Pressable>
+          </View>
+
+          {/* Executive Team Dashboard */}
+          <ExecutiveTeamDashboard />
+        </View>
+      </Modal>
     </View>
   );
 }

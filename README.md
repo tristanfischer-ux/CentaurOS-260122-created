@@ -133,6 +133,44 @@ The app now supports three distinct user roles, each with a customized dashboard
 
 **Role Switcher**: Available in the header of the Home screen - tap to switch between views. Your data and access remain the same, only the dashboard perspective changes.
 
+### Role-Based Permissions & Access Control (New)
+The app now enforces role-based permissions throughout the entire experience:
+
+#### **Founder Permissions**
+- **Full Visibility**: All costs, budgets, financial metrics, team utilization
+- **Full Actions**: Create/edit/delete tasks, objectives, allocate resources without approval
+- **Approval Authority**: Approve/reject allocation requests from executives
+- **Delegation Settings**: Configure how much authority executives have
+  - Direct Report Delegation: Let execs allocate their direct reports without approval
+  - Full Delegation: Let execs allocate ANY apprentice without approval
+
+#### **Fractional Executive Permissions**
+- **Limited Visibility**: Can see AI/supplier costs, but NOT personnel costs or financial metrics
+- **Team Management**: View team roster, availability, utilization rates
+- **Resource Allocation**: Request allocation of apprentices to tasks
+  - Direct reports: Can allocate (approval may be required based on delegation settings)
+  - Other apprentices: Always requires founder approval
+- **Strategic Planning**: Create tasks, define objectives, submit recommendations with task breakdowns
+
+#### **Apprentice Permissions**
+- **Task-Focused**: Clear view of assigned tasks, status, and progress
+- **Squad Awareness**: See squad assignment and team members
+- **Company Overview**: General awareness of company activity (high-level)
+- **Cost Restrictions**: No access to:
+  - Personnel costs
+  - Budget information
+  - Financial metrics
+  - Exception: Can see AI service and supplier/vendor costs
+
+#### **Resource Allocation Request System**
+When executives need resources from apprentices outside their direct reports:
+1. Executive taps "Request Allocation" on an available apprentice
+2. Specifies time units per week, duration, and justification
+3. Request sent to founder's Approval Panel
+4. Founder sees pending requests on their home screen
+5. Founder can approve or reject with optional note
+6. If delegation is enabled, requests may auto-approve
+
 ### New Tab Structure
 The app has been completely restructured into 6 intuitive tabs following a natural workflow:
 

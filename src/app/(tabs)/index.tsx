@@ -57,6 +57,10 @@ import {
   PerformanceDashboardGrid,
 } from '@/components/home';
 
+// Role-based components
+import { FounderApprovalPanel } from '@/components/FounderApprovalPanel';
+import { seedAllocationRequests } from '@/lib/state/allocation-request-store';
+
 const HOME_HELP: HelpContent = {
   title: 'Mission Control',
   subtitle: 'Your Executive Command Center',
@@ -128,6 +132,7 @@ function FounderHome() {
     initializeDecisions();
     initializeObjectives();
     autoSeedDemoDataIfNeeded();
+    seedAllocationRequests(); // Seed sample allocation requests for demo
     if (suppliers.length === 0) {
       initializeSuppliers();
     }
@@ -244,6 +249,11 @@ function FounderHome() {
         {/* ===== 1. URGENT DECISIONS (Top Priority) ===== */}
         <View className="px-5 pt-5">
           <UrgentDecisionsSection />
+        </View>
+
+        {/* ===== FOUNDER APPROVAL PANEL (Allocation Requests) ===== */}
+        <View className="pt-4">
+          <FounderApprovalPanel />
         </View>
 
         {/* ===== 2. BUSINESS OBJECTIVES ===== */}
