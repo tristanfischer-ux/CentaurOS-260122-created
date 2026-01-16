@@ -15,6 +15,67 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
 
 ## 🔄 Recent Updates (Jan 2026)
 
+### Enhanced Who Tab - Candidate Hiring System (Latest)
+The Who tab has been significantly enhanced with powerful hiring and comparison features:
+
+**"Available to Hire" Badges:**
+- Executives and Apprentices in the hiring tabs now display a prominent green "AVAILABLE TO HIRE" badge
+- Clear distinction between existing team members and available candidates
+
+**Candidate Comparison Feature:**
+- Compare up to 3 candidates side-by-side
+- Tap the scale icon on any candidate card to add to comparison
+- Floating "Compare X Candidates" button appears when candidates are selected
+- Comparison modal shows:
+  - Candidate avatars with remove option
+  - Rating, Experience, Day Rate, Availability, Skills count, Function comparison grid
+  - Quick contact buttons (Call, Email) for each candidate
+  - Hire/Request buttons for each candidate
+
+**Contact Options:**
+- Every candidate card now has instant contact buttons:
+  - Call (green) - opens phone dialer
+  - Email (blue) - opens email client
+  - SMS (purple) - opens messaging
+- Contact options also available in comparison modal and detail views
+
+**Founder Approval Flow for Hiring:**
+- Founders can directly hire candidates with "Hire" button
+- Executives and Apprentices see "Request to Hire" button instead
+- Non-founders send approval requests to the Founder
+- Requests appear in the Founder's pending requests section
+- Founders can approve or reject hiring requests
+
+**Enhanced Shortlisting:**
+- Heart/favorite candidates to shortlist them
+- Shortlist count shown in header
+- Shortlisted status persists across sessions
+
+### Enhanced Tools Tab - Supplier & AI Management (Latest)
+The Tools tab has been enhanced with better organization and contact features:
+
+**Clear Separation:**
+- Suppliers tab with "Find New Suppliers" button
+- AI Agents tab with "Discover AI Tools" button
+- AI Tools marketplace tab
+
+**Supplier Engagement Enhancements:**
+- Task links in each supplier card - tap to navigate to What tab
+- Assigned team member display - tap to view person card
+- Expanded view shows:
+  - Supplier contact info with Call/Email/SMS buttons
+  - All linked tasks with progress percentages
+
+**Person Card Modal:**
+- View any team member's profile from supplier cards
+- Contact buttons: Call, Email, SMS
+- Shows email, team, start date, skills
+
+**Reach Out Feature:**
+- Find new suppliers by category (Manufacturing, Materials, Logistics, Professional Services)
+- Discover new AI tools with efficiency multipliers
+- Search functionality in both
+
 ### Executive Command Center Home Screen (Latest)
 The Founder Home screen has been completely redesigned as an executive command center with the following sections (top to bottom):
 

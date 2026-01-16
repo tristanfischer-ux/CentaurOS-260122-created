@@ -3,7 +3,7 @@
  * Team overview, resource pool, and recruitment
  */
 
-import { View, Text, ScrollView, Pressable, Modal, TextInput, Alert, Dimensions } from 'react-native';
+import { View, Text, ScrollView, Pressable, Modal, TextInput, Alert, Dimensions, Linking } from 'react-native';
 import { useState, useMemo, useEffect } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -39,6 +39,9 @@ import {
   AlertTriangle,
   Calendar,
   UsersRound,
+  MessageSquare,
+  Scale,
+  Sparkles,
 } from 'lucide-react-native';
 import { useOrganizationStore } from '@/lib/state/organization-store';
 import { useWorkPlanStore } from '@/lib/state/work-plan-store';
@@ -179,6 +182,10 @@ export default function WhoScreen() {
   // Shortlist
   const [shortlistedIds, setShortlistedIds] = useState<Set<string>>(new Set());
 
+  // Comparison feature (up to 3 people)
+  const [selectedForComparison, setSelectedForComparison] = useState<string[]>([]);
+  const [showCompareModal, setShowCompareModal] = useState(false);
+
   const isFounder = currentMembership?.role === 'Founder';
 
   // Group team members by role
@@ -301,13 +308,64 @@ export default function WhoScreen() {
     });
   };
 
+  const toggleComparison = (id: string) => {
+    setSelectedForComparison(prev => {
+      if (prev.includes(id)) {
+        return prev.filter(i => i !== id);
+      } else if (prev.length < 3) {
+        return [...prev, id];
+      } else {
+        Alert.alert('Limit Reached', 'You can compare up to 3 candidates at a time. Remove one to add another.');
+        return prev;
+      }
+    });
+  };
+
+  // Get all candidates for comparison lookup
+  const allCandidates = useMemo(() => {
+    return [...fractionalExecutives, ...apprentices];
+  }, []);
+
+  const candidatesForComparison = useMemo(() => {
+    return selectedForComparison.map(id => allCandidates.find(c => c.id === id)).filter(Boolean) as Candidate[];
+  }, [selectedForComparison, allCandidates]);
+
+  const createRequest = useMarketplaceRequestsStore(s => s.createRequest);
+
   const handleHireCandidate = (candidate: Candidate) => {
-    if (!isFounder) {
-      Alert.alert('Access Denied', 'Only founders can hire team members.');
-      return;
+    if (isFounder) {
+      // Founder can hire directly
+      setSelectedCandidate(candidate);
+      setShowHireModal(true);
+    } else {
+      // Non-founder must request approval
+      Alert.alert(
+        'Request Approval',
+        `Send a request to the Founder to hire ${candidate.name}?`,
+        [
+          { text: 'Cancel', style: 'cancel' },
+          {
+            text: 'Send Request',
+            onPress: () => {
+              if (currentWorkspace) {
+                createRequest({
+                  workspaceId: currentWorkspace.id,
+                  candidateId: candidate.id,
+                  candidateName: candidate.name,
+                  candidateRole: candidate.role === 'FractionalExec' ? 'FractionalExec' : 'Apprentice',
+                  candidateFunction: candidate.specialization[0] || 'Ops',
+                  requestedBy: currentMembership?.id || 'unknown',
+                  proposedDaysPerWeek: candidate.role === 'FractionalExec' ? 2 : 5,
+                  proposedDayRate: candidate.costPerDay,
+                  notes: `Request to hire ${candidate.name} as ${candidate.role === 'FractionalExec' ? 'Fractional Executive' : 'Apprentice'}`,
+                });
+                Alert.alert('Request Sent', 'Your request has been sent to the Founder for approval.');
+              }
+            },
+          },
+        ]
+      );
     }
-    setSelectedCandidate(candidate);
-    setShowHireModal(true);
   };
 
   const toggleSection = (role: string) => {
@@ -467,6 +525,7 @@ export default function WhoScreen() {
   // Candidate card component
   const CandidateCard = ({ candidate, index }: { candidate: Candidate & { score: TalentScore }; index: number }) => {
     const isShortlisted = shortlistedIds.has(candidate.id);
+    const isSelectedForCompare = selectedForComparison.includes(candidate.id);
     const roleColor = candidate.role === 'FractionalExec' ? '#3b82f6' : '#10b981';
 
     return (
@@ -477,8 +536,15 @@ export default function WhoScreen() {
           setShowCandidateModal(true);
         }}
         className="bg-white dark:bg-slate-800 rounded-xl p-4 mb-3 active:opacity-80"
+        style={isSelectedForCompare ? { borderWidth: 2, borderColor: '#8b5cf6' } : undefined}
       >
-        <View className="flex-row items-start">
+        {/* Available to Hire Badge */}
+        <View className="absolute -top-2 right-3 bg-emerald-500 px-2.5 py-0.5 rounded-full flex-row items-center gap-1">
+          <Sparkles size={10} color="#fff" />
+          <Text className="text-white text-[10px] font-bold">AVAILABLE TO HIRE</Text>
+        </View>
+
+        <View className="flex-row items-start mt-2">
           {/* Avatar with score badge */}
           <View className="mr-3">
             <View
@@ -507,13 +573,32 @@ export default function WhoScreen() {
               <Text className="text-slate-900 dark:text-white font-semibold text-base">
                 {candidate.name}
               </Text>
-              <Pressable onPress={() => toggleShortlist(candidate.id)} className="p-1">
-                <Heart
-                  size={18}
-                  color={isShortlisted ? '#ef4444' : '#94a3b8'}
-                  fill={isShortlisted ? '#ef4444' : 'transparent'}
-                />
-              </Pressable>
+              <View className="flex-row items-center gap-2">
+                {/* Compare toggle */}
+                <Pressable
+                  onPress={(e) => {
+                    e.stopPropagation();
+                    toggleComparison(candidate.id);
+                  }}
+                  className={`p-1.5 rounded-lg ${isSelectedForCompare ? 'bg-purple-100 dark:bg-purple-900/30' : 'bg-slate-100 dark:bg-slate-700'}`}
+                >
+                  <Scale size={16} color={isSelectedForCompare ? '#8b5cf6' : '#94a3b8'} />
+                </Pressable>
+                {/* Heart/shortlist */}
+                <Pressable
+                  onPress={(e) => {
+                    e.stopPropagation();
+                    toggleShortlist(candidate.id);
+                  }}
+                  className="p-1"
+                >
+                  <Heart
+                    size={18}
+                    color={isShortlisted ? '#ef4444' : '#94a3b8'}
+                    fill={isShortlisted ? '#ef4444' : 'transparent'}
+                  />
+                </Pressable>
+              </View>
             </View>
 
             <View className="flex-row items-center gap-2 mt-1">
@@ -551,15 +636,54 @@ export default function WhoScreen() {
           </View>
         </View>
 
-        {/* Quick hire button */}
-        {isFounder && (
+        {/* Contact buttons */}
+        <View className="flex-row gap-2 mt-3 pt-3 border-t border-slate-100 dark:border-slate-700">
           <Pressable
-            onPress={() => handleHireCandidate(candidate)}
-            className="mt-3 bg-blue-500 rounded-lg py-2 items-center active:opacity-80"
+            onPress={(e) => {
+              e.stopPropagation();
+              Linking.openURL(`tel:${candidate.phone}`);
+            }}
+            className="flex-1 bg-green-500/10 rounded-lg py-2 flex-row items-center justify-center gap-1.5 active:opacity-70"
           >
-            <Text className="text-white font-semibold text-sm">Hire {candidate.name.split(' ')[0]}</Text>
+            <Phone size={14} color="#22c55e" />
+            <Text className="text-green-600 dark:text-green-400 text-xs font-medium">Call</Text>
           </Pressable>
-        )}
+          <Pressable
+            onPress={(e) => {
+              e.stopPropagation();
+              Linking.openURL(`mailto:${candidate.email}`);
+            }}
+            className="flex-1 bg-blue-500/10 rounded-lg py-2 flex-row items-center justify-center gap-1.5 active:opacity-70"
+          >
+            <Mail size={14} color="#3b82f6" />
+            <Text className="text-blue-600 dark:text-blue-400 text-xs font-medium">Email</Text>
+          </Pressable>
+          <Pressable
+            onPress={(e) => {
+              e.stopPropagation();
+              Linking.openURL(`sms:${candidate.phone}`);
+            }}
+            className="flex-1 bg-purple-500/10 rounded-lg py-2 flex-row items-center justify-center gap-1.5 active:opacity-70"
+          >
+            <MessageSquare size={14} color="#a855f7" />
+            <Text className="text-purple-600 dark:text-purple-400 text-xs font-medium">SMS</Text>
+          </Pressable>
+        </View>
+
+        {/* Action button - Hire for founders, Request for others */}
+        <Pressable
+          onPress={(e) => {
+            e.stopPropagation();
+            handleHireCandidate(candidate);
+          }}
+          className={`mt-3 rounded-lg py-2.5 items-center active:opacity-80 ${
+            isFounder ? 'bg-blue-500' : 'bg-amber-500'
+          }`}
+        >
+          <Text className="text-white font-semibold text-sm">
+            {isFounder ? `Hire ${candidate.name.split(' ')[0]}` : `Request to Hire`}
+          </Text>
+        </Pressable>
       </AnimatedPressable>
     );
   };
@@ -1355,6 +1479,241 @@ export default function WhoScreen() {
           </View>
         )}
       </ScrollView>
+
+      {/* Floating Compare Button */}
+      {selectedForComparison.length > 0 && (activeTab === 'executives' || activeTab === 'apprentices') && (
+        <Animated.View
+          entering={FadeInDown.springify()}
+          className="absolute bottom-24 left-5 right-5"
+        >
+          <Pressable
+            onPress={() => setShowCompareModal(true)}
+            className="bg-purple-500 rounded-xl py-4 flex-row items-center justify-center gap-2 active:opacity-80"
+            style={{
+              shadowColor: '#8b5cf6',
+              shadowOffset: { width: 0, height: 4 },
+              shadowOpacity: 0.3,
+              shadowRadius: 8,
+              elevation: 8,
+            }}
+          >
+            <Scale size={20} color="#fff" />
+            <Text className="text-white font-bold text-base">
+              Compare {selectedForComparison.length} Candidate{selectedForComparison.length !== 1 ? 's' : ''}
+            </Text>
+          </Pressable>
+        </Animated.View>
+      )}
+
+      {/* Comparison Modal */}
+      <Modal
+        visible={showCompareModal}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setShowCompareModal(false)}
+      >
+        <Pressable className="flex-1 bg-black/70" onPress={() => setShowCompareModal(false)}>
+          <View className="flex-1" />
+          <Pressable onPress={(e) => e.stopPropagation()} style={{ maxHeight: '95%' }}>
+            <View className="bg-white dark:bg-slate-900 rounded-t-3xl">
+              {/* Handle */}
+              <View className="items-center py-3">
+                <View className="w-10 h-1 bg-slate-200 dark:bg-slate-700 rounded-full" />
+              </View>
+
+              <ScrollView contentContainerStyle={{ paddingBottom: insets.bottom + 20 }}>
+                {/* Header */}
+                <View className="px-5 pb-4 flex-row items-center justify-between">
+                  <View>
+                    <Text className="text-slate-900 dark:text-white text-xl font-bold">
+                      Compare Candidates
+                    </Text>
+                    <Text className="text-slate-500 dark:text-slate-400 text-sm">
+                      {candidatesForComparison.length} selected
+                    </Text>
+                  </View>
+                  <Pressable
+                    onPress={() => setSelectedForComparison([])}
+                    className="bg-slate-100 dark:bg-slate-800 px-3 py-2 rounded-lg"
+                  >
+                    <Text className="text-slate-600 dark:text-slate-300 text-sm font-medium">Clear All</Text>
+                  </Pressable>
+                </View>
+
+                {candidatesForComparison.length > 0 && (
+                  <View className="px-5">
+                    {/* Candidate avatars row */}
+                    <View className="flex-row justify-around mb-4">
+                      {candidatesForComparison.map((c) => (
+                        <View key={c.id} className="items-center">
+                          <View
+                            className="w-16 h-16 rounded-full items-center justify-center mb-2"
+                            style={{ backgroundColor: c.role === 'FractionalExec' ? '#3b82f620' : '#10b98120' }}
+                          >
+                            <Text
+                              style={{ color: c.role === 'FractionalExec' ? '#3b82f6' : '#10b981' }}
+                              className="font-bold text-lg"
+                            >
+                              {c.name.split(' ').map(n => n[0]).join('')}
+                            </Text>
+                          </View>
+                          <Text className="text-slate-900 dark:text-white font-semibold text-sm text-center">
+                            {c.name.split(' ')[0]}
+                          </Text>
+                          <Pressable
+                            onPress={() => toggleComparison(c.id)}
+                            className="mt-1 p-1"
+                          >
+                            <X size={14} color="#ef4444" />
+                          </Pressable>
+                        </View>
+                      ))}
+                    </View>
+
+                    {/* Comparison Grid */}
+                    <View className="bg-slate-50 dark:bg-slate-800 rounded-xl overflow-hidden">
+                      {/* Rating */}
+                      <View className="flex-row border-b border-slate-200 dark:border-slate-700">
+                        <View className="w-24 p-3 bg-slate-100 dark:bg-slate-700">
+                          <Text className="text-slate-600 dark:text-slate-300 text-xs font-medium">Rating</Text>
+                        </View>
+                        {candidatesForComparison.map((c) => (
+                          <View key={c.id} className="flex-1 p-3 items-center">
+                            <View className="flex-row items-center gap-1">
+                              <Star size={12} color="#f59e0b" fill="#f59e0b" />
+                              <Text className="text-slate-900 dark:text-white font-semibold">{c.rating}</Text>
+                            </View>
+                          </View>
+                        ))}
+                      </View>
+
+                      {/* Experience */}
+                      <View className="flex-row border-b border-slate-200 dark:border-slate-700">
+                        <View className="w-24 p-3 bg-slate-100 dark:bg-slate-700">
+                          <Text className="text-slate-600 dark:text-slate-300 text-xs font-medium">Experience</Text>
+                        </View>
+                        {candidatesForComparison.map((c) => (
+                          <View key={c.id} className="flex-1 p-3 items-center">
+                            <Text className="text-slate-900 dark:text-white font-semibold">{c.experience} yrs</Text>
+                          </View>
+                        ))}
+                      </View>
+
+                      {/* Day Rate */}
+                      <View className="flex-row border-b border-slate-200 dark:border-slate-700">
+                        <View className="w-24 p-3 bg-slate-100 dark:bg-slate-700">
+                          <Text className="text-slate-600 dark:text-slate-300 text-xs font-medium">Day Rate</Text>
+                        </View>
+                        {candidatesForComparison.map((c) => (
+                          <View key={c.id} className="flex-1 p-3 items-center">
+                            <Text className="text-slate-900 dark:text-white font-semibold">£{c.costPerDay}</Text>
+                          </View>
+                        ))}
+                      </View>
+
+                      {/* Availability */}
+                      <View className="flex-row border-b border-slate-200 dark:border-slate-700">
+                        <View className="w-24 p-3 bg-slate-100 dark:bg-slate-700">
+                          <Text className="text-slate-600 dark:text-slate-300 text-xs font-medium">Availability</Text>
+                        </View>
+                        {candidatesForComparison.map((c) => (
+                          <View key={c.id} className="flex-1 p-3 items-center">
+                            <Text
+                              className="text-xs font-medium text-center"
+                              style={{ color: c.availability.toLowerCase().includes('now') ? '#10b981' : '#f59e0b' }}
+                            >
+                              {c.availability}
+                            </Text>
+                          </View>
+                        ))}
+                      </View>
+
+                      {/* Skills count */}
+                      <View className="flex-row border-b border-slate-200 dark:border-slate-700">
+                        <View className="w-24 p-3 bg-slate-100 dark:bg-slate-700">
+                          <Text className="text-slate-600 dark:text-slate-300 text-xs font-medium">Skills</Text>
+                        </View>
+                        {candidatesForComparison.map((c) => (
+                          <View key={c.id} className="flex-1 p-3 items-center">
+                            <Text className="text-slate-900 dark:text-white font-semibold">{c.skills.length}</Text>
+                          </View>
+                        ))}
+                      </View>
+
+                      {/* Function */}
+                      <View className="flex-row">
+                        <View className="w-24 p-3 bg-slate-100 dark:bg-slate-700">
+                          <Text className="text-slate-600 dark:text-slate-300 text-xs font-medium">Function</Text>
+                        </View>
+                        {candidatesForComparison.map((c) => (
+                          <View key={c.id} className="flex-1 p-3 items-center">
+                            <Text className="text-slate-700 dark:text-slate-300 text-xs text-center">
+                              {c.specialization.join(', ')}
+                            </Text>
+                          </View>
+                        ))}
+                      </View>
+                    </View>
+
+                    {/* Contact actions */}
+                    <View className="mt-4">
+                      <Text className="text-slate-500 dark:text-slate-400 text-xs font-medium mb-3">CONTACT</Text>
+                      <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                        <View className="flex-row gap-3">
+                          {candidatesForComparison.map((c) => (
+                            <View key={c.id} className="bg-white dark:bg-slate-800 rounded-xl p-3 w-32 items-center">
+                              <Text className="text-slate-900 dark:text-white font-semibold text-sm mb-2">
+                                {c.name.split(' ')[0]}
+                              </Text>
+                              <View className="flex-row gap-2">
+                                <Pressable
+                                  onPress={() => Linking.openURL(`tel:${c.phone}`)}
+                                  className="bg-green-100 dark:bg-green-900/30 p-2 rounded-lg"
+                                >
+                                  <Phone size={16} color="#22c55e" />
+                                </Pressable>
+                                <Pressable
+                                  onPress={() => Linking.openURL(`mailto:${c.email}`)}
+                                  className="bg-blue-100 dark:bg-blue-900/30 p-2 rounded-lg"
+                                >
+                                  <Mail size={16} color="#3b82f6" />
+                                </Pressable>
+                              </View>
+                            </View>
+                          ))}
+                        </View>
+                      </ScrollView>
+                    </View>
+
+                    {/* Hire actions */}
+                    <View className="mt-4">
+                      <Text className="text-slate-500 dark:text-slate-400 text-xs font-medium mb-3">
+                        {isFounder ? 'HIRE' : 'REQUEST TO HIRE'}
+                      </Text>
+                      {candidatesForComparison.map((c) => (
+                        <Pressable
+                          key={c.id}
+                          onPress={() => {
+                            setShowCompareModal(false);
+                            handleHireCandidate(c);
+                          }}
+                          className={`mb-2 rounded-xl py-3 flex-row items-center justify-center gap-2 active:opacity-80 ${
+                            isFounder ? 'bg-blue-500' : 'bg-amber-500'
+                          }`}
+                        >
+                          <Text className="text-white font-semibold">
+                            {isFounder ? `Hire ${c.name}` : `Request ${c.name}`}
+                          </Text>
+                        </Pressable>
+                      ))}
+                    </View>
+                  </View>
+                )}
+              </ScrollView>
+            </View>
+          </Pressable>
+        </Pressable>
+      </Modal>
     </View>
   );
 }
