@@ -37,6 +37,7 @@ import { useAllocationRequestStore } from '@/lib/state/allocation-request-store'
 
 // Components
 import { ExecutiveTeamDashboard } from '@/components/ExecutiveTeamDashboard';
+import { RoleSwitcher } from '@/components/RoleSwitcher';
 
 // Mock data for multi-company engagements (would come from backend in real app)
 const MOCK_ENGAGEMENTS = [
@@ -144,12 +145,15 @@ export function ExecutiveHome() {
               Welcome, {currentUser?.name?.split(' ')[0] || 'Executive'}
             </Text>
           </View>
-          <Pressable
-            onPress={() => router.push('/settings')}
-            className="bg-white/20 p-3 rounded-full"
-          >
-            <Settings size={20} color="white" />
-          </Pressable>
+          <View className="flex-row items-center gap-2">
+            <RoleSwitcher compact />
+            <Pressable
+              onPress={() => router.push('/settings')}
+              className="bg-white/20 p-3 rounded-full"
+            >
+              <Settings size={20} color="white" />
+            </Pressable>
+          </View>
         </View>
 
         {/* Quick Stats */}

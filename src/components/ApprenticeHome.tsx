@@ -31,6 +31,9 @@ import { useWorkPlanStore } from '@/lib/state/work-plan-store';
 import { useOrganizationStore } from '@/lib/state/organization-store';
 import { useAppStore } from '@/lib/state/app-store';
 
+// Components
+import { RoleSwitcher } from '@/components/RoleSwitcher';
+
 export function ApprenticeHome() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
@@ -112,12 +115,15 @@ export function ApprenticeHome() {
               Welcome, {currentUser?.name?.split(' ')[0] || 'Apprentice'}
             </Text>
           </View>
-          <Pressable
-            onPress={() => router.push('/profile')}
-            className="bg-white/20 p-3 rounded-full"
-          >
-            <User size={20} color="white" />
-          </Pressable>
+          <View className="flex-row items-center gap-2">
+            <RoleSwitcher compact />
+            <Pressable
+              onPress={() => router.push('/profile')}
+              className="bg-white/20 p-3 rounded-full"
+            >
+              <User size={20} color="white" />
+            </Pressable>
+          </View>
         </View>
 
         {/* Quick Stats */}
