@@ -137,6 +137,15 @@ export default function WhoScreen() {
   const members = useOrganizationStore(s => s.members);
   const addMember = useOrganizationStore(s => s.addMember);
   const workPlans = useWorkPlanStore(s => s.workPlans);
+
+  // Debug logging
+  useEffect(() => {
+    console.log('[Who] Members count:', members.length);
+    console.log('[Who] Active members:', members.filter(m => m.status === 'active').length);
+    if (members.length > 0) {
+      console.log('[Who] First member:', members[0].name);
+    }
+  }, [members]);
   const requests = useMarketplaceRequestsStore(s => s.requests);
   const approveRequest = useMarketplaceRequestsStore(s => s.approveRequest);
   const rejectRequest = useMarketplaceRequestsStore(s => s.rejectRequest);
