@@ -29,6 +29,7 @@ import { useResourceStore, type PersonResource, getTeamSizeEfficiency } from '@/
 import { ResourcePoolHeader } from '@/components/ResourcePoolHeader';
 import { TaskDetailsModal } from '@/components/TaskDetailsModal';
 import { identifyTUOpportunities, type TUOpportunity } from '@/lib/reports/tu-analytics';
+import { calculateEndDate, calculateCompletionDays } from '@/lib/task-timeline-calculator';
 
 // Team efficiency types
 
@@ -554,7 +555,8 @@ export default function DecideScreen() {
   const handleTaskPress = useCallback((task: WorkPlan) => {
     if (selectedPersonId) {
       // Allocation mode: allocate person's TUs to this task
-      const member = useOrganizationStore.getState().members.find(m => m.id === selectedPersonId);
+      const allMembers = useOrganizationStore.getState().members;
+      const member = allMembers.find(m => m.id === selectedPersonId);
       if (!member) return;
 
       // Calculate available TUs for this person
@@ -593,10 +595,20 @@ export default function DecideScreen() {
             }
           ];
 
+      // Calculate new end date
+      const newEndDate = calculateEndDate(
+        task.startDate,
+        task.estimatedTimeUnits,
+        newAllocations,
+        allMembers,
+        task.appliedAITools || []
+      );
+
       updateWorkPlan(task.id, {
         allocations: newAllocations,
         assignedMemberIds: newAllocations.map(a => a.memberId),
         status: 'in-progress' as const,
+        dueDate: newEndDate,
       });
 
       // Clear selection after allocation
@@ -617,7 +629,8 @@ export default function DecideScreen() {
     const task = workPlans.find(wp => wp.id === taskId);
     if (!task) return;
 
-    const member = useOrganizationStore.getState().members.find(m => m.id === memberId);
+    const allMembers = useOrganizationStore.getState().members;
+    const member = allMembers.find(m => m.id === memberId);
     if (!member) return;
 
     // Calculate available TUs for this person
@@ -639,9 +652,19 @@ export default function DecideScreen() {
     if (newAmount <= 0) {
       const newAllocations = task.allocations.filter(a => a.memberId !== memberId);
 
+      // Calculate new end date
+      const newEndDate = calculateEndDate(
+        task.startDate,
+        task.estimatedTimeUnits,
+        newAllocations,
+        allMembers,
+        task.appliedAITools || []
+      );
+
       updateWorkPlan(taskId, {
         allocations: newAllocations,
         assignedMemberIds: newAllocations.map(a => a.memberId),
+        dueDate: newEndDate,
         // If no one is allocated, move to not-started
         status: newAllocations.length === 0 ? 'not-started' : task.status,
       });
@@ -651,6 +674,7 @@ export default function DecideScreen() {
         ...prev,
         allocations: newAllocations,
         assignedMemberIds: newAllocations.map(a => a.memberId),
+        dueDate: newEndDate,
         status: newAllocations.length === 0 ? 'not-started' : prev.status,
       } : null);
       return;
@@ -668,13 +692,27 @@ export default function DecideScreen() {
         : a
     );
 
+    // Calculate new end date
+    const newEndDate = calculateEndDate(
+      task.startDate,
+      task.estimatedTimeUnits,
+      newAllocations,
+      allMembers,
+      task.appliedAITools || []
+    );
+
     updateWorkPlan(taskId, {
       allocations: newAllocations,
       assignedMemberIds: newAllocations.map(a => a.memberId),
+      dueDate: newEndDate,
     });
 
     // Update the selected task state to reflect changes
-    setSelectedTaskForAllocation(prev => prev ? { ...prev, allocations: newAllocations } : null);
+    setSelectedTaskForAllocation(prev => prev ? {
+      ...prev,
+      allocations: newAllocations,
+      dueDate: newEndDate,
+    } : null);
   }, [workPlans, updateWorkPlan]);
 
   // Adjust estimated time units (Required field)
@@ -690,13 +728,29 @@ export default function DecideScreen() {
       return;
     }
 
+    const allMembers = useOrganizationStore.getState().members;
+
+    // Calculate new end date
+    const newEndDate = calculateEndDate(
+      task.startDate,
+      newEstimatedTimeUnits,
+      task.allocations,
+      allMembers,
+      task.appliedAITools || []
+    );
+
     // Update work plan
     updateWorkPlan(taskId, {
       estimatedTimeUnits: newEstimatedTimeUnits,
+      dueDate: newEndDate,
     });
 
     // Update the selected task state to reflect changes
-    setSelectedTaskForAllocation(prev => prev ? { ...prev, estimatedTimeUnits: newEstimatedTimeUnits } : null);
+    setSelectedTaskForAllocation(prev => prev ? {
+      ...prev,
+      estimatedTimeUnits: newEstimatedTimeUnits,
+      dueDate: newEndDate,
+    } : null);
   }, [workPlans, updateWorkPlan]);
 
   // Confirm allocation changes

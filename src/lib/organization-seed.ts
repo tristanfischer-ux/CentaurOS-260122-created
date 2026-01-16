@@ -23,6 +23,11 @@ export interface OrganizationMember {
   linkedIn?: string; // LinkedIn profile URL
   bio?: string; // Professional bio
 
+  // Performance Modifiers
+  teamLeadershipMultiplier?: number; // How well they lead teams (1.0 = neutral, 1.2 = +20% faster, 0.8 = -20% slower)
+  collaborationMultiplier?: number; // How well they work with others (1.0 = neutral, 1.15 = +15% faster, 0.9 = -10% slower)
+  aiProficiencyMultiplier?: number; // How effectively they use AI tools (1.0 = neutral, 1.5 = +50% faster with AI, 0.7 = -30% slower with AI)
+
   // AI Readiness & Loadout (NEW)
   aiReadiness?: AIReadiness; // AI comfort level & constraints
   aiLoadout?: PersonLoadout; // Equipped AI tools per slot
@@ -126,6 +131,9 @@ export const ORGANIZATION_MEMBERS: OrganizationMember[] = [
     status: 'active',
     linkedIn: 'https://www.linkedin.com/in/sarahchen',
     bio: 'Serial entrepreneur with 15+ years in hardware startups. Previously founded two successful IoT companies. Passionate about lean operations and fractional teams.',
+    teamLeadershipMultiplier: 1.25, // Excellent team leader
+    collaborationMultiplier: 1.15, // Works very well with others
+    aiProficiencyMultiplier: 1.3, // Strong AI adopter
   },
   {
     workspaceId: DEFAULT_WORKSPACE_ID,
@@ -140,6 +148,9 @@ export const ORGANIZATION_MEMBERS: OrganizationMember[] = [
     status: 'active',
     linkedIn: 'https://www.linkedin.com/in/marcusthompson',
     bio: 'Product leader with deep hardware engineering background. Ex-Dyson, ex-Apple. Specializes in design for manufacturability and rapid prototyping.',
+    teamLeadershipMultiplier: 1.20, // Strong team leader
+    collaborationMultiplier: 1.10, // Good collaborator
+    aiProficiencyMultiplier: 1.25, // Good with AI tools
   },
 
   // Fractional Executives
@@ -159,6 +170,9 @@ export const ORGANIZATION_MEMBERS: OrganizationMember[] = [
     status: 'active',
     linkedIn: 'https://www.linkedin.com/in/jordanmartinez',
     bio: 'Fractional CFO with 12 years experience. Helped 20+ startups raise Series A funding. Expert in financial modeling and unit economics.',
+    teamLeadershipMultiplier: 1.15, // Good team leader
+    collaborationMultiplier: 1.20, // Excellent collaborator
+    aiProficiencyMultiplier: 1.40, // Very proficient with AI
   },
   {
     workspaceId: DEFAULT_WORKSPACE_ID,
@@ -176,6 +190,9 @@ export const ORGANIZATION_MEMBERS: OrganizationMember[] = [
     status: 'active',
     linkedIn: 'https://www.linkedin.com/in/emmarichardson',
     bio: 'Enterprise sales leader with £50M+ closed. Built sales teams from 0 to 15. Specializes in B2B manufacturing and industrial markets.',
+    teamLeadershipMultiplier: 1.30, // Exceptional team leader
+    collaborationMultiplier: 1.25, // Excellent collaborator
+    aiProficiencyMultiplier: 1.20, // Good with AI
   },
   {
     workspaceId: DEFAULT_WORKSPACE_ID,
@@ -193,6 +210,9 @@ export const ORGANIZATION_MEMBERS: OrganizationMember[] = [
     status: 'active',
     linkedIn: 'https://www.linkedin.com/in/davidpark',
     bio: 'Former CTO at Series B hardware startup. 18 years in embedded systems and IoT. Led teams of 30+ engineers. Expert in manufacturing scale-up.',
+    teamLeadershipMultiplier: 1.20, // Strong team leader
+    collaborationMultiplier: 1.10, // Good collaborator
+    aiProficiencyMultiplier: 1.35, // Very proficient with AI tools
   },
   {
     workspaceId: DEFAULT_WORKSPACE_ID,
@@ -210,6 +230,9 @@ export const ORGANIZATION_MEMBERS: OrganizationMember[] = [
     status: 'active',
     linkedIn: 'https://www.linkedin.com/in/sophieadams',
     bio: 'Growth marketing specialist for hardware products. 10 years in consumer electronics marketing. Led launches for 5 successful Kickstarter campaigns.',
+    teamLeadershipMultiplier: 1.10, // Decent team leader
+    collaborationMultiplier: 1.15, // Good collaborator
+    aiProficiencyMultiplier: 1.50, // Excellent with AI tools
   },
 
   // Apprentices
@@ -227,6 +250,9 @@ export const ORGANIZATION_MEMBERS: OrganizationMember[] = [
     status: 'active',
     linkedIn: 'https://www.linkedin.com/in/alexrivera',
     bio: 'Finance graduate eager to learn startup financial operations. Strong Excel skills and quick learner. Passionate about building unit economics models.',
+    teamLeadershipMultiplier: 0.90, // Still learning leadership
+    collaborationMultiplier: 1.05, // Decent collaborator
+    aiProficiencyMultiplier: 1.25, // Good with AI tools
   },
   {
     workspaceId: DEFAULT_WORKSPACE_ID,
@@ -242,6 +268,9 @@ export const ORGANIZATION_MEMBERS: OrganizationMember[] = [
     status: 'active',
     linkedIn: 'https://www.linkedin.com/in/priyasharma',
     bio: 'Accounting background with interest in startup finance. Detail-oriented and methodical. Learning financial modeling and fundraising processes.',
+    teamLeadershipMultiplier: 0.85, // Still developing leadership
+    collaborationMultiplier: 1.10, // Good collaborator
+    aiProficiencyMultiplier: 1.15, // Decent with AI
   },
   {
     workspaceId: DEFAULT_WORKSPACE_ID,
@@ -257,6 +286,9 @@ export const ORGANIZATION_MEMBERS: OrganizationMember[] = [
     status: 'active',
     linkedIn: 'https://www.linkedin.com/in/jameswilson',
     bio: 'Natural communicator with 2 years in B2B sales. Consistently exceeds outreach targets. Learning enterprise sales methodology.',
+    teamLeadershipMultiplier: 0.95, // Learning leadership
+    collaborationMultiplier: 1.15, // Good collaborator
+    aiProficiencyMultiplier: 1.30, // Strong with AI
   },
   {
     workspaceId: DEFAULT_WORKSPACE_ID,
@@ -272,6 +304,9 @@ export const ORGANIZATION_MEMBERS: OrganizationMember[] = [
     status: 'active',
     linkedIn: 'https://www.linkedin.com/in/lilychen',
     bio: 'Business development enthusiast with strong relationship-building skills. Previous experience in customer success. Learning complex sales cycles.',
+    teamLeadershipMultiplier: 0.90, // Still learning leadership
+    collaborationMultiplier: 1.20, // Excellent collaborator
+    aiProficiencyMultiplier: 1.20, // Good with AI
   },
   {
     workspaceId: DEFAULT_WORKSPACE_ID,
@@ -287,6 +322,9 @@ export const ORGANIZATION_MEMBERS: OrganizationMember[] = [
     status: 'active',
     linkedIn: 'https://www.linkedin.com/in/omarhassan',
     bio: 'Computer engineering graduate with embedded systems interest. Strong C++ and Python skills. Learning hardware-software integration.',
+    teamLeadershipMultiplier: 0.80, // Limited leadership experience
+    collaborationMultiplier: 1.00, // Neutral collaborator
+    aiProficiencyMultiplier: 1.45, // Very good with AI (technical background)
   },
   {
     workspaceId: DEFAULT_WORKSPACE_ID,
@@ -302,6 +340,9 @@ export const ORGANIZATION_MEMBERS: OrganizationMember[] = [
     status: 'active',
     linkedIn: 'https://www.linkedin.com/in/mayapatel',
     bio: 'Electronics engineering background. Experienced with PCB design and microcontrollers. Learning manufacturing processes and DFM principles.',
+    teamLeadershipMultiplier: 0.85, // Developing leadership
+    collaborationMultiplier: 1.05, // Decent collaborator
+    aiProficiencyMultiplier: 1.40, // Very good with AI (technical)
   },
   {
     workspaceId: DEFAULT_WORKSPACE_ID,
@@ -317,6 +358,9 @@ export const ORGANIZATION_MEMBERS: OrganizationMember[] = [
     status: 'active',
     linkedIn: 'https://www.linkedin.com/in/lucassilva',
     bio: 'Marketing graduate with social media and content creation skills. Creative mindset with data-driven approach. Learning product marketing for hardware.',
+    teamLeadershipMultiplier: 0.90, // Learning leadership
+    collaborationMultiplier: 1.10, // Good collaborator
+    aiProficiencyMultiplier: 1.55, // Excellent with AI (creative tools)
   },
 ];
 

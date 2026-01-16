@@ -15,7 +15,27 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
 
 ## 🔄 Recent Updates (Jan 2026)
 
-### Bug Fix - Team Member Data Consistency (Latest)
+### Dynamic Task Timeline Calculator (Latest)
+- **Intelligent End Date Calculation**: Delivery dates now update automatically based on team composition and modifiers
+  - **Team Size Efficiency Penalty**: Larger teams have coordination overhead (Brooks' Law)
+    - 1 person = 100% efficiency
+    - 2 people = 95% efficiency
+    - 3 people = 90% efficiency
+    - 4 people = 85% efficiency
+    - 5+ people = 80% efficiency
+  - **Individual Performance Modifiers** (visible on person cards):
+    - `teamLeadershipMultiplier`: How well they lead teams (0.8-1.3x)
+    - `collaborationMultiplier`: How well they work with others (1.0-1.25x)
+    - `aiProficiencyMultiplier`: How effectively they use AI tools (1.15-1.55x)
+  - **AI Tool Multipliers**: Applied AI tools boost productivity (2x, 5x, 10x, 20x)
+  - **Real-time Updates**: Delivery date recalculates when you:
+    - Add or remove team members
+    - Adjust TU allocations with +/- buttons
+    - Change estimated TUs required
+    - Add AI tools to the task
+  - All modifiers are stored on `OrganizationMember` and apply universally across the app
+
+### Bug Fix - Team Member Data Consistency
 - **Fixed Allocation Names**: Corrected member names in work plan allocations to match actual organization members
   - Now all allocated team members appear correctly in the resource pool
   - Fixed: exec-3 (David Park), exec-4 (Sophie Adams), apprentice-2 (Priya Sharma), apprentice-3 (James Wilson), apprentice-4 (Lily Chen)
