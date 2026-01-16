@@ -9,6 +9,7 @@ interface MiniGanttChartProps {
   members: OrganizationMember[];
   selectedTaskId?: string;
   onTaskPress?: (taskId: string) => void;
+  fillAvailableSpace?: boolean;
 }
 
 // Calculate week number from a date
@@ -45,7 +46,7 @@ const ROLE_COLORS: Record<string, string> = {
   Apprentice: '#10b981',
 };
 
-export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress }: MiniGanttChartProps) {
+export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress, fillAvailableSpace = false }: MiniGanttChartProps) {
   const today = useMemo(() => new Date(), []);
   const currentWeek = useMemo(() => getWeekNumber(today), [today]);
 
@@ -184,7 +185,7 @@ export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress
   }, []);
 
   return (
-    <View className="bg-white dark:bg-slate-900 border-t-2 border-gray-200 dark:border-slate-700">
+    <View className="flex-1 bg-white dark:bg-slate-900 border-t-2 border-gray-200 dark:border-slate-700">
       {/* Header - Compact with inline legend */}
       <View className="px-4 py-2 flex-row items-center justify-between border-b border-gray-200 dark:border-slate-700">
         <View className="flex-row items-center gap-3">
@@ -213,7 +214,7 @@ export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress
       </View>
 
       {/* Timeline Content */}
-      <View className="relative bg-white dark:bg-slate-900">
+      <View className="flex-1 relative bg-white dark:bg-slate-900">
         {/* Week Headers */}
         <ScrollView
           ref={headerScrollRef}
@@ -259,10 +260,12 @@ export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress
             headerScrollRef.current?.scrollTo({ x: offsetX, y: 0, animated: false });
           }}
           scrollEventThrottle={16}
+          contentContainerStyle={{ flexGrow: 1 }}
         >
           <ScrollView
             showsVerticalScrollIndicator={true}
-            style={{ maxHeight: TASK_HEIGHT * MAX_VISIBLE_TASKS + 10 }} // 5 tasks + compact padding
+            contentContainerStyle={{ flexGrow: 1 }}
+            style={fillAvailableSpace ? { flex: 1 } : { maxHeight: TASK_HEIGHT * MAX_VISIBLE_TASKS + 10 }}
           >
             <View style={{ width: WEEK_WIDTH * weeks.length }}>
               {/* Current week indicator line */}
