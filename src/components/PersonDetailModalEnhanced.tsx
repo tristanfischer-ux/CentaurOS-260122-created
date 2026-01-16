@@ -14,10 +14,12 @@ import {
   TrendingUp,
   Package,
   ChevronRight as ChevronRightIcon,
+  Users,
 } from 'lucide-react-native';
 import { type OrganizationMember } from '@/lib/organization-seed';
 import { useWorkPlanStore } from '@/lib/state/work-plan-store';
 import { useOrganizationStore } from '@/lib/state/organization-store';
+import { useSquadStore } from '@/lib/state/squad-store';
 
 interface PersonDetailModalEnhancedProps {
   visible: boolean;
@@ -57,10 +59,18 @@ export function PersonDetailModalEnhanced({
 
   const workPlans = useWorkPlanStore(s => s.workPlans);
   const updateMember = useOrganizationStore(s => s.updateMember);
+  const getSquadsByMember = useSquadStore(s => s.getSquadsByMember);
+  const allMembers = useOrganizationStore(s => s.members);
 
   const currentMember = members[currentIndex] || null;
   const translateX = useSharedValue(0);
   const screenWidth = SCREEN_WIDTH;
+
+  // Get squads this member belongs to
+  const memberSquads = useMemo(() => {
+    if (!currentMember) return [];
+    return getSquadsByMember(currentMember.id);
+  }, [currentMember, getSquadsByMember]);
 
   // Calculate member's workload and capacity
   const memberData = useMemo(() => {
@@ -341,6 +351,71 @@ export function PersonDetailModalEnhanced({
                     </Text>
                   </View>
                 </View>
+
+                {/* Squad Membership */}
+                {memberSquads.length > 0 && (
+                  <View className="px-6 py-4 border-b border-gray-200 dark:border-slate-800">
+                    <View className="flex-row items-center gap-2 mb-3">
+                      <Users size={18} color="#8b5cf6" />
+                      <Text className="text-gray-900 dark:text-white font-bold text-base">
+                        Squad{memberSquads.length > 1 ? 's' : ''} ({memberSquads.length})
+                      </Text>
+                    </View>
+
+                    {memberSquads.map((squad) => {
+                      const otherMembers = squad.memberIds
+                        .filter(id => id !== currentMember.id)
+                        .map(id => allMembers.find(m => m.id === id))
+                        .filter((m): m is OrganizationMember => m !== undefined);
+
+                      return (
+                        <View
+                          key={squad.id}
+                          className="bg-white dark:bg-slate-800 border-2 rounded-xl p-3 mb-2"
+                          style={{ borderColor: squad.color || '#8b5cf6' }}
+                        >
+                          <View className="flex-row items-start justify-between mb-2">
+                            <View className="flex-1">
+                              <Text className="text-gray-900 dark:text-white font-semibold text-sm">
+                                {squad.name}
+                              </Text>
+                              {squad.function && (
+                                <Text className="text-gray-500 dark:text-slate-400 text-xs mt-0.5">
+                                  {squad.function}
+                                </Text>
+                              )}
+                            </View>
+                            <View
+                              className="px-2 py-1 rounded"
+                              style={{ backgroundColor: (squad.color || '#8b5cf6') + '20' }}
+                            >
+                              <Text className="text-xs font-bold" style={{ color: squad.color || '#8b5cf6' }}>
+                                {squad.type === 'automatic' ? 'AUTO' : 'MANUAL'}
+                              </Text>
+                            </View>
+                          </View>
+
+                          {/* Team members */}
+                          {otherMembers.length > 0 && (
+                            <View className="flex-row flex-wrap gap-1 mt-2">
+                              {otherMembers.map((member) => (
+                                <View
+                                  key={member.id}
+                                  className="px-2 py-1 rounded-full"
+                                  style={{ backgroundColor: (squad.color || '#8b5cf6') + '15' }}
+                                >
+                                  <Text className="text-xs" style={{ color: squad.color || '#8b5cf6' }}>
+                                    {member.name.split(' ')[0]}
+                                  </Text>
+                                </View>
+                              ))}
+                            </View>
+                          )}
+                        </View>
+                      );
+                    })}
+                  </View>
+                )}
 
                 {/* Current Work */}
                 <View className="px-6 py-4 border-b border-gray-200 dark:border-slate-800">

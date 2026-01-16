@@ -48,6 +48,7 @@ import { useWorkPlanStore } from '@/lib/state/work-plan-store';
 import { useOrganizationStore } from '@/lib/state/organization-store';
 import { useOKRStore } from '@/lib/state/okr-store';
 import { useCurrentWorkspace } from '@/lib/state/app-store';
+import { useAutomaticSquadDetection } from '@/lib/hooks/useAutomaticSquadDetection';
 import { useResourceStore } from '@/lib/state/resource-store';
 import { useSupplierStore } from '@/lib/state/supplier-store';
 import { useFinanceStore } from '@/lib/state/finance-store';
@@ -122,6 +123,9 @@ function FounderHome() {
 
   const [showHelp, setShowHelp] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+
+  // Auto-detect squads from task allocations
+  useAutomaticSquadDetection();
 
   // Stores
   const currentWorkspace = useCurrentWorkspace();

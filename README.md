@@ -68,8 +68,23 @@ The app has been completely restructured into 6 intuitive tabs following a natur
        - Capacity status indicator (spare/full/overloaded)
        - Current work showing all assigned tasks with allocated TU
        - Visual capacity bar with utilization percentage
+       - **Squad membership** - See which squads the person belongs to
        - Suggested work for people with spare capacity
        - Quick navigation to tasks from the modal
+   - **Squad System** - Lightweight team collaboration:
+     - **Automatic Squads**: Form implicitly when 2+ people work on same task
+       - Labeled as "AUTO" in UI
+       - No setup required - just allocate people to tasks
+       - Update automatically as allocations change
+     - **Manual Squads**: Explicitly created by founders
+       - Named squads with optional function assignment
+       - Labeled as "MANUAL" in UI
+       - Can be deployed to tasks or objectives
+       - Persistent across task changes
+     - **Squad Visibility**:
+       - Person cards show squad membership with color coding
+       - Squad cards show total/used/spare capacity
+       - Visual indicators (AUTO vs MANUAL badges)
    - **Marketplace Tab** - Browse available candidates:
      - "Discover" shows top picks across all categories
      - Executives tab with "AVAILABLE TO ADD / NOT YET ENGAGED" banner
