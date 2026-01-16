@@ -30,6 +30,7 @@ interface OrganizationState {
   getMembersByFunction: (func: string) => OrganizationMember[];
   addMember: (member: OrganizationMember) => void;
   updateMember: (id: string, updates: Partial<OrganizationMember>) => void;
+  removeMember: (id: string) => void;
 
   // AI Agent methods
   getAIAgentById: (id: string) => AIAgent | undefined;
@@ -103,6 +104,12 @@ export const useOrganizationStore = create<OrganizationState>((set, get) => ({
   updateMember: (id: string, updates: Partial<OrganizationMember>) => {
     set((state) => ({
       members: state.members.map(m => m.id === id ? { ...m, ...updates } : m)
+    }));
+  },
+
+  removeMember: (id: string) => {
+    set((state) => ({
+      members: state.members.filter(m => m.id !== id)
     }));
   },
 

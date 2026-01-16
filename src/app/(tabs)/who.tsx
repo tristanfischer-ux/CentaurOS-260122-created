@@ -42,6 +42,7 @@ import {
   MessageSquare,
   Scale,
   Sparkles,
+  Edit2,
 } from 'lucide-react-native';
 import { useOrganizationStore } from '@/lib/state/organization-store';
 import { useWorkPlanStore } from '@/lib/state/work-plan-store';
@@ -56,6 +57,8 @@ import { PersonDetailsModal } from '@/components/PersonDetailsModal';
 import { SettingsGearButton } from '@/components/SettingsGearButton';
 import { useCurrentUser } from '@/lib/state/app-store';
 import { calculateTaskModifiers, calculateTotalMultiplier, formatMultiplierAsPercentage, getModifierColor } from '@/lib/task-modifiers';
+import { EditPersonModal } from '@/components/EditPersonModal';
+import { lightImpact } from '@/lib/haptics';
 
 const WHO_HELP: HelpContent = {
   title: 'People Management',
@@ -143,6 +146,8 @@ export default function WhoScreen() {
   // Stores
   const members = useOrganizationStore(s => s.members);
   const addMember = useOrganizationStore(s => s.addMember);
+  const updateMember = useOrganizationStore(s => s.updateMember);
+  const removeMember = useOrganizationStore(s => s.removeMember);
   const workPlans = useWorkPlanStore(s => s.workPlans);
   const squads = useSquadStore(s => s.squads);
   const createSquad = useSquadStore(s => s.createSquad);
@@ -165,6 +170,8 @@ export default function WhoScreen() {
   const [showFilters, setShowFilters] = useState(false);
   const [selectedMember, setSelectedMember] = useState<OrganizationMember | null>(null);
   const [showMemberDetails, setShowMemberDetails] = useState(false);
+  const [showEditMember, setShowEditMember] = useState(false);
+  const [memberToEdit, setMemberToEdit] = useState<OrganizationMember | null>(null);
   const [selectedCandidate, setSelectedCandidate] = useState<Candidate | null>(null);
   const [showCandidateModal, setShowCandidateModal] = useState(false);
   const [showHireModal, setShowHireModal] = useState(false);
@@ -375,6 +382,41 @@ export default function WhoScreen() {
     }));
   };
 
+  const handleEditMember = (member: OrganizationMember) => {
+    lightImpact();
+    setMemberToEdit(member);
+    setShowEditMember(true);
+  };
+
+  const handleSaveMember = (updates: Partial<OrganizationMember>) => {
+    if (memberToEdit) {
+      updateMember(memberToEdit.id, updates);
+      Alert.alert('Success', 'Team member updated successfully');
+    }
+  };
+
+  const handleDeleteMember = () => {
+    if (memberToEdit) {
+      Alert.alert(
+        'Delete Member',
+        `Are you sure you want to remove ${memberToEdit.name} from your team?`,
+        [
+          { text: 'Cancel', style: 'cancel' },
+          {
+            text: 'Delete',
+            style: 'destructive',
+            onPress: () => {
+              removeMember(memberToEdit.id);
+              setShowEditMember(false);
+              setMemberToEdit(null);
+              Alert.alert('Success', 'Team member removed');
+            },
+          },
+        ]
+      );
+    }
+  };
+
   // Team member card component
   const TeamMemberCard = ({ member }: { member: OrganizationMember }) => {
     const util = getMemberUtilization(member);
@@ -410,23 +452,37 @@ export default function WhoScreen() {
             </Text>
           </View>
 
-          {/* Capacity indicator - text summary */}
-          <View className="items-end">
-            <View className="flex-row items-center gap-1 mb-1">
-              <View
-                className="w-2 h-2 rounded-full"
-                style={{
-                  backgroundColor: util.utilizationPercent > 100 ? '#ef4444' :
-                    util.utilizationPercent > 80 ? '#f59e0b' : '#10b981',
-                }}
-              />
-              <Text className="text-slate-600 dark:text-slate-300 text-xs font-medium">
-                {util.allocated}/{util.total} TU
+          {/* Edit button and Capacity indicator */}
+          <View className="items-end gap-2">
+            {/* Edit Button */}
+            <Pressable
+              onPress={(e) => {
+                e.stopPropagation();
+                handleEditMember(member);
+              }}
+              className="w-8 h-8 rounded-lg items-center justify-center bg-slate-100 dark:bg-slate-700 active:opacity-70"
+            >
+              <Edit2 size={14} color="#64748b" />
+            </Pressable>
+
+            {/* Capacity indicator */}
+            <View className="items-end">
+              <View className="flex-row items-center gap-1 mb-1">
+                <View
+                  className="w-2 h-2 rounded-full"
+                  style={{
+                    backgroundColor: util.utilizationPercent > 100 ? '#ef4444' :
+                      util.utilizationPercent > 80 ? '#f59e0b' : '#10b981',
+                  }}
+                />
+                <Text className="text-slate-600 dark:text-slate-300 text-xs font-medium">
+                  {util.allocated}/{util.total} TU
+                </Text>
+              </View>
+              <Text className="text-slate-400 dark:text-slate-500 text-xs">
+                {util.available} available
               </Text>
             </View>
-            <Text className="text-slate-400 dark:text-slate-500 text-xs">
-              {util.available} available
-            </Text>
           </View>
         </View>
 
@@ -705,6 +761,20 @@ export default function WhoScreen() {
         member={selectedMember}
         onNavigateToArmory={() => router.push('/armory')}
       />
+
+      {/* Edit Person Modal */}
+      {memberToEdit && (
+        <EditPersonModal
+          visible={showEditMember}
+          member={memberToEdit}
+          onClose={() => {
+            setShowEditMember(false);
+            setMemberToEdit(null);
+          }}
+          onSave={handleSaveMember}
+          onDelete={handleDeleteMember}
+        />
+      )}
 
       {/* Hire Confirmation Modal */}
       <Modal

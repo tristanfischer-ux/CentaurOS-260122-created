@@ -15,7 +15,29 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
 
 ## 🔄 Recent Updates (Jan 2026)
 
-### Universal Squad Management & AI Equipping (Latest)
+### Editable Team Member Cards (Latest)
+Team member cards in the Who tab now support inline editing:
+
+**Edit Button on Every Card:**
+- Small edit icon (pencil) in the top-right corner of each team member card
+- Tap to open full-featured edit modal
+- Haptic feedback on tap
+
+**EditPersonModal Features:**
+- Edit name, email, phone (optional)
+- Change function (Finance, Sales, Marketing, Ops, Engineering, Admin)
+- Update days per week (for fractional executives)
+- Update cost per day
+- Edit bio (optional)
+- Delete member button (except for Founders - they cannot be deleted)
+- Form validation (name and email required)
+- Theme-aware styling (light/dark/off-white support)
+
+**Organization Store Updates:**
+- New `removeMember()` method for deleting team members
+- Existing `updateMember()` method for editing member details
+
+### Universal Squad Management & AI Equipping
 Squad management and AI tool equipping capabilities are now available on ALL person cards throughout the app, not just in the Armory:
 
 **PersonDetailsModal Enhancements:**
