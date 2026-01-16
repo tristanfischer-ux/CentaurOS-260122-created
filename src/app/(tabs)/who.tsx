@@ -42,6 +42,7 @@ import { useOrganizationStore } from '@/lib/state/organization-store';
 import { useWorkPlanStore } from '@/lib/state/work-plan-store';
 import { useCurrentMembership, useCurrentWorkspace } from '@/lib/state/app-store';
 import { useMarketplaceRequestsStore } from '@/lib/state/marketplace-requests-store';
+import { useSquadStore } from '@/lib/state/squad-store';
 import { fractionalExecutives, apprentices, type Candidate } from '@/lib/candidates-seed';
 import type { OrganizationMember } from '@/lib/organization-seed';
 import type { Function as BusinessFunction } from '@/types';
@@ -122,7 +123,7 @@ const ROLE_LABELS = {
   Apprentice: 'Apprentices',
 };
 
-type WhoTab = 'team' | 'executives' | 'apprentices';
+type WhoTab = 'team' | 'squads' | 'executives' | 'apprentices';
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 const screenWidth = Dimensions.get('window').width;
@@ -137,15 +138,9 @@ export default function WhoScreen() {
   const members = useOrganizationStore(s => s.members);
   const addMember = useOrganizationStore(s => s.addMember);
   const workPlans = useWorkPlanStore(s => s.workPlans);
-
-  // Debug logging
-  useEffect(() => {
-    console.log('[Who] Members count:', members.length);
-    console.log('[Who] Active members:', members.filter(m => m.status === 'active').length);
-    if (members.length > 0) {
-      console.log('[Who] First member:', members[0].name);
-    }
-  }, [members]);
+  const squads = useSquadStore(s => s.squads);
+  const createSquad = useSquadStore(s => s.createSquad);
+  const deleteSquad = useSquadStore(s => s.deleteSquad);
   const requests = useMarketplaceRequestsStore(s => s.requests);
   const approveRequest = useMarketplaceRequestsStore(s => s.approveRequest);
   const rejectRequest = useMarketplaceRequestsStore(s => s.rejectRequest);
@@ -757,37 +752,40 @@ export default function WhoScreen() {
 
       {/* Tab Switcher */}
       <View className="px-5 pt-4">
-        <View className="flex-row bg-slate-100 dark:bg-slate-800 rounded-xl p-1">
-          {[
-            { key: 'team', label: 'Team', icon: Users },
-            { key: 'executives', label: 'Executives', icon: Briefcase },
-            { key: 'apprentices', label: 'Apprentices', icon: GraduationCap },
-          ].map(tab => (
-            <Pressable
-              key={tab.key}
-              onPress={() => setActiveTab(tab.key as WhoTab)}
-              className={`flex-1 flex-row items-center justify-center gap-1.5 py-2.5 rounded-lg ${
-                activeTab === tab.key ? 'bg-white dark:bg-slate-700' : ''
-              }`}
-            >
-              <tab.icon
-                size={16}
-                color={activeTab === tab.key ? '#3b82f6' : '#64748b'}
-              />
-              <Text
-                className={`text-sm font-medium ${
-                  activeTab === tab.key ? 'text-blue-600 dark:text-blue-400' : 'text-slate-500 dark:text-slate-400'
+        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+          <View className="flex-row bg-slate-100 dark:bg-slate-800 rounded-xl p-1">
+            {[
+              { key: 'team', label: 'Team', icon: Users },
+              { key: 'squads', label: 'Squads', icon: UsersRound },
+              { key: 'executives', label: 'Executives', icon: Briefcase },
+              { key: 'apprentices', label: 'Apprentices', icon: GraduationCap },
+            ].map(tab => (
+              <Pressable
+                key={tab.key}
+                onPress={() => setActiveTab(tab.key as WhoTab)}
+                className={`flex-row items-center justify-center gap-1.5 py-2.5 px-4 rounded-lg ${
+                  activeTab === tab.key ? 'bg-white dark:bg-slate-700' : ''
                 }`}
               >
-                {tab.label}
-              </Text>
-            </Pressable>
-          ))}
-        </View>
+                <tab.icon
+                  size={16}
+                  color={activeTab === tab.key ? '#3b82f6' : '#64748b'}
+                />
+                <Text
+                  className={`text-sm font-medium ${
+                    activeTab === tab.key ? 'text-blue-600 dark:text-blue-400' : 'text-slate-500 dark:text-slate-400'
+                  }`}
+                >
+                  {tab.label}
+                </Text>
+              </Pressable>
+            ))}
+          </View>
+        </ScrollView>
       </View>
 
       {/* Search Bar (for recruitment tabs) */}
-      {activeTab !== 'team' && (
+      {(activeTab === 'executives' || activeTab === 'apprentices') && (
         <View className="px-5 pt-4">
           <View className="flex-row items-center bg-white dark:bg-slate-800 rounded-xl px-4 py-3">
             <Search size={18} color="#64748b" />
@@ -871,6 +869,110 @@ export default function WhoScreen() {
         className="flex-1"
         contentContainerStyle={{ padding: 20, paddingBottom: insets.bottom + 100 }}
       >
+        {/* Squads Tab */}
+        {activeTab === 'squads' && (
+          <View>
+            <View className="flex-row items-center justify-between mb-4">
+              <Text className="text-slate-500 dark:text-slate-400 text-sm">
+                {squads.filter(s => s.type === 'manual').length} manual squads • {squads.filter(s => s.type === 'automatic').length} auto
+              </Text>
+              {isFounder && (
+                <Pressable
+                  onPress={() => {
+                    Alert.alert('Create Squad', 'Squad creation UI coming soon');
+                  }}
+                  className="flex-row items-center gap-1 bg-blue-500 px-3 py-1.5 rounded-lg"
+                >
+                  <Plus size={14} color="white" />
+                  <Text className="text-white text-sm font-medium">New Squad</Text>
+                </Pressable>
+              )}
+            </View>
+
+            {squads.length === 0 ? (
+              <View className="items-center py-12">
+                <UsersRound size={48} color="#94a3b8" />
+                <Text className="text-slate-500 dark:text-slate-400 text-center mt-4">
+                  No squads yet
+                </Text>
+                <Text className="text-slate-400 dark:text-slate-500 text-center mt-1 text-sm">
+                  Squads form automatically when 2+ people work on the same task
+                </Text>
+              </View>
+            ) : (
+              <View>
+                {squads.map((squad, index) => {
+                  const squadMembers = members.filter(m => squad.memberIds.includes(m.id));
+
+                  return (
+                    <AnimatedPressable
+                      key={squad.id}
+                      entering={FadeInDown.delay(index * 50).springify()}
+                      className="bg-white dark:bg-slate-800 rounded-xl p-4 mb-3"
+                      style={{ borderLeftWidth: 4, borderLeftColor: squad.color || '#3b82f6' }}
+                    >
+                      <View className="flex-row items-center justify-between mb-3">
+                        <View className="flex-1">
+                          <View className="flex-row items-center gap-2">
+                            <Text className="text-slate-900 dark:text-white font-semibold text-base">
+                              {squad.name}
+                            </Text>
+                            <View className={`px-2 py-0.5 rounded-full ${
+                              squad.type === 'manual' ? 'bg-blue-100 dark:bg-blue-900/30' : 'bg-slate-100 dark:bg-slate-700'
+                            }`}>
+                              <Text className={`text-xs ${
+                                squad.type === 'manual' ? 'text-blue-600 dark:text-blue-400' : 'text-slate-600 dark:text-slate-300'
+                              }`}>
+                                {squad.type === 'manual' ? 'Manual' : 'Auto'}
+                              </Text>
+                            </View>
+                          </View>
+                          {squad.function && (
+                            <Text className="text-slate-500 dark:text-slate-400 text-sm mt-0.5">
+                              {squad.function}
+                            </Text>
+                          )}
+                        </View>
+                      </View>
+
+                      {/* Squad Members */}
+                      <View className="gap-2">
+                        {squadMembers.map(member => (
+                          <View key={member.id} className="flex-row items-center gap-2">
+                            <View
+                              className="w-8 h-8 rounded-full items-center justify-center"
+                              style={{ backgroundColor: (ROLE_COLORS[member.role as keyof typeof ROLE_COLORS] || '#64748b') + '20' }}
+                            >
+                              <Text style={{ color: ROLE_COLORS[member.role as keyof typeof ROLE_COLORS] || '#64748b' }} className="font-bold text-xs">
+                                {member.name.split(' ').map(n => n[0]).join('')}
+                              </Text>
+                            </View>
+                            <Text className="text-slate-700 dark:text-slate-300 text-sm flex-1">
+                              {member.name}
+                            </Text>
+                            <Text className="text-slate-500 dark:text-slate-400 text-xs">
+                              {member.role === 'FractionalExec' ? `${member.daysPerWeek || 2}d/wk` : member.role}
+                            </Text>
+                          </View>
+                        ))}
+                      </View>
+
+                      {/* Squad Tasks */}
+                      {squad.taskIds && squad.taskIds.length > 0 && (
+                        <View className="mt-3 pt-3 border-t border-slate-100 dark:border-slate-700">
+                          <Text className="text-slate-500 dark:text-slate-400 text-xs mb-1">
+                            Working on {squad.taskIds.length} task{squad.taskIds.length !== 1 ? 's' : ''}
+                          </Text>
+                        </View>
+                      )}
+                    </AnimatedPressable>
+                  );
+                })}
+              </View>
+            )}
+          </View>
+        )}
+
         {/* Team Tab */}
         {activeTab === 'team' && (
           <View>
