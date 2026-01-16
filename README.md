@@ -15,6 +15,24 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
 
 ## 🔄 Recent Updates (Jan 2026)
 
+### Universal Squad Management & AI Equipping (Latest)
+Squad management and AI tool equipping capabilities are now available on ALL person cards throughout the app, not just in the Armory:
+
+**PersonDetailsModal Enhancements:**
+- **AI Tools Section** - Shows equipped AI tools with costs and a "Manage" button to navigate to Armory
+- **Squad Management** - Full squad create/join/leave functionality:
+  - Founders and Executives can create new squads
+  - Anyone can join available squads
+  - Leave squad or delete squad (if leader) directly from the modal
+  - View squad members, function, and type (Manual/Auto)
+- **Consistent Experience** - Same modal used across Who tab, Resource Pool, and all other person cards
+
+**Available Everywhere:**
+- Who tab team member cards
+- Resource Pool Header person cards
+- Collapsible Resource Pool person cards
+- Any other location with person cards
+
 ### Enhanced Who Tab - Candidate Hiring System (Latest)
 The Who tab has been significantly enhanced with powerful hiring and comparison features:
 

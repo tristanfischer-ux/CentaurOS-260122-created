@@ -1,15 +1,43 @@
-import { View, Text, Modal, Pressable, ScrollView, Linking } from 'react-native';
-import { X, Mail, Phone, Linkedin, Calendar, DollarSign, Briefcase, Users, Clock, TrendingUp, Zap, UsersRound } from 'lucide-react-native';
-import { type OrganizationMember } from '@/lib/organization-seed';
+import { View, Text, Modal, Pressable, ScrollView, Linking, TextInput } from 'react-native';
+import { useState, useMemo } from 'react';
+import {
+  X,
+  Mail,
+  Phone,
+  Linkedin,
+  Calendar,
+  DollarSign,
+  Briefcase,
+  Users,
+  Clock,
+  TrendingUp,
+  Zap,
+  UsersRound,
+  Plus,
+  UserPlus,
+  LogOut,
+  Crown,
+  Trash2,
+  Cpu,
+  ChevronRight,
+} from 'lucide-react-native';
+import { type OrganizationMember, type AIAgent } from '@/lib/organization-seed';
 import { useWorkPlanStore } from '@/lib/state/work-plan-store';
 import { useOrganizationStore } from '@/lib/state/organization-store';
-import { useSquadStore } from '@/lib/state/squad-store';
-import { useMemo } from 'react';
+import { useSquadStore, type Squad as SquadStoreSquad } from '@/lib/state/squad-store';
+import { useArmoryStore } from '@/lib/state/armory-store';
+import { useAppStore } from '@/lib/state/app-store';
+import { cn } from '@/lib/cn';
+import type { Squad as ArmorySquad, Function as BusinessFunction } from '@/types';
+
+// Combined squad type for display
+type CombinedSquad = SquadStoreSquad | ArmorySquad;
 
 interface PersonDetailsModalProps {
   visible: boolean;
   onClose: () => void;
   member: OrganizationMember | null;
+  onNavigateToArmory?: () => void;
 }
 
 const ROLE_COLORS: Record<string, string> = {
@@ -24,10 +52,31 @@ const ROLE_LABELS: Record<string, string> = {
   Apprentice: 'Apprentice',
 };
 
-export function PersonDetailsModal({ visible, onClose, member }: PersonDetailsModalProps) {
+const BUSINESS_FUNCTIONS: BusinessFunction[] = ['Ops', 'Marketing', 'Sales', 'Finance', 'Engineering', 'Admin'];
+
+export function PersonDetailsModal({ visible, onClose, member, onNavigateToArmory }: PersonDetailsModalProps) {
   const workPlans = useWorkPlanStore(s => s.workPlans);
   const allMembers = useOrganizationStore(s => s.members);
-  const squads = useSquadStore(s => s.squads);
+  const squadsFromSquadStore = useSquadStore(s => s.squads);
+
+  // Armory store for squad management and AI tools
+  const armorySquads = useArmoryStore(s => s.squads);
+  const createSquad = useArmoryStore(s => s.createSquad);
+  const assignApprentice = useArmoryStore(s => s.assignApprentice);
+  const removeApprentice = useArmoryStore(s => s.removeApprentice);
+  const deleteSquad = useArmoryStore(s => s.deleteSquad);
+  const loadout = useArmoryStore(s => member ? s.getLoadoutForMember(member.id) : undefined);
+  const aiAgents = useOrganizationStore(s => s.aiAgents);
+
+  // Get current user permissions
+  const currentMembership = useAppStore(s => s.currentMembership);
+  const canManage = currentMembership?.role === 'Founder';
+
+  // Squad management modal states
+  const [showCreateSquad, setShowCreateSquad] = useState(false);
+  const [showJoinSquad, setShowJoinSquad] = useState(false);
+  const [newSquadName, setNewSquadName] = useState('');
+  const [newSquadFunction, setNewSquadFunction] = useState<BusinessFunction>('Ops');
 
   // Calculate member's current workload and tasks
   const memberWorkload = useMemo(() => {
@@ -64,11 +113,78 @@ export function PersonDetailsModal({ visible, onClose, member }: PersonDetailsMo
     return allMembers.filter(m => member.manages?.includes(m.id));
   }, [member, allMembers]);
 
-  // Get squads this member belongs to
+  // Get squads this member belongs to (from both stores)
   const memberSquads = useMemo(() => {
     if (!member) return [];
-    return squads.filter(squad => squad.memberIds.includes(member.id));
-  }, [member, squads]);
+    const fromSquadStore = squadsFromSquadStore.filter(squad => squad.memberIds.includes(member.id));
+    const fromArmoryStore = armorySquads.filter(squad =>
+      squad.leaderMemberId === member.id ||
+      squad.apprenticeMemberIds.includes(member.id)
+    );
+    // Combine and dedupe by id
+    const all = [...fromSquadStore, ...fromArmoryStore];
+    const seen = new Set<string>();
+    return all.filter(squad => {
+      if (seen.has(squad.id)) return false;
+      seen.add(squad.id);
+      return true;
+    });
+  }, [member, squadsFromSquadStore, armorySquads]);
+
+  // Squads this member leads
+  const ledSquads = useMemo(() => {
+    if (!member) return [];
+    return armorySquads.filter(squad => squad.leaderMemberId === member.id);
+  }, [armorySquads, member]);
+
+  // Squads available to join (not already a member)
+  const availableSquads = useMemo(() => {
+    if (!member) return [];
+    return armorySquads.filter(squad =>
+      squad.leaderMemberId !== member.id &&
+      !squad.apprenticeMemberIds.includes(member.id) &&
+      squad.workspaceId === member.workspaceId
+    );
+  }, [armorySquads, member]);
+
+  // Get equipped AI tools
+  const equippedTools = useMemo(() => {
+    if (!loadout) return [];
+    return loadout.aiToolIds
+      .map(id => aiAgents.find(a => a.id === id))
+      .filter((t): t is AIAgent => t !== undefined);
+  }, [loadout, aiAgents]);
+
+  // Squad action handlers
+  const handleCreateSquad = async () => {
+    if (!newSquadName.trim() || !member) return;
+
+    await createSquad({
+      workspaceId: member.workspaceId,
+      name: newSquadName.trim(),
+      function: newSquadFunction,
+      leaderMemberId: member.id,
+      apprenticeMemberIds: [],
+    });
+
+    setNewSquadName('');
+    setShowCreateSquad(false);
+  };
+
+  const handleJoinSquad = async (squadId: string) => {
+    if (!member) return;
+    await assignApprentice(squadId, member.id);
+    setShowJoinSquad(false);
+  };
+
+  const handleLeaveSquad = async (squadId: string) => {
+    if (!member) return;
+    await removeApprentice(squadId, member.id);
+  };
+
+  const handleDeleteSquad = async (squadId: string) => {
+    await deleteSquad(squadId);
+  };
 
   if (!member) return null;
 
@@ -152,6 +268,231 @@ export function PersonDetailsModal({ visible, onClose, member }: PersonDetailsMo
                 </Text>
               </View>
             )}
+
+            {/* AI Tools Equipped Section */}
+            <View className="px-6 py-4 border-b border-gray-200 dark:border-slate-800">
+              <View className="flex-row items-center justify-between mb-3">
+                <View className="flex-row items-center gap-2">
+                  <Cpu size={18} color="#f59e0b" />
+                  <Text className="text-gray-900 dark:text-white font-bold text-sm">
+                    AI Tools ({equippedTools.length})
+                  </Text>
+                </View>
+                {onNavigateToArmory && (
+                  <Pressable
+                    onPress={() => {
+                      onClose();
+                      onNavigateToArmory();
+                    }}
+                    className="bg-amber-500/20 px-3 py-1.5 rounded-lg flex-row items-center gap-1 active:opacity-70"
+                  >
+                    <Text className="text-amber-600 dark:text-amber-400 text-xs font-bold">Manage</Text>
+                    <ChevronRight size={14} color="#f59e0b" />
+                  </Pressable>
+                )}
+              </View>
+
+              {equippedTools.length === 0 ? (
+                <View className="bg-gray-50 dark:bg-slate-800 rounded-xl p-4 items-center">
+                  <Cpu size={24} color="#94a3b8" />
+                  <Text className="text-gray-500 dark:text-slate-400 text-sm mt-2 text-center">
+                    No AI tools equipped
+                  </Text>
+                  {onNavigateToArmory && (
+                    <Pressable
+                      onPress={() => {
+                        onClose();
+                        onNavigateToArmory();
+                      }}
+                      className="mt-3 bg-amber-500 px-4 py-2 rounded-lg active:opacity-70"
+                    >
+                      <Text className="text-white font-bold text-sm">Go to Armory</Text>
+                    </Pressable>
+                  )}
+                </View>
+              ) : (
+                <View className="gap-2">
+                  {equippedTools.slice(0, 3).map((tool) => (
+                    <View
+                      key={tool.id}
+                      className="bg-amber-50 dark:bg-amber-900/20 rounded-lg p-3 flex-row items-center justify-between"
+                    >
+                      <View className="flex-1 mr-2">
+                        <Text className="text-gray-900 dark:text-white font-semibold text-sm">
+                          {tool.name}
+                        </Text>
+                        <Text className="text-gray-500 dark:text-slate-400 text-xs" numberOfLines={1}>
+                          {tool.purpose}
+                        </Text>
+                      </View>
+                      <View className="bg-amber-500/20 px-2 py-1 rounded">
+                        <Text className="text-amber-600 dark:text-amber-400 text-xs font-bold">
+                          £{tool.costPerMonth}/mo
+                        </Text>
+                      </View>
+                    </View>
+                  ))}
+                  {equippedTools.length > 3 && (
+                    <Pressable
+                      onPress={() => {
+                        if (onNavigateToArmory) {
+                          onClose();
+                          onNavigateToArmory();
+                        }
+                      }}
+                      className="bg-gray-100 dark:bg-slate-800 rounded-lg py-2 items-center active:opacity-70"
+                    >
+                      <Text className="text-gray-600 dark:text-slate-400 text-sm font-medium">
+                        +{equippedTools.length - 3} more tools
+                      </Text>
+                    </Pressable>
+                  )}
+                </View>
+              )}
+            </View>
+
+            {/* Squads Section with Management */}
+            <View className="px-6 py-4 border-b border-gray-200 dark:border-slate-800">
+              <View className="flex-row items-center justify-between mb-3">
+                <View className="flex-row items-center gap-2">
+                  <Users size={18} color="#8b5cf6" />
+                  <Text className="text-gray-900 dark:text-white font-bold text-sm">
+                    Squads ({memberSquads.length})
+                  </Text>
+                </View>
+                <View className="flex-row gap-2">
+                  {availableSquads.length > 0 && (
+                    <Pressable
+                      onPress={() => setShowJoinSquad(true)}
+                      className="bg-purple-500/20 px-2 py-1 rounded-lg flex-row items-center gap-1 active:opacity-70"
+                    >
+                      <UserPlus size={12} color="#a855f7" />
+                      <Text className="text-purple-500 dark:text-purple-400 text-xs font-bold">Join</Text>
+                    </Pressable>
+                  )}
+                  {(member.role === 'Founder' || member.role === 'FractionalExec') && (
+                    <Pressable
+                      onPress={() => setShowCreateSquad(true)}
+                      className="bg-blue-500 px-2 py-1 rounded-lg flex-row items-center gap-1 active:opacity-70"
+                    >
+                      <Plus size={12} color="white" />
+                      <Text className="text-white text-xs font-bold">Create</Text>
+                    </Pressable>
+                  )}
+                </View>
+              </View>
+
+              {memberSquads.length === 0 ? (
+                <View className="bg-gray-50 dark:bg-slate-800 rounded-xl p-4 items-center">
+                  <Users size={24} color="#94a3b8" />
+                  <Text className="text-gray-500 dark:text-slate-400 text-sm mt-2 text-center">
+                    Not in any squads yet
+                  </Text>
+                  <Text className="text-gray-400 dark:text-slate-500 text-xs mt-1 text-center">
+                    Create or join a squad to collaborate
+                  </Text>
+                </View>
+              ) : (
+                <View className="gap-2">
+                  {memberSquads.map((squad) => {
+                    // Handle both squad store formats
+                    const isLeader = 'leaderMemberId' in squad
+                      ? squad.leaderMemberId === member.id
+                      : false;
+                    const squadMemberIds = 'memberIds' in squad
+                      ? squad.memberIds
+                      : [...(squad.apprenticeMemberIds || []), squad.leaderMemberId];
+                    const squadMembers = allMembers.filter(m =>
+                      squadMemberIds.includes(m.id) && m.id !== member.id
+                    );
+                    // Get optional properties with type guards
+                    const squadColor = 'color' in squad ? squad.color : undefined;
+                    const squadType = 'type' in squad ? squad.type : undefined;
+
+                    return (
+                      <View
+                        key={squad.id}
+                        className="rounded-lg p-3"
+                        style={{
+                          backgroundColor: (squadColor || '#8b5cf6') + '15',
+                          borderLeftWidth: 4,
+                          borderLeftColor: squadColor || '#8b5cf6',
+                        }}
+                      >
+                        <View className="flex-row items-center justify-between mb-2">
+                          <View className="flex-row items-center gap-2 flex-1">
+                            {isLeader && <Crown size={14} color="#f59e0b" />}
+                            <Text className="text-gray-900 dark:text-white font-semibold text-sm flex-1" numberOfLines={1}>
+                              {squad.name}
+                            </Text>
+                          </View>
+                          <View className={`px-2 py-0.5 rounded-full ${
+                            squadType === 'manual' ? 'bg-blue-100 dark:bg-blue-900/30' : 'bg-slate-200 dark:bg-slate-700'
+                          }`}>
+                            <Text className={`text-[10px] font-medium ${
+                              squadType === 'manual' ? 'text-blue-600 dark:text-blue-400' : 'text-slate-600 dark:text-slate-300'
+                            }`}>
+                              {squadType === 'manual' ? 'MANUAL' : 'AUTO'}
+                            </Text>
+                          </View>
+                        </View>
+
+                        {squad.function && (
+                          <Text className="text-gray-500 dark:text-slate-400 text-xs mb-2">
+                            {squad.function}
+                          </Text>
+                        )}
+
+                        {/* Squad members preview */}
+                        {squadMembers.length > 0 && (
+                          <View className="flex-row flex-wrap gap-1 mb-2">
+                            {squadMembers.slice(0, 3).map(squadMember => (
+                              <View
+                                key={squadMember.id}
+                                className="bg-white dark:bg-slate-800 px-2 py-0.5 rounded-full"
+                              >
+                                <Text className="text-gray-700 dark:text-slate-300 text-xs">
+                                  {squadMember.name.split(' ')[0]}
+                                </Text>
+                              </View>
+                            ))}
+                            {squadMembers.length > 3 && (
+                              <View className="bg-white dark:bg-slate-800 px-2 py-0.5 rounded-full">
+                                <Text className="text-gray-500 dark:text-slate-400 text-xs">
+                                  +{squadMembers.length - 3}
+                                </Text>
+                              </View>
+                            )}
+                          </View>
+                        )}
+
+                        {/* Squad actions */}
+                        <View className="flex-row gap-2 mt-1">
+                          {isLeader && canManage && (
+                            <Pressable
+                              onPress={() => handleDeleteSquad(squad.id)}
+                              className="bg-red-500/20 rounded-lg px-3 py-1.5 flex-row items-center gap-1 active:opacity-70"
+                            >
+                              <Trash2 size={12} color="#ef4444" />
+                              <Text className="text-red-500 text-xs font-bold">Delete</Text>
+                            </Pressable>
+                          )}
+                          {!isLeader && (
+                            <Pressable
+                              onPress={() => handleLeaveSquad(squad.id)}
+                              className="bg-red-500/20 rounded-lg px-3 py-1.5 flex-row items-center gap-1 active:opacity-70"
+                            >
+                              <LogOut size={12} color="#ef4444" />
+                              <Text className="text-red-500 text-xs font-bold">Leave</Text>
+                            </Pressable>
+                          )}
+                        </View>
+                      </View>
+                    );
+                  })}
+                </View>
+              )}
+            </View>
 
             {/* Contact Info */}
             <View className="px-6 py-4 border-b border-gray-200 dark:border-slate-800">
@@ -340,91 +681,6 @@ export function PersonDetailsModal({ visible, onClose, member }: PersonDetailsMo
               </View>
             )}
 
-            {/* Squads Section */}
-            {memberSquads.length > 0 && (
-              <View className="px-6 py-4 border-b border-gray-200 dark:border-slate-800">
-                <Text className="text-gray-900 dark:text-white font-bold text-sm mb-3">
-                  Squads ({memberSquads.length})
-                </Text>
-                <Text className="text-gray-500 dark:text-slate-400 text-xs mb-3">
-                  Team groupings this person belongs to
-                </Text>
-
-                <View className="gap-3">
-                  {memberSquads.map((squad) => {
-                    const squadMembers = allMembers.filter(m => squad.memberIds.includes(m.id) && m.id !== member.id);
-
-                    return (
-                      <View
-                        key={squad.id}
-                        className="rounded-lg p-3"
-                        style={{
-                          backgroundColor: (squad.color || '#3b82f6') + '15',
-                          borderLeftWidth: 4,
-                          borderLeftColor: squad.color || '#3b82f6',
-                        }}
-                      >
-                        <View className="flex-row items-center justify-between mb-2">
-                          <Text className="text-gray-900 dark:text-white font-semibold text-sm flex-1">
-                            {squad.name}
-                          </Text>
-                          <View className={`px-2 py-0.5 rounded-full ${
-                            squad.type === 'manual' ? 'bg-blue-100 dark:bg-blue-900/30' : 'bg-slate-200 dark:bg-slate-700'
-                          }`}>
-                            <Text className={`text-[10px] font-medium ${
-                              squad.type === 'manual' ? 'text-blue-600 dark:text-blue-400' : 'text-slate-600 dark:text-slate-300'
-                            }`}>
-                              {squad.type === 'manual' ? 'MANUAL' : 'AUTO'}
-                            </Text>
-                          </View>
-                        </View>
-
-                        {squad.function && (
-                          <Text className="text-gray-500 dark:text-slate-400 text-xs mb-2">
-                            {squad.function}
-                          </Text>
-                        )}
-
-                        {/* Other squad members */}
-                        {squadMembers.length > 0 && (
-                          <View className="flex-row flex-wrap gap-1.5 mt-2">
-                            {squadMembers.map(squadMember => (
-                              <View
-                                key={squadMember.id}
-                                className="bg-white dark:bg-slate-800 px-2 py-1 rounded-full flex-row items-center gap-1"
-                              >
-                                <View
-                                  className="w-4 h-4 rounded-full items-center justify-center"
-                                  style={{ backgroundColor: (ROLE_COLORS[squadMember.role] || '#64748b') + '30' }}
-                                >
-                                  <Text
-                                    className="text-[8px] font-bold"
-                                    style={{ color: ROLE_COLORS[squadMember.role] || '#64748b' }}
-                                  >
-                                    {squadMember.name.split(' ')[0][0]}
-                                  </Text>
-                                </View>
-                                <Text className="text-gray-700 dark:text-slate-300 text-xs">
-                                  {squadMember.name.split(' ')[0]}
-                                </Text>
-                              </View>
-                            ))}
-                          </View>
-                        )}
-
-                        {/* Task count if any */}
-                        {squad.taskIds && squad.taskIds.length > 0 && (
-                          <Text className="text-gray-500 dark:text-slate-400 text-xs mt-2">
-                            Working on {squad.taskIds.length} task{squad.taskIds.length !== 1 ? 's' : ''}
-                          </Text>
-                        )}
-                      </View>
-                    );
-                  })}
-                </View>
-              </View>
-            )}
-
             {/* Current Tasks */}
             {memberWorkload.tasks.length > 0 && (
               <View className="px-6 py-4">
@@ -459,6 +715,121 @@ export function PersonDetailsModal({ visible, onClose, member }: PersonDetailsMo
           </ScrollView>
         </Pressable>
       </Pressable>
+
+      {/* Create Squad Modal */}
+      <Modal visible={showCreateSquad} transparent animationType="fade" onRequestClose={() => setShowCreateSquad(false)}>
+        <Pressable
+          className="flex-1 bg-black/80 justify-center items-center px-6"
+          onPress={() => setShowCreateSquad(false)}
+        >
+          <Pressable onPress={(e) => e.stopPropagation()} className="bg-white dark:bg-slate-900 rounded-2xl p-6 w-full max-w-sm">
+            <Text className="text-gray-900 dark:text-white text-xl font-black mb-4">Create New Squad</Text>
+
+            <Text className="text-gray-600 dark:text-slate-400 text-sm mb-2">Squad Name</Text>
+            <TextInput
+              value={newSquadName}
+              onChangeText={setNewSquadName}
+              placeholder="e.g., Alpha Team"
+              placeholderTextColor="#9ca3af"
+              className="bg-gray-100 dark:bg-slate-800 text-gray-900 dark:text-white rounded-xl px-4 py-3 mb-4"
+            />
+
+            <Text className="text-gray-600 dark:text-slate-400 text-sm mb-2">Function</Text>
+            <View className="flex-row flex-wrap gap-2 mb-4">
+              {BUSINESS_FUNCTIONS.map((func) => (
+                <Pressable
+                  key={func}
+                  onPress={() => setNewSquadFunction(func)}
+                  className={cn(
+                    'px-3 py-2 rounded-lg',
+                    newSquadFunction === func ? 'bg-purple-500' : 'bg-gray-100 dark:bg-slate-800'
+                  )}
+                >
+                  <Text
+                    className={cn(
+                      'text-sm font-semibold',
+                      newSquadFunction === func ? 'text-white' : 'text-gray-600 dark:text-slate-400'
+                    )}
+                  >
+                    {func}
+                  </Text>
+                </Pressable>
+              ))}
+            </View>
+
+            <Text className="text-gray-500 dark:text-slate-500 text-xs mb-4">
+              You will be the leader of this squad. You can add members after creating it.
+            </Text>
+
+            <View className="flex-row gap-3">
+              <Pressable
+                onPress={() => setShowCreateSquad(false)}
+                className="flex-1 bg-gray-200 dark:bg-slate-700 rounded-xl py-3 active:opacity-70"
+              >
+                <Text className="text-gray-900 dark:text-white font-bold text-center">Cancel</Text>
+              </Pressable>
+              <Pressable
+                onPress={handleCreateSquad}
+                className="flex-1 bg-blue-500 rounded-xl py-3 active:opacity-70"
+              >
+                <Text className="text-white font-bold text-center">Create</Text>
+              </Pressable>
+            </View>
+          </Pressable>
+        </Pressable>
+      </Modal>
+
+      {/* Join Squad Modal */}
+      <Modal visible={showJoinSquad} transparent animationType="fade" onRequestClose={() => setShowJoinSquad(false)}>
+        <Pressable
+          className="flex-1 bg-black/80 justify-center items-center px-6"
+          onPress={() => setShowJoinSquad(false)}
+        >
+          <Pressable onPress={(e) => e.stopPropagation()} className="bg-white dark:bg-slate-900 rounded-2xl p-6 w-full max-w-sm">
+            <View className="flex-row items-center justify-between mb-4">
+              <Text className="text-gray-900 dark:text-white text-xl font-black">Join a Squad</Text>
+              <Pressable onPress={() => setShowJoinSquad(false)}>
+                <X size={24} color="#94a3b8" />
+              </Pressable>
+            </View>
+
+            {availableSquads.length === 0 ? (
+              <View className="py-8 items-center">
+                <Users size={40} color="#94a3b8" />
+                <Text className="text-gray-500 dark:text-slate-400 text-center mt-3">No squads available to join</Text>
+              </View>
+            ) : (
+              <ScrollView style={{ maxHeight: 300 }}>
+                {availableSquads.map((squad) => {
+                  const leader = allMembers.find(m => m.id === squad.leaderMemberId);
+                  return (
+                    <Pressable
+                      key={squad.id}
+                      onPress={() => handleJoinSquad(squad.id)}
+                      className="bg-gray-100 dark:bg-slate-800 rounded-xl p-4 mb-2 active:opacity-70"
+                    >
+                      <Text className="text-gray-900 dark:text-white font-bold text-base">{squad.name}</Text>
+                      {leader && (
+                        <Text className="text-gray-500 dark:text-slate-400 text-sm mt-1">
+                          Led by {leader.name}
+                        </Text>
+                      )}
+                      <View className="flex-row items-center gap-2 mt-2">
+                        <View className="bg-purple-500/20 px-2 py-1 rounded">
+                          <Text className="text-purple-500 text-xs font-bold">{squad.function}</Text>
+                        </View>
+                        <Text className="text-gray-400 dark:text-slate-500 text-xs">
+                          {squad.apprenticeMemberIds.length} members
+                        </Text>
+                      </View>
+                    </Pressable>
+                  );
+                })}
+              </ScrollView>
+            )}
+          </Pressable>
+        </Pressable>
+      </Modal>
     </Modal>
   );
 }

@@ -1,6 +1,7 @@
 import { View, Text, Pressable, ScrollView, Dimensions } from 'react-native';
 import { useMemo, useState } from 'react';
 import Animated, { useAnimatedStyle, withSpring, useSharedValue } from 'react-native-reanimated';
+import { router } from 'expo-router';
 import { ChevronUp, ChevronDown, Users } from 'lucide-react-native';
 import { useOrganizationStore } from '@/lib/state/organization-store';
 import { type OrganizationMember } from '@/lib/organization-seed';
@@ -393,6 +394,7 @@ export function CollapsibleResourcePool({ selectedPersonId, onPersonSelect }: Co
           setSelectedMember(null);
         }}
         member={selectedMember}
+        onNavigateToArmory={() => router.push('/armory')}
       />
     </Animated.View>
   );

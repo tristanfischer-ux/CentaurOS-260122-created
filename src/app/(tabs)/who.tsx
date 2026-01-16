@@ -703,6 +703,7 @@ export default function WhoScreen() {
         visible={showMemberDetails}
         onClose={() => setShowMemberDetails(false)}
         member={selectedMember}
+        onNavigateToArmory={() => router.push('/armory')}
       />
 
       {/* Hire Confirmation Modal */}

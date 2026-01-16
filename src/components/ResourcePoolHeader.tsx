@@ -1,5 +1,6 @@
 import { View, Text, Pressable, ScrollView } from 'react-native';
 import { useMemo, useState } from 'react';
+import { router } from 'expo-router';
 import { useOrganizationStore } from '@/lib/state/organization-store';
 import { type OrganizationMember } from '@/lib/organization-seed';
 import { useWorkPlanStore, type WorkPlan } from '@/lib/state/work-plan-store';
@@ -301,6 +302,7 @@ export function ResourcePoolHeader({ selectedPersonId, onPersonSelect }: Resourc
           setSelectedMember(null);
         }}
         member={selectedMember}
+        onNavigateToArmory={() => router.push('/armory')}
       />
     </View>
   );
