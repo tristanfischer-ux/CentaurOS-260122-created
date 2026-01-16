@@ -15,7 +15,55 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
 
 ## 🔄 Recent Updates (Jan 2026)
 
-### AI Systems Management on People Cards - COMPLETE! (Latest) 🤖
+### Task Suggestions in What Tab - COMPLETE! (Latest) ✨
+**Smart task creation:** Get suggested tasks when creating new work!
+
+**What Was Done:**
+- ✅ Created centralized task templates library (40+ pre-defined tasks)
+- ✅ Organized templates by business function (Marketing, Sales, Finance, Engineering, Ops, Admin)
+- ✅ Added intelligent suggestions UI to task creation modal
+- ✅ Function-aware filtering (suggestions update when function changes)
+- ✅ One-tap task creation from templates
+
+**New Features:**
+- **Task Templates Library**: 40+ pre-defined common tasks organized by function
+  - Each template includes: title, description, estimated TUs, and tags
+  - Covers common workflows: campaigns, reports, budgets, features, audits, etc.
+- **Smart Suggestions UI**: When you tap `+` to create a task:
+  1. Select function (Marketing, Sales, etc.)
+  2. See suggested tasks for that function
+  3. Tap any suggestion to auto-fill title & time estimate
+  4. Or choose "create custom task" for manual entry
+- **Instant Template Selection**: One tap fills in all task details
+- **Flexible Workflow**: Can still create custom tasks from scratch
+
+**Example Templates:**
+- **Marketing**: "Launch Product Marketing Campaign" (15 TU), "Social Media Weekly Posts" (5 TU)
+- **Sales**: "Cold Outreach Campaign" (10 TU), "Create Sales Proposal" (8 TU)
+- **Finance**: "Monthly Financial Close" (12 TU), "Quarterly Budget Review" (8 TU)
+- **Engineering**: "Implement New Feature" (20 TU), "API Integration" (12 TU)
+- **Ops**: "Vendor Evaluation & Selection" (10 TU), "Set Up Process Automation" (8 TU)
+- **Admin**: "New Hire Onboarding" (6 TU), "Benefits Enrollment Period" (10 TU)
+
+**User Flow:**
+1. Go to What tab → Tap `+` button
+2. Select business function
+3. Browse suggested tasks (auto-filtered by function)
+4. Tap a suggestion → title & estimate auto-fill
+5. Tap "Create Task" or choose "create custom task"
+
+**Technical Implementation:**
+- **Centralized Source**: `/src/lib/task-templates.ts` - Single source of truth for all templates
+- **Type-Safe**: Full TypeScript integration with `TaskTemplate` interface
+- **Helper Functions**: `getTemplatesByFunction()`, `searchTemplates()`, `getTemplateById()`
+- **UI Component**: Enhanced modal in `/src/app/(tabs)/what.tsx`
+
+**Status:** ✅ IMPLEMENTED
+Locations:
+- Templates: `/src/lib/task-templates.ts` (40+ templates)
+- UI: `/src/app/(tabs)/what.tsx` - Create Task Modal
+
+### AI Systems Management on People Cards - COMPLETE! 🤖
 **Team member enhancement:** Manage AI tools directly from people cards!
 
 **What Was Done:**
