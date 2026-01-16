@@ -3416,6 +3416,13 @@ Global resources available to all users for browsing and hiring:
   - Full profiles: experience, skills, certifications, education, portfolio
   - Filterable by function, role, availability
 
+- **50+ Hard Tech Advisors** (`/src/lib/hard-tech-advisors.ts`)
+  - VCs, law firms, accounting firms, strategic advisors
+  - Specializing in: Deep Tech, Climate Tech, Biotech, Space Tech, Robotics, Advanced Manufacturing
+  - Full details: focus areas, stages (Seed/Series A/B/C), geography, check sizes, notable investments, key people
+  - Accessible via Hub tab → Hard Tech Advisors card or direct route `/advisors`
+  - Search and filter by category, focus area, geography
+
 **Key Characteristic**: No `workspaceId` field - these are platform-wide catalogs
 
 #### Layer 2: Private Company Data (With workspaceId)
@@ -3580,6 +3587,7 @@ interface EntityState {
 - `/src/lib/marketplace-suppliers.ts` - 31 UK suppliers
 - `/src/lib/marketplace-ai-tools.ts` - 24 AI tools
 - `/src/lib/marketplace-executives.ts` - 60 executives & apprentices
+- `/src/lib/hard-tech-advisors.ts` - 50+ hard tech advisors (VCs, lawyers, accountants, strategic advisors)
 
 #### Workspace Stores (Layer 2)
 - `/src/lib/state/okr-store.ts` - OKRs with workspace filtering

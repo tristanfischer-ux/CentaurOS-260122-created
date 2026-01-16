@@ -823,6 +823,28 @@ export default function CommunityScreen() {
               </Pressable>
             </View>
 
+            {/* Resources Card - Full Width */}
+            <Pressable
+              onPress={() => router.push('/advisors')}
+              className="bg-gradient-to-r from-blue-500 to-blue-600 rounded-2xl p-5 mb-5 active:opacity-90"
+            >
+              <View className="flex-row items-center justify-between">
+                <View className="flex-1">
+                  <View className="flex-row items-center mb-2">
+                    <Scale size={24} color="#fff" />
+                    <Text className="text-white font-bold text-lg ml-2">Hard Tech Advisors</Text>
+                  </View>
+                  <Text className="text-white/80 text-sm mb-1">
+                    VCs, lawyers, accountants & strategic advisors
+                  </Text>
+                  <Text className="text-white/60 text-xs">
+                    50+ deep tech, climate, biotech, space, robotics specialists
+                  </Text>
+                </View>
+                <ArrowUpRight size={24} color="#fff" />
+              </View>
+            </Pressable>
+
             {/* Top Executives Picks */}
             <View className="mb-5">
               <View className="flex-row items-center justify-between mb-3">
