@@ -45,7 +45,8 @@ export interface WorkPlan {
   description: string;
   function: BusinessFunction;
   linkedOKRTitle?: string; // Optional - OKRs are now hidden from users
-  dueDate: string;
+  startDate: string; // Start date of the task
+  dueDate: string; // Delivery/due date of the task
   status: 'not-started' | 'in-progress' | 'completed' | 'blocked' | 'abandoned';
   progress: number;
   assignedBy: string;
@@ -149,6 +150,7 @@ const INITIAL_WORK_PLANS: WorkPlan[] = [
     description: 'Develop a 30-day content calendar for LinkedIn, Twitter, and Instagram with daily posts',
     function: 'Marketing',
     linkedOKRTitle: 'Build Brand Awareness & Generate Leads',
+    startDate: '2026-01-13',
     dueDate: '2026-01-20',
     status: 'in-progress',
     progress: 65,
@@ -171,6 +173,7 @@ const INITIAL_WORK_PLANS: WorkPlan[] = [
     description: 'Analyze pricing strategies of 10 direct competitors and create comparison spreadsheet',
     function: 'Sales',
     linkedOKRTitle: 'Achieve Product-Market Fit with 100 Customers',
+    startDate: '2026-01-18',
     dueDate: '2026-01-25',
     status: 'in-progress',
     progress: 40,
@@ -192,6 +195,7 @@ const INITIAL_WORK_PLANS: WorkPlan[] = [
     description: 'Find 3 alternative suppliers for PCB components with cost and lead time analysis',
     function: 'Engineering',
     linkedOKRTitle: 'Finalize Bill of Materials & Reduce COGS by 20%',
+    startDate: '2026-01-03',
     dueDate: '2026-01-18',
     status: 'completed',
     progress: 100,
@@ -219,6 +223,7 @@ const INITIAL_WORK_PLANS: WorkPlan[] = [
     description: 'Finalize circuit board design and approve manufacturing specs for MVP units',
     function: 'Engineering',
     linkedOKRTitle: 'Finalize Bill of Materials & Reduce COGS by 20%',
+    startDate: '2026-01-20',
     dueDate: '2026-02-15',
     status: 'in-progress',
     progress: 65,
@@ -244,6 +249,7 @@ const INITIAL_WORK_PLANS: WorkPlan[] = [
     description: 'Complete CAD design for injection-molded plastic housing and approve color samples',
     function: 'Engineering',
     linkedOKRTitle: 'Finalize Bill of Materials & Reduce COGS by 20%',
+    startDate: '2026-01-15',
     dueDate: '2026-01-31',
     status: 'in-progress',
     progress: 78,
@@ -271,6 +277,7 @@ const INITIAL_WORK_PLANS: WorkPlan[] = [
     description: 'Analyze BOM and find alternative suppliers',
     function: 'Engineering',
     linkedOKRTitle: 'Finalize Bill of Materials & Reduce COGS by 20%',
+    startDate: '2026-01-13',
     dueDate: '2026-01-25',
     status: 'completed',
     progress: 100,
@@ -295,6 +302,7 @@ const INITIAL_WORK_PLANS: WorkPlan[] = [
     description: 'Reduce lead time from 6 to 4 weeks',
     function: 'Ops',
     linkedOKRTitle: 'Scale Manufacturing to 1000 Units/Month',
+    startDate: '2026-01-15',
     dueDate: '2026-02-28',
     status: 'blocked',
     progress: 25,
@@ -318,6 +326,7 @@ const INITIAL_WORK_PLANS: WorkPlan[] = [
     description: 'Update pitch deck with Q4 metrics',
     function: 'Finance',
     linkedOKRTitle: 'Raise £2M Seed Round',
+    startDate: '2026-01-16',
     dueDate: '2026-01-20',
     status: 'not-started',
     progress: 0,

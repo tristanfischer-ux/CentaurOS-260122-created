@@ -176,6 +176,7 @@ export default function SetupPlanScreen() {
             description: taskData.description,
             function: wpData.function,
             linkedOKRTitle: okrData.okrTitle,
+            startDate: new Date().toISOString().split('T')[0],
             dueDate: new Date(Date.now() + (taskData.estimatedHours ?? 8) * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
             status: 'not-started',
             progress: 0,

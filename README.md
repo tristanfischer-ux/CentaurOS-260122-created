@@ -15,7 +15,14 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
 
 ## 🔄 Recent Updates (Jan 2026)
 
-### Decide Tab - Side Panel Modal (Latest)
+### Decide Tab - Date Management (Latest)
+- **Start and Delivery Dates**: Task allocation modal now includes date pickers
+  - Edit start date and delivery date (due date) directly in the modal
+  - Date pickers appear when you click on the date fields
+  - Dates are saved automatically when changed
+  - Both fields visible side-by-side for easy comparison
+
+### Decide Tab - Side Panel Modal
 - **Two-Section Layout**: Timeline (top) and Resource Pool (bottom)
   - **Top**: Task Timeline Gantt Chart - left 55% remains visible and usable
   - **Bottom**: Weekly Resource Pool - always visible and fully clickable

@@ -1,12 +1,13 @@
 import { View, Text, ScrollView, Pressable, Modal, TextInput, Alert, KeyboardAvoidingView, Platform, LayoutChangeEvent } from 'react-native';
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
-import { Target, Plus, Minus, X, ChevronDown, ChevronRight, CheckCircle2, Circle, Clock, Users, DollarSign, Lightbulb, ChevronUp, UserPlus, Zap, AlertTriangle, AlertCircle, TrendingDown, CalendarClock, ArrowRight, HelpCircle, Bot, Briefcase, GraduationCap, CheckCircle, GripVertical, Archive, Gauge } from 'lucide-react-native';
+import { Target, Plus, Minus, X, ChevronDown, ChevronRight, CheckCircle2, Circle, Clock, Users, DollarSign, Lightbulb, ChevronUp, UserPlus, Zap, AlertTriangle, AlertCircle, TrendingDown, CalendarClock, ArrowRight, HelpCircle, Bot, Briefcase, GraduationCap, CheckCircle, GripVertical, Archive, Gauge, Calendar } from 'lucide-react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, { useSharedValue, useAnimatedStyle, withSpring, runOnJS, FadeIn, FadeOut, Layout } from 'react-native-reanimated';
 import { useCurrentWorkspace, useCurrentMembership } from '@/lib/state/app-store';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { useQueueStore } from '@/lib/state/okr-queue-store';
 import type { Function as BusinessFunction } from '@/types';
 import { useOKRStore, type OKR, type Objective, type QueueStatus } from '@/lib/state/okr-store';
@@ -164,6 +165,8 @@ export default function DecideScreen() {
   const [selectedTaskForAllocation, setSelectedTaskForAllocation] = useState<WorkPlan | null>(null);
   const [editedTaskTitle, setEditedTaskTitle] = useState<string>('');
   const [editedTaskDescription, setEditedTaskDescription] = useState<string>('');
+  const [showStartDatePicker, setShowStartDatePicker] = useState(false);
+  const [showDueDatePicker, setShowDueDatePicker] = useState(false);
 
   // Task details modal state (for completed/abandoned tasks)
   const [showTaskDetailsModal, setShowTaskDetailsModal] = useState(false);
@@ -732,6 +735,26 @@ export default function DecideScreen() {
       setSelectedTaskForAllocation(prev => prev ? { ...prev, description: editedTaskDescription } : null);
     }
   }, [selectedTaskForAllocation, editedTaskDescription, updateWorkPlan]);
+
+  // Handle changing start date
+  const handleStartDateChange = useCallback((event: any, selectedDate?: Date) => {
+    setShowStartDatePicker(false);
+    if (selectedTaskForAllocation && selectedDate) {
+      const dateString = selectedDate.toISOString().split('T')[0];
+      updateWorkPlan(selectedTaskForAllocation.id, { startDate: dateString });
+      setSelectedTaskForAllocation(prev => prev ? { ...prev, startDate: dateString } : null);
+    }
+  }, [selectedTaskForAllocation, updateWorkPlan]);
+
+  // Handle changing due date
+  const handleDueDateChange = useCallback((event: any, selectedDate?: Date) => {
+    setShowDueDatePicker(false);
+    if (selectedTaskForAllocation && selectedDate) {
+      const dateString = selectedDate.toISOString().split('T')[0];
+      updateWorkPlan(selectedTaskForAllocation.id, { dueDate: dateString });
+      setSelectedTaskForAllocation(prev => prev ? { ...prev, dueDate: dateString } : null);
+    }
+  }, [selectedTaskForAllocation, updateWorkPlan]);
 
   // Initialize edited title and description when task is selected
   useEffect(() => {
@@ -1411,6 +1434,7 @@ export default function DecideScreen() {
       description: newOKRDescription,
       function: newOKRFunction,
       linkedOKRTitle: '',
+      startDate: new Date().toISOString().split('T')[0],
       dueDate: '',
       status: 'not-started',
       progress: 0,
@@ -1596,6 +1620,59 @@ export default function DecideScreen() {
                 numberOfLines={2}
               />
             </View>
+
+            {/* Date pickers */}
+            <View className="flex-row gap-2 mb-3">
+              {/* Start Date */}
+              <View className="flex-1">
+                <Text className="text-blue-600 dark:text-blue-400 text-xs font-semibold mb-1">
+                  Start Date
+                </Text>
+                <Pressable
+                  onPress={() => setShowStartDatePicker(true)}
+                  className="bg-white dark:bg-slate-800 rounded-lg px-3 py-2 border border-blue-200 dark:border-blue-700 flex-row items-center justify-between"
+                >
+                  <Text className="text-blue-700 dark:text-blue-300 text-sm">
+                    {selectedTaskForAllocation.startDate || 'Not set'}
+                  </Text>
+                  <Calendar size={16} color="#3b82f6" />
+                </Pressable>
+              </View>
+
+              {/* Delivery Date */}
+              <View className="flex-1">
+                <Text className="text-blue-600 dark:text-blue-400 text-xs font-semibold mb-1">
+                  Delivery Date
+                </Text>
+                <Pressable
+                  onPress={() => setShowDueDatePicker(true)}
+                  className="bg-white dark:bg-slate-800 rounded-lg px-3 py-2 border border-blue-200 dark:border-blue-700 flex-row items-center justify-between"
+                >
+                  <Text className="text-blue-700 dark:text-blue-300 text-sm">
+                    {selectedTaskForAllocation.dueDate || 'Not set'}
+                  </Text>
+                  <Calendar size={16} color="#3b82f6" />
+                </Pressable>
+              </View>
+            </View>
+
+            {/* Date Pickers */}
+            {showStartDatePicker && (
+              <DateTimePicker
+                value={selectedTaskForAllocation.startDate ? new Date(selectedTaskForAllocation.startDate) : new Date()}
+                mode="date"
+                display="default"
+                onChange={handleStartDateChange}
+              />
+            )}
+            {showDueDatePicker && (
+              <DateTimePicker
+                value={selectedTaskForAllocation.dueDate ? new Date(selectedTaskForAllocation.dueDate) : new Date()}
+                mode="date"
+                display="default"
+                onChange={handleDueDateChange}
+              />
+            )}
 
             {/* Resource allocation display */}
             <View className="bg-white dark:bg-slate-800 rounded-lg p-3 mb-3">

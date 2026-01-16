@@ -82,6 +82,7 @@ export function BusinessImprovements({ isDark = false, onRefresh }: BusinessImpr
       tusExpended: 0,
       allocatedTimeUnitsPerWeek: 0,
       assignedMemberIds: [],
+      startDate: new Date().toISOString().split('T')[0],
       dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days from now
       linkedOKRTitle: '',
       assignedBy: 'Consulting Insights',
