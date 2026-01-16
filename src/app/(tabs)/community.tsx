@@ -51,6 +51,7 @@ import { useOrganizationStore } from '@/lib/state/organization-store';
 import type { Supplier } from '@/types';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { HelpModal, HelpButton, type HelpContent } from '@/components/HelpModal';
+import { PersonDetailModalEnhanced } from '@/components/PersonDetailModalEnhanced';
 
 const HUB_HELP: HelpContent = {
   title: 'Marketplace & AI Tools',
@@ -175,6 +176,10 @@ export default function CommunityScreen() {
   const [applicationSpecialization, setApplicationSpecialization] = useState('');
   const [applicationExperience, setApplicationExperience] = useState('');
   const [applicationCV, setApplicationCV] = useState<{ name: string; uri: string; size: number } | null>(null);
+
+  // Person detail modal state
+  const [showPersonDetailModal, setShowPersonDetailModal] = useState(false);
+  const [selectedMemberIndex, setSelectedMemberIndex] = useState(0);
 
   const isFounder = currentMembership?.role === 'Founder';
 
@@ -815,31 +820,42 @@ export default function CommunityScreen() {
                     </View>
                   </View>
                 </View>
-                {members.filter(m => m.role === 'Founder' && m.status === 'active').map((member, idx) => (
-                  <Animated.View key={member.id} entering={FadeInDown.delay(idx * 50).duration(300)}>
-                    <View className="bg-white dark:bg-slate-900 rounded-2xl p-4 mb-3 border-2 border-purple-200 dark:border-purple-800">
-                      <View className="flex-row items-start justify-between mb-3">
-                        <View className="flex-1">
-                          <Text className="text-gray-900 dark:text-white font-bold text-base">{member.name}</Text>
-                          <Text className="text-gray-500 dark:text-slate-400 text-sm">{member.function}</Text>
+                {members.filter(m => m.role === 'Founder' && m.status === 'active').map((member, idx) => {
+                  const memberIndex = members.findIndex(m => m.id === member.id);
+                  return (
+                    <Animated.View key={member.id} entering={FadeInDown.delay(idx * 50).duration(300)}>
+                      <Pressable
+                        onPress={() => {
+                          setSelectedMemberIndex(memberIndex);
+                          setShowPersonDetailModal(true);
+                        }}
+                        className="active:opacity-80"
+                      >
+                        <View className="bg-white dark:bg-slate-900 rounded-2xl p-4 mb-3 border-2 border-purple-200 dark:border-purple-800">
+                          <View className="flex-row items-start justify-between mb-3">
+                            <View className="flex-1">
+                              <Text className="text-gray-900 dark:text-white font-bold text-base">{member.name}</Text>
+                              <Text className="text-gray-500 dark:text-slate-400 text-sm">{member.function}</Text>
+                            </View>
+                            <View className="bg-purple-500 px-3 py-1 rounded-full">
+                              <Text className="text-white text-xs font-bold">Founder</Text>
+                            </View>
+                          </View>
+                          <View className="flex-row items-center gap-4">
+                            <View className="flex-row items-center">
+                              <Clock size={14} color="#64748b" />
+                              <Text className="text-gray-600 dark:text-slate-400 text-xs ml-1">15 TU/week</Text>
+                            </View>
+                            <View className="flex-row items-center">
+                              <DollarSign size={14} color="#64748b" />
+                              <Text className="text-gray-600 dark:text-slate-400 text-xs ml-1">£{member.costPerDay}/day</Text>
+                            </View>
+                          </View>
                         </View>
-                        <View className="bg-purple-500 px-3 py-1 rounded-full">
-                          <Text className="text-white text-xs font-bold">Founder</Text>
-                        </View>
-                      </View>
-                      <View className="flex-row items-center gap-4">
-                        <View className="flex-row items-center">
-                          <Clock size={14} color="#64748b" />
-                          <Text className="text-gray-600 dark:text-slate-400 text-xs ml-1">15 TU/week</Text>
-                        </View>
-                        <View className="flex-row items-center">
-                          <DollarSign size={14} color="#64748b" />
-                          <Text className="text-gray-600 dark:text-slate-400 text-xs ml-1">£{member.costPerDay}/day</Text>
-                        </View>
-                      </View>
-                    </View>
-                  </Animated.View>
-                ))}
+                      </Pressable>
+                    </Animated.View>
+                  );
+                })}
               </View>
             )}
 
@@ -861,38 +877,49 @@ export default function CommunityScreen() {
                     <Plus size={18} color="#10b981" />
                   </Pressable>
                 </View>
-                {members.filter(m => m.role === 'FractionalExec' && m.status === 'active').map((member, idx) => (
-                  <Animated.View key={member.id} entering={FadeInDown.delay(idx * 50).duration(300)}>
-                    <View className="bg-white dark:bg-slate-900 rounded-2xl p-4 mb-3 border-2 border-emerald-200 dark:border-emerald-800">
-                      <View className="flex-row items-start justify-between mb-3">
-                        <View className="flex-1">
-                          <Text className="text-gray-900 dark:text-white font-bold text-base">{member.name}</Text>
-                          <Text className="text-gray-500 dark:text-slate-400 text-sm">{member.function}</Text>
+                {members.filter(m => m.role === 'FractionalExec' && m.status === 'active').map((member, idx) => {
+                  const memberIndex = members.findIndex(m => m.id === member.id);
+                  return (
+                    <Animated.View key={member.id} entering={FadeInDown.delay(idx * 50).duration(300)}>
+                      <Pressable
+                        onPress={() => {
+                          setSelectedMemberIndex(memberIndex);
+                          setShowPersonDetailModal(true);
+                        }}
+                        className="active:opacity-80"
+                      >
+                        <View className="bg-white dark:bg-slate-900 rounded-2xl p-4 mb-3 border-2 border-emerald-200 dark:border-emerald-800">
+                          <View className="flex-row items-start justify-between mb-3">
+                            <View className="flex-1">
+                              <Text className="text-gray-900 dark:text-white font-bold text-base">{member.name}</Text>
+                              <Text className="text-gray-500 dark:text-slate-400 text-sm">{member.function}</Text>
+                            </View>
+                            <View className="bg-emerald-500 px-3 py-1 rounded-full">
+                              <Text className="text-white text-xs font-bold">Executive</Text>
+                            </View>
+                          </View>
+                          <View className="flex-row items-center gap-4">
+                            <View className="flex-row items-center">
+                              <Clock size={14} color="#64748b" />
+                              <Text className="text-gray-600 dark:text-slate-400 text-xs ml-1">
+                                {member.daysPerWeek || 2} days/week
+                              </Text>
+                            </View>
+                            <View className="flex-row items-center">
+                              <DollarSign size={14} color="#64748b" />
+                              <Text className="text-gray-600 dark:text-slate-400 text-xs ml-1">£{member.costPerDay}/day</Text>
+                            </View>
+                            <View className="flex-row items-center bg-emerald-100 dark:bg-emerald-900/20 px-2 py-0.5 rounded">
+                              <Text className="text-emerald-700 dark:text-emerald-300 text-xs font-semibold">
+                                £{Math.round(((member.costPerDay || 0) * (member.daysPerWeek || 2) * 4.33) / 1000)}K/mo
+                              </Text>
+                            </View>
+                          </View>
                         </View>
-                        <View className="bg-emerald-500 px-3 py-1 rounded-full">
-                          <Text className="text-white text-xs font-bold">Executive</Text>
-                        </View>
-                      </View>
-                      <View className="flex-row items-center gap-4">
-                        <View className="flex-row items-center">
-                          <Clock size={14} color="#64748b" />
-                          <Text className="text-gray-600 dark:text-slate-400 text-xs ml-1">
-                            {member.daysPerWeek || 2} days/week
-                          </Text>
-                        </View>
-                        <View className="flex-row items-center">
-                          <DollarSign size={14} color="#64748b" />
-                          <Text className="text-gray-600 dark:text-slate-400 text-xs ml-1">£{member.costPerDay}/day</Text>
-                        </View>
-                        <View className="flex-row items-center bg-emerald-100 dark:bg-emerald-900/20 px-2 py-0.5 rounded">
-                          <Text className="text-emerald-700 dark:text-emerald-300 text-xs font-semibold">
-                            £{Math.round(((member.costPerDay || 0) * (member.daysPerWeek || 2) * 4.33) / 1000)}K/mo
-                          </Text>
-                        </View>
-                      </View>
-                    </View>
-                  </Animated.View>
-                ))}
+                      </Pressable>
+                    </Animated.View>
+                  );
+                })}
               </View>
             )}
 
@@ -914,36 +941,47 @@ export default function CommunityScreen() {
                     <Plus size={18} color="#3b82f6" />
                   </Pressable>
                 </View>
-                {members.filter(m => m.role === 'Apprentice' && m.status === 'active').map((member, idx) => (
-                  <Animated.View key={member.id} entering={FadeInDown.delay(idx * 50).duration(300)}>
-                    <View className="bg-white dark:bg-slate-900 rounded-2xl p-4 mb-3 border-2 border-blue-200 dark:border-blue-800">
-                      <View className="flex-row items-start justify-between mb-3">
-                        <View className="flex-1">
-                          <Text className="text-gray-900 dark:text-white font-bold text-base">{member.name}</Text>
-                          <Text className="text-gray-500 dark:text-slate-400 text-sm">{member.function}</Text>
+                {members.filter(m => m.role === 'Apprentice' && m.status === 'active').map((member, idx) => {
+                  const memberIndex = members.findIndex(m => m.id === member.id);
+                  return (
+                    <Animated.View key={member.id} entering={FadeInDown.delay(idx * 50).duration(300)}>
+                      <Pressable
+                        onPress={() => {
+                          setSelectedMemberIndex(memberIndex);
+                          setShowPersonDetailModal(true);
+                        }}
+                        className="active:opacity-80"
+                      >
+                        <View className="bg-white dark:bg-slate-900 rounded-2xl p-4 mb-3 border-2 border-blue-200 dark:border-blue-800">
+                          <View className="flex-row items-start justify-between mb-3">
+                            <View className="flex-1">
+                              <Text className="text-gray-900 dark:text-white font-bold text-base">{member.name}</Text>
+                              <Text className="text-gray-500 dark:text-slate-400 text-sm">{member.function}</Text>
+                            </View>
+                            <View className="bg-blue-500 px-3 py-1 rounded-full">
+                              <Text className="text-white text-xs font-bold">Apprentice</Text>
+                            </View>
+                          </View>
+                          <View className="flex-row items-center gap-4">
+                            <View className="flex-row items-center">
+                              <Clock size={14} color="#64748b" />
+                              <Text className="text-gray-600 dark:text-slate-400 text-xs ml-1">10 TU/week</Text>
+                            </View>
+                            <View className="flex-row items-center">
+                              <DollarSign size={14} color="#64748b" />
+                              <Text className="text-gray-600 dark:text-slate-400 text-xs ml-1">£{member.costPerDay}/day</Text>
+                            </View>
+                            <View className="flex-row items-center bg-blue-100 dark:bg-blue-900/20 px-2 py-0.5 rounded">
+                              <Text className="text-blue-700 dark:text-blue-300 text-xs font-semibold">
+                                £{Math.round(((member.costPerDay || 0) * 5 * 4.33) / 1000)}K/mo
+                              </Text>
+                            </View>
+                          </View>
                         </View>
-                        <View className="bg-blue-500 px-3 py-1 rounded-full">
-                          <Text className="text-white text-xs font-bold">Apprentice</Text>
-                        </View>
-                      </View>
-                      <View className="flex-row items-center gap-4">
-                        <View className="flex-row items-center">
-                          <Clock size={14} color="#64748b" />
-                          <Text className="text-gray-600 dark:text-slate-400 text-xs ml-1">10 TU/week</Text>
-                        </View>
-                        <View className="flex-row items-center">
-                          <DollarSign size={14} color="#64748b" />
-                          <Text className="text-gray-600 dark:text-slate-400 text-xs ml-1">£{member.costPerDay}/day</Text>
-                        </View>
-                        <View className="flex-row items-center bg-blue-100 dark:bg-blue-900/20 px-2 py-0.5 rounded">
-                          <Text className="text-blue-700 dark:text-blue-300 text-xs font-semibold">
-                            £{Math.round(((member.costPerDay || 0) * 5 * 4.33) / 1000)}K/mo
-                          </Text>
-                        </View>
-                      </View>
-                    </View>
-                  </Animated.View>
-                ))}
+                      </Pressable>
+                    </Animated.View>
+                  );
+                })}
               </View>
             )}
 
@@ -2819,6 +2857,20 @@ export default function CommunityScreen() {
           </Pressable>
         </Pressable>
       </Modal>
+
+      {/* Enhanced Person Detail Modal */}
+      <PersonDetailModalEnhanced
+        visible={showPersonDetailModal}
+        onClose={() => setShowPersonDetailModal(false)}
+        members={members}
+        initialMemberIndex={selectedMemberIndex}
+        onNavigate={(taskId) => {
+          router.push({
+            pathname: '/(tabs)/decide',
+            params: { selectedTaskId: taskId }
+          });
+        }}
+      />
     </View>
   );
 }

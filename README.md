@@ -62,6 +62,14 @@ The app has been completely restructured into 6 intuitive tabs following a natur
      - Overview cards showing team counts by role
      - Monthly cost breakdown per person
      - Quick actions to expand team (Add Executive/Apprentice buttons)
+     - **Enhanced Person Detail Modal** - Tap any team member to view:
+       - Swipe left/right to navigate between people
+       - Edit mode to update name and function
+       - Capacity status indicator (spare/full/overloaded)
+       - Current work showing all assigned tasks with allocated TU
+       - Visual capacity bar with utilization percentage
+       - Suggested work for people with spare capacity
+       - Quick navigation to tasks from the modal
    - **Marketplace Tab** - Browse available candidates:
      - "Discover" shows top picks across all categories
      - Executives tab with "AVAILABLE TO ADD / NOT YET ENGAGED" banner
