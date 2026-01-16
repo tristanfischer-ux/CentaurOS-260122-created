@@ -44,6 +44,7 @@ import { CollapsibleResourcePool } from '@/components/CollapsibleResourcePool';
 import { MiniGanttChart } from '@/components/MiniGanttChart';
 import { UnifiedTaskAllocationModal } from '@/components/UnifiedTaskAllocationModal';
 import { SquaresDisplay } from '@/components/SquaresDisplay';
+import { CompactTaskCard } from '@/components/CompactTaskCard';
 
 const WHAT_HELP: HelpContent = {
   title: 'Task Execution',
@@ -196,138 +197,6 @@ export default function WhatScreen() {
 
   const handleCompleteTask = (task: WorkPlan) => {
     completeWorkPlan(task.id);
-  };
-
-  // Task card component
-  const TaskCard = ({ task, index }: { task: WorkPlan; index: number }) => {
-    const statusConfig = STATUS_CONFIG[task.status as keyof typeof STATUS_CONFIG] || STATUS_CONFIG['not-started'];
-    const functionColor = FUNCTION_COLORS[task.function] || '#64748b';
-    const taskMembers = getTaskMembers(task);
-    const totalAllocated = task.allocations?.reduce((sum, a) => sum + a.squaresPerWeek, 0) || 0;
-
-    return (
-      <Animated.View entering={FadeInDown.delay(index * 30).springify()}>
-        <Pressable
-          onPress={() => {
-            setSelectedTask(task);
-            setShowTaskModal(true);
-          }}
-          className="bg-white dark:bg-slate-800 rounded-xl p-4 mb-3 active:opacity-80"
-          style={{ borderLeftWidth: 4, borderLeftColor: statusConfig.color }}
-        >
-          <View className="flex-row items-start justify-between mb-2">
-            <View className="flex-1 mr-3">
-              <Text className="text-slate-900 dark:text-white font-semibold text-base" numberOfLines={2}>
-                {task.title}
-              </Text>
-              <View className="flex-row items-center gap-2 mt-1">
-                <View
-                  className="px-2 py-0.5 rounded"
-                  style={{ backgroundColor: functionColor + '20' }}
-                >
-                  <Text style={{ color: functionColor }} className="text-xs font-medium">
-                    {task.function}
-                  </Text>
-                </View>
-                <View
-                  className="px-2 py-0.5 rounded"
-                  style={{ backgroundColor: statusConfig.bgColor }}
-                >
-                  <Text style={{ color: statusConfig.color }} className="text-xs font-medium">
-                    {statusConfig.label}
-                  </Text>
-                </View>
-              </View>
-            </View>
-
-            {/* Progress indicator */}
-            <View className="items-end">
-              <Text className="text-slate-900 dark:text-white font-bold text-lg">
-                {task.progress || 0}%
-              </Text>
-              <Text className="text-slate-500 dark:text-slate-400 text-xs">
-                {task.tusExpended || 0}/{task.estimatedTimeUnits} TU
-              </Text>
-            </View>
-          </View>
-
-          {/* Team members */}
-          {taskMembers.length > 0 && (
-            <View className="flex-row items-center gap-2 mt-2 pt-2 border-t border-slate-100 dark:border-slate-700">
-              <View className="flex-row -space-x-2">
-                {taskMembers.slice(0, 4).map((alloc, i) => (
-                  <View
-                    key={alloc.memberId}
-                    className="w-7 h-7 rounded-full items-center justify-center border-2 border-white dark:border-slate-800"
-                    style={{
-                      backgroundColor: alloc.member?.role === 'Founder' ? '#8b5cf6' :
-                        alloc.member?.role === 'FractionalExec' ? '#3b82f6' : '#10b981',
-                      zIndex: 10 - i,
-                    }}
-                  >
-                    <Text className="text-white text-xs font-bold">
-                      {alloc.member?.name?.charAt(0) || '?'}
-                    </Text>
-                  </View>
-                ))}
-                {taskMembers.length > 4 && (
-                  <View className="w-7 h-7 rounded-full items-center justify-center bg-slate-300 dark:bg-slate-600 border-2 border-white dark:border-slate-800">
-                    <Text className="text-slate-700 dark:text-white text-xs font-bold">
-                      +{taskMembers.length - 4}
-                    </Text>
-                  </View>
-                )}
-              </View>
-              <Text className="text-slate-500 dark:text-slate-400 text-xs">
-                {totalAllocated} TU/week allocated
-              </Text>
-            </View>
-          )}
-
-          {/* Quick actions for active tasks */}
-          {task.status === 'in-progress' && (
-            <View className="flex-row gap-2 mt-3">
-              <Pressable
-                onPress={() => handleBlockTask(task)}
-                className="flex-1 bg-amber-100 dark:bg-amber-900/30 py-2 rounded-lg flex-row items-center justify-center gap-1"
-              >
-                <AlertTriangle size={14} color="#f59e0b" />
-                <Text className="text-amber-700 dark:text-amber-300 text-xs font-medium">Block</Text>
-              </Pressable>
-              <Pressable
-                onPress={() => handleCompleteTask(task)}
-                className="flex-1 bg-green-100 dark:bg-green-900/30 py-2 rounded-lg flex-row items-center justify-center gap-1"
-              >
-                <CheckCircle2 size={14} color="#10b981" />
-                <Text className="text-green-700 dark:text-green-300 text-xs font-medium">Complete</Text>
-              </Pressable>
-            </View>
-          )}
-
-          {/* Start button for queued tasks */}
-          {task.status === 'not-started' && taskMembers.length > 0 && (
-            <Pressable
-              onPress={() => handleStartTask(task)}
-              className="mt-3 bg-blue-500 py-2 rounded-lg flex-row items-center justify-center gap-1"
-            >
-              <Play size={14} color="white" />
-              <Text className="text-white text-sm font-medium">Start Task</Text>
-            </Pressable>
-          )}
-
-          {/* Unblock button for blocked tasks */}
-          {task.status === 'blocked' && (
-            <Pressable
-              onPress={() => updateWorkPlan(task.id, { status: 'in-progress' })}
-              className="mt-3 bg-amber-500 py-2 rounded-lg flex-row items-center justify-center gap-1"
-            >
-              <Play size={14} color="white" />
-              <Text className="text-white text-sm font-medium">Unblock & Resume</Text>
-            </Pressable>
-          )}
-        </Pressable>
-      </Animated.View>
-    );
   };
 
   return (
@@ -520,9 +389,21 @@ export default function WhatScreen() {
                 In Progress ({tasksByStatus['in-progress'].length})
               </Text>
             </View>
-            {tasksByStatus['in-progress'].map((task, index) => (
-              <TaskCard key={task.id} task={task} index={index} />
-            ))}
+            {tasksByStatus['in-progress'].map((task, index) => {
+              const taskMembers = task.assignedMemberIds?.map(id => members.find(m => m.id === id)).filter(Boolean) as OrganizationMember[];
+              return (
+                <CompactTaskCard
+                  key={task.id}
+                  task={task}
+                  assignedMembers={taskMembers}
+                  onPress={() => {}}
+                  onFullDetailPress={() => {
+                    setSelectedTask(task);
+                    setShowTaskModal(true);
+                  }}
+                />
+              );
+            })}
           </View>
         )}
 
@@ -535,9 +416,21 @@ export default function WhatScreen() {
                 Blocked ({tasksByStatus['blocked'].length})
               </Text>
             </View>
-            {tasksByStatus['blocked'].map((task, index) => (
-              <TaskCard key={task.id} task={task} index={index} />
-            ))}
+            {tasksByStatus['blocked'].map((task, index) => {
+              const taskMembers = task.assignedMemberIds?.map(id => members.find(m => m.id === id)).filter(Boolean) as OrganizationMember[];
+              return (
+                <CompactTaskCard
+                  key={task.id}
+                  task={task}
+                  assignedMembers={taskMembers}
+                  onPress={() => {}}
+                  onFullDetailPress={() => {
+                    setSelectedTask(task);
+                    setShowTaskModal(true);
+                  }}
+                />
+              );
+            })}
           </View>
         )}
 
@@ -550,9 +443,21 @@ export default function WhatScreen() {
                 Queued ({tasksByStatus['not-started'].length})
               </Text>
             </View>
-            {tasksByStatus['not-started'].map((task, index) => (
-              <TaskCard key={task.id} task={task} index={index} />
-            ))}
+            {tasksByStatus['not-started'].map((task, index) => {
+              const taskMembers = task.assignedMemberIds?.map(id => members.find(m => m.id === id)).filter(Boolean) as OrganizationMember[];
+              return (
+                <CompactTaskCard
+                  key={task.id}
+                  task={task}
+                  assignedMembers={taskMembers}
+                  onPress={() => {}}
+                  onFullDetailPress={() => {
+                    setSelectedTask(task);
+                    setShowTaskModal(true);
+                  }}
+                />
+              );
+            })}
           </View>
         )}
 
@@ -565,9 +470,21 @@ export default function WhatScreen() {
                 Completed ({tasksByStatus['completed'].length})
               </Text>
             </View>
-            {tasksByStatus['completed'].slice(0, 5).map((task, index) => (
-              <TaskCard key={task.id} task={task} index={index} />
-            ))}
+            {tasksByStatus['completed'].slice(0, 5).map((task, index) => {
+              const taskMembers = task.assignedMemberIds?.map(id => members.find(m => m.id === id)).filter(Boolean) as OrganizationMember[];
+              return (
+                <CompactTaskCard
+                  key={task.id}
+                  task={task}
+                  assignedMembers={taskMembers}
+                  onPress={() => {}}
+                  onFullDetailPress={() => {
+                    setSelectedTask(task);
+                    setShowTaskModal(true);
+                  }}
+                />
+              );
+            })}
             {tasksByStatus['completed'].length > 5 && (
               <Pressable className="py-3 items-center">
                 <Text className="text-blue-500 font-medium">
