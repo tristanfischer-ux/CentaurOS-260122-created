@@ -13,6 +13,12 @@ import {
   ChevronUp,
   ChevronDown,
   Sparkles,
+  Users,
+  UserPlus,
+  LogOut,
+  Crown,
+  Search,
+  Check,
 } from 'lucide-react-native';
 import { useAppStore } from '@/lib/state/app-store';
 import { useOrganizationStore } from '@/lib/state/organization-store';
@@ -23,6 +29,7 @@ import { getRecommendedToolsForMember } from '@/lib/armory/recommendations';
 import { getToolEffects } from '@/lib/armory/tool-effects';
 import { cn } from '@/lib/cn';
 import { useTheme } from '@/lib/ThemeContext';
+import type { Squad, Function as BusinessFunction } from '@/types';
 
 export default function ArmoryScreen() {
   const [selectedMember, setSelectedMember] = useState<OrganizationMember | null>(null);
@@ -1073,6 +1080,7 @@ function AIToolDetailModal({
 
 const SKILL_LEVEL_NAMES = ['', 'Novice', 'Beginner', 'Intermediate', 'Advanced', 'Expert'];
 const SKILL_LEVEL_COLORS = ['', '#ef4444', '#f97316', '#eab308', '#22c55e', '#3b82f6'];
+const BUSINESS_FUNCTIONS: BusinessFunction[] = ['Finance', 'Sales', 'Marketing', 'Ops', 'Engineering', 'Admin'];
 
 function PersonDetailModal({
   visible,
@@ -1091,10 +1099,24 @@ function PersonDetailModal({
   // Get fresh member data from store
   const getMemberById = useOrganizationStore((s) => s.getMemberById);
   const updateMember = useOrganizationStore((s) => s.updateMember);
+  const allMembers = useOrganizationStore((s) => s.members);
   const member = getMemberById(initialMember.id) || initialMember;
+
+  // Squad store
+  const squads = useArmoryStore((s) => s.squads);
+  const createSquad = useArmoryStore((s) => s.createSquad);
+  const assignApprentice = useArmoryStore((s) => s.assignApprentice);
+  const removeApprentice = useArmoryStore((s) => s.removeApprentice);
+  const deleteSquad = useArmoryStore((s) => s.deleteSquad);
 
   const [showAddSkill, setShowAddSkill] = useState(false);
   const [newSkillName, setNewSkillName] = useState('');
+  const [showCreateSquad, setShowCreateSquad] = useState(false);
+  const [showJoinSquad, setShowJoinSquad] = useState(false);
+  const [showAddMembers, setShowAddMembers] = useState(false);
+  const [newSquadName, setNewSquadName] = useState('');
+  const [newSquadFunction, setNewSquadFunction] = useState<BusinessFunction>(member.function as BusinessFunction || 'Ops');
+  const [memberSearchQuery, setMemberSearchQuery] = useState('');
 
   // Theme colors
   const bgCard = isDark ? 'bg-slate-900' : isOffWhite ? 'bg-white' : 'bg-white';
@@ -1119,6 +1141,40 @@ function PersonDetailModal({
     ...member,
     skills: skills,
   }), [member, skills]);
+
+  // Find squads this member belongs to
+  const memberSquads = useMemo(() => {
+    return squads.filter(squad =>
+      squad.leaderMemberId === member.id ||
+      squad.apprenticeMemberIds.includes(member.id)
+    );
+  }, [squads, member.id]);
+
+  // Find squads this member leads
+  const ledSquads = useMemo(() => {
+    return squads.filter(squad => squad.leaderMemberId === member.id);
+  }, [squads, member.id]);
+
+  // Squads available to join (not already a member)
+  const availableSquads = useMemo(() => {
+    return squads.filter(squad =>
+      squad.leaderMemberId !== member.id &&
+      !squad.apprenticeMemberIds.includes(member.id) &&
+      squad.workspaceId === member.workspaceId
+    );
+  }, [squads, member.id, member.workspaceId]);
+
+  // Members that can be added to squads (same workspace, not already in a squad led by this member)
+  const availableMembers = useMemo(() => {
+    const currentSquadMemberIds = ledSquads.flatMap(s => [...s.apprenticeMemberIds, s.leaderMemberId]);
+    return allMembers.filter(m =>
+      m.id !== member.id &&
+      m.workspaceId === member.workspaceId &&
+      m.status === 'active' &&
+      !currentSquadMemberIds.includes(m.id) &&
+      (memberSearchQuery === '' || m.name.toLowerCase().includes(memberSearchQuery.toLowerCase()))
+    );
+  }, [allMembers, member.id, member.workspaceId, ledSquads, memberSearchQuery]);
 
   const handleUpdateSkillLevel = (skillId: string, newLevel: number) => {
     const updatedSkills = skills.map(skill =>
@@ -1156,6 +1212,42 @@ function PersonDetailModal({
     if (defaultSkills.length > 0) {
       updateMember(member.id, { skills: defaultSkills });
     }
+  };
+
+  const handleCreateSquad = async () => {
+    if (!newSquadName.trim()) return;
+
+    await createSquad({
+      workspaceId: member.workspaceId,
+      name: newSquadName.trim(),
+      function: newSquadFunction,
+      leaderMemberId: member.id,
+      apprenticeMemberIds: [],
+    });
+
+    setNewSquadName('');
+    setShowCreateSquad(false);
+  };
+
+  const handleJoinSquad = async (squadId: string) => {
+    await assignApprentice(squadId, member.id);
+    setShowJoinSquad(false);
+  };
+
+  const handleLeaveSquad = async (squadId: string) => {
+    await removeApprentice(squadId, member.id);
+  };
+
+  const handleAddMemberToSquad = async (squadId: string, memberId: string) => {
+    await assignApprentice(squadId, memberId);
+  };
+
+  const handleRemoveMemberFromSquad = async (squadId: string, memberId: string) => {
+    await removeApprentice(squadId, memberId);
+  };
+
+  const handleDeleteSquad = async (squadId: string) => {
+    await deleteSquad(squadId);
   };
 
   return (
@@ -1363,6 +1455,120 @@ function PersonDetailModal({
                 </View>
               </View>
 
+              {/* Squads Section */}
+              <View className="mb-6">
+                <View className="flex-row items-center justify-between mb-3">
+                  <View className="flex-row items-center gap-2">
+                    <Users size={20} color={isDark ? '#fff' : '#374151'} />
+                    <Text className={`${textPrimary} text-lg font-bold`}>Squads</Text>
+                  </View>
+                  <View className="flex-row gap-2">
+                    {availableSquads.length > 0 && (
+                      <Pressable
+                        onPress={() => setShowJoinSquad(true)}
+                        className="bg-purple-500/20 px-3 py-1.5 rounded-lg flex-row items-center gap-1 active:opacity-70"
+                      >
+                        <UserPlus size={14} color="#a855f7" />
+                        <Text className="text-purple-400 text-xs font-bold">Join</Text>
+                      </Pressable>
+                    )}
+                    {(member.role === 'Founder' || member.role === 'FractionalExec') && (
+                      <Pressable
+                        onPress={() => setShowCreateSquad(true)}
+                        className="bg-blue-500 px-3 py-1.5 rounded-lg flex-row items-center gap-1 active:opacity-70"
+                      >
+                        <Plus size={14} color="white" />
+                        <Text className="text-white text-xs font-bold">Create</Text>
+                      </Pressable>
+                    )}
+                  </View>
+                </View>
+
+                {memberSquads.length === 0 ? (
+                  <View className={`${bgSecondary} rounded-xl p-6 items-center`}>
+                    <Users size={32} color={isDark ? '#64748b' : '#9ca3af'} />
+                    <Text className={`${textMuted} text-center mt-2`}>Not in any squads yet</Text>
+                    <Text className={`${textMuted} text-center text-xs mt-1`}>
+                      Create or join a squad to collaborate
+                    </Text>
+                  </View>
+                ) : (
+                  <View className="gap-3">
+                    {memberSquads.map((squad) => {
+                      const isLeader = squad.leaderMemberId === member.id;
+                      const leader = allMembers.find(m => m.id === squad.leaderMemberId);
+                      const squadMembers = squad.apprenticeMemberIds
+                        .map(id => allMembers.find(m => m.id === id))
+                        .filter((m): m is OrganizationMember => m !== undefined);
+
+                      return (
+                        <View key={squad.id} className={`${bgSecondary} rounded-xl p-4 border ${borderColor}`}>
+                          <View className="flex-row items-center justify-between mb-2">
+                            <View className="flex-row items-center gap-2 flex-1">
+                              {isLeader && <Crown size={16} color="#f59e0b" />}
+                              <Text className={`${textPrimary} font-bold text-base`}>{squad.name}</Text>
+                            </View>
+                            <View className="bg-purple-500/20 px-2 py-1 rounded">
+                              <Text className="text-purple-400 text-xs font-bold">{squad.function}</Text>
+                            </View>
+                          </View>
+
+                          {/* Squad Leader */}
+                          {leader && !isLeader && (
+                            <View className="flex-row items-center gap-2 mb-2">
+                              <Text className={`${textMuted} text-xs`}>Led by:</Text>
+                              <Text className={`${textSecondary} text-xs font-semibold`}>{leader.name}</Text>
+                            </View>
+                          )}
+
+                          {/* Squad Members */}
+                          <View className="flex-row items-center gap-2 mb-3">
+                            <Text className={`${textMuted} text-xs`}>Members:</Text>
+                            <Text className={`${textSecondary} text-xs`}>
+                              {squadMembers.length === 0
+                                ? 'None yet'
+                                : squadMembers.length <= 3
+                                  ? squadMembers.map(m => m.name.split(' ')[0]).join(', ')
+                                  : `${squadMembers.slice(0, 3).map(m => m.name.split(' ')[0]).join(', ')} +${squadMembers.length - 3}`}
+                            </Text>
+                          </View>
+
+                          {/* Actions */}
+                          <View className="flex-row gap-2">
+                            {isLeader && canManage && (
+                              <>
+                                <Pressable
+                                  onPress={() => setShowAddMembers(true)}
+                                  className="flex-1 bg-blue-500/20 rounded-lg py-2 flex-row items-center justify-center gap-1 active:opacity-70"
+                                >
+                                  <UserPlus size={14} color="#3b82f6" />
+                                  <Text className="text-blue-400 text-xs font-bold">Add Members</Text>
+                                </Pressable>
+                                <Pressable
+                                  onPress={() => handleDeleteSquad(squad.id)}
+                                  className="bg-red-500/20 rounded-lg px-3 py-2 active:opacity-70"
+                                >
+                                  <Trash2 size={14} color="#ef4444" />
+                                </Pressable>
+                              </>
+                            )}
+                            {!isLeader && (
+                              <Pressable
+                                onPress={() => handleLeaveSquad(squad.id)}
+                                className="flex-1 bg-red-500/20 rounded-lg py-2 flex-row items-center justify-center gap-1 active:opacity-70"
+                              >
+                                <LogOut size={14} color="#ef4444" />
+                                <Text className="text-red-400 text-xs font-bold">Leave Squad</Text>
+                              </Pressable>
+                            )}
+                          </View>
+                        </View>
+                      );
+                    })}
+                  </View>
+                )}
+              </View>
+
               {/* Bio */}
               {member.bio && (
                 <View className="mb-6">
@@ -1485,6 +1691,221 @@ function PersonDetailModal({
                   <Text className="text-white font-bold text-center">Add Skill</Text>
                 </Pressable>
               </View>
+            </Pressable>
+          </Pressable>
+        </Modal>
+
+        {/* Create Squad Modal */}
+        <Modal visible={showCreateSquad} transparent animationType="fade" onRequestClose={() => setShowCreateSquad(false)}>
+          <Pressable
+            className="flex-1 bg-black/80 justify-center items-center px-6"
+            onPress={() => setShowCreateSquad(false)}
+          >
+            <Pressable onPress={(e) => e.stopPropagation()} className={`${bgCard} rounded-2xl p-6 w-full max-w-sm`}>
+              <Text className={`${textPrimary} text-xl font-black mb-4`}>Create New Squad</Text>
+
+              <Text className={`${textSecondary} text-sm mb-2`}>Squad Name</Text>
+              <TextInput
+                value={newSquadName}
+                onChangeText={setNewSquadName}
+                placeholder="e.g., Alpha Team"
+                placeholderTextColor={isDark ? '#64748b' : '#9ca3af'}
+                className={`${bgSecondary} ${textPrimary} rounded-xl px-4 py-3 mb-4`}
+              />
+
+              <Text className={`${textSecondary} text-sm mb-2`}>Function</Text>
+              <View className="flex-row flex-wrap gap-2 mb-4">
+                {BUSINESS_FUNCTIONS.map((func) => (
+                  <Pressable
+                    key={func}
+                    onPress={() => setNewSquadFunction(func)}
+                    className={cn(
+                      'px-3 py-2 rounded-lg',
+                      newSquadFunction === func ? 'bg-purple-500' : bgSecondary
+                    )}
+                  >
+                    <Text
+                      className={cn(
+                        'text-sm font-semibold',
+                        newSquadFunction === func ? 'text-white' : textSecondary
+                      )}
+                    >
+                      {func}
+                    </Text>
+                  </Pressable>
+                ))}
+              </View>
+
+              <Text className={`${textMuted} text-xs mb-4`}>
+                You will be the leader of this squad. You can add members after creating it.
+              </Text>
+
+              <View className="flex-row gap-3">
+                <Pressable
+                  onPress={() => setShowCreateSquad(false)}
+                  className={`flex-1 ${bgSecondary} rounded-xl py-3 active:opacity-70`}
+                >
+                  <Text className={`${textPrimary} font-bold text-center`}>Cancel</Text>
+                </Pressable>
+                <Pressable
+                  onPress={handleCreateSquad}
+                  className="flex-1 bg-blue-500 rounded-xl py-3 active:opacity-70"
+                >
+                  <Text className="text-white font-bold text-center">Create</Text>
+                </Pressable>
+              </View>
+            </Pressable>
+          </Pressable>
+        </Modal>
+
+        {/* Join Squad Modal */}
+        <Modal visible={showJoinSquad} transparent animationType="fade" onRequestClose={() => setShowJoinSquad(false)}>
+          <Pressable
+            className="flex-1 bg-black/80 justify-center items-center px-6"
+            onPress={() => setShowJoinSquad(false)}
+          >
+            <Pressable onPress={(e) => e.stopPropagation()} className={`${bgCard} rounded-2xl p-6 w-full max-w-sm`}>
+              <View className="flex-row items-center justify-between mb-4">
+                <Text className={`${textPrimary} text-xl font-black`}>Join a Squad</Text>
+                <Pressable onPress={() => setShowJoinSquad(false)}>
+                  <X size={24} color={isDark ? '#94a3b8' : '#6b7280'} />
+                </Pressable>
+              </View>
+
+              {availableSquads.length === 0 ? (
+                <View className="py-8 items-center">
+                  <Users size={40} color={isDark ? '#64748b' : '#9ca3af'} />
+                  <Text className={`${textMuted} text-center mt-3`}>No squads available to join</Text>
+                </View>
+              ) : (
+                <ScrollView style={{ maxHeight: 300 }} showsVerticalScrollIndicator={false}>
+                  <View className="gap-2">
+                    {availableSquads.map((squad) => {
+                      const leader = allMembers.find(m => m.id === squad.leaderMemberId);
+                      return (
+                        <Pressable
+                          key={squad.id}
+                          onPress={() => handleJoinSquad(squad.id)}
+                          className={`${bgSecondary} rounded-xl p-4 active:opacity-70`}
+                        >
+                          <View className="flex-row items-center justify-between">
+                            <View className="flex-1">
+                              <Text className={`${textPrimary} font-bold`}>{squad.name}</Text>
+                              <Text className={`${textMuted} text-xs mt-1`}>
+                                Led by {leader?.name || 'Unknown'} • {squad.function}
+                              </Text>
+                              <Text className={`${textMuted} text-xs`}>
+                                {squad.apprenticeMemberIds.length} member{squad.apprenticeMemberIds.length !== 1 ? 's' : ''}
+                              </Text>
+                            </View>
+                            <View className="bg-purple-500 rounded-lg px-3 py-2">
+                              <Text className="text-white text-xs font-bold">Join</Text>
+                            </View>
+                          </View>
+                        </Pressable>
+                      );
+                    })}
+                  </View>
+                </ScrollView>
+              )}
+            </Pressable>
+          </Pressable>
+        </Modal>
+
+        {/* Add Members Modal */}
+        <Modal visible={showAddMembers} transparent animationType="fade" onRequestClose={() => setShowAddMembers(false)}>
+          <Pressable
+            className="flex-1 bg-black/80 justify-center items-center px-6"
+            onPress={() => setShowAddMembers(false)}
+          >
+            <Pressable onPress={(e) => e.stopPropagation()} className={`${bgCard} rounded-2xl p-6 w-full max-w-sm`}>
+              <View className="flex-row items-center justify-between mb-4">
+                <Text className={`${textPrimary} text-xl font-black`}>Add Members</Text>
+                <Pressable onPress={() => setShowAddMembers(false)}>
+                  <X size={24} color={isDark ? '#94a3b8' : '#6b7280'} />
+                </Pressable>
+              </View>
+
+              {/* Search */}
+              <View className={`${bgSecondary} rounded-xl px-4 py-3 mb-4 flex-row items-center gap-2`}>
+                <Search size={18} color={isDark ? '#64748b' : '#9ca3af'} />
+                <TextInput
+                  value={memberSearchQuery}
+                  onChangeText={setMemberSearchQuery}
+                  placeholder="Search people..."
+                  placeholderTextColor={isDark ? '#64748b' : '#9ca3af'}
+                  className={`${textPrimary} flex-1`}
+                />
+              </View>
+
+              {/* Current Squad Members */}
+              {ledSquads.length > 0 && (
+                <View className="mb-4">
+                  <Text className={`${textSecondary} text-xs mb-2`}>Current members in your squads:</Text>
+                  <View className="flex-row flex-wrap gap-2">
+                    {ledSquads.flatMap(squad =>
+                      squad.apprenticeMemberIds.map(memberId => {
+                        const squadMember = allMembers.find(m => m.id === memberId);
+                        if (!squadMember) return null;
+                        return (
+                          <View key={`${squad.id}-${memberId}`} className="bg-purple-500/20 rounded-lg px-2 py-1 flex-row items-center gap-1">
+                            <Text className="text-purple-400 text-xs">{squadMember.name.split(' ')[0]}</Text>
+                            <Pressable
+                              onPress={() => handleRemoveMemberFromSquad(squad.id, memberId)}
+                              className="active:opacity-70"
+                            >
+                              <X size={12} color="#a855f7" />
+                            </Pressable>
+                          </View>
+                        );
+                      })
+                    ).filter(Boolean)}
+                  </View>
+                </View>
+              )}
+
+              {/* Available Members */}
+              <Text className={`${textSecondary} text-xs mb-2`}>Available to add:</Text>
+              {availableMembers.length === 0 ? (
+                <View className="py-6 items-center">
+                  <Text className={`${textMuted} text-center`}>No members available</Text>
+                </View>
+              ) : (
+                <ScrollView style={{ maxHeight: 200 }} showsVerticalScrollIndicator={false}>
+                  <View className="gap-2">
+                    {availableMembers.slice(0, 10).map((m) => {
+                      const roleColor = m.role === 'Founder' ? '#3b82f6' : m.role === 'FractionalExec' ? '#8b5cf6' : '#10b981';
+                      return (
+                        <Pressable
+                          key={m.id}
+                          onPress={() => {
+                            if (ledSquads.length > 0) {
+                              handleAddMemberToSquad(ledSquads[0].id, m.id);
+                            }
+                          }}
+                          className={`${bgSecondary} rounded-xl p-3 flex-row items-center active:opacity-70`}
+                        >
+                          <View
+                            className="w-8 h-8 rounded-full items-center justify-center mr-3"
+                            style={{ backgroundColor: roleColor }}
+                          >
+                            <Text className="text-white text-xs font-bold">
+                              {m.name.split(' ').map(n => n[0]).join('')}
+                            </Text>
+                          </View>
+                          <View className="flex-1">
+                            <Text className={`${textPrimary} font-semibold text-sm`}>{m.name}</Text>
+                            <Text className={`${textMuted} text-xs`}>{m.role} • {m.function}</Text>
+                          </View>
+                          <View className="bg-blue-500 rounded-lg p-2">
+                            <Plus size={14} color="white" />
+                          </View>
+                        </Pressable>
+                      );
+                    })}
+                  </View>
+                </ScrollView>
+              )}
             </Pressable>
           </Pressable>
         </Modal>
