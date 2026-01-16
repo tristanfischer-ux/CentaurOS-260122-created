@@ -73,7 +73,7 @@ export function TaskDetailsModal({ visible, onClose, task }: TaskDetailsModalPro
         <Pressable
           onPress={(e) => e.stopPropagation()}
           className="bg-white dark:bg-slate-900 rounded-t-3xl"
-          style={{ maxHeight: '90%' }}
+          style={{ maxHeight: '95%' }}
         >
           {/* Header */}
           <View
@@ -130,7 +130,7 @@ export function TaskDetailsModal({ visible, onClose, task }: TaskDetailsModalPro
 
           <ScrollView
             className="flex-1"
-            contentContainerStyle={{ paddingBottom: 20 }}
+            contentContainerStyle={{ paddingBottom: 8 }}
           >
             {/* Description */}
             <View className="px-5 py-4 border-b border-gray-200 dark:border-slate-700">
@@ -328,10 +328,10 @@ export function TaskDetailsModal({ visible, onClose, task }: TaskDetailsModalPro
           </ScrollView>
 
           {/* Close Button */}
-          <View className="px-5 py-4 border-t border-gray-200 dark:border-slate-700">
+          <View className="px-5 py-3 border-t border-gray-200 dark:border-slate-700">
             <Pressable
               onPress={onClose}
-              className="bg-gray-900 dark:bg-white py-3 rounded-xl active:opacity-70"
+              className="bg-gray-900 dark:bg-white py-2.5 rounded-xl active:opacity-70"
             >
               <Text className="text-white dark:text-gray-900 text-center font-semibold">
                 Close
