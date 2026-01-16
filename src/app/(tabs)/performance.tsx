@@ -53,6 +53,18 @@ import { HelpModal, HelpButton, type HelpContent } from '@/components/HelpModal'
 import { SettingsGearButton } from '@/components/SettingsGearButton';
 import { FINANCIAL_DATA, type CostItem, calculateCategoryTotal } from '@/lib/financial-calculations';
 import { CURRENT_FINANCIALS, calculateFinancialRatios } from '@/lib/financial-seed';
+import { RoleIndicator } from '@/components/RoleIndicator';
+import { filterWorkPlansByRole, filterTeamMembersByRole } from '@/lib/role-utils';
+import {
+  calculateMemberPerformance,
+  generateTeamSummary,
+  compareRolePerformance,
+  generateInsights,
+  type TeamMemberPerformance,
+  type TeamPerformanceSummary,
+  type PerformanceComparison,
+} from '@/lib/performance-analytics';
+import type { Task, Review } from '@/types';
 import { cn } from '@/lib/cn';
 
 const PERFORMANCE_HELP: HelpContent = {
@@ -134,6 +146,91 @@ export default function PerformanceScreen() {
   // State
   const [activeTab, setActiveTab] = useState<PerformanceTab>('overview');
   const [showHelp, setShowHelp] = useState(false);
+
+  // Convert WorkPlans to Task format for performance-analytics
+  const tasksForAnalytics = useMemo((): Task[] => {
+    return workPlans.map(wp => {
+      const firstAllocation = wp.allocations?.[0];
+      return {
+        id: wp.id,
+        workspaceId: currentWorkspace?.id || '',
+        title: wp.title,
+        description: wp.description,
+        assigneeId: firstAllocation?.memberId,
+        status: wp.status === 'completed' ? 'done' :
+                wp.status === 'in-progress' ? 'in_progress' :
+                wp.status === 'blocked' ? 'in_review' :
+                wp.status === 'not-started' ? 'todo' : 'backlog',
+        priority: wp.estimatedTimeUnits >= 10 ? 'urgent' :
+                  wp.estimatedTimeUnits >= 7 ? 'high' :
+                  wp.estimatedTimeUnits >= 4 ? 'medium' : 'low',
+        function: wp.function,
+        dueDate: wp.dueDate,
+        createdBy: wp.assignedBy,
+        createdAt: wp.startDate,
+        updatedAt: new Date().toISOString(),
+        completedAt: wp.status === 'completed' ? wp.lastSubmittedAt : undefined,
+        estimatedHours: wp.estimatedTimeUnits * 4,
+        actualHours: wp.status === 'completed' ? wp.estimatedTimeUnits * 4 * (0.8 + Math.random() * 0.4) : undefined,
+      };
+    });
+  }, [workPlans, currentWorkspace]);
+
+  // Mock reviews (in real app, would come from review store)
+  const reviewsForAnalytics = useMemo((): Review[] => {
+    return tasksForAnalytics
+      .filter(t => t.status === 'done' && Math.random() > 0.3)
+      .map(t => ({
+        id: `review-${t.id}`,
+        taskId: t.id,
+        reviewerId: 'reviewer-1',
+        status: Math.random() > 0.2 ? 'approved' : 'changes_requested',
+        requestedAt: t.completedAt || t.updatedAt,
+        reviewedAt: t.completedAt,
+      } as Review));
+  }, [tasksForAnalytics]);
+
+  // Calculate team member performances
+  const teamPerformances = useMemo((): TeamMemberPerformance[] => {
+    const activeMembers = members.filter(m => m.status === 'active');
+    return activeMembers.map(member =>
+      calculateMemberPerformance(
+        member.id,
+        member.name,
+        member.role,
+        member.function || 'Admin',
+        tasksForAnalytics,
+        reviewsForAnalytics,
+        30
+      )
+    );
+  }, [members, tasksForAnalytics, reviewsForAnalytics]);
+
+  // Generate team summary
+  const teamSummary = useMemo((): TeamPerformanceSummary => {
+    return generateTeamSummary(teamPerformances);
+  }, [teamPerformances]);
+
+  // Role comparison
+  const roleComparison = useMemo((): PerformanceComparison[] => {
+    return compareRolePerformance(teamPerformances);
+  }, [teamPerformances]);
+
+  // Filter data by role
+  const roleFilteredMembers = useMemo(() => {
+    if (!currentMembership?.role) return members;
+    return filterTeamMembersByRole(
+      members,
+      currentMembership.role,
+      currentMembership.function,
+      currentMembership.id
+    );
+  }, [members, currentMembership]);
+
+  const roleFilteredPerformances = useMemo((): TeamMemberPerformance[] => {
+    const allowedMemberIds = new Set(roleFilteredMembers.map(m => m.id));
+    return teamPerformances.filter(p => allowedMemberIds.has(p.userId));
+  }, [teamPerformances, roleFilteredMembers]);
 
   // Financial state
   const [costs, setCosts] = useState(INITIAL_DATA.costs);
@@ -540,11 +637,12 @@ export default function PerformanceScreen() {
       {/* Header */}
       <LinearGradient colors={['#ec4899', '#db2777', '#be185d']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={{ paddingHorizontal: 20, paddingTop: insets.top + 12, paddingBottom: 16 }}>
         <View className="flex-row items-center justify-between mb-4">
-          <View>
+          <View className="flex-1">
             <Text className="text-white/70 text-xs font-medium uppercase tracking-wide">Analytics</Text>
             <Text className="text-white text-2xl font-bold">Performance</Text>
           </View>
           <View className="flex-row items-center gap-2">
+            <RoleIndicator compact />
             <SettingsGearButton style="glass" />
             <HelpButton onPress={() => setShowHelp(true)} />
           </View>
@@ -594,6 +692,142 @@ export default function PerformanceScreen() {
         {/* Overview Tab */}
         {activeTab === 'overview' && (
           <View>
+            {/* Team Performance Summary */}
+            {currentMembership?.role !== 'Apprentice' && (
+              <>
+                <Text className="text-slate-900 dark:text-white font-semibold text-base mb-3">Team Performance Summary</Text>
+                <View className="bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl p-4 mb-4">
+                  <LinearGradient
+                    colors={['#3b82f6', '#8b5cf6']}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 1 }}
+                    style={{ borderRadius: 16, padding: 16, marginBottom: 16 }}
+                  >
+                    <View className="flex-row items-center justify-between mb-3">
+                      <Text className="text-white/80 text-xs font-semibold uppercase">Team Overview</Text>
+                      <View className="bg-white/20 rounded-full px-2 py-1">
+                        <Text className="text-white text-xs font-bold">{teamSummary.totalMembers} members</Text>
+                      </View>
+                    </View>
+                    <View className="flex-row justify-between">
+                      <View className="flex-1">
+                        <Text className="text-white text-2xl font-bold">{teamSummary.totalTasksCompleted}</Text>
+                        <Text className="text-white/80 text-xs">Tasks Completed</Text>
+                      </View>
+                      <View className="flex-1">
+                        <Text className="text-white text-2xl font-bold">{teamSummary.avgCompletionRate.toFixed(0)}%</Text>
+                        <Text className="text-white/80 text-xs">Avg Completion</Text>
+                      </View>
+                      <View className="flex-1">
+                        <Text className="text-white text-2xl font-bold">{teamSummary.avgQualityScore.toFixed(1)}/5</Text>
+                        <Text className="text-white/80 text-xs">Avg Quality</Text>
+                      </View>
+                    </View>
+                  </LinearGradient>
+                </View>
+
+                {/* Top Performers */}
+                {teamSummary.topPerformers.length > 0 && (
+                  <>
+                    <Text className="text-slate-900 dark:text-white font-semibold text-base mb-3">🌟 Top Performers</Text>
+                    <View className="gap-3 mb-6">
+                      {teamSummary.topPerformers.map((perf, idx) => (
+                        <View key={perf.userId} className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-xl p-4">
+                          <View className="flex-row items-center justify-between mb-2">
+                            <View className="flex-row items-center flex-1">
+                              {idx === 0 && <Text className="text-2xl mr-2">🏆</Text>}
+                              {idx === 1 && <Text className="text-2xl mr-2">🥈</Text>}
+                              {idx === 2 && <Text className="text-2xl mr-2">🥉</Text>}
+                              <View className="flex-1">
+                                <Text className="text-slate-900 dark:text-white font-bold">{perf.name}</Text>
+                                <Text className="text-slate-600 dark:text-slate-400 text-xs">{perf.role === 'FractionalExec' ? 'Executive' : perf.role} • {perf.function}</Text>
+                              </View>
+                            </View>
+                            <View className="bg-emerald-100 dark:bg-emerald-900/40 rounded-full px-3 py-1">
+                              <Text className="text-emerald-700 dark:text-emerald-300 font-bold text-sm">{perf.contributionScore}</Text>
+                            </View>
+                          </View>
+                          <View className="flex-row flex-wrap gap-2">
+                            {generateInsights(perf).slice(0, 2).map((insight, i) => (
+                              <View key={i} className="bg-white/60 dark:bg-slate-800/60 rounded-lg px-2 py-1">
+                                <Text className="text-slate-700 dark:text-slate-300 text-xs">{insight}</Text>
+                              </View>
+                            ))}
+                          </View>
+                        </View>
+                      ))}
+                    </View>
+                  </>
+                )}
+
+                {/* Needs Attention */}
+                {teamSummary.needsAttention.length > 0 && (
+                  <>
+                    <Text className="text-slate-900 dark:text-white font-semibold text-base mb-3">⚠️ Needs Attention</Text>
+                    <View className="gap-3 mb-6">
+                      {teamSummary.needsAttention.map((perf) => (
+                        <View key={perf.userId} className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-4">
+                          <View className="flex-row items-center justify-between mb-2">
+                            <View className="flex-1">
+                              <Text className="text-slate-900 dark:text-white font-bold">{perf.name}</Text>
+                              <Text className="text-slate-600 dark:text-slate-400 text-xs">{perf.role === 'FractionalExec' ? 'Executive' : perf.role} • {perf.function}</Text>
+                            </View>
+                            <View className="bg-amber-100 dark:bg-amber-900/40 rounded-full px-3 py-1">
+                              <Text className="text-amber-700 dark:text-amber-300 font-bold text-sm">{perf.contributionScore}</Text>
+                            </View>
+                          </View>
+                          <View className="flex-row flex-wrap gap-2">
+                            {generateInsights(perf).map((insight, i) => (
+                              <View key={i} className="bg-white/60 dark:bg-slate-800/60 rounded-lg px-2 py-1">
+                                <Text className="text-slate-700 dark:text-slate-300 text-xs">{insight}</Text>
+                              </View>
+                            ))}
+                          </View>
+                        </View>
+                      ))}
+                    </View>
+                  </>
+                )}
+
+                {/* Role Comparison */}
+                <Text className="text-slate-900 dark:text-white font-semibold text-base mb-3">Executive vs Apprentice Performance</Text>
+                <View className="gap-3 mb-6">
+                  {roleComparison.map((comparison) => (
+                    <View key={comparison.metric} className="bg-white dark:bg-slate-800 rounded-xl p-4">
+                      <Text className="text-slate-900 dark:text-white font-semibold mb-3">{comparison.label}</Text>
+                      <View className="flex-row items-center gap-4 mb-2">
+                        <View className="flex-1">
+                          <View className="flex-row items-center justify-between mb-1">
+                            <Text className="text-slate-600 dark:text-slate-400 text-xs">Executives</Text>
+                            <Text className="text-purple-600 dark:text-purple-400 font-bold">
+                              {comparison.metric === 'quality_score' ? comparison.executives.toFixed(1) : `${comparison.executives.toFixed(0)}${comparison.metric === 'completion_rate' || comparison.metric === 'consistency' ? '%' : ''}`}
+                            </Text>
+                          </View>
+                          <View className="h-2 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
+                            <View className="h-full bg-purple-500 rounded-full" style={{ width: `${Math.min((comparison.executives / comparison.target) * 100, 100)}%` }} />
+                          </View>
+                        </View>
+                        <View className="flex-1">
+                          <View className="flex-row items-center justify-between mb-1">
+                            <Text className="text-slate-600 dark:text-slate-400 text-xs">Apprentices</Text>
+                            <Text className="text-emerald-600 dark:text-emerald-400 font-bold">
+                              {comparison.metric === 'quality_score' ? comparison.apprentices.toFixed(1) : `${comparison.apprentices.toFixed(0)}${comparison.metric === 'completion_rate' || comparison.metric === 'consistency' ? '%' : ''}`}
+                            </Text>
+                          </View>
+                          <View className="h-2 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
+                            <View className="h-full bg-emerald-500 rounded-full" style={{ width: `${Math.min((comparison.apprentices / comparison.target) * 100, 100)}%` }} />
+                          </View>
+                        </View>
+                      </View>
+                      <View className="bg-slate-50 dark:bg-slate-900 rounded-lg p-2">
+                        <Text className="text-slate-600 dark:text-slate-400 text-xs">{comparison.insight}</Text>
+                      </View>
+                    </View>
+                  ))}
+                </View>
+              </>
+            )}
+
             <Text className="text-slate-900 dark:text-white font-semibold text-base mb-3">Team Capacity</Text>
             <View className="flex-row gap-3 mb-6">
               <MetricCard title="Team Size" value={metrics.teamSize} subtitle="active members" icon={Users} color="#3b82f6" />
@@ -869,31 +1103,98 @@ export default function PerformanceScreen() {
         {activeTab === 'team' && (
           <View>
             <Text className="text-slate-900 dark:text-white font-semibold text-base mb-3">Individual Performance</Text>
-            {memberMetrics.map((member, index) => (
-              <Animated.View key={member.id} entering={FadeInDown.delay(index * 50).springify()}>
+            {roleFilteredPerformances.length === 0 && (
+              <View className="bg-slate-100 dark:bg-slate-900 rounded-xl p-6 items-center">
+                <Users size={32} color="#94a3b8" />
+                <Text className="text-slate-900 dark:text-white font-semibold mt-3">No Team Members</Text>
+                <Text className="text-slate-500 dark:text-slate-400 text-sm text-center mt-1">
+                  {currentMembership?.role === 'Apprentice'
+                    ? 'Connect with your mentor and team'
+                    : 'Add team members to see their performance'}
+                </Text>
+              </View>
+            )}
+            {roleFilteredPerformances.map((perf, index) => (
+              <Animated.View key={perf.userId} entering={FadeInDown.delay(index * 50).springify()}>
                 <View className="bg-white dark:bg-slate-800 rounded-xl p-4 mb-3">
                   <View className="flex-row items-center mb-3">
-                    <View className="w-10 h-10 rounded-full items-center justify-center mr-3" style={{ backgroundColor: member.role === 'Founder' ? '#8b5cf620' : member.role === 'FractionalExec' ? '#3b82f620' : '#10b98120' }}>
-                      <Text className="font-bold" style={{ color: member.role === 'Founder' ? '#8b5cf6' : member.role === 'FractionalExec' ? '#3b82f6' : '#10b981' }}>
-                        {member.name.split(' ').map(n => n[0]).join('')}
+                    <View className="w-10 h-10 rounded-full items-center justify-center mr-3" style={{ backgroundColor: perf.role === 'Founder' ? '#8b5cf620' : perf.role === 'FractionalExec' ? '#3b82f620' : '#10b98120' }}>
+                      <Text className="font-bold" style={{ color: perf.role === 'Founder' ? '#8b5cf6' : perf.role === 'FractionalExec' ? '#3b82f6' : '#10b981' }}>
+                        {perf.name.split(' ').map(n => n[0]).join('')}
                       </Text>
                     </View>
                     <View className="flex-1">
-                      <Text className="text-slate-900 dark:text-white font-semibold">{member.name}</Text>
-                      <Text className="text-slate-500 dark:text-slate-400 text-xs">{member.role === 'FractionalExec' ? 'Executive' : member.role} • {member.function}</Text>
+                      <Text className="text-slate-900 dark:text-white font-semibold">{perf.name}</Text>
+                      <Text className="text-slate-500 dark:text-slate-400 text-xs">{perf.role === 'FractionalExec' ? 'Executive' : perf.role} • {perf.function}</Text>
                     </View>
                     <View className="items-end">
-                      <Text className="text-slate-900 dark:text-white font-bold">{member.utilizationPercent}%</Text>
-                      <Text className="text-slate-500 dark:text-slate-400 text-xs">utilized</Text>
+                      <View className={cn('rounded-full px-2 py-1',
+                        perf.contributionScore >= 80 ? 'bg-emerald-100 dark:bg-emerald-900/30' :
+                        perf.contributionScore >= 60 ? 'bg-blue-100 dark:bg-blue-900/30' :
+                        perf.contributionScore >= 40 ? 'bg-amber-100 dark:bg-amber-900/30' :
+                        'bg-red-100 dark:bg-red-900/30'
+                      )}>
+                        <Text className={cn('font-bold text-xs',
+                          perf.contributionScore >= 80 ? 'text-emerald-700 dark:text-emerald-300' :
+                          perf.contributionScore >= 60 ? 'text-blue-700 dark:text-blue-300' :
+                          perf.contributionScore >= 40 ? 'text-amber-700 dark:text-amber-300' :
+                          'text-red-700 dark:text-red-300'
+                        )}>
+                          {perf.contributionScore}/100
+                        </Text>
+                      </View>
+                      <Text className="text-slate-500 dark:text-slate-400 text-xs mt-0.5">score</Text>
                     </View>
                   </View>
-                  <View className="h-2 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden mb-2">
-                    <View className="h-full rounded-full" style={{ width: `${Math.min(member.utilizationPercent, 100)}%`, backgroundColor: member.utilizationPercent > 100 ? '#ef4444' : member.utilizationPercent > 80 ? '#f59e0b' : '#10b981' }} />
+
+                  {/* Performance Metrics */}
+                  <View className="flex-row justify-between mb-3">
+                    <View className="items-center">
+                      <Text className="text-slate-900 dark:text-white font-bold">{perf.tasksCompletedThisWeek}</Text>
+                      <Text className="text-slate-500 dark:text-slate-400 text-xs">This Week</Text>
+                    </View>
+                    <View className="items-center">
+                      <Text className="text-slate-900 dark:text-white font-bold">{perf.taskCompletionRate.toFixed(0)}%</Text>
+                      <Text className="text-slate-500 dark:text-slate-400 text-xs">Completion</Text>
+                    </View>
+                    <View className="items-center">
+                      <Text className="text-slate-900 dark:text-white font-bold">{perf.avgReviewScore.toFixed(1)}/5</Text>
+                      <Text className="text-slate-500 dark:text-slate-400 text-xs">Quality</Text>
+                    </View>
+                    <View className="items-center">
+                      <Text className="text-slate-900 dark:text-white font-bold">{perf.onTimeDeliveryRate.toFixed(0)}%</Text>
+                      <Text className="text-slate-500 dark:text-slate-400 text-xs">On-Time</Text>
+                    </View>
                   </View>
-                  <View className="flex-row justify-between">
-                    <Text className="text-slate-500 dark:text-slate-400 text-xs">{member.allocated}/{member.capacity} TU allocated</Text>
-                    <Text className="text-slate-500 dark:text-slate-400 text-xs">{member.completedTasks} tasks completed</Text>
+
+                  {/* Trend Indicator */}
+                  <View className={cn('flex-row items-center rounded-lg p-2 mb-2',
+                    perf.trend === 'improving' ? 'bg-emerald-50 dark:bg-emerald-900/20' :
+                    perf.trend === 'declining' ? 'bg-red-50 dark:bg-red-900/20' :
+                    'bg-slate-50 dark:bg-slate-900'
+                  )}>
+                    {perf.trend === 'improving' && <TrendingUp size={14} color="#10b981" />}
+                    {perf.trend === 'declining' && <TrendingDown size={14} color="#ef4444" />}
+                    {perf.trend === 'steady' && <Activity size={14} color="#64748b" />}
+                    <Text className={cn('text-xs font-semibold ml-1',
+                      perf.trend === 'improving' ? 'text-emerald-700 dark:text-emerald-300' :
+                      perf.trend === 'declining' ? 'text-red-700 dark:text-red-300' :
+                      'text-slate-600 dark:text-slate-400'
+                    )}>
+                      {perf.trend === 'improving' ? 'Improving Trend' : perf.trend === 'declining' ? 'Declining Trend' : 'Steady Performance'}
+                    </Text>
                   </View>
+
+                  {/* Insights */}
+                  {generateInsights(perf).length > 0 && (
+                    <View className="flex-row flex-wrap gap-1.5">
+                      {generateInsights(perf).map((insight, i) => (
+                        <View key={i} className="bg-slate-100 dark:bg-slate-900 rounded-md px-2 py-1">
+                          <Text className="text-slate-700 dark:text-slate-300 text-xs">{insight}</Text>
+                        </View>
+                      ))}
+                    </View>
+                  )}
                 </View>
               </Animated.View>
             ))}

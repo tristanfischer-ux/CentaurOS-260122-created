@@ -15,7 +15,49 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
 
 ## 🔄 Recent Updates (Jan 2026)
 
-### Role Clarity & Scoped Views - COMPLETE! (Latest) 🎯
+### Performance Tab Enhanced Analytics - COMPLETE! (Latest) 📊
+**Major analytics upgrade:** Comprehensive team performance tracking is now live!
+
+**What Was Done:**
+- ✅ Integrated unused `performance-analytics.ts` library
+- ✅ Added team performance summary with top performers identification
+- ✅ Built "Needs Attention" alerting for underperformers
+- ✅ Implemented Executive vs Apprentice role comparison analytics
+- ✅ Enhanced individual performance metrics with insights
+- ✅ Added role-based filtering (Founders see all, Execs see their function, Apprentices see personal dashboard)
+- ✅ Created visual performance indicators and trend tracking
+
+**New Features:**
+- **Team Performance Summary**: Aggregate metrics showing total tasks completed, avg completion rate, and avg quality score
+- **Top Performers Section**: Top 3-5 performers ranked by contribution score (>80) with medals and insights
+- **Needs Attention Alerts**: Automatically identifies team members with score <50 or declining trends
+- **Role Comparison Analytics**: Side-by-side comparison of Executives vs Apprentices on 4 key metrics:
+  - Task Completion Rate (target: 85%)
+  - Quality Score (target: 4.0/5)
+  - Velocity (target: 5 tasks/week)
+  - Consistency Score (target: 70%)
+- **Enhanced Individual Metrics**: Each team member now shows:
+  - Contribution score (0-100 weighted formula)
+  - Tasks completed this week/month
+  - Completion rate, quality score, on-time delivery
+  - Performance trend (improving/steady/declining)
+  - Actionable insights based on metrics
+
+**Performance Analytics Used:**
+- `calculateMemberPerformance()`: Comprehensive per-member metrics
+- `generateTeamSummary()`: Aggregate team statistics
+- `compareRolePerformance()`: Role-based benchmarking
+- `generateInsights()`: Smart recommendations
+
+**Role-Based Views:**
+- **Founders**: See complete team analytics, top performers, needs attention, role comparisons
+- **Executives**: See their function's team only, role-scoped analytics
+- **Apprentices**: See personal performance dashboard only
+
+**Status:** ✅ IMPLEMENTED & TESTED
+Location: `/src/app/(tabs)/performance.tsx` - Overview & Team tabs enhanced
+
+### Role Clarity & Scoped Views - COMPLETE! 🎯
 **Major UX enhancement:** Each role now has a purposefully designed experience!
 
 **What Was Done:**
