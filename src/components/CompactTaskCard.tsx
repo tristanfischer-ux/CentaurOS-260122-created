@@ -8,8 +8,8 @@
  */
 
 import { View, Text, Pressable } from 'react-native';
-import { useState } from 'react';
-import { Clock, Users as UsersIcon, CheckCircle2, AlertTriangle, Circle } from 'lucide-react-native';
+import { useState, useEffect } from 'react';
+import { Clock, Users as UsersIcon, CheckCircle2, AlertTriangle, Circle, ChevronDown, ChevronUp, Edit3 } from 'lucide-react-native';
 import { type WorkPlan } from '@/lib/state/work-plan-store';
 import { type OrganizationMember } from '@/lib/organization-seed';
 import { useSquadStore } from '@/lib/state/squad-store';
@@ -58,22 +58,22 @@ export function CompactTaskCard({
                       task.status === 'completed' ? '#10b981' :
                       task.status === 'blocked' ? '#ef4444' : '#64748b';
 
-  const handlePress = () => {
-    if (!isExpanded) {
-      // First tap: expand preview
-      setIsExpanded(true);
-      onPress();
-    } else {
-      // Second tap: open full detail
-      onFullDetailPress();
-    }
+  // Toggle expand/collapse on card press
+  const handleCardPress = () => {
+    setIsExpanded(prev => !prev);
+    onPress();
+  };
+
+  // Open full detail modal
+  const handleEditPress = () => {
+    onFullDetailPress();
   };
 
   return (
     <Pressable
-      onPress={handlePress}
+      onPress={handleCardPress}
       className={`bg-white dark:bg-slate-800 rounded-xl p-3 mb-2 border-2 ${
-        isSelected ? 'border-blue-500' : 'border-gray-200 dark:border-slate-700'
+        isSelected ? 'border-blue-500' : isExpanded ? 'border-blue-300 dark:border-blue-700' : 'border-gray-200 dark:border-slate-700'
       } active:opacity-90`}
     >
       {/* COLLAPSED VIEW - Always visible */}
@@ -84,6 +84,12 @@ export function CompactTaskCard({
             <Text className="text-gray-900 dark:text-white font-semibold text-sm flex-1" numberOfLines={1}>
               {task.title}
             </Text>
+            {/* Expand/Collapse indicator */}
+            {isExpanded ? (
+              <ChevronUp size={16} color="#94a3b8" />
+            ) : (
+              <ChevronDown size={16} color="#94a3b8" />
+            )}
           </View>
 
           <View className="flex-row items-center gap-2">
@@ -237,9 +243,21 @@ export function CompactTaskCard({
             </View>
           </View>
 
-          {/* Tap again hint */}
+          {/* Edit button */}
+          <Pressable
+            onPress={(e) => {
+              e.stopPropagation();
+              handleEditPress();
+            }}
+            className="mt-3 bg-blue-500 rounded-lg py-2.5 flex-row items-center justify-center gap-2 active:opacity-80"
+          >
+            <Edit3 size={16} color="#fff" />
+            <Text className="text-white font-semibold text-sm">Edit Task Details</Text>
+          </Pressable>
+
+          {/* Collapse hint */}
           <Text className="text-center text-gray-400 dark:text-slate-500 text-[9px] mt-2">
-            Tap again to edit task details
+            Tap card to collapse
           </Text>
         </View>
       )}
