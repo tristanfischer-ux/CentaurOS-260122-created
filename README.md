@@ -129,13 +129,16 @@ The app has been completely restructured into 6 intuitive tabs following a natur
 
 ### Collapsible Gantt Chart on Home Tab
 - **Dock at Bottom**: Gantt chart now docks at the bottom of the home screen
-  - **Collapsed State**: Shows a compact tab with task count and status indicators
+  - **Collapsed State**: Shows a compact preview with up to 2 in-progress tasks and 1 blocked task
+    - Tappable task cards that navigate directly to the task detail
+    - Status indicators with icons (Clock for in-progress, Alert for blocked)
+    - Drag indicator at bottom for expand gesture
   - **Expanded State**: Fills 50% of screen height with full Gantt chart view
   - **Smooth Animation**: Spring animation for expand/collapse transitions
-  - **Quick Access**: Tap the tab to toggle between collapsed and expanded
+  - **Quick Access**: Tap the header to toggle between collapsed and expanded
   - **Visual Indicators**:
-    - Calendar icon and task count when collapsed
-    - Color-coded status dots (blue = live, red = blocked, gray = queued)
+    - Calendar icon and task count in header
+    - Color-coded task previews (blue = in-progress, red = blocked)
     - Chevron icon shows expand/collapse direction
   - **Smart Layout**: ScrollView automatically adds padding so content isn't hidden
 

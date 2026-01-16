@@ -1,7 +1,7 @@
 import { View, Text, Pressable, Dimensions } from 'react-native';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import Animated, { useAnimatedStyle, withSpring, useSharedValue } from 'react-native-reanimated';
-import { ChevronUp, ChevronDown, Calendar } from 'lucide-react-native';
+import { ChevronUp, ChevronDown, Calendar, Clock, AlertTriangle } from 'lucide-react-native';
 import { MiniGanttChart } from './MiniGanttChart';
 import { type WorkPlan } from '@/lib/state/work-plan-store';
 import { type OrganizationMember } from '@/lib/organization-seed';
@@ -16,8 +16,8 @@ export function CollapsibleGanttChart({ workPlans, members, onTaskPress }: Colla
   const [isExpanded, setIsExpanded] = useState(false);
   const screenHeight = Dimensions.get('window').height;
 
-  // Calculate heights
-  const COLLAPSED_HEIGHT = 52; // Just the tab
+  // Calculate heights - make collapsed state show mini preview
+  const COLLAPSED_HEIGHT = 120; // Taller to show mini task preview
   const EXPANDED_HEIGHT = screenHeight * 0.5; // 50% of screen
 
   // Animated height
@@ -42,6 +42,13 @@ export function CollapsibleGanttChart({ workPlans, members, onTaskPress }: Colla
   const activeTasksCount = workPlans.filter(
     wp => wp.status !== 'completed' && wp.status !== 'abandoned'
   ).length;
+
+  // Get preview tasks for collapsed state
+  const previewTasks = useMemo(() => {
+    const inProgress = workPlans.filter(wp => wp.status === 'in-progress').slice(0, 2);
+    const blocked = workPlans.filter(wp => wp.status === 'blocked').slice(0, 1);
+    return { inProgress, blocked };
+  }, [workPlans]);
 
   return (
     <Animated.View
@@ -113,10 +120,61 @@ export function CollapsibleGanttChart({ workPlans, members, onTaskPress }: Colla
         </View>
       )}
 
-      {/* Collapsed State Hint */}
+      {/* Collapsed State - Mini Task Preview */}
       {!isExpanded && (
-        <View className="absolute bottom-1 left-0 right-0 items-center">
-          <View className="w-12 h-1 bg-gray-300 dark:bg-slate-600 rounded-full" />
+        <View className="flex-1 px-4 py-2">
+          {previewTasks.inProgress.length > 0 || previewTasks.blocked.length > 0 ? (
+            <View className="flex-row gap-2">
+              {/* In Progress Tasks */}
+              {previewTasks.inProgress.map((task) => (
+                <Pressable
+                  key={task.id}
+                  onPress={() => onTaskPress?.(task.id)}
+                  className="flex-1 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-2 active:opacity-70"
+                >
+                  <View className="flex-row items-center gap-1 mb-1">
+                    <Clock size={10} color="#3b82f6" />
+                    <Text className="text-blue-600 dark:text-blue-400 text-[10px] font-bold">
+                      IN PROGRESS
+                    </Text>
+                  </View>
+                  <Text className="text-slate-900 dark:text-white text-xs font-medium" numberOfLines={1}>
+                    {task.title}
+                  </Text>
+                </Pressable>
+              ))}
+
+              {/* Blocked Task */}
+              {previewTasks.blocked.map((task) => (
+                <Pressable
+                  key={task.id}
+                  onPress={() => onTaskPress?.(task.id)}
+                  className="flex-1 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-2 active:opacity-70"
+                >
+                  <View className="flex-row items-center gap-1 mb-1">
+                    <AlertTriangle size={10} color="#ef4444" />
+                    <Text className="text-red-600 dark:text-red-400 text-[10px] font-bold">
+                      BLOCKED
+                    </Text>
+                  </View>
+                  <Text className="text-slate-900 dark:text-white text-xs font-medium" numberOfLines={1}>
+                    {task.title}
+                  </Text>
+                </Pressable>
+              ))}
+            </View>
+          ) : (
+            <View className="flex-1 items-center justify-center">
+              <Text className="text-slate-400 dark:text-slate-600 text-xs">
+                No active tasks - tap to view timeline
+              </Text>
+            </View>
+          )}
+
+          {/* Drag indicator */}
+          <View className="items-center mt-2">
+            <View className="w-10 h-1 bg-gray-300 dark:bg-slate-600 rounded-full" />
+          </View>
         </View>
       )}
     </Animated.View>
