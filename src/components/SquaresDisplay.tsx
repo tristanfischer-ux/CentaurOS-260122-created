@@ -6,11 +6,25 @@
  *
  * Variants:
  * - compact: Small inline display for cards
- * - full: Larger grid display for detail views
+ * - full: Larger grid display for detail views (max 15 per line)
+ *
+ * Color Consistency:
+ * - Completed/Used: Status color (typically blue/green/red based on status)
+ * - Unused/Available: Light gray (#e5e7eb / #d1d5db)
+ * - Overtime: Amber tones for overtime capacity
  */
 
 import { View, Text } from 'react-native';
 import { Bot, DollarSign, Zap } from 'lucide-react-native';
+
+// Consistent capacity colors across the app
+export const CAPACITY_COLORS = {
+  USED: '#ef4444',           // Red - allocated/used capacity
+  AVAILABLE: '#10b981',      // Green - available capacity
+  UNUSED: '#e5e7eb',         // Light gray - unused in visualization
+  OVERTIME_AVAILABLE: '#fbbf24', // Amber - overtime available
+  OVERTIME_USED: '#f97316',  // Orange - overtime used
+} as const;
 
 interface SquaresDisplayProps {
   /** Total squares needed (after AI adjustment) */
@@ -148,7 +162,7 @@ export function SquaresDisplay({
     );
   }
 
-  // Full variant - larger display
+  // Full variant - larger display with consistent 15-per-line limit
   return (
     <View>
       <View className="flex-row items-center justify-between mb-1.5">
@@ -160,22 +174,30 @@ export function SquaresDisplay({
         </Text>
       </View>
 
-      {/* Visual squares grid */}
-      <View className="flex-row flex-wrap gap-1 mb-2">
-        {Array.from({ length: Math.min(totalSquares, 20) }).map((_, i) => (
-          <View
-            key={i}
-            className="w-4 h-4 rounded-sm"
-            style={{
-              backgroundColor: i < completedSquares ? statusColor : '#e5e7eb',
-            }}
-          />
-        ))}
-        {totalSquares > 20 && (
-          <Text className="text-gray-500 text-xs ml-1 self-center">
-            +{totalSquares - 20} more
-          </Text>
-        )}
+      {/* Visual squares grid - max 15 per line to prevent awkward wrapping */}
+      <View className="mb-2">
+        {Array.from({ length: Math.ceil(totalSquares / 15) }).map((_, rowIndex) => {
+          const startIdx = rowIndex * 15;
+          const endIdx = Math.min(startIdx + 15, totalSquares);
+          const squaresInRow = endIdx - startIdx;
+
+          return (
+            <View key={rowIndex} className="flex-row gap-1 mb-1">
+              {Array.from({ length: squaresInRow }).map((_, colIndex) => {
+                const squareIndex = startIdx + colIndex;
+                return (
+                  <View
+                    key={squareIndex}
+                    className="w-4 h-4 rounded-sm"
+                    style={{
+                      backgroundColor: squareIndex < completedSquares ? statusColor : '#e5e7eb',
+                    }}
+                  />
+                );
+              })}
+            </View>
+          );
+        })}
       </View>
 
       {/* AI Multiplier indicator */}
@@ -184,7 +206,7 @@ export function SquaresDisplay({
           <Zap size={12} color="#8b5cf6" />
           <Text className="text-xs ml-1 text-purple-600 dark:text-purple-400">
             AI {aiMultiplier}x: {originalSquares} → {totalSquares} squares
-            ({Math.round(((originalSquares - totalSquares) / originalSquares) * 100)}% reduction)
+            ({Math.round(((originalSquares! - totalSquares) / originalSquares!) * 100)}% reduction)
           </Text>
         </View>
       )}

@@ -196,6 +196,20 @@ The app has been completely restructured into 6 intuitive tabs following a natur
     - Chevron icon shows expand/collapse direction
   - **Smart Layout**: ScrollView automatically adds padding so content isn't hidden
 
+### Capacity Units Visualization
+- **Consistent 15-per-line limit**: All capacity displays show maximum 15 units per line
+  - Prevents awkward wrapping across multiple lines
+  - Multi-row display for tasks requiring >15 TU
+  - Clear, scannable rows (e.g., 15 + 15 + 5 = 35 TU task)
+- **Unified Color Language**:
+  - 🟢 **Green (#10b981)**: Available capacity
+  - 🔴 **Red (#ef4444)**: Used/allocated capacity
+  - 🟡 **Amber (#fbbf24)**: Overtime available
+  - 🟠 **Orange (#f97316)**: Overtime used
+  - ⚪ **Light gray (#e5e7eb)**: Unused in visualization
+- **Accounts for work allocated elsewhere**: Capacity reflects actual availability, not assuming everyone starts "free"
+- **Instantly readable**: No mental arithmetic required to understand capacity status
+
 ### Dynamic Task Timeline Calculator
 - **Intelligent End Date Calculation**: Delivery dates now update automatically based on team composition and modifiers
   - **Team Size Efficiency Penalty**: Larger teams have coordination overhead (Brooks' Law)
