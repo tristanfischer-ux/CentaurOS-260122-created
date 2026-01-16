@@ -15,7 +15,24 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
 
 ## 🔄 Recent Updates (Jan 2026)
 
-### Collapsible Gantt Chart on Home Tab (Latest)
+### Collapsible Resource Pool on Decide Tab (Latest)
+- **Dock at Top**: Weekly Resource Pool now docks at the top of the decide screen
+  - **Collapsed State**: Shows a compact tab with team count, available TU, and status indicators
+  - **Expanded State**: Fills 50% of screen height with full resource pool view
+  - **Smooth Animation**: Spring animation for expand/collapse transitions
+  - **Quick Access**: Tap the tab to toggle between collapsed and expanded
+  - **Visual Indicators**:
+    - Users icon and team member count when collapsed
+    - Color-coded status dots (emerald = available, red = allocated, amber = overtime)
+    - Chevron icon shows expand/collapse direction
+  - **Smart Layout**: ScrollView automatically adds padding so content isn't hidden behind the collapsed tab
+  - **Full Functionality**: All features available in collapsed mode:
+    - Financial summary (bank balance, weekly cost, after-week balance)
+    - Individual team member capacity visualization
+    - Long-press for person details modal
+    - Person selection for task allocation
+
+### Collapsible Gantt Chart on Home Tab
 - **Dock at Bottom**: Gantt chart now docks at the bottom of the home screen
   - **Collapsed State**: Shows a compact tab with task count and status indicators
   - **Expanded State**: Fills 50% of screen height with full Gantt chart view

@@ -27,6 +27,7 @@ import { CompanyAimModal } from '@/components/CompanyAimModal';
 import { SquaresDisplay } from '@/components/SquaresDisplay';
 import { useResourceStore, type PersonResource, getTeamSizeEfficiency } from '@/lib/state/resource-store';
 import { ResourcePoolHeader } from '@/components/ResourcePoolHeader';
+import { CollapsibleResourcePool } from '@/components/CollapsibleResourcePool';
 import { TaskDetailsModal } from '@/components/TaskDetailsModal';
 import { identifyTUOpportunities, type TUOpportunity } from '@/lib/reports/tu-analytics';
 import { calculateEndDate, calculateCompletionDays } from '@/lib/task-timeline-calculator';
@@ -1609,16 +1610,14 @@ export default function DecideScreen() {
         </View>
       </LinearGradient>
 
-      {/* SECTION 1: WEEKLY RESOURCE POOL - TOP */}
-      <View className="border-b-2 border-gray-200 dark:border-slate-700">
-        <ResourcePoolHeader
-          selectedPersonId={selectedPersonId}
-          onPersonSelect={handlePersonSelect}
-        />
-      </View>
+      {/* SECTION 1: WEEKLY RESOURCE POOL - TOP (COLLAPSIBLE) */}
+      <CollapsibleResourcePool
+        selectedPersonId={selectedPersonId}
+        onPersonSelect={handlePersonSelect}
+      />
 
       {/* SECTION 2: SCROLLABLE TASK QUEUE */}
-      <ScrollView className="flex-1 px-5 py-4">
+      <ScrollView className="flex-1 px-5" contentContainerStyle={{ paddingTop: 68, paddingBottom: 16 }}>
         {/* Company Aim Banner */}
         {currentWorkspace && (
           <CompanyAimBanner
