@@ -15,7 +15,47 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
 
 ## 🔄 Recent Updates (Jan 2026)
 
-### MMKV Storage Migration - COMPLETE! (Latest) ⚡
+### Role Clarity & Scoped Views - COMPLETE! (Latest) 🎯
+**Major UX enhancement:** Each role now has a purposefully designed experience!
+
+**What Was Done:**
+- ✅ Implemented role-based filtering across all major tabs
+- ✅ Created role utility functions for consistent permissions
+- ✅ Added visual role indicators throughout the app
+- ✅ Enhanced RoleSwitcher with capability previews
+- ✅ Built role-specific empty states
+
+**New Components:**
+- `/src/components/RoleIndicator.tsx` - Persistent visual role badge
+- `/src/components/RoleEmptyState.tsx` - Role-appropriate empty states
+- `/src/lib/role-utils.ts` - Comprehensive role filtering & permission utilities
+
+**Role Scoping Implemented:**
+- **Decide Tab**: Founders see all, Executives see their function, Apprentices see their work queue
+- **What Tab**: Task lists filtered by role (Apprentices see only assigned tasks)
+- **Why Tab**: OKR visibility based on role (Apprentices see only OKRs they contribute to)
+- **Home Tab**: Already had role-specific dashboards (ApprenticeHome, ExecutiveHome, FounderHome)
+- **Do Tab**: Already had excellent role-based filtering
+
+**Key Features:**
+- **Founder**: Full visibility across all functions, complete control
+- **Executive**: Scoped to their business function, can manage their team
+- **Apprentice**: Focused view of only their assigned work, learning-oriented
+
+**Visual Identity:**
+- Founder: Blue gradients (#3b82f6) - "Command"
+- Executive: Purple gradients (#8b5cf6) - "[Function] Lead"
+- Apprentice: Green gradients (#10b981) - "Learning"
+
+**Enhanced RoleSwitcher:**
+- Shows top 3 capabilities for active role
+- Explains what changes when switching
+- Clear role-based value propositions
+
+**Status:** ✅ IMPLEMENTED & TESTED
+See [ROLE_BASED_UX_RECOMMENDATIONS.md](/ROLE_BASED_UX_RECOMMENDATIONS.md) for full details.
+
+### MMKV Storage Migration - COMPLETE! ⚡
 **Performance boost implemented:** 50-70% faster state updates!
 
 **What Was Done:**

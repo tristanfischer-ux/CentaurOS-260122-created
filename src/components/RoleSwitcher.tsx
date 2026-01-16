@@ -13,8 +13,10 @@ import {
   Check,
   ChevronDown,
   X,
+  Zap,
 } from 'lucide-react-native';
 import { useRoleStore, useActiveRole, type RoleView } from '@/lib/state/role-store';
+import { getRoleCapabilities } from '@/lib/role-utils';
 
 interface RoleSwitcherProps {
   compact?: boolean;
@@ -225,6 +227,28 @@ function RoleSwitcherModal({ visible, onClose, activeRole, onSelectRole }: RoleS
                             </View>
                           )}
                         </View>
+
+                        {/* Show capabilities for active role */}
+                        {isActive && (
+                          <View className="mt-3 pt-3 border-t border-white/20">
+                            <View className="flex-row items-center gap-1 mb-2">
+                              <Zap size={14} color="white" />
+                              <Text className="text-white/90 text-xs font-semibold uppercase">
+                                You can:
+                              </Text>
+                            </View>
+                            {getRoleCapabilities(role.id as any).slice(0, 3).map((capability, idx) => (
+                              <Text key={idx} className="text-white/80 text-xs mb-1">
+                                • {capability}
+                              </Text>
+                            ))}
+                            {getRoleCapabilities(role.id as any).length > 3 && (
+                              <Text className="text-white/70 text-xs mt-1">
+                                + {getRoleCapabilities(role.id as any).length - 3} more capabilities
+                              </Text>
+                            )}
+                          </View>
+                        )}
                       </View>
                     </Pressable>
                   );
@@ -233,10 +257,19 @@ function RoleSwitcherModal({ visible, onClose, activeRole, onSelectRole }: RoleS
 
               {/* Info Note */}
               <View className="mt-6 bg-slate-100 dark:bg-slate-800 rounded-xl p-4">
-                <Text className="text-slate-600 dark:text-slate-400 text-sm">
-                  Each role shows a customized dashboard optimized for that perspective.
-                  Your data and access remain the same - only the view changes.
-                </Text>
+                <View className="flex-row items-start gap-2">
+                  <View className="mt-0.5">
+                    <Zap size={16} color="#64748b" />
+                  </View>
+                  <View className="flex-1">
+                    <Text className="text-slate-900 dark:text-white text-sm font-semibold mb-1">
+                      Role-Based Views
+                    </Text>
+                    <Text className="text-slate-600 dark:text-slate-400 text-sm">
+                      Each role shows a customized dashboard. You'll see only what's relevant for your responsibilities.
+                    </Text>
+                  </View>
+                </View>
               </View>
             </ScrollView>
           </View>

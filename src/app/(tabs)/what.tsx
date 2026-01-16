@@ -45,6 +45,8 @@ import { MiniGanttChart } from '@/components/MiniGanttChart';
 import { UnifiedTaskAllocationModal } from '@/components/UnifiedTaskAllocationModal';
 import { SquaresDisplay } from '@/components/SquaresDisplay';
 import { CompactTaskCard } from '@/components/CompactTaskCard';
+import { filterWorkPlansByRole } from '@/lib/role-utils';
+import { RoleIndicator } from '@/components/RoleIndicator';
 
 const WHAT_HELP: HelpContent = {
   title: 'Task Execution',
@@ -115,14 +117,25 @@ export default function WhatScreen() {
 
   const isFounder = currentMembership?.role === 'Founder';
 
-  // Filter tasks
+  // Role-based filtering first
+  const roleFilteredTasks = useMemo(() => {
+    if (!currentMembership?.role) return workPlans;
+    return filterWorkPlansByRole(
+      workPlans,
+      currentMembership.role,
+      currentMembership.function,
+      currentMembership.id
+    );
+  }, [workPlans, currentMembership]);
+
+  // Then apply UI filters (status, function)
   const filteredTasks = useMemo(() => {
-    return workPlans.filter(task => {
+    return roleFilteredTasks.filter(task => {
       const matchesStatus = statusFilter === 'all' || task.status === statusFilter;
       const matchesFunction = functionFilter === 'all' || task.function === functionFilter;
       return matchesStatus && matchesFunction;
     });
-  }, [workPlans, statusFilter, functionFilter]);
+  }, [roleFilteredTasks, statusFilter, functionFilter]);
 
   // Group tasks by status
   const tasksByStatus = useMemo(() => {
@@ -140,14 +153,14 @@ export default function WhatScreen() {
     return grouped;
   }, [filteredTasks]);
 
-  // Stats
+  // Stats (based on role-filtered tasks)
   const stats = useMemo(() => {
-    const active = workPlans.filter(t => t.status === 'in-progress').length;
-    const queued = workPlans.filter(t => t.status === 'not-started').length;
-    const blocked = workPlans.filter(t => t.status === 'blocked').length;
-    const completed = workPlans.filter(t => t.status === 'completed').length;
+    const active = roleFilteredTasks.filter(t => t.status === 'in-progress').length;
+    const queued = roleFilteredTasks.filter(t => t.status === 'not-started').length;
+    const blocked = roleFilteredTasks.filter(t => t.status === 'blocked').length;
+    const completed = roleFilteredTasks.filter(t => t.status === 'completed').length;
     return { active, queued, blocked, completed };
-  }, [workPlans]);
+  }, [roleFilteredTasks]);
 
   // Get allocated members for a task
   const getTaskMembers = (task: WorkPlan) => {

@@ -32,6 +32,8 @@ import { CollapsibleResourcePool } from '@/components/CollapsibleResourcePool';
 import { TaskDetailsModal } from '@/components/TaskDetailsModal';
 import { identifyTUOpportunities, type TUOpportunity } from '@/lib/reports/tu-analytics';
 import { calculateEndDate, calculateCompletionDays } from '@/lib/task-timeline-calculator';
+import { filterWorkPlansByRole, filterOKRsByRole } from '@/lib/role-utils';
+import { RoleIndicator } from '@/components/RoleIndicator';
 
 // Team efficiency types
 
@@ -428,11 +430,26 @@ export default function DecideScreen() {
     })),
   ];
 
-  // DECIDE tab shows all OKRs for strategic decision-making
-  // Filter by selected function only (workspace filtering handled by store initialization)
+  // Role-based filtering
+  const userRole = currentMembership?.role;
+  const userFunction = currentMembership?.function;
+  const userId = currentMembership?.id;
+
+  // Apply role-based filtering to OKRs first
+  const roleFilteredOKRs = useMemo(() => {
+    if (!userRole) return okrs;
+    // filterOKRsByRole handles Founder (all), Executive (their function), Apprentice (their tasks' OKRs)
+    return filterOKRsByRole(okrs, userRole, userFunction, workPlans.filter(wp =>
+      wp.assignedMemberIds?.includes(userId || '') ||
+      wp.allocations?.some(a => a.memberId === userId)
+    ));
+  }, [okrs, userRole, userFunction, userId, workPlans]);
+
+  // Then filter by selected function (for UI filter dropdown)
+  // DECIDE tab shows all OKRs for strategic decision-making (within role permissions)
   const filteredOKRs = selectedFunction === 'all'
-    ? okrs
-    : okrs.filter(okr => okr.function === selectedFunction);
+    ? roleFilteredOKRs
+    : roleFilteredOKRs.filter(okr => okr.function === selectedFunction);
 
   // Split OKRs into active (has resources allocated) and queued (no resources)
   const { activeOKRs, queuedOKRs } = useMemo(() => {

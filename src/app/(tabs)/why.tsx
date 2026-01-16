@@ -38,6 +38,8 @@ import { HelpModal, HelpButton, type HelpContent } from '@/components/HelpModal'
 import { SettingsGearButton } from '@/components/SettingsGearButton';
 import { CompanyAimModal } from '@/components/CompanyAimModal';
 import { BusinessImprovements } from '@/components/BusinessImprovements';
+import { filterOKRsByRole } from '@/lib/role-utils';
+import { RoleIndicator } from '@/components/RoleIndicator';
 
 const WHY_HELP: HelpContent = {
   title: 'Strategic Planning',
@@ -100,14 +102,29 @@ export default function WhyScreen() {
 
   const isFounder = currentMembership?.role === 'Founder';
 
-  // Filter OKRs by workspace and function
+  // Get user's work plans for role-based filtering
+  const userWorkPlans = useMemo(() => {
+    if (!currentMembership?.id) return [];
+    return workPlans.filter(wp =>
+      wp.assignedMemberIds?.includes(currentMembership.id) ||
+      wp.allocations?.some(a => a.memberId === currentMembership.id)
+    );
+  }, [workPlans, currentMembership]);
+
+  // Apply role-based filtering first
+  const roleFilteredOKRs = useMemo(() => {
+    if (!currentMembership?.role) return okrs;
+    return filterOKRsByRole(okrs, currentMembership.role, currentMembership.function, userWorkPlans);
+  }, [okrs, currentMembership, userWorkPlans]);
+
+  // Filter OKRs by workspace and function (UI filters)
   const filteredOKRs = useMemo(() => {
-    return okrs.filter(okr => {
+    return roleFilteredOKRs.filter(okr => {
       const matchesWorkspace = !currentWorkspace || okr.workspaceId === currentWorkspace.id;
       const matchesFunction = selectedFunction === 'all' || okr.function === selectedFunction;
       return matchesWorkspace && matchesFunction;
     });
-  }, [okrs, currentWorkspace, selectedFunction]);
+  }, [roleFilteredOKRs, currentWorkspace, selectedFunction]);
 
   // Group OKRs by status
   const okrsByStatus = useMemo(() => {
