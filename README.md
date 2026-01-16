@@ -15,7 +15,54 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
 
 ## 🔄 Recent Updates (Jan 2026)
 
-### Role-Based Dashboard System (Latest)
+### Executive Command Center Home Screen (Latest)
+The Founder Home screen has been completely redesigned as an executive command center with the following sections (top to bottom):
+
+1. **Urgent Decisions Needed** - Color-coded priority decisions requiring immediate action
+   - Critical (red), High (orange), Normal (yellow) urgency levels
+   - Decision context, deadline, and options
+   - Tap to view full details and make decisions
+
+2. **Business Objectives** - Q1 2026 strategic goals with progress tracking
+   - Horizontal scrollable cards for each objective
+   - Progress %, status badges (On Track, At Risk, Behind)
+   - Key metrics and milestones for each objective
+   - Tap to expand with detailed metrics and milestone list
+
+3. **Current Activities** - What's happening right now
+   - In-progress tasks with progress bars
+   - Upcoming activities (next 1-2 weeks)
+   - Bottleneck alerts for blocked tasks and overloaded team members
+
+4. **Team Capacity Dashboard** - Visual utilization overview
+   - Circular gauge showing overall team utilization %
+   - Color coding: Green (0-70%), Yellow (70-90%), Red (90%+)
+   - Individual member capacity cards with allocation bars
+   - Spare capacity recommendations for new work
+
+5. **Performance Dashboard Suite** - Grid of KPI cards
+   - Project Health (tasks on-time, blocked count)
+   - Team Productivity (tasks completed, cycle time)
+   - Resource Efficiency (utilization, spare capacity)
+   - Supplier Performance (active suppliers, spend)
+   - Objective Progress (OKRs on track)
+   - Cash Flow (runway, balance)
+
+6. **Supplier & Vendor Spend** - Financial visibility
+   - Pie chart of spend distribution by category
+   - Budget progress bar with remaining amount
+   - 3-month trend bar chart
+   - Active engagements summary
+
+7. **Quick Access Tools** - Function Hub, AI Armory, Progress, Startup
+
+**Data Refresh Features:**
+- Pull-to-refresh gesture
+- Last updated timestamp in header
+- Auto-refresh every 5 minutes when app is active
+- Tap refresh icon to manually update
+
+### Role-Based Dashboard System
 The app now supports three distinct user roles, each with a customized dashboard experience:
 
 #### **Founder View** (Default)
