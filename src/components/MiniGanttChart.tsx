@@ -329,6 +329,7 @@ export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress
                         console.log('[MiniGanttChart] Task pressed:', bar.task.title);
                         onTaskPress?.(bar.task.id);
                       }}
+                      hitSlop={{ top: 5, bottom: 5, left: 5, right: 5 }}
                       style={{
                         width: Math.max(60, barWidth),
                         height: TASK_HEIGHT,
@@ -339,8 +340,9 @@ export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress
                           selectedTaskId === bar.task.id
                             ? 'border-blue-500 dark:border-blue-400'
                             : colors.border
-                        } ${colors.bg} active:opacity-70`}
+                        } ${colors.bg}`}
                         style={{ height: TASK_HEIGHT }}
+                        pointerEvents="none"
                       >
                         <View className="flex-1">
                           <Text
