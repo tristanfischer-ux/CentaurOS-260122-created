@@ -136,9 +136,15 @@ export default function WhoScreen() {
   const members = useOrganizationStore(s => s.members);
   const addMember = useOrganizationStore(s => s.addMember);
   const workPlans = useWorkPlanStore(s => s.workPlans);
-  const pendingRequests = useMarketplaceRequestsStore(s => s.requests.filter(r => r.status === 'pending'));
+  const requests = useMarketplaceRequestsStore(s => s.requests);
   const approveRequest = useMarketplaceRequestsStore(s => s.approveRequest);
   const rejectRequest = useMarketplaceRequestsStore(s => s.rejectRequest);
+
+  // Filter pending requests with useMemo to avoid infinite re-renders
+  const pendingRequests = useMemo(() =>
+    requests.filter(r => r.status === 'pending'),
+    [requests]
+  );
 
   // State
   const [activeTab, setActiveTab] = useState<WhoTab>('team');
