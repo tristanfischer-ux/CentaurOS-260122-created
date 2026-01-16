@@ -35,6 +35,7 @@ import { useCompanyAimStore } from '@/lib/state/company-aim-store';
 import { useBusinessImprovementsStore } from '@/lib/state/business-improvements-store';
 import type { Function as BusinessFunction } from '@/types';
 import { HelpModal, HelpButton, type HelpContent } from '@/components/HelpModal';
+import { SettingsGearButton } from '@/components/SettingsGearButton';
 import { CompanyAimModal } from '@/components/CompanyAimModal';
 import { BusinessImprovements } from '@/components/BusinessImprovements';
 
@@ -407,6 +408,7 @@ export default function WhyScreen() {
                 <Plus size={20} color="white" />
               </Pressable>
             )}
+            <SettingsGearButton style="glass" />
             <HelpButton onPress={() => setShowHelp(true)} />
           </View>
         </View>

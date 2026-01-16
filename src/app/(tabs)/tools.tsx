@@ -37,6 +37,7 @@ import { useArmoryStore } from '@/lib/state/armory-store';
 import { useCurrentWorkspace, useCurrentMembership } from '@/lib/state/app-store';
 import type { SupplierEngagement, AIAgent } from '@/lib/organization-seed';
 import { HelpModal, HelpButton, type HelpContent } from '@/components/HelpModal';
+import { SettingsGearButton } from '@/components/SettingsGearButton';
 import { THIRD_PARTY_AI_TOOLS, type ThirdPartyAITool } from '@/lib/third-party-ai-tools';
 
 const TOOLS_HELP: HelpContent = {
@@ -355,7 +356,10 @@ export default function ToolsScreen() {
             <Text className="text-white/70 text-xs font-medium uppercase tracking-wide">Resources</Text>
             <Text className="text-white text-2xl font-bold">Tools</Text>
           </View>
-          <HelpButton onPress={() => setShowHelp(true)} />
+          <View className="flex-row items-center gap-2">
+            <SettingsGearButton style="glass" />
+            <HelpButton onPress={() => setShowHelp(true)} />
+          </View>
         </View>
 
         {/* Stats */}

@@ -47,6 +47,7 @@ import type { OrganizationMember } from '@/lib/organization-seed';
 import type { Function as BusinessFunction } from '@/types';
 import { HelpModal, HelpButton, type HelpContent } from '@/components/HelpModal';
 import { PersonDetailsModal } from '@/components/PersonDetailsModal';
+import { SettingsGearButton } from '@/components/SettingsGearButton';
 import { useCurrentUser } from '@/lib/state/app-store';
 
 const WHO_HELP: HelpContent = {
@@ -722,7 +723,10 @@ export default function WhoScreen() {
             <Text className="text-white/70 text-xs font-medium uppercase tracking-wide">People</Text>
             <Text className="text-white text-2xl font-bold">Who</Text>
           </View>
-          <HelpButton onPress={() => setShowHelp(true)} />
+          <View className="flex-row items-center gap-2">
+            <SettingsGearButton style="glass" />
+            <HelpButton onPress={() => setShowHelp(true)} />
+          </View>
         </View>
 
         {/* Resource Pool Summary */}

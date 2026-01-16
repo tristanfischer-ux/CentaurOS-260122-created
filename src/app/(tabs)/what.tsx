@@ -39,6 +39,7 @@ import { useCurrentMembership, useCurrentWorkspace } from '@/lib/state/app-store
 import type { OrganizationMember } from '@/lib/organization-seed';
 import type { Function as BusinessFunction } from '@/types';
 import { HelpModal, HelpButton, type HelpContent } from '@/components/HelpModal';
+import { SettingsGearButton } from '@/components/SettingsGearButton';
 import { CollapsibleResourcePool } from '@/components/CollapsibleResourcePool';
 import { MiniGanttChart } from '@/components/MiniGanttChart';
 import { UnifiedTaskAllocationModal } from '@/components/UnifiedTaskAllocationModal';
@@ -451,6 +452,7 @@ export default function WhatScreen() {
             >
               <Plus size={20} color="white" />
             </Pressable>
+            <SettingsGearButton style="glass" />
             <HelpButton onPress={() => setShowHelp(true)} />
           </View>
         </View>

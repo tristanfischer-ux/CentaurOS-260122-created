@@ -180,7 +180,9 @@ export default function TabLayout() {
       <Tabs.Screen
         name="settings"
         options={{
-          href: null, // Hide from main tabs - accessible from Home
+          title: 'Settings',
+          headerShown: false,
+          tabBarIcon: ({ color }) => <TabBarIcon Icon={Settings} color={color} />,
         }}
       />
     </Tabs>
