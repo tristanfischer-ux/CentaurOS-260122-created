@@ -3,8 +3,8 @@
  * Displays critical decisions requiring immediate action at the top of the home screen
  */
 
-import { View, Text, Pressable, Modal, ScrollView } from 'react-native';
-import { useState } from 'react';
+import { View, Text, Pressable, Modal, ScrollView, TextInput } from 'react-native';
+import { useState, useMemo } from 'react';
 import { LinearGradient } from 'expo-linear-gradient';
 import {
   AlertTriangle,
@@ -18,9 +18,14 @@ import {
   Target,
   Scale,
   FileText,
+  Users,
+  Check,
 } from 'lucide-react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useDecisionsStore, type Decision, type UrgencyLevel } from '@/lib/state/decisions-store';
+import { useAllocationRequestStore, type AllocationRequest } from '@/lib/state/allocation-request-store';
+import { useOrganizationStore } from '@/lib/state/organization-store';
+import { useCurrentMembership } from '@/lib/state/app-store';
 
 const URGENCY_COLORS: Record<UrgencyLevel, { bg: string; text: string; border: string; gradient: [string, string] }> = {
   critical: { bg: '#fef2f2', text: '#dc2626', border: '#fecaca', gradient: ['#ef4444', '#dc2626'] },
@@ -124,6 +129,96 @@ function DecisionCard({ decision, onPress, index }: DecisionCardProps) {
               </View>
             ) : (
               <View />
+            )}
+
+            <View className="flex-row items-center gap-1">
+              <Text className="text-xs font-semibold" style={{ color: colors.text }}>
+                View Details
+              </Text>
+              <ChevronRight size={14} color={colors.text} />
+            </View>
+          </View>
+        </LinearGradient>
+      </Pressable>
+    </Animated.View>
+  );
+}
+
+interface AllocationRequestCardProps {
+  request: AllocationRequest;
+  onPress: () => void;
+  index: number;
+}
+
+function AllocationRequestCard({ request, onPress, index }: AllocationRequestCardProps) {
+  const colors = URGENCY_COLORS['critical']; // Allocation requests are always critical
+  const daysSinceRequest = Math.floor(
+    (Date.now() - new Date(request.createdAt).getTime()) / (1000 * 60 * 60 * 24)
+  );
+
+  return (
+    <Animated.View entering={FadeInDown.delay(index * 50).springify()}>
+      <Pressable
+        onPress={onPress}
+        className="rounded-xl overflow-hidden mb-3 active:opacity-90"
+        style={{ borderWidth: 2, borderColor: colors.border }}
+      >
+        <LinearGradient
+          colors={[colors.bg, '#ffffff']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 0, y: 1 }}
+          style={{ padding: 16 }}
+        >
+          {/* Header */}
+          <View className="flex-row items-start justify-between mb-2">
+            <View className="flex-row items-center gap-2 flex-1">
+              <View
+                className="w-8 h-8 rounded-full items-center justify-center"
+                style={{ backgroundColor: colors.text + '20' }}
+              >
+                <Users size={16} color={colors.text} />
+              </View>
+              <View className="flex-1">
+                <Text className="text-slate-900 font-bold text-sm" numberOfLines={1}>
+                  Allocation Request: {request.apprenticeName}
+                </Text>
+                <Text className="text-slate-500 text-xs">
+                  hiring • {request.requesterName}
+                </Text>
+              </View>
+            </View>
+
+            {/* Urgency Badge */}
+            <View
+              className="px-2 py-1 rounded-full flex-row items-center gap-1"
+              style={{ backgroundColor: colors.text + '20' }}
+            >
+              <AlertTriangle size={10} color={colors.text} />
+              <Text className="text-xs font-bold uppercase" style={{ color: colors.text }}>
+                CRITICAL
+              </Text>
+            </View>
+          </View>
+
+          {/* Question */}
+          <Text className="text-slate-700 text-sm mb-2" numberOfLines={2}>
+            Should we allocate {request.apprenticeName} ({request.timeUnitsPerWeek}□/wk
+            {request.durationWeeks ? ` for ${request.durationWeeks} weeks` : ''}) to {request.taskTitle || request.objectiveTitle || 'this work'}?
+          </Text>
+
+          {/* Footer */}
+          <View className="flex-row items-center justify-between">
+            {daysSinceRequest === 0 ? (
+              <View className="bg-blue-100 px-2 py-0.5 rounded-full">
+                <Text className="text-blue-600 text-xs font-bold">NEW</Text>
+              </View>
+            ) : (
+              <View className="flex-row items-center gap-1">
+                <Clock size={12} color={colors.text} />
+                <Text className="text-xs font-semibold" style={{ color: colors.text }}>
+                  {daysSinceRequest}d ago
+                </Text>
+              </View>
             )}
 
             <View className="flex-row items-center gap-1">
@@ -293,13 +388,226 @@ function DecisionDetailModal({ decision, visible, onClose, onDecide }: DecisionD
   );
 }
 
+interface AllocationRequestDetailModalProps {
+  request: AllocationRequest | null;
+  visible: boolean;
+  onClose: () => void;
+  onApprove: (note?: string) => void;
+  onReject: (note?: string) => void;
+}
+
+function AllocationRequestDetailModal({
+  request,
+  visible,
+  onClose,
+  onApprove,
+  onReject,
+}: AllocationRequestDetailModalProps) {
+  const [note, setNote] = useState('');
+  const members = useOrganizationStore((s) => s.members);
+
+  if (!request) return null;
+
+  const requester = members.find((m) => m.id === request.requesterId);
+  const apprentice = members.find((m) => m.id === request.apprenticeId);
+  const colors = URGENCY_COLORS['critical'];
+
+  return (
+    <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
+      <Pressable className="flex-1 bg-black/70" onPress={onClose}>
+        <View className="flex-1" />
+        <Pressable onPress={(e) => e.stopPropagation()} style={{ maxHeight: '90%' }}>
+          <View className="bg-white dark:bg-slate-900 rounded-t-3xl">
+            {/* Header */}
+            <LinearGradient
+              colors={colors.gradient}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={{ borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 20 }}
+            >
+              <View className="flex-row items-center justify-between mb-2">
+                <View className="flex-row items-center gap-2">
+                  <Users size={20} color="white" />
+                  <Text className="text-white/80 text-xs font-bold uppercase">
+                    Allocation Request
+                  </Text>
+                </View>
+                <Pressable onPress={onClose} className="bg-white/20 p-2 rounded-full">
+                  <X size={18} color="white" />
+                </Pressable>
+              </View>
+              <Text className="text-white font-bold text-xl">
+                Allocate {request.apprenticeName}?
+              </Text>
+            </LinearGradient>
+
+            <ScrollView className="p-5" contentContainerStyle={{ paddingBottom: 40 }}>
+              {/* Requester */}
+              <View className="mb-4">
+                <Text className="text-slate-500 dark:text-slate-400 text-xs font-bold uppercase mb-2">
+                  Requested By
+                </Text>
+                <View className="flex-row items-center bg-slate-50 dark:bg-slate-800 rounded-xl p-3">
+                  <View className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 items-center justify-center mr-3">
+                    <Text className="text-blue-600 dark:text-blue-400 font-bold">
+                      {requester?.name.split(' ').map((n) => n[0]).join('')}
+                    </Text>
+                  </View>
+                  <View>
+                    <Text className="text-slate-900 dark:text-white font-semibold">
+                      {requester?.name}
+                    </Text>
+                    <Text className="text-slate-500 dark:text-slate-400 text-sm">
+                      {requester?.function} Executive
+                    </Text>
+                  </View>
+                </View>
+              </View>
+
+              {/* Apprentice */}
+              <View className="mb-4">
+                <Text className="text-slate-500 dark:text-slate-400 text-xs font-bold uppercase mb-2">
+                  Requesting Allocation Of
+                </Text>
+                <View className="flex-row items-center bg-slate-50 dark:bg-slate-800 rounded-xl p-3">
+                  <View className="w-10 h-10 rounded-full bg-emerald-100 dark:bg-emerald-900/30 items-center justify-center mr-3">
+                    <Text className="text-emerald-600 dark:text-emerald-400 font-bold">
+                      {apprentice?.name.split(' ').map((n) => n[0]).join('')}
+                    </Text>
+                  </View>
+                  <View>
+                    <Text className="text-slate-900 dark:text-white font-semibold">
+                      {apprentice?.name}
+                    </Text>
+                    <Text className="text-slate-500 dark:text-slate-400 text-sm">
+                      {apprentice?.function} Apprentice
+                    </Text>
+                  </View>
+                </View>
+              </View>
+
+              {/* Allocation Details */}
+              <View className="mb-4 bg-slate-50 dark:bg-slate-800 rounded-xl p-4">
+                <Text className="text-slate-500 dark:text-slate-400 text-xs font-bold uppercase mb-3">
+                  Allocation Details
+                </Text>
+                <View className="flex-row justify-between mb-2">
+                  <Text className="text-slate-600 dark:text-slate-400">Time Units</Text>
+                  <Text className="text-slate-900 dark:text-white font-medium">
+                    {request.timeUnitsPerWeek}□/week
+                  </Text>
+                </View>
+                {request.durationWeeks && (
+                  <View className="flex-row justify-between mb-2">
+                    <Text className="text-slate-600 dark:text-slate-400">Duration</Text>
+                    <Text className="text-slate-900 dark:text-white font-medium">
+                      {request.durationWeeks} weeks
+                    </Text>
+                  </View>
+                )}
+                {request.taskTitle && (
+                  <View className="flex-row justify-between">
+                    <Text className="text-slate-600 dark:text-slate-400">For Task</Text>
+                    <Text className="text-slate-900 dark:text-white font-medium">
+                      {request.taskTitle}
+                    </Text>
+                  </View>
+                )}
+              </View>
+
+              {/* Justification */}
+              <View className="mb-4 bg-slate-50 dark:bg-slate-800 rounded-xl p-4">
+                <Text className="text-slate-500 dark:text-slate-400 text-xs font-bold uppercase mb-2">
+                  Justification
+                </Text>
+                <Text className="text-slate-700 dark:text-slate-300 text-sm leading-relaxed">
+                  {request.justification}
+                </Text>
+              </View>
+
+              {/* Response Note */}
+              <View className="mb-4">
+                <Text className="text-slate-500 dark:text-slate-400 text-xs font-bold uppercase mb-2">
+                  Add Note (Optional)
+                </Text>
+                <TextInput
+                  value={note}
+                  onChangeText={setNote}
+                  placeholder="Add feedback for the requester..."
+                  placeholderTextColor="#94a3b8"
+                  multiline
+                  numberOfLines={3}
+                  textAlignVertical="top"
+                  className="bg-slate-100 dark:bg-slate-800 rounded-xl px-4 py-3 text-slate-900 dark:text-white min-h-[80px]"
+                />
+              </View>
+
+              {/* Action Buttons */}
+              <View className="gap-3 mt-4">
+                <Pressable
+                  onPress={() => {
+                    onApprove(note || undefined);
+                    onClose();
+                    setNote('');
+                  }}
+                  className="py-4 rounded-xl items-center bg-emerald-500 active:opacity-80"
+                >
+                  <View className="flex-row items-center gap-2">
+                    <Check size={18} color="white" />
+                    <Text className="text-white font-bold text-base">
+                      Approve Allocation
+                    </Text>
+                  </View>
+                </Pressable>
+
+                <Pressable
+                  onPress={() => {
+                    onReject(note || undefined);
+                    onClose();
+                    setNote('');
+                  }}
+                  className="py-3 rounded-xl items-center border-2 border-red-200 dark:border-red-700 bg-red-50 dark:bg-red-900/20"
+                >
+                  <View className="flex-row items-center gap-2">
+                    <X size={18} color="#ef4444" />
+                    <Text className="text-red-600 dark:text-red-400 font-semibold text-sm">
+                      Reject Request
+                    </Text>
+                  </View>
+                </Pressable>
+              </View>
+            </ScrollView>
+          </View>
+        </Pressable>
+      </Pressable>
+    </Modal>
+  );
+}
+
 export function UrgentDecisionsSection() {
   const [selectedDecision, setSelectedDecision] = useState<Decision | null>(null);
-  const [showModal, setShowModal] = useState(false);
+  const [selectedRequest, setSelectedRequest] = useState<AllocationRequest | null>(null);
+  const [showDecisionModal, setShowDecisionModal] = useState(false);
+  const [showRequestModal, setShowRequestModal] = useState(false);
+
+  const membership = useCurrentMembership();
+  const currentMember = useOrganizationStore((s) =>
+    s.members.find((m) => m.id === membership?.userId)
+  );
 
   const initialize = useDecisionsStore((s) => s.initialize);
   const getUrgentDecisions = useDecisionsStore((s) => s.getUrgentDecisions);
   const makeDecision = useDecisionsStore((s) => s.makeDecision);
+
+  // Get allocation requests
+  const allRequests = useAllocationRequestStore((s) => s.requests);
+  const approveRequest = useAllocationRequestStore((s) => s.approveRequest);
+  const rejectRequest = useAllocationRequestStore((s) => s.rejectRequest);
+
+  const pendingRequests = useMemo(
+    () => allRequests.filter((req) => req.status === 'pending'),
+    [allRequests]
+  );
 
   // Initialize on mount
   useState(() => {
@@ -308,12 +616,33 @@ export function UrgentDecisionsSection() {
 
   const urgentDecisions = getUrgentDecisions();
 
-  if (urgentDecisions.length === 0) {
+  // Combine allocation requests + urgent decisions
+  const totalUrgentItems = pendingRequests.length + urgentDecisions.length;
+
+  if (totalUrgentItems === 0) {
     return null;
   }
 
-  const criticalCount = urgentDecisions.filter((d) => d.urgency === 'critical').length;
+  const criticalCount = urgentDecisions.filter((d) => d.urgency === 'critical').length + pendingRequests.length; // All requests are critical
   const highCount = urgentDecisions.filter((d) => d.urgency === 'high').length;
+
+  const handleApproveRequest = (request: AllocationRequest, note?: string) => {
+    approveRequest(
+      request.id,
+      currentMember?.id ?? '',
+      currentMember?.name ?? 'Founder',
+      note
+    );
+  };
+
+  const handleRejectRequest = (request: AllocationRequest, note?: string) => {
+    rejectRequest(
+      request.id,
+      currentMember?.id ?? '',
+      currentMember?.name ?? 'Founder',
+      note
+    );
+  };
 
   return (
     <View className="mb-4">
@@ -327,7 +656,7 @@ export function UrgentDecisionsSection() {
             Urgent Decisions
           </Text>
           <View className="bg-red-500 px-2 py-0.5 rounded-full">
-            <Text className="text-white text-xs font-bold">{urgentDecisions.length}</Text>
+            <Text className="text-white text-xs font-bold">{totalUrgentItems}</Text>
           </View>
         </View>
 
@@ -350,35 +679,69 @@ export function UrgentDecisionsSection() {
         </View>
       </View>
 
-      {/* Decision Cards */}
+      {/* Cards - Allocation Requests FIRST (most urgent), then Decisions */}
       <View>
-        {urgentDecisions.slice(0, 3).map((decision, index) => (
-          <DecisionCard
-            key={decision.id}
-            decision={decision}
+        {/* Allocation Request Cards */}
+        {pendingRequests.slice(0, 3).map((request, index) => (
+          <AllocationRequestCard
+            key={request.id}
+            request={request}
             index={index}
             onPress={() => {
-              setSelectedDecision(decision);
-              setShowModal(true);
+              setSelectedRequest(request);
+              setShowRequestModal(true);
             }}
           />
         ))}
 
-        {urgentDecisions.length > 3 && (
+        {/* Decision Cards */}
+        {urgentDecisions.slice(0, Math.max(0, 3 - pendingRequests.length)).map((decision, index) => (
+          <DecisionCard
+            key={decision.id}
+            decision={decision}
+            index={pendingRequests.length + index}
+            onPress={() => {
+              setSelectedDecision(decision);
+              setShowDecisionModal(true);
+            }}
+          />
+        ))}
+
+        {totalUrgentItems > 3 && (
           <Pressable className="py-2 items-center">
             <Text className="text-blue-600 dark:text-blue-400 text-sm font-semibold">
-              View {urgentDecisions.length - 3} more decisions
+              View {totalUrgentItems - 3} more urgent items
             </Text>
           </Pressable>
         )}
       </View>
 
+      {/* Allocation Request Detail Modal */}
+      <AllocationRequestDetailModal
+        request={selectedRequest}
+        visible={showRequestModal}
+        onClose={() => {
+          setShowRequestModal(false);
+          setSelectedRequest(null);
+        }}
+        onApprove={(note) => {
+          if (selectedRequest) {
+            handleApproveRequest(selectedRequest, note);
+          }
+        }}
+        onReject={(note) => {
+          if (selectedRequest) {
+            handleRejectRequest(selectedRequest, note);
+          }
+        }}
+      />
+
       {/* Decision Detail Modal */}
       <DecisionDetailModal
         decision={selectedDecision}
-        visible={showModal}
+        visible={showDecisionModal}
         onClose={() => {
-          setShowModal(false);
+          setShowDecisionModal(false);
           setSelectedDecision(null);
         }}
         onDecide={(decisionId, optionId) => {

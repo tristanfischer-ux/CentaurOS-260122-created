@@ -1,10 +1,13 @@
 /**
  * Decisions Store
  * Manages urgent decisions that require founder/leadership attention
+ * Integrates with WorkPlans - decisions create tasks when resolved
  */
 
 import { create } from 'zustand';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useWorkPlanStore } from './work-plan-store';
+import type { WorkPlan } from './work-plan-store';
 
 export type UrgencyLevel = 'critical' | 'high' | 'normal';
 
@@ -18,7 +21,7 @@ export interface Decision {
   deadline?: string; // ISO date string
   requiredDecisionMaker: 'founder' | 'executive' | 'team';
   options?: DecisionOption[];
-  relatedTaskIds?: string[];
+  relatedTaskIds?: string[]; // WorkPlans created from this decision
   relatedMemberIds?: string[];
   status: 'pending' | 'decided' | 'deferred';
   decidedOption?: string;
@@ -26,6 +29,7 @@ export interface Decision {
   decidedBy?: string;
   createdAt: string;
   createdBy?: string;
+  workspaceId?: string; // For multi-tenant support
 }
 
 export interface DecisionOption {
@@ -34,6 +38,14 @@ export interface DecisionOption {
   description?: string;
   impact?: string;
   recommended?: boolean;
+  // NEW: What tasks to create if this option is chosen
+  tasksToCreate?: Array<{
+    title: string;
+    description: string;
+    function: 'Ops' | 'Marketing' | 'Sales' | 'Finance' | 'Engineering' | 'Admin';
+    estimatedTimeUnits: number;
+    dueInDays?: number;
+  }>;
 }
 
 interface DecisionsState {
@@ -67,13 +79,55 @@ const sampleDecisions: Decision[] = [
     deadline: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(), // 2 days
     requiredDecisionMaker: 'founder',
     options: [
-      { id: 'opt-1', label: 'Approve Full Increase', description: 'Approve 30% increase (£15K additional)', impact: 'Higher acquisition, faster growth', recommended: true },
-      { id: 'opt-2', label: 'Partial Increase', description: 'Approve 15% increase (£7.5K additional)', impact: 'Moderate growth, lower risk' },
-      { id: 'opt-3', label: 'Decline', description: 'Keep current budget', impact: 'Preserve runway, slower growth' },
+      {
+        id: 'opt-1',
+        label: 'Approve Full Increase',
+        description: 'Approve 30% increase (£15K additional)',
+        impact: 'Higher acquisition, faster growth',
+        recommended: true,
+        tasksToCreate: [
+          {
+            title: 'Execute Q1 Marketing Campaign',
+            description: 'Launch paid acquisition campaign with increased budget. Monitor CAC and adjust channels for optimal performance.',
+            function: 'Marketing',
+            estimatedTimeUnits: 20,
+            dueInDays: 7,
+          },
+          {
+            title: 'Track Q1 Marketing KPIs',
+            description: 'Set up weekly tracking dashboard for CAC, conversion rates, and ROAS. Report to founder weekly.',
+            function: 'Marketing',
+            estimatedTimeUnits: 5,
+            dueInDays: 3,
+          }
+        ]
+      },
+      {
+        id: 'opt-2',
+        label: 'Partial Increase',
+        description: 'Approve 15% increase (£7.5K additional)',
+        impact: 'Moderate growth, lower risk',
+        tasksToCreate: [
+          {
+            title: 'Execute Scaled Q1 Marketing Campaign',
+            description: 'Launch paid acquisition campaign with partial budget increase. Focus on highest-performing channels only.',
+            function: 'Marketing',
+            estimatedTimeUnits: 15,
+            dueInDays: 7,
+          }
+        ]
+      },
+      {
+        id: 'opt-3',
+        label: 'Decline',
+        description: 'Keep current budget',
+        impact: 'Preserve runway, slower growth'
+      },
     ],
     status: 'pending',
     createdAt: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
     createdBy: 'Marketing Lead',
+    workspaceId: 'default-workspace',
   },
   {
     id: 'dec-2',
@@ -85,13 +139,64 @@ const sampleDecisions: Decision[] = [
     deadline: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000).toISOString(), // 1 day - candidate has other offers
     requiredDecisionMaker: 'founder',
     options: [
-      { id: 'opt-1', label: 'Hire Now', description: 'Extend offer at £650/day', impact: 'Fast product delivery, higher burn', recommended: true },
-      { id: 'opt-2', label: 'Negotiate', description: 'Counter at £550/day', impact: 'Lower cost, risk losing candidate' },
-      { id: 'opt-3', label: 'Pass', description: 'Continue search', impact: 'Delay roadmap, preserve runway' },
+      {
+        id: 'opt-1',
+        label: 'Hire Now',
+        description: 'Extend offer at £650/day',
+        impact: 'Fast product delivery, higher burn',
+        recommended: true,
+        tasksToCreate: [
+          {
+            title: 'Onboard New Senior Developer',
+            description: 'Complete onboarding process: contracts, setup accounts, introduce to team, assign first project.',
+            function: 'Ops',
+            estimatedTimeUnits: 10,
+            dueInDays: 3,
+          },
+          {
+            title: 'Assign Developer to Priority Project',
+            description: 'Brief developer on current sprint priorities and allocate to highest-value feature work.',
+            function: 'Engineering',
+            estimatedTimeUnits: 5,
+            dueInDays: 5,
+          }
+        ]
+      },
+      {
+        id: 'opt-2',
+        label: 'Negotiate',
+        description: 'Counter at £550/day',
+        impact: 'Lower cost, risk losing candidate',
+        tasksToCreate: [
+          {
+            title: 'Negotiate Developer Rate',
+            description: 'Prepare counter-offer at £550/day with performance bonus structure. Present within 24 hours.',
+            function: 'Ops',
+            estimatedTimeUnits: 3,
+            dueInDays: 1,
+          }
+        ]
+      },
+      {
+        id: 'opt-3',
+        label: 'Pass',
+        description: 'Continue search',
+        impact: 'Delay roadmap, preserve runway',
+        tasksToCreate: [
+          {
+            title: 'Source Alternative Developer Candidates',
+            description: 'Update job posting, reach out to recruitment agencies, post on developer communities.',
+            function: 'Ops',
+            estimatedTimeUnits: 8,
+            dueInDays: 7,
+          }
+        ]
+      },
     ],
     status: 'pending',
     createdAt: new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString(),
     createdBy: 'HR',
+    workspaceId: 'default-workspace',
   },
   {
     id: 'dec-3',
@@ -102,12 +207,48 @@ const sampleDecisions: Decision[] = [
     urgency: 'normal',
     requiredDecisionMaker: 'founder',
     options: [
-      { id: 'opt-1', label: 'Payment Integration', description: 'Enable in-app purchases', impact: 'Revenue enablement' },
-      { id: 'opt-2', label: 'Social Sharing', description: 'Add viral growth features', impact: 'User acquisition' },
+      {
+        id: 'opt-1',
+        label: 'Payment Integration',
+        description: 'Enable in-app purchases',
+        impact: 'Revenue enablement',
+        tasksToCreate: [
+          {
+            title: 'Implement Payment Integration',
+            description: 'Integrate Stripe/RevenueCat, implement checkout flow, test payment processing.',
+            function: 'Engineering',
+            estimatedTimeUnits: 30,
+            dueInDays: 14,
+          },
+          {
+            title: 'Set Up Payment Analytics',
+            description: 'Configure revenue tracking, conversion funnels, and payment failure monitoring.',
+            function: 'Engineering',
+            estimatedTimeUnits: 8,
+            dueInDays: 7,
+          }
+        ]
+      },
+      {
+        id: 'opt-2',
+        label: 'Social Sharing',
+        description: 'Add viral growth features',
+        impact: 'User acquisition',
+        tasksToCreate: [
+          {
+            title: 'Build Social Sharing Features',
+            description: 'Implement share to social media, invite friends, referral tracking.',
+            function: 'Engineering',
+            estimatedTimeUnits: 25,
+            dueInDays: 14,
+          }
+        ]
+      },
     ],
     status: 'pending',
     createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
     createdBy: 'Product Manager',
+    workspaceId: 'default-workspace',
   },
 ];
 
@@ -150,6 +291,45 @@ export const useDecisionsStore = create<DecisionsState>((set, get) => ({
   },
 
   makeDecision: (decisionId, optionId, decidedBy) => {
+    const decision = get().decisions.find(d => d.id === decisionId);
+    const selectedOption = decision?.options?.find(o => o.id === optionId);
+
+    // Create WorkPlans if the selected option specifies tasks
+    const createdTaskIds: string[] = [];
+    if (selectedOption?.tasksToCreate && decision?.workspaceId) {
+      const workPlanStore = useWorkPlanStore.getState();
+      const workspaceId = decision.workspaceId; // Capture for type safety
+
+      selectedOption.tasksToCreate.forEach(taskSpec => {
+        const dueDate = taskSpec.dueInDays
+          ? new Date(Date.now() + taskSpec.dueInDays * 24 * 60 * 60 * 1000).toISOString()
+          : new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(); // Default 2 weeks
+
+        const newTask: WorkPlan = {
+          id: `task-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+          workspaceId: workspaceId,
+          title: taskSpec.title,
+          description: `${taskSpec.description}\n\n📋 Created from decision: ${decision.title}`,
+          function: taskSpec.function,
+          status: 'not-started',
+          progress: 0,
+          estimatedTimeUnits: taskSpec.estimatedTimeUnits,
+          allocations: [],
+          appliedAITools: [],
+          tusExpended: 0,
+          startDate: new Date().toISOString(),
+          dueDate,
+          assignedBy: decidedBy,
+          needsSubmission: false,
+          linkedDecisionId: decisionId, // Link back to the decision
+        };
+
+        workPlanStore.addWorkPlan(newTask);
+        createdTaskIds.push(newTask.id);
+      });
+    }
+
+    // Update the decision with the linked tasks
     set((state) => {
       const updated = state.decisions.map((d) =>
         d.id === decisionId
@@ -159,6 +339,7 @@ export const useDecisionsStore = create<DecisionsState>((set, get) => ({
               decidedOption: optionId,
               decidedAt: new Date().toISOString(),
               decidedBy,
+              relatedTaskIds: [...(d.relatedTaskIds || []), ...createdTaskIds],
             }
           : d
       );

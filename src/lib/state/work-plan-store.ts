@@ -101,6 +101,11 @@ export interface WorkPlan {
   linkedSupplierEngagementId?: string;  // Link to supplier engagement in Make tab
   componentBeingMade?: string;          // What is being manufactured/made
   manufacturingProcess?: string;        // Brief description of the process
+
+  // ========================================
+  // DECISION LINKAGE
+  // ========================================
+  linkedDecisionId?: string;            // Link to decision that created this task
 }
 
 interface WorkPlanState {

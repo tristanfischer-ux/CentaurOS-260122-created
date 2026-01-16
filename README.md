@@ -15,7 +15,49 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
 
 ## 🔄 Recent Updates (Jan 2026)
 
-### Performance Tab Enhanced Analytics - COMPLETE! (Latest) 📊
+### Decision → Task Integration - COMPLETE! (Latest) 🔗
+**Major workflow enhancement:** Urgent decisions now automatically create tasks when resolved!
+
+**What Was Done:**
+- ✅ Integrated Decisions with WorkPlans - decisions create tasks when made
+- ✅ Added allocation requests to Urgent Decisions section at top of Home tab
+- ✅ Extended DecisionOption interface with `tasksToCreate` specifications
+- ✅ Created bi-directional linking between decisions and resulting tasks
+- ✅ Updated all 3 sample decisions with detailed task creation specs
+
+**New Features:**
+- **Decision → Task Automation**: When a founder makes a decision, the system automatically:
+  - Creates WorkPlan tasks based on the selected option's `tasksToCreate` array
+  - Links tasks back to the decision via `linkedDecisionId`
+  - Adds created task IDs to decision's `relatedTaskIds`
+  - Includes decision context in task description
+- **Allocation Requests in Urgent Decisions**: Hiring/allocation requests now appear as critical urgent decisions at the top of Home tab
+- **Unified Decision View**: Founders see both strategic decisions AND tactical allocation requests in one place
+- **Task Specifications**: Each decision option can specify multiple tasks to create with:
+  - Title, description, business function
+  - Estimated time units and due date
+  - Automatic assignment and workspace linking
+
+**Example Flow:**
+1. Founder sees "Hire Senior Developer" as critical decision
+2. Founder selects "Hire Now" option
+3. System automatically creates 2 tasks:
+   - "Onboard New Senior Developer" (10 TU, due in 3 days)
+   - "Assign Developer to Priority Project" (5 TU, due in 5 days)
+4. Tasks appear in What tab with decision context
+
+**Technical Details:**
+- Modified `/src/lib/state/decisions-store.ts` - Core integration logic
+- Modified `/src/lib/state/work-plan-store.ts` - Added linkedDecisionId field
+- Modified `/src/components/home/UrgentDecisionsSection.tsx` - Integrated allocation requests
+- Decision options now use `tasksToCreate` array field for task specifications
+
+**Status:** ✅ IMPLEMENTED
+Locations:
+- Decision store: `/src/lib/state/decisions-store.ts`
+- UI component: `/src/components/home/UrgentDecisionsSection.tsx`
+
+### Performance Tab Enhanced Analytics - COMPLETE! 📊
 **Major analytics upgrade:** Comprehensive team performance tracking is now live!
 
 **What Was Done:**
