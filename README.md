@@ -15,7 +15,19 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
 
 ## 🔄 Recent Updates (Jan 2026)
 
-### Dynamic Task Timeline Calculator (Latest)
+### Collapsible Gantt Chart on Home Tab (Latest)
+- **Dock at Bottom**: Gantt chart now docks at the bottom of the home screen
+  - **Collapsed State**: Shows a compact tab with task count and status indicators
+  - **Expanded State**: Fills 50% of screen height with full Gantt chart view
+  - **Smooth Animation**: Spring animation for expand/collapse transitions
+  - **Quick Access**: Tap the tab to toggle between collapsed and expanded
+  - **Visual Indicators**:
+    - Calendar icon and task count when collapsed
+    - Color-coded status dots (blue = live, red = blocked, gray = queued)
+    - Chevron icon shows expand/collapse direction
+  - **Smart Layout**: ScrollView automatically adds padding so content isn't hidden
+
+### Dynamic Task Timeline Calculator
 - **Intelligent End Date Calculation**: Delivery dates now update automatically based on team composition and modifiers
   - **Team Size Efficiency Penalty**: Larger teams have coordination overhead (Brooks' Law)
     - 1 person = 100% efficiency

@@ -67,6 +67,7 @@ import { getWeekCounterInfo } from '@/lib/time-utils';
 import { useMarketplaceRequestsStore } from '@/lib/state/marketplace-requests-store';
 import { useRequestStore } from '@/lib/state/request-store';
 import { MiniGanttChart } from '@/components/MiniGanttChart';
+import { CollapsibleGanttChart } from '@/components/CollapsibleGanttChart';
 
 const HOME_HELP: HelpContent = {
   title: 'Mission Control',
@@ -268,7 +269,7 @@ export default function MissionControlHome() {
 
       <ScrollView
         className="flex-1"
-        contentContainerStyle={{ paddingBottom: insets.bottom + 20 }}
+        contentContainerStyle={{ paddingBottom: insets.bottom + 80 }}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
         }
@@ -1723,8 +1724,8 @@ export default function MissionControlHome() {
         </View>
       </ScrollView>
 
-      {/* Task Timeline Gantt Chart - Fixed at bottom */}
-      <MiniGanttChart
+      {/* Task Timeline Gantt Chart - Collapsible at bottom */}
+      <CollapsibleGanttChart
         workPlans={workPlans}
         members={members}
         onTaskPress={(taskId) => {
