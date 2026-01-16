@@ -8,6 +8,7 @@ import { useState, useMemo, useEffect } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { FadeInDown, FadeInRight, useAnimatedStyle, withSpring, useSharedValue } from 'react-native-reanimated';
+import { FlashList } from '@shopify/flash-list';
 import { router } from 'expo-router';
 import {
   Users,
@@ -210,30 +211,55 @@ export default function WhoScreen() {
     return grouped;
   }, [members]);
 
-  // Calculate member capacity/utilization
+  // Calculate member capacity/utilization - MEMOIZED for performance
+  const memberUtilizations = useMemo(() => {
+    const cache = new Map<string, {
+      base: number;
+      overtime: number;
+      total: number;
+      allocated: number;
+      available: number;
+      utilizationPercent: number;
+    }>();
+
+    members.filter(m => m.status === 'active').forEach(member => {
+      const baseCapacity = member.role === 'Founder' || member.role === 'Apprentice'
+        ? 10
+        : (member.daysPerWeek || 2) * 2;
+      const overtimeCapacity = member.role === 'Founder' || member.role === 'Apprentice'
+        ? 5
+        : Math.min((5 - (member.daysPerWeek || 2)) * 2, 10);
+      const totalCapacity = baseCapacity + overtimeCapacity;
+
+      const allocated = workPlans
+        .filter(wp => wp.status !== 'completed' && wp.status !== 'abandoned')
+        .reduce((sum, wp) => {
+          const allocation = wp.allocations?.find(a => a.memberId === member.id);
+          return sum + (allocation?.squaresPerWeek || 0);
+        }, 0);
+
+      cache.set(member.id, {
+        base: baseCapacity,
+        overtime: overtimeCapacity,
+        total: totalCapacity,
+        allocated,
+        available: Math.max(0, totalCapacity - allocated),
+        utilizationPercent: totalCapacity > 0 ? Math.round((allocated / totalCapacity) * 100) : 0,
+      });
+    });
+
+    return cache;
+  }, [members, workPlans]);
+
+  // Helper function to get utilization from cache
   const getMemberUtilization = (member: OrganizationMember) => {
-    const baseCapacity = member.role === 'Founder' || member.role === 'Apprentice'
-      ? 10
-      : (member.daysPerWeek || 2) * 2;
-    const overtimeCapacity = member.role === 'Founder' || member.role === 'Apprentice'
-      ? 5
-      : Math.min((5 - (member.daysPerWeek || 2)) * 2, 10);
-    const totalCapacity = baseCapacity + overtimeCapacity;
-
-    const allocated = workPlans
-      .filter(wp => wp.status !== 'completed' && wp.status !== 'abandoned')
-      .reduce((sum, wp) => {
-        const allocation = wp.allocations?.find(a => a.memberId === member.id);
-        return sum + (allocation?.squaresPerWeek || 0);
-      }, 0);
-
-    return {
-      base: baseCapacity,
-      overtime: overtimeCapacity,
-      total: totalCapacity,
-      allocated,
-      available: Math.max(0, totalCapacity - allocated),
-      utilizationPercent: totalCapacity > 0 ? Math.round((allocated / totalCapacity) * 100) : 0,
+    return memberUtilizations.get(member.id) || {
+      base: 0,
+      overtime: 0,
+      total: 0,
+      allocated: 0,
+      available: 0,
+      utilizationPercent: 0,
     };
   };
 
@@ -244,9 +270,11 @@ export default function WhoScreen() {
     let allocated = 0;
 
     activeMembers.forEach(member => {
-      const util = getMemberUtilization(member);
-      total += util.total;
-      allocated += util.allocated;
+      const util = memberUtilizations.get(member.id);
+      if (util) {
+        total += util.total;
+        allocated += util.allocated;
+      }
     });
 
     return {
@@ -255,7 +283,7 @@ export default function WhoScreen() {
       available: total - allocated,
       utilizationPercent: total > 0 ? Math.round((allocated / total) * 100) : 0,
     };
-  }, [members, workPlans]);
+  }, [members, memberUtilizations]);
 
   // Filtered and scored executives
   const scoredExecutives = useMemo(() => {
@@ -1492,7 +1520,7 @@ export default function WhoScreen() {
 
         {/* Executives Tab */}
         {activeTab === 'executives' && (
-          <View>
+          <View className="flex-1">
             <View className="flex-row items-center justify-between mb-4">
               <Text className="text-slate-500 dark:text-slate-400 text-sm">
                 {scoredExecutives.length} executives found
@@ -1505,24 +1533,31 @@ export default function WhoScreen() {
               )}
             </View>
 
-            {scoredExecutives.map((exec, index) => (
-              <CandidateCard key={exec.id} candidate={exec} index={index} />
-            ))}
-
-            {scoredExecutives.length === 0 && (
+            {scoredExecutives.length === 0 ? (
               <View className="items-center py-12">
                 <Briefcase size={48} color="#94a3b8" />
                 <Text className="text-slate-500 dark:text-slate-400 text-center mt-4">
                   No executives match your filters
                 </Text>
               </View>
+            ) : (
+              <FlashList
+                data={scoredExecutives}
+                renderItem={({ item, index }) => (
+                  <CandidateCard candidate={item} index={index} />
+                )}
+                estimatedItemSize={280}
+                keyExtractor={(item) => item.id}
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={{ paddingBottom: insets.bottom + 20 }}
+              />
             )}
           </View>
         )}
 
         {/* Apprentices Tab */}
         {activeTab === 'apprentices' && (
-          <View>
+          <View className="flex-1">
             <View className="flex-row items-center justify-between mb-4">
               <Text className="text-slate-500 dark:text-slate-400 text-sm">
                 {scoredApprentices.length} apprentices found
@@ -1535,17 +1570,24 @@ export default function WhoScreen() {
               )}
             </View>
 
-            {scoredApprentices.map((app, index) => (
-              <CandidateCard key={app.id} candidate={app} index={index} />
-            ))}
-
-            {scoredApprentices.length === 0 && (
+            {scoredApprentices.length === 0 ? (
               <View className="items-center py-12">
                 <GraduationCap size={48} color="#94a3b8" />
                 <Text className="text-slate-500 dark:text-slate-400 text-center mt-4">
                   No apprentices match your filters
                 </Text>
               </View>
+            ) : (
+              <FlashList
+                data={scoredApprentices}
+                renderItem={({ item, index }) => (
+                  <CandidateCard candidate={item} index={index} />
+                )}
+                estimatedItemSize={280}
+                keyExtractor={(item) => item.id}
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={{ paddingBottom: insets.bottom + 20 }}
+              />
             )}
           </View>
         )}

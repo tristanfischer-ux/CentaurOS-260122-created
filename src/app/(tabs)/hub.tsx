@@ -2,6 +2,7 @@ import { View, Text, ScrollView, Pressable, Modal, TextInput, Alert, KeyboardAvo
 import { useState, useMemo } from 'react';
 import * as DocumentPicker from 'expo-document-picker';
 import Animated, { FadeInDown, FadeInRight, useAnimatedStyle, withSpring, useSharedValue, withTiming } from 'react-native-reanimated';
+import { FlashList } from '@shopify/flash-list';
 import {
   Users,
   Briefcase,
@@ -172,13 +173,31 @@ export default function CommunityScreen() {
 
   const isFounder = currentMembership?.role === 'Founder';
 
+  // Memoized talent score cache - calculate once for all candidates
+  // This eliminates redundant scoring calculations (50+ candidates × multiple filters)
+  const candidateScores = useMemo(() => {
+    const cache = new Map<string, TalentScore>();
+    const desiredSkills = searchQuery.split(',').map(s => s.trim()).filter(Boolean);
+
+    // Score all executives
+    fractionalExecutives.forEach(exec => {
+      cache.set(exec.id, calculateTalentScore(exec, searchQuery, desiredSkills));
+    });
+
+    // Score all apprentices
+    apprentices.forEach(app => {
+      cache.set(app.id, calculateTalentScore(app, searchQuery, desiredSkills));
+    });
+
+    return cache;
+  }, [searchQuery]);
+
   // Scored and filtered executives
   const scoredExecutives = useMemo(() => {
-    const desiredSkills = searchQuery.split(',').map(s => s.trim()).filter(Boolean);
     return fractionalExecutives
       .map(exec => ({
         ...exec,
-        score: calculateTalentScore(exec, searchQuery, desiredSkills),
+        score: candidateScores.get(exec.id)!,
       }))
       .filter(exec => {
         const matchesSearch = searchQuery === '' ||
@@ -196,15 +215,14 @@ export default function CommunityScreen() {
         return matchesSearch && matchesFunction && matchesExperience && matchesCost && matchesAvailability;
       })
       .sort((a, b) => b.score.overall - a.score.overall);
-  }, [searchQuery, selectedFunction, minExperience, maxCost, availabilityFilter]);
+  }, [candidateScores, selectedFunction, minExperience, maxCost, availabilityFilter, searchQuery]);
 
   // Scored and filtered apprentices
   const scoredApprentices = useMemo(() => {
-    const desiredSkills = searchQuery.split(',').map(s => s.trim()).filter(Boolean);
     return apprentices
       .map(app => ({
         ...app,
-        score: calculateTalentScore(app, searchQuery, desiredSkills),
+        score: candidateScores.get(app.id)!,
       }))
       .filter(app => {
         const matchesSearch = searchQuery === '' ||
@@ -217,7 +235,7 @@ export default function CommunityScreen() {
         return matchesSearch && matchesFunction;
       })
       .sort((a, b) => b.score.overall - a.score.overall);
-  }, [searchQuery, selectedFunction]);
+  }, [candidateScores, selectedFunction, searchQuery]);
 
   // Filter suppliers - memoized to prevent re-calculation on every render
   const filteredSuppliers = useMemo(() => {
@@ -992,7 +1010,7 @@ export default function CommunityScreen() {
 
         {/* EXECUTIVES TAB */}
         {activeTab === 'executives' && (
-          <View className="px-5 py-4">
+          <View className="px-5 py-4 flex-1">
             {/* Results Header */}
             <View className="flex-row items-center justify-between mb-3">
               <Text className="text-gray-600 dark:text-slate-400 text-sm">
@@ -1000,11 +1018,7 @@ export default function CommunityScreen() {
               </Text>
             </View>
 
-            {scoredExecutives.map((exec, idx) => (
-              <TalentCard key={exec.id} candidate={exec} type="executive" index={idx} />
-            ))}
-
-            {scoredExecutives.length === 0 && (
+            {scoredExecutives.length === 0 ? (
               <View className="items-center py-12">
                 <Users size={48} color="#64748b" />
                 <Text className="text-gray-500 dark:text-slate-400 text-base mt-4">No executives match your criteria</Text>
@@ -1019,24 +1033,31 @@ export default function CommunityScreen() {
                   <Text className="text-white font-semibold">Clear Filters</Text>
                 </Pressable>
               </View>
+            ) : (
+              <FlashList
+                data={scoredExecutives}
+                renderItem={({ item, index }) => (
+                  <TalentCard candidate={item} type="executive" index={index} />
+                )}
+                estimatedItemSize={280}
+                keyExtractor={(item) => item.id}
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={{ paddingBottom: insets.bottom + 20 }}
+              />
             )}
           </View>
         )}
 
         {/* APPRENTICES TAB */}
         {activeTab === 'apprentices' && (
-          <View className="px-5 py-4">
+          <View className="px-5 py-4 flex-1">
             <View className="flex-row items-center justify-between mb-3">
               <Text className="text-gray-600 dark:text-slate-400 text-sm">
                 {scoredApprentices.length} apprentices • Sorted by match score
               </Text>
             </View>
 
-            {scoredApprentices.map((app, idx) => (
-              <TalentCard key={app.id} candidate={app} type="apprentice" index={idx} />
-            ))}
-
-            {scoredApprentices.length === 0 && (
+            {scoredApprentices.length === 0 ? (
               <View className="items-center py-12">
                 <GraduationCap size={48} color="#64748b" />
                 <Text className="text-gray-500 dark:text-slate-400 text-base mt-4">No apprentices match your criteria</Text>
@@ -1050,6 +1071,17 @@ export default function CommunityScreen() {
                   <Text className="text-white font-semibold">Clear Filters</Text>
                 </Pressable>
               </View>
+            ) : (
+              <FlashList
+                data={scoredApprentices}
+                renderItem={({ item, index }) => (
+                  <TalentCard candidate={item} type="apprentice" index={index} />
+                )}
+                estimatedItemSize={280}
+                keyExtractor={(item) => item.id}
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={{ paddingBottom: insets.bottom + 20 }}
+              />
             )}
           </View>
         )}
