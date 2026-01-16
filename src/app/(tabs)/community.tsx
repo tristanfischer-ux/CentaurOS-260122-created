@@ -1,5 +1,5 @@
 import { View, Text, ScrollView, Pressable, Modal, TextInput, Alert, KeyboardAvoidingView, Platform, Dimensions } from 'react-native';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import * as DocumentPicker from 'expo-document-picker';
 import Animated, { FadeInDown, FadeInRight, useAnimatedStyle, withSpring, useSharedValue, withTiming } from 'react-native-reanimated';
 import {
@@ -47,6 +47,7 @@ import { THIRD_PARTY_AI_TOOLS, getAIToolsByFunction, getTotalAIToolsCount, getCa
 import { TabDescription } from '@/components/TabDescription';
 import { useCurrentMembership } from '@/lib/state/app-store';
 import { useSupplierStore } from '@/lib/state/supplier-store';
+import { useOrganizationStore } from '@/lib/state/organization-store';
 import type { Supplier } from '@/types';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { HelpModal, HelpButton, type HelpContent } from '@/components/HelpModal';
@@ -74,7 +75,7 @@ const HUB_HELP: HelpContent = {
   ],
 };
 
-type HubTab = 'discover' | 'executives' | 'apprentices' | 'suppliers' | 'ai-agents' | 'shortlist' | 'apply';
+type HubTab = 'team' | 'discover' | 'executives' | 'apprentices' | 'suppliers' | 'ai-agents' | 'shortlist' | 'apply';
 
 // Talent scoring algorithm - headhunter-grade matching
 interface TalentScore {
@@ -133,7 +134,12 @@ export default function CommunityScreen() {
   const selectedSupplierFromStore = useSupplierStore((s) => s.selectedSupplier);
   const searchSuppliers = useSupplierStore((s) => s.searchSuppliers);
 
-  const [activeTab, setActiveTab] = useState<HubTab>('discover');
+  // Organization members
+  const members = useOrganizationStore((s) => s.members);
+  const getCounts = useOrganizationStore((s) => s.getCounts);
+  const teamCounts = useMemo(() => getCounts(), [getCounts]);
+
+  const [activeTab, setActiveTab] = useState<HubTab>('team');
   const [showHelp, setShowHelp] = useState(false);
   const [selectedCandidate, setSelectedCandidate] = useState<Candidate | null>(null);
   const [selectedAIAgent, setSelectedAIAgent] = useState<ThirdPartyAITool | null>(null);
@@ -633,7 +639,8 @@ export default function CommunityScreen() {
           contentContainerStyle={{ gap: 8, paddingRight: 16 }}
         >
           {[
-            { value: 'discover', label: 'Discover', icon: Sparkles },
+            { value: 'team', label: 'Current Team', icon: Users, count: members.length },
+            { value: 'discover', label: 'Marketplace', icon: Sparkles },
             { value: 'executives', label: 'Executives', icon: Crown, count: scoredExecutives.length },
             { value: 'apprentices', label: 'Apprentices', icon: GraduationCap, count: scoredApprentices.length },
             { value: 'suppliers', label: 'Suppliers', icon: Factory, count: filteredSuppliers.length },
@@ -763,6 +770,209 @@ export default function CommunityScreen() {
       )}
 
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
+        {/* TEAM TAB - Current Team Members */}
+        {activeTab === 'team' && (
+          <View className="px-5 py-4">
+            {/* Overview Cards */}
+            <View className="mb-5">
+              <Text className="text-gray-500 dark:text-slate-400 text-xs uppercase tracking-wide mb-3">
+                Team Overview
+              </Text>
+              <View className="flex-row gap-3 mb-3">
+                <View className="flex-1 bg-purple-100 dark:bg-purple-900/20 rounded-2xl p-4">
+                  <Crown size={20} color="#8b5cf6" />
+                  <Text className="text-purple-900 dark:text-purple-100 text-2xl font-bold mt-2">
+                    {teamCounts.founders}
+                  </Text>
+                  <Text className="text-purple-700 dark:text-purple-300 text-xs mt-1">Founders</Text>
+                </View>
+                <View className="flex-1 bg-emerald-100 dark:bg-emerald-900/20 rounded-2xl p-4">
+                  <Briefcase size={20} color="#10b981" />
+                  <Text className="text-emerald-900 dark:text-emerald-100 text-2xl font-bold mt-2">
+                    {teamCounts.executives}
+                  </Text>
+                  <Text className="text-emerald-700 dark:text-emerald-300 text-xs mt-1">Executives</Text>
+                </View>
+                <View className="flex-1 bg-blue-100 dark:bg-blue-900/20 rounded-2xl p-4">
+                  <GraduationCap size={20} color="#3b82f6" />
+                  <Text className="text-blue-900 dark:text-blue-100 text-2xl font-bold mt-2">
+                    {teamCounts.apprentices}
+                  </Text>
+                  <Text className="text-blue-700 dark:text-blue-300 text-xs mt-1">Apprentices</Text>
+                </View>
+              </View>
+            </View>
+
+            {/* Founders Section */}
+            {members.filter(m => m.role === 'Founder' && m.status === 'active').length > 0 && (
+              <View className="mb-5">
+                <View className="flex-row items-center justify-between mb-3">
+                  <View className="flex-row items-center">
+                    <Crown size={18} color="#8b5cf6" />
+                    <Text className="text-gray-900 dark:text-white font-bold text-base ml-2">Founders</Text>
+                    <View className="ml-2 bg-purple-100 dark:bg-purple-900/30 px-2 py-0.5 rounded-full">
+                      <Text className="text-purple-700 dark:text-purple-300 text-xs font-bold">ACTIVE</Text>
+                    </View>
+                  </View>
+                </View>
+                {members.filter(m => m.role === 'Founder' && m.status === 'active').map((member, idx) => (
+                  <Animated.View key={member.id} entering={FadeInDown.delay(idx * 50).duration(300)}>
+                    <View className="bg-white dark:bg-slate-900 rounded-2xl p-4 mb-3 border-2 border-purple-200 dark:border-purple-800">
+                      <View className="flex-row items-start justify-between mb-3">
+                        <View className="flex-1">
+                          <Text className="text-gray-900 dark:text-white font-bold text-base">{member.name}</Text>
+                          <Text className="text-gray-500 dark:text-slate-400 text-sm">{member.function}</Text>
+                        </View>
+                        <View className="bg-purple-500 px-3 py-1 rounded-full">
+                          <Text className="text-white text-xs font-bold">Founder</Text>
+                        </View>
+                      </View>
+                      <View className="flex-row items-center gap-4">
+                        <View className="flex-row items-center">
+                          <Clock size={14} color="#64748b" />
+                          <Text className="text-gray-600 dark:text-slate-400 text-xs ml-1">15 TU/week</Text>
+                        </View>
+                        <View className="flex-row items-center">
+                          <DollarSign size={14} color="#64748b" />
+                          <Text className="text-gray-600 dark:text-slate-400 text-xs ml-1">£{member.costPerDay}/day</Text>
+                        </View>
+                      </View>
+                    </View>
+                  </Animated.View>
+                ))}
+              </View>
+            )}
+
+            {/* Executives Section */}
+            {members.filter(m => m.role === 'FractionalExec' && m.status === 'active').length > 0 && (
+              <View className="mb-5">
+                <View className="flex-row items-center justify-between mb-3">
+                  <View className="flex-row items-center">
+                    <Briefcase size={18} color="#10b981" />
+                    <Text className="text-gray-900 dark:text-white font-bold text-base ml-2">Fractional Executives</Text>
+                    <View className="ml-2 bg-emerald-100 dark:bg-emerald-900/30 px-2 py-0.5 rounded-full">
+                      <Text className="text-emerald-700 dark:text-emerald-300 text-xs font-bold">ENGAGED</Text>
+                    </View>
+                  </View>
+                  <Pressable
+                    onPress={() => setActiveTab('executives')}
+                    className="active:opacity-70"
+                  >
+                    <Plus size={18} color="#10b981" />
+                  </Pressable>
+                </View>
+                {members.filter(m => m.role === 'FractionalExec' && m.status === 'active').map((member, idx) => (
+                  <Animated.View key={member.id} entering={FadeInDown.delay(idx * 50).duration(300)}>
+                    <View className="bg-white dark:bg-slate-900 rounded-2xl p-4 mb-3 border-2 border-emerald-200 dark:border-emerald-800">
+                      <View className="flex-row items-start justify-between mb-3">
+                        <View className="flex-1">
+                          <Text className="text-gray-900 dark:text-white font-bold text-base">{member.name}</Text>
+                          <Text className="text-gray-500 dark:text-slate-400 text-sm">{member.function}</Text>
+                        </View>
+                        <View className="bg-emerald-500 px-3 py-1 rounded-full">
+                          <Text className="text-white text-xs font-bold">Executive</Text>
+                        </View>
+                      </View>
+                      <View className="flex-row items-center gap-4">
+                        <View className="flex-row items-center">
+                          <Clock size={14} color="#64748b" />
+                          <Text className="text-gray-600 dark:text-slate-400 text-xs ml-1">
+                            {member.daysPerWeek || 2} days/week
+                          </Text>
+                        </View>
+                        <View className="flex-row items-center">
+                          <DollarSign size={14} color="#64748b" />
+                          <Text className="text-gray-600 dark:text-slate-400 text-xs ml-1">£{member.costPerDay}/day</Text>
+                        </View>
+                        <View className="flex-row items-center bg-emerald-100 dark:bg-emerald-900/20 px-2 py-0.5 rounded">
+                          <Text className="text-emerald-700 dark:text-emerald-300 text-xs font-semibold">
+                            £{Math.round(((member.costPerDay || 0) * (member.daysPerWeek || 2) * 4.33) / 1000)}K/mo
+                          </Text>
+                        </View>
+                      </View>
+                    </View>
+                  </Animated.View>
+                ))}
+              </View>
+            )}
+
+            {/* Apprentices Section */}
+            {members.filter(m => m.role === 'Apprentice' && m.status === 'active').length > 0 && (
+              <View className="mb-5">
+                <View className="flex-row items-center justify-between mb-3">
+                  <View className="flex-row items-center">
+                    <GraduationCap size={18} color="#3b82f6" />
+                    <Text className="text-gray-900 dark:text-white font-bold text-base ml-2">Apprentices</Text>
+                    <View className="ml-2 bg-blue-100 dark:bg-blue-900/30 px-2 py-0.5 rounded-full">
+                      <Text className="text-blue-700 dark:text-blue-300 text-xs font-bold">ENGAGED</Text>
+                    </View>
+                  </View>
+                  <Pressable
+                    onPress={() => setActiveTab('apprentices')}
+                    className="active:opacity-70"
+                  >
+                    <Plus size={18} color="#3b82f6" />
+                  </Pressable>
+                </View>
+                {members.filter(m => m.role === 'Apprentice' && m.status === 'active').map((member, idx) => (
+                  <Animated.View key={member.id} entering={FadeInDown.delay(idx * 50).duration(300)}>
+                    <View className="bg-white dark:bg-slate-900 rounded-2xl p-4 mb-3 border-2 border-blue-200 dark:border-blue-800">
+                      <View className="flex-row items-start justify-between mb-3">
+                        <View className="flex-1">
+                          <Text className="text-gray-900 dark:text-white font-bold text-base">{member.name}</Text>
+                          <Text className="text-gray-500 dark:text-slate-400 text-sm">{member.function}</Text>
+                        </View>
+                        <View className="bg-blue-500 px-3 py-1 rounded-full">
+                          <Text className="text-white text-xs font-bold">Apprentice</Text>
+                        </View>
+                      </View>
+                      <View className="flex-row items-center gap-4">
+                        <View className="flex-row items-center">
+                          <Clock size={14} color="#64748b" />
+                          <Text className="text-gray-600 dark:text-slate-400 text-xs ml-1">10 TU/week</Text>
+                        </View>
+                        <View className="flex-row items-center">
+                          <DollarSign size={14} color="#64748b" />
+                          <Text className="text-gray-600 dark:text-slate-400 text-xs ml-1">£{member.costPerDay}/day</Text>
+                        </View>
+                        <View className="flex-row items-center bg-blue-100 dark:bg-blue-900/20 px-2 py-0.5 rounded">
+                          <Text className="text-blue-700 dark:text-blue-300 text-xs font-semibold">
+                            £{Math.round(((member.costPerDay || 0) * 5 * 4.33) / 1000)}K/mo
+                          </Text>
+                        </View>
+                      </View>
+                    </View>
+                  </Animated.View>
+                ))}
+              </View>
+            )}
+
+            {/* Quick Actions - Add More People */}
+            <View className="bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-900/10 dark:to-purple-900/10 rounded-2xl p-4 border-2 border-dashed border-gray-300 dark:border-slate-700">
+              <Text className="text-gray-900 dark:text-white font-bold text-base mb-3">Expand Your Team</Text>
+              <Text className="text-gray-600 dark:text-slate-400 text-sm mb-4">
+                Browse the marketplace to find executives and apprentices
+              </Text>
+              <View className="flex-row gap-3">
+                <Pressable
+                  onPress={() => setActiveTab('executives')}
+                  className="flex-1 bg-emerald-500 rounded-xl py-3 items-center active:opacity-80"
+                >
+                  <Crown size={18} color="#fff" />
+                  <Text className="text-white font-bold text-sm mt-1">Add Executive</Text>
+                </Pressable>
+                <Pressable
+                  onPress={() => setActiveTab('apprentices')}
+                  className="flex-1 bg-purple-500 rounded-xl py-3 items-center active:opacity-80"
+                >
+                  <GraduationCap size={18} color="#fff" />
+                  <Text className="text-white font-bold text-sm mt-1">Add Apprentice</Text>
+                </Pressable>
+              </View>
+            </View>
+          </View>
+        )}
+
         {/* DISCOVER TAB - Smart recommendations */}
         {activeTab === 'discover' && (
           <View className="px-5 py-4">
@@ -993,6 +1203,20 @@ export default function CommunityScreen() {
         {/* EXECUTIVES TAB */}
         {activeTab === 'executives' && (
           <View className="px-5 py-4">
+            {/* Info Banner */}
+            <View className="bg-emerald-50 dark:bg-emerald-900/10 border-2 border-emerald-200 dark:border-emerald-800 rounded-2xl p-4 mb-4">
+              <View className="flex-row items-center mb-2">
+                <Crown size={18} color="#10b981" />
+                <Text className="text-emerald-900 dark:text-emerald-100 font-bold text-base ml-2">Available to Add</Text>
+                <View className="ml-2 bg-emerald-500 px-2 py-0.5 rounded-full">
+                  <Text className="text-white text-xs font-bold">NOT YET ENGAGED</Text>
+                </View>
+              </View>
+              <Text className="text-emerald-800 dark:text-emerald-200 text-sm">
+                These fractional executives are available for hire. They are not currently part of your team or costing you money.
+              </Text>
+            </View>
+
             {/* Results Header */}
             <View className="flex-row items-center justify-between mb-3">
               <Text className="text-gray-600 dark:text-slate-400 text-sm">
@@ -1026,6 +1250,20 @@ export default function CommunityScreen() {
         {/* APPRENTICES TAB */}
         {activeTab === 'apprentices' && (
           <View className="px-5 py-4">
+            {/* Info Banner */}
+            <View className="bg-purple-50 dark:bg-purple-900/10 border-2 border-purple-200 dark:border-purple-800 rounded-2xl p-4 mb-4">
+              <View className="flex-row items-center mb-2">
+                <GraduationCap size={18} color="#a855f7" />
+                <Text className="text-purple-900 dark:text-purple-100 font-bold text-base ml-2">Available to Add</Text>
+                <View className="ml-2 bg-purple-500 px-2 py-0.5 rounded-full">
+                  <Text className="text-white text-xs font-bold">NOT YET ENGAGED</Text>
+                </View>
+              </View>
+              <Text className="text-purple-800 dark:text-purple-200 text-sm">
+                These apprentices are available for hire. They are not currently part of your team or costing you money.
+              </Text>
+            </View>
+
             <View className="flex-row items-center justify-between mb-3">
               <Text className="text-gray-600 dark:text-slate-400 text-sm">
                 {scoredApprentices.length} apprentices • Sorted by match score

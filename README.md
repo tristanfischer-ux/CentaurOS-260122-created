@@ -55,9 +55,18 @@ The app has been completely restructured into 6 intuitive tabs following a natur
    - Quick access to Settings
 
 2. **Who** - People Management
-   - Full team overview (Founders, Executives, Apprentices)
-   - Team member cards with capacity and utilization
-   - Performance modifiers display (Team Leadership, Collaboration, AI Proficiency)
+   - **Current Team Tab** - View your existing team:
+     - Founders with ACTIVE status badges
+     - Fractional Executives marked as ENGAGED
+     - Apprentices marked as ENGAGED
+     - Overview cards showing team counts by role
+     - Monthly cost breakdown per person
+     - Quick actions to expand team (Add Executive/Apprentice buttons)
+   - **Marketplace Tab** - Browse available candidates:
+     - "Discover" shows top picks across all categories
+     - Executives tab with "AVAILABLE TO ADD / NOT YET ENGAGED" banner
+     - Apprentices tab with "AVAILABLE TO ADD / NOT YET ENGAGED" banner
+     - Clear separation between current team and candidates
    - **Full Recruitment System**:
      - Browse and hire fractional executives
      - Browse and hire apprentices
