@@ -62,6 +62,49 @@ The Founder Home screen has been completely redesigned as an executive command c
 - Auto-refresh every 5 minutes when app is active
 - Tap refresh icon to manually update
 
+### Immersive Onboarding Experience (Latest)
+Completely redesigned intro sequence for first-time users with role-specific walkthroughs:
+
+**Visual Design:**
+- Animated background particles
+- Step-specific gradient colors that change per screen
+- Animated icon with spring physics on each step
+- Feature pills showing key capabilities with color-coded icons
+- Progress indicator with active/completed/pending states
+
+**Founder Onboarding (10 steps):**
+1. Welcome to Centaur OS - Introduction
+2. Your Executive Command Center - Dashboard overview
+3. Never Miss a Decision - Urgent decisions feature
+4. Track Business Objectives - Q1 goals and progress
+5. See What's Happening - Current activities
+6. Team Capacity at a Glance - Utilization gauge
+7. Performance Dashboard - KPI cards
+8. Financial Visibility - Supplier spend
+9. Navigate with Purpose - Tab structure
+10. You're Ready to Lead - Launch
+
+**Executive Onboarding (6 steps):**
+- Multi-company dashboard
+- Domain expertise focus
+- Apprentice mentorship
+- Time tracking across engagements
+
+**Apprentice Onboarding (7 steps):**
+- Focus dashboard
+- Task queue management
+- Submit and get feedback
+- Mentor connection
+- Progress tracking
+
+**Technical Features:**
+- Reanimated 3 animations (spring, timing, sequence)
+- Per-step gradient colors stored in onboarding data
+- Feature pills with icons from lucide-react-native
+- Safe area insets for all device sizes
+- Skip button to bypass onboarding
+- AsyncStorage persistence of completion state
+
 ### Role-Based Dashboard System
 The app now supports three distinct user roles, each with a customized dashboard experience:
 

@@ -1,18 +1,27 @@
 // Onboarding system for Centaur OS
 // Role-specific walkthroughs for Founders, Executives, and Apprentices
+// Updated to reflect the new Executive Command Center home screen
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { Role } from '@/types';
 
 const ONBOARDING_KEY = 'onboarding_completed';
 
+export interface OnboardingFeature {
+  icon: string;
+  label: string;
+  color: string;
+}
+
 export interface OnboardingStep {
   id: string;
   title: string;
   description: string;
-  illustration?: string; // Can be an icon name or image URL
+  illustration?: string; // Icon name
   route?: string; // Which tab to highlight
   action?: string; // Optional CTA text
+  features?: OnboardingFeature[]; // Mini feature highlights
+  gradient?: [string, string]; // Custom gradient for this step
 }
 
 export interface OnboardingFlow {
@@ -21,7 +30,7 @@ export interface OnboardingFlow {
 }
 
 // ============================================================================
-// FOUNDER ONBOARDING
+// FOUNDER ONBOARDING - Updated for Executive Command Center
 // ============================================================================
 
 export const FOUNDER_ONBOARDING: OnboardingFlow = {
@@ -30,70 +39,121 @@ export const FOUNDER_ONBOARDING: OnboardingFlow = {
     {
       id: 'welcome',
       title: 'Welcome to Centaur OS',
-      description: "You're the Founder! You have complete visibility and control across your entire lean startup. Let's show you how to run your business like a pro.",
+      description: "Your startup's command center. Everything you need to run your business - decisions, objectives, team capacity, and performance - all in one place.",
       illustration: 'rocket',
+      gradient: ['#7c3aed', '#4f46e5'],
     },
     {
-      id: 'dashboard',
-      title: 'Your Command Center',
-      description: 'The Home tab is your daily dashboard. See team activity, track OKR progress, view apprentice engagement, and access financial insights. Check in here every morning to stay on top of everything.',
+      id: 'command-center',
+      title: 'Your Executive Command Center',
+      description: 'The home screen is designed for busy founders. See everything at a glance - urgent decisions, business objectives, team activity, and key metrics. Pull down anytime to refresh.',
       route: '/(tabs)',
       illustration: 'home',
+      features: [
+        { icon: 'alert-triangle', label: 'Urgent Decisions', color: '#ef4444' },
+        { icon: 'target', label: 'Objectives', color: '#8b5cf6' },
+        { icon: 'activity', label: 'Activities', color: '#3b82f6' },
+        { icon: 'users', label: 'Team Capacity', color: '#10b981' },
+      ],
+      gradient: ['#6366f1', '#8b5cf6'],
     },
     {
-      id: 'okrs',
-      title: 'Set Strategic Goals (Decide)',
-      description: 'The Decide tab shows your function-based OKRs. Set objectives for Marketing, Sales, Engineering, Ops, Finance, and Admin. Track key results with real-time health indicators.',
-      route: '/(tabs)/decide',
+      id: 'urgent-decisions',
+      title: 'Never Miss a Decision',
+      description: 'Critical decisions appear at the very top with color-coded urgency. Red means critical (act now), orange is high priority, yellow is normal. Tap to see context and make your choice.',
+      illustration: 'alert-triangle',
+      features: [
+        { icon: 'clock', label: 'Deadlines', color: '#f59e0b' },
+        { icon: 'check-circle', label: 'Options', color: '#10b981' },
+        { icon: 'info', label: 'Context', color: '#3b82f6' },
+      ],
+      gradient: ['#ef4444', '#f97316'],
+    },
+    {
+      id: 'objectives',
+      title: 'Track Business Objectives',
+      description: 'Your Q1 strategic goals displayed as scrollable cards. Each shows progress %, key metrics, and status (On Track, At Risk, Behind). Tap any objective to see milestones and linked tasks.',
       illustration: 'target',
+      features: [
+        { icon: 'trending-up', label: 'Progress', color: '#10b981' },
+        { icon: 'bar-chart', label: 'Metrics', color: '#3b82f6' },
+        { icon: 'flag', label: 'Milestones', color: '#8b5cf6' },
+      ],
+      gradient: ['#8b5cf6', '#a855f7'],
     },
     {
-      id: 'work',
-      title: 'Execute with Do Tab',
-      description: 'The Do tab shows all work across your company. View by function, filter by status and priority. Assign work plans to apprentices and track completion rates.',
-      route: '/(tabs)/do',
-      illustration: 'clipboard',
+      id: 'activities',
+      title: 'See What\'s Happening',
+      description: 'Current Activities shows in-progress tasks and what\'s coming in the next 1-2 weeks. Bottleneck alerts warn you when tasks are blocked or team members are overloaded.',
+      illustration: 'activity',
+      features: [
+        { icon: 'play', label: 'In Progress', color: '#3b82f6' },
+        { icon: 'calendar', label: 'Upcoming', color: '#8b5cf6' },
+        { icon: 'alert-circle', label: 'Bottlenecks', color: '#f59e0b' },
+      ],
+      gradient: ['#3b82f6', '#0ea5e9'],
     },
     {
-      id: 'evaluate',
-      title: 'Quality Control (Evaluate)',
-      description: 'The Evaluate tab is where executives create work plans and apprentices submit completed work. Review submissions, provide feedback, approve or request changes.',
-      route: '/(tabs)/evaluate',
-      illustration: 'check-circle',
-    },
-    {
-      id: 'make',
-      title: 'Manufacturing & AI Tools',
-      description: 'The Make tab connects you with 31+ UK manufacturers and 50+ AI agents. Manage suppliers, track BOM costs, and integrate AI across all business functions.',
-      route: '/(tabs)/make',
-      illustration: 'briefcase',
-    },
-    {
-      id: 'community',
-      title: 'Build Your Network',
-      description: 'The Community tab lets you discover fractional executives, apprentices, suppliers, and AI tools. Swipe through candidates, request allocations, and build your team.',
-      route: '/(tabs)/community',
+      id: 'team-capacity',
+      title: 'Team Capacity at a Glance',
+      description: 'A visual gauge shows overall team utilization (green = healthy, yellow = busy, red = overloaded). See who has spare capacity and get recommendations for assigning new work.',
       illustration: 'users',
+      features: [
+        { icon: 'pie-chart', label: 'Utilization', color: '#10b981' },
+        { icon: 'user', label: 'Per Person', color: '#3b82f6' },
+        { icon: 'zap', label: 'Spare Capacity', color: '#f59e0b' },
+      ],
+      gradient: ['#10b981', '#14b8a6'],
     },
     {
-      id: 'settings',
-      title: 'Settings & Organization',
-      description: 'Access your financial dashboard (founder-only!), view org structure, manage team, generate reports, and customize your experience.',
-      route: '/(tabs)/settings',
-      illustration: 'settings',
+      id: 'performance-kpis',
+      title: 'Performance Dashboard',
+      description: 'Six KPI cards give you instant health checks: Project Health, Team Productivity, Resource Efficiency, Supplier Performance, Objective Progress, and Cash Flow. Each is tappable for details.',
+      illustration: 'bar-chart',
+      features: [
+        { icon: 'activity', label: 'Health', color: '#3b82f6' },
+        { icon: 'trending-up', label: 'Trends', color: '#10b981' },
+        { icon: 'dollar-sign', label: 'Finances', color: '#f59e0b' },
+      ],
+      gradient: ['#6366f1', '#4f46e5'],
+    },
+    {
+      id: 'supplier-spend',
+      title: 'Financial Visibility',
+      description: 'The Supplier & Spend dashboard shows where your money goes. Pie chart by category, budget progress, 3-month trends, and active engagement summary. Stay on top of burn rate.',
+      illustration: 'dollar-sign',
+      features: [
+        { icon: 'pie-chart', label: 'Distribution', color: '#8b5cf6' },
+        { icon: 'trending-up', label: 'Trends', color: '#3b82f6' },
+        { icon: 'alert-triangle', label: 'Budget Alerts', color: '#ef4444' },
+      ],
+      gradient: ['#8b5cf6', '#7c3aed'],
+    },
+    {
+      id: 'tabs-overview',
+      title: 'Navigate with Purpose',
+      description: 'Six tabs organize your workflow: Home (command center), Why (strategy), What (tasks), Who (team), Decide (allocation), and Evaluate (review). Each serves a specific purpose in running your business.',
+      illustration: 'layout',
+      features: [
+        { icon: 'home', label: 'Home', color: '#7c3aed' },
+        { icon: 'target', label: 'Strategy', color: '#3b82f6' },
+        { icon: 'clipboard', label: 'Execution', color: '#10b981' },
+      ],
+      gradient: ['#4f46e5', '#6366f1'],
     },
     {
       id: 'complete',
-      title: 'You\'re Ready to Lead!',
-      description: 'Start by setting OKRs in Decide, create work plans in Evaluate, track execution in Do, and monitor progress on your Home dashboard. Your startup\'s operating system is ready.',
+      title: 'You\'re Ready to Lead',
+      description: 'Your executive command center is ready. Start each day by checking urgent decisions, review objectives weekly, and use the KPIs to spot issues before they become problems. Let\'s build something great.',
       illustration: 'trophy',
-      action: 'Start Building',
+      action: 'Launch Command Center',
+      gradient: ['#7c3aed', '#6366f1'],
     },
   ],
 };
 
 // ============================================================================
-// FRACTIONAL EXECUTIVE ONBOARDING
+// FRACTIONAL EXECUTIVE ONBOARDING - Updated
 // ============================================================================
 
 export const EXECUTIVE_ONBOARDING: OnboardingFlow = {
@@ -101,64 +161,73 @@ export const EXECUTIVE_ONBOARDING: OnboardingFlow = {
   steps: [
     {
       id: 'welcome',
-      title: 'Welcome, Executive!',
-      description: "You're a Fractional Executive - the expert who structures work and reviews output. Let's show you how to lead your function effectively.",
+      title: 'Welcome, Executive',
+      description: "You're a Fractional Executive - the expert who structures work and reviews output. Your dashboard is optimized for managing multiple engagements.",
       illustration: 'award',
+      gradient: ['#0ea5e9', '#06b6d4'],
     },
     {
-      id: 'dashboard',
-      title: 'Your Function Dashboard',
-      description: 'The Home tab shows your team\'s activity, your function\'s OKR progress, and apprentices you manage. Start each day here to see what needs your attention.',
+      id: 'executive-home',
+      title: 'Your Multi-Company Dashboard',
+      description: 'See all your active engagements at a glance. Track hours, deliverables, and apprentice progress across multiple companies from one unified view.',
       route: '/(tabs)',
-      illustration: 'home',
-    },
-    {
-      id: 'okrs',
-      title: 'Track Strategic Progress (Decide)',
-      description: 'The Decide tab shows all function-based OKRs. You can update Key Results for your function and help the Founder keep objectives on track.',
-      route: '/(tabs)/decide',
-      illustration: 'target',
-    },
-    {
-      id: 'work',
-      title: 'View Work Execution (Do)',
-      description: 'The Do tab shows work across all functions. You can view work assigned to your apprentices and track their progress in real-time.',
-      route: '/(tabs)/do',
-      illustration: 'clipboard',
-    },
-    {
-      id: 'evaluate',
-      title: 'Your Primary Workspace (Evaluate)',
-      description: 'This is where you live! Create structured work plans for your function, assign to apprentices, review their submissions, and provide feedback. You\'re the quality gatekeeper.',
-      route: '/(tabs)/evaluate',
-      illustration: 'check-circle',
-    },
-    {
-      id: 'make',
-      title: 'Access Resources & Tools',
-      description: 'The Make tab gives you access to AI agents and manufacturing suppliers that can help your function execute better.',
-      route: '/(tabs)/make',
       illustration: 'briefcase',
+      features: [
+        { icon: 'building', label: 'Engagements', color: '#0ea5e9' },
+        { icon: 'clock', label: 'Hours', color: '#10b981' },
+        { icon: 'users', label: 'Mentees', color: '#f59e0b' },
+      ],
+      gradient: ['#06b6d4', '#14b8a6'],
     },
     {
-      id: 'community',
-      title: 'Grow Your Network',
-      description: 'Browse the Community tab to discover other executives, find apprentices to recruit, and connect with peers in your function.',
-      route: '/(tabs)/community',
+      id: 'function-focus',
+      title: 'Domain Expertise',
+      description: 'Focus on your function (Marketing, Finance, Engineering, etc.). See domain-specific OKRs, tasks, and team members. Your expertise shapes strategy.',
+      illustration: 'target',
+      features: [
+        { icon: 'target', label: 'Function OKRs', color: '#8b5cf6' },
+        { icon: 'clipboard', label: 'Work Plans', color: '#3b82f6' },
+        { icon: 'check-circle', label: 'Reviews', color: '#10b981' },
+      ],
+      gradient: ['#8b5cf6', '#a855f7'],
+    },
+    {
+      id: 'mentorship',
+      title: 'Apprentice Mentorship',
+      description: 'Your apprentices appear in a dedicated queue. Review their submissions, provide structured feedback, and help them grow. Your mentorship builds the next generation.',
       illustration: 'users',
+      features: [
+        { icon: 'message-circle', label: 'Feedback', color: '#3b82f6' },
+        { icon: 'star', label: 'Ratings', color: '#f59e0b' },
+        { icon: 'trending-up', label: 'Growth', color: '#10b981' },
+      ],
+      gradient: ['#f59e0b', '#f97316'],
+    },
+    {
+      id: 'time-tracking',
+      title: 'Track Your Time',
+      description: 'Log hours across engagements. See utilization, billable hours, and capacity. Ensure you\'re maximizing impact across all your companies.',
+      illustration: 'clock',
+      features: [
+        { icon: 'calendar', label: 'Schedule', color: '#0ea5e9' },
+        { icon: 'bar-chart', label: 'Utilization', color: '#10b981' },
+        { icon: 'dollar-sign', label: 'Billable', color: '#f59e0b' },
+      ],
+      gradient: ['#10b981', '#059669'],
     },
     {
       id: 'complete',
-      title: 'Ready to Lead!',
-      description: 'Your role: Create structured work plans in Evaluate, assign to apprentices, review their submissions, and maintain quality. Let\'s execute excellence!',
+      title: 'Ready to Lead',
+      description: 'Your workspace is ready. Create work plans, mentor apprentices, and drive results across your engagements. Excellence through expertise.',
       illustration: 'trophy',
       action: 'Start Leading',
+      gradient: ['#0ea5e9', '#06b6d4'],
     },
   ],
 };
 
 // ============================================================================
-// APPRENTICE ONBOARDING
+// APPRENTICE ONBOARDING - Updated
 // ============================================================================
 
 export const APPRENTICE_ONBOARDING: OnboardingFlow = {
@@ -166,57 +235,79 @@ export const APPRENTICE_ONBOARDING: OnboardingFlow = {
   steps: [
     {
       id: 'welcome',
-      title: 'Welcome, Apprentice!',
-      description: "You're an Apprentice - the doer who executes work and learns rapidly. Let's show you how to crush your goals and level up your career.",
+      title: 'Welcome, Apprentice',
+      description: "You're an Apprentice - the doer who executes and learns. Your dashboard is designed to help you focus, deliver, and grow your career.",
       illustration: 'zap',
+      gradient: ['#f59e0b', '#f97316'],
     },
     {
-      id: 'dashboard',
-      title: 'Your Performance Dashboard',
-      description: 'The Home tab shows YOUR assigned work, completion streak, and how you\'re contributing to company OKRs. Start here every morning to know what to focus on.',
+      id: 'focus-dashboard',
+      title: 'Your Focus Dashboard',
+      description: 'See what to work on RIGHT NOW. Your most important task is highlighted at the top. No distractions - just clear priorities and deadlines.',
       route: '/(tabs)',
-      illustration: 'home',
-    },
-    {
-      id: 'okrs',
-      title: 'Understand Company Goals (Decide)',
-      description: 'The Decide tab shows company OKRs. See what strategic objectives your work contributes to. Understanding the bigger picture makes you more valuable!',
-      route: '/(tabs)/decide',
       illustration: 'target',
+      features: [
+        { icon: 'play', label: 'Focus Now', color: '#ef4444' },
+        { icon: 'list', label: 'Up Next', color: '#f59e0b' },
+        { icon: 'check-circle', label: 'Completed', color: '#10b981' },
+      ],
+      gradient: ['#ef4444', '#f97316'],
     },
     {
-      id: 'work',
-      title: 'Your Task List (Do)',
-      description: 'This is where you live! The Do tab shows all work assigned to YOU. View by status, update progress, log time, and mark tasks complete. Build your streak by executing daily!',
-      route: '/(tabs)/do',
+      id: 'task-queue',
+      title: 'Your Task Queue',
+      description: 'All your assigned tasks in one place, sorted by priority. See deadlines, expected time, and what your mentor expects. Update progress as you work.',
       illustration: 'clipboard',
+      features: [
+        { icon: 'clock', label: 'Deadlines', color: '#ef4444' },
+        { icon: 'file-text', label: 'Briefs', color: '#3b82f6' },
+        { icon: 'message-circle', label: 'Instructions', color: '#10b981' },
+      ],
+      gradient: ['#f97316', '#f59e0b'],
     },
     {
-      id: 'evaluate',
-      title: 'Submit Your Work (Evaluate)',
-      description: 'When you complete work, submit it in the Evaluate tab for your executive to review. If they request changes, you\'ll see feedback here. Fix it and resubmit to get approved!',
-      route: '/(tabs)/evaluate',
+      id: 'submit-work',
+      title: 'Submit & Get Feedback',
+      description: 'When you complete a task, submit it for review. Your mentor will approve or request changes. Quick turnaround on feedback means faster learning.',
       illustration: 'check-circle',
+      features: [
+        { icon: 'upload', label: 'Submit', color: '#3b82f6' },
+        { icon: 'message-circle', label: 'Feedback', color: '#f59e0b' },
+        { icon: 'refresh-cw', label: 'Revise', color: '#10b981' },
+      ],
+      gradient: ['#10b981', '#059669'],
     },
     {
-      id: 'completing-tasks',
-      title: 'How to Excel',
-      description: 'Tap a work plan → Update status to "In Progress" → Complete the deliverables → Submit for review → Respond to feedback quickly. Consistency and quality get you promoted!',
-      illustration: 'check',
-    },
-    {
-      id: 'community',
-      title: 'Learn from Others',
-      description: 'Browse the Community tab to see other apprentices, discover learning resources, and find events to attend. Your network is your net worth!',
-      route: '/(tabs)/community',
+      id: 'mentor-access',
+      title: 'Connect with Your Mentor',
+      description: 'Quick access to message your mentor, ask questions, and get guidance. Building a strong relationship with your mentor accelerates your growth.',
       illustration: 'users',
+      features: [
+        { icon: 'message-circle', label: 'Chat', color: '#3b82f6' },
+        { icon: 'help-circle', label: 'Ask', color: '#8b5cf6' },
+        { icon: 'book', label: 'Learn', color: '#10b981' },
+      ],
+      gradient: ['#3b82f6', '#6366f1'],
+    },
+    {
+      id: 'achievements',
+      title: 'Track Your Progress',
+      description: 'See your completion rate, streaks, and achievements. Every task completed builds your reputation. Consistency leads to opportunities.',
+      illustration: 'trending-up',
+      features: [
+        { icon: 'flame', label: 'Streaks', color: '#f97316' },
+        { icon: 'star', label: 'Ratings', color: '#f59e0b' },
+        { icon: 'award', label: 'Badges', color: '#8b5cf6' },
+      ],
+      gradient: ['#8b5cf6', '#a855f7'],
     },
     {
       id: 'complete',
-      title: 'Let\'s Execute!',
-      description: 'Your mission: Complete assigned work, maintain your streak, submit quality deliverables, and show your executive what you can do. Every completed task builds your reputation. Now go crush it!',
+      title: 'Time to Execute',
+      description: 'Focus on one task at a time. Submit quality work. Learn from feedback. Build your streak. Your journey to mastery starts now.',
       illustration: 'trophy',
       action: 'Start Working',
+      gradient: ['#f59e0b', '#f97316'],
     },
   ],
 };
