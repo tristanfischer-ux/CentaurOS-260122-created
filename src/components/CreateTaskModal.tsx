@@ -140,7 +140,7 @@ export function CreateTaskModal({ visible, onClose, workspaceId }: CreateTaskMod
             </View>
           </LinearGradient>
 
-          <ScrollView className="flex-1 px-5 py-4" showsVerticalScrollIndicator={false}>
+          <ScrollView className="flex-1 px-5 py-6" showsVerticalScrollIndicator={false}>
             {/* Title */}
             <View className="mb-4">
               <Text className="text-gray-500 dark:text-slate-400 text-xs font-bold mb-2 tracking-wide">

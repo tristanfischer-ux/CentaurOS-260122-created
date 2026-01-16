@@ -581,10 +581,6 @@ export function UnifiedTaskAllocationModal({ visible, onClose, workPlan }: Props
             {/* Header */}
             <View className="flex-row items-center justify-between px-5 py-4 border-b border-gray-200 dark:border-slate-800">
               <View className="flex-1">
-                {/* DEBUG MARKER - REMOVE AFTER VERIFICATION */}
-                <View className="bg-green-500 px-2 py-1 rounded mb-2">
-                  <Text className="text-white text-xs font-bold">✓ NEW TAP-TO-ADD INTERFACE</Text>
-                </View>
                 <Text className="text-gray-500 dark:text-slate-400 text-xs font-medium">
                   {workPlan.function}
                 </Text>
@@ -594,7 +590,7 @@ export function UnifiedTaskAllocationModal({ visible, onClose, workPlan }: Props
               </View>
               <Pressable
                 onPress={onClose}
-                className="w-8 h-8 bg-gray-100 dark:bg-slate-800 rounded-full items-center justify-center ml-3"
+                className="w-9 h-9 bg-gray-100 dark:bg-slate-800 rounded-full items-center justify-center ml-3"
               >
                 <X size={18} color="#6b7280" />
               </Pressable>
@@ -602,12 +598,12 @@ export function UnifiedTaskAllocationModal({ visible, onClose, workPlan }: Props
 
             <ScrollView
               style={{ flex: 1 }}
-              className="px-5"
+              className="px-5 py-6"
               showsVerticalScrollIndicator={false}
               contentContainerStyle={{ paddingBottom: 100 }}
             >
               {/* Task Description */}
-              <Animated.View entering={FadeIn.delay(100)} className="py-4">
+              <Animated.View entering={FadeIn.delay(100)} className="mb-4">
                 <Text className="text-gray-600 dark:text-slate-400 text-sm leading-relaxed">
                   {workPlan.description}
                 </Text>

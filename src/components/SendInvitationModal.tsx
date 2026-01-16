@@ -125,7 +125,7 @@ export function SendInvitationModal({ visible, onClose, candidate }: SendInvitat
             </View>
 
             {/* Form */}
-            <ScrollView className="px-5" showsVerticalScrollIndicator={false}>
+            <ScrollView className="px-5 py-6" showsVerticalScrollIndicator={false}>
               {/* Candidate Info */}
               <View className="py-4 border-b border-gray-200 dark:border-slate-800">
                 <View className="flex-row items-center">

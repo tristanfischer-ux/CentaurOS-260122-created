@@ -107,19 +107,19 @@ export function TimeTrackingModal({ visible, task, onClose }: TimeTrackingModalP
         <View className="flex-1 bg-black/50">
           <View className={`flex-1 mt-16 ${bgPrimary} rounded-t-3xl`}>
           {/* Header */}
-          <View className={`flex-row items-center justify-between px-6 py-4 border-b ${borderColor}`}>
+          <View className={`flex-row items-center justify-between px-5 py-4 border-b ${borderColor}`}>
             <View className="flex-1">
               <Text className={`${textPrimary} text-lg font-semibold`}>Time Tracking</Text>
               <Text className={`${textSecondary} text-sm`} numberOfLines={1}>
                 {task.title}
               </Text>
             </View>
-            <Pressable onPress={onClose} className="ml-4 active:opacity-70">
-              <X size={24} color={iconColor} />
+            <Pressable onPress={onClose} className="w-9 h-9 rounded-full items-center justify-center ml-4 active:opacity-70" style={{ backgroundColor: isDark ? '#1e293b' : '#f3f4f6' }}>
+              <X size={20} color={iconColor} />
             </Pressable>
           </View>
 
-          <ScrollView className="flex-1 px-6 py-4">
+          <ScrollView className="flex-1 px-5 py-6">
             {/* Total Hours - Accenture KPI Card */}
             <View className="bg-blue-500/10 border border-blue-500/30 rounded-xl p-4 mb-6">
               <View className="flex-row items-center justify-between">

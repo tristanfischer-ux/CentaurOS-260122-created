@@ -139,7 +139,7 @@ export function TaskDetailModal({ visible, onClose, taskId, workspaceId }: TaskD
   return (
     <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
       <View className="flex-1 bg-black/50">
-        <View className="flex-1 bg-white dark:bg-slate-950 mt-12 rounded-t-3xl">
+        <View className="flex-1 bg-white dark:bg-slate-950 mt-16 rounded-t-3xl">
           {/* Header */}
           <LinearGradient
             colors={['#8b5cf6', '#6366f1']}
@@ -189,7 +189,7 @@ export function TaskDetailModal({ visible, onClose, taskId, workspaceId }: TaskD
             </View>
           </LinearGradient>
 
-          <ScrollView className="flex-1 px-5 py-4" showsVerticalScrollIndicator={false}>
+          <ScrollView className="flex-1 px-5 py-6" showsVerticalScrollIndicator={false}>
             {/* AI Mode Selection */}
             <View className="mb-6">
               <Text className="text-gray-500 dark:text-slate-400 text-xs font-bold mb-3 tracking-wide">

@@ -231,13 +231,13 @@ export default function HireResourceModal({ visible, onClose, okr }: HireResourc
             </View>
             <Pressable
               onPress={onClose}
-              className={`w-8 h-8 rounded-full ${bgSecondary} items-center justify-center`}
+              className={`w-9 h-9 rounded-full ${bgSecondary} items-center justify-center`}
             >
               <X size={18} color={isDark ? '#fff' : '#374151'} />
             </Pressable>
           </View>
 
-          <ScrollView className="px-5 py-4" showsVerticalScrollIndicator={false}>
+          <ScrollView className="px-5 py-6" showsVerticalScrollIndicator={false}>
             {/* Type Selector */}
             {renderTypeSelector()}
 
