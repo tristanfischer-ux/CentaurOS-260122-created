@@ -224,7 +224,7 @@ export function PersonDetailsModal({ visible, onClose, member, onNavigateToArmor
                     {member.name.split(' ').map(n => n[0]).join('')}
                   </Text>
                 </View>
-                <Text className="text-gray-900 dark:text-white text-xl font-bold text-center">
+                <Text className="text-slate-900 dark:text-white text-xl font-bold text-center">
                   {member.name}
                 </Text>
                 <View
@@ -240,19 +240,19 @@ export function PersonDetailsModal({ visible, onClose, member, onNavigateToArmor
               {/* Function & Capacity */}
               <View className="flex-row justify-center gap-4 mt-2">
                 <View className="items-center">
-                  <Text className="text-gray-500 dark:text-slate-400 text-xs">Function</Text>
-                  <Text className="text-gray-900 dark:text-white font-semibold">
+                  <Text className="text-slate-500 dark:text-slate-400 text-xs">Function</Text>
+                  <Text className="text-slate-900 dark:text-white font-semibold">
                     {member.function}
                   </Text>
                 </View>
                 <View className="items-center">
-                  <Text className="text-gray-500 dark:text-slate-400 text-xs">Capacity</Text>
-                  <Text className="text-gray-900 dark:text-white font-semibold">
+                  <Text className="text-slate-500 dark:text-slate-400 text-xs">Capacity</Text>
+                  <Text className="text-slate-900 dark:text-white font-semibold">
                     {memberWorkload.totalAllocated}/{memberWorkload.totalCapacity} TU/wk
                   </Text>
                 </View>
                 <View className="items-center">
-                  <Text className="text-gray-500 dark:text-slate-400 text-xs">Utilization</Text>
+                  <Text className="text-slate-500 dark:text-slate-400 text-xs">Utilization</Text>
                   <Text className={`font-semibold ${utilizationPercent >= 100 ? 'text-red-600' : utilizationPercent >= 80 ? 'text-orange-600' : 'text-emerald-600'}`}>
                     {utilizationPercent}%
                   </Text>
@@ -262,19 +262,19 @@ export function PersonDetailsModal({ visible, onClose, member, onNavigateToArmor
 
             {/* Bio */}
             {member.bio && (
-              <View className="px-6 py-4 border-b border-gray-200 dark:border-slate-800">
-                <Text className="text-gray-700 dark:text-slate-300 text-sm leading-5">
+              <View className="px-6 py-4 border-b border-slate-200 dark:border-slate-800">
+                <Text className="text-slate-700 dark:text-slate-300 text-sm leading-5">
                   {member.bio}
                 </Text>
               </View>
             )}
 
             {/* AI Tools Equipped Section */}
-            <View className="px-6 py-4 border-b border-gray-200 dark:border-slate-800">
+            <View className="px-6 py-4 border-b border-slate-200 dark:border-slate-800">
               <View className="flex-row items-center justify-between mb-3">
                 <View className="flex-row items-center gap-2">
                   <Cpu size={18} color="#f59e0b" />
-                  <Text className="text-gray-900 dark:text-white font-bold text-sm">
+                  <Text className="text-slate-900 dark:text-white font-bold text-sm">
                     AI Tools ({equippedTools.length})
                   </Text>
                 </View>
@@ -293,9 +293,9 @@ export function PersonDetailsModal({ visible, onClose, member, onNavigateToArmor
               </View>
 
               {equippedTools.length === 0 ? (
-                <View className="bg-gray-50 dark:bg-slate-800 rounded-xl p-4 items-center">
+                <View className="bg-slate-50 dark:bg-slate-800 rounded-xl p-4 items-center">
                   <Cpu size={24} color="#94a3b8" />
-                  <Text className="text-gray-500 dark:text-slate-400 text-sm mt-2 text-center">
+                  <Text className="text-slate-500 dark:text-slate-400 text-sm mt-2 text-center">
                     No AI tools equipped
                   </Text>
                   {onNavigateToArmory && (
@@ -318,10 +318,10 @@ export function PersonDetailsModal({ visible, onClose, member, onNavigateToArmor
                       className="bg-amber-50 dark:bg-amber-900/20 rounded-lg p-3 flex-row items-center justify-between"
                     >
                       <View className="flex-1 mr-2">
-                        <Text className="text-gray-900 dark:text-white font-semibold text-sm">
+                        <Text className="text-slate-900 dark:text-white font-semibold text-sm">
                           {tool.name}
                         </Text>
-                        <Text className="text-gray-500 dark:text-slate-400 text-xs" numberOfLines={1}>
+                        <Text className="text-slate-500 dark:text-slate-400 text-xs" numberOfLines={1}>
                           {tool.purpose}
                         </Text>
                       </View>
@@ -340,9 +340,9 @@ export function PersonDetailsModal({ visible, onClose, member, onNavigateToArmor
                           onNavigateToArmory();
                         }
                       }}
-                      className="bg-gray-100 dark:bg-slate-800 rounded-lg py-2 items-center active:opacity-70"
+                      className="bg-slate-100 dark:bg-slate-800 rounded-lg py-2 items-center active:opacity-70"
                     >
-                      <Text className="text-gray-600 dark:text-slate-400 text-sm font-medium">
+                      <Text className="text-slate-600 dark:text-slate-400 text-sm font-medium">
                         +{equippedTools.length - 3} more tools
                       </Text>
                     </Pressable>
@@ -352,11 +352,11 @@ export function PersonDetailsModal({ visible, onClose, member, onNavigateToArmor
             </View>
 
             {/* Squads Section with Management */}
-            <View className="px-6 py-4 border-b border-gray-200 dark:border-slate-800">
+            <View className="px-6 py-4 border-b border-slate-200 dark:border-slate-800">
               <View className="flex-row items-center justify-between mb-3">
                 <View className="flex-row items-center gap-2">
                   <Users size={18} color="#8b5cf6" />
-                  <Text className="text-gray-900 dark:text-white font-bold text-sm">
+                  <Text className="text-slate-900 dark:text-white font-bold text-sm">
                     Squads ({memberSquads.length})
                   </Text>
                 </View>
@@ -383,12 +383,12 @@ export function PersonDetailsModal({ visible, onClose, member, onNavigateToArmor
               </View>
 
               {memberSquads.length === 0 ? (
-                <View className="bg-gray-50 dark:bg-slate-800 rounded-xl p-4 items-center">
+                <View className="bg-slate-50 dark:bg-slate-800 rounded-xl p-4 items-center">
                   <Users size={24} color="#94a3b8" />
-                  <Text className="text-gray-500 dark:text-slate-400 text-sm mt-2 text-center">
+                  <Text className="text-slate-500 dark:text-slate-400 text-sm mt-2 text-center">
                     Not in any squads yet
                   </Text>
-                  <Text className="text-gray-400 dark:text-slate-500 text-xs mt-1 text-center">
+                  <Text className="text-slate-400 dark:text-slate-500 text-xs mt-1 text-center">
                     Create or join a squad to collaborate
                   </Text>
                 </View>
@@ -422,7 +422,7 @@ export function PersonDetailsModal({ visible, onClose, member, onNavigateToArmor
                         <View className="flex-row items-center justify-between mb-2">
                           <View className="flex-row items-center gap-2 flex-1">
                             {isLeader && <Crown size={14} color="#f59e0b" />}
-                            <Text className="text-gray-900 dark:text-white font-semibold text-sm flex-1" numberOfLines={1}>
+                            <Text className="text-slate-900 dark:text-white font-semibold text-sm flex-1" numberOfLines={1}>
                               {squad.name}
                             </Text>
                           </View>
@@ -438,7 +438,7 @@ export function PersonDetailsModal({ visible, onClose, member, onNavigateToArmor
                         </View>
 
                         {squad.function && (
-                          <Text className="text-gray-500 dark:text-slate-400 text-xs mb-2">
+                          <Text className="text-slate-500 dark:text-slate-400 text-xs mb-2">
                             {squad.function}
                           </Text>
                         )}
@@ -451,14 +451,14 @@ export function PersonDetailsModal({ visible, onClose, member, onNavigateToArmor
                                 key={squadMember.id}
                                 className="bg-white dark:bg-slate-800 px-2 py-0.5 rounded-full"
                               >
-                                <Text className="text-gray-700 dark:text-slate-300 text-xs">
+                                <Text className="text-slate-700 dark:text-slate-300 text-xs">
                                   {squadMember.name.split(' ')[0]}
                                 </Text>
                               </View>
                             ))}
                             {squadMembers.length > 3 && (
                               <View className="bg-white dark:bg-slate-800 px-2 py-0.5 rounded-full">
-                                <Text className="text-gray-500 dark:text-slate-400 text-xs">
+                                <Text className="text-slate-500 dark:text-slate-400 text-xs">
                                   +{squadMembers.length - 3}
                                 </Text>
                               </View>
@@ -495,8 +495,8 @@ export function PersonDetailsModal({ visible, onClose, member, onNavigateToArmor
             </View>
 
             {/* Contact Info */}
-            <View className="px-6 py-4 border-b border-gray-200 dark:border-slate-800">
-              <Text className="text-gray-900 dark:text-white font-bold text-sm mb-3">
+            <View className="px-6 py-4 border-b border-slate-200 dark:border-slate-800">
+              <Text className="text-slate-900 dark:text-white font-bold text-sm mb-3">
                 Contact Information
               </Text>
 
@@ -505,7 +505,7 @@ export function PersonDetailsModal({ visible, onClose, member, onNavigateToArmor
                 className="flex-row items-center mb-2 active:opacity-70"
               >
                 <Mail size={16} color={roleColor} />
-                <Text className="text-gray-700 dark:text-slate-300 text-sm ml-2">
+                <Text className="text-slate-700 dark:text-slate-300 text-sm ml-2">
                   {member.email}
                 </Text>
               </Pressable>
@@ -516,7 +516,7 @@ export function PersonDetailsModal({ visible, onClose, member, onNavigateToArmor
                   className="flex-row items-center mb-2 active:opacity-70"
                 >
                   <Phone size={16} color={roleColor} />
-                  <Text className="text-gray-700 dark:text-slate-300 text-sm ml-2">
+                  <Text className="text-slate-700 dark:text-slate-300 text-sm ml-2">
                     {member.phone}
                   </Text>
                 </Pressable>
@@ -536,14 +536,14 @@ export function PersonDetailsModal({ visible, onClose, member, onNavigateToArmor
             </View>
 
             {/* Company Details */}
-            <View className="px-6 py-4 border-b border-gray-200 dark:border-slate-800">
-              <Text className="text-gray-900 dark:text-white font-bold text-sm mb-3">
+            <View className="px-6 py-4 border-b border-slate-200 dark:border-slate-800">
+              <Text className="text-slate-900 dark:text-white font-bold text-sm mb-3">
                 Company Details
               </Text>
 
               <View className="flex-row items-center mb-2">
                 <Calendar size={16} color="#64748b" />
-                <Text className="text-gray-700 dark:text-slate-300 text-sm ml-2">
+                <Text className="text-slate-700 dark:text-slate-300 text-sm ml-2">
                   Started: {new Date(member.startDate).toLocaleDateString('en-US', {
                     month: 'short',
                     day: 'numeric',
@@ -555,7 +555,7 @@ export function PersonDetailsModal({ visible, onClose, member, onNavigateToArmor
               {member.costPerDay && (
                 <View className="flex-row items-center mb-2">
                   <DollarSign size={16} color="#64748b" />
-                  <Text className="text-gray-700 dark:text-slate-300 text-sm ml-2">
+                  <Text className="text-slate-700 dark:text-slate-300 text-sm ml-2">
                     Day Rate: £{member.costPerDay}
                   </Text>
                 </View>
@@ -564,7 +564,7 @@ export function PersonDetailsModal({ visible, onClose, member, onNavigateToArmor
               {member.daysPerWeek && (
                 <View className="flex-row items-center mb-2">
                   <Clock size={16} color="#64748b" />
-                  <Text className="text-gray-700 dark:text-slate-300 text-sm ml-2">
+                  <Text className="text-slate-700 dark:text-slate-300 text-sm ml-2">
                     Works {member.daysPerWeek} days/week
                   </Text>
                 </View>
@@ -573,7 +573,7 @@ export function PersonDetailsModal({ visible, onClose, member, onNavigateToArmor
               {reportsToMember && (
                 <View className="flex-row items-center mb-2">
                   <Briefcase size={16} color="#64748b" />
-                  <Text className="text-gray-700 dark:text-slate-300 text-sm ml-2">
+                  <Text className="text-slate-700 dark:text-slate-300 text-sm ml-2">
                     Reports to: {reportsToMember.name}
                   </Text>
                 </View>
@@ -583,7 +583,7 @@ export function PersonDetailsModal({ visible, onClose, member, onNavigateToArmor
                 <View className="flex-row items-start">
                   <Users size={16} color="#64748b" style={{ marginTop: 2 }} />
                   <View className="flex-1 ml-2">
-                    <Text className="text-gray-700 dark:text-slate-300 text-sm">
+                    <Text className="text-slate-700 dark:text-slate-300 text-sm">
                       Manages: {directReports.map(m => m.name).join(', ')}
                     </Text>
                   </View>
@@ -593,11 +593,11 @@ export function PersonDetailsModal({ visible, onClose, member, onNavigateToArmor
 
             {/* Performance Modifiers */}
             {(member.teamLeadershipMultiplier || member.collaborationMultiplier || member.aiProficiencyMultiplier) && (
-              <View className="px-6 py-4 border-b border-gray-200 dark:border-slate-800">
-                <Text className="text-gray-900 dark:text-white font-bold text-sm mb-3">
+              <View className="px-6 py-4 border-b border-slate-200 dark:border-slate-800">
+                <Text className="text-slate-900 dark:text-white font-bold text-sm mb-3">
                   Performance Modifiers
                 </Text>
-                <Text className="text-gray-500 dark:text-slate-400 text-xs mb-3">
+                <Text className="text-slate-500 dark:text-slate-400 text-xs mb-3">
                   These multipliers affect task completion speed when working with teams and AI tools
                 </Text>
 
@@ -608,10 +608,10 @@ export function PersonDetailsModal({ visible, onClose, member, onNavigateToArmor
                         <UsersRound size={16} color="#8b5cf6" />
                       </View>
                       <View className="flex-1">
-                        <Text className="text-gray-900 dark:text-white font-semibold text-sm">
+                        <Text className="text-slate-900 dark:text-white font-semibold text-sm">
                           Team Leadership
                         </Text>
-                        <Text className="text-gray-500 dark:text-slate-400 text-xs">
+                        <Text className="text-slate-500 dark:text-slate-400 text-xs">
                           How well they lead teams
                         </Text>
                       </View>
@@ -634,10 +634,10 @@ export function PersonDetailsModal({ visible, onClose, member, onNavigateToArmor
                         <TrendingUp size={16} color="#3b82f6" />
                       </View>
                       <View className="flex-1">
-                        <Text className="text-gray-900 dark:text-white font-semibold text-sm">
+                        <Text className="text-slate-900 dark:text-white font-semibold text-sm">
                           Collaboration
                         </Text>
-                        <Text className="text-gray-500 dark:text-slate-400 text-xs">
+                        <Text className="text-slate-500 dark:text-slate-400 text-xs">
                           How well they work with others
                         </Text>
                       </View>
@@ -660,10 +660,10 @@ export function PersonDetailsModal({ visible, onClose, member, onNavigateToArmor
                         <Zap size={16} color="#f59e0b" />
                       </View>
                       <View className="flex-1">
-                        <Text className="text-gray-900 dark:text-white font-semibold text-sm">
+                        <Text className="text-slate-900 dark:text-white font-semibold text-sm">
                           AI Proficiency
                         </Text>
-                        <Text className="text-gray-500 dark:text-slate-400 text-xs">
+                        <Text className="text-slate-500 dark:text-slate-400 text-xs">
                           How effectively they use AI tools
                         </Text>
                       </View>
@@ -684,7 +684,7 @@ export function PersonDetailsModal({ visible, onClose, member, onNavigateToArmor
             {/* Current Tasks */}
             {memberWorkload.tasks.length > 0 && (
               <View className="px-6 py-4">
-                <Text className="text-gray-900 dark:text-white font-bold text-sm mb-3">
+                <Text className="text-slate-900 dark:text-white font-bold text-sm mb-3">
                   Current Tasks ({memberWorkload.tasks.length})
                 </Text>
                 <View className="gap-2">
@@ -693,16 +693,16 @@ export function PersonDetailsModal({ visible, onClose, member, onNavigateToArmor
                     return (
                       <View
                         key={task.id}
-                        className="bg-gray-50 dark:bg-slate-800 rounded-lg p-3"
+                        className="bg-slate-50 dark:bg-slate-800 rounded-lg p-3"
                       >
-                        <Text className="text-gray-900 dark:text-white font-semibold text-sm mb-1">
+                        <Text className="text-slate-900 dark:text-white font-semibold text-sm mb-1">
                           {task.title}
                         </Text>
                         <View className="flex-row items-center justify-between">
-                          <Text className="text-gray-500 dark:text-slate-400 text-xs">
+                          <Text className="text-slate-500 dark:text-slate-400 text-xs">
                             {task.function}
                           </Text>
-                          <Text className="text-gray-600 dark:text-slate-400 text-xs font-semibold">
+                          <Text className="text-slate-600 dark:text-slate-400 text-xs font-semibold">
                             {allocation?.squaresPerWeek}□/wk
                           </Text>
                         </View>
@@ -719,22 +719,27 @@ export function PersonDetailsModal({ visible, onClose, member, onNavigateToArmor
       {/* Create Squad Modal */}
       <Modal visible={showCreateSquad} transparent animationType="fade" onRequestClose={() => setShowCreateSquad(false)}>
         <Pressable
-          className="flex-1 bg-black/80 justify-center items-center px-6"
+          className="flex-1 bg-black/70 justify-center items-center px-6"
           onPress={() => setShowCreateSquad(false)}
         >
           <Pressable onPress={(e) => e.stopPropagation()} className="bg-white dark:bg-slate-900 rounded-2xl p-6 w-full max-w-sm">
-            <Text className="text-gray-900 dark:text-white text-xl font-black mb-4">Create New Squad</Text>
+            <View className="flex-row items-center justify-between mb-4">
+              <Text className="text-slate-900 dark:text-white text-xl font-bold">Create New Squad</Text>
+              <Pressable onPress={() => setShowCreateSquad(false)} className="bg-slate-100 dark:bg-slate-800 p-2 rounded-full">
+                <X size={18} color="#64748b" />
+              </Pressable>
+            </View>
 
-            <Text className="text-gray-600 dark:text-slate-400 text-sm mb-2">Squad Name</Text>
+            <Text className="text-slate-500 dark:text-slate-400 text-sm mb-2">Squad Name</Text>
             <TextInput
               value={newSquadName}
               onChangeText={setNewSquadName}
               placeholder="e.g., Alpha Team"
               placeholderTextColor="#9ca3af"
-              className="bg-gray-100 dark:bg-slate-800 text-gray-900 dark:text-white rounded-xl px-4 py-3 mb-4"
+              className="bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white rounded-xl px-4 py-3 mb-4"
             />
 
-            <Text className="text-gray-600 dark:text-slate-400 text-sm mb-2">Function</Text>
+            <Text className="text-slate-500 dark:text-slate-400 text-sm mb-2">Function</Text>
             <View className="flex-row flex-wrap gap-2 mb-4">
               {BUSINESS_FUNCTIONS.map((func) => (
                 <Pressable
@@ -742,13 +747,13 @@ export function PersonDetailsModal({ visible, onClose, member, onNavigateToArmor
                   onPress={() => setNewSquadFunction(func)}
                   className={cn(
                     'px-3 py-2 rounded-lg',
-                    newSquadFunction === func ? 'bg-purple-500' : 'bg-gray-100 dark:bg-slate-800'
+                    newSquadFunction === func ? 'bg-purple-500' : 'bg-slate-100 dark:bg-slate-800'
                   )}
                 >
                   <Text
                     className={cn(
                       'text-sm font-semibold',
-                      newSquadFunction === func ? 'text-white' : 'text-gray-600 dark:text-slate-400'
+                      newSquadFunction === func ? 'text-white' : 'text-slate-600 dark:text-slate-400'
                     )}
                   >
                     {func}
@@ -757,22 +762,22 @@ export function PersonDetailsModal({ visible, onClose, member, onNavigateToArmor
               ))}
             </View>
 
-            <Text className="text-gray-500 dark:text-slate-500 text-xs mb-4">
+            <Text className="text-slate-400 dark:text-slate-500 text-xs mb-4">
               You will be the leader of this squad. You can add members after creating it.
             </Text>
 
             <View className="flex-row gap-3">
               <Pressable
                 onPress={() => setShowCreateSquad(false)}
-                className="flex-1 bg-gray-200 dark:bg-slate-700 rounded-xl py-3 active:opacity-70"
+                className="flex-1 bg-slate-200 dark:bg-slate-700 rounded-xl py-3 active:opacity-70"
               >
-                <Text className="text-gray-900 dark:text-white font-bold text-center">Cancel</Text>
+                <Text className="text-slate-700 dark:text-slate-300 font-semibold text-center">Cancel</Text>
               </Pressable>
               <Pressable
                 onPress={handleCreateSquad}
                 className="flex-1 bg-blue-500 rounded-xl py-3 active:opacity-70"
               >
-                <Text className="text-white font-bold text-center">Create</Text>
+                <Text className="text-white font-semibold text-center">Create</Text>
               </Pressable>
             </View>
           </Pressable>
@@ -782,21 +787,21 @@ export function PersonDetailsModal({ visible, onClose, member, onNavigateToArmor
       {/* Join Squad Modal */}
       <Modal visible={showJoinSquad} transparent animationType="fade" onRequestClose={() => setShowJoinSquad(false)}>
         <Pressable
-          className="flex-1 bg-black/80 justify-center items-center px-6"
+          className="flex-1 bg-black/70 justify-center items-center px-6"
           onPress={() => setShowJoinSquad(false)}
         >
           <Pressable onPress={(e) => e.stopPropagation()} className="bg-white dark:bg-slate-900 rounded-2xl p-6 w-full max-w-sm">
             <View className="flex-row items-center justify-between mb-4">
-              <Text className="text-gray-900 dark:text-white text-xl font-black">Join a Squad</Text>
-              <Pressable onPress={() => setShowJoinSquad(false)}>
-                <X size={24} color="#94a3b8" />
+              <Text className="text-slate-900 dark:text-white text-xl font-bold">Join a Squad</Text>
+              <Pressable onPress={() => setShowJoinSquad(false)} className="bg-slate-100 dark:bg-slate-800 p-2 rounded-full">
+                <X size={18} color="#64748b" />
               </Pressable>
             </View>
 
             {availableSquads.length === 0 ? (
               <View className="py-8 items-center">
                 <Users size={40} color="#94a3b8" />
-                <Text className="text-gray-500 dark:text-slate-400 text-center mt-3">No squads available to join</Text>
+                <Text className="text-slate-500 dark:text-slate-400 text-center mt-3">No squads available to join</Text>
               </View>
             ) : (
               <ScrollView style={{ maxHeight: 300 }}>
@@ -806,11 +811,11 @@ export function PersonDetailsModal({ visible, onClose, member, onNavigateToArmor
                     <Pressable
                       key={squad.id}
                       onPress={() => handleJoinSquad(squad.id)}
-                      className="bg-gray-100 dark:bg-slate-800 rounded-xl p-4 mb-2 active:opacity-70"
+                      className="bg-slate-50 dark:bg-slate-800 rounded-xl p-4 mb-2 active:opacity-70"
                     >
-                      <Text className="text-gray-900 dark:text-white font-bold text-base">{squad.name}</Text>
+                      <Text className="text-slate-900 dark:text-white font-bold text-base">{squad.name}</Text>
                       {leader && (
-                        <Text className="text-gray-500 dark:text-slate-400 text-sm mt-1">
+                        <Text className="text-slate-500 dark:text-slate-400 text-sm mt-1">
                           Led by {leader.name}
                         </Text>
                       )}
@@ -818,7 +823,7 @@ export function PersonDetailsModal({ visible, onClose, member, onNavigateToArmor
                         <View className="bg-purple-500/20 px-2 py-1 rounded">
                           <Text className="text-purple-500 text-xs font-bold">{squad.function}</Text>
                         </View>
-                        <Text className="text-gray-400 dark:text-slate-500 text-xs">
+                        <Text className="text-slate-400 dark:text-slate-500 text-xs">
                           {squad.apprenticeMemberIds.length} members
                         </Text>
                       </View>
