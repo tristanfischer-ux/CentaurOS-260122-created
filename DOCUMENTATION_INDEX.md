@@ -11,7 +11,7 @@ Location: `/home/user/workspace/CLAUDE.md`
 - State management
 - Common mistakes to avoid
 
-### 2. **STYLE_GUIDE.md** - Comprehensive Style Guide ⭐ NEW
+### 2. **STYLE_GUIDE.md** - Comprehensive Style Guide ⭐
 Location: `/home/user/workspace/STYLE_GUIDE.md`
 **USE THIS FOR ALL DEVELOPMENT**
 
@@ -33,29 +33,65 @@ Covers:
 - Dos and don'ts
 - Quick reference for common patterns
 
-### 3. **IMPROVEMENTS.md** - Implementation Log
+### 3. **PERFORMANCE_OPTIMIZATION.md** - Performance Optimization Plan ⚡ NEW
+Location: `/home/user/workspace/PERFORMANCE_OPTIMIZATION.md`
+**40-PAGE COMPREHENSIVE PERFORMANCE GUIDE**
+
+Complete optimization roadmap including:
+- 12-point optimization plan with priorities
+- Before/after code examples for each optimization
+- Expected impact metrics (50-80% improvements)
+- Implementation checklists
+- Week-by-week schedule
+- Tooling and testing strategies
+- Common pitfalls to avoid
+
+**Quick Links:**
+- Critical optimizations: FlashList, Memoization, Code Splitting, MMKV, Zustand
+- See **OPTIMIZATION_SUMMARY.md** for executive summary
+
+### 4. **OPTIMIZATION_SUMMARY.md** - Performance Quick Reference ⚡ NEW
+Location: `/home/user/workspace/OPTIMIZATION_SUMMARY.md`
+**FAST LOOKUP FOR PERFORMANCE PRIORITIES**
+
+Quick reference including:
+- Top 5 critical optimizations
+- Current state analysis
+- Implementation timeline
+- Quick start guide
+- Success metrics
+- Checklist
+
+### 5. **IMPROVEMENTS.md** - Implementation Log
 Location: `/home/user/workspace/IMPROVEMENTS.md`
 - All improvements completed (items 1-20)
+- Performance optimization summary (section at end)
 - Component usage instructions
 - Integration checklist
 - Known issues and TODOs
 
-### 4. **IMPLEMENTATION_SUMMARY.md** - Quick Start Guide
+### 6. **IMPLEMENTATION_SUMMARY.md** - Quick Start Guide
 Location: `/home/user/workspace/IMPLEMENTATION_SUMMARY.md`
 - Summary of all new features
 - Quick examples and usage
 - Impact summary
 - Next steps
 
-### 5. **README.md** - Project Overview
+### 7. **README.md** - Project Overview
 Location: `/home/user/workspace/README.md`
 - High-level architecture
 - Feature overview
+- Recent updates (including performance plan)
 - Getting started guide
 
 ---
 
 ## Quick Links by Task
+
+### Optimizing Performance? ⚡
+→ Read **PERFORMANCE_OPTIMIZATION.md** for full plan
+→ Read **OPTIMIZATION_SUMMARY.md** for quick reference
+→ Top priorities: FlashList, Memoization, MMKV, Code Splitting
 
 ### Building New Components?
 → Read **STYLE_GUIDE.md** sections:
