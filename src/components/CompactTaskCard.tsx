@@ -16,7 +16,7 @@ import { useSquadStore } from '@/lib/state/squad-store';
 
 interface CompactTaskCardProps {
   task: WorkPlan;
-  assignedMembers: OrganizationMember[];
+  assignedMembers?: OrganizationMember[];
   onPress: () => void;
   onFullDetailPress: () => void;
   isSelected?: boolean;
@@ -34,7 +34,7 @@ const getInitials = (name: string) => {
 
 export function CompactTaskCard({
   task,
-  assignedMembers,
+  assignedMembers = [],
   onPress,
   onFullDetailPress,
   isSelected
@@ -116,7 +116,7 @@ export function CompactTaskCard({
         </View>
 
         {/* Mini team indicator */}
-        {assignedMembers.length > 0 && (
+        {assignedMembers?.length > 0 && (
           <View className="flex-row">
             {assignedMembers.slice(0, 2).map((member, idx) => (
               <View
@@ -133,7 +133,7 @@ export function CompactTaskCard({
                 </Text>
               </View>
             ))}
-            {assignedMembers.length > 2 && (
+            {assignedMembers?.length > 2 && (
               <View
                 className="w-6 h-6 rounded-full items-center justify-center bg-gray-400 border-2 border-white dark:border-slate-800"
                 style={{ marginLeft: -6, zIndex: 0 }}
@@ -151,7 +151,7 @@ export function CompactTaskCard({
       {isExpanded && (
         <View className="mt-3 pt-3 border-t border-gray-200 dark:border-slate-700">
           {/* Assigned People */}
-          {assignedMembers.length > 0 && (
+          {assignedMembers?.length > 0 && (
             <View className="mb-2">
               <Text className="text-gray-500 dark:text-slate-400 text-[10px] font-bold mb-1">
                 TEAM ({assignedMembers.length})
