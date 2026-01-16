@@ -1,6 +1,7 @@
 /**
  * Mission Control Home Screen
  * Command center for solo entrepreneurs - everything needed to make decisions
+ * Now with role-based rendering for Founder, Executive, and Apprentice views
  */
 
 import { View, Text, ScrollView, Pressable, RefreshControl } from 'react-native';
@@ -50,6 +51,7 @@ import { useCurrentWorkspace } from '@/lib/state/app-store';
 import { useResourceStore } from '@/lib/state/resource-store';
 import { useSupplierStore } from '@/lib/state/supplier-store';
 import { useFinanceStore } from '@/lib/state/finance-store';
+import { useRoleStore, useActiveRole } from '@/lib/state/role-store';
 
 // Mission Control Logic
 import {
@@ -70,6 +72,9 @@ import { useMarketplaceRequestsStore } from '@/lib/state/marketplace-requests-st
 import { useRequestStore } from '@/lib/state/request-store';
 import { MiniGanttChart } from '@/components/MiniGanttChart';
 import { CollapsibleGanttChart } from '@/components/CollapsibleGanttChart';
+import { RoleSwitcher } from '@/components/RoleSwitcher';
+import { ApprenticeHome } from '@/components/ApprenticeHome';
+import { ExecutiveHome } from '@/components/ExecutiveHome';
 
 const HOME_HELP: HelpContent = {
   title: 'Mission Control',
@@ -88,7 +93,30 @@ const HOME_HELP: HelpContent = {
   ],
 };
 
-export default function MissionControlHome() {
+// Main export - Role-based home router
+export default function HomeScreen() {
+  const activeRole = useActiveRole();
+  const initializeRoleStore = useRoleStore((s) => s.initialize);
+
+  // Initialize role store on mount
+  useEffect(() => {
+    initializeRoleStore();
+  }, [initializeRoleStore]);
+
+  // Render appropriate home based on role
+  switch (activeRole) {
+    case 'Apprentice':
+      return <ApprenticeHome />;
+    case 'FractionalExec':
+      return <ExecutiveHome />;
+    case 'Founder':
+    default:
+      return <FounderHome />;
+  }
+}
+
+// Original Founder Home (renamed from MissionControlHome)
+function FounderHome() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
 
@@ -266,6 +294,7 @@ export default function MissionControlHome() {
             </Text>
           </View>
           <View className="flex-row items-center gap-2">
+            <RoleSwitcher compact />
             <Pressable
               onPress={() => router.push('/settings')}
               className="bg-white/20 p-2 rounded-full"

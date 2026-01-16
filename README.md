@@ -15,10 +15,39 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
 
 ## 🔄 Recent Updates (Jan 2026)
 
-### New Tab Structure (Latest)
+### Role-Based Dashboard System (Latest)
+The app now supports three distinct user roles, each with a customized dashboard experience:
+
+#### **Founder View** (Default)
+- Full Mission Control dashboard with company-wide metrics
+- Financial health, runway, cash flow visibility
+- Team management and strategic planning access
+- OKR progress tracking across all functions
+- Full access to all tabs and features
+
+#### **Fractional Executive View**
+- Multi-company engagement dashboard
+- Domain-specific access (Finance, Marketing, Sales, etc.)
+- Apprentice mentorship and verification queue
+- Time tracking and utilization across engagements
+- Function-specific OKR progress
+- Hours logged per company
+
+#### **Apprentice View**
+- Task-focused dashboard with clear priorities
+- "Focus Now" section for active tasks
+- Task queue showing what's coming next
+- Mentor communication quick access
+- Learning resources and progress tracking
+- Personal completion metrics and achievements
+
+**Role Switcher**: Available in the header of the Home screen - tap to switch between views. Your data and access remain the same, only the dashboard perspective changes.
+
+### New Tab Structure
 The app has been completely restructured into 6 intuitive tabs following a natural workflow:
 
 1. **Home** - Mission Control Dashboard
+   - Role-based dashboard (Founder/Executive/Apprentice views)
    - Summary of all key metrics at a glance
    - Financial health (runway, cash, burn rate)
    - Team utilization overview
