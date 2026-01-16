@@ -3593,7 +3593,103 @@ The core MVP is complete! Here are natural extensions:
 - **Copilot**: Enhanced conversation UI with action approval flow
 - **Weekly Pack Viewer**: Render HTML packs with styling
 - **Templates**: Template browser and quick-create flows
-- **Real Backend**: Migrate to Next.js API routes or separate backend
+- **Real Backend**: Migrate to Supabase or similar (see below)
+
+---
+
+## 🏗️ Backend Preparation (Production Ready)
+
+The app is architected for easy migration to a real backend. Current infrastructure:
+
+### Files Created for Production
+
+| File | Purpose |
+|------|---------|
+| `src/lib/config.ts` | Environment configuration (dev/staging/prod) |
+| `src/lib/api-client.ts` | API abstraction layer with retry logic |
+| `src/lib/database-schema.ts` | PostgreSQL schema for Supabase |
+| `.env.example` | Template for environment variables |
+| `src/types/index.ts` | Full TypeScript types matching DB schema |
+| `src/lib/storage.ts` | Local storage layer (current data persistence) |
+| `src/lib/api/index.ts` | RBAC-enforced API operations |
+
+### Current Architecture
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                     React Native App                     │
+├─────────────────────────────────────────────────────────┤
+│  Zustand Stores  │  React Query  │  Permission System   │
+├─────────────────────────────────────────────────────────┤
+│                    API Client Layer                      │
+│         (switches between local & remote)                │
+├─────────────────────────────────────────────────────────┤
+│   AsyncStorage (current)  │  Supabase API (future)      │
+└─────────────────────────────────────────────────────────┘
+```
+
+### Migration Steps (When Ready)
+
+1. **Create Supabase Project**
+   - Run SQL from `src/lib/database-schema.ts`
+   - Enable Row Level Security (RLS)
+   - Set up authentication
+
+2. **Configure Environment**
+   ```bash
+   cp .env.example .env.local
+   # Fill in Supabase credentials
+   ```
+
+3. **Enable Backend Sync**
+   - Set `enableBackendSync: true` in config
+   - API client automatically switches to HTTP calls
+
+4. **Add Authentication**
+   - Replace mock auth with Supabase Auth
+   - Add Apple Sign-In (required for App Store)
+
+### Environment Variables Needed
+
+```bash
+EXPO_PUBLIC_APP_ENV=production
+EXPO_PUBLIC_SUPABASE_URL=https://xxx.supabase.co
+EXPO_PUBLIC_SUPABASE_ANON_KEY=eyJxxx
+EXPO_PUBLIC_SENTRY_DSN=https://xxx@sentry.io/xxx
+EXPO_PUBLIC_REVENUECAT_API_KEY=appl_xxx
+```
+
+### Database Schema Preview
+
+Key tables (full schema in `src/lib/database-schema.ts`):
+
+- `users` - App users (linked to Supabase Auth)
+- `workspaces` - Companies/organizations
+- `memberships` - User ↔ Workspace with role
+- `organization_members` - People working in workspace
+- `work_plans` - Tasks and projects
+- `work_plan_allocations` - Who is assigned to what
+- `okrs` - Objectives and Key Results
+- `squads` - Teams of people
+- `allocation_requests` - Resource allocation approvals
+- `decisions` - Urgent decisions requiring action
+- `suppliers` - Vendor network
+- `audit_logs` - All changes tracked
+
+### App Store Checklist
+
+When ready to submit:
+
+- [ ] Apple Developer Account ($99/year)
+- [ ] App icons (1024x1024 + all sizes)
+- [ ] Screenshots (6.7", 6.5", 5.5" + iPad)
+- [ ] Privacy policy URL
+- [ ] Terms of service URL
+- [ ] Supabase project configured
+- [ ] Apple Sign-In implemented
+- [ ] RevenueCat for payments (if applicable)
+- [ ] Sentry for crash reporting
+- [ ] EAS Build configured
 
 ---
 
