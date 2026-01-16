@@ -55,6 +55,7 @@ import type { OrganizationMember } from '@/lib/organization-seed';
 import type { Function as BusinessFunction } from '@/types';
 import { HelpModal, HelpButton, type HelpContent } from '@/components/HelpModal';
 import { PersonDetailsModal } from '@/components/PersonDetailsModal';
+import { CompactPersonCard } from '@/components/CompactPersonCard';
 import { SettingsGearButton } from '@/components/SettingsGearButton';
 import { useCurrentUser } from '@/lib/state/app-store';
 import { calculateTaskModifiers, calculateTotalMultiplier, formatMultiplierAsPercentage, getModifierColor } from '@/lib/task-modifiers';
@@ -445,164 +446,26 @@ export default function WhoScreen() {
     }
   };
 
-  // Team member card component
-  const TeamMemberCard = ({ member }: { member: OrganizationMember }) => {
-    const util = getMemberUtilization(member);
-    const roleColor = ROLE_COLORS[member.role as keyof typeof ROLE_COLORS] || '#64748b';
+  // Handle member change from swipe in modal
+  const handleMemberChange = (newMember: OrganizationMember) => {
+    setSelectedMember(newMember);
+  };
 
+  // Team member card component - now uses CompactPersonCard
+  const TeamMemberCard = ({ member }: { member: OrganizationMember }) => {
     return (
-      <Pressable
+      <CompactPersonCard
+        member={member}
+        workPlans={workPlans}
         onPress={() => {
+          lightImpact();
+        }}
+        onFullDetailPress={() => {
           setSelectedMember(member);
           setShowMemberDetails(true);
         }}
-        className="bg-white dark:bg-slate-800 rounded-xl p-4 mb-3 active:opacity-80"
-        style={{ borderLeftWidth: 4, borderLeftColor: roleColor }}
-      >
-        <View className="flex-row items-center">
-          {/* Avatar */}
-          <View
-            className="w-12 h-12 rounded-full items-center justify-center mr-3"
-            style={{ backgroundColor: roleColor + '20' }}
-          >
-            <Text style={{ color: roleColor }} className="font-bold text-lg">
-              {member.name.split(' ').map(n => n[0]).join('')}
-            </Text>
-          </View>
-
-          {/* Info */}
-          <View className="flex-1">
-            <Text className="text-slate-900 dark:text-white font-semibold text-base">
-              {member.name}
-            </Text>
-            <Text className="text-slate-500 dark:text-slate-400 text-sm">
-              {member.function} • {member.role === 'FractionalExec' ? `${member.daysPerWeek || 2}d/week` : member.role}
-            </Text>
-          </View>
-
-          {/* Edit button and Capacity indicator */}
-          <View className="items-end gap-2">
-            {/* Edit Button */}
-            <Pressable
-              onPress={(e) => {
-                e.stopPropagation();
-                handleEditMember(member);
-              }}
-              className="w-8 h-8 rounded-lg items-center justify-center bg-slate-100 dark:bg-slate-700 active:opacity-70"
-            >
-              <Edit2 size={14} color="#64748b" />
-            </Pressable>
-
-            {/* Capacity indicator */}
-            <View className="items-end">
-              <View className="flex-row items-center gap-1 mb-1">
-                <View
-                  className="w-2 h-2 rounded-full"
-                  style={{
-                    backgroundColor: util.utilizationPercent > 100 ? '#ef4444' :
-                      util.utilizationPercent > 80 ? '#f59e0b' : '#10b981',
-                  }}
-                />
-                <Text className="text-slate-600 dark:text-slate-300 text-xs font-medium">
-                  {util.allocated}/{util.total} TU
-                </Text>
-              </View>
-              <Text className="text-slate-400 dark:text-slate-500 text-xs">
-                {util.available} available
-              </Text>
-            </View>
-          </View>
-        </View>
-
-        {/* Visual capacity squares display */}
-        <View className="mt-3 pt-3 border-t border-slate-100 dark:border-slate-700">
-          <View className="gap-1">
-            {/* Render capacity in rows of 15 squares max */}
-            {Array.from({ length: Math.ceil(util.total / 15) }).map((_, rowIndex) => {
-              const startIdx = rowIndex * 15;
-              const endIdx = Math.min(startIdx + 15, util.total);
-              const squaresInRow = endIdx - startIdx;
-
-              return (
-                <View key={rowIndex} className="flex-row gap-0.5">
-                  {Array.from({ length: squaresInRow }).map((_, colIndex) => {
-                    const absoluteIndex = startIdx + colIndex;
-                    const isBaseCapacity = absoluteIndex < util.base;
-                    const isUsed = absoluteIndex < util.allocated;
-                    const isOvertimeCapacity = absoluteIndex >= util.base;
-                    const isOvertimeUsed = isOvertimeCapacity && isUsed;
-
-                    let backgroundColor: string;
-                    if (isOvertimeUsed) {
-                      backgroundColor = '#f97316'; // Orange - overtime used
-                    } else if (isUsed) {
-                      backgroundColor = '#ef4444'; // Red - base capacity used
-                    } else if (isOvertimeCapacity) {
-                      backgroundColor = '#fbbf24'; // Amber - overtime available
-                    } else {
-                      backgroundColor = '#10b981'; // Green - base available
-                    }
-
-                    return (
-                      <View
-                        key={colIndex}
-                        className="w-3 h-3 rounded-sm"
-                        style={{ backgroundColor }}
-                      />
-                    );
-                  })}
-                </View>
-              );
-            })}
-
-            {/* Capacity legend */}
-            <View className="flex-row items-center gap-3 mt-2">
-              <View className="flex-row items-center gap-1">
-                <View className="w-2 h-2 rounded-sm" style={{ backgroundColor: '#ef4444' }} />
-                <Text className="text-slate-500 dark:text-slate-400 text-[10px]">Used</Text>
-              </View>
-              <View className="flex-row items-center gap-1">
-                <View className="w-2 h-2 rounded-sm" style={{ backgroundColor: '#10b981' }} />
-                <Text className="text-slate-500 dark:text-slate-400 text-[10px]">Available</Text>
-              </View>
-              {util.overtime > 0 && (
-                <>
-                  <View className="flex-row items-center gap-1">
-                    <View className="w-2 h-2 rounded-sm" style={{ backgroundColor: '#f97316' }} />
-                    <Text className="text-slate-500 dark:text-slate-400 text-[10px]">OT Used</Text>
-                  </View>
-                  <View className="flex-row items-center gap-1">
-                    <View className="w-2 h-2 rounded-sm" style={{ backgroundColor: '#fbbf24' }} />
-                    <Text className="text-slate-500 dark:text-slate-400 text-[10px]">OT Available</Text>
-                  </View>
-                </>
-              )}
-            </View>
-          </View>
-        </View>
-
-        {/* Performance Modifiers (subtle indicators) */}
-        {(member.teamLeadershipMultiplier || member.aiProficiencyMultiplier) && (
-          <View className="flex-row gap-2 mt-2 pt-2 border-t border-slate-100 dark:border-slate-700">
-            {member.teamLeadershipMultiplier && member.teamLeadershipMultiplier !== 1 && (
-              <View className="flex-row items-center gap-1 bg-purple-50 dark:bg-purple-900/30 px-2 py-1 rounded">
-                <UsersRound size={12} color="#8b5cf6" />
-                <Text className="text-purple-600 dark:text-purple-400 text-xs">
-                  {member.teamLeadershipMultiplier}x
-                </Text>
-              </View>
-            )}
-            {member.aiProficiencyMultiplier && member.aiProficiencyMultiplier !== 1 && (
-              <View className="flex-row items-center gap-1 bg-amber-50 dark:bg-amber-900/30 px-2 py-1 rounded">
-                <Zap size={12} color="#f59e0b" />
-                <Text className="text-amber-600 dark:text-amber-400 text-xs">
-                  {member.aiProficiencyMultiplier}x AI
-                </Text>
-              </View>
-            )}
-          </View>
-        )}
-      </Pressable>
+        isSelected={selectedMember?.id === member.id}
+      />
     );
   };
 
@@ -787,6 +650,8 @@ export default function WhoScreen() {
         visible={showMemberDetails}
         onClose={() => setShowMemberDetails(false)}
         member={selectedMember}
+        allMembers={members.filter(m => m.status === 'active')}
+        onMemberChange={handleMemberChange}
         onNavigateToArmory={() => router.push('/armory')}
       />
 

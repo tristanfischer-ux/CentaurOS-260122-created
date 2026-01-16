@@ -1,5 +1,7 @@
-import { View, Text, Modal, Pressable, ScrollView, Linking, TextInput } from 'react-native';
-import { useState, useMemo } from 'react';
+import { View, Text, Modal, Pressable, ScrollView, Linking, TextInput, Dimensions } from 'react-native';
+import { useState, useMemo, useRef } from 'react';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
+import Animated, { useSharedValue, useAnimatedStyle, withSpring, runOnJS } from 'react-native-reanimated';
 import {
   X,
   Mail,
@@ -20,6 +22,7 @@ import {
   Trash2,
   Cpu,
   ChevronRight,
+  ChevronLeft,
 } from 'lucide-react-native';
 import { type OrganizationMember, type AIAgent } from '@/lib/organization-seed';
 import { useWorkPlanStore } from '@/lib/state/work-plan-store';
@@ -29,15 +32,20 @@ import { useArmoryStore } from '@/lib/state/armory-store';
 import { useAppStore } from '@/lib/state/app-store';
 import { cn } from '@/lib/cn';
 import type { Squad as ArmorySquad, Function as BusinessFunction } from '@/types';
+import { lightImpact } from '@/lib/haptics';
 
 // Combined squad type for display
 type CombinedSquad = SquadStoreSquad | ArmorySquad;
+
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 interface PersonDetailsModalProps {
   visible: boolean;
   onClose: () => void;
   member: OrganizationMember | null;
+  allMembers?: OrganizationMember[]; // NEW: Array of all members for swiping
   onNavigateToArmory?: () => void;
+  onMemberChange?: (member: OrganizationMember) => void; // NEW: Callback when member changes via swipe
 }
 
 const ROLE_COLORS: Record<string, string> = {
@@ -54,7 +62,65 @@ const ROLE_LABELS: Record<string, string> = {
 
 const BUSINESS_FUNCTIONS: BusinessFunction[] = ['Ops', 'Marketing', 'Sales', 'Finance', 'Engineering', 'Admin'];
 
-export function PersonDetailsModal({ visible, onClose, member, onNavigateToArmory }: PersonDetailsModalProps) {
+export function PersonDetailsModal({
+  visible,
+  onClose,
+  member,
+  allMembers: allMembersProp = [],
+  onNavigateToArmory,
+  onMemberChange
+}: PersonDetailsModalProps) {
+  // Swipe state
+  const translateX = useSharedValue(0);
+  const scrollViewRef = useRef<ScrollView>(null);
+
+  // Find current member index
+  const currentIndex = useMemo(() => {
+    if (!member || allMembersProp.length === 0) return -1;
+    return allMembersProp.findIndex(m => m.id === member.id);
+  }, [member, allMembersProp]);
+
+  const hasPrevious = currentIndex > 0;
+  const hasNext = currentIndex < allMembersProp.length - 1;
+
+  // Navigate to previous/next member
+  const navigateToPrevious = () => {
+    if (hasPrevious && onMemberChange) {
+      lightImpact();
+      onMemberChange(allMembersProp[currentIndex - 1]);
+      scrollViewRef.current?.scrollTo({ y: 0, animated: false });
+    }
+  };
+
+  const navigateToNext = () => {
+    if (hasNext && onMemberChange) {
+      lightImpact();
+      onMemberChange(allMembersProp[currentIndex + 1]);
+      scrollViewRef.current?.scrollTo({ y: 0, animated: false });
+    }
+  };
+
+  // Gesture handler for horizontal swipe
+  const panGesture = Gesture.Pan()
+    .onUpdate((e) => {
+      translateX.value = e.translationX;
+    })
+    .onEnd((e) => {
+      const threshold = SCREEN_WIDTH * 0.3;
+
+      if (e.translationX > threshold && hasPrevious) {
+        runOnJS(navigateToPrevious)();
+      } else if (e.translationX < -threshold && hasNext) {
+        runOnJS(navigateToNext)();
+      }
+
+      translateX.value = withSpring(0);
+    });
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ translateX: translateX.value }],
+  }));
+
   const workPlans = useWorkPlanStore(s => s.workPlans);
   const allMembers = useOrganizationStore(s => s.members);
   const squadsFromSquadStore = useSquadStore(s => s.squads);
@@ -194,25 +260,59 @@ export function PersonDetailsModal({ visible, onClose, member, onNavigateToArmor
     : 0;
 
   return (
-    <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
-      <Pressable className="flex-1 bg-black/70 justify-center items-center p-4" onPress={onClose}>
-        <Pressable
-          onPress={(e) => e.stopPropagation()}
-          className="bg-white dark:bg-slate-900 rounded-2xl w-full max-w-md"
-          style={{ maxHeight: '90%' }}
-        >
-          <ScrollView showsVerticalScrollIndicator={false}>
-            {/* Header */}
-            <View
-              className="p-6 rounded-t-2xl"
-              style={{ backgroundColor: roleColor + '15' }}
+    <>
+      <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
+        <Pressable className="flex-1 bg-black/70 justify-center items-center p-4" onPress={onClose}>
+          <GestureDetector gesture={panGesture}>
+            <Animated.View
+              style={[animatedStyle, { width: '100%', maxWidth: 450 }]}
             >
               <Pressable
-                onPress={onClose}
-                className="absolute top-4 right-4 z-10 bg-white dark:bg-slate-800 rounded-full p-2"
+                onPress={(e) => e.stopPropagation()}
+                className="bg-white dark:bg-slate-900 rounded-2xl"
+                style={{ maxHeight: '90%' }}
               >
-                <X size={20} color="#64748b" />
-              </Pressable>
+                <ScrollView ref={scrollViewRef} showsVerticalScrollIndicator={false}>
+                {/* Header */}
+                <View
+                  className="p-6 rounded-t-2xl"
+                  style={{ backgroundColor: roleColor + '15' }}
+                >
+                  <Pressable
+                    onPress={onClose}
+                    className="absolute top-4 right-4 z-10 bg-white dark:bg-slate-800 rounded-full p-2"
+                  >
+                    <X size={20} color="#64748b" />
+                  </Pressable>
+
+                  {/* Navigation Arrows */}
+                  {allMembersProp.length > 1 && (
+                    <>
+                      {hasPrevious && (
+                        <Pressable
+                          onPress={navigateToPrevious}
+                          className="absolute top-4 left-4 z-10 bg-white dark:bg-slate-800 rounded-full p-2 active:opacity-70"
+                        >
+                          <ChevronLeft size={20} color="#3b82f6" />
+                        </Pressable>
+                      )}
+                      {hasNext && (
+                        <Pressable
+                          onPress={navigateToNext}
+                          className="absolute top-4 right-14 z-10 bg-white dark:bg-slate-800 rounded-full p-2 active:opacity-70"
+                        >
+                          <ChevronRight size={20} color="#3b82f6" />
+                        </Pressable>
+                      )}
+
+                      {/* Member Counter */}
+                      <View className="absolute top-16 right-4 bg-white dark:bg-slate-800 rounded-full px-2 py-1">
+                        <Text className="text-slate-600 dark:text-slate-400 text-xs font-semibold">
+                          {currentIndex + 1}/{allMembersProp.length}
+                        </Text>
+                      </View>
+                    </>
+                  )}
 
               {/* Avatar */}
               <View className="items-center mb-4">
@@ -713,16 +813,19 @@ export function PersonDetailsModal({ visible, onClose, member, onNavigateToArmor
               </View>
             )}
           </ScrollView>
-        </Pressable>
-      </Pressable>
+          </Pressable>
+        </Animated.View>
+      </GestureDetector>
+    </Pressable>
+  </Modal>
 
-      {/* Create Squad Modal */}
-      <Modal visible={showCreateSquad} transparent animationType="fade" onRequestClose={() => setShowCreateSquad(false)}>
-        <Pressable
-          className="flex-1 bg-black/70 justify-center items-center px-6"
-          onPress={() => setShowCreateSquad(false)}
-        >
-          <Pressable onPress={(e) => e.stopPropagation()} className="bg-white dark:bg-slate-900 rounded-2xl p-6 w-full max-w-sm">
+  {/* Create Squad Modal */}
+  <Modal visible={showCreateSquad} transparent animationType="fade" onRequestClose={() => setShowCreateSquad(false)}>
+    <Pressable
+      className="flex-1 bg-black/70 justify-center items-center px-6"
+      onPress={() => setShowCreateSquad(false)}
+    >
+      <Pressable onPress={(e) => e.stopPropagation()} className="bg-white dark:bg-slate-900 rounded-2xl p-6 w-full max-w-sm">
             <View className="flex-row items-center justify-between mb-4">
               <Text className="text-slate-900 dark:text-white text-xl font-bold">Create New Squad</Text>
               <Pressable onPress={() => setShowCreateSquad(false)} className="bg-slate-100 dark:bg-slate-800 p-2 rounded-full">
@@ -835,6 +938,6 @@ export function PersonDetailsModal({ visible, onClose, member, onNavigateToArmor
           </Pressable>
         </Pressable>
       </Modal>
-    </Modal>
+    </>
   );
 }
