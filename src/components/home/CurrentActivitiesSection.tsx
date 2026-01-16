@@ -18,6 +18,8 @@ import {
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useWorkPlanStore, type WorkPlan } from '@/lib/state/work-plan-store';
 import { useOrganizationStore } from '@/lib/state/organization-store';
+import { useCurrentMembership } from '@/lib/state/app-store';
+import { filterWorkPlansByRole } from '@/lib/role-utils';
 
 const STATUS_COLORS = {
   'in-progress': '#3b82f6',
@@ -177,24 +179,36 @@ export function CurrentActivitiesSection() {
   const router = useRouter();
   const workPlans = useWorkPlanStore((s) => s.workPlans);
   const members = useOrganizationStore((s) => s.members);
+  const currentMembership = useCurrentMembership();
 
-  // Filter tasks by status
+  // Apply role-based filtering FIRST
+  const roleFilteredWorkPlans = useMemo(() => {
+    if (!currentMembership?.role) return workPlans;
+    return filterWorkPlansByRole(
+      workPlans,
+      currentMembership.role,
+      currentMembership.function,
+      currentMembership.id
+    );
+  }, [workPlans, currentMembership]);
+
+  // Filter tasks by status from role-filtered data
   const inProgressTasks = useMemo(
-    () => workPlans.filter((wp) => wp.status === 'in-progress'),
-    [workPlans]
+    () => roleFilteredWorkPlans.filter((wp) => wp.status === 'in-progress'),
+    [roleFilteredWorkPlans]
   );
 
   const upcomingTasks = useMemo(
-    () => workPlans.filter((wp) => wp.status === 'not-started').slice(0, 5),
-    [workPlans]
+    () => roleFilteredWorkPlans.filter((wp) => wp.status === 'not-started').slice(0, 5),
+    [roleFilteredWorkPlans]
   );
 
   const blockedTasks = useMemo(
-    () => workPlans.filter((wp) => wp.status === 'blocked'),
-    [workPlans]
+    () => roleFilteredWorkPlans.filter((wp) => wp.status === 'blocked'),
+    [roleFilteredWorkPlans]
   );
 
-  // Calculate overloaded members
+  // Calculate overloaded members (from role-filtered workplans)
   const overloadedMembers = useMemo(() => {
     const memberLoads: Record<string, number> = {};
     const memberCapacity: Record<string, number> = {};
@@ -204,7 +218,7 @@ export function CurrentActivitiesSection() {
       memberLoads[m.id] = 0;
     });
 
-    workPlans
+    roleFilteredWorkPlans
       .filter((wp) => wp.status === 'in-progress' || wp.status === 'not-started')
       .forEach((wp) => {
         wp.allocations?.forEach((alloc) => {
@@ -217,7 +231,7 @@ export function CurrentActivitiesSection() {
     return members
       .filter((m) => memberLoads[m.id] >= memberCapacity[m.id])
       .map((m) => m.name.split(' ')[0]);
-  }, [members, workPlans]);
+  }, [members, roleFilteredWorkPlans]);
 
   if (inProgressTasks.length === 0 && upcomingTasks.length === 0) {
     return (

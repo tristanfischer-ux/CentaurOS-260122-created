@@ -38,6 +38,7 @@ import { useAllocationRequestStore } from '@/lib/state/allocation-request-store'
 // Components
 import { ExecutiveTeamDashboard } from '@/components/ExecutiveTeamDashboard';
 import { RoleSwitcher } from '@/components/RoleSwitcher';
+import { filterWorkPlansByRole } from '@/lib/role-utils';
 
 // Mock data for multi-company engagements (would come from backend in real app)
 const MOCK_ENGAGEMENTS = [
@@ -101,10 +102,10 @@ export function ExecutiveHome() {
     );
   }, [members, myMember]);
 
-  // Get tasks in my function
+  // Get tasks in my function using centralized filtering
   const functionTasks = useMemo(() => {
-    if (!myMember) return [];
-    return workPlans.filter(wp => wp.function === myMember.function);
+    if (!myMember || !myMember.function) return [];
+    return filterWorkPlansByRole(workPlans, 'FractionalExec', myMember.function as any, myMember.id);
   }, [workPlans, myMember]);
 
   const activeTasks = functionTasks.filter(t => t.status === 'in-progress');

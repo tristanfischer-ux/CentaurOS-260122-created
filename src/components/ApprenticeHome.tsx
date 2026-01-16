@@ -33,6 +33,7 @@ import { useAppStore } from '@/lib/state/app-store';
 
 // Components
 import { RoleSwitcher } from '@/components/RoleSwitcher';
+import { filterWorkPlansByRole } from '@/lib/role-utils';
 
 export function ApprenticeHome() {
   const insets = useSafeAreaInsets();
@@ -54,13 +55,10 @@ export function ApprenticeHome() {
     );
   }, [members, currentUser]);
 
-  // Get tasks assigned to this apprentice
+  // Get tasks assigned to this apprentice using centralized filtering
   const myTasks = useMemo(() => {
     if (!myMember) return [];
-    return workPlans.filter(wp =>
-      wp.assignedMemberIds?.includes(myMember.id) ||
-      wp.allocations?.some(a => a.memberId === myMember.id)
-    );
+    return filterWorkPlansByRole(workPlans, 'Apprentice', myMember.function as any, myMember.id);
   }, [workPlans, myMember]);
 
   const activeTasks = myTasks.filter(t => t.status === 'in-progress');

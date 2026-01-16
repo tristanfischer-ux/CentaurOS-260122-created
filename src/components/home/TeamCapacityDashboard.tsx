@@ -19,6 +19,8 @@ import Animated, { FadeInDown } from 'react-native-reanimated';
 import Svg, { Circle, Text as SvgText } from 'react-native-svg';
 import { useOrganizationStore } from '@/lib/state/organization-store';
 import { useWorkPlanStore } from '@/lib/state/work-plan-store';
+import { useCurrentMembership } from '@/lib/state/app-store';
+import { filterTeamMembersByRole } from '@/lib/role-utils';
 
 interface GaugeProps {
   percentage: number;
@@ -200,12 +202,23 @@ export function TeamCapacityDashboard() {
   const router = useRouter();
   const members = useOrganizationStore((s) => s.members);
   const workPlans = useWorkPlanStore((s) => s.workPlans);
+  const currentMembership = useCurrentMembership();
 
-  // Calculate team capacity metrics
-  const capacityData = useMemo(() => {
+  // Apply role-based filtering for team members
+  const roleFilteredMembers = useMemo(() => {
     const activeMembers = members.filter((m) => m.status === 'active');
+    if (!currentMembership?.role) return activeMembers;
+    return filterTeamMembersByRole(
+      activeMembers,
+      currentMembership.role,
+      currentMembership.function,
+      currentMembership.id
+    );
+  }, [members, currentMembership]);
 
-    const memberData = activeMembers.map((member) => {
+  // Calculate team capacity metrics from role-filtered members
+  const capacityData = useMemo(() => {
+    const memberData = roleFilteredMembers.map((member) => {
       // Calculate capacity
       const capacity =
         member.role === 'Founder' || member.role === 'Apprentice'
@@ -257,7 +270,7 @@ export function TeamCapacityDashboard() {
       overallUtilization,
       mostAvailable,
     };
-  }, [members, workPlans]);
+  }, [roleFilteredMembers, workPlans]);
 
   if (capacityData.members.length === 0) {
     return null;

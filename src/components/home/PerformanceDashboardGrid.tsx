@@ -24,6 +24,8 @@ import {
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useWorkPlanStore } from '@/lib/state/work-plan-store';
 import { useOrganizationStore } from '@/lib/state/organization-store';
+import { useCurrentMembership } from '@/lib/state/app-store';
+import { filterWorkPlansByRole } from '@/lib/role-utils';
 import { useOKRStore } from '@/lib/state/okr-store';
 import { useFinanceStore } from '@/lib/state/finance-store';
 import { useSupplierStore } from '@/lib/state/supplier-store';
@@ -143,14 +145,26 @@ export function PerformanceDashboardGrid() {
   const getCashBalance = useFinanceStore((s) => s.getCashBalance);
   const getWeeklyBurn = useFinanceStore((s) => s.getWeeklyBurn);
   const getMonthlyRevenue = useFinanceStore((s) => s.getMonthlyRevenue);
+  const currentMembership = useCurrentMembership();
 
-  // Calculate KPI data
+  // Apply role-based filtering
+  const roleFilteredWorkPlans = useMemo(() => {
+    if (!currentMembership?.role) return workPlans;
+    return filterWorkPlansByRole(
+      workPlans,
+      currentMembership.role,
+      currentMembership.function,
+      currentMembership.id
+    );
+  }, [workPlans, currentMembership]);
+
+  // Calculate KPI data from role-filtered workplans
   const kpiCards = useMemo<KPICardData[]>(() => {
     // 1. Project Health
-    const completedTasks = workPlans.filter((wp) => wp.status === 'completed').length;
-    const inProgressTasks = workPlans.filter((wp) => wp.status === 'in-progress').length;
-    const blockedTasks = workPlans.filter((wp) => wp.status === 'blocked').length;
-    const delayedTasks = workPlans.filter(
+    const completedTasks = roleFilteredWorkPlans.filter((wp) => wp.status === 'completed').length;
+    const inProgressTasks = roleFilteredWorkPlans.filter((wp) => wp.status === 'in-progress').length;
+    const blockedTasks = roleFilteredWorkPlans.filter((wp) => wp.status === 'blocked').length;
+    const delayedTasks = roleFilteredWorkPlans.filter(
       (wp) => wp.status === 'in-progress' && wp.progress < 50
     ).length;
     const onTimeTasks = inProgressTasks - delayedTasks;
@@ -288,7 +302,7 @@ export function PerformanceDashboardGrid() {
         onPress: () => router.push('/financial-dashboard'),
       },
     ];
-  }, [workPlans, members, okrs, suppliers, currentWorkspace, getCashBalance, getWeeklyBurn, getMonthlyRevenue, router]);
+  }, [roleFilteredWorkPlans, members, okrs, suppliers, currentWorkspace, getCashBalance, getWeeklyBurn, getMonthlyRevenue, router]);
 
   return (
     <View className="px-5 mb-4">
