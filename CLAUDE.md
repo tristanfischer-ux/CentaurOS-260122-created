@@ -178,3 +178,27 @@ You have access to a few skills in the `.claude/skills` folder. Use them to your
 - expo-docs: Use this skill when the user asks you to use an Expo SDK module or package that you might not know much about.
 - frontend-app-design: Use this skill when the user asks you to design a frontend app component or screen.
 </skills>
+<style_guide>
+  CRITICAL: All development MUST follow STYLE_GUIDE.md
+  Location: /home/user/workspace/STYLE_GUIDE.md
+
+  Before making ANY changes:
+  1. Read the relevant section in STYLE_GUIDE.md
+  2. Follow the exact patterns documented
+  3. Maintain consistency with existing components
+
+  The style guide covers:
+  - Component standards and templates
+  - Layout, spacing, and typography
+  - Colors and theming (light/dark/off-white)
+  - Modal standards (CRITICAL - prevents bugs)
+  - Form standards and validation
+  - Animation and interaction patterns
+  - State management patterns
+  - Error handling patterns
+  - Accessibility requirements
+  - Code standards and best practices
+
+  When in doubt, reference STYLE_GUIDE.md first!
+</style_guide>
+
