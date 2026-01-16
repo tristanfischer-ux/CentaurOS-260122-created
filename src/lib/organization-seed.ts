@@ -23,6 +23,9 @@ export interface OrganizationMember {
   linkedIn?: string; // LinkedIn profile URL
   bio?: string; // Professional bio
 
+  // Skills & Abilities (affects task speed)
+  skills?: Skill[]; // Array of skills with levels
+
   // Performance Modifiers
   teamLeadershipMultiplier?: number; // How well they lead teams (1.0 = neutral, 1.2 = +20% faster, 0.8 = -20% slower)
   collaborationMultiplier?: number; // How well they work with others (1.0 = neutral, 1.15 = +15% faster, 0.9 = -10% slower)
@@ -31,6 +34,78 @@ export interface OrganizationMember {
   // AI Readiness & Loadout (NEW)
   aiReadiness?: AIReadiness; // AI comfort level & constraints
   aiLoadout?: PersonLoadout; // Equipped AI tools per slot
+}
+
+// Skill system - affects task completion speed
+export interface Skill {
+  id: string;
+  name: string;
+  level: number; // 1-5 (1=Novice, 2=Beginner, 3=Intermediate, 4=Advanced, 5=Expert)
+  category: SkillCategory;
+  speedMultiplier: number; // Calculated from level: 0.8 (novice) to 1.5 (expert)
+}
+
+export type SkillCategory =
+  | 'technical'      // Coding, data analysis, systems
+  | 'creative'       // Design, writing, content
+  | 'leadership'     // Management, strategy, delegation
+  | 'communication'  // Presentations, negotiations, writing
+  | 'operations'     // Process, logistics, project management
+  | 'domain';        // Industry-specific knowledge
+
+// Default skills by function
+export const DEFAULT_SKILLS_BY_FUNCTION: Record<string, Skill[]> = {
+  Marketing: [
+    { id: 'content-creation', name: 'Content Creation', level: 3, category: 'creative', speedMultiplier: 1.15 },
+    { id: 'social-media', name: 'Social Media', level: 3, category: 'communication', speedMultiplier: 1.15 },
+    { id: 'analytics', name: 'Marketing Analytics', level: 2, category: 'technical', speedMultiplier: 1.0 },
+  ],
+  Sales: [
+    { id: 'negotiation', name: 'Negotiation', level: 3, category: 'communication', speedMultiplier: 1.15 },
+    { id: 'crm', name: 'CRM Management', level: 2, category: 'technical', speedMultiplier: 1.0 },
+    { id: 'relationship-building', name: 'Relationship Building', level: 3, category: 'communication', speedMultiplier: 1.15 },
+  ],
+  Finance: [
+    { id: 'financial-analysis', name: 'Financial Analysis', level: 3, category: 'technical', speedMultiplier: 1.15 },
+    { id: 'budgeting', name: 'Budgeting', level: 3, category: 'operations', speedMultiplier: 1.15 },
+    { id: 'reporting', name: 'Financial Reporting', level: 2, category: 'technical', speedMultiplier: 1.0 },
+  ],
+  Engineering: [
+    { id: 'software-dev', name: 'Software Development', level: 3, category: 'technical', speedMultiplier: 1.15 },
+    { id: 'system-design', name: 'System Design', level: 2, category: 'technical', speedMultiplier: 1.0 },
+    { id: 'debugging', name: 'Debugging', level: 3, category: 'technical', speedMultiplier: 1.15 },
+  ],
+  Ops: [
+    { id: 'project-management', name: 'Project Management', level: 3, category: 'operations', speedMultiplier: 1.15 },
+    { id: 'process-optimization', name: 'Process Optimization', level: 2, category: 'operations', speedMultiplier: 1.0 },
+    { id: 'logistics', name: 'Logistics', level: 3, category: 'operations', speedMultiplier: 1.15 },
+  ],
+};
+
+// Calculate speed multiplier from skill level
+export function getSkillSpeedMultiplier(level: number): number {
+  switch (level) {
+    case 1: return 0.8;  // Novice: -20% speed
+    case 2: return 1.0;  // Beginner: baseline
+    case 3: return 1.15; // Intermediate: +15% speed
+    case 4: return 1.3;  // Advanced: +30% speed
+    case 5: return 1.5;  // Expert: +50% speed
+    default: return 1.0;
+  }
+}
+
+// Get overall speed multiplier from all skills
+export function getMemberSpeedMultiplier(member: OrganizationMember): number {
+  const skills = member.skills || [];
+  if (skills.length === 0) return 1.0;
+
+  // Average of all skill multipliers
+  const avgMultiplier = skills.reduce((sum, skill) => sum + skill.speedMultiplier, 0) / skills.length;
+
+  // Also factor in AI proficiency if they have AI tools equipped
+  const aiMultiplier = member.aiProficiencyMultiplier || 1.0;
+
+  return avgMultiplier * aiMultiplier;
 }
 
 export interface SupplierEngagement {

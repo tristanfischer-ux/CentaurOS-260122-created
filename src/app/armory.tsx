@@ -1,5 +1,5 @@
 import { View, Text, Pressable, ScrollView, Modal, TextInput } from 'react-native';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -8,11 +8,17 @@ import {
   DollarSign,
   Trash2,
   Plus,
+  Zap,
+  Star,
+  ChevronUp,
+  ChevronDown,
+  Sparkles,
 } from 'lucide-react-native';
 import { useAppStore } from '@/lib/state/app-store';
 import { useOrganizationStore } from '@/lib/state/organization-store';
 import { useArmoryStore } from '@/lib/state/armory-store';
-import type { OrganizationMember, AIAgent } from '@/lib/organization-seed';
+import type { OrganizationMember, AIAgent, Skill } from '@/lib/organization-seed';
+import { DEFAULT_SKILLS_BY_FUNCTION, getSkillSpeedMultiplier, getMemberSpeedMultiplier } from '@/lib/organization-seed';
 import { getRecommendedToolsForMember } from '@/lib/armory/recommendations';
 import { getToolEffects } from '@/lib/armory/tool-effects';
 import { cn } from '@/lib/cn';
@@ -49,11 +55,9 @@ export default function ArmoryScreen() {
   const canManage = currentMembership?.role === 'Founder';
 
   const handleMemberPress = (member: OrganizationMember) => {
-    // RBAC: Founders can view/edit anyone, Execs/Apprentices only themselves
-    if (canManage || member.id === currentUser?.id) {
-      setSelectedMember(member);
-      setShowCharacterSheet(true);
-    }
+    // Allow everyone to view cards - editing is controlled in the modal
+    setSelectedMember(member);
+    setShowCharacterSheet(true);
   };
 
   return (
@@ -153,14 +157,12 @@ function LoadoutsTab({
     const roleColor = member.role === 'Founder' ? '#3b82f6' : member.role === 'FractionalExec' ? '#8b5cf6' : '#10b981';
 
     const isCurrentUser = member.id === currentUserId;
-    const canView = canManage || isCurrentUser;
 
     return (
       <Pressable
         key={member.id}
-        onPress={() => canView && onMemberPress(member)}
-        disabled={!canView}
-        className={cn('bg-white/5 border border-white/10 rounded-2xl p-4 mb-3', canView && 'active:opacity-70')}
+        onPress={() => onMemberPress(member)}
+        className={cn('bg-white/5 border border-white/10 rounded-2xl p-4 mb-3', 'active:opacity-70')}
       >
         <View className="flex-row items-center">
           <View
@@ -586,6 +588,7 @@ function CharacterSheetModal({
           <PersonDetailModal
             visible={showPersonDetail}
             member={member}
+            canManage={canManage}
             onClose={() => setShowPersonDetail(false)}
           />
         )}
@@ -1068,17 +1071,30 @@ function AIToolDetailModal({
 
 // ========== PERSON DETAIL MODAL ==========
 
+const SKILL_LEVEL_NAMES = ['', 'Novice', 'Beginner', 'Intermediate', 'Advanced', 'Expert'];
+const SKILL_LEVEL_COLORS = ['', '#ef4444', '#f97316', '#eab308', '#22c55e', '#3b82f6'];
+
 function PersonDetailModal({
   visible,
-  member,
+  member: initialMember,
+  canManage,
   onClose,
 }: {
   visible: boolean;
   member: OrganizationMember;
+  canManage: boolean;
   onClose: () => void;
 }) {
   const { theme, isOffWhite } = useTheme();
   const isDark = theme === 'dark';
+
+  // Get fresh member data from store
+  const getMemberById = useOrganizationStore((s) => s.getMemberById);
+  const updateMember = useOrganizationStore((s) => s.updateMember);
+  const member = getMemberById(initialMember.id) || initialMember;
+
+  const [showAddSkill, setShowAddSkill] = useState(false);
+  const [newSkillName, setNewSkillName] = useState('');
 
   // Theme colors
   const bgCard = isDark ? 'bg-slate-900' : isOffWhite ? 'bg-white' : 'bg-white';
@@ -1089,6 +1105,58 @@ function PersonDetailModal({
   const textMuted = isDark ? 'text-slate-500' : isOffWhite ? 'text-orange-600' : 'text-gray-500';
 
   const roleColor = member.role === 'Founder' ? '#3b82f6' : member.role === 'FractionalExec' ? '#8b5cf6' : '#10b981';
+
+  // Get skills - use member's skills or default based on function
+  const skills = useMemo(() => {
+    if (member.skills && member.skills.length > 0) {
+      return member.skills;
+    }
+    return DEFAULT_SKILLS_BY_FUNCTION[member.function] || [];
+  }, [member.skills, member.function]);
+
+  // Calculate overall speed multiplier
+  const speedMultiplier = useMemo(() => getMemberSpeedMultiplier({
+    ...member,
+    skills: skills,
+  }), [member, skills]);
+
+  const handleUpdateSkillLevel = (skillId: string, newLevel: number) => {
+    const updatedSkills = skills.map(skill =>
+      skill.id === skillId
+        ? { ...skill, level: newLevel, speedMultiplier: getSkillSpeedMultiplier(newLevel) }
+        : skill
+    );
+    updateMember(member.id, { skills: updatedSkills });
+  };
+
+  const handleAddSkill = () => {
+    if (!newSkillName.trim()) return;
+
+    const newSkill: Skill = {
+      id: `skill-${Date.now()}`,
+      name: newSkillName.trim(),
+      level: 2, // Start at Beginner
+      category: 'domain',
+      speedMultiplier: 1.0,
+    };
+
+    const updatedSkills = [...skills, newSkill];
+    updateMember(member.id, { skills: updatedSkills });
+    setNewSkillName('');
+    setShowAddSkill(false);
+  };
+
+  const handleRemoveSkill = (skillId: string) => {
+    const updatedSkills = skills.filter(s => s.id !== skillId);
+    updateMember(member.id, { skills: updatedSkills });
+  };
+
+  const handleInitializeDefaultSkills = () => {
+    const defaultSkills = DEFAULT_SKILLS_BY_FUNCTION[member.function] || [];
+    if (defaultSkills.length > 0) {
+      updateMember(member.id, { skills: defaultSkills });
+    }
+  };
 
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose} statusBarTranslucent>
@@ -1114,9 +1182,15 @@ function PersonDetailModal({
                 </Text>
               </View>
             </View>
-            <View className="bg-blue-500/10 rounded-lg px-3 py-2">
-              <Text className="text-blue-500 text-xs text-center font-semibold">
-                ⬇️ Scroll down for full profile details
+
+            {/* Speed Multiplier Banner */}
+            <View className="bg-emerald-500/20 border border-emerald-500/30 rounded-xl px-4 py-3 flex-row items-center justify-between">
+              <View className="flex-row items-center gap-2">
+                <Zap size={20} color="#10b981" />
+                <Text className="text-emerald-500 font-bold">Speed Multiplier</Text>
+              </View>
+              <Text className="text-emerald-400 text-2xl font-black">
+                {speedMultiplier.toFixed(2)}x
               </Text>
             </View>
           </View>
@@ -1134,6 +1208,158 @@ function PersonDetailModal({
               <View className="items-center mb-6">
                 <View className="w-24 h-24 rounded-full items-center justify-center mb-3" style={{ backgroundColor: roleColor }}>
                   <Text className="text-white text-3xl font-black">{member.name.split(' ').map((n) => n[0]).join('')}</Text>
+                </View>
+              </View>
+
+              {/* Skills Section */}
+              <View className="mb-6">
+                <View className="flex-row items-center justify-between mb-3">
+                  <View className="flex-row items-center gap-2">
+                    <Sparkles size={20} color={isDark ? '#fff' : '#374151'} />
+                    <Text className={`${textPrimary} text-lg font-bold`}>Skills & Abilities</Text>
+                  </View>
+                  {canManage && (
+                    <Pressable
+                      onPress={() => setShowAddSkill(true)}
+                      className="bg-blue-500 px-3 py-1.5 rounded-lg flex-row items-center gap-1 active:opacity-70"
+                    >
+                      <Plus size={14} color="white" />
+                      <Text className="text-white text-xs font-bold">Add</Text>
+                    </Pressable>
+                  )}
+                </View>
+
+                {skills.length === 0 ? (
+                  <View className={`${bgSecondary} rounded-xl p-6 items-center`}>
+                    <Text className={`${textMuted} text-center mb-3`}>No skills defined yet</Text>
+                    {canManage && (
+                      <Pressable
+                        onPress={handleInitializeDefaultSkills}
+                        className="bg-blue-500 px-4 py-2 rounded-lg active:opacity-70"
+                      >
+                        <Text className="text-white font-bold text-sm">Add Default Skills</Text>
+                      </Pressable>
+                    )}
+                  </View>
+                ) : (
+                  <View className="gap-3">
+                    {skills.map((skill) => (
+                      <View key={skill.id} className={`${bgSecondary} rounded-xl p-4 border ${borderColor}`}>
+                        <View className="flex-row items-center justify-between mb-2">
+                          <Text className={`${textPrimary} font-bold text-base`}>{skill.name}</Text>
+                          <View className="flex-row items-center gap-2">
+                            <View
+                              className="px-2 py-1 rounded"
+                              style={{ backgroundColor: SKILL_LEVEL_COLORS[skill.level] + '30' }}
+                            >
+                              <Text style={{ color: SKILL_LEVEL_COLORS[skill.level] }} className="text-xs font-bold">
+                                {SKILL_LEVEL_NAMES[skill.level]}
+                              </Text>
+                            </View>
+                            {canManage && (
+                              <Pressable
+                                onPress={() => handleRemoveSkill(skill.id)}
+                                className="p-1 active:opacity-70"
+                              >
+                                <Trash2 size={14} color="#ef4444" />
+                              </Pressable>
+                            )}
+                          </View>
+                        </View>
+
+                        {/* Skill Level Adjuster */}
+                        {canManage && (
+                          <View className="flex-row items-center gap-2 mt-2">
+                            <Pressable
+                              onPress={() => skill.level > 1 && handleUpdateSkillLevel(skill.id, skill.level - 1)}
+                              disabled={skill.level <= 1}
+                              className={cn(
+                                'w-8 h-8 rounded-lg items-center justify-center',
+                                skill.level <= 1 ? 'bg-gray-300/30' : 'bg-red-500/20 active:opacity-70'
+                              )}
+                            >
+                              <ChevronDown size={18} color={skill.level <= 1 ? '#9ca3af' : '#ef4444'} />
+                            </Pressable>
+
+                            <View className="flex-1 flex-row gap-1">
+                              {[1, 2, 3, 4, 5].map((level) => (
+                                <Pressable
+                                  key={level}
+                                  onPress={() => handleUpdateSkillLevel(skill.id, level)}
+                                  className="flex-1 h-3 rounded-full active:opacity-70"
+                                  style={{
+                                    backgroundColor: level <= skill.level
+                                      ? SKILL_LEVEL_COLORS[skill.level]
+                                      : isDark ? '#374151' : '#e5e7eb'
+                                  }}
+                                />
+                              ))}
+                            </View>
+
+                            <Pressable
+                              onPress={() => skill.level < 5 && handleUpdateSkillLevel(skill.id, skill.level + 1)}
+                              disabled={skill.level >= 5}
+                              className={cn(
+                                'w-8 h-8 rounded-lg items-center justify-center',
+                                skill.level >= 5 ? 'bg-gray-300/30' : 'bg-green-500/20 active:opacity-70'
+                              )}
+                            >
+                              <ChevronUp size={18} color={skill.level >= 5 ? '#9ca3af' : '#22c55e'} />
+                            </Pressable>
+                          </View>
+                        )}
+
+                        {/* Speed impact */}
+                        <View className="flex-row items-center justify-between mt-2 pt-2 border-t border-gray-200/30">
+                          <Text className={`${textMuted} text-xs`}>Speed Impact</Text>
+                          <Text
+                            className="text-xs font-bold"
+                            style={{ color: skill.speedMultiplier >= 1 ? '#10b981' : '#ef4444' }}
+                          >
+                            {skill.speedMultiplier >= 1 ? '+' : ''}{Math.round((skill.speedMultiplier - 1) * 100)}%
+                          </Text>
+                        </View>
+                      </View>
+                    ))}
+                  </View>
+                )}
+              </View>
+
+              {/* AI Proficiency */}
+              <View className="mb-6">
+                <Text className={`${textPrimary} text-lg font-bold mb-3`}>🤖 AI Proficiency</Text>
+                <View className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-4">
+                  <View className="flex-row items-center justify-between mb-2">
+                    <Text className={textSecondary}>AI Tool Effectiveness</Text>
+                    <Text className="text-amber-500 font-bold text-lg">
+                      {((member.aiProficiencyMultiplier || 1.0) * 100).toFixed(0)}%
+                    </Text>
+                  </View>
+                  {canManage && (
+                    <View className="flex-row gap-2 mt-2">
+                      {[0.7, 0.85, 1.0, 1.25, 1.5].map((mult) => (
+                        <Pressable
+                          key={mult}
+                          onPress={() => updateMember(member.id, { aiProficiencyMultiplier: mult })}
+                          className={cn(
+                            'flex-1 py-2 rounded-lg items-center',
+                            (member.aiProficiencyMultiplier || 1.0) === mult
+                              ? 'bg-amber-500'
+                              : `${bgSecondary}`
+                          )}
+                        >
+                          <Text
+                            className={cn(
+                              'text-xs font-bold',
+                              (member.aiProficiencyMultiplier || 1.0) === mult ? 'text-white' : textSecondary
+                            )}
+                          >
+                            {(mult * 100).toFixed(0)}%
+                          </Text>
+                        </Pressable>
+                      ))}
+                    </View>
+                  )}
                 </View>
               </View>
 
@@ -1203,32 +1429,6 @@ function PersonDetailModal({
                 </View>
               )}
 
-              {/* Reports To */}
-              {member.reportsTo && (
-                <View className="mb-6">
-                  <Text className={`${textPrimary} text-lg font-bold mb-3`}>👥 Reporting Structure</Text>
-                  <View className={`${bgSecondary} rounded-xl p-4`}>
-                    <View className="flex-row justify-between">
-                      <Text className={textSecondary}>Reports To</Text>
-                      <Text className={`${textPrimary} font-bold`}>{member.reportsTo}</Text>
-                    </View>
-                  </View>
-                </View>
-              )}
-
-              {/* Manages */}
-              {member.manages && member.manages.length > 0 && (
-                <View className="mb-6">
-                  <Text className={`${textPrimary} text-lg font-bold mb-3`}>👥 Direct Reports</Text>
-                  <View className={`${bgSecondary} rounded-xl p-4`}>
-                    <Text className={`${textSecondary} mb-2`}>Manages {member.manages.length} team member{member.manages.length !== 1 ? 's' : ''}</Text>
-                    {member.manages.map((reportId, idx) => (
-                      <Text key={idx} className={`${textMuted} text-sm`}>• {reportId}</Text>
-                    ))}
-                  </View>
-                </View>
-              )}
-
               {/* Start Date */}
               {member.startDate && (
                 <View className="bg-cyan-500/10 border border-cyan-500/30 rounded-xl p-4">
@@ -1255,6 +1455,39 @@ function PersonDetailModal({
             </Pressable>
           </View>
         </View>
+
+        {/* Add Skill Modal */}
+        <Modal visible={showAddSkill} transparent animationType="fade" onRequestClose={() => setShowAddSkill(false)}>
+          <Pressable
+            className="flex-1 bg-black/80 justify-center items-center px-6"
+            onPress={() => setShowAddSkill(false)}
+          >
+            <Pressable onPress={(e) => e.stopPropagation()} className={`${bgCard} rounded-2xl p-6 w-full max-w-sm`}>
+              <Text className={`${textPrimary} text-xl font-black mb-4`}>Add New Skill</Text>
+              <TextInput
+                value={newSkillName}
+                onChangeText={setNewSkillName}
+                placeholder="Skill name..."
+                placeholderTextColor={isDark ? '#64748b' : '#9ca3af'}
+                className={`${bgSecondary} ${textPrimary} rounded-xl px-4 py-3 mb-4`}
+              />
+              <View className="flex-row gap-3">
+                <Pressable
+                  onPress={() => setShowAddSkill(false)}
+                  className={`flex-1 ${bgSecondary} rounded-xl py-3 active:opacity-70`}
+                >
+                  <Text className={`${textPrimary} font-bold text-center`}>Cancel</Text>
+                </Pressable>
+                <Pressable
+                  onPress={handleAddSkill}
+                  className="flex-1 bg-blue-500 rounded-xl py-3 active:opacity-70"
+                >
+                  <Text className="text-white font-bold text-center">Add Skill</Text>
+                </Pressable>
+              </View>
+            </Pressable>
+          </Pressable>
+        </Modal>
       </View>
     </Modal>
   );
