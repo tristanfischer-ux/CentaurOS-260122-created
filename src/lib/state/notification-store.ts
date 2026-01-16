@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { mmkvStorage } from '@/lib/storage/mmkv-storage';
 
 export type NotificationType = 'approval' | 'deadline' | 'capacity' | 'budget' | 'assignment' | 'message' | 'achievement';
 
@@ -119,7 +119,7 @@ export const useNotificationStore = create<NotificationStore>()(
     }),
     {
       name: 'notification-storage',
-      storage: createJSONStorage(() => AsyncStorage),
+      storage: createJSONStorage(() => mmkvStorage),
     }
   )
 );

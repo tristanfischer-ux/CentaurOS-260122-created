@@ -7,7 +7,7 @@
 
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { mmkvStorage } from '@/lib/storage/mmkv-storage';
 
 export type InvitationStatus =
   | 'pending'           // Initial invitation sent
@@ -256,7 +256,7 @@ export const useInvitationStore = create<InvitationState>()(
     }),
     {
       name: 'invitation-storage',
-      storage: createJSONStorage(() => AsyncStorage),
+      storage: createJSONStorage(() => mmkvStorage),
     }
   )
 );

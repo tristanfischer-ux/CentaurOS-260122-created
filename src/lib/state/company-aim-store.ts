@@ -7,7 +7,7 @@
 
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { mmkvStorage } from '@/lib/storage/mmkv-storage';
 
 export interface CompanyAim {
   id: string;
@@ -88,7 +88,7 @@ export const useCompanyAimStore = create<CompanyAimState>()(
     }),
     {
       name: 'company-aim-storage',
-      storage: createJSONStorage(() => AsyncStorage),
+      storage: createJSONStorage(() => mmkvStorage),
     }
   )
 );

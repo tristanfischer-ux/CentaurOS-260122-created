@@ -6,7 +6,7 @@
  */
 
 import { create } from 'zustand';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { mmkv } from '@/lib/storage/mmkv-storage';
 
 export type SquadType = 'automatic' | 'manual';
 
@@ -70,7 +70,7 @@ export const useSquadStore = create<SquadState>((set, get) => ({
 
   initializeSquads: async () => {
     try {
-      const stored = await AsyncStorage.getItem(SQUAD_STORAGE_KEY);
+      const stored = mmkv.getString(SQUAD_STORAGE_KEY);
       if (stored) {
         const squads = JSON.parse(stored);
         set({ squads });
@@ -83,7 +83,7 @@ export const useSquadStore = create<SquadState>((set, get) => ({
   persistSquads: async () => {
     try {
       const { squads } = get();
-      await AsyncStorage.setItem(SQUAD_STORAGE_KEY, JSON.stringify(squads));
+      mmkv.set(SQUAD_STORAGE_KEY, JSON.stringify(squads));
     } catch (error) {
       console.error('[SquadStore] Failed to persist squads:', error);
     }

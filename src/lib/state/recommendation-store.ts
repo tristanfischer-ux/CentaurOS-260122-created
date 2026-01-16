@@ -7,7 +7,7 @@
 
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { mmkvStorage } from '@/lib/storage/mmkv-storage';
 
 export type RecommendationType = 'executive' | 'apprentice' | 'ai_tool' | 'supplier';
 
@@ -208,7 +208,7 @@ export const useRecommendationStore = create<RecommendationState>()(
     }),
     {
       name: 'recommendation-storage',
-      storage: createJSONStorage(() => AsyncStorage),
+      storage: createJSONStorage(() => mmkvStorage),
     }
   )
 );

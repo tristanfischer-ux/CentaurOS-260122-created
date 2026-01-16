@@ -7,7 +7,7 @@
 
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { mmkvStorage } from '@/lib/storage/mmkv-storage';
 import type { Role } from '@/types';
 
 export type ResourceType = 'ai_tool' | 'supplier';
@@ -184,7 +184,7 @@ export const useResourceOwnershipStore = create<ResourceOwnershipState>()(
     }),
     {
       name: 'resource-ownership-storage',
-      storage: createJSONStorage(() => AsyncStorage),
+      storage: createJSONStorage(() => mmkvStorage),
     }
   )
 );

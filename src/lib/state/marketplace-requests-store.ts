@@ -5,7 +5,7 @@
 
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { mmkvStorage } from '@/lib/storage/mmkv-storage';
 
 export interface MarketplaceRequest {
   id: string;
@@ -95,7 +95,7 @@ export const useMarketplaceRequestsStore = create<MarketplaceRequestsState>()(
     }),
     {
       name: 'marketplace-requests-storage',
-      storage: createJSONStorage(() => AsyncStorage),
+      storage: createJSONStorage(() => mmkvStorage),
     }
   )
 );

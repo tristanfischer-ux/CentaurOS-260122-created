@@ -5,7 +5,7 @@
 
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { mmkvStorage } from '@/lib/storage/mmkv-storage';
 import {
   TechNode,
   TechNodeProgress,
@@ -344,7 +344,7 @@ export const useTechTreeStore = create<TechTreeStore>()(
     }),
     {
       name: 'tech-tree-storage',
-      storage: createJSONStorage(() => AsyncStorage),
+      storage: createJSONStorage(() => mmkvStorage),
     }
   )
 );

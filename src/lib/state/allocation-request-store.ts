@@ -8,7 +8,7 @@
 
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { mmkvStorage } from '@/lib/storage/mmkv-storage';
 
 export type AllocationRequestStatus = 'pending' | 'approved' | 'rejected' | 'withdrawn';
 
@@ -213,7 +213,7 @@ export const useAllocationRequestStore = create<AllocationRequestStore>()(
     }),
     {
       name: 'allocation-request-storage',
-      storage: createJSONStorage(() => AsyncStorage),
+      storage: createJSONStorage(() => mmkvStorage),
     }
   )
 );

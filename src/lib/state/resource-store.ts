@@ -13,7 +13,7 @@
 
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { mmkvStorage } from '@/lib/storage/mmkv-storage';
 import type { Function as BusinessFunction } from '@/types';
 
 // ============ TYPES ============
@@ -964,7 +964,7 @@ export const useResourceStore = create<ResourceState>()(
     }),
     {
       name: 'resource-store',
-      storage: createJSONStorage(() => AsyncStorage),
+      storage: createJSONStorage(() => mmkvStorage),
     }
   )
 );

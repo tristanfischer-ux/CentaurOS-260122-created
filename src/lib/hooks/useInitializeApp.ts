@@ -9,6 +9,7 @@ import { useSquadStore } from '../state/squad-store';
 import { db } from '../storage';
 import { seedDemoData } from '../api/seed';
 import { seedArmoryDemo } from '../armory/seed-demo';
+import { runMigrationIfNeeded } from '../storage/migrate-to-mmkv';
 
 export function useInitializeApp() {
   const [isInitialized, setIsInitialized] = useState(false);
@@ -36,6 +37,9 @@ export function useInitializeApp() {
   useEffect(() => {
     async function initApp() {
       try {
+        // FIRST: Migrate AsyncStorage to MMKV if needed (one-time migration)
+        await runMigrationIfNeeded();
+
         // Initialize auth state
         await initialize();
 
