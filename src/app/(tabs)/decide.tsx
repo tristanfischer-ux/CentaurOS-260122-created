@@ -8,6 +8,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { CompactTaskCard } from '@/components/CompactTaskCard';
 import { useQueueStore } from '@/lib/state/okr-queue-store';
 import type { Function as BusinessFunction } from '@/types';
 import { useOKRStore, type OKR, type Objective, type QueueStatus } from '@/lib/state/okr-store';
@@ -1937,117 +1938,19 @@ export default function DecideScreen() {
               <View className="gap-3">
                 {activeTasks.map((plan) => {
                   const assignedMembers = getAssignedMembers(plan);
-                  const taskCost = calculateTaskCost(plan);
-                  const daysToCompletion = calculateDaysToCompletion(plan);
 
                   return (
-                    <SwipeableTaskCard
+                    <CompactTaskCard
                       key={plan.id}
-                      taskId={plan.id}
-                      onSwipeLeft={handleTaskSwipeLeft}
+                      task={plan}
+                      assignedMembers={assignedMembers}
                       onPress={() => handleTaskPress(plan)}
-                    >
-                      <View
-                        className={`bg-white dark:bg-slate-800 border rounded-2xl p-4 shadow-sm ${
-                          selectedTaskForAllocation?.id === plan.id
-                            ? 'border-blue-500 dark:border-blue-400'
-                            : 'border-gray-200 dark:border-slate-700'
-                        }`}
-                      >
-                        <View className="flex-row items-start justify-between mb-2">
-                          <View className="flex-1 mr-2">
-                            <Text className="text-gray-900 dark:text-white font-semibold text-sm" numberOfLines={2}>
-                              {plan.title}
-                            </Text>
-                            <View className="flex-row items-center mt-1 gap-2">
-                              <View className={`px-1.5 py-0.5 rounded ${
-                                plan.status === 'completed' ? 'bg-emerald-500/20' :
-                                plan.status === 'in-progress' ? 'bg-blue-500/20' :
-                                plan.status === 'blocked' ? 'bg-red-500/20' : 'bg-gray-500/20'
-                              }`}>
-                                <Text className={`text-[10px] font-semibold ${
-                                  plan.status === 'completed' ? 'text-emerald-600 dark:text-emerald-400' :
-                                  plan.status === 'in-progress' ? 'text-blue-600 dark:text-blue-400' :
-                                  plan.status === 'blocked' ? 'text-red-600 dark:text-red-400' : 'text-gray-600 dark:text-gray-400'
-                                }`}>{plan.status}</Text>
-                              </View>
-                              <Text className="text-gray-500 dark:text-slate-400 text-[10px]">{plan.progress}%</Text>
-                              <View className="bg-purple-100 dark:bg-purple-900/30 px-1.5 py-0.5 rounded">
-                                <Text className="text-purple-600 dark:text-purple-400 text-[10px] font-semibold">
-                                  {plan.function}
-                                </Text>
-                              </View>
-                            </View>
-                          </View>
-
-                          {/* Team Avatars & Days Badge */}
-                          <View className="flex-row items-center gap-2">
-                            {assignedMembers.length > 0 && (
-                              <View className="flex-row">
-                                {assignedMembers.slice(0, 3).map((member, idx) => (
-                                  <View
-                                    key={member.id}
-                                    className="w-7 h-7 rounded-full items-center justify-center border-2 border-white dark:border-slate-800"
-                                    style={{
-                                      backgroundColor: getRoleColor(member.role),
-                                      marginLeft: idx > 0 ? -8 : 0,
-                                      zIndex: 3 - idx
-                                    }}
-                                  >
-                                    <Text className="text-white font-bold text-[9px]">{getInitials(member.name)}</Text>
-                                  </View>
-                                ))}
-                                {assignedMembers.length > 3 && (
-                                  <View
-                                    className="w-7 h-7 rounded-full items-center justify-center bg-gray-400 border-2 border-white dark:border-slate-800"
-                                    style={{ marginLeft: -8, zIndex: 0 }}
-                                  >
-                                    <Text className="text-white font-bold text-[9px]">+{assignedMembers.length - 3}</Text>
-                                  </View>
-                                )}
-                              </View>
-                            )}
-                            <View className="bg-blue-100 dark:bg-blue-900/30 px-2 py-1 rounded-lg">
-                              <Text className="text-blue-700 dark:text-blue-300 text-xs font-bold">
-                                {daysToCompletion}d
-                              </Text>
-                            </View>
-                          </View>
-                        </View>
-
-                        {/* Progress Bar */}
-                        <View className="bg-gray-200 dark:bg-slate-700 rounded-full h-1.5 overflow-hidden">
-                          <View
-                            className={`h-full ${
-                              plan.status === 'completed' ? 'bg-emerald-500' :
-                              plan.status === 'blocked' ? 'bg-red-500' : 'bg-blue-500'
-                            }`}
-                            style={{ width: `${plan.progress}%` }}
-                          />
-                        </View>
-
-                        {/* Squares & Cost Display */}
-                        <View className="mt-2 flex-row items-center justify-between">
-                          <View className="flex-row items-center gap-2">
-                            <SquaresDisplay
-                              totalSquares={plan.estimatedTimeUnits}
-                              completedSquares={Math.round((plan.progress / 100) * plan.estimatedTimeUnits)}
-                              variant="compact"
-                              statusColor={
-                                plan.status === 'completed' ? '#10b981' :
-                                plan.status === 'blocked' ? '#ef4444' : '#3b82f6'
-                              }
-                            />
-                            <Text className="text-gray-400 dark:text-slate-500 text-[10px]">
-                              {taskCost.allocatedPerWeek}□/wk
-                            </Text>
-                          </View>
-                          <Text className="text-gray-600 dark:text-slate-400 text-[10px] font-semibold">
-                            £{taskCost.cumulativeCost.toLocaleString()}
-                          </Text>
-                        </View>
-                      </View>
-                    </SwipeableTaskCard>
+                      onFullDetailPress={() => {
+                        setSelectedTaskForDetails(plan);
+                        setShowTaskDetailsModal(true);
+                      }}
+                      isSelected={selectedTaskForAllocation?.id === plan.id}
+                    />
                   );
                 })}
               </View>

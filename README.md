@@ -106,6 +106,21 @@ The app has been completely restructured into 6 intuitive tabs following a natur
      - Detailed candidate profiles
 
 3. **What** - Task Execution
+   - **Compact In Progress View** - Progressive disclosure design:
+     - **Collapsed State (default)**: Clean, scannable list showing:
+       - Task title with status icon
+       - Status badge (IN-PROGRESS/BLOCKED/etc)
+       - Mini progress bar with percentage
+       - Capacity indicator (TU/week)
+       - Mini team avatars (2 members + count)
+     - **Expanded Preview (first tap)**: Shows additional context:
+       - Full team list with individual allocations
+       - Squad assignments (AUTO/MANUAL badges)
+       - Capacity breakdown (total, per week, progress)
+       - Hint: "Tap again to edit task details"
+     - **Full Detail Modal (second tap)**: Complete task view with editing
+       - All task information and history
+       - Edit capabilities (via existing modal)
    - Task list organized by status (In Progress, Queued, Blocked, Completed)
    - Create new tasks with estimated TUs
    - Allocate team members to tasks
