@@ -349,7 +349,7 @@ export default function WhoScreen() {
             </Text>
           </View>
 
-          {/* Capacity indicator */}
+          {/* Capacity indicator - text summary */}
           <View className="items-end">
             <View className="flex-row items-center gap-1 mb-1">
               <View
@@ -366,6 +366,73 @@ export default function WhoScreen() {
             <Text className="text-slate-400 dark:text-slate-500 text-xs">
               {util.available} available
             </Text>
+          </View>
+        </View>
+
+        {/* Visual capacity squares display */}
+        <View className="mt-3 pt-3 border-t border-slate-100 dark:border-slate-700">
+          <View className="gap-1">
+            {/* Render capacity in rows of 15 squares max */}
+            {Array.from({ length: Math.ceil(util.total / 15) }).map((_, rowIndex) => {
+              const startIdx = rowIndex * 15;
+              const endIdx = Math.min(startIdx + 15, util.total);
+              const squaresInRow = endIdx - startIdx;
+
+              return (
+                <View key={rowIndex} className="flex-row gap-0.5">
+                  {Array.from({ length: squaresInRow }).map((_, colIndex) => {
+                    const absoluteIndex = startIdx + colIndex;
+                    const isBaseCapacity = absoluteIndex < util.base;
+                    const isUsed = absoluteIndex < util.allocated;
+                    const isOvertimeCapacity = absoluteIndex >= util.base;
+                    const isOvertimeUsed = isOvertimeCapacity && isUsed;
+
+                    let backgroundColor: string;
+                    if (isOvertimeUsed) {
+                      backgroundColor = '#f97316'; // Orange - overtime used
+                    } else if (isUsed) {
+                      backgroundColor = '#ef4444'; // Red - base capacity used
+                    } else if (isOvertimeCapacity) {
+                      backgroundColor = '#fbbf24'; // Amber - overtime available
+                    } else {
+                      backgroundColor = '#10b981'; // Green - base available
+                    }
+
+                    return (
+                      <View
+                        key={colIndex}
+                        className="w-3 h-3 rounded-sm"
+                        style={{ backgroundColor }}
+                      />
+                    );
+                  })}
+                </View>
+              );
+            })}
+
+            {/* Capacity legend */}
+            <View className="flex-row items-center gap-3 mt-2">
+              <View className="flex-row items-center gap-1">
+                <View className="w-2 h-2 rounded-sm" style={{ backgroundColor: '#ef4444' }} />
+                <Text className="text-slate-500 dark:text-slate-400 text-[10px]">Used</Text>
+              </View>
+              <View className="flex-row items-center gap-1">
+                <View className="w-2 h-2 rounded-sm" style={{ backgroundColor: '#10b981' }} />
+                <Text className="text-slate-500 dark:text-slate-400 text-[10px]">Available</Text>
+              </View>
+              {util.overtime > 0 && (
+                <>
+                  <View className="flex-row items-center gap-1">
+                    <View className="w-2 h-2 rounded-sm" style={{ backgroundColor: '#f97316' }} />
+                    <Text className="text-slate-500 dark:text-slate-400 text-[10px]">OT Used</Text>
+                  </View>
+                  <View className="flex-row items-center gap-1">
+                    <View className="w-2 h-2 rounded-sm" style={{ backgroundColor: '#fbbf24' }} />
+                    <Text className="text-slate-500 dark:text-slate-400 text-[10px]">OT Available</Text>
+                  </View>
+                </>
+              )}
+            </View>
           </View>
         </View>
 
