@@ -516,8 +516,8 @@ export default function WhoScreen() {
             </View>
 
             <View className="flex-row items-center gap-2 mt-1">
-              {candidate.specialization.slice(0, 2).map(spec => (
-                <View key={spec} className="bg-slate-100 dark:bg-slate-700 px-2 py-0.5 rounded">
+              {candidate.specialization.slice(0, 2).map((spec, idx) => (
+                <View key={`spec-${idx}`} className="bg-slate-100 dark:bg-slate-700 px-2 py-0.5 rounded">
                   <Text className="text-slate-600 dark:text-slate-300 text-xs">{spec}</Text>
                 </View>
               ))}
@@ -723,8 +723,8 @@ export default function WhoScreen() {
                     <View className="mb-4">
                       <Text className="text-slate-900 dark:text-white font-semibold mb-2">Skills</Text>
                       <View className="flex-row flex-wrap gap-2">
-                        {selectedCandidate.skills.map(skill => (
-                          <View key={skill} className="bg-blue-100 dark:bg-blue-900/30 px-3 py-1.5 rounded-full">
+                        {selectedCandidate.skills.map((skill, idx) => (
+                          <View key={`skill-${idx}`} className="bg-blue-100 dark:bg-blue-900/30 px-3 py-1.5 rounded-full">
                             <Text className="text-blue-700 dark:text-blue-300 text-sm">{skill}</Text>
                           </View>
                         ))}
@@ -735,8 +735,8 @@ export default function WhoScreen() {
                     <View className="mb-4">
                       <Text className="text-slate-900 dark:text-white font-semibold mb-2">Previous Companies</Text>
                       <View className="flex-row flex-wrap gap-2">
-                        {selectedCandidate.previousCompanies.map(company => (
-                          <View key={company} className="bg-slate-100 dark:bg-slate-700 px-3 py-1.5 rounded-full">
+                        {selectedCandidate.previousCompanies.map((company, idx) => (
+                          <View key={`company-${idx}`} className="bg-slate-100 dark:bg-slate-700 px-3 py-1.5 rounded-full">
                             <Text className="text-slate-700 dark:text-slate-300 text-sm">{company}</Text>
                           </View>
                         ))}
