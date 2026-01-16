@@ -52,6 +52,7 @@ import type { Supplier } from '@/types';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { HelpModal, HelpButton, type HelpContent } from '@/components/HelpModal';
 import { PersonDetailModalEnhanced } from '@/components/PersonDetailModalEnhanced';
+import { ResourcePoolPreview } from '@/components/ResourcePoolPreview';
 
 const HUB_HELP: HelpContent = {
   title: 'Marketplace & AI Tools',
@@ -777,38 +778,44 @@ export default function CommunityScreen() {
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
         {/* TEAM TAB - Current Team Members */}
         {activeTab === 'team' && (
-          <View className="px-5 py-4">
-            {/* Overview Cards */}
-            <View className="mb-5">
-              <Text className="text-gray-500 dark:text-slate-400 text-xs uppercase tracking-wide mb-3">
-                Team Overview
-              </Text>
-              <View className="flex-row gap-3 mb-3">
-                <View className="flex-1 bg-purple-100 dark:bg-purple-900/20 rounded-2xl p-4">
-                  <Crown size={20} color="#8b5cf6" />
-                  <Text className="text-purple-900 dark:text-purple-100 text-2xl font-bold mt-2">
-                    {teamCounts.founders}
-                  </Text>
-                  <Text className="text-purple-700 dark:text-purple-300 text-xs mt-1">Founders</Text>
-                </View>
-                <View className="flex-1 bg-emerald-100 dark:bg-emerald-900/20 rounded-2xl p-4">
-                  <Briefcase size={20} color="#10b981" />
-                  <Text className="text-emerald-900 dark:text-emerald-100 text-2xl font-bold mt-2">
-                    {teamCounts.executives}
-                  </Text>
-                  <Text className="text-emerald-700 dark:text-emerald-300 text-xs mt-1">Executives</Text>
-                </View>
-                <View className="flex-1 bg-blue-100 dark:bg-blue-900/20 rounded-2xl p-4">
-                  <GraduationCap size={20} color="#3b82f6" />
-                  <Text className="text-blue-900 dark:text-blue-100 text-2xl font-bold mt-2">
-                    {teamCounts.apprentices}
-                  </Text>
-                  <Text className="text-blue-700 dark:text-blue-300 text-xs mt-1">Apprentices</Text>
+          <View className="py-4">
+            {/* Resource Pool Preview */}
+            <ResourcePoolPreview
+              onPress={() => router.push('/utilization')}
+            />
+
+            <View className="px-5">
+              {/* Overview Cards */}
+              <View className="mb-5">
+                <Text className="text-gray-500 dark:text-slate-400 text-xs uppercase tracking-wide mb-3">
+                  Team Overview
+                </Text>
+                <View className="flex-row gap-3 mb-3">
+                  <View className="flex-1 bg-purple-100 dark:bg-purple-900/20 rounded-2xl p-4">
+                    <Crown size={20} color="#8b5cf6" />
+                    <Text className="text-purple-900 dark:text-purple-100 text-2xl font-bold mt-2">
+                      {teamCounts.founders}
+                    </Text>
+                    <Text className="text-purple-700 dark:text-purple-300 text-xs mt-1">Founders</Text>
+                  </View>
+                  <View className="flex-1 bg-emerald-100 dark:bg-emerald-900/20 rounded-2xl p-4">
+                    <Briefcase size={20} color="#10b981" />
+                    <Text className="text-emerald-900 dark:text-emerald-100 text-2xl font-bold mt-2">
+                      {teamCounts.executives}
+                    </Text>
+                    <Text className="text-emerald-700 dark:text-emerald-300 text-xs mt-1">Executives</Text>
+                  </View>
+                  <View className="flex-1 bg-blue-100 dark:bg-blue-900/20 rounded-2xl p-4">
+                    <GraduationCap size={20} color="#3b82f6" />
+                    <Text className="text-blue-900 dark:text-blue-100 text-2xl font-bold mt-2">
+                      {teamCounts.apprentices}
+                    </Text>
+                    <Text className="text-blue-700 dark:text-blue-300 text-xs mt-1">Apprentices</Text>
+                  </View>
                 </View>
               </View>
-            </View>
 
-            {/* Founders Section */}
+              {/* Founders Section */}
             {members.filter(m => m.role === 'Founder' && m.status === 'active').length > 0 && (
               <View className="mb-5">
                 <View className="flex-row items-center justify-between mb-3">
@@ -985,27 +992,28 @@ export default function CommunityScreen() {
               </View>
             )}
 
-            {/* Quick Actions - Add More People */}
-            <View className="bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-900/10 dark:to-purple-900/10 rounded-2xl p-4 border-2 border-dashed border-gray-300 dark:border-slate-700">
-              <Text className="text-gray-900 dark:text-white font-bold text-base mb-3">Expand Your Team</Text>
-              <Text className="text-gray-600 dark:text-slate-400 text-sm mb-4">
-                Browse the marketplace to find executives and apprentices
-              </Text>
-              <View className="flex-row gap-3">
-                <Pressable
-                  onPress={() => setActiveTab('executives')}
-                  className="flex-1 bg-emerald-500 rounded-xl py-3 items-center active:opacity-80"
-                >
-                  <Crown size={18} color="#fff" />
-                  <Text className="text-white font-bold text-sm mt-1">Add Executive</Text>
-                </Pressable>
-                <Pressable
-                  onPress={() => setActiveTab('apprentices')}
-                  className="flex-1 bg-purple-500 rounded-xl py-3 items-center active:opacity-80"
-                >
-                  <GraduationCap size={18} color="#fff" />
-                  <Text className="text-white font-bold text-sm mt-1">Add Apprentice</Text>
-                </Pressable>
+              {/* Quick Actions - Add More People */}
+              <View className="bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-900/10 dark:to-purple-900/10 rounded-2xl p-4 border-2 border-dashed border-gray-300 dark:border-slate-700">
+                <Text className="text-gray-900 dark:text-white font-bold text-base mb-3">Expand Your Team</Text>
+                <Text className="text-gray-600 dark:text-slate-400 text-sm mb-4">
+                  Browse the marketplace to find executives and apprentices
+                </Text>
+                <View className="flex-row gap-3">
+                  <Pressable
+                    onPress={() => setActiveTab('executives')}
+                    className="flex-1 bg-emerald-500 rounded-xl py-3 items-center active:opacity-80"
+                  >
+                    <Crown size={18} color="#fff" />
+                    <Text className="text-white font-bold text-sm mt-1">Add Executive</Text>
+                  </Pressable>
+                  <Pressable
+                    onPress={() => setActiveTab('apprentices')}
+                    className="flex-1 bg-purple-500 rounded-xl py-3 items-center active:opacity-80"
+                  >
+                    <GraduationCap size={18} color="#fff" />
+                    <Text className="text-white font-bold text-sm mt-1">Add Apprentice</Text>
+                  </Pressable>
+                </View>
               </View>
             </View>
           </View>

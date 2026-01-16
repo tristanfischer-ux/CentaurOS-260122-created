@@ -55,6 +55,13 @@ The app has been completely restructured into 6 intuitive tabs following a natur
    - Quick access to Settings
 
 2. **Who** - People Management
+   - **Weekly Resource Pool Preview** - Glanceable capacity status:
+     - Shows at top of Current Team tab
+     - Total weekly capacity, used capacity, remaining capacity
+     - Visual status indicator (Healthy/High Utilization/Overloaded)
+     - Color-coded progress bar
+     - Tap to navigate to full utilization breakdown
+     - Answers: "Are we overloaded this week or not?"
    - **Current Team Tab** - View your existing team:
      - Founders with ACTIVE status badges
      - Fractional Executives marked as ENGAGED
