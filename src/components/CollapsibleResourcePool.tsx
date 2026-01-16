@@ -143,14 +143,14 @@ export function CollapsibleResourcePool({ selectedPersonId, onPersonSelect }: Co
         animatedStyle,
         {
           position: 'absolute',
-          top: 0,
+          bottom: 0,
           left: 0,
           right: 0,
           backgroundColor: '#ffffff',
-          borderBottomWidth: 2,
-          borderBottomColor: '#e5e7eb',
+          borderTopWidth: 2,
+          borderTopColor: '#e5e7eb',
           shadowColor: '#000',
-          shadowOffset: { width: 0, height: 4 },
+          shadowOffset: { width: 0, height: -4 },
           shadowOpacity: 0.1,
           shadowRadius: 8,
           elevation: 10,
@@ -189,9 +189,9 @@ export function CollapsibleResourcePool({ selectedPersonId, onPersonSelect }: Co
           )}
           <View className="w-6 h-6 bg-gray-100 dark:bg-slate-800 rounded-full items-center justify-center">
             {isExpanded ? (
-              <ChevronUp size={16} color="#6b7280" />
-            ) : (
               <ChevronDown size={16} color="#6b7280" />
+            ) : (
+              <ChevronUp size={16} color="#6b7280" />
             )}
           </View>
         </View>
@@ -380,7 +380,7 @@ export function CollapsibleResourcePool({ selectedPersonId, onPersonSelect }: Co
 
       {/* Collapsed State Hint */}
       {!isExpanded && (
-        <View className="absolute top-full mt-1 left-0 right-0 items-center">
+        <View className="absolute bottom-1 left-0 right-0 items-center">
           <View className="w-12 h-1 bg-gray-300 dark:bg-slate-600 rounded-full" />
         </View>
       )}

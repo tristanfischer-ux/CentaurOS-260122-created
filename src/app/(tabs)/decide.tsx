@@ -1617,7 +1617,7 @@ export default function DecideScreen() {
       />
 
       {/* SECTION 2: SCROLLABLE TASK QUEUE */}
-      <ScrollView className="flex-1 px-5" contentContainerStyle={{ paddingTop: 68, paddingBottom: 16 }}>
+      <ScrollView className="flex-1 px-5" contentContainerStyle={{ paddingTop: 16, paddingBottom: 68 }}>
         {/* Company Aim Banner */}
         {currentWorkspace && (
           <CompanyAimBanner
