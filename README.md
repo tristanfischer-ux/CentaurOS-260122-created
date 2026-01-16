@@ -15,7 +15,58 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
 
 ## 🔄 Recent Updates (Jan 2026)
 
-### Collapsible Resource Pool on Decide Tab (Latest)
+### New Tab Structure (Latest)
+The app has been completely restructured into 6 intuitive tabs following a natural workflow:
+
+1. **Home** - Mission Control Dashboard
+   - Summary of all key metrics at a glance
+   - Financial health (runway, cash, burn rate)
+   - Team utilization overview
+   - Active/blocked task counts
+   - Quick access to Settings
+
+2. **Who** - People Management
+   - Full team overview (Founders, Executives, Apprentices)
+   - Team member cards with capacity and utilization
+   - Performance modifiers display (Team Leadership, Collaboration, AI Proficiency)
+   - **Full Recruitment System**:
+     - Browse and hire fractional executives
+     - Browse and hire apprentices
+     - Talent scoring algorithm with match percentage
+     - Filter by function, experience, availability
+     - Shortlist functionality
+     - Detailed candidate profiles
+
+3. **What** - Task Execution
+   - Task list organized by status (In Progress, Queued, Blocked, Completed)
+   - Create new tasks with estimated TUs
+   - Allocate team members to tasks
+   - Start, block, complete, and unblock tasks
+   - Collapsible Resource Pool at bottom
+   - Quick actions on task cards
+
+4. **Why** - Strategic Planning
+   - Company Aim definition (mission statement)
+   - OKRs (Objectives & Key Results) by function
+   - Progress tracking with visual indicators
+   - AI-generated Business Improvements
+   - Filter objectives by business function
+
+5. **Tools** - Suppliers & AI
+   - Supplier engagement tracking (Quote → PO → Production → Delivery)
+   - AI Agent management and deployment
+   - AI Tools marketplace with productivity multipliers
+   - Spend tracking across suppliers and AI
+   - Contact information for suppliers
+
+6. **Performance** - Reports & Metrics
+   - Team utilization and capacity overview
+   - Task completion rates and velocity
+   - Financial reports (burn, runway, cash flow)
+   - Individual performance metrics
+   - Historical trends
+
+### Collapsible Resource Pool on Decide Tab
 - **Dock at Bottom**: Weekly Resource Pool now docks at the bottom of the decide screen
   - **Collapsed State**: Shows a compact tab with team count, available TU, and status indicators
   - **Expanded State**: Fills 50% of screen height with full resource pool view

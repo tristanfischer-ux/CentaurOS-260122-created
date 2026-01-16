@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { Tabs, router } from 'expo-router';
-import { Home, Lightbulb, PlayCircle, BarChart3, Factory, Users, Settings } from 'lucide-react-native';
+import { Home, Users, CheckSquare, Target, Wrench, BarChart3, Settings } from 'lucide-react-native';
 import { useColorScheme } from '@/lib/useColorScheme';
 import { useIsAuthenticated, useCurrentWorkspace, useAppStore } from '@/lib/state/app-store';
 
@@ -78,7 +78,7 @@ export default function TabLayout() {
         headerTintColor: colorScheme === 'dark' ? '#ffffff' : '#000000',
       }}
     >
-      {/* Home - Dashboard */}
+      {/* Home - Summary Dashboard */}
       <Tabs.Screen
         name="index"
         options={{
@@ -88,57 +88,87 @@ export default function TabLayout() {
         }}
       />
 
-      {/* Decide - Strategy/Founders (OKRs + Team Structure) */}
+      {/* Who - People Management (Founders, Execs, Apprentices + Recruitment) */}
       <Tabs.Screen
-        name="decide"
+        name="who"
         options={{
-          title: 'Decide',
-          headerShown: false,
-          tabBarIcon: ({ color }) => <TabBarIcon Icon={Lightbulb} color={color} />,
-        }}
-      />
-
-      {/* Do - Execution/Apprentices (Work/Tasks) */}
-      <Tabs.Screen
-        name="do"
-        options={{
-          title: 'Do',
-          headerShown: false,
-          tabBarIcon: ({ color }) => <TabBarIcon Icon={PlayCircle} color={color} />,
-        }}
-      />
-
-      {/* Evaluate - Review/Execs */}
-      <Tabs.Screen
-        name="evaluate"
-        options={{
-          title: 'Evaluate',
-          headerShown: false,
-          tabBarIcon: ({ color }) => <TabBarIcon Icon={BarChart3} color={color} />,
-        }}
-      />
-
-      {/* Make - Manufacturing (Suppliers + AI) */}
-      <Tabs.Screen
-        name="make"
-        options={{
-          title: 'Make',
-          headerShown: false,
-          tabBarIcon: ({ color }) => <TabBarIcon Icon={Factory} color={color} />,
-        }}
-      />
-
-      {/* Hub - Intelligence + Recommendations */}
-      <Tabs.Screen
-        name="hub"
-        options={{
-          title: 'Hub',
+          title: 'Who',
           headerShown: false,
           tabBarIcon: ({ color }) => <TabBarIcon Icon={Users} color={color} />,
         }}
       />
 
-      {/* Keep old community as backup */}
+      {/* What - Task Execution (Tasks, Gantt, Allocations) */}
+      <Tabs.Screen
+        name="what"
+        options={{
+          title: 'What',
+          headerShown: false,
+          tabBarIcon: ({ color }) => <TabBarIcon Icon={CheckSquare} color={color} />,
+        }}
+      />
+
+      {/* Why - Strategic Planning (OKRs, Company Objectives) */}
+      <Tabs.Screen
+        name="why"
+        options={{
+          title: 'Why',
+          headerShown: false,
+          tabBarIcon: ({ color }) => <TabBarIcon Icon={Target} color={color} />,
+        }}
+      />
+
+      {/* Tools - Suppliers & AI */}
+      <Tabs.Screen
+        name="tools"
+        options={{
+          title: 'Tools',
+          headerShown: false,
+          tabBarIcon: ({ color }) => <TabBarIcon Icon={Wrench} color={color} />,
+        }}
+      />
+
+      {/* Performance - Reports & Metrics */}
+      <Tabs.Screen
+        name="performance"
+        options={{
+          title: 'Performance',
+          headerShown: false,
+          tabBarIcon: ({ color }) => <TabBarIcon Icon={BarChart3} color={color} />,
+        }}
+      />
+
+      {/* Hidden legacy tabs - keep for routing but hide from tab bar */}
+      <Tabs.Screen
+        name="decide"
+        options={{
+          href: null, // Hide from tabs
+        }}
+      />
+      <Tabs.Screen
+        name="do"
+        options={{
+          href: null, // Hide from tabs
+        }}
+      />
+      <Tabs.Screen
+        name="evaluate"
+        options={{
+          href: null, // Hide from tabs
+        }}
+      />
+      <Tabs.Screen
+        name="make"
+        options={{
+          href: null, // Hide from tabs
+        }}
+      />
+      <Tabs.Screen
+        name="hub"
+        options={{
+          href: null, // Hide from tabs
+        }}
+      />
       <Tabs.Screen
         name="community"
         options={{
@@ -150,9 +180,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="settings"
         options={{
-          title: 'Settings',
-          headerShown: false,
-          tabBarIcon: ({ color }) => <TabBarIcon Icon={Settings} color={color} />,
+          href: null, // Hide from main tabs - accessible from Home
         }}
       />
     </Tabs>

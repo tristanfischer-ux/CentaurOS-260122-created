@@ -37,6 +37,8 @@ import {
   Play,
   UserPlus,
   Briefcase,
+  Settings,
+  Wrench,
 } from 'lucide-react-native';
 
 // Stores
@@ -263,7 +265,15 @@ export default function MissionControlHome() {
               Mission Control
             </Text>
           </View>
-          <HelpButton onPress={() => setShowHelp(true)} />
+          <View className="flex-row items-center gap-2">
+            <Pressable
+              onPress={() => router.push('/settings')}
+              className="bg-white/20 p-2 rounded-full"
+            >
+              <Settings size={18} color="white" />
+            </Pressable>
+            <HelpButton onPress={() => setShowHelp(true)} />
+          </View>
         </View>
       </LinearGradient>
 
