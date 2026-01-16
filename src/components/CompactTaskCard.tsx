@@ -34,11 +34,13 @@ const getInitials = (name: string) => {
 
 export function CompactTaskCard({
   task,
-  assignedMembers = [],
+  assignedMembers: assignedMembersProp,
   onPress,
   onFullDetailPress,
   isSelected
 }: CompactTaskCardProps) {
+  // Ensure assignedMembers is always an array, even if undefined is passed
+  const assignedMembers = assignedMembersProp ?? [];
   const [isExpanded, setIsExpanded] = useState(false);
   const getSquadsByTask = useSquadStore(s => s.getSquadsByTask);
 
