@@ -8,6 +8,7 @@ import { useState, useMemo, useEffect } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { FadeInDown, FadeInRight, useAnimatedStyle, withSpring, useSharedValue } from 'react-native-reanimated';
+import { router } from 'expo-router';
 import {
   Users,
   Crown,
@@ -35,6 +36,7 @@ import {
   HelpCircle,
   CheckCircle2,
   AlertCircle,
+  AlertTriangle,
   Calendar,
   UsersRound,
 } from 'lucide-react-native';
@@ -1043,6 +1045,100 @@ export default function WhoScreen() {
         {/* Team Tab */}
         {activeTab === 'team' && (
           <View>
+            {/* Weekly Resource Pool Preview */}
+            <Pressable
+              onPress={() => router.push('/utilization' as any)}
+              className="bg-white dark:bg-slate-800 rounded-xl p-4 mb-6"
+              style={{
+                borderLeftWidth: 4,
+                borderLeftColor: resourcePoolTotals.utilizationPercent >= 100
+                  ? '#ef4444'
+                  : resourcePoolTotals.utilizationPercent >= 80
+                  ? '#f59e0b'
+                  : '#10b981',
+              }}
+            >
+              <View className="flex-row items-center justify-between mb-3">
+                <View className="flex-row items-center gap-2">
+                  {resourcePoolTotals.utilizationPercent >= 100 ? (
+                    <AlertTriangle size={20} color="#ef4444" />
+                  ) : resourcePoolTotals.utilizationPercent >= 80 ? (
+                    <TrendingUp size={20} color="#f59e0b" />
+                  ) : (
+                    <CheckCircle2 size={20} color="#10b981" />
+                  )}
+                  <Text className="text-slate-900 dark:text-white font-bold text-base">
+                    Weekly Resource Pool
+                  </Text>
+                </View>
+                <ChevronRight size={18} color="#64748b" />
+              </View>
+
+              <View className="flex-row items-center justify-between mb-3">
+                <Text
+                  className={`text-4xl font-bold ${
+                    resourcePoolTotals.utilizationPercent >= 100
+                      ? 'text-red-600 dark:text-red-400'
+                      : resourcePoolTotals.utilizationPercent >= 80
+                      ? 'text-orange-600 dark:text-orange-400'
+                      : 'text-emerald-600 dark:text-emerald-400'
+                  }`}
+                >
+                  {Math.round(resourcePoolTotals.utilizationPercent)}%
+                </Text>
+                <View className="items-end">
+                  <Text className="text-slate-500 dark:text-slate-400 text-xs mb-1">
+                    {resourcePoolTotals.utilizationPercent >= 100
+                      ? 'Overloaded'
+                      : resourcePoolTotals.utilizationPercent >= 80
+                      ? 'High Utilization'
+                      : 'Capacity Available'}
+                  </Text>
+                  <Text className="text-slate-900 dark:text-white font-semibold">
+                    {resourcePoolTotals.available} TU Remaining
+                  </Text>
+                </View>
+              </View>
+
+              {/* Progress bar */}
+              <View className="h-2 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden mb-3">
+                <View
+                  className="h-full rounded-full"
+                  style={{
+                    width: `${Math.min(resourcePoolTotals.utilizationPercent, 100)}%`,
+                    backgroundColor:
+                      resourcePoolTotals.utilizationPercent >= 100
+                        ? '#ef4444'
+                        : resourcePoolTotals.utilizationPercent >= 80
+                        ? '#f59e0b'
+                        : '#10b981',
+                  }}
+                />
+              </View>
+
+              {/* Stats row */}
+              <View className="flex-row justify-between">
+                <View>
+                  <Text className="text-slate-500 dark:text-slate-400 text-xs">Total Capacity</Text>
+                  <Text className="text-slate-900 dark:text-white font-semibold">
+                    {resourcePoolTotals.total} TU
+                  </Text>
+                </View>
+                <View>
+                  <Text className="text-slate-500 dark:text-slate-400 text-xs">Used</Text>
+                  <Text className="text-slate-900 dark:text-white font-semibold">
+                    {resourcePoolTotals.allocated} TU
+                  </Text>
+                </View>
+                <View>
+                  <Text className="text-slate-500 dark:text-slate-400 text-xs">Available</Text>
+                  <Text className="text-emerald-600 dark:text-emerald-400 font-semibold">
+                    {resourcePoolTotals.available} TU
+                  </Text>
+                </View>
+              </View>
+            </Pressable>
+
             {/* Pending Requests (if any) */}
             {pendingRequests.length > 0 && isFounder && (
               <View className="mb-6">
