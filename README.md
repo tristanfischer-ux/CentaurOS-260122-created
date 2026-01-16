@@ -15,7 +15,67 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
 
 ## 🔄 Recent Updates (Jan 2026)
 
-### Task Suggestions in What Tab - COMPLETE! (Latest) ✨
+### Enhanced Why Tab with Strategic Insights - COMPLETE! (Latest) 📊
+**Strategic planning supercharged:** Rich insights, metrics, and actionable recommendations!
+
+**What Was Done:**
+- ✅ Added Strategic Health Dashboard with 4 key metrics
+- ✅ Integrated Recent Decisions tracking with task creation visibility
+- ✅ Built intelligent Strategic Recommendations engine
+- ✅ Added Task-to-OKR linkage analytics
+- ✅ Implemented Completion Velocity tracking (30-day window)
+- ✅ Created contextual action alerts for at-risk objectives
+
+**New Content Sections:**
+
+1. **Strategic Health Dashboard** (4 metrics grid):
+   - **Task Linkage**: Shows % of tasks linked to OKRs + ratio (e.g., "45 / 120 tasks linked")
+   - **Completion Velocity**: Tasks completed in last 30 days
+   - **Team Size**: Active team members count
+   - **At Risk**: Number of objectives needing attention (at-risk + off-track)
+
+2. **Recent Strategic Decisions**:
+   - Shows last 3 decisions made by founders
+   - Displays chosen option and decision date
+   - Shows number of tasks created from each decision
+   - Links decisions to tactical execution
+
+3. **Smart Recommendations** (contextual):
+   - **Low Linkage Alert**: Appears when <50% of tasks are linked to OKRs
+     - "Only 35% of your tasks are linked to OKRs. Consider linking tasks to objectives..."
+   - **At-Risk Alert**: Appears when objectives are off-track
+     - "3 objectives are at risk or off track. Review and reallocate resources..."
+
+**Visual Design:**
+- 2x2 metric cards with icons and color coding
+- Decision cards with left purple border accent
+- Amber warning cards for recommendations
+- Red alert cards for action-required items
+- Dark mode support throughout
+
+**Metrics Calculated:**
+- Task-to-OKR linkage rate (real-time)
+- 30-day completion velocity
+- Active team member count
+- At-risk objective count
+- Function distribution analysis
+- Recent decision impact tracking
+
+**Benefits:**
+- **At-a-Glance Health**: See strategic alignment in seconds
+- **Action-Oriented**: Recommendations tell you exactly what to improve
+- **Decision Tracking**: Understand impact of strategic choices
+- **Velocity Insights**: Track team productivity over time
+- **Linkage Visibility**: Know how much work connects to strategy
+
+**User Experience:**
+Before: Company Aim → OKRs → AI Recommendations (sparse)
+After: Company Aim → **Strategic Health** → **Recent Decisions** → **Smart Recommendations** → OKRs → AI Recommendations (rich!)
+
+**Status:** ✅ IMPLEMENTED
+Location: `/src/app/(tabs)/why.tsx` - Enhanced strategic planning tab
+
+### Task Suggestions in What Tab - COMPLETE! ✨
 **Smart task creation:** Get suggested tasks when creating new work!
 
 **What Was Done:**

@@ -27,12 +27,21 @@ import {
   HelpCircle,
   Sparkles,
   ArrowRight,
+  Users,
+  BarChart3,
+  Clock,
+  Activity,
+  Award,
+  AlertTriangle,
+  Link as LinkIcon,
 } from 'lucide-react-native';
 import { useOKRStore, type OKR } from '@/lib/state/okr-store';
 import { useWorkPlanStore } from '@/lib/state/work-plan-store';
 import { useCurrentWorkspace, useCurrentMembership } from '@/lib/state/app-store';
 import { useCompanyAimStore } from '@/lib/state/company-aim-store';
 import { useBusinessImprovementsStore } from '@/lib/state/business-improvements-store';
+import { useDecisionsStore } from '@/lib/state/decisions-store';
+import { useOrganizationStore } from '@/lib/state/organization-store';
 import type { Function as BusinessFunction } from '@/types';
 import { HelpModal, HelpButton, type HelpContent } from '@/components/HelpModal';
 import { SettingsGearButton } from '@/components/SettingsGearButton';
@@ -84,6 +93,8 @@ export default function WhyScreen() {
   const addOKR = useOKRStore(s => s.addOKR);
   const getAimByWorkspace = useCompanyAimStore(s => s.getAimByWorkspace);
   const workPlans = useWorkPlanStore(s => s.workPlans);
+  const decisions = useDecisionsStore(s => s.decisions);
+  const members = useOrganizationStore(s => s.members);
 
   // Get company aim for current workspace
   const companyAimData = currentWorkspace ? getAimByWorkspace(currentWorkspace.id) : undefined;
@@ -155,6 +166,55 @@ export default function WhyScreen() {
   const getLinkedTaskCount = (okr: OKR) => {
     return workPlans.filter(wp => wp.linkedOKRTitle === okr.title).length;
   };
+
+  // Strategic Insights Calculations
+  const strategicInsights = useMemo(() => {
+    // Task-to-OKR Linkage
+    const totalTasks = workPlans.filter(wp => wp.workspaceId === currentWorkspace?.id).length;
+    const linkedTasks = workPlans.filter(wp => wp.linkedOKRTitle && wp.workspaceId === currentWorkspace?.id).length;
+    const linkageRate = totalTasks > 0 ? Math.round((linkedTasks / totalTasks) * 100) : 0;
+
+    // Recent Decisions
+    const recentDecisions = decisions
+      .filter(d => d.workspaceId === currentWorkspace?.id && d.status === 'decided')
+      .sort((a, b) => new Date(b.decidedAt || 0).getTime() - new Date(a.decidedAt || 0).getTime())
+      .slice(0, 3);
+
+    // Active Team Members
+    const activeMembers = members.filter(m =>
+      m.workspaceId === currentWorkspace?.id &&
+      m.status === 'active'
+    ).length;
+
+    // Function Distribution
+    const functionDistribution: Record<string, number> = {};
+    filteredOKRs.forEach(okr => {
+      functionDistribution[okr.function] = (functionDistribution[okr.function] || 0) + 1;
+    });
+
+    // At-Risk Items
+    const atRiskCount = okrsByStatus['at-risk'].length + okrsByStatus['off-track'].length;
+
+    // Completion Velocity (tasks completed in last 30 days)
+    const thirtyDaysAgo = Date.now() - (30 * 24 * 60 * 60 * 1000);
+    const recentlyCompleted = workPlans.filter(wp =>
+      wp.status === 'completed' &&
+      wp.workspaceId === currentWorkspace?.id &&
+      wp.auditRecord?.completedAt &&
+      new Date(wp.auditRecord.completedAt).getTime() > thirtyDaysAgo
+    ).length;
+
+    return {
+      totalTasks,
+      linkedTasks,
+      linkageRate,
+      recentDecisions,
+      activeMembers,
+      functionDistribution,
+      atRiskCount,
+      recentlyCompleted,
+    };
+  }, [workPlans, decisions, members, filteredOKRs, okrsByStatus, currentWorkspace]);
 
   const toggleOKRExpanded = (id: string) => {
     setExpandedOKRs(prev => {
@@ -493,6 +553,148 @@ export default function WhyScreen() {
             </View>
           </LinearGradient>
         </Pressable>
+
+        {/* Strategic Health Dashboard */}
+        <View className="mb-6">
+          <Text className="text-slate-900 dark:text-white font-semibold text-base mb-3">
+            Strategic Health
+          </Text>
+          <View className="flex-row gap-3 mb-3">
+            {/* Task-to-OKR Linkage */}
+            <View className="flex-1 bg-white dark:bg-slate-800 rounded-xl p-4">
+              <View className="flex-row items-center gap-2 mb-2">
+                <LinkIcon size={16} color="#8b5cf6" />
+                <Text className="text-slate-600 dark:text-slate-400 text-xs font-medium">
+                  Task Linkage
+                </Text>
+              </View>
+              <Text className="text-slate-900 dark:text-white font-bold text-2xl">
+                {strategicInsights.linkageRate}%
+              </Text>
+              <Text className="text-slate-500 dark:text-slate-400 text-xs mt-1">
+                {strategicInsights.linkedTasks}/{strategicInsights.totalTasks} tasks linked
+              </Text>
+            </View>
+
+            {/* Completion Velocity */}
+            <View className="flex-1 bg-white dark:bg-slate-800 rounded-xl p-4">
+              <View className="flex-row items-center gap-2 mb-2">
+                <Activity size={16} color="#10b981" />
+                <Text className="text-slate-600 dark:text-slate-400 text-xs font-medium">
+                  Velocity
+                </Text>
+              </View>
+              <Text className="text-slate-900 dark:text-white font-bold text-2xl">
+                {strategicInsights.recentlyCompleted}
+              </Text>
+              <Text className="text-slate-500 dark:text-slate-400 text-xs mt-1">
+                tasks in 30 days
+              </Text>
+            </View>
+          </View>
+
+          <View className="flex-row gap-3">
+            {/* Team Size */}
+            <View className="flex-1 bg-white dark:bg-slate-800 rounded-xl p-4">
+              <View className="flex-row items-center gap-2 mb-2">
+                <Users size={16} color="#3b82f6" />
+                <Text className="text-slate-600 dark:text-slate-400 text-xs font-medium">
+                  Team Size
+                </Text>
+              </View>
+              <Text className="text-slate-900 dark:text-white font-bold text-2xl">
+                {strategicInsights.activeMembers}
+              </Text>
+              <Text className="text-slate-500 dark:text-slate-400 text-xs mt-1">
+                active members
+              </Text>
+            </View>
+
+            {/* At-Risk Items */}
+            <View className="flex-1 bg-white dark:bg-slate-800 rounded-xl p-4">
+              <View className="flex-row items-center gap-2 mb-2">
+                <AlertTriangle size={16} color="#ef4444" />
+                <Text className="text-slate-600 dark:text-slate-400 text-xs font-medium">
+                  At Risk
+                </Text>
+              </View>
+              <Text className="text-slate-900 dark:text-white font-bold text-2xl">
+                {strategicInsights.atRiskCount}
+              </Text>
+              <Text className="text-slate-500 dark:text-slate-400 text-xs mt-1">
+                needs attention
+              </Text>
+            </View>
+          </View>
+        </View>
+
+        {/* Recent Strategic Decisions */}
+        {strategicInsights.recentDecisions.length > 0 && (
+          <View className="mb-6">
+            <View className="flex-row items-center gap-2 mb-3">
+              <Flag size={18} color="#8b5cf6" />
+              <Text className="text-slate-900 dark:text-white font-semibold text-base">
+                Recent Decisions
+              </Text>
+            </View>
+            {strategicInsights.recentDecisions.map((decision) => (
+              <View
+                key={decision.id}
+                className="bg-white dark:bg-slate-800 rounded-xl p-4 mb-2 border-l-4 border-purple-500"
+              >
+                <Text className="text-slate-900 dark:text-white font-semibold mb-1">
+                  {decision.title}
+                </Text>
+                <Text className="text-slate-600 dark:text-slate-400 text-sm mb-2">
+                  Decision: {decision.options?.find(o => o.id === decision.decidedOption)?.label || 'Unknown'}
+                </Text>
+                <View className="flex-row items-center gap-2">
+                  <CheckCircle2 size={12} color="#10b981" />
+                  <Text className="text-slate-500 dark:text-slate-400 text-xs">
+                    Decided {decision.decidedAt ? new Date(decision.decidedAt).toLocaleDateString() : 'recently'}
+                  </Text>
+                  {decision.relatedTaskIds && decision.relatedTaskIds.length > 0 && (
+                    <>
+                      <Text className="text-slate-400 dark:text-slate-600">•</Text>
+                      <Text className="text-slate-500 dark:text-slate-400 text-xs">
+                        {decision.relatedTaskIds.length} {decision.relatedTaskIds.length === 1 ? 'task' : 'tasks'} created
+                      </Text>
+                    </>
+                  )}
+                </View>
+              </View>
+            ))}
+          </View>
+        )}
+
+        {/* Strategic Recommendations */}
+        {strategicInsights.linkageRate < 50 && (
+          <View className="bg-amber-50 dark:bg-amber-900/20 rounded-xl p-4 mb-6 border-l-4 border-amber-500">
+            <View className="flex-row items-center gap-2 mb-2">
+              <Lightbulb size={18} color="#f59e0b" />
+              <Text className="text-amber-900 dark:text-amber-200 font-semibold">
+                Recommendation
+              </Text>
+            </View>
+            <Text className="text-amber-800 dark:text-amber-300 text-sm">
+              Only {strategicInsights.linkageRate}% of your tasks are linked to OKRs. Consider linking tasks to objectives to improve strategic alignment and track progress more effectively.
+            </Text>
+          </View>
+        )}
+
+        {strategicInsights.atRiskCount > 0 && filteredOKRs.length > 0 && (
+          <View className="bg-red-50 dark:bg-red-900/20 rounded-xl p-4 mb-6 border-l-4 border-red-500">
+            <View className="flex-row items-center gap-2 mb-2">
+              <AlertCircle size={18} color="#ef4444" />
+              <Text className="text-red-900 dark:text-red-200 font-semibold">
+                Action Required
+              </Text>
+            </View>
+            <Text className="text-red-800 dark:text-red-300 text-sm">
+              {strategicInsights.atRiskCount} {strategicInsights.atRiskCount === 1 ? 'objective is' : 'objectives are'} at risk or off track. Review these objectives and consider reallocating resources or adjusting timelines.
+            </Text>
+          </View>
+        )}
 
         {/* Function Filter */}
         <View className="mb-4">
