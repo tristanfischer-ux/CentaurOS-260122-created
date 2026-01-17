@@ -99,6 +99,111 @@ This ensures sign-up works regardless of which approach you use.
 
 ---
 
+## Issue 3: Workspace Creation RLS Policy
+
+**Error:** `new row violates row-level security policy for table "workspaces"`
+
+### The Problem
+
+When signing up, the app tries to create a workspace in the `workspaces` table, but the RLS policy blocks INSERT operations.
+
+### Solution: Allow Authenticated Users to Create Workspaces
+
+**In Supabase Dashboard → SQL Editor, run:**
+
+```sql
+-- Allow authenticated users to create workspaces
+CREATE POLICY "Authenticated users can create workspaces"
+ON workspaces FOR INSERT
+TO authenticated
+WITH CHECK (true);
+
+-- Allow users to view workspaces they're members of
+CREATE POLICY "Users can view workspaces they belong to"
+ON workspaces FOR SELECT
+USING (
+  EXISTS (
+    SELECT 1 FROM memberships
+    WHERE memberships.workspace_id = workspaces.id
+    AND memberships.user_id = auth.uid()
+  )
+);
+
+-- Allow workspace updates by members
+CREATE POLICY "Members can update workspaces"
+ON workspaces FOR UPDATE
+USING (
+  EXISTS (
+    SELECT 1 FROM memberships
+    WHERE memberships.workspace_id = workspaces.id
+    AND memberships.user_id = auth.uid()
+  )
+);
+```
+
+### Current Workaround in Code
+
+The app now creates a local workspace if database insertion fails:
+1. Tries to create workspace in Supabase
+2. If RLS blocks it, creates a local workspace object
+3. User can still use the app with local data
+4. Data won't persist until RLS policies are fixed
+
+---
+
+## All RLS Policies Quick Setup
+
+Run this complete SQL script to set up all necessary RLS policies:
+
+```sql
+-- =============================================
+-- PROFILES TABLE
+-- =============================================
+CREATE POLICY "Users can view their own profile"
+ON profiles FOR SELECT
+USING (auth.uid() = id);
+
+CREATE POLICY "Users can update their own profile"
+ON profiles FOR UPDATE
+USING (auth.uid() = id)
+WITH CHECK (auth.uid() = id);
+
+CREATE POLICY "Users can insert their own profile"
+ON profiles FOR INSERT
+WITH CHECK (auth.uid() = id);
+
+-- =============================================
+-- WORKSPACES TABLE
+-- =============================================
+CREATE POLICY "Authenticated users can create workspaces"
+ON workspaces FOR INSERT
+TO authenticated
+WITH CHECK (true);
+
+CREATE POLICY "Users can view workspaces they belong to"
+ON workspaces FOR SELECT
+USING (
+  EXISTS (
+    SELECT 1 FROM memberships
+    WHERE memberships.workspace_id = workspaces.id
+    AND memberships.user_id = auth.uid()
+  )
+);
+
+-- =============================================
+-- MEMBERSHIPS TABLE
+-- =============================================
+CREATE POLICY "Users can view their own memberships"
+ON memberships FOR SELECT
+USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can create their own memberships"
+ON memberships FOR INSERT
+WITH CHECK (auth.uid() = user_id);
+```
+
+---
+
 ### Step 1: Go to Supabase Dashboard
 
 1. Open your Supabase project dashboard

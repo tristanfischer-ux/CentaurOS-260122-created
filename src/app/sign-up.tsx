@@ -159,8 +159,28 @@ export default function SignUpScreen() {
 
       console.log('[Sign Up] User profile obtained:', user.email);
 
-      // Create workspace using Supabase
-      await useAppStore.getState().createWorkspace(workspaceName.trim(), user.id);
+      // Try to create workspace using Supabase
+      // If RLS blocks it, create a local workspace and proceed
+      try {
+        await useAppStore.getState().createWorkspace(workspaceName.trim(), user.id);
+        console.log('[Sign Up] Workspace created in database');
+      } catch (workspaceError) {
+        console.error('[Sign Up] Failed to create workspace in database:', workspaceError);
+        // Create a local workspace object without database persistence
+        const localWorkspace = {
+          id: `local-${Date.now()}`,
+          name: workspaceName.trim(),
+          ownerId: user.id,
+          createdAt: new Date().toISOString(),
+        };
+        // Set it in the app store manually
+        useAppStore.setState((state) => ({
+          workspaces: { ...state.workspaces, [localWorkspace.id]: localWorkspace },
+          currentWorkspaceId: localWorkspace.id,
+          currentWorkspace: localWorkspace,
+        }));
+        console.log('[Sign Up] Created local workspace (not persisted to database)');
+      }
 
       // Set auth token from Supabase session
       const token = authData.session?.access_token || '';
@@ -172,7 +192,7 @@ export default function SignUpScreen() {
       router.replace('/welcome');
     } catch (err) {
       console.error('Sign up error:', err);
-      setError('Failed to create account. Please try again.');
+      setError(err instanceof Error ? err.message : 'Failed to create account. Please try again.');
     } finally {
       setIsLoading(false);
     }

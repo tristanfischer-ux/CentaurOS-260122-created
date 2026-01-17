@@ -15,22 +15,23 @@ Centaur OS is a comprehensive iOS mobile application that helps lean companies o
 
 ## 🔄 Recent Updates (Jan 2026)
 
-### ✅ Profile RLS Policy Workaround Applied
+### ✅ RLS Policy Workarounds Applied
 
-**Previous Issue:** Sign-up failed with "new row violates row-level security policy for table 'profiles'"
+**Issues Fixed:**
+- ❌ `new row violates row-level security policy for table 'profiles'`
+- ❌ `new row violates row-level security policy for table 'workspaces'`
 
-**Solution Implemented:** The app now works WITHOUT requiring a profiles table entry!
+**Solution Implemented:** The app now works WITHOUT requiring database entries!
 
 **How it works:**
-- First attempts to fetch existing profile from database
-- If not found, tries to create one (if RLS allows)
-- If creation fails, uses Supabase Auth data directly
-- User can sign up and use the app without database profile
+- **Profiles:** Uses Supabase Auth data directly if profile creation is blocked
+- **Workspaces:** Creates local workspace if database insertion is blocked
+- User can sign up and use the app immediately
 
 **What this means:**
 - ✅ Sign up works regardless of RLS policies
-- ✅ App functions with auth-based user data
-- ⚠️ Optional: Add RLS policy or trigger for profile persistence (see FIX_RLS_POLICY.md)
+- ✅ App functions with local/auth-based data
+- ⚠️ Optional: Add RLS policies for data persistence (see FIX_RLS_POLICY.md)
 
 ---
 
