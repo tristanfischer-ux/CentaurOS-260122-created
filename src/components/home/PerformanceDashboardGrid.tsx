@@ -161,6 +161,10 @@ export function PerformanceDashboardGrid() {
 
   // Calculate KPI data from role-filtered workplans
   const kpiCards = useMemo<KPICardData[]>(() => {
+    // Use test workspace if no current workspace selected
+    const TEST_WORKSPACE_ID = '00000000-0000-0000-0000-000000000001';
+    const workspaceId = currentWorkspace?.id || TEST_WORKSPACE_ID;
+
     // 1. Project Health
     const completedTasks = roleFilteredWorkPlans.filter((wp) => wp.status === 'completed').length;
     const inProgressTasks = roleFilteredWorkPlans.filter((wp) => wp.status === 'in-progress').length;
@@ -224,9 +228,7 @@ export function PerformanceDashboardGrid() {
       utilizationPercent >= 100 ? 'critical' : utilizationPercent >= 85 ? 'warning' : 'healthy';
 
     // 4. Supplier Performance - using actual engagement data
-    const workspaceEngagements = currentWorkspace
-      ? supplierEngagements.filter(e => e.workspaceId === currentWorkspace.id)
-      : [];
+    const workspaceEngagements = supplierEngagements.filter(e => e.workspaceId === workspaceId);
     const activeEngagementCount = workspaceEngagements.filter(
       (e) => e.status === 'in_progress' || e.status === 'planning'
     ).length;
@@ -244,10 +246,10 @@ export function PerformanceDashboardGrid() {
       okrPercent < 50 ? 'critical' : okrPercent < 75 ? 'warning' : 'healthy';
 
     // 6. Cash Flow / Budget
-    const cashBalance = currentWorkspace ? getCashBalance(currentWorkspace.id) : 0;
-    const weeklyBurn = currentWorkspace ? getWeeklyBurn(currentWorkspace.id) : 0;
+    const cashBalance = getCashBalance(workspaceId);
+    const weeklyBurn = getWeeklyBurn(workspaceId);
     const monthlyBurn = weeklyBurn * 4.33;
-    const monthlyRevenue = currentWorkspace ? getMonthlyRevenue(currentWorkspace.id) : 0;
+    const monthlyRevenue = getMonthlyRevenue(workspaceId);
     const netCashFlow = monthlyRevenue - monthlyBurn;
     const runway = netCashFlow >= 0 ? 999 : cashBalance / Math.abs(netCashFlow);
     const cashHealth: HealthStatus = runway < 6 ? 'critical' : runway < 12 ? 'warning' : 'healthy';
