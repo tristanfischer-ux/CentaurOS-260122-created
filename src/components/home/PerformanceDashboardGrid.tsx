@@ -165,6 +165,9 @@ export function PerformanceDashboardGrid() {
     const TEST_WORKSPACE_ID = '00000000-0000-0000-0000-000000000001';
     const workspaceId = currentWorkspace?.id || TEST_WORKSPACE_ID;
 
+    console.log('[PerformanceDashboard] currentWorkspace:', currentWorkspace);
+    console.log('[PerformanceDashboard] Using workspaceId:', workspaceId);
+
     // 1. Project Health
     const completedTasks = roleFilteredWorkPlans.filter((wp) => wp.status === 'completed').length;
     const inProgressTasks = roleFilteredWorkPlans.filter((wp) => wp.status === 'in-progress').length;
@@ -253,6 +256,14 @@ export function PerformanceDashboardGrid() {
     const netCashFlow = monthlyRevenue - monthlyBurn;
     const runway = netCashFlow >= 0 ? 999 : cashBalance / Math.abs(netCashFlow);
     const cashHealth: HealthStatus = runway < 6 ? 'critical' : runway < 12 ? 'warning' : 'healthy';
+
+    console.log('[PerformanceDashboard] Financial metrics:', {
+      workspaceId,
+      cashBalance,
+      weeklyBurn,
+      monthlyRevenue,
+      runway,
+    });
 
     return [
       {
