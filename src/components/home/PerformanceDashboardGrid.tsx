@@ -277,7 +277,7 @@ export function PerformanceDashboardGrid() {
         health: completedThisWeek >= 2 ? 'healthy' : 'warning',
         icon: Zap,
         iconColor: '#f59e0b',
-        onPress: () => router.push('/analytics'),
+        onPress: () => router.push('/(tabs)/what'),
       },
       {
         id: 'resource-efficiency',
