@@ -51,7 +51,7 @@ Centaur OS is a comprehensive iOS mobile application that helps lean companies o
 
 **Existing Tables Used:**
 - **profiles**: User profiles (id, email, avatar_url, theme_mode) - **Note:** No `name` column, names derived from email
-- **workspaces**: Companies/organizations
+- **workspaces**: Companies/organizations (id, name, created_at) - **Note:** No `owner_id` column, ownership tracked via memberships
 - **memberships**: User roles in workspaces (Founder, Exec, Apprentice)
 - **team_members**: People with capacity, cost, AI tools
 - **okrs**: OKRs with objectives as JSONB array field

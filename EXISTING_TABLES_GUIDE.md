@@ -56,6 +56,9 @@ await userService.update(userId, {
 ```
 
 ### workspaceService
+
+**Note:** The `workspaces` table does NOT have an `owner_id` column. Ownership is tracked through the `memberships` table (users with `role: 'Founder'` are owners). The table only stores: `id`, `name`, `created_at`.
+
 ```typescript
 import { workspaceService } from '@/lib/supabase-service';
 
@@ -63,12 +66,13 @@ import { workspaceService } from '@/lib/supabase-service';
 const workspaces = await workspaceService.getForUser(userId);
 
 // Create workspace (auto-creates founder membership)
+// Note: ownerId is used to create the membership, not stored in workspaces table
 const workspace = await workspaceService.create({
   name: 'My Startup',
   ownerId: userId
 });
 
-// Update workspace
+// Update workspace (can only update name)
 await workspaceService.update(workspaceId, { name: 'New Name' });
 ```
 

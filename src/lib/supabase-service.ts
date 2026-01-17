@@ -52,18 +52,24 @@ function supabaseToWorkspace(row: any): Workspace {
   return {
     id: row.id,
     name: row.name,
-    ownerId: row.owner_id,
+    ownerId: row.owner_id || '', // May not exist in table, use empty string as fallback
     createdAt: row.created_at,
   };
 }
 
 // Convert Workspace to Supabase row
+// Note: workspaces table doesn't have 'owner_id' column - only id, name, created_at
 function workspaceToSupabase(workspace: Partial<Workspace>): any {
-  return {
-    id: workspace.id,
-    name: workspace.name,
-    owner_id: workspace.ownerId,
-  };
+  const result: any = {};
+
+  if (workspace.id !== undefined) result.id = workspace.id;
+  if (workspace.name !== undefined) result.name = workspace.name;
+  // owner_id doesn't exist in table, skip it
+
+  // Remove undefined values
+  Object.keys(result).forEach(key => result[key] === undefined && delete result[key]);
+
+  return result;
 }
 
 // Convert Supabase row to Membership
