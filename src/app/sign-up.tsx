@@ -1,4 +1,4 @@
-import { View, Text, Pressable, TextInput, ActivityIndicator, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, Pressable, TextInput, ActivityIndicator, ScrollView, KeyboardAvoidingView, Platform, Alert } from 'react-native';
 import { useState, useEffect } from 'react';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Building2, Mail, User, ArrowRight, ArrowLeft, Sparkles, Rocket, Lock } from 'lucide-react-native';
@@ -121,6 +121,27 @@ export default function SignUpScreen() {
 
       if (!authData.user) {
         setError('Failed to create account. Please try again.');
+        setIsLoading(false);
+        return;
+      }
+
+      // Check if email confirmation is required
+      // If session is null but user exists, email confirmation is needed
+      if (!authData.session && authData.user.identities?.length === 0) {
+        // User already exists
+        setError('An account with this email already exists. Please sign in instead.');
+        setIsLoading(false);
+        return;
+      }
+
+      if (!authData.session) {
+        // Email confirmation required - show success message
+        setError('');
+        Alert.alert(
+          'Check Your Email',
+          'We sent you a confirmation link. Please check your email and click the link to activate your account.',
+          [{ text: 'OK', onPress: () => router.replace('/sign-in') }]
+        );
         setIsLoading(false);
         return;
       }
