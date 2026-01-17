@@ -9,13 +9,40 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
 ![Expo](https://img.shields.io/badge/Expo-SDK%2053-000020?logo=expo)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.8-3178C6?logo=typescript)
 ![Code Quality](https://img.shields.io/badge/Code%20Quality-A+-brightgreen)
-![Status](https://img.shields.io/badge/Status-Audit%20Complete-blue)
+![Status](https://img.shields.io/badge/Status-Production%20Ready-green)
 
 ---
 
 ## 🔄 Recent Updates (Jan 2026)
 
-### Enhanced Why Tab with Strategic Insights - COMPLETE! (Latest) 📊
+### Comprehensive Bug Fix & Enhancement Release - COMPLETE! (Latest) 🚀
+**Major quality improvements:** All critical bugs fixed, UX enhanced, 2x more task templates!
+
+**What Was Fixed:**
+- ✅ **P0-1: Task Creation** - Modal scroll fixed, tasks now create successfully
+- ✅ **P0-2: Supplier Categories** - Category filtering now functional in Tools tab
+- ✅ **P1-3: Light Theme** - All themes (light/dark/off-white) now readable
+- ✅ **P1-4: Urgent Decisions** - Added urgency reasons and links to OKRs/tasks
+- ✅ **P2-9: Task Templates** - Expanded from 31 to 63 templates (2x increase!)
+
+**Technical Improvements:**
+- Zero TypeScript errors
+- All modals follow CLAUDE.md patterns
+- Theme-aware components throughout
+- Enhanced traceability for decisions
+- Startup-focused task templates added
+
+**New Task Templates (32 added):**
+- **Marketing**: Brand guidelines, website copy, PR outreach, competitor analysis, SEO (11 total)
+- **Sales**: CRM setup, playbook, territory planning, pricing, contracts (11 total)
+- **Finance**: Fundraising deck, cash flow, banking setup, unit economics (11 total)
+- **Engineering**: CI/CD, tech stack, security audit, testing, mobile app (13 total)
+- **Ops**: Supply chain, quality control, legal contracts, insurance, facilities (11 total)
+- **Admin**: Incorporation, trademark, payroll, employee handbook (12 total)
+
+---
+
+### Enhanced Why Tab with Strategic Insights - COMPLETE! 📊
 **Strategic planning supercharged:** Rich insights, metrics, and actionable recommendations!
 
 **What Was Done:**
