@@ -5,6 +5,7 @@
 
 import { View, Text, Pressable, Modal, ScrollView, TextInput } from 'react-native';
 import { useState, useMemo } from 'react';
+import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import {
   AlertTriangle,
@@ -20,6 +21,7 @@ import {
   FileText,
   Users,
   Check,
+  Link as LinkIcon,
 } from 'lucide-react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useDecisionsStore, type Decision, type UrgencyLevel } from '@/lib/state/decisions-store';
@@ -65,6 +67,7 @@ interface DecisionCardProps {
 }
 
 function DecisionCard({ decision, onPress, index }: DecisionCardProps) {
+  const router = useRouter();
   const colors = URGENCY_COLORS[decision.urgency];
   const Icon = CATEGORY_ICONS[decision.category] || FileText;
   const timeRemaining = getTimeRemaining(decision.deadline);
@@ -113,10 +116,52 @@ function DecisionCard({ decision, onPress, index }: DecisionCardProps) {
             </View>
           </View>
 
+          {/* Urgency Reason */}
+          {decision.urgencyReason && (
+            <View className="flex-row items-start gap-2 mb-2 p-2 rounded-lg" style={{ backgroundColor: colors.text + '10' }}>
+              <AlertTriangle size={12} color={colors.text} style={{ marginTop: 2 }} />
+              <Text className="text-slate-700 text-xs flex-1 font-medium">
+                {decision.urgencyReason}
+              </Text>
+            </View>
+          )}
+
           {/* Question */}
           <Text className="text-slate-700 text-sm mb-2" numberOfLines={2}>
             {decision.question}
           </Text>
+
+          {/* Links to related items */}
+          {(decision.linkedOKRId || decision.linkedTaskId) && (
+            <View className="flex-row items-center gap-3 mb-2">
+              {decision.linkedOKRId && (
+                <Pressable
+                  onPress={(e) => {
+                    e.stopPropagation();
+                    router.push('/(tabs)/why');
+                  }}
+                  className="flex-row items-center gap-1 bg-blue-100 px-2 py-1 rounded active:opacity-70"
+                >
+                  <Target size={10} color="#3b82f6" />
+                  <Text className="text-blue-600 text-xs font-medium">View OKR</Text>
+                  <ChevronRight size={10} color="#3b82f6" />
+                </Pressable>
+              )}
+              {decision.linkedTaskId && (
+                <Pressable
+                  onPress={(e) => {
+                    e.stopPropagation();
+                    router.push('/(tabs)/what');
+                  }}
+                  className="flex-row items-center gap-1 bg-green-100 px-2 py-1 rounded active:opacity-70"
+                >
+                  <CheckCircle2 size={10} color="#10b981" />
+                  <Text className="text-green-600 text-xs font-medium">View Task</Text>
+                  <ChevronRight size={10} color="#10b981" />
+                </Pressable>
+              )}
+            </View>
+          )}
 
           {/* Footer */}
           <View className="flex-row items-center justify-between">

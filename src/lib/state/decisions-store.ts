@@ -18,6 +18,9 @@ export interface Decision {
   context: string;
   category: 'hiring' | 'budget' | 'strategy' | 'operations' | 'product' | 'legal';
   urgency: UrgencyLevel;
+  urgencyReason?: string; // NEW: Why is this decision urgent?
+  linkedOKRId?: string; // NEW: Link to related OKR
+  linkedTaskId?: string; // NEW: Link to related task
   deadline?: string; // ISO date string
   requiredDecisionMaker: 'founder' | 'executive' | 'team';
   options?: DecisionOption[];
@@ -76,6 +79,7 @@ const sampleDecisions: Decision[] = [
     context: 'Marketing team has proposed increasing paid acquisition budget to capitalize on seasonal demand. Current CAC is £45, target is £40.',
     category: 'budget',
     urgency: 'high',
+    urgencyReason: 'Q1 seasonal demand window closes in 2 weeks. Delaying reduces customer acquisition by 40%.',
     deadline: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(), // 2 days
     requiredDecisionMaker: 'founder',
     options: [
@@ -136,6 +140,8 @@ const sampleDecisions: Decision[] = [
     context: 'Strong candidate with React Native expertise. Would accelerate product roadmap by 40%. Current burn would increase by £13K/month.',
     category: 'hiring',
     urgency: 'critical',
+    urgencyReason: 'Candidate has 2 other offers and needs answer by tomorrow. Losing this hire delays Q1 product launch by 6 weeks.',
+    linkedTaskId: 'wp-1', // Link to existing engineering task
     deadline: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000).toISOString(), // 1 day - candidate has other offers
     requiredDecisionMaker: 'founder',
     options: [
@@ -205,6 +211,8 @@ const sampleDecisions: Decision[] = [
     context: 'Team can only complete one major feature. Analytics shows users requesting both equally.',
     category: 'product',
     urgency: 'normal',
+    urgencyReason: 'Sprint planning starts Monday. Decision needed to allocate team resources effectively.',
+    linkedOKRId: 'okr-1', // Link to Q1 product OKR
     requiredDecisionMaker: 'founder',
     options: [
       {
