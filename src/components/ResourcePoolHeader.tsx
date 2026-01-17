@@ -302,7 +302,6 @@ export function ResourcePoolHeader({ selectedPersonId, onPersonSelect }: Resourc
           setSelectedMember(null);
         }}
         member={selectedMember}
-        onNavigateToArmory={() => router.push('/armory')}
       />
     </View>
   );

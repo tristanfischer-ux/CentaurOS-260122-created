@@ -294,21 +294,6 @@ function FounderHome() {
               <ChevronRight size={14} color="#64748b" />
             </Pressable>
 
-            {/* AI Armory */}
-            <Pressable
-              onPress={() => router.push('/armory')}
-              className="flex-1 min-w-[45%] bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-3 flex-row items-center gap-2 active:opacity-70"
-            >
-              <View className="bg-amber-100 dark:bg-amber-900/30 p-2 rounded-lg">
-                <Zap size={16} color="#f59e0b" />
-              </View>
-              <View className="flex-1">
-                <Text className="text-slate-900 dark:text-white font-semibold text-sm">AI Armory</Text>
-                <Text className="text-slate-500 dark:text-slate-400 text-xs">AI tools</Text>
-              </View>
-              <ChevronRight size={14} color="#64748b" />
-            </Pressable>
-
             {/* Getting Started */}
             <Pressable
               onPress={() => router.push('/tech-tree')}

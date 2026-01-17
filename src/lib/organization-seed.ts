@@ -191,6 +191,26 @@ export interface AIAgent {
   };
 }
 
+// NEW: Advisor directory for professional services (VCs, Lawyers, Accountants, Domain Experts)
+export interface Advisor {
+  id: string;
+  name: string;
+  organization: string;
+  category: 'VC' | 'Lawyer' | 'Accountant' | 'Domain Expert';
+  specialty: string;
+  location: string;
+  contact: {
+    email?: string;
+    phone?: string;
+    website?: string;
+    linkedIn?: string;
+  };
+  description: string;
+  focusAreas: string[];
+  notableClients?: string[];
+  notes?: string;
+}
+
 // Organization structure with reporting lines
 export const ORGANIZATION_MEMBERS: OrganizationMember[] = [
   // Founders (no reports to anyone)
@@ -1454,3 +1474,210 @@ export const getTotalSupplierSpend = (): {
     remaining: total - paid,
   };
 };
+
+// Advisors Directory - Professional Services for Startups
+export const ADVISORS: Advisor[] = [
+  // VENTURE CAPITAL FIRMS
+  {
+    id: 'vc-1',
+    name: 'Lux Capital',
+    organization: 'Lux Capital',
+    category: 'VC',
+    specialty: 'Hard Tech & Deep Tech',
+    location: 'New York, NY & Menlo Park, CA',
+    contact: {
+      website: 'https://www.luxcapital.com',
+      email: 'info@luxcapital.com',
+    },
+    description: 'Leading venture capital firm focused on emerging science and technology ventures at the outermost edges of what is possible.',
+    focusAreas: ['Aerospace', 'Robotics', 'AI', 'Biotech', 'Advanced Materials'],
+    notableClients: ['SpaceX (early investor)', 'Anduril', 'Planet Labs', 'Desktop Metal'],
+    notes: 'Known for backing ambitious technical founders with world-changing ideas.',
+  },
+  {
+    id: 'vc-2',
+    name: 'DCVC',
+    organization: 'DCVC (Data Collective)',
+    category: 'VC',
+    specialty: 'Deep Tech & AI',
+    location: 'San Francisco, CA',
+    contact: {
+      website: 'https://www.dcvc.com',
+      linkedIn: 'https://www.linkedin.com/company/dcvc',
+    },
+    description: 'Invests in extraordinary founders using deep tech to transform large industries.',
+    focusAreas: ['AI/ML', 'Robotics', 'Manufacturing', 'Climate Tech', 'Healthcare Tech'],
+    notableClients: ['Anduril', 'Rigetti Computing', 'Formlabs', 'Planet Labs'],
+  },
+  {
+    id: 'vc-3',
+    name: 'Founders Fund',
+    organization: 'Founders Fund',
+    category: 'VC',
+    specialty: 'Hard Tech & Science',
+    location: 'San Francisco, CA',
+    contact: {
+      website: 'https://foundersfund.com',
+    },
+    description: 'Backs founders building revolutionary technologies. Co-founded by Peter Thiel.',
+    focusAreas: ['Aerospace', 'Biotech', 'AI', 'Advanced Computing', 'Energy'],
+    notableClients: ['SpaceX', 'Palantir', 'Stripe', 'Anduril'],
+  },
+  {
+    id: 'vc-4',
+    name: 'Khosla Ventures',
+    organization: 'Khosla Ventures',
+    category: 'VC',
+    specialty: 'Climate & Deep Tech',
+    location: 'Menlo Park, CA',
+    contact: {
+      website: 'https://www.khoslaventures.com',
+    },
+    description: 'Founded by Vinod Khosla, focuses on impactful technology and sustainable solutions.',
+    focusAreas: ['Climate Tech', 'Clean Energy', 'Manufacturing', 'Healthcare', 'AI'],
+    notableClients: ['Impossible Foods', 'Square', 'DoorDash', 'Affirm'],
+  },
+
+  // LAW FIRMS
+  {
+    id: 'law-1',
+    name: 'Wilson Sonsini Goodrich & Rosati',
+    organization: 'Wilson Sonsini',
+    category: 'Lawyer',
+    specialty: 'Startup & Tech Law',
+    location: 'Palo Alto, CA (Multiple Offices)',
+    contact: {
+      website: 'https://www.wsgr.com',
+      phone: '+1 650-493-9300',
+    },
+    description: 'Premier legal advisor to technology, life sciences, and growth enterprises worldwide.',
+    focusAreas: ['Corporate Formation', 'Venture Financing', 'M&A', 'IP Protection', 'Securities'],
+    notableClients: ['Google', 'Tesla', 'Stripe', 'Coinbase'],
+    notes: 'Gold standard for startup legal work. Offers deferred payment plans for early-stage companies.',
+  },
+  {
+    id: 'law-2',
+    name: 'Gunderson Dettmer',
+    organization: 'Gunderson Dettmer',
+    category: 'Lawyer',
+    specialty: 'Venture Capital & Startups',
+    location: 'Silicon Valley (Multiple Offices)',
+    contact: {
+      website: 'https://www.gunder.com',
+    },
+    description: 'Leading law firm for venture capital and emerging companies.',
+    focusAreas: ['Seed Financing', 'Series A-C', 'Corporate Governance', 'Stock Options', 'M&A'],
+    notableClients: ['Airbnb', 'Uber', 'Pinterest', 'Dropbox'],
+  },
+  {
+    id: 'law-3',
+    name: 'Cooley LLP',
+    organization: 'Cooley',
+    category: 'Lawyer',
+    specialty: 'Tech & Life Sciences',
+    location: 'Palo Alto, CA (Global Offices)',
+    contact: {
+      website: 'https://www.cooley.com',
+      phone: '+1 650-843-5000',
+    },
+    description: 'Global law firm with deep expertise in technology and life sciences.',
+    focusAreas: ['Fundraising', 'IPOs', 'Patent Law', 'Employment Law', 'Tax'],
+    notableClients: ['LinkedIn', 'Salesforce', 'Facebook', 'Twitter'],
+  },
+
+  // ACCOUNTING FIRMS
+  {
+    id: 'acc-1',
+    name: 'Kruze Consulting',
+    organization: 'Kruze Consulting',
+    category: 'Accountant',
+    specialty: 'Startup CFO Services',
+    location: 'San Francisco, CA (Remote Services)',
+    contact: {
+      website: 'https://kruzeconsulting.com',
+      phone: '+1 415-645-7686',
+      email: 'contact@kruzeconsulting.com',
+    },
+    description: 'Specialized accounting, tax, and CFO services for venture-backed startups.',
+    focusAreas: ['Bookkeeping', 'Tax Prep', 'Financial Modeling', 'R&D Tax Credits', 'Fundraising Support'],
+    notableClients: ['500+ VC-backed startups including Lattice, Scale AI, Boom Supersonic'],
+    notes: 'Highly recommended for hardware and deep tech startups. Strong relationships with VCs.',
+  },
+  {
+    id: 'acc-2',
+    name: 'Pilot',
+    organization: 'Pilot',
+    category: 'Accountant',
+    specialty: 'Automated Bookkeeping',
+    location: 'San Francisco, CA (Remote)',
+    contact: {
+      website: 'https://pilot.com',
+    },
+    description: 'Modern accounting platform combining software and expert bookkeepers.',
+    focusAreas: ['Monthly Bookkeeping', 'Tax Filing', 'Financial Statements', 'Payroll', 'CFO Services'],
+    notableClients: ['Airtable', 'Scale AI', 'OpenAI'],
+    notes: 'Great for early-stage startups needing basic accounting setup.',
+  },
+  {
+    id: 'acc-3',
+    name: 'Bench',
+    organization: 'Bench',
+    category: 'Accountant',
+    specialty: 'Small Business Bookkeeping',
+    location: 'Vancouver, BC (Remote)',
+    contact: {
+      website: 'https://bench.co',
+      phone: '+1 888-462-3624',
+    },
+    description: 'Online bookkeeping service combining software and a team of bookkeepers.',
+    focusAreas: ['Monthly Bookkeeping', 'Tax Preparation', 'Financial Reports', 'Expense Tracking'],
+    notableClients: ['Thousands of small businesses and startups'],
+  },
+
+  // DOMAIN EXPERTS
+  {
+    id: 'exp-1',
+    name: 'Dragon Innovation',
+    organization: 'Dragon Innovation',
+    category: 'Domain Expert',
+    specialty: 'Hardware Manufacturing',
+    location: 'Boston, MA',
+    contact: {
+      website: 'https://www.dragoninnovation.com',
+      email: 'hello@dragoninnovation.com',
+    },
+    description: 'End-to-end manufacturing services for hardware startups, from prototype to production.',
+    focusAreas: ['Manufacturing Strategy', 'Supplier Sourcing', 'Quality Control', 'Supply Chain', 'Cost Optimization'],
+    notableClients: ['Pebble', 'Formlabs', 'Misfit'],
+    notes: 'Essential partner for first-time hardware founders navigating manufacturing.',
+  },
+  {
+    id: 'exp-2',
+    name: 'HAX',
+    organization: 'HAX (Accelerator & Advisors)',
+    category: 'Domain Expert',
+    specialty: 'Hardware Acceleration',
+    location: 'San Francisco, CA and Shenzhen, China',
+    contact: {
+      website: 'https://hax.co',
+    },
+    description: "World's first and largest hardware accelerator with deep manufacturing expertise.",
+    focusAreas: ['Product Development', 'Manufacturing', 'Go-to-Market', 'Fundraising', 'Supply Chain'],
+    notableClients: ['LIFX', 'Particle', 'Makeblock'],
+  },
+  {
+    id: 'exp-3',
+    name: 'Fictiv',
+    organization: 'Fictiv',
+    category: 'Domain Expert',
+    specialty: 'Manufacturing Platform',
+    location: 'San Francisco, CA',
+    contact: {
+      website: 'https://www.fictiv.com',
+      phone: '+1 415-508-6250',
+    },
+    description: 'Digital manufacturing ecosystem connecting startups with vetted manufacturers.',
+    focusAreas: ['Rapid Prototyping', 'CNC Machining', 'Injection Molding', 'Supply Chain', 'Quality Assurance'],
+    notableClients: ['Ford', 'Tesla', 'Google', 'NASA JPL'],
+  },
+];

@@ -97,36 +97,6 @@ export default function OrgDiagramScreen() {
         </View>
       </LinearGradient>
 
-      {/* Armory Access Button */}
-      <View className="px-6 pt-4">
-        <Pressable
-          onPress={() => router.push('/armory')}
-          className="active:opacity-80"
-        >
-          <LinearGradient
-            colors={['#8b5cf6', '#6d28d9']}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 0 }}
-            style={{ borderRadius: 16, padding: 16 }}
-          >
-            <View className="flex-row items-center justify-between">
-              <View className="flex-row items-center flex-1">
-                <View className="w-12 h-12 bg-white/20 rounded-xl items-center justify-center mr-4">
-                  <Sword size={24} color="white" strokeWidth={2.5} />
-                </View>
-                <View className="flex-1">
-                  <Text className="text-white text-lg font-black">Armory</Text>
-                  <Text className="text-white/80 text-sm">Equip AI tools & manage squads</Text>
-                </View>
-              </View>
-              <View className="w-8 h-8 bg-white/20 rounded-full items-center justify-center">
-                <Text className="text-white font-bold">→</Text>
-              </View>
-            </View>
-          </LinearGradient>
-        </Pressable>
-      </View>
-
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
         <View className="px-6 py-3">
           {/* Founders Section */}

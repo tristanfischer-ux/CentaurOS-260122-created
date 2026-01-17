@@ -652,7 +652,6 @@ export default function WhoScreen() {
         member={selectedMember}
         allMembers={members.filter(m => m.status === 'active')}
         onMemberChange={handleMemberChange}
-        onNavigateToArmory={() => router.push('/armory')}
       />
 
       {/* Edit Person Modal */}

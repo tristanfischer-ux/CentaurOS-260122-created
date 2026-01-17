@@ -333,15 +333,6 @@ export default function TeamManagementScreen() {
                     <Text className="text-white font-bold ml-2 text-sm">Add People</Text>
                   </View>
                 </Pressable>
-                <Pressable
-                  onPress={() => router.push('/armory')}
-                  className="flex-1 bg-purple-500 rounded-xl py-3 active:opacity-80"
-                >
-                  <View className="flex-row items-center justify-center">
-                    <Bot size={16} color="white" />
-                    <Text className="text-white font-bold ml-2 text-sm">Equip AI</Text>
-                  </View>
-                </Pressable>
               </View>
             )}
 

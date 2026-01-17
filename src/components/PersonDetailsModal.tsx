@@ -44,7 +44,6 @@ interface PersonDetailsModalProps {
   onClose: () => void;
   member: OrganizationMember | null;
   allMembers?: OrganizationMember[]; // NEW: Array of all members for swiping
-  onNavigateToArmory?: () => void;
   onMemberChange?: (member: OrganizationMember) => void; // NEW: Callback when member changes via swipe
 }
 
@@ -67,7 +66,6 @@ export function PersonDetailsModal({
   onClose,
   member,
   allMembers: allMembersProp = [],
-  onNavigateToArmory,
   onMemberChange
 }: PersonDetailsModalProps) {
   // Swipe state
@@ -378,18 +376,6 @@ export function PersonDetailsModal({
                     AI Tools ({equippedTools.length})
                   </Text>
                 </View>
-                {onNavigateToArmory && (
-                  <Pressable
-                    onPress={() => {
-                      onClose();
-                      onNavigateToArmory();
-                    }}
-                    className="bg-amber-500/20 px-3 py-1.5 rounded-lg flex-row items-center gap-1 active:opacity-70"
-                  >
-                    <Text className="text-amber-600 dark:text-amber-400 text-xs font-bold">Manage</Text>
-                    <ChevronRight size={14} color="#f59e0b" />
-                  </Pressable>
-                )}
               </View>
 
               {equippedTools.length === 0 ? (
@@ -398,21 +384,10 @@ export function PersonDetailsModal({
                   <Text className="text-slate-500 dark:text-slate-400 text-sm mt-2 text-center">
                     No AI tools equipped
                   </Text>
-                  {onNavigateToArmory && (
-                    <Pressable
-                      onPress={() => {
-                        onClose();
-                        onNavigateToArmory();
-                      }}
-                      className="mt-3 bg-amber-500 px-4 py-2 rounded-lg active:opacity-70"
-                    >
-                      <Text className="text-white font-bold text-sm">Go to Armory</Text>
-                    </Pressable>
-                  )}
                 </View>
               ) : (
                 <View className="gap-2">
-                  {equippedTools.slice(0, 3).map((tool) => (
+                  {equippedTools.map((tool) => (
                     <View
                       key={tool.id}
                       className="bg-amber-50 dark:bg-amber-900/20 rounded-lg p-3 flex-row items-center justify-between"
@@ -432,21 +407,6 @@ export function PersonDetailsModal({
                       </View>
                     </View>
                   ))}
-                  {equippedTools.length > 3 && (
-                    <Pressable
-                      onPress={() => {
-                        if (onNavigateToArmory) {
-                          onClose();
-                          onNavigateToArmory();
-                        }
-                      }}
-                      className="bg-slate-100 dark:bg-slate-800 rounded-lg py-2 items-center active:opacity-70"
-                    >
-                      <Text className="text-slate-600 dark:text-slate-400 text-sm font-medium">
-                        +{equippedTools.length - 3} more tools
-                      </Text>
-                    </Pressable>
-                  )}
                 </View>
               )}
             </View>

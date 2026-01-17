@@ -37,12 +37,18 @@ import {
   Link,
   UserCircle,
   Sparkles,
+  Briefcase,
+  Building2,
+  Scale,
+  Calculator,
+  Lightbulb,
 } from 'lucide-react-native';
 import { useOrganizationStore } from '@/lib/state/organization-store';
 import { useWorkPlanStore } from '@/lib/state/work-plan-store';
 import { useArmoryStore } from '@/lib/state/armory-store';
 import { useCurrentWorkspace, useCurrentMembership } from '@/lib/state/app-store';
-import type { SupplierEngagement, AIAgent, OrganizationMember } from '@/lib/organization-seed';
+import type { SupplierEngagement, AIAgent, OrganizationMember, Advisor } from '@/lib/organization-seed';
+import { ADVISORS } from '@/lib/organization-seed';
 import { HelpModal, HelpButton, type HelpContent } from '@/components/HelpModal';
 import { SettingsGearButton } from '@/components/SettingsGearButton';
 import { THIRD_PARTY_AI_TOOLS, type ThirdPartyAITool } from '@/lib/third-party-ai-tools';
@@ -79,7 +85,7 @@ const STATUS_LABELS = {
   cancelled: 'Cancelled',
 };
 
-type ToolsTab = 'suppliers' | 'ai-agents' | 'ai-tools';
+type ToolsTab = 'suppliers' | 'ai-agents' | 'ai-tools' | 'advisors';
 
 export default function ToolsScreen() {
   const insets = useSafeAreaInsets();
@@ -106,6 +112,8 @@ export default function ToolsScreen() {
   const [showReachOut, setShowReachOut] = useState(false);
   const [reachOutType, setReachOutType] = useState<'ai' | 'supplier'>('supplier');
   const [selectedSupplierCategory, setSelectedSupplierCategory] = useState<string | null>(null);
+  const [selectedAdvisor, setSelectedAdvisor] = useState<Advisor | null>(null);
+  const [selectedAdvisorCategory, setSelectedAdvisorCategory] = useState<string | null>(null);
 
   const isFounder = currentMembership?.role === 'Founder';
 
@@ -473,6 +481,7 @@ export default function ToolsScreen() {
         <View className="flex-row bg-slate-100 dark:bg-slate-800 rounded-xl p-1">
           {[
             { key: 'suppliers', label: 'Suppliers', icon: Factory },
+            { key: 'advisors', label: 'Advisors', icon: Briefcase },
             { key: 'ai-agents', label: 'AI Agents', icon: Bot },
             { key: 'ai-tools', label: 'AI Tools', icon: Zap },
           ].map(tab => (
@@ -588,6 +597,162 @@ export default function ToolsScreen() {
             {THIRD_PARTY_AI_TOOLS.map((tool, index) => (
               <AIToolCard key={tool.id} tool={tool} index={index} />
             ))}
+          </View>
+        )}
+
+        {/* Advisors Tab */}
+        {activeTab === 'advisors' && (
+          <View>
+            {!selectedAdvisorCategory ? (
+              // Category selection
+              <View>
+                <Text className="text-slate-500 dark:text-slate-400 text-sm mb-4">
+                  Choose an advisor category
+                </Text>
+
+                {/* VC Category */}
+                <Pressable
+                  onPress={() => setSelectedAdvisorCategory('VC')}
+                  className="bg-white dark:bg-slate-800 rounded-xl p-4 mb-3 active:opacity-80"
+                >
+                  <View className="flex-row items-center">
+                    <View className="w-12 h-12 rounded-xl items-center justify-center mr-3" style={{ backgroundColor: '#3b82f620' }}>
+                      <TrendingUp size={24} color="#3b82f6" />
+                    </View>
+                    <View className="flex-1">
+                      <Text className="text-slate-900 dark:text-white font-semibold text-base">
+                        Venture Capital
+                      </Text>
+                      <Text className="text-slate-500 dark:text-slate-400 text-sm mt-0.5">
+                        {ADVISORS.filter(a => a.category === 'VC').length} VCs
+                      </Text>
+                    </View>
+                    <ChevronRight size={20} color="#94a3b8" />
+                  </View>
+                </Pressable>
+
+                {/* Lawyer Category */}
+                <Pressable
+                  onPress={() => setSelectedAdvisorCategory('Lawyer')}
+                  className="bg-white dark:bg-slate-800 rounded-xl p-4 mb-3 active:opacity-80"
+                >
+                  <View className="flex-row items-center">
+                    <View className="w-12 h-12 rounded-xl items-center justify-center mr-3" style={{ backgroundColor: '#8b5cf620' }}>
+                      <Scale size={24} color="#8b5cf6" />
+                    </View>
+                    <View className="flex-1">
+                      <Text className="text-slate-900 dark:text-white font-semibold text-base">
+                        Legal
+                      </Text>
+                      <Text className="text-slate-500 dark:text-slate-400 text-sm mt-0.5">
+                        {ADVISORS.filter(a => a.category === 'Lawyer').length} law firms
+                      </Text>
+                    </View>
+                    <ChevronRight size={20} color="#94a3b8" />
+                  </View>
+                </Pressable>
+
+                {/* Accountant Category */}
+                <Pressable
+                  onPress={() => setSelectedAdvisorCategory('Accountant')}
+                  className="bg-white dark:bg-slate-800 rounded-xl p-4 mb-3 active:opacity-80"
+                >
+                  <View className="flex-row items-center">
+                    <View className="w-12 h-12 rounded-xl items-center justify-center mr-3" style={{ backgroundColor: '#10b98120' }}>
+                      <Calculator size={24} color="#10b981" />
+                    </View>
+                    <View className="flex-1">
+                      <Text className="text-slate-900 dark:text-white font-semibold text-base">
+                        Accounting & Finance
+                      </Text>
+                      <Text className="text-slate-500 dark:text-slate-400 text-sm mt-0.5">
+                        {ADVISORS.filter(a => a.category === 'Accountant').length} firms
+                      </Text>
+                    </View>
+                    <ChevronRight size={20} color="#94a3b8" />
+                  </View>
+                </Pressable>
+
+                {/* Domain Expert Category */}
+                <Pressable
+                  onPress={() => setSelectedAdvisorCategory('Domain Expert')}
+                  className="bg-white dark:bg-slate-800 rounded-xl p-4 mb-3 active:opacity-80"
+                >
+                  <View className="flex-row items-center">
+                    <View className="w-12 h-12 rounded-xl items-center justify-center mr-3" style={{ backgroundColor: '#f59e0b20' }}>
+                      <Lightbulb size={24} color="#f59e0b" />
+                    </View>
+                    <View className="flex-1">
+                      <Text className="text-slate-900 dark:text-white font-semibold text-base">
+                        Domain Experts
+                      </Text>
+                      <Text className="text-slate-500 dark:text-slate-400 text-sm mt-0.5">
+                        {ADVISORS.filter(a => a.category === 'Domain Expert').length} experts
+                      </Text>
+                    </View>
+                    <ChevronRight size={20} color="#94a3b8" />
+                  </View>
+                </Pressable>
+              </View>
+            ) : (
+              // Show filtered advisors
+              <View>
+                <Pressable
+                  onPress={() => setSelectedAdvisorCategory(null)}
+                  className="flex-row items-center mb-4"
+                >
+                  <ChevronRight size={20} color="#f59e0b" style={{ transform: [{ rotate: '180deg' }] }} />
+                  <Text className="text-amber-600 dark:text-amber-400 font-medium ml-1">
+                    Back to Categories
+                  </Text>
+                </Pressable>
+
+                <Text className="text-slate-500 dark:text-slate-400 text-sm mb-4">
+                  {ADVISORS.filter(a => a.category === selectedAdvisorCategory).length} {selectedAdvisorCategory === 'VC' ? 'VCs' : selectedAdvisorCategory === 'Lawyer' ? 'law firms' : selectedAdvisorCategory === 'Accountant' ? 'firms' : 'experts'}
+                </Text>
+
+                {ADVISORS.filter(a => a.category === selectedAdvisorCategory).map((advisor, index) => (
+                  <Animated.View key={advisor.id} entering={FadeInDown.delay(index * 30).springify()}>
+                    <Pressable
+                      onPress={() => setSelectedAdvisor(advisor)}
+                      className="bg-white dark:bg-slate-800 rounded-xl p-4 mb-3 active:opacity-80"
+                    >
+                      <View className="flex-row items-start">
+                        <View
+                          className="w-10 h-10 rounded-lg items-center justify-center mr-3"
+                          style={{
+                            backgroundColor:
+                              advisor.category === 'VC' ? '#3b82f620' :
+                              advisor.category === 'Lawyer' ? '#8b5cf620' :
+                              advisor.category === 'Accountant' ? '#10b98120' : '#f59e0b20'
+                          }}
+                        >
+                          {advisor.category === 'VC' && <TrendingUp size={20} color="#3b82f6" />}
+                          {advisor.category === 'Lawyer' && <Scale size={20} color="#8b5cf6" />}
+                          {advisor.category === 'Accountant' && <Calculator size={20} color="#10b981" />}
+                          {advisor.category === 'Domain Expert' && <Lightbulb size={20} color="#f59e0b" />}
+                        </View>
+                        <View className="flex-1">
+                          <Text className="text-slate-900 dark:text-white font-semibold text-sm">
+                            {advisor.name}
+                          </Text>
+                          <Text className="text-slate-500 dark:text-slate-400 text-xs mt-0.5" numberOfLines={1}>
+                            {advisor.specialty}
+                          </Text>
+                          <View className="flex-row items-center gap-2 mt-1">
+                            <MapPin size={12} color="#94a3b8" />
+                            <Text className="text-slate-500 dark:text-slate-400 text-xs">
+                              {advisor.location}
+                            </Text>
+                          </View>
+                        </View>
+                        <ChevronRight size={18} color="#94a3b8" />
+                      </View>
+                    </Pressable>
+                  </Animated.View>
+                ))}
+              </View>
+            )}
           </View>
         )}
       </ScrollView>
@@ -952,6 +1117,186 @@ export default function ToolsScreen() {
                   )}
                 </View>
               </ScrollView>
+            </View>
+          </Pressable>
+        </Pressable>
+      </Modal>
+
+      {/* Advisor Detail Modal */}
+      <Modal
+        visible={!!selectedAdvisor}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setSelectedAdvisor(null)}
+      >
+        <Pressable
+          className="flex-1 bg-black/70"
+          onPress={() => setSelectedAdvisor(null)}
+        >
+          <View className="flex-1" />
+          <Pressable onPress={(e) => e.stopPropagation()} style={{ maxHeight: '85%' }}>
+            <View className="bg-white dark:bg-slate-900 rounded-t-3xl">
+              {/* Handle */}
+              <View className="items-center py-3">
+                <View className="w-10 h-1 bg-slate-200 dark:bg-slate-700 rounded-full" />
+              </View>
+
+              {selectedAdvisor && (
+                <ScrollView contentContainerStyle={{ flexGrow: 1, paddingBottom: insets.bottom + 20 }}>
+                  <View className="px-5 pb-5">
+                    {/* Header */}
+                    <View className="mb-4">
+                      <View
+                        className="w-16 h-16 rounded-2xl items-center justify-center mb-3"
+                        style={{
+                          backgroundColor:
+                            selectedAdvisor.category === 'VC' ? '#3b82f620' :
+                            selectedAdvisor.category === 'Lawyer' ? '#8b5cf620' :
+                            selectedAdvisor.category === 'Accountant' ? '#10b98120' : '#f59e0b20'
+                        }}
+                      >
+                        {selectedAdvisor.category === 'VC' && <TrendingUp size={32} color="#3b82f6" />}
+                        {selectedAdvisor.category === 'Lawyer' && <Scale size={32} color="#8b5cf6" />}
+                        {selectedAdvisor.category === 'Accountant' && <Calculator size={32} color="#10b981" />}
+                        {selectedAdvisor.category === 'Domain Expert' && <Lightbulb size={32} color="#f59e0b" />}
+                      </View>
+                      <Text className="text-slate-900 dark:text-white text-2xl font-bold mb-1">
+                        {selectedAdvisor.name}
+                      </Text>
+                      <Text className="text-slate-500 dark:text-slate-400 text-sm mb-2">
+                        {selectedAdvisor.specialty}
+                      </Text>
+                      <View
+                        className="self-start px-3 py-1 rounded-full"
+                        style={{
+                          backgroundColor:
+                            selectedAdvisor.category === 'VC' ? '#3b82f620' :
+                            selectedAdvisor.category === 'Lawyer' ? '#8b5cf620' :
+                            selectedAdvisor.category === 'Accountant' ? '#10b98120' : '#f59e0b20'
+                        }}
+                      >
+                        <Text
+                          className="text-xs font-medium"
+                          style={{
+                            color:
+                              selectedAdvisor.category === 'VC' ? '#3b82f6' :
+                              selectedAdvisor.category === 'Lawyer' ? '#8b5cf6' :
+                              selectedAdvisor.category === 'Accountant' ? '#10b981' : '#f59e0b'
+                          }}
+                        >
+                          {selectedAdvisor.category}
+                        </Text>
+                      </View>
+                    </View>
+
+                    {/* Description */}
+                    <View className="bg-slate-50 dark:bg-slate-800 rounded-xl p-4 mb-4">
+                      <Text className="text-slate-700 dark:text-slate-300 text-sm leading-5">
+                        {selectedAdvisor.description}
+                      </Text>
+                    </View>
+
+                    {/* Contact Info */}
+                    <View className="bg-slate-50 dark:bg-slate-800 rounded-xl p-4 mb-4">
+                      <Text className="text-slate-500 dark:text-slate-400 text-xs font-medium uppercase mb-3">
+                        Contact
+                      </Text>
+
+                      <View className="flex-row items-center gap-3 mb-3">
+                        <MapPin size={16} color="#64748b" />
+                        <Text className="text-slate-700 dark:text-slate-300 text-sm flex-1">
+                          {selectedAdvisor.location}
+                        </Text>
+                      </View>
+
+                      {selectedAdvisor.contact.website && (
+                        <Pressable
+                          onPress={() => selectedAdvisor.contact.website && Linking.openURL(selectedAdvisor.contact.website)}
+                          className="flex-row items-center gap-3 mb-3 active:opacity-70"
+                        >
+                          <ExternalLink size={16} color="#3b82f6" />
+                          <Text className="text-blue-500 text-sm flex-1">
+                            {selectedAdvisor.contact.website.replace('https://', '')}
+                          </Text>
+                        </Pressable>
+                      )}
+
+                      {selectedAdvisor.contact.email && (
+                        <View className="flex-row items-center gap-3 mb-3">
+                          <Mail size={16} color="#64748b" />
+                          <Text className="text-slate-700 dark:text-slate-300 text-sm flex-1">
+                            {selectedAdvisor.contact.email}
+                          </Text>
+                        </View>
+                      )}
+
+                      {selectedAdvisor.contact.phone && (
+                        <View className="flex-row items-center gap-3">
+                          <Phone size={16} color="#64748b" />
+                          <Text className="text-slate-700 dark:text-slate-300 text-sm flex-1">
+                            {selectedAdvisor.contact.phone}
+                          </Text>
+                        </View>
+                      )}
+                    </View>
+
+                    {/* Focus Areas */}
+                    {selectedAdvisor.focusAreas && selectedAdvisor.focusAreas.length > 0 && (
+                      <View className="bg-slate-50 dark:bg-slate-800 rounded-xl p-4 mb-4">
+                        <Text className="text-slate-500 dark:text-slate-400 text-xs font-medium uppercase mb-3">
+                          Focus Areas
+                        </Text>
+                        <View className="flex-row flex-wrap gap-2">
+                          {selectedAdvisor.focusAreas.map((area, idx) => (
+                            <View
+                              key={`focus-${idx}`}
+                              className="bg-amber-100 dark:bg-amber-900/30 px-3 py-1.5 rounded-lg"
+                            >
+                              <Text className="text-amber-700 dark:text-amber-400 text-sm">
+                                {area}
+                              </Text>
+                            </View>
+                          ))}
+                        </View>
+                      </View>
+                    )}
+
+                    {/* Notable Clients */}
+                    {selectedAdvisor.notableClients && selectedAdvisor.notableClients.length > 0 && (
+                      <View className="bg-slate-50 dark:bg-slate-800 rounded-xl p-4 mb-4">
+                        <Text className="text-slate-500 dark:text-slate-400 text-xs font-medium uppercase mb-3">
+                          Notable Clients
+                        </Text>
+                        <View className="flex-row flex-wrap gap-2">
+                          {selectedAdvisor.notableClients.map((client, idx) => (
+                            <View
+                              key={`client-${idx}`}
+                              className="bg-blue-100 dark:bg-blue-900/30 px-3 py-1.5 rounded-lg flex-row items-center gap-2"
+                            >
+                              <Building2 size={12} color="#3b82f6" />
+                              <Text className="text-blue-700 dark:text-blue-400 text-sm">
+                                {client}
+                              </Text>
+                            </View>
+                          ))}
+                        </View>
+                      </View>
+                    )}
+
+                    {/* Notes */}
+                    {selectedAdvisor.notes && (
+                      <View className="bg-amber-50 dark:bg-amber-900/20 rounded-xl p-4">
+                        <Text className="text-slate-500 dark:text-slate-400 text-xs font-medium uppercase mb-2">
+                          Notes
+                        </Text>
+                        <Text className="text-slate-700 dark:text-slate-300 text-sm leading-5">
+                          {selectedAdvisor.notes}
+                        </Text>
+                      </View>
+                    )}
+                  </View>
+                </ScrollView>
+              )}
             </View>
           </Pressable>
         </Pressable>

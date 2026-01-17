@@ -394,7 +394,6 @@ export function CollapsibleResourcePool({ selectedPersonId, onPersonSelect }: Co
           setSelectedMember(null);
         }}
         member={selectedMember}
-        onNavigateToArmory={() => router.push('/armory')}
       />
     </Animated.View>
   );
