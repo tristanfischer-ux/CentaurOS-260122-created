@@ -216,11 +216,10 @@ export default function SignInScreen() {
         >
           {/* Compact Logo and Title */}
           <View className="items-center mb-6">
-            <CentaurLogo size={70} />
-            <Text className="text-4xl font-black text-white tracking-tight mt-2">
+            <Text className="text-5xl font-black text-white tracking-tight">
               Centaur OS
             </Text>
-            <Text className="text-white text-sm font-semibold mt-1 opacity-90">
+            <Text className="text-white text-sm font-semibold mt-2 opacity-90">
               The OS for Lean Companies
             </Text>
           </View>
