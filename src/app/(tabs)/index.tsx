@@ -114,8 +114,9 @@ function FounderHome() {
   const [lastUpdated, setLastUpdated] = useState(new Date());
   const refreshTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  // Auto-detect squads from task allocations
-  useAutomaticSquadDetection();
+  // DISABLED: Auto-detect squads from task allocations
+  // This creates squads automatically, which should not happen after reset
+  // useAutomaticSquadDetection();
 
   // Store initializations
   const initializeTechTree = useTechTreeStore((s) => s.initialize);

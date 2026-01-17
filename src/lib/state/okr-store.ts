@@ -209,7 +209,11 @@ export const useOKRStore = create<OKRState>((set, get) => ({
   selectedOKR: null,
 
   initializeOKRs: () => {
-    set({ okrs: INITIAL_OKRS });
+    // DISABLED: OKRs should be loaded from Supabase
+    // set({ okrs: INITIAL_OKRS });
+
+    // Start with empty array until Supabase integration is complete
+    set({ okrs: [] });
   },
 
   getOKRById: (id: string) => {
