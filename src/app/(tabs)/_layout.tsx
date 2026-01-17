@@ -138,7 +138,18 @@ export default function TabLayout() {
         }}
       />
 
-      {/* Hidden legacy tabs - keep for routing but hide from tab bar */}
+      {/*
+        Hidden legacy tabs - keep for routing but hide from tab bar
+
+        These tabs are intentionally hidden but still accessible via router.push():
+        - decide: Used for decision flows from Settings and Home
+        - do: Used for apprentice task management
+        - evaluate: Used for work plan evaluation
+        - make: Used for supplier engagement management
+        - community: Used from marketplace and invitations
+
+        They're kept as tabs (not separate screens) to maintain navigation stack behavior.
+      */}
       <Tabs.Screen
         name="decide"
         options={{
@@ -159,12 +170,6 @@ export default function TabLayout() {
       />
       <Tabs.Screen
         name="make"
-        options={{
-          href: null, // Hide from tabs
-        }}
-      />
-      <Tabs.Screen
-        name="hub"
         options={{
           href: null, // Hide from tabs
         }}

@@ -14,17 +14,20 @@ import {
   TrendingUp,
   Sparkles,
   Code,
-  Palette
+  Palette,
+  ArrowLeft,
 } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import { aiToolsService } from '@/lib/supabase-three-tier-service';
 import { useTheme } from '@/lib/ThemeContext';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 type MarketplaceCategory = 'executives' | 'apprentices' | 'suppliers' | 'ai-agents' | 'locations';
 
 export default function MarketplaceScreen() {
+  const insets = useSafeAreaInsets();
   const [activeCategory, setActiveCategory] = useState<MarketplaceCategory>('executives');
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -37,13 +40,21 @@ export default function MarketplaceScreen() {
   ];
 
   return (
-    <View className="flex-1 bg-white dark:bg-slate-950">
+    <View className="flex-1 bg-white dark:bg-slate-950" style={{ paddingTop: insets.top }}>
       {/* Header */}
-      <View className="px-6 pt-6 pb-4 border-b border-gray-200 dark:border-slate-800">
-        <Text className="text-gray-900 dark:text-white text-3xl font-bold mb-2">Marketplace</Text>
-        <Text className="text-gray-600 dark:text-slate-400 text-sm">
-          Discover executives, apprentices, suppliers, AI tools, and spaces
-        </Text>
+      <View className="px-6 py-4 border-b border-gray-200 dark:border-slate-800 flex-row items-center justify-between">
+        <Pressable
+          onPress={() => router.back()}
+          className="w-10 h-10 items-center justify-center rounded-full bg-gray-100 dark:bg-slate-900 active:opacity-70"
+        >
+          <ArrowLeft size={24} color="#64748b" />
+        </Pressable>
+        <View className="flex-1 ml-4">
+          <Text className="text-gray-900 dark:text-white text-2xl font-bold">Marketplace</Text>
+          <Text className="text-gray-600 dark:text-slate-400 text-xs">
+            Discover executives, apprentices, suppliers & more
+          </Text>
+        </View>
       </View>
 
       {/* Discover Button */}
