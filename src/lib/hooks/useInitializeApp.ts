@@ -9,7 +9,8 @@ import { useSquadStore } from '../state/squad-store';
 import { db } from '../storage';
 import { seedDemoData } from '../api/seed';
 import { seedArmoryDemo } from '../armory/seed-demo';
-import { runMigrationIfNeeded } from '../storage/migrate-to-mmkv';
+// Migration disabled - Zustand stores auto-persist to MMKV already
+// import { runMigrationIfNeeded } from '../storage/migrate-to-mmkv';
 
 export function useInitializeApp() {
   const [isInitialized, setIsInitialized] = useState(false);
@@ -37,8 +38,10 @@ export function useInitializeApp() {
   useEffect(() => {
     async function initApp() {
       try {
-        // FIRST: Migrate AsyncStorage to MMKV if needed (one-time migration)
-        await runMigrationIfNeeded();
+        // MIGRATION DISABLED: Zustand stores auto-persist to MMKV already.
+        // The old migration tried to copy ALL AsyncStorage to MMKV, which is wrong
+        // because AsyncStorage should continue holding DB entities.
+        // await runMigrationIfNeeded();
 
         // Initialize auth state
         await initialize();

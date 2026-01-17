@@ -1,8 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { MMKV } from 'react-native-mmkv';
-
-// MMKV for fast key-value storage (auth tokens, simple flags)
-export const mmkv = new MMKV();
+// Import the singleton MMKV instance from mmkv-storage to avoid multiple instances
+import { mmkv } from './storage/mmkv-storage';
 
 // AsyncStorage for complex data (all domain entities)
 // Since we don't have a backend for MVP, we simulate a database with AsyncStorage
