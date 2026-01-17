@@ -267,6 +267,50 @@ This happens automatically in all service methods - you don't need to do anythin
 
 ---
 
+## 🐛 Troubleshooting
+
+### Workspace Fetching Error Fixed
+**Issue:** "Error fetching workspaces: [object Object]"
+
+**Cause:** Initial implementation used a complex join query that didn't work with the existing schema:
+```typescript
+// ❌ This didn't work
+const { data } = await supabase
+  .from('workspaces')
+  .select('*, memberships!inner(user_id)')
+  .eq('memberships.user_id', userId);
+```
+
+**Solution:** Changed to two-step query approach:
+```typescript
+// ✅ This works
+// Step 1: Get workspace IDs from memberships
+const { data: membershipData } = await supabase
+  .from('memberships')
+  .select('workspace_id')
+  .eq('user_id', userId);
+
+const workspaceIds = membershipData.map(m => m.workspace_id);
+
+// Step 2: Fetch workspaces using .in()
+const { data } = await supabase
+  .from('workspaces')
+  .select('*')
+  .in('id', workspaceIds);
+```
+
+### Error Logging
+All services now include comprehensive error logging:
+```typescript
+if (error) {
+  console.error('Error message:', error.message, error.details, error.hint);
+}
+```
+
+Check the expo.log file to see detailed error information if something goes wrong.
+
+---
+
 ## ✅ Ready to Use
 
 The integration is complete and ready to use with your existing Supabase tables. No schema creation needed - just start using the service layer!

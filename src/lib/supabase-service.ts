@@ -183,7 +183,7 @@ export const userService = {
       .single();
 
     if (error) {
-      console.error('Error fetching user:', error);
+      console.error('Error fetching user:', error.message, error.details, error.hint);
       return null;
     }
 
@@ -203,7 +203,7 @@ export const userService = {
     if (error) {
       // User not found is not an error for this query
       if (error.code === 'PGRST116') return null;
-      console.error('Error fetching user by email:', error);
+      console.error('Error fetching user by email:', error.message, error.details, error.hint);
       return null;
     }
 
@@ -221,6 +221,7 @@ export const userService = {
       .single();
 
     if (error) {
+      console.error('Failed to create user:', error.message, error.details, error.hint);
       throw new Error(`Failed to create user: ${error.message}`);
     }
 
@@ -239,6 +240,7 @@ export const userService = {
       .single();
 
     if (error) {
+      console.error('Failed to update user:', error.message, error.details, error.hint);
       throw new Error(`Failed to update user: ${error.message}`);
     }
 
@@ -255,16 +257,32 @@ export const workspaceService = {
    * Get all workspaces for a user
    */
   async getForUser(userId: string): Promise<Workspace[]> {
+    // First, get all workspace IDs the user is a member of
+    const { data: membershipData, error: membershipError } = await supabase
+      .from('memberships')
+      .select('workspace_id')
+      .eq('user_id', userId);
+
+    if (membershipError) {
+      console.error('Error fetching memberships for workspaces:', membershipError.message, membershipError.details, membershipError.hint);
+      return [];
+    }
+
+    if (!membershipData || membershipData.length === 0) {
+      return [];
+    }
+
+    // Extract workspace IDs
+    const workspaceIds = membershipData.map((m) => m.workspace_id);
+
+    // Fetch all workspaces the user has access to
     const { data, error } = await supabase
       .from('workspaces')
-      .select(`
-        *,
-        memberships!inner(user_id)
-      `)
-      .eq('memberships.user_id', userId);
+      .select('*')
+      .in('id', workspaceIds);
 
     if (error) {
-      console.error('Error fetching workspaces:', error);
+      console.error('Error fetching workspaces:', error.message, error.details, error.hint);
       return [];
     }
 
@@ -282,7 +300,7 @@ export const workspaceService = {
       .single();
 
     if (error) {
-      console.error('Error fetching workspace:', error);
+      console.error('Error fetching workspace:', error.message, error.details, error.hint);
       return null;
     }
 
@@ -300,16 +318,22 @@ export const workspaceService = {
       .single();
 
     if (error) {
+      console.error('Failed to create workspace:', error.message, error.details, error.hint);
       throw new Error(`Failed to create workspace: ${error.message}`);
     }
 
     // Automatically create a Founder membership for the owner
-    await membershipService.create({
-      workspaceId: data.id,
-      userId: workspace.ownerId,
-      role: 'Founder',
-      function: 'Admin', // Default function, can be changed later
-    });
+    try {
+      await membershipService.create({
+        workspaceId: data.id,
+        userId: workspace.ownerId,
+        role: 'Founder',
+        function: 'Admin', // Default function, can be changed later
+      });
+    } catch (membershipError) {
+      console.error('Failed to create founder membership:', membershipError);
+      // Don't throw here - workspace was created successfully
+    }
 
     return supabaseToWorkspace(data);
   },
@@ -326,6 +350,7 @@ export const workspaceService = {
       .single();
 
     if (error) {
+      console.error('Failed to update workspace:', error.message, error.details, error.hint);
       throw new Error(`Failed to update workspace: ${error.message}`);
     }
 
@@ -348,7 +373,7 @@ export const membershipService = {
       .eq('user_id', userId);
 
     if (error) {
-      console.error('Error fetching memberships:', error);
+      console.error('Error fetching memberships:', error.message, error.details, error.hint);
       return [];
     }
 
@@ -365,7 +390,7 @@ export const membershipService = {
       .eq('workspace_id', workspaceId);
 
     if (error) {
-      console.error('Error fetching workspace memberships:', error);
+      console.error('Error fetching workspace memberships:', error.message, error.details, error.hint);
       return [];
     }
 
@@ -385,7 +410,7 @@ export const membershipService = {
 
     if (error) {
       if (error.code === 'PGRST116') return null;
-      console.error('Error fetching membership:', error);
+      console.error('Error fetching membership:', error.message, error.details, error.hint);
       return null;
     }
 
@@ -408,6 +433,7 @@ export const membershipService = {
       .single();
 
     if (error) {
+      console.error('Failed to create membership:', error.message, error.details, error.hint);
       throw new Error(`Failed to create membership: ${error.message}`);
     }
 
@@ -426,6 +452,7 @@ export const membershipService = {
       .single();
 
     if (error) {
+      console.error('Failed to update membership:', error.message, error.details, error.hint);
       throw new Error(`Failed to update membership: ${error.message}`);
     }
 
@@ -442,6 +469,7 @@ export const membershipService = {
       .eq('id', membershipId);
 
     if (error) {
+      console.error('Failed to delete membership:', error.message, error.details, error.hint);
       throw new Error(`Failed to delete membership: ${error.message}`);
     }
   },

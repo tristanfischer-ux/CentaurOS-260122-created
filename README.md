@@ -26,6 +26,8 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
 - ✅ Automatic workspace and membership creation on signup
 - ✅ Session-based data loading from database
 - ✅ OKR service handles objectives as JSONB array
+- ✅ Fixed workspace fetching with two-step query approach
+- ✅ Comprehensive error logging throughout all services
 
 **Existing Tables Used:**
 - **profiles**: User profiles (extends Supabase Auth)
