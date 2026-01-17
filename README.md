@@ -15,28 +15,6 @@ Centaur OS is a comprehensive iOS mobile application that helps lean companies o
 
 ## 🔄 Recent Updates (Jan 2026)
 
-### 🚨 ACTION REQUIRED: Fix Supabase RLS Policies
-
-**Issue:** Row Level Security policies on `memberships` and `workspaces` tables cause infinite recursion.
-
-**Error:** `infinite recursion detected in policy for relation "memberships"`
-
-**What this means:**
-- ✅ Sign in/sign up still works
-- ❌ Workspaces and memberships won't load
-- ❌ App will be empty until policies are fixed
-
-**How to fix:** See **[FIX_RLS_POLICY.md](FIX_RLS_POLICY.md)** for detailed instructions.
-
-**Quick fix:** In your Supabase dashboard, update the RLS policy on `memberships` to:
-```sql
-CREATE POLICY "Users can view their own memberships"
-ON memberships FOR SELECT
-USING (auth.uid() = user_id);
-```
-
----
-
 ### Supabase Database Integration - COMPLETE! 💾
 **Full database persistence:** All data now saved to existing Supabase tables!
 
@@ -48,8 +26,9 @@ USING (auth.uid() = user_id);
 - ✅ Automatic workspace and membership creation on signup
 - ✅ Session-based data loading from database
 - ✅ OKR service handles objectives as JSONB array
-- ✅ Fixed workspace fetching with two-step query approach
+- ✅ Fixed workspace fetching with proper RLS policies
 - ✅ Comprehensive error logging throughout all services
+- ✅ RLS policies fixed - data loading re-enabled
 
 **Existing Tables Used:**
 - **profiles**: User profiles (extends Supabase Auth)

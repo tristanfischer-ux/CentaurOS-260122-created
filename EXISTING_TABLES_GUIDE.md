@@ -269,48 +269,32 @@ This happens automatically in all service methods - you don't need to do anythin
 
 ## 🐛 Troubleshooting
 
-### Infinite Recursion in Memberships Policy (CRITICAL)
+### ✅ Infinite Recursion in Memberships Policy (RESOLVED)
 **Issue:** "Error fetching memberships for workspaces: infinite recursion detected in policy for relation 'memberships'"
 
-**Cause:** The Row Level Security (RLS) policy on the `memberships` table has a circular reference that causes infinite recursion. This typically happens when a policy checks memberships to determine membership access.
+**Status:** ✅ **FIXED** - RLS policies have been updated and data loading is now working.
 
-**Solution - Fix RLS Policy in Supabase Dashboard:**
+**What was the problem:** The Row Level Security (RLS) policy on the `memberships` table had a circular reference that caused infinite recursion. This happened when a policy checked memberships to determine membership access.
 
-You need to update the RLS policy on the `memberships` table in your Supabase dashboard:
-
-1. Go to Supabase Dashboard → Authentication → Policies
-2. Find the policy on the `memberships` table
-3. Replace the recursive policy with a simpler one:
+**How it was fixed:** The RLS policy on the `memberships` table was updated in Supabase Dashboard with a simpler policy:
 
 ```sql
--- Delete the existing policy that causes recursion
--- Create a new simple policy for SELECT on memberships
-
 CREATE POLICY "Users can view their own memberships"
 ON memberships FOR SELECT
 USING (auth.uid() = user_id);
 
--- For INSERT (workspace creation)
 CREATE POLICY "Users can create memberships"
 ON memberships FOR INSERT
 WITH CHECK (auth.uid() = user_id);
 ```
 
-**Temporary Workaround in Code:**
-Changed workspace fetching to query workspaces directly and rely on workspace-level RLS:
+**Current implementation:**
+Data loading is fully functional. The `initializeUserData()` function now successfully fetches:
+- Workspaces for the user
+- Memberships for the user
+- Team members for all workspaces
 
-```typescript
-// ✅ Current approach - avoids memberships query
-async getForUser(userId: string): Promise<Workspace[]> {
-  const { data, error } = await supabase
-    .from('workspaces')
-    .select('*');
-
-  return (data || []).map(supabaseToWorkspace);
-}
-```
-
-This relies on the workspaces table having proper RLS that checks memberships without causing recursion.
+See **[FIX_RLS_POLICY.md](FIX_RLS_POLICY.md)** for reference documentation on this issue.
 
 ### Workspace Fetching Error Fixed
 **Issue:** "Error fetching workspaces: [object Object]"
