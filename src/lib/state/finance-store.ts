@@ -101,6 +101,8 @@ export const useFinanceStore = create<FinanceStore>((set, get) => ({
   loadFinancialData: async (workspaceId: string) => {
     const { supabase } = await import('../supabase');
 
+    console.log('[FinanceStore] Loading financial data for workspace:', workspaceId);
+
     try {
       // Load all financial data for workspace
       const [transactionsRes, budgetTargetsRes] = await Promise.all([
@@ -116,16 +118,35 @@ export const useFinanceStore = create<FinanceStore>((set, get) => ({
           .order('month', { ascending: false }),
       ]);
 
-      if (transactionsRes.error) throw transactionsRes.error;
-      if (budgetTargetsRes.error) throw budgetTargetsRes.error;
+      if (transactionsRes.error) {
+        console.error('[FinanceStore] Transaction error:', transactionsRes.error);
+        throw transactionsRes.error;
+      }
+      if (budgetTargetsRes.error) {
+        console.error('[FinanceStore] Budget targets error:', budgetTargetsRes.error);
+        throw budgetTargetsRes.error;
+      }
+
+      console.log('[FinanceStore] Loaded transactions:', transactionsRes.data?.length || 0);
+      console.log('[FinanceStore] Loaded budget targets:', budgetTargetsRes.data?.length || 0);
 
       set({
         transactions: transactionsRes.data || [],
         budgetTargets: budgetTargetsRes.data || [],
         isLoaded: true,
       });
+
+      // Calculate and log metrics
+      const cashBalance = get().getCashBalance(workspaceId);
+      const weeklyBurn = get().getWeeklyBurn(workspaceId);
+      const runway = get().getRunway(workspaceId);
+      console.log('[FinanceStore] Calculated metrics:', {
+        cashBalance,
+        weeklyBurn,
+        runway,
+      });
     } catch (error) {
-      console.error('Failed to load financial data:', error);
+      console.error('[FinanceStore] Failed to load financial data:', error);
       set({
         transactions: [],
         budgetTargets: [],
