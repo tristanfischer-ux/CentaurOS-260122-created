@@ -217,8 +217,18 @@ export const userService = {
 
   /**
    * Create a new user profile
+   * Note: This will only work if the RLS policy allows the authenticated user to insert their own profile
+   * The policy should be: CREATE POLICY "Users can insert their own profile" ON profiles FOR INSERT WITH CHECK (auth.uid() = id);
    */
   async create(user: { id: string; email: string; name: string }): Promise<User> {
+    // First, check if profile already exists (Supabase may auto-create it)
+    const existing = await this.getById(user.id);
+    if (existing) {
+      console.log('[userService] Profile already exists, returning existing profile');
+      return existing;
+    }
+
+    // Try to create the profile
     const { data, error } = await supabase
       .from('profiles')
       .insert(userToSupabase(user))
@@ -227,6 +237,14 @@ export const userService = {
 
     if (error) {
       console.error('Failed to create user:', error.message, error.details, error.hint);
+
+      // Check if profile was auto-created by Supabase trigger
+      const retryFetch = await this.getById(user.id);
+      if (retryFetch) {
+        console.log('[userService] Profile was auto-created by Supabase, using that instead');
+        return retryFetch;
+      }
+
       throw new Error(`Failed to create user: ${error.message}`);
     }
 

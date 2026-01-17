@@ -15,6 +15,18 @@ Centaur OS is a comprehensive iOS mobile application that helps lean companies o
 
 ## 🔄 Recent Updates (Jan 2026)
 
+### ⚠️ ACTION REQUIRED: Fix Profile RLS Policy
+
+**Issue:** Sign-up fails with "new row violates row-level security policy for table 'profiles'"
+
+**Quick Fix:** Add RLS policy to allow profile creation. See **[FIX_RLS_POLICY.md](FIX_RLS_POLICY.md)** for two options:
+- **Option A (Recommended):** Set up database trigger to auto-create profiles
+- **Option B:** Add INSERT policy to allow manual profile creation
+
+**Temporary workaround:** Code now checks if profile exists before/after creation attempt.
+
+---
+
 ### Supabase Database Integration - COMPLETE! 💾
 **Full database persistence:** All data now saved to existing Supabase tables!
 
