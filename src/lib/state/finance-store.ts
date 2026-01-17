@@ -66,6 +66,9 @@ interface FinanceState {
   // Persistence
   saveToStorage: () => Promise<void>;
   loadFromStorage: () => Promise<void>;
+
+  // Reset method for clearing all data
+  reset: () => Promise<void>;
 }
 
 // Demo financial data
@@ -88,15 +91,20 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
     const state = get();
     const existingSnapshot = state.snapshots.find(s => s.workspaceId === DEFAULT_WORKSPACE_ID);
 
-    if (!existingSnapshot) {
-      set((state) => ({
-        snapshots: [...state.snapshots, DEMO_SNAPSHOT],
-        isInitialized: true,
-      }));
-      await get().saveToStorage();
-    } else {
-      set({ isInitialized: true });
-    }
+    // DISABLED: Start with empty financial data for multi-tenant architecture
+    // Financial data should be loaded from Supabase or created by user
+    // if (!existingSnapshot) {
+    //   set((state) => ({
+    //     snapshots: [...state.snapshots, DEMO_SNAPSHOT],
+    //     isInitialized: true,
+    //   }));
+    //   await get().saveToStorage();
+    // } else {
+    //   set({ isInitialized: true });
+    // }
+
+    // Just mark as initialized, don't load demo data
+    set({ isInitialized: true });
   },
 
   getSnapshot: (workspaceId: string) => {
@@ -236,6 +244,19 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
       }
     } catch (error) {
       console.error('Failed to load finance store:', error);
+    }
+  },
+
+  // Reset method - clears all financial data
+  reset: async () => {
+    set({
+      snapshots: [],
+      isInitialized: false,
+    });
+    try {
+      await AsyncStorage.removeItem(STORAGE_KEY);
+    } catch (error) {
+      console.error('Failed to clear finance storage:', error);
     }
   },
 }));

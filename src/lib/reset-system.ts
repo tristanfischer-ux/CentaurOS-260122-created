@@ -104,7 +104,8 @@ const ASYNC_STORAGE_COMPANY_KEYS = [
 
   // Store-specific AsyncStorage keys
   '@centaur-os:armory-v1',          // Armory store (loadouts, squads)
-  '@centaur-os:finance-snapshots',  // Finance store
+  '@centaur-os:finance-snapshots',  // Finance store (OLD key - may not be used)
+  'finance-store-v1',               // Finance store (CURRENT key)
   '@centaur-os:okr-queue',          // OKR queue
   '@centaur-os:squads',             // Squad store
   '@centaur-os:okr-planner',        // OKR planner store
