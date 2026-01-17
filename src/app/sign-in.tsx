@@ -1,4 +1,4 @@
-import { View, Text, Pressable, TextInput, ActivityIndicator } from 'react-native';
+import { View, Text, Pressable, TextInput, ActivityIndicator, ScrollView } from 'react-native';
 import { useState, useEffect } from 'react';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Building2, Mail, ArrowRight, Zap, Sparkles, TrendingUp, Rocket, Lock } from 'lucide-react-native';
@@ -253,7 +253,12 @@ export default function SignInScreen() {
           />
         </View>
 
-        <View className="flex-1 px-6 justify-center">
+        <ScrollView
+          className="flex-1"
+          contentContainerStyle={{ flexGrow: 1, paddingHorizontal: 24, paddingVertical: 40 }}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+        >
           {/* Logo and Title */}
           <View className="items-center mb-10">
             <Animated.View style={pulseStyle}>
@@ -432,7 +437,7 @@ export default function SignInScreen() {
           </View>
 
           {/* Sign Up Link */}
-          <View className="mt-8 flex-row items-center justify-center bg-white/15 backdrop-blur-xl rounded-2xl py-4 px-6 border border-white/30">
+          <View className="mt-8 mb-6 flex-row items-center justify-center bg-white/15 backdrop-blur-xl rounded-2xl py-4 px-6 border border-white/30">
             <Text className="text-white text-base font-semibold">Don't have an account? </Text>
             <Pressable
               onPress={() => router.push('/sign-up')}
@@ -442,7 +447,7 @@ export default function SignInScreen() {
               <Text className="text-white font-black text-base underline">Sign Up Free</Text>
             </Pressable>
           </View>
-        </View>
+        </ScrollView>
       </LinearGradient>
     </View>
   );
