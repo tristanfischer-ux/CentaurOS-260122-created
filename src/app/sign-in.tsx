@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Building2, Mail, ArrowRight, Zap, Sparkles, TrendingUp, Rocket, Lock } from 'lucide-react-native';
 import { supabase } from '@/lib/supabase';
-import { userApi } from '@/lib/api';
+import { userService } from '@/lib/supabase-service';
 import { useAppStore } from '@/lib/state/app-store';
 import { router } from 'expo-router';
 import { hasCompletedOnboarding } from '@/lib/onboarding';
@@ -97,11 +97,12 @@ export default function SignInScreen() {
       }
 
       // Get user profile from local API (or create if doesn't exist)
-      let user = await userApi.getByEmail(email.toLowerCase());
+      let user = await userService.getByEmail(email.toLowerCase());
 
       if (!user) {
         // Create user profile in local store if it doesn't exist
-        user = await userApi.create({
+        user = await userService.create({
+          id: authData.user.id,
           email: email.toLowerCase(),
           name: authData.user.user_metadata?.name || email.split('@')[0],
         });
@@ -112,6 +113,9 @@ export default function SignInScreen() {
 
       setCurrentUser(user);
       setAuthToken(token);
+
+      // Load user data from Supabase
+      await useAppStore.getState().loadUserData(user.id);
 
       // Check if user has completed onboarding
       const completedOnboarding = await hasCompletedOnboarding(user.id);
@@ -156,12 +160,13 @@ export default function SignInScreen() {
         return;
       }
 
-      // Get user profile from local API
-      let user = await userApi.getByEmail(demoEmail.toLowerCase());
+      // Get user profile from Supabase
+      let user = await userService.getByEmail(demoEmail.toLowerCase());
 
       if (!user) {
-        // Create user profile in local store if it doesn't exist
-        user = await userApi.create({
+        // Create user profile in database if it doesn't exist
+        user = await userService.create({
+          id: authData.user.id,
           email: demoEmail.toLowerCase(),
           name: authData.user.user_metadata?.name || demoEmail.split('@')[0],
         });
@@ -172,6 +177,9 @@ export default function SignInScreen() {
 
       setCurrentUser(user);
       setAuthToken(token);
+
+      // Load user data from Supabase
+      await useAppStore.getState().loadUserData(user.id);
 
       // Check if user has completed onboarding
       const completedOnboarding = await hasCompletedOnboarding(user.id);

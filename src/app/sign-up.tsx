@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Building2, Mail, User, ArrowRight, ArrowLeft, Sparkles, Rocket, Lock } from 'lucide-react-native';
 import { supabase } from '@/lib/supabase';
-import { userApi, workspaceApi } from '@/lib/api';
+import { userService } from '@/lib/supabase-service';
 import { useAppStore } from '@/lib/state/app-store';
 import { router } from 'expo-router';
 import Animated, {
@@ -125,17 +125,15 @@ export default function SignUpScreen() {
         return;
       }
 
-      // Create user profile in local store
-      const user = await userApi.create({
+      // Create user profile in Supabase database
+      const user = await userService.create({
+        id: authData.user.id,
         email: email.toLowerCase(),
         name: name.trim(),
       });
 
-      // Create workspace for the user
-      const workspace = await workspaceApi.create({
-        name: workspaceName.trim(),
-        ownerId: user.id,
-      });
+      // Create workspace using Supabase
+      await useAppStore.getState().createWorkspace(workspaceName.trim(), user.id);
 
       // Set auth token from Supabase session
       const token = authData.session?.access_token || '';

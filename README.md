@@ -15,6 +15,48 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
 
 ## 🔄 Recent Updates (Jan 2026)
 
+### Supabase Database Integration - COMPLETE! 💾
+**Full database persistence:** All data now saved to Supabase PostgreSQL!
+
+**What Was Done:**
+- ✅ Created comprehensive database schema with 7 tables
+- ✅ Implemented Row Level Security (RLS) for multi-tenant isolation
+- ✅ Built Supabase service layer for all CRUD operations
+- ✅ Integrated app-store with Supabase for data persistence
+- ✅ Updated sign-in/sign-up to create profiles in database
+- ✅ Automatic workspace and membership creation on signup
+- ✅ Session-based data loading from database
+
+**Database Schema:**
+- **users**: User profiles (linked to Supabase Auth)
+- **workspaces**: Companies/organizations
+- **memberships**: User roles in workspaces (Founder, Exec, Apprentice)
+- **team_members**: People working in each workspace with capacity, cost, AI tools
+- **objectives**: OKRs for strategic planning
+- **key_results**: Measurable targets for objectives
+- **tasks**: Work items with assignments and time tracking
+
+**Row Level Security:**
+- Users can only access workspaces they're members of
+- Founders have full control of their workspace
+- Executives can manage their function
+- Apprentices can view and create tasks
+- Multi-tenant isolation enforced at database level
+
+**Setup Required:**
+1. Run `supabase-schema.sql` in Supabase SQL Editor
+2. Verify RLS is enabled on all tables
+3. Test sign-up and sign-in flows
+
+**Status:** ✅ IMPLEMENTED
+Files:
+- `supabase-schema.sql` - Database schema
+- `/src/lib/supabase-service.ts` - Service layer
+- `/src/lib/state/app-store.ts` - Integrated store
+- `SUPABASE_INTEGRATION_GUIDE.md` - Full documentation
+
+---
+
 ### Supabase Authentication Integration - COMPLETE! 🔐
 **Real authentication:** Replaced mock authentication with Supabase Auth!
 
