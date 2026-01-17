@@ -97,16 +97,31 @@ export default function SignInScreen() {
         return;
       }
 
-      // Get user profile from local API (or create if doesn't exist)
+      // Get user profile (or use auth data if profile doesn't exist)
       let user = await userService.getByEmail(email.toLowerCase());
 
       if (!user) {
-        // Create user profile in local store if it doesn't exist
-        user = await userService.create({
-          id: authData.user.id,
-          email: email.toLowerCase(),
-          name: authData.user.user_metadata?.name || email.split('@')[0],
-        });
+        // Try to create user profile
+        try {
+          user = await userService.create({
+            id: authData.user.id,
+            email: email.toLowerCase(),
+            name: authData.user.user_metadata?.name || email.split('@')[0],
+          });
+        } catch (createError) {
+          console.error('[Sign In] Failed to create profile, using auth data:', createError);
+          // Create a user object from auth data without requiring database profile
+          user = {
+            id: authData.user.id,
+            email: email.toLowerCase(),
+            name: authData.user.user_metadata?.name || email.split('@')[0],
+            avatarUrl: undefined,
+            createdAt: new Date().toISOString(),
+            preferences: {
+              themeMode: 'system' as const,
+            },
+          };
+        }
       }
 
       // Set auth token from Supabase session
@@ -161,16 +176,31 @@ export default function SignInScreen() {
         return;
       }
 
-      // Get user profile from Supabase
+      // Get user profile from Supabase (or use auth data if profile doesn't exist)
       let user = await userService.getByEmail(demoEmail.toLowerCase());
 
       if (!user) {
-        // Create user profile in database if it doesn't exist
-        user = await userService.create({
-          id: authData.user.id,
-          email: demoEmail.toLowerCase(),
-          name: authData.user.user_metadata?.name || demoEmail.split('@')[0],
-        });
+        // Try to create user profile
+        try {
+          user = await userService.create({
+            id: authData.user.id,
+            email: demoEmail.toLowerCase(),
+            name: authData.user.user_metadata?.name || demoEmail.split('@')[0],
+          });
+        } catch (createError) {
+          console.error('[Quick Sign In] Failed to create profile, using auth data:', createError);
+          // Create a user object from auth data without requiring database profile
+          user = {
+            id: authData.user.id,
+            email: demoEmail.toLowerCase(),
+            name: authData.user.user_metadata?.name || demoEmail.split('@')[0],
+            avatarUrl: undefined,
+            createdAt: new Date().toISOString(),
+            preferences: {
+              themeMode: 'system' as const,
+            },
+          };
+        }
       }
 
       // Set auth token from Supabase session

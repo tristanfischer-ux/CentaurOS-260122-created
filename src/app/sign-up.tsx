@@ -125,28 +125,36 @@ export default function SignUpScreen() {
         return;
       }
 
-      // Wait for Supabase trigger to auto-create profile (if enabled)
-      // Then fetch the profile instead of manually creating it
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1 second for trigger
-
+      // Try to get or create user profile
+      // If RLS blocks creation, use auth data directly without requiring database profile
       let user = await userService.getById(authData.user.id);
 
       if (!user) {
-        // If trigger didn't create it, try to create manually
+        console.log('[Sign Up] Profile not found, attempting to create...');
         try {
           user = await userService.create({
             id: authData.user.id,
             email: email.toLowerCase(),
             name: name.trim(),
           });
+          console.log('[Sign Up] Profile created successfully');
         } catch (createError) {
-          console.error('Failed to create profile:', createError);
-          // One final retry - check if it exists now
-          user = await userService.getById(authData.user.id);
-          if (!user) {
-            throw new Error('Profile not found after creation. Please check RLS policies.');
-          }
+          console.error('[Sign Up] Failed to create profile, using auth data:', createError);
+          // Create a user object from auth data without requiring database profile
+          user = {
+            id: authData.user.id,
+            email: email.toLowerCase(),
+            name: name.trim(),
+            avatarUrl: undefined,
+            createdAt: new Date().toISOString(),
+            preferences: {
+              themeMode: 'system' as const,
+            },
+          };
+          console.log('[Sign Up] Using auth-based user object (no database profile)');
         }
+      } else {
+        console.log('[Sign Up] Existing profile found');
       }
 
       console.log('[Sign Up] User profile obtained:', user.email);
