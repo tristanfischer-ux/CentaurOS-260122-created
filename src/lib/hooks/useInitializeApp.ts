@@ -37,6 +37,10 @@ export function useInitializeApp() {
   const setAuditLogs = useAppStore((s) => s.setAuditLogs);
   const setMetricEvents = useAppStore((s) => s.setMetricEvents);
 
+  // NEW: Supabase data loading
+  const loadUniversalData = useUniversalStore((s) => s.loadUniversalData);
+  const loadFinancialData = useFinanceStore((s) => s.loadFinancialData);
+
   useEffect(() => {
     async function initApp() {
       try {
@@ -47,6 +51,17 @@ export function useInitializeApp() {
 
         // Initialize auth state
         await initialize();
+
+        // NEW: Load universal data from Supabase (AI tools, templates, etc.)
+        // This is loaded once at app start for all users
+        console.log('Loading universal data from Supabase...');
+        await loadUniversalData();
+
+        // NEW: Load financial data for test workspace
+        // TODO: This should be loaded when workspace is selected, not at app init
+        const TEST_WORKSPACE_ID = '00000000-0000-0000-0000-000000000001';
+        console.log('Loading financial data from Supabase...');
+        await loadFinancialData(TEST_WORKSPACE_ID);
 
         // DISABLED: No longer auto-seeding demo data for new users
         // initializeSuppliers();
