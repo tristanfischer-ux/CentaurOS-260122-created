@@ -255,38 +255,20 @@ export const userService = {
 export const workspaceService = {
   /**
    * Get all workspaces for a user
+   * Uses a direct workspace query with RLS instead of querying memberships first
    */
   async getForUser(userId: string): Promise<Workspace[]> {
-    // First, get all workspace IDs the user is a member of
-    const { data: membershipData, error: membershipError } = await supabase
-      .from('memberships')
-      .select('workspace_id')
-      .eq('user_id', userId);
-
-    if (membershipError) {
-      console.error('Error fetching memberships for workspaces:', membershipError.message, membershipError.details, membershipError.hint);
-      return [];
-    }
-
-    if (!membershipData || membershipData.length === 0) {
-      return [];
-    }
-
-    // Extract workspace IDs
-    const workspaceIds = membershipData.map((m) => m.workspace_id);
-
-    // Fetch all workspaces the user has access to
+    // Query workspaces directly - RLS should handle membership filtering
     const { data, error } = await supabase
       .from('workspaces')
-      .select('*')
-      .in('id', workspaceIds);
+      .select('*');
 
     if (error) {
       console.error('Error fetching workspaces:', error.message, error.details, error.hint);
       return [];
     }
 
-    return data.map(supabaseToWorkspace);
+    return (data || []).map(supabaseToWorkspace);
   },
 
   /**
