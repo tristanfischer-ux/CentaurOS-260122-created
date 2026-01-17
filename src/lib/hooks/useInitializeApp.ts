@@ -6,6 +6,8 @@ import { useSupplierStore } from '../state/supplier-store';
 import { useOrganizationStore } from '../state/organization-store';
 import { useOKRPlannerStore } from '../state/okr-planner-store';
 import { useSquadStore } from '../state/squad-store';
+import { useUniversalStore } from '../state/universal-store';
+import { useFinanceStore } from '../state/finance-store';
 import { db } from '../storage';
 import { seedDemoData } from '../api/seed';
 import { seedArmoryDemo } from '../armory/seed-demo';

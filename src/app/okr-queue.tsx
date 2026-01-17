@@ -41,10 +41,8 @@ export default function BuildQueueScreen() {
   const initializeQueue = useQueueStore((s) => s.initializeQueue);
 
   const allOkrs = useOKRStore((s) => s.okrs);
-  const initializeFinance = useFinanceStore((s) => s.initializeFinance);
-
-  // Get finance snapshot for memoized data access
-  const financeSnapshots = useFinanceStore((s) => s.snapshots);
+  const getRunway = useFinanceStore((s) => s.getRunway);
+  const getWeeklyBurn = useFinanceStore((s) => s.getWeeklyBurn);
 
   // Filter queue items by workspace in useMemo
   const queueItems = useMemo(() =>
@@ -58,11 +56,8 @@ export default function BuildQueueScreen() {
     [allOkrs, workspaceId]
   );
 
-  const snapshot = useMemo(() =>
-    financeSnapshots.find((s) => s.workspaceId === workspaceId),
-    [financeSnapshots, workspaceId]
-  );
-  const runway = snapshot?.runwayWeeks ?? 0;
+  const runway = getRunway(workspaceId);
+  const weeklyBurn = getWeeklyBurn(workspaceId);
 
   // State
   const [selectedItem, setSelectedItem] = useState<QueueItem | null>(null);
@@ -71,7 +66,6 @@ export default function BuildQueueScreen() {
   // Initialize stores
   useEffect(() => {
     initializeQueue();
-    initializeFinance();
   }, []);
 
   // Calculate summary from queueItems
@@ -93,9 +87,9 @@ export default function BuildQueueScreen() {
       totalEtaWeeks,
       totalBurnGBP,
       totalCostGBP,
-      runwayImpactWeeks: runway > 0 ? Math.round(totalCostGBP / ((snapshot?.weeklyBurnGBP ?? 1) * runway) * 100) / 100 : 0,
+      runwayImpactWeeks: runway > 0 && weeklyBurn > 0 ? Math.round(totalCostGBP / (weeklyBurn * runway) * 100) / 100 : 0,
     };
-  }, [queueItems, runway, snapshot?.weeklyBurnGBP]);
+  }, [queueItems, runway, weeklyBurn]);
 
   // Group items by lane
   const itemsByLane = useMemo(() => {
