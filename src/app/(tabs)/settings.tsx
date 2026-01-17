@@ -27,6 +27,28 @@ import {
   getAllDataForSync,
 } from '@/lib/data-export';
 import { storage } from '@/lib/storage';
+import { resetAllCompanyData, formatDebugReport, getDataCounts } from '@/lib/reset-system';
+import type { StoreResetHandlers } from '@/lib/reset-system';
+// Import stores for reset handlers
+import { useArmoryStore } from '@/lib/state/armory-store';
+import { useFinanceStore } from '@/lib/state/finance-store';
+import { useOrganizationStore } from '@/lib/state/organization-store';
+import { useSupplierStore } from '@/lib/state/supplier-store';
+import { useDecisionsStore } from '@/lib/state/decisions-store';
+import { useObjectivesStore } from '@/lib/state/objectives-store';
+import { useWorkPlanStore } from '@/lib/state/work-plan-store';
+import { useOKRStore } from '@/lib/state/okr-store';
+import { useQueueStore } from '@/lib/state/okr-queue-store';
+import { useRequestStore } from '@/lib/state/request-store';
+import { useMessagesStore } from '@/lib/state/messages-store';
+import { useCalendarStore } from '@/lib/state/calendar-store';
+import { useCapacityStore } from '@/lib/state/capacity-store';
+import { useSquadStore } from '@/lib/state/squad-store';
+import { useBusinessImprovementsStore } from '@/lib/state/business-improvements-store';
+import { useIntegrationsStore } from '@/lib/state/integrations-store';
+import { useLeaderboardStore } from '@/lib/state/leaderboard-store';
+import { useOKRPlannerStore } from '@/lib/state/okr-planner-store';
+import { useTechTreeStore } from '@/lib/state/tech-tree-store';
 
 const SETTINGS_HELP: HelpContent = {
   title: 'Operations & Config',
@@ -435,29 +457,77 @@ export default function SettingsScreen() {
 
   const handleClearAllData = async () => {
     Alert.alert(
-      'Clear All App Data',
-      'This will remove ALL local data and sign you out. You can sign back in for a fresh start.\n\nYour Supabase account will remain intact.\n\nAre you absolutely sure?',
+      'Reset Company Data',
+      'This will remove ALL company data:\n\n• All objectives, tasks, and work plans\n• All team members and assignments\n• All decisions and allocations\n• All squads, loadouts, and tech tree progress\n• All notifications and messages\n\nYour Supabase account will remain intact.\n\nAre you absolutely sure?',
       [
         { text: 'Cancel', style: 'cancel' },
         {
-          text: 'Clear & Sign Out',
+          text: 'Reset Everything',
           style: 'destructive',
           onPress: async () => {
             try {
-              console.log('[Settings] Clearing all app data...');
+              console.log('[Settings] 🔄 Starting comprehensive reset...');
 
-              // Clear local storage
-              await storage.clearAllAppData();
+              // Gather all store reset handlers
+              const storeHandlers: StoreResetHandlers = {
+                armoryStore: useArmoryStore.getState(),
+                financeStore: useFinanceStore.getState(),
+                organizationStore: useOrganizationStore.getState(),
+                supplierStore: useSupplierStore.getState(),
+                decisionsStore: useDecisionsStore.getState(),
+                objectivesStore: useObjectivesStore.getState(),
+                workPlanStore: useWorkPlanStore.getState(),
+                okrStore: useOKRStore.getState(),
+                queueStore: useQueueStore.getState(),
+                requestStore: useRequestStore.getState(),
+                messagesStore: useMessagesStore.getState(),
+                calendarStore: useCalendarStore.getState(),
+                capacityStore: useCapacityStore.getState(),
+                squadStore: useSquadStore.getState(),
+                businessImprovementsStore: useBusinessImprovementsStore.getState(),
+                integrationsStore: useIntegrationsStore.getState(),
+                leaderboardStore: useLeaderboardStore.getState(),
+                okrPlannerStore: useOKRPlannerStore.getState(),
+                techTreeStore: useTechTreeStore.getState(),
+              };
 
-              console.log('[Settings] Signing out...');
+              // Get counts BEFORE reset (for debug report)
+              const beforeCounts = await getDataCounts();
+              console.log('[Settings] 📊 Before reset:', beforeCounts);
 
-              // Sign out (this will clear auth state too)
+              // Execute comprehensive reset
+              const resetReport = await resetAllCompanyData(storeHandlers);
+
+              // Get counts AFTER reset (for verification)
+              const afterCounts = await getDataCounts();
+              console.log('[Settings] 📊 After reset:', afterCounts);
+
+              // Log debug report in dev mode
+              if (__DEV__) {
+                console.log('\n' + formatDebugReport(resetReport) + '\n');
+                console.log('[Settings] 📊 Data Counts After Reset:');
+                console.log('  - Urgent Decisions:', useDecisionsStore.getState().decisions.length);
+                console.log('  - Objectives:', useObjectivesStore.getState().objectives.length);
+                console.log('  - Tasks/Activities:', useWorkPlanStore.getState().workPlans.length);
+                console.log('  - Team Members:', useOrganizationStore.getState().members.length);
+                console.log('  - AI Agents:', useOrganizationStore.getState().aiAgents.length);
+                console.log('  - Squads:', useArmoryStore.getState().squads.length);
+                console.log('  - Tech Tree Nodes:', Object.keys(useTechTreeStore.getState().nodeProgress).length);
+              }
+
+              console.log('[Settings] ✅ Reset complete! Signing out...');
+
+              // Sign out (this will clear auth state)
               await logout();
 
-              // Navigate to sign-in with a success message
+              // Show success message with debug info
+              const successMessage = __DEV__
+                ? `Reset complete!\n\n✅ Cleared ${resetReport.totalItemsCleared} items\n\nSign in again to start fresh.`
+                : 'All company data has been cleared. Sign in again to start fresh.';
+
               Alert.alert(
-                'Data Cleared!',
-                'All local data has been cleared. Sign in again to start fresh.',
+                'Reset Complete!',
+                successMessage,
                 [
                   {
                     text: 'OK',
@@ -468,8 +538,8 @@ export default function SettingsScreen() {
                 ]
               );
             } catch (error) {
-              console.error('[Settings] Failed to clear data:', error);
-              Alert.alert('Error', 'Failed to clear data. Please try again.');
+              console.error('[Settings] ❌ Failed to reset data:', error);
+              Alert.alert('Reset Failed', 'Could not reset data. Please try again or contact support.');
             }
           },
         },
