@@ -13,6 +13,35 @@ Centaur OS is a comprehensive iOS mobile application that helps lean companies o
 
 ---
 
+## 🎉 Fresh Start for New Users (Jan 17, 2026)
+
+### ✅ Demo Data Disabled - Clean Slate for Real Users
+
+**What Changed:**
+- 🚫 **Auto-seeding disabled**: No more dummy company data for new users
+- 🧹 **Clean local storage**: New "Clear All Data" button in Settings
+- 📋 **Supabase cleanup guide**: SQL queries to remove dummy data (see `CLEAN_SUPABASE_DATA.md`)
+- ✨ **Fresh onboarding**: New users start with a completely clean workspace
+
+**How It Works Now:**
+1. **Sign Up**: Creates your real profile and workspace (no dummy data)
+2. **Clean Slate**: Start with empty team, no fake OKRs, no sample tasks
+3. **Easy Cleanup**: Use Settings → Data Management → Clear All Data to wipe local storage
+4. **Database Cleanup**: Run SQL queries from `CLEAN_SUPABASE_DATA.md` to clean Supabase
+
+**For Existing Users:**
+- Use the "Clear All Data" button in Settings → Data Management
+- Follow the guide in `CLEAN_SUPABASE_DATA.md` to clean Supabase tables
+- Sign out and sign back in for a fresh start
+
+**Files Changed:**
+- `/src/lib/hooks/useInitializeApp.ts` - Disabled auto-seeding
+- `/src/lib/storage.ts` - Added `clearAllAppData()` function
+- `/src/app/(tabs)/settings.tsx` - Added "Clear All Data" button
+- `CLEAN_SUPABASE_DATA.md` - New guide for cleaning database
+
+---
+
 ## 🔄 Recent Updates (Jan 2026)
 
 ### ✅ RLS Policy Workarounds Applied

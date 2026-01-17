@@ -77,6 +77,24 @@ export const storage = {
       throw error;
     }
   },
+
+  // Clear all app data (for fresh start)
+  async clearAllAppData(): Promise<void> {
+    try {
+      console.log('[Storage] Clearing all app data...');
+
+      // Clear AsyncStorage
+      await AsyncStorage.clear();
+
+      // Clear MMKV
+      mmkv.clearAll();
+
+      console.log('[Storage] ✅ All app data cleared successfully');
+    } catch (error) {
+      console.error('[Storage] ❌ Error clearing app data:', error);
+      throw error;
+    }
+  },
 };
 
 // Domain-specific storage functions

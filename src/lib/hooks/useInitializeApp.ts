@@ -43,17 +43,11 @@ export function useInitializeApp() {
         // Initialize auth state
         await initialize();
 
-        // Initialize suppliers (from seed data)
-        initializeSuppliers();
-
-        // Initialize organization (from seed data)
-        initializeOrganization();
-
-        // Initialize OKR Planner store
-        await initializePlans();
-
-        // Initialize Squads store
-        await initializeSquads();
+        // DISABLED: No longer auto-seeding demo data for new users
+        // initializeSuppliers();
+        // initializeOrganization();
+        // await initializePlans();
+        // await initializeSquads();
 
         // Load all data from storage
         const [
@@ -88,85 +82,39 @@ export function useInitializeApp() {
           db.getAuditLogs(),
         ]);
 
+        // DISABLED: No longer auto-seeding demo data
         // Check if we need to seed demo data
-        const hasUsers = Object.keys(users).length > 0;
+        // const hasUsers = Object.keys(users).length > 0;
+        //
+        // if (!hasUsers) {
+        //   console.log('No existing data found, seeding demo workspace...');
+        //   await seedDemoData();
+        //   ... reload logic
+        // }
 
-        if (!hasUsers) {
-          console.log('No existing data found, seeding demo workspace...');
-          await seedDemoData();
+        // Just load the data directly (no seeding)
+        setWorkspaces(workspaces);
+        setMemberships(memberships);
+        setUsers(users);
+        setObjectives(objectives);
+        setKeyResults(keyResults);
+        setMetricEvents(metricEvents);
+        setProjects(projects);
+        setTasks(tasks);
+        setTaskComments(taskComments);
+        setTimeEntries(timeEntries);
+        setReviews(reviews);
+        setWeeklyPacks(weeklyPacks);
+        setTemplates(templates);
+        setAuditLogs(auditLogs);
 
-          // Reload data after seeding
-          const [
-            newWorkspaces,
-            newMemberships,
-            newUsers,
-            newObjectives,
-            newKeyResults,
-            newMetricEvents,
-            newProjects,
-            newTasks,
-            newTaskComments,
-            newTimeEntries,
-            newReviews,
-            newWeeklyPacks,
-            newTemplates,
-            newAuditLogs,
-          ] = await Promise.all([
-            db.getWorkspaces(),
-            db.getMemberships(),
-            db.getUsers(),
-            db.getObjectives(),
-            db.getKeyResults(),
-            db.getMetricEvents(),
-            db.getProjects(),
-            db.getTasks(),
-            db.getTaskComments(),
-            db.getTimeEntries(),
-            db.getReviews(),
-            db.getWeeklyPacks(),
-            db.getTemplates(),
-            db.getAuditLogs(),
-          ]);
-
-          setWorkspaces(newWorkspaces);
-          setMemberships(newMemberships);
-          setUsers(newUsers);
-          setObjectives(newObjectives);
-          setKeyResults(newKeyResults);
-          setMetricEvents(newMetricEvents);
-          setProjects(newProjects);
-          setTasks(newTasks);
-          setTaskComments(newTaskComments);
-          setTimeEntries(newTimeEntries);
-          setReviews(newReviews);
-          setWeeklyPacks(newWeeklyPacks);
-          setTemplates(newTemplates);
-          setAuditLogs(newAuditLogs);
-          setIsSeeded(true);
-        } else {
-          setWorkspaces(workspaces);
-          setMemberships(memberships);
-          setUsers(users);
-          setObjectives(objectives);
-          setKeyResults(keyResults);
-          setMetricEvents(metricEvents);
-          setProjects(projects);
-          setTasks(tasks);
-          setTaskComments(taskComments);
-          setTimeEntries(timeEntries);
-          setReviews(reviews);
-          setWeeklyPacks(weeklyPacks);
-          setTemplates(templates);
-          setAuditLogs(auditLogs);
-        }
-
+        // DISABLED: No longer seeding armory demo
         // Initialize Armory with demo loadouts and squads
-        try {
-          await seedArmoryDemo();
-        } catch (armoryError) {
-          console.error('Failed to seed armory demo:', armoryError);
-          // Don't fail initialization if armory seeding fails
-        }
+        // try {
+        //   await seedArmoryDemo();
+        // } catch (armoryError) {
+        //   console.error('Failed to seed armory demo:', armoryError);
+        // }
 
         setIsInitialized(true);
       } catch (error) {

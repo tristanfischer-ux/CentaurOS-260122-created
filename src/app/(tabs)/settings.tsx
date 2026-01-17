@@ -4,7 +4,7 @@ import {
   Download, Upload, RefreshCw, Check, ExternalLink, Sheet, Play, Library, Eye,
   Mail, Users, Award, Building2, CheckCircle2,
   TrendingUp, Clock, Target, Zap, Settings2, ChevronDown, ChevronUp,
-  Sparkles, Shield, BarChart3, User, Briefcase, Rocket, HelpCircle
+  Sparkles, Shield, BarChart3, User, Briefcase, Rocket, HelpCircle, Trash2
 } from 'lucide-react-native';
 import { useAppStore, useCurrentUser, useCurrentMembership, useCurrentWorkspace } from '@/lib/state/app-store';
 import { router } from 'expo-router';
@@ -26,6 +26,7 @@ import {
   generateGoogleSheetsURL,
   getAllDataForSync,
 } from '@/lib/data-export';
+import { storage } from '@/lib/storage';
 
 const SETTINGS_HELP: HelpContent = {
   title: 'Operations & Config',
@@ -430,6 +431,42 @@ export default function SettingsScreen() {
   const handleLogout = async () => {
     await logout();
     router.replace('/sign-in');
+  };
+
+  const handleClearAllData = async () => {
+    Alert.alert(
+      'Clear All App Data',
+      'This will remove ALL local data including workspaces, team members, OKRs, and tasks. Your Supabase account will remain intact.\n\nAre you absolutely sure?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Clear Everything',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              console.log('[Settings] Clearing all app data...');
+              await storage.clearAllAppData();
+              Alert.alert(
+                'Success!',
+                'All local data has been cleared. The app will now reload.',
+                [
+                  {
+                    text: 'OK',
+                    onPress: () => {
+                      // Reload app to fresh state
+                      router.replace('/');
+                    },
+                  },
+                ]
+              );
+            } catch (error) {
+              console.error('[Settings] Failed to clear data:', error);
+              Alert.alert('Error', 'Failed to clear data. Please try again.');
+            }
+          },
+        },
+      ]
+    );
   };
 
   const handleReplayOnboarding = async () => {
@@ -1059,6 +1096,15 @@ export default function SettingsScreen() {
                   title="Reports"
                   subtitle="Generate consulting-grade reports"
                   onPress={() => router.push('/reports')}
+                  isDark={isDark}
+                  isOffWhite={isOffWhite}
+                />
+                <NavigationCard
+                  icon={Trash2}
+                  iconColor="#ef4444"
+                  title="Clear All Data"
+                  subtitle="Remove all local app data (DANGEROUS)"
+                  onPress={handleClearAllData}
                   isDark={isDark}
                   isOffWhite={isOffWhite}
                 />
