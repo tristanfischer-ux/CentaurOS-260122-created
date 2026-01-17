@@ -48,6 +48,7 @@ import { useWorkPlanStore } from '@/lib/state/work-plan-store';
 import { useArmoryStore } from '@/lib/state/armory-store';
 import { useCurrentWorkspace, useCurrentMembership } from '@/lib/state/app-store';
 import type { SupplierEngagement, AIAgent, OrganizationMember, Advisor } from '@/lib/organization-seed';
+// ADVISORS is now an empty array - import but it will return []
 import { ADVISORS } from '@/lib/organization-seed';
 import { HelpModal, HelpButton, type HelpContent } from '@/components/HelpModal';
 import { SettingsGearButton } from '@/components/SettingsGearButton';

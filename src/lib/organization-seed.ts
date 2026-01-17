@@ -212,7 +212,13 @@ export interface Advisor {
 }
 
 // Organization structure with reporting lines
-export const ORGANIZATION_MEMBERS: OrganizationMember[] = [
+// Organization Members (Team)
+// DISABLED: Organization members should be loaded from Supabase
+// All hardcoded member data has been disabled for multi-tenant architecture
+export const ORGANIZATION_MEMBERS: OrganizationMember[] = [];
+
+/* REFERENCE: Original hardcoded data (will be migrated to Supabase)
+export const ORGANIZATION_MEMBERS_ORIGINAL: OrganizationMember[] = [
   // Founders (no reports to anyone)
   {
     workspaceId: DEFAULT_WORKSPACE_ID,
@@ -459,9 +465,15 @@ export const ORGANIZATION_MEMBERS: OrganizationMember[] = [
     aiProficiencyMultiplier: 1.55, // Excellent with AI (creative tools)
   },
 ];
+*/
 
 // Active supplier engagements
-export const SUPPLIER_ENGAGEMENTS: SupplierEngagement[] = [
+// DISABLED: Supplier engagements should be loaded from Supabase
+// All hardcoded supplier data has been disabled for multi-tenant architecture
+export const SUPPLIER_ENGAGEMENTS: SupplierEngagement[] = [];
+
+/* REFERENCE: Original hardcoded data (will be migrated to Supabase)
+export const SUPPLIER_ENGAGEMENTS_ORIGINAL: SupplierEngagement[] = [
   {
     workspaceId: DEFAULT_WORKSPACE_ID,
     id: 'eng-1',
@@ -535,10 +547,16 @@ export const SUPPLIER_ENGAGEMENTS: SupplierEngagement[] = [
     },
   },
 ];
+*/
 
 // AI Agents & Assistants Directory
 // Organized by business function to match org structure
-export const AI_AGENTS: AIAgent[] = [
+// DISABLED: AI agents should be loaded from Supabase
+// All hardcoded AI agent data has been disabled for multi-tenant architecture
+export const AI_AGENTS: AIAgent[] = [];
+
+/* REFERENCE: Original hardcoded data (will be migrated to Supabase)
+export const AI_AGENTS_ORIGINAL: AIAgent[] = [
   // ========== FINANCE (3 agents) ==========
   {
     workspaceId: DEFAULT_WORKSPACE_ID,
@@ -1423,6 +1441,7 @@ export const AI_AGENTS: AIAgent[] = [
     },
   },
 ];
+*/
 
 // Calculate total AI spend
 export const getTotalAISpend = (): number => {
