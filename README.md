@@ -22,12 +22,14 @@ Centaur OS is a comprehensive iOS mobile application that helps lean companies o
 - 🧹 **Clean local storage**: New "Clear All Data" button in Settings
 - 📋 **Supabase cleanup guide**: SQL queries to remove dummy data (see `CLEAN_SUPABASE_DATA.md`)
 - ✨ **Fresh onboarding**: New users start with a completely clean workspace
+- 🎨 **Empty state UI**: Beautiful guidance when no data exists
 
 **How It Works Now:**
 1. **Sign Up**: Creates your real profile and workspace (no dummy data)
 2. **Clean Slate**: Start with empty team, no fake OKRs, no sample tasks
-3. **Easy Cleanup**: Use Settings → Data Management → Clear All Data to wipe local storage
-4. **Database Cleanup**: Run SQL queries from `CLEAN_SUPABASE_DATA.md` to clean Supabase
+3. **Empty State Guidance**: Helpful UI shows next steps when screens are empty
+4. **Easy Cleanup**: Use Settings → Data Management → Clear All Data to wipe local storage
+5. **Database Cleanup**: Run SQL queries from `CLEAN_SUPABASE_DATA.md` to clean Supabase
 
 **For Existing Users:**
 - Use the "Clear All Data" button in Settings → Data Management
@@ -38,7 +40,10 @@ Centaur OS is a comprehensive iOS mobile application that helps lean companies o
 - `/src/lib/hooks/useInitializeApp.ts` - Disabled auto-seeding
 - `/src/lib/storage.ts` - Added `clearAllAppData()` function
 - `/src/app/(tabs)/settings.tsx` - Added "Clear All Data" button
+- `/src/app/(tabs)/decide.tsx` - Added empty state UI with helpful guidance
+- `/src/components/EmptyState.tsx` - Reusable empty state component
 - `CLEAN_SUPABASE_DATA.md` - New guide for cleaning database
+- `COMPLETE_RESET_FIX_FINAL.md` - Complete documentation of reset system fixes
 
 ---
 

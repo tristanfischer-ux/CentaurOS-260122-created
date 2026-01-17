@@ -34,6 +34,7 @@ import { identifyTUOpportunities, type TUOpportunity } from '@/lib/reports/tu-an
 import { calculateEndDate, calculateCompletionDays } from '@/lib/task-timeline-calculator';
 import { filterWorkPlansByRole, filterOKRsByRole } from '@/lib/role-utils';
 import { RoleIndicator } from '@/components/RoleIndicator';
+import { EmptyState } from '@/components/EmptyState';
 
 // Team efficiency types
 
@@ -2098,6 +2099,26 @@ export default function DecideScreen() {
                 })}
               </View>
             </View>
+          ) : null;
+        })()}
+
+        {/* EMPTY STATE - Show when no tasks exist */}
+        {(() => {
+          const allTasks = workPlans.filter(wp =>
+            wp.status !== 'completed' && wp.status !== 'abandoned'
+          );
+
+          return allTasks.length === 0 ? (
+            <EmptyState
+              icon={Target}
+              title="No Tasks Yet"
+              description="Create your first task to start allocating resources and managing your team's work. Use the + button above to add a task, or tap Ideas for AI-generated suggestions."
+              actionText="Create Task"
+              onAction={() => setShowCreateModal(true)}
+              secondaryActionText="Browse Ideas"
+              onSecondaryAction={() => setShowIdeasModal(true)}
+              iconColor="#8b5cf6"
+            />
           ) : null;
         })()}
 
