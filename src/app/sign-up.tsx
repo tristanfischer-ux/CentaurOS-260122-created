@@ -125,13 +125,31 @@ export default function SignUpScreen() {
         return;
       }
 
-      // Create user profile in Supabase database
-      // Note: profiles table doesn't have 'name' column, name is derived from email
-      const user = await userService.create({
-        id: authData.user.id,
-        email: email.toLowerCase(),
-        name: name.trim(), // This will be ignored by userToSupabase, but kept for local state
-      });
+      // Wait for Supabase trigger to auto-create profile (if enabled)
+      // Then fetch the profile instead of manually creating it
+      await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1 second for trigger
+
+      let user = await userService.getById(authData.user.id);
+
+      if (!user) {
+        // If trigger didn't create it, try to create manually
+        try {
+          user = await userService.create({
+            id: authData.user.id,
+            email: email.toLowerCase(),
+            name: name.trim(),
+          });
+        } catch (createError) {
+          console.error('Failed to create profile:', createError);
+          // One final retry - check if it exists now
+          user = await userService.getById(authData.user.id);
+          if (!user) {
+            throw new Error('Profile not found after creation. Please check RLS policies.');
+          }
+        }
+      }
+
+      console.log('[Sign Up] User profile obtained:', user.email);
 
       // Create workspace using Supabase
       await useAppStore.getState().createWorkspace(workspaceName.trim(), user.id);
