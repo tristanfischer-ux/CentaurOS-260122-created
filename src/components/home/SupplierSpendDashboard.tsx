@@ -8,7 +8,7 @@ import { useMemo, useState } from 'react';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import {
-  DollarSign,
+  PoundSterling,
   ChevronRight,
   TrendingUp,
   TrendingDown,
@@ -196,7 +196,7 @@ export function SupplierSpendDashboard() {
       <View className="flex-row items-center justify-between mb-3">
         <View className="flex-row items-center gap-2">
           <View className="bg-blue-500 p-1.5 rounded-lg">
-            <DollarSign size={16} color="white" />
+            <PoundSterling size={16} color="white" />
           </View>
           <Text className="text-slate-900 dark:text-white font-bold text-base">
             Supplier & Vendor Spend
