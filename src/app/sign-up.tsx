@@ -126,10 +126,11 @@ export default function SignUpScreen() {
       }
 
       // Create user profile in Supabase database
+      // Note: profiles table doesn't have 'name' column, name is derived from email
       const user = await userService.create({
         id: authData.user.id,
         email: email.toLowerCase(),
-        name: name.trim(),
+        name: name.trim(), // This will be ignored by userToSupabase, but kept for local state
       });
 
       // Create workspace using Supabase

@@ -31,7 +31,7 @@ Centaur OS is a comprehensive iOS mobile application that helps lean companies o
 - ✅ RLS policies fixed - data loading re-enabled
 
 **Existing Tables Used:**
-- **profiles**: User profiles (extends Supabase Auth)
+- **profiles**: User profiles (id, email, avatar_url, theme_mode) - **Note:** No `name` column, names derived from email
 - **workspaces**: Companies/organizations
 - **memberships**: User roles in workspaces (Founder, Exec, Apprentice)
 - **team_members**: People with capacity, cost, AI tools

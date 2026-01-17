@@ -28,11 +28,15 @@ The `supabase-service.ts` has been updated to work with your **existing Supabase
 ## 📋 Services Available
 
 ### userService (profiles table)
+
+**Note:** The `profiles` table does NOT have a `name` column. User names are derived from email addresses (the part before @). The table only stores: `id`, `email`, `avatar_url`, `created_at`, `theme_mode`.
+
 ```typescript
 import { userService } from '@/lib/supabase-service';
 
 // Get user by ID
 const user = await userService.getById(userId);
+// Returns: { id, email, name: "derived@from.email", avatarUrl, createdAt, preferences }
 
 // Get user by email
 const user = await userService.getByEmail('user@example.com');
@@ -41,11 +45,14 @@ const user = await userService.getByEmail('user@example.com');
 const user = await userService.create({
   id: authUserId,
   email: 'user@example.com',
-  name: 'John Doe'
+  name: 'John Doe' // This is kept in local state but NOT saved to database
 });
 
-// Update user
-await userService.update(userId, { name: 'New Name' });
+// Update user (only email, avatarUrl, and theme_mode can be updated)
+await userService.update(userId, {
+  avatarUrl: 'https://example.com/avatar.jpg',
+  preferences: { themeMode: 'dark' }
+});
 ```
 
 ### workspaceService

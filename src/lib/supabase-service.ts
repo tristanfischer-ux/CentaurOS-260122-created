@@ -22,7 +22,7 @@ function supabaseToUser(row: any): User {
   return {
     id: row.id,
     email: row.email,
-    name: row.name,
+    name: row.email?.split('@')[0] || 'User', // Derive name from email since profiles table doesn't have name column
     avatarUrl: row.avatar_url,
     createdAt: row.created_at,
     preferences: {
@@ -32,14 +32,19 @@ function supabaseToUser(row: any): User {
 }
 
 // Convert User to Supabase row (for profiles table)
+// Note: profiles table doesn't have 'name' column - only id, email, avatar_url, theme_mode
 function userToSupabase(user: Partial<User>): any {
-  return {
-    id: user.id,
-    email: user.email,
-    name: user.name,
-    avatar_url: user.avatarUrl,
-    theme_mode: user.preferences?.themeMode,
-  };
+  const result: any = {};
+
+  if (user.id !== undefined) result.id = user.id;
+  if (user.email !== undefined) result.email = user.email;
+  if (user.avatarUrl !== undefined) result.avatar_url = user.avatarUrl;
+  if (user.preferences?.themeMode !== undefined) result.theme_mode = user.preferences.themeMode;
+
+  // Remove undefined values
+  Object.keys(result).forEach(key => result[key] === undefined && delete result[key]);
+
+  return result;
 }
 
 // Convert Supabase row to Workspace
