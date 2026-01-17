@@ -114,8 +114,12 @@ const getLevelProgress = (xp: number) => {
   return (xp - currentThreshold) / (nextThreshold - currentThreshold);
 };
 
-// Enhanced demo guilds with engagement features
-const DEMO_GUILDS: Guild[] = [
+// DISABLED: Demo data removed for multi-tenant architecture
+// Guilds should be loaded from Supabase
+const DEMO_GUILDS: Guild[] = [];
+
+/* REFERENCE: Original demo data (will be migrated to Supabase)
+const DEMO_GUILDS_ORIGINAL: Guild[] = [
   {
     id: 'guild-1',
     name: 'Hardware Design Guild',
@@ -261,6 +265,7 @@ const DEMO_GUILDS: Guild[] = [
     upcomingEvents: 2,
   },
 ];
+*/
 
 // Badge definitions
 const BADGES = {
