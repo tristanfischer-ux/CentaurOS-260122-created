@@ -1,7 +1,8 @@
 import { View, Text, Pressable, TextInput, ActivityIndicator, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import { useState, useEffect } from 'react';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Building2, Mail, User, ArrowRight, ArrowLeft, Sparkles, Rocket } from 'lucide-react-native';
+import { Building2, Mail, User, ArrowRight, ArrowLeft, Sparkles, Rocket, Lock } from 'lucide-react-native';
+import { supabase } from '@/lib/supabase';
 import { userApi, workspaceApi } from '@/lib/api';
 import { useAppStore } from '@/lib/state/app-store';
 import { router } from 'expo-router';
@@ -17,6 +18,7 @@ import Animated, {
 export default function SignUpScreen() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [workspaceName, setWorkspaceName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
@@ -74,6 +76,16 @@ export default function SignUpScreen() {
       return;
     }
 
+    if (!password.trim()) {
+      setError('Please enter a password');
+      return;
+    }
+
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters');
+      return;
+    }
+
     if (!workspaceName.trim()) {
       setError('Please enter a workspace name');
       return;
@@ -90,15 +102,30 @@ export default function SignUpScreen() {
     setError('');
 
     try {
-      // Check if user already exists
-      const existingUser = await userApi.getByEmail(email.toLowerCase());
-      if (existingUser) {
-        setError('An account with this email already exists. Please sign in instead.');
+      // Sign up with Supabase
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email: email.toLowerCase().trim(),
+        password: password,
+        options: {
+          data: {
+            name: name.trim(),
+          },
+        },
+      });
+
+      if (authError) {
+        setError(authError.message);
         setIsLoading(false);
         return;
       }
 
-      // Create new user
+      if (!authData.user) {
+        setError('Failed to create account. Please try again.');
+        setIsLoading(false);
+        return;
+      }
+
+      // Create user profile in local store
       const user = await userApi.create({
         email: email.toLowerCase(),
         name: name.trim(),
@@ -110,8 +137,8 @@ export default function SignUpScreen() {
         ownerId: user.id,
       });
 
-      // Mock auth token
-      const token = `token_${user.id}_${Date.now()}`;
+      // Set auth token from Supabase session
+      const token = authData.session?.access_token || '';
 
       setCurrentUser(user);
       setAuthToken(token);
@@ -274,6 +301,27 @@ export default function SignUpScreen() {
                       value={email}
                       onChangeText={setEmail}
                       keyboardType="email-address"
+                      autoCapitalize="none"
+                      autoCorrect={false}
+                      editable={!isLoading}
+                    />
+                  </View>
+                </View>
+
+                {/* Password Input */}
+                <View className="mb-5">
+                  <Text className="text-gray-700 mb-2 text-sm font-semibold">Password</Text>
+                  <View className="flex-row items-center bg-gray-100 rounded-2xl px-4 py-4 border-2 border-gray-200">
+                    <View className="bg-blue-500 p-2 rounded-lg mr-3">
+                      <Lock size={18} color="white" />
+                    </View>
+                    <TextInput
+                      className="flex-1 text-gray-900 text-base font-medium"
+                      placeholder="At least 6 characters"
+                      placeholderTextColor="#94a3b8"
+                      value={password}
+                      onChangeText={setPassword}
+                      secureTextEntry
                       autoCapitalize="none"
                       autoCorrect={false}
                       editable={!isLoading}

@@ -15,7 +15,47 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
 
 ## 🔄 Recent Updates (Jan 2026)
 
-### Comprehensive Bug Fix & Enhancement Release - COMPLETE! (Latest) 🚀
+### Supabase Authentication Integration - COMPLETE! 🔐
+**Real authentication:** Replaced mock authentication with Supabase Auth!
+
+**What Was Done:**
+- ✅ Installed `@supabase/supabase-js` and `react-native-url-polyfill`
+- ✅ Created Supabase client at `/src/lib/supabase.ts`
+- ✅ Integrated environment variables (EXPO_PUBLIC_SUPABASE_URL, EXPO_PUBLIC_SUPABASE_ANON_KEY)
+- ✅ Updated sign-in screen with real authentication
+- ✅ Updated sign-up screen with real user registration
+- ✅ Added password fields with validation (min 6 characters)
+- ✅ Session management with AsyncStorage persistence
+
+**Technical Implementation:**
+- **Supabase Client**: Configured with AsyncStorage for session persistence
+- **Auto Token Refresh**: Sessions automatically refresh before expiring
+- **Sign In**: Email/password authentication with Supabase Auth
+- **Sign Up**: New user registration with metadata (name)
+- **Demo Accounts**: Quick sign-in buttons still work (password: demo1234)
+- **Error Handling**: Clear error messages for auth failures
+
+**User Experience:**
+- Sign in with email + password
+- Sign up with name, email, password, workspace name
+- Password must be at least 6 characters
+- Sessions persist across app restarts
+- Access token stored in app state
+
+**Next Steps:**
+- Database schema design for multi-tenancy
+- Row Level Security (RLS) policies
+- TypeScript type generation from schema
+
+**Status:** ✅ IMPLEMENTED
+Locations:
+- Supabase Client: `/src/lib/supabase.ts`
+- Sign In: `/src/app/sign-in.tsx`
+- Sign Up: `/src/app/sign-up.tsx`
+
+---
+
+### Comprehensive Bug Fix & Enhancement Release - COMPLETE! 🚀
 **Major quality improvements:** All critical bugs fixed, UX enhanced, 2x more task templates!
 
 **What Was Fixed:**

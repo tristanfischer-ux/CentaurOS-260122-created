@@ -1,7 +1,8 @@
 import { View, Text, Pressable, TextInput, ActivityIndicator } from 'react-native';
 import { useState, useEffect } from 'react';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Building2, Mail, ArrowRight, Zap, Sparkles, TrendingUp, Rocket } from 'lucide-react-native';
+import { Building2, Mail, ArrowRight, Zap, Sparkles, TrendingUp, Rocket, Lock } from 'lucide-react-native';
+import { supabase } from '@/lib/supabase';
 import { userApi } from '@/lib/api';
 import { useAppStore } from '@/lib/state/app-store';
 import { router } from 'expo-router';
@@ -17,6 +18,7 @@ import Animated, {
 
 export default function SignInScreen() {
   const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -67,20 +69,46 @@ export default function SignInScreen() {
       return;
     }
 
+    if (!password.trim()) {
+      setError('Please enter your password');
+      return;
+    }
+
     setIsLoading(true);
     setError('');
 
     try {
-      const user = await userApi.getByEmail(email.toLowerCase());
+      // Sign in with Supabase
+      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+        email: email.toLowerCase().trim(),
+        password: password,
+      });
 
-      if (!user) {
-        setError('No account found with this email. Please sign up or use a demo account.');
+      if (authError) {
+        setError(authError.message);
         setIsLoading(false);
         return;
       }
 
-      // Mock auth token
-      const token = `token_${user.id}_${Date.now()}`;
+      if (!authData.user) {
+        setError('Failed to sign in. Please try again.');
+        setIsLoading(false);
+        return;
+      }
+
+      // Get user profile from local API (or create if doesn't exist)
+      let user = await userApi.getByEmail(email.toLowerCase());
+
+      if (!user) {
+        // Create user profile in local store if it doesn't exist
+        user = await userApi.create({
+          email: email.toLowerCase(),
+          name: authData.user.user_metadata?.name || email.split('@')[0],
+        });
+      }
+
+      // Set auth token from Supabase session
+      const token = authData.session?.access_token || '';
 
       setCurrentUser(user);
       setAuthToken(token);
@@ -103,22 +131,44 @@ export default function SignInScreen() {
     }
   };
 
-  const quickSignIn = async (demoEmail: string) => {
+  const quickSignIn = async (demoEmail: string, demoPassword: string = 'demo1234') => {
     setEmail(demoEmail);
+    setPassword(demoPassword);
     setIsLoading(true);
     setError('');
 
     try {
-      const user = await userApi.getByEmail(demoEmail.toLowerCase());
+      // Sign in with Supabase
+      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+        email: demoEmail.toLowerCase(),
+        password: demoPassword,
+      });
 
-      if (!user) {
-        setError('No account found with this email. Please sign up or use a demo account.');
+      if (authError) {
+        setError(authError.message);
         setIsLoading(false);
         return;
       }
 
-      // Mock auth token
-      const token = `token_${user.id}_${Date.now()}`;
+      if (!authData.user) {
+        setError('Failed to sign in. Please try again.');
+        setIsLoading(false);
+        return;
+      }
+
+      // Get user profile from local API
+      let user = await userApi.getByEmail(demoEmail.toLowerCase());
+
+      if (!user) {
+        // Create user profile in local store if it doesn't exist
+        user = await userApi.create({
+          email: demoEmail.toLowerCase(),
+          name: authData.user.user_metadata?.name || demoEmail.split('@')[0],
+        });
+      }
+
+      // Set auth token from Supabase session
+      const token = authData.session?.access_token || '';
 
       setCurrentUser(user);
       setAuthToken(token);
@@ -249,6 +299,26 @@ export default function SignInScreen() {
                   value={email}
                   onChangeText={setEmail}
                   keyboardType="email-address"
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  editable={!isLoading}
+                />
+              </View>
+            </View>
+
+            <View className="mb-5">
+              <Text className="text-gray-700 mb-2 text-sm font-semibold">Password</Text>
+              <View className="flex-row items-center bg-gray-100 rounded-2xl px-4 py-4 border-2 border-gray-200">
+                <View className="bg-blue-500 p-2 rounded-lg mr-3">
+                  <Lock size={18} color="white" />
+                </View>
+                <TextInput
+                  className="flex-1 text-gray-900 text-base font-medium"
+                  placeholder="Enter your password"
+                  placeholderTextColor="#94a3b8"
+                  value={password}
+                  onChangeText={setPassword}
+                  secureTextEntry
                   autoCapitalize="none"
                   autoCorrect={false}
                   editable={!isLoading}
