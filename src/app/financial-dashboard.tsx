@@ -33,29 +33,27 @@ interface HealthIndicator {
   description: string;
 }
 
-// Use centralized financial data
+// Use centralized financial data - now returns zeros for multi-tenant architecture
+// Actual data should come from Supabase via finance store
 const INITIAL_DATA = {
-  runway: 14.2,
+  runway: 0,
   cashPosition: FINANCIAL_DATA.cashPosition,
   monthlyRevenue: FINANCIAL_DATA.monthlyRevenue,
 
-  revenueStreams: [
-    { name: 'Product Sales', amount: 185000, growth: 12, margin: 42 },
-    { name: 'Subscriptions (MRR)', amount: 87000, growth: 8, margin: 85 },
-    { name: 'Professional Services', amount: 28000, growth: -3, margin: 65 },
-    { name: 'Licensing', amount: 12000, growth: 5, margin: 95 },
-  ],
+  // Revenue streams - empty by default, should be loaded from Supabase
+  revenueStreams: [] as { name: string; amount: number; growth: number; margin: number }[],
 
   costs: FINANCIAL_DATA.costs,
 
+  // Unit economics metrics - zeros by default, should be loaded from Supabase
   metrics: {
-    cac: 125,
-    ltv: 3600,
-    grossMargin: 68,
-    burnMultiple: 0.27,
-    paybackPeriod: 4.2,
-    churnRate: 2.1,
-    nrr: 108,
+    cac: 0,
+    ltv: 0,
+    grossMargin: 0,
+    burnMultiple: 0,
+    paybackPeriod: 0,
+    churnRate: 0,
+    nrr: 0,
   },
 };
 
