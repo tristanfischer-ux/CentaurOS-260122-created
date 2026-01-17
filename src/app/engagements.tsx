@@ -15,8 +15,12 @@ interface Engagement {
   workspaceId: string;
 }
 
-// Demo data
-const DEMO_ENGAGEMENTS: Engagement[] = [
+// DISABLED: Demo data removed for multi-tenant architecture
+// Engagements should be loaded from Supabase
+const DEMO_ENGAGEMENTS: Engagement[] = [];
+
+/* REFERENCE: Original demo data (will be migrated to Supabase)
+const DEMO_ENGAGEMENTS_ORIGINAL: Engagement[] = [
   {
     id: 'eng-1',
     companyName: 'Acme Hardware Inc',
@@ -48,6 +52,7 @@ const DEMO_ENGAGEMENTS: Engagement[] = [
     workspaceId: 'ws-buildright',
   },
 ];
+*/
 
 export default function EngagementsScreen() {
   const insets = useSafeAreaInsets();

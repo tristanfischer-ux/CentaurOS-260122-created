@@ -25,8 +25,14 @@ interface Invitation {
   };
 }
 
-// Demo data
-const DEMO_SENT_INVITATIONS: Invitation[] = [
+// DISABLED: Demo data removed for multi-tenant architecture
+// Invitations should be loaded from Supabase
+const DEMO_SENT_INVITATIONS: Invitation[] = [];
+
+const DEMO_RECEIVED_INVITATIONS: Invitation[] = [];
+
+/* REFERENCE: Original demo data (will be migrated to Supabase)
+const DEMO_SENT_INVITATIONS_ORIGINAL: Invitation[] = [
   {
     id: 'inv-1',
     candidateName: 'Sarah Mitchell',
@@ -68,7 +74,7 @@ const DEMO_SENT_INVITATIONS: Invitation[] = [
   },
 ];
 
-const DEMO_RECEIVED_INVITATIONS: Invitation[] = [
+const DEMO_RECEIVED_INVITATIONS_ORIGINAL: Invitation[] = [
   {
     id: 'inv-4',
     candidateName: 'Acme Hardware Inc',
@@ -82,6 +88,7 @@ const DEMO_RECEIVED_INVITATIONS: Invitation[] = [
     sentAt: '1 day ago',
   },
 ];
+*/
 
 export default function InvitationsScreen() {
   const insets = useSafeAreaInsets();

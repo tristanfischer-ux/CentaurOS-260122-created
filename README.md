@@ -41,6 +41,9 @@ Centaur OS is a comprehensive iOS mobile application that helps lean companies o
 - `/src/lib/storage.ts` - Added `clearAllAppData()` function
 - `/src/app/(tabs)/settings.tsx` - Added "Clear All Data" button
 - `/src/app/(tabs)/decide.tsx` - Added empty state UI with helpful guidance
+- `/src/app/invitations.tsx` - Disabled demo invitations data
+- `/src/app/engagements.tsx` - Disabled demo engagements data
+- `/src/components/WorkspaceSwitcher.tsx` - Disabled demo workspaces data
 - `/src/components/EmptyState.tsx` - Reusable empty state component
 - `CLEAN_SUPABASE_DATA.md` - New guide for cleaning database
 - `COMPLETE_RESET_FIX_FINAL.md` - Complete documentation of reset system fixes
