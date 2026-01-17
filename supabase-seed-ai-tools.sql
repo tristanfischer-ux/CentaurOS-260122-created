@@ -1,9 +1,3 @@
--- ============================================================================
--- SEED DATA FOR AI TOOLS MARKETPLACE
--- ============================================================================
--- This adds realistic AI tools to the marketplace for testing and initial use
-
--- ChatGPT (OpenAI)
 INSERT INTO public.ai_tools (
   name,
   description,
@@ -14,8 +8,7 @@ INSERT INTO public.ai_tools (
   capabilities,
   multiplier_effect,
   is_active,
-  monthly_cost,
-  documentation_url
+  monthly_cost
 ) VALUES (
   'ChatGPT',
   'Advanced language model for natural conversations, content creation, coding assistance, and complex problem solving.',
@@ -26,11 +19,9 @@ INSERT INTO public.ai_tools (
   ARRAY['text generation', 'code completion', 'research', 'writing', 'analysis'],
   1.5,
   true,
-  20.00,
-  'https://platform.openai.com/docs'
+  20.00
 );
 
--- Claude (Anthropic)
 INSERT INTO public.ai_tools (
   name,
   description,
@@ -41,8 +32,7 @@ INSERT INTO public.ai_tools (
   capabilities,
   multiplier_effect,
   is_active,
-  monthly_cost,
-  documentation_url
+  monthly_cost
 ) VALUES (
   'Claude',
   'Advanced AI assistant focused on safety, accuracy, and thoughtful reasoning. Excellent for complex analysis and long-form content.',
@@ -53,11 +43,9 @@ INSERT INTO public.ai_tools (
   ARRAY['analysis', 'writing', 'coding', 'research', 'reasoning'],
   1.6,
   true,
-  20.00,
-  'https://docs.anthropic.com'
+  20.00
 );
 
--- GitHub Copilot
 INSERT INTO public.ai_tools (
   name,
   description,
@@ -68,8 +56,7 @@ INSERT INTO public.ai_tools (
   capabilities,
   multiplier_effect,
   is_active,
-  monthly_cost,
-  documentation_url
+  monthly_cost
 ) VALUES (
   'GitHub Copilot',
   'AI pair programmer that suggests code and entire functions in real-time. Integrates directly into your IDE.',
@@ -80,11 +67,9 @@ INSERT INTO public.ai_tools (
   ARRAY['code completion', 'function generation', 'test writing', 'documentation'],
   2.0,
   true,
-  10.00,
-  'https://docs.github.com/copilot'
+  10.00
 );
 
--- Cursor
 INSERT INTO public.ai_tools (
   name,
   description,
@@ -95,8 +80,7 @@ INSERT INTO public.ai_tools (
   capabilities,
   multiplier_effect,
   is_active,
-  monthly_cost,
-  documentation_url
+  monthly_cost
 ) VALUES (
   'Cursor',
   'AI-first code editor built for pair programming with AI. Features codebase-aware suggestions and chat.',
@@ -107,11 +91,9 @@ INSERT INTO public.ai_tools (
   ARRAY['code editing', 'codebase understanding', 'refactoring', 'debugging'],
   2.2,
   true,
-  20.00,
-  'https://cursor.sh/docs'
+  20.00
 );
 
--- Midjourney
 INSERT INTO public.ai_tools (
   name,
   description,
@@ -122,8 +104,7 @@ INSERT INTO public.ai_tools (
   capabilities,
   multiplier_effect,
   is_active,
-  monthly_cost,
-  documentation_url
+  monthly_cost
 ) VALUES (
   'Midjourney',
   'AI image generator for creating stunning artwork, product mockups, and marketing visuals from text descriptions.',
@@ -134,11 +115,9 @@ INSERT INTO public.ai_tools (
   ARRAY['image generation', 'concept art', 'product mockups', 'marketing visuals'],
   1.8,
   true,
-  30.00,
-  'https://docs.midjourney.com'
+  30.00
 );
 
--- Figma AI
 INSERT INTO public.ai_tools (
   name,
   description,
@@ -149,8 +128,7 @@ INSERT INTO public.ai_tools (
   capabilities,
   multiplier_effect,
   is_active,
-  monthly_cost,
-  documentation_url
+  monthly_cost
 ) VALUES (
   'Figma AI',
   'AI-powered design tools built into Figma. Generate designs, rename layers intelligently, and auto-layout components.',
@@ -161,11 +139,9 @@ INSERT INTO public.ai_tools (
   ARRAY['design generation', 'auto-layout', 'smart rename', 'component organization'],
   1.4,
   true,
-  0.00,
-  'https://help.figma.com/hc/en-us/articles/17903103192343-Figma-AI'
+  0.00
 );
 
--- Jasper AI
 INSERT INTO public.ai_tools (
   name,
   description,
@@ -176,8 +152,7 @@ INSERT INTO public.ai_tools (
   capabilities,
   multiplier_effect,
   is_active,
-  monthly_cost,
-  documentation_url
+  monthly_cost
 ) VALUES (
   'Jasper AI',
   'AI content creation platform specialized in marketing copy, blog posts, and social media content.',
@@ -188,11 +163,9 @@ INSERT INTO public.ai_tools (
   ARRAY['copywriting', 'blog writing', 'social media', 'SEO optimization', 'brand voice'],
   1.7,
   true,
-  49.00,
-  'https://www.jasper.ai/resources'
+  49.00
 );
 
--- Copy.ai
 INSERT INTO public.ai_tools (
   name,
   description,
@@ -203,8 +176,7 @@ INSERT INTO public.ai_tools (
   capabilities,
   multiplier_effect,
   is_active,
-  monthly_cost,
-  documentation_url
+  monthly_cost
 ) VALUES (
   'Copy.ai',
   'AI writing assistant for marketing teams. Generate blog posts, product descriptions, and ad copy in seconds.',
@@ -215,11 +187,9 @@ INSERT INTO public.ai_tools (
   ARRAY['ad copy', 'product descriptions', 'email marketing', 'social posts'],
   1.6,
   true,
-  36.00,
-  'https://www.copy.ai/learn'
+  36.00
 );
 
--- Tableau AI (Einstein Copilot)
 INSERT INTO public.ai_tools (
   name,
   description,
@@ -230,21 +200,20 @@ INSERT INTO public.ai_tools (
   capabilities,
   multiplier_effect,
   is_active,
-  documentation_url
+  monthly_cost
 ) VALUES (
   'Tableau AI',
   'AI-powered data analytics that automatically generates insights, visualizations, and explanations from your data.',
   'https://www.tableau.com/themes/custom/tableau_www/logo.svg',
-  'data_analysis',
+  'productivity',
   'Tableau (Salesforce)',
-  'enterprise',
+  'subscription',
   ARRAY['data visualization', 'automated insights', 'natural language queries', 'trend analysis'],
   1.9,
   true,
-  'https://help.tableau.com/current/pro/desktop/en-us/einstein_discovery.htm'
+  99.00
 );
 
--- Intercom Fin
 INSERT INTO public.ai_tools (
   name,
   description,
@@ -255,23 +224,20 @@ INSERT INTO public.ai_tools (
   capabilities,
   multiplier_effect,
   is_active,
-  monthly_cost,
-  documentation_url
+  monthly_cost
 ) VALUES (
   'Intercom Fin',
   'AI customer support agent that resolves 50% of support queries instantly using your knowledge base.',
   'https://www.intercom.com/favicon.ico',
-  'customer_support',
+  'productivity',
   'Intercom',
   'subscription',
   ARRAY['automated responses', 'ticket resolution', 'knowledge base integration', 'multilingual support'],
   2.5,
   true,
-  0.99,
-  'https://www.intercom.com/help/en/collections/6857461-fin-ai-agent'
+  0.99
 );
 
--- Zendesk AI
 INSERT INTO public.ai_tools (
   name,
   description,
@@ -282,21 +248,20 @@ INSERT INTO public.ai_tools (
   capabilities,
   multiplier_effect,
   is_active,
-  documentation_url
+  monthly_cost
 ) VALUES (
   'Zendesk AI',
   'Intelligent customer service automation with AI-powered ticket routing, response suggestions, and sentiment analysis.',
   'https://www.zendesk.com/favicon.ico',
-  'customer_support',
+  'productivity',
   'Zendesk',
-  'enterprise',
+  'subscription',
   ARRAY['ticket routing', 'response suggestions', 'sentiment analysis', 'intent detection'],
   1.8,
   true,
-  'https://support.zendesk.com/hc/en-us/articles/4408832434714-About-Advanced-AI'
+  89.00
 );
 
--- Grammarly Business
 INSERT INTO public.ai_tools (
   name,
   description,
@@ -307,8 +272,7 @@ INSERT INTO public.ai_tools (
   capabilities,
   multiplier_effect,
   is_active,
-  monthly_cost,
-  documentation_url
+  monthly_cost
 ) VALUES (
   'Grammarly Business',
   'AI writing assistant that improves clarity, tone, and correctness across all your business communications.',
@@ -319,11 +283,9 @@ INSERT INTO public.ai_tools (
   ARRAY['grammar checking', 'tone adjustment', 'clarity improvement', 'plagiarism detection'],
   1.3,
   true,
-  15.00,
-  'https://support.grammarly.com/hc/en-us'
+  15.00
 );
 
--- Notion AI
 INSERT INTO public.ai_tools (
   name,
   description,
@@ -334,8 +296,7 @@ INSERT INTO public.ai_tools (
   capabilities,
   multiplier_effect,
   is_active,
-  monthly_cost,
-  documentation_url
+  monthly_cost
 ) VALUES (
   'Notion AI',
   'AI assistant built into Notion for brainstorming, writing, summarizing, and organizing your workspace.',
@@ -346,11 +307,9 @@ INSERT INTO public.ai_tools (
   ARRAY['writing assistance', 'summarization', 'brainstorming', 'task organization'],
   1.4,
   true,
-  10.00,
-  'https://www.notion.so/help/guides/what-is-notion-ai'
+  10.00
 );
 
--- Perplexity Pro
 INSERT INTO public.ai_tools (
   name,
   description,
@@ -361,8 +320,7 @@ INSERT INTO public.ai_tools (
   capabilities,
   multiplier_effect,
   is_active,
-  monthly_cost,
-  documentation_url
+  monthly_cost
 ) VALUES (
   'Perplexity Pro',
   'AI-powered research assistant that provides accurate answers with citations from reliable sources.',
@@ -373,11 +331,9 @@ INSERT INTO public.ai_tools (
   ARRAY['research', 'fact-checking', 'source citation', 'web search'],
   1.5,
   true,
-  20.00,
-  'https://www.perplexity.ai/hub'
+  20.00
 );
 
--- ElevenLabs
 INSERT INTO public.ai_tools (
   name,
   description,
@@ -388,25 +344,20 @@ INSERT INTO public.ai_tools (
   capabilities,
   multiplier_effect,
   is_active,
-  monthly_cost,
-  per_use_cost,
-  documentation_url
+  monthly_cost
 ) VALUES (
   'ElevenLabs',
   'AI voice generation for creating realistic voiceovers, podcasts, and audio content in multiple languages.',
   'https://elevenlabs.io/favicon.ico',
   'marketing',
   'ElevenLabs',
-  'per_use',
+  'subscription',
   ARRAY['voice synthesis', 'text to speech', 'voice cloning', 'multilingual audio'],
   1.6,
   true,
-  0.00,
-  0.30,
-  'https://elevenlabs.io/docs'
+  11.00
 );
 
--- Make.com (Integromat)
 INSERT INTO public.ai_tools (
   name,
   description,
@@ -417,8 +368,7 @@ INSERT INTO public.ai_tools (
   capabilities,
   multiplier_effect,
   is_active,
-  monthly_cost,
-  documentation_url
+  monthly_cost
 ) VALUES (
   'Make.com',
   'Visual automation platform with AI capabilities for connecting apps and automating workflows without code.',
@@ -429,15 +379,5 @@ INSERT INTO public.ai_tools (
   ARRAY['workflow automation', 'app integration', 'data transformation', 'scheduled tasks'],
   2.0,
   true,
-  9.00,
-  'https://www.make.com/en/help'
+  9.00
 );
-
--- ============================================================================
--- VERIFICATION QUERY
--- ============================================================================
--- Run this to verify the seed data was inserted:
-
--- SELECT name, category, provider, pricing_model, multiplier_effect, is_active
--- FROM public.ai_tools
--- ORDER BY category, name;
