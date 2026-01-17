@@ -190,6 +190,8 @@ export default function WhatScreen() {
   const handleCreateTask = () => {
     if (!newTaskTitle.trim() || !currentWorkspace) return;
 
+    console.log('[What Tab] Creating task, current count:', workPlans.length);
+
     const newTask: WorkPlan = {
       id: `task-${Date.now()}`,
       workspaceId: currentWorkspace.id,
@@ -208,9 +210,14 @@ export default function WhatScreen() {
       needsSubmission: false,
     };
 
+    console.log('[What Tab] New task:', newTask);
     addWorkPlan(newTask);
+    console.log('[What Tab] After adding, count should be:', workPlans.length + 1);
+
+    // Reset form
     setNewTaskTitle('');
     setNewTaskEstimate('10');
+    setShowSuggestions(true);
     setShowCreateModal(false);
   };
 
@@ -274,7 +281,11 @@ export default function WhatScreen() {
                 </Pressable>
               </View>
 
-              <ScrollView className="px-6 py-4" contentContainerStyle={{ paddingBottom: 20 }}>
+              <ScrollView
+                className="px-6 py-4"
+                contentContainerStyle={{ flexGrow: 1, paddingBottom: 40 }}
+                keyboardShouldPersistTaps="handled"
+              >
                 {/* Function Selection First */}
                 <View className="mb-4">
                   <Text className="text-slate-700 dark:text-slate-300 font-medium mb-2">Function</Text>

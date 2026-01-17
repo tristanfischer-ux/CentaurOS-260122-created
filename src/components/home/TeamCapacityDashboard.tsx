@@ -19,8 +19,9 @@ import Animated, { FadeInDown } from 'react-native-reanimated';
 import Svg, { Circle, Text as SvgText } from 'react-native-svg';
 import { useOrganizationStore } from '@/lib/state/organization-store';
 import { useWorkPlanStore } from '@/lib/state/work-plan-store';
-import { useCurrentMembership } from '@/lib/state/app-store';
+import { useCurrentMembership, useAppStore } from '@/lib/state/app-store';
 import { filterTeamMembersByRole } from '@/lib/role-utils';
+import { useColorScheme } from '@/lib/useColorScheme';
 
 interface GaugeProps {
   percentage: number;
@@ -112,6 +113,10 @@ interface MemberCapacityCardProps {
 }
 
 function MemberCapacityCard({ member, index }: MemberCapacityCardProps) {
+  const colorScheme = useColorScheme();
+  const currentUser = useAppStore((s) => s.currentUser);
+  const isOffWhite = currentUser?.preferences?.themeMode === 'off-white';
+
   const getUtilColor = () => {
     if (member.utilization >= 100) return '#ef4444';
     if (member.utilization >= 80) return '#f59e0b';
@@ -131,10 +136,17 @@ function MemberCapacityCard({ member, index }: MemberCapacityCardProps) {
     }
   };
 
+  // Theme-aware styles
+  const cardBg = colorScheme === 'dark' ? 'bg-slate-800' : isOffWhite ? 'bg-stone-50' : 'bg-white';
+  const cardBorder = colorScheme === 'dark' ? 'border-slate-700' : isOffWhite ? 'border-stone-200' : 'border-slate-200';
+  const textPrimary = colorScheme === 'dark' ? 'text-white' : isOffWhite ? 'text-stone-900' : 'text-slate-900';
+  const textSecondary = colorScheme === 'dark' ? 'text-slate-400' : isOffWhite ? 'text-stone-500' : 'text-slate-500';
+  const progressBg = colorScheme === 'dark' ? 'bg-slate-700' : isOffWhite ? 'bg-stone-200' : 'bg-slate-100';
+
   return (
     <Animated.View
       entering={FadeInDown.delay(index * 50).springify()}
-      className="bg-white dark:bg-slate-800 rounded-xl p-3 mr-3 border border-slate-200 dark:border-slate-700"
+      className={`${cardBg} rounded-xl p-3 mr-3 border ${cardBorder}`}
       style={{ width: 140 }}
     >
       {/* Header */}
@@ -148,10 +160,10 @@ function MemberCapacityCard({ member, index }: MemberCapacityCardProps) {
           </Text>
         </View>
         <View className="flex-1">
-          <Text className="text-slate-900 dark:text-white font-semibold text-xs" numberOfLines={1}>
+          <Text className={`${textPrimary} font-semibold text-xs`} numberOfLines={1}>
             {member.name.split(' ')[0]}
           </Text>
-          <Text className="text-slate-500 dark:text-slate-400 text-[10px]">
+          <Text className={`${textSecondary} text-[10px]`}>
             {member.role === 'FractionalExec' ? 'Executive' : member.role}
           </Text>
         </View>
@@ -160,12 +172,12 @@ function MemberCapacityCard({ member, index }: MemberCapacityCardProps) {
       {/* Utilization Bar */}
       <View className="mb-2">
         <View className="flex-row items-center justify-between mb-1">
-          <Text className="text-slate-500 dark:text-slate-400 text-[10px]">Utilization</Text>
+          <Text className={`${textSecondary} text-[10px]`}>Utilization</Text>
           <Text className="font-bold text-xs" style={{ color: getUtilColor() }}>
             {Math.round(member.utilization)}%
           </Text>
         </View>
-        <View className="h-2 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
+        <View className={`h-2 ${progressBg} rounded-full overflow-hidden`}>
           <View
             className="h-full rounded-full"
             style={{
@@ -179,13 +191,13 @@ function MemberCapacityCard({ member, index }: MemberCapacityCardProps) {
       {/* Capacity Info */}
       <View className="flex-row justify-between">
         <View>
-          <Text className="text-slate-500 dark:text-slate-400 text-[10px]">Allocated</Text>
-          <Text className="text-slate-900 dark:text-white font-bold text-xs">
+          <Text className={`${textSecondary} text-[10px]`}>Allocated</Text>
+          <Text className={`${textPrimary} font-bold text-xs`}>
             {member.allocated} TU
           </Text>
         </View>
         <View className="items-end">
-          <Text className="text-slate-500 dark:text-slate-400 text-[10px]">Available</Text>
+          <Text className={`${textSecondary} text-[10px]`}>Available</Text>
           <Text
             className="font-bold text-xs"
             style={{ color: member.available > 0 ? '#10b981' : '#ef4444' }}

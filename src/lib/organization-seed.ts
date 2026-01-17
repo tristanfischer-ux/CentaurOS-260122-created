@@ -115,6 +115,7 @@ export interface SupplierEngagement {
   supplierId: string; // Reference to UK_SUPPLIERS
   projectName: string;
   description: string;
+  category: 'Manufacturing' | 'Materials' | 'Logistics' | 'Professional Services'; // NEW: Supplier category
   status: 'planning' | 'in_progress' | 'delivered' | 'cancelled';
   assignedTo: string; // Apprentice or Exec managing this
   totalCost: number;
@@ -448,6 +449,7 @@ export const SUPPLIER_ENGAGEMENTS: SupplierEngagement[] = [
     supplierId: '1',
     projectName: 'Main Circuit Board Manufacturing',
     description: 'PCB design and manufacturing for MVP hardware units',
+    category: 'Manufacturing',
     status: 'in_progress',
     assignedTo: 'apprentice-5',
     totalCost: 28500,
@@ -483,6 +485,7 @@ export const SUPPLIER_ENGAGEMENTS: SupplierEngagement[] = [
     supplierId: '4',
     projectName: 'Device Housing & Enclosures',
     description: 'Injection molded plastic housings for product line',
+    category: 'Manufacturing',
     status: 'in_progress',
     assignedTo: 'apprentice-6',
     totalCost: 15200,

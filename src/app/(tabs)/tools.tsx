@@ -105,6 +105,7 @@ export default function ToolsScreen() {
   const [showPersonCard, setShowPersonCard] = useState(false);
   const [showReachOut, setShowReachOut] = useState(false);
   const [reachOutType, setReachOutType] = useState<'ai' | 'supplier'>('supplier');
+  const [selectedSupplierCategory, setSelectedSupplierCategory] = useState<string | null>(null);
 
   const isFounder = currentMembership?.role === 'Founder';
 
@@ -763,11 +764,17 @@ export default function ToolsScreen() {
         visible={showReachOut}
         transparent
         animationType="slide"
-        onRequestClose={() => setShowReachOut(false)}
+        onRequestClose={() => {
+          setShowReachOut(false);
+          setSelectedSupplierCategory(null);
+        }}
       >
         <Pressable
           className="flex-1 bg-black/70"
-          onPress={() => setShowReachOut(false)}
+          onPress={() => {
+            setShowReachOut(false);
+            setSelectedSupplierCategory(null);
+          }}
         >
           <View className="flex-1" />
           <Pressable onPress={(e) => e.stopPropagation()} style={{ maxHeight: '80%' }}>
@@ -834,33 +841,101 @@ export default function ToolsScreen() {
                     </>
                   ) : (
                     <>
-                      <Text className="text-slate-500 dark:text-slate-400 text-xs font-medium uppercase mb-3">
-                        Supplier Categories
-                      </Text>
-                      {[
-                        { name: 'Manufacturing', icon: Factory, desc: 'Production & assembly partners' },
-                        { name: 'Materials', icon: Package, desc: 'Raw materials & components' },
-                        { name: 'Logistics', icon: TrendingUp, desc: 'Shipping & distribution' },
-                        { name: 'Professional Services', icon: Users, desc: 'Consulting & specialized services' },
-                      ].map((category, index) => (
-                        <Pressable
-                          key={category.name}
-                          className="bg-slate-50 dark:bg-slate-800 rounded-xl p-4 mb-3 flex-row items-center active:opacity-80"
-                        >
-                          <View className="w-10 h-10 rounded-lg bg-amber-100 dark:bg-amber-900/30 items-center justify-center mr-3">
-                            <category.icon size={20} color="#f59e0b" />
-                          </View>
-                          <View className="flex-1">
-                            <Text className="text-slate-900 dark:text-white font-semibold">
-                              {category.name}
+                      {/* If no category selected, show categories */}
+                      {!selectedSupplierCategory ? (
+                        <>
+                          <Text className="text-slate-500 dark:text-slate-400 text-xs font-medium uppercase mb-3">
+                            Supplier Categories
+                          </Text>
+                          {[
+                            { name: 'Manufacturing', icon: Factory, desc: 'Production & assembly partners' },
+                            { name: 'Materials', icon: Package, desc: 'Raw materials & components' },
+                            { name: 'Logistics', icon: TrendingUp, desc: 'Shipping & distribution' },
+                            { name: 'Professional Services', icon: Users, desc: 'Consulting & specialized services' },
+                          ].map((category, index) => (
+                            <Pressable
+                              key={category.name}
+                              onPress={() => setSelectedSupplierCategory(category.name)}
+                              className="bg-slate-50 dark:bg-slate-800 rounded-xl p-4 mb-3 flex-row items-center active:opacity-80"
+                            >
+                              <View className="w-10 h-10 rounded-lg bg-amber-100 dark:bg-amber-900/30 items-center justify-center mr-3">
+                                <category.icon size={20} color="#f59e0b" />
+                              </View>
+                              <View className="flex-1">
+                                <Text className="text-slate-900 dark:text-white font-semibold">
+                                  {category.name}
+                                </Text>
+                                <Text className="text-slate-500 dark:text-slate-400 text-xs mt-0.5">
+                                  {category.desc}
+                                </Text>
+                              </View>
+                              <ChevronRight size={18} color="#64748b" />
+                            </Pressable>
+                          ))}
+                        </>
+                      ) : (
+                        <>
+                          {/* Show filtered suppliers by category */}
+                          <Pressable
+                            onPress={() => setSelectedSupplierCategory(null)}
+                            className="flex-row items-center gap-2 mb-4"
+                          >
+                            <ChevronRight size={18} color="#64748b" style={{ transform: [{ rotate: '180deg' }] }} />
+                            <Text className="text-purple-600 dark:text-purple-400 font-medium">
+                              Back to categories
                             </Text>
-                            <Text className="text-slate-500 dark:text-slate-400 text-xs mt-0.5">
-                              {category.desc}
-                            </Text>
-                          </View>
-                          <ChevronRight size={18} color="#64748b" />
-                        </Pressable>
-                      ))}
+                          </Pressable>
+                          <Text className="text-slate-500 dark:text-slate-400 text-xs font-medium uppercase mb-3">
+                            {selectedSupplierCategory} Suppliers
+                          </Text>
+                          {supplierEngagements.filter(s => s.category === selectedSupplierCategory).length > 0 ? (
+                            supplierEngagements
+                              .filter(s => s.category === selectedSupplierCategory)
+                              .map((supplier, index) => (
+                                <Pressable
+                                  key={supplier.id}
+                                  onPress={() => {
+                                    setShowReachOut(false);
+                                    setSelectedSupplier(supplier);
+                                  }}
+                                  className="bg-slate-50 dark:bg-slate-800 rounded-xl p-4 mb-3 active:opacity-80"
+                                >
+                                  <View className="flex-row items-start justify-between">
+                                    <View className="flex-1">
+                                      <Text className="text-slate-900 dark:text-white font-semibold">
+                                        {supplier.supplierName}
+                                      </Text>
+                                      <Text className="text-slate-500 dark:text-slate-400 text-xs mt-0.5">
+                                        {supplier.projectName}
+                                      </Text>
+                                      <View className="flex-row items-center gap-2 mt-2">
+                                        <View
+                                          className="px-2 py-0.5 rounded"
+                                          style={{ backgroundColor: STATUS_COLORS[supplier.status] + '20' }}
+                                        >
+                                          <Text style={{ color: STATUS_COLORS[supplier.status] }} className="text-xs font-medium">
+                                            {STATUS_LABELS[supplier.status]}
+                                          </Text>
+                                        </View>
+                                        <Text className="text-slate-500 dark:text-slate-400 text-xs">
+                                          £{supplier.totalCost.toLocaleString()}
+                                        </Text>
+                                      </View>
+                                    </View>
+                                    <ChevronRight size={18} color="#64748b" />
+                                  </View>
+                                </Pressable>
+                              ))
+                          ) : (
+                            <View className="items-center py-12">
+                              <Package size={48} color="#94a3b8" />
+                              <Text className="text-slate-500 dark:text-slate-400 text-center mt-4">
+                                No {selectedSupplierCategory.toLowerCase()} suppliers yet
+                              </Text>
+                            </View>
+                          )}
+                        </>
+                      )}
 
                       <View className="mt-4 p-4 bg-amber-50 dark:bg-amber-900/20 rounded-xl">
                         <Text className="text-amber-800 dark:text-amber-300 text-sm font-medium mb-2">
