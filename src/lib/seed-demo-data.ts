@@ -169,14 +169,8 @@ export function seedDemoData() {
 
 // Auto-seed on first load (check if already seeded)
 export function autoSeedDemoDataIfNeeded() {
-  const workPlanStore = useWorkPlanStore.getState();
-  const existingPlans = workPlanStore.workPlans.filter((wp) =>
-    wp.id.startsWith('wp-demo')
-  );
-
-  // Only seed if no demo plans exist
-  if (existingPlans.length === 0) {
-    console.log('🌱 Seeding demo data...');
-    seedDemoData();
-  }
+  // DISABLED: Demo data seeding disabled for true multi-tenant architecture
+  // Work plans should be loaded from Supabase
+  // This function is kept for reference but does nothing
+  console.log('⏭️  Skipping demo data seeding (disabled for multi-tenant)');
 }

@@ -1476,7 +1476,12 @@ export const getTotalSupplierSpend = (): {
 };
 
 // Advisors Directory - Professional Services for Startups
-export const ADVISORS: Advisor[] = [
+// DISABLED: Advisors should be loaded from Supabase
+// All hardcoded advisor data has been disabled for multi-tenant architecture
+export const ADVISORS: Advisor[] = [];
+
+/* REFERENCE: Original hardcoded data (will be migrated to Supabase)
+export const ADVISORS_ORIGINAL: Advisor[] = [
   // VENTURE CAPITAL FIRMS
   {
     id: 'vc-1',
@@ -1681,3 +1686,4 @@ export const ADVISORS: Advisor[] = [
     notableClients: ['Ford', 'Tesla', 'Google', 'NASA JPL'],
   },
 ];
+*/

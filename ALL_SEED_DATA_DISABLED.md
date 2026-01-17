@@ -6,7 +6,7 @@ ALL hardcoded seed/demo data has been disabled across the entire app. After rese
 
 ---
 
-## Complete List of Changes (10 Files)
+## Complete List of Changes (14 Files)
 
 ### 1. `/src/lib/storage.ts`
 **Fixed MMKV singleton duplication**
@@ -38,25 +38,57 @@ ALL hardcoded seed/demo data has been disabled across the entire app. After rese
 - Line 111-120: Returns empty array instead of `MARKETPLACE_EXECUTIVES`
 - Line 135: Updated function signature to use `MarketplaceExecutive` type
 
-### 7. `/src/lib/candidates-seed.ts` ⭐ NEW
+### 7. `/src/lib/candidates-seed.ts` ⭐
 **Disabled 100+ executives and 100+ apprentices**
 - Line 1241-1247: Returns empty arrays instead of combined candidates
 - No longer exports `baseExecutives` + `generatedExecutives`
 - No longer exports `baseApprentices` + `generatedApprentices`
 
-### 8. `/src/lib/state/okr-store.ts` ⭐ NEW
+### 8. `/src/lib/state/okr-store.ts` ⭐
 **Disabled 8 hardcoded OKRs in Why tab**
 - Line 211-217: `initializeOKRs()` now returns `[]` instead of `INITIAL_OKRS`
-- No longer seeds:
-  - "Build Brand Awareness & Generate Leads" (Marketing)
-  - "Achieve Product-Market Fit with 100 Customers" (Sales)
-  - "Finalize Bill of Materials & Reduce COGS by 20%" (Finance)
-  - "Ship Production-Ready Hardware v1.0" (Engineering)
-  - "Scale Manufacturing to 1000 Units/Month" (Ops)
-  - And 3 more objectives
+- No longer seeds 8 OKRs (Marketing, Sales, Finance, Engineering, Ops objectives)
 
-### 9. `/src/lib/state/decisions-store.ts` (already mentioned above)
-### 10. `/src/lib/state/objectives-store.ts` (already mentioned above)
+### 9. `/src/lib/hard-tech-advisors.ts` ⭐ NEW
+**Disabled advisors catalog (VCs, law firms, accounting firms)**
+- Line 804-806: `ALL_HARD_TECH_ADVISORS` now returns `[]` instead of combined advisors
+- No longer exports:
+  - ~20 VCs (Breakthrough Energy Ventures, Lux Capital, DCVC, Khosla Ventures, Founders Fund, etc.)
+  - ~8 law firms (Wilson Sonsini, Cooley, Fenwick & West, etc.)
+  - ~8 accounting firms (Armanino, Moss Adams, KPMG, PwC, Deloitte, EY, BDO, Grant Thornton)
+  - ~7 strategic advisors (Activate, Cyclotron Road, Prime Movers Lab, The Engine, Y Combinator, etc.)
+
+### 10. `/src/lib/third-party-ai-tools.ts` ⭐ NEW
+**Disabled 24 AI tools catalog**
+- Line 57-59: `THIRD_PARTY_AI_TOOLS` now returns `[]` instead of all tools
+- No longer exports 24 AI tools:
+  - Finance (3): Vic AI, Digits AI, Gemini Pro
+  - Sales (4): 11x Alice, Gong AI, Clay AI, ElevenLabs Voice AI
+  - Marketing (6): Jasper AI, Copy.ai, Midjourney, DALL-E 3, Perplexity Pro, Runway Gen-2
+  - Ops (3): Hebbia AI, Zapier AI, Harvey AI
+  - Engineering/Manufacturing (4): Autodesk Fusion AI, Monolith AI, Paperless Parts, Instrumental
+  - Admin (4): ChatGPT Enterprise, Notion AI, Otter.ai, Grammarly Business
+- Original data kept in multiline comment for Supabase migration
+
+### 11. `/src/lib/organization-seed.ts` ⭐ NEW
+**Disabled ADVISORS array**
+- Line 1479-1481: `ADVISORS` now returns `[]` instead of hardcoded advisors
+- No longer exports:
+  - 4 VCs (Lux Capital, DCVC, Founders Fund, Khosla Ventures)
+  - 3 law firms (Wilson Sonsini, Gunderson Dettmer, Cooley)
+  - 3 accounting firms
+  - 3 domain experts/advisors
+- Original data kept in multiline comment for Supabase migration
+
+### 12. `/src/lib/seed-demo-data.ts` ⭐ NEW
+**Disabled work plans auto-seeding**
+- Line 171-175: `autoSeedDemoDataIfNeeded()` now does nothing
+- No longer seeds:
+  - "Create First OKR" (in progress)
+  - "Set Weekly TU" (queued)
+  - "Market Research: Target Segments" (in progress, 60%)
+  - "Design Product Mockups v1" (in progress, 25%)
+  - "Supplier Agreement Review" (blocked)
 
 ---
 
@@ -113,6 +145,36 @@ ALL hardcoded seed/demo data has been disabled across the entire app. After rese
 - ❌ ~100 apprentices (William Edwards, Maisie Smith, Megan Clarke, etc.)
 - ❌ All from `apprentices` array in `candidates-seed.ts`
 
+### Who Tab - Advisors Marketplace ⭐ NEW FIX
+- ❌ ~40+ advisors across 4 categories:
+  - Venture Capital: 4 VCs (Lux Capital, DCVC, Founders Fund, Khosla Ventures)
+  - Law Firms: 3 firms (Wilson Sonsini, Gunderson Dettmer, Cooley)
+  - Accounting & Finance: 3 firms
+  - Domain Experts: 3 experts
+- ❌ All from `ADVISORS` array in `organization-seed.ts`
+
+### Tools Tab - AI Tools ⭐ NEW FIX
+- ❌ 24 AI tools showing in marketplace
+- ❌ Total spend showing £51k
+- ❌ Finance tools: Vic AI (£450/mo, 10x speed), Digits AI (£350/mo, 5x speed), Gemini Pro (£200/mo, 3x speed)
+- ❌ Sales tools: 11x Alice (£850/mo, 20x speed), Gong AI (£400/mo), Clay AI (£300/mo), ElevenLabs (£99/mo)
+- ❌ Marketing tools: Jasper AI, Copy.ai, Midjourney, DALL-E 3, Perplexity Pro, Runway Gen-2
+- ❌ Ops tools: Hebbia AI, Zapier AI, Harvey AI
+- ❌ Engineering tools: Autodesk Fusion AI, Monolith AI, Paperless Parts, Instrumental
+- ❌ Admin tools: ChatGPT Enterprise, Notion AI, Otter.ai, Grammarly Business
+- ❌ All from `THIRD_PARTY_AI_TOOLS` array in `third-party-ai-tools.ts`
+
+### Home Tab - Current Activities ⭐ NEW FIX
+- ❌ "Create Social Media Content Calendar" (Marketing, 65%)
+- ❌ "Research Competitor Pricing" (Sales, 40%)
+- ❌ "PCB Design & Schematic Review" (Engineering, 65%)
+- ❌ "Product Housing CAD Design" (Engineering, 78%)
+- ❌ "Investor Deck Update" (Finance, queued)
+- ❌ "Market Research: Target Segments" (in progress)
+- ❌ "Design Product Mockups v1" (in progress)
+- ❌ "Supplier Agreement Review" (BLOCKED)
+- ❌ All from `seedDemoData()` in `seed-demo-data.ts`
+
 ---
 
 ## Expected State After Reset
@@ -146,7 +208,9 @@ ALL hardcoded seed/demo data has been disabled across the entire app. After rese
 - Available: **0**
 
 ### ✅ Tools Tab (Make)
-- Total spend: **£0**
+- Advisors: **0** (was ~13 across 4 categories)
+- AI Tools: **0** (was 24 tools)
+- Total spend: **£0** (was £51k)
 
 ### ✅ Performance Tab
 - Task summary: **0s / 0 TU**
@@ -288,11 +352,13 @@ initialize: async () => {
 - What: 8 tasks (4 active, 1 queued, 1 blocked, 2 done)
 - Why: **8 OKRs**
 - Who: **2 auto squads**, **~100 executives**, **~100 apprentices**
+- Tools: **~13 advisors**, **24 AI tools**, **£51k spend**
 
 **After this fix:**
 - Home: **0** decisions, **0** objectives, **0** tasks
 - What: **0** tasks (all statuses)
 - Why: **0** OKRs
 - Who: **0** squads, **0** executives, **0** apprentices
+- Tools: **0** advisors, **0** AI tools, **£0** spend
 
 The app is now a true multi-tenant platform ready for Supabase!
