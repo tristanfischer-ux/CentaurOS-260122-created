@@ -22,6 +22,7 @@ import Svg, { Circle, G, Path, Text as SvgText } from 'react-native-svg';
 import { useSupplierStore } from '@/lib/state/supplier-store';
 import { useFinanceStore } from '@/lib/state/finance-store';
 import { useCurrentWorkspace } from '@/lib/state/app-store';
+import { useOrganizationStore } from '@/lib/state/organization-store';
 
 interface PieSlice {
   name: string;
@@ -144,22 +145,43 @@ export function SupplierSpendDashboard() {
   const getCashBalance = useFinanceStore((s) => s.getCashBalance);
   const getWeeklyBurn = useFinanceStore((s) => s.getWeeklyBurn);
 
-  // Calculate supplier spending
+  // Get supplier engagements from organization store
+  const getEngagementsByWorkspace = useOrganizationStore((s) => s.getEngagementsByWorkspace);
+
+  // Calculate supplier spending from actual engagements
   const spendData = useMemo(() => {
     const favoriteIds = currentWorkspace ? getFavoriteSupplierIds(currentWorkspace.id) : [];
     const activeSuppliers = suppliers.filter((s) => favoriteIds.includes(s.id));
 
-    // Mock spend distribution by category
-    const categorySpend: Record<string, { spend: number; color: string }> = {
-      Manufacturing: { spend: 15000, color: '#3b82f6' },
-      Marketing: { spend: 8000, color: '#10b981' },
-      Software: { spend: 5000, color: '#8b5cf6' },
-      Legal: { spend: 3000, color: '#f59e0b' },
-      Other: { spend: 2000, color: '#64748b' },
+    // Get actual supplier engagements for this workspace
+    const engagements = currentWorkspace ? getEngagementsByWorkspace(currentWorkspace.id) : [];
+
+    // Calculate spend distribution by category from actual engagements
+    const categoryColors: Record<string, string> = {
+      Manufacturing: '#3b82f6',
+      Materials: '#10b981',
+      Logistics: '#8b5cf6',
+      'Professional Services': '#f59e0b',
+      Other: '#64748b',
     };
 
+    const categorySpend: Record<string, { spend: number; color: string }> = {};
+
+    // Aggregate spend from engagements by category
+    engagements.forEach((eng) => {
+      const category = eng.category || 'Other';
+      if (!categorySpend[category]) {
+        categorySpend[category] = {
+          spend: 0,
+          color: categoryColors[category] || categoryColors.Other,
+        };
+      }
+      categorySpend[category].spend += eng.paidToDate || 0;
+    });
+
+    // If no engagements, show empty state
     const totalSpend = Object.values(categorySpend).reduce((sum, c) => sum + c.spend, 0);
-    const monthlyBudget = currentWorkspace ? getWeeklyBurn(currentWorkspace.id) * 4.33 * 0.4 : 15000; // 40% of burn for suppliers
+    const monthlyBudget = currentWorkspace ? getWeeklyBurn(currentWorkspace.id) * 4.33 * 0.4 : 0; // 40% of burn for suppliers
 
     const pieData: PieSlice[] = Object.entries(categorySpend).map(([name, data]) => ({
       name,
@@ -168,14 +190,39 @@ export function SupplierSpendDashboard() {
       percentage: totalSpend > 0 ? (data.spend / totalSpend) * 100 : 0,
     }));
 
-    // Mock monthly trend
-    const monthlyTrend = [
-      { name: 'Oct', spend: 28000, budget: 30000 },
-      { name: 'Nov', spend: 31000, budget: 30000 },
-      { name: 'Dec', spend: 33000, budget: 32000 },
-    ];
+    // Calculate monthly trend from engagements (last 3 months)
+    const now = new Date();
+    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const monthlyTrend: { name: string; spend: number; budget: number }[] = [];
 
-    const budgetUsed = (totalSpend / monthlyBudget) * 100;
+    for (let i = 2; i >= 0; i--) {
+      const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const monthName = monthNames[date.getMonth()];
+
+      // Sum spend for engagements active during this month
+      const monthSpend = engagements.reduce((sum, eng) => {
+        const startDate = new Date(eng.startDate);
+        const deliveryDate = new Date(eng.deliveryDate);
+        const monthStart = new Date(date.getFullYear(), date.getMonth(), 1);
+        const monthEnd = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+
+        // Check if engagement was active during this month
+        if (startDate <= monthEnd && deliveryDate >= monthStart) {
+          // Distribute total cost across active months
+          const engMonths = Math.max(1, Math.ceil((deliveryDate.getTime() - startDate.getTime()) / (30 * 24 * 60 * 60 * 1000)));
+          return sum + (eng.totalCost || 0) / engMonths;
+        }
+        return sum;
+      }, 0);
+
+      monthlyTrend.push({
+        name: monthName,
+        spend: Math.round(monthSpend),
+        budget: Math.round(monthlyBudget),
+      });
+    }
+
+    const budgetUsed = monthlyBudget > 0 ? (totalSpend / monthlyBudget) * 100 : 0;
     const budgetRemaining = Math.max(0, monthlyBudget - totalSpend);
 
     return {
@@ -186,9 +233,10 @@ export function SupplierSpendDashboard() {
       budgetRemaining,
       pieData,
       monthlyTrend,
-      isOverBudget: totalSpend > monthlyBudget,
+      isOverBudget: totalSpend > monthlyBudget && monthlyBudget > 0,
+      engagements,
     };
-  }, [suppliers, currentWorkspace, getFavoriteSupplierIds, getWeeklyBurn]);
+  }, [suppliers, currentWorkspace, getFavoriteSupplierIds, getWeeklyBurn, getEngagementsByWorkspace]);
 
   return (
     <View className="px-5 mb-4">
@@ -331,17 +379,22 @@ export function SupplierSpendDashboard() {
         )}
 
         {/* Active Engagements Summary */}
-        {spendData.activeSuppliers.length > 0 && (
+        {spendData.engagements.length > 0 && (
           <View className="mt-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg p-3">
             <View className="flex-row items-center gap-2 mb-1">
               <Building2 size={14} color="#3b82f6" />
               <Text className="text-blue-700 dark:text-blue-400 font-semibold text-sm">
-                {spendData.activeSuppliers.length} Active Engagements
+                {spendData.engagements.filter(e => e.status === 'in_progress' || e.status === 'planning').length} Active Engagements
               </Text>
             </View>
             <Text className="text-blue-600 dark:text-blue-400 text-xs">
-              {spendData.activeSuppliers.map((s) => s.name).slice(0, 3).join(', ')}
-              {spendData.activeSuppliers.length > 3 && ` +${spendData.activeSuppliers.length - 3} more`}
+              {spendData.engagements
+                .filter(e => e.status === 'in_progress' || e.status === 'planning')
+                .map((e) => e.supplierName)
+                .slice(0, 3)
+                .join(', ')}
+              {spendData.engagements.filter(e => e.status === 'in_progress' || e.status === 'planning').length > 3 &&
+                ` +${spendData.engagements.filter(e => e.status === 'in_progress' || e.status === 'planning').length - 3} more`}
             </Text>
           </View>
         )}

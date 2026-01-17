@@ -140,6 +140,7 @@ export function PerformanceDashboardGrid() {
   // Data from stores
   const workPlans = useWorkPlanStore((s) => s.workPlans);
   const members = useOrganizationStore((s) => s.members);
+  const supplierEngagements = useOrganizationStore((s) => s.supplierEngagements);
   const okrs = useOKRStore((s) => s.okrs);
   const suppliers = useSupplierStore((s) => s.suppliers);
   const getCashBalance = useFinanceStore((s) => s.getCashBalance);
@@ -199,10 +200,15 @@ export function PerformanceDashboardGrid() {
     const resourceHealth: HealthStatus =
       utilizationPercent >= 100 ? 'critical' : utilizationPercent >= 85 ? 'warning' : 'healthy';
 
-    // 4. Supplier Performance
-    const activeSupplierCount = suppliers.filter((s) => s.status === 'approved' || s.status === 'verified').length;
-    const totalSupplierSpend = 33000; // Mock monthly spend
-    const supplierHealth: HealthStatus = activeSupplierCount > 5 ? 'warning' : 'healthy';
+    // 4. Supplier Performance - using actual engagement data
+    const workspaceEngagements = currentWorkspace
+      ? supplierEngagements.filter(e => e.workspaceId === currentWorkspace.id)
+      : [];
+    const activeEngagementCount = workspaceEngagements.filter(
+      (e) => e.status === 'in_progress' || e.status === 'planning'
+    ).length;
+    const totalSupplierSpend = workspaceEngagements.reduce((sum: number, eng) => sum + (eng.paidToDate || 0), 0);
+    const supplierHealth: HealthStatus = activeEngagementCount > 5 ? 'warning' : 'healthy';
 
     // 5. OKR Progress
     const activeOKRs = okrs.filter((okr) => okr.status !== 'off-track');
@@ -266,10 +272,10 @@ export function PerformanceDashboardGrid() {
       {
         id: 'supplier-performance',
         title: 'Supplier Performance',
-        primaryValue: activeSupplierCount.toString(),
-        primaryLabel: 'active suppliers',
+        primaryValue: activeEngagementCount.toString(),
+        primaryLabel: 'active engagements',
         secondaryValue: `£${(totalSupplierSpend / 1000).toFixed(0)}K`,
-        secondaryLabel: 'Monthly',
+        secondaryLabel: 'Spent',
         trend: 'stable',
         health: supplierHealth,
         icon: Building2,
