@@ -7,6 +7,7 @@ import { userService } from '@/lib/supabase-service';
 import { useAppStore } from '@/lib/state/app-store';
 import { router } from 'expo-router';
 import { hasCompletedOnboarding } from '@/lib/onboarding';
+import { CentaurLogo } from '@/components/CentaurLogo';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -215,12 +216,12 @@ export default function SignInScreen() {
         >
           {/* Compact Logo and Title */}
           <View className="items-center mb-6">
-            <Text className="text-6xl mb-2">🐴</Text>
-            <Text className="text-4xl font-black text-white tracking-tight">
+            <CentaurLogo size={70} />
+            <Text className="text-4xl font-black text-white tracking-tight mt-2">
               Centaur OS
             </Text>
             <Text className="text-white text-sm font-semibold mt-1 opacity-90">
-              The OS for Lean Startups
+              The OS for Lean Companies
             </Text>
           </View>
 

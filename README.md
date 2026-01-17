@@ -1,8 +1,8 @@
 # Centaur OS - Mobile Edition
 
-**The Operating System for Lean Hardware Startups**
+**The Operating System for Lean Companies**
 
-Centaur OS is a comprehensive iOS mobile application that helps lean hardware startups operate efficiently with a small team: 2 founders, apprentices (doers), and fractional executives (reviewers).
+Centaur OS is a comprehensive iOS mobile application that helps lean companies operate efficiently with a small team: 2 founders, apprentices (doers), and fractional executives (reviewers).
 
 ![Platform](https://img.shields.io/badge/platform-iOS-blue)
 ![React Native](https://img.shields.io/badge/React%20Native-0.76.7-61DAFB?logo=react)
