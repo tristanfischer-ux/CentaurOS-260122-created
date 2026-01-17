@@ -684,25 +684,25 @@ export const taskService = {
  * Initialize all user data after login
  * Fetches workspaces, memberships, and team members from existing tables
  */
-export async function initializeUserData(userId: string) {
+export async function initializeUserData(userId: string): Promise<{
+  workspaces: Workspace[];
+  memberships: Membership[];
+  teamMembers: any[];
+}> {
   try {
-    // Fetch in parallel
-    const [workspaces, memberships] = await Promise.all([
-      workspaceService.getForUser(userId),
-      membershipService.getForUser(userId),
-    ]);
+    console.log('[initializeUserData] Starting for userId:', userId);
 
-    // Fetch team members for all workspaces
-    const teamMembersPromises = workspaces.map((ws) =>
-      teamMemberService.getForWorkspace(ws.id)
-    );
-    const teamMembersArrays = await Promise.all(teamMembersPromises);
-    const teamMembers = teamMembersArrays.flat();
+    // WORKAROUND: Skip querying memberships and workspaces during initial load
+    // due to infinite recursion in RLS policies.
+    // Return empty data - user will need to fix Supabase RLS policies first.
+    console.warn('[initializeUserData] Skipping data fetch due to RLS recursion issue');
+    console.warn('[initializeUserData] Please fix Supabase RLS policies on memberships and workspaces tables');
+    console.warn('[initializeUserData] See EXISTING_TABLES_GUIDE.md for solution');
 
     return {
-      workspaces,
-      memberships,
-      teamMembers,
+      workspaces: [] as Workspace[],
+      memberships: [] as Membership[],
+      teamMembers: [] as any[],
     };
   } catch (error) {
     console.error('Error initializing user data:', error);
