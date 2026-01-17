@@ -2,7 +2,7 @@
  * Supabase Service Layer
  *
  * Centralized database operations for Centaur OS.
- * Handles all CRUD operations with proper error handling and type safety.
+ * Uses existing Supabase tables: profiles, workspaces, memberships, team_members, okrs, tasks, decisions, work_plans
  */
 
 import { supabase } from './supabase';
@@ -10,8 +10,6 @@ import type {
   User,
   Workspace,
   Membership,
-  Objective,
-  KeyResult,
   Task,
 } from '@/types';
 
@@ -19,7 +17,7 @@ import type {
 // TYPE CONVERSIONS (Supabase snake_case <-> App camelCase)
 // ============================================================================
 
-// Convert Supabase row to User
+// Convert Supabase row to User (from profiles table)
 function supabaseToUser(row: any): User {
   return {
     id: row.id,
@@ -33,7 +31,7 @@ function supabaseToUser(row: any): User {
   };
 }
 
-// Convert User to Supabase row
+// Convert User to Supabase row (for profiles table)
 function userToSupabase(user: Partial<User>): any {
   return {
     id: user.id,
@@ -134,17 +132,52 @@ function teamMemberToSupabase(member: any): any {
   };
 }
 
+// Convert Supabase OKR row (objectives stored as JSONB array)
+function supabaseToOKR(row: any): any {
+  return {
+    id: row.id,
+    workspaceId: row.workspace_id,
+    function: row.function,
+    title: row.title,
+    description: row.description,
+    owner: row.owner,
+    startDate: row.start_date,
+    endDate: row.end_date,
+    status: row.status,
+    queueStatus: row.queue_status,
+    objectives: row.objectives || [], // JSONB array
+    isExpanded: false, // Local UI state
+  };
+}
+
+// Convert OKR to Supabase row
+function okrToSupabase(okr: any): any {
+  return {
+    id: okr.id,
+    workspace_id: okr.workspaceId,
+    function: okr.function,
+    title: okr.title,
+    description: okr.description,
+    owner: okr.owner,
+    start_date: okr.startDate,
+    end_date: okr.endDate,
+    status: okr.status,
+    queue_status: okr.queueStatus,
+    objectives: okr.objectives, // JSONB array
+  };
+}
+
 // ============================================================================
-// USER OPERATIONS
+// USER OPERATIONS (profiles table)
 // ============================================================================
 
 export const userService = {
   /**
-   * Get user by ID
+   * Get user by ID from profiles table
    */
   async getById(userId: string): Promise<User | null> {
     const { data, error } = await supabase
-      .from('users')
+      .from('profiles')
       .select('*')
       .eq('id', userId)
       .single();
@@ -158,11 +191,11 @@ export const userService = {
   },
 
   /**
-   * Get user by email
+   * Get user by email from profiles table
    */
   async getByEmail(email: string): Promise<User | null> {
     const { data, error } = await supabase
-      .from('users')
+      .from('profiles')
       .select('*')
       .eq('email', email.toLowerCase())
       .single();
@@ -182,7 +215,7 @@ export const userService = {
    */
   async create(user: { id: string; email: string; name: string }): Promise<User> {
     const { data, error } = await supabase
-      .from('users')
+      .from('profiles')
       .insert(userToSupabase(user))
       .select()
       .single();
@@ -199,7 +232,7 @@ export const userService = {
    */
   async update(userId: string, updates: Partial<User>): Promise<User> {
     const { data, error } = await supabase
-      .from('users')
+      .from('profiles')
       .update(userToSupabase(updates))
       .eq('id', userId)
       .select()
@@ -488,12 +521,158 @@ export const teamMemberService = {
 };
 
 // ============================================================================
+// OKR OPERATIONS (objectives stored as JSONB array in okrs table)
+// ============================================================================
+
+export const okrService = {
+  /**
+   * Get all OKRs for a workspace
+   */
+  async getForWorkspace(workspaceId: string): Promise<any[]> {
+    const { data, error } = await supabase
+      .from('okrs')
+      .select('*')
+      .eq('workspace_id', workspaceId)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Error fetching OKRs:', error);
+      return [];
+    }
+
+    return data.map(supabaseToOKR);
+  },
+
+  /**
+   * Create a new OKR
+   */
+  async create(okr: any): Promise<any> {
+    const { data, error } = await supabase
+      .from('okrs')
+      .insert(okrToSupabase(okr))
+      .select()
+      .single();
+
+    if (error) {
+      throw new Error(`Failed to create OKR: ${error.message}`);
+    }
+
+    return supabaseToOKR(data);
+  },
+
+  /**
+   * Update OKR (including objectives array)
+   */
+  async update(okrId: string, updates: any): Promise<any> {
+    const { data, error } = await supabase
+      .from('okrs')
+      .update(okrToSupabase(updates))
+      .eq('id', okrId)
+      .select()
+      .single();
+
+    if (error) {
+      throw new Error(`Failed to update OKR: ${error.message}`);
+    }
+
+    return supabaseToOKR(data);
+  },
+
+  /**
+   * Delete OKR
+   */
+  async delete(okrId: string): Promise<void> {
+    const { error } = await supabase
+      .from('okrs')
+      .delete()
+      .eq('id', okrId);
+
+    if (error) {
+      throw new Error(`Failed to delete OKR: ${error.message}`);
+    }
+  },
+};
+
+// ============================================================================
+// TASK OPERATIONS
+// ============================================================================
+
+export const taskService = {
+  /**
+   * Get all tasks for a workspace
+   */
+  async getForWorkspace(workspaceId: string): Promise<any[]> {
+    const { data, error } = await supabase
+      .from('tasks')
+      .select('*')
+      .eq('workspace_id', workspaceId)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Error fetching tasks:', error);
+      return [];
+    }
+
+    return data;
+  },
+
+  /**
+   * Create a new task
+   */
+  async create(task: any): Promise<any> {
+    const { data, error } = await supabase
+      .from('tasks')
+      .insert(task)
+      .select()
+      .single();
+
+    if (error) {
+      throw new Error(`Failed to create task: ${error.message}`);
+    }
+
+    return data;
+  },
+
+  /**
+   * Update task
+   */
+  async update(taskId: string, updates: any): Promise<any> {
+    const { data, error } = await supabase
+      .from('tasks')
+      .update(updates)
+      .eq('id', taskId)
+      .select()
+      .single();
+
+    if (error) {
+      throw new Error(`Failed to update task: ${error.message}`);
+    }
+
+    return data;
+  },
+
+  /**
+   * Delete task
+   */
+  async delete(taskId: string): Promise<void> {
+    const { error } = await supabase
+      .from('tasks')
+      .delete()
+      .eq('id', taskId);
+
+    if (error) {
+      throw new Error(`Failed to delete task: ${error.message}`);
+    }
+  },
+};
+
+// ============================================================================
 // INITIALIZE USER DATA
 // ============================================================================
 
 /**
  * Initialize all user data after login
- * Fetches workspaces, memberships, and team members
+ * Fetches workspaces, memberships, and team members from existing tables
  */
 export async function initializeUserData(userId: string) {
   try {

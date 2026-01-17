@@ -16,44 +16,45 @@ Centaur OS is a comprehensive iOS mobile application that helps lean hardware st
 ## 🔄 Recent Updates (Jan 2026)
 
 ### Supabase Database Integration - COMPLETE! 💾
-**Full database persistence:** All data now saved to Supabase PostgreSQL!
+**Full database persistence:** All data now saved to existing Supabase tables!
 
 **What Was Done:**
-- ✅ Created comprehensive database schema with 7 tables
-- ✅ Implemented Row Level Security (RLS) for multi-tenant isolation
-- ✅ Built Supabase service layer for all CRUD operations
+- ✅ Updated service layer to use existing Supabase tables
+- ✅ Connected to profiles, workspaces, memberships, team_members, okrs, tasks tables
 - ✅ Integrated app-store with Supabase for data persistence
 - ✅ Updated sign-in/sign-up to create profiles in database
 - ✅ Automatic workspace and membership creation on signup
 - ✅ Session-based data loading from database
+- ✅ OKR service handles objectives as JSONB array
 
-**Database Schema:**
-- **users**: User profiles (linked to Supabase Auth)
+**Existing Tables Used:**
+- **profiles**: User profiles (extends Supabase Auth)
 - **workspaces**: Companies/organizations
 - **memberships**: User roles in workspaces (Founder, Exec, Apprentice)
-- **team_members**: People working in each workspace with capacity, cost, AI tools
-- **objectives**: OKRs for strategic planning
-- **key_results**: Measurable targets for objectives
-- **tasks**: Work items with assignments and time tracking
+- **team_members**: People with capacity, cost, AI tools
+- **okrs**: OKRs with objectives as JSONB array field
+- **tasks**: Work items with assignments
+- **decisions**: Strategic decisions
+- **work_plans**: Work planning
 
-**Row Level Security:**
-- Users can only access workspaces they're members of
-- Founders have full control of their workspace
-- Executives can manage their function
-- Apprentices can view and create tasks
-- Multi-tenant isolation enforced at database level
+**Technical Implementation:**
+- **Service Layer**: `/src/lib/supabase-service.ts` - Works with existing tables
+- **App Store**: `/src/lib/state/app-store.ts` - Integrated with Supabase
+- **Type Conversions**: Automatic snake_case ↔ camelCase conversion
+- **Data Loading**: `loadUserData()` fetches all user data on login
+- **No Schema Changes**: Uses your existing database structure
 
-**Setup Required:**
-1. Run `supabase-schema.sql` in Supabase SQL Editor
-2. Verify RLS is enabled on all tables
-3. Test sign-up and sign-in flows
+**Data Flow:**
+1. User signs up → Supabase Auth + Profile in database
+2. Workspace created → Database record + Founder membership
+3. User signs in → Session restored + Data loaded from database
+4. Create/update operations → Saved to Supabase + Local state updated
 
 **Status:** ✅ IMPLEMENTED
 Files:
-- `supabase-schema.sql` - Database schema
-- `/src/lib/supabase-service.ts` - Service layer
+- `/src/lib/supabase-service.ts` - Service layer for existing tables
 - `/src/lib/state/app-store.ts` - Integrated store
-- `SUPABASE_INTEGRATION_GUIDE.md` - Full documentation
+- `EXISTING_TABLES_GUIDE.md` - Full documentation
 
 ---
 
