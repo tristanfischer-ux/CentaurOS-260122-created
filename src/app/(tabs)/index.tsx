@@ -131,8 +131,11 @@ function FounderHome() {
     initializeTechTree();
     initializeDecisions();
     initializeObjectives();
-    autoSeedDemoDataIfNeeded();
-    seedAllocationRequests(); // Seed sample allocation requests for demo
+
+    // DISABLED: Auto-seeding demo data
+    // autoSeedDemoDataIfNeeded();
+    // seedAllocationRequests();
+
     if (suppliers.length === 0) {
       initializeSuppliers();
     }

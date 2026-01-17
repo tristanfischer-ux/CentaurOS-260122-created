@@ -171,13 +171,13 @@ export const useObjectivesStore = create<ObjectivesState>((set, get) => ({
         const parsed = JSON.parse(stored);
         set({ objectives: parsed, initialized: true });
       } else {
-        // Seed with sample data
-        set({ objectives: sampleObjectives, initialized: true });
-        await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(sampleObjectives));
+        // CHANGED: Start with empty array instead of seeding sample data
+        set({ objectives: [], initialized: true });
       }
     } catch (error) {
       console.error('[ObjectivesStore] Failed to initialize:', error);
-      set({ objectives: sampleObjectives, initialized: true });
+      // CHANGED: Start with empty array instead of seeding sample data
+      set({ objectives: [], initialized: true });
     }
   },
 

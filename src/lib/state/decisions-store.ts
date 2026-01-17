@@ -273,13 +273,13 @@ export const useDecisionsStore = create<DecisionsState>((set, get) => ({
         const parsed = JSON.parse(stored);
         set({ decisions: parsed, initialized: true });
       } else {
-        // Seed with sample data
-        set({ decisions: sampleDecisions, initialized: true });
-        await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(sampleDecisions));
+        // CHANGED: Start with empty array instead of seeding sample data
+        set({ decisions: [], initialized: true });
       }
     } catch (error) {
       console.error('[DecisionsStore] Failed to initialize:', error);
-      set({ decisions: sampleDecisions, initialized: true });
+      // CHANGED: Start with empty array instead of seeding sample data
+      set({ decisions: [], initialized: true });
     }
   },
 
