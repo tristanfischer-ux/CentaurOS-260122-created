@@ -44,6 +44,8 @@ Centaur OS is a comprehensive iOS mobile application that helps lean companies o
 - `/src/app/invitations.tsx` - Disabled demo invitations data
 - `/src/app/engagements.tsx` - Disabled demo engagements data
 - `/src/app/guilds.tsx` - Disabled demo guilds data (Hardware Design, Fundraising, etc.)
+- `/src/app/analytics.tsx` - Analytics screen now uses real data
+- `/src/lib/analytics.ts` - Disabled all mock data generators (AI tools, function performance, etc.)
 - `/src/components/WorkspaceSwitcher.tsx` - Disabled demo workspaces data
 - `/src/components/EmptyState.tsx` - Reusable empty state component
 - `CLEAN_SUPABASE_DATA.md` - New guide for cleaning database
