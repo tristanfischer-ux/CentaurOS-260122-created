@@ -75,10 +75,19 @@ export const useOrganizationStore = create<OrganizationState>((set, get) => ({
   supplierEngagements: [],
 
   initializeOrganization: () => {
+    // DISABLED: No longer auto-loading seed data for new users
+    // Users should start with empty organization and add their own data
+    // set({
+    //   members: ORGANIZATION_MEMBERS,
+    //   aiAgents: AI_AGENTS,
+    //   supplierEngagements: SUPPLIER_ENGAGEMENTS,
+    // });
+
+    // Start with empty arrays for fresh users
     set({
-      members: ORGANIZATION_MEMBERS,
-      aiAgents: AI_AGENTS,
-      supplierEngagements: SUPPLIER_ENGAGEMENTS,
+      members: [],
+      aiAgents: [],
+      supplierEngagements: [],
     });
   },
 

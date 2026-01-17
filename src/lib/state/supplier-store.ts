@@ -51,15 +51,20 @@ export const useSupplierStore = create<SupplierState>((set, get) => ({
 
   // Initialize suppliers from seed data (MARKETPLACE DATA)
   initializeSuppliers: () => {
-    const now = new Date().toISOString();
-    const suppliers: Supplier[] = UK_SUPPLIERS.map(supplier => ({
-      ...supplier,
-      id: uuidv4(),
-      createdAt: now,
-      updatedAt: now,
-    }));
+    // DISABLED: No longer auto-loading UK supplier marketplace data
+    // Users should start with empty supplier list
+    // const now = new Date().toISOString();
+    // const suppliers: Supplier[] = UK_SUPPLIERS.map(supplier => ({
+    //   ...supplier,
+    //   id: uuidv4(),
+    //   createdAt: now,
+    //   updatedAt: now,
+    // }));
+    //
+    // set({ suppliers, isLoadingSuppliers: false });
 
-    set({ suppliers, isLoadingSuppliers: false });
+    // Start with empty supplier list for fresh users
+    set({ suppliers: [], isLoadingSuppliers: false });
   },
 
   // Get supplier by ID (used across tabs)

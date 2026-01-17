@@ -436,25 +436,33 @@ export default function SettingsScreen() {
   const handleClearAllData = async () => {
     Alert.alert(
       'Clear All App Data',
-      'This will remove ALL local data including workspaces, team members, OKRs, and tasks. Your Supabase account will remain intact.\n\nAre you absolutely sure?',
+      'This will remove ALL local data and sign you out. You can sign back in for a fresh start.\n\nYour Supabase account will remain intact.\n\nAre you absolutely sure?',
       [
         { text: 'Cancel', style: 'cancel' },
         {
-          text: 'Clear Everything',
+          text: 'Clear & Sign Out',
           style: 'destructive',
           onPress: async () => {
             try {
               console.log('[Settings] Clearing all app data...');
+
+              // Clear local storage
               await storage.clearAllAppData();
+
+              console.log('[Settings] Signing out...');
+
+              // Sign out (this will clear auth state too)
+              await logout();
+
+              // Navigate to sign-in with a success message
               Alert.alert(
-                'Success!',
-                'All local data has been cleared. The app will now reload.',
+                'Data Cleared!',
+                'All local data has been cleared. Sign in again to start fresh.',
                 [
                   {
                     text: 'OK',
                     onPress: () => {
-                      // Reload app to fresh state
-                      router.replace('/');
+                      router.replace('/sign-in');
                     },
                   },
                 ]
