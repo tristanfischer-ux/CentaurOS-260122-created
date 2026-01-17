@@ -1,7 +1,7 @@
 import { View, Text, Pressable, TextInput, ActivityIndicator, ScrollView } from 'react-native';
 import { useState, useEffect } from 'react';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Building2, Mail, ArrowRight, Zap, Sparkles, TrendingUp, Rocket, Lock } from 'lucide-react-native';
+import { Building2, Mail, ArrowRight, Zap, Sparkles, TrendingUp, Lock } from 'lucide-react-native';
 import { supabase } from '@/lib/supabase';
 import { userService } from '@/lib/supabase-service';
 import { useAppStore } from '@/lib/state/app-store';
@@ -207,106 +207,40 @@ export default function SignInScreen() {
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
       >
-        {/* Floating decorative elements */}
-        <View className="absolute inset-0 overflow-hidden">
-          <Animated.View
-            style={[
-              {
-                position: 'absolute',
-                top: 100,
-                right: 30,
-                width: 120,
-                height: 120,
-                borderRadius: 60,
-                backgroundColor: 'rgba(255, 255, 255, 0.15)',
-              },
-              float1Style,
-            ]}
-          />
-          <Animated.View
-            style={[
-              {
-                position: 'absolute',
-                top: 200,
-                left: -20,
-                width: 100,
-                height: 100,
-                borderRadius: 50,
-                backgroundColor: 'rgba(255, 255, 255, 0.1)',
-              },
-              float2Style,
-            ]}
-          />
-          <Animated.View
-            style={[
-              {
-                position: 'absolute',
-                bottom: 150,
-                right: -30,
-                width: 150,
-                height: 150,
-                borderRadius: 75,
-                backgroundColor: 'rgba(255, 255, 255, 0.08)',
-              },
-              float1Style,
-            ]}
-          />
-        </View>
-
         <ScrollView
           className="flex-1"
-          contentContainerStyle={{ flexGrow: 1, paddingHorizontal: 24, paddingVertical: 40 }}
+          contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 60, paddingBottom: 30 }}
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
         >
-          {/* Logo and Title */}
-          <View className="items-center mb-10">
-            <Animated.View style={pulseStyle}>
-              <LinearGradient
-                colors={['#fbbf24', '#f59e0b', '#ea580c']}
-                style={{
-                  width: 90,
-                  height: 90,
-                  borderRadius: 28,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  marginBottom: 20,
-                  shadowColor: '#f59e0b',
-                  shadowOffset: { width: 0, height: 8 },
-                  shadowOpacity: 0.5,
-                  shadowRadius: 16,
-                }}
-              >
-                <Rocket size={48} color="white" strokeWidth={2.5} />
-              </LinearGradient>
-            </Animated.View>
-            <Text className="text-5xl font-black text-white mb-3 tracking-tight">
+          {/* Compact Logo and Title */}
+          <View className="items-center mb-6">
+            <Text className="text-6xl mb-2">🐴</Text>
+            <Text className="text-4xl font-black text-white tracking-tight">
               Centaur OS
             </Text>
-            <View className="bg-white/20 backdrop-blur-xl px-5 py-2.5 rounded-full border border-white/30">
-              <Text className="text-white text-base font-bold">
-                The Operating System for Lean Startups
-              </Text>
-            </View>
+            <Text className="text-white text-sm font-semibold mt-1 opacity-90">
+              The OS for Lean Startups
+            </Text>
           </View>
 
           {/* Sign In Form */}
-          <View className="bg-white rounded-3xl p-7 shadow-2xl border-2 border-white/50">
-            <View className="flex-row items-center mb-6">
-              <Text className="text-gray-900 text-2xl font-black flex-1">Welcome Back</Text>
+          <View className="bg-white rounded-3xl p-6 shadow-2xl mb-4">
+            <View className="flex-row items-center mb-4">
+              <Text className="text-gray-900 text-xl font-black flex-1">Welcome Back</Text>
               <View className="bg-blue-500 p-2 rounded-full">
-                <Sparkles size={20} color="white" />
+                <Sparkles size={16} color="white" />
               </View>
             </View>
 
-            <View className="mb-5">
-              <Text className="text-gray-700 mb-2 text-sm font-semibold">Email Address</Text>
-              <View className="flex-row items-center bg-gray-100 rounded-2xl px-4 py-4 border-2 border-gray-200">
-                <View className="bg-blue-500 p-2 rounded-lg mr-3">
-                  <Mail size={18} color="white" />
+            <View className="mb-4">
+              <Text className="text-gray-700 mb-1.5 text-xs font-semibold">Email Address</Text>
+              <View className="flex-row items-center bg-gray-100 rounded-xl px-3 py-3 border border-gray-200">
+                <View className="bg-blue-500 p-1.5 rounded-lg mr-2">
+                  <Mail size={16} color="white" />
                 </View>
                 <TextInput
-                  className="flex-1 text-gray-900 text-base font-medium"
+                  className="flex-1 text-gray-900 text-sm font-medium"
                   placeholder="you@example.com"
                   placeholderTextColor="#94a3b8"
                   value={email}
@@ -319,14 +253,14 @@ export default function SignInScreen() {
               </View>
             </View>
 
-            <View className="mb-5">
-              <Text className="text-gray-700 mb-2 text-sm font-semibold">Password</Text>
-              <View className="flex-row items-center bg-gray-100 rounded-2xl px-4 py-4 border-2 border-gray-200">
-                <View className="bg-blue-500 p-2 rounded-lg mr-3">
-                  <Lock size={18} color="white" />
+            <View className="mb-4">
+              <Text className="text-gray-700 mb-1.5 text-xs font-semibold">Password</Text>
+              <View className="flex-row items-center bg-gray-100 rounded-xl px-3 py-3 border border-gray-200">
+                <View className="bg-blue-500 p-1.5 rounded-lg mr-2">
+                  <Lock size={16} color="white" />
                 </View>
                 <TextInput
-                  className="flex-1 text-gray-900 text-base font-medium"
+                  className="flex-1 text-gray-900 text-sm font-medium"
                   placeholder="Enter your password"
                   placeholderTextColor="#94a3b8"
                   value={password}
@@ -340,111 +274,103 @@ export default function SignInScreen() {
             </View>
 
             {error ? (
-              <View className="bg-red-50 border-2 border-red-200 rounded-xl p-3 mb-5">
-                <Text className="text-red-700 text-sm font-semibold">{error}</Text>
+              <View className="bg-red-50 border border-red-200 rounded-xl p-2.5 mb-4">
+                <Text className="text-red-700 text-xs font-semibold">{error}</Text>
               </View>
             ) : null}
 
             <Pressable
               onPress={handleSignIn}
               disabled={isLoading}
-              className="rounded-2xl py-5 flex-row items-center justify-center active:scale-[0.98] shadow-lg"
+              className="rounded-xl py-4 flex-row items-center justify-center active:scale-[0.98] shadow-lg mb-3"
             >
               <LinearGradient
-                colors={['#3b82f6', '#2563eb', '#1d4ed8']}
+                colors={['#3b82f6', '#2563eb']}
                 style={{
                   position: 'absolute',
                   left: 0,
                   right: 0,
                   top: 0,
                   bottom: 0,
-                  borderRadius: 16,
+                  borderRadius: 12,
                 }}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 0 }}
               />
               {isLoading ? (
                 <ActivityIndicator color="white" />
               ) : (
                 <>
-                  <Text className="text-white font-black text-lg mr-2">Sign In</Text>
-                  <ArrowRight size={24} color="white" strokeWidth={3} />
+                  <Text className="text-white font-black text-base mr-2">Sign In</Text>
+                  <ArrowRight size={20} color="white" strokeWidth={3} />
                 </>
               )}
             </Pressable>
-          </View>
 
-          {/* Demo Accounts */}
-          <View className="mt-8">
-            <View className="flex-row items-center justify-center mb-5">
-              <View className="flex-1 h-px bg-white/30" />
-              <Text className="text-white font-bold text-sm mx-4">Quick Demo Access</Text>
-              <View className="flex-1 h-px bg-white/30" />
-            </View>
-
-            <View className="gap-3">
+            {/* Sign Up Link - Inside the card */}
+            <View className="flex-row items-center justify-center pt-2 border-t border-gray-200">
+              <Text className="text-gray-600 text-xs font-medium">Don't have an account? </Text>
               <Pressable
-                onPress={() => quickSignIn('founder@fractional.com')}
+                onPress={() => router.push('/sign-up')}
                 disabled={isLoading}
-                className="bg-white/95 border-2 border-white rounded-2xl p-5 active:scale-[0.98] shadow-lg"
+                className="active:opacity-70"
               >
-                <View className="flex-row items-center">
-                  <View className="bg-gradient-to-br from-blue-500 to-blue-600 p-3 rounded-xl mr-4">
-                    <Building2 size={24} color="white" />
-                  </View>
-                  <View className="flex-1">
-                    <Text className="text-gray-900 font-black text-base mb-0.5">Founder Account</Text>
-                    <Text className="text-gray-600 text-sm font-semibold">Sarah Chen • founder@fractional.com</Text>
-                  </View>
-                  <ArrowRight size={20} color="#3b82f6" />
-                </View>
-              </Pressable>
-
-              <Pressable
-                onPress={() => quickSignIn('exec@fractional.com')}
-                disabled={isLoading}
-                className="bg-white/95 border-2 border-white rounded-2xl p-5 active:scale-[0.98] shadow-lg"
-              >
-                <View className="flex-row items-center">
-                  <View className="bg-gradient-to-br from-violet-500 to-violet-600 p-3 rounded-xl mr-4">
-                    <TrendingUp size={24} color="white" />
-                  </View>
-                  <View className="flex-1">
-                    <Text className="text-gray-900 font-black text-base mb-0.5">Executive Account</Text>
-                    <Text className="text-gray-600 text-sm font-semibold">Jordan Martinez • exec@fractional.com</Text>
-                  </View>
-                  <ArrowRight size={20} color="#8b5cf6" />
-                </View>
-              </Pressable>
-
-              <Pressable
-                onPress={() => quickSignIn('apprentice@fractional.com')}
-                disabled={isLoading}
-                className="bg-white/95 border-2 border-white rounded-2xl p-5 active:scale-[0.98] shadow-lg"
-              >
-                <View className="flex-row items-center">
-                  <View className="bg-gradient-to-br from-emerald-500 to-emerald-600 p-3 rounded-xl mr-4">
-                    <Zap size={24} color="white" />
-                  </View>
-                  <View className="flex-1">
-                    <Text className="text-gray-900 font-black text-base mb-0.5">Apprentice Account</Text>
-                    <Text className="text-gray-600 text-sm font-semibold">Alex Rivera • apprentice@fractional.com</Text>
-                  </View>
-                  <ArrowRight size={20} color="#10b981" />
-                </View>
+                <Text className="text-blue-600 font-black text-xs">Sign Up Free</Text>
               </Pressable>
             </View>
           </View>
 
-          {/* Sign Up Link */}
-          <View className="mt-8 mb-6 flex-row items-center justify-center bg-white/15 backdrop-blur-xl rounded-2xl py-4 px-6 border border-white/30">
-            <Text className="text-white text-base font-semibold">Don't have an account? </Text>
+          {/* Compact Demo Accounts */}
+          <Text className="text-white text-xs font-bold text-center mb-3 opacity-80">Quick Demo Access</Text>
+
+          <View className="gap-2.5">
             <Pressable
-              onPress={() => router.push('/sign-up')}
+              onPress={() => quickSignIn('founder@fractional.com')}
               disabled={isLoading}
-              className="active:opacity-70"
+              className="bg-white/95 rounded-xl p-3.5 active:scale-[0.98] shadow-lg"
             >
-              <Text className="text-white font-black text-base underline">Sign Up Free</Text>
+              <View className="flex-row items-center">
+                <View className="bg-blue-500 p-2 rounded-lg mr-3">
+                  <Building2 size={18} color="white" />
+                </View>
+                <View className="flex-1">
+                  <Text className="text-gray-900 font-black text-sm">Founder Account</Text>
+                  <Text className="text-gray-600 text-xs font-medium">Sarah Chen</Text>
+                </View>
+                <ArrowRight size={16} color="#3b82f6" />
+              </View>
+            </Pressable>
+
+            <Pressable
+              onPress={() => quickSignIn('exec@fractional.com')}
+              disabled={isLoading}
+              className="bg-white/95 rounded-xl p-3.5 active:scale-[0.98] shadow-lg"
+            >
+              <View className="flex-row items-center">
+                <View className="bg-violet-500 p-2 rounded-lg mr-3">
+                  <TrendingUp size={18} color="white" />
+                </View>
+                <View className="flex-1">
+                  <Text className="text-gray-900 font-black text-sm">Executive Account</Text>
+                  <Text className="text-gray-600 text-xs font-medium">Jordan Martinez</Text>
+                </View>
+                <ArrowRight size={16} color="#8b5cf6" />
+              </View>
+            </Pressable>
+
+            <Pressable
+              onPress={() => quickSignIn('apprentice@fractional.com')}
+              disabled={isLoading}
+              className="bg-white/95 rounded-xl p-3.5 active:scale-[0.98] shadow-lg"
+            >
+              <View className="flex-row items-center">
+                <View className="bg-emerald-500 p-2 rounded-lg mr-3">
+                  <Zap size={18} color="white" />
+                </View>
+                <View className="flex-1">
+                  <Text className="text-gray-900 font-black text-sm">Apprentice Account</Text>
+                  <Text className="text-gray-600 text-xs font-medium">Alex Rivera</Text>
+                </View>
+                <ArrowRight size={16} color="#10b981" />
+              </View>
             </Pressable>
           </View>
         </ScrollView>
