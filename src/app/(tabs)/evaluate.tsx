@@ -124,12 +124,13 @@ interface InsightItem {
 }
 
 // Initialize stores once
-if (useWorkPlanStore.getState().workPlans.length === 0) {
-  useWorkPlanStore.getState().initializeWorkPlans();
-}
-if (useOrganizationStore.getState().members.length === 0) {
-  useOrganizationStore.getState().initializeOrganization();
-}
+// DISABLED: Stores should start empty for multi-tenant architecture
+// if (useWorkPlanStore.getState().workPlans.length === 0) {
+//   useWorkPlanStore.getState().initializeWorkPlans();
+// }
+// if (useOrganizationStore.getState().members.length === 0) {
+//   useOrganizationStore.getState().initializeOrganization();
+// }
 
 // Performance calculation utilities
 function calculatePerformanceMetrics(

@@ -72,9 +72,10 @@ const DO_HELP_FOUNDER: HelpContent = {
 };
 
 // Initialize work plan store once
-if (useWorkPlanStore.getState().workPlans.length === 0) {
-  useWorkPlanStore.getState().initializeWorkPlans();
-}
+// DISABLED: Stores should start empty for multi-tenant architecture
+// if (useWorkPlanStore.getState().workPlans.length === 0) {
+//   useWorkPlanStore.getState().initializeWorkPlans();
+// }
 
 // Types
 type ViewMode = 'focus' | 'all' | 'blocked';

@@ -60,6 +60,9 @@ interface OrganizationState {
     activeEngagements: number;
   };
 
+  // Reset method for clearing all data
+  reset: () => void;
+
   // Multi-tenancy methods
   getMembersByWorkspace: (workspaceId: string) => OrganizationMember[];
   getAIAgentsByWorkspace: (workspaceId: string) => AIAgent[];
@@ -239,6 +242,15 @@ export const useOrganizationStore = create<OrganizationState>((set, get) => ({
 
   getAllEngagements: () => {
     return get().supplierEngagements; // No filter - for government users
+  },
+
+  // Reset method - clears all organization data
+  reset: () => {
+    set({
+      members: [],
+      aiAgents: [],
+      supplierEngagements: [],
+    });
   },
 }));
 

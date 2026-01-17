@@ -66,9 +66,10 @@ const DECIDE_HELP: HelpContent = {
 if (useOKRStore.getState().okrs.length === 0) {
   useOKRStore.getState().initializeOKRs();
 }
-if (useWorkPlanStore.getState().workPlans.length === 0) {
-  useWorkPlanStore.getState().initializeWorkPlans();
-}
+// DISABLED: Stores should start empty for multi-tenant architecture
+// if (useWorkPlanStore.getState().workPlans.length === 0) {
+//   useWorkPlanStore.getState().initializeWorkPlans();
+// }
 
 const DEFAULT_WORKSPACE_ID = 'workspace-demo-company';
 
@@ -225,9 +226,10 @@ export default function DecideScreen() {
 
   // Initialize organization if empty
   useEffect(() => {
-    if (orgMembers.length === 0) {
-      useOrganizationStore.getState().initializeOrganization();
-    }
+    // DISABLED: Stores should start empty for multi-tenant architecture
+    // if (orgMembers.length === 0) {
+    //   useOrganizationStore.getState().initializeOrganization();
+    // }
   }, [orgMembers.length]);
 
   // Initialize resource store if empty

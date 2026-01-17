@@ -68,9 +68,10 @@ const MAKE_HELP: HelpContent = {
 };
 
 // Initialize organization store once
-if (useOrganizationStore.getState().members.length === 0) {
-  useOrganizationStore.getState().initializeOrganization();
-}
+// DISABLED: Stores should start empty for multi-tenant architecture
+// if (useOrganizationStore.getState().members.length === 0) {
+//   useOrganizationStore.getState().initializeOrganization();
+// }
 
 type MakeTab = 'suppliers' | 'ai';
 

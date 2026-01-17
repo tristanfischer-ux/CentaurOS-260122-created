@@ -140,13 +140,21 @@ interface WorkPlanState {
   getAllWorkPlans: () => WorkPlan[]; // For government users
   getWorkPlansByWorkspaceAndFunction: (workspaceId: string, func: BusinessFunction) => WorkPlan[];
   getWorkPlansByWorkspaceAndStatus: (workspaceId: string, status: WorkPlan['status']) => WorkPlan[];
+
+  // Reset method for clearing all data
+  reset: () => void;
 }
 
 // Initial work plan data - SINGLE SOURCE OF TRUTH
 // Default workspaceId for demo company
 const DEFAULT_WORKSPACE_ID = 'workspace-demo-company';
 
-const INITIAL_WORK_PLANS: WorkPlan[] = [
+// DISABLED: Work plans should be loaded from Supabase
+// All hardcoded work plan data has been disabled for multi-tenant architecture
+const INITIAL_WORK_PLANS: WorkPlan[] = [];
+
+/* REFERENCE: Original hardcoded data (will be migrated to Supabase)
+const INITIAL_WORK_PLANS_ORIGINAL: WorkPlan[] = [
   // Apprentice work plans
   {
     id: 'wp-a1',
@@ -345,6 +353,7 @@ const INITIAL_WORK_PLANS: WorkPlan[] = [
     sprintMode: true,
   },
 ];
+*/
 
 export const useWorkPlanStore = create<WorkPlanState>((set, get) => ({
   workPlans: [],
@@ -472,6 +481,14 @@ export const useWorkPlanStore = create<WorkPlanState>((set, get) => ({
 
   getWorkPlansByWorkspaceAndStatus: (workspaceId: string, status: WorkPlan['status']) => {
     return get().workPlans.filter(wp => wp.workspaceId === workspaceId && wp.status === status);
+  },
+
+  // Reset method - clears all work plan data
+  reset: () => {
+    set({
+      workPlans: [],
+      selectedWorkPlan: null,
+    });
   },
 }));
 
