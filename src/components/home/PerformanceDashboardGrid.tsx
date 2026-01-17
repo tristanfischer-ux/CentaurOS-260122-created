@@ -174,9 +174,32 @@ export function PerformanceDashboardGrid() {
     const projectHealth: HealthStatus =
       blockedTasks > 2 ? 'critical' : blockedTasks > 0 || onTimePercent < 70 ? 'warning' : 'healthy';
 
-    // 2. Team Productivity
-    const completedThisWeek = 3; // Mock - would calculate from timestamps
-    const avgCycleTime = 5; // Mock - average days per task
+    // 2. Team Productivity - calculate from actual completed tasks
+    const now = new Date();
+    const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+
+    const completedThisWeek = roleFilteredWorkPlans.filter((wp) => {
+      if (wp.status !== 'completed' || !wp.auditRecord?.completedAt) return false;
+      const completedDate = new Date(wp.auditRecord.completedAt);
+      return completedDate >= oneWeekAgo;
+    }).length;
+
+    // Calculate average cycle time from recently completed tasks
+    const recentlyCompleted = roleFilteredWorkPlans
+      .filter((wp) => wp.status === 'completed' && wp.auditRecord?.completedAt && wp.startDate)
+      .slice(0, 10); // Last 10 completed tasks
+
+    const avgCycleTime = recentlyCompleted.length > 0
+      ? Math.round(
+          recentlyCompleted.reduce((sum, wp) => {
+            const start = new Date(wp.startDate);
+            const end = new Date(wp.auditRecord!.completedAt!);
+            const days = Math.max(1, Math.ceil((end.getTime() - start.getTime()) / (24 * 60 * 60 * 1000)));
+            return sum + days;
+          }, 0) / recentlyCompleted.length
+        )
+      : 0;
+
     const productivityTrend: TrendDirection = completedThisWeek >= 3 ? 'up' : completedThisWeek >= 2 ? 'stable' : 'down';
 
     // 3. Resource Efficiency
