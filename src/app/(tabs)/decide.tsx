@@ -35,6 +35,7 @@ import { calculateEndDate, calculateCompletionDays } from '@/lib/task-timeline-c
 import { filterWorkPlansByRole, filterOKRsByRole } from '@/lib/role-utils';
 import { RoleIndicator } from '@/components/RoleIndicator';
 import { EmptyState } from '@/components/EmptyState';
+import { useTheme } from '@/lib/ThemeContext';
 
 // Team efficiency types
 
@@ -84,6 +85,8 @@ interface WorkPlanItem {
 export default function DecideScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
+  const { theme, isOffWhite } = useTheme();
+  const isDark = theme === 'dark';
   const currentWorkspace = useCurrentWorkspace();
   const currentMembership = useCurrentMembership();
   const params = useLocalSearchParams<{ function?: string; showApprovalQueue?: string; selectedTaskId?: string }>();
@@ -1540,7 +1543,7 @@ export default function DecideScreen() {
   };
 
   return (
-    <View className="flex-1 bg-white dark:bg-slate-950">
+    <View className={`flex-1 ${isDark ? 'bg-slate-950' : isOffWhite ? 'bg-stone-50' : 'bg-white'}`}>
       {/* Help Modal */}
       <HelpModal
         visible={showHelp}
@@ -1638,7 +1641,7 @@ export default function DecideScreen() {
       />
 
       {/* SECTION 2: SCROLLABLE TASK QUEUE */}
-      <ScrollView className="flex-1 px-5" contentContainerStyle={{ paddingTop: 16, paddingBottom: 68 }}>
+      <ScrollView className="flex-1 px-5" contentContainerStyle={{ paddingTop: 16, paddingBottom: insets.bottom + 80 }}>
         {/* Company Aim Banner */}
         {currentWorkspace && (
           <CompanyAimBanner
