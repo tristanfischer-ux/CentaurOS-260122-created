@@ -26,9 +26,9 @@ export interface WhatWhyConfig {
 
 export const whatWhyConfig: WhatWhyConfig = {
   llm: {
-    provider: process.env.LLM_PROVIDER || 'mock',
+    provider: process.env.LLM_PROVIDER || 'anthropic',
     model: process.env.LLM_MODEL || 'claude-3-5-sonnet-20241022',
-    apiKey: process.env.EXPO_PUBLIC_VIBECODE_ANTHROPIC_API_KEY,
+    apiKey: process.env.ANTHROPIC_API_KEY || process.env.EXPO_PUBLIC_VIBECODE_ANTHROPIC_API_KEY,
   },
   voice: {
     enabled: process.env.VOICE_ENABLED !== 'false',
