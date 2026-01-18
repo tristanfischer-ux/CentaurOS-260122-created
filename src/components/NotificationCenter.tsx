@@ -11,7 +11,7 @@ interface NotificationCenterProps {
 }
 
 export function NotificationCenter({ visible, onClose }: NotificationCenterProps) {
-  const { theme } = useTheme();
+  const { theme, isOffWhite } = useTheme();
   const isDark = theme === 'dark';
   const router = useRouter();
   const currentWorkspace = useCurrentWorkspace();
@@ -71,15 +71,15 @@ export function NotificationCenter({ visible, onClose }: NotificationCenterProps
   return (
     <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
       <View className="flex-1 bg-black/50">
-        <View className={`flex-1 mt-16 ${isDark ? 'bg-slate-950' : 'bg-white'} rounded-t-3xl`}>
+        <View className={`flex-1 mt-16 ${isDark ? 'bg-slate-950' : isOffWhite ? 'bg-stone-50' : 'bg-white'} rounded-t-3xl`}>
           {/* Header */}
-          <View className={`flex-row items-center justify-between px-5 py-4 border-b ${isDark ? 'border-slate-800' : 'border-gray-200'}`}>
+          <View className={`flex-row items-center justify-between px-5 py-4 border-b ${isDark ? 'border-slate-800' : isOffWhite ? 'border-stone-300' : 'border-gray-200'}`}>
             <View className="flex-1">
-              <Text className={`${isDark ? 'text-white' : 'text-gray-900'} text-xl font-bold`}>
+              <Text className={`${isDark ? 'text-white' : isOffWhite ? 'text-stone-900' : 'text-gray-900'} text-xl font-bold`}>
                 Notifications
               </Text>
               {unreadCount > 0 && (
-                <Text className={`${isDark ? 'text-slate-400' : 'text-gray-600'} text-sm`}>
+                <Text className={`${isDark ? 'text-slate-400' : isOffWhite ? 'text-stone-600' : 'text-gray-600'} text-sm`}>
                   {unreadCount} unread
                 </Text>
               )}
@@ -90,17 +90,17 @@ export function NotificationCenter({ visible, onClose }: NotificationCenterProps
               {unreadCount > 0 && (
                 <Pressable
                   onPress={handleMarkAllRead}
-                  className={`px-3 py-2 rounded-lg ${isDark ? 'bg-slate-800' : 'bg-gray-100'} active:opacity-70`}
+                  className={`px-3 py-2 rounded-lg ${isDark ? 'bg-slate-800' : isOffWhite ? 'bg-stone-200' : 'bg-gray-100'} active:opacity-70`}
                 >
-                  <CheckCheck size={18} color={isDark ? '#94a3b8' : '#64748b'} />
+                  <CheckCheck size={18} color={isDark ? '#94a3b8' : isOffWhite ? '#78716c' : '#64748b'} />
                 </Pressable>
               )}
               <Pressable
                 onPress={onClose}
                 className="w-9 h-9 rounded-full items-center justify-center"
-                style={{ backgroundColor: isDark ? '#1e293b' : '#f3f4f6' }}
+                style={{ backgroundColor: isDark ? '#1e293b' : isOffWhite ? '#e7e5e4' : '#f3f4f6' }}
               >
-                <X size={20} color={isDark ? '#94a3b8' : '#64748b'} />
+                <X size={20} color={isDark ? '#94a3b8' : isOffWhite ? '#78716c' : '#64748b'} />
               </Pressable>
             </View>
           </View>
@@ -110,10 +110,10 @@ export function NotificationCenter({ visible, onClose }: NotificationCenterProps
             {notifications.length === 0 ? (
               <View className="items-center py-16">
                 <Bell size={64} color={isDark ? '#475569' : '#cbd5e1'} />
-                <Text className={`${isDark ? 'text-white' : 'text-gray-900'} font-bold text-lg mt-4`}>
+                <Text className={`${isDark ? 'text-white' : isOffWhite ? 'text-stone-900' : 'text-gray-900'} font-bold text-lg mt-4`}>
                   All Caught Up!
                 </Text>
-                <Text className={`${isDark ? 'text-slate-400' : 'text-gray-600'} text-center mt-2`}>
+                <Text className={`${isDark ? 'text-slate-400' : isOffWhite ? 'text-stone-600' : 'text-gray-600'} text-center mt-2`}>
                   You have no notifications at the moment
                 </Text>
               </View>
@@ -127,9 +127,13 @@ export function NotificationCenter({ visible, onClose }: NotificationCenterProps
                       notification.read
                         ? isDark
                           ? 'bg-slate-900 border-slate-800'
+                          : isOffWhite
+                          ? 'bg-stone-100 border-stone-300'
                           : 'bg-gray-50 border-gray-200'
                         : isDark
                         ? 'bg-blue-900/20 border-blue-800'
+                        : isOffWhite
+                        ? 'bg-amber-50 border-amber-200'
                         : 'bg-blue-50 border-blue-200'
                     } active:opacity-70`}
                   >
@@ -142,7 +146,7 @@ export function NotificationCenter({ visible, onClose }: NotificationCenterProps
                         <View className="flex-row items-start justify-between mb-1">
                           <Text
                             className={`${
-                              isDark ? 'text-white' : 'text-gray-900'
+                              isDark ? 'text-white' : isOffWhite ? 'text-stone-900' : 'text-gray-900'
                             } font-semibold flex-1`}
                           >
                             {notification.title}
@@ -153,7 +157,7 @@ export function NotificationCenter({ visible, onClose }: NotificationCenterProps
                         </View>
                         <Text
                           className={`${
-                            isDark ? 'text-slate-400' : 'text-gray-600'
+                            isDark ? 'text-slate-400' : isOffWhite ? 'text-stone-600' : 'text-gray-600'
                           } text-sm mb-2`}
                         >
                           {notification.message}
@@ -161,7 +165,7 @@ export function NotificationCenter({ visible, onClose }: NotificationCenterProps
                         <View className="flex-row items-center justify-between">
                           <Text
                             className={`${
-                              isDark ? 'text-slate-500' : 'text-gray-500'
+                              isDark ? 'text-slate-500' : isOffWhite ? 'text-stone-500' : 'text-gray-500'
                             } text-xs`}
                           >
                             {new Date(notification.timestamp).toLocaleString('en-US', {
@@ -187,7 +191,7 @@ export function NotificationCenter({ visible, onClose }: NotificationCenterProps
                         }}
                         className="ml-2 p-2 active:opacity-70"
                       >
-                        <Trash2 size={16} color={isDark ? '#64748b' : '#9ca3af'} />
+                        <Trash2 size={16} color={isDark ? '#64748b' : isOffWhite ? '#a8a29e' : '#9ca3af'} />
                       </Pressable>
                     </View>
                   </Pressable>
@@ -199,12 +203,14 @@ export function NotificationCenter({ visible, onClose }: NotificationCenterProps
                     className={`py-3 rounded-xl border ${
                       isDark
                         ? 'border-slate-800 bg-slate-900'
+                        : isOffWhite
+                        ? 'border-stone-300 bg-stone-100'
                         : 'border-gray-200 bg-gray-50'
                     } active:opacity-70 mb-8`}
                   >
                     <Text
                       className={`${
-                        isDark ? 'text-slate-400' : 'text-gray-600'
+                        isDark ? 'text-slate-400' : isOffWhite ? 'text-stone-600' : 'text-gray-600'
                       } text-center font-medium`}
                     >
                       Clear All Notifications

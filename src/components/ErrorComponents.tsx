@@ -11,13 +11,13 @@ interface ErrorModalProps {
 }
 
 export function ErrorModal({ visible, title = 'Error', message, onClose, onRetry }: ErrorModalProps) {
-  const { theme } = useTheme();
+  const { theme, isOffWhite } = useTheme();
   const isDark = theme === 'dark';
 
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
       <View className="flex-1 bg-black/50 items-center justify-center p-6">
-        <View className={`${isDark ? 'bg-slate-900' : 'bg-white'} rounded-2xl p-6 w-full max-w-sm`}>
+        <View className={`${isDark ? 'bg-slate-900' : isOffWhite ? 'bg-stone-50' : 'bg-white'} rounded-2xl p-6 w-full max-w-sm`}>
           {/* Icon */}
           <View className="items-center mb-4">
             <View className="w-16 h-16 rounded-full bg-red-100 dark:bg-red-900/30 items-center justify-center">
@@ -26,12 +26,12 @@ export function ErrorModal({ visible, title = 'Error', message, onClose, onRetry
           </View>
 
           {/* Title */}
-          <Text className={`${isDark ? 'text-white' : 'text-gray-900'} font-bold text-xl text-center mb-2`}>
+          <Text className={`${isDark ? 'text-white' : isOffWhite ? 'text-stone-900' : 'text-gray-900'} font-bold text-xl text-center mb-2`}>
             {title}
           </Text>
 
           {/* Message */}
-          <Text className={`${isDark ? 'text-slate-400' : 'text-gray-600'} text-center mb-6`}>
+          <Text className={`${isDark ? 'text-slate-400' : isOffWhite ? 'text-stone-600' : 'text-gray-600'} text-center mb-6`}>
             {message}
           </Text>
 
@@ -51,9 +51,9 @@ export function ErrorModal({ visible, title = 'Error', message, onClose, onRetry
             )}
             <Pressable
               onPress={onClose}
-              className={`${isDark ? 'bg-slate-800' : 'bg-gray-100'} rounded-xl py-4 active:opacity-70`}
+              className={`${isDark ? 'bg-slate-800' : isOffWhite ? 'bg-stone-200' : 'bg-gray-100'} rounded-xl py-4 active:opacity-70`}
             >
-              <Text className={`${isDark ? 'text-white' : 'text-gray-900'} font-semibold text-base text-center`}>
+              <Text className={`${isDark ? 'text-white' : isOffWhite ? 'text-stone-900' : 'text-gray-900'} font-semibold text-base text-center`}>
                 Close
               </Text>
             </Pressable>

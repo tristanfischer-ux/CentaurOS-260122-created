@@ -21,7 +21,7 @@ export function EditPersonModal({
   onSave,
   onDelete,
 }: EditPersonModalProps) {
-  const { theme } = useTheme();
+  const { theme, isOffWhite } = useTheme();
   const isDark = theme === 'dark';
 
   const [name, setName] = useState(member.name);
@@ -71,27 +71,27 @@ export function EditPersonModal({
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
       <View className="flex-1 bg-black/50">
-        <View className={`flex-1 mt-16 ${isDark ? 'bg-slate-950' : 'bg-white'} rounded-t-3xl`}>
+        <View className={`flex-1 mt-16 ${isDark ? 'bg-slate-950' : isOffWhite ? 'bg-stone-50' : 'bg-white'} rounded-t-3xl`}>
           {/* Header */}
           <View
             className={`flex-row items-center justify-between px-5 py-4 border-b ${
-              isDark ? 'border-slate-800' : 'border-gray-200'
+              isDark ? 'border-slate-800' : isOffWhite ? 'border-stone-300' : 'border-gray-200'
             }`}
           >
             <View className="flex-1">
-              <Text className={`${isDark ? 'text-white' : 'text-gray-900'} text-xl font-bold`}>
+              <Text className={`${isDark ? 'text-white' : isOffWhite ? 'text-stone-900' : 'text-gray-900'} text-xl font-bold`}>
                 Edit Team Member
               </Text>
-              <Text className={`${isDark ? 'text-slate-400' : 'text-gray-600'} text-sm`}>
+              <Text className={`${isDark ? 'text-slate-400' : isOffWhite ? 'text-stone-600' : 'text-gray-600'} text-sm`}>
                 {member.role}
               </Text>
             </View>
             <Pressable
               onPress={onClose}
               className="w-9 h-9 rounded-full items-center justify-center"
-              style={{ backgroundColor: isDark ? '#1e293b' : '#f3f4f6' }}
+              style={{ backgroundColor: isDark ? '#1e293b' : isOffWhite ? '#e7e5e4' : '#f3f4f6' }}
             >
-              <X size={20} color={isDark ? '#94a3b8' : '#64748b'} />
+              <X size={20} color={isDark ? '#94a3b8' : isOffWhite ? '#78716c' : '#64748b'} />
             </Pressable>
           </View>
 
@@ -102,7 +102,7 @@ export function EditPersonModal({
             <View className="mb-4">
               <Text
                 className={`${
-                  isDark ? 'text-slate-400' : 'text-gray-600'
+                  isDark ? 'text-slate-400' : isOffWhite ? 'text-stone-600' : 'text-gray-600'
                 } text-xs font-bold mb-2 tracking-wide uppercase`}
               >
                 NAME *
@@ -113,9 +113,9 @@ export function EditPersonModal({
                 placeholder="Full name"
                 placeholderTextColor="#9ca3af"
                 className={`${
-                  isDark ? 'bg-slate-900 text-white' : 'bg-gray-50 text-gray-900'
+                  isDark ? 'bg-slate-900 text-white' : isOffWhite ? 'bg-stone-100 text-stone-900' : 'bg-gray-50 text-gray-900'
                 } border ${
-                  isDark ? 'border-slate-800' : 'border-gray-200'
+                  isDark ? 'border-slate-800' : isOffWhite ? 'border-stone-300' : 'border-gray-200'
                 } rounded-xl px-4 py-3`}
               />
             </View>
@@ -124,7 +124,7 @@ export function EditPersonModal({
             <View className="mb-4">
               <Text
                 className={`${
-                  isDark ? 'text-slate-400' : 'text-gray-600'
+                  isDark ? 'text-slate-400' : isOffWhite ? 'text-stone-600' : 'text-gray-600'
                 } text-xs font-bold mb-2 tracking-wide uppercase`}
               >
                 EMAIL *
@@ -137,9 +137,9 @@ export function EditPersonModal({
                 keyboardType="email-address"
                 autoCapitalize="none"
                 className={`${
-                  isDark ? 'bg-slate-900 text-white' : 'bg-gray-50 text-gray-900'
+                  isDark ? 'bg-slate-900 text-white' : isOffWhite ? 'bg-stone-100 text-stone-900' : 'bg-gray-50 text-gray-900'
                 } border ${
-                  isDark ? 'border-slate-800' : 'border-gray-200'
+                  isDark ? 'border-slate-800' : isOffWhite ? 'border-stone-300' : 'border-gray-200'
                 } rounded-xl px-4 py-3`}
               />
             </View>
@@ -148,7 +148,7 @@ export function EditPersonModal({
             <View className="mb-4">
               <Text
                 className={`${
-                  isDark ? 'text-slate-400' : 'text-gray-600'
+                  isDark ? 'text-slate-400' : isOffWhite ? 'text-stone-600' : 'text-gray-600'
                 } text-xs font-bold mb-2 tracking-wide uppercase`}
               >
                 PHONE
@@ -160,9 +160,9 @@ export function EditPersonModal({
                 placeholderTextColor="#9ca3af"
                 keyboardType="phone-pad"
                 className={`${
-                  isDark ? 'bg-slate-900 text-white' : 'bg-gray-50 text-gray-900'
+                  isDark ? 'bg-slate-900 text-white' : isOffWhite ? 'bg-stone-100 text-stone-900' : 'bg-gray-50 text-gray-900'
                 } border ${
-                  isDark ? 'border-slate-800' : 'border-gray-200'
+                  isDark ? 'border-slate-800' : isOffWhite ? 'border-stone-300' : 'border-gray-200'
                 } rounded-xl px-4 py-3`}
               />
             </View>
@@ -171,7 +171,7 @@ export function EditPersonModal({
             <View className="mb-4">
               <Text
                 className={`${
-                  isDark ? 'text-slate-400' : 'text-gray-600'
+                  isDark ? 'text-slate-400' : isOffWhite ? 'text-stone-600' : 'text-gray-600'
                 } text-xs font-bold mb-2 tracking-wide uppercase`}
               >
                 FUNCTION
@@ -210,7 +210,7 @@ export function EditPersonModal({
               <View className="mb-4">
                 <Text
                   className={`${
-                    isDark ? 'text-slate-400' : 'text-gray-600'
+                    isDark ? 'text-slate-400' : isOffWhite ? 'text-stone-600' : 'text-gray-600'
                   } text-xs font-bold mb-2 tracking-wide uppercase`}
                 >
                   DAYS PER WEEK
@@ -222,9 +222,9 @@ export function EditPersonModal({
                   placeholderTextColor="#9ca3af"
                   keyboardType="number-pad"
                   className={`${
-                    isDark ? 'bg-slate-900 text-white' : 'bg-gray-50 text-gray-900'
+                    isDark ? 'bg-slate-900 text-white' : isOffWhite ? 'bg-stone-100 text-stone-900' : 'bg-gray-50 text-gray-900'
                   } border ${
-                    isDark ? 'border-slate-800' : 'border-gray-200'
+                    isDark ? 'border-slate-800' : isOffWhite ? 'border-stone-300' : 'border-gray-200'
                   } rounded-xl px-4 py-3`}
                 />
               </View>
@@ -234,7 +234,7 @@ export function EditPersonModal({
             <View className="mb-4">
               <Text
                 className={`${
-                  isDark ? 'text-slate-400' : 'text-gray-600'
+                  isDark ? 'text-slate-400' : isOffWhite ? 'text-stone-600' : 'text-gray-600'
                 } text-xs font-bold mb-2 tracking-wide uppercase`}
               >
                 COST PER DAY (£)
@@ -246,9 +246,9 @@ export function EditPersonModal({
                 placeholderTextColor="#9ca3af"
                 keyboardType="decimal-pad"
                 className={`${
-                  isDark ? 'bg-slate-900 text-white' : 'bg-gray-50 text-gray-900'
+                  isDark ? 'bg-slate-900 text-white' : isOffWhite ? 'bg-stone-100 text-stone-900' : 'bg-gray-50 text-gray-900'
                 } border ${
-                  isDark ? 'border-slate-800' : 'border-gray-200'
+                  isDark ? 'border-slate-800' : isOffWhite ? 'border-stone-300' : 'border-gray-200'
                 } rounded-xl px-4 py-3`}
               />
             </View>
@@ -257,7 +257,7 @@ export function EditPersonModal({
             <View className="mb-4">
               <Text
                 className={`${
-                  isDark ? 'text-slate-400' : 'text-gray-600'
+                  isDark ? 'text-slate-400' : isOffWhite ? 'text-stone-600' : 'text-gray-600'
                 } text-xs font-bold mb-2 tracking-wide uppercase`}
               >
                 BIO
@@ -271,9 +271,9 @@ export function EditPersonModal({
                 numberOfLines={4}
                 textAlignVertical="top"
                 className={`${
-                  isDark ? 'bg-slate-900 text-white' : 'bg-gray-50 text-gray-900'
+                  isDark ? 'bg-slate-900 text-white' : isOffWhite ? 'bg-stone-100 text-stone-900' : 'bg-gray-50 text-gray-900'
                 } border ${
-                  isDark ? 'border-slate-800' : 'border-gray-200'
+                  isDark ? 'border-slate-800' : isOffWhite ? 'border-stone-300' : 'border-gray-200'
                 } rounded-xl px-4 py-3 min-h-[80px]`}
               />
             </View>
@@ -285,7 +285,7 @@ export function EditPersonModal({
                   <Cpu size={16} color={isDark ? '#a78bfa' : '#8b5cf6'} />
                   <Text
                     className={`${
-                      isDark ? 'text-slate-400' : 'text-gray-600'
+                      isDark ? 'text-slate-400' : isOffWhite ? 'text-stone-600' : 'text-gray-600'
                     } text-xs font-bold tracking-wide uppercase`}
                   >
                     AI SYSTEMS
@@ -347,7 +347,7 @@ export function EditPersonModal({
                         </View>
                         <Text
                           className={`text-xs ${
-                            isDark ? 'text-slate-400' : 'text-gray-600'
+                            isDark ? 'text-slate-400' : isOffWhite ? 'text-stone-600' : 'text-gray-600'
                           }`}
                           numberOfLines={1}
                         >
@@ -375,7 +375,7 @@ export function EditPersonModal({
                         {isSelected ? (
                           <Minus size={16} color="white" />
                         ) : (
-                          <Plus size={16} color={isDark ? '#94a3b8' : '#64748b'} />
+                          <Plus size={16} color={isDark ? '#94a3b8' : isOffWhite ? '#78716c' : '#64748b'} />
                         )}
                       </View>
                     </Pressable>
@@ -391,7 +391,7 @@ export function EditPersonModal({
                 >
                   <Text
                     className={`text-sm text-center ${
-                      isDark ? 'text-slate-400' : 'text-gray-600'
+                      isDark ? 'text-slate-400' : isOffWhite ? 'text-stone-600' : 'text-gray-600'
                     }`}
                   >
                     No AI systems selected. Tap to add AI tools that boost productivity.
@@ -404,7 +404,7 @@ export function EditPersonModal({
 
           {/* Footer */}
           <View
-            className={`p-5 border-t ${isDark ? 'border-slate-800' : 'border-gray-200'} gap-3`}
+            className={`p-5 border-t ${isDark ? 'border-slate-800' : isOffWhite ? 'border-stone-300' : 'border-gray-200'} gap-3`}
           >
             {/* Delete button (if applicable) */}
             {onDelete && member.role !== 'Founder' && (
@@ -429,7 +429,7 @@ export function EditPersonModal({
               >
                 <Text
                   className={`${
-                    isDark ? 'text-slate-300' : 'text-gray-700'
+                    isDark ? 'text-slate-300' : isOffWhite ? 'text-stone-700' : 'text-gray-700'
                   } font-semibold text-center`}
                 >
                   Cancel

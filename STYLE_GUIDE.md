@@ -1,8 +1,13 @@
 # Centaur OS Style Guide
 
-**Version:** 1.0
-**Last Updated:** 2026-01-16
+**Version:** 1.1
+**Last Updated:** 2026-01-18
 **Purpose:** Comprehensive design and development standards for Centaur OS
+
+**KEY UPDATES:**
+- ✨ **Color Hierarchy Clarified:** Blue (#3b82f6) is PRIMARY for UI/actions, Purple (#8b5cf6) is BRAND/accent
+- ✨ **Theme Support:** All components now support light/dark/off-white themes with `isOffWhite`
+- ✨ **Consistency Standards:** Enforced Zustand selectors and haptic feedback patterns
 
 ---
 
@@ -74,18 +79,17 @@ interface MyComponentProps {
 }
 
 export function MyComponent({ title, onPress, variant = 'primary' }: MyComponentProps) {
-  const { theme } = useTheme();
+  const { theme, isOffWhite } = useTheme();
   const isDark = theme === 'dark';
-  const isOffWhite = theme === 'off-white';
 
   return (
     <Pressable
       onPress={onPress}
       className={`rounded-xl py-4 px-6 active:opacity-70 ${
-        variant === 'primary' ? 'bg-purple-600' : isDark ? 'bg-slate-800' : 'bg-gray-100'
+        variant === 'primary' ? 'bg-blue-600' : isDark ? 'bg-slate-800' : isOffWhite ? 'bg-stone-200' : 'bg-gray-100'
       }`}
     >
-      <Text className={variant === 'primary' ? 'text-white font-bold' : `${isDark ? 'text-white' : 'text-gray-900'} font-semibold`}>
+      <Text className={variant === 'primary' ? 'text-white font-bold' : `${isDark ? 'text-white' : isOffWhite ? 'text-stone-900' : 'text-gray-900'} font-semibold`}>
         {title}
       </Text>
     </Pressable>
@@ -243,20 +247,29 @@ className={`${isDark ? 'bg-slate-900' : isOffWhite ? 'bg-orange-50' : 'bg-white'
 ### Color Palette
 
 #### Primary Colors
+
+**IMPORTANT: Color Hierarchy**
+- **Blue (#3b82f6)** = Primary UI color for interactive elements, buttons, links, and active states
+- **Purple (#8b5cf6)** = Brand/accent color for highlighting, special features, and branding moments
+
 ```tsx
-// Purple (Primary Brand)
-bg-purple-50   dark:bg-purple-900/20
+// Blue (Primary UI & Actions)
+bg-blue-50   dark:bg-blue-900/20    // Subtle backgrounds, selected states
+bg-blue-500  // Medium emphasis
+bg-blue-600  // PRIMARY ACTIONS - Use for main CTAs, active states, interactive elements
+text-blue-600 dark:text-blue-400     // Links, active text
+
+// Purple (Brand & Accent)
+bg-purple-50   dark:bg-purple-900/20  // Brand-themed backgrounds
 bg-purple-100  dark:bg-purple-900/30
 bg-purple-500  // Medium
-bg-purple-600  // Primary actions
-text-purple-600 dark:text-purple-400
-
-// Blue (Information, Secondary Actions)
-bg-blue-50   dark:bg-blue-900/20
-bg-blue-500
-bg-blue-600
-text-blue-600 dark:text-blue-400
+bg-purple-600  // BRAND MOMENTS - Use sparingly for special features, branding
+text-purple-600 dark:text-purple-400  // Brand text, premium features
 ```
+
+**Usage Guidelines:**
+- Use **Blue** for 80% of interactive elements (buttons, tabs, selections, notifications)
+- Use **Purple** for 20% brand moments (premium features, achievements, branding)
 
 #### Status Colors
 ```tsx
@@ -469,7 +482,7 @@ onError={() => {
 
         {/* Footer (optional) */}
         <View className="p-5 border-t border-gray-200 dark:border-slate-800">
-          <Pressable className="bg-purple-600 rounded-xl py-4">
+          <Pressable className="bg-blue-600 rounded-xl py-4">
             <Text className="text-white font-bold text-center">Action</Text>
           </Pressable>
         </View>
@@ -647,7 +660,7 @@ import { AnimatedListItem } from '@/components/AnimatedComponents';
   <Text className="text-gray-600 dark:text-slate-400 text-center mt-2 px-8">
     Description of why empty and what to do
   </Text>
-  <Pressable className="bg-purple-600 rounded-xl px-6 py-3 mt-6">
+  <Pressable className="bg-blue-600 rounded-xl px-6 py-3 mt-6">
     <Text className="text-white font-semibold">Add Item</Text>
   </Pressable>
 </View>
@@ -843,7 +856,7 @@ const validate = () => {
     <Text className="text-gray-600 dark:text-slate-400 text-center mt-2 px-8">
       {error.message}
     </Text>
-    <Pressable onPress={retry} className="bg-purple-600 rounded-xl px-6 py-3 mt-6">
+    <Pressable onPress={retry} className="bg-blue-600 rounded-xl px-6 py-3 mt-6">
       <Text className="text-white font-semibold">Try Again</Text>
     </Pressable>
   </View>
@@ -1208,7 +1221,7 @@ const onRefresh = async () => {
 ### Common Class Combinations
 ```tsx
 // Button (Primary)
-className="bg-purple-600 rounded-xl py-4 px-6 active:opacity-70"
+className="bg-blue-600 rounded-xl py-4 px-6 active:opacity-70"
 
 // Button (Secondary)
 className="bg-gray-100 dark:bg-slate-800 rounded-xl py-4 px-6 active:opacity-70"

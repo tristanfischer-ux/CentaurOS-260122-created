@@ -48,7 +48,7 @@ export function StandardModal({
   footer,
   showCloseButton = true,
 }: StandardModalProps) {
-  const { theme } = useTheme();
+  const { theme, isOffWhite } = useTheme();
   const isDark = theme === 'dark';
 
   return (
@@ -71,19 +71,19 @@ export function StandardModal({
           onPress={(e) => e.stopPropagation()}
           style={{ maxHeight: typeof maxHeight === 'string' ? maxHeight : maxHeight }}
         >
-          <View className={`${isDark ? 'bg-slate-950' : 'bg-white'} rounded-t-3xl`}>
+          <View className={`${isDark ? 'bg-slate-950' : isOffWhite ? 'bg-stone-50' : 'bg-white'} rounded-t-3xl`}>
             {/* Header */}
-            <View className={`flex-row items-center justify-between px-5 py-4 border-b ${isDark ? 'border-slate-800' : 'border-gray-200'}`}>
-              <Text className={`text-lg font-bold flex-1 ${isDark ? 'text-white' : 'text-gray-900'}`}>
+            <View className={`flex-row items-center justify-between px-5 py-4 border-b ${isDark ? 'border-slate-800' : isOffWhite ? 'border-stone-300' : 'border-gray-200'}`}>
+              <Text className={`text-lg font-bold flex-1 ${isDark ? 'text-white' : isOffWhite ? 'text-stone-900' : 'text-gray-900'}`}>
                 {title}
               </Text>
 
               {showCloseButton && (
                 <Pressable
                   onPress={onClose}
-                  className={`w-9 h-9 rounded-full items-center justify-center ${isDark ? 'bg-slate-800' : 'bg-gray-100'} active:opacity-70`}
+                  className={`w-9 h-9 rounded-full items-center justify-center ${isDark ? 'bg-slate-800' : isOffWhite ? 'bg-stone-200' : 'bg-gray-100'} active:opacity-70`}
                 >
-                  <X size={20} color={isDark ? '#fff' : '#374151'} />
+                  <X size={20} color={isDark ? '#fff' : isOffWhite ? '#57534e' : '#374151'} />
                 </Pressable>
               )}
             </View>
@@ -99,7 +99,7 @@ export function StandardModal({
 
             {/* Optional footer */}
             {footer && (
-              <View className={`p-5 border-t ${isDark ? 'border-slate-800' : 'border-gray-200'}`}>
+              <View className={`p-5 border-t ${isDark ? 'border-slate-800' : isOffWhite ? 'border-stone-300' : 'border-gray-200'}`}>
                 {footer}
               </View>
             )}
@@ -141,7 +141,7 @@ export function StandardCenteredModal({
   footer,
   showCloseButton = true,
 }: StandardModalProps) {
-  const { theme } = useTheme();
+  const { theme, isOffWhite } = useTheme();
   const isDark = theme === 'dark';
 
   return (
@@ -161,19 +161,19 @@ export function StandardCenteredModal({
           onPress={(e) => e.stopPropagation()}
           className="w-full max-w-sm"
         >
-          <View className={`${isDark ? 'bg-slate-900' : 'bg-white'} rounded-2xl`}>
+          <View className={`${isDark ? 'bg-slate-900' : isOffWhite ? 'bg-stone-50' : 'bg-white'} rounded-2xl`}>
             {/* Header */}
-            <View className={`flex-row items-center justify-between p-5 border-b ${isDark ? 'border-slate-800' : 'border-gray-200'}`}>
-              <Text className={`text-lg font-bold flex-1 ${isDark ? 'text-white' : 'text-gray-900'}`}>
+            <View className={`flex-row items-center justify-between p-5 border-b ${isDark ? 'border-slate-800' : isOffWhite ? 'border-stone-300' : 'border-gray-200'}`}>
+              <Text className={`text-lg font-bold flex-1 ${isDark ? 'text-white' : isOffWhite ? 'text-stone-900' : 'text-gray-900'}`}>
                 {title}
               </Text>
 
               {showCloseButton && (
                 <Pressable
                   onPress={onClose}
-                  className={`w-9 h-9 rounded-full items-center justify-center ${isDark ? 'bg-slate-800' : 'bg-gray-100'} active:opacity-70`}
+                  className={`w-9 h-9 rounded-full items-center justify-center ${isDark ? 'bg-slate-800' : isOffWhite ? 'bg-stone-200' : 'bg-gray-100'} active:opacity-70`}
                 >
-                  <X size={20} color={isDark ? '#fff' : '#374151'} />
+                  <X size={20} color={isDark ? '#fff' : isOffWhite ? '#57534e' : '#374151'} />
                 </Pressable>
               )}
             </View>
@@ -185,7 +185,7 @@ export function StandardCenteredModal({
 
             {/* Optional footer */}
             {footer && (
-              <View className={`p-5 border-t ${isDark ? 'border-slate-800' : 'border-gray-200'}`}>
+              <View className={`p-5 border-t ${isDark ? 'border-slate-800' : isOffWhite ? 'border-stone-300' : 'border-gray-200'}`}>
                 {footer}
               </View>
             )}
