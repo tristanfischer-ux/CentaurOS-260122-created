@@ -320,41 +320,21 @@ export default function WhatScreen() {
         return;
       }
 
-      // Convert extraction format to TaskDraft format and save to Supabase
-      const draftsToSave = extraction.tasks.map((task) => ({
-        workspace_id: effectiveWorkspace.id,
-        created_by_user_id: effectiveMembership.id,
-        assignee_user_id: task.assignee_default === 'speaker' ? effectiveMembership.id : null,
+      // Convert extraction format to TaskDraft format for local display
+      const drafts: TaskDraft[] = extraction.tasks.map((task, index) => ({
+        id: `draft-${Date.now()}-${index}`,
         title: task.title,
         notes: task.notes || '',
-        start_iso: new Date().toISOString(),
-        due_iso: task.due_date,
+        due_iso: task.due_date || undefined,
         units: task.units,
-        source: 'what_voice' as const,
         confidence_assignee: task.confidence_assignee,
         confidence_due: task.confidence_due,
-        status: 'pending_confirmation' as const,
-        transcript_ref: voiceTranscript,
       }));
 
-      console.log('[What Tab] Drafts to save:', draftsToSave);
+      console.log('[What Tab] Extracted drafts:', drafts);
 
-      // Save drafts to Supabase
-      console.log('[What Tab] Saving drafts to Supabase...');
-      const { data: savedDrafts, error } = await supabase
-        .from('task_drafts')
-        .insert(draftsToSave)
-        .select();
-
-      if (error) {
-        console.error('[What Tab] Failed to save drafts:', error);
-        throw new Error(`Failed to save task drafts: ${error.message}`);
-      }
-
-      console.log('[What Tab] Drafts saved to Supabase:', savedDrafts);
-
-      // Show drafts review modal
-      setTaskDrafts(savedDrafts || []);
+      // Show drafts review modal (skip Supabase for now)
+      setTaskDrafts(drafts);
       setShowVoiceTranscript(false);
       setShowDraftsReview(true);
       console.log('[What Tab] Opening drafts review modal');
