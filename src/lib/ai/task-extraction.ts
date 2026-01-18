@@ -120,7 +120,8 @@ export async function extractTasksFromText(
       notes: task.notes ? String(task.notes) : '',
       assignee_default: String(task.assignee_default || 'speaker'),
       due_date: task.due_date || null,
-      units: Math.max(1, Number(task.units) || 1),
+      // Always use at least 1 TU, and round up fractional values
+      units: Math.max(1, Math.ceil(Number(task.units) || 1)),
       confidence_assignee: Math.min(100, Math.max(0, Number(task.confidence_assignee) || 0)),
       confidence_due: Math.min(100, Math.max(0, Number(task.confidence_due) || 0)),
     }));

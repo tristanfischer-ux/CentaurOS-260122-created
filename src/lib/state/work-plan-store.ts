@@ -440,9 +440,10 @@ export const useWorkPlanStore = create<WorkPlanState>((set, get) => ({
           function: 'Engineering' as BusinessFunction, // Not in current schema
           startDate: wp.start_date || '',
           dueDate: wp.end_date || '',
-          status: (wp.status || 'not-started') as WorkPlan['status'],
+          // Map 'planning' back to 'not-started' for app compatibility
+          status: (wp.status === 'planning' ? 'not-started' : wp.status) as WorkPlan['status'],
           progress: wp.progress || 0,
-          assignedBy: '', // Not in current schema
+          assignedBy: wp.created_by || '', // Use created_by for assignedBy
           needsSubmission: false, // Not in current schema
           estimatedTimeUnits: wpAllocations.reduce((sum, a) => sum + a.squaresPerWeek, 0) || 1,
           allocations: wpAllocations,
@@ -499,21 +500,21 @@ export const useWorkPlanStore = create<WorkPlanState>((set, get) => ({
 
     try {
       // Transform to Supabase format
+      // NOTE: Supabase schema only has: id, workspace_id, title, description, status,
+      // priority, progress, start_date, end_date, created_by, created_at, updated_at
+      // Supabase status values: 'planning', 'in-progress', 'blocked', 'completed', 'abandoned'
       const supabaseWorkPlan = {
         id: workPlan.id !== tempId ? workPlan.id : undefined,
         workspace_id: workPlan.workspaceId,
         title: workPlan.title,
         description: workPlan.description,
-        function: workPlan.function,
+        // Map 'not-started' to 'planning' for Supabase compatibility
+        status: workPlan.status === 'not-started' ? 'planning' : workPlan.status,
+        priority: 'medium', // Default priority
+        progress: workPlan.progress,
         start_date: workPlan.startDate,
         end_date: workPlan.dueDate,
-        status: workPlan.status,
-        progress: workPlan.progress,
-        assigned_by: workPlan.assignedBy,
-        needs_submission: workPlan.needsSubmission,
-        estimated_time_units: workPlan.estimatedTimeUnits,
-        tus_expended: workPlan.tusExpended,
-        linked_okr_title: workPlan.linkedOKRTitle,
+        created_by: workPlan.assignedBy,
       };
 
       const { data, error } = await supabase
@@ -523,7 +524,13 @@ export const useWorkPlanStore = create<WorkPlanState>((set, get) => ({
         .single();
 
       if (error) {
-        console.error('Failed to add work plan to Supabase:', error);
+        console.error('[WorkPlanStore] Failed to add work plan to Supabase:', {
+          error: error.message,
+          code: error.code,
+          details: error.details,
+          hint: error.hint,
+          workPlan: supabaseWorkPlan,
+        });
         throw error;
       }
 
@@ -551,7 +558,8 @@ export const useWorkPlanStore = create<WorkPlanState>((set, get) => ({
         workspaceId: data.workspace_id,
         startDate: data.start_date,
         dueDate: data.end_date,
-        status: data.status,
+        // Map 'planning' back to 'not-started' for app compatibility
+        status: (data.status === 'planning' ? 'not-started' : data.status) as WorkPlan['status'],
         progress: data.progress,
       };
 
@@ -579,6 +587,7 @@ export const useWorkPlanStore = create<WorkPlanState>((set, get) => ({
 
     try {
       // Transform updates to Supabase format
+      // Only use columns that exist in the actual Supabase schema
       const supabaseUpdates: any = {};
       if (updates.title !== undefined) supabaseUpdates.title = updates.title;
       if (updates.description !== undefined) supabaseUpdates.description = updates.description;
@@ -586,6 +595,8 @@ export const useWorkPlanStore = create<WorkPlanState>((set, get) => ({
       if (updates.dueDate !== undefined) supabaseUpdates.end_date = updates.dueDate;
       if (updates.status !== undefined) supabaseUpdates.status = updates.status;
       if (updates.progress !== undefined) supabaseUpdates.progress = updates.progress;
+      // Always update updated_at timestamp
+      supabaseUpdates.updated_at = new Date().toISOString();
 
       const { data, error } = await supabase
         .from('work_plans')

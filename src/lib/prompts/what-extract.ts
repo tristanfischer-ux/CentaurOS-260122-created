@@ -23,7 +23,13 @@ EXTRACTING TASKS:
 - Notes: Additional context if provided
 - Assignee: Default "speaker" unless person explicitly named
 - Due date: Parse relative dates ("tomorrow", "next Friday", "March 15th")
-- Units: Estimate from context (e.g., "3 days of work" → units: 3)
+- Units: Time estimate in whole numbers (MINIMUM 1, no decimals or fractions)
+  - If no time mentioned: units = 1
+  - "30 minutes" or less: units = 1
+  - "1 hour": units = 1
+  - "2 hours": units = 2
+  - "half a day": units = 5
+  - "1 day": units = 10
 
 NON-TASK CONTENT:
 - Questions, context, or commentary → put in "non_task_notes"
