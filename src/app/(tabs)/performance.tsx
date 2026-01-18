@@ -510,8 +510,12 @@ export default function PerformanceScreen() {
   };
 
   // Metric Card component
-  const MetricCard = ({ title, value, subtitle, icon: Icon, color, trend }: { title: string; value: string | number; subtitle?: string; icon: any; color: string; trend?: 'up' | 'down' | 'neutral'; }) => (
-    <View className="bg-white dark:bg-slate-800 rounded-xl p-4 flex-1">
+  const MetricCard = ({ title, value, subtitle, icon: Icon, color, trend, onPress }: { title: string; value: string | number; subtitle?: string; icon: any; color: string; trend?: 'up' | 'down' | 'neutral'; onPress?: () => void; }) => (
+    <Pressable
+      onPress={onPress}
+      disabled={!onPress}
+      className={`bg-white dark:bg-slate-800 rounded-xl p-4 flex-1 ${onPress ? 'active:opacity-80' : ''}`}
+    >
       <View className="flex-row items-center justify-between mb-2">
         <View className="w-8 h-8 rounded-lg items-center justify-center" style={{ backgroundColor: color + '20' }}>
           <Icon size={18} color={color} />
@@ -525,7 +529,7 @@ export default function PerformanceScreen() {
       <Text className="text-slate-900 dark:text-white font-bold text-xl">{value}</Text>
       <Text className="text-slate-500 dark:text-slate-400 text-xs mt-0.5">{title}</Text>
       {subtitle && <Text className="text-slate-400 dark:text-slate-500 text-xs">{subtitle}</Text>}
-    </View>
+    </Pressable>
   );
 
   // P&L line renderer
@@ -875,21 +879,73 @@ export default function PerformanceScreen() {
 
             <Text className="text-slate-900 dark:text-white font-semibold text-base mb-3">Team Capacity</Text>
             <View className="flex-row gap-3 mb-6">
-              <MetricCard title="Team Size" value={metrics.teamSize} subtitle="active members" icon={Users} color="#3b82f6" />
-              <MetricCard title="Total TU" value={metrics.totalCapacity} subtitle="per week" icon={Clock} color="#8b5cf6" />
+              <MetricCard
+                title="Team Size"
+                value={metrics.teamSize}
+                subtitle="active members"
+                icon={Users}
+                color="#3b82f6"
+                onPress={() => router.push('/(tabs)/who')}
+              />
+              <MetricCard
+                title="Total TU"
+                value={metrics.totalCapacity}
+                subtitle="per week"
+                icon={Clock}
+                color="#8b5cf6"
+                onPress={() => router.push('/utilization' as any)}
+              />
             </View>
             <View className="flex-row gap-3 mb-6">
-              <MetricCard title="Allocated" value={metrics.allocatedCapacity} subtitle="TU assigned" icon={Target} color="#f59e0b" />
-              <MetricCard title="Available" value={metrics.availableCapacity} subtitle="TU free" icon={Zap} color="#10b981" />
+              <MetricCard
+                title="Allocated"
+                value={metrics.allocatedCapacity}
+                subtitle="TU assigned"
+                icon={Target}
+                color="#f59e0b"
+                onPress={() => router.push('/utilization' as any)}
+              />
+              <MetricCard
+                title="Available"
+                value={metrics.availableCapacity}
+                subtitle="TU free"
+                icon={Zap}
+                color="#10b981"
+                onPress={() => router.push('/utilization' as any)}
+              />
             </View>
             <Text className="text-slate-900 dark:text-white font-semibold text-base mb-3">Task Summary</Text>
             <View className="flex-row gap-3 mb-6">
-              <MetricCard title="Active" value={metrics.activeTasks} icon={Activity} color="#3b82f6" />
-              <MetricCard title="Completed" value={metrics.completedTasks} icon={CheckCircle2} color="#10b981" />
+              <MetricCard
+                title="Active"
+                value={metrics.activeTasks}
+                icon={Activity}
+                color="#3b82f6"
+                onPress={() => router.push('/(tabs)/what')}
+              />
+              <MetricCard
+                title="Completed"
+                value={metrics.completedTasks}
+                icon={CheckCircle2}
+                color="#10b981"
+                onPress={() => router.push('/(tabs)/what')}
+              />
             </View>
             <View className="flex-row gap-3 mb-6">
-              <MetricCard title="Blocked" value={metrics.blockedTasks} icon={AlertTriangle} color="#ef4444" />
-              <MetricCard title="Queued" value={metrics.queuedTasks} icon={Clock} color="#64748b" />
+              <MetricCard
+                title="Blocked"
+                value={metrics.blockedTasks}
+                icon={AlertTriangle}
+                color="#ef4444"
+                onPress={() => router.push('/(tabs)/what')}
+              />
+              <MetricCard
+                title="Queued"
+                value={metrics.queuedTasks}
+                icon={Clock}
+                color="#64748b"
+                onPress={() => router.push('/(tabs)/what')}
+              />
             </View>
           </View>
         )}
