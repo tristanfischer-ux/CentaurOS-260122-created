@@ -288,7 +288,7 @@ export default function WhatScreen() {
     completeWorkPlan(task.id);
   };
 
-  // Handle voice transcript
+  // Handle voice transcript - shows modal for confirmation
   const handleVoiceTranscript = (transcript: string) => {
     console.log('[What Tab] handleVoiceTranscript called');
     console.log('[What Tab] Transcript received:', transcript);
@@ -302,6 +302,58 @@ export default function WhatScreen() {
     setTimeout(() => {
       console.log('[What Tab] Checking state after 100ms - voiceTranscript:', voiceTranscript?.substring(0, 20));
     }, 100);
+  };
+
+  // Handle text input - auto-processes immediately without modal
+  const handleTextInput = async (text: string) => {
+    console.log('[What Tab] handleTextInput called with:', text);
+
+    if (!text.trim()) {
+      console.error('[What Tab] No text provided!');
+      alert('Please enter some text to extract tasks from.');
+      return;
+    }
+
+    console.log('[What Tab] Processing text input directly');
+    setIsProcessingTranscript(true);
+
+    try {
+      // Extract tasks using client-side AI
+      console.log('[What Tab] Calling extractTasksFromText...');
+      const extraction = await extractTasksFromText(text, 'text');
+
+      console.log('[What Tab] Tasks extracted:', extraction);
+      console.log('[What Tab] Number of tasks:', extraction.tasks.length);
+
+      if (extraction.tasks.length === 0) {
+        console.warn('[What Tab] No tasks extracted from text');
+        alert('No tasks found in your text. Please try again with clearer instructions.');
+        setIsProcessingTranscript(false);
+        return;
+      }
+
+      // Convert extraction format to TaskDraft format
+      const drafts: TaskDraft[] = extraction.tasks.map((task, index) => ({
+        id: `draft-${Date.now()}-${index}`,
+        title: task.title,
+        notes: task.notes || '',
+        due_iso: task.due_date || undefined,
+        units: task.units,
+        confidence_assignee: task.confidence_assignee,
+        confidence_due: task.confidence_due,
+      }));
+
+      console.log('[What Tab] Extracted drafts from text:', drafts);
+
+      // Show drafts review modal
+      setTaskDrafts(drafts);
+      setShowDraftsReview(true);
+    } catch (error) {
+      console.error('[What Tab] Failed to extract drafts from text:', error);
+      alert(`Failed to extract tasks: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    } finally {
+      setIsProcessingTranscript(false);
+    }
   };
 
   const handleProcessVoiceTranscript = async () => {
@@ -853,7 +905,7 @@ export default function WhatScreen() {
         selectedPersonId={selectedPersonForAllocation}
         onPersonSelect={(personId) => setSelectedPersonForAllocation(personId)}
         onVoiceTranscript={handleVoiceTranscript}
-        onTextSubmit={handleVoiceTranscript}
+        onTextSubmit={handleTextInput}
         pendingDraftsCount={taskDrafts.length}
         accentColor="#10b981" // Green for WHAT tab
       />
