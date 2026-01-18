@@ -274,9 +274,6 @@ function FounderHome() {
         {/* ===== 5. PERFORMANCE DASHBOARD SUITE ===== */}
         <PerformanceDashboardGrid />
 
-        {/* ===== 6. SUPPLIER & SPEND OVERVIEW ===== */}
-        <SupplierSpendDashboard />
-
         {/* ===== 7. ESSENTIAL TOOLS SECTION ===== */}
         <View className="px-5 pt-4">
           <Text className="text-slate-500 dark:text-slate-500 text-xs font-semibold mb-3 uppercase tracking-wider">

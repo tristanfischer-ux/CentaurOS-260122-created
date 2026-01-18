@@ -86,7 +86,7 @@ const STATUS_LABELS = {
   cancelled: 'Cancelled',
 };
 
-type ToolsTab = 'our-tools' | 'marketplace';
+type ToolsTab = 'all-tools' | 'suppliers' | 'marketplace';
 
 export default function ToolsScreen() {
   const insets = useSafeAreaInsets();
@@ -102,7 +102,7 @@ export default function ToolsScreen() {
   const workPlans = useWorkPlanStore(s => s.workPlans);
 
   // State
-  const [activeTab, setActiveTab] = useState<ToolsTab>('our-tools');
+  const [activeTab, setActiveTab] = useState<ToolsTab>('all-tools');
   const [showHelp, setShowHelp] = useState(false);
   const [selectedSupplier, setSelectedSupplier] = useState<SupplierEngagement | null>(null);
   const [selectedAIAgent, setSelectedAIAgent] = useState<AIAgent | null>(null);
@@ -115,6 +115,7 @@ export default function ToolsScreen() {
   const [selectedSupplierCategory, setSelectedSupplierCategory] = useState<string | null>(null);
   const [selectedAdvisor, setSelectedAdvisor] = useState<Advisor | null>(null);
   const [selectedAdvisorCategory, setSelectedAdvisorCategory] = useState<string | null>(null);
+  const [marketplaceSearch, setMarketplaceSearch] = useState('');
 
   const isFounder = currentMembership?.role === 'Founder';
 
@@ -479,32 +480,35 @@ export default function ToolsScreen() {
 
       {/* Tab Switcher */}
       <View className="px-5 pt-4">
-        <View className="flex-row bg-slate-100 dark:bg-slate-800 rounded-xl p-1">
-          {[
-            { key: 'our-tools', label: 'Our Tools', icon: Wrench },
-            { key: 'marketplace', label: 'Marketplace', icon: Package },
-          ].map(tab => (
-            <Pressable
-              key={tab.key}
-              onPress={() => setActiveTab(tab.key as ToolsTab)}
-              className={`flex-1 flex-row items-center justify-center gap-1.5 py-2.5 rounded-lg ${
-                activeTab === tab.key ? 'bg-white dark:bg-slate-700' : ''
-              }`}
-            >
-              <tab.icon
-                size={16}
-                color={activeTab === tab.key ? '#f59e0b' : '#64748b'}
-              />
-              <Text
-                className={`text-sm font-medium ${
-                  activeTab === tab.key ? 'text-amber-600 dark:text-amber-400' : 'text-slate-500 dark:text-slate-400'
+        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+          <View className="flex-row bg-slate-100 dark:bg-slate-800 rounded-xl p-1">
+            {[
+              { key: 'all-tools', label: 'All Tools', icon: Wrench },
+              { key: 'suppliers', label: 'Current Suppliers', icon: Building2 },
+              { key: 'marketplace', label: 'Marketplace', icon: Package },
+            ].map(tab => (
+              <Pressable
+                key={tab.key}
+                onPress={() => setActiveTab(tab.key as ToolsTab)}
+                className={`flex-row items-center justify-center gap-1.5 py-2.5 px-4 rounded-lg ${
+                  activeTab === tab.key ? 'bg-white dark:bg-slate-700' : ''
                 }`}
               >
-                {tab.label}
-              </Text>
-            </Pressable>
-          ))}
-        </View>
+                <tab.icon
+                  size={16}
+                  color={activeTab === tab.key ? '#f59e0b' : '#64748b'}
+                />
+                <Text
+                  className={`text-sm font-medium ${
+                    activeTab === tab.key ? 'text-amber-600 dark:text-amber-400' : 'text-slate-500 dark:text-slate-400'
+                  }`}
+                >
+                  {tab.label}
+                </Text>
+              </Pressable>
+            ))}
+          </View>
+        </ScrollView>
       </View>
 
       {/* Content */}
@@ -512,8 +516,68 @@ export default function ToolsScreen() {
         className="flex-1"
         contentContainerStyle={{ padding: 20, paddingBottom: insets.bottom + 100 }}
       >
-        {/* Our Tools Tab - Active Tools & Suppliers */}
-        {activeTab === 'our-tools' && (
+        {/* All Tools Tab - Shows everything */}
+        {activeTab === 'all-tools' && (
+          <View>
+            {/* AI Tools Section */}
+            <Text className="text-slate-900 dark:text-white font-bold text-lg mb-3">AI Tools</Text>
+            <View className="mb-6">
+              <Text className="text-slate-500 dark:text-slate-400 text-sm mb-3">
+                {aiAgents.length} AI tools active
+              </Text>
+              {aiAgents.length > 0 ? (
+                <View className="gap-3">
+                  {aiAgents.slice(0, 3).map((agent, index) => (
+                    <View key={agent.id} className="bg-white dark:bg-slate-800 rounded-xl p-4">
+                      <View className="flex-row items-center gap-3">
+                        <View className="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 rounded-xl items-center justify-center">
+                          <Bot size={24} color="#8b5cf6" />
+                        </View>
+                        <View className="flex-1">
+                          <Text className="text-slate-900 dark:text-white font-semibold">{agent.name}</Text>
+                          <Text className="text-slate-500 dark:text-slate-400 text-sm" numberOfLines={1}>{agent.purpose}</Text>
+                        </View>
+                      </View>
+                    </View>
+                  ))}
+                </View>
+              ) : (
+                <Text className="text-slate-400 text-sm">No AI tools active</Text>
+              )}
+            </View>
+
+            {/* Suppliers Section */}
+            <Text className="text-slate-900 dark:text-white font-bold text-lg mb-3">Current Suppliers</Text>
+            <View className="mb-6">
+              {supplierEngagements.length > 0 ? (
+                <View className="gap-3">
+                  {supplierEngagements.slice(0, 3).map((engagement, index) => (
+                    <View key={engagement.id} className="bg-white dark:bg-slate-800 rounded-xl p-4">
+                      <Text className="text-slate-900 dark:text-white font-semibold mb-1">{engagement.supplierName}</Text>
+                      <Text className="text-slate-500 dark:text-slate-400 text-sm">{engagement.category}</Text>
+                    </View>
+                  ))}
+                </View>
+              ) : (
+                <Text className="text-slate-400 text-sm">No suppliers yet</Text>
+              )}
+            </View>
+
+            {/* Quick Actions */}
+            <View className="gap-3">
+              <Pressable
+                onPress={() => setActiveTab('marketplace')}
+                className="bg-amber-500 rounded-xl p-4 flex-row items-center justify-center gap-2 active:opacity-80"
+              >
+                <Package size={18} color="#fff" />
+                <Text className="text-white font-semibold">Browse Marketplace</Text>
+              </Pressable>
+            </View>
+          </View>
+        )}
+
+        {/* Current Suppliers Tab */}
+        {activeTab === 'suppliers' && (
           <View>
             {/* Reach Out Button */}
             <Pressable
@@ -558,6 +622,34 @@ export default function ToolsScreen() {
             <Text className="text-slate-900 dark:text-white font-bold text-xl mb-4">
               Marketplace
             </Text>
+
+            {/* Search Bar */}
+            <View className="mb-4">
+              <View className="flex-row items-center bg-white dark:bg-slate-800 rounded-xl px-4 py-3 border border-slate-200 dark:border-slate-700">
+                <Search size={18} color="#64748b" />
+                <TextInput
+                  value={marketplaceSearch}
+                  onChangeText={setMarketplaceSearch}
+                  placeholder="Search suppliers, AI tools, advisors..."
+                  placeholderTextColor="#94a3b8"
+                  className="flex-1 ml-2 text-slate-900 dark:text-white"
+                />
+                {marketplaceSearch.length > 0 && (
+                  <Pressable onPress={() => setMarketplaceSearch('')}>
+                    <X size={18} color="#64748b" />
+                  </Pressable>
+                )}
+              </View>
+
+              {/* AI-Assisted Search Hint */}
+              <View className="flex-row items-center gap-2 mt-2 px-2">
+                <Sparkles size={14} color="#8b5cf6" />
+                <Text className="text-slate-500 dark:text-slate-400 text-xs">
+                  Try: "I need a manufacturer for PCBs" or "AI tool for customer support"
+                </Text>
+              </View>
+            </View>
+
             <Text className="text-slate-500 dark:text-slate-400 mb-6">
               Browse and add suppliers, AI tools, and advisors to your organization
             </Text>
