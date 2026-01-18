@@ -86,7 +86,7 @@ const STATUS_LABELS = {
   cancelled: 'Cancelled',
 };
 
-type ToolsTab = 'suppliers' | 'ai-tools' | 'advisors';
+type ToolsTab = 'our-tools' | 'marketplace';
 
 export default function ToolsScreen() {
   const insets = useSafeAreaInsets();
@@ -102,7 +102,7 @@ export default function ToolsScreen() {
   const workPlans = useWorkPlanStore(s => s.workPlans);
 
   // State
-  const [activeTab, setActiveTab] = useState<ToolsTab>('suppliers');
+  const [activeTab, setActiveTab] = useState<ToolsTab>('our-tools');
   const [showHelp, setShowHelp] = useState(false);
   const [selectedSupplier, setSelectedSupplier] = useState<SupplierEngagement | null>(null);
   const [selectedAIAgent, setSelectedAIAgent] = useState<AIAgent | null>(null);
@@ -481,9 +481,8 @@ export default function ToolsScreen() {
       <View className="px-5 pt-4">
         <View className="flex-row bg-slate-100 dark:bg-slate-800 rounded-xl p-1">
           {[
-            { key: 'suppliers', label: 'Suppliers', icon: Factory },
-            { key: 'advisors', label: 'Advisors', icon: Briefcase },
-            { key: 'ai-tools', label: 'AI Tools', icon: Zap },
+            { key: 'our-tools', label: 'Our Tools', icon: Wrench },
+            { key: 'marketplace', label: 'Marketplace', icon: Package },
           ].map(tab => (
             <Pressable
               key={tab.key}
@@ -513,8 +512,8 @@ export default function ToolsScreen() {
         className="flex-1"
         contentContainerStyle={{ padding: 20, paddingBottom: insets.bottom + 100 }}
       >
-        {/* Suppliers Tab */}
-        {activeTab === 'suppliers' && (
+        {/* Our Tools Tab - Active Tools & Suppliers */}
+        {activeTab === 'our-tools' && (
           <View>
             {/* Reach Out Button */}
             <Pressable
@@ -553,53 +552,85 @@ export default function ToolsScreen() {
           </View>
         )}
 
-        {/* AI Tools Tab - Combined AI Agents and Tools */}
-        {activeTab === 'ai-tools' && (
+        {/* Marketplace Tab - Browse Available Tools */}
+        {activeTab === 'marketplace' && (
           <View>
-            {/* Reach Out Button */}
-            <Pressable
-              onPress={() => {
-                setReachOutType('ai');
-                setShowReachOut(true);
-              }}
-              className="bg-purple-500 rounded-xl p-4 mb-4 flex-row items-center justify-center gap-2 active:opacity-80"
-            >
-              <Sparkles size={18} color="#fff" />
-              <Text className="text-white font-semibold">Discover AI Tools</Text>
-            </Pressable>
+            <Text className="text-slate-900 dark:text-white font-bold text-xl mb-4">
+              Marketplace
+            </Text>
+            <Text className="text-slate-500 dark:text-slate-400 mb-6">
+              Browse and add suppliers, AI tools, and advisors to your organization
+            </Text>
 
-            {/* AI Agents Section */}
-            {aiAgents.length > 0 && (
-              <View className="mb-6">
-                <Text className="text-slate-900 dark:text-white font-bold text-lg mb-3">
-                  AI Agents
-                </Text>
-                <Text className="text-slate-500 dark:text-slate-400 text-sm mb-4">
-                  {aiAgents.length} agents deployed
-                </Text>
-                {aiAgents.map((agent, index) => (
-                  <AIAgentCard key={agent.id} agent={agent} index={index} />
-                ))}
+            {/* Categories */}
+            <View className="gap-4">
+              {/* Suppliers Category */}
+              <Pressable
+                onPress={() => {
+                  setReachOutType('supplier');
+                  setShowReachOut(true);
+                }}
+                className="bg-white dark:bg-slate-800 rounded-xl p-4 active:opacity-80"
+              >
+                <View className="flex-row items-center gap-3">
+                  <View className="bg-orange-100 dark:bg-orange-900/30 p-3 rounded-xl">
+                    <Factory size={24} color="#f59e0b" />
+                  </View>
+                  <View className="flex-1">
+                    <Text className="text-slate-900 dark:text-white font-semibold text-lg">Suppliers</Text>
+                    <Text className="text-slate-500 dark:text-slate-400 text-sm">
+                      Manufacturing, logistics, and professional services
+                    </Text>
+                  </View>
+                  <ChevronRight size={20} color="#64748b" />
+                </View>
+              </Pressable>
+
+              {/* AI Tools Category */}
+              <Pressable
+                onPress={() => {
+                  setReachOutType('ai');
+                  setShowReachOut(true);
+                }}
+                className="bg-white dark:bg-slate-800 rounded-xl p-4 active:opacity-80"
+              >
+                <View className="flex-row items-center gap-3">
+                  <View className="bg-blue-100 dark:bg-blue-900/30 p-3 rounded-xl">
+                    <Zap size={24} color="#3b82f6" />
+                  </View>
+                  <View className="flex-1">
+                    <Text className="text-slate-900 dark:text-white font-semibold text-lg">AI Tools</Text>
+                    <Text className="text-slate-500 dark:text-slate-400 text-sm">
+                      Productivity boosters for your team
+                    </Text>
+                  </View>
+                  <ChevronRight size={20} color="#64748b" />
+                </View>
+              </Pressable>
+
+              {/* Advisors Category */}
+              <View className="bg-white dark:bg-slate-800 rounded-xl p-4">
+                <View className="flex-row items-center gap-3">
+                  <View className="bg-purple-100 dark:bg-purple-900/30 p-3 rounded-xl">
+                    <Briefcase size={24} color="#8b5cf6" />
+                  </View>
+                  <View className="flex-1">
+                    <Text className="text-slate-900 dark:text-white font-semibold text-lg">Advisors</Text>
+                    <Text className="text-slate-500 dark:text-slate-400 text-sm">
+                      Expert guidance and mentorship (Coming Soon)
+                    </Text>
+                  </View>
+                </View>
               </View>
-            )}
-
-            {/* AI Tools Marketplace Section */}
-            <View>
-              <Text className="text-slate-900 dark:text-white font-bold text-lg mb-3">
-                AI Tools Marketplace
-              </Text>
-              <Text className="text-slate-500 dark:text-slate-400 text-sm mb-4">
-                {THIRD_PARTY_AI_TOOLS.length} tools available
-              </Text>
-              {THIRD_PARTY_AI_TOOLS.map((tool, index) => (
-                <AIToolCard key={tool.id} tool={tool} index={index} />
-              ))}
             </View>
           </View>
         )}
 
-        {/* Advisors Tab */}
-        {activeTab === 'advisors' && (
+        {/* Old AI Tools Tab - Keeping for now but hidden */}
+        {activeTab === 'ai-tools' && null}
+
+        {/* Old Advisors Tab - Keeping for now but hidden */}
+        {activeTab === 'advisors' && null}
           <View>
             {!selectedAdvisorCategory ? (
               // Category selection

@@ -279,6 +279,47 @@ export function VoiceInputButton({
                   {formatDuration(recordingDuration)}
                 </Text>
 
+                {/* Progressive Prompts - shown based on recording duration */}
+                <View className="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-4 mb-6 mx-4">
+                  {recordingDuration < 3 ? (
+                    <View>
+                      <Text className="text-blue-900 dark:text-blue-100 font-semibold text-base mb-1">
+                        Start with WHO:
+                      </Text>
+                      <Text className="text-blue-700 dark:text-blue-300 text-sm">
+                        Who needs to do this task? Say their name or role.
+                      </Text>
+                    </View>
+                  ) : recordingDuration < 6 ? (
+                    <View>
+                      <Text className="text-blue-900 dark:text-blue-100 font-semibold text-base mb-1">
+                        Now tell us WHAT:
+                      </Text>
+                      <Text className="text-blue-700 dark:text-blue-300 text-sm">
+                        What exactly needs to be done? Be specific.
+                      </Text>
+                    </View>
+                  ) : recordingDuration < 9 ? (
+                    <View>
+                      <Text className="text-blue-900 dark:text-blue-100 font-semibold text-base mb-1">
+                        When should it start?
+                      </Text>
+                      <Text className="text-blue-700 dark:text-blue-300 text-sm">
+                        Say when they should begin (e.g., "today", "next Monday").
+                      </Text>
+                    </View>
+                  ) : (
+                    <View>
+                      <Text className="text-blue-900 dark:text-blue-100 font-semibold text-base mb-1">
+                        How long will it take?
+                      </Text>
+                      <Text className="text-blue-700 dark:text-blue-300 text-sm">
+                        Estimate the time needed (e.g., "2 hours", "3 days").
+                      </Text>
+                    </View>
+                  )}
+                </View>
+
                 <View className="flex-row gap-4">
                   <Pressable
                     onPress={cancelRecording}

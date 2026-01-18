@@ -134,7 +134,7 @@ const ROLE_LABELS = {
   Apprentice: 'Apprentices',
 };
 
-type WhoTab = 'team' | 'squads' | 'executives' | 'apprentices';
+type WhoTab = 'team' | 'resources' | 'executives' | 'apprentices';
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 const screenWidth = Dimensions.get('window').width;
@@ -912,10 +912,10 @@ export default function WhoScreen() {
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
           <View className="flex-row bg-slate-100 dark:bg-slate-800 rounded-xl p-1">
             {[
-              { key: 'team', label: 'Team', icon: Users },
-              { key: 'squads', label: 'Squads', icon: UsersRound },
-              { key: 'executives', label: 'Executives', icon: Briefcase },
-              { key: 'apprentices', label: 'Apprentices', icon: GraduationCap },
+              { key: 'team', label: 'Team & Squads', icon: Users },
+              { key: 'resources', label: 'Resources', icon: Target },
+              { key: 'executives', label: 'Hire Execs', icon: Briefcase },
+              { key: 'apprentices', label: 'Hire Apprentices', icon: GraduationCap },
             ].map(tab => (
               <Pressable
                 key={tab.key}
@@ -1026,9 +1026,11 @@ export default function WhoScreen() {
         className="flex-1"
         contentContainerStyle={{ padding: 20, paddingBottom: insets.bottom + 100 }}
       >
-        {/* Squads Tab */}
-        {activeTab === 'squads' && (
+        {/* Squads Section (shown within Team tab) */}
+        {activeTab === 'team' && (
           <View>
+            {/* Squads Header */}
+            <Text className="text-slate-900 dark:text-white font-bold text-xl mb-3">Squads</Text>
             <View className="flex-row items-center justify-between mb-4">
               <Text className="text-slate-500 dark:text-slate-400 text-sm">
                 {squads.filter(s => s.type === 'manual').length} manual squads • {squads.filter(s => s.type === 'automatic').length} auto
@@ -1379,6 +1381,119 @@ export default function WhoScreen() {
                 <Text className="text-white font-semibold text-base">Hire New Team Member</Text>
               </Pressable>
             )}
+          </View>
+        )}
+
+        {/* Resources Tab - Documentation & Help */}
+        {activeTab === 'resources' && (
+          <View>
+            <Text className="text-slate-900 dark:text-white font-bold text-2xl mb-2">Resources & Documentation</Text>
+            <Text className="text-slate-500 dark:text-slate-400 mb-6">
+              Guides, templates, and tools to help you manage your team effectively
+            </Text>
+
+            {/* Quick Links */}
+            <View className="mb-6">
+              <Text className="text-slate-900 dark:text-white font-semibold text-lg mb-3">Quick Links</Text>
+              <View className="gap-3">
+                <Pressable
+                  onPress={() => Linking.openURL('https://centauros.ai/docs/people-management')}
+                  className="bg-white dark:bg-slate-800 rounded-xl p-4 flex-row items-center justify-between active:opacity-80"
+                >
+                  <View className="flex-row items-center gap-3 flex-1">
+                    <View className="bg-blue-100 dark:bg-blue-900/30 p-3 rounded-xl">
+                      <Users size={24} color="#3b82f6" />
+                    </View>
+                    <View className="flex-1">
+                      <Text className="text-slate-900 dark:text-white font-semibold mb-0.5">People Management Guide</Text>
+                      <Text className="text-slate-500 dark:text-slate-400 text-sm">Complete guide to managing your team</Text>
+                    </View>
+                  </View>
+                  <ChevronRight size={20} color="#64748b" />
+                </Pressable>
+
+                <Pressable
+                  onPress={() => Linking.openURL('https://centauros.ai/docs/hiring')}
+                  className="bg-white dark:bg-slate-800 rounded-xl p-4 flex-row items-center justify-between active:opacity-80"
+                >
+                  <View className="flex-row items-center gap-3 flex-1">
+                    <View className="bg-emerald-100 dark:bg-emerald-900/30 p-3 rounded-xl">
+                      <UserPlus size={24} color="#10b981" />
+                    </View>
+                    <View className="flex-1">
+                      <Text className="text-slate-900 dark:text-white font-semibold mb-0.5">Hiring Best Practices</Text>
+                      <Text className="text-slate-500 dark:text-slate-400 text-sm">How to find and hire the right people</Text>
+                    </View>
+                  </View>
+                  <ChevronRight size={20} color="#64748b" />
+                </Pressable>
+
+                <Pressable
+                  onPress={() => Linking.openURL('https://centauros.ai/docs/squads')}
+                  className="bg-white dark:bg-slate-800 rounded-xl p-4 flex-row items-center justify-between active:opacity-80"
+                >
+                  <View className="flex-row items-center gap-3 flex-1">
+                    <View className="bg-purple-100 dark:bg-purple-900/30 p-3 rounded-xl">
+                      <UsersRound size={24} color="#8b5cf6" />
+                    </View>
+                    <View className="flex-1">
+                      <Text className="text-slate-900 dark:text-white font-semibold mb-0.5">Squad Formation Guide</Text>
+                      <Text className="text-slate-500 dark:text-slate-400 text-sm">Build high-performing teams</Text>
+                    </View>
+                  </View>
+                  <ChevronRight size={20} color="#64748b" />
+                </Pressable>
+              </View>
+            </View>
+
+            {/* Team Templates */}
+            <View className="mb-6">
+              <Text className="text-slate-900 dark:text-white font-semibold text-lg mb-3">Team Templates</Text>
+              <View className="gap-3">
+                <View className="bg-white dark:bg-slate-800 rounded-xl p-4">
+                  <Text className="text-slate-900 dark:text-white font-semibold mb-2">Startup Team (Pre-Seed)</Text>
+                  <Text className="text-slate-500 dark:text-slate-400 text-sm mb-3">
+                    1 Founder + 2 Fractional Execs (Eng, Marketing) + 3 Apprentices
+                  </Text>
+                  <Text className="text-blue-600 dark:text-blue-400 text-sm font-medium">View Template →</Text>
+                </View>
+
+                <View className="bg-white dark:bg-slate-800 rounded-xl p-4">
+                  <Text className="text-slate-900 dark:text-white font-semibold mb-2">Growth Team (Seed)</Text>
+                  <Text className="text-slate-500 dark:text-slate-400 text-sm mb-3">
+                    2 Founders + 4 Fractional Execs + 6 Apprentices
+                  </Text>
+                  <Text className="text-blue-600 dark:text-blue-400 text-sm font-medium">View Template →</Text>
+                </View>
+              </View>
+            </View>
+
+            {/* FAQs */}
+            <View>
+              <Text className="text-slate-900 dark:text-white font-semibold text-lg mb-3">Common Questions</Text>
+              <View className="gap-3">
+                <View className="bg-white dark:bg-slate-800 rounded-xl p-4">
+                  <Text className="text-slate-900 dark:text-white font-semibold mb-2">How do I allocate team members to tasks?</Text>
+                  <Text className="text-slate-500 dark:text-slate-400 text-sm">
+                    Go to the What tab, select a task, and assign team members from the allocation panel. Executives can request allocations that require founder approval.
+                  </Text>
+                </View>
+
+                <View className="bg-white dark:bg-slate-800 rounded-xl p-4">
+                  <Text className="text-slate-900 dark:text-white font-semibold mb-2">What are squads and how do they form?</Text>
+                  <Text className="text-slate-500 dark:text-slate-400 text-sm">
+                    Squads are groups of 2+ people working together. They form automatically when multiple people are assigned to the same task, creating performance bonuses.
+                  </Text>
+                </View>
+
+                <View className="bg-white dark:bg-slate-800 rounded-xl p-4">
+                  <Text className="text-slate-900 dark:text-white font-semibold mb-2">How much do fractional executives cost?</Text>
+                  <Text className="text-slate-500 dark:text-slate-400 text-sm">
+                    Fractional executives typically cost £400-£1000/day depending on experience and function. They work 2-5 days per week, providing senior expertise without full-time commitment.
+                  </Text>
+                </View>
+              </View>
+            </View>
           </View>
         )}
 
