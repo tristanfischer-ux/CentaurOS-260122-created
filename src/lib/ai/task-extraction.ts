@@ -36,8 +36,14 @@ export async function extractTasksFromText(
     process.env.EXPO_PUBLIC_GOOGLE_AI_API_KEY ||
     process.env.EXPO_PUBLIC_VIBECODE_GOOGLE_API_KEY;
 
+  console.log('[TaskExtraction] API Key check:', {
+    hasGoogleKey: !!process.env.EXPO_PUBLIC_GOOGLE_AI_API_KEY,
+    hasVibeKey: !!process.env.EXPO_PUBLIC_VIBECODE_GOOGLE_API_KEY,
+  });
+
   if (!apiKey) {
-    throw new Error('Google API key not configured');
+    console.error('[TaskExtraction] No API key found in environment');
+    throw new Error('Google API key not configured. Please add EXPO_PUBLIC_GOOGLE_AI_API_KEY to your environment variables.');
   }
 
   const model = 'gemini-1.5-flash';
