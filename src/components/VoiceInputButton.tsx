@@ -19,7 +19,7 @@ import Animated, {
   withSequence,
   Easing,
 } from 'react-native-reanimated';
-import { transcribeAudioWithGoogle } from '@/lib/transcription/google-speech';
+import { transcribeAudioWithWhisper } from '@/lib/transcription/openai-whisper';
 
 interface VoiceInputButtonProps {
   onTranscriptComplete: (transcript: string) => void;
@@ -204,10 +204,10 @@ export function VoiceInputButton({
 
       console.log('[VoiceInput] Audio converted to base64, size:', base64Audio.length);
 
-      // Call Google Speech-to-Text API directly (client-side)
-      console.log('[VoiceInput] Transcribing with Google Speech-to-Text...');
+      // Call OpenAI Whisper API for transcription
+      console.log('[VoiceInput] Transcribing with OpenAI Whisper...');
 
-      const result = await transcribeAudioWithGoogle(base64Audio, 'audio/wav');
+      const result = await transcribeAudioWithWhisper(base64Audio, 'audio/wav');
 
       console.log('[VoiceInput] Transcription complete:', {
         transcript: result.transcript.substring(0, 100),
