@@ -12,6 +12,7 @@
 import { create } from 'zustand';
 import { supabase } from '@/lib/supabase';
 import type { Function as BusinessFunction } from '@/types';
+import type { TaskVisibility, RestrictedCategory, TaskSharing } from '@/types/privacy';
 
 // Per-person TU allocation for a task
 export interface TUAllocation {
@@ -107,6 +108,22 @@ export interface WorkPlan {
   // DECISION LINKAGE
   // ========================================
   linkedDecisionId?: string;            // Link to decision that created this task
+
+  // ========================================
+  // PRIVACY & VISIBILITY SYSTEM
+  // ========================================
+
+  // Visibility level for this work plan
+  visibility?: TaskVisibility;           // private | shared | function | company | restricted
+
+  // Owner/creator of the work plan (for privacy checks)
+  ownerId?: string;                      // User ID of the creator
+
+  // Restricted category (if visibility is 'restricted')
+  restrictedCategory?: RestrictedCategory; // hr | legal | executive | confidential | finance
+
+  // Sharing configuration (if visibility is 'shared')
+  sharedWith?: TaskSharing;              // Who can access and their permission level
 }
 
 interface WorkPlanState {
@@ -144,6 +161,13 @@ interface WorkPlanState {
   getAllWorkPlans: () => WorkPlan[]; // For government users
   getWorkPlansByWorkspaceAndFunction: (workspaceId: string, func: BusinessFunction) => WorkPlan[];
   getWorkPlansByWorkspaceAndStatus: (workspaceId: string, status: WorkPlan['status']) => WorkPlan[];
+
+  // Privacy & Visibility methods
+  setWorkPlanVisibility: (id: string, visibility: TaskVisibility) => void;
+  setWorkPlanRestricted: (id: string, category: RestrictedCategory) => void;
+  shareWorkPlan: (id: string, sharing: TaskSharing) => void;
+  unshareWorkPlan: (id: string) => void;
+  setWorkPlanOwner: (id: string, ownerId: string) => void;
 
   // Reset method for clearing all data
   reset: () => void;
@@ -758,6 +782,80 @@ export const useWorkPlanStore = create<WorkPlanState>((set, get) => ({
 
   getWorkPlansByWorkspaceAndStatus: (workspaceId: string, status: WorkPlan['status']) => {
     return get().workPlans.filter(wp => wp.workspaceId === workspaceId && wp.status === status);
+  },
+
+  // ========================================
+  // PRIVACY & VISIBILITY METHODS
+  // ========================================
+
+  setWorkPlanVisibility: (id: string, visibility: TaskVisibility) => {
+    set(state => ({
+      workPlans: state.workPlans.map(wp =>
+        wp.id === id
+          ? { ...wp, visibility, updatedAt: new Date().toISOString() }
+          : wp
+      ),
+    }));
+    console.log(`[WorkPlanStore] Set visibility for ${id} to ${visibility}`);
+  },
+
+  setWorkPlanRestricted: (id: string, category: RestrictedCategory) => {
+    set(state => ({
+      workPlans: state.workPlans.map(wp =>
+        wp.id === id
+          ? {
+              ...wp,
+              visibility: 'restricted',
+              restrictedCategory: category,
+              updatedAt: new Date().toISOString(),
+            }
+          : wp
+      ),
+    }));
+    console.log(`[WorkPlanStore] Set restricted category for ${id} to ${category}`);
+  },
+
+  shareWorkPlan: (id: string, sharing: TaskSharing) => {
+    set(state => ({
+      workPlans: state.workPlans.map(wp =>
+        wp.id === id
+          ? {
+              ...wp,
+              visibility: 'shared',
+              sharedWith: sharing,
+              updatedAt: new Date().toISOString(),
+            }
+          : wp
+      ),
+    }));
+    console.log(`[WorkPlanStore] Shared work plan ${id}`);
+  },
+
+  unshareWorkPlan: (id: string) => {
+    set(state => ({
+      workPlans: state.workPlans.map(wp =>
+        wp.id === id
+          ? {
+              ...wp,
+              visibility: 'company',
+              sharedWith: undefined,
+              updatedAt: new Date().toISOString(),
+            }
+          : wp
+      ),
+    }));
+    console.log(`[WorkPlanStore] Unshared work plan ${id}`);
+  },
+
+  setWorkPlanOwner: (id: string, ownerId: string) => {
+    set(state => ({
+      workPlans: state.workPlans.map(wp =>
+        wp.id === id
+          ? { ...wp, ownerId, updatedAt: new Date().toISOString() }
+          : wp
+      ),
+    }));
+    console.log(`[WorkPlanStore] Set owner for ${id} to ${ownerId}`);
   },
 
   // Reset method - clears all work plan data

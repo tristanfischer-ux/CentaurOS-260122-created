@@ -15,7 +15,48 @@ Centaur OS is a comprehensive iOS mobile application that helps lean companies o
 
 ## 🚀 Latest Updates (Jan 18, 2026)
 
-### ✅ Phase 1-2 Complete: Production-Ready CRUD + Real-time!
+### 🔒 Privacy & Visibility System Implemented!
+
+**🎉 What's New:**
+- 🔐 **Task-Level Privacy**: Create private tasks only you can see
+- 👥 **Selective Sharing**: Share tasks with specific users, roles, or functions
+- ⚠️ **Restricted Categories**: HR, Legal, Executive, and Finance confidential sections
+- 🏢 **Function-Level Visibility**: Tasks visible only within a business function
+- 🎯 **Granular Permissions**: View, edit, and share permissions per task
+
+**📋 Privacy Levels:**
+1. **Private** - Only you can see (e.g., "Research competitor salaries")
+2. **Shared** - Share with specific people (e.g., "Performance review for John")
+3. **Function** - Visible to your team (e.g., "Marketing campaign tasks")
+4. **Company** - Everyone in workspace can see (default)
+5. **Restricted** - Special access required:
+   - **HR**: Performance reviews, PIPs, terminations, salary discussions
+   - **Legal**: Litigation, IP matters, compliance issues
+   - **Executive**: Board discussions, fundraising, strategic decisions
+   - **Finance**: M&A discussions, sensitive financial data
+   - **Confidential**: General confidential matters
+
+**🎨 Implementation:**
+- `src/types/privacy.ts` - Privacy type definitions
+- `src/lib/state/privacy-store.ts` - Privacy preferences and restricted access management
+- `src/lib/visibility.ts` - Core visibility check functions
+- `src/lib/state/work-plan-store.ts` - Extended with privacy fields and methods
+- WorkPlan interface now includes: `visibility`, `ownerId`, `restrictedCategory`, `sharedWith`
+
+**🔧 Founder Controls:**
+- Grant/revoke restricted access to HR, Legal, Executive, Finance categories
+- Option to override privacy (compliance/audit) or respect private tasks (trust model)
+- Full audit logging of privacy-related actions
+
+**📖 Next Steps:**
+- UI components for visibility selector, privacy badges, and share modal
+- Privacy settings screen in Settings tab
+- Integration with task creation and task list screens
+- Database migration for privacy fields
+
+---
+
+## ✅ Phase 1-2 Complete: Production-Ready CRUD + Real-time!
 
 **🎉 What's New:**
 - 🔄 **Full CRUD Operations**: All stores have complete create/update/delete with Supabase sync
