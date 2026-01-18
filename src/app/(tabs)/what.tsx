@@ -331,13 +331,13 @@ export default function WhatScreen() {
         confidence_due: task.confidence_due,
       }));
 
-      console.log('[What Tab] Extracted drafts:', drafts);
+      console.log('[What Tab] Extracted drafts (v2):', drafts);
 
-      // Show drafts review modal (skip Supabase for now)
+      // Show drafts review modal directly (no Supabase needed)
       setTaskDrafts(drafts);
       setShowVoiceTranscript(false);
       setShowDraftsReview(true);
-      console.log('[What Tab] Opening drafts review modal');
+      console.log('[What Tab] Opening drafts review modal (v2)');
     } catch (error) {
       console.error('[What Tab] Failed to extract drafts:', error);
       console.error('[What Tab] Error details:', {
