@@ -910,9 +910,7 @@ export default function WhatScreen() {
                   className="flex-1 bg-emerald-500 py-4 rounded-xl items-center"
                 >
                   {isProcessingTranscript ? (
-                    <View className="flex-row items-center gap-2">
-                      <Text className="text-white font-semibold text-base">Processing...</Text>
-                    </View>
+                    <Text className="text-white font-semibold text-base">Processing...</Text>
                   ) : (
                     <Text className="text-white font-semibold text-base">Extract Tasks</Text>
                   )}
