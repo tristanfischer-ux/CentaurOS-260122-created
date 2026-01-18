@@ -149,6 +149,83 @@ export default function SettingsScreen() {
   const userRole = currentMembership?.role ?? 'Founder';
 
   // ===========================================================================
+  // SETUP CHECKLIST - Operations Excellence Framework
+  // ===========================================================================
+  const setupSteps: SetupStep[] = useMemo(() => {
+    const steps: SetupStep[] = [
+      {
+        id: 'team_setup',
+        title: 'Add Team Members',
+        description: 'Invite executives and apprentices',
+        priority: 'critical',
+        category: 'team',
+        action: () => router.push('/invitations'),
+        isComplete: false, // Could check organization store
+        estimatedMinutes: 5,
+        roleRequired: 'Founder',
+      },
+      {
+        id: 'okr_setup',
+        title: 'Define OKRs',
+        description: 'Set objectives and key results',
+        priority: 'critical',
+        category: 'workflow',
+        action: () => router.push('/(tabs)/evaluate'),
+        isComplete: false, // Could check OKR store
+        estimatedMinutes: 15,
+        roleRequired: 'Founder',
+      },
+      {
+        id: 'supplier_setup',
+        title: 'Add Suppliers',
+        description: 'Configure vendor relationships',
+        priority: 'high',
+        category: 'foundation',
+        action: () => router.push('/suppliers'),
+        isComplete: false, // Could check supplier store
+        estimatedMinutes: 10,
+        roleRequired: 'Founder',
+      },
+      {
+        id: 'budget_setup',
+        title: 'Set Budgets',
+        description: 'Allocate financial resources',
+        priority: 'high',
+        category: 'foundation',
+        action: () => router.push('/(tabs)/decide'),
+        isComplete: false, // Could check finance store
+        estimatedMinutes: 10,
+        roleRequired: 'Founder',
+      },
+    ];
+
+    // Filter based on role
+    if (userRole !== 'Founder') {
+      return steps.filter(s => !s.roleRequired || s.roleRequired !== 'Founder');
+    }
+
+    return steps;
+  }, [userRole]);
+
+  // ===========================================================================
+  // COMPLETION METRICS
+  // ===========================================================================
+  const completionMetrics = useMemo(() => {
+    const completed = setupSteps.filter(s => s.isComplete).length;
+    const total = setupSteps.length;
+    const percentage = total > 0 ? Math.round((completed / total) * 100) : 100;
+    const remainingSteps = setupSteps.filter(s => !s.isComplete);
+    const estimatedMinutes = remainingSteps.reduce((acc, s) => acc + s.estimatedMinutes, 0);
+
+    return {
+      completed,
+      total,
+      percentage,
+      estimatedMinutes,
+    };
+  }, [setupSteps]);
+
+  // ===========================================================================
   // QUICK ACTIONS - Accenture Intelligent Operations
   // ===========================================================================
   const quickActions: QuickAction[] = useMemo(() => {
