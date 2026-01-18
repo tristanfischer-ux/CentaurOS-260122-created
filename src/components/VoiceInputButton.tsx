@@ -18,50 +18,12 @@ import Animated, {
 } from 'react-native-reanimated';
 
 /**
- * Transcribe audio file using speech-to-text API
- * This uses OpenAI Whisper or similar backend service
+ * TODO: Implement real transcription
+ * This component currently uses mock transcripts for development.
+ * To implement real transcription, you can:
+ * 1. Create an API route endpoint at /api/transcribe that uses OpenAI Whisper
+ * 2. Or integrate with a speech-to-text service directly from the client
  */
-async function transcribeAudio(audioUri: string): Promise<string> {
-  try {
-    // On web, we could use Web Speech API
-    if (Platform.OS === 'web' && 'webkitSpeechRecognition' in window) {
-      // Web Speech API is real-time, so we can't use it with recorded audio
-      // Fall through to API call
-    }
-
-    // Create form data to upload audio file
-    const formData = new FormData();
-
-    // Prepare audio file for upload
-    const audioFile = {
-      uri: audioUri,
-      type: 'audio/m4a', // iOS default format from expo-av
-      name: 'recording.m4a',
-    } as any;
-
-    formData.append('audio', audioFile);
-
-    // Call transcription API endpoint
-    const response = await fetch('/api/transcribe', {
-      method: 'POST',
-      body: formData,
-      headers: {
-        // Don't set Content-Type - let the browser set it with boundary for multipart
-      },
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.error || `Transcription API error: ${response.status}`);
-    }
-
-    const data = await response.json();
-    return data.transcript || data.text || '';
-  } catch (error) {
-    console.error('[VoiceInput] Transcription API error:', error);
-    throw error;
-  }
-}
 
 interface VoiceInputButtonProps {
   onTranscriptComplete: (transcript: string) => void;
@@ -193,37 +155,19 @@ export function VoiceInputButton({
         throw new Error('Failed to get recording URI');
       }
 
-      // Transcribe audio using speech-to-text API
-      try {
-        const transcript = await transcribeAudio(uri);
+      // TODO: Implement real transcription API
+      // For now, use mock transcript based on recording duration
+      const mockTranscript = recordingDuration < 3
+        ? "Quick task example"
+        : "Create a task to implement the user authentication flow, assign it to the engineering team, and set a deadline for next Friday.";
 
-        if (!transcript || transcript.trim().length === 0) {
-          throw new Error('No speech detected in recording');
-        }
+      console.log('[VoiceInput] Using mock transcript:', mockTranscript);
 
-        console.log('[VoiceInput] Transcription successful:', transcript);
+      setIsProcessing(false);
+      setShowModal(false);
+      setRecordingDuration(0);
 
-        setIsProcessing(false);
-        setShowModal(false);
-        setRecordingDuration(0);
-
-        onTranscriptComplete(transcript);
-      } catch (transcriptionError) {
-        console.error('[VoiceInput] Transcription failed:', transcriptionError);
-
-        // Fall back to mock transcript for development/testing
-        const mockTranscript = recordingDuration < 3
-          ? "Quick task example"
-          : "Create a task to implement the user authentication flow, assign it to the engineering team, and set a deadline for next Friday.";
-
-        console.log('[VoiceInput] Using fallback mock transcript:', mockTranscript);
-
-        setIsProcessing(false);
-        setShowModal(false);
-        setRecordingDuration(0);
-
-        onTranscriptComplete(mockTranscript);
-      }
+      onTranscriptComplete(mockTranscript);
     } catch (error) {
       console.error('[VoiceInput] Failed to stop recording:', error);
       onError?.('Failed to process recording');
