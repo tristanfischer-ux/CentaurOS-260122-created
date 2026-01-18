@@ -4,13 +4,8 @@
  */
 
 import { create } from 'zustand';
+import { supabase } from '@/lib/supabase';
 import {
-  ORGANIZATION_MEMBERS,
-  AI_AGENTS,
-  SUPPLIER_ENGAGEMENTS,
-  getTotalAISpend,
-  getTotalTeamCost,
-  getTotalSupplierSpend,
   type OrganizationMember,
   type AIAgent,
   type SupplierEngagement,
@@ -20,9 +15,13 @@ interface OrganizationState {
   members: OrganizationMember[];
   aiAgents: AIAgent[];
   supplierEngagements: SupplierEngagement[];
+  isLoading: boolean;
+  error: string | null;
 
   // Actions
   initializeOrganization: () => void;
+  loadMembersFromSupabase: (workspaceId: string) => Promise<void>;
+  loadEngagementsFromSupabase: (workspaceId: string) => Promise<void>;
 
   // Member methods
   getMemberById: (id: string) => OrganizationMember | undefined;
@@ -76,22 +75,108 @@ export const useOrganizationStore = create<OrganizationState>((set, get) => ({
   members: [],
   aiAgents: [],
   supplierEngagements: [],
+  isLoading: false,
+  error: null,
 
   initializeOrganization: () => {
     // DISABLED: No longer auto-loading seed data for new users
     // Users should start with empty organization and add their own data
-    // set({
-    //   members: ORGANIZATION_MEMBERS,
-    //   aiAgents: AI_AGENTS,
-    //   supplierEngagements: SUPPLIER_ENGAGEMENTS,
-    // });
-
-    // Start with empty arrays for fresh users
+    // Data should be loaded via loadMembersFromSupabase() and loadEngagementsFromSupabase()
     set({
       members: [],
       aiAgents: [],
       supplierEngagements: [],
     });
+  },
+
+  loadMembersFromSupabase: async (workspaceId: string) => {
+    set({ isLoading: true, error: null });
+
+    try {
+      // Load members from Supabase
+      const { data: membersData, error: membersError } = await supabase
+        .from('members')
+        .select('*')
+        .eq('workspace_id', workspaceId)
+        .order('created_at', { ascending: true });
+
+      if (membersError) {
+        console.error('Error loading members:', membersError);
+        set({ error: membersError.message, isLoading: false });
+        return;
+      }
+
+      // Transform Supabase data to OrganizationMember format
+      const members: OrganizationMember[] = (membersData || []).map((m: any) => ({
+        id: m.id,
+        workspaceId: m.workspace_id,
+        name: m.name,
+        role: m.role as 'Founder' | 'FractionalExec' | 'Apprentice',
+        function: m.function || 'General',
+        status: m.status as 'active' | 'inactive',
+        daysPerWeek: m.days_per_week || 5,
+        costPerDay: m.cost_per_day || 0,
+        email: '', // Not in current DB schema
+        startDate: m.created_at || new Date().toISOString(),
+      }));
+
+      set({ members, isLoading: false });
+    } catch (err) {
+      console.error('Error loading members from Supabase:', err);
+      set({ error: err instanceof Error ? err.message : 'Failed to load members', isLoading: false });
+    }
+  },
+
+  loadEngagementsFromSupabase: async (workspaceId: string) => {
+    set({ isLoading: true, error: null });
+
+    try {
+      // Load supplier engagements from Supabase
+      const { data: engagementsData, error: engagementsError } = await supabase
+        .from('supplier_engagements')
+        .select('*')
+        .eq('workspace_id', workspaceId)
+        .order('created_at', { ascending: true });
+
+      if (engagementsError) {
+        console.error('Error loading engagements:', engagementsError);
+        set({ error: engagementsError.message, isLoading: false });
+        return;
+      }
+
+      // Transform Supabase data to SupplierEngagement format
+      const engagements: SupplierEngagement[] = (engagementsData || []).map((e: any) => ({
+        id: e.id,
+        workspaceId: e.workspace_id,
+        supplierId: e.supplier_id || '',
+        supplierName: 'Unknown', // Will need to join with suppliers table or fetch separately
+        projectName: 'Project', // Not in current schema
+        description: '', // Not in current schema
+        category: (e.category || 'Professional Services') as 'Manufacturing' | 'Materials' | 'Logistics' | 'Professional Services',
+        status: (e.status === 'completed' ? 'delivered' : e.status) as 'planning' | 'in_progress' | 'delivered' | 'cancelled',
+        totalCost: Number(e.contract_value) || 0,
+        paidToDate: Number(e.paid_to_date) || 0,
+        deliveryDate: e.end_date || '',
+        startDate: e.start_date || '',
+        tasks: [], // Not in current schema
+        linkedWorkPlanIds: [], // Not in current schema
+        assignedTo: '', // Not in current schema
+        contactPerson: '',
+        contactEmail: '',
+        contactPhone: '',
+        location: {
+          city: '',
+          address: '',
+          latitude: 0,
+          longitude: 0,
+        },
+      }));
+
+      set({ supplierEngagements: engagements, isLoading: false });
+    } catch (err) {
+      console.error('Error loading engagements from Supabase:', err);
+      set({ error: err instanceof Error ? err.message : 'Failed to load engagements', isLoading: false });
+    }
   },
 
   // Member methods
@@ -193,15 +278,37 @@ export const useOrganizationStore = create<OrganizationState>((set, get) => ({
 
   // Calculated metrics
   getTotalAISpend: () => {
-    return getTotalAISpend();
+    // Calculate AI spend from active AI agents
+    const activeAgents = get().aiAgents.filter(a => a.status === 'active');
+    return activeAgents.reduce((sum, agent) => sum + (agent.costPerMonth || 0), 0);
   },
 
   getTotalTeamCost: () => {
-    return getTotalTeamCost();
+    // Calculate team costs from active members
+    const activeMembers = get().members.filter(m => m.status === 'active');
+    const founders = activeMembers.filter(m => m.role === 'Founder');
+    const execs = activeMembers.filter(m => m.role === 'FractionalExec');
+    const apprentices = activeMembers.filter(m => m.role === 'Apprentice');
+
+    return {
+      total: activeMembers.reduce((sum, m) => sum + ((m.costPerDay || 0) * (m.daysPerWeek || 5)), 0),
+      founders: founders.reduce((sum, m) => sum + ((m.costPerDay || 0) * (m.daysPerWeek || 5)), 0),
+      execs: execs.reduce((sum, m) => sum + ((m.costPerDay || 0) * (m.daysPerWeek || 5)), 0),
+      apprentices: apprentices.reduce((sum, m) => sum + ((m.costPerDay || 0) * (m.daysPerWeek || 5)), 0),
+    };
   },
 
   getTotalSupplierSpend: () => {
-    return getTotalSupplierSpend();
+    // Calculate supplier spend from engagements
+    const engagements = get().supplierEngagements;
+    const total = engagements.reduce((sum, e) => sum + e.totalCost, 0);
+    const paid = engagements.reduce((sum, e) => sum + e.paidToDate, 0);
+
+    return {
+      total,
+      paid,
+      remaining: total - paid,
+    };
   },
 
   // Counts
