@@ -1,37 +1,37 @@
 /**
  * Time Utilities
  * Game-like time tracking for company building
+ *
+ * MIGRATED to use canonical time periods (src/lib/time/periods.ts)
  */
 
+import { getWeekNumber, getWeekYear, getWeeksBetween, parseISOSafe, nowInTz } from '@/lib/time/periods';
+
 /**
- * Get the current week number of the year (1-52)
+ * Get the current ISO week number of the year (1-53)
+ * Uses ISO 8601 definition (week 1 = first week with Thursday)
  */
 export const getCurrentWeekOfYear = (): number => {
-  const now = new Date();
-  const startOfYear = new Date(now.getFullYear(), 0, 1);
-  const diff = now.getTime() - startOfYear.getTime();
-  const oneWeek = 1000 * 60 * 60 * 24 * 7;
-  return Math.ceil(diff / oneWeek);
+  return getWeekNumber(nowInTz());
 };
 
 /**
- * Calculate weeks since a given date
+ * Calculate weeks since a given date (DST-safe)
  */
 export const getWeeksSince = (startDate: string): number => {
-  const start = new Date(startDate);
-  const now = new Date();
-  const diff = now.getTime() - start.getTime();
-  const oneWeek = 1000 * 60 * 60 * 24 * 7;
-  return Math.floor(diff / oneWeek);
+  const start = parseISOSafe(startDate);
+  const now = nowInTz();
+  return getWeeksBetween(start, now);
 };
 
 /**
  * Get formatted week counter info
  */
 export const getWeekCounterInfo = (foundedAt?: string) => {
-  const currentWeekOfYear = getCurrentWeekOfYear();
+  const now = nowInTz();
+  const currentWeekOfYear = getWeekNumber(now);
   const weeksSinceFounding = foundedAt ? getWeeksSince(foundedAt) : 0;
-  const currentYear = new Date().getFullYear();
+  const currentYear = getWeekYear(now);
 
   return {
     currentWeekOfYear,

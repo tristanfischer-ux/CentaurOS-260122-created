@@ -66,6 +66,8 @@ import {
 } from '@/lib/performance-analytics';
 import type { Task, Review } from '@/types';
 import { cn } from '@/lib/cn';
+import { WEEKS_PER_MONTH } from '@/lib/time/periods';
+import { safeDiv, sum } from '@/lib/math';
 
 const PERFORMANCE_HELP: HelpContent = {
   title: 'Performance & Reports',
@@ -276,7 +278,7 @@ export default function PerformanceScreen() {
     const cashBalance = currentWorkspace ? getCashBalance(currentWorkspace.id) : 0;
     const weeklyBurn = currentWorkspace ? getWeeklyBurn(currentWorkspace.id) : 0;
     const monthlyRevenue = currentWorkspace ? getMonthlyRevenue(currentWorkspace.id) : 0;
-    const monthlyBurn = weeklyBurn * 4.33;
+    const monthlyBurn = weeklyBurn * WEEKS_PER_MONTH;
 
     // Debug logging for cash flow calculation
     console.log('[Performance] Cash flow debug:', {
@@ -300,33 +302,34 @@ export default function PerformanceScreen() {
     } else {
       // Calculate months until cash runs out
       // runway = current cash / monthly burn
-      runway = cashBalance / monthlyBurn;
+      runway = safeDiv(cashBalance, monthlyBurn, 0);
     }
 
     const netCashFlow = monthlyRevenue - monthlyBurn;
 
-    // OKR progress
-    const okrProgress = okrs.length > 0
-      ? Math.round(okrs.reduce((sum, okr) => {
-          const progress = okr.objectives.length > 0
-            ? okr.objectives.reduce((objSum, obj) => objSum + (obj.progress || 0), 0) / okr.objectives.length
-            : 0;
-          return sum + progress;
-        }, 0) / okrs.length)
-      : 0;
+    // OKR progress - fix double-averaging bug
+    // Calculate weighted average across all objectives (not average of averages)
+    let okrProgress = 0;
+    if (okrs.length > 0) {
+      const allObjectives = okrs.flatMap(okr => okr.objectives);
+      if (allObjectives.length > 0) {
+        const totalProgress = sum(allObjectives.map(obj => obj.progress || 0));
+        okrProgress = Math.round(safeDiv(totalProgress, allObjectives.length, 0));
+      }
+    }
 
     return {
       teamSize: activeMembers.length,
       totalCapacity,
       allocatedCapacity,
       availableCapacity: totalCapacity - allocatedCapacity,
-      utilizationPercent: totalCapacity > 0 ? Math.round((allocatedCapacity / totalCapacity) * 100) : 0,
+      utilizationPercent: Math.round(safeDiv(allocatedCapacity, totalCapacity, 0) * 100),
       completedTasks,
       activeTasks,
       blockedTasks,
       queuedTasks,
       totalTasks,
-      completionRate: totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0,
+      completionRate: Math.round(safeDiv(completedTasks, totalTasks, 0) * 100),
       cashBalance,
       weeklyBurn,
       monthlyBurn,
@@ -365,7 +368,7 @@ export default function PerformanceScreen() {
         activeTasks: activeByMember,
         capacity,
         allocated,
-        utilizationPercent: capacity > 0 ? Math.round((allocated / capacity) * 100) : 0,
+        utilizationPercent: Math.round(safeDiv(allocated, capacity, 0) * 100),
       };
     });
   }, [members, workPlans]);
@@ -402,7 +405,7 @@ export default function PerformanceScreen() {
     runway = 0;
   } else {
     // Calculate months until cash runs out
-    runway = realCashBalance / monthlyBurn;
+    runway = safeDiv(realCashBalance, monthlyBurn, 0);
   }
 
   // P&L Calculations
@@ -410,25 +413,25 @@ export default function PerformanceScreen() {
     const revenue = realMonthlyRevenue;
     const cogs = totalManufacturing;
     const grossProfit = revenue - cogs;
-    const grossMargin = revenue > 0 ? (grossProfit / revenue) * 100 : 0;
+    const grossMargin = safeDiv(grossProfit, revenue, 0) * 100;
 
     const operatingExpenses = totalTeam + totalAI + totalInfrastructure +
                               totalMarketing + totalFacilities + totalEquipment +
                               totalInsurance + totalProfessional;
 
     const ebitda = grossProfit - operatingExpenses;
-    const ebitdaMargin = revenue > 0 ? (ebitda / revenue) * 100 : 0;
+    const ebitdaMargin = safeDiv(ebitda, revenue, 0) * 100;
     const depreciation = totalEquipment * 0.3;
     const ebit = ebitda - depreciation;
     const netIncome = ebit;
-    const netMargin = revenue > 0 ? (netIncome / revenue) * 100 : 0;
+    const netMargin = safeDiv(netIncome, revenue, 0) * 100;
 
     return { revenue, cogs, grossProfit, grossMargin, operatingExpenses, ebitda, ebitdaMargin, depreciation, ebit, netIncome, netMargin };
   }, [realMonthlyRevenue, totalManufacturing, totalTeam, totalAI, totalInfrastructure, totalMarketing, totalFacilities, totalEquipment, totalInsurance, totalProfessional]);
 
   // Health Indicators
   const healthIndicators = useMemo((): HealthIndicator[] => {
-    const ltvCacRatio = INITIAL_DATA.metrics.ltv / INITIAL_DATA.metrics.cac;
+    const ltvCacRatio = safeDiv(INITIAL_DATA.metrics.ltv, INITIAL_DATA.metrics.cac, 0);
     return [
       { name: 'Runway', value: runway === 999 ? 999 : runway, target: 18, status: runway === 999 ? 'green' : runway >= 18 ? 'green' : runway >= 12 ? 'yellow' : 'red', trend: 'stable', description: runway === 999 ? 'Cash flow positive' : `${runway.toFixed(1)} months at current burn` },
       { name: 'Gross Margin', value: pnl.grossMargin, target: 70, status: pnl.grossMargin >= 70 ? 'green' : pnl.grossMargin >= 50 ? 'yellow' : 'red', trend: 'up', description: 'Revenue minus direct costs' },
@@ -446,7 +449,8 @@ export default function PerformanceScreen() {
       result.push({ id: 'runway-critical', type: 'critical', title: 'Runway Below 12 Months', description: `Current runway is ${runway.toFixed(1)} months.`, impact: 'Business continuity at risk', action: 'Reduce burn by 20% or secure bridge funding' });
     }
     if (pnl.grossMargin < 50) {
-      result.push({ id: 'margin-warning', type: 'warning', title: 'Low Gross Margin', description: `Gross margin at ${pnl.grossMargin.toFixed(1)}%`, impact: `£${((0.7 - pnl.grossMargin/100) * pnl.revenue / 1000).toFixed(0)}K monthly opportunity`, action: 'Review COGS, negotiate supplier terms' });
+      const opportunityAmount = safeDiv((0.7 - pnl.grossMargin / 100) * pnl.revenue, 1000, 0);
+      result.push({ id: 'margin-warning', type: 'warning', title: 'Low Gross Margin', description: `Gross margin at ${pnl.grossMargin.toFixed(1)}%`, impact: `£${opportunityAmount.toFixed(0)}K monthly opportunity`, action: 'Review COGS, negotiate supplier terms' });
     }
     const mrrStream = INITIAL_DATA.revenueStreams.find(s => s.name.includes('MRR'));
     if (mrrStream && mrrStream.growth > 0) {
@@ -462,8 +466,8 @@ export default function PerformanceScreen() {
   const healthScore = useMemo(() => {
     const greenCount = healthIndicators.filter(h => h.status === 'green').length;
     const yellowCount = healthIndicators.filter(h => h.status === 'yellow').length;
-    const score = ((greenCount * 100) + (yellowCount * 50)) / healthIndicators.length;
-    return { score: Math.round(score), label: score >= 80 ? 'Strong' : score >= 60 ? 'Moderate' : 'Needs Attention', color: score >= 80 ? '#10b981' : score >= 60 ? '#f59e0b' : '#ef4444' };
+    const score = Math.round(safeDiv((greenCount * 100) + (yellowCount * 50), healthIndicators.length, 0));
+    return { score, label: score >= 80 ? 'Strong' : score >= 60 ? 'Moderate' : 'Needs Attention', color: score >= 80 ? '#10b981' : score >= 60 ? '#f59e0b' : '#ef4444' };
   }, [healthIndicators]);
 
   // Toggle financial section

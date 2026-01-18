@@ -11,6 +11,8 @@
  */
 
 import { create } from 'zustand';
+import { WEEKS_PER_MONTH, subMonthsSafe } from '@/lib/time/periods';
+import { safeDiv } from '@/lib/math';
 
 // ============================================================================
 // TYPES
@@ -267,21 +269,27 @@ export const useFinanceStore = create<FinanceStore>((set, get) => ({
       .filter((t) => t.type === 'cost' && t.recurring && t.recurrence_period === 'monthly')
       .reduce((sum, t) => sum + t.amount, 0);
 
-    // Convert to weekly (monthly / 4.33)
-    return monthlyRecurringCosts / 4.33;
+    // Convert to weekly using canonical constant
+    return safeDiv(monthlyRecurringCosts, WEEKS_PER_MONTH, 0);
   },
 
   getMonthlyBurn: (workspaceId: string) => {
     const weeklyBurn = get().getWeeklyBurn(workspaceId);
-    return weeklyBurn * 4.33;
+    return weeklyBurn * WEEKS_PER_MONTH;
   },
 
   getRunway: (workspaceId: string) => {
     const cashBalance = get().getCashBalance(workspaceId);
-    const weeklyBurn = get().getWeeklyBurn(workspaceId);
+    const monthlyBurn = get().getMonthlyBurn(workspaceId);
 
-    if (weeklyBurn <= 0) return 999; // Infinite runway if not burning
-    return Math.floor(cashBalance / weeklyBurn);
+    // Return infinite runway if not burning cash
+    if (monthlyBurn < 100) return 999;
+
+    // Return 0 if out of cash
+    if (cashBalance <= 0) return 0;
+
+    // Calculate runway in MONTHS (not weeks)
+    return safeDiv(cashBalance, monthlyBurn, 0);
   },
 
   getMonthlyRevenue: (workspaceId: string) => {
@@ -293,8 +301,8 @@ export const useFinanceStore = create<FinanceStore>((set, get) => ({
       .reduce((sum, t) => sum + t.amount, 0);
 
     // Also calculate average monthly revenue from recent transactions (last 3 months)
-    const threeMonthsAgo = new Date();
-    threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
+    // Use DST-safe date calculation
+    const threeMonthsAgo = subMonthsSafe(new Date(), 3);
 
     const recentRevenue = transactions
       .filter(
@@ -305,7 +313,7 @@ export const useFinanceStore = create<FinanceStore>((set, get) => ({
       )
       .reduce((sum, t) => sum + t.amount, 0);
 
-    const recentMonthlyAvg = recentRevenue / 3;
+    const recentMonthlyAvg = safeDiv(recentRevenue, 3, 0);
 
     // Return sum of recurring + average recent
     return monthlyRecurringRevenue + recentMonthlyAvg;
@@ -328,7 +336,7 @@ export const useFinanceStore = create<FinanceStore>((set, get) => ({
     };
 
     transactions.forEach((t) => {
-      const weeklyAmount = t.recurrence_period === 'monthly' ? t.amount / 4.33 : t.amount;
+      const weeklyAmount = t.recurrence_period === 'monthly' ? safeDiv(t.amount, WEEKS_PER_MONTH, 0) : t.amount;
 
       switch (t.category) {
         case 'team':
@@ -397,7 +405,7 @@ export const useFinanceStore = create<FinanceStore>((set, get) => ({
     const cashBalance = get().getCashBalance(workspaceId);
     const weeklyBurn = get().getWeeklyBurn(workspaceId);
     const monthlyRevenue = get().getMonthlyRevenue(workspaceId);
-    const weeklyRevenue = monthlyRevenue / 4.33;
+    const weeklyRevenue = safeDiv(monthlyRevenue, WEEKS_PER_MONTH, 0);
 
     const projections: CashFlowProjection[] = [];
     let currentCash = cashBalance;
