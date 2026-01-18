@@ -118,6 +118,9 @@ export default function WhatScreen() {
   const completeWorkPlan = useWorkPlanStore(s => s.completeWorkPlan);
   const abandonWorkPlan = useWorkPlanStore(s => s.abandonWorkPlan);
 
+  // Fallback: Use first member as current user if currentMembership is null (for demo/dev)
+  const effectiveMembership = currentMembership || (members.length > 0 ? { id: members[0].id, role: members[0].role, function: members[0].function } : null);
+
   // State
   const [showHelp, setShowHelp] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>('list');
@@ -284,19 +287,19 @@ export default function WhatScreen() {
     console.log('[What Tab] voiceTranscript:', voiceTranscript);
     console.log('[What Tab] voiceTranscript.trim():', voiceTranscript?.trim());
     console.log('[What Tab] currentWorkspace:', currentWorkspace);
-    console.log('[What Tab] currentMembership:', currentMembership);
+    console.log('[What Tab] effectiveMembership:', effectiveMembership);
 
-    if (!voiceTranscript.trim() || !currentWorkspace || !currentMembership) {
+    if (!voiceTranscript.trim() || !currentWorkspace || !effectiveMembership) {
       console.error('[What Tab] Missing required data!');
       console.error('[What Tab] hasTranscript:', !!voiceTranscript.trim(), 'length:', voiceTranscript.length);
       console.error('[What Tab] hasWorkspace:', !!currentWorkspace, 'id:', currentWorkspace?.id);
-      console.error('[What Tab] hasMembership:', !!currentMembership, 'id:', currentMembership?.id);
+      console.error('[What Tab] hasEffectiveMembership:', !!effectiveMembership, 'id:', effectiveMembership?.id);
 
       if (!voiceTranscript.trim()) {
         alert('No transcript text found. Please try again.');
       } else if (!currentWorkspace) {
         alert('No workspace found. Please refresh the app.');
-      } else if (!currentMembership) {
+      } else if (!effectiveMembership) {
         alert('No membership found. Please refresh the app.');
       }
       return;
@@ -304,7 +307,7 @@ export default function WhatScreen() {
 
     console.log('[What Tab] All data present, processing voice transcript:', voiceTranscript);
     console.log('[What Tab] Current workspace:', currentWorkspace?.id);
-    console.log('[What Tab] Current membership:', currentMembership?.id);
+    console.log('[What Tab] Effective membership:', effectiveMembership?.id);
     setIsProcessingTranscript(true);
 
     try {
@@ -326,8 +329,8 @@ export default function WhatScreen() {
       // Convert extraction format to TaskDraft format and save to Supabase
       const draftsToSave = extraction.tasks.map((task) => ({
         workspace_id: currentWorkspace.id,
-        created_by_user_id: currentMembership.id,
-        assignee_user_id: task.assignee_default === 'speaker' ? currentMembership.id : null,
+        created_by_user_id: effectiveMembership.id,
+        assignee_user_id: task.assignee_default === 'speaker' ? effectiveMembership.id : null,
         title: task.title,
         notes: task.notes || '',
         start_iso: new Date().toISOString(),
