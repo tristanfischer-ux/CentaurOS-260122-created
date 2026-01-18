@@ -68,7 +68,8 @@ src/components/
 
 ### Component Template
 ```tsx
-import { View, Text, Pressable } from 'react-native';
+import { View, Text } from 'react-native';
+import { HapticPressable } from '@/components/HapticPressable';
 import { useTheme } from '@/lib/ThemeContext';
 import type { ComponentProps } from './types'; // if complex
 
@@ -83,7 +84,7 @@ export function MyComponent({ title, onPress, variant = 'primary' }: MyComponent
   const isDark = theme === 'dark';
 
   return (
-    <Pressable
+    <HapticPressable
       onPress={onPress}
       className={`rounded-xl py-4 px-6 active:opacity-70 ${
         variant === 'primary' ? 'bg-blue-600' : isDark ? 'bg-slate-800' : isOffWhite ? 'bg-stone-200' : 'bg-gray-100'
@@ -92,7 +93,7 @@ export function MyComponent({ title, onPress, variant = 'primary' }: MyComponent
       <Text className={variant === 'primary' ? 'text-white font-bold' : `${isDark ? 'text-white' : isOffWhite ? 'text-stone-900' : 'text-gray-900'} font-semibold`}>
         {title}
       </Text>
-    </Pressable>
+    </HapticPressable>
   );
 }
 ```
@@ -414,27 +415,256 @@ duration: 400ms   // Slide animations
 ```
 
 ### Haptic Feedback
-**Use:** `/src/lib/haptics.ts`
-```tsx
-import { lightImpact, mediumImpact, heavyImpact, successNotification } from '@/lib/haptics';
 
-// Button press
-onPress={() => {
-  lightImpact();
-  handleAction();
-}}
+**CRITICAL: Always use HapticPressable for interactive elements**
+
+#### HapticPressable Component
+**Location:** `/src/components/HapticPressable.tsx`
+**Use this instead of Pressable for all buttons, cards, and interactive elements**
+
+```tsx
+import { HapticPressable } from '@/components/HapticPressable';
+
+// Standard button (automatic light haptic)
+<HapticPressable onPress={handlePress} className="bg-blue-600 rounded-xl py-4 px-6">
+  <Text className="text-white font-bold">Submit</Text>
+</HapticPressable>
+
+// Important action (medium haptic)
+<HapticPressable onPress={handleDelete} hapticType="medium" className="...">
+  <Text>Delete</Text>
+</HapticPressable>
+
+// Critical action (heavy haptic)
+<HapticPressable onPress={handleCritical} hapticType="heavy" className="...">
+  <Text>Confirm</Text>
+</HapticPressable>
+
+// Disable haptics for non-interactive elements
+<HapticPressable onPress={handleSelect} disableHaptics className="...">
+  <Text>Just selection, no feedback</Text>
+</HapticPressable>
+```
+
+**When to use each type:**
+- `light` (default): Buttons, tabs, selections, list items
+- `medium`: Destructive actions, form submissions, important confirmations
+- `heavy`: Critical actions, final confirmations, major state changes
+- `none` or `disableHaptics`: Passive selections, non-feedback interactions
+
+#### Manual Haptics (Advanced)
+**Use:** `/src/lib/haptics.ts` - Only when HapticPressable doesn't fit
+
+```tsx
+import { lightImpact, mediumImpact, heavyImpact, successNotification, errorNotification } from '@/lib/haptics';
 
 // Task completion
 onComplete={() => {
-  successNotification();
+  successNotification(); // Success vibration pattern
   markComplete();
 }}
 
-// Error
+// Error occurred
 onError={() => {
-  errorNotification();
+  errorNotification(); // Error vibration pattern
   showError();
 }}
+
+// Custom timing
+onDrag={() => {
+  lightImpact(); // Subtle feedback during interaction
+}}
+```
+
+### Advanced Animation Patterns
+
+#### Page Transitions
+```tsx
+import { FadeIn, FadeInDown, SlideInRight, SlideOutLeft } from 'react-native-reanimated';
+import Animated from 'react-native-reanimated';
+
+// Screen entrance
+export function ScreenContainer({ children }: { children: React.ReactNode }) {
+  return (
+    <Animated.View entering={FadeIn.duration(300)} className="flex-1">
+      {children}
+    </Animated.View>
+  );
+}
+
+// Modal slide-up
+<Animated.View entering={SlideInUp.duration(400).springify()}>
+  <ModalContent />
+</Animated.View>
+
+// Navigation transitions (stack navigator)
+// In Stack.Screen options:
+{
+  animation: 'slide_from_right', // iOS-style
+  presentation: 'card',
+}
+```
+
+#### Celebration Animations
+```tsx
+import { useEffect } from 'react';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withSpring,
+  withSequence,
+  withTiming
+} from 'react-native-reanimated';
+import { successNotification } from '@/lib/haptics';
+
+// Success checkmark bounce
+export function SuccessCheckmark() {
+  const scale = useSharedValue(0);
+  const rotate = useSharedValue(0);
+
+  useEffect(() => {
+    scale.value = withSequence(
+      withSpring(1.2, { damping: 2 }),
+      withSpring(1, { damping: 3 })
+    );
+    rotate.value = withSpring(360);
+    successNotification();
+  }, []);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [
+      { scale: scale.value },
+      { rotate: `${rotate.value}deg` }
+    ]
+  }));
+
+  return (
+    <Animated.View style={animatedStyle}>
+      <CheckCircle size={64} color="#10b981" />
+    </Animated.View>
+  );
+}
+
+// Progress celebration
+export function ProgressMilestone({ progress }: { progress: number }) {
+  const scale = useSharedValue(1);
+
+  useEffect(() => {
+    if (progress === 100) {
+      // Pulse animation on completion
+      scale.value = withSequence(
+        withTiming(1.3, { duration: 200 }),
+        withTiming(1, { duration: 200 }),
+        withTiming(1.15, { duration: 150 }),
+        withTiming(1, { duration: 150 })
+      );
+      successNotification();
+    }
+  }, [progress]);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }]
+  }));
+
+  return (
+    <Animated.View style={animatedStyle}>
+      <Trophy size={48} color="#f59e0b" />
+    </Animated.View>
+  );
+}
+```
+
+#### Micro-interactions
+```tsx
+// Button press animation
+import { useSharedValue, useAnimatedStyle, withTiming } from 'react-native-reanimated';
+
+export function AnimatedButton({ onPress, children }: ButtonProps) {
+  const scale = useSharedValue(1);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }]
+  }));
+
+  return (
+    <Animated.View style={animatedStyle}>
+      <HapticPressable
+        onPressIn={() => { scale.value = withTiming(0.95, { duration: 100 }); }}
+        onPressOut={() => { scale.value = withTiming(1, { duration: 100 }); }}
+        onPress={onPress}
+      >
+        {children}
+      </HapticPressable>
+    </Animated.View>
+  );
+}
+
+// Swipe to delete reveal
+import { Swipeable } from 'react-native-gesture-handler';
+
+<Swipeable
+  renderRightActions={() => (
+    <Animated.View entering={FadeIn} className="bg-red-600 justify-center px-6">
+      <Trash2 size={24} color="#fff" />
+    </Animated.View>
+  )}
+  onSwipeableOpen={() => mediumImpact()}
+>
+  <ListItem />
+</Swipeable>
+
+// Loading shimmer
+import { LinearGradient } from 'expo-linear-gradient';
+
+export function ShimmerLoader() {
+  const translateX = useSharedValue(-300);
+
+  useEffect(() => {
+    translateX.value = withRepeat(
+      withTiming(300, { duration: 1500 }),
+      -1, // Infinite
+      false
+    );
+  }, []);
+
+  return (
+    <View className="overflow-hidden">
+      <Animated.View style={[{ transform: [{ translateX }] }]}>
+        <LinearGradient
+          colors={['transparent', 'rgba(255,255,255,0.3)', 'transparent']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 0 }}
+          style={{ width: 100, height: '100%' }}
+        />
+      </Animated.View>
+    </View>
+  );
+}
+```
+
+#### List Animations
+```tsx
+// Staggered list entrance
+import { AnimatedListItem } from '@/components/AnimatedComponents';
+
+{items.map((item, index) => (
+  <AnimatedListItem key={item.id} index={index} delay={50}>
+    <ItemCard item={item} />
+  </AnimatedListItem>
+))}
+
+// Pull-to-refresh indicator
+import { RefreshControl } from 'react-native';
+
+<ScrollView
+  refreshControl={
+    <RefreshControl
+      refreshing={refreshing}
+      onRefresh={handleRefresh}
+      tintColor="#3b82f6"
+    />
+  }
+>
 ```
 
 ### Pressable States
@@ -705,6 +935,183 @@ import { LoadingState, SkeletonLoader } from '@/components/LoadingState';
 
 ---
 
+## Web-Specific Adaptations
+
+### Platform-Specific Files
+Create `.web.tsx` variants for components that need web-specific behavior:
+
+```
+src/components/
+├── Sidebar.web.tsx          # Only loads on web
+├── MobileNav.tsx             # Default (mobile)
+├── DataTable.web.tsx         # Rich table for web
+├── DataTable.tsx             # Mobile card list
+```
+
+**React Native Web automatically uses .web.tsx files when building for web**
+
+### Web-Only Components
+
+#### Sidebar Navigation (Desktop)
+```tsx
+// src/components/Sidebar.web.tsx
+import { View, Text, Pressable } from 'react-native';
+import { useTheme } from '@/lib/ThemeContext';
+import { Home, Users, Target, Settings } from 'lucide-react-native';
+
+export function Sidebar() {
+  const { theme, isOffWhite } = useTheme();
+  const isDark = theme === 'dark';
+
+  return (
+    <View className={`w-64 h-full ${isDark ? 'bg-slate-900 border-slate-800' : isOffWhite ? 'bg-stone-100 border-stone-300' : 'bg-white border-gray-200'} border-r`}>
+      <View className="p-6">
+        <Text className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
+          Centaur OS
+        </Text>
+      </View>
+
+      {/* Navigation items */}
+      <NavItem icon={Home} label="Dashboard" href="/" />
+      <NavItem icon={Users} label="Team" href="/team" />
+      <NavItem icon={Target} label="OKRs" href="/okrs" />
+      <NavItem icon={Settings} label="Settings" href="/settings" />
+    </View>
+  );
+}
+```
+
+#### Hover States (Web Only)
+```tsx
+// Use conditional styling for hover
+import { Platform } from 'react-native';
+
+const hoverClass = Platform.OS === 'web' ? 'hover:bg-gray-100' : '';
+
+<Pressable className={`py-2 px-4 ${hoverClass}`}>
+  <Text>Hover me (web only)</Text>
+</Pressable>
+```
+
+#### Tooltips (Web Only)
+```tsx
+// src/components/Tooltip.web.tsx
+import { useState } from 'react';
+import { View, Text } from 'react-native';
+
+export function Tooltip({ children, text }: { children: React.ReactNode; text: string }) {
+  const [show, setShow] = useState(false);
+
+  return (
+    <View
+      onMouseEnter={() => setShow(true)}
+      onMouseLeave={() => setShow(false)}
+      style={{ position: 'relative' }}
+    >
+      {children}
+      {show && (
+        <View className="absolute bottom-full mb-2 px-2 py-1 bg-gray-900 rounded">
+          <Text className="text-white text-xs">{text}</Text>
+        </View>
+      )}
+    </View>
+  );
+}
+```
+
+### Responsive Layouts
+
+#### Mobile vs Desktop Layouts
+```tsx
+import { useWindowDimensions } from 'react-native';
+
+export function ResponsiveLayout() {
+  const { width } = useWindowDimensions();
+  const isDesktop = width >= 1024;
+
+  return (
+    <View className={isDesktop ? 'flex-row' : 'flex-col'}>
+      {isDesktop && <Sidebar />}
+      <View className="flex-1">
+        <Content />
+      </View>
+    </View>
+  );
+}
+```
+
+#### Breakpoint System
+```tsx
+const breakpoints = {
+  mobile: 0,
+  tablet: 768,
+  desktop: 1024,
+  wide: 1440,
+};
+
+const { width } = useWindowDimensions();
+const isMobile = width < breakpoints.tablet;
+const isTablet = width >= breakpoints.tablet && width < breakpoints.desktop;
+const isDesktop = width >= breakpoints.desktop;
+```
+
+### Web-Specific Interactions
+
+#### Keyboard Shortcuts
+```tsx
+import { useEffect } from 'react';
+import { Platform } from 'react-native';
+
+export function useKeyboardShortcut(key: string, callback: () => void) {
+  useEffect(() => {
+    if (Platform.OS !== 'web') return;
+
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === key && (e.metaKey || e.ctrlKey)) {
+        e.preventDefault();
+        callback();
+      }
+    };
+
+    document.addEventListener('keydown', handler);
+    return () => document.removeEventListener('keydown', handler);
+  }, [key, callback]);
+}
+
+// Usage
+useKeyboardShortcut('k', () => openSearch());
+```
+
+#### Context Menus (Right-click)
+```tsx
+// Use zeego for cross-platform context menus
+import * as DropdownMenu from 'zeego/dropdown-menu';
+
+<DropdownMenu.Root>
+  <DropdownMenu.Trigger>
+    <Text>Right-click me</Text>
+  </DropdownMenu.Trigger>
+
+  <DropdownMenu.Content>
+    <DropdownMenu.Item key="edit">
+      <DropdownMenu.ItemTitle>Edit</DropdownMenu.ItemTitle>
+    </DropdownMenu.Item>
+    <DropdownMenu.Item key="delete">
+      <DropdownMenu.ItemTitle>Delete</DropdownMenu.ItemTitle>
+    </DropdownMenu.Item>
+  </DropdownMenu.Content>
+</DropdownMenu.Root>
+```
+
+### Testing Web Adaptations
+
+1. **Test in browser:** `npm run web` or `bun run web`
+2. **Test responsive:** Use browser DevTools to test tablet/desktop breakpoints
+3. **Test interactions:** Verify hover, keyboard shortcuts, context menus
+4. **Test performance:** Web builds can be larger - optimize bundle size
+
+---
+
 ## Navigation
 
 ### Tab Bar
@@ -917,6 +1324,261 @@ accessibilityState={{ busy: isLoading }}
 - Use relative sizing (text-base, text-sm) not fixed pixel values
 - Test with iOS "Larger Text" accessibility settings
 - Ensure layout doesn't break with larger fonts
+
+---
+
+## Business-Specific Patterns
+
+### Capacity Planning
+
+#### Resource Allocation UI
+```tsx
+// Display capacity with visual indicators
+export function CapacityIndicator({ allocated, available }: { allocated: number; available: number }) {
+  const percentage = (allocated / available) * 100;
+  const isOverAllocated = percentage > 100;
+  const isNearCapacity = percentage > 80 && percentage <= 100;
+
+  return (
+    <View>
+      <View className="flex-row justify-between mb-2">
+        <Text className="text-sm font-medium">Capacity</Text>
+        <Text className={`text-sm font-bold ${
+          isOverAllocated ? 'text-red-600' :
+          isNearCapacity ? 'text-amber-600' :
+          'text-emerald-600'
+        }`}>
+          {allocated}h / {available}h
+        </Text>
+      </View>
+
+      <View className="h-2 bg-gray-200 dark:bg-slate-800 rounded-full overflow-hidden">
+        <View
+          className={`h-full ${
+            isOverAllocated ? 'bg-red-600' :
+            isNearCapacity ? 'bg-amber-500' :
+            'bg-emerald-500'
+          }`}
+          style={{ width: `${Math.min(percentage, 100)}%` }}
+        />
+      </View>
+    </View>
+  );
+}
+```
+
+#### Task Allocation Cards
+```tsx
+export function TaskAllocationCard({ task, member }: { task: Task; member: Member }) {
+  const hoursPerWeek = task.hoursPerWeek || 0;
+  const duration = task.duration || 1;
+  const totalHours = hoursPerWeek * duration;
+
+  return (
+    <View className="rounded-xl border p-4">
+      <View className="flex-row items-start justify-between mb-3">
+        <View className="flex-1">
+          <Text className="font-bold text-base">{task.title}</Text>
+          <Text className="text-gray-600 dark:text-slate-400 text-sm">
+            Assigned to {member.name}
+          </Text>
+        </View>
+
+        <View className="bg-blue-50 dark:bg-blue-900/20 px-3 py-1 rounded-full">
+          <Text className="text-blue-600 dark:text-blue-400 font-semibold text-sm">
+            {hoursPerWeek}h/wk
+          </Text>
+        </View>
+      </View>
+
+      <View className="flex-row gap-4">
+        <View>
+          <Text className="text-gray-500 text-xs mb-1">Duration</Text>
+          <Text className="font-semibold">{duration} weeks</Text>
+        </View>
+        <View>
+          <Text className="text-gray-500 text-xs mb-1">Total</Text>
+          <Text className="font-semibold">{totalHours}h</Text>
+        </View>
+      </View>
+    </View>
+  );
+}
+```
+
+### OKR (Objectives & Key Results)
+
+#### OKR Progress Display
+```tsx
+export function OKRProgress({ okr }: { okr: OKR }) {
+  const objectives = okr.objectives || [];
+  const completedObjectives = objectives.filter(o => o.progress >= 100).length;
+  const totalProgress = objectives.reduce((sum, o) => sum + (o.progress || 0), 0) / objectives.length;
+
+  return (
+    <View className="rounded-xl border p-4">
+      <Text className="font-bold text-lg mb-2">{okr.title}</Text>
+
+      {/* Overall progress */}
+      <View className="mb-4">
+        <View className="flex-row justify-between mb-2">
+          <Text className="text-sm text-gray-600">Overall Progress</Text>
+          <Text className="text-sm font-bold text-blue-600">{Math.round(totalProgress)}%</Text>
+        </View>
+        <View className="h-2 bg-gray-200 dark:bg-slate-800 rounded-full overflow-hidden">
+          <View
+            className="h-full bg-blue-600"
+            style={{ width: `${totalProgress}%` }}
+          />
+        </View>
+      </View>
+
+      {/* Objectives list */}
+      {objectives.map((objective, idx) => (
+        <View key={idx} className="mb-3">
+          <View className="flex-row items-center gap-2 mb-1">
+            {objective.progress >= 100 ? (
+              <CheckCircle size={16} color="#10b981" />
+            ) : (
+              <Circle size={16} color="#9ca3af" />
+            )}
+            <Text className="flex-1 text-sm">{objective.title}</Text>
+            <Text className="text-xs font-semibold">{objective.progress}%</Text>
+          </View>
+        </View>
+      ))}
+    </View>
+  );
+}
+```
+
+### Financial Tracking
+
+#### Budget vs Actual Display
+```tsx
+export function BudgetCard({ category, budget, actual }: BudgetData) {
+  const percentage = (actual / budget) * 100;
+  const isOverBudget = percentage > 100;
+  const isNearLimit = percentage > 90 && percentage <= 100;
+  const remaining = budget - actual;
+
+  return (
+    <View className={`rounded-xl border-2 p-4 ${
+      isOverBudget ? 'border-red-500 bg-red-50 dark:bg-red-900/10' :
+      isNearLimit ? 'border-amber-500 bg-amber-50 dark:bg-amber-900/10' :
+      'border-gray-200 dark:border-slate-800'
+    }`}>
+      <View className="flex-row justify-between items-start mb-3">
+        <View>
+          <Text className="text-sm text-gray-600 dark:text-slate-400">{category}</Text>
+          <Text className="text-2xl font-bold">${actual.toLocaleString()}</Text>
+          <Text className="text-sm text-gray-500">of ${budget.toLocaleString()}</Text>
+        </View>
+
+        {isOverBudget ? (
+          <View className="bg-red-600 px-3 py-1 rounded-full">
+            <Text className="text-white font-semibold text-xs">Over</Text>
+          </View>
+        ) : (
+          <View className="bg-emerald-50 dark:bg-emerald-900/20 px-3 py-1 rounded-full">
+            <Text className="text-emerald-600 dark:text-emerald-400 font-semibold text-xs">
+              ${remaining.toLocaleString()} left
+            </Text>
+          </View>
+        )}
+      </View>
+
+      <View className="h-2 bg-gray-200 dark:bg-slate-800 rounded-full overflow-hidden">
+        <View
+          className={`h-full ${
+            isOverBudget ? 'bg-red-600' :
+            isNearLimit ? 'bg-amber-500' :
+            'bg-emerald-500'
+          }`}
+          style={{ width: `${Math.min(percentage, 100)}%` }}
+        />
+      </View>
+    </View>
+  );
+}
+```
+
+### Team Hierarchy & Roles
+
+#### Member Role Badge
+```tsx
+const roleColors = {
+  Founder: { bg: 'bg-purple-50 dark:bg-purple-900/20', text: 'text-purple-600 dark:text-purple-400' },
+  FractionalExec: { bg: 'bg-blue-50 dark:bg-blue-900/20', text: 'text-blue-600 dark:text-blue-400' },
+  FullTime: { bg: 'bg-emerald-50 dark:bg-emerald-900/20', text: 'text-emerald-600 dark:text-emerald-400' },
+  Contractor: { bg: 'bg-amber-50 dark:bg-amber-900/20', text: 'text-amber-600 dark:text-amber-400' },
+  Apprentice: { bg: 'bg-gray-100 dark:bg-slate-800', text: 'text-gray-600 dark:text-slate-400' },
+};
+
+export function RoleBadge({ role }: { role: MemberRole }) {
+  const colors = roleColors[role];
+
+  return (
+    <View className={`${colors.bg} px-2 py-1 rounded`}>
+      <Text className={`${colors.text} text-xs font-semibold`}>{role}</Text>
+    </View>
+  );
+}
+```
+
+#### Org Chart Display
+```tsx
+export function OrgChartNode({ member, level = 0 }: { member: Member; level?: number }) {
+  const indentation = level * 24;
+
+  return (
+    <View style={{ marginLeft: indentation }}>
+      <View className="flex-row items-center gap-3 p-3 rounded-lg bg-white dark:bg-slate-900">
+        <View className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 items-center justify-center">
+          <Text className="font-bold text-blue-600 dark:text-blue-400">
+            {member.name.charAt(0)}
+          </Text>
+        </View>
+
+        <View className="flex-1">
+          <Text className="font-semibold">{member.name}</Text>
+          <Text className="text-sm text-gray-600 dark:text-slate-400">{member.function}</Text>
+        </View>
+
+        <RoleBadge role={member.role} />
+      </View>
+
+      {/* Render subordinates recursively */}
+      {member.subordinates?.map(sub => (
+        <OrgChartNode key={sub.id} member={sub} level={level + 1} />
+      ))}
+    </View>
+  );
+}
+```
+
+### Work Plan States
+
+```tsx
+const workPlanStatusColors = {
+  planned: { bg: 'bg-gray-100 dark:bg-slate-800', text: 'text-gray-700 dark:text-slate-300', icon: 'Clock' },
+  active: { bg: 'bg-blue-50 dark:bg-blue-900/20', text: 'text-blue-600 dark:text-blue-400', icon: 'PlayCircle' },
+  completed: { bg: 'bg-emerald-50 dark:bg-emerald-900/20', text: 'text-emerald-600 dark:text-emerald-400', icon: 'CheckCircle' },
+  abandoned: { bg: 'bg-red-50 dark:bg-red-900/20', text: 'text-red-600 dark:text-red-400', icon: 'XCircle' },
+};
+
+export function WorkPlanStatusBadge({ status }: { status: WorkPlanStatus }) {
+  const { bg, text, icon } = workPlanStatusColors[status];
+  const Icon = lucideIcons[icon];
+
+  return (
+    <View className={`${bg} px-3 py-1 rounded-full flex-row items-center gap-1`}>
+      <Icon size={14} className={text} />
+      <Text className={`${text} font-semibold text-xs capitalize`}>{status}</Text>
+    </View>
+  );
+}
+```
 
 ---
 
