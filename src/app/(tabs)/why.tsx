@@ -654,12 +654,12 @@ export default function WhyScreen() {
                     Decided {decision.decidedAt ? new Date(decision.decidedAt).toLocaleDateString() : 'recently'}
                   </Text>
                   {decision.relatedTaskIds && decision.relatedTaskIds.length > 0 && (
-                    <>
+                    <View className="flex-row items-center gap-2">
                       <Text className="text-slate-400 dark:text-slate-600">•</Text>
                       <Text className="text-slate-500 dark:text-slate-400 text-xs">
                         {decision.relatedTaskIds.length} {decision.relatedTaskIds.length === 1 ? 'task' : 'tasks'} created
                       </Text>
-                    </>
+                    </View>
                   )}
                 </View>
               </View>
