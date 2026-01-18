@@ -7,21 +7,15 @@
 
 export async function POST(request: Request) {
   try {
-    // Parse JSON body with audio URI and metadata
+    // Parse JSON body with audio base64 and metadata
     const body = await request.json();
-    const { audioUri, mimeType } = body;
+    const { audioBase64, mimeType } = body;
 
-    if (!audioUri) {
+    if (!audioBase64) {
       return Response.json(
-        { error: 'No audio URI provided' },
+        { error: 'No audio data provided' },
         { status: 400 }
       );
-    }
-
-    // Fetch the audio file from URI
-    const audioResponse = await fetch(audioUri);
-    if (!audioResponse.ok) {
-      throw new Error('Failed to fetch audio file');
     }
 
     // Get API key from environment
@@ -36,22 +30,15 @@ export async function POST(request: Request) {
       );
     }
 
-    // Convert audio file to base64
-    const arrayBuffer = await audioResponse.arrayBuffer();
-    const base64Audio = Buffer.from(arrayBuffer).toString('base64');
+    console.log('[Transcribe] Processing audio:', {
+      type: mimeType,
+      size: audioBase64.length,
+    });
 
     // Determine audio encoding from file type
     const audioEncoding = (mimeType && mimeType.includes('wav'))
       ? 'LINEAR16'
-      : (mimeType && (mimeType.includes('m4a') || mimeType.includes('mp4') || mimeType.includes('caf')))
-      ? 'MP3' // Google accepts MP3 for m4a/mp4/caf files
-      : 'LINEAR16';
-
-    console.log('[Transcribe] Processing audio:', {
-      type: mimeType,
-      size: arrayBuffer.byteLength,
-      encoding: audioEncoding,
-    });
+      : 'MP3'; // Use MP3 for CAF, M4A, MP4 files
 
     // Call Google Cloud Speech-to-Text API
     const response = await fetch(
@@ -70,7 +57,7 @@ export async function POST(request: Request) {
             model: 'default',
           },
           audio: {
-            content: base64Audio,
+            content: audioBase64,
           },
         }),
       }

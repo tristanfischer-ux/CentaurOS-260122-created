@@ -149,6 +149,24 @@ export function VoiceInputButton({
         throw new Error('Failed to get recording URI');
       }
 
+      // Read the audio file as base64
+      console.log('[VoiceInput] Reading audio file...');
+      const response = await fetch(uri);
+      const blob = await response.blob();
+
+      // Convert blob to base64
+      const reader = new FileReader();
+      const base64Audio = await new Promise<string>((resolve, reject) => {
+        reader.onloadend = () => {
+          const base64 = (reader.result as string).split(',')[1]; // Remove data:audio/...;base64, prefix
+          resolve(base64);
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+      });
+
+      console.log('[VoiceInput] Audio converted to base64, size:', base64Audio.length);
+
       // Call transcription API
       console.log('[VoiceInput] Sending audio to transcription API...');
 
@@ -158,14 +176,15 @@ export function VoiceInputButton({
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          audioUri: uri,
+          audioBase64: base64Audio,
           mimeType: 'audio/caf', // iOS recordings are typically CAF format
         }),
       });
 
       if (!transcribeResponse.ok) {
-        const error = await transcribeResponse.json();
-        throw new Error(error.error || 'Transcription failed');
+        const errorData = await transcribeResponse.json();
+        console.error('[VoiceInput] Transcription error:', errorData);
+        throw new Error(errorData.error || 'Transcription failed');
       }
 
       const transcriptionData = await transcribeResponse.json();
