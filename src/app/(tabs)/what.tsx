@@ -52,6 +52,7 @@ import { UnifiedBottomDrawer } from '@/components/UnifiedBottomDrawer';
 import { TaskDraftsReviewModal } from '@/components/TaskDraftsReviewModal';
 import { extractTasksFromText } from '@/lib/ai/task-extraction';
 import { supabase } from '@/lib/supabase';
+import { DebugToast } from '@/components/DebugToast';
 
 interface TaskDraft {
   id: string;
@@ -893,6 +894,9 @@ export default function WhatScreen() {
         onEdit={handleEditDraft}
         onRemove={handleRemoveDraft}
       />
+
+      {/* Debug Toast - Shows logs on screen */}
+      <DebugToast />
     </View>
   );
 }
