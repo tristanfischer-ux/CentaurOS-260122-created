@@ -41,18 +41,33 @@ Centaur OS is a comprehensive iOS mobile application that helps lean companies o
 - `src/lib/state/privacy-store.ts` - Privacy preferences and restricted access management
 - `src/lib/visibility.ts` - Core visibility check functions
 - `src/lib/state/work-plan-store.ts` - Extended with privacy fields and methods
-- WorkPlan interface now includes: `visibility`, `ownerId`, `restrictedCategory`, `sharedWith`
+- `src/components/VisibilitySelector.tsx` - UI for selecting task visibility
+- `src/components/PrivacyBadge.tsx` - Visual privacy indicators
+- `src/components/ShareModal.tsx` - Task sharing interface
+- `src/app/settings/privacy.tsx` - Privacy management screen
+
+**✅ Integrated:**
+- **Decide Tab**: VisibilitySelector in task creation modal - choose privacy level when creating tasks
+- **Do Tab**: PrivacyBadge on all task cards - visual indicators show privacy level at a glance
+- **Settings Tab**: Privacy & Visibility settings - manage defaults and restricted access
+- All UI components functional and ready to use!
 
 **🔧 Founder Controls:**
 - Grant/revoke restricted access to HR, Legal, Executive, Finance categories
 - Option to override privacy (compliance/audit) or respect private tasks (trust model)
 - Full audit logging of privacy-related actions
 
-**📖 Next Steps:**
-- UI components for visibility selector, privacy badges, and share modal
-- Privacy settings screen in Settings tab
-- Integration with task creation and task list screens
-- Database migration for privacy fields
+**📖 How to Use:**
+1. **Create Private Task**: In Decide tab, create task → select "Private" visibility
+2. **View Privacy Badges**: Check Do tab - badges appear on private/shared/restricted tasks
+3. **Manage Settings**: Settings → Privacy & Visibility → configure defaults and access
+4. **Grant Restricted Access**: Founders can grant HR/Legal/Executive access to team members
+
+**🚀 Coming Next:**
+- Share button on task details (ShareModal integration)
+- "My Private Tasks" quick filter
+- Visibility filtering in Evaluate tab
+- Database migration for persistence
 
 ---
 

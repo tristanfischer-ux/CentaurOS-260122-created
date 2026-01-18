@@ -36,6 +36,9 @@ import { filterWorkPlansByRole, filterOKRsByRole } from '@/lib/role-utils';
 import { RoleIndicator } from '@/components/RoleIndicator';
 import { EmptyState } from '@/components/EmptyState';
 import { useTheme } from '@/lib/ThemeContext';
+import { VisibilitySelector } from '@/components/VisibilitySelector';
+import { usePrivacyStore } from '@/lib/state/privacy-store';
+import type { TaskVisibility, RestrictedCategory } from '@/types/privacy';
 
 // Team efficiency types
 
@@ -220,6 +223,11 @@ export default function DecideScreen() {
   const [newOKRFunction, setNewOKRFunction] = useState<BusinessFunction>('Marketing');
   const [newOKROwner, setNewOKROwner] = useState('');
   const [newOKROwnerRole, setNewOKROwnerRole] = useState<'Founder' | 'FractionalExec' | 'Apprentice'>('Founder');
+
+  // Privacy state
+  const defaultVisibility = usePrivacyStore((s) => s.preferences.defaultVisibility);
+  const [taskVisibility, setTaskVisibility] = useState<TaskVisibility>(defaultVisibility);
+  const [taskRestrictedCategory, setTaskRestrictedCategory] = useState<RestrictedCategory>();
 
   // Work plan state
   const [workPlanItems, setWorkPlanItems] = useState<WorkPlanItem[]>([]);
@@ -1524,6 +1532,10 @@ export default function DecideScreen() {
       appliedAITools: [],
       assignedMemberIds: [],
       tusExpended: 0,
+      // Privacy fields
+      visibility: taskVisibility,
+      ownerId: currentMembership?.userId,
+      restrictedCategory: taskVisibility === 'restricted' ? taskRestrictedCategory : undefined,
     };
 
     addWorkPlan(newWorkPlan);
@@ -1537,6 +1549,8 @@ export default function DecideScreen() {
     setWorkPlanItems([]);
     setShowWorkPlanSection(false);
     setSelectedSuggestion(null);
+    setTaskVisibility(defaultVisibility);
+    setTaskRestrictedCategory(undefined);
     setShowCreateModal(false);
 
     Alert.alert('Success', 'Task created successfully! You can now allocate resources to it.');
@@ -2529,6 +2543,17 @@ export default function DecideScreen() {
                       </Text>
                     </Pressable>
                   ))}
+                </View>
+
+                {/* Visibility Selection */}
+                <View className="mb-6">
+                  <VisibilitySelector
+                    value={taskVisibility}
+                    onChange={setTaskVisibility}
+                    onRestrictedCategoryChange={setTaskRestrictedCategory}
+                    restrictedCategory={taskRestrictedCategory}
+                    showRestrictedOptions={currentMembership?.role === 'Founder'}
+                  />
                 </View>
 
                 {/* Work Plan Section */}

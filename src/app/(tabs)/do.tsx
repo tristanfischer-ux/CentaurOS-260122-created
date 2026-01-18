@@ -19,6 +19,8 @@ import { ResourceBar } from '@/components/ResourceBar';
 import { useResourceStore, getTeamSizeEfficiency } from '@/lib/state/resource-store';
 import { useOrganizationStore } from '@/lib/state/organization-store';
 import { UnifiedTaskAllocationModal } from '@/components/UnifiedTaskAllocationModal';
+import { PrivacyBadge } from '@/components/PrivacyBadge';
+import { usePrivacyStore } from '@/lib/state/privacy-store';
 
 const DO_HELP_APPRENTICE: HelpContent = {
   title: 'Task Execution',
@@ -504,9 +506,19 @@ export default function DoScreen() {
           >
             <View className="flex-row items-center justify-between mb-2">
               <View className="flex-1 mr-3">
-                <Text className="text-gray-900 dark:text-white font-bold text-sm">
-                  {plan.title}
-                </Text>
+                <View className="flex-row items-center gap-2 mb-1">
+                  <Text className="text-gray-900 dark:text-white font-bold text-sm flex-shrink">
+                    {plan.title}
+                  </Text>
+                  {/* Privacy Badge */}
+                  {plan.visibility && plan.visibility !== 'company' && usePrivacyStore.getState().preferences.showPrivacyBadges && (
+                    <PrivacyBadge
+                      visibility={plan.visibility}
+                      restrictedCategory={plan.restrictedCategory}
+                      size="small"
+                    />
+                  )}
+                </View>
                 {/* Team Member Avatars */}
                 {assignedMembers.length > 0 && (
                   <View className="flex-row items-center gap-1 mt-1.5">
