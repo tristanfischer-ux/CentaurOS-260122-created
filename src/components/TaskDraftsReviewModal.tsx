@@ -228,8 +228,7 @@ export function TaskDraftsReviewModal({
               {drafts.length > 0 && (
                 <View className="mt-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl p-3">
                   <Text className="text-slate-600 dark:text-slate-400 text-xs leading-relaxed">
-                    <Text className="font-semibold">Note:</Text> Colored dots indicate low AI confidence.
-                    Review and edit those fields if needed.
+                    Note: Colored dots indicate low AI confidence. Review and edit those fields if needed.
                   </Text>
                 </View>
               )}
