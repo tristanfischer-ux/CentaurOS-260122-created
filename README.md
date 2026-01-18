@@ -15,6 +15,20 @@ Centaur OS is a comprehensive iOS mobile application that helps lean companies o
 
 ## 🚀 Latest Updates (Jan 18, 2026)
 
+### 💰 Financial Dashboard Bug Fixes
+
+**Fixed Cash Flow Calculation Issues:**
+- ✅ Fixed runway calculation showing incorrect values (231 months, then 1 month)
+- ✅ Updated Financial tab to use real data from finance store instead of mock INITIAL_DATA
+- ✅ Unified runway calculation logic across Overview and Financial tabs
+- ✅ Added debug logging for financial metrics
+- ✅ Proper handling of edge cases (no burn, no cash, etc.)
+
+**Key Changes:**
+- `src/app/(tabs)/performance.tsx`: Updated to use `realCashBalance` and `realMonthlyRevenue` from finance store
+- Runway formula: `runway = cashBalance / monthlyBurn` (when burn > £100/month)
+- Consistent calculation across all dashboard cards
+
 ### 🔒 Privacy & Visibility System Implemented!
 
 **🎉 What's New:**

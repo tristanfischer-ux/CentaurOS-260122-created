@@ -277,23 +277,33 @@ export default function PerformanceScreen() {
     const weeklyBurn = currentWorkspace ? getWeeklyBurn(currentWorkspace.id) : 0;
     const monthlyRevenue = currentWorkspace ? getMonthlyRevenue(currentWorkspace.id) : 0;
     const monthlyBurn = weeklyBurn * 4.33;
-    const netCashFlow = monthlyRevenue - monthlyBurn;
 
-    // Fix runway calculation: handle edge cases properly
+    // Debug logging for cash flow calculation
+    console.log('[Performance] Cash flow debug:', {
+      cashBalance,
+      weeklyBurn,
+      monthlyBurn,
+      monthlyRevenue,
+      workspaceId: currentWorkspace?.id,
+    });
+
+    // Calculate runway based on actual burn rate
+    // If no recurring burn, runway is infinite
+    // If there's burn, calculate how long current cash will last
     let runway: number;
-    if (netCashFlow >= 0) {
-      // Cash flow positive = infinite runway
+    if (monthlyBurn < 100) {
+      // No meaningful burn = infinite runway
       runway = 999;
     } else if (cashBalance <= 0) {
       // No cash = no runway
       runway = 0;
-    } else if (Math.abs(netCashFlow) < 100) {
-      // Net cash flow too small (< £100/month) = effectively infinite or zero
-      runway = cashBalance > 0 ? 999 : 0;
     } else {
-      // Normal calculation: months of runway
-      runway = cashBalance / Math.abs(netCashFlow);
+      // Calculate months until cash runs out
+      // runway = current cash / monthly burn
+      runway = cashBalance / monthlyBurn;
     }
+
+    const netCashFlow = monthlyRevenue - monthlyBurn;
 
     // OKR progress
     const okrProgress = okrs.length > 0
@@ -376,27 +386,28 @@ export default function PerformanceScreen() {
   const monthlyBurn = totalTeam + totalManufacturing + totalAI + totalInfrastructure +
                       totalMarketing + totalFacilities + totalEquipment + totalInsurance + totalProfessional;
 
-  const netCashFlow = INITIAL_DATA.monthlyRevenue - monthlyBurn;
+  // Use real financial data from finance store instead of INITIAL_DATA
+  const realCashBalance = currentWorkspace ? getCashBalance(currentWorkspace.id) : 0;
+  const realMonthlyRevenue = currentWorkspace ? getMonthlyRevenue(currentWorkspace.id) : 0;
 
-  // Fix runway calculation: handle edge cases properly
+  const netCashFlow = realMonthlyRevenue - monthlyBurn;
+
+  // Calculate runway based on actual burn rate
   let runway: number;
-  if (netCashFlow >= 0) {
-    // Cash flow positive = infinite runway
+  if (monthlyBurn < 100) {
+    // No meaningful burn = infinite runway
     runway = 999;
-  } else if (INITIAL_DATA.cashPosition <= 0) {
+  } else if (realCashBalance <= 0) {
     // No cash = no runway
     runway = 0;
-  } else if (Math.abs(netCashFlow) < 100) {
-    // Net cash flow too small (< £100/month) = effectively infinite or zero
-    runway = INITIAL_DATA.cashPosition > 0 ? 999 : 0;
   } else {
-    // Normal calculation: months of runway
-    runway = INITIAL_DATA.cashPosition / Math.abs(netCashFlow);
+    // Calculate months until cash runs out
+    runway = realCashBalance / monthlyBurn;
   }
 
   // P&L Calculations
   const pnl = useMemo(() => {
-    const revenue = INITIAL_DATA.monthlyRevenue;
+    const revenue = realMonthlyRevenue;
     const cogs = totalManufacturing;
     const grossProfit = revenue - cogs;
     const grossMargin = revenue > 0 ? (grossProfit / revenue) * 100 : 0;
@@ -413,7 +424,7 @@ export default function PerformanceScreen() {
     const netMargin = revenue > 0 ? (netIncome / revenue) * 100 : 0;
 
     return { revenue, cogs, grossProfit, grossMargin, operatingExpenses, ebitda, ebitdaMargin, depreciation, ebit, netIncome, netMargin };
-  }, [totalManufacturing, totalTeam, totalAI, totalInfrastructure, totalMarketing, totalFacilities, totalEquipment, totalInsurance, totalProfessional]);
+  }, [realMonthlyRevenue, totalManufacturing, totalTeam, totalAI, totalInfrastructure, totalMarketing, totalFacilities, totalEquipment, totalInsurance, totalProfessional]);
 
   // Health Indicators
   const healthIndicators = useMemo((): HealthIndicator[] => {
@@ -932,7 +943,7 @@ export default function PerformanceScreen() {
                 <View className="flex-row justify-between mb-3">
                   <View className="flex-1">
                     <Text className="text-white/60 text-xs mb-1">Cash Position</Text>
-                    <Text className="text-white text-xl font-bold">£{(INITIAL_DATA.cashPosition / 1000).toFixed(0)}K</Text>
+                    <Text className="text-white text-xl font-bold">£{(realCashBalance / 1000).toFixed(0)}K</Text>
                   </View>
                   <View className="flex-1">
                     <Text className="text-white/60 text-xs mb-1">Runway</Text>
@@ -1075,8 +1086,8 @@ export default function PerformanceScreen() {
                     </View>
                     <View className="flex-row justify-between">
                       <Text className="text-slate-600 dark:text-slate-400 text-sm">New Net Cash Flow</Text>
-                      <Text className={cn('font-bold', INITIAL_DATA.monthlyRevenue - (monthlyBurn * 0.8) >= 0 ? 'text-emerald-600' : 'text-red-500')}>
-                        {INITIAL_DATA.monthlyRevenue - (monthlyBurn * 0.8) >= 0 ? '+' : ''}£{((INITIAL_DATA.monthlyRevenue - (monthlyBurn * 0.8)) / 1000).toFixed(0)}K
+                      <Text className={cn('font-bold', realMonthlyRevenue - (monthlyBurn * 0.8) >= 0 ? 'text-emerald-600' : 'text-red-500')}>
+                        {realMonthlyRevenue - (monthlyBurn * 0.8) >= 0 ? '+' : ''}£{((realMonthlyRevenue - (monthlyBurn * 0.8)) / 1000).toFixed(0)}K
                       </Text>
                     </View>
                   </View>
@@ -1086,11 +1097,11 @@ export default function PerformanceScreen() {
                   <View className="bg-white dark:bg-slate-900 rounded-lg p-3">
                     <View className="flex-row justify-between mb-2">
                       <Text className="text-slate-600 dark:text-slate-400 text-sm">New Revenue</Text>
-                      <Text className="text-slate-900 dark:text-white font-bold">£{((INITIAL_DATA.monthlyRevenue * 1.3) / 1000).toFixed(0)}K</Text>
+                      <Text className="text-slate-900 dark:text-white font-bold">£{((realMonthlyRevenue * 1.3) / 1000).toFixed(0)}K</Text>
                     </View>
                     <View className="flex-row justify-between">
                       <Text className="text-slate-600 dark:text-slate-400 text-sm">New Net Cash Flow</Text>
-                      <Text className="text-emerald-600 dark:text-emerald-400 font-bold">+£{(((INITIAL_DATA.monthlyRevenue * 1.3) - monthlyBurn) / 1000).toFixed(0)}K</Text>
+                      <Text className="text-emerald-600 dark:text-emerald-400 font-bold">+£{(((realMonthlyRevenue * 1.3) - monthlyBurn) / 1000).toFixed(0)}K</Text>
                     </View>
                   </View>
                 </View>
