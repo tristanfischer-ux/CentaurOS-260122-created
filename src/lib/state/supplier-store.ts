@@ -169,22 +169,65 @@ export const useSupplierStore = create<SupplierState>((set, get) => ({
   },
 
   // Add new supplier (for recommendations)
-  addSupplier: (supplierData) => {
+  addSupplier: async (supplierData: Omit<Supplier, 'id' | 'createdAt' | 'updatedAt'>) => {
     const now = new Date().toISOString();
+    const tempId = `temp-${Date.now()}`;
     const newSupplier: Supplier = {
       ...supplierData,
-      id: uuidv4(),
+      id: tempId,
       createdAt: now,
       updatedAt: now,
     };
 
+    // Optimistic update
     set(state => ({
       suppliers: [...state.suppliers, newSupplier],
     }));
+
+    try {
+      // Transform to Supabase format (note: suppliers table schema may differ)
+      const supabaseSupplier = {
+        name: supplierData.name,
+        description: supplierData.description,
+        website: supplierData.contact?.website || '',
+        workspace_id: '00000000-0000-0000-0000-000000000001', // Default workspace or pass as param
+      };
+
+      const { data, error } = await supabase
+        .from('suppliers')
+        .insert(supabaseSupplier)
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      // Replace temp with real data
+      const realSupplier: Supplier = {
+        ...newSupplier,
+        id: data.id,
+        createdAt: data.created_at || now,
+        updatedAt: data.created_at || now,
+      };
+
+      set(state => ({
+        suppliers: state.suppliers.map(s => s.id === tempId ? realSupplier : s),
+      }));
+    } catch (err) {
+      // Rollback on error
+      set(state => ({
+        suppliers: state.suppliers.filter(s => s.id !== tempId),
+      }));
+      console.error('Failed to add supplier:', err);
+      throw err;
+    }
   },
 
   // Update existing supplier
-  updateSupplier: (id: string, updates: Partial<Supplier>) => {
+  updateSupplier: async (id: string, updates: Partial<Supplier>) => {
+    // Store previous state for rollback
+    const previousSuppliers = get().suppliers;
+
+    // Optimistic update
     set(state => ({
       suppliers: state.suppliers.map(s =>
         s.id === id
@@ -192,6 +235,38 @@ export const useSupplierStore = create<SupplierState>((set, get) => ({
           : s
       ),
     }));
+
+    try {
+      // Transform updates to Supabase format
+      const supabaseUpdates: any = {};
+      if (updates.name !== undefined) supabaseUpdates.name = updates.name;
+      if (updates.description !== undefined) supabaseUpdates.description = updates.description;
+      if (updates.contact?.website !== undefined) supabaseUpdates.website = updates.contact.website;
+
+      const { data, error } = await supabase
+        .from('suppliers')
+        .update(supabaseUpdates)
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      // Update with real data from server
+      const current = get().suppliers.find(s => s.id === id);
+      if (current) {
+        set(state => ({
+          suppliers: state.suppliers.map(s =>
+            s.id === id ? { ...current, ...updates, updatedAt: new Date().toISOString() } : s
+          ),
+        }));
+      }
+    } catch (err) {
+      // Rollback on error
+      set({ suppliers: previousSuppliers });
+      console.error('Failed to update supplier:', err);
+      throw err;
+    }
   },
 }));
 

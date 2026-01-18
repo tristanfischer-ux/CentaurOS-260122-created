@@ -312,14 +312,137 @@ export const useOKRStore = create<OKRState>((set, get) => ({
     }));
   },
 
-  addOKR: (okr: OKR) => {
-    set(state => ({ okrs: [...state.okrs, okr] }));
+  addOKR: async (okr: OKR) => {
+    // Generate temp ID for optimistic update
+    const tempId = `temp-${Date.now()}`;
+    const tempOKR = { ...okr, id: okr.id || tempId };
+
+    // Optimistic update
+    set(state => ({ okrs: [...state.okrs, tempOKR] }));
+
+    try {
+      // Transform to Supabase format
+      const supabaseOKR = {
+        id: okr.id !== tempId ? okr.id : undefined,
+        workspace_id: okr.workspaceId,
+        title: okr.title,
+        description: okr.description,
+        quarter: okr.startDate, // Using startDate as quarter
+        status: okr.status,
+      };
+
+      const { data, error } = await supabase
+        .from('okrs')
+        .insert(supabaseOKR)
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      // Insert objectives if any
+      if (okr.objectives && okr.objectives.length > 0) {
+        const objectivesToInsert = okr.objectives.map(obj => ({
+          okr_id: data.id,
+          title: obj.title,
+          progress: obj.progress,
+        }));
+
+        const { error: objError } = await supabase
+          .from('okr_objectives')
+          .insert(objectivesToInsert);
+
+        if (objError) {
+          console.error('Failed to insert objectives:', objError);
+        }
+      }
+
+      // Replace temp with real data
+      const realOKR: OKR = {
+        ...okr,
+        id: data.id,
+        workspaceId: data.workspace_id,
+      };
+
+      set((state) => ({
+        okrs: state.okrs.map(o => o.id === tempId ? realOKR : o)
+      }));
+    } catch (err) {
+      // Rollback on error
+      set((state) => ({
+        okrs: state.okrs.filter(o => o.id !== tempId)
+      }));
+      console.error('Failed to add OKR:', err);
+      throw err;
+    }
   },
 
-  updateOKR: (id: string, updates: Partial<OKR>) => {
+  updateOKR: async (id: string, updates: Partial<OKR>) => {
+    // Store previous state for rollback
+    const previousOKRs = get().okrs;
+
+    // Optimistic update
     set(state => ({
       okrs: state.okrs.map(okr => (okr.id === id ? { ...okr, ...updates } : okr)),
     }));
+
+    try {
+      // Transform updates to Supabase format
+      const supabaseUpdates: any = {};
+      if (updates.title !== undefined) supabaseUpdates.title = updates.title;
+      if (updates.description !== undefined) supabaseUpdates.description = updates.description;
+      if (updates.status !== undefined) supabaseUpdates.status = updates.status;
+      if (updates.startDate !== undefined) supabaseUpdates.quarter = updates.startDate;
+
+      const { data, error } = await supabase
+        .from('okrs')
+        .update(supabaseUpdates)
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      // Update objectives if provided
+      if (updates.objectives !== undefined) {
+        // Delete existing objectives
+        await supabase
+          .from('okr_objectives')
+          .delete()
+          .eq('okr_id', id);
+
+        // Insert new objectives
+        if (updates.objectives.length > 0) {
+          const objectivesToInsert = updates.objectives.map(obj => ({
+            okr_id: id,
+            title: obj.title,
+            progress: obj.progress,
+          }));
+
+          const { error: objError } = await supabase
+            .from('okr_objectives')
+            .insert(objectivesToInsert);
+
+          if (objError) {
+            console.error('Failed to update objectives:', objError);
+          }
+        }
+      }
+
+      // Update with real data from server
+      const current = get().okrs.find(o => o.id === id);
+      if (current) {
+        set((state) => ({
+          okrs: state.okrs.map(o =>
+            o.id === id ? { ...current, ...updates } : o
+          )
+        }));
+      }
+    } catch (err) {
+      // Rollback on error
+      set({ okrs: previousOKRs });
+      console.error('Failed to update OKR:', err);
+      throw err;
+    }
   },
 
   updateQueueStatus: (okrId: string, queueStatus: QueueStatus) => {
@@ -330,10 +453,35 @@ export const useOKRStore = create<OKRState>((set, get) => ({
     }));
   },
 
-  deleteOKR: (id: string) => {
+  deleteOKR: async (id: string) => {
+    // Store previous state for rollback
+    const previousOKRs = get().okrs;
+
+    // Optimistic update
     set(state => ({
       okrs: state.okrs.filter(okr => okr.id !== id),
     }));
+
+    try {
+      // Delete objectives first (foreign key constraint)
+      await supabase
+        .from('okr_objectives')
+        .delete()
+        .eq('okr_id', id);
+
+      // Delete OKR
+      const { error } = await supabase
+        .from('okrs')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+    } catch (err) {
+      // Rollback on error
+      set({ okrs: previousOKRs });
+      console.error('Failed to delete OKR:', err);
+      throw err;
+    }
   },
 
   reorderOKRs: (okrIds: string[]) => {

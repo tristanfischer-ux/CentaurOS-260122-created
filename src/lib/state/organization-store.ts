@@ -192,22 +192,139 @@ export const useOrganizationStore = create<OrganizationState>((set, get) => ({
     return get().members.filter(m => m.function === func && m.status === 'active');
   },
 
-  addMember: (member: OrganizationMember) => {
+  addMember: async (member: OrganizationMember) => {
+    // Generate temp ID for optimistic update
+    const tempId = `temp-${Date.now()}`;
+    const tempMember = { ...member, id: member.id || tempId };
+
+    // Optimistic update
     set((state) => ({
-      members: [...state.members, member]
+      members: [...state.members, tempMember]
     }));
+
+    try {
+      // Transform to Supabase format
+      const supabaseMember = {
+        id: member.id !== tempId ? member.id : undefined,
+        workspace_id: member.workspaceId,
+        name: member.name,
+        role: member.role,
+        function: member.function,
+        status: member.status,
+        days_per_week: member.daysPerWeek,
+        cost_per_day: member.costPerDay,
+      };
+
+      const { data, error } = await supabase
+        .from('members')
+        .insert(supabaseMember)
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      // Replace temp with real data
+      const realMember: OrganizationMember = {
+        id: data.id,
+        workspaceId: data.workspace_id,
+        name: data.name,
+        role: data.role,
+        function: data.function || 'General',
+        status: data.status,
+        daysPerWeek: data.days_per_week,
+        costPerDay: data.cost_per_day,
+        email: '',
+        startDate: data.created_at || new Date().toISOString(),
+      };
+
+      set((state) => ({
+        members: state.members.map(m => m.id === tempId ? realMember : m)
+      }));
+    } catch (err) {
+      // Rollback on error
+      set((state) => ({
+        members: state.members.filter(m => m.id !== tempId)
+      }));
+      console.error('Failed to add member:', err);
+      throw err;
+    }
   },
 
-  updateMember: (id: string, updates: Partial<OrganizationMember>) => {
+  updateMember: async (id: string, updates: Partial<OrganizationMember>) => {
+    // Store previous state for rollback
+    const previousMembers = get().members;
+
+    // Optimistic update
     set((state) => ({
       members: state.members.map(m => m.id === id ? { ...m, ...updates } : m)
     }));
+
+    try {
+      // Transform updates to Supabase format
+      const supabaseUpdates: any = {};
+      if (updates.name !== undefined) supabaseUpdates.name = updates.name;
+      if (updates.role !== undefined) supabaseUpdates.role = updates.role;
+      if (updates.function !== undefined) supabaseUpdates.function = updates.function;
+      if (updates.status !== undefined) supabaseUpdates.status = updates.status;
+      if (updates.daysPerWeek !== undefined) supabaseUpdates.days_per_week = updates.daysPerWeek;
+      if (updates.costPerDay !== undefined) supabaseUpdates.cost_per_day = updates.costPerDay;
+
+      const { data, error } = await supabase
+        .from('members')
+        .update(supabaseUpdates)
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      // Update with real data from server
+      const updatedMember: OrganizationMember = {
+        id: data.id,
+        workspaceId: data.workspace_id,
+        name: data.name,
+        role: data.role,
+        function: data.function || 'General',
+        status: data.status,
+        daysPerWeek: data.days_per_week,
+        costPerDay: data.cost_per_day,
+        email: '',
+        startDate: data.created_at || new Date().toISOString(),
+      };
+
+      set((state) => ({
+        members: state.members.map(m => m.id === id ? updatedMember : m)
+      }));
+    } catch (err) {
+      // Rollback on error
+      set({ members: previousMembers });
+      console.error('Failed to update member:', err);
+      throw err;
+    }
   },
 
-  removeMember: (id: string) => {
+  removeMember: async (id: string) => {
+    // Store previous state for rollback
+    const previousMembers = get().members;
+
+    // Optimistic update
     set((state) => ({
       members: state.members.filter(m => m.id !== id)
     }));
+
+    try {
+      const { error } = await supabase
+        .from('members')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+    } catch (err) {
+      // Rollback on error
+      set({ members: previousMembers });
+      console.error('Failed to remove member:', err);
+      throw err;
+    }
   },
 
   // AI Agent methods
@@ -242,12 +359,60 @@ export const useOrganizationStore = create<OrganizationState>((set, get) => ({
     return get().supplierEngagements.filter(e => e.assignedTo === assignedTo);
   },
 
-  updateSupplierEngagement: (id: string, updates: Partial<SupplierEngagement>) => {
+  updateSupplierEngagement: async (id: string, updates: Partial<SupplierEngagement>) => {
+    // Store previous state for rollback
+    const previousEngagements = get().supplierEngagements;
+
+    // Optimistic update
     set((state) => ({
       supplierEngagements: state.supplierEngagements.map(e =>
         e.id === id ? { ...e, ...updates } : e
       )
     }));
+
+    try {
+      // Transform updates to Supabase format
+      const supabaseUpdates: any = {};
+      if (updates.status !== undefined) {
+        // Map status to Supabase schema
+        const statusMap: Record<string, string> = {
+          'delivered': 'completed',
+          'in_progress': 'active',
+          'planning': 'pending',
+          'cancelled': 'cancelled',
+        };
+        supabaseUpdates.status = statusMap[updates.status] || updates.status;
+      }
+      if (updates.totalCost !== undefined) supabaseUpdates.contract_value = updates.totalCost;
+      if (updates.paidToDate !== undefined) supabaseUpdates.paid_to_date = updates.paidToDate;
+      if (updates.startDate !== undefined) supabaseUpdates.start_date = updates.startDate;
+      if (updates.deliveryDate !== undefined) supabaseUpdates.end_date = updates.deliveryDate;
+      if (updates.category !== undefined) supabaseUpdates.category = updates.category;
+
+      const { data, error } = await supabase
+        .from('supplier_engagements')
+        .update(supabaseUpdates)
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      // Update with real data from server
+      const current = get().supplierEngagements.find(e => e.id === id);
+      if (current) {
+        set((state) => ({
+          supplierEngagements: state.supplierEngagements.map(e =>
+            e.id === id ? { ...current, ...updates } : e
+          )
+        }));
+      }
+    } catch (err) {
+      // Rollback on error
+      set({ supplierEngagements: previousEngagements });
+      console.error('Failed to update supplier engagement:', err);
+      throw err;
+    }
   },
 
   linkWorkPlanToSupplier: (engagementId: string, workPlanId: string) => {

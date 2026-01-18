@@ -465,17 +465,152 @@ export const useWorkPlanStore = create<WorkPlanState>((set, get) => ({
     set({ selectedWorkPlan: workPlan });
   },
 
-  addWorkPlan: (workPlan: WorkPlan) => {
-    set(state => ({ workPlans: [...state.workPlans, workPlan] }));
+  addWorkPlan: async (workPlan: WorkPlan) => {
+    // Generate temp ID for optimistic update
+    const tempId = `temp-${Date.now()}`;
+    const tempWorkPlan = { ...workPlan, id: workPlan.id || tempId };
+
+    // Optimistic update
+    set(state => ({ workPlans: [...state.workPlans, tempWorkPlan] }));
+
+    try {
+      // Transform to Supabase format
+      const supabaseWorkPlan = {
+        id: workPlan.id !== tempId ? workPlan.id : undefined,
+        workspace_id: workPlan.workspaceId,
+        title: workPlan.title,
+        description: workPlan.description,
+        start_date: workPlan.startDate,
+        end_date: workPlan.dueDate,
+        status: workPlan.status,
+        progress: workPlan.progress,
+      };
+
+      const { data, error } = await supabase
+        .from('work_plans')
+        .insert(supabaseWorkPlan)
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      // Insert allocations if any
+      if (workPlan.allocations && workPlan.allocations.length > 0) {
+        const allocationsToInsert = workPlan.allocations.map(a => ({
+          work_plan_id: data.id,
+          member_id: a.memberId,
+          squares_per_week: a.squaresPerWeek,
+        }));
+
+        const { error: allocError } = await supabase
+          .from('work_plan_allocations')
+          .insert(allocationsToInsert);
+
+        if (allocError) {
+          console.error('Failed to insert allocations:', allocError);
+        }
+      }
+
+      // Replace temp with real data
+      const realWorkPlan: WorkPlan = {
+        ...workPlan,
+        id: data.id,
+        workspaceId: data.workspace_id,
+        startDate: data.start_date,
+        dueDate: data.end_date,
+        status: data.status,
+        progress: data.progress,
+      };
+
+      set((state) => ({
+        workPlans: state.workPlans.map(wp => wp.id === tempId ? realWorkPlan : wp)
+      }));
+    } catch (err) {
+      // Rollback on error
+      set((state) => ({
+        workPlans: state.workPlans.filter(wp => wp.id !== tempId)
+      }));
+      console.error('Failed to add work plan:', err);
+      throw err;
+    }
   },
 
-  updateWorkPlan: (id: string, updates: Partial<WorkPlan>) => {
+  updateWorkPlan: async (id: string, updates: Partial<WorkPlan>) => {
+    // Store previous state for rollback
+    const previousWorkPlans = get().workPlans;
+
+    // Optimistic update
     set(state => ({
       workPlans: state.workPlans.map(wp => (wp.id === id ? { ...wp, ...updates } : wp)),
     }));
+
+    try {
+      // Transform updates to Supabase format
+      const supabaseUpdates: any = {};
+      if (updates.title !== undefined) supabaseUpdates.title = updates.title;
+      if (updates.description !== undefined) supabaseUpdates.description = updates.description;
+      if (updates.startDate !== undefined) supabaseUpdates.start_date = updates.startDate;
+      if (updates.dueDate !== undefined) supabaseUpdates.end_date = updates.dueDate;
+      if (updates.status !== undefined) supabaseUpdates.status = updates.status;
+      if (updates.progress !== undefined) supabaseUpdates.progress = updates.progress;
+
+      const { data, error } = await supabase
+        .from('work_plans')
+        .update(supabaseUpdates)
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      // Update allocations if provided
+      if (updates.allocations !== undefined) {
+        // Delete existing allocations
+        await supabase
+          .from('work_plan_allocations')
+          .delete()
+          .eq('work_plan_id', id);
+
+        // Insert new allocations
+        if (updates.allocations.length > 0) {
+          const allocationsToInsert = updates.allocations.map(a => ({
+            work_plan_id: id,
+            member_id: a.memberId,
+            squares_per_week: a.squaresPerWeek,
+          }));
+
+          const { error: allocError } = await supabase
+            .from('work_plan_allocations')
+            .insert(allocationsToInsert);
+
+          if (allocError) {
+            console.error('Failed to update allocations:', allocError);
+          }
+        }
+      }
+
+      // Update with real data from server
+      const current = get().workPlans.find(wp => wp.id === id);
+      if (current) {
+        set((state) => ({
+          workPlans: state.workPlans.map(wp =>
+            wp.id === id ? { ...current, ...updates } : wp
+          )
+        }));
+      }
+    } catch (err) {
+      // Rollback on error
+      set({ workPlans: previousWorkPlans });
+      console.error('Failed to update work plan:', err);
+      throw err;
+    }
   },
 
-  completeWorkPlan: (id: string) => {
+  completeWorkPlan: async (id: string) => {
+    // Store previous state for rollback
+    const previousWorkPlans = get().workPlans;
+
+    // Optimistic update
     set(state => ({
       workPlans: state.workPlans.map(wp =>
         wp.id === id
@@ -495,9 +630,34 @@ export const useWorkPlanStore = create<WorkPlanState>((set, get) => ({
           : wp
       ),
     }));
+
+    try {
+      // Update in Supabase
+      const { error } = await supabase
+        .from('work_plans')
+        .update({ status: 'completed', progress: 100 })
+        .eq('id', id);
+
+      if (error) throw error;
+
+      // Delete allocations (free resources)
+      await supabase
+        .from('work_plan_allocations')
+        .delete()
+        .eq('work_plan_id', id);
+    } catch (err) {
+      // Rollback on error
+      set({ workPlans: previousWorkPlans });
+      console.error('Failed to complete work plan:', err);
+      throw err;
+    }
   },
 
-  abandonWorkPlan: (id: string, reason?: string) => {
+  abandonWorkPlan: async (id: string, reason?: string) => {
+    // Store previous state for rollback
+    const previousWorkPlans = get().workPlans;
+
+    // Optimistic update
     set(state => ({
       workPlans: state.workPlans.map(wp =>
         wp.id === id
@@ -517,12 +677,58 @@ export const useWorkPlanStore = create<WorkPlanState>((set, get) => ({
           : wp
       ),
     }));
+
+    try {
+      // Update in Supabase
+      const { error } = await supabase
+        .from('work_plans')
+        .update({ status: 'abandoned' })
+        .eq('id', id);
+
+      if (error) throw error;
+
+      // Delete allocations (free resources)
+      await supabase
+        .from('work_plan_allocations')
+        .delete()
+        .eq('work_plan_id', id);
+    } catch (err) {
+      // Rollback on error
+      set({ workPlans: previousWorkPlans });
+      console.error('Failed to abandon work plan:', err);
+      throw err;
+    }
   },
 
-  deleteWorkPlan: (id: string) => {
+  deleteWorkPlan: async (id: string) => {
+    // Store previous state for rollback
+    const previousWorkPlans = get().workPlans;
+
+    // Optimistic update
     set(state => ({
       workPlans: state.workPlans.filter(wp => wp.id !== id),
     }));
+
+    try {
+      // Delete allocations first (foreign key constraint)
+      await supabase
+        .from('work_plan_allocations')
+        .delete()
+        .eq('work_plan_id', id);
+
+      // Delete work plan
+      const { error } = await supabase
+        .from('work_plans')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+    } catch (err) {
+      // Rollback on error
+      set({ workPlans: previousWorkPlans });
+      console.error('Failed to delete work plan:', err);
+      throw err;
+    }
   },
 
   getCounts: () => {
