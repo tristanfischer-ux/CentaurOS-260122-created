@@ -813,8 +813,11 @@ export function UnifiedTaskAllocationModal({ visible, onClose, workPlan }: Props
                     <View className="bg-blue-50 dark:bg-blue-900/10 rounded-lg p-3 mb-3">
                       <View className="flex-row items-center">
                         <Zap size={14} color="#3b82f6" />
-                        <Text className="text-blue-700 dark:text-blue-300 text-xs ml-1">
-                          This is a <Text className="font-bold">{workPlan.function}</Text> task. Tap any team member below to allocate their TUs. Members with <Text className="font-bold">FIT</Text> badge work at full efficiency. Others get 50% penalty.
+                        <Text className="text-blue-700 dark:text-blue-300 text-xs ml-1 flex-1">
+                          This is a <Text className="font-bold">{workPlan.function}</Text> task{'. '}
+                          Tap any team member below to allocate their TUs{'. '}
+                          Members with <Text className="font-bold">FIT</Text> badge work at full efficiency{'. '}
+                          Others get 50% penalty.
                         </Text>
                       </View>
                     </View>
