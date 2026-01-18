@@ -151,6 +151,15 @@ export default function WhatScreen() {
     console.log('[What Tab] voiceTranscript:', voiceTranscript);
   }, [showVoiceTranscript, voiceTranscript]);
 
+  // Debug: Log when drafts review modal changes
+  useEffect(() => {
+    console.log('[What Tab] showDraftsReview changed:', showDraftsReview);
+    console.log('[What Tab] taskDrafts count:', taskDrafts.length);
+    if (taskDrafts.length > 0) {
+      console.log('[What Tab] First draft:', taskDrafts[0]);
+    }
+  }, [showDraftsReview, taskDrafts]);
+
   // Create task form state
   const [newTaskTitle, setNewTaskTitle] = useState('');
   const [newTaskFunction, setNewTaskFunction] = useState<BusinessFunction>('Engineering');
