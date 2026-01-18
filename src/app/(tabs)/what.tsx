@@ -280,16 +280,29 @@ export default function WhatScreen() {
   };
 
   const handleProcessVoiceTranscript = async () => {
+    console.log('[What Tab] handleProcessVoiceTranscript called');
+    console.log('[What Tab] voiceTranscript:', voiceTranscript);
+    console.log('[What Tab] voiceTranscript.trim():', voiceTranscript?.trim());
+    console.log('[What Tab] currentWorkspace:', currentWorkspace);
+    console.log('[What Tab] currentMembership:', currentMembership);
+
     if (!voiceTranscript.trim() || !currentWorkspace || !currentMembership) {
-      console.error('[What Tab] Missing required data:', {
-        hasTranscript: !!voiceTranscript.trim(),
-        hasWorkspace: !!currentWorkspace,
-        hasMembership: !!currentMembership,
-      });
+      console.error('[What Tab] Missing required data!');
+      console.error('[What Tab] hasTranscript:', !!voiceTranscript.trim(), 'length:', voiceTranscript.length);
+      console.error('[What Tab] hasWorkspace:', !!currentWorkspace, 'id:', currentWorkspace?.id);
+      console.error('[What Tab] hasMembership:', !!currentMembership, 'id:', currentMembership?.id);
+
+      if (!voiceTranscript.trim()) {
+        alert('No transcript text found. Please try again.');
+      } else if (!currentWorkspace) {
+        alert('No workspace found. Please refresh the app.');
+      } else if (!currentMembership) {
+        alert('No membership found. Please refresh the app.');
+      }
       return;
     }
 
-    console.log('[What Tab] Processing voice transcript:', voiceTranscript);
+    console.log('[What Tab] All data present, processing voice transcript:', voiceTranscript);
     console.log('[What Tab] Current workspace:', currentWorkspace?.id);
     console.log('[What Tab] Current membership:', currentMembership?.id);
     setIsProcessingTranscript(true);
