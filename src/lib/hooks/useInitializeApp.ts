@@ -47,12 +47,24 @@ export function useInitializeApp() {
         await initialize();
 
         // Check if user is authenticated
-        const { data: { session } } = await supabase.auth.getSession();
+        let session = null;
+        try {
+          const result = await supabase.auth.getSession();
+          session = result.data?.session || null;
+        } catch (error) {
+          console.warn('[Init] Failed to get session from Supabase:', error);
+          // Continue without session
+        }
 
         // NEW: Load universal data from Supabase (AI tools, templates, etc.)
         // This is loaded once at app start for all users
         console.log('[Init] Loading universal data from Supabase...');
-        await loadUniversalData();
+        try {
+          await loadUniversalData();
+        } catch (error) {
+          console.warn('[Init] Failed to load universal data from Supabase, continuing without it:', error);
+          // Continue initialization even if Supabase data fails
+        }
 
         // If user is authenticated, load their financial data
         if (session?.user) {
@@ -63,7 +75,12 @@ export function useInitializeApp() {
           const currentWorkspaceId = useAppStore.getState().currentWorkspaceId;
           if (currentWorkspaceId) {
             console.log('[Init] Loading financial data for workspace:', currentWorkspaceId);
-            await loadFinancialData(currentWorkspaceId);
+            try {
+              await loadFinancialData(currentWorkspaceId);
+            } catch (error) {
+              console.warn('[Init] Failed to load financial data from Supabase, continuing without it:', error);
+              // Continue initialization even if financial data fails
+            }
           }
         }
 
