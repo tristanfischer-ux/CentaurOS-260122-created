@@ -49,6 +49,7 @@ import { CompanyAimModal } from '@/components/CompanyAimModal';
 import { BusinessImprovements } from '@/components/BusinessImprovements';
 import { filterOKRsByRole } from '@/lib/role-utils';
 import { RoleIndicator } from '@/components/RoleIndicator';
+import { VoiceInputButton } from '@/components/VoiceInputButton';
 
 const WHY_HELP: HelpContent = {
   title: 'Strategic Planning',
@@ -106,6 +107,8 @@ export default function WhyScreen() {
   const [showCreateOKRModal, setShowCreateOKRModal] = useState(false);
   const [expandedOKRs, setExpandedOKRs] = useState<Set<string>>(new Set());
   const [selectedFunction, setSelectedFunction] = useState<BusinessFunction | 'all'>('all');
+  const [showVoiceBrainstorm, setShowVoiceBrainstorm] = useState(false);
+  const [voiceBrainstormText, setVoiceBrainstormText] = useState('');
 
   // OKR form state
   const [newOKRTitle, setNewOKRTitle] = useState('');
@@ -250,6 +253,21 @@ export default function WhyScreen() {
     addOKR(newOKR);
     setNewOKRTitle('');
     setShowCreateOKRModal(false);
+  };
+
+  // Handle voice brainstorming
+  const handleVoiceBrainstorm = (transcript: string) => {
+    console.log('[Why Tab] Voice brainstorm received:', transcript);
+    setVoiceBrainstormText(transcript);
+    setShowVoiceBrainstorm(true);
+    // TODO: Send to /api/why/session to start brainstorming
+  };
+
+  const handleStartBrainstorm = () => {
+    // TODO: Call /api/why/session with voiceBrainstormText as initialPrompt
+    console.log('[Why Tab] Starting brainstorm session with:', voiceBrainstormText);
+    setShowVoiceBrainstorm(false);
+    setVoiceBrainstormText('');
   };
 
   // OKR Card component
@@ -759,6 +777,81 @@ export default function WhyScreen() {
           <BusinessImprovements />
         </View>
       </ScrollView>
+
+      {/* Voice Brainstorm Modal */}
+      <Modal
+        visible={showVoiceBrainstorm}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setShowVoiceBrainstorm(false)}
+      >
+        <Pressable className="flex-1 bg-black/70" onPress={() => setShowVoiceBrainstorm(false)}>
+          <View className="flex-1" />
+          <Pressable onPress={(e) => e.stopPropagation()} style={{ maxHeight: '70%' }}>
+            <View className="bg-white dark:bg-slate-900 rounded-t-3xl">
+              <View className="flex-row items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-slate-800">
+                <Text className="text-slate-900 dark:text-white font-bold text-xl">Start Brainstorming</Text>
+                <Pressable onPress={() => setShowVoiceBrainstorm(false)} className="p-2">
+                  <X size={24} color="#64748b" />
+                </Pressable>
+              </View>
+
+              <ScrollView
+                className="px-6 py-4"
+                contentContainerStyle={{ flexGrow: 1, paddingBottom: 40 }}
+              >
+                <View className="bg-purple-50 dark:bg-purple-900/20 rounded-xl p-4 mb-4">
+                  <Text className="text-slate-900 dark:text-white text-base leading-relaxed">
+                    {voiceBrainstormText}
+                  </Text>
+                </View>
+
+                <View className="flex-row items-start gap-3 mb-4 bg-slate-50 dark:bg-slate-800 rounded-xl p-4">
+                  <Lightbulb size={20} color="#8b5cf6" />
+                  <Text className="flex-1 text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
+                    The AI will start a strategic brainstorming conversation with you based on this input.
+                    It will ask clarifying questions to help define objectives and create actionable tasks.
+                  </Text>
+                </View>
+
+                <View className="flex-row gap-3">
+                  <Pressable
+                    onPress={() => setShowVoiceBrainstorm(false)}
+                    className="flex-1 bg-slate-200 dark:bg-slate-700 py-4 rounded-xl items-center"
+                  >
+                    <Text className="text-slate-700 dark:text-slate-300 font-semibold">Cancel</Text>
+                  </Pressable>
+                  <Pressable
+                    onPress={handleStartBrainstorm}
+                    className="flex-1 bg-purple-500 py-4 rounded-xl items-center"
+                  >
+                    <Text className="text-white font-semibold">Start Session</Text>
+                  </Pressable>
+                </View>
+              </ScrollView>
+            </View>
+          </Pressable>
+        </Pressable>
+      </Modal>
+
+      {/* Floating Voice Input Button */}
+      <View
+        className="absolute bottom-24 right-6"
+        style={{
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: 4 },
+          shadowOpacity: 0.3,
+          shadowRadius: 8,
+          elevation: 8,
+        }}
+      >
+        <VoiceInputButton
+          onTranscriptComplete={handleVoiceBrainstorm}
+          onError={(error) => console.error('[Why Tab] Voice error:', error)}
+          color="#8b5cf6"
+          size={64}
+        />
+      </View>
     </View>
   );
 }

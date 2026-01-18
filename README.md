@@ -15,6 +15,35 @@ Centaur OS is a comprehensive iOS mobile application that helps lean companies o
 
 ## 🚀 Latest Updates (Jan 18, 2026)
 
+### 🎤 Voice Input Added to WHAT & WHY Tabs!
+
+**New Voice Recording Feature:**
+- 🎙️ **Voice Input Button**: Floating action button on both WHAT and WHY tabs
+- 🎯 **WHAT Tab**: Record voice notes to extract tasks - speak naturally about what needs to be done
+- 💡 **WHY Tab**: Start brainstorming sessions with voice - describe your business ideas and goals
+- ✨ **Beautiful UI**: Animated pulse effect while recording with duration timer
+- 📝 **Transcript Review**: See your transcription before processing
+
+**How to Use:**
+1. Tap the floating microphone button (green on WHAT, purple on WHY)
+2. Grant microphone permission when prompted
+3. Speak your tasks or business ideas naturally
+4. Tap "Done" when finished recording
+5. Review the transcript and confirm to process
+
+**Technical Implementation:**
+- `src/components/VoiceInputButton.tsx` - Reusable voice recording component with expo-av
+- Recording permissions handled automatically
+- Mock transcription for development (real STT API integration pending)
+- Backend APIs ready: `/api/what/extract-drafts` and `/api/why/session`
+
+**🔧 Next Steps:**
+- Connect to Google Speech-to-Text API for real transcription
+- Integrate with backend task extraction and brainstorming APIs
+- Add voice history and saved transcripts
+
+---
+
 ### 💰 Financial Dashboard Bug Fixes
 
 **Fixed Cash Flow Calculation Issues:**

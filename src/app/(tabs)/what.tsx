@@ -49,6 +49,7 @@ import { CompactTaskCard } from '@/components/CompactTaskCard';
 import { filterWorkPlansByRole } from '@/lib/role-utils';
 import { RoleIndicator } from '@/components/RoleIndicator';
 import { getTemplatesByFunction, type TaskTemplate } from '@/lib/task-templates';
+import { VoiceInputButton } from '@/components/VoiceInputButton';
 
 const WHAT_HELP: HelpContent = {
   title: 'Task Execution',
@@ -111,6 +112,8 @@ export default function WhatScreen() {
   const [showTaskModal, setShowTaskModal] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showResourcePool, setShowResourcePool] = useState(false);
+  const [showVoiceTranscript, setShowVoiceTranscript] = useState(false);
+  const [voiceTranscript, setVoiceTranscript] = useState('');
 
   // Create task form state
   const [newTaskTitle, setNewTaskTitle] = useState('');
@@ -232,6 +235,21 @@ export default function WhatScreen() {
 
   const handleCompleteTask = (task: WorkPlan) => {
     completeWorkPlan(task.id);
+  };
+
+  // Handle voice transcript
+  const handleVoiceTranscript = (transcript: string) => {
+    console.log('[What Tab] Voice transcript received:', transcript);
+    setVoiceTranscript(transcript);
+    setShowVoiceTranscript(true);
+    // TODO: Send to backend API for task extraction
+  };
+
+  const handleProcessVoiceTranscript = () => {
+    // TODO: Call /api/what/extract-drafts with the transcript
+    console.log('[What Tab] Processing voice transcript:', voiceTranscript);
+    setShowVoiceTranscript(false);
+    setVoiceTranscript('');
   };
 
   return (
@@ -647,6 +665,77 @@ export default function WhatScreen() {
         }}
         selectedPersonId={null}
       />
+
+      {/* Voice Transcript Modal */}
+      <Modal
+        visible={showVoiceTranscript}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setShowVoiceTranscript(false)}
+      >
+        <Pressable className="flex-1 bg-black/70" onPress={() => setShowVoiceTranscript(false)}>
+          <View className="flex-1" />
+          <Pressable onPress={(e) => e.stopPropagation()} style={{ maxHeight: '70%' }}>
+            <View className="bg-white dark:bg-slate-900 rounded-t-3xl">
+              <View className="flex-row items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-slate-800">
+                <Text className="text-slate-900 dark:text-white font-bold text-xl">Voice Transcript</Text>
+                <Pressable onPress={() => setShowVoiceTranscript(false)} className="p-2">
+                  <X size={24} color="#64748b" />
+                </Pressable>
+              </View>
+
+              <ScrollView
+                className="px-6 py-4"
+                contentContainerStyle={{ flexGrow: 1, paddingBottom: 40 }}
+              >
+                <View className="bg-slate-50 dark:bg-slate-800 rounded-xl p-4 mb-4">
+                  <Text className="text-slate-900 dark:text-white text-base leading-relaxed">
+                    {voiceTranscript}
+                  </Text>
+                </View>
+
+                <Text className="text-slate-600 dark:text-slate-400 text-sm mb-4">
+                  Review your transcript above. The AI will extract tasks from this text and create draft tasks for you to review.
+                </Text>
+
+                <View className="flex-row gap-3">
+                  <Pressable
+                    onPress={() => setShowVoiceTranscript(false)}
+                    className="flex-1 bg-slate-200 dark:bg-slate-700 py-4 rounded-xl items-center"
+                  >
+                    <Text className="text-slate-700 dark:text-slate-300 font-semibold">Cancel</Text>
+                  </Pressable>
+                  <Pressable
+                    onPress={handleProcessVoiceTranscript}
+                    className="flex-1 bg-green-500 py-4 rounded-xl items-center"
+                  >
+                    <Text className="text-white font-semibold">Process Tasks</Text>
+                  </Pressable>
+                </View>
+              </ScrollView>
+            </View>
+          </Pressable>
+        </Pressable>
+      </Modal>
+
+      {/* Floating Voice Input Button */}
+      <View
+        className="absolute bottom-24 right-6"
+        style={{
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: 4 },
+          shadowOpacity: 0.3,
+          shadowRadius: 8,
+          elevation: 8,
+        }}
+      >
+        <VoiceInputButton
+          onTranscriptComplete={handleVoiceTranscript}
+          onError={(error) => console.error('[What Tab] Voice error:', error)}
+          color="#10b981"
+          size={64}
+        />
+      </View>
     </View>
   );
 }
