@@ -52,7 +52,6 @@ import { UnifiedBottomDrawer } from '@/components/UnifiedBottomDrawer';
 import { TaskDraftsReviewModal } from '@/components/TaskDraftsReviewModal';
 import { extractTasksFromText } from '@/lib/ai/task-extraction';
 import { supabase } from '@/lib/supabase';
-import { DebugToast } from '@/components/DebugToast';
 
 interface TaskDraft {
   id: string;
@@ -373,8 +372,15 @@ export default function WhatScreen() {
 
       // Add each draft as a work plan task
       for (const draft of draftsToConfirm) {
+        // Generate a proper UUID
+        const uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+          const r = Math.random() * 16 | 0;
+          const v = c === 'x' ? r : (r & 0x3 | 0x8);
+          return v.toString(16);
+        });
+
         const newTask: WorkPlan = {
-          id: `task-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+          id: uuid,
           workspaceId: effectiveWorkspace.id,
           title: draft.title,
           description: draft.notes || '',
@@ -918,9 +924,6 @@ export default function WhatScreen() {
         onEdit={handleEditDraft}
         onRemove={handleRemoveDraft}
       />
-
-      {/* Debug Toast - Shows logs on screen */}
-      <DebugToast />
     </View>
   );
 }
