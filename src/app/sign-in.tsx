@@ -5,6 +5,7 @@ import { Building2, Mail, ArrowRight, Zap, Sparkles, TrendingUp, Lock } from 'lu
 import { supabase } from '@/lib/supabase';
 import { userService } from '@/lib/supabase-service';
 import { useAppStore } from '@/lib/state/app-store';
+import { useWorkspaceData } from '@/lib/hooks/useWorkspaceData';
 import { router } from 'expo-router';
 import { hasCompletedOnboarding } from '@/lib/onboarding';
 import { CentaurLogo } from '@/components/CentaurLogo';

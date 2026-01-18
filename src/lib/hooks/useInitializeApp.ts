@@ -9,10 +9,7 @@ import { useSquadStore } from '../state/squad-store';
 import { useUniversalStore } from '../state/universal-store';
 import { useFinanceStore } from '../state/finance-store';
 import { db } from '../storage';
-import { seedDemoData } from '../api/seed';
-import { seedArmoryDemo } from '../armory/seed-demo';
-// Migration disabled - Zustand stores auto-persist to MMKV already
-// import { runMigrationIfNeeded } from '../storage/migrate-to-mmkv';
+import { supabase } from '../supabase';
 
 export function useInitializeApp() {
   const [isInitialized, setIsInitialized] = useState(false);
@@ -44,32 +41,39 @@ export function useInitializeApp() {
   useEffect(() => {
     async function initApp() {
       try {
-        // MIGRATION DISABLED: Zustand stores auto-persist to MMKV already.
-        // The old migration tried to copy ALL AsyncStorage to MMKV, which is wrong
-        // because AsyncStorage should continue holding DB entities.
-        // await runMigrationIfNeeded();
+        console.log('[Init] Starting app initialization...');
 
         // Initialize auth state
         await initialize();
 
+        // Check if user is authenticated
+        const { data: { session } } = await supabase.auth.getSession();
+
         // NEW: Load universal data from Supabase (AI tools, templates, etc.)
         // This is loaded once at app start for all users
-        console.log('Loading universal data from Supabase...');
+        console.log('[Init] Loading universal data from Supabase...');
         await loadUniversalData();
 
-        // NEW: Load financial data for test workspace
-        // TODO: This should be loaded when workspace is selected, not at app init
-        const TEST_WORKSPACE_ID = '00000000-0000-0000-0000-000000000001';
-        console.log('Loading financial data from Supabase...');
-        await loadFinancialData(TEST_WORKSPACE_ID);
+        // If user is authenticated, load their financial data
+        if (session?.user) {
+          console.log('[Init] User authenticated, loading user-specific data...');
 
-        // DISABLED: No longer auto-seeding demo data for new users
-        // initializeSuppliers();
-        // initializeOrganization();
-        // await initializePlans();
-        // await initializeSquads();
+          // Load financial data if workspace is available
+          // Note: This will be updated to use actual workspace ID after workspace selection
+          const currentWorkspaceId = useAppStore.getState().currentWorkspaceId;
+          if (currentWorkspaceId) {
+            console.log('[Init] Loading financial data for workspace:', currentWorkspaceId);
+            await loadFinancialData(currentWorkspaceId);
+          }
+        }
 
-        // Load all data from storage
+        // Initialize local stores (will be empty until workspace is selected)
+        initializeSuppliers();
+        initializeOrganization();
+        await initializePlans();
+        await initializeSquads();
+
+        // Load all data from AsyncStorage (legacy data)
         const [
           workspaces,
           memberships,
@@ -102,17 +106,7 @@ export function useInitializeApp() {
           db.getAuditLogs(),
         ]);
 
-        // DISABLED: No longer auto-seeding demo data
-        // Check if we need to seed demo data
-        // const hasUsers = Object.keys(users).length > 0;
-        //
-        // if (!hasUsers) {
-        //   console.log('No existing data found, seeding demo workspace...');
-        //   await seedDemoData();
-        //   ... reload logic
-        // }
-
-        // Just load the data directly (no seeding)
+        // Load into app store
         setWorkspaces(workspaces);
         setMemberships(memberships);
         setUsers(users);
@@ -128,17 +122,10 @@ export function useInitializeApp() {
         setTemplates(templates);
         setAuditLogs(auditLogs);
 
-        // DISABLED: No longer seeding armory demo
-        // Initialize Armory with demo loadouts and squads
-        // try {
-        //   await seedArmoryDemo();
-        // } catch (armoryError) {
-        //   console.error('Failed to seed armory demo:', armoryError);
-        // }
-
+        console.log('[Init] App initialization complete!');
         setIsInitialized(true);
       } catch (error) {
-        console.error('Failed to initialize app:', error);
+        console.error('[Init] Failed to initialize app:', error);
         setIsInitialized(true); // Set anyway to avoid infinite loading
       }
     }

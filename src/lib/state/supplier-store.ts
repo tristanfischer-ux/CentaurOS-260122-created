@@ -8,6 +8,7 @@
  */
 
 import { create } from 'zustand';
+import { supabase } from '@/lib/supabase';
 import type { Supplier } from '@/types';
 import { UK_SUPPLIERS } from '@/lib/suppliers-seed';
 import { v4 as uuidv4 } from 'uuid';
@@ -26,6 +27,7 @@ interface SupplierState {
 
   // Actions
   initializeSuppliers: () => void;
+  loadSuppliersFromSupabase: (workspaceId: string) => Promise<void>;
   getSupplierById: (id: string) => Supplier | undefined;
   getSuppliersByCapability: (capability: string) => Supplier[];
   getSuppliersByRegion: (region: string) => Supplier[];
@@ -53,18 +55,54 @@ export const useSupplierStore = create<SupplierState>((set, get) => ({
   initializeSuppliers: () => {
     // DISABLED: No longer auto-loading UK supplier marketplace data
     // Users should start with empty supplier list
-    // const now = new Date().toISOString();
-    // const suppliers: Supplier[] = UK_SUPPLIERS.map(supplier => ({
-    //   ...supplier,
-    //   id: uuidv4(),
-    //   createdAt: now,
-    //   updatedAt: now,
-    // }));
-    //
-    // set({ suppliers, isLoadingSuppliers: false });
-
     // Start with empty supplier list for fresh users
     set({ suppliers: [], isLoadingSuppliers: false });
+  },
+
+  loadSuppliersFromSupabase: async (workspaceId: string) => {
+    set({ isLoadingSuppliers: true, error: null });
+
+    try {
+      // Load suppliers from Supabase
+      const { data: suppliersData, error: suppliersError } = await supabase
+        .from('suppliers')
+        .select('*')
+        .eq('workspace_id', workspaceId)
+        .order('created_at', { ascending: false });
+
+      if (suppliersError) {
+        console.error('Error loading suppliers:', suppliersError);
+        set({ error: suppliersError.message, isLoadingSuppliers: false });
+        return;
+      }
+
+      // Transform Supabase data to Supplier format
+      const suppliers: Supplier[] = (suppliersData || []).map((s: any) => ({
+        id: s.id,
+        name: s.name || '',
+        description: s.description || '',
+        capabilities: [], // Not in current schema
+        region: 'UK' as const,
+        location: {
+          city: '',
+          country: 'UK',
+        },
+        contact: {
+          email: '',
+          website: s.website || '',
+        },
+        certifications: [],
+        status: 'approved' as const,
+        recommendedByWorkspaceIds: [],
+        createdAt: s.created_at || new Date().toISOString(),
+        updatedAt: s.created_at || new Date().toISOString(),
+      }));
+
+      set({ suppliers, isLoadingSuppliers: false });
+    } catch (err) {
+      console.error('Error loading suppliers from Supabase:', err);
+      set({ error: err instanceof Error ? err.message : 'Failed to load suppliers', isLoadingSuppliers: false });
+    }
   },
 
   // Get supplier by ID (used across tabs)

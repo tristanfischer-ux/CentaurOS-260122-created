@@ -10,6 +10,7 @@
  */
 
 import { create } from 'zustand';
+import { supabase } from '@/lib/supabase';
 import type { Function as BusinessFunction } from '@/types';
 
 // Per-person TU allocation for a task
@@ -111,9 +112,12 @@ export interface WorkPlan {
 interface WorkPlanState {
   workPlans: WorkPlan[];
   selectedWorkPlan: WorkPlan | null;
+  isLoading: boolean;
+  error: string | null;
 
   // Actions
   initializeWorkPlans: () => void;
+  loadWorkPlansFromSupabase: (workspaceId: string) => Promise<void>;
   getWorkPlanById: (id: string) => WorkPlan | undefined;
   getWorkPlansByFunction: (func: BusinessFunction) => WorkPlan[];
   getWorkPlansByStatus: (status: WorkPlan['status']) => WorkPlan[];
@@ -358,9 +362,76 @@ const INITIAL_WORK_PLANS_ORIGINAL: WorkPlan[] = [
 export const useWorkPlanStore = create<WorkPlanState>((set, get) => ({
   workPlans: [],
   selectedWorkPlan: null,
+  isLoading: false,
+  error: null,
 
   initializeWorkPlans: () => {
     set({ workPlans: INITIAL_WORK_PLANS });
+  },
+
+  loadWorkPlansFromSupabase: async (workspaceId: string) => {
+    set({ isLoading: true, error: null });
+
+    try {
+      // Load work plans from Supabase
+      const { data: workPlansData, error: workPlansError } = await supabase
+        .from('work_plans')
+        .select('*')
+        .eq('workspace_id', workspaceId)
+        .order('created_at', { ascending: false });
+
+      if (workPlansError) {
+        console.error('Error loading work plans:', workPlansError);
+        set({ error: workPlansError.message, isLoading: false });
+        return;
+      }
+
+      // Load allocations for all work plans
+      const { data: allocationsData, error: allocationsError } = await supabase
+        .from('work_plan_allocations')
+        .select('*')
+        .in('work_plan_id', (workPlansData || []).map((wp: any) => wp.id));
+
+      if (allocationsError) {
+        console.error('Error loading allocations:', allocationsError);
+      }
+
+      // Transform Supabase data to WorkPlan format
+      const workPlans: WorkPlan[] = (workPlansData || []).map((wp: any) => {
+        // Find allocations for this work plan
+        const wpAllocations = (allocationsData || [])
+          .filter((a: any) => a.work_plan_id === wp.id)
+          .map((a: any) => ({
+            memberId: a.member_id,
+            memberName: 'Member', // Will need to join with members table
+            squaresPerWeek: Number(a.squares_per_week) || 0,
+            costPerSquare: 0, // Not in current schema
+          }));
+
+        return {
+          id: wp.id,
+          workspaceId: wp.workspace_id,
+          title: wp.title || '',
+          description: wp.description || '',
+          function: 'Engineering' as BusinessFunction, // Not in current schema
+          startDate: wp.start_date || '',
+          dueDate: wp.end_date || '',
+          status: (wp.status || 'not-started') as WorkPlan['status'],
+          progress: wp.progress || 0,
+          assignedBy: '', // Not in current schema
+          needsSubmission: false, // Not in current schema
+          estimatedTimeUnits: wpAllocations.reduce((sum, a) => sum + a.squaresPerWeek, 0) || 1,
+          allocations: wpAllocations,
+          appliedAITools: [],
+          tusExpended: 0, // Not in current schema
+        };
+      });
+
+      set({ workPlans, isLoading: false });
+    } catch (err) {
+      console.error('Error loading work plans from Supabase:', err);
+      set({ error: err instanceof Error ? err.message : 'Failed to load work plans', isLoading: false });
+    }
   },
 
   getWorkPlanById: (id: string) => {
@@ -488,6 +559,8 @@ export const useWorkPlanStore = create<WorkPlanState>((set, get) => ({
     set({
       workPlans: [],
       selectedWorkPlan: null,
+      isLoading: false,
+      error: null,
     });
   },
 }));

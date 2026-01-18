@@ -4,6 +4,7 @@
  */
 
 import { create } from 'zustand';
+import { supabase } from '@/lib/supabase';
 import type { Function as BusinessFunction } from '@/types';
 
 export interface Objective {
@@ -36,9 +37,12 @@ export interface OKR {
 interface OKRState {
   okrs: OKR[];
   selectedOKR: OKR | null;
+  isLoading: boolean;
+  error: string | null;
 
   // Actions
   initializeOKRs: () => void;
+  loadOKRsFromSupabase: (workspaceId: string) => Promise<void>;
   getOKRById: (id: string) => OKR | undefined;
   getOKRsByFunction: (func: BusinessFunction) => OKR[];
   getOKRsByStatus: (status: 'on-track' | 'at-risk' | 'off-track') => OKR[];
@@ -207,6 +211,8 @@ const INITIAL_OKRS: OKR[] = [
 export const useOKRStore = create<OKRState>((set, get) => ({
   okrs: [],
   selectedOKR: null,
+  isLoading: false,
+  error: null,
 
   initializeOKRs: () => {
     // DISABLED: OKRs should be loaded from Supabase
@@ -214,6 +220,68 @@ export const useOKRStore = create<OKRState>((set, get) => ({
 
     // Start with empty array until Supabase integration is complete
     set({ okrs: [] });
+  },
+
+  loadOKRsFromSupabase: async (workspaceId: string) => {
+    set({ isLoading: true, error: null });
+
+    try {
+      // Load OKRs from Supabase
+      const { data: okrsData, error: okrsError } = await supabase
+        .from('okrs')
+        .select('*')
+        .eq('workspace_id', workspaceId)
+        .order('created_at', { ascending: false });
+
+      if (okrsError) {
+        console.error('Error loading OKRs:', okrsError);
+        set({ error: okrsError.message, isLoading: false });
+        return;
+      }
+
+      // Load objectives for all OKRs
+      const { data: objectivesData, error: objectivesError } = await supabase
+        .from('okr_objectives')
+        .select('*')
+        .in('okr_id', (okrsData || []).map((okr: any) => okr.id));
+
+      if (objectivesError) {
+        console.error('Error loading objectives:', objectivesError);
+      }
+
+      // Transform Supabase data to OKR format
+      const okrs: OKR[] = (okrsData || []).map((okr: any) => {
+        // Find objectives for this OKR
+        const okrObjectives = (objectivesData || [])
+          .filter((obj: any) => obj.okr_id === okr.id)
+          .map((obj: any) => ({
+            id: obj.id,
+            title: obj.title || '',
+            target: '100', // Not in current schema
+            current: String(obj.progress || 0),
+            progress: obj.progress || 0,
+            status: (obj.progress || 0) >= 80 ? 'on-track' : (obj.progress || 0) >= 50 ? 'at-risk' : 'off-track' as Objective['status'],
+          }));
+
+        return {
+          id: okr.id,
+          workspaceId: okr.workspace_id,
+          function: 'Engineering' as BusinessFunction, // Not in current schema
+          title: okr.title || '',
+          description: okr.description || '',
+          owner: '', // owner_id in schema but need to join
+          startDate: okr.quarter || 'Q1 2026',
+          endDate: okr.quarter || 'Q1 2026',
+          status: (okr.status || 'on-track') as 'on-track' | 'at-risk' | 'off-track',
+          objectives: okrObjectives,
+        };
+      });
+
+      set({ okrs, isLoading: false });
+    } catch (err) {
+      console.error('Error loading OKRs from Supabase:', err);
+      set({ error: err instanceof Error ? err.message : 'Failed to load OKRs', isLoading: false });
+    }
   },
 
   getOKRById: (id: string) => {
@@ -369,6 +437,16 @@ export const useOKRStore = create<OKRState>((set, get) => ({
 
   getOKRsByWorkspaceAndStatus: (workspaceId: string, status: 'on-track' | 'at-risk' | 'off-track') => {
     return get().okrs.filter(okr => okr.workspaceId === workspaceId && okr.status === status);
+  },
+
+  // Reset method - clears all OKR data
+  reset: () => {
+    set({
+      okrs: [],
+      selectedOKR: null,
+      isLoading: false,
+      error: null,
+    });
   },
 }));
 
