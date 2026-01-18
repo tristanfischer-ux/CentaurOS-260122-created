@@ -363,37 +363,47 @@ export default function WhatScreen() {
   };
 
   const handleConfirmDrafts = async (draftIds: string[]) => {
-    if (!currentWorkspace || !currentMembership) return;
-
     console.log('[What Tab] Confirming drafts:', draftIds);
     setIsConfirmingDrafts(true);
 
     try {
-      // Call the confirm API
-      const response = await fetch('/api/what/confirm', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          draftIds,
-          workspaceId: currentWorkspace.id,
-          userId: currentMembership.id,
-        }),
-      });
+      // Get drafts to confirm
+      const draftsToConfirm = taskDrafts.filter(d => draftIds.includes(d.id));
+      console.log('[What Tab] Drafts to confirm:', draftsToConfirm);
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || `API error: ${response.status}`);
+      // Add each draft as a work plan task
+      for (const draft of draftsToConfirm) {
+        const newTask: WorkPlan = {
+          id: `task-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+          workspaceId: effectiveWorkspace.id,
+          title: draft.title,
+          description: draft.notes || '',
+          function: 'Engineering' as const,
+          startDate: new Date().toISOString().split('T')[0],
+          dueDate: draft.due_iso ? draft.due_iso.split('T')[0] : new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+          status: 'not-started' as const,
+          progress: 0,
+          assignedBy: effectiveMembership.id,
+          needsSubmission: false,
+          estimatedTimeUnits: draft.units,
+          allocations: [],
+          appliedAITools: [],
+          tusExpended: 0,
+        };
+
+        console.log('[What Tab] Adding task to work plan:', newTask);
+        addWorkPlan(newTask);
       }
 
-      const data = await response.json();
-      console.log('[What Tab] Tasks created:', data);
+      console.log('[What Tab] Tasks created successfully!');
 
       // Close modals and clear state
       setShowDraftsReview(false);
       setTaskDrafts([]);
       setVoiceTranscript('');
 
-      // TODO: Refresh task list or add new tasks to store
+      // Show success message
+      alert(`${draftsToConfirm.length} task(s) created successfully!`);
     } catch (error) {
       console.error('[What Tab] Failed to confirm drafts:', error);
       alert('Failed to create tasks. Please try again.');
