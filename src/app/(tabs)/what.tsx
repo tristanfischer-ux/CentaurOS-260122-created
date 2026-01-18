@@ -135,6 +135,12 @@ export default function WhatScreen() {
   const [isProcessingTranscript, setIsProcessingTranscript] = useState(false);
   const [isConfirmingDrafts, setIsConfirmingDrafts] = useState(false);
 
+  // Debug: Log when modal visibility changes
+  useEffect(() => {
+    console.log('[What Tab] showVoiceTranscript changed:', showVoiceTranscript);
+    console.log('[What Tab] voiceTranscript:', voiceTranscript);
+  }, [showVoiceTranscript, voiceTranscript]);
+
   // Create task form state
   const [newTaskTitle, setNewTaskTitle] = useState('');
   const [newTaskFunction, setNewTaskFunction] = useState<BusinessFunction>('Engineering');
@@ -262,9 +268,15 @@ export default function WhatScreen() {
     console.log('[What Tab] handleVoiceTranscript called');
     console.log('[What Tab] Transcript received:', transcript);
     console.log('[What Tab] Transcript length:', transcript.length);
+    console.log('[What Tab] Setting voiceTranscript and showVoiceTranscript to true...');
     setVoiceTranscript(transcript);
     setShowVoiceTranscript(true);
-    console.log('[What Tab] Modal should now be visible');
+    console.log('[What Tab] State updated - modal should be visible now');
+
+    // Add a small delay to check state
+    setTimeout(() => {
+      console.log('[What Tab] Checking state after 100ms - voiceTranscript:', voiceTranscript?.substring(0, 20));
+    }, 100);
   };
 
   const handleProcessVoiceTranscript = async () => {
