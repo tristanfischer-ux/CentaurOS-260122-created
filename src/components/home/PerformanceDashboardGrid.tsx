@@ -254,15 +254,18 @@ export function PerformanceDashboardGrid() {
     const monthlyBurn = weeklyBurn * 4.33;
     const monthlyRevenue = getMonthlyRevenue(workspaceId);
     const netCashFlow = monthlyRevenue - monthlyBurn;
-    const runway = netCashFlow >= 0 ? 999 : cashBalance / Math.abs(netCashFlow);
-    const cashHealth: HealthStatus = runway < 6 ? 'critical' : runway < 12 ? 'warning' : 'healthy';
+
+    // Fix runway calculation: use weekly burn for weeks of runway
+    const runwayWeeks = weeklyBurn > 0 && cashBalance > 0 ? cashBalance / weeklyBurn : 999;
+    const runwayMonths = runwayWeeks / 4.33;
+    const cashHealth: HealthStatus = runwayMonths < 6 ? 'critical' : runwayMonths < 12 ? 'warning' : 'healthy';
 
     console.log('[PerformanceDashboard] Financial metrics:', {
       workspaceId,
       cashBalance,
       weeklyBurn,
       monthlyRevenue,
-      runway,
+      runwayMonths: Math.round(runwayMonths),
     });
 
     return [
@@ -333,9 +336,9 @@ export function PerformanceDashboardGrid() {
       {
         id: 'cash-flow',
         title: 'Cash Flow',
-        primaryValue: runway === 999 ? '∞' : `${Math.round(runway)}mo`,
+        primaryValue: runwayMonths === 999 ? '∞' : `${Math.round(runwayMonths)}mo`,
         primaryLabel: 'runway',
-        secondaryValue: `£${(cashBalance / 1000).toFixed(0)}K`,
+        secondaryValue: `£${(cashBalance / 1000).toFixed(1)}K`,
         secondaryLabel: 'Balance',
         trend: netCashFlow >= 0 ? 'up' : 'down',
         health: cashHealth,
