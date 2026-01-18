@@ -29,6 +29,7 @@ export const whatWhyConfig: WhatWhyConfig = {
     provider: process.env.LLM_PROVIDER || 'google', // Default to Google (free!)
     model: process.env.LLM_MODEL || 'gemini-1.5-flash',
     apiKey: process.env.GOOGLE_AI_API_KEY ||
+            process.env.EXPO_PUBLIC_GOOGLE_AI_API_KEY ||
             process.env.EXPO_PUBLIC_VIBECODE_GOOGLE_API_KEY ||
             process.env.ANTHROPIC_API_KEY ||
             process.env.EXPO_PUBLIC_VIBECODE_ANTHROPIC_API_KEY,
@@ -55,6 +56,8 @@ export function validateWhatWhyConfig(): { valid: boolean; warnings: string[] } 
   if (whatWhyConfig.llm.apiKey) {
     if (process.env.GOOGLE_AI_API_KEY) {
       console.log('[WhatWhyConfig] ✅ Using your own GOOGLE_AI_API_KEY (FREE!)');
+    } else if (process.env.EXPO_PUBLIC_GOOGLE_AI_API_KEY) {
+      console.log('[WhatWhyConfig] ✅ Using your own EXPO_PUBLIC_GOOGLE_AI_API_KEY (FREE!)');
     } else if (process.env.EXPO_PUBLIC_VIBECODE_GOOGLE_API_KEY) {
       console.warn('[WhatWhyConfig] ⚠️ Using EXPO_PUBLIC_VIBECODE_GOOGLE_API_KEY (may incur charges from Vibecode)');
       warnings.push('Consider getting your own free Google AI API key at https://aistudio.google.com/app/apikey');
