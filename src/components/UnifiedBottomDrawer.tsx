@@ -161,11 +161,15 @@ export function UnifiedBottomDrawer({
 
   // Text input handlers
   const handleTextSubmit = () => {
+    console.log('[UnifiedDrawer] handleTextSubmit called, textInput:', textInput);
     if (textInput.trim()) {
+      console.log('[UnifiedDrawer] Submitting text:', textInput.trim());
       onTextSubmit(textInput.trim());
       setTextInput('');
       setInputMode(null);
       toggleExpanded();
+    } else {
+      console.log('[UnifiedDrawer] Text input is empty, not submitting');
     }
   };
 

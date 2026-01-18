@@ -258,9 +258,12 @@ export default function WhatScreen() {
 
   // Handle voice transcript
   const handleVoiceTranscript = (transcript: string) => {
-    console.log('[What Tab] Voice transcript received:', transcript);
+    console.log('[What Tab] handleVoiceTranscript called');
+    console.log('[What Tab] Transcript received:', transcript);
+    console.log('[What Tab] Transcript length:', transcript.length);
     setVoiceTranscript(transcript);
     setShowVoiceTranscript(true);
+    console.log('[What Tab] Modal should now be visible');
   };
 
   const handleProcessVoiceTranscript = async () => {
