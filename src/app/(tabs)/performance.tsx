@@ -278,7 +278,22 @@ export default function PerformanceScreen() {
     const monthlyRevenue = currentWorkspace ? getMonthlyRevenue(currentWorkspace.id) : 0;
     const monthlyBurn = weeklyBurn * 4.33;
     const netCashFlow = monthlyRevenue - monthlyBurn;
-    const runway = netCashFlow >= 0 ? 999 : cashBalance / Math.abs(netCashFlow);
+
+    // Fix runway calculation: handle edge cases properly
+    let runway: number;
+    if (netCashFlow >= 0) {
+      // Cash flow positive = infinite runway
+      runway = 999;
+    } else if (cashBalance <= 0) {
+      // No cash = no runway
+      runway = 0;
+    } else if (Math.abs(netCashFlow) < 100) {
+      // Net cash flow too small (< £100/month) = effectively infinite or zero
+      runway = cashBalance > 0 ? 999 : 0;
+    } else {
+      // Normal calculation: months of runway
+      runway = cashBalance / Math.abs(netCashFlow);
+    }
 
     // OKR progress
     const okrProgress = okrs.length > 0
@@ -362,7 +377,22 @@ export default function PerformanceScreen() {
                       totalMarketing + totalFacilities + totalEquipment + totalInsurance + totalProfessional;
 
   const netCashFlow = INITIAL_DATA.monthlyRevenue - monthlyBurn;
-  const runway = netCashFlow >= 0 ? 999 : INITIAL_DATA.cashPosition / Math.abs(netCashFlow);
+
+  // Fix runway calculation: handle edge cases properly
+  let runway: number;
+  if (netCashFlow >= 0) {
+    // Cash flow positive = infinite runway
+    runway = 999;
+  } else if (INITIAL_DATA.cashPosition <= 0) {
+    // No cash = no runway
+    runway = 0;
+  } else if (Math.abs(netCashFlow) < 100) {
+    // Net cash flow too small (< £100/month) = effectively infinite or zero
+    runway = INITIAL_DATA.cashPosition > 0 ? 999 : 0;
+  } else {
+    // Normal calculation: months of runway
+    runway = INITIAL_DATA.cashPosition / Math.abs(netCashFlow);
+  }
 
   // P&L Calculations
   const pnl = useMemo(() => {
