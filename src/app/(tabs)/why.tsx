@@ -272,13 +272,28 @@ export default function WhyScreen() {
   };
 
   const handleStartBrainstorm = async () => {
-    if (!voiceBrainstormText.trim() || !currentWorkspace || !currentMembership) return;
+    console.log('[Why Tab] handleStartBrainstorm called');
+    console.log('[Why Tab] State check:', {
+      hasVoiceBrainstormText: !!voiceBrainstormText?.trim(),
+      voiceBrainstormText: voiceBrainstormText,
+      hasWorkspace: !!currentWorkspace,
+      workspaceId: currentWorkspace?.id,
+      hasMembership: !!currentMembership,
+      membershipId: currentMembership?.id,
+    });
+
+    if (!voiceBrainstormText.trim() || !currentWorkspace || !currentMembership) {
+      console.error('[Why Tab] Missing required data, aborting');
+      alert('Missing required data. Please try recording again.');
+      return;
+    }
 
     console.log('[Why Tab] Starting brainstorm session with:', voiceBrainstormText);
     setIsCreatingSession(true);
 
     try {
       // Create brainstorm session directly with Supabase
+      console.log('[Why Tab] Creating session in Supabase...');
       const { data: session, error: sessionError } = await supabase
         .from('brainstorm_sessions')
         .insert({
@@ -292,13 +307,19 @@ export default function WhyScreen() {
 
       if (sessionError) {
         console.error('[Why Tab] Failed to create session:', sessionError);
+        console.error('[Why Tab] Supabase error details:', {
+          code: sessionError.code,
+          message: sessionError.message,
+          details: sessionError.details,
+        });
         throw new Error(sessionError.message);
       }
 
-      console.log('[Why Tab] Session created:', session.id);
+      console.log('[Why Tab] Session created successfully:', session.id);
 
       // Create initial message
       if (voiceBrainstormText) {
+        console.log('[Why Tab] Creating initial message...');
         const { error: messageError } = await supabase
           .from('brainstorm_messages')
           .insert({
@@ -310,17 +331,23 @@ export default function WhyScreen() {
         if (messageError) {
           console.error('[Why Tab] Failed to save initial message:', messageError);
           // Don't fail the request, just log the error
+        } else {
+          console.log('[Why Tab] Initial message created');
         }
       }
 
       // Open conversation modal
+      console.log('[Why Tab] Opening conversation modal with session:', session.id);
       setCurrentSessionId(session.id);
       setShowVoiceBrainstorm(false);
       setShowConversation(true);
     } catch (error) {
       console.error('[Why Tab] Failed to create session:', error);
-      // Show error in console - user can see in logs
-      alert('Failed to start brainstorming session. Please try again.');
+      console.error('[Why Tab] Error details:', {
+        message: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined,
+      });
+      alert(`Failed to start brainstorming session: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       setIsCreatingSession(false);
     }
