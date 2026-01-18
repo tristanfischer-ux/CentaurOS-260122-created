@@ -15,24 +15,23 @@ Centaur OS is a comprehensive iOS mobile application that helps lean companies o
 
 ## 🚀 Latest Updates (Jan 18, 2026)
 
-### ✅ Phase 1 Complete: Production-Ready CRUD Operations!
+### ✅ Phase 1-2 Complete: Production-Ready CRUD + Real-time!
 
-**What's New:**
-- 🔄 **Full CRUD Operations**: All stores (Organization, WorkPlan, OKR, Supplier) now have complete create, read, update, delete operations
+**🎉 What's New:**
+- 🔄 **Full CRUD Operations**: All stores have complete create/update/delete with Supabase sync
 - ⚡ **Optimistic Updates**: Instant UI feedback with automatic rollback on errors
-- 🔐 **RLS Policies**: Complete Row-Level Security policies for all mutations (003_rls_mutations.sql)
-- 🎨 **StandardModal Component**: Consistent modal patterns following STYLE_GUIDE.md
-- 🛡️ **Error Boundary**: Global error handling to prevent app crashes
+- 🔐 **RLS Policies**: Row-Level Security for all mutations (003_rls_mutations.sql)
+- 🔴 **Real-time Subscriptions**: Live updates via Supabase real-time channels
+- 🎨 **StandardModal**: Consistent modal component following STYLE_GUIDE.md
 
-**Implementation Details:**
-- All store mutations now call Supabase with proper error handling
-- Optimistic updates provide instant UI feedback
-- Automatic rollback on server errors maintains data consistency
-- Foreign key constraints properly handled (allocations, objectives)
-- Multi-tenant security enforced at database level with RLS
+**📋 USER ACTIONS REQUIRED:**
+1. **Run Supabase migration** → `supabase/migrations/003_rls_mutations.sql`
+2. **Enable real-time** → Database → Replication (enable for all tables)
+3. **Test CRUD** → Create/update/delete data and verify in Supabase
 
-**Migration Required:**
-Run `supabase/migrations/003_rls_mutations.sql` in Supabase Dashboard → SQL Editor to enable mutations
+**📖 See:**
+- `USER_ACTIONS_CHECKLIST.md` - Step-by-step guide with verification
+- `IMPLEMENTATION_SUMMARY.md` - Complete technical documentation
 
 ---
 
