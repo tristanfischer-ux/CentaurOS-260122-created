@@ -229,7 +229,9 @@ export function VoiceInputButton({
           <View className="bg-white dark:bg-slate-900 rounded-3xl p-8 mx-6 items-center">
             {isProcessing ? (
               <>
-                <Loader size={48} color={color} className="mb-4" />
+                <View className="mb-4">
+                  <Loader size={48} color={color} />
+                </View>
                 <Text className="text-slate-900 dark:text-white font-semibold text-lg">
                   Processing...
                 </Text>
