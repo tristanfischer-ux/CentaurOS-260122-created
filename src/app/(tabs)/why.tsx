@@ -52,6 +52,7 @@ import { RoleIndicator } from '@/components/RoleIndicator';
 import { UnifiedBottomDrawer } from '@/components/UnifiedBottomDrawer';
 import { BrainstormConversationModal } from '@/components/BrainstormConversationModal';
 import { SynthesisReviewModal } from '@/components/SynthesisReviewModal';
+import { supabase } from '@/lib/supabase';
 
 const WHY_HELP: HelpContent = {
   title: 'Strategic Planning',
@@ -277,27 +278,43 @@ export default function WhyScreen() {
     setIsCreatingSession(true);
 
     try {
-      // Call the session API
-      const response = await fetch('/api/why/session', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          workspaceId: currentWorkspace.id,
-          userId: currentMembership.id,
-          initialPrompt: voiceBrainstormText,
-        }),
-      });
+      // Create brainstorm session directly with Supabase
+      const { data: session, error: sessionError } = await supabase
+        .from('brainstorm_sessions')
+        .insert({
+          workspace_id: currentWorkspace.id,
+          user_id: currentMembership.id,
+          status: 'active',
+          initial_prompt: voiceBrainstormText,
+        })
+        .select()
+        .single();
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || `API error: ${response.status}`);
+      if (sessionError) {
+        console.error('[Why Tab] Failed to create session:', sessionError);
+        throw new Error(sessionError.message);
       }
 
-      const data = await response.json();
-      console.log('[Why Tab] Session created:', data);
+      console.log('[Why Tab] Session created:', session.id);
+
+      // Create initial message
+      if (voiceBrainstormText) {
+        const { error: messageError } = await supabase
+          .from('brainstorm_messages')
+          .insert({
+            session_id: session.id,
+            role: 'user',
+            content: voiceBrainstormText,
+          });
+
+        if (messageError) {
+          console.error('[Why Tab] Failed to save initial message:', messageError);
+          // Don't fail the request, just log the error
+        }
+      }
 
       // Open conversation modal
-      setCurrentSessionId(data.session.id);
+      setCurrentSessionId(session.id);
       setShowVoiceBrainstorm(false);
       setShowConversation(true);
     } catch (error) {
