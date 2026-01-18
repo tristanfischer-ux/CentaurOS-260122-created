@@ -341,12 +341,15 @@ export default function WhatScreen() {
       }));
 
       console.log('[What Tab] Extracted drafts (v2):', drafts);
+      console.log('[What Tab] About to set taskDrafts and showDraftsReview...');
 
       // Show drafts review modal directly (no Supabase needed)
       setTaskDrafts(drafts);
+      console.log('[What Tab] taskDrafts set');
       setShowVoiceTranscript(false);
+      console.log('[What Tab] showVoiceTranscript set to false');
       setShowDraftsReview(true);
-      console.log('[What Tab] Opening drafts review modal (v2)');
+      console.log('[What Tab] showDraftsReview set to true - modal should appear now!');
     } catch (error) {
       console.error('[What Tab] Failed to extract drafts:', error);
       console.error('[What Tab] Error details:', {
