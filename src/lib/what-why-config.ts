@@ -28,7 +28,10 @@ export const whatWhyConfig: WhatWhyConfig = {
   llm: {
     provider: process.env.LLM_PROVIDER || 'google', // Default to Google (free!)
     model: process.env.LLM_MODEL || 'gemini-1.5-flash',
-    apiKey: process.env.GOOGLE_AI_API_KEY || process.env.ANTHROPIC_API_KEY || process.env.EXPO_PUBLIC_VIBECODE_ANTHROPIC_API_KEY,
+    apiKey: process.env.GOOGLE_AI_API_KEY ||
+            process.env.EXPO_PUBLIC_VIBECODE_GOOGLE_API_KEY ||
+            process.env.ANTHROPIC_API_KEY ||
+            process.env.EXPO_PUBLIC_VIBECODE_ANTHROPIC_API_KEY,
   },
   voice: {
     enabled: process.env.VOICE_ENABLED !== 'false',
