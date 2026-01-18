@@ -630,6 +630,7 @@ function AllocationRequestDetailModal({
 }
 
 export function UrgentDecisionsSection() {
+  const router = useRouter();
   const [selectedDecision, setSelectedDecision] = useState<Decision | null>(null);
   const [selectedRequest, setSelectedRequest] = useState<AllocationRequest | null>(null);
   const [showDecisionModal, setShowDecisionModal] = useState(false);
@@ -753,7 +754,10 @@ export function UrgentDecisionsSection() {
         ))}
 
         {totalUrgentItems > 3 && (
-          <Pressable className="py-2 items-center">
+          <Pressable
+            onPress={() => router.push('/(tabs)/decide')}
+            className="py-2 items-center active:opacity-70"
+          >
             <Text className="text-blue-600 dark:text-blue-400 text-sm font-semibold">
               View {totalUrgentItems - 3} more urgent items
             </Text>

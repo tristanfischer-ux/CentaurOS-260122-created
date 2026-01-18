@@ -110,6 +110,8 @@ const ASYNC_STORAGE_COMPANY_KEYS = [
   '@centaur-os:squads',             // Squad store
   '@centaur-os:okr-planner',        // OKR planner store
   '@role-storage',                  // Role selection
+  'decisions-store',                // Decisions store - urgent decisions
+  'objectives-store',               // Objectives store - business objectives
 ];
 
 /**
