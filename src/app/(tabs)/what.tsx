@@ -50,6 +50,8 @@ import { RoleIndicator } from '@/components/RoleIndicator';
 import { getTemplatesByFunction, type TaskTemplate } from '@/lib/task-templates';
 import { UnifiedBottomDrawer } from '@/components/UnifiedBottomDrawer';
 import { TaskDraftsReviewModal } from '@/components/TaskDraftsReviewModal';
+import { extractTasksFromText } from '@/lib/ai/task-extraction';
+import { supabase } from '@/lib/supabase';
 
 interface TaskDraft {
   id: string;
@@ -268,33 +270,55 @@ export default function WhatScreen() {
     setIsProcessingTranscript(true);
 
     try {
-      // Call the extract-drafts API
-      const response = await fetch('/api/what/extract-drafts', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          inputText: voiceTranscript,
-          source: 'voice',
-          workspaceId: currentWorkspace.id,
-          userId: currentMembership.id,
-        }),
-      });
+      // Extract tasks using client-side Gemini AI
+      const extraction = await extractTasksFromText(voiceTranscript, 'voice');
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || `API error: ${response.status}`);
+      console.log('[What Tab] Tasks extracted:', extraction);
+
+      // Convert extraction format to TaskDraft format and save to Supabase
+      const draftsToSave = extraction.tasks.map((task) => ({
+        workspace_id: currentWorkspace.id,
+        created_by_user_id: currentMembership.id,
+        assignee_user_id: task.assignee_default === 'speaker' ? currentMembership.id : null,
+        title: task.title,
+        notes: task.notes || '',
+        start_iso: new Date().toISOString(),
+        due_iso: task.due_date,
+        units: task.units,
+        source: 'what_voice' as const,
+        confidence_assignee: task.confidence_assignee,
+        confidence_due: task.confidence_due,
+        status: 'pending_confirmation' as const,
+        transcript_ref: voiceTranscript,
+      }));
+
+      // Save drafts to Supabase
+      if (draftsToSave.length > 0) {
+        const { data: savedDrafts, error } = await supabase
+          .from('task_drafts')
+          .insert(draftsToSave)
+          .select();
+
+        if (error) {
+          console.error('[What Tab] Failed to save drafts:', error);
+          throw new Error('Failed to save task drafts');
+        }
+
+        console.log('[What Tab] Drafts saved to Supabase:', savedDrafts);
+
+        // Show drafts review modal
+        setTaskDrafts(savedDrafts || []);
+        setShowVoiceTranscript(false);
+        setShowDraftsReview(true);
+      } else {
+        // No tasks extracted
+        console.warn('[What Tab] No tasks extracted from transcript');
+        alert('No tasks found in your recording. Please try again with clearer instructions.');
+        setShowVoiceTranscript(false);
       }
-
-      const data = await response.json();
-      console.log('[What Tab] Drafts extracted:', data);
-
-      // Show drafts review modal
-      setTaskDrafts(data.drafts || []);
-      setShowVoiceTranscript(false);
-      setShowDraftsReview(true);
     } catch (error) {
       console.error('[What Tab] Failed to extract drafts:', error);
-      alert('Failed to extract tasks. Please try again.');
+      alert(`Failed to extract tasks: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       setIsProcessingTranscript(false);
     }

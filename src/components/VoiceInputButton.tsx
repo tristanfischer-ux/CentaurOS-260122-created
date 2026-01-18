@@ -2,7 +2,7 @@
  * Voice Input Button
  * Floating button for voice recording with transcription
  *
- * Uses Google Cloud Speech-to-Text API for real-time transcription
+ * Uses Google Cloud Speech-to-Text API for real-time transcription (client-side)
  */
 
 import { View, Text, Pressable, Modal, Animated as RNAnimated, Platform } from 'react-native';
@@ -18,6 +18,7 @@ import Animated, {
   withSequence,
   Easing,
 } from 'react-native-reanimated';
+import { transcribeAudioWithGoogle } from '@/lib/transcription/google-speech';
 
 interface VoiceInputButtonProps {
   onTranscriptComplete: (transcript: string) => void;
@@ -167,39 +168,21 @@ export function VoiceInputButton({
 
       console.log('[VoiceInput] Audio converted to base64, size:', base64Audio.length);
 
-      // Call transcription API
-      console.log('[VoiceInput] Sending audio to transcription API...');
+      // Call Google Speech-to-Text API directly (client-side)
+      console.log('[VoiceInput] Transcribing with Google Speech-to-Text...');
 
-      const transcribeResponse = await fetch('/api/transcribe', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          audioBase64: base64Audio,
-          mimeType: 'audio/caf', // iOS recordings are typically CAF format
-        }),
-      });
-
-      if (!transcribeResponse.ok) {
-        const errorData = await transcribeResponse.json();
-        console.error('[VoiceInput] Transcription error:', errorData);
-        throw new Error(errorData.error || 'Transcription failed');
-      }
-
-      const transcriptionData = await transcribeResponse.json();
-      const transcript = transcriptionData.transcript;
+      const result = await transcribeAudioWithGoogle(base64Audio, 'audio/caf');
 
       console.log('[VoiceInput] Transcription complete:', {
-        transcript: transcript.substring(0, 100),
-        confidence: transcriptionData.confidence,
+        transcript: result.transcript.substring(0, 100),
+        confidence: result.confidence,
       });
 
       setIsProcessing(false);
       setShowModal(false);
       setRecordingDuration(0);
 
-      onTranscriptComplete(transcript);
+      onTranscriptComplete(result.transcript);
     } catch (error) {
       console.error('[VoiceInput] Failed to stop recording:', error);
       onError?.('Failed to process recording');
