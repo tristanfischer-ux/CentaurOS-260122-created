@@ -26,9 +26,9 @@ export interface WhatWhyConfig {
 
 export const whatWhyConfig: WhatWhyConfig = {
   llm: {
-    provider: process.env.LLM_PROVIDER || 'anthropic',
-    model: process.env.LLM_MODEL || 'claude-3-5-sonnet-20241022',
-    apiKey: process.env.ANTHROPIC_API_KEY || process.env.EXPO_PUBLIC_VIBECODE_ANTHROPIC_API_KEY,
+    provider: process.env.LLM_PROVIDER || 'google', // Default to Google (free!)
+    model: process.env.LLM_MODEL || 'gemini-1.5-flash',
+    apiKey: process.env.GOOGLE_AI_API_KEY || process.env.ANTHROPIC_API_KEY || process.env.EXPO_PUBLIC_VIBECODE_ANTHROPIC_API_KEY,
   },
   voice: {
     enabled: process.env.VOICE_ENABLED !== 'false',
@@ -51,6 +51,10 @@ export function validateWhatWhyConfig(): { valid: boolean; warnings: string[] } 
   // Check LLM setup
   if (whatWhyConfig.llm.provider === 'anthropic' && !whatWhyConfig.llm.apiKey) {
     warnings.push('LLM_PROVIDER=anthropic but no API key found. Will fall back to mock.');
+  }
+
+  if (whatWhyConfig.llm.provider === 'google' && !whatWhyConfig.llm.apiKey) {
+    warnings.push('LLM_PROVIDER=google but no API key found. Will fall back to mock.');
   }
 
   if (warnings.length > 0) {

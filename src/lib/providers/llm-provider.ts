@@ -84,6 +84,78 @@ export class AnthropicProvider implements LLMProvider {
 }
 
 // ============================================================================
+// GOOGLE GEMINI PROVIDER
+// ============================================================================
+
+export class GoogleGeminiProvider implements LLMProvider {
+  private apiKey: string;
+  private model: string;
+
+  constructor(apiKey: string, model: string = 'gemini-1.5-flash') {
+    if (!apiKey) {
+      throw new Error('Google AI API key required');
+    }
+    this.apiKey = apiKey;
+    this.model = model;
+  }
+
+  async complete(options: LLMCompletionOptions): Promise<LLMResponse> {
+    // Combine system prompt and user prompt for Gemini
+    const fullPrompt = options.systemPrompt
+      ? `${options.systemPrompt}\n\n${options.prompt}`
+      : options.prompt;
+
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/${this.model}:generateContent?key=${this.apiKey}`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          contents: [
+            {
+              parts: [
+                {
+                  text: fullPrompt,
+                },
+              ],
+            },
+          ],
+          generationConfig: {
+            temperature: options.temperature || 0.7,
+            maxOutputTokens: options.maxTokens || 4000,
+          },
+        }),
+      }
+    );
+
+    if (!response.ok) {
+      const error = await response.text();
+      throw new Error(`Google Gemini API error: ${response.status} - ${error}`);
+    }
+
+    const data = await response.json();
+    const content = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+
+    // Try to parse JSON if schema provided
+    let parsed = undefined;
+    if (options.schema && content.trim().startsWith('{')) {
+      try {
+        parsed = JSON.parse(content);
+      } catch (e) {
+        console.warn('Failed to parse LLM JSON response:', e);
+      }
+    }
+
+    return {
+      content,
+      parsed,
+    };
+  }
+}
+
+// ============================================================================
 // MOCK PROVIDER (Dev Fallback)
 // ============================================================================
 
@@ -208,12 +280,16 @@ export function createLLMProvider(
   apiKey?: string,
   model?: string
 ): LLMProvider {
+  if (provider === 'google' && apiKey) {
+    return new GoogleGeminiProvider(apiKey, model);
+  }
+
   if (provider === 'anthropic' && apiKey) {
     return new AnthropicProvider(apiKey, model);
   }
 
-  if (provider === 'anthropic' && !apiKey) {
-    console.warn('Anthropic provider selected but no API key provided. Falling back to mock.');
+  if ((provider === 'google' || provider === 'anthropic') && !apiKey) {
+    console.warn(`${provider} provider selected but no API key provided. Falling back to mock.`);
   }
 
   return new MockLLMProvider();
