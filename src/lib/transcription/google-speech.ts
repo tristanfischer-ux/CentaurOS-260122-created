@@ -40,8 +40,18 @@ export async function transcribeAudioWithGoogle(
   }
 
   // Determine audio encoding from MIME type
-  const audioEncoding =
-    mimeType.includes('wav') ? 'LINEAR16' : 'MP3'; // Google accepts MP3 for CAF/M4A/MP4
+  // Google Speech-to-Text supports: FLAC, LINEAR16, MULAW, AMR, AMR_WB, OGG_OPUS, SPEEX_WITH_HEADER_BYTE, WEBM_OPUS
+  let audioEncoding: string;
+
+  if (mimeType.includes('wav')) {
+    audioEncoding = 'LINEAR16'; // WAV files use LINEAR16 PCM encoding
+  } else if (mimeType.includes('flac')) {
+    audioEncoding = 'FLAC';
+  } else if (mimeType.includes('webm')) {
+    audioEncoding = 'WEBM_OPUS';
+  } else {
+    audioEncoding = 'ENCODING_UNSPECIFIED'; // Let Google auto-detect
+  }
 
   console.log('[GoogleSpeech] Starting transcription:', {
     audioSize: base64Audio.length,
@@ -61,10 +71,11 @@ export async function transcribeAudioWithGoogle(
         body: JSON.stringify({
           config: {
             encoding: audioEncoding,
-            sampleRateHertz: 44100, // Standard for mobile recordings
+            sampleRateHertz: audioEncoding === 'LINEAR16' ? 16000 : undefined, // Set for LINEAR16
             languageCode: 'en-GB', // UK English
             enableAutomaticPunctuation: true,
             model: 'default',
+            audioChannelCount: 1, // Mono audio
           },
           audio: {
             content: base64Audio,

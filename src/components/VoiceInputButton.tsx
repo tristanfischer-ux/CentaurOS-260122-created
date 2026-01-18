@@ -76,10 +76,33 @@ export function VoiceInputButton({
         playsInSilentModeIOS: true,
       });
 
-      // Create and start recording
-      const { recording } = await Audio.Recording.createAsync(
-        Audio.RecordingOptionsPresets.HIGH_QUALITY
-      );
+      // Create and start recording with LINEAR16 PCM format (Google Speech-to-Text compatible)
+      const { recording } = await Audio.Recording.createAsync({
+        isMeteringEnabled: true,
+        android: {
+          extension: '.wav',
+          outputFormat: Audio.AndroidOutputFormat.DEFAULT,
+          audioEncoder: Audio.AndroidAudioEncoder.DEFAULT,
+          sampleRate: 16000,
+          numberOfChannels: 1,
+          bitRate: 128000,
+        },
+        ios: {
+          extension: '.wav',
+          outputFormat: Audio.IOSOutputFormat.LINEARPCM,
+          audioQuality: Audio.IOSAudioQuality.HIGH,
+          sampleRate: 16000,
+          numberOfChannels: 1,
+          bitRate: 128000,
+          linearPCMBitDepth: 16,
+          linearPCMIsBigEndian: false,
+          linearPCMIsFloat: false,
+        },
+        web: {
+          mimeType: 'audio/webm',
+          bitsPerSecond: 128000,
+        },
+      });
 
       recordingRef.current = recording;
       setIsRecording(true);
@@ -162,7 +185,7 @@ export function VoiceInputButton({
       // Call Google Speech-to-Text API directly (client-side)
       console.log('[VoiceInput] Transcribing with Google Speech-to-Text...');
 
-      const result = await transcribeAudioWithGoogle(base64Audio, 'audio/caf');
+      const result = await transcribeAudioWithGoogle(base64Audio, 'audio/wav');
 
       console.log('[VoiceInput] Transcription complete:', {
         transcript: result.transcript.substring(0, 100),
@@ -176,7 +199,12 @@ export function VoiceInputButton({
       onTranscriptComplete(result.transcript);
     } catch (error) {
       console.error('[VoiceInput] Failed to stop recording:', error);
-      onError?.('Failed to process recording');
+      console.error('[VoiceInput] Error details:', {
+        message: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined,
+        type: typeof error,
+      });
+      onError?.(`Failed to process recording: ${error instanceof Error ? error.message : String(error)}`);
       setIsRecording(false);
       setIsProcessing(false);
       setShowModal(false);
