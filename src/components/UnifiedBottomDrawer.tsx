@@ -167,7 +167,8 @@ export function UnifiedBottomDrawer({
       onTextSubmit(textInput.trim());
       setTextInput('');
       setInputMode(null);
-      toggleExpanded();
+      // Don't toggle expanded - let the parent component handle it
+      // toggleExpanded();
     } else {
       console.log('[UnifiedDrawer] Text input is empty, not submitting');
     }
@@ -176,7 +177,8 @@ export function UnifiedBottomDrawer({
   const handleVoiceComplete = (transcript: string) => {
     onVoiceTranscript(transcript);
     setInputMode(null);
-    toggleExpanded();
+    // Don't toggle expanded - let the parent component handle it
+    // toggleExpanded();
   };
 
   return (
