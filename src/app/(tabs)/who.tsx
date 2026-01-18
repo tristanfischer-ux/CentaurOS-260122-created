@@ -182,6 +182,8 @@ export default function WhoScreen() {
     FractionalExec: true,
     Apprentice: true,
   });
+  const [showTemplateModal, setShowTemplateModal] = useState(false);
+  const [selectedTemplate, setSelectedTemplate] = useState<'pre-seed' | 'seed' | null>(null);
 
   // Filter states
   const [minExperience, setMinExperience] = useState(0);
@@ -1396,21 +1398,43 @@ export default function WhoScreen() {
             <View className="mb-6">
               <Text className="text-slate-900 dark:text-white font-semibold text-lg mb-3">Team Templates</Text>
               <View className="gap-3">
-                <View className="bg-white dark:bg-slate-800 rounded-xl p-4">
+                <Pressable
+                  onPress={() => {
+                    setSelectedTemplate('pre-seed');
+                    setShowTemplateModal(true);
+                  }}
+                  className="bg-white dark:bg-slate-800 rounded-xl p-4 active:opacity-70"
+                >
                   <Text className="text-slate-900 dark:text-white font-semibold mb-2">Startup Team (Pre-Seed)</Text>
                   <Text className="text-slate-500 dark:text-slate-400 text-sm mb-3">
                     1 Founder + 2 Fractional Execs (Eng, Marketing) + 3 Apprentices
                   </Text>
-                  <Text className="text-blue-600 dark:text-blue-400 text-sm font-medium">View Template →</Text>
-                </View>
+                  <View className="flex-row items-center justify-between">
+                    <Text className="text-blue-600 dark:text-blue-400 text-sm font-medium">View Template →</Text>
+                    <View className="bg-blue-100 dark:bg-blue-900/30 px-2 py-1 rounded">
+                      <Text className="text-blue-600 dark:text-blue-400 text-xs font-medium">6 members</Text>
+                    </View>
+                  </View>
+                </Pressable>
 
-                <View className="bg-white dark:bg-slate-800 rounded-xl p-4">
+                <Pressable
+                  onPress={() => {
+                    setSelectedTemplate('seed');
+                    setShowTemplateModal(true);
+                  }}
+                  className="bg-white dark:bg-slate-800 rounded-xl p-4 active:opacity-70"
+                >
                   <Text className="text-slate-900 dark:text-white font-semibold mb-2">Growth Team (Seed)</Text>
                   <Text className="text-slate-500 dark:text-slate-400 text-sm mb-3">
                     2 Founders + 4 Fractional Execs + 6 Apprentices
                   </Text>
-                  <Text className="text-blue-600 dark:text-blue-400 text-sm font-medium">View Template →</Text>
-                </View>
+                  <View className="flex-row items-center justify-between">
+                    <Text className="text-blue-600 dark:text-blue-400 text-sm font-medium">View Template →</Text>
+                    <View className="bg-blue-100 dark:bg-blue-900/30 px-2 py-1 rounded">
+                      <Text className="text-blue-600 dark:text-blue-400 text-xs font-medium">12 members</Text>
+                    </View>
+                  </View>
+                </Pressable>
               </View>
             </View>
 
@@ -1567,6 +1591,125 @@ export default function WhoScreen() {
           </Pressable>
         </Animated.View>
       )}
+
+      {/* Team Template Modal */}
+      <Modal
+        visible={showTemplateModal}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setShowTemplateModal(false)}
+      >
+        <Pressable className="flex-1 bg-black/70" onPress={() => setShowTemplateModal(false)}>
+          <View className="flex-1" />
+          <Pressable onPress={(e) => e.stopPropagation()} style={{ maxHeight: '80%' }}>
+            <View className="bg-white dark:bg-slate-900 rounded-t-3xl">
+              {/* Header */}
+              <View className="flex-row items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-slate-800">
+                <Text className="text-slate-900 dark:text-white font-bold text-xl">
+                  {selectedTemplate === 'pre-seed' ? 'Startup Team (Pre-Seed)' : 'Growth Team (Seed)'}
+                </Text>
+                <Pressable onPress={() => setShowTemplateModal(false)} className="p-2">
+                  <X size={24} color="#64748b" />
+                </Pressable>
+              </View>
+
+              {/* Content */}
+              <ScrollView className="px-6 py-4" contentContainerStyle={{ paddingBottom: 20 }}>
+                <Text className="text-slate-500 dark:text-slate-400 mb-4">
+                  {selectedTemplate === 'pre-seed'
+                    ? 'Ideal for early-stage startups with limited funding. Lean team focused on product development and initial market validation.'
+                    : 'Designed for post-seed companies ready to scale. Balanced team across all key functions with room for growth.'}
+                </Text>
+
+                {/* Team Composition */}
+                <View className="mb-6">
+                  <Text className="text-slate-900 dark:text-white font-semibold mb-3">Team Composition</Text>
+                  <View className="gap-2">
+                    {selectedTemplate === 'pre-seed' ? (
+                      <>
+                        <View className="flex-row items-center gap-3 bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg">
+                          <Crown size={20} color="#3b82f6" />
+                          <Text className="flex-1 text-slate-700 dark:text-slate-300"><Text className="font-semibold">1 Founder</Text> - CEO/Product Lead</Text>
+                        </View>
+                        <View className="flex-row items-center gap-3 bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg">
+                          <Briefcase size={20} color="#8b5cf6" />
+                          <Text className="flex-1 text-slate-700 dark:text-slate-300"><Text className="font-semibold">2 Fractional Execs</Text> - Engineering & Marketing (2 days/week each)</Text>
+                        </View>
+                        <View className="flex-row items-center gap-3 bg-emerald-50 dark:bg-emerald-900/20 p-3 rounded-lg">
+                          <GraduationCap size={20} color="#10b981" />
+                          <Text className="flex-1 text-slate-700 dark:text-slate-300"><Text className="font-semibold">3 Apprentices</Text> - Dev, Design, Operations</Text>
+                        </View>
+                      </>
+                    ) : (
+                      <>
+                        <View className="flex-row items-center gap-3 bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg">
+                          <Crown size={20} color="#3b82f6" />
+                          <Text className="flex-1 text-slate-700 dark:text-slate-300"><Text className="font-semibold">2 Founders</Text> - CEO & CTO</Text>
+                        </View>
+                        <View className="flex-row items-center gap-3 bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg">
+                          <Briefcase size={20} color="#8b5cf6" />
+                          <Text className="flex-1 text-slate-700 dark:text-slate-300"><Text className="font-semibold">4 Fractional Execs</Text> - Sales, Marketing, Finance, Ops</Text>
+                        </View>
+                        <View className="flex-row items-center gap-3 bg-emerald-50 dark:bg-emerald-900/20 p-3 rounded-lg">
+                          <GraduationCap size={20} color="#10b981" />
+                          <Text className="flex-1 text-slate-700 dark:text-slate-300"><Text className="font-semibold">6 Apprentices</Text> - 2 Dev, 2 Design, 1 Sales, 1 Support</Text>
+                        </View>
+                      </>
+                    )}
+                  </View>
+                </View>
+
+                {/* Benefits */}
+                <View className="mb-6">
+                  <Text className="text-slate-900 dark:text-white font-semibold mb-3">Why This Template?</Text>
+                  <View className="gap-2">
+                    <View className="flex-row items-start gap-2">
+                      <Text className="text-blue-500 mt-0.5">✓</Text>
+                      <Text className="flex-1 text-slate-600 dark:text-slate-400 text-sm">
+                        {selectedTemplate === 'pre-seed'
+                          ? 'Cost-effective with fractional expertise'
+                          : 'Balanced coverage across all key functions'}
+                      </Text>
+                    </View>
+                    <View className="flex-row items-start gap-2">
+                      <Text className="text-blue-500 mt-0.5">✓</Text>
+                      <Text className="flex-1 text-slate-600 dark:text-slate-400 text-sm">
+                        {selectedTemplate === 'pre-seed'
+                          ? 'Apprentices provide bandwidth at lower cost'
+                          : 'Room for growth as company scales'}
+                      </Text>
+                    </View>
+                    <View className="flex-row items-start gap-2">
+                      <Text className="text-blue-500 mt-0.5">✓</Text>
+                      <Text className="flex-1 text-slate-600 dark:text-slate-400 text-sm">
+                        {selectedTemplate === 'pre-seed'
+                          ? 'Agile and lean structure'
+                          : 'Professional leadership with execution capacity'}
+                      </Text>
+                    </View>
+                  </View>
+                </View>
+
+                {/* Call to Action */}
+                <View className="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-4">
+                  <Text className="text-slate-700 dark:text-slate-300 text-sm mb-3">
+                    Ready to build this team? Use the Hire tab to find and add Fractional Executives and Apprentices.
+                  </Text>
+                  <Pressable
+                    onPress={() => {
+                      setShowTemplateModal(false);
+                      setActiveTab('hire');
+                    }}
+                    className="bg-blue-500 py-3 rounded-lg items-center"
+                  >
+                    <Text className="text-white font-semibold">Go to Hire Tab</Text>
+                  </Pressable>
+                </View>
+              </ScrollView>
+            </View>
+          </Pressable>
+        </Pressable>
+      </Modal>
 
       {/* Comparison Modal */}
       <Modal

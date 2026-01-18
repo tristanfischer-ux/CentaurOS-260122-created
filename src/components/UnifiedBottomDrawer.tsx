@@ -461,7 +461,7 @@ export function UnifiedBottomDrawer({
                       </View>
                       <Text className="text-slate-900 dark:text-white font-semibold">Voice</Text>
                       <Text className="text-slate-600 dark:text-slate-400 text-xs text-center mt-1">
-                        Speak naturally
+                        Speak naturally to describe your task
                       </Text>
                     </Pressable>
 
@@ -474,7 +474,7 @@ export function UnifiedBottomDrawer({
                       </View>
                       <Text className="text-slate-900 dark:text-white font-semibold">Type</Text>
                       <Text className="text-slate-600 dark:text-slate-400 text-xs text-center mt-1">
-                        Describe tasks
+                        Describe task
                       </Text>
                     </Pressable>
                   </View>
