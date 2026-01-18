@@ -403,7 +403,8 @@ export default function WhatScreen() {
           console.log('[What Tab] Task added successfully:', newTask.id);
         } catch (err) {
           console.error('[What Tab] Failed to add task:', err);
-          console.error('[What Tab] Error message:', err instanceof Error ? err.message : String(err));
+          const errorMessage = err instanceof Error ? err.message : JSON.stringify(err);
+          console.error('[What Tab] Error message:', errorMessage);
           // Continue anyway - don't fail the whole batch
         }
       }

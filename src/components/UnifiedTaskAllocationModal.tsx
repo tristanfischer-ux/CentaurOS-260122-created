@@ -619,9 +619,14 @@ export function UnifiedTaskAllocationModal({ visible, onClose, workPlan }: Props
                     <Text className="text-blue-900 dark:text-blue-100 text-sm font-medium mb-1">
                       Task Requirement
                     </Text>
-                    <Text className="text-blue-600 dark:text-blue-400 text-3xl font-bold">
-                      {totalTUs}□
-                    </Text>
+                    <View className="flex-row items-baseline">
+                      <Text className="text-blue-600 dark:text-blue-400 text-3xl font-bold">
+                        {totalTUs}
+                      </Text>
+                      <Text className="text-blue-600 dark:text-blue-400 text-lg font-semibold ml-1">
+                        TU
+                      </Text>
+                    </View>
                     <Text className="text-blue-700 dark:text-blue-300 text-xs mt-1">
                       {totalTUs * 4} hours of work needed
                     </Text>
@@ -631,19 +636,28 @@ export function UnifiedTaskAllocationModal({ visible, onClose, workPlan }: Props
                     <Text className="text-blue-900 dark:text-blue-100 text-sm font-medium mb-1">
                       Allocated
                     </Text>
-                    <Text className={`text-3xl font-bold ${
-                      calculations.totalAllocatedPerWeek >= totalTUs
-                        ? 'text-emerald-600 dark:text-emerald-400'
-                        : 'text-orange-600 dark:text-orange-400'
-                    }`}>
-                      {calculations.totalAllocatedPerWeek}□
-                    </Text>
+                    <View className="flex-row items-baseline">
+                      <Text className={`text-3xl font-bold ${
+                        calculations.totalAllocatedPerWeek >= totalTUs
+                          ? 'text-emerald-600 dark:text-emerald-400'
+                          : 'text-orange-600 dark:text-orange-400'
+                      }`}>
+                        {calculations.totalAllocatedPerWeek}
+                      </Text>
+                      <Text className={`text-lg font-semibold ml-1 ${
+                        calculations.totalAllocatedPerWeek >= totalTUs
+                          ? 'text-emerald-600 dark:text-emerald-400'
+                          : 'text-orange-600 dark:text-orange-400'
+                      }`}>
+                        TU
+                      </Text>
+                    </View>
                     <Text className={`text-xs mt-1 font-semibold ${
                       calculations.totalAllocatedPerWeek >= totalTUs
                         ? 'text-emerald-700 dark:text-emerald-300'
                         : 'text-orange-700 dark:text-orange-300'
                     }`}>
-                      {calculations.totalAllocatedPerWeek >= totalTUs ? '✓ Fully allocated' : `Need ${totalTUs - calculations.totalAllocatedPerWeek}□ more`}
+                      {calculations.totalAllocatedPerWeek >= totalTUs ? '✓ Fully allocated' : `Need ${totalTUs - calculations.totalAllocatedPerWeek} TU more`}
                     </Text>
                   </View>
                 </View>
