@@ -264,16 +264,35 @@ export default function WhatScreen() {
   };
 
   const handleProcessVoiceTranscript = async () => {
-    if (!voiceTranscript.trim() || !currentWorkspace || !currentMembership) return;
+    if (!voiceTranscript.trim() || !currentWorkspace || !currentMembership) {
+      console.error('[What Tab] Missing required data:', {
+        hasTranscript: !!voiceTranscript.trim(),
+        hasWorkspace: !!currentWorkspace,
+        hasMembership: !!currentMembership,
+      });
+      return;
+    }
 
     console.log('[What Tab] Processing voice transcript:', voiceTranscript);
+    console.log('[What Tab] Current workspace:', currentWorkspace?.id);
+    console.log('[What Tab] Current membership:', currentMembership?.id);
     setIsProcessingTranscript(true);
 
     try {
       // Extract tasks using client-side Gemini AI
+      console.log('[What Tab] Calling extractTasksFromText...');
       const extraction = await extractTasksFromText(voiceTranscript, 'voice');
 
       console.log('[What Tab] Tasks extracted:', extraction);
+      console.log('[What Tab] Number of tasks:', extraction.tasks.length);
+
+      if (extraction.tasks.length === 0) {
+        console.warn('[What Tab] No tasks extracted from transcript');
+        alert('No tasks found in your recording. Please try again with clearer instructions.');
+        setShowVoiceTranscript(false);
+        setIsProcessingTranscript(false);
+        return;
+      }
 
       // Convert extraction format to TaskDraft format and save to Supabase
       const draftsToSave = extraction.tasks.map((task) => ({
@@ -292,32 +311,33 @@ export default function WhatScreen() {
         transcript_ref: voiceTranscript,
       }));
 
+      console.log('[What Tab] Drafts to save:', draftsToSave);
+
       // Save drafts to Supabase
-      if (draftsToSave.length > 0) {
-        const { data: savedDrafts, error } = await supabase
-          .from('task_drafts')
-          .insert(draftsToSave)
-          .select();
+      console.log('[What Tab] Saving drafts to Supabase...');
+      const { data: savedDrafts, error } = await supabase
+        .from('task_drafts')
+        .insert(draftsToSave)
+        .select();
 
-        if (error) {
-          console.error('[What Tab] Failed to save drafts:', error);
-          throw new Error('Failed to save task drafts');
-        }
-
-        console.log('[What Tab] Drafts saved to Supabase:', savedDrafts);
-
-        // Show drafts review modal
-        setTaskDrafts(savedDrafts || []);
-        setShowVoiceTranscript(false);
-        setShowDraftsReview(true);
-      } else {
-        // No tasks extracted
-        console.warn('[What Tab] No tasks extracted from transcript');
-        alert('No tasks found in your recording. Please try again with clearer instructions.');
-        setShowVoiceTranscript(false);
+      if (error) {
+        console.error('[What Tab] Failed to save drafts:', error);
+        throw new Error(`Failed to save task drafts: ${error.message}`);
       }
+
+      console.log('[What Tab] Drafts saved to Supabase:', savedDrafts);
+
+      // Show drafts review modal
+      setTaskDrafts(savedDrafts || []);
+      setShowVoiceTranscript(false);
+      setShowDraftsReview(true);
+      console.log('[What Tab] Opening drafts review modal');
     } catch (error) {
       console.error('[What Tab] Failed to extract drafts:', error);
+      console.error('[What Tab] Error details:', {
+        message: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined,
+      });
       alert(`Failed to extract tasks: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       setIsProcessingTranscript(false);
