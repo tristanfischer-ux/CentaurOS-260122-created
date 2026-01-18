@@ -57,7 +57,10 @@ export function TaskDraftsReviewModal({
   };
 
   const handleConfirmAll = () => {
+    console.log('[TaskDraftsReviewModal] Confirm All clicked');
+    console.log('[TaskDraftsReviewModal] drafts:', drafts);
     const allDraftIds = drafts.map(d => d.id);
+    console.log('[TaskDraftsReviewModal] allDraftIds:', allDraftIds);
     onConfirm(allDraftIds);
   };
 
