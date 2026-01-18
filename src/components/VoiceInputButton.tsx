@@ -1,6 +1,8 @@
 /**
  * Voice Input Button
  * Floating button for voice recording with transcription
+ *
+ * Uses Google Cloud Speech-to-Text API for real-time transcription
  */
 
 import { View, Text, Pressable, Modal, Animated as RNAnimated, Platform } from 'react-native';
@@ -16,14 +18,6 @@ import Animated, {
   withSequence,
   Easing,
 } from 'react-native-reanimated';
-
-/**
- * TODO: Implement real transcription
- * This component currently uses mock transcripts for development.
- * To implement real transcription, you can:
- * 1. Create an API route endpoint at /api/transcribe that uses OpenAI Whisper
- * 2. Or integrate with a speech-to-text service directly from the client
- */
 
 interface VoiceInputButtonProps {
   onTranscriptComplete: (transcript: string) => void;
@@ -155,19 +149,38 @@ export function VoiceInputButton({
         throw new Error('Failed to get recording URI');
       }
 
-      // TODO: Implement real transcription API
-      // For now, use mock transcript based on recording duration
-      const mockTranscript = recordingDuration < 3
-        ? "Quick task example"
-        : "Create a task to implement the user authentication flow, assign it to the engineering team, and set a deadline for next Friday.";
+      // Call transcription API
+      console.log('[VoiceInput] Sending audio to transcription API...');
 
-      console.log('[VoiceInput] Using mock transcript:', mockTranscript);
+      const transcribeResponse = await fetch('/api/transcribe', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          audioUri: uri,
+          mimeType: 'audio/caf', // iOS recordings are typically CAF format
+        }),
+      });
+
+      if (!transcribeResponse.ok) {
+        const error = await transcribeResponse.json();
+        throw new Error(error.error || 'Transcription failed');
+      }
+
+      const transcriptionData = await transcribeResponse.json();
+      const transcript = transcriptionData.transcript;
+
+      console.log('[VoiceInput] Transcription complete:', {
+        transcript: transcript.substring(0, 100),
+        confidence: transcriptionData.confidence,
+      });
 
       setIsProcessing(false);
       setShowModal(false);
       setRecordingDuration(0);
 
-      onTranscriptComplete(mockTranscript);
+      onTranscriptComplete(transcript);
     } catch (error) {
       console.error('[VoiceInput] Failed to stop recording:', error);
       onError?.('Failed to process recording');

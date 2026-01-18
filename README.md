@@ -15,6 +15,32 @@ Centaur OS is a comprehensive iOS mobile application that helps lean companies o
 
 ## 🚀 Latest Updates (Jan 18, 2026)
 
+### 🎙️ Real Voice Transcription with Google Cloud Speech-to-Text!
+
+**Voice-to-Task Flow Now Fully Functional:**
+- ✅ **Real Transcription**: Integrated Google Cloud Speech-to-Text API for accurate voice transcription
+- 🎤 **Complete Pipeline**: Voice recording → Real-time transcription → AI task extraction → Task creation
+- 🌐 **Google Ecosystem**: Uses your `EXPO_PUBLIC_GOOGLE_AI_API_KEY` for both transcription AND task extraction
+- 📱 **Production Ready**: No more mock transcripts - fully functional voice input on both WHAT and WHY tabs
+- 🔊 **High Accuracy**: Google's industry-leading speech recognition with automatic punctuation
+
+**Technical Implementation:**
+- Created `/api/transcribe` endpoint using Google Cloud Speech-to-Text API
+- Updated `VoiceInputButton` component to send audio for real transcription
+- Supports iOS audio formats (CAF, M4A, MP4)
+- Handles UK English with automatic punctuation
+- Full error handling with user-friendly messages
+
+**How It Works:**
+1. User records voice via microphone
+2. Audio sent to Google Speech-to-Text API (`/api/transcribe`)
+3. Transcript sent to Google Gemini AI (`/api/what/extract-drafts`)
+4. AI extracts structured tasks with assignees, dates, and time estimates
+5. User reviews and confirms task drafts
+6. Tasks created in workspace
+
+---
+
 ### 🎤 Complete Voice Input UX Redesign!
 
 **Collapsible Drawer UI:**
