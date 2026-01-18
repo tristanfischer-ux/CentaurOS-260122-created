@@ -118,14 +118,21 @@ export default function WhatScreen() {
   const abandonWorkPlan = useWorkPlanStore(s => s.abandonWorkPlan);
 
   // Fallback: Use first member as current user if currentMembership is null (for demo/dev)
-  // If no members, create a default user
+  // If no members, create a default user with proper UUID
   const effectiveMembership = currentMembership ||
     (members.length > 0
       ? { id: members[0].id, role: members[0].role, function: members[0].function }
-      : { id: 'demo-user-1', role: 'Founder' as const, function: 'Engineering' as const });
+      : {
+          id: '00000000-0000-0000-0000-000000000001', // Valid UUID for demo
+          role: 'Founder' as const,
+          function: 'Engineering' as const
+        });
 
-  // Fallback workspace for demo/dev
-  const effectiveWorkspace = currentWorkspace || { id: 'demo-workspace-1', name: 'Demo Workspace' };
+  // Fallback workspace for demo/dev with proper UUID
+  const effectiveWorkspace = currentWorkspace || {
+    id: '00000000-0000-0000-0000-000000000002', // Valid UUID for demo
+    name: 'Demo Workspace'
+  };
 
   // State
   const [showHelp, setShowHelp] = useState(false);

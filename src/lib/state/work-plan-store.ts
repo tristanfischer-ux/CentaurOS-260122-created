@@ -503,6 +503,20 @@ export const useWorkPlanStore = create<WorkPlanState>((set, get) => ({
       // NOTE: Supabase schema only has: id, workspace_id, title, description, status,
       // priority, progress, start_date, end_date, created_by, created_at, updated_at
       // Supabase status values: 'planning', 'in-progress', 'blocked', 'completed', 'abandoned'
+
+      // Only include created_by if it's a valid member ID (not a demo UUID)
+      // Demo UUIDs start with 00000000, so we'll set them to null
+      const isValidMemberId = workPlan.assignedBy && !workPlan.assignedBy.startsWith('00000000');
+      const isDemoWorkspace = workPlan.workspaceId.startsWith('00000000');
+
+      // If using demo workspace, we can't save to Supabase (foreign key constraint)
+      if (isDemoWorkspace) {
+        console.warn('[WorkPlanStore] Demo workspace detected, skipping Supabase save');
+        console.log('[WorkPlanStore] Work plan will only exist in local state');
+        // Keep the optimistic update, but don't try to save to Supabase
+        return;
+      }
+
       const supabaseWorkPlan = {
         id: workPlan.id !== tempId ? workPlan.id : undefined,
         workspace_id: workPlan.workspaceId,
@@ -514,7 +528,7 @@ export const useWorkPlanStore = create<WorkPlanState>((set, get) => ({
         progress: workPlan.progress,
         start_date: workPlan.startDate,
         end_date: workPlan.dueDate,
-        created_by: workPlan.assignedBy,
+        created_by: isValidMemberId ? workPlan.assignedBy : null,
       };
 
       const { data, error } = await supabase
