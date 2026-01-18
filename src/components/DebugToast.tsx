@@ -4,7 +4,7 @@
  */
 
 import { View, Text, ScrollView } from 'react-native';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 
 interface LogEntry {
   message: string;
@@ -12,7 +12,18 @@ interface LogEntry {
 }
 
 let logBuffer: LogEntry[] = [];
+let updateScheduled = false;
 let listeners: Set<() => void> = new Set();
+
+// Safely notify listeners (deferred to avoid setState during render)
+const notifyListeners = () => {
+  if (updateScheduled) return;
+  updateScheduled = true;
+  setTimeout(() => {
+    updateScheduled = false;
+    listeners.forEach(fn => fn());
+  }, 0);
+};
 
 // Intercept console.log
 const originalLog = console.log;
@@ -26,7 +37,7 @@ console.log = (...args: any[]) => {
 
   logBuffer.push({ message, timestamp: Date.now() });
   if (logBuffer.length > 50) logBuffer.shift();
-  listeners.forEach(fn => fn());
+  notifyListeners();
 };
 
 console.error = (...args: any[]) => {
@@ -37,20 +48,20 @@ console.error = (...args: any[]) => {
 
   logBuffer.push({ message, timestamp: Date.now() });
   if (logBuffer.length > 50) logBuffer.shift();
-  listeners.forEach(fn => fn());
+  notifyListeners();
 };
 
 export function DebugToast() {
   const [logs, setLogs] = useState<LogEntry[]>([]);
-  const [visible, setVisible] = useState(true);
 
   useEffect(() => {
+    // Initial load
+    setLogs([...logBuffer]);
+
     const update = () => setLogs([...logBuffer]);
     listeners.add(update);
     return () => { listeners.delete(update); };
   }, []);
-
-  if (!visible) return null;
 
   const recentLogs = logs.slice(-10);
 
