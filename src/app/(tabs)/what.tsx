@@ -789,6 +789,78 @@ export default function WhatScreen() {
         accentColor="#10b981" // Green for WHAT tab
       />
 
+      {/* Voice Transcript Modal - Extract Tasks */}
+      <Modal
+        visible={showVoiceTranscript}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setShowVoiceTranscript(false)}
+      >
+        <Pressable className="flex-1 bg-black/70" onPress={() => setShowVoiceTranscript(false)}>
+          <View className="flex-1" />
+          <Pressable onPress={(e) => e.stopPropagation()} style={{ maxHeight: '80%' }}>
+            <View className="bg-white dark:bg-slate-900 rounded-t-3xl p-6">
+              {/* Header */}
+              <View className="flex-row items-center justify-between mb-4">
+                <View className="flex-row items-center gap-2">
+                  <Sparkles size={24} color="#10b981" />
+                  <Text className="text-xl font-bold text-slate-900 dark:text-white">
+                    Extract Tasks
+                  </Text>
+                </View>
+                <Pressable onPress={() => setShowVoiceTranscript(false)} className="p-2">
+                  <X size={24} color="#64748b" />
+                </Pressable>
+              </View>
+
+              {/* Transcript */}
+              <ScrollView className="max-h-60 mb-4">
+                <View className="bg-slate-50 dark:bg-slate-800 rounded-xl p-4">
+                  <Text className="text-slate-700 dark:text-slate-300 text-base leading-6">
+                    {voiceTranscript}
+                  </Text>
+                </View>
+              </ScrollView>
+
+              {/* Info */}
+              <View className="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-4 mb-6">
+                <View className="flex-row items-start gap-3">
+                  <Sparkles size={20} color="#3b82f6" />
+                  <Text className="flex-1 text-blue-700 dark:text-blue-300 text-sm">
+                    The AI will analyze your recording and extract actionable tasks with assignees, due dates, and time estimates.
+                  </Text>
+                </View>
+              </View>
+
+              {/* Actions */}
+              <View className="flex-row gap-3">
+                <Pressable
+                  onPress={() => setShowVoiceTranscript(false)}
+                  className="flex-1 bg-slate-200 dark:bg-slate-700 py-4 rounded-xl items-center"
+                >
+                  <Text className="text-slate-700 dark:text-slate-300 font-semibold text-base">
+                    Cancel
+                  </Text>
+                </Pressable>
+                <Pressable
+                  onPress={handleProcessVoiceTranscript}
+                  disabled={isProcessingTranscript}
+                  className="flex-1 bg-emerald-500 py-4 rounded-xl items-center"
+                >
+                  {isProcessingTranscript ? (
+                    <View className="flex-row items-center gap-2">
+                      <Text className="text-white font-semibold text-base">Processing...</Text>
+                    </View>
+                  ) : (
+                    <Text className="text-white font-semibold text-base">Extract Tasks</Text>
+                  )}
+                </Pressable>
+              </View>
+            </View>
+          </Pressable>
+        </Pressable>
+      </Modal>
+
       {/* Task Drafts Review Modal */}
       <TaskDraftsReviewModal
         visible={showDraftsReview}
