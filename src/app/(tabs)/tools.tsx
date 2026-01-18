@@ -86,7 +86,7 @@ const STATUS_LABELS = {
   cancelled: 'Cancelled',
 };
 
-type ToolsTab = 'suppliers' | 'ai-agents' | 'ai-tools' | 'advisors';
+type ToolsTab = 'suppliers' | 'ai-tools' | 'advisors';
 
 export default function ToolsScreen() {
   const insets = useSafeAreaInsets();
@@ -483,7 +483,6 @@ export default function ToolsScreen() {
           {[
             { key: 'suppliers', label: 'Suppliers', icon: Factory },
             { key: 'advisors', label: 'Advisors', icon: Briefcase },
-            { key: 'ai-agents', label: 'AI Agents', icon: Bot },
             { key: 'ai-tools', label: 'AI Tools', icon: Zap },
           ].map(tab => (
             <Pressable
@@ -554,8 +553,8 @@ export default function ToolsScreen() {
           </View>
         )}
 
-        {/* AI Agents Tab */}
-        {activeTab === 'ai-agents' && (
+        {/* AI Tools Tab - Combined AI Agents and Tools */}
+        {activeTab === 'ai-tools' && (
           <View>
             {/* Reach Out Button */}
             <Pressable
@@ -569,35 +568,33 @@ export default function ToolsScreen() {
               <Text className="text-white font-semibold">Discover AI Tools</Text>
             </Pressable>
 
-            {aiAgents.length > 0 ? (
-              <>
+            {/* AI Agents Section */}
+            {aiAgents.length > 0 && (
+              <View className="mb-6">
+                <Text className="text-slate-900 dark:text-white font-bold text-lg mb-3">
+                  AI Agents
+                </Text>
                 <Text className="text-slate-500 dark:text-slate-400 text-sm mb-4">
                   {aiAgents.length} agents deployed
                 </Text>
                 {aiAgents.map((agent, index) => (
                   <AIAgentCard key={agent.id} agent={agent} index={index} />
                 ))}
-              </>
-            ) : (
-              <View className="items-center py-12">
-                <Bot size={48} color="#94a3b8" />
-                <Text className="text-slate-500 dark:text-slate-400 text-center mt-4">
-                  No AI agents deployed
-                </Text>
               </View>
             )}
-          </View>
-        )}
 
-        {/* AI Tools Tab */}
-        {activeTab === 'ai-tools' && (
-          <View>
-            <Text className="text-slate-500 dark:text-slate-400 text-sm mb-4">
-              {THIRD_PARTY_AI_TOOLS.length} tools available
-            </Text>
-            {THIRD_PARTY_AI_TOOLS.map((tool, index) => (
-              <AIToolCard key={tool.id} tool={tool} index={index} />
-            ))}
+            {/* AI Tools Marketplace Section */}
+            <View>
+              <Text className="text-slate-900 dark:text-white font-bold text-lg mb-3">
+                AI Tools Marketplace
+              </Text>
+              <Text className="text-slate-500 dark:text-slate-400 text-sm mb-4">
+                {THIRD_PARTY_AI_TOOLS.length} tools available
+              </Text>
+              {THIRD_PARTY_AI_TOOLS.map((tool, index) => (
+                <AIToolCard key={tool.id} tool={tool} index={index} />
+              ))}
+            </View>
           </View>
         )}
 
