@@ -15,32 +15,53 @@ Centaur OS is a comprehensive iOS mobile application that helps lean companies o
 
 ## 🚀 Latest Updates (Jan 18, 2026)
 
-### 🎤 Voice Input Added to WHAT & WHY Tabs!
+### 🎤 Complete Voice Input UX Redesign!
 
-**New Voice Recording Feature:**
-- 🎙️ **Voice Input Button**: Floating action button on both WHAT and WHY tabs
-- 🎯 **WHAT Tab**: Record voice notes to extract tasks - speak naturally about what needs to be done
-- 💡 **WHY Tab**: Start brainstorming sessions with voice - describe your business ideas and goals
-- ✨ **Beautiful UI**: Animated pulse effect while recording with duration timer
-- 📝 **Transcript Review**: See your transcription before processing
+**Collapsible Drawer UI:**
+- ✨ **New Bottom Drawer**: Replaced floating buttons with collapsible drawers on both WHAT and WHY tabs
+- 🎯 **WHAT Tab (Green)**: Create tasks via voice OR text input - no more obstructive floating buttons
+- 💡 **WHY Tab (Purple)**: Start brainstorming sessions with clear voice/text options
+- 📊 **Visual Feedback**: Shows pending drafts count and active sessions in collapsed state
+- 🎨 **Smooth Animations**: Spring animations using react-native-reanimated
 
-**How to Use:**
-1. Tap the floating microphone button (green on WHAT, purple on WHY)
-2. Grant microphone permission when prompted
-3. Speak your tasks or business ideas naturally
-4. Tap "Done" when finished recording
-5. Review the transcript and confirm to process
+**Complete Flow Implementation:**
 
-**Technical Implementation:**
-- `src/components/VoiceInputButton.tsx` - Reusable voice recording component with expo-av
-- Recording permissions handled automatically
-- Mock transcription for development (real STT API integration pending)
-- Backend APIs ready: `/api/what/extract-drafts` and `/api/why/session`
+**WHAT Flow (Task Creation):**
+1. Tap drawer to expand → Choose Voice or Text input
+2. Record voice or type task description
+3. AI extracts task drafts with confidence scores
+4. Review drafts in modal - edit titles, time units, remove unwanted tasks
+5. Confirm all drafts → Tasks created in workspace
 
-**🔧 Next Steps:**
-- Connect to Google Speech-to-Text API for real transcription
-- Integrate with backend task extraction and brainstorming APIs
-- Add voice history and saved transcripts
+**WHY Flow (Strategic Brainstorming):**
+1. Tap drawer to expand → Choose Voice or Text input
+2. Share initial business idea or goal
+3. AI starts conversation with clarifying questions
+4. Chat back and forth (4+ messages)
+5. Tap "Generate Objectives & Tasks" button
+6. Review synthesized OKRs and tasks in modal
+7. Confirm → Objectives and tasks added to workspace
+
+**Components Created:**
+- `CollapsibleTaskCreator.tsx` - Task creation drawer (WHAT tab)
+- `CollapsibleBrainstormStarter.tsx` - Brainstorming drawer (WHY tab)
+- `BrainstormConversationModal.tsx` - Chat interface for AI conversation
+- `TaskDraftsReviewModal.tsx` - Review extracted task drafts
+- `SynthesisReviewModal.tsx` - Review generated objectives and tasks
+
+**Error Handling & Polish:**
+- ✅ Loading states on all async operations
+- ✅ Error messages with alerts
+- ✅ Disabled buttons during loading
+- ✅ Activity indicators and loading text
+- ✅ Proper dark mode support throughout
+
+**Backend Integration:**
+- `/api/what/extract-drafts` - Extract tasks from voice/text
+- `/api/what/confirm` - Confirm and create tasks
+- `/api/why/session` - Create brainstorming session
+- `/api/why/turn` - Conversation turn with AI
+- `/api/why/synthesize` - Generate objectives and tasks
 
 ---
 

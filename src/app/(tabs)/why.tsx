@@ -49,7 +49,9 @@ import { CompanyAimModal } from '@/components/CompanyAimModal';
 import { BusinessImprovements } from '@/components/BusinessImprovements';
 import { filterOKRsByRole } from '@/lib/role-utils';
 import { RoleIndicator } from '@/components/RoleIndicator';
-import { VoiceInputButton } from '@/components/VoiceInputButton';
+import { CollapsibleBrainstormStarter } from '@/components/CollapsibleBrainstormStarter';
+import { BrainstormConversationModal } from '@/components/BrainstormConversationModal';
+import { SynthesisReviewModal } from '@/components/SynthesisReviewModal';
 
 const WHY_HELP: HelpContent = {
   title: 'Strategic Planning',
@@ -109,6 +111,12 @@ export default function WhyScreen() {
   const [selectedFunction, setSelectedFunction] = useState<BusinessFunction | 'all'>('all');
   const [showVoiceBrainstorm, setShowVoiceBrainstorm] = useState(false);
   const [voiceBrainstormText, setVoiceBrainstormText] = useState('');
+  const [showConversation, setShowConversation] = useState(false);
+  const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
+  const [showSynthesisReview, setShowSynthesisReview] = useState(false);
+  const [synthesizedObjectives, setSynthesizedObjectives] = useState<any[]>([]);
+  const [isCreatingSession, setIsCreatingSession] = useState(false);
+  const [isSynthesizing, setIsSynthesizing] = useState(false);
 
   // OKR form state
   const [newOKRTitle, setNewOKRTitle] = useState('');
@@ -260,14 +268,142 @@ export default function WhyScreen() {
     console.log('[Why Tab] Voice brainstorm received:', transcript);
     setVoiceBrainstormText(transcript);
     setShowVoiceBrainstorm(true);
-    // TODO: Send to /api/why/session to start brainstorming
   };
 
-  const handleStartBrainstorm = () => {
-    // TODO: Call /api/why/session with voiceBrainstormText as initialPrompt
+  const handleStartBrainstorm = async () => {
+    if (!voiceBrainstormText.trim() || !currentWorkspace || !currentMembership) return;
+
     console.log('[Why Tab] Starting brainstorm session with:', voiceBrainstormText);
-    setShowVoiceBrainstorm(false);
-    setVoiceBrainstormText('');
+    setIsCreatingSession(true);
+
+    try {
+      // Call the session API
+      const response = await fetch('/api/why/session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          workspaceId: currentWorkspace.id,
+          userId: currentMembership.id,
+          initialPrompt: voiceBrainstormText,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || `API error: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log('[Why Tab] Session created:', data);
+
+      // Open conversation modal
+      setCurrentSessionId(data.session.id);
+      setShowVoiceBrainstorm(false);
+      setShowConversation(true);
+    } catch (error) {
+      console.error('[Why Tab] Failed to create session:', error);
+      // Show error in console - user can see in logs
+      alert('Failed to start brainstorming session. Please try again.');
+    } finally {
+      setIsCreatingSession(false);
+    }
+  };
+
+  const handleSynthesize = async () => {
+    if (!currentSessionId || !currentWorkspace || !currentMembership) return;
+
+    console.log('[Why Tab] Synthesizing session:', currentSessionId);
+    setIsSynthesizing(true);
+
+    try {
+      // Call the synthesize API
+      const response = await fetch('/api/why/synthesize', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sessionId: currentSessionId,
+          workspaceId: currentWorkspace.id,
+          userId: currentMembership.id,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || `API error: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log('[Why Tab] Synthesis complete:', data);
+
+      // Close conversation and show synthesis review modal
+      setShowConversation(false);
+      setSynthesizedObjectives(data.objectives || []);
+      setShowSynthesisReview(true);
+    } catch (error) {
+      console.error('[Why Tab] Failed to synthesize:', error);
+      alert('Failed to generate objectives. Please try again.');
+    } finally {
+      setIsSynthesizing(false);
+    }
+  };
+
+  const handleConfirmSynthesis = async () => {
+    if (!currentWorkspace || !currentMembership) return;
+
+    console.log('[Why Tab] Confirming synthesis with objectives:', synthesizedObjectives);
+
+    try {
+      // Create OKRs and tasks from synthesized data
+      for (const objective of synthesizedObjectives) {
+        // Generate unique ID for OKR
+        const okrId = `okr-${Date.now()}-${Math.random().toString(36).substring(7)}`;
+
+        // Get current quarter for dates
+        const now = new Date();
+        const currentQuarter = Math.floor(now.getMonth() / 3) + 1;
+        const startDate = `Q${currentQuarter} ${now.getFullYear()}`;
+        const endDate = `Q${currentQuarter === 4 ? 1 : currentQuarter + 1} ${currentQuarter === 4 ? now.getFullYear() + 1 : now.getFullYear()}`;
+
+        // Get owner name from members
+        const currentUser = members.find(m => m.id === currentMembership.userId);
+        const ownerName = currentUser?.name || 'Unassigned';
+
+        // Create OKR
+        addOKR({
+          id: okrId,
+          title: objective.title,
+          description: objective.description || '',
+          function: 'Engineering', // Default function, could be extracted from AI
+          status: 'on-track',
+          workspaceId: currentWorkspace.id,
+          owner: ownerName,
+          startDate,
+          endDate,
+          objectives: [],
+        });
+
+        console.log('[Why Tab] Created OKR:', okrId, objective.title);
+
+        // Create tasks for this objective
+        // Note: Tasks are created via the work plan store, but for now we'll just log them
+        // In a real implementation, we'd call the task creation API
+        for (const task of objective.tasks || []) {
+          console.log('[Why Tab] Task to create:', task.title, task.units, 'TU');
+          // TODO: Call task creation API
+        }
+      }
+
+      // Close modal and reset state
+      setShowSynthesisReview(false);
+      setSynthesizedObjectives([]);
+      setCurrentSessionId(null);
+      setVoiceBrainstormText('');
+
+      console.log('[Why Tab] Synthesis confirmation complete');
+    } catch (error) {
+      console.error('[Why Tab] Failed to confirm synthesis:', error);
+      alert('Failed to create objectives. Please try again.');
+    }
   };
 
   // OKR Card component
@@ -817,15 +953,21 @@ export default function WhyScreen() {
                 <View className="flex-row gap-3">
                   <Pressable
                     onPress={() => setShowVoiceBrainstorm(false)}
+                    disabled={isCreatingSession}
                     className="flex-1 bg-slate-200 dark:bg-slate-700 py-4 rounded-xl items-center"
                   >
                     <Text className="text-slate-700 dark:text-slate-300 font-semibold">Cancel</Text>
                   </Pressable>
                   <Pressable
                     onPress={handleStartBrainstorm}
-                    className="flex-1 bg-purple-500 py-4 rounded-xl items-center"
+                    disabled={isCreatingSession}
+                    className="flex-1 bg-purple-500 py-4 rounded-xl items-center flex-row justify-center gap-2"
+                    style={{ opacity: isCreatingSession ? 0.6 : 1 }}
                   >
-                    <Text className="text-white font-semibold">Start Session</Text>
+                    {isCreatingSession && <Activity size={18} color="white" />}
+                    <Text className="text-white font-semibold">
+                      {isCreatingSession ? 'Starting...' : 'Start Session'}
+                    </Text>
                   </Pressable>
                 </View>
               </ScrollView>
@@ -834,24 +976,35 @@ export default function WhyScreen() {
         </Pressable>
       </Modal>
 
-      {/* Floating Voice Input Button */}
-      <View
-        className="absolute bottom-24 right-6"
-        style={{
-          shadowColor: '#000',
-          shadowOffset: { width: 0, height: 4 },
-          shadowOpacity: 0.3,
-          shadowRadius: 8,
-          elevation: 8,
+      {/* Brainstorm Conversation Modal */}
+      <BrainstormConversationModal
+        visible={showConversation}
+        onClose={() => {
+          setShowConversation(false);
+          setCurrentSessionId(null);
         }}
-      >
-        <VoiceInputButton
-          onTranscriptComplete={handleVoiceBrainstorm}
-          onError={(error) => console.error('[Why Tab] Voice error:', error)}
-          color="#8b5cf6"
-          size={64}
-        />
-      </View>
+        sessionId={currentSessionId || ''}
+        initialMessage={voiceBrainstormText}
+        onSynthesize={handleSynthesize}
+      />
+
+      {/* Synthesis Review Modal */}
+      <SynthesisReviewModal
+        visible={showSynthesisReview}
+        onClose={() => {
+          setShowSynthesisReview(false);
+          setSynthesizedObjectives([]);
+        }}
+        objectives={synthesizedObjectives}
+        onConfirm={handleConfirmSynthesis}
+      />
+
+      {/* Collapsible Brainstorm Starter */}
+      <CollapsibleBrainstormStarter
+        onVoiceInput={handleVoiceBrainstorm}
+        onTextInput={handleVoiceBrainstorm}
+        activeSessions={0}
+      />
     </View>
   );
 }

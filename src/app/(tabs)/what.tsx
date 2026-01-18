@@ -49,7 +49,20 @@ import { CompactTaskCard } from '@/components/CompactTaskCard';
 import { filterWorkPlansByRole } from '@/lib/role-utils';
 import { RoleIndicator } from '@/components/RoleIndicator';
 import { getTemplatesByFunction, type TaskTemplate } from '@/lib/task-templates';
-import { VoiceInputButton } from '@/components/VoiceInputButton';
+import { CollapsibleTaskCreator } from '@/components/CollapsibleTaskCreator';
+import { TaskDraftsReviewModal } from '@/components/TaskDraftsReviewModal';
+
+interface TaskDraft {
+  id: string;
+  title: string;
+  notes?: string;
+  assignee_id?: string;
+  start_iso?: string;
+  due_iso?: string;
+  units: number;
+  confidence_assignee?: number;
+  confidence_due?: number;
+}
 
 const WHAT_HELP: HelpContent = {
   title: 'Task Execution',
@@ -114,6 +127,10 @@ export default function WhatScreen() {
   const [showResourcePool, setShowResourcePool] = useState(false);
   const [showVoiceTranscript, setShowVoiceTranscript] = useState(false);
   const [voiceTranscript, setVoiceTranscript] = useState('');
+  const [showDraftsReview, setShowDraftsReview] = useState(false);
+  const [taskDrafts, setTaskDrafts] = useState<TaskDraft[]>([]);
+  const [isProcessingTranscript, setIsProcessingTranscript] = useState(false);
+  const [isConfirmingDrafts, setIsConfirmingDrafts] = useState(false);
 
   // Create task form state
   const [newTaskTitle, setNewTaskTitle] = useState('');
@@ -242,14 +259,95 @@ export default function WhatScreen() {
     console.log('[What Tab] Voice transcript received:', transcript);
     setVoiceTranscript(transcript);
     setShowVoiceTranscript(true);
-    // TODO: Send to backend API for task extraction
   };
 
-  const handleProcessVoiceTranscript = () => {
-    // TODO: Call /api/what/extract-drafts with the transcript
+  const handleProcessVoiceTranscript = async () => {
+    if (!voiceTranscript.trim() || !currentWorkspace || !currentMembership) return;
+
     console.log('[What Tab] Processing voice transcript:', voiceTranscript);
-    setShowVoiceTranscript(false);
-    setVoiceTranscript('');
+    setIsProcessingTranscript(true);
+
+    try {
+      // Call the extract-drafts API
+      const response = await fetch('/api/what/extract-drafts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          inputText: voiceTranscript,
+          source: 'voice',
+          workspaceId: currentWorkspace.id,
+          userId: currentMembership.id,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || `API error: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log('[What Tab] Drafts extracted:', data);
+
+      // Show drafts review modal
+      setTaskDrafts(data.drafts || []);
+      setShowVoiceTranscript(false);
+      setShowDraftsReview(true);
+    } catch (error) {
+      console.error('[What Tab] Failed to extract drafts:', error);
+      alert('Failed to extract tasks. Please try again.');
+    } finally {
+      setIsProcessingTranscript(false);
+    }
+  };
+
+  const handleConfirmDrafts = async (draftIds: string[]) => {
+    if (!currentWorkspace || !currentMembership) return;
+
+    console.log('[What Tab] Confirming drafts:', draftIds);
+    setIsConfirmingDrafts(true);
+
+    try {
+      // Call the confirm API
+      const response = await fetch('/api/what/confirm', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          draftIds,
+          workspaceId: currentWorkspace.id,
+          userId: currentMembership.id,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || `API error: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log('[What Tab] Tasks created:', data);
+
+      // Close modals and clear state
+      setShowDraftsReview(false);
+      setTaskDrafts([]);
+      setVoiceTranscript('');
+
+      // TODO: Refresh task list or add new tasks to store
+    } catch (error) {
+      console.error('[What Tab] Failed to confirm drafts:', error);
+      alert('Failed to create tasks. Please try again.');
+    } finally {
+      setIsConfirmingDrafts(false);
+    }
+  };
+
+  const handleEditDraft = (draftId: string, updates: Partial<TaskDraft>) => {
+    setTaskDrafts(prev =>
+      prev.map(draft => (draft.id === draftId ? { ...draft, ...updates } : draft))
+    );
+  };
+
+  const handleRemoveDraft = (draftId: string) => {
+    setTaskDrafts(prev => prev.filter(draft => draft.id !== draftId));
   };
 
   return (
@@ -675,10 +773,10 @@ export default function WhatScreen() {
       >
         <Pressable className="flex-1 bg-black/70" onPress={() => setShowVoiceTranscript(false)}>
           <View className="flex-1" />
-          <Pressable onPress={(e) => e.stopPropagation()} style={{ maxHeight: '70%' }}>
+          <Pressable onPress={(e) => e.stopPropagation()} style={{ maxHeight: '80%' }}>
             <View className="bg-white dark:bg-slate-900 rounded-t-3xl">
               <View className="flex-row items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-slate-800">
-                <Text className="text-slate-900 dark:text-white font-bold text-xl">Voice Transcript</Text>
+                <Text className="text-slate-900 dark:text-white font-bold text-xl">Review Transcript</Text>
                 <Pressable onPress={() => setShowVoiceTranscript(false)} className="p-2">
                   <X size={24} color="#64748b" />
                 </Pressable>
@@ -688,15 +786,26 @@ export default function WhatScreen() {
                 className="px-6 py-4"
                 contentContainerStyle={{ flexGrow: 1, paddingBottom: 40 }}
               >
-                <View className="bg-slate-50 dark:bg-slate-800 rounded-xl p-4 mb-4">
-                  <Text className="text-slate-900 dark:text-white text-base leading-relaxed">
-                    {voiceTranscript}
+                <Text className="text-slate-700 dark:text-slate-300 font-medium mb-2">
+                  Edit if needed:
+                </Text>
+                <TextInput
+                  value={voiceTranscript}
+                  onChangeText={setVoiceTranscript}
+                  multiline
+                  numberOfLines={6}
+                  placeholder="Your transcript will appear here..."
+                  placeholderTextColor="#94a3b8"
+                  className="bg-slate-50 dark:bg-slate-800 rounded-xl p-4 mb-4 text-slate-900 dark:text-white min-h-[150px]"
+                  style={{ textAlignVertical: 'top' }}
+                />
+
+                <View className="flex-row items-start gap-2 bg-green-50 dark:bg-green-900/20 rounded-xl p-3 mb-4">
+                  <Sparkles size={16} color="#10b981" />
+                  <Text className="flex-1 text-slate-600 dark:text-slate-400 text-xs leading-relaxed">
+                    The AI will extract tasks from this text including title, assignee, due date, and time estimate.
                   </Text>
                 </View>
-
-                <Text className="text-slate-600 dark:text-slate-400 text-sm mb-4">
-                  Review your transcript above. The AI will extract tasks from this text and create draft tasks for you to review.
-                </Text>
 
                 <View className="flex-row gap-3">
                   <Pressable
@@ -707,9 +816,11 @@ export default function WhatScreen() {
                   </Pressable>
                   <Pressable
                     onPress={handleProcessVoiceTranscript}
+                    disabled={!voiceTranscript.trim()}
                     className="flex-1 bg-green-500 py-4 rounded-xl items-center"
+                    style={{ opacity: voiceTranscript.trim() ? 1 : 0.5 }}
                   >
-                    <Text className="text-white font-semibold">Process Tasks</Text>
+                    <Text className="text-white font-semibold">Extract Tasks</Text>
                   </Pressable>
                 </View>
               </ScrollView>
@@ -718,24 +829,22 @@ export default function WhatScreen() {
         </Pressable>
       </Modal>
 
-      {/* Floating Voice Input Button */}
-      <View
-        className="absolute bottom-24 right-6"
-        style={{
-          shadowColor: '#000',
-          shadowOffset: { width: 0, height: 4 },
-          shadowOpacity: 0.3,
-          shadowRadius: 8,
-          elevation: 8,
-        }}
-      >
-        <VoiceInputButton
-          onTranscriptComplete={handleVoiceTranscript}
-          onError={(error) => console.error('[What Tab] Voice error:', error)}
-          color="#10b981"
-          size={64}
-        />
-      </View>
+      {/* Task Drafts Review Modal */}
+      <TaskDraftsReviewModal
+        visible={showDraftsReview}
+        onClose={() => setShowDraftsReview(false)}
+        drafts={taskDrafts}
+        onConfirm={handleConfirmDrafts}
+        onEdit={handleEditDraft}
+        onRemove={handleRemoveDraft}
+      />
+
+      {/* Collapsible Task Creator */}
+      <CollapsibleTaskCreator
+        onVoiceTranscript={handleVoiceTranscript}
+        onTextSubmit={handleVoiceTranscript}
+        pendingDraftsCount={taskDrafts.length}
+      />
     </View>
   );
 }
