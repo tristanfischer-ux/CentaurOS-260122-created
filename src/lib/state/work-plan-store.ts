@@ -504,10 +504,16 @@ export const useWorkPlanStore = create<WorkPlanState>((set, get) => ({
         workspace_id: workPlan.workspaceId,
         title: workPlan.title,
         description: workPlan.description,
+        function: workPlan.function,
         start_date: workPlan.startDate,
         end_date: workPlan.dueDate,
         status: workPlan.status,
         progress: workPlan.progress,
+        assigned_by: workPlan.assignedBy,
+        needs_submission: workPlan.needsSubmission,
+        estimated_time_units: workPlan.estimatedTimeUnits,
+        tus_expended: workPlan.tusExpended,
+        linked_okr_title: workPlan.linkedOKRTitle,
       };
 
       const { data, error } = await supabase
@@ -516,7 +522,10 @@ export const useWorkPlanStore = create<WorkPlanState>((set, get) => ({
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Failed to add work plan to Supabase:', error);
+        throw error;
+      }
 
       // Insert allocations if any
       if (workPlan.allocations && workPlan.allocations.length > 0) {
