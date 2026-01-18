@@ -174,11 +174,33 @@ export function VoiceInputButton({
         throw new Error('Failed to get recording URI');
       }
 
-      // Read the audio file as base64 using expo-file-system
-      console.log('[VoiceInput] Reading audio file with FileSystem...');
-      const base64Audio = await FileSystem.readAsStringAsync(uri, {
-        encoding: FileSystem.EncodingType.Base64,
-      });
+      // Read the audio file as base64
+      console.log('[VoiceInput] Reading audio file...');
+      let base64Audio: string;
+
+      if (Platform.OS === 'web') {
+        // On web, fetch the blob URL and convert to base64
+        console.log('[VoiceInput] Web platform - fetching blob...');
+        const response = await fetch(uri);
+        const blob = await response.blob();
+
+        // Convert blob to base64 using FileReader
+        base64Audio = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onloadend = () => {
+            const base64 = (reader.result as string).split(',')[1];
+            resolve(base64);
+          };
+          reader.onerror = reject;
+          reader.readAsDataURL(blob);
+        });
+      } else {
+        // On native, use expo-file-system
+        console.log('[VoiceInput] Native platform - using FileSystem...');
+        base64Audio = await FileSystem.readAsStringAsync(uri, {
+          encoding: FileSystem.EncodingType.Base64,
+        });
+      }
 
       console.log('[VoiceInput] Audio converted to base64, size:', base64Audio.length);
 
