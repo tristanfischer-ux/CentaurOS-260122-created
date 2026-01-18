@@ -862,6 +862,18 @@ export default function SettingsScreen() {
                 </View>
                 <ChevronRight size={18} color={iconColor} />
               </Pressable>
+
+              {/* Privacy Settings */}
+              <Pressable
+                onPress={() => router.push('/settings/privacy')}
+                className={`flex-row items-center justify-between mt-3 pt-3 border-t ${borderColor} active:opacity-70`}
+              >
+                <View className="flex-row items-center">
+                  <Shield size={18} color="#8b5cf6" />
+                  <Text className={`font-medium ml-3 ${textPrimary}`}>Privacy & Visibility</Text>
+                </View>
+                <ChevronRight size={18} color={iconColor} />
+              </Pressable>
             </View>
           )}
         </Animated.View>
