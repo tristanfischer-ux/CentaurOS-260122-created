@@ -41,7 +41,6 @@ import type { OrganizationMember } from '@/lib/organization-seed';
 import type { Function as BusinessFunction } from '@/types';
 import { HelpModal, HelpButton, type HelpContent } from '@/components/HelpModal';
 import { SettingsGearButton } from '@/components/SettingsGearButton';
-import { CollapsibleResourcePool } from '@/components/CollapsibleResourcePool';
 import { MiniGanttChart } from '@/components/MiniGanttChart';
 import { UnifiedTaskAllocationModal } from '@/components/UnifiedTaskAllocationModal';
 import { SquaresDisplay } from '@/components/SquaresDisplay';
@@ -49,7 +48,7 @@ import { CompactTaskCard } from '@/components/CompactTaskCard';
 import { filterWorkPlansByRole } from '@/lib/role-utils';
 import { RoleIndicator } from '@/components/RoleIndicator';
 import { getTemplatesByFunction, type TaskTemplate } from '@/lib/task-templates';
-import { CollapsibleTaskCreator } from '@/components/CollapsibleTaskCreator';
+import { UnifiedBottomDrawer } from '@/components/UnifiedBottomDrawer';
 import { TaskDraftsReviewModal } from '@/components/TaskDraftsReviewModal';
 
 interface TaskDraft {
@@ -125,6 +124,7 @@ export default function WhatScreen() {
   const [showTaskModal, setShowTaskModal] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showResourcePool, setShowResourcePool] = useState(false);
+  const [selectedPersonForAllocation, setSelectedPersonForAllocation] = useState<string | null>(null);
   const [showVoiceTranscript, setShowVoiceTranscript] = useState(false);
   const [voiceTranscript, setVoiceTranscript] = useState('');
   const [showDraftsReview, setShowDraftsReview] = useState(false);
@@ -755,79 +755,15 @@ export default function WhatScreen() {
         )}
       </ScrollView>
 
-      {/* Collapsible Resource Pool */}
-      <CollapsibleResourcePool
-        onPersonSelect={(personId) => {
-          // If a task is selected, we could auto-allocate
-          console.log('Person selected:', personId);
-        }}
-        selectedPersonId={null}
+      {/* Unified Bottom Drawer - combines Resource Pool and Task Creator */}
+      <UnifiedBottomDrawer
+        selectedPersonId={selectedPersonForAllocation}
+        onPersonSelect={(personId) => setSelectedPersonForAllocation(personId)}
+        onVoiceTranscript={handleVoiceTranscript}
+        onTextSubmit={handleVoiceTranscript}
+        pendingDraftsCount={taskDrafts.length}
+        accentColor="#10b981" // Green for WHAT tab
       />
-
-      {/* Voice Transcript Modal */}
-      <Modal
-        visible={showVoiceTranscript}
-        transparent
-        animationType="slide"
-        onRequestClose={() => setShowVoiceTranscript(false)}
-      >
-        <Pressable className="flex-1 bg-black/70" onPress={() => setShowVoiceTranscript(false)}>
-          <View className="flex-1" />
-          <Pressable onPress={(e) => e.stopPropagation()} style={{ maxHeight: '80%' }}>
-            <View className="bg-white dark:bg-slate-900 rounded-t-3xl">
-              <View className="flex-row items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-slate-800">
-                <Text className="text-slate-900 dark:text-white font-bold text-xl">Review Transcript</Text>
-                <Pressable onPress={() => setShowVoiceTranscript(false)} className="p-2">
-                  <X size={24} color="#64748b" />
-                </Pressable>
-              </View>
-
-              <ScrollView
-                className="px-6 py-4"
-                contentContainerStyle={{ flexGrow: 1, paddingBottom: 40 }}
-              >
-                <Text className="text-slate-700 dark:text-slate-300 font-medium mb-2">
-                  Edit if needed:
-                </Text>
-                <TextInput
-                  value={voiceTranscript}
-                  onChangeText={setVoiceTranscript}
-                  multiline
-                  numberOfLines={6}
-                  placeholder="Your transcript will appear here..."
-                  placeholderTextColor="#94a3b8"
-                  className="bg-slate-50 dark:bg-slate-800 rounded-xl p-4 mb-4 text-slate-900 dark:text-white min-h-[150px]"
-                  style={{ textAlignVertical: 'top' }}
-                />
-
-                <View className="flex-row items-start gap-2 bg-green-50 dark:bg-green-900/20 rounded-xl p-3 mb-4">
-                  <Sparkles size={16} color="#10b981" />
-                  <Text className="flex-1 text-slate-600 dark:text-slate-400 text-xs leading-relaxed">
-                    The AI will extract tasks from this text including title, assignee, due date, and time estimate.
-                  </Text>
-                </View>
-
-                <View className="flex-row gap-3">
-                  <Pressable
-                    onPress={() => setShowVoiceTranscript(false)}
-                    className="flex-1 bg-slate-200 dark:bg-slate-700 py-4 rounded-xl items-center"
-                  >
-                    <Text className="text-slate-700 dark:text-slate-300 font-semibold">Cancel</Text>
-                  </Pressable>
-                  <Pressable
-                    onPress={handleProcessVoiceTranscript}
-                    disabled={!voiceTranscript.trim()}
-                    className="flex-1 bg-green-500 py-4 rounded-xl items-center"
-                    style={{ opacity: voiceTranscript.trim() ? 1 : 0.5 }}
-                  >
-                    <Text className="text-white font-semibold">Extract Tasks</Text>
-                  </Pressable>
-                </View>
-              </ScrollView>
-            </View>
-          </Pressable>
-        </Pressable>
-      </Modal>
 
       {/* Task Drafts Review Modal */}
       <TaskDraftsReviewModal
@@ -837,13 +773,6 @@ export default function WhatScreen() {
         onConfirm={handleConfirmDrafts}
         onEdit={handleEditDraft}
         onRemove={handleRemoveDraft}
-      />
-
-      {/* Collapsible Task Creator */}
-      <CollapsibleTaskCreator
-        onVoiceTranscript={handleVoiceTranscript}
-        onTextSubmit={handleVoiceTranscript}
-        pendingDraftsCount={taskDrafts.length}
       />
     </View>
   );

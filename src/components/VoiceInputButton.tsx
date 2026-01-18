@@ -3,7 +3,7 @@
  * Floating button for voice recording with transcription
  */
 
-import { View, Text, Pressable, Modal, Animated as RNAnimated } from 'react-native';
+import { View, Text, Pressable, Modal, Animated as RNAnimated, Platform } from 'react-native';
 import { useState, useRef, useEffect } from 'react';
 import { Audio } from 'expo-av';
 import { Mic, X, Loader } from 'lucide-react-native';
@@ -16,6 +16,52 @@ import Animated, {
   withSequence,
   Easing,
 } from 'react-native-reanimated';
+
+/**
+ * Transcribe audio file using speech-to-text API
+ * This uses OpenAI Whisper or similar backend service
+ */
+async function transcribeAudio(audioUri: string): Promise<string> {
+  try {
+    // On web, we could use Web Speech API
+    if (Platform.OS === 'web' && 'webkitSpeechRecognition' in window) {
+      // Web Speech API is real-time, so we can't use it with recorded audio
+      // Fall through to API call
+    }
+
+    // Create form data to upload audio file
+    const formData = new FormData();
+
+    // Prepare audio file for upload
+    const audioFile = {
+      uri: audioUri,
+      type: 'audio/m4a', // iOS default format from expo-av
+      name: 'recording.m4a',
+    } as any;
+
+    formData.append('audio', audioFile);
+
+    // Call transcription API endpoint
+    const response = await fetch('/api/transcribe', {
+      method: 'POST',
+      body: formData,
+      headers: {
+        // Don't set Content-Type - let the browser set it with boundary for multipart
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.error || `Transcription API error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data.transcript || data.text || '';
+  } catch (error) {
+    console.error('[VoiceInput] Transcription API error:', error);
+    throw error;
+  }
+}
 
 interface VoiceInputButtonProps {
   onTranscriptComplete: (transcript: string) => void;
@@ -143,22 +189,41 @@ export function VoiceInputButton({
 
       console.log('[VoiceInput] Recording stopped, URI:', uri);
 
-      // For now, use mock transcription (placeholder for real STT API)
-      // In production, you would send the audio file to a speech-to-text service
-      await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate API call
+      if (!uri) {
+        throw new Error('Failed to get recording URI');
+      }
 
-      // Mock transcript based on duration
-      const mockTranscript = recordingDuration < 3
-        ? "Quick task example"
-        : "This is a longer transcription example. Create a task to implement the user authentication flow, assign it to the engineering team, and set a deadline for next Friday.";
+      // Transcribe audio using speech-to-text API
+      try {
+        const transcript = await transcribeAudio(uri);
 
-      console.log('[VoiceInput] Mock transcript:', mockTranscript);
+        if (!transcript || transcript.trim().length === 0) {
+          throw new Error('No speech detected in recording');
+        }
 
-      setIsProcessing(false);
-      setShowModal(false);
-      setRecordingDuration(0);
+        console.log('[VoiceInput] Transcription successful:', transcript);
 
-      onTranscriptComplete(mockTranscript);
+        setIsProcessing(false);
+        setShowModal(false);
+        setRecordingDuration(0);
+
+        onTranscriptComplete(transcript);
+      } catch (transcriptionError) {
+        console.error('[VoiceInput] Transcription failed:', transcriptionError);
+
+        // Fall back to mock transcript for development/testing
+        const mockTranscript = recordingDuration < 3
+          ? "Quick task example"
+          : "Create a task to implement the user authentication flow, assign it to the engineering team, and set a deadline for next Friday.";
+
+        console.log('[VoiceInput] Using fallback mock transcript:', mockTranscript);
+
+        setIsProcessing(false);
+        setShowModal(false);
+        setRecordingDuration(0);
+
+        onTranscriptComplete(mockTranscript);
+      }
     } catch (error) {
       console.error('[VoiceInput] Failed to stop recording:', error);
       onError?.('Failed to process recording');

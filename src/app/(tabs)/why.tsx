@@ -49,7 +49,7 @@ import { CompanyAimModal } from '@/components/CompanyAimModal';
 import { BusinessImprovements } from '@/components/BusinessImprovements';
 import { filterOKRsByRole } from '@/lib/role-utils';
 import { RoleIndicator } from '@/components/RoleIndicator';
-import { CollapsibleBrainstormStarter } from '@/components/CollapsibleBrainstormStarter';
+import { UnifiedBottomDrawer } from '@/components/UnifiedBottomDrawer';
 import { BrainstormConversationModal } from '@/components/BrainstormConversationModal';
 import { SynthesisReviewModal } from '@/components/SynthesisReviewModal';
 
@@ -999,11 +999,14 @@ export default function WhyScreen() {
         onConfirm={handleConfirmSynthesis}
       />
 
-      {/* Collapsible Brainstorm Starter */}
-      <CollapsibleBrainstormStarter
-        onVoiceInput={handleVoiceBrainstorm}
-        onTextInput={handleVoiceBrainstorm}
-        activeSessions={0}
+      {/* Unified Bottom Drawer - for brainstorming */}
+      <UnifiedBottomDrawer
+        selectedPersonId={null}
+        onPersonSelect={() => {}} // Resources tab not used on WHY tab
+        onVoiceTranscript={handleVoiceBrainstorm}
+        onTextSubmit={handleVoiceBrainstorm}
+        pendingDraftsCount={0} // Could track active brainstorm sessions here
+        accentColor="#8b5cf6" // Purple for WHY tab
       />
     </View>
   );
