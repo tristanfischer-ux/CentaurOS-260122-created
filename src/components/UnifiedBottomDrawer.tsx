@@ -479,11 +479,25 @@ export function UnifiedBottomDrawer({
                     </Pressable>
                   </View>
 
-                  <View className="flex-row items-start gap-2 rounded-xl p-3" style={{ backgroundColor: accentColor + '10' }}>
-                    <Lightbulb size={16} color={accentColor} />
+                  <View className="flex-row items-start gap-2 rounded-xl p-4" style={{ backgroundColor: accentColor + '10' }}>
+                    <Lightbulb size={18} color={accentColor} />
                     <View className="flex-1">
-                      <Text className="text-slate-600 dark:text-slate-400 text-xs leading-relaxed">
-                        <Text className="font-semibold">What to include:</Text> Who should do it, when it's due, and estimated time (TUs).
+                      <Text className="text-slate-700 dark:text-slate-300 text-sm leading-relaxed mb-3">
+                        <Text className="font-bold">Voice Input Guide:</Text>
+                      </Text>
+                      <Text className="text-slate-600 dark:text-slate-400 text-xs leading-relaxed mb-2">
+                        ✓ Be specific about the task{'\n'}
+                        ✓ Mention who should do it{'\n'}
+                        ✓ Include a due date if known{'\n'}
+                        ✓ Estimate time needed (hours or TUs)
+                      </Text>
+                      <Text className="text-slate-700 dark:text-slate-300 text-xs leading-relaxed font-semibold mb-1">
+                        Examples:
+                      </Text>
+                      <Text className="text-slate-600 dark:text-slate-400 text-xs leading-relaxed italic">
+                        "Create a task to update the landing page, assign it to Sarah, due next Friday, will take 3 hours"
+                        {'\n\n'}
+                        "Fix the login bug, James should handle it, needs about 2 days of work"
                       </Text>
                     </View>
                   </View>

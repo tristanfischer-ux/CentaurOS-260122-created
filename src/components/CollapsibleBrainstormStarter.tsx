@@ -173,11 +173,25 @@ export function CollapsibleBrainstormStarter({
               </View>
 
               {/* Info Box */}
-              <View className="flex-row items-start gap-2 bg-purple-50 dark:bg-purple-900/20 rounded-xl p-3">
-                <Sparkles size={16} color="#8b5cf6" />
+              <View className="flex-row items-start gap-2 bg-purple-50 dark:bg-purple-900/20 rounded-xl p-4">
+                <Sparkles size={18} color="#8b5cf6" />
                 <View className="flex-1">
-                  <Text className="text-slate-600 dark:text-slate-400 text-xs leading-relaxed">
-                    The AI will ask you questions to help define strategic objectives and create actionable tasks.
+                  <Text className="text-slate-700 dark:text-slate-300 text-sm font-bold leading-relaxed mb-3">
+                    Brainstorming Guide:
+                  </Text>
+                  <Text className="text-slate-600 dark:text-slate-400 text-xs leading-relaxed mb-2">
+                    ✓ Share ideas or challenges you're facing{'\n'}
+                    ✓ Describe what success looks like{'\n'}
+                    ✓ Mention any constraints or deadlines{'\n'}
+                    ✓ Include relevant context or background
+                  </Text>
+                  <Text className="text-slate-700 dark:text-slate-300 text-xs leading-relaxed font-semibold mb-1">
+                    Examples:
+                  </Text>
+                  <Text className="text-slate-600 dark:text-slate-400 text-xs leading-relaxed italic">
+                    "We need to improve user retention. Current rate is 30%, goal is 60% by Q2"
+                    {'\n\n'}
+                    "I want to launch a new feature but not sure about the best approach. Budget is limited"
                   </Text>
                 </View>
               </View>

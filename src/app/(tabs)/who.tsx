@@ -134,7 +134,7 @@ const ROLE_LABELS = {
   Apprentice: 'Apprentices',
 };
 
-type WhoTab = 'team' | 'resources' | 'executives' | 'apprentices';
+type WhoTab = 'team' | 'squads' | 'hire' | 'resources';
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 const screenWidth = Dimensions.get('window').width;
@@ -912,10 +912,10 @@ export default function WhoScreen() {
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
           <View className="flex-row bg-slate-100 dark:bg-slate-800 rounded-xl p-1">
             {[
-              { key: 'team', label: 'Team & Squads', icon: Users },
+              { key: 'team', label: 'My Team', icon: Users },
+              { key: 'squads', label: 'Squads', icon: UsersRound },
+              { key: 'hire', label: 'Hire', icon: UserPlus },
               { key: 'resources', label: 'Resources', icon: Target },
-              { key: 'executives', label: 'Hire Execs', icon: Briefcase },
-              { key: 'apprentices', label: 'Hire Apprentices', icon: GraduationCap },
             ].map(tab => (
               <Pressable
                 key={tab.key}
@@ -941,8 +941,8 @@ export default function WhoScreen() {
         </ScrollView>
       </View>
 
-      {/* Search Bar (for recruitment tabs) */}
-      {(activeTab === 'executives' || activeTab === 'apprentices') && (
+      {/* Search Bar (for recruitment tab) */}
+      {activeTab === 'hire' && (
         <View className="px-5 pt-4">
           <View className="flex-row items-center bg-white dark:bg-slate-800 rounded-xl px-4 py-3">
             <Search size={18} color="#64748b" />
@@ -1026,8 +1026,8 @@ export default function WhoScreen() {
         className="flex-1"
         contentContainerStyle={{ padding: 20, paddingBottom: insets.bottom + 100 }}
       >
-        {/* Squads Section (shown within Team tab) */}
-        {activeTab === 'team' && (
+        {/* Squads Tab */}
+        {activeTab === 'squads' && (
           <View>
             {/* Squads Header */}
             <Text className="text-slate-900 dark:text-white font-bold text-xl mb-3">Squads</Text>
@@ -1374,7 +1374,7 @@ export default function WhoScreen() {
             {/* Add Team Member Button (Founder only) */}
             {isFounder && (
               <Pressable
-                onPress={() => setActiveTab('executives')}
+                onPress={() => setActiveTab('hire')}
                 className="bg-blue-500 rounded-xl py-4 flex-row items-center justify-center gap-2 mt-4"
               >
                 <UserPlus size={20} color="white" />
@@ -1391,60 +1391,6 @@ export default function WhoScreen() {
             <Text className="text-slate-500 dark:text-slate-400 mb-6">
               Guides, templates, and tools to help you manage your team effectively
             </Text>
-
-            {/* Quick Links */}
-            <View className="mb-6">
-              <Text className="text-slate-900 dark:text-white font-semibold text-lg mb-3">Quick Links</Text>
-              <View className="gap-3">
-                <Pressable
-                  onPress={() => Linking.openURL('https://centauros.ai/docs/people-management')}
-                  className="bg-white dark:bg-slate-800 rounded-xl p-4 flex-row items-center justify-between active:opacity-80"
-                >
-                  <View className="flex-row items-center gap-3 flex-1">
-                    <View className="bg-blue-100 dark:bg-blue-900/30 p-3 rounded-xl">
-                      <Users size={24} color="#3b82f6" />
-                    </View>
-                    <View className="flex-1">
-                      <Text className="text-slate-900 dark:text-white font-semibold mb-0.5">People Management Guide</Text>
-                      <Text className="text-slate-500 dark:text-slate-400 text-sm">Complete guide to managing your team</Text>
-                    </View>
-                  </View>
-                  <ChevronRight size={20} color="#64748b" />
-                </Pressable>
-
-                <Pressable
-                  onPress={() => Linking.openURL('https://centauros.ai/docs/hiring')}
-                  className="bg-white dark:bg-slate-800 rounded-xl p-4 flex-row items-center justify-between active:opacity-80"
-                >
-                  <View className="flex-row items-center gap-3 flex-1">
-                    <View className="bg-emerald-100 dark:bg-emerald-900/30 p-3 rounded-xl">
-                      <UserPlus size={24} color="#10b981" />
-                    </View>
-                    <View className="flex-1">
-                      <Text className="text-slate-900 dark:text-white font-semibold mb-0.5">Hiring Best Practices</Text>
-                      <Text className="text-slate-500 dark:text-slate-400 text-sm">How to find and hire the right people</Text>
-                    </View>
-                  </View>
-                  <ChevronRight size={20} color="#64748b" />
-                </Pressable>
-
-                <Pressable
-                  onPress={() => Linking.openURL('https://centauros.ai/docs/squads')}
-                  className="bg-white dark:bg-slate-800 rounded-xl p-4 flex-row items-center justify-between active:opacity-80"
-                >
-                  <View className="flex-row items-center gap-3 flex-1">
-                    <View className="bg-purple-100 dark:bg-purple-900/30 p-3 rounded-xl">
-                      <UsersRound size={24} color="#8b5cf6" />
-                    </View>
-                    <View className="flex-1">
-                      <Text className="text-slate-900 dark:text-white font-semibold mb-0.5">Squad Formation Guide</Text>
-                      <Text className="text-slate-500 dark:text-slate-400 text-sm">Build high-performing teams</Text>
-                    </View>
-                  </View>
-                  <ChevronRight size={20} color="#64748b" />
-                </Pressable>
-              </View>
-            </View>
 
             {/* Team Templates */}
             <View className="mb-6">
@@ -1497,83 +1443,108 @@ export default function WhoScreen() {
           </View>
         )}
 
-        {/* Executives Tab */}
-        {activeTab === 'executives' && (
+        {/* Hire Tab (combines Executives and Apprentices) */}
+        {activeTab === 'hire' && (
           <View className="flex-1">
-            <View className="flex-row items-center justify-between mb-4">
-              <Text className="text-slate-500 dark:text-slate-400 text-sm">
-                {scoredExecutives.length} executives found
-              </Text>
-              {shortlistedIds.size > 0 && (
-                <View className="flex-row items-center gap-1">
-                  <Heart size={14} color="#ef4444" fill="#ef4444" />
-                  <Text className="text-red-500 text-sm font-medium">{shortlistedIds.size} shortlisted</Text>
-                </View>
-              )}
+            {/* Sub-tabs for Executives and Apprentices */}
+            <View className="flex-row gap-2 mb-4">
+              <Pressable
+                onPress={() => setSelectedFunction('all')}
+                className={`flex-1 py-2.5 rounded-lg ${selectedFunction === 'all' ? 'bg-blue-500' : 'bg-slate-100 dark:bg-slate-800'}`}
+              >
+                <Text className={`text-center font-medium ${selectedFunction === 'all' ? 'text-white' : 'text-slate-600 dark:text-slate-400'}`}>
+                  Executives
+                </Text>
+              </Pressable>
+              <Pressable
+                onPress={() => setSelectedFunction('Engineering')}
+                className={`flex-1 py-2.5 rounded-lg ${selectedFunction === 'Engineering' ? 'bg-blue-500' : 'bg-slate-100 dark:bg-slate-800'}`}
+              >
+                <Text className={`text-center font-medium ${selectedFunction === 'Engineering' ? 'text-white' : 'text-slate-600 dark:text-slate-400'}`}>
+                  Apprentices
+                </Text>
+              </Pressable>
             </View>
 
-            {scoredExecutives.length === 0 ? (
-              <View className="items-center py-12">
-                <Briefcase size={48} color="#94a3b8" />
-                <Text className="text-slate-500 dark:text-slate-400 text-center mt-4">
-                  No executives match your filters
-                </Text>
-              </View>
-            ) : (
-              <FlashList
-                data={scoredExecutives}
-                renderItem={({ item, index }) => (
-                  <CandidateCard candidate={item} index={index} />
+            {/* Show Executives */}
+            {selectedFunction === 'all' && (
+              <>
+                <View className="flex-row items-center justify-between mb-4">
+                  <Text className="text-slate-500 dark:text-slate-400 text-sm">
+                    {scoredExecutives.length} executives found
+                  </Text>
+                  {shortlistedIds.size > 0 && (
+                    <View className="flex-row items-center gap-1">
+                      <Heart size={14} color="#ef4444" fill="#ef4444" />
+                      <Text className="text-red-500 text-sm font-medium">{shortlistedIds.size} shortlisted</Text>
+                    </View>
+                  )}
+                </View>
+
+                {scoredExecutives.length === 0 ? (
+                  <View className="items-center py-12">
+                    <Briefcase size={48} color="#94a3b8" />
+                    <Text className="text-slate-500 dark:text-slate-400 text-center mt-4">
+                      No executives match your filters
+                    </Text>
+                  </View>
+                ) : (
+                  <FlashList
+                    data={scoredExecutives}
+                    renderItem={({ item, index }) => (
+                      <CandidateCard candidate={item} index={index} />
+                    )}
+                    estimatedItemSize={280}
+                    keyExtractor={(item) => item.id}
+                    showsVerticalScrollIndicator={false}
+                    contentContainerStyle={{ paddingBottom: insets.bottom + 20 }}
+                  />
                 )}
-                estimatedItemSize={280}
-                keyExtractor={(item) => item.id}
-                showsVerticalScrollIndicator={false}
-                contentContainerStyle={{ paddingBottom: insets.bottom + 20 }}
-              />
+              </>
             )}
-          </View>
-        )}
 
-        {/* Apprentices Tab */}
-        {activeTab === 'apprentices' && (
-          <View className="flex-1">
-            <View className="flex-row items-center justify-between mb-4">
-              <Text className="text-slate-500 dark:text-slate-400 text-sm">
-                {scoredApprentices.length} apprentices found
-              </Text>
-              {shortlistedIds.size > 0 && (
-                <View className="flex-row items-center gap-1">
-                  <Heart size={14} color="#ef4444" fill="#ef4444" />
-                  <Text className="text-red-500 text-sm font-medium">{shortlistedIds.size} shortlisted</Text>
+            {/* Show Apprentices */}
+            {selectedFunction === 'Engineering' && (
+              <>
+                <View className="flex-row items-center justify-between mb-4">
+                  <Text className="text-slate-500 dark:text-slate-400 text-sm">
+                    {scoredApprentices.length} apprentices found
+                  </Text>
+                  {shortlistedIds.size > 0 && (
+                    <View className="flex-row items-center gap-1">
+                      <Heart size={14} color="#ef4444" fill="#ef4444" />
+                      <Text className="text-red-500 text-sm font-medium">{shortlistedIds.size} shortlisted</Text>
+                    </View>
+                  )}
                 </View>
-              )}
-            </View>
 
-            {scoredApprentices.length === 0 ? (
-              <View className="items-center py-12">
-                <GraduationCap size={48} color="#94a3b8" />
-                <Text className="text-slate-500 dark:text-slate-400 text-center mt-4">
-                  No apprentices match your filters
-                </Text>
-              </View>
-            ) : (
-              <FlashList
-                data={scoredApprentices}
-                renderItem={({ item, index }) => (
-                  <CandidateCard candidate={item} index={index} />
+                {scoredApprentices.length === 0 ? (
+                  <View className="items-center py-12">
+                    <GraduationCap size={48} color="#94a3b8" />
+                    <Text className="text-slate-500 dark:text-slate-400 text-center mt-4">
+                      No apprentices match your filters
+                    </Text>
+                  </View>
+                ) : (
+                  <FlashList
+                    data={scoredApprentices}
+                    renderItem={({ item, index }) => (
+                      <CandidateCard candidate={item} index={index} />
+                    )}
+                    estimatedItemSize={280}
+                    keyExtractor={(item) => item.id}
+                    showsVerticalScrollIndicator={false}
+                    contentContainerStyle={{ paddingBottom: insets.bottom + 20 }}
+                  />
                 )}
-                estimatedItemSize={280}
-                keyExtractor={(item) => item.id}
-                showsVerticalScrollIndicator={false}
-                contentContainerStyle={{ paddingBottom: insets.bottom + 20 }}
-              />
+              </>
             )}
           </View>
         )}
       </ScrollView>
 
       {/* Floating Compare Button */}
-      {selectedForComparison.length > 0 && (activeTab === 'executives' || activeTab === 'apprentices') && (
+      {selectedForComparison.length > 0 && activeTab === 'hire' && (
         <Animated.View
           entering={FadeInDown.springify()}
           className="absolute bottom-24 left-5 right-5"
