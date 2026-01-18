@@ -51,6 +51,21 @@ export const whatWhyConfig: WhatWhyConfig = {
 export function validateWhatWhyConfig(): { valid: boolean; warnings: string[] } {
   const warnings: string[] = [];
 
+  // Log which API key source is being used
+  if (whatWhyConfig.llm.apiKey) {
+    if (process.env.GOOGLE_AI_API_KEY) {
+      console.log('[WhatWhyConfig] ✅ Using your own GOOGLE_AI_API_KEY (FREE!)');
+    } else if (process.env.EXPO_PUBLIC_VIBECODE_GOOGLE_API_KEY) {
+      console.warn('[WhatWhyConfig] ⚠️ Using EXPO_PUBLIC_VIBECODE_GOOGLE_API_KEY (may incur charges from Vibecode)');
+      warnings.push('Consider getting your own free Google AI API key at https://aistudio.google.com/app/apikey');
+    } else if (process.env.ANTHROPIC_API_KEY) {
+      console.log('[WhatWhyConfig] ✅ Using your own ANTHROPIC_API_KEY');
+    } else if (process.env.EXPO_PUBLIC_VIBECODE_ANTHROPIC_API_KEY) {
+      console.warn('[WhatWhyConfig] ⚠️ Using EXPO_PUBLIC_VIBECODE_ANTHROPIC_API_KEY (may incur charges from Vibecode)');
+      warnings.push('Consider getting your own API key to avoid Vibecode charges');
+    }
+  }
+
   // Check LLM setup
   if (whatWhyConfig.llm.provider === 'anthropic' && !whatWhyConfig.llm.apiKey) {
     warnings.push('LLM_PROVIDER=anthropic but no API key found. Will fall back to mock.');
