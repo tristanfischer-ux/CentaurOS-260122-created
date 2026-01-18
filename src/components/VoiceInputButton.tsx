@@ -8,6 +8,7 @@
 import { View, Text, Pressable, Modal, Animated as RNAnimated, Platform } from 'react-native';
 import { useState, useRef, useEffect } from 'react';
 import { Audio } from 'expo-av';
+import * as FileSystem from 'expo-file-system';
 import { Mic, X, Loader } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, {
@@ -150,20 +151,10 @@ export function VoiceInputButton({
         throw new Error('Failed to get recording URI');
       }
 
-      // Read the audio file as base64
-      console.log('[VoiceInput] Reading audio file...');
-      const response = await fetch(uri);
-      const blob = await response.blob();
-
-      // Convert blob to base64
-      const reader = new FileReader();
-      const base64Audio = await new Promise<string>((resolve, reject) => {
-        reader.onloadend = () => {
-          const base64 = (reader.result as string).split(',')[1]; // Remove data:audio/...;base64, prefix
-          resolve(base64);
-        };
-        reader.onerror = reject;
-        reader.readAsDataURL(blob);
+      // Read the audio file as base64 using expo-file-system
+      console.log('[VoiceInput] Reading audio file with FileSystem...');
+      const base64Audio = await FileSystem.readAsStringAsync(uri, {
+        encoding: FileSystem.EncodingType.Base64,
       });
 
       console.log('[VoiceInput] Audio converted to base64, size:', base64Audio.length);
