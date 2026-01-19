@@ -3,13 +3,14 @@
  *
  * Progressive disclosure task card with 3 states:
  * 1. Collapsed: Title, status, small capacity indicator
- * 2. Expanded Preview: + Assigned people, squad, capacity details
+ * 2. Expanded Preview: + Assigned people, squad, capacity details, inline date editing
  * 3. Full Detail Modal: Complete editing interface
  */
 
-import { View, Text, Pressable } from 'react-native';
-import { useState, useEffect } from 'react';
-import { Clock, Users as UsersIcon, CheckCircle2, AlertTriangle, Circle, ChevronDown, ChevronUp, Edit3, Check, TrendingUp, Trash2, Zap } from 'lucide-react-native';
+import { View, Text, Pressable, Platform } from 'react-native';
+import { useState } from 'react';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import { Clock, Users as UsersIcon, CheckCircle2, AlertTriangle, Circle, ChevronDown, ChevronUp, Edit3, Check, TrendingUp, Trash2, Zap, Calendar } from 'lucide-react-native';
 import { type WorkPlan, useWorkPlanStore } from '@/lib/state/work-plan-store';
 import { type OrganizationMember } from '@/lib/organization-seed';
 import { useSquadStore } from '@/lib/state/squad-store';
@@ -44,9 +45,13 @@ export function CompactTaskCard({
   // Ensure assignedMembers is always an array, even if undefined is passed
   const assignedMembers = assignedMembersProp ?? [];
   const [isExpanded, setIsExpanded] = useState(false);
+  const [showStartDatePicker, setShowStartDatePicker] = useState(false);
+  const [showDueDatePicker, setShowDueDatePicker] = useState(false);
+
   const getSquadsByTask = useSquadStore(s => s.getSquadsByTask);
   const completeWorkPlan = useWorkPlanStore(s => s.completeWorkPlan);
   const deleteWorkPlan = useWorkPlanStore(s => s.deleteWorkPlan);
+  const updateWorkPlan = useWorkPlanStore(s => s.updateWorkPlan);
 
   const squads = getSquadsByTask(task.id);
 
@@ -295,28 +300,46 @@ export function CompactTaskCard({
             </View>
           </View>
 
-          {/* Date Information */}
+          {/* Date Information - Editable */}
           <View className="flex-row items-center justify-between mb-3 bg-gray-50 dark:bg-slate-900 rounded-lg p-2">
-            <View className="flex-1">
+            <Pressable
+              onPress={(e) => {
+                e.stopPropagation();
+                setShowStartDatePicker(true);
+              }}
+              className="flex-1 active:opacity-70"
+            >
               <Text className="text-gray-500 dark:text-slate-400 text-[9px]">Start Date</Text>
-              <Text className="text-gray-900 dark:text-white text-xs font-semibold">
-                {task.startDate ? new Date(task.startDate).toLocaleDateString('en-GB', {
-                  day: 'numeric',
-                  month: 'short',
-                  year: 'numeric'
-                }) : 'Not set'}
-              </Text>
-            </View>
-            <View className="flex-1">
+              <View className="flex-row items-center gap-1">
+                <Calendar size={10} color="#3b82f6" />
+                <Text className="text-gray-900 dark:text-white text-xs font-semibold">
+                  {task.startDate ? new Date(task.startDate).toLocaleDateString('en-GB', {
+                    day: 'numeric',
+                    month: 'short',
+                    year: 'numeric'
+                  }) : 'Tap to set'}
+                </Text>
+              </View>
+            </Pressable>
+            <Pressable
+              onPress={(e) => {
+                e.stopPropagation();
+                setShowDueDatePicker(true);
+              }}
+              className="flex-1 active:opacity-70"
+            >
               <Text className="text-gray-500 dark:text-slate-400 text-[9px]">Due Date</Text>
-              <Text className="text-gray-900 dark:text-white text-xs font-semibold">
-                {task.dueDate ? new Date(task.dueDate).toLocaleDateString('en-GB', {
-                  day: 'numeric',
-                  month: 'short',
-                  year: 'numeric'
-                }) : 'Not set'}
-              </Text>
-            </View>
+              <View className="flex-row items-center gap-1">
+                <Calendar size={10} color="#ef4444" />
+                <Text className="text-gray-900 dark:text-white text-xs font-semibold">
+                  {task.dueDate ? new Date(task.dueDate).toLocaleDateString('en-GB', {
+                    day: 'numeric',
+                    month: 'short',
+                    year: 'numeric'
+                  }) : 'Tap to set'}
+                </Text>
+              </View>
+            </Pressable>
             {task.function && (
               <View className="flex-1">
                 <Text className="text-gray-500 dark:text-slate-400 text-[9px]">Function</Text>
@@ -600,6 +623,45 @@ export function CompactTaskCard({
             Tap card to collapse
           </Text>
         </View>
+      )}
+
+      {/* Date Pickers */}
+      {showStartDatePicker && (
+        <DateTimePicker
+          value={task.startDate ? new Date(task.startDate) : new Date()}
+          mode="date"
+          display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+          onChange={(event, selectedDate) => {
+            setShowStartDatePicker(Platform.OS === 'ios');
+            if (selectedDate) {
+              updateWorkPlan(task.id, {
+                startDate: selectedDate.toISOString().split('T')[0],
+              });
+            }
+            if (Platform.OS !== 'ios') {
+              setShowStartDatePicker(false);
+            }
+          }}
+        />
+      )}
+
+      {showDueDatePicker && (
+        <DateTimePicker
+          value={task.dueDate ? new Date(task.dueDate) : new Date()}
+          mode="date"
+          display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+          onChange={(event, selectedDate) => {
+            setShowDueDatePicker(Platform.OS === 'ios');
+            if (selectedDate) {
+              updateWorkPlan(task.id, {
+                dueDate: selectedDate.toISOString().split('T')[0],
+              });
+            }
+            if (Platform.OS !== 'ios') {
+              setShowDueDatePicker(false);
+            }
+          }}
+        />
       )}
     </Pressable>
   );
