@@ -146,6 +146,7 @@ export function PerformanceDashboardGrid() {
   const getCashBalance = useFinanceStore((s) => s.getCashBalance);
   const getWeeklyBurn = useFinanceStore((s) => s.getWeeklyBurn);
   const getMonthlyRevenue = useFinanceStore((s) => s.getMonthlyRevenue);
+  const isFinanceLoaded = useFinanceStore((s) => s.isLoaded);
   const currentMembership = useCurrentMembership();
 
   // Apply role-based filtering
@@ -256,12 +257,32 @@ export function PerformanceDashboardGrid() {
     const netCashFlow = monthlyRevenue - monthlyBurn;
 
     // Fix runway calculation: use weekly burn for weeks of runway
-    const runwayWeeks = weeklyBurn > 0 && cashBalance > 0 ? cashBalance / weeklyBurn : 999;
-    const runwayMonths = runwayWeeks / 4.33;
-    const cashHealth: HealthStatus = runwayMonths < 6 ? 'critical' : runwayMonths < 12 ? 'warning' : 'healthy';
+    // If finance data hasn't loaded yet, don't show misleading infinite runway
+    let runwayMonths = 0;
+    let cashHealth: HealthStatus = 'warning';
+
+    if (!isFinanceLoaded) {
+      // Data not loaded yet - show neutral state
+      runwayMonths = 0;
+      cashHealth = 'warning';
+    } else if (weeklyBurn === 0) {
+      // No burn rate - infinite runway (show as very high number)
+      runwayMonths = 999;
+      cashHealth = 'healthy';
+    } else if (cashBalance <= 0) {
+      // Out of cash
+      runwayMonths = 0;
+      cashHealth = 'critical';
+    } else {
+      // Calculate actual runway
+      const runwayWeeks = cashBalance / weeklyBurn;
+      runwayMonths = runwayWeeks / 4.33;
+      cashHealth = runwayMonths < 6 ? 'critical' : runwayMonths < 12 ? 'warning' : 'healthy';
+    }
 
     console.log('[PerformanceDashboard] Financial metrics:', {
       workspaceId,
+      isFinanceLoaded,
       cashBalance,
       weeklyBurn,
       monthlyRevenue,
@@ -336,7 +357,7 @@ export function PerformanceDashboardGrid() {
       {
         id: 'cash-flow',
         title: 'Cash Flow',
-        primaryValue: runwayMonths === 999 ? '∞' : `${Math.round(runwayMonths)}mo`,
+        primaryValue: !isFinanceLoaded ? '—' : runwayMonths >= 999 ? '∞' : `${Math.round(runwayMonths)}mo`,
         primaryLabel: 'runway',
         secondaryValue: `£${(cashBalance / 1000).toFixed(1)}K`,
         secondaryLabel: 'Balance',
@@ -347,7 +368,7 @@ export function PerformanceDashboardGrid() {
         onPress: () => router.push('/financial-dashboard'),
       },
     ];
-  }, [roleFilteredWorkPlans, members, okrs, suppliers, currentWorkspace, getCashBalance, getWeeklyBurn, getMonthlyRevenue, router]);
+  }, [roleFilteredWorkPlans, members, okrs, suppliers, currentWorkspace, getCashBalance, getWeeklyBurn, getMonthlyRevenue, isFinanceLoaded, router]);
 
   return (
     <View className="px-5 mb-4">

@@ -76,6 +76,7 @@ interface FinanceStore {
   deleteTransaction: (id: string) => Promise<void>;
   addBudgetTarget: (target: Omit<BudgetTarget, 'id' | 'created_at'>) => Promise<void>;
   clearFinancialData: () => void;
+  reset: () => Promise<void>;
 
   // Selectors - Cash metrics
   getCashBalance: (workspaceId: string) => number;
@@ -254,6 +255,16 @@ export const useFinanceStore = create<FinanceStore>((set, get) => ({
       budgetTargets: [],
       isLoaded: false,
     });
+  },
+
+  reset: async () => {
+    // Clear in-memory state (no AsyncStorage/MMKV for finance store - it loads from Supabase)
+    set({
+      transactions: [],
+      budgetTargets: [],
+      isLoaded: false,
+    });
+    console.log('[FinanceStore] Reset complete - cleared in-memory cache');
   },
 
   // Selectors - Cash metrics
