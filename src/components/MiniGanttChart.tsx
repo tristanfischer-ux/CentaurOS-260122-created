@@ -414,11 +414,21 @@ export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress
             style={{ flexGrow: 0 }}
           >
             <View style={{ width: WEEK_WIDTH * timePeriods.length }}>
-              {/* Current time indicator line */}
+              {/* Week separator lines - to distinguish between weeks */}
+              {timePeriods.map((period: any, idx: number) => (
+                <View
+                  key={`separator-${idx}`}
+                  className="absolute top-0 bottom-0 w-px bg-gray-200 dark:bg-slate-700"
+                  style={{ left: WEEK_WIDTH * idx }}
+                />
+              ))}
+
+              {/* Current time indicator line - prominent blue */}
               <View
-                className="absolute top-0 bottom-0 w-0.5 bg-blue-500 dark:bg-blue-400 opacity-50"
+                className="absolute top-0 bottom-0 w-1 bg-blue-500 dark:bg-blue-400 shadow-sm"
                 style={{
-                  left: WEEK_WIDTH * (viewMode === 'day' ? 2 : viewMode === 'week' ? 4 : viewMode === 'month' ? 2 : 1) + WEEK_WIDTH / 2
+                  left: WEEK_WIDTH * (viewMode === 'day' ? 2 : viewMode === 'week' ? 4 : viewMode === 'month' ? 2 : 1) + WEEK_WIDTH / 2,
+                  zIndex: 10,
                 }}
               />
 
