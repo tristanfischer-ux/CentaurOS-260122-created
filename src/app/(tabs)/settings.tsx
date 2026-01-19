@@ -767,56 +767,6 @@ export default function SettingsScreen() {
           </View>
         </View>
 
-
-        {/* Quick Actions Section */}
-        <Animated.View entering={FadeInDown.delay(200)} className="px-5 mb-4">
-          <Pressable
-            onPress={() => toggleSection('quickActions')}
-            className="flex-row items-center justify-between mb-3"
-          >
-            <View className="flex-row items-center">
-              <View className="w-8 h-8 rounded-lg bg-blue-500/20 items-center justify-center mr-3">
-                <Zap size={18} color="#3b82f6" />
-              </View>
-              <Text className={`font-bold text-lg ${textPrimary}`}>Quick Actions</Text>
-            </View>
-            {expandedSections.quickActions ? (
-              <ChevronUp size={20} color={iconColor} />
-            ) : (
-              <ChevronDown size={20} color={iconColor} />
-            )}
-          </Pressable>
-
-          {expandedSections.quickActions && (
-            <View className="flex-row flex-wrap gap-3">
-              {quickActions.map((action) => (
-                <Pressable
-                  key={action.id}
-                  onPress={action.action}
-                  className={`${bgCard} border ${borderColor} rounded-xl p-4 active:opacity-70`}
-                  style={{ width: '47%' }}
-                >
-                  <View className="flex-row items-center justify-between mb-2">
-                    <View
-                      className="w-10 h-10 rounded-xl items-center justify-center"
-                      style={{ backgroundColor: `${action.color}20` }}
-                    >
-                      <action.icon size={20} color={action.color} />
-                    </View>
-                    {action.badge && (
-                      <View className="bg-red-500 rounded-full px-2 py-0.5">
-                        <Text className="text-white text-xs font-bold">{action.badge}</Text>
-                      </View>
-                    )}
-                  </View>
-                  <Text className={`font-semibold text-sm ${textPrimary}`}>{action.title}</Text>
-                  <Text className={`text-xs mt-0.5 ${textSecondary}`}>{action.subtitle}</Text>
-                </Pressable>
-              ))}
-            </View>
-          )}
-        </Animated.View>
-
         {/* Preferences Section */}
         <Animated.View entering={FadeInDown.delay(300)} className="px-5 mb-4">
           <Pressable
