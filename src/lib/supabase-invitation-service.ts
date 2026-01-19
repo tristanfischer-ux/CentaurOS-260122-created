@@ -6,6 +6,7 @@
  */
 
 import { supabase } from './supabase';
+import { sendInvitationEmail, isEmailConfigured } from './email-service';
 
 export interface SecureInvitation {
   id: string;
@@ -33,6 +34,11 @@ export interface CreateInvitationParams {
   prefillRoleArchetypes?: string[];
   prefillSourceNotes?: string;
   expiresInDays?: number;
+  // Additional params for email
+  inviterName?: string;
+  companyName?: string;
+  personalMessage?: string;
+  sendEmail?: boolean; // Default: true if email is configured
 }
 
 /**
@@ -50,6 +56,10 @@ export async function createSecureInvitation(
       prefillRoleArchetypes,
       prefillSourceNotes,
       expiresInDays = 7,
+      inviterName,
+      companyName,
+      personalMessage,
+      sendEmail = isEmailConfigured(),
     } = params;
 
     // Validate email format
@@ -99,6 +109,32 @@ export async function createSecureInvitation(
     if (error) {
       console.error('[InvitationService] Create error:', error);
       return { success: false, error: 'Failed to create invitation' };
+    }
+
+    // Send email if configured and requested
+    if (sendEmail && inviterName && companyName) {
+      const invitationLink = generateInvitationLink(invitation.token);
+
+      const emailResult = await sendInvitationEmail({
+        to: email,
+        candidateName: prefillName || 'there',
+        inviterName,
+        companyName,
+        invitationLink,
+        personalMessage,
+        expiresInDays,
+      });
+
+      if (emailResult.success) {
+        // Mark invitation as sent
+        await markInvitationAsSent(invitation.id);
+        console.log(`[InvitationService] Email sent successfully to ${email}`);
+      } else {
+        console.warn(`[InvitationService] Email failed, but invitation created: ${emailResult.error}`);
+        // Don't fail the whole operation if email fails - user can still copy the link
+      }
+    } else {
+      console.log('[InvitationService] Email not configured or not requested - invitation link must be shared manually');
     }
 
     return { success: true, data: invitation as SecureInvitation };

@@ -55,7 +55,7 @@ export function SendInvitationModal({ visible, onClose, candidate }: SendInvitat
     setIsLoading(true);
 
     try {
-      // Create secure invitation in Supabase
+      // Create secure invitation in Supabase with email sending
       const result = await createSecureInvitation({
         email: email.toLowerCase(),
         workspaceId: currentWorkspace.id,
@@ -64,6 +64,11 @@ export function SendInvitationModal({ visible, onClose, candidate }: SendInvitat
         prefillRoleArchetypes: [candidate.role],
         prefillSourceNotes: personalMessage || `Invited by ${currentUser.name} from ${currentWorkspace.name}`,
         expiresInDays: 7,
+        // Email parameters
+        inviterName: currentUser.name,
+        companyName: currentWorkspace.name,
+        personalMessage: personalMessage || undefined,
+        sendEmail: true, // Enable automatic email sending
       });
 
       if (!result.success) {
@@ -81,6 +86,7 @@ export function SendInvitationModal({ visible, onClose, candidate }: SendInvitat
       console.log(`[SendInvitation] Invitation link: ${link}`);
       console.log(`[SendInvitation] Token: ${result.data.token}`);
       console.log(`[SendInvitation] Expires: ${result.data.expires_at}`);
+      console.log(`[SendInvitation] Email sent automatically via Resend`);
 
     } catch (error) {
       console.error('[SendInvitation] Error:', error);
@@ -140,10 +146,10 @@ export function SendInvitationModal({ visible, onClose, candidate }: SendInvitat
                     <CheckCircle size={40} color="#22c55e" />
                   </View>
                   <Text className="text-gray-900 dark:text-white font-bold text-lg text-center">
-                    Secure Invitation Created
+                    Invitation Sent! 📧
                   </Text>
                   <Text className="text-gray-500 dark:text-slate-400 text-sm text-center mt-2">
-                    Invitation sent to {email}
+                    We've sent a secure invitation email to {email}
                   </Text>
                 </View>
 

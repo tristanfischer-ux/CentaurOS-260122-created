@@ -15,7 +15,44 @@ Centaur OS is a comprehensive iOS mobile application that helps lean companies o
 
 ## 🚀 Latest Updates (Jan 19, 2026)
 
-### ✅ AI-Powered Features & Smart Task Management (TODAY)
+### 🔒 Enterprise Security & Privacy System (TODAY)
+
+**Private Task Support:**
+- 🔐 **Visibility Levels**: 5-tier task visibility system (private, shared, function, company, restricted)
+- 👤 **Private Tasks**: Create tasks only you can see
+- 🏢 **Function-Scoped**: Tasks visible only to specific business functions (e.g., Finance-only)
+- 🤝 **Selective Sharing**: Share tasks with specific users or teams
+- 🛡️ **Database-Enforced**: Row Level Security (RLS) policies enforce access at DB level
+
+**Financial Data Protection:**
+- 💰 **Finance Function Access**: Supplier engagements, contracts, and spend data restricted to Finance team + Founders only
+- 📊 **Transparent Compensation**: Day rates remain visible to all team members (as designed)
+- 📝 **Audit Logging**: All financial data access logged with full audit trail
+- 🔍 **Access Verification**: Helper functions to check permissions before displaying sensitive data
+
+**Secure Invitation System:**
+- 🔐 **Cryptographic Tokens**: 256-bit random tokens (not predictable!)
+- ⏰ **Expiration Enforcement**: 7-day expiration on all invitation links
+- 1️⃣ **One-Time Use**: Invitations can only be accepted once
+- ✉️ **Email Verification**: Recipients must own the email address
+- 📧 **Automatic Email Sending**: Beautiful HTML emails via Resend integration
+- 📊 **Full Audit Trail**: Track who invited whom and when
+- 🎨 **Professional Templates**: Mobile-responsive emails with gradient headers and security badges
+
+**Email Integration (Resend):**
+- 📨 **Automatic Sending**: Invitations automatically send beautiful HTML emails
+- 🎨 **Professional Design**: Gradient headers, responsive layout, dark mode compatible
+- 📈 **Email Analytics**: Track delivery, opens, and click-through rates
+- 🆓 **Free Tier**: 3,000 emails/month included
+- 🔒 **Secure Delivery**: TLS encryption, SPF/DKIM/DMARC support
+
+**Security Documentation:**
+- 📚 `WORKSPACE_SECURITY_GUIDE.md` - Comprehensive security architecture overview
+- 📚 `SECURITY_IMPLEMENTATION_COMPLETE.md` - Implementation details and testing guide
+- 📚 `RESEND_SETUP_GUIDE.md` - Email service setup instructions
+- 📚 `RESEND_EMAIL_COMPLETE.md` - Email integration overview
+
+### ✅ AI-Powered Features & Smart Task Management
 
 **Mission Control Enhancements:**
 - ✨ **Focus Today Section**: AI-powered priority surfacing that analyzes tasks based on:
