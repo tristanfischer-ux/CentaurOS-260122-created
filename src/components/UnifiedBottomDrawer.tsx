@@ -180,21 +180,35 @@ export function UnifiedBottomDrawer({
   };
 
   // Calculate resource stats
-  const { totalAllocated, totalUnallocated } = useMemo(() => {
+  const { totalAllocated, totalUnallocated, totalNormalUnallocated, totalOvertimeUnallocated } = useMemo(() => {
     let allocated = 0;
-    let total = 0;
+    let totalNormal = 0;
+    let totalOvertime = 0;
 
     members.forEach((member: OrganizationMember) => {
       const capacity = getCapacityPerWeek(member);
-      const totalCapacity = capacity.normal + capacity.overtime;
       const memberAllocated = getAllocatedTUs(member.id, workPlans);
       allocated += memberAllocated;
-      total += totalCapacity;
+      totalNormal += capacity.normal;
+      totalOvertime += capacity.overtime;
     });
+
+    const totalCapacity = totalNormal + totalOvertime;
+    const unallocated = totalCapacity - allocated;
+
+    // Calculate how much normal and overtime capacity is available
+    // If allocated < totalNormal, all normal capacity isn't used yet
+    // If allocated >= totalNormal, we're into overtime territory
+    const normalUnallocated = Math.max(0, totalNormal - allocated);
+    const overtimeUnallocated = allocated < totalNormal
+      ? totalOvertime  // All overtime available if we haven't used up normal capacity
+      : Math.max(0, totalCapacity - allocated); // Otherwise, what's left of overtime
 
     return {
       totalAllocated: allocated,
-      totalUnallocated: total - allocated,
+      totalUnallocated: unallocated,
+      totalNormalUnallocated: normalUnallocated,
+      totalOvertimeUnallocated: overtimeUnallocated,
     };
   }, [members, workPlans]);
 
@@ -338,13 +352,19 @@ export function UnifiedBottomDrawer({
                     <View className="flex-row items-center">
                       <View className="w-2 h-2 rounded-full bg-red-500 mr-1" />
                       <Text className="text-gray-600 dark:text-slate-400 text-[10px] font-semibold">
-                        {totalAllocated} allocated
+                        {totalAllocated}□ allocated (team-wide)
                       </Text>
                     </View>
                     <View className="flex-row items-center">
                       <View className="w-2 h-2 rounded-full bg-emerald-500 mr-1" />
                       <Text className="text-gray-600 dark:text-slate-400 text-[10px] font-semibold">
-                        {totalUnallocated} available
+                        {totalNormalUnallocated}□ normal
+                      </Text>
+                    </View>
+                    <View className="flex-row items-center">
+                      <View className="w-2 h-2 rounded-full bg-amber-500 mr-1" />
+                      <Text className="text-gray-600 dark:text-slate-400 text-[10px] font-semibold">
+                        {totalOvertimeUnallocated}□ overtime
                       </Text>
                     </View>
                   </View>
