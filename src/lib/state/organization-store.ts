@@ -93,6 +93,18 @@ export const useOrganizationStore = create<OrganizationState>((set, get) => ({
     set({ isLoading: true, error: null });
 
     try {
+      // First, delete any dummy members (members without user_id)
+      const { error: deleteError } = await supabase
+        .from('members')
+        .delete()
+        .eq('workspace_id', workspaceId)
+        .is('user_id', null);
+
+      if (deleteError) {
+        console.warn('[Organization] Failed to delete dummy members:', deleteError);
+        // Continue anyway - not critical
+      }
+
       // Load members from Supabase
       const { data: membersData, error: membersError } = await supabase
         .from('members')
@@ -106,8 +118,11 @@ export const useOrganizationStore = create<OrganizationState>((set, get) => ({
         return;
       }
 
+      // Filter out any remaining dummy data - only keep members with user_id
+      const realMembers = (membersData || []).filter((m: any) => m.user_id);
+
       // Transform Supabase data to OrganizationMember format
-      const members: OrganizationMember[] = (membersData || []).map((m: any) => ({
+      const members: OrganizationMember[] = realMembers.map((m: any) => ({
         id: m.id,
         workspaceId: m.workspace_id,
         userId: m.user_id, // Link to auth user
@@ -121,6 +136,7 @@ export const useOrganizationStore = create<OrganizationState>((set, get) => ({
         startDate: m.created_at || new Date().toISOString(),
       }));
 
+      console.log(`[Organization] Loaded ${members.length} real members for workspace ${workspaceId}`);
       set({ members, isLoading: false });
     } catch (err) {
       console.error('Error loading members from Supabase:', err);
