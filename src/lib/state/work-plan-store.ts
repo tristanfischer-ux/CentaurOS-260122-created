@@ -14,6 +14,8 @@ import { supabase } from '@/lib/supabase';
 import type { Function as BusinessFunction } from '@/types';
 import type { TaskVisibility, RestrictedCategory, TaskSharing } from '@/types/privacy';
 import { useAppStore } from './app-store';
+import { autoScheduleTask } from '../task-scheduling';
+import type { OrganizationMember } from '@/lib/organization-seed';
 
 // Per-person TU allocation for a task
 export interface TUAllocation {
@@ -616,9 +618,48 @@ export const useWorkPlanStore = create<WorkPlanState>((set, get) => ({
     // Store previous state for rollback
     const previousWorkPlans = get().workPlans;
 
+    // Check if allocations are being updated - if so, we need to auto-schedule
+    const shouldAutoSchedule = updates.allocations !== undefined && updates.allocations.length > 0;
+    let schedulingUpdates: Partial<WorkPlan> = {};
+
+    if (shouldAutoSchedule) {
+      // Get team members from organization store
+      const { useOrganizationStore } = await import('./organization-store');
+      const members = useOrganizationStore.getState().members;
+
+      // Get current task
+      const currentTask = get().workPlans.find(wp => wp.id === id);
+      if (currentTask) {
+        // Create updated task with new allocations
+        const taskWithNewAllocations = { ...currentTask, ...updates };
+
+        // Auto-schedule based on team capacity
+        const scheduledTask = autoScheduleTask(
+          taskWithNewAllocations,
+          members as OrganizationMember[],
+          get().workPlans.filter(wp => wp.id !== id) // Exclude current task from capacity calculation
+        );
+
+        // Add scheduling updates to the updates object
+        schedulingUpdates = {
+          startDate: scheduledTask.startDate,
+          dueDate: scheduledTask.dueDate,
+        };
+
+        console.log('[WorkPlan] Auto-scheduled task:', {
+          id,
+          startDate: scheduledTask.startDate,
+          dueDate: scheduledTask.dueDate,
+        });
+      }
+    }
+
+    // Merge scheduling updates with original updates
+    const finalUpdates = { ...updates, ...schedulingUpdates };
+
     // Optimistic update
     set(state => ({
-      workPlans: state.workPlans.map(wp => (wp.id === id ? { ...wp, ...updates } : wp)),
+      workPlans: state.workPlans.map(wp => (wp.id === id ? { ...wp, ...finalUpdates } : wp)),
     }));
 
     try {
@@ -634,12 +675,12 @@ export const useWorkPlanStore = create<WorkPlanState>((set, get) => ({
       // Transform updates to Supabase format
       // Only use columns that exist in the actual Supabase schema
       const supabaseUpdates: any = {};
-      if (updates.title !== undefined) supabaseUpdates.title = updates.title;
-      if (updates.description !== undefined) supabaseUpdates.description = updates.description;
-      if (updates.startDate !== undefined) supabaseUpdates.start_date = updates.startDate;
-      if (updates.dueDate !== undefined) supabaseUpdates.end_date = updates.dueDate;
-      if (updates.status !== undefined) supabaseUpdates.status = updates.status;
-      if (updates.progress !== undefined) supabaseUpdates.progress = updates.progress;
+      if (finalUpdates.title !== undefined) supabaseUpdates.title = finalUpdates.title;
+      if (finalUpdates.description !== undefined) supabaseUpdates.description = finalUpdates.description;
+      if (finalUpdates.startDate !== undefined) supabaseUpdates.start_date = finalUpdates.startDate;
+      if (finalUpdates.dueDate !== undefined) supabaseUpdates.end_date = finalUpdates.dueDate;
+      if (finalUpdates.status !== undefined) supabaseUpdates.status = finalUpdates.status;
+      if (finalUpdates.progress !== undefined) supabaseUpdates.progress = finalUpdates.progress;
       // Always update updated_at timestamp
       supabaseUpdates.updated_at = new Date().toISOString();
 
@@ -660,7 +701,7 @@ export const useWorkPlanStore = create<WorkPlanState>((set, get) => ({
       }
 
       // Update allocations if provided
-      if (updates.allocations !== undefined) {
+      if (finalUpdates.allocations !== undefined) {
         // Delete existing allocations
         await supabase
           .from('work_plan_allocations')
@@ -668,8 +709,8 @@ export const useWorkPlanStore = create<WorkPlanState>((set, get) => ({
           .eq('work_plan_id', id);
 
         // Insert new allocations
-        if (updates.allocations.length > 0) {
-          const allocationsToInsert = updates.allocations.map(a => ({
+        if (finalUpdates.allocations.length > 0) {
+          const allocationsToInsert = finalUpdates.allocations.map(a => ({
             work_plan_id: id,
             member_id: a.memberId,
             squares_per_week: a.squaresPerWeek,
@@ -690,7 +731,7 @@ export const useWorkPlanStore = create<WorkPlanState>((set, get) => ({
       if (current) {
         set((state) => ({
           workPlans: state.workPlans.map(wp =>
-            wp.id === id ? { ...current, ...updates } : wp
+            wp.id === id ? { ...current, ...finalUpdates } : wp
           )
         }));
       }
