@@ -1,13 +1,13 @@
 /**
  * Unified Bottom Drawer
- * Combines Resource Pool and Task Creator in a tabbed interface
- * Prevents z-index collisions and provides consistent UX
+ * Instructions + Team Availability at top
+ * Mic button (above People) and Type button (above Market) at bottom
  */
 
 import { View, Text, Pressable, ScrollView, Dimensions, TextInput } from 'react-native';
 import { useState, useMemo, useEffect } from 'react';
 import Animated, { useAnimatedStyle, withSpring, useSharedValue } from 'react-native-reanimated';
-import { ChevronUp, ChevronDown, Users, Plus, Mic, Type, Lightbulb } from 'lucide-react-native';
+import { ChevronUp, ChevronDown, Plus, Mic, Type, Lightbulb, Send } from 'lucide-react-native';
 import { useOrganizationStore } from '@/lib/state/organization-store';
 import { type OrganizationMember } from '@/lib/organization-seed';
 import { useWorkPlanStore, type WorkPlan } from '@/lib/state/work-plan-store';
@@ -17,24 +17,16 @@ import { PersonDetailsModal } from './PersonDetailsModal';
 import { VoiceInputButton } from './VoiceInputButton';
 
 interface UnifiedBottomDrawerProps {
-  // Resource Pool props
   selectedPersonId: string | null;
   onPersonSelect: (personId: string) => void;
-
-  // Task Creator props
   onVoiceTranscript: (transcript: string) => void;
   onTextSubmit: (text: string) => void;
   pendingDraftsCount?: number;
-
-  // Control props
-  openToNewTask?: boolean; // When true, opens drawer to new-task tab
-
-  // Styling
-  accentColor?: string; // Green for WHAT, Purple for WHY
-  newTaskTabLabel?: string; // Custom label for "New Task" tab (e.g., "New Aim" for WHY tab)
+  openToNewTask?: boolean;
+  accentColor?: string;
+  newTaskTabLabel?: string;
 }
 
-type Tab = 'resources' | 'new-task';
 type InputMode = 'voice' | 'text' | null;
 
 const ROLE_COLORS: Record<string, string> = {
@@ -43,7 +35,6 @@ const ROLE_COLORS: Record<string, string> = {
   Apprentice: '#10b981',
 };
 
-// Calculate TU capacity per week
 const getCapacityPerWeek = (member: OrganizationMember): { normal: number; overtime: number } => {
   if (member.role === 'Founder' || member.role === 'Apprentice') {
     return { normal: 10, overtime: 5 };
@@ -54,7 +45,6 @@ const getCapacityPerWeek = (member: OrganizationMember): { normal: number; overt
   return { normal: normalSquares, overtime: overtimeSquares };
 };
 
-// Calculate allocated TUs
 const getAllocatedTUs = (memberId: string, workPlans: WorkPlan[]): number => {
   return workPlans
     .filter(wp => wp.status !== 'completed' && wp.status !== 'abandoned')
@@ -64,16 +54,6 @@ const getAllocatedTUs = (memberId: string, workPlans: WorkPlan[]): number => {
     }, 0);
 };
 
-// Get cost per TU
-const getCostPerTU = (member: OrganizationMember): number => {
-  if (member.role === 'Founder') return 960;
-  if (member.role === 'FractionalExec') {
-    const costPerDay = member.costPerDay || 800;
-    return Math.round(costPerDay / 2);
-  }
-  return 70;
-};
-
 export function UnifiedBottomDrawer({
   selectedPersonId,
   onPersonSelect,
@@ -81,11 +61,10 @@ export function UnifiedBottomDrawer({
   onTextSubmit,
   pendingDraftsCount = 0,
   openToNewTask = false,
-  accentColor = '#10b981', // Green by default
-  newTaskTabLabel = 'New Task', // Default label
+  accentColor = '#10b981',
+  newTaskTabLabel = 'New Task',
 }: UnifiedBottomDrawerProps) {
   const [isExpanded, setIsExpanded] = useState(false);
-  const [activeTab, setActiveTab] = useState<Tab>('new-task');
   const [inputMode, setInputMode] = useState<InputMode>(null);
   const [textInput, setTextInput] = useState('');
   const [showPersonModal, setShowPersonModal] = useState(false);
@@ -93,160 +72,75 @@ export function UnifiedBottomDrawer({
 
   const screenHeight = Dimensions.get('window').height;
 
-  // Stores
   const allMembers = useOrganizationStore(s => s.members);
   const workPlans = useWorkPlanStore(s => s.workPlans);
   const currentWorkspace = useCurrentWorkspace();
   const getCashBalance = useFinanceStore(s => s.getCashBalance);
 
-  // Filter active members FIRST (needed for height calculation)
   const members = useMemo(() =>
     allMembers.filter((m: OrganizationMember) => m.status === 'active'),
     [allMembers]
   );
 
-  // Calculate dynamic heights
   const COLLAPSED_HEIGHT = 60;
-  const MAX_EXPANDED_HEIGHT = screenHeight * 0.5; // Max 50% of screen
+  const EXPANDED_HEIGHT = screenHeight * 0.55;
 
-  // Calculate content height based on active tab and content
-  const getContentHeight = () => {
-    if (activeTab === 'resources') {
-      // Resources tab: header + financial summary + members + legend
-      const HEADER_HEIGHT = 60; // Tab header (px-5 py-4)
-      const FINANCIAL_SUMMARY_HEIGHT = 60; // Financial summary section (px-4 py-2 + 2 rows)
-      const MEMBER_ROW_HEIGHT = 34; // Height per member row (py-1.5 = 6px top + 6px bottom + ~22px content)
-      const LEGEND_HEIGHT = 28; // Legend at bottom (px-4 py-1.5)
-      const PADDING = 8; // Extra padding/borders
-
-      return HEADER_HEIGHT + FINANCIAL_SUMMARY_HEIGHT + (members.length * MEMBER_ROW_HEIGHT) + LEGEND_HEIGHT + PADDING;
-    } else {
-      // New Task tab: header + input mode content
-      const HEADER_HEIGHT = 60; // Tab header
-      const MODE_SELECTION_HEIGHT = 420; // Mode selection buttons + guide
-      const VOICE_INPUT_HEIGHT = 380; // Voice input screen
-      const TEXT_INPUT_HEIGHT = 380; // Text input screen
-
-      if (inputMode === null) {
-        return HEADER_HEIGHT + MODE_SELECTION_HEIGHT;
-      } else if (inputMode === 'voice') {
-        return HEADER_HEIGHT + VOICE_INPUT_HEIGHT;
-      } else {
-        return HEADER_HEIGHT + TEXT_INPUT_HEIGHT;
-      }
-    }
-  };
-
-  const contentHeight = getContentHeight();
-  const EXPANDED_HEIGHT = Math.min(contentHeight, MAX_EXPANDED_HEIGHT);
-
-  // Animated height
   const height = useSharedValue(COLLAPSED_HEIGHT);
 
-  // Handle openToNewTask prop - open drawer when requested
   useEffect(() => {
     if (openToNewTask && !isExpanded) {
       setIsExpanded(true);
-      setActiveTab('new-task');
+      setInputMode(null);
       height.value = EXPANDED_HEIGHT;
     }
   }, [openToNewTask, isExpanded, EXPANDED_HEIGHT, height]);
 
-  // Update height when content changes (tab switch, input mode change, or member count change)
   useEffect(() => {
     if (isExpanded) {
       height.value = EXPANDED_HEIGHT;
     }
-  }, [isExpanded, activeTab, inputMode, members.length, EXPANDED_HEIGHT, height]);
+  }, [isExpanded, EXPANDED_HEIGHT, height]);
 
-  const animatedStyle = useAnimatedStyle(() => {
-    return {
-      height: withSpring(height.value, {
-        damping: 20,
-        stiffness: 90,
-      }),
-    };
-  });
+  const animatedStyle = useAnimatedStyle(() => ({
+    height: withSpring(height.value, { damping: 20, stiffness: 90 }),
+  }));
 
   const toggleExpanded = () => {
     const newExpanded = !isExpanded;
     setIsExpanded(newExpanded);
     height.value = newExpanded ? EXPANDED_HEIGHT : COLLAPSED_HEIGHT;
-
     if (!newExpanded) {
       setInputMode(null);
       setTextInput('');
     }
   };
 
-  // Calculate resource stats
-  const { totalAllocated, totalUnallocated, totalNormalUnallocated, totalOvertimeUnallocated } = useMemo(() => {
+  // Calculate team stats
+  const { totalAllocated, totalAvailable } = useMemo(() => {
     let allocated = 0;
-    let totalNormal = 0;
-    let totalOvertime = 0;
-
+    let totalCapacity = 0;
     members.forEach((member: OrganizationMember) => {
       const capacity = getCapacityPerWeek(member);
-      const memberAllocated = getAllocatedTUs(member.id, workPlans);
-      allocated += memberAllocated;
-      totalNormal += capacity.normal;
-      totalOvertime += capacity.overtime;
+      allocated += getAllocatedTUs(member.id, workPlans);
+      totalCapacity += capacity.normal + capacity.overtime;
     });
-
-    const totalCapacity = totalNormal + totalOvertime;
-    const unallocated = totalCapacity - allocated;
-
-    // Calculate how much normal and overtime capacity is available
-    // If allocated < totalNormal, all normal capacity isn't used yet
-    // If allocated >= totalNormal, we're into overtime territory
-    const normalUnallocated = Math.max(0, totalNormal - allocated);
-    const overtimeUnallocated = allocated < totalNormal
-      ? totalOvertime  // All overtime available if we haven't used up normal capacity
-      : Math.max(0, totalCapacity - allocated); // Otherwise, what's left of overtime
-
-    return {
-      totalAllocated: allocated,
-      totalUnallocated: unallocated,
-      totalNormalUnallocated: normalUnallocated,
-      totalOvertimeUnallocated: overtimeUnallocated,
-    };
+    return { totalAllocated: allocated, totalAvailable: totalCapacity - allocated };
   }, [members, workPlans]);
 
-  // Calculate costs
-  const weeklyCost = useMemo(() => {
-    let cost = 0;
-    members.forEach((member) => {
-      const memberAllocated = getAllocatedTUs(member.id, workPlans);
-      const costPerTU = getCostPerTU(member);
-      cost += memberAllocated * costPerTU;
-    });
-    return Math.round(cost);
-  }, [members, workPlans]);
-
-  const cashBalance = currentWorkspace ? getCashBalance(currentWorkspace.id) : 0;
-  const remainingCash = cashBalance - weeklyCost;
-
-  // Text input handlers
   const handleTextSubmit = () => {
-    console.log('[UnifiedDrawer] handleTextSubmit called, textInput:', textInput);
     if (textInput.trim()) {
-      console.log('[UnifiedDrawer] Submitting text:', textInput.trim());
       onTextSubmit(textInput.trim());
       setTextInput('');
       setInputMode(null);
-      // Don't toggle expanded - let the parent component handle it
-      // toggleExpanded();
-    } else {
-      console.log('[UnifiedDrawer] Text input is empty, not submitting');
     }
   };
 
   const handleVoiceComplete = (transcript: string) => {
     onVoiceTranscript(transcript);
     setInputMode(null);
-    // Don't toggle expanded - let the parent component handle it
-    // toggleExpanded();
   };
+
+  const isAimMode = newTaskTabLabel === 'New Aim';
 
   return (
     <Animated.View
@@ -269,525 +163,260 @@ export function UnifiedBottomDrawer({
       ]}
       className="dark:bg-slate-900"
     >
-      {/* Tab Header - Always Visible */}
+      {/* Collapsed Header */}
       <Pressable
         onPress={toggleExpanded}
         className="flex-row items-center justify-between px-5 py-4 active:bg-slate-50 dark:active:bg-slate-800"
       >
-        <View className="flex-row items-center gap-4">
-          {/* New Task Tab Indicator - Centered */}
-          <Pressable
-            onPress={(e) => {
-              e.stopPropagation();
-              if (!isExpanded) toggleExpanded();
-              setActiveTab('new-task');
-            }}
-            className={`flex-row items-center gap-2 ${activeTab === 'new-task' && isExpanded ? 'opacity-100' : 'opacity-60'}`}
-          >
-            <View className="w-8 h-8 rounded-full items-center justify-center" style={{ backgroundColor: accentColor + '30' }}>
-              <Plus size={16} color={accentColor} />
-            </View>
-            <View>
-              <Text className="text-slate-900 dark:text-white text-xs font-bold">
-                {newTaskTabLabel}
+        <View className="flex-row items-center gap-3">
+          <View className="w-8 h-8 rounded-full items-center justify-center" style={{ backgroundColor: accentColor + '30' }}>
+            <Plus size={16} color={accentColor} />
+          </View>
+          <View>
+            <Text className="text-slate-900 dark:text-white text-xs font-bold">{newTaskTabLabel}</Text>
+            {pendingDraftsCount > 0 ? (
+              <Text className="text-xs font-medium" style={{ color: accentColor }}>
+                {pendingDraftsCount} draft{pendingDraftsCount !== 1 ? 's' : ''}
               </Text>
-              {pendingDraftsCount > 0 ? (
-                <Text className="text-xs font-medium" style={{ color: accentColor }}>
-                  {pendingDraftsCount} draft{pendingDraftsCount !== 1 ? 's' : ''}
-                </Text>
-              ) : (
-                <Text className="text-slate-500 dark:text-slate-400 text-[10px]">
-                  Voice or type
-                </Text>
-              )}
-            </View>
-          </Pressable>
+            ) : (
+              <Text className="text-slate-500 dark:text-slate-400 text-[10px]">Voice or type</Text>
+            )}
+          </View>
         </View>
-
-        {/* Expand/Collapse Indicator */}
         <View className="w-8 h-8 bg-slate-100 dark:bg-slate-800 rounded-full items-center justify-center">
-          {isExpanded ? (
-            <ChevronDown size={18} color="#64748b" />
-          ) : (
-            <ChevronUp size={18} color="#64748b" />
-          )}
+          {isExpanded ? <ChevronDown size={18} color="#64748b" /> : <ChevronUp size={18} color="#64748b" />}
         </View>
       </Pressable>
 
       {/* Expanded Content */}
       {isExpanded && (
         <View className="flex-1">
-          {activeTab === 'resources' ? (
-            // RESOURCES TAB CONTENT
-            <>
-              {/* Financial Summary Header */}
-              <View className="px-4 py-2 border-b border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800/50">
-                <View className="flex-row items-center justify-between">
-                  <View className="flex-row items-center gap-3">
-                    <View className="flex-row items-center">
-                      <View className="w-2 h-2 rounded-full bg-red-500 mr-1" />
-                      <Text className="text-gray-600 dark:text-slate-400 text-[10px] font-semibold">
-                        {totalAllocated}□ allocated (team-wide)
-                      </Text>
-                    </View>
-                    <View className="flex-row items-center">
-                      <View className="w-2 h-2 rounded-full bg-emerald-500 mr-1" />
-                      <Text className="text-gray-600 dark:text-slate-400 text-[10px] font-semibold">
-                        {totalNormalUnallocated}□ normal
-                      </Text>
-                    </View>
-                    <View className="flex-row items-center">
-                      <View className="w-2 h-2 rounded-full bg-amber-500 mr-1" />
-                      <Text className="text-gray-600 dark:text-slate-400 text-[10px] font-semibold">
-                        {totalOvertimeUnallocated}□ overtime
-                      </Text>
-                    </View>
-                  </View>
-                </View>
-
-                <View className="flex-row items-center gap-3 mt-2">
-                  <View className="flex-row items-center">
-                    <Text className="text-gray-500 dark:text-slate-500 text-[9px] mr-1">Bank:</Text>
-                    <Text className="text-gray-900 dark:text-white text-[10px] font-bold">
-                      £{(cashBalance / 1000).toFixed(0)}k
+          {inputMode === null ? (
+            // Default view: Instructions + Team + Input buttons
+            <View className="flex-1 px-4">
+              {/* Instructions Section */}
+              <View className="rounded-xl p-3 mb-3" style={{ backgroundColor: accentColor + '10' }}>
+                <View className="flex-row items-start gap-2">
+                  <Lightbulb size={16} color={accentColor} />
+                  <View className="flex-1">
+                    <Text className="text-slate-800 dark:text-slate-200 text-xs font-bold mb-1">
+                      {isAimMode ? 'What to include in your aim:' : 'What to include in your task:'}
                     </Text>
-                  </View>
-                  <View className="flex-row items-center">
-                    <Text className="text-gray-500 dark:text-slate-500 text-[9px] mr-1">Weekly Cost:</Text>
-                    <Text className="text-orange-600 dark:text-orange-400 text-[10px] font-bold">
-                      £{(weeklyCost / 1000).toFixed(1)}k
-                    </Text>
-                  </View>
-                  <View className="flex-row items-center">
-                    <Text className="text-gray-500 dark:text-slate-500 text-[9px] mr-1">After Week:</Text>
-                    <Text className={`text-[10px] font-bold ${remainingCash > 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
-                      £{(remainingCash / 1000).toFixed(0)}k
-                    </Text>
-                  </View>
-                </View>
-              </View>
-
-              {/* Resource List */}
-              <ScrollView className="flex-1" showsVerticalScrollIndicator={true}>
-                {members.map((member: OrganizationMember) => {
-                  const capacity = getCapacityPerWeek(member);
-                  const totalCapacity = capacity.normal + capacity.overtime;
-                  const allocated = getAllocatedTUs(member.id, workPlans);
-                  const available = totalCapacity - allocated;
-                  const isSelected = selectedPersonId === member.id;
-                  const roleColor = ROLE_COLORS[member.role];
-                  const costPerTU = getCostPerTU(member);
-
-                  const squares = [];
-                  for (let i = 0; i < 15; i++) {
-                    let squareState: 'hidden' | 'available' | 'overtime-available' | 'allocated' | 'overtime-allocated' = 'hidden';
-
-                    if (i < capacity.normal) {
-                      squareState = i < allocated ? 'allocated' : 'available';
-                    } else if (i < totalCapacity) {
-                      squareState = i < allocated ? 'overtime-allocated' : 'overtime-available';
-                    }
-
-                    squares.push({ index: i, state: squareState });
-                  }
-
-                  return (
-                    <Pressable
-                      key={member.id}
-                      onPress={() => {
-                        setSelectedMember(member);
-                        setShowPersonModal(true);
-                      }}
-                      className={`flex-row items-center px-3 py-1.5 border-b border-gray-100 dark:border-slate-800 active:bg-gray-50 dark:active:bg-slate-800 ${
-                        isSelected ? 'bg-purple-50 dark:bg-purple-900/20' : ''
-                      }`}
-                    >
-                      <View className="w-24 mr-2">
-                        <View className="flex-row items-center gap-1.5">
-                          <View
-                            className="w-6 h-6 rounded-full items-center justify-center"
-                            style={{ backgroundColor: roleColor + '20' }}
-                          >
-                            <Text className="font-bold text-[9px]" style={{ color: roleColor }}>
-                              {member.name.split(' ').map((n: string) => n[0]).join('')}
-                            </Text>
-                          </View>
-
-                          <View className="flex-1">
-                            <Text className="text-gray-900 dark:text-white text-[11px] font-semibold" numberOfLines={1}>
-                              {member.name.split(' ')[0]}
-                            </Text>
-                            <Text className="text-[8px] text-gray-500 dark:text-slate-500">
-                              {member.role === 'FractionalExec' ? 'Exec' : member.role.slice(0, 4)} • £{costPerTU}/TU
-                            </Text>
-                          </View>
-                        </View>
-                      </View>
-
-                      <View className="flex-1 flex-row items-center">
-                        {squares.map((square) => {
-                          if (square.state === 'hidden') {
-                            return <View key={square.index} className="w-4 h-4 mr-0.5" />;
-                          }
-
-                          let bgColor = 'bg-gray-200 dark:bg-slate-700';
-                          let borderColor = 'border-gray-300 dark:border-slate-600';
-
-                          if (square.state === 'allocated') {
-                            bgColor = 'bg-red-500';
-                            borderColor = 'border-red-600';
-                          } else if (square.state === 'overtime-available') {
-                            bgColor = 'bg-amber-100 dark:bg-amber-900/30';
-                            borderColor = 'border-amber-300 dark:border-amber-700';
-                          } else if (square.state === 'overtime-allocated') {
-                            bgColor = 'bg-orange-500';
-                            borderColor = 'border-orange-600';
-                          } else if (square.state === 'available') {
-                            bgColor = 'bg-emerald-100 dark:bg-emerald-900/30';
-                            borderColor = 'border-emerald-300 dark:border-emerald-700';
-                          }
-
-                          return (
-                            <View
-                              key={square.index}
-                              className={`w-4 h-4 rounded-sm border mr-0.5 ${bgColor} ${borderColor}`}
-                            />
-                          );
-                        })}
-
-                        <Text className="text-gray-600 dark:text-slate-400 text-[10px] font-semibold ml-1">
-                          {available}/{totalCapacity}
-                        </Text>
-                      </View>
-
-                      {isSelected && (
-                        <View className="w-1.5 h-1.5 rounded-full bg-purple-500 ml-1" />
+                    <Text className="text-slate-600 dark:text-slate-400 text-[11px] leading-4">
+                      {isAimMode ? (
+                        '• Specific outcome you want to achieve\n• Target metrics or numbers\n• Timeframe (this quarter, 6 months, etc.)\n• Key actions or focus areas'
+                      ) : (
+                        '• What needs to be done\n• Who should do it (Sarah, Mike, etc.)\n• Due date (Friday, next week, etc.)\n• Time estimate (2 hours, 1 TU, etc.)'
                       )}
-                    </Pressable>
-                  );
-                })}
-              </ScrollView>
-
-              {/* Legend */}
-              <View className="px-4 py-1.5 border-t border-gray-200 dark:border-slate-700 flex-row items-center justify-end gap-3">
-                <View className="flex-row items-center gap-1">
-                  <View className="w-2.5 h-2.5 rounded-sm border bg-emerald-100 border-emerald-300 dark:bg-emerald-900/30 dark:border-emerald-700" />
-                  <Text className="text-gray-600 dark:text-slate-400 text-[9px]">Avail</Text>
-                </View>
-                <View className="flex-row items-center gap-1">
-                  <View className="w-2.5 h-2.5 rounded-sm border bg-red-500 border-red-600" />
-                  <Text className="text-gray-600 dark:text-slate-400 text-[9px]">Alloc</Text>
-                </View>
-                <View className="flex-row items-center gap-1">
-                  <View className="w-2.5 h-2.5 rounded-sm border bg-amber-100 border-amber-300 dark:bg-amber-900/30 dark:border-amber-700" />
-                  <Text className="text-gray-600 dark:text-slate-400 text-[9px]">OT</Text>
+                    </Text>
+                  </View>
                 </View>
               </View>
-            </>
-          ) : (
-            // NEW TASK TAB CONTENT
-            <View className="flex-1 px-5 pb-6">
-              {inputMode === null ? (
-                // Mode selection with team capacity
-                <View>
-                  <Text className="text-slate-700 dark:text-slate-300 text-sm font-medium mb-3">
-                    Choose input method:
-                  </Text>
 
-                  {/* Voice Option with Team Capacity */}
-                  <View className="mb-4">
-                    <Pressable
-                      className="border-2 rounded-xl p-4 active:opacity-70"
-                      style={{
-                        backgroundColor: accentColor + '10',
-                        borderColor: accentColor + '30',
-                      }}
-                    >
-                      <View className="flex-row gap-4">
-                        {/* Voice Input */}
-                        <View className="items-center" style={{ width: 120 }}>
-                          <View className="w-16 h-16 rounded-full items-center justify-center mb-2" style={{ backgroundColor: accentColor + '20' }}>
-                            <VoiceInputButton
-                              onTranscriptComplete={handleVoiceComplete}
-                              onError={(error) => console.log('[UnifiedDrawer] Voice error:', error)}
-                              color={accentColor}
-                              size={64}
-                              inline={true}
+              {/* Team Availability Section */}
+              <View className="flex-1 bg-slate-50 dark:bg-slate-800/50 rounded-xl p-3 mb-3">
+                <View className="flex-row items-center justify-between mb-2">
+                  <Text className="text-slate-800 dark:text-slate-200 text-xs font-bold">
+                    Team Availability This Week
+                  </Text>
+                  <View className="flex-row items-center gap-2">
+                    <View className="bg-emerald-100 dark:bg-emerald-900/30 px-2 py-0.5 rounded-full">
+                      <Text className="text-emerald-700 dark:text-emerald-400 text-[10px] font-bold">
+                        {totalAvailable} TU free
+                      </Text>
+                    </View>
+                    <View className="bg-red-100 dark:bg-red-900/30 px-2 py-0.5 rounded-full">
+                      <Text className="text-red-700 dark:text-red-400 text-[10px] font-bold">
+                        {totalAllocated} TU used
+                      </Text>
+                    </View>
+                  </View>
+                </View>
+
+                <ScrollView style={{ maxHeight: 160 }} showsVerticalScrollIndicator={false}>
+                  {members.map((member: OrganizationMember) => {
+                    const capacity = getCapacityPerWeek(member);
+                    const totalCapacity = capacity.normal + capacity.overtime;
+                    const allocated = getAllocatedTUs(member.id, workPlans);
+                    const available = Math.max(0, totalCapacity - allocated);
+                    const roleColor = ROLE_COLORS[member.role] || '#64748b';
+                    const utilizationPercent = Math.round((allocated / totalCapacity) * 100);
+                    const isOverAllocated = allocated > totalCapacity;
+
+                    return (
+                      <Pressable
+                        key={member.id}
+                        onPress={() => {
+                          setSelectedMember(member);
+                          setShowPersonModal(true);
+                        }}
+                        className="flex-row items-center py-2 border-b border-slate-200 dark:border-slate-700 active:opacity-70"
+                      >
+                        <View
+                          className="w-8 h-8 rounded-full items-center justify-center mr-2"
+                          style={{ backgroundColor: roleColor }}
+                        >
+                          <Text className="text-white font-bold text-[10px]">
+                            {member.name.split(' ').map((n: string) => n[0]).join('')}
+                          </Text>
+                        </View>
+                        <View className="flex-1">
+                          <Text className="text-slate-900 dark:text-white text-xs font-medium" numberOfLines={1}>
+                            {member.name}
+                          </Text>
+                          <Text className="text-slate-500 dark:text-slate-400 text-[10px]">
+                            {member.role === 'FractionalExec' ? 'Executive' : member.role}
+                          </Text>
+                        </View>
+                        <View className="items-end">
+                          <Text className={`text-xs font-bold ${isOverAllocated ? 'text-red-600' : available > 0 ? 'text-emerald-600' : 'text-amber-600'}`}>
+                            {available} TU free
+                          </Text>
+                          <View className="w-16 h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full mt-1 overflow-hidden">
+                            <View
+                              className={`h-full rounded-full ${isOverAllocated ? 'bg-red-500' : utilizationPercent > 80 ? 'bg-amber-500' : 'bg-emerald-500'}`}
+                              style={{ width: `${Math.min(100, utilizationPercent)}%` }}
                             />
                           </View>
-                          <View style={{ minHeight: 24 }} />
-                          <Text className="text-slate-900 dark:text-white font-semibold">Voice</Text>
-                          <Text className="text-slate-600 dark:text-slate-400 text-xs text-center mt-1">
-                            Tap to record
-                          </Text>
                         </View>
+                      </Pressable>
+                    );
+                  })}
+                </ScrollView>
+              </View>
 
-                        {/* Team Capacity List */}
-                        <View className="flex-1">
-                          <Text className="text-slate-700 dark:text-slate-300 text-xs font-bold mb-2">
-                            Team Availability This Week
-                          </Text>
-                          <ScrollView style={{ maxHeight: 140 }} showsVerticalScrollIndicator={false}>
-                            {/* Founders */}
-                            {members.filter((m: OrganizationMember) => m.status === 'active' && (m.role === 'Founder' || m.role === 'CoFounder')).map((member: OrganizationMember) => {
-                              const capacity = getCapacityPerWeek(member);
-                              const totalCapacity = capacity.normal + capacity.overtime;
-                              const allocated = getAllocatedTUs(member.id, workPlans);
-                              const available = totalCapacity - allocated;
-                              const roleColor = ROLE_COLORS[member.role] || '#64748b';
-
-                              return (
-                                <Pressable
-                                  key={member.id}
-                                  onPress={() => {
-                                    setSelectedMember(member);
-                                    setShowPersonModal(true);
-                                  }}
-                                  className="flex-row items-center justify-between py-1.5 active:opacity-70"
-                                >
-                                  <View className="flex-row items-center gap-2 flex-1">
-                                    <View
-                                      className="w-7 h-7 rounded-full items-center justify-center"
-                                      style={{ backgroundColor: roleColor }}
-                                    >
-                                      <Text className="text-white font-bold text-[9px]">
-                                        {member.name.split(' ').map((n: string) => n[0]).join('')}
-                                      </Text>
-                                    </View>
-                                    <Text className="text-slate-900 dark:text-white text-xs font-medium flex-1" numberOfLines={1}>
-                                      {member.name}
-                                    </Text>
-                                  </View>
-                                  <View className="bg-slate-100 dark:bg-slate-700 px-2 py-1 rounded-full">
-                                    <Text className="text-slate-700 dark:text-slate-300 text-[10px] font-bold">
-                                      {allocated}/{totalCapacity} TU
-                                    </Text>
-                                  </View>
-                                </Pressable>
-                              );
-                            })}
-
-                            {/* Executives */}
-                            {members.filter((m: OrganizationMember) => m.status === 'active' && m.role === 'FractionalExec').map((member: OrganizationMember) => {
-                              const capacity = getCapacityPerWeek(member);
-                              const totalCapacity = capacity.normal + capacity.overtime;
-                              const allocated = getAllocatedTUs(member.id, workPlans);
-                              const roleColor = ROLE_COLORS[member.role] || '#64748b';
-
-                              return (
-                                <Pressable
-                                  key={member.id}
-                                  onPress={() => {
-                                    setSelectedMember(member);
-                                    setShowPersonModal(true);
-                                  }}
-                                  className="flex-row items-center justify-between py-1.5 active:opacity-70"
-                                >
-                                  <View className="flex-row items-center gap-2 flex-1">
-                                    <View
-                                      className="w-7 h-7 rounded-full items-center justify-center"
-                                      style={{ backgroundColor: roleColor }}
-                                    >
-                                      <Text className="text-white font-bold text-[9px]">
-                                        {member.name.split(' ').map((n: string) => n[0]).join('')}
-                                      </Text>
-                                    </View>
-                                    <Text className="text-slate-900 dark:text-white text-xs font-medium flex-1" numberOfLines={1}>
-                                      {member.name}
-                                    </Text>
-                                  </View>
-                                  <View className="bg-slate-100 dark:bg-slate-700 px-2 py-1 rounded-full">
-                                    <Text className="text-slate-700 dark:text-slate-300 text-[10px] font-bold">
-                                      {allocated}/{totalCapacity} TU
-                                    </Text>
-                                  </View>
-                                </Pressable>
-                              );
-                            })}
-
-                            {/* Apprentices */}
-                            {members.filter((m: OrganizationMember) => m.status === 'active' && m.role === 'Apprentice').map((member: OrganizationMember) => {
-                              const capacity = getCapacityPerWeek(member);
-                              const totalCapacity = capacity.normal + capacity.overtime;
-                              const allocated = getAllocatedTUs(member.id, workPlans);
-                              const roleColor = ROLE_COLORS[member.role] || '#64748b';
-
-                              return (
-                                <Pressable
-                                  key={member.id}
-                                  onPress={() => {
-                                    setSelectedMember(member);
-                                    setShowPersonModal(true);
-                                  }}
-                                  className="flex-row items-center justify-between py-1.5 active:opacity-70"
-                                >
-                                  <View className="flex-row items-center gap-2 flex-1">
-                                    <View
-                                      className="w-7 h-7 rounded-full items-center justify-center"
-                                      style={{ backgroundColor: roleColor }}
-                                    >
-                                      <Text className="text-white font-bold text-[9px]">
-                                        {member.name.split(' ').map((n: string) => n[0]).join('')}
-                                      </Text>
-                                    </View>
-                                    <Text className="text-slate-900 dark:text-white text-xs font-medium flex-1" numberOfLines={1}>
-                                      {member.name}
-                                    </Text>
-                                  </View>
-                                  <View className="bg-slate-100 dark:bg-slate-700 px-2 py-1 rounded-full">
-                                    <Text className="text-slate-700 dark:text-slate-300 text-[10px] font-bold">
-                                      {allocated}/{totalCapacity} TU
-                                    </Text>
-                                  </View>
-                                </Pressable>
-                              );
-                            })}
-                          </ScrollView>
-                        </View>
-                      </View>
-                    </Pressable>
-                  </View>
-
-                  {/* Type Option */}
-                  <Pressable
-                    onPress={() => setInputMode('text')}
-                    className="bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-200 dark:border-blue-800 rounded-xl p-4 items-center active:opacity-70 mb-4"
+              {/* Bottom Action Buttons - Positioned for thumb access */}
+              <View className="flex-row items-center justify-between px-4 pb-2">
+                {/* Mic Button - Left side (above People tab) */}
+                <View className="items-center">
+                  <View
+                    className="w-14 h-14 rounded-full items-center justify-center mb-1"
+                    style={{ backgroundColor: accentColor + '20' }}
                   >
-                    <View className="w-12 h-12 bg-blue-100 dark:bg-blue-900/50 rounded-full items-center justify-center mb-2">
-                      <Type size={24} color="#3b82f6" />
-                    </View>
-                    <Text className="text-slate-900 dark:text-white font-semibold">Type</Text>
-                    <Text className="text-slate-600 dark:text-slate-400 text-xs text-center mt-1">
-                      Describe {newTaskTabLabel === 'New Aim' ? 'aims' : 'task'}
-                    </Text>
-                  </Pressable>
+                    <VoiceInputButton
+                      onTranscriptComplete={handleVoiceComplete}
+                      onError={(error) => console.log('[UnifiedDrawer] Voice error:', error)}
+                      color={accentColor}
+                      size={56}
+                      inline={true}
+                    />
+                  </View>
+                  <Text className="text-slate-600 dark:text-slate-400 text-[10px] font-medium">Voice</Text>
+                </View>
 
-                  <View className="flex-row items-start gap-2 rounded-xl p-4" style={{ backgroundColor: accentColor + '10' }}>
-                    <Lightbulb size={18} color={accentColor} />
-                    <View className="flex-1">
-                      <Text className="text-slate-700 dark:text-slate-300 text-sm leading-relaxed mb-3">
-                        <Text className="font-bold">Voice Input Guide:</Text>
-                      </Text>
-                      <Text className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-2">
-                        {newTaskTabLabel === 'New Aim' ? (
-                          <>
-                            ✓ Be specific about your aim{'\n'}
-                            ✓ Describe the outcome you want{'\n'}
-                            ✓ Include a target timeframe{'\n'}
-                            ✓ Mention relevant metrics{'\n'}
-                            ✓ You can describe multiple aims at once!
-                          </>
-                        ) : (
-                          <>
-                            ✓ Be specific about the task{'\n'}
-                            ✓ Mention who should do it{'\n'}
-                            ✓ Include a due date if known{'\n'}
-                            ✓ Estimate time needed (hours or TUs){'\n'}
-                            ✓ You can create multiple tasks at once!
-                          </>
-                        )}
-                      </Text>
-                      <Text className="text-slate-700 dark:text-slate-300 text-sm leading-relaxed font-semibold mb-1">
-                        Examples:
-                      </Text>
-                      <Text className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed italic">
-                        {newTaskTabLabel === 'New Aim' ? (
-                          <>
-                            "Increase monthly revenue to $50K by Q3, need to focus on enterprise sales"
-                            {'\n\n'}
-                            "Reduce customer churn to below 5% within 6 months through better onboarding"
-                            {'\n\n'}
-                            "Three aims: first, launch mobile app this quarter; second, grow user base to 10K; third, establish partnerships with three major brands"
-                          </>
-                        ) : (
-                          <>
-                            "Create a task to update the landing page, assign it to Sarah, due next Friday, will take 3 hours"
-                            {'\n\n'}
-                            "Fix the login bug, James should handle it, needs about 2 days of work"
-                            {'\n\n'}
-                            "Three tasks: first, review the designs for 2 hours; second, schedule team meeting; third, send investor update"
-                          </>
-                        )}
-                      </Text>
-                    </View>
+                {/* Spacer for center (where + button is) */}
+                <View style={{ width: 60 }} />
+
+                {/* Type Button - Right side (above Market tab) */}
+                <Pressable
+                  onPress={() => setInputMode('text')}
+                  className="items-center active:opacity-70"
+                >
+                  <View className="w-14 h-14 bg-blue-100 dark:bg-blue-900/30 rounded-full items-center justify-center mb-1">
+                    <Type size={24} color="#3b82f6" />
+                  </View>
+                  <Text className="text-slate-600 dark:text-slate-400 text-[10px] font-medium">Type</Text>
+                </Pressable>
+              </View>
+            </View>
+          ) : inputMode === 'voice' ? (
+            // Voice Recording Mode
+            <View className="flex-1 px-4 items-center justify-center">
+              <Text className="text-slate-900 dark:text-white font-semibold text-lg mb-3 text-center">
+                Recording...
+              </Text>
+              <Text className="text-slate-600 dark:text-slate-400 text-sm mb-6 text-center">
+                Describe your {isAimMode ? 'aims' : 'tasks'}
+              </Text>
+
+              <VoiceInputButton
+                onTranscriptComplete={handleVoiceComplete}
+                onError={(error) => console.log('[UnifiedDrawer] Voice error:', error)}
+                color={accentColor}
+                size={80}
+              />
+
+              <Pressable
+                onPress={() => setInputMode(null)}
+                className="mt-6 px-6 py-2 bg-slate-200 dark:bg-slate-700 rounded-lg"
+              >
+                <Text className="text-slate-700 dark:text-slate-300 font-medium">Cancel</Text>
+              </Pressable>
+            </View>
+          ) : (
+            // Text Input Mode
+            <View className="flex-1 px-4">
+              {/* Instructions at top */}
+              <View className="rounded-xl p-3 mb-3" style={{ backgroundColor: accentColor + '10' }}>
+                <View className="flex-row items-start gap-2">
+                  <Lightbulb size={16} color={accentColor} />
+                  <View className="flex-1">
+                    <Text className="text-slate-800 dark:text-slate-200 text-xs font-bold mb-1">
+                      {isAimMode ? 'Describe your aims:' : 'Describe your tasks:'}
+                    </Text>
+                    <Text className="text-slate-600 dark:text-slate-400 text-[11px] leading-4">
+                      {isAimMode ? (
+                        'Example: "Increase revenue to $50K by Q3 through enterprise sales"'
+                      ) : (
+                        'Example: "Fix the login bug, assign to Sarah, due Friday, 2 hours"'
+                      )}
+                    </Text>
                   </View>
                 </View>
-              ) : inputMode === 'voice' ? (
-                // Voice input mode
-                <View className="flex-1 items-center justify-center">
-                  <Text className="text-slate-900 dark:text-white font-semibold text-lg mb-2 text-center">
-                    Tap to record {newTaskTabLabel === 'New Aim' ? 'your aims' : 'your tasks'}
-                  </Text>
+              </View>
 
-                  <View className="rounded-xl p-3 mb-6 max-w-[280px]" style={{ backgroundColor: accentColor + '10' }}>
-                    <Text className="text-slate-700 dark:text-slate-300 text-xs leading-relaxed">
-                      <Text className="font-bold">Remember to mention:</Text>
-                      {'\n'}• Who? (Sarah, Mike, etc.)
-                      {'\n'}• When? (Friday, next week, etc.)
-                      {'\n'}• How long? (2 TUs, 10 hours, etc.)
-                    </Text>
+              {/* Text Input Area */}
+              <View className="flex-1 mb-3">
+                <TextInput
+                  value={textInput}
+                  onChangeText={setTextInput}
+                  placeholder={isAimMode
+                    ? "Describe what you want to achieve..."
+                    : "Describe your tasks here..."
+                  }
+                  placeholderTextColor="#94a3b8"
+                  multiline
+                  className="flex-1 bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-200 dark:border-blue-800 rounded-xl px-4 py-3 text-slate-900 dark:text-white text-sm"
+                  style={{ textAlignVertical: 'top', minHeight: 120 }}
+                  autoFocus
+                />
+              </View>
+
+              {/* Bottom Action Buttons */}
+              <View className="flex-row items-center justify-between px-4 pb-2">
+                {/* Back Button - Left side */}
+                <Pressable
+                  onPress={() => {
+                    setInputMode(null);
+                    setTextInput('');
+                  }}
+                  className="items-center active:opacity-70"
+                >
+                  <View className="w-14 h-14 bg-slate-200 dark:bg-slate-700 rounded-full items-center justify-center mb-1">
+                    <Mic size={24} color="#64748b" />
                   </View>
+                  <Text className="text-slate-600 dark:text-slate-400 text-[10px] font-medium">Voice</Text>
+                </Pressable>
 
-                  <VoiceInputButton
-                    onTranscriptComplete={handleVoiceComplete}
-                    onError={(error) => console.log('[UnifiedDrawer] Voice error:', error)}
-                    color={accentColor}
-                    size={80}
-                  />
+                {/* Spacer for center */}
+                <View style={{ width: 60 }} />
 
-                  <Pressable
-                    onPress={() => setInputMode(null)}
-                    className="mt-6 px-6 py-2 bg-slate-200 dark:bg-slate-700 rounded-lg"
+                {/* Submit Button - Right side */}
+                <Pressable
+                  onPress={handleTextSubmit}
+                  disabled={!textInput.trim()}
+                  className="items-center active:opacity-70"
+                  style={{ opacity: textInput.trim() ? 1 : 0.5 }}
+                >
+                  <View
+                    className="w-14 h-14 rounded-full items-center justify-center mb-1"
+                    style={{ backgroundColor: accentColor }}
                   >
-                    <Text className="text-slate-700 dark:text-slate-300 font-medium">Back</Text>
-                  </Pressable>
-                </View>
-              ) : (
-                // Text input mode
-                <View className="flex-1">
-                  <Text className="text-slate-900 dark:text-white font-semibold text-lg mb-3">
-                    Describe your tasks
-                  </Text>
-
-                  <TextInput
-                    value={textInput}
-                    onChangeText={setTextInput}
-                    placeholder="Example: Create a task to fix the login bug, assign it to Sarah, and set it for next Friday. Estimated 2 time units."
-                    placeholderTextColor="#94a3b8"
-                    multiline
-                    numberOfLines={6}
-                    className="bg-slate-100 dark:bg-slate-800 rounded-xl px-4 py-3 text-slate-900 dark:text-white mb-3 min-h-[150px]"
-                    style={{ textAlignVertical: 'top' }}
-                  />
-
-                  <View className="flex-row items-start gap-2 rounded-xl p-3 mb-4" style={{ backgroundColor: accentColor + '10' }}>
-                    <Lightbulb size={16} color={accentColor} />
-                    <Text className="flex-1 text-slate-600 dark:text-slate-400 text-xs leading-relaxed">
-                      <Text className="font-semibold">Tip:</Text> Mention who should do it, when it's due, and how long it will take for best results.
-                    </Text>
+                    <Send size={24} color="white" />
                   </View>
-
-                  <View className="flex-row gap-3">
-                    <Pressable
-                      onPress={() => setInputMode(null)}
-                      className="flex-1 bg-slate-200 dark:bg-slate-700 py-3 rounded-xl items-center"
-                    >
-                      <Text className="text-slate-700 dark:text-slate-300 font-semibold">Back</Text>
-                    </Pressable>
-                    <Pressable
-                      onPress={handleTextSubmit}
-                      disabled={!textInput.trim()}
-                      className="flex-1 py-3 rounded-xl items-center"
-                      style={{
-                        backgroundColor: accentColor,
-                        opacity: textInput.trim() ? 1 : 0.5
-                      }}
-                    >
-                      <Text className="text-white font-semibold">Extract Tasks</Text>
-                    </Pressable>
-                  </View>
-                </View>
-              )}
+                  <Text className="text-slate-600 dark:text-slate-400 text-[10px] font-medium">Send</Text>
+                </Pressable>
+              </View>
             </View>
           )}
         </View>
