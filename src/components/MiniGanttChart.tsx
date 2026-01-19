@@ -417,7 +417,7 @@ export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress
         >
           <ScrollView
             showsVerticalScrollIndicator={true}
-            contentContainerStyle={{ paddingBottom: 8 }}
+            contentContainerStyle={{ paddingBottom: 200 }}
             style={{ maxHeight: TASK_HEIGHT * MAX_VISIBLE_TASKS }}
           >
             <View style={{ width: WEEK_WIDTH * timePeriods.length }}>
