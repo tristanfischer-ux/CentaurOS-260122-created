@@ -9,11 +9,12 @@
 
 import { View, Text, Pressable } from 'react-native';
 import { useState, useEffect } from 'react';
-import { Clock, Users as UsersIcon, CheckCircle2, AlertTriangle, Circle, ChevronDown, ChevronUp, Edit3, Check, TrendingUp, Trash2 } from 'lucide-react-native';
+import { Clock, Users as UsersIcon, CheckCircle2, AlertTriangle, Circle, ChevronDown, ChevronUp, Edit3, Check, TrendingUp, Trash2, Zap } from 'lucide-react-native';
 import { type WorkPlan, useWorkPlanStore } from '@/lib/state/work-plan-store';
 import { type OrganizationMember } from '@/lib/organization-seed';
 import { useSquadStore } from '@/lib/state/squad-store';
 import { getDelayInfo, formatDelay, getDelaySeverityColor, getOriginalTimeline } from '@/lib/task-delay-tracker';
+import { calculateTaskImportance } from '@/lib/task-importance';
 
 interface CompactTaskCardProps {
   task: WorkPlan;
@@ -80,6 +81,9 @@ export function CompactTaskCard({
   const delaySeverityColors = getDelaySeverityColor(delayInfo.severity);
   const originalTimeline = getOriginalTimeline(task);
 
+  // Calculate task importance
+  const importance = calculateTaskImportance(task);
+
   // Status icon
   const StatusIcon = task.status === 'in-progress' ? Clock :
                      task.status === 'completed' ? CheckCircle2 :
@@ -136,6 +140,18 @@ export function CompactTaskCard({
                 <AlertTriangle size={9} color="#fff" />
                 <Text className="text-white text-[9px] font-bold">
                   {delayBadgeText}
+                </Text>
+              </View>
+            )}
+            {/* Importance badge */}
+            {importance.level !== 'low' && (
+              <View
+                className="px-1.5 py-0.5 rounded flex-row items-center gap-0.5"
+                style={{ backgroundColor: importance.bgColor }}
+              >
+                <Zap size={9} color={importance.color} fill={importance.color} />
+                <Text className="text-[9px] font-bold" style={{ color: importance.color }}>
+                  {importance.label}
                 </Text>
               </View>
             )}
@@ -233,6 +249,52 @@ export function CompactTaskCard({
       {/* EXPANDED PREVIEW - Shows on first tap */}
       {isExpanded && (
         <View className="mt-3 pt-3 border-t border-gray-200 dark:border-slate-700">
+          {/* Importance Score Breakdown */}
+          <View className="mb-3 bg-slate-50 dark:bg-slate-800 rounded-lg p-3">
+            <View className="flex-row items-center justify-between mb-2">
+              <View className="flex-row items-center gap-2">
+                <Zap size={14} color={importance.color} fill={importance.color} />
+                <Text className="text-slate-900 dark:text-white font-bold text-sm">
+                  Importance: {importance.label}
+                </Text>
+              </View>
+              <View
+                className="px-2 py-1 rounded-lg"
+                style={{ backgroundColor: importance.bgColor }}
+              >
+                <Text className="font-bold text-xs" style={{ color: importance.color }}>
+                  {importance.score}/100
+                </Text>
+              </View>
+            </View>
+            <View className="flex-row items-center gap-2">
+              <View className="flex-1">
+                <Text className="text-slate-500 dark:text-slate-400 text-[9px] mb-0.5">TU Size</Text>
+                <Text className="text-slate-700 dark:text-slate-300 text-xs font-semibold">
+                  {importance.factors.tuSize} pts
+                </Text>
+              </View>
+              <View className="flex-1">
+                <Text className="text-slate-500 dark:text-slate-400 text-[9px] mb-0.5">Deadline</Text>
+                <Text className="text-slate-700 dark:text-slate-300 text-xs font-semibold">
+                  {importance.factors.deadline} pts
+                </Text>
+              </View>
+              <View className="flex-1">
+                <Text className="text-slate-500 dark:text-slate-400 text-[9px] mb-0.5">Progress</Text>
+                <Text className="text-slate-700 dark:text-slate-300 text-xs font-semibold">
+                  {importance.factors.progress} pts
+                </Text>
+              </View>
+              <View className="flex-1">
+                <Text className="text-slate-500 dark:text-slate-400 text-[9px] mb-0.5">Status</Text>
+                <Text className="text-slate-700 dark:text-slate-300 text-xs font-semibold">
+                  {importance.factors.status} pts
+                </Text>
+              </View>
+            </View>
+          </View>
+
           {/* Date Information */}
           <View className="flex-row items-center justify-between mb-3 bg-gray-50 dark:bg-slate-900 rounded-lg p-2">
             <View className="flex-1">
