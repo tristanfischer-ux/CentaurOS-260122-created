@@ -356,7 +356,7 @@ export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress
       </View>
 
       {/* Timeline Content */}
-      <View className="relative bg-white dark:bg-slate-900">
+      <View className="flex-1 relative bg-white dark:bg-slate-900">
         {/* Compact Time Period Headers */}
         <ScrollView
           ref={headerScrollRef}
@@ -406,24 +406,25 @@ export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress
             headerScrollRef.current?.scrollTo({ x: offsetX, y: 0, animated: false });
           }}
           scrollEventThrottle={16}
-          className="flex-1"
+          style={{ flex: 1 }}
+          contentContainerStyle={{ flexGrow: 1 }}
         >
           <ScrollView
             showsVerticalScrollIndicator={true}
-            contentContainerStyle={{ paddingBottom: 200 }}
-            className="flex-1"
+            contentContainerStyle={{ flexGrow: 1, paddingBottom: 80 }}
+            style={{ flex: 1 }}
           >
-            <View style={{ width: WEEK_WIDTH * timePeriods.length }}>
-              {/* Week separator lines - to distinguish between weeks */}
+            <View style={{ width: WEEK_WIDTH * timePeriods.length, minHeight: '100%' }}>
+              {/* Week separator lines - full height */}
               {timePeriods.map((period: any, idx: number) => (
                 <View
                   key={`separator-${idx}`}
-                  className="absolute top-0 bottom-0 w-px bg-gray-200 dark:bg-slate-700"
-                  style={{ left: WEEK_WIDTH * idx }}
+                  className="absolute top-0 w-px bg-gray-200 dark:bg-slate-700"
+                  style={{ left: WEEK_WIDTH * idx, height: '100%' }}
                 />
               ))}
 
-              {/* Today indicator line - positioned at the center of today's column */}
+              {/* Today indicator line - full height */}
               {(() => {
                 let todayIndex = 0;
                 if (viewMode === 'day') {
@@ -440,8 +441,8 @@ export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress
 
                 return (
                   <View
-                    className="absolute top-0 bottom-0 w-1 bg-blue-500 dark:bg-blue-400"
-                    style={{ left: todayLineX, zIndex: 5 }}
+                    className="absolute top-0 w-1 bg-blue-500 dark:bg-blue-400"
+                    style={{ left: todayLineX, height: '100%', zIndex: 5 }}
                     pointerEvents="none"
                   />
                 );
@@ -647,18 +648,18 @@ export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress
                   </View>
                 );
               })}
+              </View>
 
               {/* Empty state */}
               {taskBars.length === 0 && (
-                <View className="items-center justify-center py-8">
+                <View className="flex-1 items-center justify-center py-8">
                   <Text className="text-gray-400 dark:text-slate-500 text-sm">
                     No active tasks
                   </Text>
                 </View>
               )}
             </View>
-          </View>
-        </ScrollView>
+          </ScrollView>
         </ScrollView>
       </View>
 
