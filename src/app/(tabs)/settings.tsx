@@ -367,6 +367,43 @@ export default function SettingsScreen() {
               // Execute comprehensive reset
               const resetReport = await resetAllCompanyData(storeHandlers);
 
+              // ALSO clear Supabase financial data for the test workspace
+              try {
+                const { supabase } = await import('@/lib/supabase');
+                const testWorkspaceId = '00000000-0000-0000-0000-000000000001';
+
+                console.log('[Settings] 🗑️ Clearing Supabase financial data for test workspace...');
+
+                // Delete financial transactions
+                const { error: txError } = await supabase
+                  .from('financial_transactions')
+                  .delete()
+                  .eq('workspace_id', testWorkspaceId);
+
+                if (txError) {
+                  console.error('[Settings] Error deleting financial_transactions:', txError);
+                } else {
+                  console.log('[Settings] ✅ Deleted financial_transactions');
+                }
+
+                // Delete budget targets
+                const { error: budgetError } = await supabase
+                  .from('budget_targets')
+                  .delete()
+                  .eq('workspace_id', testWorkspaceId);
+
+                if (budgetError) {
+                  console.error('[Settings] Error deleting budget_targets:', budgetError);
+                } else {
+                  console.log('[Settings] ✅ Deleted budget_targets');
+                }
+
+                console.log('[Settings] ✅ Supabase financial data cleared');
+              } catch (supabaseError) {
+                console.error('[Settings] Failed to clear Supabase financial data:', supabaseError);
+                // Don't throw - we still want the rest of the reset to complete
+              }
+
               // Get counts AFTER reset (for verification)
               const afterCounts = await getDataCounts();
               console.log('[Settings] 📊 After reset:', afterCounts);
@@ -391,7 +428,7 @@ export default function SettingsScreen() {
 
               // Show success message with debug info
               const successMessage = __DEV__
-                ? `Reset complete!\n\n✅ Cleared ${resetReport.totalItemsCleared} items\n\nSign in again to start fresh.`
+                ? `Reset complete!\n\n✅ Cleared ${resetReport.totalItemsCleared} items\n✅ Cleared Supabase financial data\n\nSign in again to start fresh.`
                 : 'All company data has been cleared. Sign in again to start fresh.';
 
               Alert.alert(
