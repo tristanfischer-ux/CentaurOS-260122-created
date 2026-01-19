@@ -73,11 +73,11 @@ function KPICard({ data, index }: KPICardProps) {
   return (
     <Animated.View
       entering={FadeInDown.delay(index * 50).springify()}
-      style={{ width: '48%' }}
+      style={{ width: '32%' }}
     >
       <Pressable
         onPress={data.onPress}
-        className="rounded-xl p-3 mb-3 active:opacity-90"
+        className="rounded-xl p-2.5 mb-3 active:opacity-90"
         style={{
           backgroundColor: healthColors.bg,
           borderWidth: 1,
@@ -85,18 +85,18 @@ function KPICard({ data, index }: KPICardProps) {
         }}
       >
         {/* Header */}
-        <View className="flex-row items-center justify-between mb-2">
+        <View className="flex-row items-center justify-between mb-1.5">
           <View
-            className="w-7 h-7 rounded-lg items-center justify-center"
+            className="w-6 h-6 rounded-lg items-center justify-center"
             style={{ backgroundColor: data.iconColor + '20' }}
           >
-            <Icon size={14} color={data.iconColor} />
+            <Icon size={12} color={data.iconColor} />
           </View>
-          <View className="flex-row items-center gap-1">
-            <TrendIcon trend={data.trend} />
+          <View className="flex-row items-center gap-0.5">
+            <TrendIcon trend={data.trend} size={10} />
             {data.trendValue && (
               <Text
-                className="text-xs font-medium"
+                className="text-[10px] font-medium"
                 style={{
                   color: data.trend === 'up' ? '#10b981' : data.trend === 'down' ? '#ef4444' : '#64748b',
                 }}
@@ -108,22 +108,22 @@ function KPICard({ data, index }: KPICardProps) {
         </View>
 
         {/* Title */}
-        <Text className="text-slate-600 dark:text-slate-400 text-xs mb-1" numberOfLines={1}>
+        <Text className="text-slate-600 dark:text-slate-400 text-[10px] mb-1" numberOfLines={1}>
           {data.title}
         </Text>
 
         {/* Primary Value */}
-        <Text className="text-slate-900 text-xl font-bold" numberOfLines={1}>
+        <Text className="text-slate-900 text-lg font-bold" numberOfLines={1}>
           {data.primaryValue}
         </Text>
         {data.primaryLabel && (
-          <Text className="text-slate-500 text-[10px]">{data.primaryLabel}</Text>
+          <Text className="text-slate-500 text-[9px]">{data.primaryLabel}</Text>
         )}
 
         {/* Secondary Value */}
         {data.secondaryValue && (
           <View className="mt-1 pt-1 border-t border-slate-200/50">
-            <Text className="text-slate-600 text-xs">
+            <Text className="text-slate-600 text-[10px]">
               {data.secondaryLabel}: <Text className="font-semibold">{data.secondaryValue}</Text>
             </Text>
           </View>

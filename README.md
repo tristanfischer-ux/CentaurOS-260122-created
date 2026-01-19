@@ -15,6 +15,12 @@ Centaur OS is a comprehensive iOS mobile application that helps lean companies o
 
 ## 🚀 Latest Updates (Jan 19, 2026)
 
+### ✅ Home Dashboard Layout Optimization
+- **Single-Line Performance Cards**: All three performance dashboard cards (Project Health, Team Productivity, Cash Flow) now display on one line
+- **Compact Card Design**: Reduced padding and font sizes for tighter, more efficient layout
+- **Better Space Utilization**: Each card takes 32% width to fit three cards horizontally with proper spacing
+- **Maintains Readability**: Despite smaller size, all key metrics remain clear and accessible
+
 ### ✅ When Tab Redesign - Full Task Timeline
 - **Full-Screen Gantt Chart**: Redesigned When tab to show a full task timeline instead of week-by-week capacity grid
 - **Task Bars Across Time**: Each task shows as a horizontal bar spanning across weeks from start to due date
