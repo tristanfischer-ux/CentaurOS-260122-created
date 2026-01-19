@@ -21,11 +21,11 @@ Centaur OS is a comprehensive iOS mobile application that helps lean companies o
 - **Automatic Loading**: Added `useWorkspaceData` hook to root layout to load members from Supabase when workspace is selected
 - **Data Integrity**: Members now persist across logins and app restarts
 
-### ✅ Weekly Resource Pool Improvements
-- **Dynamic Height**: Drawer opens to fit content, max 50% of screen height
-- **No Empty Space**: Automatically sizes to show all team members without white space
-- **Simplified Cost Display**: Shows "£X/TU" placeholder instead of actual cost values
-- **Better UX**: Drawer height adapts based on number of team members
+### ✅ Drawer Height Improvements
+- **Weekly Resource Pool**: Dynamic height based on number of team members, max 50% of screen
+- **Task Timeline (Gantt Chart)**: Dynamic height based on number of active tasks, max 50% of screen
+- **No Empty Space**: Both drawers automatically size to fit content without white space below
+- **Consistent UX**: All collapsible drawers follow the same dynamic sizing pattern
 
 ### ✅ Team Member Management
 - **Automatic Member Creation**: New users automatically get a member record when signing up
