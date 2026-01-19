@@ -49,7 +49,7 @@ import { HelpModal, HelpButton, type HelpContent } from '@/components/HelpModal'
 import { RoleSwitcher } from '@/components/RoleSwitcher';
 import { ApprenticeHome } from '@/components/ApprenticeHome';
 import { ExecutiveHome } from '@/components/ExecutiveHome';
-import { DualBottomDrawers } from '@/components/DualBottomDrawers';
+import { FilingCabinetDrawers } from '@/components/FilingCabinetDrawers';
 
 // New Home Dashboard Components
 import {
@@ -454,8 +454,8 @@ function FounderHome() {
         </View>
       </ScrollView>
 
-      {/* Dual Bottom Drawers - Side by Side */}
-      <DualBottomDrawers
+      {/* Filing Cabinet Drawers - Team & Timeline */}
+      <FilingCabinetDrawers
         onTaskPress={(taskId: string) => {
           router.push({
             pathname: '/(tabs)/decide',
