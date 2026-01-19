@@ -241,18 +241,13 @@ export function TeamCapacityDashboard() {
   // Calculate team capacity metrics from role-filtered members
   const capacityData = useMemo(() => {
     const memberData = roleFilteredMembers.map((member) => {
-      // Calculate capacity - NORMAL capacity only (not including overtime)
-      let normalCapacity = 0;
+      // Calculate capacity - matching PersonCard and CollapsibleResourcePool logic
       let totalCapacity = 0;
       if (member.role === 'Founder' || member.role === 'CoFounder' || member.role === 'Apprentice') {
-        normalCapacity = 10; // Normal working hours only
-        totalCapacity = 15; // 10 normal + 5 overtime
+        totalCapacity = 15; // 10 normal + 5 overtime (matching CollapsibleResourcePool:51 and PersonCard:51)
       } else {
         // Fractional exec: days per week * 2 squares per day
-        const daysPerWeek = member.daysPerWeek || 2;
-        normalCapacity = daysPerWeek * 2;
-        const overtimeSquares = Math.min((5 - daysPerWeek) * 2, 10);
-        totalCapacity = normalCapacity + overtimeSquares;
+        totalCapacity = (member.daysPerWeek || 2) * 2;
       }
 
       // Calculate allocated from work plans
@@ -268,16 +263,16 @@ export function TeamCapacityDashboard() {
           return sum + (allocation?.squaresPerWeek || 0);
         }, 0);
 
-      // Use normalCapacity for utilization calculation (not including overtime)
-      const utilization = normalCapacity > 0 ? (allocated / normalCapacity) * 100 : 0;
-      const available = Math.max(0, normalCapacity - allocated);
+      // Calculate utilization and available capacity
+      const utilization = totalCapacity > 0 ? (allocated / totalCapacity) * 100 : 0;
+      const available = Math.max(0, totalCapacity - allocated);
 
       return {
         id: member.id,
         name: member.name,
         role: member.role,
         allocated,
-        capacity: normalCapacity, // Show normal capacity in UI
+        capacity: totalCapacity,
         utilization,
         available,
       };
