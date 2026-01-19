@@ -1136,6 +1136,7 @@ export default function WhyScreen() {
         onTextSubmit={handleVoiceBrainstorm}
         pendingDraftsCount={0} // Could track active brainstorm sessions here
         accentColor="#8b5cf6" // Purple for WHY tab
+        newTaskTabLabel="New Aim" // WHY tab creates aims, not tasks
       />
     </View>
   );

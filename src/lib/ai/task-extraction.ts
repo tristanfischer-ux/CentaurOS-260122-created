@@ -1,10 +1,7 @@
 /**
- * Task Extraction via Server Route
- * Uses server-side API to keep API keys secure
+ * Task Extraction via OpenAI GPT API
+ * Client-side AI task extraction with API key from environment
  */
-
-import Constants from 'expo-constants';
-import { Platform } from 'react-native';
 
 export interface TaskDraft {
   title: string;
@@ -23,26 +20,7 @@ export interface TaskExtractionResult {
 }
 
 /**
- * Get the API base URL for the current environment
- */
-function getApiUrl(): string {
-  if (Platform.OS === 'web') {
-    return ''; // Relative URLs work on web
-  }
-
-  // For native, construct the dev server URL
-  const debuggerHost = Constants.expoConfig?.hostUri;
-  if (debuggerHost) {
-    const host = debuggerHost.split(':').shift();
-    return `http://${host}:8081`;
-  }
-
-  // Fallback to localhost
-  return 'http://localhost:8081';
-}
-
-/**
- * Extract tasks from text using server-side AI
+ * Extract tasks from text using OpenAI GPT API
  * @param inputText - User input (voice transcript or typed text)
  * @param source - 'voice' or 'text'
  * @returns Extracted tasks with confidence scores
@@ -51,52 +29,107 @@ export async function extractTasksFromText(
   inputText: string,
   source: 'voice' | 'text' = 'text'
 ): Promise<TaskExtractionResult> {
-  console.log('[TaskExtraction] Starting extraction via server route:', {
+  console.log('[TaskExtraction] Starting extraction:', {
     source,
     inputLength: inputText.length,
   });
 
   try {
-    const apiUrl = getApiUrl();
-    const url = `${apiUrl}/api/ai-extract-tasks`;
+    // Get API key from environment
+    const apiKey = process.env.EXPO_PUBLIC_VIBECODE_OPENAI_API_KEY;
 
-    console.log('[TaskExtraction] Calling:', url);
+    if (!apiKey) {
+      throw new Error('OpenAI API key not configured. Please add it in the ENV tab.');
+    }
 
-    // Call server-side API route (keeps API key secure)
-    const response = await fetch(url, {
+    const systemPrompt = `You are an AI assistant that extracts actionable tasks from user input.
+
+Your job:
+1. Identify discrete, actionable tasks
+2. Extract titles, notes, assignees, due dates, and estimated units (hours)
+3. Provide confidence scores for assignee and due date extraction
+4. Capture non-task information separately
+5. Ask clarifying questions when details are ambiguous
+
+Rules:
+- A task must be actionable (e.g., "Research competitors" is a task, "I'm worried about market fit" is not)
+- Default assignee is 'speaker' unless specified
+- Due dates should be ISO 8601 format (YYYY-MM-DD) or null
+- Units are estimated hours (default: 1 for small tasks, 2-4 for medium, 8+ for large)
+- Confidence scores: 100 = explicitly stated, 70 = strongly implied, 40 = weakly implied, 0 = guessed
+- Extract all tasks mentioned, even if multiple in one sentence
+
+Return JSON in this exact format:
+{
+  "tasks": [
+    {
+      "title": "Task title (imperative form, e.g., 'Review marketing plan')",
+      "notes": "Additional context or details",
+      "assignee_default": "speaker",
+      "due_date": "2024-01-15",
+      "units": 2,
+      "confidence_assignee": 100,
+      "confidence_due": 70
+    }
+  ],
+  "non_task_notes": "Any non-actionable information (observations, questions, concerns)",
+  "clarifying_questions": [
+    "Who should be assigned to [task]?",
+    "When is [task] due?"
+  ]
+}`;
+
+    const userPrompt = source === 'voice'
+      ? `Extract tasks from this voice transcript:\n\n"${inputText}"\n\nRemember: voice transcripts may have errors or informal language. Interpret generously.`
+      : `Extract tasks from this text input:\n\n"${inputText}"`;
+
+    console.log('[TaskExtraction] Calling OpenAI API...');
+
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        inputText,
-        source,
+        model: 'gpt-4o-mini',
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userPrompt },
+        ],
+        response_format: { type: 'json_object' },
+        temperature: 0.3,
       }),
     });
 
-    const data = await response.json();
-
     if (!response.ok) {
-      console.log('[TaskExtraction] Server error:', data);
+      const errorText = await response.text();
+      console.log('[TaskExtraction] OpenAI error:', errorText);
 
       // Provide user-friendly error messages
-      if (data.error?.includes('API key')) {
+      if (errorText.includes('API key') || response.status === 401) {
         throw new Error('OpenAI API key is invalid or not configured');
       }
-      if (data.error?.includes('quota') || data.error?.includes('rate')) {
+      if (errorText.includes('quota') || errorText.includes('rate') || response.status === 429) {
         throw new Error('API quota exceeded. Please try again later.');
       }
-      if (data.error?.includes('invalid format')) {
-        throw new Error('AI returned invalid format. Please try again.');
-      }
 
-      throw new Error(data.error || `Task extraction failed: ${response.status}`);
+      throw new Error(`Task extraction failed: ${response.status}`);
     }
 
+    const data = await response.json();
+
+    if (!data.choices?.[0]?.message?.content) {
+      throw new Error('No response from AI');
+    }
+
+    const content = data.choices[0].message.content;
+    const parsed = JSON.parse(content);
+
     const result: TaskExtractionResult = {
-      tasks: data.tasks || [],
-      non_task_notes: data.non_task_notes || '',
-      clarifying_questions: data.clarifying_questions || [],
+      tasks: parsed.tasks || [],
+      non_task_notes: parsed.non_task_notes || '',
+      clarifying_questions: parsed.clarifying_questions || [],
     };
 
     console.log('[TaskExtraction] Extraction successful:', {

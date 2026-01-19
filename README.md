@@ -15,6 +15,36 @@ Centaur OS is a comprehensive iOS mobile application that helps lean companies o
 
 ## 🚀 Latest Updates (Jan 19, 2026)
 
+### ✅ Phase 2 UI/UX Fixes Complete
+
+**Voice Dictation Fixed:**
+- ✅ Reverted `task-extraction.ts` to client-side OpenAI API calls
+- ✅ Fixed "JSON Parse error" from server route returning HTML
+- ✅ Voice recording → transcription → task extraction now works end-to-end
+
+**WHY Tab Improvements:**
+- ✅ Renamed "New Task" → "New Aim" in WHY tab drawer
+- ✅ Updated all voice prompts to say "aims" instead of "tasks"
+- ✅ Context-aware examples for company objectives vs tasks
+- ✅ Smart label adaptation based on tab context
+
+**TOOLS Tab Structure:**
+- ✅ "My Suppliers" tab (green) shows owned AI Tools + Current Suppliers
+- ✅ "Marketplace" tab (purple) shows browseable Suppliers, AI Tools, Advisors
+- ✅ Color-coded tabs match WHO tab pattern (current vs future)
+
+**Other Fixes:**
+- ✅ Fixed cash flow balance showing £0 for new workspaces (not £18,700)
+- ✅ Fixed "Access restricted" for Founder role in Team Capacity
+- ✅ Removed broken "Create First Task" modal, integrated UnifiedBottomDrawer
+
+**API Security Note:**
+- Client-side API calls for MVP (keys in `EXPO_PUBLIC_*` env vars)
+- See `docs/API_SECURITY_NOTE.md` for production recommendations
+- Vibecode API integrations recommended for secure key management
+
+---
+
 ### 📋 Founder Onboarding Checklist
 
 **Zero-to-One guided onboarding for founders:**

@@ -31,6 +31,7 @@ interface UnifiedBottomDrawerProps {
 
   // Styling
   accentColor?: string; // Green for WHAT, Purple for WHY
+  newTaskTabLabel?: string; // Custom label for "New Task" tab (e.g., "New Aim" for WHY tab)
 }
 
 type Tab = 'resources' | 'new-task';
@@ -81,6 +82,7 @@ export function UnifiedBottomDrawer({
   pendingDraftsCount = 0,
   openToNewTask = false,
   accentColor = '#10b981', // Green by default
+  newTaskTabLabel = 'New Task', // Default label
 }: UnifiedBottomDrawerProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [activeTab, setActiveTab] = useState<Tab>('new-task');
@@ -260,7 +262,7 @@ export function UnifiedBottomDrawer({
             </View>
             <View>
               <Text className="text-slate-900 dark:text-white text-xs font-bold">
-                New Task
+                {newTaskTabLabel}
               </Text>
               {pendingDraftsCount > 0 ? (
                 <Text className="text-xs font-medium" style={{ color: accentColor }}>
@@ -474,7 +476,7 @@ export function UnifiedBottomDrawer({
                       </View>
                       <Text className="text-slate-900 dark:text-white font-semibold">Voice</Text>
                       <Text className="text-slate-600 dark:text-slate-400 text-xs text-center mt-1">
-                        Speak naturally to describe your task
+                        Speak naturally to describe {newTaskTabLabel === 'New Aim' ? 'your aims' : 'your task'}
                       </Text>
                     </Pressable>
 
@@ -487,7 +489,7 @@ export function UnifiedBottomDrawer({
                       </View>
                       <Text className="text-slate-900 dark:text-white font-semibold">Type</Text>
                       <Text className="text-slate-600 dark:text-slate-400 text-xs text-center mt-1">
-                        Describe task
+                        Describe {newTaskTabLabel === 'New Aim' ? 'aims' : 'task'}
                       </Text>
                     </Pressable>
                   </View>
@@ -499,21 +501,45 @@ export function UnifiedBottomDrawer({
                         <Text className="font-bold">Voice Input Guide:</Text>
                       </Text>
                       <Text className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-2">
-                        ✓ Be specific about the task{'\n'}
-                        ✓ Mention who should do it{'\n'}
-                        ✓ Include a due date if known{'\n'}
-                        ✓ Estimate time needed (hours or TUs){'\n'}
-                        ✓ You can create multiple tasks at once!
+                        {newTaskTabLabel === 'New Aim' ? (
+                          <>
+                            ✓ Be specific about your aim{'\n'}
+                            ✓ Describe the outcome you want{'\n'}
+                            ✓ Include a target timeframe{'\n'}
+                            ✓ Mention relevant metrics{'\n'}
+                            ✓ You can describe multiple aims at once!
+                          </>
+                        ) : (
+                          <>
+                            ✓ Be specific about the task{'\n'}
+                            ✓ Mention who should do it{'\n'}
+                            ✓ Include a due date if known{'\n'}
+                            ✓ Estimate time needed (hours or TUs){'\n'}
+                            ✓ You can create multiple tasks at once!
+                          </>
+                        )}
                       </Text>
                       <Text className="text-slate-700 dark:text-slate-300 text-sm leading-relaxed font-semibold mb-1">
                         Examples:
                       </Text>
                       <Text className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed italic">
-                        "Create a task to update the landing page, assign it to Sarah, due next Friday, will take 3 hours"
-                        {'\n\n'}
-                        "Fix the login bug, James should handle it, needs about 2 days of work"
-                        {'\n\n'}
-                        "Three tasks: first, review the designs for 2 hours; second, schedule team meeting; third, send investor update"
+                        {newTaskTabLabel === 'New Aim' ? (
+                          <>
+                            "Increase monthly revenue to $50K by Q3, need to focus on enterprise sales"
+                            {'\n\n'}
+                            "Reduce customer churn to below 5% within 6 months through better onboarding"
+                            {'\n\n'}
+                            "Three aims: first, launch mobile app this quarter; second, grow user base to 10K; third, establish partnerships with three major brands"
+                          </>
+                        ) : (
+                          <>
+                            "Create a task to update the landing page, assign it to Sarah, due next Friday, will take 3 hours"
+                            {'\n\n'}
+                            "Fix the login bug, James should handle it, needs about 2 days of work"
+                            {'\n\n'}
+                            "Three tasks: first, review the designs for 2 hours; second, schedule team meeting; third, send investor update"
+                          </>
+                        )}
                       </Text>
                     </View>
                   </View>
@@ -522,7 +548,7 @@ export function UnifiedBottomDrawer({
                 // Voice input mode
                 <View className="flex-1 items-center justify-center">
                   <Text className="text-slate-900 dark:text-white font-semibold text-lg mb-2 text-center">
-                    Tap to record your tasks
+                    Tap to record {newTaskTabLabel === 'New Aim' ? 'your aims' : 'your tasks'}
                   </Text>
 
                   <View className="rounded-xl p-3 mb-6 max-w-[280px]" style={{ backgroundColor: accentColor + '10' }}>
