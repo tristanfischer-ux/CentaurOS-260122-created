@@ -3,6 +3,9 @@
  * Uses server-side API to keep API keys secure
  */
 
+import Constants from 'expo-constants';
+import { Platform } from 'react-native';
+
 export interface TaskDraft {
   title: string;
   notes?: string;
@@ -17,6 +20,25 @@ export interface TaskExtractionResult {
   tasks: TaskDraft[];
   non_task_notes: string;
   clarifying_questions: string[];
+}
+
+/**
+ * Get the API base URL for the current environment
+ */
+function getApiUrl(): string {
+  if (Platform.OS === 'web') {
+    return ''; // Relative URLs work on web
+  }
+
+  // For native, construct the dev server URL
+  const debuggerHost = Constants.expoConfig?.hostUri;
+  if (debuggerHost) {
+    const host = debuggerHost.split(':').shift();
+    return `http://${host}:8081`;
+  }
+
+  // Fallback to localhost
+  return 'http://localhost:8081';
 }
 
 /**
@@ -35,8 +57,13 @@ export async function extractTasksFromText(
   });
 
   try {
+    const apiUrl = getApiUrl();
+    const url = `${apiUrl}/api/ai/extract-tasks`;
+
+    console.log('[TaskExtraction] Calling:', url);
+
     // Call server-side API route (keeps API key secure)
-    const response = await fetch('/api/ai/extract-tasks', {
+    const response = await fetch(url, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -50,7 +77,7 @@ export async function extractTasksFromText(
     const data = await response.json();
 
     if (!response.ok) {
-      console.error('[TaskExtraction] Server error:', data);
+      console.log('[TaskExtraction] Server error:', data);
 
       // Provide user-friendly error messages
       if (data.error?.includes('API key')) {
@@ -80,7 +107,7 @@ export async function extractTasksFromText(
 
     return result;
   } catch (error: any) {
-    console.error('[TaskExtraction] Extraction failed:', error);
+    console.log('[TaskExtraction] Extraction failed:', error);
     throw new Error(`Failed to extract tasks: ${error.message}`);
   }
 }

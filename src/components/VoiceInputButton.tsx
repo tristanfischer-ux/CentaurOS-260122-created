@@ -54,7 +54,7 @@ export function VoiceInputButton({
         const { status } = await Audio.requestPermissionsAsync();
         setHasPermission(status === 'granted');
       } catch (error) {
-        console.error('[VoiceInput] Permission error:', error);
+        console.log('[VoiceInput] Permission error:', error);
         setHasPermission(false);
       }
     })();
@@ -134,7 +134,7 @@ export function VoiceInputButton({
 
       console.log('[VoiceInput] Recording started');
     } catch (error) {
-      console.error('[VoiceInput] Failed to start recording:', error);
+      console.log('[VoiceInput] Failed to start recording:', error);
       onError?.('Failed to start recording');
       setIsRecording(false);
       setShowModal(false);
@@ -220,13 +220,14 @@ export function VoiceInputButton({
 
       onTranscriptComplete(result.transcript);
     } catch (error) {
-      console.error('[VoiceInput] Failed to stop recording:', error);
-      console.error('[VoiceInput] Error details:', {
-        message: error instanceof Error ? error.message : String(error),
-        stack: error instanceof Error ? error.stack : undefined,
-        type: typeof error,
-      });
-      onError?.(`Failed to process recording: ${error instanceof Error ? error.message : String(error)}`);
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      console.log('[VoiceInput] Failed to stop recording:', errorMessage);
+
+      onError?.(errorMessage.includes('API key')
+        ? 'Voice transcription is not configured. Please add your OpenAI API key in the ENV tab.'
+        : `Failed to process recording: ${errorMessage}`
+      );
+
       setIsRecording(false);
       setIsProcessing(false);
       setShowModal(false);
@@ -256,7 +257,7 @@ export function VoiceInputButton({
       setShowModal(false);
       setRecordingDuration(0);
     } catch (error) {
-      console.error('[VoiceInput] Failed to cancel recording:', error);
+      console.log('[VoiceInput] Failed to cancel recording:', error);
     }
   };
 

@@ -3,9 +3,31 @@
  * Uses server-side route to keep API keys secure
  */
 
+import Constants from 'expo-constants';
+import { Platform } from 'react-native';
+
 export interface TranscriptionResult {
   transcript: string;
   confidence?: number;
+}
+
+/**
+ * Get the API base URL for the current environment
+ */
+function getApiUrl(): string {
+  if (Platform.OS === 'web') {
+    return ''; // Relative URLs work on web
+  }
+
+  // For native, construct the dev server URL
+  const debuggerHost = Constants.expoConfig?.hostUri;
+  if (debuggerHost) {
+    const host = debuggerHost.split(':').shift();
+    return `http://${host}:8081`;
+  }
+
+  // Fallback to localhost
+  return 'http://localhost:8081';
 }
 
 /**
@@ -24,8 +46,13 @@ export async function transcribeAudioWithWhisper(
   });
 
   try {
+    const apiUrl = getApiUrl();
+    const url = `${apiUrl}/api/transcribe/whisper`;
+
+    console.log('[OpenAI Whisper] Calling:', url);
+
     // Call server-side API route (keeps API key secure)
-    const response = await fetch('/api/transcribe/whisper', {
+    const response = await fetch(url, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -39,7 +66,7 @@ export async function transcribeAudioWithWhisper(
     const data = await response.json();
 
     if (!response.ok) {
-      console.error('[OpenAI Whisper] Server error:', data);
+      console.log('[OpenAI Whisper] Server error:', data);
       throw new Error(data.error || `Transcription failed: ${response.status}`);
     }
 
@@ -53,7 +80,7 @@ export async function transcribeAudioWithWhisper(
       confidence: data.confidence ?? 100,
     };
   } catch (error) {
-    console.error('[OpenAI Whisper] Transcription failed:', error);
+    console.log('[OpenAI Whisper] Transcription failed:', error);
     throw error;
   }
 }
