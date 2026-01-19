@@ -285,34 +285,185 @@ export default function MarketplaceScreen() {
         {(activeCategory === 'all' || activeCategory === 'ai-tools') && (
           <View className="mb-6">
             <View className="flex-row items-center justify-between mb-3">
-              <Text className="text-slate-900 dark:text-white font-bold text-lg">AI Tools</Text>
+              <Text className="text-slate-900 dark:text-white font-bold text-lg">AI Tools ({THIRD_PARTY_AI_TOOLS.length})</Text>
               <Pressable className="flex-row items-center gap-1 active:opacity-70">
                 <Text className="text-purple-600 dark:text-purple-400 text-sm font-medium">View all</Text>
                 <ChevronRight size={16} color="#8b5cf6" />
               </Pressable>
             </View>
 
-            <View className="gap-3">
-              {[
-                { name: 'Text Generation', desc: 'ChatGPT, Claude, Gemini', icon: FileText, color: '#10b981' },
-                { name: 'Image Processing', desc: 'DALL-E, Midjourney, Stable Diffusion', icon: Sparkles, color: '#ec4899' },
-                { name: 'Data Analysis', desc: 'Predictive models & insights', icon: TrendingUp, color: '#3b82f6' },
-                { name: 'Automation Tools', desc: 'Workflow optimization', icon: Zap, color: '#f59e0b' },
-              ].map((cat, index) => (
-                <Animated.View key={cat.name} entering={FadeInDown.delay(index * 50).springify()}>
+            {/* Manufacturing & Design (4 tools) */}
+            <Text className="text-slate-600 dark:text-slate-400 text-sm font-semibold mb-2 mt-3">
+              Manufacturing & Design (4)
+            </Text>
+            <View className="gap-3 mb-4">
+              {THIRD_PARTY_AI_TOOLS.filter(t => t.category === 'manufacturing').map((tool, index) => (
+                <Animated.View key={tool.id} entering={FadeInDown.delay(index * 50).springify()}>
                   <Pressable
-                    className="bg-white dark:bg-slate-800 rounded-xl p-4 active:opacity-80"
+                    className="bg-white dark:bg-slate-800 rounded-xl p-4 active:opacity-80 border border-orange-200 dark:border-orange-800"
                   >
                     <View className="flex-row items-center gap-3">
-                      <View
-                        className="p-3 rounded-xl"
-                        style={{ backgroundColor: cat.color + '20' }}
-                      >
-                        <cat.icon size={24} color={cat.color} />
+                      <View className="bg-orange-100 dark:bg-orange-900/30 p-3 rounded-xl">
+                        <Factory size={24} color="#f97316" />
                       </View>
                       <View className="flex-1">
-                        <Text className="text-slate-900 dark:text-white font-semibold">{cat.name}</Text>
-                        <Text className="text-slate-500 dark:text-slate-400 text-sm">{cat.desc}</Text>
+                        <Text className="text-slate-900 dark:text-white font-semibold">{tool.name}</Text>
+                        <Text className="text-slate-500 dark:text-slate-400 text-sm" numberOfLines={1}>
+                          {tool.purpose}
+                        </Text>
+                        <Text className="text-orange-600 dark:text-orange-400 text-xs font-medium mt-1">
+                          £{tool.costPerMonth}/mo
+                        </Text>
+                      </View>
+                      <ChevronRight size={20} color="#64748b" />
+                    </View>
+                  </Pressable>
+                </Animated.View>
+              ))}
+            </View>
+
+            {/* Sales (4 tools) */}
+            <Text className="text-slate-600 dark:text-slate-400 text-sm font-semibold mb-2">
+              Sales (4)
+            </Text>
+            <View className="gap-3 mb-4">
+              {THIRD_PARTY_AI_TOOLS.filter(t => t.category === 'sales').map((tool, index) => (
+                <Animated.View key={tool.id} entering={FadeInDown.delay(index * 50).springify()}>
+                  <Pressable
+                    className="bg-white dark:bg-slate-800 rounded-xl p-4 active:opacity-80 border border-emerald-200 dark:border-emerald-800"
+                  >
+                    <View className="flex-row items-center gap-3">
+                      <View className="bg-emerald-100 dark:bg-emerald-900/30 p-3 rounded-xl">
+                        <TrendingUp size={24} color="#10b981" />
+                      </View>
+                      <View className="flex-1">
+                        <Text className="text-slate-900 dark:text-white font-semibold">{tool.name}</Text>
+                        <Text className="text-slate-500 dark:text-slate-400 text-sm" numberOfLines={1}>
+                          {tool.purpose}
+                        </Text>
+                        <Text className="text-emerald-600 dark:text-emerald-400 text-xs font-medium mt-1">
+                          £{tool.costPerMonth}/mo
+                        </Text>
+                      </View>
+                      <ChevronRight size={20} color="#64748b" />
+                    </View>
+                  </Pressable>
+                </Animated.View>
+              ))}
+            </View>
+
+            {/* Marketing (6 tools) */}
+            <Text className="text-slate-600 dark:text-slate-400 text-sm font-semibold mb-2">
+              Marketing (6)
+            </Text>
+            <View className="gap-3 mb-4">
+              {THIRD_PARTY_AI_TOOLS.filter(t => t.category === 'marketing').map((tool, index) => (
+                <Animated.View key={tool.id} entering={FadeInDown.delay(index * 50).springify()}>
+                  <Pressable
+                    className="bg-white dark:bg-slate-800 rounded-xl p-4 active:opacity-80 border border-pink-200 dark:border-pink-800"
+                  >
+                    <View className="flex-row items-center gap-3">
+                      <View className="bg-pink-100 dark:bg-pink-900/30 p-3 rounded-xl">
+                        <Sparkles size={24} color="#ec4899" />
+                      </View>
+                      <View className="flex-1">
+                        <Text className="text-slate-900 dark:text-white font-semibold">{tool.name}</Text>
+                        <Text className="text-slate-500 dark:text-slate-400 text-sm" numberOfLines={1}>
+                          {tool.purpose}
+                        </Text>
+                        <Text className="text-pink-600 dark:text-pink-400 text-xs font-medium mt-1">
+                          £{tool.costPerMonth}/mo
+                        </Text>
+                      </View>
+                      <ChevronRight size={20} color="#64748b" />
+                    </View>
+                  </Pressable>
+                </Animated.View>
+              ))}
+            </View>
+
+            {/* Finance (3 tools) */}
+            <Text className="text-slate-600 dark:text-slate-400 text-sm font-semibold mb-2">
+              Finance (3)
+            </Text>
+            <View className="gap-3 mb-4">
+              {THIRD_PARTY_AI_TOOLS.filter(t => t.category === 'finance').map((tool, index) => (
+                <Animated.View key={tool.id} entering={FadeInDown.delay(index * 50).springify()}>
+                  <Pressable
+                    className="bg-white dark:bg-slate-800 rounded-xl p-4 active:opacity-80 border border-purple-200 dark:border-purple-800"
+                  >
+                    <View className="flex-row items-center gap-3">
+                      <View className="bg-purple-100 dark:bg-purple-900/30 p-3 rounded-xl">
+                        <Calculator size={24} color="#a855f7" />
+                      </View>
+                      <View className="flex-1">
+                        <Text className="text-slate-900 dark:text-white font-semibold">{tool.name}</Text>
+                        <Text className="text-slate-500 dark:text-slate-400 text-sm" numberOfLines={1}>
+                          {tool.purpose}
+                        </Text>
+                        <Text className="text-purple-600 dark:text-purple-400 text-xs font-medium mt-1">
+                          £{tool.costPerMonth}/mo
+                        </Text>
+                      </View>
+                      <ChevronRight size={20} color="#64748b" />
+                    </View>
+                  </Pressable>
+                </Animated.View>
+              ))}
+            </View>
+
+            {/* Operations (3 tools) */}
+            <Text className="text-slate-600 dark:text-slate-400 text-sm font-semibold mb-2">
+              Operations (3)
+            </Text>
+            <View className="gap-3 mb-4">
+              {THIRD_PARTY_AI_TOOLS.filter(t => t.category === 'operations').map((tool, index) => (
+                <Animated.View key={tool.id} entering={FadeInDown.delay(index * 50).springify()}>
+                  <Pressable
+                    className="bg-white dark:bg-slate-800 rounded-xl p-4 active:opacity-80 border border-amber-200 dark:border-amber-800"
+                  >
+                    <View className="flex-row items-center gap-3">
+                      <View className="bg-amber-100 dark:bg-amber-900/30 p-3 rounded-xl">
+                        <Package size={24} color="#f59e0b" />
+                      </View>
+                      <View className="flex-1">
+                        <Text className="text-slate-900 dark:text-white font-semibold">{tool.name}</Text>
+                        <Text className="text-slate-500 dark:text-slate-400 text-sm" numberOfLines={1}>
+                          {tool.purpose}
+                        </Text>
+                        <Text className="text-amber-600 dark:text-amber-400 text-xs font-medium mt-1">
+                          £{tool.costPerMonth}/mo
+                        </Text>
+                      </View>
+                      <ChevronRight size={20} color="#64748b" />
+                    </View>
+                  </Pressable>
+                </Animated.View>
+              ))}
+            </View>
+
+            {/* Admin/Productivity (4 tools) */}
+            <Text className="text-slate-600 dark:text-slate-400 text-sm font-semibold mb-2">
+              Admin & Productivity (4)
+            </Text>
+            <View className="gap-3">
+              {THIRD_PARTY_AI_TOOLS.filter(t => t.category === 'productivity').map((tool, index) => (
+                <Animated.View key={tool.id} entering={FadeInDown.delay(index * 50).springify()}>
+                  <Pressable
+                    className="bg-white dark:bg-slate-800 rounded-xl p-4 active:opacity-80 border border-blue-200 dark:border-blue-800"
+                  >
+                    <View className="flex-row items-center gap-3">
+                      <View className="bg-blue-100 dark:bg-blue-900/30 p-3 rounded-xl">
+                        <Zap size={24} color="#3b82f6" />
+                      </View>
+                      <View className="flex-1">
+                        <Text className="text-slate-900 dark:text-white font-semibold">{tool.name}</Text>
+                        <Text className="text-slate-500 dark:text-slate-400 text-sm" numberOfLines={1}>
+                          {tool.purpose}
+                        </Text>
+                        <Text className="text-blue-600 dark:text-blue-400 text-xs font-medium mt-1">
+                          £{tool.costPerMonth}/mo
+                        </Text>
                       </View>
                       <ChevronRight size={20} color="#64748b" />
                     </View>
