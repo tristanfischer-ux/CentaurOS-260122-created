@@ -1,0 +1,112 @@
+[
+  {
+    "investor_org_name": "Eurazeo",
+    "company_name": "Dexory",
+    "round_type": "Series C",
+    "round_date": "2025-10",
+    "role": "lead",
+    "evidence": [
+      {"url": "https://www.dexory.com/insights/strong-customer-demand-enables-dexory-to-secure-165m-in-funding", "last_verified": "2026-01-19", "confidence_score": 95}
+    ]
+  },
+  {
+    "investor_org_name": "DTCP",
+    "company_name": "Dexory",
+    "round_type": "Series B",
+    "round_date": "2024-10",
+    "role": "lead",
+    "evidence": [
+      {"url": "https://www.uktechnews.info/2024/10/01/dexory-secures-60-million-series-b-investment-led-by-dtcp/", "last_verified": "2026-01-19", "confidence_score": 95}
+    ]
+  },
+  {
+    "investor_org_name": "Atomico",
+    "company_name": "Dexory",
+    "round_type": "Series B",
+    "round_date": "2024-10",
+    "role": "participant",
+    "evidence": [
+      {"url": "https://www.dexory.com/insights/strong-customer-demand-enables-dexory-to-secure-165m-in-funding", "last_verified": "2026-01-19", "confidence_score": 90}
+    ]
+  },
+  {
+    "investor_org_name": "Lakestar",
+    "company_name": "Dexory",
+    "round_type": "Series B",
+    "round_date": "2024-10",
+    "role": "participant",
+    "evidence": [
+      {"url": "https://www.dexory.com/insights/strong-customer-demand-enables-dexory-to-secure-165m-in-funding", "last_verified": "2026-01-19", "confidence_score": 90}
+    ]
+  },
+  {
+    "investor_org_name": "LTS Growth",
+    "company_name": "Dexory",
+    "round_type": "Series C",
+    "round_date": "2025-10",
+    "role": "participant",
+    "evidence": [
+      {"url": "https://www.dexory.com/insights/strong-customer-demand-enables-dexory-to-secure-165m-in-funding", "last_verified": "2026-01-19", "confidence_score": 90}
+    ]
+  },
+  {
+    "investor_org_name": "Endeavor Catalyst",
+    "company_name": "Dexory",
+    "round_type": "Series C",
+    "round_date": "2025-10",
+    "role": "participant",
+    "evidence": [
+      {"url": "https://www.dexory.com/insights/strong-customer-demand-enables-dexory-to-secure-165m-in-funding", "last_verified": "2026-01-19", "confidence_score": 90}
+    ]
+  },
+  {
+    "investor_org_name": "Latitude Ventures",
+    "company_name": "Dexory",
+    "round_type": "Series B",
+    "round_date": "2024-10",
+    "role": "participant",
+    "evidence": [
+      {"url": "https://www.dexory.com/insights/strong-customer-demand-enables-dexory-to-secure-165m-in-funding", "last_verified": "2026-01-19", "confidence_score": 85}
+    ]
+  },
+  {
+    "investor_org_name": "Wave-X",
+    "company_name": "Dexory",
+    "round_type": "Series B",
+    "round_date": "2024-10",
+    "role": "participant",
+    "evidence": [
+      {"url": "https://www.dexory.com/insights/strong-customer-demand-enables-dexory-to-secure-165m-in-funding", "last_verified": "2026-01-19", "confidence_score": 85}
+    ]
+  },
+  {
+    "investor_org_name": "Elaia",
+    "company_name": "Dexory",
+    "round_type": "Series C",
+    "round_date": "2025-10",
+    "role": "participant",
+    "evidence": [
+      {"url": "https://www.dexory.com/insights/strong-customer-demand-enables-dexory-to-secure-165m-in-funding", "last_verified": "2026-01-19", "confidence_score": 85}
+    ]
+  },
+  {
+    "investor_org_name": "Capnamic",
+    "company_name": "Dexory",
+    "round_type": "Series B",
+    "round_date": "2024-10",
+    "role": "participant",
+    "evidence": [
+      {"url": "https://www.dexory.com/insights/strong-customer-demand-enables-dexory-to-secure-165m-in-funding", "last_verified": "2026-01-19", "confidence_score": 80}
+    ]
+  },
+  {
+    "investor_org_name": "Bootstrap Europe",
+    "company_name": "Dexory",
+    "round_type": "Series B",
+    "round_date": "2024-10",
+    "role": "participant",
+    "evidence": [
+      {"url": "https://www.dexory.com/insights/strong-customer-demand-enables-dexory-to-secure-165m-in-funding", "last_verified": "2026-01-19", "confidence_score": 80}
+    ]
+  }
+]

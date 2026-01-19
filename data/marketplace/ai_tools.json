@@ -1,0 +1,208 @@
+[
+  {
+    "tool_name": "Salesforce Einstein",
+    "vendor_name": "Salesforce",
+    "category": "sales",
+    "subcategories": ["crm", "forecasting", "lead_scoring", "automation"],
+    "target_user": "sales",
+    "pricing_model": "enterprise",
+    "website": "https://www.salesforce.com/products/einstein/overview/",
+    "evidence": [
+      {"url": "https://martal.ca/ai-sales-automation-lb/", "last_verified": "2026-01-19", "confidence_score": 95}
+    ]
+  },
+  {
+    "tool_name": "HubSpot Sales Hub",
+    "vendor_name": "HubSpot",
+    "category": "sales",
+    "subcategories": ["crm", "prospecting", "email_automation", "ai_agent"],
+    "target_user": "sales",
+    "pricing_model": "freemium",
+    "website": "https://www.hubspot.com/products/sales",
+    "evidence": [
+      {"url": "https://martal.ca/ai-sales-automation-lb/", "last_verified": "2026-01-19", "confidence_score": 95},
+      {"url": "https://blog.hubspot.com/sales/ai-agent-tools", "last_verified": "2026-01-19", "confidence_score": 90}
+    ]
+  },
+  {
+    "tool_name": "HubSpot Breeze",
+    "vendor_name": "HubSpot",
+    "category": "sales",
+    "subcategories": ["prospecting", "workflow_automation", "ai_agent"],
+    "target_user": "sales",
+    "pricing_model": "paid",
+    "website": "https://www.hubspot.com/products/breeze",
+    "evidence": [
+      {"url": "https://martal.ca/ai-sales-automation-lb/", "last_verified": "2026-01-19", "confidence_score": 85}
+    ]
+  },
+  {
+    "tool_name": "Gong",
+    "vendor_name": "Gong",
+    "category": "sales",
+    "subcategories": ["revenue_intelligence", "call_analysis", "forecasting", "coaching"],
+    "target_user": "sales",
+    "pricing_model": "enterprise",
+    "website": "https://www.gong.io",
+    "evidence": [
+      {"url": "https://martal.ca/ai-sales-automation-lb/", "last_verified": "2026-01-19", "confidence_score": 95},
+      {"url": "https://www.prnewswire.com/news-releases/gong-introduces-model-context-protocol-mcp-support-to-unify-enterprise-ai-agents-from-hubspot-microsoft-salesforce-and-others-302589785.html", "last_verified": "2026-01-19", "confidence_score": 90}
+    ]
+  },
+  {
+    "tool_name": "Zoho CRM",
+    "vendor_name": "Zoho",
+    "category": "sales",
+    "subcategories": ["crm", "automation", "lead_prediction"],
+    "target_user": "sales",
+    "pricing_model": "freemium",
+    "website": "https://www.zoho.com/crm/",
+    "evidence": [
+      {"url": "https://martal.ca/ai-sales-automation-lb/", "last_verified": "2026-01-19", "confidence_score": 85}
+    ]
+  },
+  {
+    "tool_name": "Oracle",
+    "vendor_name": "Oracle",
+    "category": "sales",
+    "subcategories": ["sales_performance", "forecasting", "agentic_ai"],
+    "target_user": "sales",
+    "pricing_model": "enterprise",
+    "website": "https://www.oracle.com/cx/sales/",
+    "evidence": [
+      {"url": "https://martal.ca/ai-sales-automation-lb/", "last_verified": "2026-01-19", "confidence_score": 80}
+    ]
+  },
+  {
+    "tool_name": "Xactly",
+    "vendor_name": "Xactly",
+    "category": "sales",
+    "subcategories": ["sales_performance", "commission", "forecasting"],
+    "target_user": "sales",
+    "pricing_model": "enterprise",
+    "website": "https://www.xactlycorp.com",
+    "evidence": [
+      {"url": "https://martal.ca/ai-sales-automation-lb/", "last_verified": "2026-01-19", "confidence_score": 80}
+    ]
+  },
+  {
+    "tool_name": "Outreach",
+    "vendor_name": "Outreach",
+    "category": "sales",
+    "subcategories": ["sales_engagement", "pipeline_management", "ai_agent"],
+    "target_user": "sales",
+    "pricing_model": "paid",
+    "website": "https://www.outreach.io",
+    "evidence": [
+      {"url": "https://www.outreach.io/resources/blog/best-ai-sales-pipeline-tools", "last_verified": "2026-01-19", "confidence_score": 90}
+    ]
+  },
+  {
+    "tool_name": "ChatGPT",
+    "vendor_name": "OpenAI",
+    "category": "ops",
+    "subcategories": ["content_creation", "research", "automation", "general_purpose"],
+    "target_user": "founder",
+    "pricing_model": "freemium",
+    "website": "https://chat.openai.com",
+    "evidence": [
+      {"url": "https://ttms.com/top-15-ai-tools-for-business/", "last_verified": "2026-01-19", "confidence_score": 95}
+    ]
+  },
+  {
+    "tool_name": "Jasper",
+    "vendor_name": "Jasper AI",
+    "category": "marketing",
+    "subcategories": ["content_creation", "copywriting", "seo"],
+    "target_user": "marketing",
+    "pricing_model": "paid",
+    "website": "https://www.jasper.ai",
+    "evidence": [
+      {"url": "https://ttms.com/top-15-ai-tools-for-business/", "last_verified": "2026-01-19", "confidence_score": 85}
+    ]
+  },
+  {
+    "tool_name": "Grammarly",
+    "vendor_name": "Grammarly",
+    "category": "ops",
+    "subcategories": ["writing_assistant", "editing", "communication"],
+    "target_user": "founder",
+    "pricing_model": "freemium",
+    "website": "https://www.grammarly.com",
+    "evidence": [
+      {"url": "https://ttms.com/top-15-ai-tools-for-business/", "last_verified": "2026-01-19", "confidence_score": 90}
+    ]
+  },
+  {
+    "tool_name": "Canva",
+    "vendor_name": "Canva",
+    "category": "design",
+    "subcategories": ["graphic_design", "templates", "ai_generation"],
+    "target_user": "marketing",
+    "pricing_model": "freemium",
+    "website": "https://www.canva.com",
+    "evidence": [
+      {"url": "https://ttms.com/top-15-ai-tools-for-business/", "last_verified": "2026-01-19", "confidence_score": 95}
+    ]
+  },
+  {
+    "tool_name": "Zapier",
+    "vendor_name": "Zapier",
+    "category": "ops",
+    "subcategories": ["workflow_automation", "integration", "no_code"],
+    "target_user": "ops",
+    "pricing_model": "freemium",
+    "website": "https://zapier.com",
+    "evidence": [
+      {"url": "https://ttms.com/top-15-ai-tools-for-business/", "last_verified": "2026-01-19", "confidence_score": 90}
+    ]
+  },
+  {
+    "tool_name": "Notion AI",
+    "vendor_name": "Notion",
+    "category": "ops",
+    "subcategories": ["knowledge_management", "documentation", "ai_assistant"],
+    "target_user": "founder",
+    "pricing_model": "freemium",
+    "website": "https://www.notion.so/product/ai",
+    "evidence": [
+      {"url": "https://ttms.com/top-15-ai-tools-for-business/", "last_verified": "2026-01-19", "confidence_score": 90}
+    ]
+  },
+  {
+    "tool_name": "Loom",
+    "vendor_name": "Loom",
+    "category": "ops",
+    "subcategories": ["video_messaging", "screen_recording", "async_communication"],
+    "target_user": "founder",
+    "pricing_model": "freemium",
+    "website": "https://www.loom.com",
+    "evidence": [
+      {"url": "https://ttms.com/top-15-ai-tools-for-business/", "last_verified": "2026-01-19", "confidence_score": 85}
+    ]
+  },
+  {
+    "tool_name": "Improvado",
+    "vendor_name": "Improvado",
+    "category": "marketing",
+    "subcategories": ["data_analytics", "marketing_ops", "reporting"],
+    "target_user": "marketing",
+    "pricing_model": "enterprise",
+    "website": "https://improvado.io",
+    "evidence": [
+      {"url": "https://improvado.io/blog/ai-sales-strategies", "last_verified": "2026-01-19", "confidence_score": 80}
+    ]
+  },
+  {
+    "tool_name": "Microsoft Copilot",
+    "vendor_name": "Microsoft",
+    "category": "ops",
+    "subcategories": ["productivity", "office_suite", "ai_assistant"],
+    "target_user": "founder",
+    "pricing_model": "paid",
+    "website": "https://www.microsoft.com/en-us/microsoft-365/copilot",
+    "evidence": [
+      {"url": "https://www.prnewswire.com/news-releases/gong-introduces-model-context-protocol-mcp-support-to-unify-enterprise-ai-agents-from-hubspot-microsoft-salesforce-and-others-302589785.html", "last_verified": "2026-01-19", "confidence_score": 90}
+    ]
+  }
+]
