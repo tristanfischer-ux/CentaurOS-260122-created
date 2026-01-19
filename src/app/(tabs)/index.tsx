@@ -317,17 +317,17 @@ function FounderHome() {
         showsVerticalScrollIndicator={false}
       >
         {/* ===== 1. URGENT DECISIONS (Top Priority) ===== */}
-        <View className="px-5 pt-5">
+        <View className="px-5 pt-3">
           <UrgentDecisionsSection />
         </View>
 
         {/* ===== FOUNDER APPROVAL PANEL (Allocation Requests) ===== */}
-        <View className="pt-4">
+        <View className="pt-2">
           <FounderApprovalPanel />
         </View>
 
         {/* ===== AI-POWERED FOCUS TODAY ===== */}
-        <View className="pt-4">
+        <View className="pt-2 px-5">
           <FocusTodaySection
             onTaskPress={(taskId) => {
               router.push({
