@@ -83,6 +83,21 @@ export default function MarketplaceScreen() {
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [selectedTargetType, setSelectedTargetType] = useState<'person' | 'supplier' | 'tool' | 'advisor'>('person');
 
+  // Expanded state for AI tool categories
+  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
+
+  const toggleCategory = (category: string) => {
+    setExpandedCategories(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(category)) {
+        newSet.delete(category);
+      } else {
+        newSet.add(category);
+      }
+      return newSet;
+    });
+  };
+
   // Fallback for demo mode
   const effectiveWorkspace = currentWorkspace || {
     id: '00000000-0000-0000-0000-000000000002',
@@ -294,26 +309,46 @@ export default function MarketplaceScreen() {
         {(activeCategory === 'all' || activeCategory === 'ai-tools') && (
           <View className="mb-6">
             <View className="flex-row items-center justify-between mb-3">
-              <Text className="text-slate-900 dark:text-white font-bold text-lg">AI Tools ({THIRD_PARTY_AI_TOOLS.length})</Text>
+              <Text className="text-slate-900 dark:text-white font-bold text-lg">AI Tools ({aiTools.length})</Text>
               <Pressable className="flex-row items-center gap-1 active:opacity-70">
                 <Text className="text-purple-600 dark:text-purple-400 text-sm font-medium">View all</Text>
                 <ChevronRight size={16} color="#8b5cf6" />
               </Pressable>
             </View>
 
-            {/* Manufacturing & Design (4 tools) */}
-            <Text className="text-slate-600 dark:text-slate-400 text-sm font-semibold mb-2 mt-3">
-              Manufacturing & Design (4)
-            </Text>
-            <View className="gap-3 mb-4">
-              {THIRD_PARTY_AI_TOOLS.filter(t => t.category === 'manufacturing').map((tool, index) => (
+            <View className="gap-3">
+              {/* Manufacturing & Design - Collapsible */}
+              <Pressable
+                onPress={() => toggleCategory('manufacturing')}
+                className="bg-white dark:bg-slate-800 rounded-xl p-4 active:opacity-80"
+              >
+                <View className="flex-row items-center gap-3">
+                  <View className="bg-orange-100 dark:bg-orange-900/30 p-3 rounded-xl">
+                    <Factory size={24} color="#f97316" />
+                  </View>
+                  <View className="flex-1">
+                    <Text className="text-slate-900 dark:text-white font-semibold">Manufacturing & Design</Text>
+                    <Text className="text-slate-500 dark:text-slate-400 text-sm">
+                      {aiTools.filter((t: ThirdPartyAITool) => t.category === 'manufacturing').length} tools for production
+                    </Text>
+                  </View>
+                  <ChevronRight
+                    size={20}
+                    color="#64748b"
+                    style={{ transform: [{ rotate: expandedCategories.has('manufacturing') ? '90deg' : '0deg' }] }}
+                  />
+                </View>
+              </Pressable>
+
+              {/* Manufacturing tools - shown when expanded */}
+              {expandedCategories.has('manufacturing') && aiTools.filter((t: ThirdPartyAITool) => t.category === 'manufacturing').map((tool: ThirdPartyAITool, index: number) => (
                 <Animated.View key={tool.id} entering={FadeInDown.delay(index * 50).springify()}>
                   <Pressable
-                    className="bg-white dark:bg-slate-800 rounded-xl p-4 active:opacity-80 border border-orange-200 dark:border-orange-800"
+                    className="bg-white dark:bg-slate-800 rounded-xl p-4 ml-4 active:opacity-80 border border-orange-200 dark:border-orange-800"
                   >
                     <View className="flex-row items-center gap-3">
-                      <View className="bg-orange-100 dark:bg-orange-900/30 p-3 rounded-xl">
-                        <Factory size={24} color="#f97316" />
+                      <View className="bg-orange-100 dark:bg-orange-900/30 p-2 rounded-lg">
+                        <Factory size={18} color="#f97316" />
                       </View>
                       <View className="flex-1">
                         <Text className="text-slate-900 dark:text-white font-semibold">{tool.name}</Text>
@@ -329,21 +364,39 @@ export default function MarketplaceScreen() {
                   </Pressable>
                 </Animated.View>
               ))}
-            </View>
 
-            {/* Sales (4 tools) */}
-            <Text className="text-slate-600 dark:text-slate-400 text-sm font-semibold mb-2">
-              Sales ({aiTools.filter((t: ThirdPartyAITool) => t.category === 'sales').length})
-            </Text>
-            <View className="gap-3 mb-4">
-              {aiTools.filter((t: ThirdPartyAITool) => t.category === 'sales').map((tool: ThirdPartyAITool, index: number) => (
+              {/* Sales - Collapsible */}
+              <Pressable
+                onPress={() => toggleCategory('sales')}
+                className="bg-white dark:bg-slate-800 rounded-xl p-4 active:opacity-80"
+              >
+                <View className="flex-row items-center gap-3">
+                  <View className="bg-emerald-100 dark:bg-emerald-900/30 p-3 rounded-xl">
+                    <TrendingUp size={24} color="#10b981" />
+                  </View>
+                  <View className="flex-1">
+                    <Text className="text-slate-900 dark:text-white font-semibold">Sales</Text>
+                    <Text className="text-slate-500 dark:text-slate-400 text-sm">
+                      {aiTools.filter((t: ThirdPartyAITool) => t.category === 'sales').length} tools for revenue
+                    </Text>
+                  </View>
+                  <ChevronRight
+                    size={20}
+                    color="#64748b"
+                    style={{ transform: [{ rotate: expandedCategories.has('sales') ? '90deg' : '0deg' }] }}
+                  />
+                </View>
+              </Pressable>
+
+              {/* Sales tools - shown when expanded */}
+              {expandedCategories.has('sales') && aiTools.filter((t: ThirdPartyAITool) => t.category === 'sales').map((tool: ThirdPartyAITool, index: number) => (
                 <Animated.View key={tool.id} entering={FadeInDown.delay(index * 50).springify()}>
                   <Pressable
-                    className="bg-white dark:bg-slate-800 rounded-xl p-4 active:opacity-80 border border-emerald-200 dark:border-emerald-800"
+                    className="bg-white dark:bg-slate-800 rounded-xl p-4 ml-4 active:opacity-80 border border-emerald-200 dark:border-emerald-800"
                   >
                     <View className="flex-row items-center gap-3">
-                      <View className="bg-emerald-100 dark:bg-emerald-900/30 p-3 rounded-xl">
-                        <TrendingUp size={24} color="#10b981" />
+                      <View className="bg-emerald-100 dark:bg-emerald-900/30 p-2 rounded-lg">
+                        <TrendingUp size={18} color="#10b981" />
                       </View>
                       <View className="flex-1">
                         <Text className="text-slate-900 dark:text-white font-semibold">{tool.name}</Text>
@@ -359,21 +412,39 @@ export default function MarketplaceScreen() {
                   </Pressable>
                 </Animated.View>
               ))}
-            </View>
 
-            {/* Marketing (6 tools) */}
-            <Text className="text-slate-600 dark:text-slate-400 text-sm font-semibold mb-2">
-              Marketing ({aiTools.filter((t: ThirdPartyAITool) => t.category === 'marketing').length})
-            </Text>
-            <View className="gap-3 mb-4">
-              {aiTools.filter((t: ThirdPartyAITool) => t.category === 'marketing').map((tool: ThirdPartyAITool, index: number) => (
+              {/* Marketing - Collapsible */}
+              <Pressable
+                onPress={() => toggleCategory('marketing')}
+                className="bg-white dark:bg-slate-800 rounded-xl p-4 active:opacity-80"
+              >
+                <View className="flex-row items-center gap-3">
+                  <View className="bg-pink-100 dark:bg-pink-900/30 p-3 rounded-xl">
+                    <Sparkles size={24} color="#ec4899" />
+                  </View>
+                  <View className="flex-1">
+                    <Text className="text-slate-900 dark:text-white font-semibold">Marketing</Text>
+                    <Text className="text-slate-500 dark:text-slate-400 text-sm">
+                      {aiTools.filter((t: ThirdPartyAITool) => t.category === 'marketing').length} tools for growth
+                    </Text>
+                  </View>
+                  <ChevronRight
+                    size={20}
+                    color="#64748b"
+                    style={{ transform: [{ rotate: expandedCategories.has('marketing') ? '90deg' : '0deg' }] }}
+                  />
+                </View>
+              </Pressable>
+
+              {/* Marketing tools - shown when expanded */}
+              {expandedCategories.has('marketing') && aiTools.filter((t: ThirdPartyAITool) => t.category === 'marketing').map((tool: ThirdPartyAITool, index: number) => (
                 <Animated.View key={tool.id} entering={FadeInDown.delay(index * 50).springify()}>
                   <Pressable
-                    className="bg-white dark:bg-slate-800 rounded-xl p-4 active:opacity-80 border border-pink-200 dark:border-pink-800"
+                    className="bg-white dark:bg-slate-800 rounded-xl p-4 ml-4 active:opacity-80 border border-pink-200 dark:border-pink-800"
                   >
                     <View className="flex-row items-center gap-3">
-                      <View className="bg-pink-100 dark:bg-pink-900/30 p-3 rounded-xl">
-                        <Sparkles size={24} color="#ec4899" />
+                      <View className="bg-pink-100 dark:bg-pink-900/30 p-2 rounded-lg">
+                        <Sparkles size={18} color="#ec4899" />
                       </View>
                       <View className="flex-1">
                         <Text className="text-slate-900 dark:text-white font-semibold">{tool.name}</Text>
@@ -389,21 +460,39 @@ export default function MarketplaceScreen() {
                   </Pressable>
                 </Animated.View>
               ))}
-            </View>
 
-            {/* Finance (3 tools) */}
-            <Text className="text-slate-600 dark:text-slate-400 text-sm font-semibold mb-2">
-              Finance ({aiTools.filter((t: ThirdPartyAITool) => t.category === 'finance').length})
-            </Text>
-            <View className="gap-3 mb-4">
-              {aiTools.filter((t: ThirdPartyAITool) => t.category === 'finance').map((tool: ThirdPartyAITool, index: number) => (
+              {/* Finance - Collapsible */}
+              <Pressable
+                onPress={() => toggleCategory('finance')}
+                className="bg-white dark:bg-slate-800 rounded-xl p-4 active:opacity-80"
+              >
+                <View className="flex-row items-center gap-3">
+                  <View className="bg-purple-100 dark:bg-purple-900/30 p-3 rounded-xl">
+                    <Calculator size={24} color="#a855f7" />
+                  </View>
+                  <View className="flex-1">
+                    <Text className="text-slate-900 dark:text-white font-semibold">Finance</Text>
+                    <Text className="text-slate-500 dark:text-slate-400 text-sm">
+                      {aiTools.filter((t: ThirdPartyAITool) => t.category === 'finance').length} tools for money
+                    </Text>
+                  </View>
+                  <ChevronRight
+                    size={20}
+                    color="#64748b"
+                    style={{ transform: [{ rotate: expandedCategories.has('finance') ? '90deg' : '0deg' }] }}
+                  />
+                </View>
+              </Pressable>
+
+              {/* Finance tools - shown when expanded */}
+              {expandedCategories.has('finance') && aiTools.filter((t: ThirdPartyAITool) => t.category === 'finance').map((tool: ThirdPartyAITool, index: number) => (
                 <Animated.View key={tool.id} entering={FadeInDown.delay(index * 50).springify()}>
                   <Pressable
-                    className="bg-white dark:bg-slate-800 rounded-xl p-4 active:opacity-80 border border-purple-200 dark:border-purple-800"
+                    className="bg-white dark:bg-slate-800 rounded-xl p-4 ml-4 active:opacity-80 border border-purple-200 dark:border-purple-800"
                   >
                     <View className="flex-row items-center gap-3">
-                      <View className="bg-purple-100 dark:bg-purple-900/30 p-3 rounded-xl">
-                        <Calculator size={24} color="#a855f7" />
+                      <View className="bg-purple-100 dark:bg-purple-900/30 p-2 rounded-lg">
+                        <Calculator size={18} color="#a855f7" />
                       </View>
                       <View className="flex-1">
                         <Text className="text-slate-900 dark:text-white font-semibold">{tool.name}</Text>
@@ -419,21 +508,39 @@ export default function MarketplaceScreen() {
                   </Pressable>
                 </Animated.View>
               ))}
-            </View>
 
-            {/* Operations (3 tools) */}
-            <Text className="text-slate-600 dark:text-slate-400 text-sm font-semibold mb-2">
-              Operations ({aiTools.filter((t: ThirdPartyAITool) => t.category === 'operations').length})
-            </Text>
-            <View className="gap-3 mb-4">
-              {aiTools.filter((t: ThirdPartyAITool) => t.category === 'operations').map((tool: ThirdPartyAITool, index: number) => (
+              {/* Operations - Collapsible */}
+              <Pressable
+                onPress={() => toggleCategory('operations')}
+                className="bg-white dark:bg-slate-800 rounded-xl p-4 active:opacity-80"
+              >
+                <View className="flex-row items-center gap-3">
+                  <View className="bg-amber-100 dark:bg-amber-900/30 p-3 rounded-xl">
+                    <Package size={24} color="#f59e0b" />
+                  </View>
+                  <View className="flex-1">
+                    <Text className="text-slate-900 dark:text-white font-semibold">Operations</Text>
+                    <Text className="text-slate-500 dark:text-slate-400 text-sm">
+                      {aiTools.filter((t: ThirdPartyAITool) => t.category === 'operations').length} tools for efficiency
+                    </Text>
+                  </View>
+                  <ChevronRight
+                    size={20}
+                    color="#64748b"
+                    style={{ transform: [{ rotate: expandedCategories.has('operations') ? '90deg' : '0deg' }] }}
+                  />
+                </View>
+              </Pressable>
+
+              {/* Operations tools - shown when expanded */}
+              {expandedCategories.has('operations') && aiTools.filter((t: ThirdPartyAITool) => t.category === 'operations').map((tool: ThirdPartyAITool, index: number) => (
                 <Animated.View key={tool.id} entering={FadeInDown.delay(index * 50).springify()}>
                   <Pressable
-                    className="bg-white dark:bg-slate-800 rounded-xl p-4 active:opacity-80 border border-amber-200 dark:border-amber-800"
+                    className="bg-white dark:bg-slate-800 rounded-xl p-4 ml-4 active:opacity-80 border border-amber-200 dark:border-amber-800"
                   >
                     <View className="flex-row items-center gap-3">
-                      <View className="bg-amber-100 dark:bg-amber-900/30 p-3 rounded-xl">
-                        <Package size={24} color="#f59e0b" />
+                      <View className="bg-amber-100 dark:bg-amber-900/30 p-2 rounded-lg">
+                        <Package size={18} color="#f59e0b" />
                       </View>
                       <View className="flex-1">
                         <Text className="text-slate-900 dark:text-white font-semibold">{tool.name}</Text>
@@ -449,21 +556,39 @@ export default function MarketplaceScreen() {
                   </Pressable>
                 </Animated.View>
               ))}
-            </View>
 
-            {/* Admin/Productivity (4 tools) */}
-            <Text className="text-slate-600 dark:text-slate-400 text-sm font-semibold mb-2">
-              Admin & Productivity ({aiTools.filter((t: ThirdPartyAITool) => t.category === 'productivity').length})
-            </Text>
-            <View className="gap-3">
-              {aiTools.filter((t: ThirdPartyAITool) => t.category === 'productivity').map((tool: ThirdPartyAITool, index: number) => (
+              {/* Admin & Productivity - Collapsible */}
+              <Pressable
+                onPress={() => toggleCategory('productivity')}
+                className="bg-white dark:bg-slate-800 rounded-xl p-4 active:opacity-80"
+              >
+                <View className="flex-row items-center gap-3">
+                  <View className="bg-blue-100 dark:bg-blue-900/30 p-3 rounded-xl">
+                    <Zap size={24} color="#3b82f6" />
+                  </View>
+                  <View className="flex-1">
+                    <Text className="text-slate-900 dark:text-white font-semibold">Admin & Productivity</Text>
+                    <Text className="text-slate-500 dark:text-slate-400 text-sm">
+                      {aiTools.filter((t: ThirdPartyAITool) => t.category === 'productivity').length} tools for workflow
+                    </Text>
+                  </View>
+                  <ChevronRight
+                    size={20}
+                    color="#64748b"
+                    style={{ transform: [{ rotate: expandedCategories.has('productivity') ? '90deg' : '0deg' }] }}
+                  />
+                </View>
+              </Pressable>
+
+              {/* Productivity tools - shown when expanded */}
+              {expandedCategories.has('productivity') && aiTools.filter((t: ThirdPartyAITool) => t.category === 'productivity').map((tool: ThirdPartyAITool, index: number) => (
                 <Animated.View key={tool.id} entering={FadeInDown.delay(index * 50).springify()}>
                   <Pressable
-                    className="bg-white dark:bg-slate-800 rounded-xl p-4 active:opacity-80 border border-blue-200 dark:border-blue-800"
+                    className="bg-white dark:bg-slate-800 rounded-xl p-4 ml-4 active:opacity-80 border border-blue-200 dark:border-blue-800"
                   >
                     <View className="flex-row items-center gap-3">
-                      <View className="bg-blue-100 dark:bg-blue-900/30 p-3 rounded-xl">
-                        <Zap size={24} color="#3b82f6" />
+                      <View className="bg-blue-100 dark:bg-blue-900/30 p-2 rounded-lg">
+                        <Zap size={18} color="#3b82f6" />
                       </View>
                       <View className="flex-1">
                         <Text className="text-slate-900 dark:text-white font-semibold">{tool.name}</Text>
