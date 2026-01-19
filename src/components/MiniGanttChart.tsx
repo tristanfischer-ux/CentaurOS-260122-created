@@ -11,7 +11,6 @@ interface MiniGanttChartProps {
   members: OrganizationMember[];
   selectedTaskId?: string;
   onTaskPress?: (taskId: string) => void;
-  onTodayLinePositionChange?: (xPosition: number) => void; // Callback for today line position
 }
 
 // Calculate week number from a date
@@ -48,7 +47,7 @@ const ROLE_COLORS: Record<string, string> = {
   Apprentice: '#10b981',
 };
 
-export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress, onTodayLinePositionChange }: MiniGanttChartProps) {
+export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress }: MiniGanttChartProps) {
   const today = useMemo(() => new Date(), []);
   const currentWeek = useMemo(() => getWeekNumber(today), [today]);
 
@@ -265,12 +264,6 @@ export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress
     }, 100);
   }, [viewMode]);
 
-  // Calculate and report today line position
-  useEffect(() => {
-    const todayLineX = WEEK_WIDTH * (viewMode === 'day' ? 2 : viewMode === 'week' ? 4 : viewMode === 'month' ? 2 : 1) + WEEK_WIDTH / 2;
-    onTodayLinePositionChange?.(todayLineX);
-  }, [viewMode, WEEK_WIDTH, onTodayLinePositionChange]);
-
   return (
     <View className="flex-1 bg-white dark:bg-slate-900 border-t-2 border-gray-200 dark:border-slate-700">
       {/* Compact Header with View Toggle */}
@@ -429,6 +422,30 @@ export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress
                   style={{ left: WEEK_WIDTH * idx }}
                 />
               ))}
+
+              {/* Today indicator line - positioned at the center of today's column */}
+              {(() => {
+                let todayIndex = 0;
+                if (viewMode === 'day') {
+                  todayIndex = 2; // 2 days before
+                } else if (viewMode === 'week') {
+                  todayIndex = 4; // 4 weeks before
+                } else if (viewMode === 'month') {
+                  todayIndex = 2; // 2 months before
+                } else if (viewMode === 'year') {
+                  todayIndex = 1; // 1 year before
+                }
+
+                const todayLineX = (todayIndex * WEEK_WIDTH) + (WEEK_WIDTH / 2);
+
+                return (
+                  <View
+                    className="absolute top-0 bottom-0 w-1 bg-blue-500 dark:bg-blue-400"
+                    style={{ left: todayLineX, zIndex: 5 }}
+                    pointerEvents="none"
+                  />
+                );
+              })()}
 
               {/* Task bars */}
               <View className="pt-1">

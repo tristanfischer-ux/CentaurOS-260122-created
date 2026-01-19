@@ -66,7 +66,6 @@ export default function WhenScreen() {
   // State
   const [showHelp, setShowHelp] = useState(false);
   const [selectedPersonId, setSelectedPersonId] = useState<string | null>(null);
-  const [todayLinePosition, setTodayLinePosition] = useState<number>(0); // Track today line X position
 
   // Calculate task stats
   const taskStats = useMemo(() => {
@@ -140,20 +139,6 @@ export default function WhenScreen() {
         </View>
       </LinearGradient>
 
-      {/* Full-height today line - rendered above all content */}
-      {todayLinePosition > 0 && (
-        <View
-          className="absolute w-1 bg-blue-500 dark:bg-blue-400"
-          style={{
-            left: todayLinePosition,
-            top: insets.top + 80, // Start below header
-            bottom: 0, // Extend to bottom of screen
-            zIndex: 10,
-            pointerEvents: 'none',
-          }}
-        />
-      )}
-
       {/* Gantt Chart - full height */}
       <View className="flex-1">
         <MiniGanttChart
@@ -165,7 +150,6 @@ export default function WhenScreen() {
               params: { selectedTaskId: taskId },
             });
           }}
-          onTodayLinePositionChange={setTodayLinePosition}
         />
       </View>
 
