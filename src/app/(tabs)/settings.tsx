@@ -819,10 +819,22 @@ export default function SettingsScreen() {
                 ))}
               </View>
 
+              {/* Company Settings */}
+              <Pressable
+                onPress={() => router.push('/company-settings')}
+                className={`flex-row items-center justify-between mt-4 pt-4 border-t ${borderColor} active:opacity-70`}
+              >
+                <View className="flex-row items-center">
+                  <Building2 size={18} color="#3b82f6" />
+                  <Text className={`font-medium ml-3 ${textPrimary}`}>Company Settings</Text>
+                </View>
+                <ChevronRight size={18} color={iconColor} />
+              </Pressable>
+
               {/* Replay Tutorial */}
               <Pressable
                 onPress={handleReplayOnboarding}
-                className={`flex-row items-center justify-between mt-4 pt-4 border-t ${borderColor} active:opacity-70`}
+                className={`flex-row items-center justify-between mt-3 pt-3 border-t ${borderColor} active:opacity-70`}
               >
                 <View className="flex-row items-center">
                   <Play size={18} color="#8b5cf6" />
