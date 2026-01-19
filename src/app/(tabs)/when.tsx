@@ -322,12 +322,9 @@ export default function WhenScreen() {
             <Text className="text-slate-500 dark:text-slate-400 text-center mt-4 text-base">
               No team members yet
             </Text>
-            <Pressable
-              onPress={() => router.push('/(tabs)/people')}
-              className="mt-4 bg-purple-500 px-6 py-3 rounded-xl"
-            >
-              <Text className="text-white font-semibold">Add Team Members</Text>
-            </Pressable>
+            <Text className="text-slate-400 dark:text-slate-500 text-center mt-2 text-sm">
+              Go to the People tab to add team members
+            </Text>
           </View>
         )}
 
