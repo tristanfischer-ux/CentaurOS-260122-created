@@ -140,14 +140,10 @@ export default function TabLayout() {
         }}
       />
 
-      {/* 5. Resources - Current Usage */}
+      {/* 5. Resources - HIDDEN - Needs rebuild */}
       <Tabs.Screen
         name="resources"
-        options={{
-          title: 'Resources',
-          headerShown: false,
-          tabBarIcon: ({ color }) => <TabBarIcon Icon={Wrench} color={color} />,
-        }}
+        options={{ href: null }}
       />
 
       {/* 6. Marketplace - Discovery */}

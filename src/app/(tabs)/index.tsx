@@ -14,7 +14,7 @@
  * 8. Essential Tools
  */
 
-import { View, Text, ScrollView, Pressable, RefreshControl } from 'react-native';
+import { View, Text, ScrollView, Pressable, RefreshControl, Alert } from 'react-native';
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -312,10 +312,9 @@ function FounderHome() {
               <ChevronRight size={14} color="#64748b" />
             </Pressable>
 
-            {/* Function Hub */}
-            <Pressable
-              onPress={() => router.push('/function-hub')}
-              className="flex-1 min-w-[45%] bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-3 flex-row items-center gap-2 active:opacity-70"
+            {/* Function Hub - Disabled */}
+            <View
+              className="flex-1 min-w-[45%] bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-3 flex-row items-center gap-2 opacity-50"
             >
               <View className="bg-purple-100 dark:bg-purple-900/30 p-2 rounded-lg">
                 <Briefcase size={16} color="#8b5cf6" />
@@ -324,27 +323,11 @@ function FounderHome() {
                 <Text className="text-slate-900 dark:text-white font-semibold text-sm">Functions</Text>
                 <Text className="text-slate-500 dark:text-slate-400 text-xs">Business areas</Text>
               </View>
-              <ChevronRight size={14} color="#64748b" />
-            </Pressable>
+            </View>
 
-            {/* Getting Started */}
+            {/* Startup Hub - Coming Soon */}
             <Pressable
-              onPress={() => router.push('/tech-tree')}
-              className="flex-1 min-w-[45%] bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-3 flex-row items-center gap-2 active:opacity-70"
-            >
-              <View className="bg-emerald-100 dark:bg-emerald-900/30 p-2 rounded-lg">
-                <Trophy size={16} color="#10b981" />
-              </View>
-              <View className="flex-1">
-                <Text className="text-slate-900 dark:text-white font-semibold text-sm">Progress</Text>
-                <Text className="text-slate-500 dark:text-slate-400 text-xs">Tech tree</Text>
-              </View>
-              <ChevronRight size={14} color="#64748b" />
-            </Pressable>
-
-            {/* Startup Hub */}
-            <Pressable
-              onPress={() => router.push('/startup-pack/wizard')}
+              onPress={() => Alert.alert('Coming Soon', 'Startup launch tools are coming soon!')}
               className="flex-1 min-w-[45%] bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-3 flex-row items-center gap-2 active:opacity-70"
             >
               <View className="bg-blue-100 dark:bg-blue-900/30 p-2 rounded-lg">
@@ -352,9 +335,8 @@ function FounderHome() {
               </View>
               <View className="flex-1">
                 <Text className="text-slate-900 dark:text-white font-semibold text-sm">Startup</Text>
-                <Text className="text-slate-500 dark:text-slate-400 text-xs">Launch tools</Text>
+                <Text className="text-slate-500 dark:text-slate-400 text-xs">Coming soon</Text>
               </View>
-              <ChevronRight size={14} color="#64748b" />
             </Pressable>
           </View>
         </View>
