@@ -107,7 +107,7 @@ export default function TabLayout() {
           headerTintColor: colorScheme === 'dark' ? '#ffffff' : '#000000',
         }}
       >
-        {/* ========== VISIBLE TABS (5 + 1 button) ========== */}
+        {/* ========== VISIBLE TABS (6 + 1 button = 7 total) ========== */}
 
         {/* 1. Home - Summary Dashboard */}
         <Tabs.Screen
@@ -119,7 +119,17 @@ export default function TabLayout() {
           }}
         />
 
-        {/* 2. Tasks - Task Management */}
+        {/* 2. People - Team Management */}
+        <Tabs.Screen
+          name="people"
+          options={{
+            title: 'People',
+            headerShown: false,
+            tabBarIcon: ({ color }) => <TabBarIcon Icon={Users} color={color} />,
+          }}
+        />
+
+        {/* 3. Tasks - Task Management */}
         <Tabs.Screen
           name="tasks"
           options={{
@@ -129,7 +139,7 @@ export default function TabLayout() {
           }}
         />
 
-        {/* 3. CREATE BUTTON - Custom rendering */}
+        {/* 4. CREATE BUTTON - Custom rendering */}
         <Tabs.Screen
           name="create-task"
           options={{
@@ -177,7 +187,7 @@ export default function TabLayout() {
           }}
         />
 
-        {/* 4. When - Timeline/Capacity */}
+        {/* 5. When - Timeline/Capacity */}
         <Tabs.Screen
           name="when"
           options={{
@@ -187,7 +197,17 @@ export default function TabLayout() {
           }}
         />
 
-        {/* 5. Settings */}
+        {/* 6. Marketplace - Discovery */}
+        <Tabs.Screen
+          name="marketplace"
+          options={{
+            title: 'Market',
+            headerShown: false,
+            tabBarIcon: ({ color }) => <TabBarIcon Icon={Store} color={color} />,
+          }}
+        />
+
+        {/* 7. Settings */}
         <Tabs.Screen
           name="settings"
           options={{
@@ -199,21 +219,9 @@ export default function TabLayout() {
 
         {/* ========== HIDDEN TABS ========== */}
 
-        {/* People - HIDDEN for now */}
-        <Tabs.Screen
-          name="people"
-          options={{ href: null }}
-        />
-
-        {/* 5. Resources - HIDDEN - Needs rebuild */}
+        {/* Resources - HIDDEN - Needs rebuild */}
         <Tabs.Screen
           name="resources"
-          options={{ href: null }}
-        />
-
-        {/* 6. Marketplace - Discovery */}
-        <Tabs.Screen
-          name="marketplace"
           options={{ href: null }}
         />
 
