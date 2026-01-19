@@ -15,6 +15,24 @@ Centaur OS is a comprehensive iOS mobile application that helps lean companies o
 
 ## 🚀 Latest Updates (Jan 19, 2026)
 
+### ✅ Mission Control Redesign - Side-by-Side Drawers & Interactive Stats (TODAY)
+
+**Major UX Improvements to Home Tab:**
+- 📊 **Interactive Stats Bar**: Tapping Tasks/Doing/Blocked/Team now navigates to filtered views
+- 🎯 **Focus Today Redesigned**: Compact vertical list with inline quick actions (play to start, arrow for details)
+- 📱 **Side-by-Side Drawers**: Team and Timeline drawers are now horizontal at the bottom, saving vertical space
+- ⚡ **One-Tap Task Start**: Play button on priority tasks to instantly mark as in-progress
+- 🔄 **Smart Collapse**: Opening one drawer auto-closes the other
+
+**New Component:**
+- `src/components/DualBottomDrawers.tsx` - Side-by-side Team and Timeline drawers
+
+**Technical Features:**
+- Theme-aware styling throughout (dark/light mode)
+- Animated drawer expand/collapse with react-native-reanimated
+- Capacity visualization bars for team members
+- Preview tasks in collapsed timeline drawer
+
 ### ✅ When Tab - Interactive Task Quick Actions Modal (TODAY)
 
 **Major Improvement to Timeline Usability:**

@@ -1,30 +1,181 @@
 /**
- * Focus Today Section
- * AI-Powered Priority Task Surfacing for Mission Control
- * Now uses CompactTaskCard for consistency with Tasks tab
+ * Focus Today Section - Redesigned
+ * More compact, actionable AI-Powered Priority Task Surfacing
+ * Shows inline quick actions without horizontal scrolling
  */
 
-import { View, Text, ScrollView } from 'react-native';
-import { Sparkles, CheckCircle } from 'lucide-react-native';
+import { View, Text, Pressable } from 'react-native';
+import { Sparkles, CheckCircle, Play, AlertTriangle, ChevronRight } from 'lucide-react-native';
 import { useMemo, useState } from 'react';
-import { useWorkPlanStore } from '@/lib/state/work-plan-store';
+import { useWorkPlanStore, type WorkPlan } from '@/lib/state/work-plan-store';
 import { useOrganizationStore } from '@/lib/state/organization-store';
-import { getFocusTodayTasks } from '@/lib/ai-priority-scoring';
-import { LinearGradient } from 'expo-linear-gradient';
-import { UnifiedTaskAllocationModal } from './UnifiedTaskAllocationModal';
-import { CompactTaskCard } from './CompactTaskCard';
+import { getFocusTodayTasks, type PriorityScore } from '@/lib/ai-priority-scoring';
+import { useTheme } from '@/lib/ThemeContext';
+import { TaskQuickActionsModal } from './TaskQuickActionsModal';
+import { lightImpact, successNotification } from '@/lib/haptics';
 
 interface FocusTodaySectionProps {
   onTaskPress?: (taskId: string) => void;
 }
 
+// Status badge component
+function StatusBadge({ status }: { status: WorkPlan['status'] }) {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
+
+  const config = {
+    'not-started': { label: 'Todo', color: '#6b7280', bg: isDark ? 'rgba(107, 114, 128, 0.2)' : '#f3f4f6' },
+    'in-progress': { label: 'Doing', color: '#3b82f6', bg: isDark ? 'rgba(59, 130, 246, 0.2)' : '#dbeafe' },
+    'blocked': { label: 'Blocked', color: '#ef4444', bg: isDark ? 'rgba(239, 68, 68, 0.2)' : '#fee2e2' },
+    'completed': { label: 'Done', color: '#10b981', bg: isDark ? 'rgba(16, 185, 129, 0.2)' : '#d1fae5' },
+    'abandoned': { label: 'Closed', color: '#9ca3af', bg: isDark ? 'rgba(156, 163, 175, 0.2)' : '#f3f4f6' },
+  };
+
+  const c = config[status] || config['not-started'];
+
+  return (
+    <View style={{ backgroundColor: c.bg, paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4 }}>
+      <Text style={{ fontSize: 9, fontWeight: '600', color: c.color }}>{c.label}</Text>
+    </View>
+  );
+}
+
+// Compact task row
+function FocusTaskRow({
+  priorityScore,
+  onPress,
+  onQuickAction,
+}: {
+  priorityScore: PriorityScore;
+  onPress: () => void;
+  onQuickAction: () => void;
+}) {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
+  const task = priorityScore.task;
+  const updateWorkPlan = useWorkPlanStore(s => s.updateWorkPlan);
+
+  const handleStartTask = () => {
+    lightImpact();
+    updateWorkPlan(task.id, { status: 'in-progress' });
+    successNotification();
+  };
+
+  return (
+    <Pressable
+      onPress={onPress}
+      style={{
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: isDark ? '#1e293b' : '#ffffff',
+        borderRadius: 12,
+        padding: 12,
+        marginBottom: 8,
+        borderWidth: 1,
+        borderColor: isDark ? '#334155' : '#e2e8f0',
+      }}
+    >
+      {/* Priority indicator */}
+      <View
+        style={{
+          width: 4,
+          height: 36,
+          backgroundColor: priorityScore.level === 'critical' ? '#ef4444' : priorityScore.level === 'high' ? '#f59e0b' : '#22c55e',
+          borderRadius: 2,
+          marginRight: 10,
+        }}
+      />
+
+      {/* Task info */}
+      <View style={{ flex: 1 }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 2 }}>
+          <StatusBadge status={task.status} />
+          {task.function && (
+            <Text style={{ fontSize: 9, color: isDark ? '#94a3b8' : '#64748b' }}>
+              {task.function}
+            </Text>
+          )}
+        </View>
+        <Text
+          style={{
+            fontSize: 13,
+            fontWeight: '600',
+            color: isDark ? '#ffffff' : '#0f172a',
+            marginBottom: 2,
+          }}
+          numberOfLines={1}
+        >
+          {task.title}
+        </Text>
+        <Text
+          style={{
+            fontSize: 10,
+            color: isDark ? '#64748b' : '#94a3b8',
+          }}
+          numberOfLines={1}
+        >
+          {priorityScore.reasoning}
+        </Text>
+      </View>
+
+      {/* Quick actions */}
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+        {task.status === 'not-started' && (
+          <Pressable
+            onPress={handleStartTask}
+            style={{
+              width: 32,
+              height: 32,
+              borderRadius: 16,
+              backgroundColor: isDark ? 'rgba(59, 130, 246, 0.2)' : '#dbeafe',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <Play size={14} color="#3b82f6" fill="#3b82f6" />
+          </Pressable>
+        )}
+        {task.status === 'blocked' && (
+          <View
+            style={{
+              width: 32,
+              height: 32,
+              borderRadius: 16,
+              backgroundColor: isDark ? 'rgba(239, 68, 68, 0.2)' : '#fee2e2',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <AlertTriangle size={14} color="#ef4444" />
+          </View>
+        )}
+        <Pressable
+          onPress={onQuickAction}
+          style={{
+            width: 32,
+            height: 32,
+            borderRadius: 16,
+            backgroundColor: isDark ? '#334155' : '#f1f5f9',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <ChevronRight size={14} color={isDark ? '#94a3b8' : '#64748b'} />
+        </Pressable>
+      </View>
+    </Pressable>
+  );
+}
+
 export function FocusTodaySection({ onTaskPress }: FocusTodaySectionProps) {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
   const workPlans = useWorkPlanStore(s => s.workPlans);
   const members = useOrganizationStore(s => s.members);
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
 
   const priorityTasks = useMemo(() => {
-    return getFocusTodayTasks(workPlans, members, 5);
+    return getFocusTodayTasks(workPlans, members, 3); // Only show top 3
   }, [workPlans, members]);
 
   const selectedTask = useMemo(() => {
@@ -32,40 +183,37 @@ export function FocusTodaySection({ onTaskPress }: FocusTodaySectionProps) {
     return workPlans.find(wp => wp.id === selectedTaskId) || null;
   }, [selectedTaskId, workPlans]);
 
-  // Get assigned members for a task
-  const getAssignedMembers = (task: typeof workPlans[0]) => {
-    const memberIds = task.allocations?.map(a => a.memberId) || [];
-    return members.filter(m => memberIds.includes(m.id));
-  };
-
-  const handleTaskPress = (taskId: string) => {
-    // Just expand/collapse the card, don't open modal
-    onTaskPress?.(taskId);
-  };
-
-  const handleFullDetailPress = (taskId: string) => {
-    setSelectedTaskId(taskId);
-  };
-
   if (priorityTasks.length === 0) {
     return (
-      <View className="pb-2">
-        <View className="flex-row items-center gap-2 mb-3 px-5">
-          <Sparkles size={20} color="#8b5cf6" />
-          <Text className="text-slate-900 dark:text-white font-bold text-lg">Focus Today</Text>
-          <View className="bg-purple-100 dark:bg-purple-900/30 px-2 py-0.5 rounded-full">
-            <Text className="text-purple-700 dark:text-purple-300 text-xs font-bold">AI</Text>
-          </View>
-        </View>
-
-        <View className="bg-emerald-50 dark:bg-emerald-900/20 rounded-xl p-6 border border-emerald-200 dark:border-emerald-800 mx-5">
-          <View className="items-center">
-            <CheckCircle size={48} color="#10b981" />
-            <Text className="text-slate-900 dark:text-white font-bold text-lg mt-3 text-center">
-              You're All Caught Up!
+      <View style={{ paddingHorizontal: 20, paddingVertical: 12 }}>
+        <View
+          style={{
+            backgroundColor: isDark ? 'rgba(16, 185, 129, 0.1)' : '#ecfdf5',
+            borderRadius: 12,
+            padding: 16,
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: 12,
+          }}
+        >
+          <CheckCircle size={32} color="#10b981" />
+          <View style={{ flex: 1 }}>
+            <Text
+              style={{
+                fontSize: 14,
+                fontWeight: '700',
+                color: isDark ? '#ffffff' : '#0f172a',
+              }}
+            >
+              All Caught Up!
             </Text>
-            <Text className="text-slate-600 dark:text-slate-400 text-center mt-2">
-              Great work staying on top of things. No critical tasks need your attention right now.
+            <Text
+              style={{
+                fontSize: 12,
+                color: isDark ? '#94a3b8' : '#64748b',
+              }}
+            >
+              No critical tasks need attention right now.
             </Text>
           </View>
         </View>
@@ -74,71 +222,88 @@ export function FocusTodaySection({ onTaskPress }: FocusTodaySectionProps) {
   }
 
   return (
-    <View className="pb-2">
-      {/* Header */}
-      <LinearGradient
-        colors={['#8b5cf6', '#7c3aed']}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 0 }}
+    <View style={{ paddingHorizontal: 20, paddingVertical: 8 }}>
+      {/* Compact Header */}
+      <View
         style={{
-          paddingHorizontal: 20,
-          paddingVertical: 14,
-          marginBottom: 12,
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          marginBottom: 10,
         }}
       >
-        <View className="flex-row items-center justify-between">
-          <View className="flex-row items-center gap-2">
-            <Sparkles size={24} color="white" />
-            <View>
-              <Text className="text-white font-bold text-lg">Focus Today</Text>
-              <Text className="text-white/80 text-xs">AI-powered priority tasks</Text>
-            </View>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+          <View
+            style={{
+              width: 28,
+              height: 28,
+              borderRadius: 14,
+              backgroundColor: isDark ? 'rgba(139, 92, 246, 0.2)' : '#f3e8ff',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <Sparkles size={14} color="#8b5cf6" />
           </View>
-          <View className="bg-white/20 px-3 py-1 rounded-full">
-            <Text className="text-white font-bold text-sm">{priorityTasks.length}</Text>
+          <Text
+            style={{
+              fontSize: 15,
+              fontWeight: '700',
+              color: isDark ? '#ffffff' : '#0f172a',
+            }}
+          >
+            Focus Today
+          </Text>
+          <View
+            style={{
+              backgroundColor: isDark ? 'rgba(139, 92, 246, 0.2)' : '#f3e8ff',
+              paddingHorizontal: 6,
+              paddingVertical: 2,
+              borderRadius: 8,
+            }}
+          >
+            <Text style={{ fontSize: 10, fontWeight: '700', color: '#8b5cf6' }}>AI</Text>
           </View>
         </View>
-      </LinearGradient>
-
-      {/* Info Banner */}
-      <View className="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-3 mb-3 mx-5">
-        <Text className="text-purple-700 dark:text-purple-300 text-xs leading-relaxed">
-          <Text className="font-bold">Smart Priority:</Text> These tasks have the highest impact based on deadlines, team blockers, business goals, and resource availability.
-        </Text>
+        <View
+          style={{
+            backgroundColor: isDark ? '#1e293b' : '#f1f5f9',
+            paddingHorizontal: 8,
+            paddingVertical: 4,
+            borderRadius: 10,
+          }}
+        >
+          <Text
+            style={{
+              fontSize: 11,
+              fontWeight: '600',
+              color: isDark ? '#94a3b8' : '#64748b',
+            }}
+          >
+            {priorityTasks.length} priority
+          </Text>
+        </View>
       </View>
 
-      {/* Priority Tasks - Using CompactTaskCard for consistency */}
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={{ paddingLeft: 20, paddingRight: 20 }}
-      >
-        {priorityTasks.map((priorityScore) => (
-          <View key={priorityScore.task.id} style={{ width: 340, marginRight: 12 }}>
-            {/* Priority Reason Badge */}
-            <View className="bg-purple-50 dark:bg-purple-900/20 rounded-t-xl p-2 border-l-2 border-r-2 border-t-2 border-purple-300 dark:border-purple-700">
-              <View className="flex-row items-center gap-1.5">
-                <Sparkles size={12} color="#8b5cf6" />
-                <Text className="text-purple-700 dark:text-purple-300 text-[10px] font-medium flex-1" numberOfLines={2}>
-                  {priorityScore.reasoning}
-                </Text>
-              </View>
-            </View>
-            <CompactTaskCard
-              task={priorityScore.task}
-              assignedMembers={getAssignedMembers(priorityScore.task)}
-              onPress={() => handleTaskPress(priorityScore.task.id)}
-              onFullDetailPress={() => handleFullDetailPress(priorityScore.task.id)}
-            />
-          </View>
-        ))}
-      </ScrollView>
+      {/* Task List */}
+      {priorityTasks.map((priorityScore) => (
+        <FocusTaskRow
+          key={priorityScore.task.id}
+          priorityScore={priorityScore}
+          onPress={() => onTaskPress?.(priorityScore.task.id)}
+          onQuickAction={() => setSelectedTaskId(priorityScore.task.id)}
+        />
+      ))}
 
-      {/* Task Details Modal */}
-      <UnifiedTaskAllocationModal
+      {/* Task Quick Actions Modal */}
+      <TaskQuickActionsModal
         visible={selectedTaskId !== null}
         onClose={() => setSelectedTaskId(null)}
-        workPlan={selectedTask}
+        task={selectedTask}
+        onNavigateToDetails={(taskId) => {
+          setSelectedTaskId(null);
+          onTaskPress?.(taskId);
+        }}
       />
     </View>
   );

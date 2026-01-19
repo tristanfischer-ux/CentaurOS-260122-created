@@ -49,8 +49,7 @@ import { HelpModal, HelpButton, type HelpContent } from '@/components/HelpModal'
 import { RoleSwitcher } from '@/components/RoleSwitcher';
 import { ApprenticeHome } from '@/components/ApprenticeHome';
 import { ExecutiveHome } from '@/components/ExecutiveHome';
-import { CollapsibleGanttChart } from '@/components/CollapsibleGanttChart';
-import { CollapsibleResourcePool } from '@/components/CollapsibleResourcePool';
+import { DualBottomDrawers } from '@/components/DualBottomDrawers';
 
 // New Home Dashboard Components
 import {
@@ -131,8 +130,8 @@ function FounderHome() {
   const [refreshing, setRefreshing] = useState(false);
   const [lastUpdated, setLastUpdated] = useState(new Date());
   const refreshTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const [selectedPersonId, setSelectedPersonId] = useState<string | null>(null);
   const [showPendingAssignments, setShowPendingAssignments] = useState(false);
+  const [statsFilter, setStatsFilter] = useState<'all' | 'doing' | 'blocked' | 'team' | null>(null);
 
   // DISABLED: Auto-detect squads from task allocations
   // This creates squads automatically, which should not happen after reset
@@ -296,30 +295,54 @@ function FounderHome() {
           </View>
         </View>
 
-        {/* Stats - Consistent with other tabs */}
-        <View className="flex-row justify-between bg-white/10 rounded-xl p-3">
-          <View className="items-center flex-1">
+        {/* Interactive Stats Bar */}
+        <View className="flex-row justify-between bg-white/10 rounded-xl p-1">
+          <Pressable
+            onPress={() => {
+              setStatsFilter(statsFilter === 'all' ? null : 'all');
+              router.push('/(tabs)/tasks');
+            }}
+            className={`items-center flex-1 py-2 rounded-lg ${statsFilter === 'all' ? 'bg-white/20' : ''}`}
+          >
             <Text className="text-white/70 text-xs">Tasks</Text>
             <Text className="text-white font-bold text-lg">{workPlans.filter(wp => wp.status !== 'completed' && wp.status !== 'abandoned').length}</Text>
-          </View>
-          <View className="items-center flex-1 border-l border-white/20">
+          </Pressable>
+          <Pressable
+            onPress={() => {
+              setStatsFilter(statsFilter === 'doing' ? null : 'doing');
+              router.push({ pathname: '/(tabs)/tasks', params: { filter: 'in-progress' } });
+            }}
+            className={`items-center flex-1 py-2 rounded-lg border-l border-white/20 ${statsFilter === 'doing' ? 'bg-white/20' : ''}`}
+          >
             <Text className="text-white/70 text-xs">Doing</Text>
             <Text className="text-white font-bold text-lg">{workPlans.filter(wp => wp.status === 'in-progress').length}</Text>
-          </View>
-          <View className="items-center flex-1 border-l border-white/20">
+          </Pressable>
+          <Pressable
+            onPress={() => {
+              setStatsFilter(statsFilter === 'blocked' ? null : 'blocked');
+              router.push({ pathname: '/(tabs)/tasks', params: { filter: 'blocked' } });
+            }}
+            className={`items-center flex-1 py-2 rounded-lg border-l border-white/20 ${statsFilter === 'blocked' ? 'bg-white/20' : ''}`}
+          >
             <Text className="text-white/70 text-xs">Blocked</Text>
             <Text className="text-red-300 font-bold text-lg">{workPlans.filter(wp => wp.status === 'blocked').length}</Text>
-          </View>
-          <View className="items-center flex-1 border-l border-white/20">
+          </Pressable>
+          <Pressable
+            onPress={() => {
+              setStatsFilter(statsFilter === 'team' ? null : 'team');
+              router.push('/(tabs)/people');
+            }}
+            className={`items-center flex-1 py-2 rounded-lg border-l border-white/20 ${statsFilter === 'team' ? 'bg-white/20' : ''}`}
+          >
             <Text className="text-white/70 text-xs">Team</Text>
             <Text className="text-white font-bold text-lg">{members.length}</Text>
-          </View>
+          </Pressable>
         </View>
       </LinearGradient>
 
       <ScrollView
         className="flex-1"
-        contentContainerStyle={{ paddingBottom: insets.bottom + 140 }}
+        contentContainerStyle={{ paddingBottom: insets.bottom + 100 }}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
@@ -431,17 +454,9 @@ function FounderHome() {
         </View>
       </ScrollView>
 
-      {/* Resource Pool Drawer */}
-      <CollapsibleResourcePool
-        selectedPersonId={selectedPersonId}
-        onPersonSelect={setSelectedPersonId}
-      />
-
-      {/* Task Timeline Gantt Chart - Collapsible at bottom */}
-      <CollapsibleGanttChart
-        workPlans={workPlans}
-        members={members}
-        onTaskPress={(taskId) => {
+      {/* Dual Bottom Drawers - Side by Side */}
+      <DualBottomDrawers
+        onTaskPress={(taskId: string) => {
           router.push({
             pathname: '/(tabs)/decide',
             params: { selectedTaskId: taskId },
