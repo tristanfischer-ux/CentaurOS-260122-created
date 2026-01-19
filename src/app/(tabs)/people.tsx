@@ -38,20 +38,26 @@ import type { OrganizationMember } from '@/lib/organization-seed';
 
 const PEOPLE_HELP: HelpContent = {
   title: 'People',
-  subtitle: 'Your team and hiring',
-  description: 'The People tab shows your team roster, individual capacity, squads, and hiring pipeline. Track who\'s on your team and who you\'re bringing on.',
+  subtitle: 'Team Management & Task Assignment',
+  description: 'The People tab is your team intelligence center. View team capacity, assign tasks with smart suggestions, track pending assignments, and manage your hiring pipeline. Three-state cards let you quickly scan or dive deep into each person.',
   tips: [
-    'View team members by role: Founder, Executive, Apprentice',
-    'See capacity allocation per person',
-    'View squads and what they\'re working on',
-    'Track hiring pipeline: Identified → Contacted → Intro → Trial → Engaged',
-    'Tap a person to see their tasks in the Tasks tab',
-    'Tap "View Schedule" to see their allocation in the When tab',
+    '👥 Three-State Cards: Tap once to expand, tap again for full modal with schedule and tasks',
+    '📋 Task Assignment: Founders can assign tasks - recipients get a request to accept or reject',
+    '🔔 Pending Assignments: See who has pending requests and manage bulk operations',
+    '🤖 Smart Suggestions: After rejection, AI suggests alternative team members based on capacity and skills',
+    '📊 Capacity Tracking: Each person shows available TUs (Time Units) for the current week',
+    '🎯 Role-Based View: Filter by Founder, Executive, Apprentice, or view all',
+    '⚡ Quick Actions: Assign to task, view schedule, or see all their current work',
+    '🔴 Overload Warnings: Red indicators show when someone is over capacity',
+    '✅ Greyed Out Pending: Tasks show as greyed in timeline until assignment is accepted',
+    '📈 Hiring Pipeline: Track candidates from Identified → Contacted → Intro → Trial → Engaged',
   ],
   quickActions: [
-    { label: 'People', description: 'View current team members and their capacity' },
-    { label: 'Teams', description: 'View team squads and their current tasks' },
-    { label: 'Hiring Pipeline', description: 'Track candidates through the hiring process' },
+    { label: 'Expand Card', description: 'Tap once to see capacity and quick actions' },
+    { label: 'Full Details', description: 'Tap again for complete schedule and task list' },
+    { label: 'Assign Task', description: 'Founders can assign - creates pending request' },
+    { label: 'Review Pending', description: 'Accept or reject task assignments' },
+    { label: 'View Schedule', description: 'See weekly timeline with all allocations' },
   ],
 };
 

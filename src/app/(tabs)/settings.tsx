@@ -52,16 +52,25 @@ import { useTechTreeStore } from '@/lib/state/tech-tree-store';
 
 const SETTINGS_HELP: HelpContent = {
   title: 'Operations & Config',
-  subtitle: 'Setup and preferences',
-  description: 'The Settings tab helps you configure Centaur OS for your role and preferences. Customize your theme, manage data, and access resources.',
+  subtitle: 'System Preferences & Workspace Management',
+  description: 'The Settings tab is your control center for customizing your Centaur OS experience. Manage themes, account settings, workspace configuration, data operations, and system preferences all in one place.',
   tips: [
-    'Switch between Dark, Light, and Off-White themes based on your preference',
-    'Use Quick Actions for common operations like generating reports',
-    'Reset onboarding if you want to see the tutorial again',
+    '🎨 Theme Control: Switch between Dark, Light, and Off-White themes instantly',
+    '👤 Profile Settings: Update your name, email, and profile information',
+    '🏢 Workspace Management: Switch between workspaces or manage workspace settings',
+    '📊 Data Operations: Import/export data, generate reports, and manage backups',
+    '🔄 System Actions: Reset onboarding, clear cache, or restore demo data',
+    '🔐 Security: Manage authentication and privacy settings',
+    '🌐 Integrations: Connect external tools and services',
+    '📱 App Version: See current version and check for updates',
+    '💡 Help & Support: Access documentation and contact support',
   ],
   quickActions: [
-    { label: 'Theme Settings', description: 'Switch between dark, light, and off-white color schemes' },
-    { label: 'Data Management', description: 'Import/export data and generate reports' },
+    { label: 'Change Theme', description: 'Switch color scheme (Dark/Light/Off-White)' },
+    { label: 'Manage Profile', description: 'Update your personal information' },
+    { label: 'Data Export', description: 'Download your workspace data' },
+    { label: 'Reset Onboarding', description: 'See the tutorial again' },
+    { label: 'Support', description: 'Get help or report issues' },
   ],
 };
 

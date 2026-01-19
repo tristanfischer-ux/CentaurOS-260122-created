@@ -15,6 +15,81 @@ Centaur OS is a comprehensive iOS mobile application that helps lean companies o
 
 ## 🚀 Latest Updates (Jan 19, 2026)
 
+### ✅ AI-Powered Features & Smart Task Management (TODAY)
+
+**Mission Control Enhancements:**
+- ✨ **Focus Today Section**: AI-powered priority surfacing that analyzes tasks based on:
+  - Deadline urgency (0-25 points) - overdue, due today, this week
+  - Blocking others (0-25 points) - team members waiting
+  - Business impact (0-20 points) - linked to OKRs, critical functions
+  - Risk and status (0-15 points) - behind schedule, almost done
+  - Resource availability (0-15 points) - team capacity available
+  - Total 0-100 point scoring with Critical/High/Important/Normal levels
+  - AI-generated reasoning for each priority task
+  - Smart action buttons (Unblock, Assign, Start, Finish)
+- 🔔 **Pending Assignments Badge**: Notification bell in header shows pending task assignments
+- ➕ **Floating Action Button**: Beautiful centered green gradient FAB at bottom for quick task creation
+
+**Task Assignment Workflow:**
+- 📋 **Accept/Reject System**: Founders can assign tasks, recipients can accept or reject
+- 💬 **Rejection with Feedback**: Recipients can push back with a message explaining why
+- 🤖 **Smart Alternative Suggestions**: After rejection, AI suggests alternative team members based on:
+  - Available capacity this week
+  - Function/skill match
+  - Role/seniority appropriateness
+  - Current workload balance
+- 📊 **Bulk Operations**: Accept All / Reject All buttons for efficiency
+- ⚪ **Greyed Pending Tasks**: Pending assignments show dimmed in timeline until accepted
+
+**AI Task Auto-Assignment:**
+- 👤 **Visual Identity**: Tasks show avatar with user initials (first name + last name initials)
+- 🔢 **Auto-Assignment**: AI-created tasks automatically assigned to current user with 1 TU/week
+- 🏷️ **Default Category**: Auto-categorized as Miscellaneous (Ops) unless specified
+- ⏰ **Capacity-Based Scheduling**: Tasks start today if TUs available, otherwise auto-schedule to next available week
+
+**Intelligent Task Scheduling:**
+- 📅 **Automatic Scheduling System**: Week-by-week capacity checking finds earliest start date
+  - Checks each team member's available TUs
+  - Finds first week where ALL assigned members have required capacity
+  - Automatically sets start date and calculates due date
+  - Updates whenever allocations change
+- 🔄 **Dynamic Rescheduling**: When allocations update, tasks auto-reschedule based on new capacity
+- 📊 **Capacity Calculation**: Founders/Apprentices: 15 TU/week (10 normal + 5 overtime)
+
+**Help Content Updates:**
+- 📖 **Comprehensive Tab Help**: All tabs now have compelling, detailed help content:
+  - **Mission Control**: AI-Powered Executive Command Center with Focus Today, pending assignments, team capacity
+  - **Tasks**: AI-Powered Task Creation & Management with voice/text, auto-assignment, smart scheduling
+  - **People**: Team Management & Task Assignment with three-state cards, pending assignments, smart suggestions
+  - **When**: Smart Timeline & Capacity Planning with blue today line, week separators, greyed pending tasks
+  - **Settings**: System Preferences & Workspace Management with theme control, data operations, integrations
+
+**UI/UX Improvements:**
+- 🧹 **Settings Cleanup**: Removed Resources section and Quick Actions section
+- 📜 **Tasks Scrollability**: Increased bottom padding to 180px for full scrolling
+- 🎨 **Visual Polish**: Enhanced cards, gradients, and spacing throughout
+
+**New Files Created:**
+- `src/lib/task-scheduling.ts` - Auto-scheduling algorithm with capacity checking
+- `src/lib/ai-priority-scoring.ts` - AI-powered priority scoring system (0-100 points)
+- `src/lib/alternative-member-suggestions.ts` - Smart team member suggestions after rejection
+- `src/lib/state/task-assignment-store.ts` - Task assignment request management
+- `src/components/FocusTodaySection.tsx` - AI priority tasks display with reasoning
+- `src/components/PendingAssignmentsModal.tsx` - Pending assignments inbox with bulk operations
+- `src/components/PendingAssignmentsBadge.tsx` - Notification badge for pending assignments
+
+**Technical Implementation:**
+- Multi-factor priority scoring algorithm
+- Week-by-week capacity availability calculation
+- Auto-scheduling with recursive week searching
+- Task assignment state machine (pending → accepted/rejected)
+- Alternative member scoring with 0-100 points
+- Bulk assignment operations (accept all, reject all)
+
+---
+
+## 🚀 Latest Updates (Jan 19, 2026)
+
 ### ✅ Squads Tab - Team Organization & Task Visibility
 - **New "Squads" Tab** in People screen showing team squads and what they're working on
   - View all manual and automatic squads in one place

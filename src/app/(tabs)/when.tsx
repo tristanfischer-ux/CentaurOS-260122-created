@@ -31,19 +31,26 @@ import { CollapsibleResourcePool } from '@/components/CollapsibleResourcePool';
 
 const WHEN_HELP: HelpContent = {
   title: 'When',
-  subtitle: 'Task timeline & delivery dates',
-  description: 'The When tab shows a Gantt chart view of all your tasks across time. See when tasks start, end, and who is working on them.',
+  subtitle: 'Smart Timeline & Capacity Planning',
+  description: 'The When tab is your visual planning center - a Gantt chart that shows all tasks across time with intelligent capacity-based scheduling. See when tasks start, end, who\'s working on them, and how capacity affects delivery dates.',
   tips: [
-    'Each horizontal bar represents a task spanning across weeks',
-    'Color coding shows task status: Queued (gray), In Progress (blue), Blocked (red)',
-    'Tap any task to see full details and edit in the Tasks tab',
-    'Timeline automatically scrolls to show current week',
-    'Team member avatars show who\'s assigned to each task',
+    '📅 Intelligent Scheduling: Tasks auto-schedule to the earliest week when team has available capacity',
+    '📍 Blue "Today" Line: Vertical line shows current day for quick orientation',
+    '📊 Week Separators: Clear visual dividers help you plan by week',
+    '🎨 Color-Coded Status: Gray (Queued), Blue (In Progress), Red (Blocked), Green (Completed)',
+    '👥 Team Avatars: See who\'s assigned to each task bar',
+    '⚪ Greyed Out Pending: Tasks show dimmed until assignment is accepted',
+    '⏰ Capacity-Based: If no TUs available this week, task auto-moves to next available week',
+    '🔄 Auto-Scroll: Timeline automatically centers on current week',
+    '📱 Tap Task Bar: View full details and edit in Tasks tab',
+    '↔️ Swipe Timeline: Navigate past and future weeks smoothly',
   ],
   quickActions: [
-    { label: 'Task Timeline', description: 'See all tasks across weeks' },
-    { label: 'Scroll Timeline', description: 'Swipe left/right to view past and future' },
-    { label: 'View Task', description: 'Tap any task bar to see details' },
+    { label: 'View Timeline', description: 'See all tasks across weeks with capacity planning' },
+    { label: 'Check Today', description: 'Blue line shows current day position' },
+    { label: 'View Task Details', description: 'Tap any bar to see full task information' },
+    { label: 'Navigate Time', description: 'Swipe left/right to explore past and future' },
+    { label: 'Check Capacity', description: 'See how scheduling respects team availability' },
   ],
 };
 

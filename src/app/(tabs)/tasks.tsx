@@ -45,19 +45,25 @@ import { extractTasksFromText } from '@/lib/ai/task-extraction';
 
 const TASKS_HELP: HelpContent = {
   title: 'Tasks',
-  subtitle: 'Manage all your work',
-  description: 'The Tasks tab is the single source of truth for all tasks. Drafts appear at the top and must be confirmed before becoming real tasks.',
+  subtitle: 'AI-Powered Task Creation & Management',
+  description: 'The Tasks tab is your intelligent work hub. Create tasks with voice or text, and AI automatically extracts everything - title, description, deadlines, and estimates. Tasks are auto-assigned to you and scheduled based on your available capacity.',
   tips: [
-    'Drafts are shown at the top - confirm them to create real tasks',
-    'Tasks are organized by status: Doing, Queued, Blocked, Done',
-    'Use voice or text input to create task drafts',
-    'Marketplace actions also create drafts here',
-    'Tap a task to view details and allocate team members',
+    '🤖 AI Task Creation: Speak or type naturally - AI extracts all details automatically',
+    '👤 Auto-Assignment: AI-created tasks are automatically assigned to you with your avatar and initials',
+    '⏰ Smart Scheduling: Tasks start today if you have capacity, otherwise auto-schedule to your next available week',
+    '📋 Draft Confirmation: Review AI-extracted drafts at the top - confirm with one tap or select multiple',
+    '🏷️ Auto-Categorization: Tasks default to Miscellaneous (Ops) unless you choose a function',
+    '🔢 Time Units: Each task shows estimated TUs (4-hour blocks) for capacity planning',
+    '✅ Status Organization: Tasks grouped by Doing, Queued, Blocked, Done',
+    '👥 Team Allocation: Tap any task to view details and assign team members',
+    '🔄 Bulk Operations: Select multiple drafts and confirm them all at once',
   ],
   quickActions: [
-    { label: 'Create Task', description: 'Add a new task via voice or text' },
-    { label: 'View by Status', description: 'Filter tasks by Doing/Queued/Blocked/Done' },
-    { label: 'Allocate Team', description: 'Assign people to tasks' },
+    { label: 'Voice Input', description: 'Speak your task - AI handles the rest' },
+    { label: 'Text Input', description: 'Type naturally - AI extracts structure' },
+    { label: 'Confirm Drafts', description: 'Review and approve AI-created tasks' },
+    { label: 'Bulk Confirm', description: 'Select multiple drafts and confirm together' },
+    { label: 'View by Status', description: 'Filter by Doing/Queued/Blocked/Done' },
   ],
 };
 

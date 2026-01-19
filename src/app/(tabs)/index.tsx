@@ -76,19 +76,24 @@ import { seedAllocationRequests } from '@/lib/state/allocation-request-store';
 
 const HOME_HELP: HelpContent = {
   title: 'Mission Control',
-  subtitle: 'Your Executive Command Center',
-  description: 'Everything you need to run your business at a glance. Urgent decisions, objectives, activities, team capacity, and performance metrics - all in one place.',
+  subtitle: 'Your AI-Powered Executive Command Center',
+  description: 'Mission Control is your business intelligence hub - everything you need to make fast, informed decisions. AI-powered priority surfacing, real-time team capacity, urgent decisions, and performance metrics all in one place.',
   tips: [
-    'Urgent Decisions appear at the top with color-coded priority',
-    'Business Objectives show Q1 goals with progress tracking',
-    'Team Capacity dashboard shows who can take on new work',
-    'Performance KPIs give you instant health checks',
-    'Pull down to refresh all data',
+    '🎯 Focus Today: AI analyzes your tasks and surfaces the most critical ones based on deadlines, team blockers, business impact, and capacity',
+    '🔔 Pending Assignments: Get notified when tasks are assigned to you - accept or reject with one tap',
+    '⚡ Urgent Decisions: Color-coded warnings appear when decisions are blocking team progress',
+    '📊 Business Objectives: Track Q1 goals with real-time progress and linked tasks',
+    '👥 Team Capacity: See who has bandwidth for new work, who\'s at capacity, and who\'s overloaded',
+    '📈 Performance KPIs: Instant health checks across all business functions',
+    '🔄 Pull down to refresh all data in real-time',
+    '➕ Green button at bottom: Create new tasks instantly with AI assistance',
   ],
   quickActions: [
-    { label: 'Decide', description: 'Make urgent decisions that are blocking progress' },
-    { label: 'Allocate', description: 'Assign team capacity to priority tasks' },
-    { label: 'Review', description: 'Check performance and adjust course' },
+    { label: 'Focus Today', description: 'AI-prioritized tasks that need your attention right now' },
+    { label: 'Review Assignments', description: 'Accept or reject tasks assigned to you' },
+    { label: 'Make Decisions', description: 'Unblock team progress with urgent decisions' },
+    { label: 'Check Capacity', description: 'See who can take on new work this week' },
+    { label: 'Create Task', description: 'Tap green + button to add tasks with AI' },
   ],
 };
 
