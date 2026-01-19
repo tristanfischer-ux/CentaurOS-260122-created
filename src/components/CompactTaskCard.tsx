@@ -9,7 +9,7 @@
 
 import { View, Text, Pressable } from 'react-native';
 import { useState, useEffect } from 'react';
-import { Clock, Users as UsersIcon, CheckCircle2, AlertTriangle, Circle, ChevronDown, ChevronUp, Edit3, Check, TrendingUp } from 'lucide-react-native';
+import { Clock, Users as UsersIcon, CheckCircle2, AlertTriangle, Circle, ChevronDown, ChevronUp, Edit3, Check, TrendingUp, Trash2 } from 'lucide-react-native';
 import { type WorkPlan, useWorkPlanStore } from '@/lib/state/work-plan-store';
 import { type OrganizationMember } from '@/lib/organization-seed';
 import { useSquadStore } from '@/lib/state/squad-store';
@@ -45,6 +45,7 @@ export function CompactTaskCard({
   const [isExpanded, setIsExpanded] = useState(false);
   const getSquadsByTask = useSquadStore(s => s.getSquadsByTask);
   const completeWorkPlan = useWorkPlanStore(s => s.completeWorkPlan);
+  const deleteWorkPlan = useWorkPlanStore(s => s.deleteWorkPlan);
 
   const squads = getSquadsByTask(task.id);
 
@@ -81,6 +82,12 @@ export function CompactTaskCard({
   const handleMarkAsDone = (e: any) => {
     e.stopPropagation();
     completeWorkPlan(task.id);
+  };
+
+  // Delete task and reallocate resources
+  const handleDeleteTask = (e: any) => {
+    e.stopPropagation();
+    deleteWorkPlan(task.id);
   };
 
   return (
@@ -378,24 +385,35 @@ export function CompactTaskCard({
 
           {/* Action buttons */}
           {task.status !== 'completed' && task.status !== 'abandoned' && (
-            <View className="flex-row gap-2 mt-3">
-              <Pressable
-                onPress={handleMarkAsDone}
-                className="flex-1 bg-emerald-500 rounded-lg py-2.5 flex-row items-center justify-center gap-2 active:opacity-80"
-              >
-                <Check size={16} color="#fff" />
-                <Text className="text-white font-semibold text-sm">Mark as Done</Text>
-              </Pressable>
+            <View className="gap-2 mt-3">
+              <View className="flex-row gap-2">
+                <Pressable
+                  onPress={handleMarkAsDone}
+                  className="flex-1 bg-emerald-500 rounded-lg py-2.5 flex-row items-center justify-center gap-2 active:opacity-80"
+                >
+                  <Check size={16} color="#fff" />
+                  <Text className="text-white font-semibold text-sm">Mark as Done</Text>
+                </Pressable>
 
+                <Pressable
+                  onPress={(e) => {
+                    e.stopPropagation();
+                    handleEditPress();
+                  }}
+                  className="flex-1 bg-blue-500 rounded-lg py-2.5 flex-row items-center justify-center gap-2 active:opacity-80"
+                >
+                  <Edit3 size={16} color="#fff" />
+                  <Text className="text-white font-semibold text-sm">Edit Details</Text>
+                </Pressable>
+              </View>
+
+              {/* Delete button - full width below */}
               <Pressable
-                onPress={(e) => {
-                  e.stopPropagation();
-                  handleEditPress();
-                }}
-                className="flex-1 bg-blue-500 rounded-lg py-2.5 flex-row items-center justify-center gap-2 active:opacity-80"
+                onPress={handleDeleteTask}
+                className="bg-red-500 rounded-lg py-2.5 flex-row items-center justify-center gap-2 active:opacity-80"
               >
-                <Edit3 size={16} color="#fff" />
-                <Text className="text-white font-semibold text-sm">Edit Details</Text>
+                <Trash2 size={16} color="#fff" />
+                <Text className="text-white font-semibold text-sm">Delete & Reallocate Resources</Text>
               </Pressable>
             </View>
           )}
