@@ -1,0 +1,63 @@
+[
+  {
+    "company_name": "Dexory",
+    "companies_house_number": null,
+    "website": "https://www.dexory.com",
+    "sector_tags": ["robotics", "warehouse_automation", "AI", "logistics"],
+    "hq_region": "London, UK",
+    "stage_guess": "series_c",
+    "known_backers": ["Eurazeo", "DTCP", "Atomico", "Lakestar", "LTS Growth", "Endeavor Catalyst", "Latitude Ventures", "Wave-X", "Elaia", "Capnamic", "Bootstrap Europe"],
+    "evidence": [
+      {"url": "https://www.dexory.com/insights/strong-customer-demand-enables-dexory-to-secure-165m-in-funding", "last_verified": "2026-01-19", "confidence_score": 95},
+      {"url": "https://www.thesaasnews.com/news/dexory-raises-165-million-in-series-c", "last_verified": "2026-01-19", "confidence_score": 90}
+    ]
+  },
+  {
+    "company_name": "Open Bionics",
+    "companies_house_number": null,
+    "website": "https://openbionics.com",
+    "sector_tags": ["robotics", "medtech", "prosthetics", "bionic"],
+    "hq_region": "London, UK",
+    "stage_guess": "series_a",
+    "known_backers": [],
+    "evidence": [
+      {"url": "https://iotworldmagazine.com/2024/12/09/2613/list-of-top-10-robotics-startups-in-london-uk-germany-europe-japan-india-and-china-in-2025", "last_verified": "2026-01-19", "confidence_score": 75}
+    ]
+  },
+  {
+    "company_name": "Blue Prism",
+    "companies_house_number": null,
+    "website": "https://www.blueprism.com",
+    "sector_tags": ["robotics", "RPA", "automation", "AI"],
+    "hq_region": "London, UK",
+    "stage_guess": "acquired",
+    "known_backers": [],
+    "evidence": [
+      {"url": "https://iotworldmagazine.com/2024/12/09/2613/list-of-top-10-robotics-startups-in-london-uk-germany-europe-japan-india-and-china-in-2025", "last_verified": "2026-01-19", "confidence_score": 80}
+    ]
+  },
+  {
+    "company_name": "Auravision",
+    "companies_house_number": null,
+    "website": "https://auravision.ai",
+    "sector_tags": ["IoT", "AI", "retail_analytics", "computer_vision"],
+    "hq_region": "London, UK",
+    "stage_guess": "seed",
+    "known_backers": [],
+    "evidence": [
+      {"url": "https://techround.co.uk/startups/top-new-iot-startups-in-the-uk/", "last_verified": "2026-01-19", "confidence_score": 70}
+    ]
+  },
+  {
+    "company_name": "75F",
+    "companies_house_number": null,
+    "website": "https://www.75f.io",
+    "sector_tags": ["IoT", "building_automation", "AI", "smart_buildings"],
+    "hq_region": "UK",
+    "stage_guess": "series_b",
+    "known_backers": [],
+    "evidence": [
+      {"url": "https://techround.co.uk/startups/top-new-iot-startups-in-the-uk/", "last_verified": "2026-01-19", "confidence_score": 70}
+    ]
+  }
+]

@@ -1,0 +1,50 @@
+[
+  {
+    "full_name": "David Mardle",
+    "role_title": "Department Head - Venture Capital",
+    "org_name": "Goodwin",
+    "email": null,
+    "linkedin": null,
+    "focus_tags": ["venture", "technology", "healthcare", "m_and_a"],
+    "regions": ["London", "Cambridge"],
+    "evidence": [
+      {"url": "https://www.legal500.com/firms/50382-goodwin/r-england/about", "last_verified": "2026-01-19", "confidence_score": 90}
+    ]
+  },
+  {
+    "full_name": "Sophie McGrath",
+    "role_title": "Venture Capital Lawyer",
+    "org_name": "Goodwin",
+    "email": null,
+    "linkedin": null,
+    "focus_tags": ["venture", "cross_border", "technology"],
+    "regions": ["London"],
+    "evidence": [
+      {"url": "https://www.legal500.com/firms/50382-goodwin/r-england/about", "last_verified": "2026-01-19", "confidence_score": 85}
+    ]
+  },
+  {
+    "full_name": "Elizabeth Rhodes",
+    "role_title": "Venture Capital Lawyer",
+    "org_name": "Goodwin",
+    "email": null,
+    "linkedin": null,
+    "focus_tags": ["venture", "tech", "healthcare"],
+    "regions": ["London"],
+    "evidence": [
+      {"url": "https://www.legal500.com/firms/50382-goodwin/r-england/about", "last_verified": "2026-01-19", "confidence_score": 85}
+    ]
+  },
+  {
+    "full_name": "Adam Thatcher",
+    "role_title": "Venture Capital Lawyer",
+    "org_name": "Goodwin",
+    "email": null,
+    "linkedin": null,
+    "focus_tags": ["venture", "technology", "financings"],
+    "regions": ["London"],
+    "evidence": [
+      {"url": "https://www.legal500.com/firms/50382-goodwin/r-england/about", "last_verified": "2026-01-19", "confidence_score": 85}
+    ]
+  }
+]

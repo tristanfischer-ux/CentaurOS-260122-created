@@ -1,0 +1,628 @@
+[
+  {
+    "name": "Seedcamp",
+    "org_type": "VC",
+    "companies_house_number": "OC391626",
+    "website": "https://seedcamp.com",
+    "hq_city": "London",
+    "hq_country": "UK",
+    "regions": ["UK-wide", "Europe"],
+    "sector_focus": ["deeptech", "AI", "robotics", "technology"],
+    "stage_focus": ["seed", "series_a"],
+    "capability_tags": ["seed_vc", "early_stage", "mentorship", "eis", "seis"],
+    "description_1liner": "European seed-stage venture capital fund focused on early-stage tech startups",
+    "preferred_contact_method": "contact_form",
+    "contacts": [
+      {"type": "contact_form", "value": "https://seedcamp.com/contact/"},
+      {"type": "linkedin", "value": "https://www.linkedin.com/company/seedcamp"}
+    ],
+    "evidence": [
+      {"url": "https://seedcamp.com/", "last_verified": "2026-01-19", "confidence_score": 95},
+      {"url": "https://en.wikipedia.org/wiki/Seedcamp", "last_verified": "2026-01-19", "confidence_score": 90}
+    ],
+    "notes": "FCA authorized (number 628313), manages investments across Europe"
+  },
+  {
+    "name": "Cambridge Innovation Capital",
+    "org_type": "VC",
+    "companies_house_number": null,
+    "website": "https://www.cic.vc",
+    "hq_city": "Cambridge",
+    "hq_country": "UK",
+    "regions": ["Cambridge", "UK-wide"],
+    "sector_focus": ["life_sciences", "deeptech", "quantum", "AI", "medtech", "robotics"],
+    "stage_focus": ["seed", "series_a", "series_b", "growth"],
+    "capability_tags": ["university_spinouts", "cambridge_access", "life_sciences", "deeptech"],
+    "description_1liner": "Preferred investor for University of Cambridge with exclusive access to spinouts",
+    "preferred_contact_method": "email",
+    "contacts": [
+      {"type": "email", "value": "enquiries@cic.vc"},
+      {"type": "phone", "value": "+44 (0) 1223 764875"},
+      {"type": "linkedin", "value": "https://www.linkedin.com/company/cambridge-innovation-capital"}
+    ],
+    "evidence": [
+      {"url": "https://www.cic.vc/", "last_verified": "2026-01-19", "confidence_score": 95},
+      {"url": "https://www.cam.ac.uk/news/cambridge-innovation-capital-commits-ps100m-to-back-university-of-cambridge-spinouts", "last_verified": "2026-01-19", "confidence_score": 90}
+    ],
+    "notes": "Manages over £500 million, invested in 40+ companies, deep Cambridge ecosystem ties"
+  },
+  {
+    "name": "360 Capital",
+    "org_type": "VC",
+    "companies_house_number": null,
+    "website": "https://www.360cap.vc",
+    "hq_city": "Paris",
+    "hq_country": "France",
+    "regions": ["Europe", "UK-active"],
+    "sector_focus": ["deeptech", "climate_tech", "digital"],
+    "stage_focus": ["pre-seed", "seed", "series_a", "series_b"],
+    "capability_tags": ["deeptech", "climate", "early_stage", "pan_european"],
+    "description_1liner": "Pan-European early-stage VC focused on deeptech, climate, and digital solutions",
+    "preferred_contact_method": "email",
+    "contacts": [
+      {"type": "email", "value": "info@360cap.vc"},
+      {"type": "linkedin", "value": "https://www.linkedin.com/company/360-capital-vc/"}
+    ],
+    "evidence": [
+      {"url": "https://www.360cap.vc/", "last_verified": "2026-01-19", "confidence_score": 95},
+      {"url": "https://www.vestbee.com/insights/articles/most-active-european-vc-funds-investing-in-robotics-startups", "last_verified": "2026-01-19", "confidence_score": 85}
+    ],
+    "notes": "€700M AUM, 70+ portfolio companies, offices in Paris and Milan"
+  },
+  {
+    "name": "C4 Ventures",
+    "org_type": "VC",
+    "companies_house_number": null,
+    "website": "https://c4ventures.com",
+    "hq_city": "London",
+    "hq_country": "UK",
+    "regions": ["Europe", "UK-wide"],
+    "sector_focus": ["AI", "robotics", "quantum", "semiconductors", "physical_ai"],
+    "stage_focus": ["seed", "series_a"],
+    "capability_tags": ["physical_ai", "robotics", "quantum", "semiconductor", "autonomous_systems"],
+    "description_1liner": "European VC led by ex-Apple/Microsoft operators investing in Physical AI and deeptech",
+    "preferred_contact_method": "contact_form",
+    "contacts": [
+      {"type": "linkedin", "value": "https://www.linkedin.com/company/c4-ventures"}
+    ],
+    "evidence": [
+      {"url": "https://www.vestbee.com/insights/articles/most-active-european-vc-funds-investing-in-robotics-startups", "last_verified": "2026-01-19", "confidence_score": 80}
+    ],
+    "notes": "€100M C4 Ventures III fund, typical investments €2-5M"
+  },
+  {
+    "name": "Cybernetix Ventures",
+    "org_type": "VC",
+    "companies_house_number": null,
+    "website": "https://cybernetixventures.com",
+    "hq_city": null,
+    "hq_country": "USA",
+    "regions": ["North America", "Europe", "UK-active"],
+    "sector_focus": ["robotics", "automation", "industrial_ai"],
+    "stage_focus": ["seed", "series_a"],
+    "capability_tags": ["robotics_specialist", "automation", "manufacturing", "industrial_ai"],
+    "description_1liner": "Specialist fund investing exclusively in robotics, automation and industrial AI",
+    "preferred_contact_method": "contact_form",
+    "contacts": [],
+    "evidence": [
+      {"url": "https://www.vestbee.com/insights/articles/most-active-european-vc-funds-investing-in-robotics-startups", "last_verified": "2026-01-19", "confidence_score": 75}
+    ],
+    "notes": "Early-stage focus on autonomy and advanced manufacturing"
+  },
+  {
+    "name": "Atomico",
+    "org_type": "VC",
+    "companies_house_number": null,
+    "website": "https://atomico.com",
+    "hq_city": "London",
+    "hq_country": "UK",
+    "regions": ["Europe", "UK-wide"],
+    "sector_focus": ["deeptech", "robotics", "AI", "technology"],
+    "stage_focus": ["series_a", "series_b", "growth"],
+    "capability_tags": ["growth_stage", "deeptech", "robotics", "scale_up"],
+    "description_1liner": "European technology venture capital firm investing in growth-stage startups",
+    "preferred_contact_method": "contact_form",
+    "contacts": [
+      {"type": "linkedin", "value": "https://www.linkedin.com/company/atomico"}
+    ],
+    "evidence": [
+      {"url": "https://www.dexory.com/insights/strong-customer-demand-enables-dexory-to-secure-165m-in-funding", "last_verified": "2026-01-19", "confidence_score": 90}
+    ],
+    "notes": "Invested in Dexory, major European tech investor"
+  },
+  {
+    "name": "Lakestar",
+    "org_type": "VC",
+    "companies_house_number": null,
+    "website": "https://lakestar.com",
+    "hq_city": "Zurich",
+    "hq_country": "Switzerland",
+    "regions": ["Europe", "UK-active"],
+    "sector_focus": ["deeptech", "robotics", "technology"],
+    "stage_focus": ["series_a", "series_b", "growth"],
+    "capability_tags": ["growth_stage", "deeptech", "robotics"],
+    "description_1liner": "European venture capital firm investing in technology companies",
+    "preferred_contact_method": "contact_form",
+    "contacts": [
+      {"type": "linkedin", "value": "https://www.linkedin.com/company/lakestar"}
+    ],
+    "evidence": [
+      {"url": "https://www.dexory.com/insights/strong-customer-demand-enables-dexory-to-secure-165m-in-funding", "last_verified": "2026-01-19", "confidence_score": 85}
+    ],
+    "notes": "Dexory investor, active in robotics sector"
+  },
+  {
+    "name": "DTCP",
+    "org_type": "VC",
+    "companies_house_number": null,
+    "website": "https://dtcp.com",
+    "hq_city": "Munich",
+    "hq_country": "Germany",
+    "regions": ["Europe", "UK-active"],
+    "sector_focus": ["deeptech", "robotics", "digital_infrastructure"],
+    "stage_focus": ["series_b", "growth"],
+    "capability_tags": ["telecom_spinout", "infrastructure", "deeptech"],
+    "description_1liner": "Deutsche Telekom spinout investing in digital infrastructure and deeptech",
+    "preferred_contact_method": "contact_form",
+    "contacts": [],
+    "evidence": [
+      {"url": "https://www.uktechnews.info/2024/10/01/dexory-secures-60-million-series-b-investment-led-by-dtcp/", "last_verified": "2026-01-19", "confidence_score": 90}
+    ],
+    "notes": "Led Dexory Series B, focus on infrastructure-heavy tech"
+  },
+  {
+    "name": "Goodwin",
+    "org_type": "LawFirm",
+    "companies_house_number": null,
+    "website": "https://www.goodwinlaw.com",
+    "hq_city": "London",
+    "hq_country": "UK",
+    "regions": ["London", "Cambridge", "UK-wide"],
+    "sector_focus": ["technology", "life_sciences", "venture", "AI"],
+    "stage_focus": ["seed", "series_a", "series_b", "series_c"],
+    "capability_tags": ["venture_capital_law", "tech_transactions", "fundraising", "m_and_a", "ip"],
+    "description_1liner": "Leading venture capital law firm advising tech and life sciences companies",
+    "preferred_contact_method": "contact_form",
+    "contacts": [
+      {"type": "contact_form", "value": "https://www.goodwinlaw.com/en/locations/london"},
+      {"type": "linkedin", "value": "https://uk.linkedin.com/company/goodwin-law"}
+    ],
+    "evidence": [
+      {"url": "https://www.goodwinlaw.com/en/expertise/practices/venture-capital", "last_verified": "2026-01-19", "confidence_score": 95},
+      {"url": "https://chambers.com/law-firm/goodwin-uk-1:3620", "last_verified": "2026-01-19", "confidence_score": 95}
+    ],
+    "notes": "Top-ranked Chambers 2025, specialists David Mardle, Sophie McGrath, Elizabeth Rhodes"
+  },
+  {
+    "name": "Orrick",
+    "org_type": "LawFirm",
+    "companies_house_number": null,
+    "website": "https://www.orrick.com",
+    "hq_city": "London",
+    "hq_country": "UK",
+    "regions": ["London", "UK-wide", "Silicon Valley"],
+    "sector_focus": ["technology", "venture", "life_sciences"],
+    "stage_focus": ["seed", "series_a", "series_b", "ipo"],
+    "capability_tags": ["venture_capital_law", "cross_border", "ipo", "tech_transactions"],
+    "description_1liner": "Global tech law firm with strong UK-Silicon Valley cross-border capability",
+    "preferred_contact_method": "contact_form",
+    "contacts": [
+      {"type": "contact_form", "value": "https://www.orrick.com/locations/united-kingdom"},
+      {"type": "linkedin", "value": "https://www.linkedin.com/company/orrick"}
+    ],
+    "evidence": [
+      {"url": "https://chambers.com/legal-rankings/private-equity-venture-capital-investment-uk-wide-1:776:11805:1", "last_verified": "2026-01-19", "confidence_score": 95}
+    ],
+    "notes": "Top-ranked for cross-border VC work, Europe-Silicon Valley expertise"
+  },
+  {
+    "name": "Bird & Bird",
+    "org_type": "LawFirm",
+    "companies_house_number": null,
+    "website": "https://www.twobirds.com",
+    "hq_city": "London",
+    "hq_country": "UK",
+    "regions": ["London", "UK-wide", "Europe"],
+    "sector_focus": ["technology", "life_sciences", "venture"],
+    "stage_focus": ["seed", "series_a", "series_b", "series_c"],
+    "capability_tags": ["venture_capital_law", "tech_transactions", "life_sciences", "ip"],
+    "description_1liner": "Top-ranked law firm advising on every stage of VC funding cycle",
+    "preferred_contact_method": "contact_form",
+    "contacts": [
+      {"type": "linkedin", "value": "https://www.linkedin.com/company/bird-&-bird"}
+    ],
+    "evidence": [
+      {"url": "https://chambers.com/legal-rankings/private-equity-venture-capital-investment-uk-wide-1:776:11805:1", "last_verified": "2026-01-19", "confidence_score": 95}
+    ],
+    "notes": "Strong reputation for investors, growth companies, and corporates"
+  },
+  {
+    "name": "Cooley",
+    "org_type": "LawFirm",
+    "companies_house_number": null,
+    "website": "https://www.cooley.com",
+    "hq_city": "London",
+    "hq_country": "UK",
+    "regions": ["London", "UK-wide", "USA"],
+    "sector_focus": ["technology", "venture", "life_sciences"],
+    "stage_focus": ["seed", "series_a", "series_b", "series_c"],
+    "capability_tags": ["venture_capital_law", "transatlantic", "tech_transactions"],
+    "description_1liner": "Impressive venture capital practice with international investment expertise",
+    "preferred_contact_method": "contact_form",
+    "contacts": [
+      {"type": "linkedin", "value": "https://www.linkedin.com/company/cooley-llp"}
+    ],
+    "evidence": [
+      {"url": "https://chambers.com/legal-rankings/private-equity-venture-capital-investment-uk-wide-1:776:11805:1", "last_verified": "2026-01-19", "confidence_score": 95}
+    ],
+    "notes": "Prominent reputation in technology space, strong transatlantic focus"
+  },
+  {
+    "name": "Latham & Watkins",
+    "org_type": "LawFirm",
+    "companies_house_number": null,
+    "website": "https://www.lw.com",
+    "hq_city": "London",
+    "hq_country": "UK",
+    "regions": ["London", "UK-wide", "Global"],
+    "sector_focus": ["technology", "life_sciences", "venture", "AI", "software"],
+    "stage_focus": ["seed", "series_a", "series_b", "growth", "ipo"],
+    "capability_tags": ["venture_capital_law", "emerging_companies", "life_sciences", "software", "AI"],
+    "description_1liner": "Global law firm with strong VC practice advising companies through full lifecycle",
+    "preferred_contact_method": "contact_form",
+    "contacts": [
+      {"type": "contact_form", "value": "https://www.lw.com/en/practices/emerging-companies"},
+      {"type": "linkedin", "value": "https://www.linkedin.com/company/latham-&-watkins"}
+    ],
+    "evidence": [
+      {"url": "https://www.lw.com/en/practices/emerging-companies", "last_verified": "2026-01-19", "confidence_score": 95}
+    ],
+    "notes": "Institutional sector knowledge in life sciences, software, and AI"
+  },
+  {
+    "name": "Taylor Wessing",
+    "org_type": "LawFirm",
+    "companies_house_number": null,
+    "website": "https://www.taylorwessing.com",
+    "hq_city": "London",
+    "hq_country": "UK",
+    "regions": ["London", "UK-wide", "Europe", "Silicon Valley"],
+    "sector_focus": ["technology", "startups", "venture"],
+    "stage_focus": ["seed", "series_a", "series_b"],
+    "capability_tags": ["venture_capital_law", "early_stage", "tech_transactions"],
+    "description_1liner": "Strong position advising start-ups and institutional investors on early-stage investments",
+    "preferred_contact_method": "contact_form",
+    "contacts": [
+      {"type": "linkedin", "value": "https://www.linkedin.com/company/taylor-wessing"}
+    ],
+    "evidence": [
+      {"url": "https://chambers.com/legal-rankings/private-equity-venture-capital-investment-uk-wide-1:776:11805:1", "last_verified": "2026-01-19", "confidence_score": 90}
+    ],
+    "notes": "Offices across Europe and Silicon Valley"
+  },
+  {
+    "name": "CMS",
+    "org_type": "LawFirm",
+    "companies_house_number": null,
+    "website": "https://cms.law",
+    "hq_city": "London",
+    "hq_country": "UK",
+    "regions": ["London", "UK-wide", "Europe"],
+    "sector_focus": ["technology", "life_sciences", "venture"],
+    "stage_focus": ["series_a", "series_b", "series_c"],
+    "capability_tags": ["venture_capital_law", "ip_intensive", "life_sciences", "tech"],
+    "description_1liner": "Regularly engaged for VC and growth investment work in IP-intensive industries",
+    "preferred_contact_method": "contact_form",
+    "contacts": [
+      {"type": "contact_form", "value": "https://cms.law/en/gbr/global-reach/europe/united-kingdom/expertise/corporate/venture-capital"},
+      {"type": "linkedin", "value": "https://www.linkedin.com/company/cms-law"}
+    ],
+    "evidence": [
+      {"url": "https://cms.law/en/gbr/global-reach/europe/united-kingdom/expertise/corporate/venture-capital", "last_verified": "2026-01-19", "confidence_score": 90}
+    ],
+    "notes": "Acts for specialist investors and start-ups"
+  },
+  {
+    "name": "Braant",
+    "org_type": "Accountancy",
+    "companies_house_number": null,
+    "website": "https://braant.co.uk",
+    "hq_city": "London",
+    "hq_country": "UK",
+    "regions": ["London", "UK-wide"],
+    "sector_focus": ["startups", "venture_backed", "tech"],
+    "stage_focus": ["seed", "series_a", "series_b"],
+    "capability_tags": ["venture_valuation", "investor_relations", "seis", "eis", "fundraising"],
+    "description_1liner": "Go-to accountancy firm for startups attracting venture capital",
+    "preferred_contact_method": "contact_form",
+    "contacts": [],
+    "evidence": [
+      {"url": "https://pearllemonaccountants.com/top-accountants-startups-london/", "last_verified": "2026-01-19", "confidence_score": 80}
+    ],
+    "notes": "Provides business valuations for investors and funding rounds"
+  },
+  {
+    "name": "ihorizon",
+    "org_type": "Accountancy",
+    "companies_house_number": null,
+    "website": "https://ihorizon.co.uk",
+    "hq_city": "London",
+    "hq_country": "UK",
+    "regions": ["London", "UK-wide"],
+    "sector_focus": ["tech", "startups", "innovation"],
+    "stage_focus": ["pre-seed", "seed", "series_a"],
+    "capability_tags": ["tech_startups", "tax_advisory", "international_expansion", "investment_support"],
+    "description_1liner": "Leading London accountancy firm specializing in innovative solutions for tech startups",
+    "preferred_contact_method": "contact_form",
+    "contacts": [],
+    "evidence": [
+      {"url": "https://pearllemonaccountants.com/top-accountants-startups-london/", "last_verified": "2026-01-19", "confidence_score": 80}
+    ],
+    "notes": "Tax advisory, international expansion, investment support"
+  },
+  {
+    "name": "On The Go Accountants",
+    "org_type": "Accountancy",
+    "companies_house_number": null,
+    "website": "https://www.onthegoaccountants.co.uk",
+    "hq_city": "London",
+    "hq_country": "UK",
+    "regions": ["UK-wide"],
+    "sector_focus": ["tech", "high_growth", "startups"],
+    "stage_focus": ["seed", "series_a", "series_b"],
+    "capability_tags": ["management_reports", "burn_rate", "seis", "eis", "vc_reporting"],
+    "description_1liner": "Tech startup and high-growth accountants producing VC-ready management reports",
+    "preferred_contact_method": "contact_form",
+    "contacts": [
+      {"type": "contact_form", "value": "https://www.onthegoaccountants.co.uk/"}
+    ],
+    "evidence": [
+      {"url": "https://www.onthegoaccountants.co.uk/", "last_verified": "2026-01-19", "confidence_score": 85}
+    ],
+    "notes": "Revenue recognition, burn rate tracking, SEIS/EIS scheme management"
+  },
+  {
+    "name": "123Financials",
+    "org_type": "Accountancy",
+    "companies_house_number": null,
+    "website": "https://www.123financials.com",
+    "hq_city": "London",
+    "hq_country": "UK",
+    "regions": ["UK-wide"],
+    "sector_focus": ["startups", "sme", "entrepreneurs"],
+    "stage_focus": ["pre-seed", "seed", "series_a"],
+    "capability_tags": ["bookkeeping", "r_and_d", "payroll", "cfo", "investor_relations"],
+    "description_1liner": "Startup and SME-focused firm offering comprehensive services from bookkeeping to CFO",
+    "preferred_contact_method": "contact_form",
+    "contacts": [
+      {"type": "contact_form", "value": "https://www.123financials.com/startups-accounting"}
+    ],
+    "evidence": [
+      {"url": "https://www.123financials.com/startups-accounting", "last_verified": "2026-01-19", "confidence_score": 85}
+    ],
+    "notes": "R&D tax credits, payroll, CFO services, investor relations under one umbrella"
+  },
+  {
+    "name": "Accotax",
+    "org_type": "Accountancy",
+    "companies_house_number": null,
+    "website": "https://accotax.co.uk",
+    "hq_city": "London",
+    "hq_country": "UK",
+    "regions": ["UK-wide"],
+    "sector_focus": ["tech", "fintech", "startups", "e-commerce"],
+    "stage_focus": ["pre-seed", "seed", "series_a"],
+    "capability_tags": ["tech_driven", "chartered", "fintech", "e_commerce"],
+    "description_1liner": "Tech-driven Chartered Accountants serving tech, fintech, startups, and e-commerce",
+    "preferred_contact_method": "contact_form",
+    "contacts": [],
+    "evidence": [
+      {"url": "https://quilliammarr.co.uk/blog/best-accounting-firms-for-startups-in-uk-a-2025-guide-for-founders/", "last_verified": "2026-01-19", "confidence_score": 75}
+    ],
+    "notes": "Specialized in technology and fintech sectors"
+  },
+  {
+    "name": "Scaleup Finance",
+    "org_type": "Accountancy",
+    "companies_house_number": null,
+    "website": "https://scaleupfinance.co.uk",
+    "hq_city": "London",
+    "hq_country": "UK",
+    "regions": ["UK-wide"],
+    "sector_focus": ["scaleups", "growth_companies"],
+    "stage_focus": ["series_a", "series_b", "growth"],
+    "capability_tags": ["virtual_cfo", "financial_platform", "scale_up_specialists"],
+    "description_1liner": "Helps businesses scale with virtual CFO services and proprietary financial platform",
+    "preferred_contact_method": "contact_form",
+    "contacts": [],
+    "evidence": [
+      {"url": "https://quilliammarr.co.uk/blog/best-accounting-firms-for-startups-in-uk-a-2025-guide-for-founders/", "last_verified": "2026-01-19", "confidence_score": 75}
+    ],
+    "notes": "Focus on scaling businesses with virtual CFO model"
+  },
+  {
+    "name": "Fractory",
+    "org_type": "Manufacturer",
+    "companies_house_number": null,
+    "website": "https://fractory.com",
+    "hq_city": "London",
+    "hq_country": "UK",
+    "regions": ["UK-wide", "Europe"],
+    "sector_focus": ["hardware", "manufacturing"],
+    "stage_focus": [],
+    "capability_tags": ["laser_cutting", "cnc", "instant_quote", "network"],
+    "description_1liner": "Manufacturing network offering instant quotes for laser cutting and CNC services",
+    "preferred_contact_method": "contact_form",
+    "contacts": [
+      {"type": "contact_form", "value": "https://fractory.com/laser-cutting-service-uk/"}
+    ],
+    "evidence": [
+      {"url": "https://fractory.com/laser-cutting-service-uk/", "last_verified": "2026-01-19", "confidence_score": 90}
+    ],
+    "notes": "Cuts carbon steel, stainless, high-strength steels, aluminium, brass, copper, titanium"
+  },
+  {
+    "name": "Xometry UK",
+    "org_type": "Manufacturer",
+    "companies_house_number": null,
+    "website": "https://xometry.uk",
+    "hq_city": "London",
+    "hq_country": "UK",
+    "regions": ["UK-wide", "Europe", "USA"],
+    "sector_focus": ["hardware", "manufacturing"],
+    "stage_focus": [],
+    "capability_tags": ["laser_cutting", "cnc", "3d_printing", "instant_quote", "network"],
+    "description_1liner": "Global manufacturing network for laser cutting, CNC, and 3D printing services",
+    "preferred_contact_method": "contact_form",
+    "contacts": [
+      {"type": "contact_form", "value": "https://xometry.uk/laser-cutting/"}
+    ],
+    "evidence": [
+      {"url": "https://xometry.uk/laser-cutting/", "last_verified": "2026-01-19", "confidence_score": 90}
+    ],
+    "notes": "CO2, Nd, Nd:Yag lasers, aluminium, steel, copper alloys, post-processing available"
+  },
+  {
+    "name": "Protolabs",
+    "org_type": "Manufacturer",
+    "companies_house_number": null,
+    "website": "https://www.protolabs.com/en-gb",
+    "hq_city": "Telford",
+    "hq_country": "UK",
+    "regions": ["UK-wide", "Europe", "USA"],
+    "sector_focus": ["hardware", "prototyping", "manufacturing"],
+    "stage_focus": [],
+    "capability_tags": ["injection_molding", "cnc", "3d_printing", "rapid_prototyping", "iso_9001"],
+    "description_1liner": "Global rapid manufacturing service for injection molding, CNC, and 3D printing",
+    "preferred_contact_method": "contact_form",
+    "contacts": [
+      {"type": "contact_form", "value": "https://www.protolabs.com/en-gb/services/injection-moulding/"}
+    ],
+    "evidence": [
+      {"url": "https://www.protolabs.com/en-gb/services/injection-moulding/", "last_verified": "2026-01-19", "confidence_score": 95}
+    ],
+    "notes": "100+ materials, rapid tooling, prototyping to production"
+  },
+  {
+    "name": "RP Technologies",
+    "org_type": "Manufacturer",
+    "companies_house_number": null,
+    "website": "https://rptechnologies.co.uk",
+    "hq_city": "Dudley",
+    "hq_country": "UK",
+    "regions": ["UK-wide"],
+    "sector_focus": ["hardware", "prototyping", "manufacturing"],
+    "stage_focus": [],
+    "capability_tags": ["injection_molding", "cnc", "aluminium_tooling", "rapid_tooling"],
+    "description_1liner": "UK's leading manufacturer of aluminium injection mould tooling for rapid prototyping",
+    "preferred_contact_method": "contact_form",
+    "contacts": [
+      {"type": "contact_form", "value": "https://rptechnologies.co.uk/"}
+    ],
+    "evidence": [
+      {"url": "https://rptechnologies.co.uk/", "last_verified": "2026-01-19", "confidence_score": 90}
+    ],
+    "notes": "7 business day turnaround, aluminium tooling specialist"
+  },
+  {
+    "name": "Renishaw",
+    "org_type": "Manufacturer",
+    "companies_house_number": null,
+    "website": "https://www.renishaw.com",
+    "hq_city": "Wotton-under-Edge",
+    "hq_country": "UK",
+    "regions": ["UK-wide", "Global"],
+    "sector_focus": ["aerospace", "medical", "automotive", "manufacturing"],
+    "stage_focus": [],
+    "capability_tags": ["dmls", "slm", "metal_3d_printing", "additive_manufacturing", "iso_9001"],
+    "description_1liner": "Global leader in metal 3D printing using DMLS technology",
+    "preferred_contact_method": "contact_form",
+    "contacts": [
+      {"type": "contact_form", "value": "https://www.renishaw.com"}
+    ],
+    "evidence": [
+      {"url": "https://anebonmetal.com/top-3d-printing-manufacturers-and-suppliers-in-uk/", "last_verified": "2026-01-19", "confidence_score": 85}
+    ],
+    "notes": "Manufactures industrial metal 3D printers, UK headquarters"
+  },
+  {
+    "name": "ALN Printed Circuits",
+    "org_type": "Manufacturer",
+    "companies_house_number": null,
+    "website": "https://alnpcb.co.uk",
+    "hq_city": "Brighton",
+    "hq_country": "UK",
+    "regions": ["UK-wide"],
+    "sector_focus": ["electronics", "prototyping"],
+    "stage_focus": [],
+    "capability_tags": ["pcb", "quick_turnaround", "prototyping", "low_volume"],
+    "description_1liner": "30+ years PCB manufacturing specializing in quick-turnaround prototyping",
+    "preferred_contact_method": "contact_form",
+    "contacts": [],
+    "evidence": [
+      {"url": "https://southelectronicpcb.com/top-10-pcb-manufacturers-in-the-uk-in-2025/", "last_verified": "2026-01-19", "confidence_score": 80}
+    ],
+    "notes": "Low to medium volume production specialist"
+  },
+  {
+    "name": "Cambridge Circuit Company",
+    "org_type": "Manufacturer",
+    "companies_house_number": null,
+    "website": "https://ccc.co.uk",
+    "hq_city": "Cambridge",
+    "hq_country": "UK",
+    "regions": ["UK-wide", "Cambridge"],
+    "sector_focus": ["electronics", "prototyping"],
+    "stage_focus": [],
+    "capability_tags": ["pcb", "multilayer", "flex", "rigid_flex", "pth"],
+    "description_1liner": "Complete in-house PCB service including multilayer, flex, and rigid-flex",
+    "preferred_contact_method": "contact_form",
+    "contacts": [],
+    "evidence": [
+      {"url": "https://southelectronicpcb.com/top-10-pcb-manufacturers-in-the-uk-in-2025/", "last_verified": "2026-01-19", "confidence_score": 80}
+    ],
+    "notes": "Established 1986, full in-house capabilities"
+  },
+  {
+    "name": "Biplas",
+    "org_type": "Manufacturer",
+    "companies_house_number": null,
+    "website": "https://www.biplas.com",
+    "hq_city": "Hertfordshire",
+    "hq_country": "UK",
+    "regions": ["UK-wide"],
+    "sector_focus": ["medical", "healthcare", "manufacturing"],
+    "stage_focus": [],
+    "capability_tags": ["injection_molding", "medical", "cleanroom", "iso_13485", "tooling"],
+    "description_1liner": "Medical plastic injection molding specialist with cleanroom facilities",
+    "preferred_contact_method": "contact_form",
+    "contacts": [
+      {"type": "contact_form", "value": "https://www.biplas.com/"}
+    ],
+    "evidence": [
+      {"url": "https://www.biplas.com/", "last_verified": "2026-01-19", "confidence_score": 90}
+    ],
+    "notes": "ISO 13485 certified, cleanroom facilities, medical device specialist"
+  },
+  {
+    "name": "Rutland Plastics",
+    "org_type": "Manufacturer",
+    "companies_house_number": null,
+    "website": "https://www.rutlandplastics.co.uk",
+    "hq_city": "Oakham",
+    "hq_country": "UK",
+    "regions": ["UK-wide"],
+    "sector_focus": ["manufacturing", "prototyping"],
+    "stage_focus": [],
+    "capability_tags": ["injection_molding", "mouldflow", "prototyping", "tooling", "award_winning"],
+    "description_1liner": "Award-winning UK injection molding company offering full-service from design to production",
+    "preferred_contact_method": "contact_form",
+    "contacts": [
+      {"type": "contact_form", "value": "https://www.rutlandplastics.co.uk/"}
+    ],
+    "evidence": [
+      {"url": "https://www.rutlandplastics.co.uk/", "last_verified": "2026-01-19", "confidence_score": 85}
+    ],
+    "notes": "Full range: design, mouldflow, prototyping, mould making, injection molding"
+  }
+]

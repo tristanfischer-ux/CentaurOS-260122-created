@@ -1,0 +1,198 @@
+[
+  {
+    "provider_name": "Fractory",
+    "provider_type": "network",
+    "regions": ["UK-wide", "Europe"],
+    "capabilities": ["laser_cutting", "cnc"],
+    "certifications": [],
+    "website": "https://fractory.com",
+    "contact_points": [
+      {"type": "contact_form", "value": "https://fractory.com/laser-cutting-service-uk/"}
+    ],
+    "evidence": [
+      {"url": "https://fractory.com/laser-cutting-service-uk/", "last_verified": "2026-01-19", "confidence_score": 90}
+    ]
+  },
+  {
+    "provider_name": "Xometry UK",
+    "provider_type": "network",
+    "regions": ["UK-wide", "Europe", "USA"],
+    "capabilities": ["laser_cutting", "cnc", "sls", "fdm", "mjf", "sla"],
+    "certifications": [],
+    "website": "https://xometry.uk",
+    "contact_points": [
+      {"type": "contact_form", "value": "https://xometry.uk/laser-cutting/"}
+    ],
+    "evidence": [
+      {"url": "https://xometry.uk/laser-cutting/", "last_verified": "2026-01-19", "confidence_score": 90}
+    ]
+  },
+  {
+    "provider_name": "Protolabs",
+    "provider_type": "bureau",
+    "regions": ["UK-wide", "Europe", "USA"],
+    "capabilities": ["injection_molding", "cnc", "sls", "mjf", "fdm", "sla", "dmls_slm"],
+    "certifications": ["ISO 9001"],
+    "website": "https://www.protolabs.com/en-gb",
+    "contact_points": [
+      {"type": "contact_form", "value": "https://www.protolabs.com/en-gb/services/injection-moulding/"}
+    ],
+    "evidence": [
+      {"url": "https://www.protolabs.com/en-gb/services/injection-moulding/", "last_verified": "2026-01-19", "confidence_score": 95}
+    ]
+  },
+  {
+    "provider_name": "RP Technologies",
+    "provider_type": "machine_shop",
+    "regions": ["UK-wide"],
+    "capabilities": ["injection_molding", "cnc", "aluminium_tooling"],
+    "certifications": [],
+    "website": "https://rptechnologies.co.uk",
+    "contact_points": [
+      {"type": "contact_form", "value": "https://rptechnologies.co.uk/"}
+    ],
+    "evidence": [
+      {"url": "https://rptechnologies.co.uk/", "last_verified": "2026-01-19", "confidence_score": 90}
+    ]
+  },
+  {
+    "provider_name": "Renishaw",
+    "provider_type": "bureau",
+    "regions": ["UK-wide", "Global"],
+    "capabilities": ["dmls_slm", "metal_3d_printing"],
+    "certifications": ["ISO 9001"],
+    "website": "https://www.renishaw.com",
+    "contact_points": [
+      {"type": "contact_form", "value": "https://www.renishaw.com"}
+    ],
+    "evidence": [
+      {"url": "https://anebonmetal.com/top-3d-printing-manufacturers-and-suppliers-in-uk/", "last_verified": "2026-01-19", "confidence_score": 85}
+    ]
+  },
+  {
+    "provider_name": "ALN Printed Circuits",
+    "provider_type": "ems",
+    "regions": ["UK-wide"],
+    "capabilities": ["pcba"],
+    "certifications": [],
+    "website": "https://alnpcb.co.uk",
+    "contact_points": [],
+    "evidence": [
+      {"url": "https://southelectronicpcb.com/top-10-pcb-manufacturers-in-the-uk-in-2025/", "last_verified": "2026-01-19", "confidence_score": 80}
+    ]
+  },
+  {
+    "provider_name": "Cambridge Circuit Company",
+    "provider_type": "ems",
+    "regions": ["UK-wide", "Cambridge"],
+    "capabilities": ["pcba", "flex_pcb", "rigid_flex"],
+    "certifications": [],
+    "website": "https://ccc.co.uk",
+    "contact_points": [],
+    "evidence": [
+      {"url": "https://southelectronicpcb.com/top-10-pcb-manufacturers-in-the-uk-in-2025/", "last_verified": "2026-01-19", "confidence_score": 80}
+    ]
+  },
+  {
+    "provider_name": "Biplas",
+    "provider_type": "machine_shop",
+    "regions": ["UK-wide"],
+    "capabilities": ["injection_molding", "tooling"],
+    "certifications": ["ISO 13485", "ISO 9001"],
+    "website": "https://www.biplas.com",
+    "contact_points": [
+      {"type": "contact_form", "value": "https://www.biplas.com/"}
+    ],
+    "evidence": [
+      {"url": "https://www.biplas.com/", "last_verified": "2026-01-19", "confidence_score": 90}
+    ]
+  },
+  {
+    "provider_name": "Rutland Plastics",
+    "provider_type": "machine_shop",
+    "regions": ["UK-wide"],
+    "capabilities": ["injection_molding", "tooling"],
+    "certifications": [],
+    "website": "https://www.rutlandplastics.co.uk",
+    "contact_points": [
+      {"type": "contact_form", "value": "https://www.rutlandplastics.co.uk/"}
+    ],
+    "evidence": [
+      {"url": "https://www.rutlandplastics.co.uk/", "last_verified": "2026-01-19", "confidence_score": 85}
+    ]
+  },
+  {
+    "provider_name": "OGM",
+    "provider_type": "machine_shop",
+    "regions": ["UK-wide", "Oxfordshire", "South Wales"],
+    "capabilities": ["injection_molding", "tooling", "design"],
+    "certifications": [],
+    "website": "https://ogm.uk.com",
+    "contact_points": [],
+    "evidence": [
+      {"url": "https://ogm.uk.com/", "last_verified": "2026-01-19", "confidence_score": 80}
+    ]
+  },
+  {
+    "provider_name": "ARRK UK",
+    "provider_type": "bureau",
+    "regions": ["UK-wide"],
+    "capabilities": ["injection_molding", "cnc", "rapid_tooling"],
+    "certifications": [],
+    "website": "https://uk.arrk.com",
+    "contact_points": [
+      {"type": "contact_form", "value": "https://uk.arrk.com/low-volume-production/rapid-tooling-and-injection-moulding-plastics/"}
+    ],
+    "evidence": [
+      {"url": "https://uk.arrk.com/low-volume-production/rapid-tooling-and-injection-moulding-plastics/", "last_verified": "2026-01-19", "confidence_score": 80}
+    ]
+  },
+  {
+    "provider_name": "HM Tooling",
+    "provider_type": "machine_shop",
+    "regions": ["UK-wide"],
+    "capabilities": ["injection_molding", "tooling", "prototyping"],
+    "certifications": [],
+    "website": "https://www.hmtooling.co.uk",
+    "contact_points": [],
+    "evidence": [
+      {"url": "https://www.hmtooling.co.uk/", "last_verified": "2026-01-19", "confidence_score": 75}
+    ]
+  },
+  {
+    "provider_name": "Rapitypes",
+    "provider_type": "bureau",
+    "regions": ["UK-wide"],
+    "capabilities": ["cnc", "rim", "prototyping"],
+    "certifications": [],
+    "website": "https://rapitypes.com",
+    "contact_points": [],
+    "evidence": [
+      {"url": "https://rapitypes.com/", "last_verified": "2026-01-19", "confidence_score": 75}
+    ]
+  },
+  {
+    "provider_name": "3T Additive Manufacturing",
+    "provider_type": "bureau",
+    "regions": ["UK-wide"],
+    "capabilities": ["dmls_slm", "metal_3d_printing"],
+    "certifications": [],
+    "website": "https://3t-am.com",
+    "contact_points": [],
+    "evidence": [
+      {"url": "https://anebonmetal.com/top-3d-printing-manufacturers-and-suppliers-in-uk/", "last_verified": "2026-01-19", "confidence_score": 75}
+    ]
+  },
+  {
+    "provider_name": "Solid Print",
+    "provider_type": "platform",
+    "regions": ["UK-wide"],
+    "capabilities": ["sls", "mjf", "fdm", "sla", "laser_cutting", "cnc"],
+    "certifications": [],
+    "website": "https://www.solidprint3d.co.uk",
+    "contact_points": [],
+    "evidence": [
+      {"url": "https://www.solidprint3d.co.uk/additive-manufacturing-2025-product-roundup/", "last_verified": "2026-01-19", "confidence_score": 75}
+    ]
+  }
+]
