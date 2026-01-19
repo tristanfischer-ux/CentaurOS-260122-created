@@ -40,7 +40,7 @@ import { useSupplierStore } from '@/lib/state/supplier-store';
 import { useRoleStore, useActiveRole } from '@/lib/state/role-store';
 import { useDecisionsStore } from '@/lib/state/decisions-store';
 import { useObjectivesStore } from '@/lib/state/objectives-store';
-import { useCurrentWorkspace } from '@/lib/state/app-store';
+import { useCurrentWorkspace, useCurrentMembership } from '@/lib/state/app-store';
 import { useAutomaticSquadDetection } from '@/lib/hooks/useAutomaticSquadDetection';
 import { autoSeedDemoDataIfNeeded } from '@/lib/seed-demo-data';
 import { subscribeToWorkPlans } from '@/lib/realtime-subscriptions';
@@ -62,6 +62,13 @@ import {
   SupplierSpendDashboard,
   PerformanceDashboardGrid,
 } from '@/components/home';
+
+// AI-Powered Priority Section
+import { FocusTodaySection } from '@/components/FocusTodaySection';
+
+// Task Assignment System
+import { PendingAssignmentsBadge } from '@/components/PendingAssignmentsBadge';
+import { PendingAssignmentsModal } from '@/components/PendingAssignmentsModal';
 
 // Role-based components
 import { FounderApprovalPanel } from '@/components/FounderApprovalPanel';
@@ -121,6 +128,7 @@ function FounderHome() {
   const [lastUpdated, setLastUpdated] = useState(new Date());
   const refreshTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const [selectedPersonId, setSelectedPersonId] = useState<string | null>(null);
+  const [showPendingAssignments, setShowPendingAssignments] = useState(false);
 
   // DISABLED: Auto-detect squads from task allocations
   // This creates squads automatically, which should not happen after reset
@@ -136,6 +144,7 @@ function FounderHome() {
   const workPlans = useWorkPlanStore((s) => s.workPlans);
   const members = useOrganizationStore((s) => s.members);
   const currentWorkspace = useCurrentWorkspace();
+  const currentMembership = useCurrentMembership();
 
   // Initialize all stores on mount
   useEffect(() => {
@@ -256,6 +265,14 @@ function FounderHome() {
             </Text>
           </View>
           <View className="flex-row items-center gap-2">
+            {/* Pending Assignments Badge */}
+            {currentMembership?.id && (
+              <PendingAssignmentsBadge
+                memberId={currentMembership.id}
+                onPress={() => setShowPendingAssignments(true)}
+                style="icon-only"
+              />
+            )}
             {/* Last Updated */}
             <Pressable
               onPress={handleRefresh}
@@ -297,6 +314,18 @@ function FounderHome() {
         {/* ===== FOUNDER APPROVAL PANEL (Allocation Requests) ===== */}
         <View className="pt-4">
           <FounderApprovalPanel />
+        </View>
+
+        {/* ===== AI-POWERED FOCUS TODAY ===== */}
+        <View className="pt-4">
+          <FocusTodaySection
+            onTaskPress={(taskId) => {
+              router.push({
+                pathname: '/(tabs)/decide',
+                params: { selectedTaskId: taskId },
+              });
+            }}
+          />
         </View>
 
         {/* ===== 2. BUSINESS OBJECTIVES ===== */}
@@ -395,6 +424,15 @@ function FounderHome() {
           });
         }}
       />
+
+      {/* Pending Assignments Modal */}
+      {currentMembership?.id && (
+        <PendingAssignmentsModal
+          visible={showPendingAssignments}
+          onClose={() => setShowPendingAssignments(false)}
+          memberId={currentMembership.id}
+        />
+      )}
 
       {/* Floating Action Button - Create Task */}
       <View
