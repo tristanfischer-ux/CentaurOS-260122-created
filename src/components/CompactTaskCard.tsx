@@ -52,6 +52,28 @@ export function CompactTaskCard({
   // Calculate allocated TU per week
   const allocatedPerWeek = task.allocations?.reduce((sum, alloc) => sum + (alloc.squaresPerWeek || 0), 0) || 0;
 
+  // Calculate TU progress
+  const totalTUs = task.estimatedTimeUnits || 0;
+  const completedTUs = Math.round((task.progress / 100) * totalTUs);
+  const remainingTUs = totalTUs - completedTUs;
+
+  // Calculate estimated time to finish (in weeks)
+  const weeksToFinish = allocatedPerWeek > 0 ? Math.ceil(remainingTUs / allocatedPerWeek) : null;
+
+  // Format time to finish display
+  const getTimeToFinishText = () => {
+    if (task.status === 'completed') return 'Done';
+    if (allocatedPerWeek === 0) return 'No allocation';
+    if (remainingTUs <= 0) return 'Ready to complete';
+    if (weeksToFinish === 1) return '~1 week';
+    if (weeksToFinish !== null && weeksToFinish <= 4) return `~${weeksToFinish} weeks`;
+    if (weeksToFinish !== null && weeksToFinish > 4) {
+      const months = Math.ceil(weeksToFinish / 4);
+      return `~${months} month${months > 1 ? 's' : ''}`;
+    }
+    return 'TBD';
+  };
+
   // Get delay information
   const delayInfo = getDelayInfo(task);
   const delayBadgeText = formatDelay(delayInfo);
@@ -166,18 +188,37 @@ export function CompactTaskCard({
               </View>
             )}
 
-            <View className="flex-1 bg-gray-200 dark:bg-slate-700 rounded-full h-1 overflow-hidden min-w-[40px]">
-              <View
-                className="h-full"
-                style={{
-                  width: `${task.progress}%`,
-                  backgroundColor: statusColor
-                }}
-              />
+            {/* TU Progress - completed/total */}
+            <View className="flex-row items-center gap-1">
+              <Text className="text-emerald-600 dark:text-emerald-400 text-[10px] font-bold">
+                {completedTUs}□
+              </Text>
+              <Text className="text-gray-400 dark:text-slate-500 text-[10px]">/</Text>
+              <Text className="text-gray-600 dark:text-slate-400 text-[10px] font-semibold">
+                {totalTUs}□
+              </Text>
             </View>
-            <Text className="text-gray-500 dark:text-slate-400 text-[10px]">
-              {task.progress}%
-            </Text>
+
+            {/* Time to finish estimate */}
+            <View
+              className="px-1.5 py-0.5 rounded"
+              style={{
+                backgroundColor: task.status === 'completed' ? '#10b98120' :
+                                 allocatedPerWeek === 0 ? '#f59e0b20' :
+                                 weeksToFinish !== null && weeksToFinish > 4 ? '#ef444420' : '#3b82f620'
+              }}
+            >
+              <Text
+                className="text-[10px] font-semibold"
+                style={{
+                  color: task.status === 'completed' ? '#10b981' :
+                         allocatedPerWeek === 0 ? '#f59e0b' :
+                         weeksToFinish !== null && weeksToFinish > 4 ? '#ef4444' : '#3b82f6'
+                }}
+              >
+                {getTimeToFinishText()}
+              </Text>
+            </View>
 
             {/* Expand/Collapse indicator */}
             {isExpanded ? (
