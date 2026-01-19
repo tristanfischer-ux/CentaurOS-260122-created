@@ -5,14 +5,15 @@
 
 import { View, Text, Pressable, ScrollView } from 'react-native';
 import { Sparkles, Zap, AlertTriangle, CheckCircle, Play, Users } from 'lucide-react-native';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useWorkPlanStore } from '@/lib/state/work-plan-store';
 import { useOrganizationStore } from '@/lib/state/organization-store';
 import { getFocusTodayTasks, type PriorityScore } from '@/lib/ai-priority-scoring';
 import { LinearGradient } from 'expo-linear-gradient';
+import { UnifiedTaskAllocationModal } from './UnifiedTaskAllocationModal';
 
 interface FocusTodaySectionProps {
-  onTaskPress: (taskId: string) => void;
+  onTaskPress?: (taskId: string) => void;
 }
 
 const PRIORITY_CONFIG = {
@@ -153,10 +154,21 @@ function PriorityTaskCard({ priorityScore, onPress }: { priorityScore: PriorityS
 export function FocusTodaySection({ onTaskPress }: FocusTodaySectionProps) {
   const workPlans = useWorkPlanStore(s => s.workPlans);
   const members = useOrganizationStore(s => s.members);
+  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
 
   const priorityTasks = useMemo(() => {
     return getFocusTodayTasks(workPlans, members, 5);
   }, [workPlans, members]);
+
+  const selectedTask = useMemo(() => {
+    if (!selectedTaskId) return null;
+    return workPlans.find(wp => wp.id === selectedTaskId) || null;
+  }, [selectedTaskId, workPlans]);
+
+  const handleTaskPress = (taskId: string) => {
+    setSelectedTaskId(taskId);
+    onTaskPress?.(taskId);
+  };
 
   if (priorityTasks.length === 0) {
     return (
@@ -228,11 +240,18 @@ export function FocusTodaySection({ onTaskPress }: FocusTodaySectionProps) {
           <View key={priorityScore.task.id} style={{ width: 340, marginRight: 12 }}>
             <PriorityTaskCard
               priorityScore={priorityScore}
-              onPress={() => onTaskPress(priorityScore.task.id)}
+              onPress={() => handleTaskPress(priorityScore.task.id)}
             />
           </View>
         ))}
       </ScrollView>
+
+      {/* Task Details Modal */}
+      <UnifiedTaskAllocationModal
+        visible={selectedTaskId !== null}
+        onClose={() => setSelectedTaskId(null)}
+        workPlan={selectedTask}
+      />
     </View>
   );
 }
