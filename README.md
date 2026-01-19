@@ -15,6 +15,22 @@ Centaur OS is a comprehensive iOS mobile application that helps lean companies o
 
 ## 🚀 Latest Updates (Jan 19, 2026)
 
+### ✅ Enhanced Task Allocation Modal - Team Info & Precise TU Control
+- **Team Information Section**: New purple card showing who's currently assigned to the task with their allocation details
+  - Display team member names, TU allocation per week, and cost per TU
+  - Shows immediately below task description for quick context
+  - Purple theme matches app's accent color scheme
+- **Fine-Grained TU Controls**: Complete redesign of allocation controls with +/- buttons
+  - **Minus Button (-)**: Decrement allocation by 1 TU (red button on left)
+  - **Current Allocation**: Central display showing current TUs allocated (blue badge)
+  - **Plus Button (+)**: Increment allocation by 1 TU (green button in middle)
+  - **Remove All (X)**: Clear entire allocation (gray button on right)
+  - Buttons automatically disable when capacity limits reached
+- **Visual Feedback**: Plus button turns gray and disables when no capacity remaining
+- **Zero State**: When no TUs allocated, shows "Tap +2□" prompt for quick bulk addition
+- **Precise Control**: Allows users to fine-tune allocations one TU at a time instead of bulk increments
+- **Better UX**: Four-button layout gives users complete control: decrease, current value, increase, remove all
+
 ### ✅ Task Allocation Modal Redesign
 - **Two-Row Capacity Display**: Capacity squares now shown on two distinct rows - 10 normal units on first row, 5 overtime units on second row
 - **Clearer Visual Hierarchy**: Instantly see the difference between normal working hours (emerald/blue) and overtime capacity (orange)

@@ -371,6 +371,39 @@ export function UnifiedTaskAllocationModal({ visible, onClose, workPlan }: Props
     setAllocations(prev => ({ ...prev, [memberId]: newValue }));
   }, [members, allocations, getDefaultIncrement, getRemainingCapacity]);
 
+  // Handle increment by 1 TU
+  const handleIncrementOne = useCallback((memberId: string, e: any) => {
+    e?.stopPropagation();
+    const currentAllocation = allocations[memberId] ?? 0;
+    const remainingCapacity = getRemainingCapacity(memberId);
+
+    // Can only allocate up to remaining capacity
+    const newValue = Math.min(remainingCapacity, currentAllocation + 1);
+    if (newValue === currentAllocation) return; // No capacity left
+
+    setAllocations(prev => ({ ...prev, [memberId]: newValue }));
+  }, [allocations, getRemainingCapacity]);
+
+  // Handle decrement by 1 TU
+  const handleDecrementOne = useCallback((memberId: string, e: any) => {
+    e?.stopPropagation();
+    const currentAllocation = allocations[memberId] ?? 0;
+
+    // Don't go below 0
+    if (currentAllocation <= 0) return;
+
+    const newValue = currentAllocation - 1;
+    if (newValue === 0) {
+      // Remove entirely if reaching 0
+      setAllocations(prev => {
+        const { [memberId]: _, ...rest } = prev;
+        return rest;
+      });
+    } else {
+      setAllocations(prev => ({ ...prev, [memberId]: newValue }));
+    }
+  }, [allocations]);
+
   // Handle remove TUs (entire allocation)
   const handleRemoveTUs = useCallback((memberId: string, e: any) => {
     e?.stopPropagation(); // Prevent triggering the add tap
@@ -458,10 +491,19 @@ export function UnifiedTaskAllocationModal({ visible, onClose, workPlan }: Props
               </View>
             </View>
 
-            {/* Current allocation badge and remove button */}
+            {/* Current allocation badge with +/- controls */}
             <View className="flex-row items-center gap-2">
               {currentAllocation > 0 ? (
                 <>
+                  {/* Decrement Button */}
+                  <Pressable
+                    onPress={(e) => handleDecrementOne(member.id, e)}
+                    className="w-8 h-8 bg-red-100 dark:bg-red-900/30 rounded-full items-center justify-center active:opacity-70"
+                  >
+                    <Minus size={14} color="#ef4444" />
+                  </Pressable>
+
+                  {/* Current Allocation Display */}
                   <View className={`px-3 py-1.5 rounded-lg ${
                     inOvertime ? 'bg-orange-500' : 'bg-blue-500'
                   }`}>
@@ -469,11 +511,26 @@ export function UnifiedTaskAllocationModal({ visible, onClose, workPlan }: Props
                       {currentAllocation}□
                     </Text>
                   </View>
+
+                  {/* Increment Button */}
+                  <Pressable
+                    onPress={(e) => handleIncrementOne(member.id, e)}
+                    className={`w-8 h-8 rounded-full items-center justify-center active:opacity-70 ${
+                      remainingCapacity - currentAllocation > 0
+                        ? 'bg-emerald-100 dark:bg-emerald-900/30'
+                        : 'bg-gray-100 dark:bg-slate-800 opacity-50'
+                    }`}
+                    disabled={remainingCapacity - currentAllocation <= 0}
+                  >
+                    <Plus size={14} color={remainingCapacity - currentAllocation > 0 ? '#10b981' : '#9ca3af'} />
+                  </Pressable>
+
+                  {/* Remove All Button */}
                   <Pressable
                     onPress={(e) => handleRemoveTUs(member.id, e)}
-                    className="w-8 h-8 bg-red-100 dark:bg-red-900/30 rounded-full items-center justify-center active:opacity-70"
+                    className="w-8 h-8 bg-gray-100 dark:bg-slate-800 rounded-full items-center justify-center active:opacity-70"
                   >
-                    <X size={14} color="#ef4444" />
+                    <X size={14} color="#6b7280" />
                   </Pressable>
                 </>
               ) : (
@@ -636,6 +693,30 @@ export function UnifiedTaskAllocationModal({ visible, onClose, workPlan }: Props
                   {workPlan.description}
                 </Text>
               </Animated.View>
+
+              {/* Team Information - Who's Involved */}
+              {(workPlan.allocations.length > 0 || workPlan.assignedMemberIds && workPlan.assignedMemberIds.length > 0) && (
+                <Animated.View entering={FadeIn.delay(125)} className="bg-purple-50 dark:bg-purple-900/10 rounded-xl p-3 mb-4 border border-purple-200 dark:border-purple-800">
+                  <View className="flex-row items-center gap-2 mb-2">
+                    <Users size={16} color="#9333ea" />
+                    <Text className="text-purple-900 dark:text-purple-100 text-xs font-bold uppercase tracking-wide">
+                      Team Assigned
+                    </Text>
+                  </View>
+                  <View className="flex-row flex-wrap gap-2">
+                    {workPlan.allocations.map((allocation) => (
+                      <View key={allocation.memberId} className="bg-white dark:bg-slate-900 px-2.5 py-1.5 rounded-lg border border-purple-200 dark:border-purple-700">
+                        <Text className="text-gray-900 dark:text-white text-xs font-semibold">
+                          {allocation.memberName}
+                        </Text>
+                        <Text className="text-purple-600 dark:text-purple-400 text-[10px] font-medium">
+                          {allocation.squaresPerWeek}□/wk • £{allocation.costPerSquare}/□
+                        </Text>
+                      </View>
+                    ))}
+                  </View>
+                </Animated.View>
+              )}
 
               {/* Task Requirements - Display Only */}
               <Animated.View
