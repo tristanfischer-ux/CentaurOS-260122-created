@@ -251,7 +251,10 @@ export function PersonDetailsModal({
     await deleteSquad(squadId);
   };
 
-  if (!member) return null;
+  // Don't render modal content if no member selected
+  if (!member) {
+    return null;
+  }
 
   const roleColor = ROLE_COLORS[member.role];
   const utilizationPercent = memberWorkload.totalCapacity > 0
