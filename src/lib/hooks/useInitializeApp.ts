@@ -86,7 +86,8 @@ export function useInitializeApp() {
 
         // Initialize local stores (will be empty until workspace is selected)
         initializeSuppliers();
-        initializeOrganization();
+        // REMOVED: initializeOrganization() - this was clearing members on every login
+        // Members should be loaded from Supabase via loadMembersFromSupabase()
         await initializePlans();
         await initializeSquads();
 

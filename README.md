@@ -15,6 +15,12 @@ Centaur OS is a comprehensive iOS mobile application that helps lean companies o
 
 ## 🚀 Latest Updates (Jan 19, 2026)
 
+### ✅ Member Persistence Fix
+- **Fixed Login Issue**: Members no longer disappear after logging in
+- **Root Cause**: Removed `initializeOrganization()` call that was clearing members on every app initialization
+- **Automatic Loading**: Added `useWorkspaceData` hook to root layout to load members from Supabase when workspace is selected
+- **Data Integrity**: Members now persist across logins and app restarts
+
 ### ✅ Weekly Resource Pool Improvements
 - **Dynamic Height**: Drawer opens to fit content, max 50% of screen height
 - **No Empty Space**: Automatically sizes to show all team members without white space

@@ -9,6 +9,8 @@ import { KeyboardProvider } from 'react-native-keyboard-controller';
 import { View, ActivityIndicator } from 'react-native';
 import { useEffect, useState } from 'react';
 import { useInitializeApp } from '@/lib/hooks/useInitializeApp';
+import { useWorkspaceData } from '@/lib/hooks/useWorkspaceData';
+import { useCurrentWorkspace } from '@/lib/state/app-store';
 import { WelcomeSplash } from '@/components/WelcomeSplash';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { ToastContainer } from '@/components/ToastContainer';
@@ -42,6 +44,10 @@ function RootLayoutNav({ colorScheme }: { colorScheme: 'light' | 'dark' | null |
   const { isInitialized } = useInitializeApp();
   const [showWelcomeSplash, setShowWelcomeSplash] = useState(false);
   const { theme, isOffWhite } = useTheme();
+  const currentWorkspace = useCurrentWorkspace();
+
+  // Load workspace data (including members) when workspace is selected
+  useWorkspaceData(currentWorkspace?.id || null);
 
   // Theme-aware colors
   const getBackgroundColor = () => {
