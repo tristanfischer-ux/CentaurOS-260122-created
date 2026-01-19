@@ -50,6 +50,9 @@ export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress
   const today = useMemo(() => new Date(), []);
   const currentWeek = useMemo(() => getWeekNumber(today), [today]);
 
+  // View mode state
+  const [viewMode, setViewMode] = useState<'day' | 'week' | 'month' | 'year'>('week');
+
   // Refs for auto-scrolling to today
   const headerScrollRef = useRef<ScrollView>(null);
   const contentScrollRef = useRef<ScrollView>(null);
@@ -186,36 +189,89 @@ export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress
 
   return (
     <View className="flex-1 bg-white dark:bg-slate-900 border-t-2 border-gray-200 dark:border-slate-700">
-      {/* Header - Compact with inline legend */}
-      <View className="px-4 py-2 flex-row items-center justify-between border-b border-gray-200 dark:border-slate-700">
-        <View className="flex-row items-center gap-3">
-          <Text className="text-gray-900 dark:text-white text-xs font-bold">
-            TIMELINE
+      {/* Compact Header with View Toggle */}
+      <View className="px-3 py-1.5 flex-row items-center justify-between border-b border-gray-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950">
+        <View className="flex-row items-center gap-2">
+          <Text className="text-gray-900 dark:text-white text-[10px] font-bold uppercase tracking-wide">
+            Timeline
           </Text>
-          <Text className="text-gray-500 dark:text-slate-400 text-[10px]">
-            {filteredTasks.length}
+          <Text className="text-gray-500 dark:text-slate-400 text-[9px]">
+            {filteredTasks.length} tasks
           </Text>
         </View>
-        {/* Inline status legend */}
-        <View className="flex-row items-center gap-2">
-          <View className="flex-row items-center gap-1">
-            <View className="w-2 h-2 rounded-sm bg-gray-300 dark:bg-gray-600" />
-            <Text className="text-gray-500 dark:text-slate-400 text-[8px]">Queued</Text>
-          </View>
-          <View className="flex-row items-center gap-1">
-            <View className="w-2 h-2 rounded-sm bg-blue-400" />
-            <Text className="text-gray-500 dark:text-slate-400 text-[8px]">Live</Text>
-          </View>
-          <View className="flex-row items-center gap-1">
-            <View className="w-2 h-2 rounded-sm bg-red-400" />
-            <Text className="text-gray-500 dark:text-slate-400 text-[8px]">Blocked</Text>
-          </View>
+
+        {/* View Mode Toggle */}
+        <View className="flex-row items-center gap-1">
+          <Pressable
+            onPress={() => setViewMode('day')}
+            className={`px-2 py-1 rounded ${
+              viewMode === 'day'
+                ? 'bg-purple-500'
+                : 'bg-gray-200 dark:bg-slate-800'
+            }`}
+          >
+            <Text className={`text-[9px] font-semibold ${
+              viewMode === 'day'
+                ? 'text-white'
+                : 'text-gray-600 dark:text-slate-400'
+            }`}>
+              Day
+            </Text>
+          </Pressable>
+          <Pressable
+            onPress={() => setViewMode('week')}
+            className={`px-2 py-1 rounded ${
+              viewMode === 'week'
+                ? 'bg-purple-500'
+                : 'bg-gray-200 dark:bg-slate-800'
+            }`}
+          >
+            <Text className={`text-[9px] font-semibold ${
+              viewMode === 'week'
+                ? 'text-white'
+                : 'text-gray-600 dark:text-slate-400'
+            }`}>
+              Week
+            </Text>
+          </Pressable>
+          <Pressable
+            onPress={() => setViewMode('month')}
+            className={`px-2 py-1 rounded ${
+              viewMode === 'month'
+                ? 'bg-purple-500'
+                : 'bg-gray-200 dark:bg-slate-800'
+            }`}
+          >
+            <Text className={`text-[9px] font-semibold ${
+              viewMode === 'month'
+                ? 'text-white'
+                : 'text-gray-600 dark:text-slate-400'
+            }`}>
+              Month
+            </Text>
+          </Pressable>
+          <Pressable
+            onPress={() => setViewMode('year')}
+            className={`px-2 py-1 rounded ${
+              viewMode === 'year'
+                ? 'bg-purple-500'
+                : 'bg-gray-200 dark:bg-slate-800'
+            }`}
+          >
+            <Text className={`text-[9px] font-semibold ${
+              viewMode === 'year'
+                ? 'text-white'
+                : 'text-gray-600 dark:text-slate-400'
+            }`}>
+              Year
+            </Text>
+          </Pressable>
         </View>
       </View>
 
       {/* Timeline Content */}
       <View className="flex-1 relative bg-white dark:bg-slate-900">
-        {/* Week Headers */}
+        {/* Compact Week Headers */}
         <ScrollView
           ref={headerScrollRef}
           horizontal
@@ -227,13 +283,13 @@ export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress
             {weeks.map((week, idx) => (
               <View
                 key={idx}
-                className={`border-r border-gray-200 dark:border-slate-700 py-2 ${
+                className={`border-r border-gray-200 dark:border-slate-700 py-1 ${
                   week.isCurrentWeek ? 'bg-blue-50 dark:bg-blue-900/20' : ''
                 }`}
                 style={{ width: WEEK_WIDTH }}
               >
                 <Text
-                  className={`text-center text-[10px] font-semibold ${
+                  className={`text-center text-[9px] font-semibold ${
                     week.isCurrentWeek
                       ? 'text-blue-600 dark:text-blue-400'
                       : 'text-gray-500 dark:text-slate-400'
@@ -241,7 +297,7 @@ export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress
                 >
                   {week.label}
                 </Text>
-                <Text className="text-center text-[9px] text-gray-400 dark:text-slate-500 mt-0.5">
+                <Text className="text-center text-[8px] text-gray-400 dark:text-slate-500">
                   W{week.weekNumber}
                 </Text>
               </View>
