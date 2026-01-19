@@ -310,7 +310,7 @@ export default function WhatScreen() {
     console.log('[What Tab] handleTextInput called with:', text);
 
     if (!text.trim()) {
-      console.error('[What Tab] No text provided!');
+      console.log('[What Tab] No text provided!');
       alert('Please enter some text to extract tasks from.');
       return;
     }
@@ -327,7 +327,7 @@ export default function WhatScreen() {
       console.log('[What Tab] Number of tasks:', extraction.tasks.length);
 
       if (extraction.tasks.length === 0) {
-        console.warn('[What Tab] No tasks extracted from text');
+        console.log('[What Tab] No tasks extracted from text');
         alert('No tasks found in your text. Please try again with clearer instructions.');
         setIsProcessingTranscript(false);
         return;
@@ -350,7 +350,7 @@ export default function WhatScreen() {
       setTaskDrafts(drafts);
       setShowDraftsReview(true);
     } catch (error) {
-      console.error('[What Tab] Failed to extract drafts from text:', error);
+      console.log('[What Tab] Failed to extract drafts from text:', error);
       alert(`Failed to extract tasks: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       setIsProcessingTranscript(false);
@@ -364,7 +364,7 @@ export default function WhatScreen() {
     console.log('[What Tab] effectiveMembership:', effectiveMembership);
 
     if (!voiceTranscript.trim()) {
-      console.error('[What Tab] No transcript text!');
+      console.log('[What Tab] No transcript text!');
       alert('No transcript text found. Please try again.');
       return;
     }
@@ -381,7 +381,7 @@ export default function WhatScreen() {
       console.log('[What Tab] Number of tasks:', extraction.tasks.length);
 
       if (extraction.tasks.length === 0) {
-        console.warn('[What Tab] No tasks extracted from transcript');
+        console.log('[What Tab] No tasks extracted from transcript');
         alert('No tasks found in your recording. Please try again with clearer instructions.');
         setShowVoiceTranscript(false);
         setIsProcessingTranscript(false);
@@ -410,8 +410,8 @@ export default function WhatScreen() {
       setShowDraftsReview(true);
       console.log('[What Tab] showDraftsReview set to true - modal should appear now!');
     } catch (error) {
-      console.error('[What Tab] Failed to extract drafts:', error);
-      console.error('[What Tab] Error details:', {
+      console.log('[What Tab] Failed to extract drafts:', error);
+      console.log('[What Tab] Error details:', {
         message: error instanceof Error ? error.message : String(error),
         stack: error instanceof Error ? error.stack : undefined,
       });
@@ -462,9 +462,9 @@ export default function WhatScreen() {
           await addWorkPlan(newTask);
           console.log('[What Tab] Task added successfully:', newTask.id);
         } catch (err) {
-          console.error('[What Tab] Failed to add task:', err);
+          console.log('[What Tab] Failed to add task:', err);
           const errorMessage = err instanceof Error ? err.message : JSON.stringify(err);
-          console.error('[What Tab] Error message:', errorMessage);
+          console.log('[What Tab] Error message:', errorMessage);
           // Continue anyway - don't fail the whole batch
         }
       }
