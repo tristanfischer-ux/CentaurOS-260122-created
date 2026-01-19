@@ -15,6 +15,50 @@ Centaur OS is a comprehensive iOS mobile application that helps lean companies o
 
 ## 🚀 Latest Updates (Jan 19, 2026)
 
+### 👥 People Component - Universal Talent Marketplace
+
+**Three-layer data model for talent management:**
+
+**Layer 1: Universal Marketplace (Global, Opt-in)**
+- ✅ **Universal People**: Fractional executives, apprentices, advisors, contractors
+- ✅ **Opt-in Onboarding**: Invite tokens, consent tracking, profile visibility controls
+- ✅ **Verification Status**: stub → invited → opted_in → verified
+- ✅ **Privacy Controls**: Contact visibility per-field, marketplace vs private profiles
+
+**Layer 2: Company People Layer (Per Tenant)**
+- ✅ **Hiring Pipeline**: identified → contacted → intro_call → trial → engaged
+- ✅ **Relationship Management**: Track candidates with notes, interactions, documents
+- ✅ **Outreach Drafts**: Generate task drafts for email, calls, NDAs, interviews
+
+**Layer 3: Personal Contacts (Per User)**
+- ✅ **Private Network**: Personal warm intro signals (user-level isolation)
+- ✅ **Relationship Strength**: Track connection quality for introductions
+
+**Talent Matching Wizard:**
+- ✅ **Natural Language Search**: "I need a fractional COO for fintech, 12 hrs/week"
+- ✅ **Claude Interpretation**: Extracts role, sector, stage, hours, urgency
+- ✅ **Match Scoring**: Ranks candidates by fit with explanations
+
+**Apprentice Features:**
+- ✅ **Role Packs**: Pre-configured hiring workflows (Finance, Ops, Engineering, etc.)
+- ✅ **Task Templates**: Auto-generate job posting, screening, interview, onboarding tasks
+
+**Privacy & Compliance:**
+- ❌ No scraping LinkedIn or private data
+- ❌ No raw audio storage (transcript-first)
+- ❌ No auto-execution (all tasks are drafts)
+- ✅ GDPR compliant with consent tracking
+
+**Implementation:**
+- `supabase/migrations/008_people_component.sql` - Database schema
+- `src/lib/people/types.ts` - Type definitions
+- `src/app/api/people/` - All API endpoints
+- `src/components/TalentWizard.tsx` - Natural language search UI
+- `src/components/PeoplePipeline.tsx` - Kanban pipeline view
+- `docs/PEOPLE_ARCHITECTURE.md` - Full documentation
+
+---
+
 ### 🔄 Marketplace Data Freshness System
 
 **Automated verification and review workflow for marketplace data:**
