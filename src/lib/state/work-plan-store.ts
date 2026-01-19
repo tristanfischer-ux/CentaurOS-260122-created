@@ -680,6 +680,28 @@ export const useWorkPlanStore = create<WorkPlanState>((set, get) => ({
     // Store previous state for rollback
     const previousWorkPlans = get().workPlans;
 
+    // Get the work plan to capture details before completion
+    const workPlan = get().workPlans.find(wp => wp.id === id);
+    if (!workPlan) {
+      console.log('[WorkPlan] Work plan not found:', id);
+      return;
+    }
+
+    // Calculate duration in weeks
+    const startDate = new Date(workPlan.startDate);
+    const completedAt = new Date();
+    const durationMs = completedAt.getTime() - startDate.getTime();
+    const durationWeeks = Math.max(0.1, Math.round((durationMs / (1000 * 60 * 60 * 24 * 7)) * 10) / 10);
+
+    // Calculate total cost including AI tools
+    const humanCost = workPlan.allocations.reduce((sum, a) => sum + (a.squaresPerWeek * a.costPerSquare), 0);
+    const aiCost = workPlan.appliedAITools.reduce((sum, tool) => sum + (tool.costPerSquare * workPlan.tusExpended), 0);
+    const totalCost = humanCost + aiCost;
+
+    // Extract team member details
+    const teamMemberIds = workPlan.allocations.map(a => a.memberId);
+    const teamMemberNames = workPlan.allocations.map(a => a.memberName);
+
     // Optimistic update
     set(state => ({
       workPlans: state.workPlans.map(wp =>
@@ -692,10 +714,10 @@ export const useWorkPlanStore = create<WorkPlanState>((set, get) => ({
               // Only clear allocations to free up TU capacity
               allocations: [], // Free all TU allocations
               auditRecord: {
-                completedAt: new Date().toISOString(),
+                completedAt: completedAt.toISOString(),
                 totalTUsSpent: wp.tusExpended,
-                totalCost: wp.allocations.reduce((sum, a) => sum + (a.squaresPerWeek * a.costPerSquare), 0),
-                totalWeeks: 1, // TODO: calculate actual weeks
+                totalCost,
+                totalWeeks: durationWeeks,
               },
             }
           : wp
@@ -719,11 +741,37 @@ export const useWorkPlanStore = create<WorkPlanState>((set, get) => ({
 
       if (error) throw error;
 
+      // Create comprehensive audit record
+      const { error: auditError } = await supabase
+        .from('work_plan_audit_records')
+        .upsert({
+          work_plan_id: id,
+          completed_at: completedAt.toISOString(),
+          completed_by: teamMemberIds.length > 0 ? teamMemberIds[0] : null,
+          task_title: workPlan.title,
+          task_description: workPlan.description,
+          team_member_ids: teamMemberIds,
+          team_member_names: teamMemberNames,
+          duration_weeks: durationWeeks,
+          total_tu_spent: workPlan.tusExpended,
+          total_cost: totalCost,
+          start_date: workPlan.startDate,
+          actual_end_date: completedAt.toISOString(),
+          notes: `Task completed. Team: ${teamMemberNames.join(', ')}. Duration: ${durationWeeks} weeks. Total TUs: ${workPlan.tusExpended}.`,
+        });
+
+      if (auditError) {
+        console.log('[WorkPlan] Failed to create audit record:', auditError);
+        // Don't fail the entire operation if audit fails
+      }
+
       // Delete allocations (free resources)
       await supabase
         .from('work_plan_allocations')
         .delete()
         .eq('work_plan_id', id);
+
+      console.log(`[WorkPlan] ✅ Task completed and recorded: "${workPlan.title}" by ${teamMemberNames.join(', ')} (${durationWeeks} weeks, ${workPlan.tusExpended} TUs, £${totalCost.toFixed(2)})`);
     } catch (err) {
       // Rollback on error
       set({ workPlans: previousWorkPlans });

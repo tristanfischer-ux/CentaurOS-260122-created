@@ -40,13 +40,22 @@ Centaur OS is a comprehensive iOS mobile application that helps lean companies o
 - **Tap to View Details**: Tap any task bar to navigate to full task details in Tasks tab
 - **Weekly Resource Pool Drawer**: Added collapsible resource drawer at bottom showing team capacity and availability
 
-### ✅ Task Completion Feature
+### ✅ Task Completion Feature with Comprehensive Audit Records
 - **Mark as Done Button**: Added "Mark as Done" button to task cards in the expanded view
 - **Automatic Resource Release**: Completing a task automatically frees up all allocated team members
 - **Capacity Updates**: Team members' capacity becomes available immediately after marking a task as done
 - **Status Updates**: Task status changes to "completed" with 100% progress
-- **Audit Trail**: Completion creates an audit record with total TUs spent, cost, and completion timestamp
+- **Comprehensive Audit Trail**: When a task is marked as done, the system creates a detailed audit record that captures:
+  - **What**: Task title and full description
+  - **Who**: All team members involved (IDs and names)
+  - **How Long**: Actual duration calculated from start date to completion (in weeks)
+  - **Cost**: Total cost including human labor and AI tool costs
+  - **Time Units**: Total TUs expended on the task
+  - **Dates**: Start date and actual completion date
+  - **Notes**: Automatic summary with team, duration, and TU information
+- **Database Storage**: All audit records stored in `work_plan_audit_records` table for historical analysis
 - **Completed Task Visibility**: Completed tasks remain visible in the "Done" section for all team members (preserves assignedMemberIds for history)
+- **Console Logging**: Success message logged with task details: `✅ Task completed and recorded: "Task Title" by John, Jane (2.3 weeks, 15 TUs, £450.00)`
 
 ### ✅ Member Persistence Fix
 - **Fixed Login Issue**: Members no longer disappear after logging in
