@@ -241,11 +241,17 @@ export function TeamCapacityDashboard() {
   // Calculate team capacity metrics from role-filtered members
   const capacityData = useMemo(() => {
     const memberData = roleFilteredMembers.map((member) => {
-      // Calculate capacity
-      const capacity =
-        member.role === 'Founder' || member.role === 'Apprentice'
-          ? 10 // Base capacity (excluding overtime for cleaner display)
-          : (member.daysPerWeek || 2) * 2;
+      // Calculate capacity - MUST match CollapsibleResourcePool logic
+      let capacity = 0;
+      if (member.role === 'Founder' || member.role === 'Apprentice') {
+        capacity = 15; // 10 normal + 5 overtime (matching CollapsibleResourcePool)
+      } else {
+        // Fractional exec: days per week * 2 squares per day + overtime
+        const daysPerWeek = member.daysPerWeek || 2;
+        const normalSquares = daysPerWeek * 2;
+        const overtimeSquares = Math.min((5 - daysPerWeek) * 2, 10);
+        capacity = normalSquares + overtimeSquares;
+      }
 
       // Calculate allocated from work plans
       const allocated = workPlans
