@@ -15,7 +15,29 @@ Centaur OS is a comprehensive iOS mobile application that helps lean companies o
 
 ## 🚀 Latest Updates (Jan 19, 2026)
 
-### 🔒 Enterprise Security & Privacy System (TODAY)
+### ✅ When Tab - Interactive Task Quick Actions Modal (TODAY)
+
+**Major Improvement to Timeline Usability:**
+- 🎯 **Tap-to-Action**: Tapping a task on the Gantt chart now opens a rich interactive modal instead of navigating away
+- ⚡ **Quick Status Change**: Change task status with single tap (Queue, Start, Block, Done)
+- 📊 **Progress Control**: Animated progress bar with +/- buttons and quick presets (25%, 50%, 75%, 100%)
+- 📅 **Reschedule Due Date**: Quickly adjust due dates with -1 Week, -1 Day, +1 Day, +1 Week buttons
+- 👥 **Team Preview**: See assigned team members with their TU allocations
+- 📈 **Task Stats**: View estimated TUs, spent TUs, and remaining TUs at a glance
+- 🔄 **Save Changes**: Only shows when you've made changes, updates task in real-time
+- 🔗 **View Full Details**: Navigate to Tasks tab for complete task management
+
+**New Component:**
+- `src/components/TaskQuickActionsModal.tsx` - Full-featured modal for task management from timeline
+
+**Technical Features:**
+- Animated progress bar using react-native-reanimated
+- Color-coded function headers matching task categories
+- Overdue detection with warning indicators
+- Haptic feedback on all interactions
+- Dark mode support throughout
+
+### 🔒 Enterprise Security & Privacy System
 
 **Private Task Support:**
 - 🔐 **Visibility Levels**: 5-tier task visibility system (private, shared, function, company, restricted)
