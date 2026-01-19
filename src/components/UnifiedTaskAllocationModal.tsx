@@ -1,22 +1,36 @@
 /**
- * UnifiedTaskAllocationModal - Redesigned to match PersonDetailsModal aesthetic
- * Clean, elegant interface for viewing and editing task details
+ * UnifiedTaskAllocationModal - Full inline editing for all task fields
+ * Clean, elegant interface for viewing AND editing task details
  */
 
 import React, { useState, useMemo, useEffect } from 'react';
-import { View, Text, ScrollView, Pressable, Modal } from 'react-native';
+import { View, Text, ScrollView, Pressable, Modal, TextInput, Platform } from 'react-native';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import {
-  X, Calendar, Clock, Users, Target, ChevronRight, Crown, Briefcase, GraduationCap,
+  X, Calendar, Clock, Users, Target, Crown, Briefcase, GraduationCap,
+  Check, ChevronDown, Minus, Plus, Edit3, Save,
 } from 'lucide-react-native';
 import { useWorkPlanStore, type WorkPlan } from '@/lib/state/work-plan-store';
 import { useOrganizationStore } from '@/lib/state/organization-store';
-import { router } from 'expo-router';
+import type { Function as BusinessFunction } from '@/types';
 
 interface Props {
   visible: boolean;
   onClose: () => void;
   workPlan: WorkPlan | null;
 }
+
+const STATUS_OPTIONS: { value: WorkPlan['status']; label: string }[] = [
+  { value: 'not-started', label: 'Queued' },
+  { value: 'in-progress', label: 'In Progress' },
+  { value: 'blocked', label: 'Blocked' },
+  { value: 'completed', label: 'Completed' },
+  { value: 'abandoned', label: 'Abandoned' },
+];
+
+const FUNCTION_OPTIONS: BusinessFunction[] = [
+  'Engineering', 'Sales', 'Marketing', 'Finance', 'Ops', 'Admin',
+];
 
 const STATUS_COLORS: Record<string, { bg: string; text: string; badge: string }> = {
   'not-started': { bg: 'bg-gray-100 dark:bg-gray-800', text: 'text-gray-700 dark:text-gray-300', badge: '#6b7280' },
@@ -43,6 +57,44 @@ const ROLE_COLORS: Record<string, string> = {
 
 export function UnifiedTaskAllocationModal({ visible, onClose, workPlan }: Props) {
   const members = useOrganizationStore(s => s.members);
+  const updateWorkPlan = useWorkPlanStore(s => s.updateWorkPlan);
+
+  // Local edit state
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+  const [status, setStatus] = useState<WorkPlan['status']>('not-started');
+  const [businessFunction, setBusinessFunction] = useState<BusinessFunction>('Ops');
+  const [progress, setProgress] = useState(0);
+  const [startDate, setStartDate] = useState<Date>(new Date());
+  const [dueDate, setDueDate] = useState<Date>(new Date());
+  const [estimatedTimeUnits, setEstimatedTimeUnits] = useState(1);
+  const [allocatedPerWeek, setAllocatedPerWeek] = useState(1);
+
+  // Picker visibility
+  const [showStatusPicker, setShowStatusPicker] = useState(false);
+  const [showFunctionPicker, setShowFunctionPicker] = useState(false);
+  const [showStartDatePicker, setShowStartDatePicker] = useState(false);
+  const [showDueDatePicker, setShowDueDatePicker] = useState(false);
+
+  // Track if there are unsaved changes
+  const [hasChanges, setHasChanges] = useState(false);
+
+  // Populate form when workPlan changes
+  useEffect(() => {
+    if (workPlan) {
+      setTitle(workPlan.title);
+      setDescription(workPlan.description || '');
+      setStatus(workPlan.status);
+      setBusinessFunction(workPlan.function);
+      setProgress(workPlan.progress);
+      setStartDate(workPlan.startDate ? new Date(workPlan.startDate) : new Date());
+      setDueDate(workPlan.dueDate ? new Date(workPlan.dueDate) : new Date());
+      setEstimatedTimeUnits(workPlan.estimatedTimeUnits || 1);
+      const totalAlloc = workPlan.allocations?.reduce((sum, a) => sum + (a.squaresPerWeek || 0), 0) || 1;
+      setAllocatedPerWeek(totalAlloc);
+      setHasChanges(false);
+    }
+  }, [workPlan]);
 
   // Get assigned team members
   const assignedMembers = useMemo(() => {
@@ -55,22 +107,13 @@ export function UnifiedTaskAllocationModal({ visible, onClose, workPlan }: Props
 
   if (!workPlan || !visible) return null;
 
-  const statusConfig = STATUS_COLORS[workPlan.status] || STATUS_COLORS['not-started'];
-  const functionColor = FUNCTION_COLORS[workPlan.function] || '#8b5cf6';
+  const statusConfig = STATUS_COLORS[status] || STATUS_COLORS['not-started'];
+  const functionColor = FUNCTION_COLORS[businessFunction] || '#8b5cf6';
 
   // Calculate metrics
-  const totalAllocatedPerWeek = workPlan.allocations?.reduce((sum, a) => sum + (a.squaresPerWeek || 0), 0) || 0;
-  const weeksToComplete = totalAllocatedPerWeek > 0 ? Math.ceil(workPlan.estimatedTimeUnits / totalAllocatedPerWeek) : 0;
-  const completedTUs = Math.round((workPlan.progress / 100) * workPlan.estimatedTimeUnits);
-  const remainingTUs = workPlan.estimatedTimeUnits - completedTUs;
-
-  const handleEdit = () => {
-    onClose();
-    router.push({
-      pathname: '/(tabs)/tasks',
-      params: { selectedTaskId: workPlan.id },
-    });
-  };
+  const weeksToComplete = allocatedPerWeek > 0 ? Math.ceil(estimatedTimeUnits / allocatedPerWeek) : 0;
+  const completedTUs = Math.round((progress / 100) * estimatedTimeUnits);
+  const remainingTUs = estimatedTimeUnits - completedTUs;
 
   const getInitials = (name: string) => {
     const parts = name.split(' ');
@@ -79,6 +122,91 @@ export function UnifiedTaskAllocationModal({ visible, onClose, workPlan }: Props
     }
     return name.substring(0, 2).toUpperCase();
   };
+
+  const markChanged = () => setHasChanges(true);
+
+  const handleSave = () => {
+    if (!workPlan) return;
+
+    // Update allocations proportionally if allocated per week changed
+    const originalTotal = workPlan.allocations?.reduce((sum, a) => sum + (a.squaresPerWeek || 0), 0) || 1;
+    const ratio = allocatedPerWeek / originalTotal;
+    const updatedAllocations = workPlan.allocations?.map(a => ({
+      ...a,
+      squaresPerWeek: Math.max(1, Math.round((a.squaresPerWeek || 0) * ratio)),
+    })) || [];
+
+    updateWorkPlan(workPlan.id, {
+      title,
+      description,
+      status,
+      function: businessFunction,
+      progress,
+      startDate: startDate.toISOString().split('T')[0],
+      dueDate: dueDate.toISOString().split('T')[0],
+      estimatedTimeUnits,
+      allocations: updatedAllocations,
+    });
+
+    setHasChanges(false);
+    onClose();
+  };
+
+  const formatDate = (date: Date) => {
+    return date.toLocaleDateString('en-GB', {
+      day: 'numeric', month: 'short', year: 'numeric'
+    });
+  };
+
+  // Editable number field component
+  const NumberStepper = ({
+    value,
+    onChange,
+    min = 0,
+    max = 100,
+    label,
+    suffix = '',
+  }: {
+    value: number;
+    onChange: (n: number) => void;
+    min?: number;
+    max?: number;
+    label: string;
+    suffix?: string;
+  }) => (
+    <View className="flex-1">
+      <Text className="text-slate-500 dark:text-slate-400 text-xs mb-2">{label}</Text>
+      <View className="flex-row items-center bg-slate-100 dark:bg-slate-800 rounded-xl">
+        <Pressable
+          onPress={() => {
+            if (value > min) {
+              onChange(value - 1);
+              markChanged();
+            }
+          }}
+          className="p-3 active:opacity-50"
+        >
+          <Minus size={16} color="#64748b" />
+        </Pressable>
+        <View className="flex-1 items-center">
+          <Text className="text-slate-900 dark:text-white font-bold text-base">
+            {value}{suffix}
+          </Text>
+        </View>
+        <Pressable
+          onPress={() => {
+            if (value < max) {
+              onChange(value + 1);
+              markChanged();
+            }
+          }}
+          className="p-3 active:opacity-50"
+        >
+          <Plus size={16} color="#64748b" />
+        </Pressable>
+      </View>
+    </View>
+  );
 
   return (
     <Modal
@@ -89,11 +217,12 @@ export function UnifiedTaskAllocationModal({ visible, onClose, workPlan }: Props
     >
       <Pressable className="flex-1 bg-black/70" onPress={onClose}>
         <View className="flex-1" />
-        <Pressable onPress={(e) => e.stopPropagation()} style={{ maxHeight: '90%' }}>
+        <Pressable onPress={(e) => e.stopPropagation()} style={{ maxHeight: '92%' }}>
           <View className="bg-white dark:bg-slate-900 rounded-t-3xl overflow-hidden">
             <ScrollView
               showsVerticalScrollIndicator={false}
               contentContainerStyle={{ paddingBottom: 32 }}
+              keyboardShouldPersistTaps="handled"
             >
               {/* Header Section */}
               <View className="bg-slate-50 dark:bg-slate-800 px-6 pt-6 pb-6">
@@ -108,63 +237,91 @@ export function UnifiedTaskAllocationModal({ visible, onClose, workPlan }: Props
                 {/* Task Icon/Status */}
                 <View className="items-center mb-4">
                   <View
-                    className={`w-20 h-20 rounded-full items-center justify-center mb-3 ${statusConfig.bg}`}
+                    className={`w-16 h-16 rounded-full items-center justify-center mb-3 ${statusConfig.bg}`}
                   >
-                    <Target size={32} color={statusConfig.badge} />
+                    <Target size={28} color={statusConfig.badge} />
                   </View>
-                  <Text className="text-slate-900 dark:text-white text-xl font-bold text-center px-4">
-                    {workPlan.title}
-                  </Text>
+
+                  {/* Editable Title */}
+                  <TextInput
+                    value={title}
+                    onChangeText={(text) => {
+                      setTitle(text);
+                      markChanged();
+                    }}
+                    className="text-slate-900 dark:text-white text-xl font-bold text-center px-4 py-2 bg-white/50 dark:bg-slate-700/50 rounded-xl w-full"
+                    placeholder="Task title"
+                    placeholderTextColor="#94a3b8"
+                  />
+
+                  {/* Function & Status Selectors */}
                   <View className="flex-row items-center gap-2 mt-3">
-                    <View
-                      className="px-3 py-1 rounded-full"
+                    <Pressable
+                      onPress={() => setShowFunctionPicker(true)}
+                      className="px-3 py-1.5 rounded-full flex-row items-center gap-1"
                       style={{ backgroundColor: functionColor + '30' }}
                     >
                       <Text className="font-semibold text-sm" style={{ color: functionColor }}>
-                        {workPlan.function}
+                        {businessFunction}
                       </Text>
-                    </View>
-                    <View className={`px-3 py-1 rounded-full ${statusConfig.bg}`}>
+                      <ChevronDown size={14} color={functionColor} />
+                    </Pressable>
+                    <Pressable
+                      onPress={() => setShowStatusPicker(true)}
+                      className={`px-3 py-1.5 rounded-full flex-row items-center gap-1 ${statusConfig.bg}`}
+                    >
                       <Text className={`font-semibold text-sm ${statusConfig.text}`}>
-                        {workPlan.status.replace('-', ' ').toUpperCase()}
+                        {STATUS_OPTIONS.find(s => s.value === status)?.label || status}
                       </Text>
-                    </View>
+                      <ChevronDown size={14} color={statusConfig.badge} />
+                    </Pressable>
                   </View>
                 </View>
 
-                {/* Key Metrics - 3 columns */}
+                {/* Quick Stats */}
                 <View className="flex-row justify-center gap-6 mt-2">
                   <View className="items-center">
                     <Text className="text-slate-500 dark:text-slate-400 text-xs">Progress</Text>
                     <Text className="text-slate-900 dark:text-white font-semibold text-base">
-                      {workPlan.progress}%
+                      {progress}%
                     </Text>
                   </View>
                   <View className="items-center">
-                    <Text className="text-slate-500 dark:text-slate-400 text-xs">TU Allocated</Text>
+                    <Text className="text-slate-500 dark:text-slate-400 text-xs">TU/Week</Text>
                     <Text className="text-slate-900 dark:text-white font-semibold text-base">
-                      {totalAllocatedPerWeek}/wk
+                      {allocatedPerWeek}
                     </Text>
                   </View>
                   <View className="items-center">
-                    <Text className="text-slate-500 dark:text-slate-400 text-xs">Timeline</Text>
+                    <Text className="text-slate-500 dark:text-slate-400 text-xs">Weeks</Text>
                     <Text className="text-slate-900 dark:text-white font-semibold text-base">
-                      {weeksToComplete > 0 ? `${weeksToComplete} wks` : 'TBD'}
+                      {weeksToComplete > 0 ? weeksToComplete : 'TBD'}
                     </Text>
                   </View>
                 </View>
               </View>
 
-              {/* Description */}
-              {workPlan.description && (
-                <View className="px-6 py-4 border-b border-slate-200 dark:border-slate-800">
-                  <Text className="text-slate-700 dark:text-slate-300 text-sm leading-5">
-                    {workPlan.description}
-                  </Text>
+              {/* Description - Editable */}
+              <View className="px-6 py-4 border-b border-slate-200 dark:border-slate-800">
+                <View className="flex-row items-center gap-2 mb-2">
+                  <Edit3 size={16} color="#64748b" />
+                  <Text className="text-slate-500 dark:text-slate-400 text-xs font-medium">Description</Text>
                 </View>
-              )}
+                <TextInput
+                  value={description}
+                  onChangeText={(text) => {
+                    setDescription(text);
+                    markChanged();
+                  }}
+                  className="text-slate-700 dark:text-slate-300 text-sm leading-5 bg-slate-50 dark:bg-slate-800 rounded-xl p-3 min-h-[80px]"
+                  placeholder="Add task description..."
+                  placeholderTextColor="#94a3b8"
+                  multiline
+                  textAlignVertical="top"
+                />
+              </View>
 
-              {/* Timeline Section */}
+              {/* Timeline Section - Editable */}
               <View className="px-6 py-4 border-b border-slate-200 dark:border-slate-800">
                 <View className="flex-row items-center gap-2 mb-3">
                   <Calendar size={18} color="#3b82f6" />
@@ -172,27 +329,82 @@ export function UnifiedTaskAllocationModal({ visible, onClose, workPlan }: Props
                     Timeline
                   </Text>
                 </View>
-                <View className="flex-row justify-between">
+                <View className="flex-row gap-3">
                   <View className="flex-1">
-                    <Text className="text-slate-500 dark:text-slate-400 text-xs mb-1">Start Date</Text>
-                    <Text className="text-slate-900 dark:text-white text-sm font-semibold">
-                      {workPlan.startDate ? new Date(workPlan.startDate).toLocaleDateString('en-GB', {
-                        day: 'numeric', month: 'short', year: 'numeric'
-                      }) : 'Not set'}
-                    </Text>
+                    <Text className="text-slate-500 dark:text-slate-400 text-xs mb-2">Start Date</Text>
+                    <Pressable
+                      onPress={() => setShowStartDatePicker(true)}
+                      className="bg-slate-100 dark:bg-slate-800 rounded-xl p-3 flex-row items-center justify-between"
+                    >
+                      <Text className="text-slate-900 dark:text-white text-sm font-semibold">
+                        {formatDate(startDate)}
+                      </Text>
+                      <Calendar size={16} color="#64748b" />
+                    </Pressable>
                   </View>
                   <View className="flex-1">
-                    <Text className="text-slate-500 dark:text-slate-400 text-xs mb-1">Due Date</Text>
-                    <Text className="text-slate-900 dark:text-white text-sm font-semibold">
-                      {workPlan.dueDate ? new Date(workPlan.dueDate).toLocaleDateString('en-GB', {
-                        day: 'numeric', month: 'short', year: 'numeric'
-                      }) : 'Not set'}
-                    </Text>
+                    <Text className="text-slate-500 dark:text-slate-400 text-xs mb-2">Due Date</Text>
+                    <Pressable
+                      onPress={() => setShowDueDatePicker(true)}
+                      className="bg-slate-100 dark:bg-slate-800 rounded-xl p-3 flex-row items-center justify-between"
+                    >
+                      <Text className="text-slate-900 dark:text-white text-sm font-semibold">
+                        {formatDate(dueDate)}
+                      </Text>
+                      <Calendar size={16} color="#64748b" />
+                    </Pressable>
                   </View>
                 </View>
               </View>
 
-              {/* Time Units Section */}
+              {/* Progress Section - Editable */}
+              <View className="px-6 py-4 border-b border-slate-200 dark:border-slate-800">
+                <View className="flex-row items-center gap-2 mb-3">
+                  <Target size={18} color="#f59e0b" />
+                  <Text className="text-slate-900 dark:text-white font-bold text-sm">
+                    Progress
+                  </Text>
+                </View>
+                <View className="flex-row items-center gap-4">
+                  <View className="flex-1">
+                    <View className="h-3 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                      <View
+                        className="h-full bg-emerald-500 rounded-full"
+                        style={{ width: `${progress}%` }}
+                      />
+                    </View>
+                  </View>
+                  <View className="flex-row items-center bg-slate-100 dark:bg-slate-800 rounded-xl">
+                    <Pressable
+                      onPress={() => {
+                        if (progress >= 10) {
+                          setProgress(progress - 10);
+                          markChanged();
+                        }
+                      }}
+                      className="p-2 active:opacity-50"
+                    >
+                      <Minus size={16} color="#64748b" />
+                    </Pressable>
+                    <Text className="text-slate-900 dark:text-white font-bold text-base w-12 text-center">
+                      {progress}%
+                    </Text>
+                    <Pressable
+                      onPress={() => {
+                        if (progress <= 90) {
+                          setProgress(progress + 10);
+                          markChanged();
+                        }
+                      }}
+                      className="p-2 active:opacity-50"
+                    >
+                      <Plus size={16} color="#64748b" />
+                    </Pressable>
+                  </View>
+                </View>
+              </View>
+
+              {/* Time Units Section - Editable */}
               <View className="px-6 py-4 border-b border-slate-200 dark:border-slate-800">
                 <View className="flex-row items-center gap-2 mb-3">
                   <Clock size={18} color="#10b981" />
@@ -200,23 +412,41 @@ export function UnifiedTaskAllocationModal({ visible, onClose, workPlan }: Props
                     Time Units
                   </Text>
                 </View>
-                <View className="flex-row justify-between">
-                  <View className="flex-1">
-                    <Text className="text-slate-500 dark:text-slate-400 text-xs mb-1">Total Required</Text>
-                    <Text className="text-slate-900 dark:text-white text-sm font-semibold">
-                      {workPlan.estimatedTimeUnits} TU
-                    </Text>
-                  </View>
-                  <View className="flex-1">
-                    <Text className="text-slate-500 dark:text-slate-400 text-xs mb-1">Completed</Text>
-                    <Text className="text-emerald-600 dark:text-emerald-400 text-sm font-semibold">
+                <View className="flex-row gap-3">
+                  <NumberStepper
+                    value={estimatedTimeUnits}
+                    onChange={setEstimatedTimeUnits}
+                    min={1}
+                    max={50}
+                    label="TU Needed"
+                    suffix=" TU"
+                  />
+                  <NumberStepper
+                    value={allocatedPerWeek}
+                    onChange={setAllocatedPerWeek}
+                    min={1}
+                    max={15}
+                    label="Allocated/Week"
+                    suffix=" TU"
+                  />
+                </View>
+                <View className="flex-row justify-between mt-3 bg-slate-50 dark:bg-slate-800 rounded-xl p-3">
+                  <View className="items-center flex-1">
+                    <Text className="text-slate-500 dark:text-slate-400 text-xs">Completed</Text>
+                    <Text className="text-emerald-600 dark:text-emerald-400 font-bold">
                       {completedTUs} TU
                     </Text>
                   </View>
-                  <View className="flex-1">
-                    <Text className="text-slate-500 dark:text-slate-400 text-xs mb-1">Remaining</Text>
-                    <Text className="text-slate-900 dark:text-white text-sm font-semibold">
+                  <View className="items-center flex-1 border-l border-slate-200 dark:border-slate-700">
+                    <Text className="text-slate-500 dark:text-slate-400 text-xs">Remaining</Text>
+                    <Text className="text-slate-900 dark:text-white font-bold">
                       {remainingTUs} TU
+                    </Text>
+                  </View>
+                  <View className="items-center flex-1 border-l border-slate-200 dark:border-slate-700">
+                    <Text className="text-slate-500 dark:text-slate-400 text-xs">Weeks to Go</Text>
+                    <Text className="text-blue-600 dark:text-blue-400 font-bold">
+                      {weeksToComplete > 0 ? weeksToComplete : 'TBD'}
                     </Text>
                   </View>
                 </View>
@@ -283,20 +513,141 @@ export function UnifiedTaskAllocationModal({ visible, onClose, workPlan }: Props
                 </View>
               )}
 
-              {/* Edit Button */}
+              {/* Save Button */}
               <View className="px-6 pt-4">
                 <Pressable
-                  onPress={handleEdit}
-                  className="bg-blue-500 rounded-xl py-4 flex-row items-center justify-center gap-2 active:opacity-80"
+                  onPress={handleSave}
+                  className={`rounded-xl py-4 flex-row items-center justify-center gap-2 active:opacity-80 ${
+                    hasChanges ? 'bg-emerald-500' : 'bg-slate-300 dark:bg-slate-700'
+                  }`}
                 >
-                  <Text className="text-white font-semibold text-base">Edit Task Details</Text>
-                  <ChevronRight size={20} color="white" />
+                  {hasChanges ? (
+                    <>
+                      <Save size={20} color="white" />
+                      <Text className="text-white font-semibold text-base">Save Changes</Text>
+                    </>
+                  ) : (
+                    <>
+                      <Check size={20} color="#64748b" />
+                      <Text className="text-slate-500 font-semibold text-base">No Changes</Text>
+                    </>
+                  )}
                 </Pressable>
               </View>
             </ScrollView>
           </View>
         </Pressable>
       </Pressable>
+
+      {/* Status Picker Modal */}
+      <Modal
+        visible={showStatusPicker}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowStatusPicker(false)}
+      >
+        <Pressable
+          className="flex-1 bg-black/50 justify-center items-center"
+          onPress={() => setShowStatusPicker(false)}
+        >
+          <View className="bg-white dark:bg-slate-800 rounded-2xl p-4 mx-6 w-[280px]">
+            <Text className="text-slate-900 dark:text-white font-bold text-lg mb-3 text-center">
+              Select Status
+            </Text>
+            {STATUS_OPTIONS.map((option) => {
+              const config = STATUS_COLORS[option.value];
+              return (
+                <Pressable
+                  key={option.value}
+                  onPress={() => {
+                    setStatus(option.value);
+                    markChanged();
+                    setShowStatusPicker(false);
+                  }}
+                  className={`p-3 rounded-xl mb-2 flex-row items-center justify-between ${config.bg}`}
+                >
+                  <Text className={`font-semibold ${config.text}`}>{option.label}</Text>
+                  {status === option.value && <Check size={18} color={config.badge} />}
+                </Pressable>
+              );
+            })}
+          </View>
+        </Pressable>
+      </Modal>
+
+      {/* Function Picker Modal */}
+      <Modal
+        visible={showFunctionPicker}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowFunctionPicker(false)}
+      >
+        <Pressable
+          className="flex-1 bg-black/50 justify-center items-center"
+          onPress={() => setShowFunctionPicker(false)}
+        >
+          <View className="bg-white dark:bg-slate-800 rounded-2xl p-4 mx-6 w-[280px]">
+            <Text className="text-slate-900 dark:text-white font-bold text-lg mb-3 text-center">
+              Select Function
+            </Text>
+            {FUNCTION_OPTIONS.map((func) => {
+              const color = FUNCTION_COLORS[func];
+              return (
+                <Pressable
+                  key={func}
+                  onPress={() => {
+                    setBusinessFunction(func);
+                    markChanged();
+                    setShowFunctionPicker(false);
+                  }}
+                  className="p-3 rounded-xl mb-2 flex-row items-center justify-between"
+                  style={{ backgroundColor: color + '20' }}
+                >
+                  <Text className="font-semibold" style={{ color }}>{func}</Text>
+                  {businessFunction === func && <Check size={18} color={color} />}
+                </Pressable>
+              );
+            })}
+          </View>
+        </Pressable>
+      </Modal>
+
+      {/* Date Pickers */}
+      {showStartDatePicker && (
+        <DateTimePicker
+          value={startDate}
+          mode="date"
+          display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+          onChange={(event, selectedDate) => {
+            setShowStartDatePicker(Platform.OS === 'ios');
+            if (selectedDate) {
+              setStartDate(selectedDate);
+              markChanged();
+            }
+            if (Platform.OS !== 'ios') {
+              setShowStartDatePicker(false);
+            }
+          }}
+        />
+      )}
+
+      {showDueDatePicker && (
+        <DateTimePicker
+          value={dueDate}
+          mode="date"
+          display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+          onChange={(event, selectedDate) => {
+            setShowDueDatePicker(Platform.OS === 'ios');
+            if (selectedDate) {
+              setDueDate(selectedDate);
+              markChanged();
+            }
+            if (Platform.OS !== 'ios') {
+              setShowDueDatePicker(false);
+            }
+          }}
+        />
+      )}
     </Modal>
   );
 }
