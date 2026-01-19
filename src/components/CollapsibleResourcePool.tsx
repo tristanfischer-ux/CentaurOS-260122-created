@@ -73,9 +73,24 @@ export function CollapsibleResourcePool({ selectedPersonId, onPersonSelect }: Co
   const [showPersonModal, setShowPersonModal] = useState(false);
   const [selectedMember, setSelectedMember] = useState<OrganizationMember | null>(null);
 
+  // Memoize the filtered members to avoid creating new array each render
+  const members = useMemo(() =>
+    allMembers.filter(m => m.status === 'active'),
+    [allMembers]
+  );
+
   // Calculate heights
   const COLLAPSED_HEIGHT = 52; // Just the tab
-  const EXPANDED_HEIGHT = screenHeight * 0.5; // 50% of screen
+  const MAX_EXPANDED_HEIGHT = screenHeight * 0.5; // Max 50% of screen
+
+  // Calculate content height based on number of members
+  const HEADER_HEIGHT = 52; // Tab header
+  const SUMMARY_HEIGHT = 80; // Financial summary section
+  const MEMBER_ROW_HEIGHT = 42; // Height per member row
+  const LEGEND_HEIGHT = 32; // Legend at bottom
+
+  const contentHeight = HEADER_HEIGHT + SUMMARY_HEIGHT + (members.length * MEMBER_ROW_HEIGHT) + LEGEND_HEIGHT;
+  const EXPANDED_HEIGHT = Math.min(contentHeight, MAX_EXPANDED_HEIGHT);
 
   // Animated height
   const height = useSharedValue(COLLAPSED_HEIGHT);
@@ -94,12 +109,6 @@ export function CollapsibleResourcePool({ selectedPersonId, onPersonSelect }: Co
     setIsExpanded(newExpanded);
     height.value = newExpanded ? EXPANDED_HEIGHT : COLLAPSED_HEIGHT;
   };
-
-  // Memoize the filtered members to avoid creating new array each render
-  const members = useMemo(() =>
-    allMembers.filter(m => m.status === 'active'),
-    [allMembers]
-  );
 
   // Calculate total allocated and unallocated squares across all members
   const { totalAllocated, totalUnallocated } = useMemo(() => {
@@ -306,9 +315,9 @@ export function CollapsibleResourcePool({ selectedPersonId, onPersonSelect }: Co
                         <Text className="text-gray-900 dark:text-white text-[11px] font-semibold" numberOfLines={1}>
                           {member.name.split(' ')[0]}
                         </Text>
-                        {/* Role and cost on same line */}
+                        {/* Role only - cost removed */}
                         <Text className="text-[8px] text-gray-500 dark:text-slate-500">
-                          {member.role === 'FractionalExec' ? 'Exec' : member.role.slice(0, 4)} • £{costPerTU}/TU
+                          {member.role === 'FractionalExec' ? 'Exec' : member.role.slice(0, 4)} • £X/TU
                         </Text>
                       </View>
                     </View>
