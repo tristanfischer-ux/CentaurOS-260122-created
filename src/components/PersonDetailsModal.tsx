@@ -39,6 +39,7 @@ import { cn } from '@/lib/cn';
 import type { Squad as ArmorySquad, Function as BusinessFunction } from '@/types';
 import { lightImpact, heavyImpact } from '@/lib/haptics';
 import { MiniGanttChart } from './MiniGanttChart';
+import { getInitials, ROLE_COLORS } from './Avatar';
 
 // Combined squad type for display
 type CombinedSquad = SquadStoreSquad | ArmorySquad;
@@ -52,12 +53,6 @@ interface PersonDetailsModalProps {
   allMembers?: OrganizationMember[]; // NEW: Array of all members for swiping
   onMemberChange?: (member: OrganizationMember) => void; // NEW: Callback when member changes via swipe
 }
-
-const ROLE_COLORS: Record<string, string> = {
-  Founder: '#8b5cf6',
-  FractionalExec: '#3b82f6',
-  Apprentice: '#10b981',
-};
 
 const ROLE_LABELS: Record<string, string> = {
   Founder: 'Founder',
@@ -384,7 +379,7 @@ export function PersonDetailsModal({
                   style={{ backgroundColor: roleColor }}
                 >
                   <Text className="text-white font-bold text-2xl">
-                    {member.name.split(' ').map(n => n[0]).join('')}
+                    {getInitials(member.name)}
                   </Text>
                 </View>
                 <Text className="text-slate-900 dark:text-white text-xl font-bold text-center">
@@ -1143,7 +1138,7 @@ export function PersonDetailsModal({
                         style={{ backgroundColor: roleColor + '20' }}
                       >
                         <Text className="font-bold text-sm" style={{ color: roleColor }}>
-                          {teamMember.name.split(' ').map(n => n[0]).join('')}
+                          {getInitials(teamMember.name)}
                         </Text>
                       </View>
                       <View className="flex-1">

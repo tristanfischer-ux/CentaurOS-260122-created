@@ -9,17 +9,12 @@ import { useWorkPlanStore, type WorkPlan } from '@/lib/state/work-plan-store';
 import { useFinanceStore } from '@/lib/state/finance-store';
 import { useCurrentWorkspace } from '@/lib/state/app-store';
 import { PersonDetailsModal } from './PersonDetailsModal';
+import { RoleAvatar, ROLE_COLORS } from './Avatar';
 
 interface CollapsibleResourcePoolProps {
   selectedPersonId: string | null;
   onPersonSelect: (personId: string) => void;
 }
-
-const ROLE_COLORS: Record<string, string> = {
-  Founder: '#8b5cf6',     // Purple
-  FractionalExec: '#3b82f6', // Blue
-  Apprentice: '#10b981',  // Green
-};
 
 // Calculate TU capacity per week based on role
 const getCapacityPerWeek = (member: OrganizationMember): { normal: number; overtime: number } => {
@@ -310,15 +305,8 @@ export function CollapsibleResourcePool({ selectedPersonId, onPersonSelect }: Co
                   {/* Left: Name, Role, and Cost */}
                   <View className="w-24 mr-2">
                     <View className="flex-row items-center gap-1.5">
-                      {/* Initials circle - smaller */}
-                      <View
-                        className="w-6 h-6 rounded-full items-center justify-center"
-                        style={{ backgroundColor: roleColor + '20' }}
-                      >
-                        <Text className="font-bold text-[9px]" style={{ color: roleColor }}>
-                          {member.name.split(' ').map(n => n[0].toUpperCase()).join('')}
-                        </Text>
-                      </View>
+                      {/* Avatar with proper initials */}
+                      <RoleAvatar name={member.name} role={member.role} size="sm" />
 
                       {/* Name - compact */}
                       <View className="flex-1">

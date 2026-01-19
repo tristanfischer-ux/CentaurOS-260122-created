@@ -21,12 +21,7 @@ import { type OrganizationMember } from '@/lib/organization-seed';
 import { PersonDetailsModal } from './PersonDetailsModal';
 import { MiniGanttChart } from './MiniGanttChart';
 import { useTheme } from '@/lib/ThemeContext';
-
-const ROLE_COLORS: Record<string, string> = {
-  Founder: '#8b5cf6',
-  FractionalExec: '#3b82f6',
-  Apprentice: '#10b981',
-};
+import { RoleAvatar, getInitials, ROLE_COLORS } from './Avatar';
 
 const getCapacityPerWeek = (member: OrganizationMember): { normal: number; overtime: number } => {
   if (member.role === 'Founder' || member.role === 'Apprentice') {
@@ -266,27 +261,7 @@ export function DualBottomDrawers({ onTaskPress }: DualBottomDrawersProps) {
                   }}
                 >
                   {/* Avatar */}
-                  <View
-                    style={{
-                      width: 24,
-                      height: 24,
-                      borderRadius: 12,
-                      backgroundColor: roleColor + '20',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      marginRight: 8,
-                    }}
-                  >
-                    <Text
-                      style={{
-                        fontSize: 9,
-                        fontWeight: '700',
-                        color: roleColor,
-                      }}
-                    >
-                      {member.name.split(' ').map(n => n[0]).join('')}
-                    </Text>
-                  </View>
+                  <RoleAvatar name={member.name} role={member.role} size="sm" />
 
                   {/* Name & Info */}
                   <View style={{ flex: 1 }}>
@@ -346,28 +321,15 @@ export function DualBottomDrawers({ onTaskPress }: DualBottomDrawersProps) {
               gap: 4,
             }}
           >
-            {members.slice(0, 4).map((member) => {
-              const roleColor = ROLE_COLORS[member.role] || '#8b5cf6';
-              return (
-                <View
-                  key={member.id}
-                  style={{
-                    width: 22,
-                    height: 22,
-                    borderRadius: 11,
-                    backgroundColor: roleColor + '20',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    borderWidth: 1,
-                    borderColor: roleColor + '40',
-                  }}
-                >
-                  <Text style={{ fontSize: 8, fontWeight: '700', color: roleColor }}>
-                    {member.name.split(' ').map(n => n[0]).join('')}
-                  </Text>
-                </View>
-              );
-            })}
+            {members.slice(0, 4).map((member) => (
+              <RoleAvatar
+                key={member.id}
+                name={member.name}
+                role={member.role}
+                size="xs"
+                showBorder
+              />
+            ))}
             {members.length > 4 && (
               <Text
                 style={{

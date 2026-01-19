@@ -34,6 +34,7 @@ import { type WorkPlan, useWorkPlanStore } from '@/lib/state/work-plan-store';
 import { useOrganizationStore } from '@/lib/state/organization-store';
 import { lightImpact, mediumImpact, successNotification } from '@/lib/haptics';
 import type { Function as BusinessFunction } from '@/types';
+import { RoleAvatar } from './Avatar';
 
 interface TaskQuickActionsModalProps {
   visible: boolean;
@@ -465,24 +466,8 @@ export function TaskQuickActionsModal({
                           key={member.id}
                           className="flex-row items-center bg-gray-100 dark:bg-slate-800 px-3 py-2 rounded-lg"
                         >
-                          <View
-                            className="w-6 h-6 rounded-full items-center justify-center mr-2"
-                            style={{
-                              backgroundColor:
-                                member.role === 'Founder' ? '#8b5cf620' :
-                                member.role === 'FractionalExec' ? '#3b82f620' : '#10b98120',
-                            }}
-                          >
-                            <Text
-                              className="text-[10px] font-bold"
-                              style={{
-                                color:
-                                  member.role === 'Founder' ? '#8b5cf6' :
-                                  member.role === 'FractionalExec' ? '#3b82f6' : '#10b981',
-                              }}
-                            >
-                              {member.name.split(' ').map(n => n[0]).join('')}
-                            </Text>
+                          <View className="mr-2">
+                            <RoleAvatar name={member.name} role={member.role} size="sm" />
                           </View>
                           <View>
                             <Text className="text-gray-900 dark:text-white text-sm font-medium">

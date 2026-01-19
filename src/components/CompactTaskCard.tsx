@@ -16,6 +16,7 @@ import { type OrganizationMember } from '@/lib/organization-seed';
 import { useSquadStore } from '@/lib/state/squad-store';
 import { getDelayInfo, formatDelay, getDelaySeverityColor, getOriginalTimeline } from '@/lib/task-delay-tracker';
 import { calculateTaskImportance } from '@/lib/task-importance';
+import { getInitials, ROLE_COLORS } from './Avatar';
 
 interface CompactTaskCardProps {
   task: WorkPlan;
@@ -24,16 +25,6 @@ interface CompactTaskCardProps {
   onFullDetailPress: () => void;
   isSelected?: boolean;
 }
-
-const ROLE_COLORS: Record<string, string> = {
-  Founder: '#8b5cf6',
-  FractionalExec: '#3b82f6',
-  Apprentice: '#10b981',
-};
-
-const getInitials = (name: string) => {
-  return name.split(' ').map(n => n[0]).join('').toUpperCase();
-};
 
 export function CompactTaskCard({
   task,
