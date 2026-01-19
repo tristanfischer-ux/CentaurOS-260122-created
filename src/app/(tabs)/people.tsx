@@ -74,19 +74,27 @@ export default function PeopleScreen() {
   const handleAddSelfAsMember = async () => {
     console.log('[People] handleAddSelfAsMember called', {
       currentUser: currentUser?.id,
+      currentUserName: currentUser?.name,
       currentWorkspace: currentWorkspace?.id,
+      currentWorkspaceName: currentWorkspace?.name,
       currentMembership: currentMembership?.id,
+      currentMembershipRole: currentMembership?.role,
+      currentMembershipFunction: currentMembership?.function,
     });
 
-    if (!currentUser || !currentWorkspace?.id || !currentMembership) {
+    if (!currentUser || !currentWorkspace?.id) {
       console.error('[People] Missing required data:', {
         hasUser: !!currentUser,
         hasWorkspace: !!currentWorkspace?.id,
         hasMembership: !!currentMembership,
       });
-      Alert.alert('Error', 'Unable to add member. Please try again.');
+      Alert.alert('Error', 'Unable to add member. Missing user or workspace information.');
       return;
     }
+
+    // If no membership, use defaults
+    const role = currentMembership?.role || 'Founder';
+    const functionName = currentMembership?.function || 'Admin';
 
     setIsAddingMember(true);
     try {
@@ -94,8 +102,8 @@ export default function PeopleScreen() {
         workspaceId: currentWorkspace.id,
         userId: currentUser.id,
         name: currentUser.name || 'Team Member',
-        role: currentMembership.role || 'Founder', // Use their membership role
-        function: currentMembership.function || 'Admin',
+        role: role,
+        function: functionName,
         status: 'active',
       };
 
