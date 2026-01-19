@@ -38,6 +38,7 @@ Centaur OS is a comprehensive iOS mobile application that helps lean companies o
 - **Auto-Scroll to Today**: Timeline automatically positions current week on screen load
 - **Team Member Avatars**: See who's assigned to each task directly on the timeline
 - **Tap to View Details**: Tap any task bar to navigate to full task details in Tasks tab
+- **Weekly Resource Pool Drawer**: Added collapsible resource drawer at bottom showing team capacity and availability
 
 ### ✅ Task Completion Feature
 - **Mark as Done Button**: Added "Mark as Done" button to task cards in the expanded view

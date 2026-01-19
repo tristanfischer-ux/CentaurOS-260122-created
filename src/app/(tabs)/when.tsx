@@ -27,6 +27,7 @@ import { useCurrentMembership, useCurrentWorkspace } from '@/lib/state/app-store
 import { HelpModal, HelpButton, type HelpContent } from '@/components/HelpModal';
 import { SettingsGearButton } from '@/components/SettingsGearButton';
 import { MiniGanttChart } from '@/components/MiniGanttChart';
+import { CollapsibleResourcePool } from '@/components/CollapsibleResourcePool';
 
 const WHEN_HELP: HelpContent = {
   title: 'When',
@@ -57,6 +58,7 @@ export default function WhenScreen() {
 
   // State
   const [showHelp, setShowHelp] = useState(false);
+  const [selectedPersonId, setSelectedPersonId] = useState<string | null>(null);
 
   // Calculate task stats
   const taskStats = useMemo(() => {
@@ -175,9 +177,15 @@ export default function WhenScreen() {
               params: { selectedTaskId: taskId },
             });
           }}
-          fillAvailableSpace
+          fillAvailableSpace={false}
         />
       </View>
+
+      {/* Weekly Resource Pool Drawer */}
+      <CollapsibleResourcePool
+        selectedPersonId={selectedPersonId}
+        onPersonSelect={setSelectedPersonId}
+      />
 
       {/* Empty state */}
       {workPlans.filter(wp => wp.status !== 'completed' && wp.status !== 'abandoned').length === 0 && (
