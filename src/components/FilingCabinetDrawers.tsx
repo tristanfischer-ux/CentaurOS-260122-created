@@ -409,70 +409,108 @@ export function FilingCabinetDrawers({ onTaskPress }: FilingCabinetDrawersProps)
                       {member.role === 'FractionalExec' ? 'Exec' : member.role} • {member.function}
                     </Text>
 
-                    {/* TU allocation and status */}
-                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                    {/* Capacity Squares - Visual TU representation */}
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 2, flexWrap: 'wrap', marginTop: 2 }}>
+                      {/* Allocated squares (red/coral) */}
+                      {Array.from({ length: Math.min(allocated, totalCapacity) }).map((_, i) => (
+                        <View
+                          key={`alloc-${i}`}
+                          style={{
+                            width: 10,
+                            height: 10,
+                            borderRadius: 2,
+                            backgroundColor: '#ef4444', // Red for allocated
+                          }}
+                        />
+                      ))}
+                      {/* Overtime allocated squares (orange) */}
+                      {isOverallocated && Array.from({ length: allocated - totalCapacity }).map((_, i) => (
+                        <View
+                          key={`ot-${i}`}
+                          style={{
+                            width: 10,
+                            height: 10,
+                            borderRadius: 2,
+                            backgroundColor: '#f97316', // Orange for overtime
+                          }}
+                        />
+                      ))}
+                      {/* Available squares (green) */}
+                      {!isOverallocated && Array.from({ length: available }).map((_, i) => (
+                        <View
+                          key={`avail-${i}`}
+                          style={{
+                            width: 10,
+                            height: 10,
+                            borderRadius: 2,
+                            backgroundColor: '#22c55e', // Green for available
+                          }}
+                        />
+                      ))}
+                    </View>
+                  </View>
+
+                  {/* TU Badge */}
+                  <View style={{ alignItems: 'flex-end', marginLeft: 8 }}>
+                    <View
+                      style={{
+                        paddingHorizontal: 8,
+                        paddingVertical: 4,
+                        backgroundColor: isOverallocated ? '#ef4444' : (available === 0 ? '#f59e0b' : '#3b82f6'),
+                        borderRadius: 8,
+                      }}
+                    >
                       <Text
                         style={{
-                          fontSize: 10,
-                          color: isDark ? '#94a3b8' : '#64748b',
+                          fontSize: 11,
+                          fontWeight: '700',
+                          color: '#ffffff',
                         }}
                       >
                         {allocated}/{totalCapacity} TU
                       </Text>
-                      <View
-                        style={{
-                          paddingHorizontal: 6,
-                          paddingVertical: 2,
-                          backgroundColor: statusColor + '20',
-                          borderRadius: 8,
-                        }}
-                      >
-                        <Text
-                          style={{
-                            fontSize: 9,
-                            fontWeight: '600',
-                            color: statusColor,
-                          }}
-                        >
-                          {statusText}
-                        </Text>
-                      </View>
-                    </View>
-                  </View>
-
-                  {/* Capacity Bar - Vertical */}
-                  <View style={{ alignItems: 'center', marginLeft: 8 }}>
-                    <View
-                      style={{
-                        width: 40,
-                        height: 6,
-                        backgroundColor: isDark ? '#1e293b' : '#e2e8f0',
-                        borderRadius: 3,
-                        overflow: 'hidden',
-                      }}
-                    >
-                      <View
-                        style={{
-                          width: `${Math.min(100, (allocated / totalCapacity) * 100)}%`,
-                          height: '100%',
-                          backgroundColor: isOverallocated ? '#ef4444' : '#3b82f6',
-                          borderRadius: 3,
-                        }}
-                      />
                     </View>
                     <Text
                       style={{
                         fontSize: 9,
-                        color: isDark ? '#64748b' : '#94a3b8',
-                        marginTop: 2,
+                        color: statusColor,
+                        fontWeight: '500',
+                        marginTop: 4,
                       }}
                     >
-                      {available} free
+                      {statusText}
                     </Text>
                   </View>
                 </Pressable>
               );
             })}
+
+            {/* Legend */}
+            <View
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'flex-end',
+                alignItems: 'center',
+                paddingHorizontal: 16,
+                paddingVertical: 10,
+                gap: 12,
+                borderTopWidth: 1,
+                borderTopColor: isDark ? '#1e293b' : '#f1f5f9',
+              }}
+            >
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                <View style={{ width: 8, height: 8, borderRadius: 2, backgroundColor: '#22c55e' }} />
+                <Text style={{ fontSize: 10, color: isDark ? '#94a3b8' : '#64748b' }}>Avail</Text>
+              </View>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                <View style={{ width: 8, height: 8, borderRadius: 2, backgroundColor: '#ef4444' }} />
+                <Text style={{ fontSize: 10, color: isDark ? '#94a3b8' : '#64748b' }}>Alloc</Text>
+              </View>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                <View style={{ width: 8, height: 8, borderRadius: 2, backgroundColor: '#f97316' }} />
+                <Text style={{ fontSize: 10, color: isDark ? '#94a3b8' : '#64748b' }}>OT</Text>
+              </View>
+            </View>
           </ScrollView>
         )}
 
