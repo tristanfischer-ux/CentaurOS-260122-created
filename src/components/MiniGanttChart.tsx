@@ -66,7 +66,7 @@ export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress
   // Helper to get assigned members for a task, sorted by seniority
   const getAssignedMembers = (task: WorkPlan) => {
     const memberIds = task.assignedMemberIds || [];
-    const roleOrder = { Founder: 0, FractionalExec: 1, Apprentice: 2 };
+    const roleOrder = { Founder: 0, CoFounder: 0, FractionalExec: 1, Apprentice: 2 };
 
     return memberIds
       .map(id => members.find(m => m.id === id))

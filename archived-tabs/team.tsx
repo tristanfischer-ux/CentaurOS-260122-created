@@ -26,7 +26,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 interface TeamMember {
   id: string;
   name: string;
-  role: 'Founder' | 'FractionalExec' | 'Apprentice';
+  role: 'Founder' | 'CoFounder' | 'FractionalExec' | 'Apprentice';
   specialization: string[];
   email: string;
   phone?: string;

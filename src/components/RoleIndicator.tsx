@@ -24,6 +24,12 @@ export function RoleIndicator({ compact = false }: RoleIndicatorProps) {
       icon: Building2,
       dotColor: '#3b82f6',
     },
+    CoFounder: {
+      color: '#3b82f6',
+      label: 'Command',
+      icon: Building2,
+      dotColor: '#3b82f6',
+    },
     FractionalExec: {
       color: '#8b5cf6',
       label: currentMembership?.function ? `${currentMembership.function} Lead` : 'Executive',

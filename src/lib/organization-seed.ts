@@ -10,7 +10,7 @@ export interface OrganizationMember {
   id: string;
   workspaceId: string; // 🔑 Multi-tenancy key - links member to specific company
   name: string;
-  role: 'Founder' | 'FractionalExec' | 'Apprentice';
+  role: 'Founder' | 'CoFounder' | 'FractionalExec' | 'Apprentice';
   function: string;
   reportsTo?: string; // ID of who they report to
   manages?: string[]; // IDs of people they manage

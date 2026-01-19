@@ -103,6 +103,7 @@ export default function HomeScreen() {
     case 'FractionalExec':
       return <ExecutiveHome />;
     case 'Founder':
+    case 'CoFounder':
     default:
       return <FounderHome />;
   }

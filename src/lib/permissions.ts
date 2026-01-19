@@ -10,7 +10,7 @@
 import { useCurrentMembership } from '@/lib/state/app-store';
 import { type OrganizationMember } from '@/lib/organization-seed';
 
-export type UserRole = 'Founder' | 'FractionalExec' | 'Apprentice';
+export type UserRole = 'Founder' | 'CoFounder' | 'FractionalExec' | 'Apprentice';
 
 export interface RolePermissions {
   // Visibility permissions
@@ -74,6 +74,11 @@ const FOUNDER_PERMISSIONS: RolePermissions = {
   canAccessWhatTab: true,
   canAccessDoTab: true,
   canAccessToolsTab: true,
+};
+
+const CO_FOUNDER_PERMISSIONS: RolePermissions = {
+  // CoFounders have identical permissions to Founders
+  ...FOUNDER_PERMISSIONS,
 };
 
 const EXEC_PERMISSIONS: RolePermissions = {
@@ -147,6 +152,8 @@ export function getPermissionsForRole(role: UserRole): RolePermissions {
   switch (role) {
     case 'Founder':
       return FOUNDER_PERMISSIONS;
+    case 'CoFounder':
+      return CO_FOUNDER_PERMISSIONS;
     case 'FractionalExec':
       return EXEC_PERMISSIONS;
     case 'Apprentice':
@@ -187,8 +194,8 @@ export function canManageMember(
   currentMember: OrganizationMember,
   targetMember: OrganizationMember
 ): boolean {
-  // Founders can manage everyone
-  if (currentMember.role === 'Founder') return true;
+  // Founders and CoFounders can manage everyone
+  if (currentMember.role === 'Founder' || currentMember.role === 'CoFounder') return true;
 
   // Execs can manage their direct reports
   if (currentMember.role === 'FractionalExec') {

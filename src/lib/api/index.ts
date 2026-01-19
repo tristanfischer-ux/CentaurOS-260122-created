@@ -37,6 +37,10 @@ export function checkPermission(
       // Founders can do everything
       '*': ['*'],
     },
+    CoFounder: {
+      // CoFounders have same permissions as Founders
+      '*': ['*'],
+    },
     Apprentice: {
       task: ['read', 'create', 'update_own', 'request_review'],
       project: ['read'],

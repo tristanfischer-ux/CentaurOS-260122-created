@@ -298,7 +298,7 @@ export default function DecideScreen() {
   // Get assigned members for a work plan, sorted by seniority
   const getAssignedMembers = (workPlan: WorkPlan) => {
     const memberIds = workPlan.assignedMemberIds || [];
-    const roleOrder = { Founder: 0, FractionalExec: 1, Apprentice: 2 };
+    const roleOrder = { Founder: 0, CoFounder: 0, FractionalExec: 1, Apprentice: 2 };
 
     return memberIds
       .map(id => orgMembers.find(m => m.id === id))
