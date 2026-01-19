@@ -31,6 +31,17 @@ Centaur OS is a comprehensive iOS mobile application that helps lean companies o
   - Member composition with progress tracking
 - **Empty State Guidance**: Clear explanation of how squads form automatically
 
+### ✅ Tappable Team Members with PersonDetailsModal
+- **One-Tap Access**: Tap any team member card in the People tab to open full details modal
+  - Opens the same comprehensive PersonDetailsModal used in task allocation
+  - Shows avatar, role, function, capacity, utilization, tasks, timeline, squads, contact info
+- **Swipe Navigation**: Swipe left/right in the modal to navigate between team members
+  - Seamlessly browse through your entire team without closing the modal
+  - Previous/next indicators show navigation availability
+- **Squad Member Access**: Tap member pills in the Squads tab to view their details
+  - Both custom squads and automatic task teams support member tapping
+  - Quick access to any team member from squad context
+
 ### ✅ Task Timeline Delay Tracking & Visualization
 - **Original vs Current Timeline**: Tasks now track their original due date and TU estimate separately from current values
   - `originalDueDate` - Frozen when task starts

@@ -31,7 +31,9 @@ import { useCurrentWorkspace, useCurrentMembership, useAppStore } from '@/lib/st
 import { HelpModal, HelpButton, type HelpContent } from '@/components/HelpModal';
 import { SettingsGearButton } from '@/components/SettingsGearButton';
 import { CollapsibleResourcePool } from '@/components/CollapsibleResourcePool';
+import { PersonDetailsModal } from '@/components/PersonDetailsModal';
 import { memberService } from '@/lib/supabase-service';
+import type { OrganizationMember } from '@/lib/organization-seed';
 
 const PEOPLE_HELP: HelpContent = {
   title: 'People',
@@ -71,6 +73,19 @@ export default function PeopleScreen() {
   const [showHelp, setShowHelp] = useState(false);
   const [selectedPersonId, setSelectedPersonId] = useState<string | null>(null);
   const [isAddingMember, setIsAddingMember] = useState(false);
+  const [showPersonModal, setShowPersonModal] = useState(false);
+  const [selectedMember, setSelectedMember] = useState<OrganizationMember | null>(null);
+
+  // Handler for opening person details
+  const handleOpenPersonDetails = (member: OrganizationMember) => {
+    setSelectedMember(member);
+    setShowPersonModal(true);
+  };
+
+  // Handler for changing member via swipe in modal
+  const handleMemberChange = (member: OrganizationMember) => {
+    setSelectedMember(member);
+  };
 
   // Check if current user has a member record
   const userHasMemberRecord = useMemo(() => {
@@ -387,6 +402,7 @@ export default function PeopleScreen() {
                       entering={FadeInDown.delay(index * 50).springify()}
                     >
                       <Pressable
+                        onPress={() => handleOpenPersonDetails(member)}
                         className="bg-white dark:bg-slate-800 rounded-xl p-4 mb-3 active:opacity-80"
                       >
                         <View className="flex-row items-center">
@@ -528,9 +544,10 @@ export default function PeopleScreen() {
                       {squad.members.length > 0 && (
                         <View className="flex-row flex-wrap gap-1.5 mb-3">
                           {squad.members.slice(0, 5).map((member: any) => (
-                            <View
+                            <Pressable
                               key={member.id}
-                              className="flex-row items-center bg-slate-50 dark:bg-slate-700/50 px-2 py-1 rounded-full"
+                              onPress={() => handleOpenPersonDetails(member)}
+                              className="flex-row items-center bg-slate-50 dark:bg-slate-700/50 px-2 py-1 rounded-full active:opacity-70"
                             >
                               <View
                                 className="w-5 h-5 rounded-full items-center justify-center mr-1.5"
@@ -546,7 +563,7 @@ export default function PeopleScreen() {
                               <Text className="text-slate-600 dark:text-slate-300 text-xs">
                                 {member.name}
                               </Text>
-                            </View>
+                            </Pressable>
                           ))}
                           {squad.members.length > 5 && (
                             <View className="bg-slate-100 dark:bg-slate-700 px-2 py-1 rounded-full">
@@ -647,9 +664,10 @@ export default function PeopleScreen() {
                       {squad.members.length > 0 && (
                         <View className="flex-row flex-wrap gap-1.5 mb-3">
                           {squad.members.map((member: any) => (
-                            <View
+                            <Pressable
                               key={member.id}
-                              className="flex-row items-center bg-slate-50 dark:bg-slate-700/50 px-2 py-1 rounded-full"
+                              onPress={() => handleOpenPersonDetails(member)}
+                              className="flex-row items-center bg-slate-50 dark:bg-slate-700/50 px-2 py-1 rounded-full active:opacity-70"
                             >
                               <View
                                 className="w-5 h-5 rounded-full items-center justify-center mr-1.5"
@@ -665,7 +683,7 @@ export default function PeopleScreen() {
                               <Text className="text-slate-600 dark:text-slate-300 text-xs">
                                 {member.name}
                               </Text>
-                            </View>
+                            </Pressable>
                           ))}
                         </View>
                       )}
@@ -765,6 +783,15 @@ export default function PeopleScreen() {
       <CollapsibleResourcePool
         selectedPersonId={selectedPersonId}
         onPersonSelect={setSelectedPersonId}
+      />
+
+      {/* Person Details Modal */}
+      <PersonDetailsModal
+        visible={showPersonModal}
+        onClose={() => setShowPersonModal(false)}
+        member={selectedMember}
+        allMembers={members}
+        onMemberChange={handleMemberChange}
       />
     </View>
   );
