@@ -39,8 +39,10 @@ import { useSupplierStore } from '@/lib/state/supplier-store';
 import { useRoleStore, useActiveRole } from '@/lib/state/role-store';
 import { useDecisionsStore } from '@/lib/state/decisions-store';
 import { useObjectivesStore } from '@/lib/state/objectives-store';
+import { useCurrentWorkspace } from '@/lib/state/app-store';
 import { useAutomaticSquadDetection } from '@/lib/hooks/useAutomaticSquadDetection';
 import { autoSeedDemoDataIfNeeded } from '@/lib/seed-demo-data';
+import { subscribeToWorkPlans } from '@/lib/realtime-subscriptions';
 
 // Components
 import { HelpModal, HelpButton, type HelpContent } from '@/components/HelpModal';
@@ -125,9 +127,11 @@ function FounderHome() {
   const initializeSuppliers = useSupplierStore((s) => s.initializeSuppliers);
   const initializeDecisions = useDecisionsStore((s) => s.initialize);
   const initializeObjectives = useObjectivesStore((s) => s.initialize);
+  const loadWorkPlansFromSupabase = useWorkPlanStore((s) => s.loadWorkPlansFromSupabase);
   const suppliers = useSupplierStore((s) => s.suppliers);
   const workPlans = useWorkPlanStore((s) => s.workPlans);
   const members = useOrganizationStore((s) => s.members);
+  const currentWorkspace = useCurrentWorkspace();
 
   // Initialize all stores on mount
   useEffect(() => {
@@ -143,6 +147,28 @@ function FounderHome() {
       initializeSuppliers();
     }
   }, [initializeTechTree, initializeSuppliers, initializeDecisions, initializeObjectives, suppliers.length]);
+
+  // Load work plans from Supabase and subscribe to real-time updates
+  useEffect(() => {
+    if (!currentWorkspace?.id) {
+      console.log('[Home] No workspace selected, skipping work plan load');
+      return;
+    }
+
+    console.log('[Home] Loading work plans for workspace:', currentWorkspace.id);
+
+    // Load work plans from Supabase
+    loadWorkPlansFromSupabase(currentWorkspace.id);
+
+    // Subscribe to real-time updates
+    const cleanup = subscribeToWorkPlans(currentWorkspace.id, (payload) => {
+      console.log('[Home] Work plan update received:', payload.eventType);
+      // Reload work plans when changes occur
+      loadWorkPlansFromSupabase(currentWorkspace.id);
+    });
+
+    return cleanup;
+  }, [currentWorkspace?.id, loadWorkPlansFromSupabase]);
 
   // Auto-refresh timer
   useEffect(() => {
@@ -161,13 +187,20 @@ function FounderHome() {
   const handleRefresh = useCallback(async () => {
     setRefreshing(true);
     // Re-initialize stores to fetch latest data
-    await Promise.all([
+    const promises = [
       initializeDecisions(),
       initializeObjectives(),
-    ]);
+    ];
+
+    // Also reload work plans if workspace is available
+    if (currentWorkspace?.id) {
+      promises.push(loadWorkPlansFromSupabase(currentWorkspace.id));
+    }
+
+    await Promise.all(promises);
     setLastUpdated(new Date());
     setTimeout(() => setRefreshing(false), 800);
-  }, [initializeDecisions, initializeObjectives]);
+  }, [initializeDecisions, initializeObjectives, currentWorkspace?.id, loadWorkPlansFromSupabase]);
 
   // Format last updated time
   const formattedLastUpdated = useMemo(() => {
