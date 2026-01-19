@@ -15,6 +15,31 @@ Centaur OS is a comprehensive iOS mobile application that helps lean companies o
 
 ## 🚀 Latest Updates (Jan 19, 2026)
 
+### 📋 Founder Onboarding Checklist
+
+**Zero-to-One guided onboarding for founders:**
+
+**7 Modules, 21 Steps:**
+- ✅ **Foundation**: Mission, constraints, 30-day success metric
+- ✅ **Market**: ICP definition, pain analysis, target list (20 leads)
+- ✅ **Product**: MVP definition, validation plan, prototype milestones
+- ✅ **Go-to-Market**: Channel hypothesis, outreach plan, pipeline tracking
+- ✅ **Finance**: Runway/burn, funding plan, reporting cadence
+- ✅ **People**: Role gaps, candidate shortlist, interview scorecard
+- ✅ **Operations**: Weekly cadence, task ownership, capacity setup
+
+**Key Features:**
+- ✅ **Stage-Aware**: Adapts to org stage (S0-S4) and finance stage (F0-F3)
+- ✅ **Evidence Gated**: Steps require evidence or skip reason
+- ✅ **Transcript-First**: Optimized for voice input
+- ✅ **LLM Integration**: AI extracts objectives and tasks from input
+- ✅ **Task Drafts**: All outputs are drafts requiring confirmation in WHAT tab
+- ✅ **No Auto-Execution**: Every task requires explicit user confirmation
+
+**Entry Point:** WHY tab → "Founder Onboarding" card
+
+---
+
 ### 👥 People Component - Universal Talent Marketplace
 
 **Three-layer data model for talent management:**

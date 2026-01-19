@@ -36,6 +36,7 @@ import {
   AlertTriangle,
   Link as LinkIcon,
   Rocket,
+  ClipboardList,
 } from 'lucide-react-native';
 import { useOKRStore, type OKR } from '@/lib/state/okr-store';
 import { useWorkPlanStore } from '@/lib/state/work-plan-store';
@@ -958,6 +959,47 @@ export default function WhyScreen() {
           </View>
           <BusinessImprovements />
         </View>
+
+        {/* Founder Onboarding - Zero to One */}
+        {currentMembership?.role === 'Founder' && (
+          <Pressable
+            onPress={() => router.push('/founder-onboarding')}
+            className="bg-gradient-to-br from-purple-500 to-indigo-600 rounded-xl overflow-hidden active:opacity-90 mb-6"
+          >
+            <LinearGradient
+              colors={['#8b5cf6', '#6366f1']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={{ padding: 16 }}
+            >
+              <View className="flex-row items-start gap-3">
+                <View className="bg-white/20 rounded-xl p-3">
+                  <ClipboardList size={24} color="#fff" />
+                </View>
+                <View className="flex-1">
+                  <Text className="text-white font-bold text-lg mb-1">
+                    Founder Onboarding
+                  </Text>
+                  <Text className="text-white/90 text-sm leading-5 mb-3">
+                    Zero-to-One checklist: define mission, market, product, go-to-market, finance, people, and ops.
+                  </Text>
+                  <View className="flex-row items-center gap-2">
+                    <View className="bg-white/20 px-2 py-1 rounded">
+                      <Text className="text-white text-xs font-medium">7 Modules</Text>
+                    </View>
+                    <View className="bg-white/20 px-2 py-1 rounded">
+                      <Text className="text-white text-xs font-medium">21 Steps</Text>
+                    </View>
+                    <View className="bg-white/20 px-2 py-1 rounded">
+                      <Text className="text-white text-xs font-medium">Task Drafts</Text>
+                    </View>
+                  </View>
+                </View>
+                <ChevronRight size={20} color="#fff" />
+              </View>
+            </LinearGradient>
+          </Pressable>
+        )}
 
         {/* Startup Pack - UK Company Setup */}
         {currentMembership?.role === 'Founder' && (
