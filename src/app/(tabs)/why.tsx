@@ -103,8 +103,26 @@ export default function WhyScreen() {
   const decisions = useDecisionsStore(s => s.decisions);
   const members = useOrganizationStore(s => s.members);
 
+  // Fallback: Use first member as current user if currentMembership is null (for demo/dev)
+  const effectiveMembership = currentMembership ||
+    (members.length > 0
+      ? { id: members[0].id, role: members[0].role, function: members[0].function }
+      : {
+          id: '00000000-0000-0000-0000-000000000001', // Valid UUID for demo
+          role: 'Founder' as const,
+          function: 'Engineering' as const
+        });
+
+  // Fallback: Use demo workspace if currentWorkspace is null
+  const effectiveWorkspace = currentWorkspace || {
+    id: '00000000-0000-0000-0000-000000000001',
+    name: 'Demo Workspace',
+    ownerId: effectiveMembership.id,
+    createdAt: new Date().toISOString(),
+  };
+
   // Get company aim for current workspace
-  const companyAimData = currentWorkspace ? getAimByWorkspace(currentWorkspace.id) : undefined;
+  const companyAimData = effectiveWorkspace ? getAimByWorkspace(effectiveWorkspace.id) : undefined;
   const companyAim = companyAimData?.aim;
 
   // State
@@ -126,31 +144,36 @@ export default function WhyScreen() {
   const [newOKRTitle, setNewOKRTitle] = useState('');
   const [newOKRFunction, setNewOKRFunction] = useState<BusinessFunction>('Engineering');
 
-  const isFounder = currentMembership?.role === 'Founder';
+  const isFounder = effectiveMembership?.role === 'Founder';
 
   // Get user's work plans for role-based filtering
   const userWorkPlans = useMemo(() => {
-    if (!currentMembership?.id) return [];
+    if (!effectiveMembership?.id) return [];
     return workPlans.filter(wp =>
-      wp.assignedMemberIds?.includes(currentMembership.id) ||
-      wp.allocations?.some(a => a.memberId === currentMembership.id)
+      wp.assignedMemberIds?.includes(effectiveMembership.id) ||
+      wp.allocations?.some(a => a.memberId === effectiveMembership.id)
     );
-  }, [workPlans, currentMembership]);
+  }, [workPlans, effectiveMembership]);
 
   // Apply role-based filtering first
   const roleFilteredOKRs = useMemo(() => {
-    if (!currentMembership?.role) return okrs;
-    return filterOKRsByRole(okrs, currentMembership.role, currentMembership.function, userWorkPlans);
-  }, [okrs, currentMembership, userWorkPlans]);
+    if (!effectiveMembership?.role) return okrs;
+    return filterOKRsByRole(
+      okrs,
+      effectiveMembership.role,
+      effectiveMembership.function as BusinessFunction | undefined,
+      userWorkPlans
+    );
+  }, [okrs, effectiveMembership, userWorkPlans]);
 
   // Filter OKRs by workspace and function (UI filters)
   const filteredOKRs = useMemo(() => {
     return roleFilteredOKRs.filter(okr => {
-      const matchesWorkspace = !currentWorkspace || okr.workspaceId === currentWorkspace.id;
+      const matchesWorkspace = !effectiveWorkspace || okr.workspaceId === effectiveWorkspace.id;
       const matchesFunction = selectedFunction === 'all' || okr.function === selectedFunction;
       return matchesWorkspace && matchesFunction;
     });
-  }, [roleFilteredOKRs, currentWorkspace, selectedFunction]);
+  }, [roleFilteredOKRs, effectiveWorkspace, selectedFunction]);
 
   // Group OKRs by status
   const okrsByStatus = useMemo(() => {
@@ -245,15 +268,15 @@ export default function WhyScreen() {
 
   // Handle OKR creation
   const handleCreateOKR = () => {
-    if (!newOKRTitle.trim() || !currentWorkspace) return;
+    if (!newOKRTitle.trim() || !effectiveWorkspace) return;
 
     const newOKR: OKR = {
       id: `okr-${Date.now()}`,
-      workspaceId: currentWorkspace.id,
+      workspaceId: effectiveWorkspace.id,
       title: newOKRTitle.trim(),
       description: '',
       function: newOKRFunction,
-      owner: currentMembership?.id || 'founder',
+      owner: effectiveMembership?.id || 'founder',
       startDate: new Date().toISOString(),
       endDate: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString(),
       status: 'on-track',
@@ -279,13 +302,13 @@ export default function WhyScreen() {
     console.log('[Why Tab] State check:', {
       hasVoiceBrainstormText: !!voiceBrainstormText?.trim(),
       voiceBrainstormText: voiceBrainstormText,
-      hasWorkspace: !!currentWorkspace,
-      workspaceId: currentWorkspace?.id,
-      hasMembership: !!currentMembership,
-      membershipId: currentMembership?.id,
+      hasWorkspace: !!effectiveWorkspace,
+      workspaceId: effectiveWorkspace?.id,
+      hasMembership: !!effectiveMembership,
+      membershipId: effectiveMembership?.id,
     });
 
-    if (!voiceBrainstormText.trim() || !currentWorkspace || !currentMembership) {
+    if (!voiceBrainstormText.trim() || !effectiveWorkspace || !effectiveMembership) {
       console.log('[Why Tab] Missing required data, aborting');
       alert('Missing required data. Please try recording again.');
       return;
@@ -300,8 +323,8 @@ export default function WhyScreen() {
       const { data: session, error: sessionError } = await supabase
         .from('brainstorm_sessions')
         .insert({
-          workspace_id: currentWorkspace.id,
-          user_id: currentMembership.id,
+          workspace_id: effectiveWorkspace.id,
+          user_id: effectiveMembership.id,
           status: 'active',
           initial_prompt: voiceBrainstormText,
         })
@@ -357,7 +380,7 @@ export default function WhyScreen() {
   };
 
   const handleSynthesize = async () => {
-    if (!currentSessionId || !currentWorkspace || !currentMembership) return;
+    if (!currentSessionId || !effectiveWorkspace || !effectiveMembership) return;
 
     console.log('[Why Tab] Synthesizing session:', currentSessionId);
     setIsSynthesizing(true);
@@ -369,8 +392,8 @@ export default function WhyScreen() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           sessionId: currentSessionId,
-          workspaceId: currentWorkspace.id,
-          userId: currentMembership.id,
+          workspaceId: effectiveWorkspace.id,
+          userId: effectiveMembership.id,
         }),
       });
 
