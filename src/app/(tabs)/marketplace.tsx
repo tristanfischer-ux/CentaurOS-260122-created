@@ -293,6 +293,54 @@ export default function MarketplaceScreen() {
           </View>
         )}
 
+        {/* AI Tools Discovery */}
+        {(activeCategory === 'all' || activeCategory === 'ai-tools') && (
+          <View className="mb-6">
+            <View className="flex-row items-center justify-between mb-3">
+              <Text className="text-slate-900 dark:text-white font-bold text-lg">AI Tools</Text>
+              <Pressable className="flex-row items-center gap-1 active:opacity-70">
+                <Text className="text-purple-600 dark:text-purple-400 text-sm font-medium">View all</Text>
+                <ChevronRight size={16} color="#8b5cf6" />
+              </Pressable>
+            </View>
+
+            <View className="gap-3">
+              {[
+                { name: 'Text Generation', desc: 'ChatGPT, Claude, Gemini', icon: FileText, color: '#10b981' },
+                { name: 'Image Processing', desc: 'DALL-E, Midjourney, Stable Diffusion', icon: Sparkles, color: '#ec4899' },
+                { name: 'Data Analysis', desc: 'Predictive models & insights', icon: TrendingUp, color: '#3b82f6' },
+                { name: 'Automation Tools', desc: 'Workflow optimization', icon: Zap, color: '#f59e0b' },
+              ].map((cat, index) => (
+                <Animated.View key={cat.name} entering={FadeInDown.delay(index * 50).springify()}>
+                  <Pressable
+                    onPress={() => {
+                      setActionType('contact');
+                      setSelectedTargetType('tool');
+                      setSelectedCategory(cat.name);
+                      setShowActionConfirm(true);
+                    }}
+                    className="bg-white dark:bg-slate-800 rounded-xl p-4 active:opacity-80"
+                  >
+                    <View className="flex-row items-center gap-3">
+                      <View
+                        className="p-3 rounded-xl"
+                        style={{ backgroundColor: cat.color + '20' }}
+                      >
+                        <cat.icon size={24} color={cat.color} />
+                      </View>
+                      <View className="flex-1">
+                        <Text className="text-slate-900 dark:text-white font-semibold">{cat.name}</Text>
+                        <Text className="text-slate-500 dark:text-slate-400 text-sm">{cat.desc}</Text>
+                      </View>
+                      <ChevronRight size={20} color="#64748b" />
+                    </View>
+                  </Pressable>
+                </Animated.View>
+              ))}
+            </View>
+          </View>
+        )}
+
         {/* Suppliers Discovery */}
         {(activeCategory === 'all' || activeCategory === 'suppliers') && (
           <View className="mb-6">
@@ -329,53 +377,6 @@ export default function MarketplaceScreen() {
                         <Text className="text-slate-500 dark:text-slate-400 text-sm">{cat.desc}</Text>
                       </View>
                       <ChevronRight size={20} color="#64748b" />
-                    </View>
-                  </Pressable>
-                </Animated.View>
-              ))}
-            </View>
-          </View>
-        )}
-
-        {/* AI Tools Discovery */}
-        {(activeCategory === 'all' || activeCategory === 'ai-tools') && (
-          <View className="mb-6">
-            <View className="flex-row items-center justify-between mb-3">
-              <Text className="text-slate-900 dark:text-white font-bold text-lg">AI Tools</Text>
-              <Pressable className="flex-row items-center gap-1 active:opacity-70">
-                <Text className="text-purple-600 dark:text-purple-400 text-sm font-medium">View all</Text>
-                <ChevronRight size={16} color="#8b5cf6" />
-              </Pressable>
-            </View>
-
-            <View className="gap-3">
-              {filteredAITools.slice(0, 4).map((tool, index) => (
-                <Animated.View key={tool.id} entering={FadeInDown.delay(index * 30).springify()}>
-                  <Pressable
-                    onPress={() => setSelectedItem(tool)}
-                    className="bg-white dark:bg-slate-800 rounded-xl p-4 active:opacity-80"
-                  >
-                    <View className="flex-row items-start">
-                      <View className="w-10 h-10 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 items-center justify-center mr-3">
-                        <Zap size={20} color="#10b981" />
-                      </View>
-                      <View className="flex-1">
-                        <Text className="text-slate-900 dark:text-white font-semibold text-sm">
-                          {tool.name}
-                        </Text>
-                        <Text className="text-slate-500 dark:text-slate-400 text-xs mt-0.5" numberOfLines={1}>
-                          {tool.purpose}
-                        </Text>
-                        <View className="flex-row items-center gap-2 mt-1">
-                          <Text className="text-amber-500 text-xs font-medium">
-                            {tool.efficiencyMultiplier || 1}x speed
-                          </Text>
-                          <Text className="text-slate-400 text-xs">•</Text>
-                          <Text className="text-slate-500 dark:text-slate-400 text-xs">
-                            £{tool.costPerMonth}/mo
-                          </Text>
-                        </View>
-                      </View>
                     </View>
                   </Pressable>
                 </Animated.View>
