@@ -14,7 +14,7 @@
  * 8. Essential Tools
  */
 
-import { View, Text, ScrollView, Pressable, RefreshControl, Alert } from 'react-native';
+import { View, Text, ScrollView, Pressable, RefreshControl, Alert, Modal } from 'react-native';
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -30,6 +30,10 @@ import {
   Target,
   BarChart3,
   Plus,
+  X,
+  Mic,
+  Type,
+  Sparkles,
 } from 'lucide-react-native';
 
 // Stores
@@ -134,6 +138,7 @@ function FounderHome() {
   const refreshTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const [selectedPersonId, setSelectedPersonId] = useState<string | null>(null);
   const [showPendingAssignments, setShowPendingAssignments] = useState(false);
+  const [showTaskCreationModal, setShowTaskCreationModal] = useState(false);
 
   // DISABLED: Auto-detect squads from task allocations
   // This creates squads automatically, which should not happen after reset
@@ -443,21 +448,21 @@ function FounderHome() {
       <View
         className="absolute items-center"
         style={{
-          bottom: insets.bottom + 80,
+          bottom: insets.bottom + 20,
           left: 0,
           right: 0,
           pointerEvents: 'box-none',
         }}
       >
         <Pressable
-          onPress={() => router.push('/(tabs)/what')}
-          className="active:opacity-80"
+          onPress={() => setShowTaskCreationModal(true)}
+          className="active:scale-95"
           style={{
             shadowColor: '#10b981',
-            shadowOffset: { width: 0, height: 4 },
-            shadowOpacity: 0.4,
-            shadowRadius: 12,
-            elevation: 8,
+            shadowOffset: { width: 0, height: 8 },
+            shadowOpacity: 0.5,
+            shadowRadius: 16,
+            elevation: 12,
           }}
         >
           <LinearGradient
@@ -465,22 +470,188 @@ function FounderHome() {
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
             style={{
-              width: 64,
-              height: 64,
-              borderRadius: 32,
+              width: 68,
+              height: 68,
+              borderRadius: 34,
               alignItems: 'center',
               justifyContent: 'center',
-              borderWidth: 4,
-              borderColor: 'rgba(255, 255, 255, 0.3)',
+              borderWidth: 5,
+              borderColor: 'rgba(255, 255, 255, 0.4)',
             }}
           >
-            <Plus size={32} color="#ffffff" strokeWidth={3} />
+            <Plus size={36} color="#ffffff" strokeWidth={3} />
           </LinearGradient>
         </Pressable>
-        <Text className="text-xs font-semibold text-slate-600 dark:text-slate-400 mt-1">
-          New Task
-        </Text>
       </View>
+
+      {/* Task Creation Modal */}
+      <Modal
+        visible={showTaskCreationModal}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setShowTaskCreationModal(false)}
+      >
+        <Pressable
+          className="flex-1 bg-black/70"
+          onPress={() => setShowTaskCreationModal(false)}
+        >
+          <View className="flex-1" />
+          <Pressable onPress={(e) => e.stopPropagation()} style={{ maxHeight: '70%' }}>
+            <View className="bg-white dark:bg-slate-900 rounded-t-3xl">
+              {/* Header */}
+              <LinearGradient
+                colors={['#10b981', '#059669']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={{ padding: 20, borderTopLeftRadius: 24, borderTopRightRadius: 24 }}
+              >
+                <View className="flex-row items-center justify-between">
+                  <View className="flex-row items-center gap-3">
+                    <View className="bg-white/20 p-2 rounded-full">
+                      <Sparkles size={24} color="white" />
+                    </View>
+                    <View>
+                      <Text className="text-white text-2xl font-bold">Create Task</Text>
+                      <Text className="text-white/80 text-sm">Voice or text - AI does the rest</Text>
+                    </View>
+                  </View>
+                  <Pressable
+                    onPress={() => setShowTaskCreationModal(false)}
+                    className="bg-white/20 p-2 rounded-full active:opacity-70"
+                  >
+                    <X size={24} color="white" />
+                  </Pressable>
+                </View>
+              </LinearGradient>
+
+              {/* Content */}
+              <ScrollView
+                className="px-6 py-6"
+                contentContainerStyle={{ paddingBottom: insets.bottom + 20 }}
+              >
+                {/* Info Banner */}
+                <View className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-xl p-4 mb-6">
+                  <View className="flex-row items-start gap-3">
+                    <Sparkles size={20} color="#10b981" />
+                    <View className="flex-1">
+                      <Text className="text-emerald-900 dark:text-emerald-100 font-semibold text-sm mb-1">
+                        AI-Powered Task Creation
+                      </Text>
+                      <Text className="text-emerald-700 dark:text-emerald-300 text-xs leading-5">
+                        Tasks are automatically assigned to you with 1 TU/week. If you have capacity this week, they'll start today. Otherwise, they'll auto-schedule to your next available week.
+                      </Text>
+                    </View>
+                  </View>
+                </View>
+
+                {/* Voice Input Option */}
+                <Pressable
+                  onPress={() => {
+                    setShowTaskCreationModal(false);
+                    router.push('/(tabs)/tasks');
+                  }}
+                  className="mb-4 active:opacity-90"
+                  style={{
+                    shadowColor: '#8b5cf6',
+                    shadowOffset: { width: 0, height: 4 },
+                    shadowOpacity: 0.3,
+                    shadowRadius: 8,
+                    elevation: 6,
+                  }}
+                >
+                  <LinearGradient
+                    colors={['#8b5cf6', '#7c3aed']}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 1 }}
+                    style={{ borderRadius: 16, padding: 24 }}
+                  >
+                    <View className="flex-row items-center gap-4 mb-3">
+                      <View className="bg-white/20 p-3 rounded-full">
+                        <Mic size={28} color="white" />
+                      </View>
+                      <View className="flex-1">
+                        <Text className="text-white text-xl font-bold">Voice Input</Text>
+                        <Text className="text-white/80 text-sm">Speak naturally</Text>
+                      </View>
+                    </View>
+                    <Text className="text-white/90 text-sm leading-6 mb-2">
+                      Just say: "I need to fix the login bug by Friday" or "Create a task to review the marketing deck"
+                    </Text>
+                    <Text className="text-white/70 text-xs">
+                      AI extracts title, description, deadline, and time estimate
+                    </Text>
+                  </LinearGradient>
+                </Pressable>
+
+                {/* Text Input Option */}
+                <Pressable
+                  onPress={() => {
+                    setShowTaskCreationModal(false);
+                    router.push('/(tabs)/tasks');
+                  }}
+                  className="bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-2xl p-6 mb-4 active:opacity-90"
+                  style={{
+                    shadowColor: '#64748b',
+                    shadowOffset: { width: 0, height: 2 },
+                    shadowOpacity: 0.1,
+                    shadowRadius: 4,
+                    elevation: 3,
+                  }}
+                >
+                  <View className="flex-row items-center gap-4 mb-3">
+                    <View className="bg-slate-100 dark:bg-slate-700 p-3 rounded-full">
+                      <Type size={28} color="#64748b" />
+                    </View>
+                    <View className="flex-1">
+                      <Text className="text-slate-900 dark:text-white text-xl font-bold">Text Input</Text>
+                      <Text className="text-slate-600 dark:text-slate-400 text-sm">Type your task</Text>
+                    </View>
+                  </View>
+                  <Text className="text-slate-700 dark:text-slate-300 text-sm leading-6 mb-2">
+                    Type: "Design new homepage mockups due next Monday, 3 time units" or just "Call client tomorrow"
+                  </Text>
+                  <Text className="text-slate-500 dark:text-slate-400 text-xs">
+                    AI understands natural language and extracts all details
+                  </Text>
+                </Pressable>
+
+                {/* How It Works */}
+                <View className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-4">
+                  <Text className="text-slate-900 dark:text-white font-semibold text-sm mb-3">
+                    How It Works:
+                  </Text>
+                  <View className="gap-2">
+                    <View className="flex-row items-start gap-2">
+                      <Text className="text-emerald-600 dark:text-emerald-400 font-bold">1.</Text>
+                      <Text className="text-slate-700 dark:text-slate-300 text-sm flex-1">
+                        Speak or type your task naturally
+                      </Text>
+                    </View>
+                    <View className="flex-row items-start gap-2">
+                      <Text className="text-emerald-600 dark:text-emerald-400 font-bold">2.</Text>
+                      <Text className="text-slate-700 dark:text-slate-300 text-sm flex-1">
+                        AI extracts title, description, deadline, time estimate
+                      </Text>
+                    </View>
+                    <View className="flex-row items-start gap-2">
+                      <Text className="text-emerald-600 dark:text-emerald-400 font-bold">3.</Text>
+                      <Text className="text-slate-700 dark:text-slate-300 text-sm flex-1">
+                        Review and edit the draft if needed
+                      </Text>
+                    </View>
+                    <View className="flex-row items-start gap-2">
+                      <Text className="text-emerald-600 dark:text-emerald-400 font-bold">4.</Text>
+                      <Text className="text-slate-700 dark:text-slate-300 text-sm flex-1">
+                        Confirm - task is created and scheduled based on your capacity
+                      </Text>
+                    </View>
+                  </View>
+                </View>
+              </ScrollView>
+            </View>
+          </Pressable>
+        </Pressable>
+      </Modal>
     </View>
   );
 }
