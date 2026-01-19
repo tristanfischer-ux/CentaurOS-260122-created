@@ -111,7 +111,7 @@ export function CollapsibleResourcePool({ selectedPersonId, onPersonSelect }: Co
   };
 
   // Calculate total allocated and unallocated squares across all members
-  const { totalAllocated, totalUnallocated } = useMemo(() => {
+  const { totalAllocated, totalUnallocated, totalCapacity: totalTeamCapacity } = useMemo(() => {
     let allocated = 0;
     let total = 0;
 
@@ -124,9 +124,13 @@ export function CollapsibleResourcePool({ selectedPersonId, onPersonSelect }: Co
       total += totalCapacity;
     });
 
+    // Clamp unallocated to 0 minimum (can't have negative availability)
+    const unallocated = Math.max(0, total - allocated);
+
     return {
       totalAllocated: allocated,
-      totalUnallocated: total - allocated,
+      totalUnallocated: unallocated,
+      totalCapacity: total,
     };
   }, [members, workPlans]);
 
@@ -145,7 +149,9 @@ export function CollapsibleResourcePool({ selectedPersonId, onPersonSelect }: Co
 
   // Get cash balance
   const cashBalance = currentWorkspace ? getCashBalance(currentWorkspace.id) : 0;
-  const remainingCash = cashBalance - weeklyCost;
+  // Only show after-week calculation if there's a meaningful cash balance
+  const hasFinancialData = cashBalance > 0;
+  const remainingCash = hasFinancialData ? cashBalance - weeklyCost : 0;
 
   return (
     <Animated.View
@@ -234,7 +240,7 @@ export function CollapsibleResourcePool({ selectedPersonId, onPersonSelect }: Co
               <View className="flex-row items-center">
                 <Text className="text-gray-500 dark:text-slate-500 text-[9px] mr-1">Bank:</Text>
                 <Text className="text-gray-900 dark:text-white text-[10px] font-bold">
-                  £{(cashBalance / 1000).toFixed(0)}k
+                  {hasFinancialData ? `£${(cashBalance / 1000).toFixed(0)}k` : '—'}
                 </Text>
               </View>
               <View className="flex-row items-center">
@@ -243,12 +249,14 @@ export function CollapsibleResourcePool({ selectedPersonId, onPersonSelect }: Co
                   £{(weeklyCost / 1000).toFixed(1)}k
                 </Text>
               </View>
-              <View className="flex-row items-center">
-                <Text className="text-gray-500 dark:text-slate-500 text-[9px] mr-1">After Week:</Text>
-                <Text className={`text-[10px] font-bold ${remainingCash > 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
-                  £{(remainingCash / 1000).toFixed(0)}k
-                </Text>
-              </View>
+              {hasFinancialData && (
+                <View className="flex-row items-center">
+                  <Text className="text-gray-500 dark:text-slate-500 text-[9px] mr-1">After Week:</Text>
+                  <Text className={`text-[10px] font-bold ${remainingCash > 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
+                    £{(remainingCash / 1000).toFixed(0)}k
+                  </Text>
+                </View>
+              )}
             </View>
           </View>
 
@@ -261,22 +269,24 @@ export function CollapsibleResourcePool({ selectedPersonId, onPersonSelect }: Co
               const capacity = getCapacityPerWeek(member);
               const totalCapacity = capacity.normal + capacity.overtime;
               const allocated = getAllocatedTUs(member.id, workPlans);
-              const available = totalCapacity - allocated;
+              const available = Math.max(0, totalCapacity - allocated); // Clamp to 0
+              const overAllocated = allocated > totalCapacity;
               const isSelected = selectedPersonId === member.id;
               const roleColor = ROLE_COLORS[member.role];
-              const costPerTU = getCostPerTU(member);
 
               // Render 15 squares (capacity.normal + capacity.overtime)
+              // When over-allocated, cap the red squares at totalCapacity
+              const allocatedToShow = Math.min(allocated, totalCapacity);
               const squares = [];
               for (let i = 0; i < 15; i++) {
                 let squareState: 'hidden' | 'available' | 'overtime-available' | 'allocated' | 'overtime-allocated' = 'hidden';
 
                 if (i < capacity.normal) {
                   // Normal capacity squares
-                  squareState = i < allocated ? 'allocated' : 'available';
+                  squareState = i < allocatedToShow ? 'allocated' : 'available';
                 } else if (i < totalCapacity) {
                   // Overtime squares
-                  squareState = i < allocated ? 'overtime-allocated' : 'overtime-available';
+                  squareState = i < allocatedToShow ? 'overtime-allocated' : 'overtime-available';
                 }
 
                 squares.push({
@@ -355,9 +365,11 @@ export function CollapsibleResourcePool({ selectedPersonId, onPersonSelect }: Co
                       );
                     })}
 
-                    {/* Available count - compact */}
-                    <Text className="text-gray-600 dark:text-slate-400 text-[10px] font-semibold ml-1">
-                      {available}/{totalCapacity}
+                    {/* Available count - compact, show OVER if over-allocated */}
+                    <Text
+                      className={`text-[10px] font-semibold ml-1 ${overAllocated ? 'text-red-500' : 'text-gray-600 dark:text-slate-400'}`}
+                    >
+                      {overAllocated ? `+${allocated - totalCapacity}` : available}/{totalCapacity}
                     </Text>
                   </View>
 

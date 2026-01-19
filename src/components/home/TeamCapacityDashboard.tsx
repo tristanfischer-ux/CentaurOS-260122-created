@@ -250,15 +250,16 @@ export function TeamCapacityDashboard() {
         totalCapacity = (member.daysPerWeek || 2) * 2;
       }
 
-      // Calculate allocated from work plans
+      // Calculate allocated from work plans - use allocations array as source of truth
+      // (matching CollapsibleResourcePool logic)
       const allocated = workPlans
         .filter(
           (wp) =>
             wp.status !== 'completed' &&
-            wp.status !== 'abandoned' &&
-            wp.assignedMemberIds?.includes(member.id)
+            wp.status !== 'abandoned'
         )
         .reduce((sum, wp) => {
+          // Look up allocation by memberId in the allocations array
           const allocation = wp.allocations?.find((a) => a.memberId === member.id);
           return sum + (allocation?.squaresPerWeek || 0);
         }, 0);
