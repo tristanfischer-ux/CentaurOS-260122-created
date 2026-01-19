@@ -86,7 +86,7 @@ const STATUS_LABELS = {
   cancelled: 'Cancelled',
 };
 
-type ToolsTab = 'all-tools' | 'suppliers' | 'marketplace';
+type ToolsTab = 'my-suppliers' | 'marketplace';
 
 export default function ToolsScreen() {
   const insets = useSafeAreaInsets();
@@ -102,7 +102,7 @@ export default function ToolsScreen() {
   const workPlans = useWorkPlanStore(s => s.workPlans);
 
   // State
-  const [activeTab, setActiveTab] = useState<ToolsTab>('all-tools');
+  const [activeTab, setActiveTab] = useState<ToolsTab>('my-suppliers');
   const [showHelp, setShowHelp] = useState(false);
   const [selectedSupplier, setSelectedSupplier] = useState<SupplierEngagement | null>(null);
   const [selectedAIAgent, setSelectedAIAgent] = useState<AIAgent | null>(null);
@@ -483,9 +483,8 @@ export default function ToolsScreen() {
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
           <View className="flex-row bg-slate-100 dark:bg-slate-800 rounded-xl p-1">
             {[
-              { key: 'all-tools', label: 'All Tools', icon: Wrench },
-              { key: 'suppliers', label: 'Current Suppliers', icon: Building2 },
-              { key: 'marketplace', label: 'Marketplace', icon: Package },
+              { key: 'my-suppliers', label: 'My Suppliers', icon: Wrench, color: '#10b981' },
+              { key: 'marketplace', label: 'Marketplace', icon: Package, color: '#8b5cf6' },
             ].map(tab => (
               <Pressable
                 key={tab.key}
@@ -496,11 +495,13 @@ export default function ToolsScreen() {
               >
                 <tab.icon
                   size={16}
-                  color={activeTab === tab.key ? '#f59e0b' : '#64748b'}
+                  color={activeTab === tab.key ? tab.color : '#64748b'}
                 />
                 <Text
                   className={`text-sm font-medium ${
-                    activeTab === tab.key ? 'text-amber-600 dark:text-amber-400' : 'text-slate-500 dark:text-slate-400'
+                    activeTab === tab.key
+                      ? (tab.key === 'my-suppliers' ? 'text-emerald-600 dark:text-emerald-400' : 'text-purple-600 dark:text-purple-400')
+                      : 'text-slate-500 dark:text-slate-400'
                   }`}
                 >
                   {tab.label}
@@ -516,80 +517,46 @@ export default function ToolsScreen() {
         className="flex-1"
         contentContainerStyle={{ padding: 20, paddingBottom: insets.bottom + 100 }}
       >
-        {/* All Tools Tab - Shows everything */}
-        {activeTab === 'all-tools' && (
+        {/* My Suppliers Tab - Shows Current Tools & Suppliers */}
+        {activeTab === 'my-suppliers' && (
           <View>
             {/* AI Tools Section */}
-            <Text className="text-slate-900 dark:text-white font-bold text-lg mb-3">AI Tools</Text>
+            <View className="flex-row items-center justify-between mb-3">
+              <Text className="text-slate-900 dark:text-white font-bold text-lg">AI Tools</Text>
+              <View className="bg-emerald-100 dark:bg-emerald-900/30 px-2 py-1 rounded-full">
+                <Text className="text-emerald-700 dark:text-emerald-400 text-xs font-bold">{aiAgents.length} active</Text>
+              </View>
+            </View>
             <View className="mb-6">
-              <Text className="text-slate-500 dark:text-slate-400 text-sm mb-3">
-                {aiAgents.length} AI tools active
-              </Text>
               {aiAgents.length > 0 ? (
                 <View className="gap-3">
-                  {aiAgents.slice(0, 3).map((agent, index) => (
-                    <View key={agent.id} className="bg-white dark:bg-slate-800 rounded-xl p-4">
-                      <View className="flex-row items-center gap-3">
-                        <View className="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 rounded-xl items-center justify-center">
-                          <Bot size={24} color="#8b5cf6" />
-                        </View>
-                        <View className="flex-1">
-                          <Text className="text-slate-900 dark:text-white font-semibold">{agent.name}</Text>
-                          <Text className="text-slate-500 dark:text-slate-400 text-sm" numberOfLines={1}>{agent.purpose}</Text>
-                        </View>
-                      </View>
-                    </View>
+                  {aiAgents.map((agent, index) => (
+                    <AIAgentCard key={agent.id} agent={agent} index={index} />
                   ))}
                 </View>
               ) : (
-                <Text className="text-slate-400 text-sm">No AI tools active</Text>
-              )}
-            </View>
-
-            {/* Suppliers Section */}
-            <Text className="text-slate-900 dark:text-white font-bold text-lg mb-3">Current Suppliers</Text>
-            <View className="mb-6">
-              {supplierEngagements.length > 0 ? (
-                <View className="gap-3">
-                  {supplierEngagements.slice(0, 3).map((engagement, index) => (
-                    <View key={engagement.id} className="bg-white dark:bg-slate-800 rounded-xl p-4">
-                      <Text className="text-slate-900 dark:text-white font-semibold mb-1">{engagement.supplierName}</Text>
-                      <Text className="text-slate-500 dark:text-slate-400 text-sm">{engagement.category}</Text>
-                    </View>
-                  ))}
+                <View className="bg-slate-100 dark:bg-slate-800 rounded-xl p-6 items-center">
+                  <Bot size={32} color="#64748b" />
+                  <Text className="text-slate-500 dark:text-slate-400 text-sm mt-2">No AI tools yet</Text>
+                  <Pressable
+                    onPress={() => setActiveTab('marketplace')}
+                    className="mt-3 bg-purple-500 rounded-lg px-4 py-2 active:opacity-80"
+                  >
+                    <Text className="text-white font-medium text-sm">Browse Marketplace</Text>
+                  </Pressable>
                 </View>
-              ) : (
-                <Text className="text-slate-400 text-sm">No suppliers yet</Text>
               )}
             </View>
 
-            {/* Quick Actions */}
-            <View className="gap-3">
-              <Pressable
-                onPress={() => setActiveTab('marketplace')}
-                className="bg-amber-500 rounded-xl p-4 flex-row items-center justify-center gap-2 active:opacity-80"
-              >
-                <Package size={18} color="#fff" />
-                <Text className="text-white font-semibold">Browse Marketplace</Text>
-              </Pressable>
+            {/* Current Suppliers Section */}
+            <View className="flex-row items-center justify-between mb-3">
+              <Text className="text-slate-900 dark:text-white font-bold text-lg">Current Suppliers</Text>
+              <View className="bg-emerald-100 dark:bg-emerald-900/30 px-2 py-1 rounded-full">
+                <Text className="text-emerald-700 dark:text-emerald-400 text-xs font-bold">
+                  {supplierEngagements.length} active
+                </Text>
+              </View>
             </View>
-          </View>
-        )}
-
-        {/* Current Suppliers Tab */}
-        {activeTab === 'suppliers' && (
-          <View>
-            {/* Reach Out Button */}
-            <Pressable
-              onPress={() => {
-                setReachOutType('supplier');
-                setShowReachOut(true);
-              }}
-              className="bg-amber-500 rounded-xl p-4 mb-4 flex-row items-center justify-center gap-2 active:opacity-80"
-            >
-              <Search size={18} color="#fff" />
-              <Text className="text-white font-semibold">Find New Suppliers</Text>
-            </Pressable>
 
             {supplierEngagements.length > 0 ? (
               <>
@@ -606,11 +573,17 @@ export default function ToolsScreen() {
                 ))}
               </>
             ) : (
-              <View className="items-center py-12">
-                <Factory size={48} color="#94a3b8" />
-                <Text className="text-slate-500 dark:text-slate-400 text-center mt-4">
+              <View className="bg-slate-100 dark:bg-slate-800 rounded-xl p-6 items-center mb-4">
+                <Factory size={32} color="#64748b" />
+                <Text className="text-slate-500 dark:text-slate-400 text-sm mt-2 text-center">
                   No supplier engagements yet
                 </Text>
+                <Pressable
+                  onPress={() => setActiveTab('marketplace')}
+                  className="mt-3 bg-purple-500 rounded-lg px-4 py-2 active:opacity-80"
+                >
+                  <Text className="text-white font-medium text-sm">Find Suppliers</Text>
+                </Pressable>
               </View>
             )}
           </View>

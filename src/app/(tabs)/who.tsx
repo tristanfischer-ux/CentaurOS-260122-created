@@ -44,6 +44,7 @@ import {
   Scale,
   Sparkles,
   Edit2,
+  Shield,
 } from 'lucide-react-native';
 import { useOrganizationStore } from '@/lib/state/organization-store';
 import { useWorkPlanStore } from '@/lib/state/work-plan-store';
@@ -134,7 +135,7 @@ const ROLE_LABELS = {
   Apprentice: 'Apprentices',
 };
 
-type WhoTab = 'team' | 'squads' | 'hire' | 'resources';
+type WhoTab = 'team' | 'squads' | 'guilds' | 'hire' | 'resources';
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 const screenWidth = Dimensions.get('window').width;
@@ -916,6 +917,7 @@ export default function WhoScreen() {
             {[
               { key: 'team', label: 'My Team', icon: Users },
               { key: 'squads', label: 'Squads', icon: UsersRound },
+              { key: 'guilds', label: 'Guilds', icon: Shield },
               { key: 'hire', label: 'Hire', icon: UserPlus },
               { key: 'resources', label: 'Resources', icon: Target },
             ].map(tab => (
@@ -1192,6 +1194,165 @@ export default function WhoScreen() {
                 })}
               </View>
             )}
+          </View>
+        )}
+
+        {/* Guilds Tab */}
+        {activeTab === 'guilds' && (
+          <View>
+            <View className="px-5 pt-4 pb-6">
+              {/* Guilds Explanation */}
+              <View className="bg-purple-50 dark:bg-purple-900/20 rounded-xl p-4 mb-4 border border-purple-200 dark:border-purple-800">
+                <View className="flex-row items-start gap-3">
+                  <Shield size={24} color="#8b5cf6" />
+                  <View className="flex-1">
+                    <Text className="text-purple-900 dark:text-purple-100 font-bold text-base mb-2">
+                      Professional Guilds
+                    </Text>
+                    <Text className="text-purple-700 dark:text-purple-300 text-sm leading-5 mb-3">
+                      Join function-specific communities to share knowledge, get feedback, and connect with peers.
+                      Guilds are where hardware founders and executives collaborate on best practices.
+                    </Text>
+                    <View className="flex-row flex-wrap gap-2">
+                      <View className="bg-purple-100 dark:bg-purple-900/30 px-2 py-1 rounded">
+                        <Text className="text-purple-700 dark:text-purple-400 text-xs font-medium">💬 Discussions</Text>
+                      </View>
+                      <View className="bg-purple-100 dark:bg-purple-900/30 px-2 py-1 rounded">
+                        <Text className="text-purple-700 dark:text-purple-400 text-xs font-medium">📚 Resources</Text>
+                      </View>
+                      <View className="bg-purple-100 dark:bg-purple-900/30 px-2 py-1 rounded">
+                        <Text className="text-purple-700 dark:text-purple-400 text-xs font-medium">🏆 Challenges</Text>
+                      </View>
+                    </View>
+                  </View>
+                </View>
+              </View>
+
+              {/* Guilds Overview Cards */}
+              <View className="gap-3">
+                {/* Hardware Design Guild */}
+                <Pressable
+                  onPress={() => router.push('/guilds')}
+                  className="bg-white dark:bg-slate-800 rounded-xl overflow-hidden active:opacity-80"
+                >
+                  <LinearGradient
+                    colors={['#3b82f6', '#8b5cf6']}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 0 }}
+                    style={{ padding: 16 }}
+                  >
+                    <View className="flex-row items-center gap-3 mb-2">
+                      <Text className="text-3xl">🔧</Text>
+                      <Text className="text-white font-bold text-lg flex-1">Hardware Design Guild</Text>
+                      <ChevronRight size={20} color="#fff" />
+                    </View>
+                    <Text className="text-white/80 text-sm">
+                      Where great products begin
+                    </Text>
+                  </LinearGradient>
+                  <View className="p-4 flex-row items-center justify-around">
+                    <View className="items-center">
+                      <Text className="text-slate-900 dark:text-white font-bold text-lg">127</Text>
+                      <Text className="text-slate-500 dark:text-slate-400 text-xs">Members</Text>
+                    </View>
+                    <View className="w-px h-8 bg-slate-200 dark:bg-slate-700" />
+                    <View className="items-center">
+                      <Text className="text-slate-900 dark:text-white font-bold text-lg">45</Text>
+                      <Text className="text-slate-500 dark:text-slate-400 text-xs">Resources</Text>
+                    </View>
+                    <View className="w-px h-8 bg-slate-200 dark:bg-slate-700" />
+                    <View className="items-center">
+                      <Text className="text-slate-900 dark:text-white font-bold text-lg">23</Text>
+                      <Text className="text-slate-500 dark:text-slate-400 text-xs">Active Today</Text>
+                    </View>
+                  </View>
+                </Pressable>
+
+                {/* Supply Chain Guild */}
+                <Pressable
+                  onPress={() => router.push('/guilds')}
+                  className="bg-white dark:bg-slate-800 rounded-xl overflow-hidden active:opacity-80"
+                >
+                  <LinearGradient
+                    colors={['#10b981', '#059669']}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 0 }}
+                    style={{ padding: 16 }}
+                  >
+                    <View className="flex-row items-center gap-3 mb-2">
+                      <Text className="text-3xl">📦</Text>
+                      <Text className="text-white font-bold text-lg flex-1">Supply Chain Guild</Text>
+                      <ChevronRight size={20} color="#fff" />
+                    </View>
+                    <Text className="text-white/80 text-sm">
+                      Master supplier relationships
+                    </Text>
+                  </LinearGradient>
+                  <View className="p-4 flex-row items-center justify-around">
+                    <View className="items-center">
+                      <Text className="text-slate-900 dark:text-white font-bold text-lg">89</Text>
+                      <Text className="text-slate-500 dark:text-slate-400 text-xs">Members</Text>
+                    </View>
+                    <View className="w-px h-8 bg-slate-200 dark:bg-slate-700" />
+                    <View className="items-center">
+                      <Text className="text-slate-900 dark:text-white font-bold text-lg">32</Text>
+                      <Text className="text-slate-500 dark:text-slate-400 text-xs">Resources</Text>
+                    </View>
+                    <View className="w-px h-8 bg-slate-200 dark:bg-slate-700" />
+                    <View className="items-center">
+                      <Text className="text-slate-900 dark:text-white font-bold text-lg">18</Text>
+                      <Text className="text-slate-500 dark:text-slate-400 text-xs">Active Today</Text>
+                    </View>
+                  </View>
+                </Pressable>
+
+                {/* Founder's Circle Guild */}
+                <Pressable
+                  onPress={() => router.push('/guilds')}
+                  className="bg-white dark:bg-slate-800 rounded-xl overflow-hidden active:opacity-80"
+                >
+                  <LinearGradient
+                    colors={['#f59e0b', '#d97706']}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 0 }}
+                    style={{ padding: 16 }}
+                  >
+                    <View className="flex-row items-center gap-3 mb-2">
+                      <Text className="text-3xl">👑</Text>
+                      <Text className="text-white font-bold text-lg flex-1">Founder's Circle</Text>
+                      <ChevronRight size={20} color="#fff" />
+                    </View>
+                    <Text className="text-white/80 text-sm">
+                      Hardware startup leadership
+                    </Text>
+                  </LinearGradient>
+                  <View className="p-4 flex-row items-center justify-around">
+                    <View className="items-center">
+                      <Text className="text-slate-900 dark:text-white font-bold text-lg">156</Text>
+                      <Text className="text-slate-500 dark:text-slate-400 text-xs">Members</Text>
+                    </View>
+                    <View className="w-px h-8 bg-slate-200 dark:bg-slate-700" />
+                    <View className="items-center">
+                      <Text className="text-slate-900 dark:text-white font-bold text-lg">67</Text>
+                      <Text className="text-slate-500 dark:text-slate-400 text-xs">Resources</Text>
+                    </View>
+                    <View className="w-px h-8 bg-slate-200 dark:bg-slate-700" />
+                    <View className="items-center">
+                      <Text className="text-slate-900 dark:text-white font-bold text-lg">31</Text>
+                      <Text className="text-slate-500 dark:text-slate-400 text-xs">Active Today</Text>
+                    </View>
+                  </View>
+                </Pressable>
+              </View>
+
+              {/* View All Button */}
+              <Pressable
+                onPress={() => router.push('/guilds')}
+                className="mt-4 bg-purple-500 rounded-xl py-4 items-center active:opacity-80"
+              >
+                <Text className="text-white font-semibold text-base">Explore All Guilds</Text>
+              </Pressable>
+            </View>
           </View>
         )}
 

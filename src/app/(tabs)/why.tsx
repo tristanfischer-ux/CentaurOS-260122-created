@@ -8,6 +8,7 @@ import { useState, useMemo } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { FadeInDown } from 'react-native-reanimated';
+import { router } from 'expo-router';
 import {
   Target,
   Compass,
@@ -34,6 +35,7 @@ import {
   Award,
   AlertTriangle,
   Link as LinkIcon,
+  Rocket,
 } from 'lucide-react-native';
 import { useOKRStore, type OKR } from '@/lib/state/okr-store';
 import { useWorkPlanStore } from '@/lib/state/work-plan-store';
@@ -956,6 +958,47 @@ export default function WhyScreen() {
           </View>
           <BusinessImprovements />
         </View>
+
+        {/* Startup Pack - UK Company Setup */}
+        {currentMembership?.role === 'Founder' && (
+          <Pressable
+            onPress={() => router.push('/startup-pack')}
+            className="bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl overflow-hidden active:opacity-90 mb-6"
+          >
+            <LinearGradient
+              colors={['#10b981', '#14b8a6']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={{ padding: 16 }}
+            >
+              <View className="flex-row items-start gap-3">
+                <View className="bg-white/20 rounded-xl p-3">
+                  <Rocket size={24} color="#fff" />
+                </View>
+                <View className="flex-1">
+                  <Text className="text-white font-bold text-lg mb-1">
+                    UK Startup Pack
+                  </Text>
+                  <Text className="text-white/90 text-sm leading-5 mb-3">
+                    Everything you need to set up your UK hardware startup: company registration, SEIS/EIS, bank accounts, and founder agreements.
+                  </Text>
+                  <View className="flex-row items-center gap-2">
+                    <View className="bg-white/20 px-2 py-1 rounded">
+                      <Text className="text-white text-xs font-medium">📋 Guides</Text>
+                    </View>
+                    <View className="bg-white/20 px-2 py-1 rounded">
+                      <Text className="text-white text-xs font-medium">📄 Templates</Text>
+                    </View>
+                    <View className="bg-white/20 px-2 py-1 rounded">
+                      <Text className="text-white text-xs font-medium">🔗 Resources</Text>
+                    </View>
+                  </View>
+                </View>
+                <ChevronRight size={20} color="#fff" />
+              </View>
+            </LinearGradient>
+          </Pressable>
+        )}
       </ScrollView>
 
       {/* Voice Brainstorm Modal */}

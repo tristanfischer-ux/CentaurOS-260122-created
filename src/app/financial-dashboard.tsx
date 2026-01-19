@@ -135,7 +135,9 @@ export default function FinancialDashboardScreen() {
 
   // Financial Health Indicators
   const healthIndicators = useMemo((): HealthIndicator[] => {
-    const ltvCacRatio = INITIAL_DATA.metrics.ltv / INITIAL_DATA.metrics.cac;
+    const ltvCacRatio = (INITIAL_DATA.metrics.ltv > 0 && INITIAL_DATA.metrics.cac > 0)
+      ? INITIAL_DATA.metrics.ltv / INITIAL_DATA.metrics.cac
+      : 0;
 
     return [
       {
@@ -158,7 +160,7 @@ export default function FinancialDashboardScreen() {
         name: 'LTV:CAC Ratio',
         value: ltvCacRatio,
         target: 3,
-        status: ltvCacRatio >= 3 ? 'green' : ltvCacRatio >= 2 ? 'yellow' : 'red',
+        status: ltvCacRatio === 0 ? 'yellow' : ltvCacRatio >= 3 ? 'green' : ltvCacRatio >= 2 ? 'yellow' : 'red',
         trend: 'up',
         description: 'Customer lifetime value vs acquisition cost',
       },
@@ -417,12 +419,16 @@ export default function FinancialDashboardScreen() {
             {indicator.value === 999 ? '∞' : indicator.name === 'Gross Margin' || indicator.name === 'Net Revenue Retention'
               ? `${indicator.value.toFixed(1)}%`
               : indicator.name === 'LTV:CAC Ratio'
-                ? `${indicator.value.toFixed(1)}x`
+                ? (indicator.value === 0 ? 'Not yet tracked' : `${indicator.value.toFixed(1)}x`)
                 : indicator.name === 'CAC Payback' || indicator.name === 'Runway'
                   ? `${indicator.value.toFixed(1)}mo`
                   : indicator.value.toFixed(2)}
           </Text>
-          <Text className="text-gray-500 dark:text-slate-400 text-xs mt-1">{indicator.description}</Text>
+          <Text className="text-gray-500 dark:text-slate-400 text-xs mt-1">
+            {indicator.name === 'LTV:CAC Ratio' && indicator.value === 0
+              ? 'Start tracking customers to see this metric'
+              : indicator.description}
+          </Text>
         </View>
         <View className="items-end">
           <Text className="text-gray-500 dark:text-slate-500 text-xs">Target</Text>
@@ -737,7 +743,23 @@ export default function FinancialDashboardScreen() {
 
           {expandedSections.unitEconomics && (
             <View className="bg-gray-50 dark:bg-slate-900 rounded-xl p-4 mb-4 border border-gray-200 dark:border-slate-800">
-              <View className="flex-row flex-wrap gap-3">
+              {/* Check if we have any actual metrics */}
+              {INITIAL_DATA.metrics.cac === 0 && INITIAL_DATA.metrics.ltv === 0 && INITIAL_DATA.metrics.paybackPeriod === 0 ? (
+                <View className="py-8 items-center">
+                  <PieChart size={48} color="#64748b" />
+                  <Text className="text-gray-900 dark:text-white font-semibold text-base mt-4">
+                    No Unit Economics Yet
+                  </Text>
+                  <Text className="text-gray-500 dark:text-slate-400 text-sm text-center mt-2 max-w-sm">
+                    Start tracking customer acquisition costs (CAC) and lifetime value (LTV) to see your unit economics.
+                  </Text>
+                  <Text className="text-gray-500 dark:text-slate-400 text-xs text-center mt-4 max-w-sm">
+                    These metrics appear automatically once you have customer and revenue data in the system.
+                  </Text>
+                </View>
+              ) : (
+                <>
+                  <View className="flex-row flex-wrap gap-3">
                 <View className="bg-white dark:bg-slate-800 rounded-xl p-4 flex-1" style={{ minWidth: '45%' }}>
                   <Text className="text-gray-500 dark:text-slate-400 text-xs mb-1">CAC</Text>
                   <Text className="text-gray-900 dark:text-white text-xl font-bold">£{INITIAL_DATA.metrics.cac}</Text>
@@ -751,7 +773,9 @@ export default function FinancialDashboardScreen() {
                 <View className="bg-white dark:bg-slate-800 rounded-xl p-4 flex-1" style={{ minWidth: '45%' }}>
                   <Text className="text-gray-500 dark:text-slate-400 text-xs mb-1">LTV:CAC</Text>
                   <Text className="text-emerald-600 dark:text-emerald-400 text-xl font-bold">
-                    {(INITIAL_DATA.metrics.ltv / INITIAL_DATA.metrics.cac).toFixed(1)}x
+                    {(INITIAL_DATA.metrics.ltv > 0 && INITIAL_DATA.metrics.cac > 0)
+                      ? `${(INITIAL_DATA.metrics.ltv / INITIAL_DATA.metrics.cac).toFixed(1)}x`
+                      : 'Not yet tracked'}
                   </Text>
                   <Text className="text-gray-500 dark:text-slate-400 text-xs mt-1">Target: 3x+</Text>
                 </View>
@@ -797,6 +821,8 @@ export default function FinancialDashboardScreen() {
                   </View>
                 ))}
               </View>
+                </>
+              )}
             </View>
           )}
 
