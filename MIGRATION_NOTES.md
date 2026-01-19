@@ -56,12 +56,15 @@ Legacy routes now use **real auto-redirects** (useEffect + router.replace) in ad
 | /who | /people | **Auto-redirect on mount** | ✅ DONE |
 | /what | /tasks | **Auto-redirect on mount** | ✅ DONE |
 | /tools | /resources | **Auto-redirect on mount** | ✅ DONE |
-| /community | /marketplace | Hidden tab | ✅ DONE |
-| /make | /resources | Hidden tab | ✅ DONE |
-| /decide | /tasks | Hidden tab | ✅ DONE |
-| /do | /tasks | Hidden tab | ✅ DONE |
-| /why | Home → Plan | Quick Access button | ✅ DONE |
-| /performance | Home → Analytics | Quick Access button | ✅ DONE |
+| /community | /marketplace | **Auto-redirect on mount** | ✅ DONE |
+| /make | /resources | **Auto-redirect on mount** | ✅ DONE |
+| /decide | /tasks | **Auto-redirect on mount** | ✅ DONE |
+| /do | /tasks | **Auto-redirect on mount** | ✅ DONE |
+| /why | / (Home) | **Auto-redirect on mount** | ✅ DONE |
+| /performance | / (Home) | **Auto-redirect on mount** | ✅ DONE |
+
+All legacy routes now have **real redirects** implemented via useEffect + router.replace().
+The `href: null` in `_layout.tsx` hides them from the tab bar, while the redirect code in each screen ensures proper navigation.
 
 ---
 
@@ -188,8 +191,12 @@ addDraft({
 | `src/app/(tabs)/who.tsx` | Added auto-redirect to /people |
 | `src/app/(tabs)/what.tsx` | Added auto-redirect to /tasks |
 | `src/app/(tabs)/tools.tsx` | Added auto-redirect to /resources |
-| `src/app/(tabs)/why.tsx` | Added LEGACY header comment |
-| `src/app/(tabs)/performance.tsx` | Added LEGACY header comment |
+| `src/app/(tabs)/why.tsx` | Added LEGACY header + auto-redirect to / |
+| `src/app/(tabs)/performance.tsx` | Added LEGACY header + auto-redirect to / |
+| `src/app/(tabs)/do.tsx` | Added auto-redirect to /tasks |
+| `src/app/(tabs)/decide.tsx` | Added auto-redirect to /tasks |
+| `src/app/(tabs)/make.tsx` | Added auto-redirect to /resources |
+| `src/app/(tabs)/community.tsx` | Added auto-redirect to /marketplace |
 
 ---
 

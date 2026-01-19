@@ -1,5 +1,6 @@
 import { View, Text, ScrollView, Pressable, Modal, TextInput, KeyboardAvoidingView, Platform } from 'react-native';
 import { useState, useMemo, useEffect } from 'react';
+import { router, usePathname } from 'expo-router';
 import {
   Briefcase, Plus, X, Clock, Target, CheckCircle2, Circle, AlertCircle, ChevronDown, ChevronRight,
   Flame, Calendar, AlertTriangle, Play, Pause, ArrowRight, TrendingUp, Zap, Filter,
@@ -95,6 +96,15 @@ export default function DoScreen() {
   const insets = useSafeAreaInsets();
   const currentWorkspace = useCurrentWorkspace();
   const currentMembership = useCurrentMembership();
+  const pathname = usePathname();
+
+  // AUTO-REDIRECT to /tasks (new tab) - LEGACY ROUTE DEPRECATION
+  useEffect(() => {
+    if (pathname === '/(tabs)/do' || pathname === '/do') {
+      console.log('[LEGACY] Redirecting from /do to /tasks');
+      router.replace('/(tabs)/tasks');
+    }
+  }, [pathname]);
 
   // Use centralized stores
   const getApprenticeWorkPlans = useWorkPlanStore(s => s.getApprenticeWorkPlans);

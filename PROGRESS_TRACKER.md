@@ -94,7 +94,7 @@
 | Suppliers discovery | DONE | Manufacturing, Logistics, Services |
 | AI tool catalog | DONE | THIRD_PARTY_AI_TOOLS integration |
 | Advisors discovery | DONE | VC, Legal, Accounting, Domain Experts |
-| Draft-only actions | DONE | handleCreateOutreachDraft creates tasks with [DRAFT] prefix |
+| Draft-only actions | DONE | handleCreateOutreachDraft creates real drafts via Draft store |
 
 ---
 

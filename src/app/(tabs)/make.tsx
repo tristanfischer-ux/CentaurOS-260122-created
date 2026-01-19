@@ -1,6 +1,6 @@
 import { View, Text, ScrollView, Pressable, Modal, Linking, Alert } from 'react-native';
 import { useState, useEffect } from 'react';
-import { router, useLocalSearchParams } from 'expo-router';
+import { router, useLocalSearchParams, usePathname } from 'expo-router';
 import {
   Package,
   Cpu,
@@ -81,6 +81,15 @@ export default function MakeScreen() {
   const currentWorkspace = useCurrentWorkspace();
   const currentUser = useCurrentUser();
   const params = useLocalSearchParams();
+  const pathname = usePathname();
+
+  // AUTO-REDIRECT to /resources (new tab) - LEGACY ROUTE DEPRECATION
+  useEffect(() => {
+    if (pathname === '/(tabs)/make' || pathname === '/make') {
+      console.log('[LEGACY] Redirecting from /make to /resources');
+      router.replace('/(tabs)/resources');
+    }
+  }, [pathname]);
 
   // Use centralized organization store
   const aiAgents = useOrganizationStore((s) => s.aiAgents);

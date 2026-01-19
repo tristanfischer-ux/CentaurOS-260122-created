@@ -7,11 +7,11 @@
  */
 
 import { View, Text, ScrollView, Pressable, Modal, TextInput } from 'react-native';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { FadeInDown } from 'react-native-reanimated';
-import { router } from 'expo-router';
+import { router, usePathname } from 'expo-router';
 import {
   Target,
   Compass,
@@ -97,6 +97,16 @@ export default function WhyScreen() {
   const insets = useSafeAreaInsets();
   const currentWorkspace = useCurrentWorkspace();
   const currentMembership = useCurrentMembership();
+  const pathname = usePathname();
+
+  // AUTO-REDIRECT to Home (new tab) - LEGACY ROUTE DEPRECATION
+  // WHY content is now accessible via Home → Plan/Strategy drilldown
+  useEffect(() => {
+    if (pathname === '/(tabs)/why' || pathname === '/why') {
+      console.log('[LEGACY] Redirecting from /why to / (Home with plan)');
+      router.replace('/(tabs)/');
+    }
+  }, [pathname]);
 
   // Stores
   const okrs = useOKRStore(s => s.okrs);

@@ -40,7 +40,7 @@ import {
   SlidersHorizontal,
   HelpCircle,
 } from 'lucide-react-native';
-import { router } from 'expo-router';
+import { router, usePathname } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { fractionalExecutives, apprentices, type Candidate } from '@/lib/candidates-seed';
 import { UK_SUPPLIERS } from '@/lib/suppliers-seed';
@@ -132,6 +132,16 @@ const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 export default function CommunityScreen() {
   const insets = useSafeAreaInsets();
   const currentMembership = useCurrentMembership();
+  const pathname = usePathname();
+
+  // AUTO-REDIRECT to /marketplace (new tab) - LEGACY ROUTE DEPRECATION
+  useEffect(() => {
+    if (pathname === '/(tabs)/community' || pathname === '/community') {
+      console.log('[LEGACY] Redirecting from /community to /marketplace');
+      router.replace('/(tabs)/marketplace');
+    }
+  }, [pathname]);
+
   const suppliers = useSupplierStore((s) => s.suppliers);
   const selectSupplier = useSupplierStore((s) => s.selectSupplier);
   const selectedSupplierFromStore = useSupplierStore((s) => s.selectedSupplier);

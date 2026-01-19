@@ -44,61 +44,81 @@
 
 ---
 
-## Test 4: Browse Marketplace → Create Outreach Draft → Appears in Tasks
+## Test 4: Browse Marketplace → Create Outreach Draft → Appears in Drafts
 
 | Step | Action | Expected Result | Pass/Fail |
 |------|--------|-----------------|-----------|
 | 4.1 | Go to Marketplace tab | Marketplace screen loads | |
 | 4.2 | Tap a People/Suppliers card | Action confirmation modal appears | |
-| 4.3 | Tap "Create Task Draft" | Draft created, navigates to Tasks | |
-| 4.4 | Go to Tasks tab | New draft task visible with [DRAFT] prefix | |
+| 4.3 | Tap "Contact" button | Draft created, navigates to Tasks | |
+| 4.4 | Go to Tasks tab | **Drafts section visible at top** | |
+| 4.5 | Verify draft in Drafts section | Draft visible with "Marketplace" source badge | |
+| 4.6 | Select draft checkbox | Checkbox selected, "Confirm" button enabled | |
+| 4.7 | Tap "Confirm" button | Draft becomes real task in Queued section | |
 
 ---
 
-## Test 5: People Pipeline Basic Flow
+## Test 5: Voice/Text Draft Creation Flow
 
 | Step | Action | Expected Result | Pass/Fail |
 |------|--------|-----------------|-----------|
-| 5.1 | Go to People tab | People screen loads | |
-| 5.2 | Tap "Hiring" segment | Hiring pipeline view loads | |
-| 5.3 | Verify pipeline stages | 5 stages visible: Identified → Engaged | |
-| 5.4 | Tap "View Tasks" on a team member | Navigates to Tasks tab | |
-| 5.5 | Tap "View Schedule" on a team member | Navigates to When tab | |
+| 5.1 | Go to Tasks tab | Tasks screen loads | |
+| 5.2 | Tap + button to open drawer | Bottom drawer opens | |
+| 5.3 | Type task text and submit | Task extraction starts | |
+| 5.4 | Wait for AI extraction | Draft(s) created, appear in Drafts section | |
+| 5.5 | Verify source badge shows "AI" | AI extraction source badge visible | |
+| 5.6 | Select and confirm draft | Draft becomes real task | |
 
 ---
 
-## Test 6: Old Routes Redirect Correctly
+## Test 6: People Pipeline Basic Flow
 
 | Step | Action | Expected Result | Pass/Fail |
 |------|--------|-----------------|-----------|
-| 6.1 | Navigate to /(tabs)/who | Who screen loads (backward compatible) | |
-| 6.2 | Navigate to /(tabs)/what | What screen loads (backward compatible) | |
-| 6.3 | Navigate to /(tabs)/why | Why screen loads (backward compatible) | |
-| 6.4 | Navigate to /(tabs)/performance | Performance screen loads (backward compatible) | |
-| 6.5 | Navigate to /(tabs)/tools | Tools screen loads (backward compatible) | |
+| 6.1 | Go to People tab | People screen loads | |
+| 6.2 | Tap "Hiring" segment | Hiring pipeline view loads | |
+| 6.3 | Verify pipeline stages | 5 stages visible: Identified → Engaged | |
+| 6.4 | Tap "View Tasks" on a team member | Navigates to Tasks tab | |
+| 6.5 | Tap "View Schedule" on a team member | Navigates to When tab | |
 
 ---
 
-## Test 7: Home Drilldowns
+## Test 7: Old Routes Auto-Redirect Correctly
 
 | Step | Action | Expected Result | Pass/Fail |
 |------|--------|-----------------|-----------|
-| 7.1 | Go to Home tab | Home screen loads | |
-| 7.2 | Scroll to Quick Access section | Plan and Analytics buttons visible | |
-| 7.3 | Tap "Plan" button | Navigates to Why/Strategy screen | |
-| 7.4 | Go back to Home | Home screen loads | |
-| 7.5 | Tap "Analytics" button | Navigates to Performance screen | |
+| 7.1 | Navigate to /(tabs)/who | **Auto-redirects to /people** | |
+| 7.2 | Navigate to /(tabs)/what | **Auto-redirects to /tasks** | |
+| 7.3 | Navigate to /(tabs)/why | **Auto-redirects to / (Home)** | |
+| 7.4 | Navigate to /(tabs)/performance | **Auto-redirects to / (Home)** | |
+| 7.5 | Navigate to /(tabs)/tools | **Auto-redirects to /resources** | |
+| 7.6 | Navigate to /(tabs)/do | **Auto-redirects to /tasks** | |
+| 7.7 | Navigate to /(tabs)/decide | **Auto-redirects to /tasks** | |
+| 7.8 | Navigate to /(tabs)/make | **Auto-redirects to /resources** | |
+| 7.9 | Navigate to /(tabs)/community | **Auto-redirects to /marketplace** | |
 
 ---
 
-## Test 8: Resources Tab Shows Current Usage
+## Test 8: Home Drilldowns
 
 | Step | Action | Expected Result | Pass/Fail |
 |------|--------|-----------------|-----------|
-| 8.1 | Go to Resources tab | Resources screen loads | |
-| 8.2 | Verify AI Tools section | Shows configured AI tools | |
-| 8.3 | Verify Suppliers section | Shows active supplier engagements | |
-| 8.4 | Tap "Browse Marketplace" | Navigates to Marketplace tab | |
+| 8.1 | Go to Home tab | Home screen loads | |
+| 8.2 | Scroll to Quick Access section | Plan and Analytics buttons visible | |
+| 8.3 | Tap "Plan" button | Navigates to Why/Strategy screen | |
+| 8.4 | Go back to Home | Home screen loads | |
+| 8.5 | Tap "Analytics" button | Navigates to Performance screen | |
+
+---
+
+## Test 9: Resources Tab Shows Current Usage
+
+| Step | Action | Expected Result | Pass/Fail |
+|------|--------|-----------------|-----------|
+| 9.1 | Go to Resources tab | Resources screen loads | |
+| 9.2 | Verify AI Tools section | Shows configured AI tools | |
+| 9.3 | Verify Suppliers section | Shows active supplier engagements | |
+| 9.4 | Tap "Browse Marketplace" | Navigates to Marketplace tab | |
 
 ---
 
@@ -109,12 +129,13 @@
 | Navigation | /7 | | |
 | Task Creation | /5 | | |
 | When Tab | /4 | | |
-| Marketplace | /4 | | |
+| Marketplace Drafts | /7 | | |
+| Voice/Text Drafts | /6 | | |
 | People | /5 | | |
-| Redirects | /5 | | |
+| Auto-Redirects | /9 | | |
 | Home Drilldowns | /5 | | |
 | Resources | /4 | | |
-| **TOTAL** | /39 | | |
+| **TOTAL** | /52 | | |
 
 ---
 

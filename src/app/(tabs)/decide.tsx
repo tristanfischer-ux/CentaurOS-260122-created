@@ -5,7 +5,7 @@ import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, { useSharedValue, useAnimatedStyle, withSpring, runOnJS, FadeIn, FadeOut, Layout } from 'react-native-reanimated';
 import { useCurrentWorkspace, useCurrentMembership } from '@/lib/state/app-store';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter, usePathname } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { CompactTaskCard } from '@/components/CompactTaskCard';
@@ -88,11 +88,20 @@ interface WorkPlanItem {
 export default function DecideScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
+  const pathname = usePathname();
   const { theme, isOffWhite } = useTheme();
   const isDark = theme === 'dark';
   const currentWorkspace = useCurrentWorkspace();
   const currentMembership = useCurrentMembership();
   const params = useLocalSearchParams<{ function?: string; showApprovalQueue?: string; selectedTaskId?: string }>();
+
+  // AUTO-REDIRECT to /tasks (new tab) - LEGACY ROUTE DEPRECATION
+  useEffect(() => {
+    if (pathname === '/(tabs)/decide' || pathname === '/decide') {
+      console.log('[LEGACY] Redirecting from /decide to /tasks');
+      router.replace('/(tabs)/tasks');
+    }
+  }, [pathname, router]);
 
   // Use centralized OKR store
   const okrs = useOKRStore(s => s.okrs);

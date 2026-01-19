@@ -36,11 +36,16 @@ Centaur OS is a comprehensive iOS mobile application that helps lean companies o
 - ✅ User explicitly confirms drafts → become real tasks
 - ✅ Drafts excluded from When tab and metrics
 
-**Legacy Route Redirects:**
-- ✅ `/who` → `/people` (auto-redirect)
-- ✅ `/what` → `/tasks` (auto-redirect)
-- ✅ `/tools` → `/resources` (auto-redirect)
-- ✅ All legacy routes still work (4-week deprecation)
+**Legacy Route Redirects (ALL now have real auto-redirects):**
+- ✅ `/who` → `/people`
+- ✅ `/what` → `/tasks`
+- ✅ `/tools` → `/resources`
+- ✅ `/community` → `/marketplace`
+- ✅ `/make` → `/resources`
+- ✅ `/decide` → `/tasks`
+- ✅ `/do` → `/tasks`
+- ✅ `/why` → `/` (Home)
+- ✅ `/performance` → `/` (Home)
 
 **Documentation:**
 - `MIGRATION_NOTES.md` - Full migration details

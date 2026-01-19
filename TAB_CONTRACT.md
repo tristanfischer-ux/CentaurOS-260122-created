@@ -173,19 +173,20 @@ Use consistent status terminology across all tabs:
 
 ## Legacy Routes (Backward Compatibility)
 
-These routes are hidden from the tab bar and **auto-redirect** to new locations:
+All legacy routes have **real auto-redirects** implemented via useEffect + router.replace().
+The `href: null` in `_layout.tsx` hides them from the tab bar.
 
 | Old Route | Redirects To | Implementation | Deprecation |
 |-----------|--------------|----------------|-------------|
-| /who | /people | Auto-redirect on mount | 4 weeks |
-| /what | /tasks | Auto-redirect on mount | 4 weeks |
-| /why | Home → Plan | Quick Access button | 4 weeks |
-| /tools | /resources | Auto-redirect on mount | 4 weeks |
-| /performance | Home → Analytics | Quick Access button | 4 weeks |
-| /decide | /tasks | Hidden tab | 4 weeks |
-| /do | /tasks | Hidden tab | 4 weeks |
-| /make | /resources | Hidden tab | 4 weeks |
-| /community | /marketplace | Hidden tab | 4 weeks |
+| /who | /people | **Auto-redirect on mount** | 4 weeks |
+| /what | /tasks | **Auto-redirect on mount** | 4 weeks |
+| /why | / (Home) | **Auto-redirect on mount** | 4 weeks |
+| /tools | /resources | **Auto-redirect on mount** | 4 weeks |
+| /performance | / (Home) | **Auto-redirect on mount** | 4 weeks |
+| /decide | /tasks | **Auto-redirect on mount** | 4 weeks |
+| /do | /tasks | **Auto-redirect on mount** | 4 weeks |
+| /make | /resources | **Auto-redirect on mount** | 4 weeks |
+| /community | /marketplace | **Auto-redirect on mount** | 4 weeks |
 
 ---
 

@@ -7,11 +7,11 @@
  */
 
 import { View, Text, ScrollView, Pressable, Switch, Modal, TextInput, KeyboardAvoidingView, Platform } from 'react-native';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { FadeInDown } from 'react-native-reanimated';
-import { router } from 'expo-router';
+import { router, usePathname } from 'expo-router';
 import {
   BarChart3,
   TrendingUp,
@@ -139,6 +139,16 @@ export default function PerformanceScreen() {
   const insets = useSafeAreaInsets();
   const currentWorkspace = useCurrentWorkspace();
   const currentMembership = useCurrentMembership();
+  const pathname = usePathname();
+
+  // AUTO-REDIRECT to Home (new tab) - LEGACY ROUTE DEPRECATION
+  // Performance analytics is now accessible via Home → Analytics drilldown
+  useEffect(() => {
+    if (pathname === '/(tabs)/performance' || pathname === '/performance') {
+      console.log('[LEGACY] Redirecting from /performance to / (Home with analytics)');
+      router.replace('/(tabs)/');
+    }
+  }, [pathname]);
 
   // Stores
   const members = useOrganizationStore(s => s.members);
