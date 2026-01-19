@@ -31,6 +31,7 @@ Centaur OS is a comprehensive iOS mobile application that helps lean companies o
 - **Capacity Updates**: Team members' capacity becomes available immediately after marking a task as done
 - **Status Updates**: Task status changes to "completed" with 100% progress
 - **Audit Trail**: Completion creates an audit record with total TUs spent, cost, and completion timestamp
+- **Completed Task Visibility**: Completed tasks remain visible in the "Done" section for all team members (preserves assignedMemberIds for history)
 
 ### ✅ Member Persistence Fix
 - **Fixed Login Issue**: Members no longer disappear after logging in

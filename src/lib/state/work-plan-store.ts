@@ -688,7 +688,8 @@ export const useWorkPlanStore = create<WorkPlanState>((set, get) => ({
               ...wp,
               status: 'completed' as const,
               progress: 100,
-              assignedMemberIds: [], // Free up all assigned members
+              // Keep assignedMemberIds for history/visibility (don't clear)
+              // Only clear allocations to free up TU capacity
               allocations: [], // Free all TU allocations
               auditRecord: {
                 completedAt: new Date().toISOString(),
