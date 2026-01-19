@@ -54,11 +54,8 @@ export interface ThirdPartyAITool {
   };
 }
 
-// DISABLED: All hardcoded AI tools have been disabled for multi-tenant architecture
-// AI tools should be loaded from Supabase as platform-wide reference data
-export const THIRD_PARTY_AI_TOOLS: ThirdPartyAITool[] = [];
-
-/* REFERENCE: Original hardcoded data (will be migrated to Supabase)
+// AI tools re-enabled with comprehensive coverage for all business functions
+// Focus on: Design, Manufacturing, Sales, Marketing, Admin, and RFQ tools
 export const THIRD_PARTY_AI_TOOLS: ThirdPartyAITool[] = [
   // ========== FINANCE (3 agents) ==========
   {
@@ -1332,7 +1329,6 @@ export const THIRD_PARTY_AI_TOOLS: ThirdPartyAITool[] = [
     },
   },
 ];
-*/
 
 // Helper functions
 export function getAIToolsByFunction(func: BusinessFunction | 'all'): ThirdPartyAITool[] {
