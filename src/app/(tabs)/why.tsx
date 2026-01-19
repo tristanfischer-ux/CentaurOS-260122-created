@@ -1,6 +1,9 @@
 /**
- * Why Tab - Strategic Planning
+ * Why Tab - LEGACY (now Home drilldown)
  * Company objectives, OKRs, and business improvements
+ *
+ * MIGRATION NOTE: This tab content is now accessible via Home → Plan/Strategy
+ * Keeping the original code for backward compatibility during transition.
  */
 
 import { View, Text, ScrollView, Pressable, Modal, TextInput } from 'react-native';

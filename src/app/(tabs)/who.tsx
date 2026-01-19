@@ -1,6 +1,9 @@
 /**
- * Who Tab - People Management
+ * Who Tab - LEGACY (redirects to People)
  * Team overview, resource pool, and recruitment
+ *
+ * MIGRATION NOTE: This tab is now redirected to /people
+ * Keeping the original code for backward compatibility during transition.
  */
 
 import { View, Text, ScrollView, Pressable, Modal, TextInput, Alert, Dimensions, Linking } from 'react-native';

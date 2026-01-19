@@ -1,6 +1,9 @@
 /**
- * Performance Tab - Reports & Metrics
+ * Performance Tab - LEGACY (now Home drilldown)
  * Team performance, task completion, and comprehensive financial reports
+ *
+ * MIGRATION NOTE: This tab content is now accessible via Home → Analytics
+ * Keeping the original code for backward compatibility during transition.
  */
 
 import { View, Text, ScrollView, Pressable, Switch, Modal, TextInput, KeyboardAvoidingView, Platform } from 'react-native';

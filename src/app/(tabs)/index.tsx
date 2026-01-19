@@ -27,6 +27,8 @@ import {
   Zap,
   Briefcase,
   ChevronRight,
+  Target,
+  BarChart3,
 } from 'lucide-react-native';
 
 // Stores
@@ -280,6 +282,36 @@ function FounderHome() {
             Quick Access
           </Text>
           <View className="flex-row flex-wrap gap-2">
+            {/* Plan / Strategy (formerly Why tab) */}
+            <Pressable
+              onPress={() => router.push('/(tabs)/why')}
+              className="flex-1 min-w-[45%] bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-3 flex-row items-center gap-2 active:opacity-70"
+            >
+              <View className="bg-indigo-100 dark:bg-indigo-900/30 p-2 rounded-lg">
+                <Target size={16} color="#6366f1" />
+              </View>
+              <View className="flex-1">
+                <Text className="text-slate-900 dark:text-white font-semibold text-sm">Plan</Text>
+                <Text className="text-slate-500 dark:text-slate-400 text-xs">Strategy & OKRs</Text>
+              </View>
+              <ChevronRight size={14} color="#64748b" />
+            </Pressable>
+
+            {/* Analytics (formerly Performance tab) */}
+            <Pressable
+              onPress={() => router.push('/(tabs)/performance')}
+              className="flex-1 min-w-[45%] bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-3 flex-row items-center gap-2 active:opacity-70"
+            >
+              <View className="bg-rose-100 dark:bg-rose-900/30 p-2 rounded-lg">
+                <BarChart3 size={16} color="#f43f5e" />
+              </View>
+              <View className="flex-1">
+                <Text className="text-slate-900 dark:text-white font-semibold text-sm">Analytics</Text>
+                <Text className="text-slate-500 dark:text-slate-400 text-xs">Performance</Text>
+              </View>
+              <ChevronRight size={14} color="#64748b" />
+            </Pressable>
+
             {/* Function Hub */}
             <Pressable
               onPress={() => router.push('/function-hub')}

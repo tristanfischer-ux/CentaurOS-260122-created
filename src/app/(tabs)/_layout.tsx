@@ -1,10 +1,30 @@
 import React, { useEffect } from 'react';
 import { Tabs, router } from 'expo-router';
-import { Home, Users, CheckSquare, Target, Wrench, BarChart3, Settings } from 'lucide-react-native';
+import { Home, Users, CheckSquare, Calendar, Wrench, Store, Settings } from 'lucide-react-native';
 import { useColorScheme } from '@/lib/useColorScheme';
 import { useIsAuthenticated, useCurrentWorkspace, useAppStore } from '@/lib/state/app-store';
 
-// Tab navigation layout
+/**
+ * Tab Navigation Layout - 7-Tab Structure
+ *
+ * VISIBLE TABS (7):
+ * 1. Home - Summary dashboard + entry points (Plan/Analytics drilldowns)
+ * 2. People - Team roster, capacity, hiring pipeline
+ * 3. Tasks - Task management (Doing/Queued/Blocked/Done)
+ * 4. When - Timeline/capacity view (who doing what when)
+ * 5. Resources - Current AI tools + active supplier engagements
+ * 6. Marketplace - Discovery (people/suppliers/tools/advisors)
+ * 7. Settings - Config/integrations
+ *
+ * HIDDEN TABS (legacy - redirected):
+ * - who -> people (redirect)
+ * - what -> tasks (redirect)
+ * - why -> home (Plan/Strategy drilldown)
+ * - tools -> resources (redirect)
+ * - performance -> home (Analytics drilldown)
+ * - decide, do, evaluate, make, community -> tasks or marketplace
+ */
+
 function TabBarIcon(props: { Icon: any; color: string }) {
   const { Icon, color } = props;
   return <Icon size={24} color={color} strokeWidth={2} />;
@@ -78,7 +98,9 @@ export default function TabLayout() {
         headerTintColor: colorScheme === 'dark' ? '#ffffff' : '#000000',
       }}
     >
-      {/* Home - Summary Dashboard */}
+      {/* ========== VISIBLE TABS (7) ========== */}
+
+      {/* 1. Home - Summary Dashboard */}
       <Tabs.Screen
         name="index"
         options={{
@@ -88,100 +110,57 @@ export default function TabLayout() {
         }}
       />
 
-      {/* Who - People Management (Founders, Execs, Apprentices + Recruitment) */}
+      {/* 2. People - Team Management */}
       <Tabs.Screen
-        name="who"
+        name="people"
         options={{
-          title: 'Who',
+          title: 'People',
           headerShown: false,
           tabBarIcon: ({ color }) => <TabBarIcon Icon={Users} color={color} />,
         }}
       />
 
-      {/* What - Task Execution (Tasks, Gantt, Allocations) */}
+      {/* 3. Tasks - Task Management */}
       <Tabs.Screen
-        name="what"
+        name="tasks"
         options={{
-          title: 'What',
+          title: 'Tasks',
           headerShown: false,
           tabBarIcon: ({ color }) => <TabBarIcon Icon={CheckSquare} color={color} />,
         }}
       />
 
-      {/* Why - Strategic Planning (OKRs, Company Objectives) */}
+      {/* 4. When - Timeline/Capacity */}
       <Tabs.Screen
-        name="why"
+        name="when"
         options={{
-          title: 'Why',
+          title: 'When',
           headerShown: false,
-          tabBarIcon: ({ color }) => <TabBarIcon Icon={Target} color={color} />,
+          tabBarIcon: ({ color }) => <TabBarIcon Icon={Calendar} color={color} />,
         }}
       />
 
-      {/* Tools - Suppliers & AI */}
+      {/* 5. Resources - Current Usage */}
       <Tabs.Screen
-        name="tools"
+        name="resources"
         options={{
-          title: 'Tools',
+          title: 'Resources',
           headerShown: false,
           tabBarIcon: ({ color }) => <TabBarIcon Icon={Wrench} color={color} />,
         }}
       />
 
-      {/* Performance - Reports & Metrics */}
+      {/* 6. Marketplace - Discovery */}
       <Tabs.Screen
-        name="performance"
+        name="marketplace"
         options={{
-          title: 'Performance',
+          title: 'Market',
           headerShown: false,
-          tabBarIcon: ({ color }) => <TabBarIcon Icon={BarChart3} color={color} />,
+          tabBarIcon: ({ color }) => <TabBarIcon Icon={Store} color={color} />,
         }}
       />
 
-      {/*
-        Hidden legacy tabs - keep for routing but hide from tab bar
-
-        These tabs are intentionally hidden but still accessible via router.push():
-        - decide: Used for decision flows from Settings and Home
-        - do: Used for apprentice task management
-        - evaluate: Used for work plan evaluation
-        - make: Used for supplier engagement management
-        - community: Used from marketplace and invitations
-
-        They're kept as tabs (not separate screens) to maintain navigation stack behavior.
-      */}
-      <Tabs.Screen
-        name="decide"
-        options={{
-          href: null, // Hide from tabs
-        }}
-      />
-      <Tabs.Screen
-        name="do"
-        options={{
-          href: null, // Hide from tabs
-        }}
-      />
-      <Tabs.Screen
-        name="evaluate"
-        options={{
-          href: null, // Hide from tabs
-        }}
-      />
-      <Tabs.Screen
-        name="make"
-        options={{
-          href: null, // Hide from tabs
-        }}
-      />
-      <Tabs.Screen
-        name="community"
-        options={{
-          href: null, // Hide from tabs
-        }}
-      />
-
-      {/* Settings */}
+      {/* 7. Settings */}
       <Tabs.Screen
         name="settings"
         options={{
@@ -189,6 +168,73 @@ export default function TabLayout() {
           headerShown: false,
           tabBarIcon: ({ color }) => <TabBarIcon Icon={Settings} color={color} />,
         }}
+      />
+
+      {/* ========== HIDDEN LEGACY TABS ========== */}
+      {/*
+        These tabs are hidden from the tab bar but kept for backward compatibility.
+        They redirect to the new tab structure.
+        See MIGRATION_NOTES.md for full mapping.
+      */}
+
+      {/* Legacy: who -> people */}
+      <Tabs.Screen
+        name="who"
+        options={{ href: null }}
+      />
+
+      {/* Legacy: what -> tasks */}
+      <Tabs.Screen
+        name="what"
+        options={{ href: null }}
+      />
+
+      {/* Legacy: why -> home (Plan/Strategy drilldown) */}
+      <Tabs.Screen
+        name="why"
+        options={{ href: null }}
+      />
+
+      {/* Legacy: tools -> resources */}
+      <Tabs.Screen
+        name="tools"
+        options={{ href: null }}
+      />
+
+      {/* Legacy: performance -> home (Analytics drilldown) */}
+      <Tabs.Screen
+        name="performance"
+        options={{ href: null }}
+      />
+
+      {/* Legacy: decide -> tasks */}
+      <Tabs.Screen
+        name="decide"
+        options={{ href: null }}
+      />
+
+      {/* Legacy: do -> tasks */}
+      <Tabs.Screen
+        name="do"
+        options={{ href: null }}
+      />
+
+      {/* Legacy: evaluate -> tasks */}
+      <Tabs.Screen
+        name="evaluate"
+        options={{ href: null }}
+      />
+
+      {/* Legacy: make -> resources */}
+      <Tabs.Screen
+        name="make"
+        options={{ href: null }}
+      />
+
+      {/* Legacy: community -> marketplace */}
+      <Tabs.Screen
+        name="community"
+        options={{ href: null }}
       />
     </Tabs>
   );

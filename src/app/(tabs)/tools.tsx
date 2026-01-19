@@ -1,6 +1,9 @@
 /**
- * Tools Tab - Suppliers & AI
+ * Tools Tab - LEGACY (redirects to Resources)
  * Supplier engagements and AI agent management
+ *
+ * MIGRATION NOTE: This tab is now redirected to /resources
+ * Keeping the original code for backward compatibility during transition.
  */
 
 import { View, Text, ScrollView, Pressable, Modal, Linking, TextInput } from 'react-native';

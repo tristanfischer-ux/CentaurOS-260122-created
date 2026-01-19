@@ -1,41 +1,30 @@
 /**
- * What Tab - LEGACY (redirects to Tasks)
- * Tasks, Gantt chart, and resource allocations
+ * Tasks Tab - Task Management
+ * Status-first view: Doing / Queued / Blocked / Done
  *
- * MIGRATION NOTE: This tab is now redirected to /tasks
- * Keeping the original code for backward compatibility during transition.
+ * MIGRATION: This tab consolidates features from 'what', 'decide', 'do' tabs
+ * Anti-bloat: This is the ONLY place to create/edit/confirm tasks
  */
 
 import { View, Text, ScrollView, Pressable, Modal, TextInput } from 'react-native';
-import { useState, useMemo, useEffect, useCallback } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
-import Animated, { FadeInDown, useAnimatedStyle, withSpring, useSharedValue } from 'react-native-reanimated';
+import Animated, { FadeInDown } from 'react-native-reanimated';
+import { router } from 'expo-router';
 import {
   CheckSquare,
   Plus,
   X,
   Clock,
-  Users,
-  Calendar,
-  ChevronRight,
-  ChevronDown,
-  ChevronUp,
   Play,
   Pause,
   CheckCircle2,
   AlertTriangle,
-  AlertCircle,
   Target,
-  Zap,
   Filter,
-  BarChart3,
-  ListTodo,
-  GanttChartSquare,
-  HelpCircle,
-  Trash2,
-  Edit3,
   Sparkles,
+  Calendar,
 } from 'lucide-react-native';
 import { useOrganizationStore } from '@/lib/state/organization-store';
 import { useWorkPlanStore, type WorkPlan } from '@/lib/state/work-plan-store';
@@ -44,17 +33,12 @@ import type { OrganizationMember } from '@/lib/organization-seed';
 import type { Function as BusinessFunction } from '@/types';
 import { HelpModal, HelpButton, type HelpContent } from '@/components/HelpModal';
 import { SettingsGearButton } from '@/components/SettingsGearButton';
-import { MiniGanttChart } from '@/components/MiniGanttChart';
 import { UnifiedTaskAllocationModal } from '@/components/UnifiedTaskAllocationModal';
-import { SquaresDisplay } from '@/components/SquaresDisplay';
 import { CompactTaskCard } from '@/components/CompactTaskCard';
 import { filterWorkPlansByRole } from '@/lib/role-utils';
-import { RoleIndicator } from '@/components/RoleIndicator';
-import { getTemplatesByFunction, type TaskTemplate } from '@/lib/task-templates';
 import { UnifiedBottomDrawer } from '@/components/UnifiedBottomDrawer';
 import { TaskDraftsReviewModal } from '@/components/TaskDraftsReviewModal';
 import { extractTasksFromText } from '@/lib/ai/task-extraction';
-import { supabase } from '@/lib/supabase';
 
 interface TaskDraft {
   id: string;
@@ -68,46 +52,35 @@ interface TaskDraft {
   confidence_due?: number;
 }
 
-const WHAT_HELP: HelpContent = {
-  title: 'Task Execution',
-  subtitle: 'Plan, allocate, and execute work',
-  description: 'The What tab is your task management hub. View all tasks in a Gantt timeline, allocate team members, and track progress. Use the resource pool to see who has capacity and assign them to tasks.',
+const TASKS_HELP: HelpContent = {
+  title: 'Tasks',
+  subtitle: 'Manage all your work',
+  description: 'The Tasks tab is the single source of truth for all tasks. View by status, create new tasks via voice or text, and manage task lifecycle.',
   tips: [
-    'Tasks are organized by status: In Progress, Queued, Blocked, and Completed',
-    'Click any task to open the allocation panel and assign team members',
-    'The Gantt chart shows task timelines - scroll left/right to see different weeks',
-    'Resource Pool at the bottom shows who has available capacity',
-    'Long-press a task to see quick actions like start, block, or complete',
+    'Tasks are organized by status: Doing, Queued, Blocked, Done',
+    'Use voice or text input to create task drafts',
+    'All task drafts require confirmation before becoming real tasks',
+    'Tap a task to view details and allocate team members',
+    'Link to When tab to see timeline, link to People to see who\'s assigned',
   ],
   quickActions: [
-    { label: 'Create Task', description: 'Add a new task with title, function, and estimated TUs' },
-    { label: 'Allocate Resources', description: 'Assign team members and their weekly TU contribution' },
-    { label: 'Gantt Timeline', description: 'Visual timeline of all tasks and their durations' },
-    { label: 'Resource Pool', description: 'See team capacity and quickly allocate to tasks' },
+    { label: 'Create Task', description: 'Add a new task via voice or text' },
+    { label: 'View by Status', description: 'Filter tasks by Doing/Queued/Blocked/Done' },
+    { label: 'Allocate Team', description: 'Assign people to tasks' },
   ],
 };
 
 const STATUS_CONFIG = {
-  'in-progress': { label: 'In Progress', color: '#3b82f6', bgColor: '#3b82f620', icon: Play },
+  'in-progress': { label: 'Doing', color: '#3b82f6', bgColor: '#3b82f620', icon: Play },
   'not-started': { label: 'Queued', color: '#64748b', bgColor: '#64748b20', icon: Clock },
   'blocked': { label: 'Blocked', color: '#ef4444', bgColor: '#ef444420', icon: AlertTriangle },
-  'completed': { label: 'Completed', color: '#10b981', bgColor: '#10b98120', icon: CheckCircle2 },
+  'completed': { label: 'Done', color: '#10b981', bgColor: '#10b98120', icon: CheckCircle2 },
   'abandoned': { label: 'Abandoned', color: '#94a3b8', bgColor: '#94a3b820', icon: X },
 };
 
-const FUNCTION_COLORS: Record<string, string> = {
-  Marketing: '#ec4899',
-  Sales: '#f59e0b',
-  Finance: '#10b981',
-  Engineering: '#3b82f6',
-  Ops: '#8b5cf6',
-  Admin: '#64748b',
-};
-
-type ViewMode = 'list' | 'gantt';
 type StatusFilter = 'all' | 'in-progress' | 'not-started' | 'blocked' | 'completed';
 
-export default function WhatScreen() {
+export default function TasksScreen() {
   const insets = useSafeAreaInsets();
   const currentMembership = useCurrentMembership();
   const currentWorkspace = useCurrentWorkspace();
@@ -117,36 +90,24 @@ export default function WhatScreen() {
   const workPlans = useWorkPlanStore(s => s.workPlans);
   const addWorkPlan = useWorkPlanStore(s => s.addWorkPlan);
   const updateWorkPlan = useWorkPlanStore(s => s.updateWorkPlan);
-  const completeWorkPlan = useWorkPlanStore(s => s.completeWorkPlan);
-  const abandonWorkPlan = useWorkPlanStore(s => s.abandonWorkPlan);
 
-  // Fallback: Use first member as current user if currentMembership is null (for demo/dev)
-  // If no members, create a default user with proper UUID
+  // Fallback for demo mode
   const effectiveMembership = currentMembership ||
     (members.length > 0
       ? { id: members[0].id, role: members[0].role, function: members[0].function }
-      : {
-          id: '00000000-0000-0000-0000-000000000001', // Valid UUID for demo
-          role: 'Founder' as const,
-          function: 'Engineering' as const
-        });
+      : { id: '00000000-0000-0000-0000-000000000001', role: 'Founder' as const, function: 'Engineering' as const });
 
-  // Fallback workspace for demo/dev with proper UUID
   const effectiveWorkspace = currentWorkspace || {
-    id: '00000000-0000-0000-0000-000000000002', // Valid UUID for demo
+    id: '00000000-0000-0000-0000-000000000002',
     name: 'Demo Workspace'
   };
 
   // State
   const [showHelp, setShowHelp] = useState(false);
-  const [viewMode, setViewMode] = useState<ViewMode>('list');
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
-  const [functionFilter, setFunctionFilter] = useState<BusinessFunction | 'all'>('all');
   const [selectedTask, setSelectedTask] = useState<WorkPlan | null>(null);
   const [showTaskModal, setShowTaskModal] = useState(false);
   const [openDrawerToNewTask, setOpenDrawerToNewTask] = useState(false);
-  const [showResourcePool, setShowResourcePool] = useState(false);
-  const [selectedPersonForAllocation, setSelectedPersonForAllocation] = useState<string | null>(null);
   const [showVoiceTranscript, setShowVoiceTranscript] = useState(false);
   const [voiceTranscript, setVoiceTranscript] = useState('');
   const [showDraftsReview, setShowDraftsReview] = useState(false);
@@ -154,42 +115,7 @@ export default function WhatScreen() {
   const [isProcessingTranscript, setIsProcessingTranscript] = useState(false);
   const [isConfirmingDrafts, setIsConfirmingDrafts] = useState(false);
 
-  // Debug: Log when modal visibility changes
-  useEffect(() => {
-    console.log('[What Tab] showVoiceTranscript changed:', showVoiceTranscript);
-    console.log('[What Tab] voiceTranscript:', voiceTranscript);
-  }, [showVoiceTranscript, voiceTranscript]);
-
-  // Debug: Log when drafts review modal changes
-  useEffect(() => {
-    console.log('[What Tab] showDraftsReview changed:', showDraftsReview);
-    console.log('[What Tab] taskDrafts count:', taskDrafts.length);
-    if (taskDrafts.length > 0) {
-      console.log('[What Tab] First draft:', taskDrafts[0]);
-    }
-  }, [showDraftsReview, taskDrafts]);
-
-  // Create task form state
-  const [newTaskTitle, setNewTaskTitle] = useState('');
-  const [newTaskFunction, setNewTaskFunction] = useState<BusinessFunction>('Engineering');
-  const [newTaskEstimate, setNewTaskEstimate] = useState('10');
-  const [showSuggestions, setShowSuggestions] = useState(true);
-
-  // Get task templates for current function
-  const taskTemplates = useMemo(() => {
-    return getTemplatesByFunction(newTaskFunction);
-  }, [newTaskFunction]);
-
-  // Handle template selection
-  const handleSelectTemplate = (template: TaskTemplate) => {
-    setNewTaskTitle(template.title);
-    setNewTaskEstimate(template.estimatedTimeUnits.toString());
-    setShowSuggestions(false);
-  };
-
-  const isFounder = currentMembership?.role === 'Founder';
-
-  // Role-based filtering first
+  // Role-based filtering
   const roleFilteredTasks = useMemo(() => {
     if (!currentMembership?.role) return workPlans;
     return filterWorkPlansByRole(
@@ -200,14 +126,12 @@ export default function WhatScreen() {
     );
   }, [workPlans, currentMembership]);
 
-  // Then apply UI filters (status, function)
+  // UI filter
   const filteredTasks = useMemo(() => {
     return roleFilteredTasks.filter(task => {
-      const matchesStatus = statusFilter === 'all' || task.status === statusFilter;
-      const matchesFunction = functionFilter === 'all' || task.function === functionFilter;
-      return matchesStatus && matchesFunction;
+      return statusFilter === 'all' || task.status === statusFilter;
     });
-  }, [roleFilteredTasks, statusFilter, functionFilter]);
+  }, [roleFilteredTasks, statusFilter]);
 
   // Group tasks by status
   const tasksByStatus = useMemo(() => {
@@ -225,118 +149,33 @@ export default function WhatScreen() {
     return grouped;
   }, [filteredTasks]);
 
-  // Stats (based on role-filtered tasks)
+  // Stats
   const stats = useMemo(() => {
-    const active = roleFilteredTasks.filter(t => t.status === 'in-progress').length;
+    const doing = roleFilteredTasks.filter(t => t.status === 'in-progress').length;
     const queued = roleFilteredTasks.filter(t => t.status === 'not-started').length;
     const blocked = roleFilteredTasks.filter(t => t.status === 'blocked').length;
-    const completed = roleFilteredTasks.filter(t => t.status === 'completed').length;
-    return { active, queued, blocked, completed };
+    const done = roleFilteredTasks.filter(t => t.status === 'completed').length;
+    return { doing, queued, blocked, done };
   }, [roleFilteredTasks]);
 
-  // Get allocated members for a task
-  const getTaskMembers = (task: WorkPlan) => {
-    if (!task.allocations || task.allocations.length === 0) return [];
-    return task.allocations.map(alloc => {
-      const member = members.find(m => m.id === alloc.memberId);
-      return { ...alloc, member };
-    }).filter(a => a.member);
-  };
-
-  // Handle task creation
-  const handleCreateTask = () => {
-    if (!newTaskTitle.trim()) return;
-
-    console.log('[What Tab] Creating task, current count:', workPlans.length);
-    console.log('[What Tab] Using workspace:', effectiveWorkspace.id);
-    console.log('[What Tab] Using membership:', effectiveMembership.id);
-
-    const newTask: WorkPlan = {
-      id: `task-${Date.now()}`,
-      workspaceId: effectiveWorkspace.id,
-      title: newTaskTitle.trim(),
-      description: '',
-      function: newTaskFunction,
-      status: 'not-started',
-      progress: 0,
-      estimatedTimeUnits: parseInt(newTaskEstimate) || 10,
-      allocations: [],
-      appliedAITools: [],
-      tusExpended: 0,
-      startDate: new Date().toISOString(),
-      dueDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(),
-      assignedBy: effectiveMembership.id,
-      needsSubmission: false,
-    };
-
-    console.log('[What Tab] New task:', newTask);
-    addWorkPlan(newTask);
-    console.log('[What Tab] After adding, count should be:', workPlans.length + 1);
-
-    // Reset form
-    setNewTaskTitle('');
-    setNewTaskEstimate('10');
-    setShowSuggestions(true);
-  };
-
-  // Handle task status change
-  const handleStartTask = (task: WorkPlan) => {
-    updateWorkPlan(task.id, { status: 'in-progress' });
-  };
-
-  const handleBlockTask = (task: WorkPlan) => {
-    updateWorkPlan(task.id, { status: 'blocked' });
-  };
-
-  const handleCompleteTask = (task: WorkPlan) => {
-    completeWorkPlan(task.id);
-  };
-
-  // Handle voice transcript - shows modal for confirmation
+  // Handle voice transcript
   const handleVoiceTranscript = (transcript: string) => {
-    console.log('[What Tab] handleVoiceTranscript called');
-    console.log('[What Tab] Transcript received:', transcript);
-    console.log('[What Tab] Transcript length:', transcript.length);
-    console.log('[What Tab] Setting voiceTranscript and showVoiceTranscript to true...');
     setVoiceTranscript(transcript);
     setShowVoiceTranscript(true);
-    console.log('[What Tab] State updated - modal should be visible now');
-
-    // Add a small delay to check state
-    setTimeout(() => {
-      console.log('[What Tab] Checking state after 100ms - voiceTranscript:', voiceTranscript?.substring(0, 20));
-    }, 100);
   };
 
-  // Handle text input - auto-processes immediately without modal
+  // Handle text input
   const handleTextInput = async (text: string) => {
-    console.log('[What Tab] handleTextInput called with:', text);
+    if (!text.trim()) return;
 
-    if (!text.trim()) {
-      console.log('[What Tab] No text provided!');
-      alert('Please enter some text to extract tasks from.');
-      return;
-    }
-
-    console.log('[What Tab] Processing text input directly');
     setIsProcessingTranscript(true);
-
     try {
-      // Extract tasks using client-side AI
-      console.log('[What Tab] Calling extractTasksFromText...');
       const extraction = await extractTasksFromText(text, 'text');
-
-      console.log('[What Tab] Tasks extracted:', extraction);
-      console.log('[What Tab] Number of tasks:', extraction.tasks.length);
-
       if (extraction.tasks.length === 0) {
-        console.log('[What Tab] No tasks extracted from text');
-        alert('No tasks found in your text. Please try again with clearer instructions.');
-        setIsProcessingTranscript(false);
+        alert('No tasks found. Please try again with clearer instructions.');
         return;
       }
 
-      // Convert extraction format to TaskDraft format
       const drafts: TaskDraft[] = extraction.tasks.map((task, index) => ({
         id: `draft-${Date.now()}-${index}`,
         title: task.title,
@@ -347,51 +186,28 @@ export default function WhatScreen() {
         confidence_due: task.confidence_due,
       }));
 
-      console.log('[What Tab] Extracted drafts from text:', drafts);
-
-      // Show drafts review modal
       setTaskDrafts(drafts);
       setShowDraftsReview(true);
     } catch (error) {
-      console.log('[What Tab] Failed to extract drafts from text:', error);
       alert(`Failed to extract tasks: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       setIsProcessingTranscript(false);
     }
   };
 
+  // Process voice transcript
   const handleProcessVoiceTranscript = async () => {
-    console.log('[What Tab] handleProcessVoiceTranscript called');
-    console.log('[What Tab] voiceTranscript:', voiceTranscript);
-    console.log('[What Tab] effectiveWorkspace:', effectiveWorkspace);
-    console.log('[What Tab] effectiveMembership:', effectiveMembership);
+    if (!voiceTranscript.trim()) return;
 
-    if (!voiceTranscript.trim()) {
-      console.log('[What Tab] No transcript text!');
-      alert('No transcript text found. Please try again.');
-      return;
-    }
-
-    console.log('[What Tab] All data present, processing voice transcript');
     setIsProcessingTranscript(true);
-
     try {
-      // Extract tasks using client-side Gemini AI
-      console.log('[What Tab] Calling extractTasksFromText...');
       const extraction = await extractTasksFromText(voiceTranscript, 'voice');
-
-      console.log('[What Tab] Tasks extracted:', extraction);
-      console.log('[What Tab] Number of tasks:', extraction.tasks.length);
-
       if (extraction.tasks.length === 0) {
-        console.log('[What Tab] No tasks extracted from transcript');
-        alert('No tasks found in your recording. Please try again with clearer instructions.');
+        alert('No tasks found. Please try again.');
         setShowVoiceTranscript(false);
-        setIsProcessingTranscript(false);
         return;
       }
 
-      // Convert extraction format to TaskDraft format for local display
       const drafts: TaskDraft[] = extraction.tasks.map((task, index) => ({
         id: `draft-${Date.now()}-${index}`,
         title: task.title,
@@ -402,40 +218,23 @@ export default function WhatScreen() {
         confidence_due: task.confidence_due,
       }));
 
-      console.log('[What Tab] Extracted drafts (v2):', drafts);
-      console.log('[What Tab] About to set taskDrafts and showDraftsReview...');
-
-      // Show drafts review modal directly (no Supabase needed)
       setTaskDrafts(drafts);
-      console.log('[What Tab] taskDrafts set');
       setShowVoiceTranscript(false);
-      console.log('[What Tab] showVoiceTranscript set to false');
       setShowDraftsReview(true);
-      console.log('[What Tab] showDraftsReview set to true - modal should appear now!');
     } catch (error) {
-      console.log('[What Tab] Failed to extract drafts:', error);
-      console.log('[What Tab] Error details:', {
-        message: error instanceof Error ? error.message : String(error),
-        stack: error instanceof Error ? error.stack : undefined,
-      });
       alert(`Failed to extract tasks: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       setIsProcessingTranscript(false);
     }
   };
 
+  // Confirm drafts
   const handleConfirmDrafts = async (draftIds: string[]) => {
-    console.log('[What Tab] Confirming drafts:', draftIds);
     setIsConfirmingDrafts(true);
-
     try {
-      // Get drafts to confirm
       const draftsToConfirm = taskDrafts.filter(d => draftIds.includes(d.id));
-      console.log('[What Tab] Drafts to confirm:', draftsToConfirm);
 
-      // Add each draft as a work plan task
       for (const draft of draftsToConfirm) {
-        // Generate a proper UUID
         const uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
           const r = Math.random() * 16 | 0;
           const v = c === 'x' ? r : (r & 0x3 | 0x8);
@@ -460,29 +259,14 @@ export default function WhatScreen() {
           tusExpended: 0,
         };
 
-        console.log('[What Tab] Adding task to work plan:', newTask);
-        try {
-          await addWorkPlan(newTask);
-          console.log('[What Tab] Task added successfully:', newTask.id);
-        } catch (err) {
-          console.log('[What Tab] Failed to add task:', err);
-          const errorMessage = err instanceof Error ? err.message : JSON.stringify(err);
-          console.log('[What Tab] Error message:', errorMessage);
-          // Continue anyway - don't fail the whole batch
-        }
+        await addWorkPlan(newTask);
       }
 
-      console.log('[What Tab] Tasks created successfully!');
-
-      // Close modals and clear state
       setShowDraftsReview(false);
       setTaskDrafts([]);
       setVoiceTranscript('');
-
-      // Show success message
-      alert(`${draftsToConfirm.length} task(s) created successfully!`);
+      alert(`${draftsToConfirm.length} task(s) created!`);
     } catch (error) {
-      console.error('[What Tab] Failed to confirm drafts:', error);
       alert('Failed to create tasks. Please try again.');
     } finally {
       setIsConfirmingDrafts(false);
@@ -490,13 +274,11 @@ export default function WhatScreen() {
   };
 
   const handleEditDraft = (draftId: string, updates: Partial<TaskDraft>) => {
-    setTaskDrafts(prev =>
-      prev.map(draft => (draft.id === draftId ? { ...draft, ...updates } : draft))
-    );
+    setTaskDrafts(prev => prev.map(d => d.id === draftId ? { ...d, ...updates } : d));
   };
 
   const handleRemoveDraft = (draftId: string) => {
-    setTaskDrafts(prev => prev.filter(draft => draft.id !== draftId));
+    setTaskDrafts(prev => prev.filter(d => d.id !== draftId));
   };
 
   return (
@@ -505,7 +287,7 @@ export default function WhatScreen() {
       <HelpModal
         visible={showHelp}
         onClose={() => setShowHelp(false)}
-        content={WHAT_HELP}
+        content={TASKS_HELP}
         gradientColors={['#10b981', '#059669']}
       />
 
@@ -532,14 +314,14 @@ export default function WhatScreen() {
       >
         <View className="flex-row items-center justify-between mb-4">
           <View>
-            <Text className="text-white/70 text-xs font-medium uppercase tracking-wide">Tasks</Text>
-            <Text className="text-white text-2xl font-bold">What</Text>
+            <Text className="text-white/70 text-xs font-medium uppercase tracking-wide">Work</Text>
+            <Text className="text-white text-2xl font-bold">Tasks</Text>
           </View>
           <View className="flex-row items-center gap-2">
             <Pressable
               onPress={() => {
                 setOpenDrawerToNewTask(true);
-                setTimeout(() => setOpenDrawerToNewTask(false), 100); // Reset trigger
+                setTimeout(() => setOpenDrawerToNewTask(false), 100);
               }}
               className="bg-white/20 p-2 rounded-full"
             >
@@ -550,11 +332,11 @@ export default function WhatScreen() {
           </View>
         </View>
 
-        {/* Stats */}
+        {/* Stats - Status-first */}
         <View className="flex-row justify-between bg-white/10 rounded-xl p-3">
           <View className="items-center flex-1">
-            <Text className="text-white/70 text-xs">Active</Text>
-            <Text className="text-white font-bold text-lg">{stats.active}</Text>
+            <Text className="text-white/70 text-xs">Doing</Text>
+            <Text className="text-white font-bold text-lg">{stats.doing}</Text>
           </View>
           <View className="items-center flex-1 border-l border-white/20">
             <Text className="text-white/70 text-xs">Queued</Text>
@@ -566,7 +348,7 @@ export default function WhatScreen() {
           </View>
           <View className="items-center flex-1 border-l border-white/20">
             <Text className="text-white/70 text-xs">Done</Text>
-            <Text className="text-emerald-300 font-bold text-lg">{stats.completed}</Text>
+            <Text className="text-emerald-300 font-bold text-lg">{stats.done}</Text>
           </View>
         </View>
       </LinearGradient>
@@ -604,16 +386,16 @@ export default function WhatScreen() {
         className="flex-1"
         contentContainerStyle={{ padding: 20, paddingBottom: insets.bottom + 100 }}
       >
-        {/* In Progress */}
+        {/* Doing */}
         {tasksByStatus['in-progress'].length > 0 && (
           <View className="mb-6">
             <View className="flex-row items-center gap-2 mb-3">
               <Play size={18} color="#3b82f6" />
               <Text className="text-slate-900 dark:text-white font-semibold text-base">
-                In Progress ({tasksByStatus['in-progress'].length})
+                Doing ({tasksByStatus['in-progress'].length})
               </Text>
             </View>
-            {tasksByStatus['in-progress'].map((task, index) => {
+            {tasksByStatus['in-progress'].map((task) => {
               const taskMembers = task.assignedMemberIds?.map(id => members.find(m => m.id === id)).filter(Boolean) as OrganizationMember[];
               return (
                 <CompactTaskCard
@@ -640,7 +422,7 @@ export default function WhatScreen() {
                 Blocked ({tasksByStatus['blocked'].length})
               </Text>
             </View>
-            {tasksByStatus['blocked'].map((task, index) => {
+            {tasksByStatus['blocked'].map((task) => {
               const taskMembers = task.assignedMemberIds?.map(id => members.find(m => m.id === id)).filter(Boolean) as OrganizationMember[];
               return (
                 <CompactTaskCard
@@ -667,7 +449,7 @@ export default function WhatScreen() {
                 Queued ({tasksByStatus['not-started'].length})
               </Text>
             </View>
-            {tasksByStatus['not-started'].map((task, index) => {
+            {tasksByStatus['not-started'].map((task) => {
               const taskMembers = task.assignedMemberIds?.map(id => members.find(m => m.id === id)).filter(Boolean) as OrganizationMember[];
               return (
                 <CompactTaskCard
@@ -685,16 +467,16 @@ export default function WhatScreen() {
           </View>
         )}
 
-        {/* Completed */}
+        {/* Done */}
         {tasksByStatus['completed'].length > 0 && statusFilter === 'all' && (
           <View className="mb-6">
             <View className="flex-row items-center gap-2 mb-3">
               <CheckCircle2 size={18} color="#10b981" />
               <Text className="text-slate-900 dark:text-white font-semibold text-base">
-                Completed ({tasksByStatus['completed'].length})
+                Done ({tasksByStatus['completed'].length})
               </Text>
             </View>
-            {tasksByStatus['completed'].slice(0, 5).map((task, index) => {
+            {tasksByStatus['completed'].slice(0, 5).map((task) => {
               const taskMembers = task.assignedMemberIds?.map(id => members.find(m => m.id === id)).filter(Boolean) as OrganizationMember[];
               return (
                 <CompactTaskCard
@@ -712,7 +494,7 @@ export default function WhatScreen() {
             {tasksByStatus['completed'].length > 5 && (
               <Pressable className="py-3 items-center">
                 <Text className="text-blue-500 font-medium">
-                  View all {tasksByStatus['completed'].length} completed tasks
+                  View all {tasksByStatus['completed'].length} done tasks
                 </Text>
               </Pressable>
             )}
@@ -729,9 +511,9 @@ export default function WhatScreen() {
             <Pressable
               onPress={() => {
                 setOpenDrawerToNewTask(true);
-                setTimeout(() => setOpenDrawerToNewTask(false), 100); // Reset trigger
+                setTimeout(() => setOpenDrawerToNewTask(false), 100);
               }}
-              className="mt-4 bg-blue-500 px-6 py-3 rounded-xl"
+              className="mt-4 bg-emerald-500 px-6 py-3 rounded-xl"
             >
               <Text className="text-white font-semibold">Create First Task</Text>
             </Pressable>
@@ -739,18 +521,18 @@ export default function WhatScreen() {
         )}
       </ScrollView>
 
-      {/* Unified Bottom Drawer - combines Resource Pool and Task Creator */}
+      {/* Bottom Drawer */}
       <UnifiedBottomDrawer
-        selectedPersonId={selectedPersonForAllocation}
-        onPersonSelect={(personId) => setSelectedPersonForAllocation(personId)}
+        selectedPersonId={null}
+        onPersonSelect={() => {}}
         onVoiceTranscript={handleVoiceTranscript}
         onTextSubmit={handleTextInput}
         pendingDraftsCount={taskDrafts.length}
         openToNewTask={openDrawerToNewTask}
-        accentColor="#10b981" // Green for WHAT tab
+        accentColor="#10b981"
       />
 
-      {/* Voice Transcript Modal - Extract Tasks */}
+      {/* Voice Transcript Modal */}
       <Modal
         visible={showVoiceTranscript}
         transparent
@@ -761,7 +543,6 @@ export default function WhatScreen() {
           <View className="flex-1" />
           <Pressable onPress={(e) => e.stopPropagation()} style={{ maxHeight: '80%' }}>
             <View className="bg-white dark:bg-slate-900 rounded-t-3xl p-6">
-              {/* Header */}
               <View className="flex-row items-center justify-between mb-4">
                 <View className="flex-row items-center gap-2">
                   <Sparkles size={24} color="#10b981" />
@@ -774,7 +555,6 @@ export default function WhatScreen() {
                 </Pressable>
               </View>
 
-              {/* Transcript */}
               <ScrollView className="max-h-60 mb-4">
                 <View className="bg-slate-50 dark:bg-slate-800 rounded-xl p-4">
                   <Text className="text-slate-700 dark:text-slate-300 text-base leading-6">
@@ -783,36 +563,21 @@ export default function WhatScreen() {
                 </View>
               </ScrollView>
 
-              {/* Info */}
-              <View className="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-4 mb-6">
-                <View className="flex-row items-start gap-3">
-                  <Sparkles size={20} color="#3b82f6" />
-                  <Text className="flex-1 text-blue-700 dark:text-blue-300 text-sm">
-                    The AI will analyze your recording and extract actionable tasks with assignees, due dates, and time estimates.
-                  </Text>
-                </View>
-              </View>
-
-              {/* Actions */}
               <View className="flex-row gap-3">
                 <Pressable
                   onPress={() => setShowVoiceTranscript(false)}
                   className="flex-1 bg-slate-200 dark:bg-slate-700 py-4 rounded-xl items-center"
                 >
-                  <Text className="text-slate-700 dark:text-slate-300 font-semibold text-base">
-                    Cancel
-                  </Text>
+                  <Text className="text-slate-700 dark:text-slate-300 font-semibold">Cancel</Text>
                 </Pressable>
                 <Pressable
                   onPress={handleProcessVoiceTranscript}
                   disabled={isProcessingTranscript}
                   className="flex-1 bg-emerald-500 py-4 rounded-xl items-center"
                 >
-                  {isProcessingTranscript ? (
-                    <Text className="text-white font-semibold text-base">Processing...</Text>
-                  ) : (
-                    <Text className="text-white font-semibold text-base">Extract Tasks</Text>
-                  )}
+                  <Text className="text-white font-semibold">
+                    {isProcessingTranscript ? 'Processing...' : 'Extract Tasks'}
+                  </Text>
                 </Pressable>
               </View>
             </View>
