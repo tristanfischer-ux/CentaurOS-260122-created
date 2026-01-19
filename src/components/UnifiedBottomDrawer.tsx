@@ -326,9 +326,9 @@ export function UnifiedBottomDrawer({
                 </ScrollView>
               </View>
 
-              {/* Bottom Action Buttons - Positioned for thumb access */}
-              <View className="flex-row items-center justify-between px-4 pb-2">
-                {/* Mic Button - Left side (above People tab) */}
+              {/* Bottom Action Buttons - Positioned for thumb access, closer to center */}
+              <View className="flex-row items-center justify-center px-4 pb-2" style={{ gap: 40 }}>
+                {/* Mic Button - Left of center */}
                 <View className="items-center">
                   <View
                     className="w-16 h-16 rounded-2xl items-center justify-center mb-1.5"
@@ -345,10 +345,7 @@ export function UnifiedBottomDrawer({
                   <Text className="text-slate-600 dark:text-slate-400 text-xs font-medium">Voice</Text>
                 </View>
 
-                {/* Spacer for center (where + button is) */}
-                <View style={{ width: 60 }} />
-
-                {/* Type Button - Right side (above Market tab) */}
+                {/* Type Button - Right of center */}
                 <Pressable
                   onPress={() => setInputMode('text')}
                   className="items-center active:opacity-70"
@@ -437,9 +434,9 @@ export function UnifiedBottomDrawer({
                 />
               </View>
 
-              {/* Bottom Action Buttons */}
-              <View className="flex-row items-center justify-between px-4 pb-2">
-                {/* Back Button - Left side */}
+              {/* Bottom Action Buttons - Centered for thumb access */}
+              <View className="flex-row items-center justify-center px-4 pb-2" style={{ gap: 40 }}>
+                {/* Back to Voice Button - Left of center */}
                 <Pressable
                   onPress={() => {
                     setInputMode(null);
@@ -453,10 +450,7 @@ export function UnifiedBottomDrawer({
                   <Text className="text-slate-600 dark:text-slate-400 text-xs font-medium">Voice</Text>
                 </Pressable>
 
-                {/* Spacer for center */}
-                <View style={{ width: 60 }} />
-
-                {/* Submit Button - Right side */}
+                {/* Submit Button - Right of center */}
                 <Pressable
                   onPress={handleTextSubmit}
                   disabled={!textInput.trim()}
