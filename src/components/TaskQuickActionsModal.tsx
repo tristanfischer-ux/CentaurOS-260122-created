@@ -210,7 +210,7 @@ export function TaskQuickActionsModal({
         <View className="flex-1" />
         <Pressable
           onPress={(e) => e.stopPropagation()}
-          style={{ maxHeight: '85%' }}
+          style={{ maxHeight: '90%' }}
         >
           <View className="bg-white dark:bg-slate-900 rounded-t-3xl overflow-hidden">
             {/* Header */}
@@ -269,10 +269,11 @@ export function TaskQuickActionsModal({
               </View>
             </View>
 
+            {/* Scrollable Content Area */}
             <ScrollView
-              className="flex-1"
-              contentContainerStyle={{ paddingBottom: 20 }}
               showsVerticalScrollIndicator={false}
+              style={{ maxHeight: 400 }}
+              contentContainerStyle={{ paddingBottom: 20 }}
             >
               {/* Quick Status Change */}
               {task.status !== 'completed' && task.status !== 'abandoned' && (
