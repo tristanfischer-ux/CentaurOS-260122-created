@@ -1,49 +1,16 @@
 /**
- * UnifiedTaskAllocationModal
- *
- * THE single source of truth for TU allocation across the entire app.
- *
- * Flow:
- * 1. Click on a task → see explanation and default TU estimate
- * 2. Adjust total TUs up/down
- * 3. TAP on people to add their TUs (all squares visible, tap-to-add interface)
- * 4. Select AI tools for productivity boost
- * 5. See cost breakdown, timeline, and team efficiency
- * 6. Complete or Abandon task
- *
- * Key Features:
- * - Tap-to-add TU allocation with full capacity visibility
- * - ALL team members shown with their complete capacity grid
- * - Skill mismatch warnings with 50% efficiency penalty
- * - AI productivity multipliers (2x, 5x, 10x, 20x)
- * - Team size efficiency (Brooks' Law)
- * - Cost tracking and audit trail
- * - Unallocated TU warnings
+ * UnifiedTaskAllocationModal - Redesigned to match PersonDetailsModal aesthetic
+ * Clean, elegant interface for viewing and editing task details
  */
 
-import React, { useState, useMemo, useCallback, useEffect } from 'react';
-import { View, Text, ScrollView, Pressable, Modal, Alert } from 'react-native';
-import Animated, { FadeIn, FadeInDown, FadeOut } from 'react-native-reanimated';
+import React, { useState, useMemo, useEffect } from 'react';
+import { View, Text, ScrollView, Pressable, Modal } from 'react-native';
 import {
-  X, Clock, Users, DollarSign, Zap, AlertTriangle, CheckCircle2,
-  Plus, Minus, Bot, Briefcase, GraduationCap, Crown, ChevronRight,
-  TrendingUp, AlertCircle, Archive, Target, ChevronDown, ChevronUp
+  X, Calendar, Clock, Users, Target, ChevronRight, Crown, Briefcase, GraduationCap,
 } from 'lucide-react-native';
-import { useWorkPlanStore, type WorkPlan, type TUAllocation, type AppliedAITool } from '@/lib/state/work-plan-store';
+import { useWorkPlanStore, type WorkPlan } from '@/lib/state/work-plan-store';
 import { useOrganizationStore } from '@/lib/state/organization-store';
-import { type OrganizationMember } from '@/lib/organization-seed';
-import { getTeamSizeEfficiency } from '@/lib/state/resource-store';
-import type { Function as BusinessFunction } from '@/types';
-import { PersonDetailsModal } from './PersonDetailsModal';
-
-// AI Tool definitions - single source of truth
-export const AI_PRODUCTIVITY_TOOLS = [
-  { id: 'ai-none', name: 'No AI', multiplier: 1, costPerSquare: 0, description: 'Manual work only' },
-  { id: 'ai-assist', name: 'AI Assist', multiplier: 2, costPerSquare: 5, description: 'Basic AI help (2x)' },
-  { id: 'ai-copilot', name: 'AI Copilot', multiplier: 5, costPerSquare: 15, description: 'AI handles routine (5x)' },
-  { id: 'ai-heavy', name: 'AI Heavy', multiplier: 10, costPerSquare: 30, description: 'AI does most work (10x)' },
-  { id: 'ai-autonomous', name: 'AI Autonomous', multiplier: 20, costPerSquare: 50, description: 'AI handles everything (20x)' },
-];
+import { router } from 'expo-router';
 
 interface Props {
   visible: boolean;
@@ -51,1115 +18,285 @@ interface Props {
   workPlan: WorkPlan | null;
 }
 
+const STATUS_COLORS: Record<string, { bg: string; text: string; badge: string }> = {
+  'not-started': { bg: 'bg-gray-100 dark:bg-gray-800', text: 'text-gray-700 dark:text-gray-300', badge: '#6b7280' },
+  'in-progress': { bg: 'bg-blue-100 dark:bg-blue-900/30', text: 'text-blue-700 dark:text-blue-300', badge: '#3b82f6' },
+  'completed': { bg: 'bg-emerald-100 dark:bg-emerald-900/30', text: 'text-emerald-700 dark:text-emerald-300', badge: '#10b981' },
+  'blocked': { bg: 'bg-red-100 dark:bg-red-900/30', text: 'text-red-700 dark:text-red-300', badge: '#ef4444' },
+  'abandoned': { bg: 'bg-gray-100 dark:bg-gray-800', text: 'text-gray-500 dark:text-gray-500', badge: '#6b7280' },
+};
+
+const FUNCTION_COLORS: Record<string, string> = {
+  'Engineering': '#8b5cf6',
+  'Sales': '#3b82f6',
+  'Marketing': '#ec4899',
+  'Finance': '#10b981',
+  'Ops': '#f59e0b',
+  'Admin': '#6b7280',
+};
+
+const ROLE_COLORS: Record<string, string> = {
+  Founder: '#8b5cf6',
+  FractionalExec: '#3b82f6',
+  Apprentice: '#10b981',
+};
+
 export function UnifiedTaskAllocationModal({ visible, onClose, workPlan }: Props) {
-  const updateWorkPlan = useWorkPlanStore(s => s.updateWorkPlan);
-  const workPlans = useWorkPlanStore(s => s.workPlans);
   const members = useOrganizationStore(s => s.members);
 
-  // Local state for editing
-  const [totalTUs, setTotalTUs] = useState(workPlan?.estimatedTimeUnits ?? 10);
-  const [allocations, setAllocations] = useState<Record<string, number>>({});
-  const [selectedAITool, setSelectedAITool] = useState<string>('ai-none');
-  const [expandedSection, setExpandedSection] = useState<string | null>('people');
+  // Get assigned team members
+  const assignedMembers = useMemo(() => {
+    if (!workPlan) return [];
+    const memberIds = workPlan.assignedMemberIds || [];
+    return memberIds
+      .map(id => members.find(m => m.id === id))
+      .filter((m): m is NonNullable<typeof m> => m !== undefined);
+  }, [workPlan, members]);
 
-  // Team card view states
-  const [expandedTeamMember, setExpandedTeamMember] = useState<string | null>(null);
-  const [showPersonModal, setShowPersonModal] = useState(false);
-  const [selectedMemberForModal, setSelectedMemberForModal] = useState<OrganizationMember | null>(null);
+  if (!workPlan || !visible) return null;
 
-  // Reset state when workPlan changes
-  useEffect(() => {
-    if (workPlan) {
-      setTotalTUs(workPlan.estimatedTimeUnits);
-      // Convert allocations array to record
-      const allocRecord: Record<string, number> = {};
-      workPlan.allocations?.forEach(a => {
-        allocRecord[a.memberId] = a.squaresPerWeek;
-      });
-      setAllocations(allocRecord);
-      // Set AI tool from workPlan
-      const aiTool = workPlan.appliedAITools?.[0];
-      setSelectedAITool(aiTool?.toolId ?? 'ai-none');
-    }
-  }, [workPlan]);
+  const statusConfig = STATUS_COLORS[workPlan.status] || STATUS_COLORS['not-started'];
+  const functionColor = FUNCTION_COLORS[workPlan.function] || '#8b5cf6';
 
-  // Calculate member capacity (squares per week)
-  const getMemberCapacity = useCallback((member: OrganizationMember) => {
-    if (member.role === 'Founder') return 10; // 10 squares/week normal
-    if (member.role === 'FractionalExec') {
-      return (member.daysPerWeek ?? 2) * 2; // 2 squares per day
-    }
-    return 10; // Apprentices: 10 squares/week normal
-  }, []);
+  // Calculate metrics
+  const totalAllocatedPerWeek = workPlan.allocations?.reduce((sum, a) => sum + (a.squaresPerWeek || 0), 0) || 0;
+  const weeksToComplete = totalAllocatedPerWeek > 0 ? Math.ceil(workPlan.estimatedTimeUnits / totalAllocatedPerWeek) : 0;
+  const completedTUs = Math.round((workPlan.progress / 100) * workPlan.estimatedTimeUnits);
+  const remainingTUs = workPlan.estimatedTimeUnits - completedTUs;
 
-  // Get MAX capacity including overtime (50% more)
-  const getMaxCapacity = useCallback((member: OrganizationMember) => {
-    const normalCapacity = getMemberCapacity(member);
-    return Math.floor(normalCapacity * 1.5); // 10 → 15, 4 → 6, etc.
-  }, [getMemberCapacity]);
-
-  // Get TUs allocated to OTHER projects (LOCKED capacity)
-  const getOtherProjectAllocations = useCallback((memberId: string) => {
-    if (!workPlan) return 0;
-
-    // Sum up allocations from ALL OTHER in-progress work plans
-    return workPlans
-      .filter(wp => wp.id !== workPlan.id && wp.status === 'in-progress')
-      .reduce((total, wp) => {
-        const allocation = wp.allocations?.find(a => a.memberId === memberId);
-        return total + (allocation?.squaresPerWeek ?? 0);
-      }, 0);
-  }, [workPlans, workPlan]);
-
-  // Get actual remaining capacity (total - locked by other projects)
-  const getRemainingCapacity = useCallback((memberId: string) => {
-    const member = members.find(m => m.id === memberId);
-    if (!member) return 0;
-
-    const maxCapacity = getMaxCapacity(member);
-    const lockedByOthers = getOtherProjectAllocations(memberId);
-    const currentAllocation = allocations[memberId] ?? 0;
-
-    // Remaining = max capacity - locked capacity + current allocation to THIS project
-    // (We add back current allocation because it's not "locked" - user can remove it)
-    return Math.max(0, maxCapacity - lockedByOthers);
-  }, [members, getMaxCapacity, getOtherProjectAllocations, allocations]);
-
-  // Check if member is in overtime (total allocation across ALL projects > normal capacity)
-  const isOvertime = useCallback((memberId: string) => {
-    const member = members.find(m => m.id === memberId);
-    if (!member) return false;
-
-    const currentAllocation = allocations[memberId] ?? 0;
-    const lockedByOthers = getOtherProjectAllocations(memberId);
-    const totalAllocation = currentAllocation + lockedByOthers;
-    const normalCapacity = getMemberCapacity(member);
-
-    return totalAllocation > normalCapacity;
-  }, [members, allocations, getMemberCapacity, getOtherProjectAllocations]);
-
-  // Calculate cost per square for a member
-  const getCostPerSquare = useCallback((member: OrganizationMember) => {
-    const costPerDay = member.costPerDay ?? 0;
-    return costPerDay / 2; // 1 day = 2 squares
-  }, []);
-
-  // Check if member's function matches task function
-  const isFunctionMatch = useCallback((member: OrganizationMember) => {
-    if (!workPlan) return false;
-    // Founders can do anything
-    if (member.role === 'Founder') return true;
-    // Check function match
-    return member.function === workPlan.function || member.function === 'General';
-  }, [workPlan]);
-
-  // Check if member is mismatched for this task
-  const isMismatch = useCallback((member: OrganizationMember) => {
-    if (!workPlan) return false;
-    // Founders and General can do anything - no mismatch
-    if (member.role === 'Founder' || member.function === 'General') return false;
-    // Mismatch if specialized function doesn't match task
-    return member.function !== workPlan.function;
-  }, [workPlan]);
-
-  // Get AI tool by ID
-  const getAITool = useCallback((toolId: string) => {
-    return AI_PRODUCTIVITY_TOOLS.find(t => t.id === toolId) ?? AI_PRODUCTIVITY_TOOLS[0];
-  }, []);
-
-  // Calculate all derived values
-  const calculations = useMemo(() => {
-    const aiTool = getAITool(selectedAITool);
-    const aiMultiplier = aiTool.multiplier;
-
-    // Calculate skill mismatch penalty
-    let skillMismatchPenalty = 1.0; // No penalty by default
-    const mismatchedMembers = Object.keys(allocations).filter(memberId => {
-      const member = members.find(m => m.id === memberId);
-      return member && isMismatch(member) && allocations[memberId] > 0;
-    });
-
-    if (mismatchedMembers.length > 0) {
-      skillMismatchPenalty = 0.5; // 50% efficiency penalty for skill mismatch
-    }
-
-    // Calculate overtime penalty (20% efficiency hit when working overtime)
-    const overtimeMembers = Object.keys(allocations).filter(memberId => {
-      return isOvertime(memberId);
-    });
-    let overtimePenalty = 1.0;
-    if (overtimeMembers.length > 0) {
-      overtimePenalty = 0.8; // 20% efficiency penalty for overtime
-    }
-
-    // Effective TUs needed (after AI boost, skill penalties, and overtime penalties)
-    const effectiveTUs = Math.ceil(totalTUs / (aiMultiplier * skillMismatchPenalty * overtimePenalty));
-
-    // Total allocated per week from all people
-    const totalAllocatedPerWeek = Object.values(allocations).reduce((sum, sq) => sum + sq, 0);
-
-    // Team size for efficiency calculation
-    const teamSize = Object.keys(allocations).filter(k => allocations[k] > 0).length;
-    const teamEfficiency = getTeamSizeEfficiency(teamSize);
-
-    // Effective output per week (with team efficiency)
-    const effectiveOutputPerWeek = totalAllocatedPerWeek * teamEfficiency.efficiencyMultiplier;
-
-    // Weeks to complete
-    const tusRemaining = Math.max(0, effectiveTUs - (workPlan?.tusExpended ?? 0));
-    const weeksToComplete = effectiveOutputPerWeek > 0
-      ? Math.ceil(tusRemaining / effectiveOutputPerWeek)
-      : Infinity;
-
-    // Cost calculations
-    let personCostPerWeek = 0;
-    Object.entries(allocations).forEach(([memberId, squares]) => {
-      const member = members.find(m => m.id === memberId);
-      if (member && squares > 0) {
-        personCostPerWeek += squares * getCostPerSquare(member);
-      }
-    });
-
-    const aiCostTotal = effectiveTUs * aiTool.costPerSquare;
-    const totalCost = (personCostPerWeek * weeksToComplete) + aiCostTotal;
-    const costToDate = (workPlan?.tusExpended ?? 0) * (personCostPerWeek / Math.max(1, totalAllocatedPerWeek));
-
-    return {
-      aiTool,
-      aiMultiplier,
-      effectiveTUs,
-      totalAllocatedPerWeek,
-      teamSize,
-      teamEfficiency,
-      effectiveOutputPerWeek,
-      tusRemaining,
-      weeksToComplete,
-      personCostPerWeek,
-      aiCostTotal,
-      totalCost,
-      costToDate,
-      skillMismatchPenalty,
-      mismatchedMembers,
-      overtimePenalty,
-      overtimeMembers,
-    };
-  }, [totalTUs, allocations, selectedAITool, workPlan, members, getAITool, getCostPerSquare, isMismatch, isOvertime]);
-
-  // Save allocations
-  const handleSave = useCallback(() => {
-    if (!workPlan) return;
-
-    // Convert record to array
-    const allocationArray: TUAllocation[] = Object.entries(allocations)
-      .filter(([_, squares]) => squares > 0)
-      .map(([memberId, squares]) => {
-        const member = members.find(m => m.id === memberId);
-        return {
-          memberId,
-          memberName: member?.name ?? 'Unknown',
-          squaresPerWeek: squares,
-          costPerSquare: member ? getCostPerSquare(member) : 0,
-        };
-      });
-
-    // AI tools array
-    const aiTool = getAITool(selectedAITool);
-    const appliedAITools: AppliedAITool[] = aiTool.multiplier > 1
-      ? [{
-          toolId: aiTool.id,
-          toolName: aiTool.name,
-          multiplier: aiTool.multiplier,
-          costPerSquare: aiTool.costPerSquare,
-        }]
-      : [];
-
-    updateWorkPlan(workPlan.id, {
-      estimatedTimeUnits: totalTUs,
-      allocations: allocationArray,
-      appliedAITools,
-      allocatedTimeUnitsPerWeek: calculations.totalAllocatedPerWeek,
-      assignedMemberIds: allocationArray.map(a => a.memberId),
-      status: allocationArray.length > 0 ? 'in-progress' : workPlan.status,
-    });
-
+  const handleEdit = () => {
     onClose();
-  }, [workPlan, allocations, selectedAITool, totalTUs, calculations, members, updateWorkPlan, getCostPerSquare, getAITool, onClose]);
-
-  // Complete task
-  const handleComplete = useCallback(() => {
-    if (!workPlan) return;
-
-    Alert.alert(
-      'Complete Task',
-      'Mark this task as completed? This will create an audit record.',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Complete',
-          onPress: () => {
-            updateWorkPlan(workPlan.id, {
-              status: 'completed',
-              progress: 100,
-              allocations: [],
-              assignedMemberIds: [],
-              allocatedTimeUnitsPerWeek: 0,
-              auditRecord: {
-                completedAt: new Date().toISOString(),
-                totalTUsSpent: workPlan.tusExpended + calculations.tusRemaining,
-                totalCost: calculations.totalCost,
-                totalWeeks: calculations.weeksToComplete,
-              },
-            });
-            onClose();
-          },
-        },
-      ]
-    );
-  }, [workPlan, calculations, updateWorkPlan, onClose]);
-
-  // Abandon task
-  const handleAbandon = useCallback(() => {
-    if (!workPlan) return;
-
-    Alert.alert(
-      'Delete Task & Free Resources',
-      workPlan.tusExpended > 0
-        ? `This task has ${workPlan.tusExpended}□ already spent. All allocated resources will be freed and the task will be moved to abandoned tasks.`
-        : 'This task will be deleted and all allocated resources will be freed.',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Delete',
-          style: 'destructive',
-          onPress: () => {
-            // Always use 'abandoned' status to properly free resources
-            updateWorkPlan(workPlan.id, {
-              status: 'abandoned',
-              allocations: [],
-              assignedMemberIds: [],
-              allocatedTimeUnitsPerWeek: 0,
-              auditRecord: {
-                abandonedAt: new Date().toISOString(),
-                totalTUsSpent: workPlan.tusExpended,
-                totalCost: calculations.costToDate,
-                totalWeeks: 0,
-                reason: 'Deleted by user - resources freed',
-              },
-            });
-            onClose();
-          },
-        },
-      ]
-    );
-  }, [workPlan, calculations, updateWorkPlan, onClose]);
-
-  // Get default TU increment for each role
-  const getDefaultIncrement = useCallback((member: OrganizationMember) => {
-    if (member.role === 'Founder') return 2;
-    if (member.role === 'FractionalExec') return 2;
-    // Apprentices: use 2 TUs as default increment (was previously unclear from user example)
-    return 2;
-  }, []);
-
-  // Handle tap on member to ADD their default TUs
-  const handleMemberTap = useCallback((memberId: string) => {
-    const member = members.find(m => m.id === memberId);
-    if (!member) return;
-
-    const increment = getDefaultIncrement(member);
-    const currentAllocation = allocations[memberId] ?? 0;
-    const remainingCapacity = getRemainingCapacity(memberId);
-
-    // Can only allocate up to remaining capacity (respects locked TUs from other projects)
-    const newValue = Math.min(remainingCapacity, currentAllocation + increment);
-    if (newValue === currentAllocation) return; // No capacity left
-
-    setAllocations(prev => ({ ...prev, [memberId]: newValue }));
-  }, [members, allocations, getDefaultIncrement, getRemainingCapacity]);
-
-  // Handle increment by 1 TU
-  const handleIncrementOne = useCallback((memberId: string, e: any) => {
-    e?.stopPropagation();
-    const currentAllocation = allocations[memberId] ?? 0;
-    const remainingCapacity = getRemainingCapacity(memberId);
-
-    // Can only allocate up to remaining capacity
-    const newValue = Math.min(remainingCapacity, currentAllocation + 1);
-    if (newValue === currentAllocation) return; // No capacity left
-
-    setAllocations(prev => ({ ...prev, [memberId]: newValue }));
-  }, [allocations, getRemainingCapacity]);
-
-  // Handle decrement by 1 TU
-  const handleDecrementOne = useCallback((memberId: string, e: any) => {
-    e?.stopPropagation();
-    const currentAllocation = allocations[memberId] ?? 0;
-
-    // Don't go below 0
-    if (currentAllocation <= 0) return;
-
-    const newValue = currentAllocation - 1;
-    if (newValue === 0) {
-      // Remove entirely if reaching 0
-      setAllocations(prev => {
-        const { [memberId]: _, ...rest } = prev;
-        return rest;
-      });
-    } else {
-      setAllocations(prev => ({ ...prev, [memberId]: newValue }));
-    }
-  }, [allocations]);
-
-  // Handle remove TUs (entire allocation)
-  const handleRemoveTUs = useCallback((memberId: string, e: any) => {
-    e?.stopPropagation(); // Prevent triggering the add tap
-    setAllocations(prev => {
-      const { [memberId]: _, ...rest } = prev;
-      return rest;
+    router.push({
+      pathname: '/(tabs)/tasks',
+      params: { selectedTaskId: workPlan.id },
     });
-  }, []);
+  };
 
-  // Clear all allocations
-  const handleClearAll = useCallback(() => {
-    setAllocations({});
-  }, []);
-
-  // Render member row
-  const renderMemberRow = useCallback((member: OrganizationMember) => {
-    const currentAllocation = allocations[member.id] ?? 0;
-    const normalCapacity = getMemberCapacity(member);
-    const maxCapacity = getMaxCapacity(member);
-    const lockedByOthers = getOtherProjectAllocations(member.id);
-    const remainingCapacity = getRemainingCapacity(member.id);
-    const costPerSquare = getCostPerSquare(member);
-    const isMatch = isFunctionMatch(member);
-    const isMismatched = isMismatch(member);
-    const defaultIncrement = getDefaultIncrement(member);
-    const available = remainingCapacity - currentAllocation;
-    const inOvertime = isOvertime(member.id);
-
-    // DEBUG LOG
-    console.log(`[UnifiedTaskAllocationModal] Rendering ${member.name} with normal ${normalCapacity}, max ${maxCapacity}, locked ${lockedByOthers}, current ${currentAllocation}, remaining ${remainingCapacity}`);
-
-    return (
-      <Pressable
-        key={member.id}
-        onPress={() => handleMemberTap(member.id)}
-        className={`rounded-xl p-4 mb-3 border-2 active:bg-blue-50 dark:active:bg-blue-900/10 ${
-          isMismatched && currentAllocation > 0
-            ? 'bg-red-50 dark:bg-red-900/10 border-red-300 dark:border-red-700 active:border-red-400'
-            : inOvertime
-              ? 'bg-orange-50 dark:bg-orange-900/10 border-orange-300 dark:border-orange-700 active:border-orange-400'
-              : 'bg-white dark:bg-slate-900 border-gray-200 dark:border-slate-700 active:border-blue-400'
-        }`}
-      >
-        <Animated.View entering={FadeInDown.delay(50).duration(200)}>
-          <View className="flex-row items-center justify-between mb-3">
-            <View className="flex-row items-center flex-1">
-              <View className={`w-10 h-10 rounded-full items-center justify-center mr-3 ${
-                member.role === 'Founder' ? 'bg-purple-500' :
-                member.role === 'FractionalExec' ? 'bg-blue-500' : 'bg-emerald-500'
-              }`}>
-                {member.role === 'Founder' && <Crown size={18} color="white" />}
-                {member.role === 'FractionalExec' && <Briefcase size={18} color="white" />}
-                {member.role === 'Apprentice' && <GraduationCap size={18} color="white" />}
-              </View>
-              <View className="flex-1">
-                <View className="flex-row items-center gap-2 flex-wrap">
-                  <Text className="text-gray-900 dark:text-white font-semibold">
-                    {member.name}
-                  </Text>
-                  {isMatch && (
-                    <View className="bg-emerald-100 dark:bg-emerald-900/30 px-1.5 py-0.5 rounded">
-                      <Text className="text-emerald-700 dark:text-emerald-300 text-[10px] font-bold">
-                        FIT
-                      </Text>
-                    </View>
-                  )}
-                  {isMismatched && currentAllocation > 0 && (
-                    <View className="bg-red-100 dark:bg-red-900/30 px-1.5 py-0.5 rounded">
-                      <Text className="text-red-700 dark:text-red-300 text-[10px] font-bold">
-                        MISMATCH
-                      </Text>
-                    </View>
-                  )}
-                  {inOvertime && (
-                    <View className="bg-orange-100 dark:bg-orange-900/30 px-1.5 py-0.5 rounded">
-                      <Text className="text-orange-700 dark:text-orange-300 text-[10px] font-bold">
-                        OVERTIME
-                      </Text>
-                    </View>
-                  )}
-                </View>
-                <Text className="text-gray-500 dark:text-slate-400 text-xs">
-                  {member.function} • £{costPerSquare}/□
-                </Text>
-              </View>
-            </View>
-
-            {/* Current allocation badge with +/- controls */}
-            <View className="flex-row items-center gap-2">
-              {currentAllocation > 0 ? (
-                <>
-                  {/* Decrement Button */}
-                  <Pressable
-                    onPress={(e) => handleDecrementOne(member.id, e)}
-                    className="w-8 h-8 bg-red-100 dark:bg-red-900/30 rounded-full items-center justify-center active:opacity-70"
-                  >
-                    <Minus size={14} color="#ef4444" />
-                  </Pressable>
-
-                  {/* Current Allocation Display */}
-                  <View className={`px-3 py-1.5 rounded-lg ${
-                    inOvertime ? 'bg-orange-500' : 'bg-blue-500'
-                  }`}>
-                    <Text className="text-white font-bold text-base">
-                      {currentAllocation}□
-                    </Text>
-                  </View>
-
-                  {/* Increment Button */}
-                  <Pressable
-                    onPress={(e) => handleIncrementOne(member.id, e)}
-                    className={`w-8 h-8 rounded-full items-center justify-center active:opacity-70 ${
-                      remainingCapacity - currentAllocation > 0
-                        ? 'bg-emerald-100 dark:bg-emerald-900/30'
-                        : 'bg-gray-100 dark:bg-slate-800 opacity-50'
-                    }`}
-                    disabled={remainingCapacity - currentAllocation <= 0}
-                  >
-                    <Plus size={14} color={remainingCapacity - currentAllocation > 0 ? '#10b981' : '#9ca3af'} />
-                  </Pressable>
-
-                  {/* Remove All Button */}
-                  <Pressable
-                    onPress={(e) => handleRemoveTUs(member.id, e)}
-                    className="w-8 h-8 bg-gray-100 dark:bg-slate-800 rounded-full items-center justify-center active:opacity-70"
-                  >
-                    <X size={14} color="#6b7280" />
-                  </Pressable>
-                </>
-              ) : (
-                <View className="bg-gray-100 dark:bg-slate-800 px-3 py-1.5 rounded-lg">
-                  <Text className="text-gray-400 dark:text-slate-500 font-semibold text-sm">
-                    Tap +{defaultIncrement}□
-                  </Text>
-                </View>
-              )}
-            </View>
-          </View>
-
-          {/* Visual squares showing ALL capacity with allocation - ALL ON ONE ROW */}
-          {/* First 10 = normal (blue), next 5 = overtime (amber) */}
-          <View className="mb-2">
-            <View className="flex-row items-center justify-between mb-1.5">
-              <Text className="text-gray-600 dark:text-slate-400 text-xs font-medium">
-                Capacity: {currentAllocation}□ here • {lockedByOthers}□ locked • {available}□ free
-              </Text>
-              {currentAllocation > 0 && (
-                <Text className={`text-xs font-semibold ${
-                  inOvertime ? 'text-orange-600 dark:text-orange-400' : 'text-blue-600 dark:text-blue-400'
-                }`}>
-                  £{(currentAllocation * costPerSquare).toFixed(0)}/wk
-                </Text>
-              )}
-            </View>
-
-            {/* All capacity squares on ONE row - 10 normal + 5 overtime = 15 total */}
-            <View className="flex-row gap-1 flex-wrap">
-              {Array.from({ length: maxCapacity }).map((_, idx) => {
-                // Calculate cumulative allocations
-                const totalAllocated = currentAllocation + lockedByOthers;
-                const isAllocatedHere = idx < currentAllocation;
-                const isLockedByOthers = !isAllocatedHere && idx < totalAllocated;
-                const isFree = idx >= totalAllocated;
-                const isOvertimeSquare = idx >= normalCapacity; // Squares beyond normal capacity are overtime
-
-                // Determine the color based on allocation state and whether it's overtime
-                let squareStyle = '';
-                if (isAllocatedHere) {
-                  if (isMismatched) {
-                    squareStyle = 'bg-red-500 border-red-600'; // Skill mismatch
-                  } else if (isOvertimeSquare) {
-                    squareStyle = 'bg-orange-500 border-orange-600'; // Overtime allocation
-                  } else {
-                    squareStyle = 'bg-blue-500 border-blue-600'; // Normal allocation
-                  }
-                } else if (isLockedByOthers) {
-                  squareStyle = 'bg-yellow-500 border-yellow-600'; // LOCKED by other projects
-                } else if (isFree) {
-                  if (isOvertimeSquare) {
-                    squareStyle = 'bg-orange-100 dark:bg-orange-900/20 border-orange-300 dark:border-orange-600'; // Free overtime
-                  } else {
-                    squareStyle = 'bg-emerald-100 dark:bg-emerald-900/20 border-emerald-300 dark:border-emerald-600'; // Free normal
-                  }
-                } else {
-                  squareStyle = 'bg-gray-100 dark:bg-slate-800 border-gray-300 dark:border-slate-600';
-                }
-
-                return (
-                  <View
-                    key={idx}
-                    className={`w-7 h-7 rounded border ${squareStyle}`}
-                  />
-                );
-              })}
-            </View>
-          </View>
-
-          {lockedByOthers > 0 && (
-            <View className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-2 flex-row items-start mb-2">
-              <AlertCircle size={14} color="#eab308" />
-              <Text className="text-yellow-700 dark:text-yellow-300 text-xs ml-2 flex-1">
-                <Text className="font-bold">Locked:</Text> {lockedByOthers}□ allocated to other projects. Remove from other tasks to free up capacity.
-              </Text>
-            </View>
-          )}
-
-          {inOvertime && (
-            <View className="bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-lg p-2 flex-row items-start mb-2">
-              <AlertTriangle size={14} color="#f97316" />
-              <Text className="text-orange-700 dark:text-orange-300 text-xs ml-2 flex-1">
-                <Text className="font-bold">Overtime Mode:</Text> Working beyond normal capacity. 20% efficiency penalty applied.
-              </Text>
-            </View>
-          )}
-
-          {isMismatched && currentAllocation > 0 && (
-            <View className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-2 flex-row items-start">
-              <AlertTriangle size={14} color="#ef4444" />
-              <Text className="text-red-700 dark:text-red-300 text-xs ml-2 flex-1">
-                <Text className="font-bold">Skill Mismatch:</Text> {member.function} working on {workPlan?.function} task. 50% efficiency penalty applied.
-              </Text>
-            </View>
-          )}
-        </Animated.View>
-      </Pressable>
-    );
-  }, [allocations, getMemberCapacity, getMaxCapacity, getOtherProjectAllocations, getRemainingCapacity, getCostPerSquare, isFunctionMatch, isMismatch, getDefaultIncrement, handleMemberTap, handleRemoveTUs, workPlan, isOvertime]);
-
-  if (!workPlan) return null;
+  const getInitials = (name: string) => {
+    const parts = name.split(' ');
+    if (parts.length >= 2) {
+      return `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase();
+    }
+    return name.substring(0, 2).toUpperCase();
+  };
 
   return (
-    <>
-      <Modal
-        visible={visible}
-        transparent
-        animationType="slide"
-        onRequestClose={onClose}
-      >
-        <Pressable className="flex-1 bg-black/70" onPress={onClose}>
+    <Modal
+      visible={visible}
+      transparent
+      animationType="slide"
+      onRequestClose={onClose}
+    >
+      <Pressable className="flex-1 bg-black/70" onPress={onClose}>
         <View className="flex-1" />
         <Pressable onPress={(e) => e.stopPropagation()} style={{ maxHeight: '90%' }}>
-          <View className="bg-white dark:bg-slate-900 rounded-t-3xl" style={{ height: '100%' }}>
-            {/* Header */}
-            <View className="flex-row items-center justify-between px-5 py-4 border-b border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900">
-              <View className="flex-1">
-                <Text className="text-gray-500 dark:text-slate-400 text-xs font-medium uppercase tracking-wide">
-                  {workPlan.function}
-                </Text>
-                <Text className="text-gray-900 dark:text-white text-lg font-bold mt-0.5" numberOfLines={2}>
-                  {workPlan.title}
-                </Text>
-              </View>
-              <Pressable
-                onPress={onClose}
-                className="w-9 h-9 bg-gray-100 dark:bg-slate-800 rounded-full items-center justify-center ml-3 active:opacity-70"
-              >
-                <X size={18} color="#6b7280" />
-              </Pressable>
-            </View>
-
+          <View className="bg-white dark:bg-slate-900 rounded-t-3xl overflow-hidden">
             <ScrollView
-              style={{ flex: 1 }}
-              className="px-5 py-4 bg-slate-50 dark:bg-slate-950"
               showsVerticalScrollIndicator={false}
-              contentContainerStyle={{ paddingBottom: 100 }}
+              contentContainerStyle={{ paddingBottom: 32 }}
             >
-              {/* Task Description */}
-              <Animated.View entering={FadeIn.delay(100)} className="mb-4">
-                <Text className="text-gray-600 dark:text-slate-400 text-sm leading-relaxed">
-                  {workPlan.description}
-                </Text>
-              </Animated.View>
+              {/* Header Section */}
+              <View className="bg-slate-50 dark:bg-slate-800 px-6 pt-6 pb-6">
+                {/* Close Button */}
+                <Pressable
+                  onPress={onClose}
+                  className="absolute top-4 right-4 z-10 bg-white dark:bg-slate-700 rounded-full p-2 active:opacity-70"
+                >
+                  <X size={20} color="#6b7280" />
+                </Pressable>
 
-              {/* Team Information - Who's Involved */}
-              {(workPlan.allocations.length > 0 || workPlan.assignedMemberIds && workPlan.assignedMemberIds.length > 0) && (
-                <Animated.View entering={FadeIn.delay(125)} className="bg-purple-50 dark:bg-purple-900/10 rounded-xl p-3 mb-4 border border-purple-200 dark:border-purple-800">
-                  <View className="flex-row items-center gap-2 mb-2">
-                    <Users size={16} color="#9333ea" />
-                    <Text className="text-purple-900 dark:text-purple-100 text-xs font-bold uppercase tracking-wide">
-                      Team Assigned
+                {/* Task Icon/Status */}
+                <View className="items-center mb-4">
+                  <View
+                    className={`w-20 h-20 rounded-full items-center justify-center mb-3 ${statusConfig.bg}`}
+                  >
+                    <Target size={32} color={statusConfig.badge} />
+                  </View>
+                  <Text className="text-slate-900 dark:text-white text-xl font-bold text-center px-4">
+                    {workPlan.title}
+                  </Text>
+                  <View className="flex-row items-center gap-2 mt-3">
+                    <View
+                      className="px-3 py-1 rounded-full"
+                      style={{ backgroundColor: functionColor + '30' }}
+                    >
+                      <Text className="font-semibold text-sm" style={{ color: functionColor }}>
+                        {workPlan.function}
+                      </Text>
+                    </View>
+                    <View className={`px-3 py-1 rounded-full ${statusConfig.bg}`}>
+                      <Text className={`font-semibold text-sm ${statusConfig.text}`}>
+                        {workPlan.status.replace('-', ' ').toUpperCase()}
+                      </Text>
+                    </View>
+                  </View>
+                </View>
+
+                {/* Key Metrics - 3 columns */}
+                <View className="flex-row justify-center gap-6 mt-2">
+                  <View className="items-center">
+                    <Text className="text-slate-500 dark:text-slate-400 text-xs">Progress</Text>
+                    <Text className="text-slate-900 dark:text-white font-semibold text-base">
+                      {workPlan.progress}%
                     </Text>
                   </View>
+                  <View className="items-center">
+                    <Text className="text-slate-500 dark:text-slate-400 text-xs">TU Allocated</Text>
+                    <Text className="text-slate-900 dark:text-white font-semibold text-base">
+                      {totalAllocatedPerWeek}/wk
+                    </Text>
+                  </View>
+                  <View className="items-center">
+                    <Text className="text-slate-500 dark:text-slate-400 text-xs">Timeline</Text>
+                    <Text className="text-slate-900 dark:text-white font-semibold text-base">
+                      {weeksToComplete > 0 ? `${weeksToComplete} wks` : 'TBD'}
+                    </Text>
+                  </View>
+                </View>
+              </View>
 
-                  {/* Team Members - Three View System */}
+              {/* Description */}
+              {workPlan.description && (
+                <View className="px-6 py-4 border-b border-slate-200 dark:border-slate-800">
+                  <Text className="text-slate-700 dark:text-slate-300 text-sm leading-5">
+                    {workPlan.description}
+                  </Text>
+                </View>
+              )}
+
+              {/* Timeline Section */}
+              <View className="px-6 py-4 border-b border-slate-200 dark:border-slate-800">
+                <View className="flex-row items-center gap-2 mb-3">
+                  <Calendar size={18} color="#3b82f6" />
+                  <Text className="text-slate-900 dark:text-white font-bold text-sm">
+                    Timeline
+                  </Text>
+                </View>
+                <View className="flex-row justify-between">
+                  <View className="flex-1">
+                    <Text className="text-slate-500 dark:text-slate-400 text-xs mb-1">Start Date</Text>
+                    <Text className="text-slate-900 dark:text-white text-sm font-semibold">
+                      {workPlan.startDate ? new Date(workPlan.startDate).toLocaleDateString('en-GB', {
+                        day: 'numeric', month: 'short', year: 'numeric'
+                      }) : 'Not set'}
+                    </Text>
+                  </View>
+                  <View className="flex-1">
+                    <Text className="text-slate-500 dark:text-slate-400 text-xs mb-1">Due Date</Text>
+                    <Text className="text-slate-900 dark:text-white text-sm font-semibold">
+                      {workPlan.dueDate ? new Date(workPlan.dueDate).toLocaleDateString('en-GB', {
+                        day: 'numeric', month: 'short', year: 'numeric'
+                      }) : 'Not set'}
+                    </Text>
+                  </View>
+                </View>
+              </View>
+
+              {/* Time Units Section */}
+              <View className="px-6 py-4 border-b border-slate-200 dark:border-slate-800">
+                <View className="flex-row items-center gap-2 mb-3">
+                  <Clock size={18} color="#10b981" />
+                  <Text className="text-slate-900 dark:text-white font-bold text-sm">
+                    Time Units
+                  </Text>
+                </View>
+                <View className="flex-row justify-between">
+                  <View className="flex-1">
+                    <Text className="text-slate-500 dark:text-slate-400 text-xs mb-1">Total Required</Text>
+                    <Text className="text-slate-900 dark:text-white text-sm font-semibold">
+                      {workPlan.estimatedTimeUnits} TU
+                    </Text>
+                  </View>
+                  <View className="flex-1">
+                    <Text className="text-slate-500 dark:text-slate-400 text-xs mb-1">Completed</Text>
+                    <Text className="text-emerald-600 dark:text-emerald-400 text-sm font-semibold">
+                      {completedTUs} TU
+                    </Text>
+                  </View>
+                  <View className="flex-1">
+                    <Text className="text-slate-500 dark:text-slate-400 text-xs mb-1">Remaining</Text>
+                    <Text className="text-slate-900 dark:text-white text-sm font-semibold">
+                      {remainingTUs} TU
+                    </Text>
+                  </View>
+                </View>
+              </View>
+
+              {/* Team Section */}
+              {assignedMembers.length > 0 && (
+                <View className="px-6 py-4 border-b border-slate-200 dark:border-slate-800">
+                  <View className="flex-row items-center gap-2 mb-3">
+                    <Users size={18} color="#8b5cf6" />
+                    <Text className="text-slate-900 dark:text-white font-bold text-sm">
+                      Team ({assignedMembers.length})
+                    </Text>
+                  </View>
                   <View className="gap-2">
-                    {workPlan.allocations.map((allocation) => {
-                      const member = members.find(m => m.id === allocation.memberId);
-                      if (!member) return null;
-
-                      const isExpanded = expandedTeamMember === allocation.memberId;
+                    {assignedMembers.map((member) => {
+                      const allocation = workPlan.allocations?.find(a => a.memberId === member.id);
+                      const memberTUsPerWeek = allocation?.squaresPerWeek || 0;
+                      const roleColor = ROLE_COLORS[member.role] || '#6b7280';
 
                       return (
-                        <View key={allocation.memberId}>
-                          {/* Summary View - Always visible */}
-                          <Pressable
-                            onPress={() => setExpandedTeamMember(isExpanded ? null : allocation.memberId)}
-                            onLongPress={() => {
-                              setSelectedMemberForModal(member);
-                              setShowPersonModal(true);
-                            }}
-                            className="bg-white dark:bg-slate-900 px-2.5 py-2 rounded-lg border border-purple-200 dark:border-purple-700 active:bg-purple-50 dark:active:bg-purple-900/20"
-                          >
-                            <View className="flex-row items-center justify-between">
-                              <View className="flex-row items-center gap-2 flex-1">
-                                {/* Role Icon */}
-                                <View className={`w-7 h-7 rounded-full items-center justify-center ${
-                                  member.role === 'Founder' ? 'bg-purple-100 dark:bg-purple-900/30' :
-                                  member.role === 'FractionalExec' ? 'bg-blue-100 dark:bg-blue-900/30' :
-                                  'bg-emerald-100 dark:bg-emerald-900/30'
-                                }`}>
-                                  {member.role === 'Founder' && <Crown size={14} color="#8b5cf6" />}
-                                  {member.role === 'FractionalExec' && <Briefcase size={14} color="#3b82f6" />}
-                                  {member.role === 'Apprentice' && <GraduationCap size={14} color="#10b981" />}
-                                </View>
-
-                                {/* Name and basic info */}
-                                <View className="flex-1">
-                                  <Text className="text-gray-900 dark:text-white text-xs font-semibold">
-                                    {allocation.memberName}
-                                  </Text>
-                                  <Text className="text-purple-600 dark:text-purple-400 text-[10px] font-medium">
-                                    {allocation.squaresPerWeek}□/wk
-                                  </Text>
-                                </View>
-                              </View>
-
-                              {/* Expand indicator */}
-                              <View className="w-5 h-5 bg-purple-100 dark:bg-purple-900/30 rounded-full items-center justify-center">
-                                {isExpanded ? (
-                                  <ChevronUp size={12} color="#9333ea" />
-                                ) : (
-                                  <ChevronDown size={12} color="#9333ea" />
-                                )}
+                        <View
+                          key={member.id}
+                          className="bg-slate-50 dark:bg-slate-800 rounded-xl p-3 flex-row items-center justify-between"
+                        >
+                          <View className="flex-row items-center gap-3 flex-1">
+                            {/* Avatar */}
+                            <View
+                              className="w-10 h-10 rounded-full items-center justify-center"
+                              style={{ backgroundColor: roleColor + '30' }}
+                            >
+                              <Text className="font-bold text-xs" style={{ color: roleColor }}>
+                                {getInitials(member.name)}
+                              </Text>
+                            </View>
+                            {/* Info */}
+                            <View className="flex-1">
+                              <Text className="text-slate-900 dark:text-white font-semibold text-sm">
+                                {member.name}
+                              </Text>
+                              <View className="flex-row items-center gap-1">
+                                {member.role === 'Founder' && <Crown size={10} color={roleColor} />}
+                                {member.role === 'FractionalExec' && <Briefcase size={10} color={roleColor} />}
+                                {member.role === 'Apprentice' && <GraduationCap size={10} color={roleColor} />}
+                                <Text className="text-slate-500 dark:text-slate-400 text-xs">
+                                  {member.role === 'FractionalExec' ? 'Executive' : member.role}
+                                </Text>
                               </View>
                             </View>
-                          </Pressable>
-
-                          {/* Medium View - Expandable details */}
-                          {isExpanded && (
-                            <Animated.View
-                              entering={FadeInDown.duration(200)}
-                              className="bg-white dark:bg-slate-900 px-3 py-2 mt-1 rounded-lg border border-purple-100 dark:border-purple-800"
-                            >
-                              <View className="gap-2">
-                                {/* Role & Function */}
-                                <View className="flex-row items-center justify-between">
-                                  <Text className="text-gray-500 dark:text-slate-400 text-[10px]">
-                                    Role
-                                  </Text>
-                                  <Text className="text-gray-900 dark:text-white text-[10px] font-semibold">
-                                    {member.role === 'FractionalExec' ? 'Fractional Executive' : member.role}
-                                  </Text>
-                                </View>
-
-                                <View className="flex-row items-center justify-between">
-                                  <Text className="text-gray-500 dark:text-slate-400 text-[10px]">
-                                    Function
-                                  </Text>
-                                  <Text className="text-gray-900 dark:text-white text-[10px] font-semibold">
-                                    {member.function}
-                                  </Text>
-                                </View>
-
-                                {/* Total Capacity */}
-                                <View className="flex-row items-center justify-between">
-                                  <Text className="text-gray-500 dark:text-slate-400 text-[10px]">
-                                    Total Capacity
-                                  </Text>
-                                  <Text className="text-gray-900 dark:text-white text-[10px] font-semibold">
-                                    {member.role === 'Founder' || member.role === 'Apprentice' ? '10' : (member.daysPerWeek || 2) * 2}□/wk normal
-                                  </Text>
-                                </View>
-
-                                {/* Tap hint */}
-                                <Pressable
-                                  onPress={() => {
-                                    setSelectedMemberForModal(member);
-                                    setShowPersonModal(true);
-                                  }}
-                                  className="bg-purple-50 dark:bg-purple-900/20 px-2 py-1.5 rounded mt-1 active:opacity-70"
-                                >
-                                  <Text className="text-purple-600 dark:text-purple-400 text-[9px] font-semibold text-center">
-                                    Long press or tap here for full details
-                                  </Text>
-                                </Pressable>
-                              </View>
-                            </Animated.View>
-                          )}
+                          </View>
+                          {/* TU Allocation */}
+                          <View className="items-end">
+                            <Text className="text-slate-900 dark:text-white font-bold text-sm">
+                              {memberTUsPerWeek} TU
+                            </Text>
+                            <Text className="text-slate-500 dark:text-slate-400 text-xs">
+                              per week
+                            </Text>
+                          </View>
                         </View>
                       );
                     })}
                   </View>
-                </Animated.View>
+                </View>
               )}
 
-              {/* Task Requirements - Display Only */}
-              <Animated.View
-                entering={FadeInDown.delay(150)}
-                className="bg-blue-50 dark:bg-blue-900/10 rounded-xl p-4 mb-4 border-2 border-blue-200 dark:border-blue-800"
-              >
-                <View className="flex-row items-center justify-between">
-                  <View>
-                    <Text className="text-blue-900 dark:text-blue-100 text-sm font-medium mb-1">
-                      Task Requirement
-                    </Text>
-                    <View className="flex-row items-baseline">
-                      <Text className="text-blue-600 dark:text-blue-400 text-3xl font-bold">
-                        {totalTUs}
-                      </Text>
-                      <Text className="text-blue-600 dark:text-blue-400 text-lg font-semibold ml-1">
-                        TU
-                      </Text>
-                    </View>
-                    <Text className="text-blue-700 dark:text-blue-300 text-xs mt-1">
-                      {totalTUs * 4} hours of work needed
-                    </Text>
-                  </View>
-
-                  <View className="items-end">
-                    <Text className="text-blue-900 dark:text-blue-100 text-sm font-medium mb-1">
-                      Allocated
-                    </Text>
-                    <View className="flex-row items-baseline">
-                      <Text className={`text-3xl font-bold ${
-                        calculations.totalAllocatedPerWeek >= totalTUs
-                          ? 'text-emerald-600 dark:text-emerald-400'
-                          : 'text-orange-600 dark:text-orange-400'
-                      }`}>
-                        {calculations.totalAllocatedPerWeek}
-                      </Text>
-                      <Text className={`text-lg font-semibold ml-1 ${
-                        calculations.totalAllocatedPerWeek >= totalTUs
-                          ? 'text-emerald-600 dark:text-emerald-400'
-                          : 'text-orange-600 dark:text-orange-400'
-                      }`}>
-                        TU
-                      </Text>
-                    </View>
-                    <Text className={`text-xs mt-1 font-semibold ${
-                      calculations.totalAllocatedPerWeek >= totalTUs
-                        ? 'text-emerald-700 dark:text-emerald-300'
-                        : 'text-orange-700 dark:text-orange-300'
-                    }`}>
-                      {calculations.totalAllocatedPerWeek >= totalTUs ? '✓ Fully allocated' : `Need ${totalTUs - calculations.totalAllocatedPerWeek} TU more`}
-                    </Text>
-                  </View>
-                </View>
-
-                {/* Progress bar */}
-                <View className="mt-4">
-                  <View className="h-3 bg-blue-100 dark:bg-blue-900/20 rounded-full overflow-hidden">
-                    <View
-                      className={`h-full rounded-full ${
-                        calculations.totalAllocatedPerWeek >= totalTUs
-                          ? 'bg-emerald-500'
-                          : 'bg-orange-500'
-                      }`}
-                      style={{ width: `${Math.min(100, (calculations.totalAllocatedPerWeek / totalTUs) * 100)}%` }}
-                    />
-                  </View>
-                  <Text className="text-blue-600 dark:text-blue-400 text-xs text-center mt-1">
-                    {Math.round((calculations.totalAllocatedPerWeek / totalTUs) * 100)}% allocated
-                  </Text>
-                </View>
-
-                {/* Progress indicator for in-progress tasks */}
-                {workPlan.tusExpended > 0 && (
-                  <View className="mt-3 pt-3 border-t border-blue-200 dark:border-blue-800">
-                    <View className="flex-row items-center justify-between">
-                      <Text className="text-blue-700 dark:text-blue-300 text-sm">
-                        Already completed: {workPlan.tusExpended}□
-                      </Text>
-                      <Text className="text-blue-600 dark:text-blue-400 text-sm font-semibold">
-                        Remaining: {Math.max(0, totalTUs - workPlan.tusExpended)}□
-                      </Text>
-                    </View>
-                  </View>
-                )}
-              </Animated.View>
-
-              {/* People Allocation */}
-              <Animated.View
-                entering={FadeInDown.delay(250)}
-                className="mb-4"
-              >
-                <View className="flex-row items-center justify-between mb-3">
-                  <Pressable
-                    onPress={() => setExpandedSection(expandedSection === 'people' ? null : 'people')}
-                    className="flex-row items-center flex-1"
-                  >
-                    <Users size={20} color="#3b82f6" />
-                    <Text className="text-gray-900 dark:text-white font-semibold ml-2">
-                      Team Allocation ({calculations.totalAllocatedPerWeek}□/wk assigned)
-                    </Text>
-                    <ChevronRight
-                      size={20}
-                      color="#6b7280"
-                      style={{ transform: [{ rotate: expandedSection === 'people' ? '90deg' : '0deg' }], marginLeft: 8 }}
-                    />
-                  </Pressable>
-
-                  {/* Clear All button */}
-                  {calculations.totalAllocatedPerWeek > 0 && (
-                    <Pressable
-                      onPress={handleClearAll}
-                      className="bg-red-100 dark:bg-red-900/30 px-3 py-1.5 rounded-lg active:opacity-70"
-                    >
-                      <Text className="text-red-700 dark:text-red-300 text-xs font-bold">
-                        Clear All
-                      </Text>
-                    </Pressable>
-                  )}
-                </View>
-
-                {expandedSection === 'people' && (
-                  <>
-                    {/* Overtime Warning */}
-                    {calculations.overtimeMembers.length > 0 && (
-                      <View className="bg-orange-50 dark:bg-orange-900/10 border-2 border-orange-300 dark:border-orange-700 rounded-xl p-4 mb-3">
-                        <View className="flex-row items-start">
-                          <AlertTriangle size={20} color="#f97316" />
-                          <View className="ml-3 flex-1">
-                            <Text className="text-orange-800 dark:text-orange-300 font-bold text-sm">
-                              Overtime Mode Active
-                            </Text>
-                            <Text className="text-orange-700 dark:text-orange-400 text-xs mt-1">
-                              {calculations.overtimeMembers.length} team member{calculations.overtimeMembers.length > 1 ? 's are' : ' is'} working overtime (sprint mode). This reduces efficiency by 20%.
-                            </Text>
-                            <View className="mt-2 bg-orange-100 dark:bg-orange-900/30 rounded-lg p-2">
-                              <Text className="text-orange-800 dark:text-orange-300 text-xs font-semibold">
-                                Normal: 10□/week • Sprint: up to 15□/week (50% increase)
-                              </Text>
-                            </View>
-                          </View>
-                        </View>
-                      </View>
-                    )}
-
-                    {/* Skill Mismatch Warning */}
-                    {calculations.mismatchedMembers.length > 0 && (
-                      <View className="bg-red-50 dark:bg-red-900/10 border-2 border-red-300 dark:border-red-700 rounded-xl p-4 mb-3">
-                        <View className="flex-row items-start">
-                          <AlertTriangle size={20} color="#ef4444" />
-                          <View className="ml-3 flex-1">
-                            <Text className="text-red-800 dark:text-red-300 font-bold text-sm">
-                              Skill Mismatch Detected
-                            </Text>
-                            <Text className="text-red-700 dark:text-red-400 text-xs mt-1">
-                              {calculations.mismatchedMembers.length} team member{calculations.mismatchedMembers.length > 1 ? 's are' : ' is'} working outside their specialty on this {workPlan.function} task. This reduces efficiency by 50%.
-                            </Text>
-                            <View className="mt-2 bg-red-100 dark:bg-red-900/30 rounded-lg p-2">
-                              <Text className="text-red-800 dark:text-red-300 text-xs font-semibold">
-                                Effective TUs increased: {Math.round(totalTUs / calculations.aiMultiplier)}□ → {calculations.effectiveTUs}□
-                              </Text>
-                            </View>
-                          </View>
-                        </View>
-                      </View>
-                    )}
-
-                    {/* Team efficiency indicator */}
-                    {calculations.teamSize > 0 && (
-                      <View className={`rounded-lg p-3 mb-3 ${
-                        calculations.teamEfficiency.efficiencyMultiplier >= 1
-                          ? 'bg-emerald-50 dark:bg-emerald-900/10'
-                          : calculations.teamEfficiency.efficiencyMultiplier >= 0.9
-                            ? 'bg-amber-50 dark:bg-amber-900/10'
-                            : 'bg-red-50 dark:bg-red-900/10'
-                      }`}>
-                        <View className="flex-row items-center justify-between">
-                          <Text className={`font-semibold ${
-                            calculations.teamEfficiency.efficiencyMultiplier >= 1
-                              ? 'text-emerald-700 dark:text-emerald-300'
-                              : calculations.teamEfficiency.efficiencyMultiplier >= 0.9
-                                ? 'text-amber-700 dark:text-amber-300'
-                                : 'text-red-700 dark:text-red-300'
-                          }`}>
-                            {calculations.teamEfficiency.label} ({calculations.teamSize} people)
-                          </Text>
-                          <Text className={`font-bold ${
-                            calculations.teamEfficiency.efficiencyMultiplier >= 1
-                              ? 'text-emerald-600'
-                              : calculations.teamEfficiency.efficiencyMultiplier >= 0.9
-                                ? 'text-amber-600'
-                                : 'text-red-600'
-                          }`}>
-                            {Math.round(calculations.teamEfficiency.efficiencyMultiplier * 100)}% efficiency
-                          </Text>
-                        </View>
-                        <Text className="text-gray-600 dark:text-slate-400 text-xs mt-1">
-                          {calculations.teamEfficiency.description}
-                        </Text>
-                      </View>
-                    )}
-
-                    {/* Skill match hint */}
-                    <View className="bg-blue-50 dark:bg-blue-900/10 rounded-lg p-3 mb-3">
-                      <View className="flex-row items-center">
-                        <Zap size={14} color="#3b82f6" />
-                        <Text className="text-blue-700 dark:text-blue-300 text-xs ml-1 flex-1">
-                          This is a <Text className="font-bold">{workPlan.function}</Text> task{'. '}
-                          Tap any team member below to allocate their TUs{'. '}
-                          Members with <Text className="font-bold">FIT</Text> badge work at full efficiency{'. '}
-                          Others get 50% penalty.
-                        </Text>
-                      </View>
-                    </View>
-
-                    {/* All Team Members - Single List */}
-                    <View className="mb-4">
-                      <Text className="text-gray-500 dark:text-slate-400 text-xs font-bold tracking-wide mb-3">
-                        ALL TEAM MEMBERS • TAP TO ALLOCATE
-                      </Text>
-                      {members.filter(m => m.status === 'active').map(renderMemberRow)}
-                    </View>
-                  </>
-                )}
-              </Animated.View>
-
-              {/* Cost & Timeline Summary */}
-              <Animated.View
-                entering={FadeInDown.delay(300)}
-                className="bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl p-4 mb-4"
-              >
-                <Text className="text-white/80 text-xs font-medium mb-2">
-                  COST & TIMELINE SUMMARY
-                </Text>
-
-                <View className="flex-row items-center justify-between mb-3">
-                  <View>
-                    <Text className="text-white/70 text-xs">Total Cost</Text>
-                    <Text className="text-white text-2xl font-bold">
-                      £{Math.round(calculations.totalCost).toLocaleString()}
-                    </Text>
-                  </View>
-                  <View className="items-end">
-                    <Text className="text-white/70 text-xs">Time to Complete</Text>
-                    <Text className="text-white text-2xl font-bold">
-                      {calculations.weeksToComplete === Infinity ? '∞' : `${calculations.weeksToComplete}w`}
-                    </Text>
-                  </View>
-                </View>
-
-                <View className="flex-row justify-between pt-3 border-t border-white/20">
-                  <View>
-                    <Text className="text-white/60 text-xs">Person cost/wk</Text>
-                    <Text className="text-white font-semibold">£{Math.round(calculations.personCostPerWeek)}</Text>
-                  </View>
-                  <View>
-                    <Text className="text-white/60 text-xs">AI cost</Text>
-                    <Text className="text-white font-semibold">£{calculations.aiCostTotal}</Text>
-                  </View>
-                  <View>
-                    <Text className="text-white/60 text-xs">Effective □/wk</Text>
-                    <Text className="text-white font-semibold">{calculations.effectiveOutputPerWeek.toFixed(1)}□</Text>
-                  </View>
-                </View>
-
-                {workPlan.tusExpended > 0 && (
-                  <View className="mt-3 pt-3 border-t border-white/20">
-                    <View className="flex-row justify-between">
-                      <Text className="text-white/70 text-sm">Cost to date:</Text>
-                      <Text className="text-white font-semibold">£{Math.round(calculations.costToDate)}</Text>
-                    </View>
-                  </View>
-                )}
-              </Animated.View>
-
-              {/* Warnings */}
-              {calculations.totalAllocatedPerWeek === 0 && (
-                <Animated.View
-                  entering={FadeInDown.delay(350)}
-                  className="bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-800 rounded-xl p-4 mb-4"
-                >
-                  <View className="flex-row items-start">
-                    <AlertTriangle size={20} color="#f59e0b" />
-                    <View className="ml-3 flex-1">
-                      <Text className="text-amber-800 dark:text-amber-300 font-semibold">
-                        No TUs Allocated
-                      </Text>
-                      <Text className="text-amber-700 dark:text-amber-400 text-sm mt-1">
-                        This task won't progress without TU allocation. Tap on team members above to assign work.
-                      </Text>
-                    </View>
-                  </View>
-                </Animated.View>
-              )}
-            </ScrollView>
-
-            {/* Bottom Actions */}
-            <View className="absolute bottom-0 left-0 right-0 bg-white dark:bg-slate-900 border-t border-gray-200 dark:border-slate-800 px-5 py-4">
-              <View className="flex-row gap-3">
+              {/* Edit Button */}
+              <View className="px-6 pt-4">
                 <Pressable
-                  onPress={handleAbandon}
-                  className="flex-1 bg-red-100 dark:bg-red-900/30 py-3 rounded-xl items-center active:opacity-70"
+                  onPress={handleEdit}
+                  className="bg-blue-500 rounded-xl py-4 flex-row items-center justify-center gap-2 active:opacity-80"
                 >
-                  <View className="flex-row items-center">
-                    <Archive size={18} color="#ef4444" />
-                    <Text className="text-red-600 dark:text-red-400 font-semibold ml-2 text-xs">
-                      Delete & Free
-                    </Text>
-                  </View>
+                  <Text className="text-white font-semibold text-base">Edit Task Details</Text>
+                  <ChevronRight size={20} color="white" />
                 </Pressable>
-
-                <Pressable
-                  onPress={handleSave}
-                  className="flex-2 bg-blue-500 py-3 px-6 rounded-xl items-center active:opacity-70"
-                  style={{ flex: 2 }}
-                >
-                  <View className="flex-row items-center">
-                    <CheckCircle2 size={18} color="white" />
-                    <Text className="text-white font-semibold ml-2">
-                      Allocate Resources
-                    </Text>
-                  </View>
-                </Pressable>
-
-                {workPlan.progress >= 90 && (
-                  <Pressable
-                    onPress={handleComplete}
-                    className="flex-1 bg-emerald-500 py-3 rounded-xl items-center active:opacity-70"
-                  >
-                    <View className="flex-row items-center">
-                      <CheckCircle2 size={18} color="white" />
-                      <Text className="text-white font-semibold ml-2">
-                        Done
-                      </Text>
-                    </View>
-                  </Pressable>
-                )}
               </View>
-            </View>
+            </ScrollView>
           </View>
         </Pressable>
       </Pressable>
-      </Modal>
-
-      {/* Person Details Modal - In-Depth View (separate modal) */}
-      <PersonDetailsModal
-        visible={showPersonModal}
-        onClose={() => {
-          setShowPersonModal(false);
-          setSelectedMemberForModal(null);
-        }}
-        member={selectedMemberForModal}
-        allMembers={members.filter(m => m.status === 'active')}
-        onMemberChange={(newMember) => setSelectedMemberForModal(newMember)}
-      />
-    </>
+    </Modal>
   );
 }
-
-export default UnifiedTaskAllocationModal;
