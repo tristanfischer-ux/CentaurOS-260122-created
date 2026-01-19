@@ -363,7 +363,6 @@ export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress
           ref={headerScrollRef}
           horizontal
           showsHorizontalScrollIndicator={false}
-          className="border-b border-gray-200 dark:border-slate-700"
           scrollEnabled={false}
         >
           <View className="flex-row">
@@ -376,7 +375,7 @@ export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress
               return (
                 <View
                   key={idx}
-                  className={`border-r border-gray-200 dark:border-slate-700 py-1 ${
+                  className={`border-r border-b border-gray-200 dark:border-slate-700 py-0.5 ${
                     isCurrent ? 'bg-blue-50 dark:bg-blue-900/20' : ''
                   }`}
                   style={{ width: WEEK_WIDTH }}
@@ -390,11 +389,6 @@ export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress
                   >
                     {period.label}
                   </Text>
-                  {viewMode === 'week' && (
-                    <Text className="text-center text-[8px] text-gray-400 dark:text-slate-500">
-                      W{period.weekNumber}
-                    </Text>
-                  )}
                 </View>
               );
             })}
