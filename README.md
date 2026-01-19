@@ -15,6 +15,13 @@ Centaur OS is a comprehensive iOS mobile application that helps lean companies o
 
 ## 🚀 Latest Updates (Jan 19, 2026)
 
+### ✅ Task Completion Feature
+- **Mark as Done Button**: Added "Mark as Done" button to task cards in the expanded view
+- **Automatic Resource Release**: Completing a task automatically frees up all allocated team members
+- **Capacity Updates**: Team members' capacity becomes available immediately after marking a task as done
+- **Status Updates**: Task status changes to "completed" with 100% progress
+- **Audit Trail**: Completion creates an audit record with total TUs spent, cost, and completion timestamp
+
 ### ✅ Member Persistence Fix
 - **Fixed Login Issue**: Members no longer disappear after logging in
 - **Root Cause**: Removed `initializeOrganization()` call that was clearing members on every app initialization
