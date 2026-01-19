@@ -10,12 +10,13 @@
  * before becoming real tasks.
  */
 
-import { View, Text, ScrollView, Pressable, TextInput, Modal } from 'react-native';
+import { View, Text, ScrollView, Pressable, TextInput, Modal, ActivityIndicator } from 'react-native';
 import { useState, useMemo } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { router } from 'expo-router';
+import { useQuery } from '@tanstack/react-query';
 import {
   Store,
   Search,
@@ -33,10 +34,12 @@ import {
   Package,
   UserPlus,
   FileText,
+  AlertCircle,
 } from 'lucide-react-native';
 import { useDraftStore } from '@/lib/state/draft-store';
 import { useCurrentWorkspace, useCurrentMembership } from '@/lib/state/app-store';
-import { THIRD_PARTY_AI_TOOLS, type ThirdPartyAITool } from '@/lib/third-party-ai-tools';
+import { loadAITools } from '@/lib/ai-tools-service';
+import type { ThirdPartyAITool } from '@/lib/third-party-ai-tools';
 import { HelpModal, HelpButton, type HelpContent } from '@/components/HelpModal';
 import { SettingsGearButton } from '@/components/SettingsGearButton';
 
@@ -91,15 +94,21 @@ export default function MarketplaceScreen() {
     function: 'Engineering' as const
   };
 
+  // Load AI tools from Supabase
+  const { data: aiTools = [], isLoading: aiToolsLoading, error: aiToolsError } = useQuery({
+    queryKey: ['ai-tools'],
+    queryFn: loadAITools,
+  });
+
   // Filter AI tools by search
   const filteredAITools = useMemo(() => {
-    if (!searchQuery.trim()) return THIRD_PARTY_AI_TOOLS.slice(0, 6);
+    if (!searchQuery.trim()) return aiTools.slice(0, 6);
     const query = searchQuery.toLowerCase();
-    return THIRD_PARTY_AI_TOOLS.filter(tool =>
+    return aiTools.filter((tool: ThirdPartyAITool) =>
       tool.name.toLowerCase().includes(query) ||
       tool.purpose.toLowerCase().includes(query)
     ).slice(0, 10);
-  }, [searchQuery]);
+  }, [searchQuery, aiTools]);
 
   // Handle creating a DRAFT (not a task) for outreach
   // This uses the Draft store - drafts must be confirmed in Tasks tab to become real tasks
@@ -324,10 +333,10 @@ export default function MarketplaceScreen() {
 
             {/* Sales (4 tools) */}
             <Text className="text-slate-600 dark:text-slate-400 text-sm font-semibold mb-2">
-              Sales (4)
+              Sales ({aiTools.filter((t: ThirdPartyAITool) => t.category === 'sales').length})
             </Text>
             <View className="gap-3 mb-4">
-              {THIRD_PARTY_AI_TOOLS.filter(t => t.category === 'sales').map((tool, index) => (
+              {aiTools.filter((t: ThirdPartyAITool) => t.category === 'sales').map((tool: ThirdPartyAITool, index: number) => (
                 <Animated.View key={tool.id} entering={FadeInDown.delay(index * 50).springify()}>
                   <Pressable
                     className="bg-white dark:bg-slate-800 rounded-xl p-4 active:opacity-80 border border-emerald-200 dark:border-emerald-800"
@@ -354,10 +363,10 @@ export default function MarketplaceScreen() {
 
             {/* Marketing (6 tools) */}
             <Text className="text-slate-600 dark:text-slate-400 text-sm font-semibold mb-2">
-              Marketing (6)
+              Marketing ({aiTools.filter((t: ThirdPartyAITool) => t.category === 'marketing').length})
             </Text>
             <View className="gap-3 mb-4">
-              {THIRD_PARTY_AI_TOOLS.filter(t => t.category === 'marketing').map((tool, index) => (
+              {aiTools.filter((t: ThirdPartyAITool) => t.category === 'marketing').map((tool: ThirdPartyAITool, index: number) => (
                 <Animated.View key={tool.id} entering={FadeInDown.delay(index * 50).springify()}>
                   <Pressable
                     className="bg-white dark:bg-slate-800 rounded-xl p-4 active:opacity-80 border border-pink-200 dark:border-pink-800"
@@ -384,10 +393,10 @@ export default function MarketplaceScreen() {
 
             {/* Finance (3 tools) */}
             <Text className="text-slate-600 dark:text-slate-400 text-sm font-semibold mb-2">
-              Finance (3)
+              Finance ({aiTools.filter((t: ThirdPartyAITool) => t.category === 'finance').length})
             </Text>
             <View className="gap-3 mb-4">
-              {THIRD_PARTY_AI_TOOLS.filter(t => t.category === 'finance').map((tool, index) => (
+              {aiTools.filter((t: ThirdPartyAITool) => t.category === 'finance').map((tool: ThirdPartyAITool, index: number) => (
                 <Animated.View key={tool.id} entering={FadeInDown.delay(index * 50).springify()}>
                   <Pressable
                     className="bg-white dark:bg-slate-800 rounded-xl p-4 active:opacity-80 border border-purple-200 dark:border-purple-800"
@@ -414,10 +423,10 @@ export default function MarketplaceScreen() {
 
             {/* Operations (3 tools) */}
             <Text className="text-slate-600 dark:text-slate-400 text-sm font-semibold mb-2">
-              Operations (3)
+              Operations ({aiTools.filter((t: ThirdPartyAITool) => t.category === 'operations').length})
             </Text>
             <View className="gap-3 mb-4">
-              {THIRD_PARTY_AI_TOOLS.filter(t => t.category === 'operations').map((tool, index) => (
+              {aiTools.filter((t: ThirdPartyAITool) => t.category === 'operations').map((tool: ThirdPartyAITool, index: number) => (
                 <Animated.View key={tool.id} entering={FadeInDown.delay(index * 50).springify()}>
                   <Pressable
                     className="bg-white dark:bg-slate-800 rounded-xl p-4 active:opacity-80 border border-amber-200 dark:border-amber-800"
@@ -444,10 +453,10 @@ export default function MarketplaceScreen() {
 
             {/* Admin/Productivity (4 tools) */}
             <Text className="text-slate-600 dark:text-slate-400 text-sm font-semibold mb-2">
-              Admin & Productivity (4)
+              Admin & Productivity ({aiTools.filter((t: ThirdPartyAITool) => t.category === 'productivity').length})
             </Text>
             <View className="gap-3">
-              {THIRD_PARTY_AI_TOOLS.filter(t => t.category === 'productivity').map((tool, index) => (
+              {aiTools.filter((t: ThirdPartyAITool) => t.category === 'productivity').map((tool: ThirdPartyAITool, index: number) => (
                 <Animated.View key={tool.id} entering={FadeInDown.delay(index * 50).springify()}>
                   <Pressable
                     className="bg-white dark:bg-slate-800 rounded-xl p-4 active:opacity-80 border border-blue-200 dark:border-blue-800"
