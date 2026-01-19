@@ -1,7 +1,7 @@
 /**
  * Company & Team Settings Screen
  * Complete team management: company profile, user profile, invite, accept, remove members
- * Based on MULTI_TENANCY_ARCHITECTURE.md
+ * Enhanced with role explanations, role changes, and external collaborators
  */
 
 import { View, Text, ScrollView, Pressable, TextInput, Modal, Alert } from 'react-native';
@@ -27,29 +27,61 @@ import {
   Clock,
   Shield,
   AlertTriangle,
+  Crown,
+  Zap,
+  GraduationCap,
+  ChevronRight,
+  RefreshCw,
+  ExternalLink,
+  Building,
+  Info,
 } from 'lucide-react-native';
 import { useCurrentWorkspace, useCurrentMembership, useCurrentUser, useAppStore } from '@/lib/state/app-store';
 import { useOrganizationStore } from '@/lib/state/organization-store';
 import type { OrganizationMember } from '@/lib/organization-seed';
 import Animated, { FadeInDown } from 'react-native-reanimated';
+import { getInitials, ROLE_COLORS } from '@/components/Avatar';
 
 type InvitationStatus = 'pending' | 'accepted' | 'rejected';
+type MemberRole = 'Founder' | 'CoFounder' | 'FractionalExec' | 'Apprentice';
 
 type Invitation = {
   id: string;
   email: string;
-  role: 'Founder' | 'FractionalExec' | 'Apprentice';
+  role: MemberRole;
   function: string;
   invitedBy: string;
   invitedAt: Date;
   status: InvitationStatus;
+  isExternal?: boolean; // For suppliers/contractors
 };
 
-const ROLE_COLORS: Record<OrganizationMember['role'], string> = {
-  Founder: '#8b5cf6',
-  CoFounder: '#8b5cf6',
-  FractionalExec: '#3b82f6',
-  Apprentice: '#10b981',
+// Role information for clarity
+const ROLE_INFO: Record<MemberRole, { icon: typeof Crown; title: string; description: string; color: string }> = {
+  Founder: {
+    icon: Crown,
+    title: 'Founder',
+    description: 'Full access. Owns the company. Can invite, remove, and manage all team members.',
+    color: '#8b5cf6',
+  },
+  CoFounder: {
+    icon: Crown,
+    title: 'Co-Founder',
+    description: 'Full access. Co-owns the company with the Founder. Same permissions as Founder.',
+    color: '#8b5cf6',
+  },
+  FractionalExec: {
+    icon: Briefcase,
+    title: 'Fractional Executive',
+    description: 'Part-time leadership. Works specific days/week. Reviews work, makes decisions, guides strategy.',
+    color: '#3b82f6',
+  },
+  Apprentice: {
+    icon: GraduationCap,
+    title: 'Apprentice',
+    description: 'Full-time doer. Executes tasks, learns on the job. Work is reviewed by Executives or Founders.',
+    color: '#10b981',
+  },
 };
 
 export default function CompanySettingsScreen() {
@@ -80,8 +112,14 @@ export default function CompanySettingsScreen() {
 
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [inviteEmail, setInviteEmail] = useState('');
-  const [inviteRole, setInviteRole] = useState<'Founder' | 'FractionalExec' | 'Apprentice'>('FractionalExec');
+  const [inviteRole, setInviteRole] = useState<MemberRole>('Apprentice');
   const [inviteFunction, setInviteFunction] = useState('');
+  const [isExternalInvite, setIsExternalInvite] = useState(false);
+
+  // Role change modal
+  const [showRoleChangeModal, setShowRoleChangeModal] = useState(false);
+  const [memberToChangeRole, setMemberToChangeRole] = useState<OrganizationMember | null>(null);
+  const [newRole, setNewRole] = useState<MemberRole>('Apprentice');
 
   // Mock invitations (in real app, this would be in a store)
   const [pendingInvitations, setPendingInvitations] = useState<Invitation[]>([]);
@@ -140,14 +178,16 @@ export default function CompanySettingsScreen() {
       invitedBy: currentUser?.name || 'Unknown',
       invitedAt: new Date(),
       status: 'pending',
+      isExternal: isExternalInvite,
     };
 
     setPendingInvitations([...pendingInvitations, newInvitation]);
 
     // Reset form
     setInviteEmail('');
-    setInviteRole('FractionalExec');
+    setInviteRole('Apprentice');
     setInviteFunction('');
+    setIsExternalInvite(false);
     setShowInviteModal(false);
 
     Alert.alert('Invitation Sent', `Invitation sent to ${inviteEmail}`);
@@ -161,7 +201,7 @@ export default function CompanySettingsScreen() {
     addMember({
       id: `member-${Date.now()}`,
       workspaceId: currentWorkspace.id,
-      name: invitation.email.split('@')[0], // Use email prefix as temporary name
+      name: invitation.email.split('@')[0],
       email: invitation.email,
       role: invitation.role,
       function: invitation.function,
@@ -186,6 +226,26 @@ export default function CompanySettingsScreen() {
     Alert.alert('Rejected', `Invitation to ${invitation.email} has been rejected`);
   };
 
+  // === CHANGE ROLE ===
+  const openRoleChangeModal = (member: OrganizationMember) => {
+    setMemberToChangeRole(member);
+    setNewRole(member.role as MemberRole);
+    setShowRoleChangeModal(true);
+  };
+
+  const handleChangeRole = () => {
+    if (!memberToChangeRole) return;
+
+    updateMember(memberToChangeRole.id, { role: newRole });
+    setShowRoleChangeModal(false);
+    setMemberToChangeRole(null);
+
+    Alert.alert(
+      'Role Updated',
+      `${memberToChangeRole.name}'s role has been changed to ${ROLE_INFO[newRole].title}`
+    );
+  };
+
   // === REMOVE TEAM MEMBER ===
   const handleRemoveMember = (member: OrganizationMember) => {
     setMemberToRemove(member);
@@ -207,6 +267,13 @@ export default function CompanySettingsScreen() {
     setShowRemoveModal(false);
     setMemberToRemove(null);
     Alert.alert('Removed', `${memberToRemove.name} has been removed from the team`);
+  };
+
+  // Helper to get role display name
+  const getRoleDisplayName = (role: string) => {
+    if (role === 'FractionalExec') return 'Executive';
+    if (role === 'CoFounder') return 'Co-Founder';
+    return role;
   };
 
   return (
@@ -284,7 +351,7 @@ export default function CompanySettingsScreen() {
                     value={companyName}
                     onChangeText={setCompanyName}
                     placeholder="Enter company name"
-                    className="bg-slate-100 dark:bg-slate-700 text-slate-900 dark:text-white rounded-lg px-4 py-3"
+                    className="bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white rounded-lg px-4 py-3"
                     placeholderTextColor="#94a3b8"
                   />
                 </View>
@@ -334,7 +401,7 @@ export default function CompanySettingsScreen() {
               <View className="flex-row items-center gap-2">
                 <User size={20} color="#8b5cf6" />
                 <Text className="text-slate-900 dark:text-white font-bold text-lg">
-                  Your Profile (You)
+                  Your Profile
                 </Text>
               </View>
               {!isEditingUser && (
@@ -360,7 +427,7 @@ export default function CompanySettingsScreen() {
                     value={userName}
                     onChangeText={setUserName}
                     placeholder="Enter your name"
-                    className="bg-slate-100 dark:bg-slate-700 text-slate-900 dark:text-white rounded-lg px-4 py-3"
+                    className="bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white rounded-lg px-4 py-3"
                     placeholderTextColor="#94a3b8"
                   />
                 </View>
@@ -375,7 +442,7 @@ export default function CompanySettingsScreen() {
                     placeholder="Enter your email"
                     keyboardType="email-address"
                     autoCapitalize="none"
-                    className="bg-slate-100 dark:bg-slate-700 text-slate-900 dark:text-white rounded-lg px-4 py-3"
+                    className="bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white rounded-lg px-4 py-3"
                     placeholderTextColor="#94a3b8"
                   />
                 </View>
@@ -419,15 +486,56 @@ export default function CompanySettingsScreen() {
                   <View className="flex-row items-center gap-2">
                     <View
                       className="w-2 h-2 rounded-full"
-                      style={{ backgroundColor: ROLE_COLORS[currentMembership?.role as OrganizationMember['role']] || ROLE_COLORS.Founder }}
+                      style={{ backgroundColor: ROLE_COLORS[currentMembership?.role as keyof typeof ROLE_COLORS] || ROLE_COLORS.Founder }}
                     />
                     <Text className="text-slate-900 dark:text-white font-semibold">
-                      {currentMembership?.role === 'FractionalExec' ? 'Executive' : currentMembership?.role}
+                      {getRoleDisplayName(currentMembership?.role || 'Founder')}
                     </Text>
                   </View>
                 </View>
               </View>
             )}
+          </View>
+        </Animated.View>
+
+        {/* Role Guide Section */}
+        <Animated.View entering={FadeInDown.delay(250)}>
+          <View className="bg-white dark:bg-slate-900 rounded-xl p-5 mb-5">
+            <View className="flex-row items-center gap-2 mb-4">
+              <Info size={20} color="#6366f1" />
+              <Text className="text-slate-900 dark:text-white font-bold text-lg">
+                Role Guide
+              </Text>
+            </View>
+
+            <Text className="text-slate-600 dark:text-slate-400 text-sm mb-4">
+              Understand each role before inviting team members. Roles can be changed later as people grow.
+            </Text>
+
+            {(Object.entries(ROLE_INFO) as [MemberRole, typeof ROLE_INFO[MemberRole]][]).map(([role, info]) => {
+              const IconComponent = info.icon;
+              return (
+                <View
+                  key={role}
+                  className="flex-row items-start gap-3 py-3 border-b border-slate-100 dark:border-slate-800 last:border-b-0"
+                >
+                  <View
+                    className="w-10 h-10 rounded-lg items-center justify-center"
+                    style={{ backgroundColor: info.color + '20' }}
+                  >
+                    <IconComponent size={20} color={info.color} />
+                  </View>
+                  <View className="flex-1">
+                    <Text className="text-slate-900 dark:text-white font-semibold">
+                      {info.title}
+                    </Text>
+                    <Text className="text-slate-500 dark:text-slate-400 text-xs mt-0.5">
+                      {info.description}
+                    </Text>
+                  </View>
+                </View>
+              );
+            })}
           </View>
         </Animated.View>
 
@@ -438,7 +546,7 @@ export default function CompanySettingsScreen() {
               <View className="flex-row items-center gap-2">
                 <Users size={20} color="#10b981" />
                 <Text className="text-slate-900 dark:text-white font-bold text-lg">
-                  Internal Team ({internalTeam.length})
+                  Team Members ({internalTeam.length})
                 </Text>
               </View>
               <Pressable
@@ -450,25 +558,27 @@ export default function CompanySettingsScreen() {
               </Pressable>
             </View>
 
-            <View className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3 mb-4">
+            <View className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-lg p-3 mb-4">
               <View className="flex-row items-start gap-2">
-                <AlertCircle size={16} color="#3b82f6" className="mt-0.5" />
-                <Text className="text-blue-700 dark:text-blue-400 text-xs flex-1">
-                  Internal team members are employees of {currentWorkspace?.name}. They work FOR your company and are linked by workspace ID.
+                <Shield size={16} color="#10b981" className="mt-0.5" />
+                <Text className="text-emerald-700 dark:text-emerald-400 text-xs flex-1">
+                  Team members work FOR {currentWorkspace?.name}. Tap a member to change their role.
                 </Text>
               </View>
             </View>
 
             {internalTeam.map((member, index) => {
               const isYou = member.id === currentMembership?.id;
-              const roleColor = ROLE_COLORS[member.role];
+              const roleColor = ROLE_COLORS[member.role as keyof typeof ROLE_COLORS] || '#8b5cf6';
+              const roleInfo = ROLE_INFO[member.role as MemberRole];
 
               return (
-                <View
+                <Pressable
                   key={member.id}
+                  onPress={() => !isYou && openRoleChangeModal(member)}
                   className={`flex-row items-center justify-between py-3 ${
-                    index < internalTeam.length - 1 ? 'border-b border-slate-100 dark:border-slate-700' : ''
-                  }`}
+                    index < internalTeam.length - 1 ? 'border-b border-slate-100 dark:border-slate-800' : ''
+                  } ${!isYou ? 'active:bg-slate-50 dark:active:bg-slate-800' : ''}`}
                 >
                   <View className="flex-row items-center gap-3 flex-1">
                     <View
@@ -476,7 +586,7 @@ export default function CompanySettingsScreen() {
                       style={{ backgroundColor: roleColor + '20' }}
                     >
                       <Text className="font-bold text-sm" style={{ color: roleColor }}>
-                        {member.name.split(' ').map(n => n[0]).join('')}
+                        {getInitials(member.name)}
                       </Text>
                     </View>
                     <View className="flex-1">
@@ -492,21 +602,37 @@ export default function CompanySettingsScreen() {
                           </View>
                         )}
                       </View>
-                      <Text className="text-slate-500 dark:text-slate-400 text-xs">
-                        {member.role === 'FractionalExec' ? 'Executive' : member.role} • {member.function}
-                      </Text>
+                      <View className="flex-row items-center gap-1 mt-0.5">
+                        <View
+                          className="w-1.5 h-1.5 rounded-full"
+                          style={{ backgroundColor: roleColor }}
+                        />
+                        <Text className="text-slate-500 dark:text-slate-400 text-xs">
+                          {getRoleDisplayName(member.role)} • {member.function}
+                        </Text>
+                      </View>
                     </View>
                   </View>
 
-                  {!isYou && (
-                    <Pressable
-                      onPress={() => handleRemoveMember(member)}
-                      className="ml-2 active:opacity-70"
-                    >
-                      <Trash2 size={18} color="#ef4444" />
-                    </Pressable>
-                  )}
-                </View>
+                  <View className="flex-row items-center gap-2">
+                    {!isYou && (
+                      <>
+                        <Pressable
+                          onPress={() => openRoleChangeModal(member)}
+                          className="p-2 active:opacity-70"
+                        >
+                          <RefreshCw size={16} color="#64748b" />
+                        </Pressable>
+                        <Pressable
+                          onPress={() => handleRemoveMember(member)}
+                          className="p-2 active:opacity-70"
+                        >
+                          <Trash2 size={16} color="#ef4444" />
+                        </Pressable>
+                      </>
+                    )}
+                  </View>
+                </Pressable>
               );
             })}
 
@@ -515,6 +641,9 @@ export default function CompanySettingsScreen() {
                 <Users size={48} color="#cbd5e1" />
                 <Text className="text-slate-400 dark:text-slate-500 text-sm mt-3">
                   No team members yet
+                </Text>
+                <Text className="text-slate-400 dark:text-slate-500 text-xs mt-1">
+                  Tap "Invite" to add your first team member
                 </Text>
               </View>
             )}
@@ -537,7 +666,7 @@ export default function CompanySettingsScreen() {
                   key={invitation.id}
                   className={`py-3 ${
                     index < pendingInvitations.filter(inv => inv.status === 'pending').length - 1
-                      ? 'border-b border-slate-100 dark:border-slate-700'
+                      ? 'border-b border-slate-100 dark:border-slate-800'
                       : ''
                   }`}
                 >
@@ -547,7 +676,7 @@ export default function CompanySettingsScreen() {
                         {invitation.email}
                       </Text>
                       <Text className="text-slate-500 dark:text-slate-400 text-xs">
-                        {invitation.role === 'FractionalExec' ? 'Executive' : invitation.role} • {invitation.function}
+                        {getRoleDisplayName(invitation.role)} • {invitation.function}
                       </Text>
                       <Text className="text-slate-400 dark:text-slate-500 text-xs mt-1">
                         Invited by {invitation.invitedBy} • {new Date(invitation.invitedAt).toLocaleDateString()}
@@ -602,51 +731,69 @@ export default function CompanySettingsScreen() {
                       placeholder="colleague@example.com"
                       keyboardType="email-address"
                       autoCapitalize="none"
-                      className="bg-slate-100 dark:bg-slate-900 text-slate-900 dark:text-white rounded-lg px-4 py-3"
+                      className="bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white rounded-lg px-4 py-3"
                       placeholderTextColor="#94a3b8"
                     />
                   </View>
 
                   <View>
                     <Text className="text-slate-700 dark:text-slate-300 text-sm font-medium mb-2">
-                      Role
+                      What role will they have?
                     </Text>
-                    <View className="flex-row gap-2">
-                      {(['Founder', 'FractionalExec', 'Apprentice'] as const).map((role) => (
-                        <Pressable
-                          key={role}
-                          onPress={() => setInviteRole(role)}
-                          className={`flex-1 py-3 rounded-lg border-2 items-center ${
-                            inviteRole === role
-                              ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
-                              : 'border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-900'
-                          } active:opacity-70`}
-                        >
-                          <Text className={`text-sm font-semibold ${
-                            inviteRole === role
-                              ? 'text-blue-600 dark:text-blue-400'
-                              : 'text-slate-600 dark:text-slate-400'
-                          }`}>
-                            {role === 'FractionalExec' ? 'Executive' : role}
-                          </Text>
-                        </Pressable>
-                      ))}
+                    <View className="gap-2">
+                      {(['Founder', 'CoFounder', 'FractionalExec', 'Apprentice'] as MemberRole[]).map((role) => {
+                        const info = ROLE_INFO[role];
+                        const IconComponent = info.icon;
+                        const isSelected = inviteRole === role;
+
+                        return (
+                          <Pressable
+                            key={role}
+                            onPress={() => setInviteRole(role)}
+                            className={`flex-row items-center p-3 rounded-xl border-2 ${
+                              isSelected
+                                ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
+                                : 'border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800'
+                            } active:opacity-70`}
+                          >
+                            <View
+                              className="w-10 h-10 rounded-lg items-center justify-center mr-3"
+                              style={{ backgroundColor: info.color + '20' }}
+                            >
+                              <IconComponent size={20} color={info.color} />
+                            </View>
+                            <View className="flex-1">
+                              <Text className={`font-semibold ${
+                                isSelected ? 'text-blue-600 dark:text-blue-400' : 'text-slate-700 dark:text-slate-300'
+                              }`}>
+                                {info.title}
+                              </Text>
+                              <Text className="text-slate-500 dark:text-slate-400 text-xs mt-0.5" numberOfLines={2}>
+                                {info.description}
+                              </Text>
+                            </View>
+                            {isSelected && (
+                              <CheckCircle2 size={20} color="#3b82f6" />
+                            )}
+                          </Pressable>
+                        );
+                      })}
                     </View>
                   </View>
 
                   <View>
                     <Text className="text-slate-700 dark:text-slate-300 text-sm font-medium mb-2">
-                      Function
+                      Primary Function
                     </Text>
                     <View className="flex-row flex-wrap gap-2">
-                      {['Engineering', 'Sales', 'Marketing', 'Finance', 'Operations', 'Product'].map((func) => (
+                      {['Engineering', 'Sales', 'Marketing', 'Finance', 'Ops', 'Admin'].map((func) => (
                         <Pressable
                           key={func}
                           onPress={() => setInviteFunction(func)}
                           className={`px-4 py-2 rounded-lg border ${
                             inviteFunction === func
                               ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
-                              : 'border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-900'
+                              : 'border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800'
                           } active:opacity-70`}
                         >
                           <Text className={`text-sm font-medium ${
@@ -663,9 +810,9 @@ export default function CompanySettingsScreen() {
 
                   <View className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-3 mt-2">
                     <View className="flex-row items-start gap-2">
-                      <AlertCircle size={16} color="#f59e0b" className="mt-0.5" />
+                      <Mail size={16} color="#f59e0b" className="mt-0.5" />
                       <Text className="text-amber-700 dark:text-amber-400 text-xs flex-1">
-                        An invitation email will be sent to {inviteEmail || 'the recipient'}. They can accept or reject the invitation.
+                        An invitation email will be sent. The person can accept to join your team as a {getRoleDisplayName(inviteRole)}.
                       </Text>
                     </View>
                   </View>
@@ -679,6 +826,91 @@ export default function CompanySettingsScreen() {
                   </Pressable>
                 </View>
               </ScrollView>
+            </View>
+          </Pressable>
+        </Pressable>
+      </Modal>
+
+      {/* Change Role Modal */}
+      <Modal visible={showRoleChangeModal} transparent animationType="fade" onRequestClose={() => setShowRoleChangeModal(false)}>
+        <Pressable className="flex-1 bg-black/70 items-center justify-center" onPress={() => setShowRoleChangeModal(false)}>
+          <Pressable onPress={(e) => e.stopPropagation()}>
+            <View className="bg-white dark:bg-slate-900 rounded-2xl p-6 mx-6" style={{ maxWidth: 400, width: 340 }}>
+              <View className="flex-row items-center justify-between mb-4">
+                <Text className="text-slate-900 dark:text-white text-xl font-bold">
+                  Change Role
+                </Text>
+                <Pressable onPress={() => setShowRoleChangeModal(false)} className="active:opacity-70">
+                  <X size={24} color="#94a3b8" />
+                </Pressable>
+              </View>
+
+              <Text className="text-slate-600 dark:text-slate-400 text-sm mb-4">
+                Change <Text className="font-semibold">{memberToChangeRole?.name}</Text>'s role to:
+              </Text>
+
+              <View className="gap-2 mb-4">
+                {(['Founder', 'CoFounder', 'FractionalExec', 'Apprentice'] as MemberRole[]).map((role) => {
+                  const info = ROLE_INFO[role];
+                  const IconComponent = info.icon;
+                  const isSelected = newRole === role;
+                  const isCurrent = memberToChangeRole?.role === role;
+
+                  return (
+                    <Pressable
+                      key={role}
+                      onPress={() => setNewRole(role)}
+                      className={`flex-row items-center p-3 rounded-xl border-2 ${
+                        isSelected
+                          ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
+                          : 'border-slate-200 dark:border-slate-700'
+                      } active:opacity-70`}
+                    >
+                      <View
+                        className="w-8 h-8 rounded-lg items-center justify-center mr-3"
+                        style={{ backgroundColor: info.color + '20' }}
+                      >
+                        <IconComponent size={16} color={info.color} />
+                      </View>
+                      <View className="flex-1">
+                        <View className="flex-row items-center gap-2">
+                          <Text className={`font-semibold ${
+                            isSelected ? 'text-blue-600 dark:text-blue-400' : 'text-slate-700 dark:text-slate-300'
+                          }`}>
+                            {info.title}
+                          </Text>
+                          {isCurrent && (
+                            <View className="bg-slate-200 dark:bg-slate-700 px-2 py-0.5 rounded">
+                              <Text className="text-slate-500 dark:text-slate-400 text-[10px] font-bold">
+                                CURRENT
+                              </Text>
+                            </View>
+                          )}
+                        </View>
+                      </View>
+                      {isSelected && (
+                        <CheckCircle2 size={18} color="#3b82f6" />
+                      )}
+                    </Pressable>
+                  );
+                })}
+              </View>
+
+              <View className="flex-row gap-3">
+                <Pressable
+                  onPress={() => setShowRoleChangeModal(false)}
+                  className="flex-1 bg-slate-200 dark:bg-slate-700 py-3 rounded-lg items-center active:opacity-80"
+                >
+                  <Text className="text-slate-700 dark:text-slate-300 font-semibold">Cancel</Text>
+                </Pressable>
+                <Pressable
+                  onPress={handleChangeRole}
+                  className="flex-1 bg-blue-600 py-3 rounded-lg items-center flex-row justify-center gap-2 active:opacity-80"
+                >
+                  <RefreshCw size={18} color="white" />
+                  <Text className="text-white font-semibold">Update</Text>
+                </Pressable>
+              </View>
             </View>
           </Pressable>
         </Pressable>
