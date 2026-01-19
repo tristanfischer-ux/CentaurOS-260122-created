@@ -95,6 +95,9 @@ export default function TabLayout() {
     ? '#78716c'
     : '#9ca3af';
 
+  // Calculate spacing - add gap around center for FAB
+  const fabGap = 36; // Extra space on each side of center for FAB
+
   return (
     <View style={{ flex: 1 }}>
       <Tabs
@@ -112,65 +115,74 @@ export default function TabLayout() {
             backgroundColor,
           },
           headerTintColor: colorScheme === 'dark' ? '#ffffff' : '#000000',
+          tabBarLabelStyle: {
+            fontSize: 10,
+          },
         }}
       >
-        {/* 1. Home */}
+        {/* 1. Home - push left */}
         <Tabs.Screen
           name="index"
           options={{
             title: 'Home',
             headerShown: false,
             tabBarIcon: ({ color }) => <TabBarIcon Icon={Home} color={color} />,
+            tabBarItemStyle: { marginRight: -4 },
           }}
         />
 
-        {/* 2. People */}
+        {/* 2. People - push left */}
         <Tabs.Screen
           name="people"
           options={{
             title: 'People',
             headerShown: false,
             tabBarIcon: ({ color }) => <TabBarIcon Icon={Users} color={color} />,
+            tabBarItemStyle: { marginRight: -4 },
           }}
         />
 
-        {/* 3. Tasks */}
+        {/* 3. Tasks - push left with extra margin before FAB */}
         <Tabs.Screen
           name="tasks"
           options={{
             title: 'Tasks',
             headerShown: false,
             tabBarIcon: ({ color }) => <TabBarIcon Icon={CheckSquare} color={color} />,
+            tabBarItemStyle: { marginRight: fabGap },
           }}
         />
 
-        {/* 4. When */}
+        {/* 4. When - push right with extra margin after FAB */}
         <Tabs.Screen
           name="when"
           options={{
             title: 'When',
             headerShown: false,
             tabBarIcon: ({ color }) => <TabBarIcon Icon={Calendar} color={color} />,
+            tabBarItemStyle: { marginLeft: fabGap },
           }}
         />
 
-        {/* 5. Marketplace */}
+        {/* 5. Marketplace - push right */}
         <Tabs.Screen
           name="marketplace"
           options={{
             title: 'Market',
             headerShown: false,
             tabBarIcon: ({ color }) => <TabBarIcon Icon={Store} color={color} />,
+            tabBarItemStyle: { marginLeft: -4 },
           }}
         />
 
-        {/* 6. Settings */}
+        {/* 6. Settings - push right */}
         <Tabs.Screen
           name="settings"
           options={{
             title: 'Settings',
             headerShown: false,
             tabBarIcon: ({ color }) => <TabBarIcon Icon={Settings} color={color} />,
+            tabBarItemStyle: { marginLeft: -4 },
           }}
         />
 
