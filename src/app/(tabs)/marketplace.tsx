@@ -172,7 +172,7 @@ export default function MarketplaceScreen() {
           <TextInput
             value={searchQuery}
             onChangeText={setSearchQuery}
-            placeholder="Search people, suppliers, tools..."
+            placeholder="Use smart search for people, suppliers, and tools"
             placeholderTextColor="rgba(255,255,255,0.6)"
             className="flex-1 ml-3 text-white"
           />
