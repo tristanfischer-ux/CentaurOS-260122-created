@@ -275,32 +275,7 @@ export function UnifiedBottomDrawer({
         className="flex-row items-center justify-between px-5 py-4 active:bg-slate-50 dark:active:bg-slate-800"
       >
         <View className="flex-row items-center gap-4">
-          {/* Resources Tab Indicator */}
-          <Pressable
-            onPress={(e) => {
-              e.stopPropagation();
-              if (!isExpanded) toggleExpanded();
-              setActiveTab('resources');
-            }}
-            className={`flex-row items-center gap-2 ${activeTab === 'resources' && isExpanded ? 'opacity-100' : 'opacity-60'}`}
-          >
-            <View className="w-8 h-8 bg-purple-100 dark:bg-purple-900/30 rounded-full items-center justify-center">
-              <Users size={16} color="#8b5cf6" />
-            </View>
-            <View>
-              <Text className="text-slate-900 dark:text-white text-xs font-bold">
-                Resources
-              </Text>
-              <Text className="text-slate-500 dark:text-slate-400 text-[10px]">
-                {totalUnallocated} TU free
-              </Text>
-            </View>
-          </Pressable>
-
-          {/* Divider */}
-          <View className="w-px h-8 bg-slate-300 dark:bg-slate-700" />
-
-          {/* New Task Tab Indicator */}
+          {/* New Task Tab Indicator - Centered */}
           <Pressable
             onPress={(e) => {
               e.stopPropagation();
@@ -513,50 +488,176 @@ export function UnifiedBottomDrawer({
             // NEW TASK TAB CONTENT
             <View className="flex-1 px-5 pb-6">
               {inputMode === null ? (
-                // Mode selection
+                // Mode selection with team capacity
                 <View>
                   <Text className="text-slate-700 dark:text-slate-300 text-sm font-medium mb-3">
                     Choose input method:
                   </Text>
 
-                  <View className="flex-row gap-3 mb-4">
+                  {/* Voice Option with Team Capacity */}
+                  <View className="mb-4">
                     <Pressable
-                      className="flex-1 border-2 rounded-xl p-4 items-center active:opacity-70"
+                      className="border-2 rounded-xl p-4 active:opacity-70"
                       style={{
                         backgroundColor: accentColor + '10',
                         borderColor: accentColor + '30',
                       }}
                     >
-                      <View className="w-16 h-16 rounded-full items-center justify-center mb-2" style={{ backgroundColor: accentColor + '20' }}>
-                        <VoiceInputButton
-                          onTranscriptComplete={handleVoiceComplete}
-                          onError={(error) => console.log('[UnifiedDrawer] Voice error:', error)}
-                          color={accentColor}
-                          size={64}
-                          inline={true}
-                        />
-                      </View>
-                      {/* Add extra spacing to prevent "Recording" text from overlapping "Voice" label */}
-                      <View style={{ minHeight: 24 }} />
-                      <Text className="text-slate-900 dark:text-white font-semibold">Voice</Text>
-                      <Text className="text-slate-600 dark:text-slate-400 text-xs text-center mt-1">
-                        Tap to record {newTaskTabLabel === 'New Aim' ? 'your aims' : 'your task'}
-                      </Text>
-                    </Pressable>
+                      <View className="flex-row gap-4">
+                        {/* Voice Input */}
+                        <View className="items-center" style={{ width: 120 }}>
+                          <View className="w-16 h-16 rounded-full items-center justify-center mb-2" style={{ backgroundColor: accentColor + '20' }}>
+                            <VoiceInputButton
+                              onTranscriptComplete={handleVoiceComplete}
+                              onError={(error) => console.log('[UnifiedDrawer] Voice error:', error)}
+                              color={accentColor}
+                              size={64}
+                              inline={true}
+                            />
+                          </View>
+                          <View style={{ minHeight: 24 }} />
+                          <Text className="text-slate-900 dark:text-white font-semibold">Voice</Text>
+                          <Text className="text-slate-600 dark:text-slate-400 text-xs text-center mt-1">
+                            Tap to record
+                          </Text>
+                        </View>
 
-                    <Pressable
-                      onPress={() => setInputMode('text')}
-                      className="flex-1 bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-200 dark:border-blue-800 rounded-xl p-4 items-center active:opacity-70"
-                    >
-                      <View className="w-12 h-12 bg-blue-100 dark:bg-blue-900/50 rounded-full items-center justify-center mb-2">
-                        <Type size={24} color="#3b82f6" />
+                        {/* Team Capacity List */}
+                        <View className="flex-1">
+                          <Text className="text-slate-700 dark:text-slate-300 text-xs font-bold mb-2">
+                            Team Availability This Week
+                          </Text>
+                          <ScrollView style={{ maxHeight: 140 }} showsVerticalScrollIndicator={false}>
+                            {/* Founders */}
+                            {members.filter((m: OrganizationMember) => m.status === 'active' && (m.role === 'Founder' || m.role === 'CoFounder')).map((member: OrganizationMember) => {
+                              const capacity = getCapacityPerWeek(member);
+                              const allocated = getAllocatedTUs(member.id, workPlans);
+                              const available = capacity.normal - allocated;
+                              const roleColor = ROLE_COLORS[member.role] || '#64748b';
+
+                              return (
+                                <Pressable
+                                  key={member.id}
+                                  onPress={() => {
+                                    setSelectedMember(member);
+                                    setShowPersonModal(true);
+                                  }}
+                                  className="flex-row items-center justify-between py-1.5 active:opacity-70"
+                                >
+                                  <View className="flex-row items-center gap-2 flex-1">
+                                    <View
+                                      className="w-7 h-7 rounded-full items-center justify-center"
+                                      style={{ backgroundColor: roleColor }}
+                                    >
+                                      <Text className="text-white font-bold text-[9px]">
+                                        {member.name.split(' ').map((n: string) => n[0]).join('')}
+                                      </Text>
+                                    </View>
+                                    <Text className="text-slate-900 dark:text-white text-xs font-medium flex-1" numberOfLines={1}>
+                                      {member.name}
+                                    </Text>
+                                  </View>
+                                  <View className="bg-slate-100 dark:bg-slate-700 px-2 py-1 rounded-full">
+                                    <Text className="text-slate-700 dark:text-slate-300 text-[10px] font-bold">
+                                      {allocated}/{capacity.normal} TU
+                                    </Text>
+                                  </View>
+                                </Pressable>
+                              );
+                            })}
+
+                            {/* Executives */}
+                            {members.filter((m: OrganizationMember) => m.status === 'active' && m.role === 'FractionalExec').map((member: OrganizationMember) => {
+                              const capacity = getCapacityPerWeek(member);
+                              const allocated = getAllocatedTUs(member.id, workPlans);
+                              const roleColor = ROLE_COLORS[member.role] || '#64748b';
+
+                              return (
+                                <Pressable
+                                  key={member.id}
+                                  onPress={() => {
+                                    setSelectedMember(member);
+                                    setShowPersonModal(true);
+                                  }}
+                                  className="flex-row items-center justify-between py-1.5 active:opacity-70"
+                                >
+                                  <View className="flex-row items-center gap-2 flex-1">
+                                    <View
+                                      className="w-7 h-7 rounded-full items-center justify-center"
+                                      style={{ backgroundColor: roleColor }}
+                                    >
+                                      <Text className="text-white font-bold text-[9px]">
+                                        {member.name.split(' ').map((n: string) => n[0]).join('')}
+                                      </Text>
+                                    </View>
+                                    <Text className="text-slate-900 dark:text-white text-xs font-medium flex-1" numberOfLines={1}>
+                                      {member.name}
+                                    </Text>
+                                  </View>
+                                  <View className="bg-slate-100 dark:bg-slate-700 px-2 py-1 rounded-full">
+                                    <Text className="text-slate-700 dark:text-slate-300 text-[10px] font-bold">
+                                      {allocated}/{capacity.normal} TU
+                                    </Text>
+                                  </View>
+                                </Pressable>
+                              );
+                            })}
+
+                            {/* Apprentices */}
+                            {members.filter((m: OrganizationMember) => m.status === 'active' && m.role === 'Apprentice').map((member: OrganizationMember) => {
+                              const capacity = getCapacityPerWeek(member);
+                              const allocated = getAllocatedTUs(member.id, workPlans);
+                              const roleColor = ROLE_COLORS[member.role] || '#64748b';
+
+                              return (
+                                <Pressable
+                                  key={member.id}
+                                  onPress={() => {
+                                    setSelectedMember(member);
+                                    setShowPersonModal(true);
+                                  }}
+                                  className="flex-row items-center justify-between py-1.5 active:opacity-70"
+                                >
+                                  <View className="flex-row items-center gap-2 flex-1">
+                                    <View
+                                      className="w-7 h-7 rounded-full items-center justify-center"
+                                      style={{ backgroundColor: roleColor }}
+                                    >
+                                      <Text className="text-white font-bold text-[9px]">
+                                        {member.name.split(' ').map((n: string) => n[0]).join('')}
+                                      </Text>
+                                    </View>
+                                    <Text className="text-slate-900 dark:text-white text-xs font-medium flex-1" numberOfLines={1}>
+                                      {member.name}
+                                    </Text>
+                                  </View>
+                                  <View className="bg-slate-100 dark:bg-slate-700 px-2 py-1 rounded-full">
+                                    <Text className="text-slate-700 dark:text-slate-300 text-[10px] font-bold">
+                                      {allocated}/{capacity.normal} TU
+                                    </Text>
+                                  </View>
+                                </Pressable>
+                              );
+                            })}
+                          </ScrollView>
+                        </View>
                       </View>
-                      <Text className="text-slate-900 dark:text-white font-semibold">Type</Text>
-                      <Text className="text-slate-600 dark:text-slate-400 text-xs text-center mt-1">
-                        Describe {newTaskTabLabel === 'New Aim' ? 'aims' : 'task'}
-                      </Text>
                     </Pressable>
                   </View>
+
+                  {/* Type Option */}
+                  <Pressable
+                    onPress={() => setInputMode('text')}
+                    className="bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-200 dark:border-blue-800 rounded-xl p-4 items-center active:opacity-70 mb-4"
+                  >
+                    <View className="w-12 h-12 bg-blue-100 dark:bg-blue-900/50 rounded-full items-center justify-center mb-2">
+                      <Type size={24} color="#3b82f6" />
+                    </View>
+                    <Text className="text-slate-900 dark:text-white font-semibold">Type</Text>
+                    <Text className="text-slate-600 dark:text-slate-400 text-xs text-center mt-1">
+                      Describe {newTaskTabLabel === 'New Aim' ? 'aims' : 'task'}
+                    </Text>
+                  </Pressable>
 
                   <View className="flex-row items-start gap-2 rounded-xl p-4" style={{ backgroundColor: accentColor + '10' }}>
                     <Lightbulb size={18} color={accentColor} />
