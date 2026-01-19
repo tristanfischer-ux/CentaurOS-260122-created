@@ -527,7 +527,7 @@ export default function PerformanceScreen() {
     <Pressable
       onPress={onPress}
       disabled={!onPress}
-      className={`bg-white dark:bg-slate-800 rounded-xl p-4 flex-1 ${onPress ? 'active:opacity-80' : ''}`}
+      className={`bg-white dark:bg-slate-900 rounded-xl p-4 flex-1 ${onPress ? 'active:opacity-80' : ''}`}
     >
       <View className="flex-row items-center justify-between mb-2">
         <View className="w-8 h-8 rounded-lg items-center justify-center" style={{ backgroundColor: color + '20' }}>
@@ -560,7 +560,7 @@ export default function PerformanceScreen() {
 
   // Health indicator renderer
   const renderHealthIndicator = (indicator: HealthIndicator) => (
-    <View key={indicator.name} className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-4 mb-2">
+    <View key={indicator.name} className="bg-slate-50 dark:bg-slate-900/50 rounded-xl p-4 mb-2">
       <View className="flex-row items-center justify-between mb-2">
         <Text className="text-slate-900 dark:text-white font-semibold text-sm">{indicator.name}</Text>
         <View className={cn('px-2 py-1 rounded-full', indicator.status === 'green' && 'bg-emerald-100 dark:bg-emerald-900/30', indicator.status === 'yellow' && 'bg-amber-100 dark:bg-amber-900/30', indicator.status === 'red' && 'bg-red-100 dark:bg-red-900/30')}>
@@ -621,7 +621,7 @@ export default function PerformanceScreen() {
 
   // Cost category renderer
   const renderCostCategory = (title: string, icon: any, iconColor: string, items: CostItem[], categoryKey: string, total: number) => (
-    <View className="bg-slate-100 dark:bg-slate-900 rounded-xl p-4 border border-slate-200 dark:border-slate-800 mb-3">
+    <View className="bg-slate-100 dark:bg-slate-900 rounded-xl p-4 border border-slate-200 dark:border-slate-700 mb-3">
       <View className="flex-row items-center justify-between mb-3">
         <View className="flex-row items-center">
           {icon}
@@ -662,7 +662,7 @@ export default function PerformanceScreen() {
             <View className="bg-white dark:bg-slate-900 rounded-2xl p-6 w-full max-w-md">
               <View className="flex-row items-center justify-between mb-4">
                 <Text className="text-slate-900 dark:text-white text-xl font-bold">Edit Cost Amount</Text>
-                <Pressable onPress={() => setShowEditModal(false)} className="w-8 h-8 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800">
+                <Pressable onPress={() => setShowEditModal(false)} className="w-8 h-8 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-900">
                   <X size={16} color="#64748b" />
                 </Pressable>
               </View>
@@ -672,7 +672,7 @@ export default function PerformanceScreen() {
                     <Text className="text-blue-900 dark:text-blue-100 font-bold">{editingItem.item.name}</Text>
                   </View>
                   <View className="flex-row gap-3 mb-4">
-                    <View className="flex-1 bg-slate-100 dark:bg-slate-800 rounded-xl p-3">
+                    <View className="flex-1 bg-slate-100 dark:bg-slate-900 rounded-xl p-3">
                       <Text className="text-slate-500 dark:text-slate-400 text-xs mb-1">Current</Text>
                       <Text className="text-slate-900 dark:text-white text-xl font-bold">£{editingItem.item.amount.toLocaleString()}</Text>
                     </View>
@@ -741,7 +741,7 @@ export default function PerformanceScreen() {
               { key: 'financial', label: 'Financial' },
               { key: 'team', label: 'Team' },
             ].map(tab => (
-              <Pressable key={tab.key} onPress={() => setActiveTab(tab.key as PerformanceTab)} className={`px-4 py-2 rounded-lg ${activeTab === tab.key ? 'bg-pink-500' : 'bg-white dark:bg-slate-800'}`}>
+              <Pressable key={tab.key} onPress={() => setActiveTab(tab.key as PerformanceTab)} className={`px-4 py-2 rounded-lg ${activeTab === tab.key ? 'bg-pink-500' : 'bg-white dark:bg-slate-900'}`}>
                 <Text className={`text-sm font-medium ${activeTab === tab.key ? 'text-white' : 'text-slate-600 dark:text-slate-300'}`}>{tab.label}</Text>
               </Pressable>
             ))}
@@ -811,7 +811,7 @@ export default function PerformanceScreen() {
                           </View>
                           <View className="flex-row flex-wrap gap-2">
                             {generateInsights(perf).slice(0, 2).map((insight, i) => (
-                              <View key={i} className="bg-white/60 dark:bg-slate-800/60 rounded-lg px-2 py-1">
+                              <View key={i} className="bg-white/60 dark:bg-slate-900/60 rounded-lg px-2 py-1">
                                 <Text className="text-slate-700 dark:text-slate-300 text-xs">{insight}</Text>
                               </View>
                             ))}
@@ -840,7 +840,7 @@ export default function PerformanceScreen() {
                           </View>
                           <View className="flex-row flex-wrap gap-2">
                             {generateInsights(perf).map((insight, i) => (
-                              <View key={i} className="bg-white/60 dark:bg-slate-800/60 rounded-lg px-2 py-1">
+                              <View key={i} className="bg-white/60 dark:bg-slate-900/60 rounded-lg px-2 py-1">
                                 <Text className="text-slate-700 dark:text-slate-300 text-xs">{insight}</Text>
                               </View>
                             ))}
@@ -855,7 +855,7 @@ export default function PerformanceScreen() {
                 <Text className="text-slate-900 dark:text-white font-semibold text-base mb-3">Executive vs Apprentice Performance</Text>
                 <View className="gap-3 mb-6">
                   {roleComparison.map((comparison) => (
-                    <View key={comparison.metric} className="bg-white dark:bg-slate-800 rounded-xl p-4">
+                    <View key={comparison.metric} className="bg-white dark:bg-slate-900 rounded-xl p-4">
                       <Text className="text-slate-900 dark:text-white font-semibold mb-3">{comparison.label}</Text>
                       <View className="flex-row items-center gap-4 mb-2">
                         <View className="flex-1">
@@ -967,7 +967,7 @@ export default function PerformanceScreen() {
         {activeTab === 'tasks' && (
           <View>
             <Text className="text-slate-900 dark:text-white font-semibold text-base mb-3">Task Analytics</Text>
-            <View className="bg-white dark:bg-slate-800 rounded-xl p-4 mb-4">
+            <View className="bg-white dark:bg-slate-900 rounded-xl p-4 mb-4">
               <Text className="text-slate-500 dark:text-slate-400 text-xs font-medium mb-3 uppercase">Task Funnel</Text>
               {[
                 { label: 'Total Tasks', value: metrics.totalTasks, color: '#64748b' },
@@ -1044,7 +1044,7 @@ export default function PerformanceScreen() {
               {expandedFinancialSections.pnl ? <ChevronUp size={20} color="#64748b" /> : <ChevronDown size={20} color="#64748b" />}
             </Pressable>
             {expandedFinancialSections.pnl && (
-              <View className="bg-slate-50 dark:bg-slate-900 rounded-xl p-4 mb-4 border border-slate-200 dark:border-slate-800">
+              <View className="bg-slate-50 dark:bg-slate-900 rounded-xl p-4 mb-4 border border-slate-200 dark:border-slate-700">
                 <Text className="text-slate-500 dark:text-slate-500 text-xs font-semibold mb-3">MONTHLY P&L (£'000s)</Text>
                 {renderPnLLine('Revenue', pnl.revenue, false, false, 100)}
                 {renderPnLLine('Cost of Goods Sold (COGS)', pnl.cogs, false, true)}
@@ -1118,7 +1118,7 @@ export default function PerformanceScreen() {
               {expandedFinancialSections.unitEconomics ? <ChevronUp size={20} color="#64748b" /> : <ChevronDown size={20} color="#64748b" />}
             </Pressable>
             {expandedFinancialSections.unitEconomics && (
-              <View className="bg-slate-50 dark:bg-slate-900 rounded-xl p-4 mb-4 border border-slate-200 dark:border-slate-800">
+              <View className="bg-slate-50 dark:bg-slate-900 rounded-xl p-4 mb-4 border border-slate-200 dark:border-slate-700">
                 <View className="flex-row flex-wrap gap-3">
                   {[
                     { label: 'CAC', value: `£${INITIAL_DATA.metrics.cac}`, desc: 'Customer Acquisition Cost' },
@@ -1128,7 +1128,7 @@ export default function PerformanceScreen() {
                     { label: 'Churn', value: `${INITIAL_DATA.metrics.churnRate}%`, desc: 'Monthly churn' },
                     { label: 'NRR', value: `${INITIAL_DATA.metrics.nrr}%`, desc: 'Net Revenue Retention', color: '#10b981' },
                   ].map(item => (
-                    <View key={item.label} className="bg-white dark:bg-slate-800 rounded-xl p-4 flex-1" style={{ minWidth: '45%' }}>
+                    <View key={item.label} className="bg-white dark:bg-slate-900 rounded-xl p-4 flex-1" style={{ minWidth: '45%' }}>
                       <Text className="text-slate-500 dark:text-slate-400 text-xs mb-1">{item.label}</Text>
                       <Text className={cn('text-xl font-bold', item.color ? `text-[${item.color}]` : 'text-slate-900 dark:text-white')} style={item.color ? { color: item.color } : undefined}>{item.value}</Text>
                       <Text className="text-slate-500 dark:text-slate-400 text-xs mt-1">{item.desc}</Text>
@@ -1230,7 +1230,7 @@ export default function PerformanceScreen() {
             )}
             {roleFilteredPerformances.map((perf, index) => (
               <Animated.View key={perf.userId} entering={FadeInDown.delay(index * 50).springify()}>
-                <View className="bg-white dark:bg-slate-800 rounded-xl p-4 mb-3">
+                <View className="bg-white dark:bg-slate-900 rounded-xl p-4 mb-3">
                   <View className="flex-row items-center mb-3">
                     <View className="w-10 h-10 rounded-full items-center justify-center mr-3" style={{ backgroundColor: perf.role === 'Founder' ? '#8b5cf620' : perf.role === 'FractionalExec' ? '#3b82f620' : '#10b98120' }}>
                       <Text className="font-bold" style={{ color: perf.role === 'Founder' ? '#8b5cf6' : perf.role === 'FractionalExec' ? '#3b82f6' : '#10b981' }}>

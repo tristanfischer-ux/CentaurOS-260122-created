@@ -47,7 +47,7 @@ export default function SendInvitationScreen() {
   return (
     <View className="flex-1 bg-white dark:bg-slate-950" style={{ paddingTop: insets.top }}>
       {/* Header */}
-      <View className="px-6 py-4 border-b border-gray-300 dark:border-slate-800">
+      <View className="px-6 py-4 border-b border-gray-300 dark:border-slate-700">
         <View className="flex-row items-center mb-2">
           <Pressable
             onPress={() => router.back()}
@@ -77,7 +77,7 @@ export default function SendInvitationScreen() {
             onChangeText={setRoleTitle}
             placeholder={`e.g., ${params.candidateRole === 'FractionalExec' ? 'VP of Sales' : 'Marketing Apprentice'}`}
             placeholderTextColor="#94a3b8"
-            className="bg-gray-100 dark:bg-slate-900 border border-gray-300 dark:border-slate-800 rounded-xl px-4 py-3 text-gray-900 dark:text-white"
+            className="bg-gray-100 dark:bg-slate-900 border border-gray-300 dark:border-slate-700 rounded-xl px-4 py-3 text-gray-900 dark:text-white"
           />
         </View>
 
@@ -91,7 +91,7 @@ export default function SendInvitationScreen() {
             onChangeText={setCommitment}
             placeholder="e.g., 2 days/week or 20 hours/week"
             placeholderTextColor="#94a3b8"
-            className="bg-gray-100 dark:bg-slate-900 border border-gray-300 dark:border-slate-800 rounded-xl px-4 py-3 text-gray-900 dark:text-white"
+            className="bg-gray-100 dark:bg-slate-900 border border-gray-300 dark:border-slate-700 rounded-xl px-4 py-3 text-gray-900 dark:text-white"
           />
           <Text className="text-gray-500 dark:text-slate-500 text-xs mt-1">
             Specify days per week or hours per week
@@ -103,7 +103,7 @@ export default function SendInvitationScreen() {
           <Text className="text-gray-900 dark:text-white font-semibold mb-2">
             Proposed Day Rate (£) <Text className="text-red-500">*</Text>
           </Text>
-          <View className="flex-row items-center bg-gray-100 dark:bg-slate-900 border border-gray-300 dark:border-slate-800 rounded-xl px-4">
+          <View className="flex-row items-center bg-gray-100 dark:bg-slate-900 border border-gray-300 dark:border-slate-700 rounded-xl px-4">
             <DollarSign size={18} color="#64748b" />
             <TextInput
               value={proposedRate}
@@ -125,7 +125,7 @@ export default function SendInvitationScreen() {
           <Text className="text-gray-900 dark:text-white font-semibold mb-2">
             Proposed Start Date <Text className="text-red-500">*</Text>
           </Text>
-          <View className="flex-row items-center bg-gray-100 dark:bg-slate-900 border border-gray-300 dark:border-slate-800 rounded-xl px-4">
+          <View className="flex-row items-center bg-gray-100 dark:bg-slate-900 border border-gray-300 dark:border-slate-700 rounded-xl px-4">
             <Calendar size={18} color="#64748b" />
             <TextInput
               value={startDate}
@@ -142,7 +142,7 @@ export default function SendInvitationScreen() {
           <Text className="text-gray-900 dark:text-white font-semibold mb-2">
             Personal Message (Optional)
           </Text>
-          <View className="bg-gray-100 dark:bg-slate-900 border border-gray-300 dark:border-slate-800 rounded-xl p-4">
+          <View className="bg-gray-100 dark:bg-slate-900 border border-gray-300 dark:border-slate-700 rounded-xl p-4">
             <TextInput
               value={message}
               onChangeText={setMessage}
@@ -188,7 +188,7 @@ export default function SendInvitationScreen() {
       </ScrollView>
 
       {/* Fixed Bottom Button */}
-      <View className="px-6 py-4 border-t border-gray-300 dark:border-slate-800" style={{ paddingBottom: insets.bottom + 16 }}>
+      <View className="px-6 py-4 border-t border-gray-300 dark:border-slate-700" style={{ paddingBottom: insets.bottom + 16 }}>
         <Pressable
           onPress={handleSendInvitation}
           className="bg-blue-500 py-4 rounded-xl active:opacity-70"

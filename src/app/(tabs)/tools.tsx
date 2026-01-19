@@ -184,7 +184,7 @@ export default function ToolsScreen() {
       <Animated.View entering={FadeInDown.delay(index * 50).springify()}>
         <Pressable
           onPress={() => toggleSupplierExpanded(engagement.id)}
-          className="bg-white dark:bg-slate-800 rounded-xl mb-3 overflow-hidden"
+          className="bg-white dark:bg-slate-900 rounded-xl mb-3 overflow-hidden"
         >
           <View className="p-4">
             <View className="flex-row items-start justify-between mb-2">
@@ -368,7 +368,7 @@ export default function ToolsScreen() {
       <Animated.View entering={FadeInDown.delay(index * 50).springify()}>
         <Pressable
           onPress={() => setSelectedAIAgent(agent)}
-          className="bg-white dark:bg-slate-800 rounded-xl p-4 mb-3 active:opacity-80"
+          className="bg-white dark:bg-slate-900 rounded-xl p-4 mb-3 active:opacity-80"
         >
           <View className="flex-row items-start">
             <View
@@ -412,7 +412,7 @@ export default function ToolsScreen() {
       <Animated.View entering={FadeInDown.delay(index * 30).springify()}>
         <Pressable
           onPress={() => setSelectedAITool(tool)}
-          className="bg-white dark:bg-slate-800 rounded-xl p-4 mb-3 active:opacity-80"
+          className="bg-white dark:bg-slate-900 rounded-xl p-4 mb-3 active:opacity-80"
         >
           <View className="flex-row items-start">
             <View
@@ -499,7 +499,7 @@ export default function ToolsScreen() {
       {/* Tab Switcher */}
       <View className="px-5 pt-4">
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          <View className="flex-row bg-slate-100 dark:bg-slate-800 rounded-xl p-1">
+          <View className="flex-row bg-slate-100 dark:bg-slate-900 rounded-xl p-1">
             {[
               { key: 'my-suppliers', label: 'My Suppliers', icon: Wrench, color: '#10b981' },
               { key: 'marketplace', label: 'Marketplace', icon: Package, color: '#8b5cf6' },
@@ -553,7 +553,7 @@ export default function ToolsScreen() {
                   ))}
                 </View>
               ) : (
-                <View className="bg-slate-100 dark:bg-slate-800 rounded-xl p-6 items-center">
+                <View className="bg-slate-100 dark:bg-slate-900 rounded-xl p-6 items-center">
                   <Bot size={32} color="#64748b" />
                   <Text className="text-slate-500 dark:text-slate-400 text-sm mt-2">No AI tools yet</Text>
                   <Pressable
@@ -591,7 +591,7 @@ export default function ToolsScreen() {
                 ))}
               </>
             ) : (
-              <View className="bg-slate-100 dark:bg-slate-800 rounded-xl p-6 items-center mb-4">
+              <View className="bg-slate-100 dark:bg-slate-900 rounded-xl p-6 items-center mb-4">
                 <Factory size={32} color="#64748b" />
                 <Text className="text-slate-500 dark:text-slate-400 text-sm mt-2 text-center">
                   No supplier engagements yet
@@ -616,7 +616,7 @@ export default function ToolsScreen() {
 
             {/* Search Bar */}
             <View className="mb-4">
-              <View className="flex-row items-center bg-white dark:bg-slate-800 rounded-xl px-4 py-3 border border-slate-200 dark:border-slate-700">
+              <View className="flex-row items-center bg-white dark:bg-slate-900 rounded-xl px-4 py-3 border border-slate-200 dark:border-slate-700">
                 <Search size={18} color="#64748b" />
                 <TextInput
                   value={marketplaceSearch}
@@ -653,7 +653,7 @@ export default function ToolsScreen() {
                   setReachOutType('supplier');
                   setShowReachOut(true);
                 }}
-                className="bg-white dark:bg-slate-800 rounded-xl p-4 active:opacity-80"
+                className="bg-white dark:bg-slate-900 rounded-xl p-4 active:opacity-80"
               >
                 <View className="flex-row items-center gap-3">
                   <View className="bg-orange-100 dark:bg-orange-900/30 p-3 rounded-xl">
@@ -675,7 +675,7 @@ export default function ToolsScreen() {
                   setReachOutType('ai');
                   setShowReachOut(true);
                 }}
-                className="bg-white dark:bg-slate-800 rounded-xl p-4 active:opacity-80"
+                className="bg-white dark:bg-slate-900 rounded-xl p-4 active:opacity-80"
               >
                 <View className="flex-row items-center gap-3">
                   <View className="bg-blue-100 dark:bg-blue-900/30 p-3 rounded-xl">
@@ -692,7 +692,7 @@ export default function ToolsScreen() {
               </Pressable>
 
               {/* Advisors Category */}
-              <View className="bg-white dark:bg-slate-800 rounded-xl p-4">
+              <View className="bg-white dark:bg-slate-900 rounded-xl p-4">
                 <View className="flex-row items-center gap-3">
                   <View className="bg-purple-100 dark:bg-purple-900/30 p-3 rounded-xl">
                     <Briefcase size={24} color="#8b5cf6" />
@@ -790,7 +790,7 @@ export default function ToolsScreen() {
                     </View>
 
                     {/* Contact Buttons */}
-                    <View className="bg-slate-50 dark:bg-slate-800 rounded-xl p-4 mb-4">
+                    <View className="bg-slate-50 dark:bg-slate-900 rounded-xl p-4 mb-4">
                       <Text className="text-slate-500 dark:text-slate-400 text-xs font-medium uppercase mb-3">
                         Contact
                       </Text>
@@ -820,7 +820,7 @@ export default function ToolsScreen() {
                     </View>
 
                     {/* Info */}
-                    <View className="bg-slate-50 dark:bg-slate-800 rounded-xl p-4 mb-4">
+                    <View className="bg-slate-50 dark:bg-slate-900 rounded-xl p-4 mb-4">
                       <Text className="text-slate-500 dark:text-slate-400 text-xs font-medium uppercase mb-3">
                         Details
                       </Text>
@@ -848,7 +848,7 @@ export default function ToolsScreen() {
 
                     {/* Skills */}
                     {selectedPerson.skills && selectedPerson.skills.length > 0 && (
-                      <View className="bg-slate-50 dark:bg-slate-800 rounded-xl p-4">
+                      <View className="bg-slate-50 dark:bg-slate-900 rounded-xl p-4">
                         <Text className="text-slate-500 dark:text-slate-400 text-xs font-medium uppercase mb-3">
                           Skills
                         </Text>
@@ -915,7 +915,7 @@ export default function ToolsScreen() {
                   </Text>
 
                   {/* Search */}
-                  <View className="flex-row items-center bg-slate-100 dark:bg-slate-800 rounded-xl px-4 py-3 mb-4">
+                  <View className="flex-row items-center bg-slate-100 dark:bg-slate-900 rounded-xl px-4 py-3 mb-4">
                     <Search size={18} color="#64748b" />
                     <TextInput
                       placeholder={`Search ${reachOutType === 'ai' ? 'AI tools' : 'suppliers'}...`}
@@ -937,7 +937,7 @@ export default function ToolsScreen() {
                             setActiveTab('marketplace');
                             setSelectedAITool(tool);
                           }}
-                          className="bg-slate-50 dark:bg-slate-800 rounded-xl p-4 mb-3 flex-row items-center active:opacity-80"
+                          className="bg-slate-50 dark:bg-slate-900 rounded-xl p-4 mb-3 flex-row items-center active:opacity-80"
                         >
                           <View className="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900/30 items-center justify-center mr-3">
                             <Sparkles size={20} color="#3b82f6" />
@@ -975,7 +975,7 @@ export default function ToolsScreen() {
                             <Pressable
                               key={category.name}
                               onPress={() => setSelectedSupplierCategory(category.name)}
-                              className="bg-slate-50 dark:bg-slate-800 rounded-xl p-4 mb-3 flex-row items-center active:opacity-80"
+                              className="bg-slate-50 dark:bg-slate-900 rounded-xl p-4 mb-3 flex-row items-center active:opacity-80"
                             >
                               <View className="w-10 h-10 rounded-lg bg-amber-100 dark:bg-amber-900/30 items-center justify-center mr-3">
                                 <category.icon size={20} color="#f59e0b" />
@@ -1017,7 +1017,7 @@ export default function ToolsScreen() {
                                     setShowReachOut(false);
                                     setSelectedSupplier(supplier);
                                   }}
-                                  className="bg-slate-50 dark:bg-slate-800 rounded-xl p-4 mb-3 active:opacity-80"
+                                  className="bg-slate-50 dark:bg-slate-900 rounded-xl p-4 mb-3 active:opacity-80"
                                 >
                                   <View className="flex-row items-start justify-between">
                                     <View className="flex-1">
@@ -1144,14 +1144,14 @@ export default function ToolsScreen() {
                     </View>
 
                     {/* Description */}
-                    <View className="bg-slate-50 dark:bg-slate-800 rounded-xl p-4 mb-4">
+                    <View className="bg-slate-50 dark:bg-slate-900 rounded-xl p-4 mb-4">
                       <Text className="text-slate-700 dark:text-slate-300 text-sm leading-5">
                         {selectedAdvisor.description}
                       </Text>
                     </View>
 
                     {/* Contact Info */}
-                    <View className="bg-slate-50 dark:bg-slate-800 rounded-xl p-4 mb-4">
+                    <View className="bg-slate-50 dark:bg-slate-900 rounded-xl p-4 mb-4">
                       <Text className="text-slate-500 dark:text-slate-400 text-xs font-medium uppercase mb-3">
                         Contact
                       </Text>
@@ -1196,7 +1196,7 @@ export default function ToolsScreen() {
 
                     {/* Focus Areas */}
                     {selectedAdvisor.focusAreas && selectedAdvisor.focusAreas.length > 0 && (
-                      <View className="bg-slate-50 dark:bg-slate-800 rounded-xl p-4 mb-4">
+                      <View className="bg-slate-50 dark:bg-slate-900 rounded-xl p-4 mb-4">
                         <Text className="text-slate-500 dark:text-slate-400 text-xs font-medium uppercase mb-3">
                           Focus Areas
                         </Text>
@@ -1217,7 +1217,7 @@ export default function ToolsScreen() {
 
                     {/* Notable Clients */}
                     {selectedAdvisor.notableClients && selectedAdvisor.notableClients.length > 0 && (
-                      <View className="bg-slate-50 dark:bg-slate-800 rounded-xl p-4 mb-4">
+                      <View className="bg-slate-50 dark:bg-slate-900 rounded-xl p-4 mb-4">
                         <Text className="text-slate-500 dark:text-slate-400 text-xs font-medium uppercase mb-3">
                           Notable Clients
                         </Text>

@@ -310,8 +310,8 @@ export default function MakeScreen() {
       </LinearGradient>
 
       {/* Tab Selector - Below Header */}
-      <View className="px-5 py-3 bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-800">
-        <View className="flex-row bg-gray-100 dark:bg-slate-800 rounded-xl p-1">
+      <View className="px-5 py-3 bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-700">
+        <View className="flex-row bg-gray-100 dark:bg-slate-900 rounded-xl p-1">
           {tabs.map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.value;
@@ -345,7 +345,7 @@ export default function MakeScreen() {
         {/* Suppliers Tab */}
         {activeTab === 'suppliers' && (
           <View className="px-6 pb-6">
-            <View className="bg-gray-100 dark:bg-slate-900 rounded-xl p-4 border border-gray-300 dark:border-slate-800 mb-4">
+            <View className="bg-gray-100 dark:bg-slate-900 rounded-xl p-4 border border-gray-300 dark:border-slate-700 mb-4">
               <Text className="text-gray-900 dark:text-white font-semibold mb-2">Financial Summary</Text>
               <View className="flex-row justify-between mb-2">
                 <Text className="text-gray-600 dark:text-slate-400 text-sm">Total Contracted:</Text>
@@ -400,7 +400,7 @@ export default function MakeScreen() {
                 <Pressable
                   key={engagement.id}
                   onPress={() => setSelectedSupplier(engagement)}
-                  className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-4 border border-gray-300 dark:border-slate-800 mb-3 active:opacity-70"
+                  className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-4 border border-gray-300 dark:border-slate-700 mb-3 active:opacity-70"
                 >
                   <View className="flex-row items-start justify-between mb-2">
                     <View className="flex-1">
@@ -438,7 +438,7 @@ export default function MakeScreen() {
 
                   {/* Linked Task Info */}
                   {linkedWorkPlan && (
-                    <View className="mt-3 pt-3 border-t border-gray-200 dark:border-slate-800">
+                    <View className="mt-3 pt-3 border-t border-gray-200 dark:border-slate-700">
                       <View className="flex-row items-start justify-between mb-2">
                         <View className="flex-1">
                           <Text className="text-gray-500 dark:text-slate-400 text-xs mb-0.5">
@@ -486,7 +486,7 @@ export default function MakeScreen() {
 
                   {/* Owner Badge */}
                   {ownership && (
-                    <View className="mt-3 pt-3 border-t border-gray-200 dark:border-slate-800">
+                    <View className="mt-3 pt-3 border-t border-gray-200 dark:border-slate-700">
                       <Pressable
                         onPress={(e) => {
                           e.stopPropagation();
@@ -585,7 +585,7 @@ export default function MakeScreen() {
                 <Pressable
                   key={agent.id}
                   onPress={() => setSelectedAI(agent)}
-                  className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-4 border border-gray-300 dark:border-slate-800 mb-3 active:opacity-70"
+                  className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-4 border border-gray-300 dark:border-slate-700 mb-3 active:opacity-70"
                 >
                   <View className="flex-row items-start justify-between mb-2">
                     <View className="flex-1">
@@ -651,7 +651,7 @@ export default function MakeScreen() {
 
                   {/* Owner Badge */}
                   {ownership && (
-                    <View className="mt-3 pt-3 border-t border-gray-200 dark:border-slate-800">
+                    <View className="mt-3 pt-3 border-t border-gray-200 dark:border-slate-700">
                       <Pressable
                         onPress={(e) => {
                           e.stopPropagation();
@@ -697,7 +697,7 @@ export default function MakeScreen() {
             <Pressable onPress={(e) => e.stopPropagation()} style={{ maxHeight: '90%' }}>
               <View className="bg-gray-100 dark:bg-slate-900 rounded-t-3xl">
               {/* Fixed Header */}
-              <View className="px-6 pt-6 pb-4 border-b border-gray-300 dark:border-slate-800">
+              <View className="px-6 pt-6 pb-4 border-b border-gray-300 dark:border-slate-700">
                 <View className="flex-row items-center justify-between mb-2">
                   <View className="flex-1">
                     <Text className="text-gray-900 dark:text-white text-xl font-bold">{selectedSupplier.supplierName}</Text>
@@ -706,7 +706,7 @@ export default function MakeScreen() {
                   <Pressable
                     onPress={() => setSelectedSupplier(null)}
                     hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                    className="w-10 h-10 items-center justify-center rounded-full bg-gray-200 dark:bg-slate-800 active:opacity-70"
+                    className="w-10 h-10 items-center justify-center rounded-full bg-gray-200 dark:bg-slate-900 active:opacity-70"
                   >
                     <X size={24} color="#64748b" />
                   </Pressable>
@@ -723,7 +723,7 @@ export default function MakeScreen() {
                       <Text className="text-blue-900 dark:text-blue-100 font-bold ml-2">Performance Scorecard</Text>
                     </View>
                     <View className="flex-row gap-2 mb-3">
-                      <View className="flex-1 bg-white dark:bg-slate-800 rounded-lg p-3 items-center">
+                      <View className="flex-1 bg-white dark:bg-slate-900 rounded-lg p-3 items-center">
                         <Text className="text-gray-500 dark:text-slate-400 text-xs">Quality</Text>
                         <Text className="text-emerald-600 dark:text-emerald-400 text-xl font-bold">94%</Text>
                         <View className="flex-row items-center">
@@ -731,7 +731,7 @@ export default function MakeScreen() {
                           <Text className="text-emerald-600 text-xs ml-1">+2%</Text>
                         </View>
                       </View>
-                      <View className="flex-1 bg-white dark:bg-slate-800 rounded-lg p-3 items-center">
+                      <View className="flex-1 bg-white dark:bg-slate-900 rounded-lg p-3 items-center">
                         <Text className="text-gray-500 dark:text-slate-400 text-xs">On-Time</Text>
                         <Text className="text-amber-600 dark:text-amber-400 text-xl font-bold">87%</Text>
                         <View className="flex-row items-center">
@@ -739,13 +739,13 @@ export default function MakeScreen() {
                           <Text className="text-amber-600 text-xs ml-1">-3%</Text>
                         </View>
                       </View>
-                      <View className="flex-1 bg-white dark:bg-slate-800 rounded-lg p-3 items-center">
+                      <View className="flex-1 bg-white dark:bg-slate-900 rounded-lg p-3 items-center">
                         <Text className="text-gray-500 dark:text-slate-400 text-xs">Response</Text>
                         <Text className="text-blue-600 dark:text-blue-400 text-xl font-bold">4h</Text>
                         <Text className="text-gray-500 text-xs">avg</Text>
                       </View>
                     </View>
-                    <View className="flex-row items-center justify-between bg-white dark:bg-slate-800 rounded-lg p-3">
+                    <View className="flex-row items-center justify-between bg-white dark:bg-slate-900 rounded-lg p-3">
                       <View className="flex-row items-center">
                         <Star size={16} color="#f59e0b" fill="#f59e0b" />
                         <Text className="text-gray-900 dark:text-white font-bold ml-2">Overall Rating</Text>
@@ -758,7 +758,7 @@ export default function MakeScreen() {
                   </View>
 
                   {/* Financial Summary */}
-                  <View className="bg-gray-100 dark:bg-slate-800 rounded-xl p-4 mb-4">
+                  <View className="bg-gray-100 dark:bg-slate-900 rounded-xl p-4 mb-4">
                     <View className="flex-row items-center mb-3">
                       <DollarSign size={18} color="#10b981" />
                       <Text className="text-gray-900 dark:text-white font-bold ml-2">Financial Summary</Text>
@@ -827,7 +827,7 @@ export default function MakeScreen() {
                   </View>
 
                   {/* Timeline & Milestones */}
-                  <View className="bg-gray-100 dark:bg-slate-800/50 rounded-xl p-4 mb-4">
+                  <View className="bg-gray-100 dark:bg-slate-900/50 rounded-xl p-4 mb-4">
                     <View className="flex-row items-center mb-3">
                       <Calendar size={18} color="#64748b" />
                       <Text className="text-gray-900 dark:text-white font-bold ml-2">Timeline & Milestones</Text>
@@ -921,7 +921,7 @@ export default function MakeScreen() {
                           }).filter(Boolean) || [];
 
                           return (
-                            <View key={workPlan.id} className="bg-white dark:bg-slate-800 rounded-lg p-3 mb-2">
+                            <View key={workPlan.id} className="bg-white dark:bg-slate-900 rounded-lg p-3 mb-2">
                               <View className="flex-row items-start justify-between mb-2">
                                 <View className="flex-1">
                                   <Text className="text-gray-900 dark:text-white font-semibold text-sm">
@@ -1018,7 +1018,7 @@ export default function MakeScreen() {
                   })()}
 
                   {/* Contact Information */}
-                  <View className="bg-gray-100 dark:bg-slate-800/50 rounded-xl p-4 mb-4">
+                  <View className="bg-gray-100 dark:bg-slate-900/50 rounded-xl p-4 mb-4">
                     <Text className="text-gray-900 dark:text-white font-bold mb-3">Contact Information</Text>
                     <View className="flex-row items-center mb-2">
                       <View className="w-8 h-8 bg-blue-100 dark:bg-blue-900/30 rounded-full items-center justify-center mr-3">
@@ -1056,7 +1056,7 @@ export default function MakeScreen() {
                       const assignedMember = members.find(m => m.id === selectedSupplier.assignedTo || m.name === selectedSupplier.assignedTo);
                       if (assignedMember) {
                         return (
-                          <View className="flex-row items-center bg-white dark:bg-slate-800 rounded-lg p-3">
+                          <View className="flex-row items-center bg-white dark:bg-slate-900 rounded-lg p-3">
                             <View
                               className="w-10 h-10 rounded-full items-center justify-center mr-3"
                               style={{
@@ -1100,7 +1100,7 @@ export default function MakeScreen() {
                         return (
                           <Pressable
                             onPress={() => setShowPersonPicker(true)}
-                            className="flex-row items-center justify-center bg-white dark:bg-slate-800 rounded-lg p-4 border-2 border-dashed border-purple-300 dark:border-purple-700"
+                            className="flex-row items-center justify-center bg-white dark:bg-slate-900 rounded-lg p-4 border-2 border-dashed border-purple-300 dark:border-purple-700"
                           >
                             <User size={20} color="#8b5cf6" />
                             <Text className="text-purple-600 dark:text-purple-400 font-semibold ml-2">
@@ -1116,7 +1116,7 @@ export default function MakeScreen() {
                   {selectedSupplier.notes && (
                     <View className="mb-4">
                       <Text className="text-gray-700 dark:text-slate-300 font-semibold mb-2">Internal Notes</Text>
-                      <View className="bg-gray-200 dark:bg-slate-800 rounded-xl p-3">
+                      <View className="bg-gray-200 dark:bg-slate-900 rounded-xl p-3">
                         <Text className="text-gray-900 dark:text-white">{selectedSupplier.notes}</Text>
                       </View>
                     </View>
@@ -1171,13 +1171,13 @@ export default function MakeScreen() {
             <Pressable onPress={(e) => e.stopPropagation()} style={{ maxHeight: '90%' }}>
               <View className="bg-gray-100 dark:bg-slate-900 rounded-t-3xl">
               {/* Fixed Header */}
-              <View className="px-6 pt-6 pb-4 border-b border-gray-300 dark:border-slate-800">
+              <View className="px-6 pt-6 pb-4 border-b border-gray-300 dark:border-slate-700">
                 <View className="flex-row items-center justify-between mb-2">
                   <Text className="text-gray-900 dark:text-white text-xl font-bold flex-1">{selectedAI.name}</Text>
                   <Pressable
                     onPress={() => setSelectedAI(null)}
                     hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                    className="w-10 h-10 items-center justify-center rounded-full bg-gray-200 dark:bg-slate-800 active:opacity-70"
+                    className="w-10 h-10 items-center justify-center rounded-full bg-gray-200 dark:bg-slate-900 active:opacity-70"
                   >
                     <X size={24} color="#64748b" />
                   </Pressable>
@@ -1192,7 +1192,7 @@ export default function MakeScreen() {
               {/* Scrollable Content */}
               <ScrollView showsVerticalScrollIndicator={true} bounces={false} contentContainerStyle={{ flexGrow: 1 }}>
                 <View className="px-6 py-4">
-                  <View className="bg-gray-200 dark:bg-slate-800 rounded-xl p-4 mb-4">
+                  <View className="bg-gray-200 dark:bg-slate-900 rounded-xl p-4 mb-4">
                     <View className="flex-row justify-between items-center">
                       <Text className="text-gray-600 dark:text-slate-400">Monthly Cost:</Text>
                       <Text className="text-purple-500 dark:text-purple-400 text-xl font-bold">
@@ -1248,7 +1248,7 @@ export default function MakeScreen() {
                         <Text className="text-gray-900 dark:text-white font-semibold mb-3">
                           Team Access ({memberIdsUsingTool.length}/{members.length})
                         </Text>
-                        <View className="bg-gray-200 dark:bg-slate-800 rounded-xl p-3">
+                        <View className="bg-gray-200 dark:bg-slate-900 rounded-xl p-3">
                           <View className="gap-2">
                             {members.map((member: any) => {
                               const hasAccess = memberIdsUsingTool.includes(member.id);
@@ -1336,7 +1336,7 @@ export default function MakeScreen() {
                     <Text className="text-gray-900 dark:text-white font-semibold mb-2">Integrations</Text>
                     <View className="flex-row flex-wrap gap-2">
                       {selectedAI.integrations.map((integration, idx) => (
-                        <View key={idx} className="bg-gray-200 dark:bg-slate-800 px-3 py-1.5 rounded-lg">
+                        <View key={idx} className="bg-gray-200 dark:bg-slate-900 px-3 py-1.5 rounded-lg">
                           <Text className="text-gray-700 dark:text-slate-300 text-sm">{integration}</Text>
                         </View>
                       ))}
@@ -1344,7 +1344,7 @@ export default function MakeScreen() {
                   </View>
 
                   {selectedAI.usageStats && (
-                    <View className="bg-gray-200 dark:bg-slate-800 rounded-xl p-4 mb-4">
+                    <View className="bg-gray-200 dark:bg-slate-900 rounded-xl p-4 mb-4">
                       <Text className="text-gray-900 dark:text-white font-semibold mb-3">Usage Statistics</Text>
                       <View className="flex-row justify-between mb-2">
                         <Text className="text-gray-600 dark:text-slate-400">Requests This Month:</Text>
@@ -1410,12 +1410,12 @@ export default function MakeScreen() {
           <Pressable onPress={(e) => e.stopPropagation()}>
             <View className="bg-white dark:bg-slate-900 rounded-t-3xl" style={{ maxHeight: '70%' }}>
               {/* Header */}
-              <View className="px-6 pt-6 pb-4 border-b border-gray-200 dark:border-slate-800">
+              <View className="px-6 pt-6 pb-4 border-b border-gray-200 dark:border-slate-700">
                 <View className="flex-row items-center justify-between">
                   <Text className="text-gray-900 dark:text-white text-xl font-bold">Assign Person</Text>
                   <Pressable
                     onPress={() => setShowPersonPicker(false)}
-                    className="w-10 h-10 items-center justify-center rounded-full bg-gray-100 dark:bg-slate-800 active:opacity-70"
+                    className="w-10 h-10 items-center justify-center rounded-full bg-gray-100 dark:bg-slate-900 active:opacity-70"
                   >
                     <X size={24} color="#64748b" />
                   </Pressable>
@@ -1444,7 +1444,7 @@ export default function MakeScreen() {
                         className={`flex-row items-center p-3 rounded-xl mb-2 ${
                           selectedSupplier?.assignedTo === member.id || selectedSupplier?.assignedTo === member.name
                             ? 'bg-purple-100 dark:bg-purple-900/30 border-2 border-purple-500'
-                            : 'bg-gray-50 dark:bg-slate-800'
+                            : 'bg-gray-50 dark:bg-slate-900'
                         } active:opacity-70`}
                       >
                         <View className="w-10 h-10 rounded-full items-center justify-center mr-3 bg-purple-500">
@@ -1481,7 +1481,7 @@ export default function MakeScreen() {
                         className={`flex-row items-center p-3 rounded-xl mb-2 ${
                           selectedSupplier?.assignedTo === member.id || selectedSupplier?.assignedTo === member.name
                             ? 'bg-blue-100 dark:bg-blue-900/30 border-2 border-blue-500'
-                            : 'bg-gray-50 dark:bg-slate-800'
+                            : 'bg-gray-50 dark:bg-slate-900'
                         } active:opacity-70`}
                       >
                         <View className="w-10 h-10 rounded-full items-center justify-center mr-3 bg-blue-500">
@@ -1518,7 +1518,7 @@ export default function MakeScreen() {
                         className={`flex-row items-center p-3 rounded-xl mb-2 ${
                           selectedSupplier?.assignedTo === member.id || selectedSupplier?.assignedTo === member.name
                             ? 'bg-emerald-100 dark:bg-emerald-900/30 border-2 border-emerald-500'
-                            : 'bg-gray-50 dark:bg-slate-800'
+                            : 'bg-gray-50 dark:bg-slate-900'
                         } active:opacity-70`}
                       >
                         <View className="w-10 h-10 rounded-full items-center justify-center mr-3 bg-emerald-500">

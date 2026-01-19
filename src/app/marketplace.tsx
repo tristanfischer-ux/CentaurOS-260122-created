@@ -42,7 +42,7 @@ export default function MarketplaceScreen() {
   return (
     <View className="flex-1 bg-white dark:bg-slate-950" style={{ paddingTop: insets.top }}>
       {/* Header */}
-      <View className="px-6 py-4 border-b border-gray-200 dark:border-slate-800 flex-row items-center justify-between">
+      <View className="px-6 py-4 border-b border-gray-200 dark:border-slate-700 flex-row items-center justify-between">
         <Pressable
           onPress={() => router.back()}
           className="w-10 h-10 items-center justify-center rounded-full bg-gray-100 dark:bg-slate-900 active:opacity-70"
@@ -89,7 +89,7 @@ export default function MarketplaceScreen() {
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
-        className="border-b border-gray-200 dark:border-slate-800"
+        className="border-b border-gray-200 dark:border-slate-700"
         style={{ flexGrow: 0 }}
       >
         <View className="flex-row px-4 py-3">
@@ -125,7 +125,7 @@ export default function MarketplaceScreen() {
 
       {/* Search Bar */}
       <View className="px-6 pt-4 pb-2">
-        <View className="bg-gray-100 dark:bg-slate-900 rounded-xl flex-row items-center px-4 py-3 border border-gray-200 dark:border-slate-800">
+        <View className="bg-gray-100 dark:bg-slate-900 rounded-xl flex-row items-center px-4 py-3 border border-gray-200 dark:border-slate-700">
           <Search size={20} color="#64748b" />
           <TextInput
             className="flex-1 text-gray-900 dark:text-white ml-3 text-base"
@@ -204,7 +204,7 @@ function ExecutivesTab({ searchQuery }: { searchQuery: string }) {
       {/* Call to Action */}
       <Pressable
         onPress={() => router.push('/(tabs)/community')}
-        className="bg-gray-100 dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-2xl p-6 items-center active:opacity-70"
+        className="bg-gray-100 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-2xl p-6 items-center active:opacity-70"
       >
         <Users size={48} color="#64748b" />
         <Text className="text-gray-900 dark:text-white text-lg font-bold mt-4 mb-2">Browse All Executives</Text>
@@ -270,7 +270,7 @@ function ApprenticesTab({ searchQuery }: { searchQuery: string }) {
       {/* Call to Action */}
       <Pressable
         onPress={() => router.push('/(tabs)/community')}
-        className="bg-gray-100 dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-2xl p-6 items-center active:opacity-70"
+        className="bg-gray-100 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-2xl p-6 items-center active:opacity-70"
       >
         <GraduationCap size={48} color="#64748b" />
         <Text className="text-gray-900 dark:text-white text-lg font-bold mt-4 mb-2">Browse All Apprentices</Text>
@@ -338,7 +338,7 @@ function SuppliersTab({ searchQuery }: { searchQuery: string }) {
       {/* Call to Action */}
       <Pressable
         onPress={() => router.push('/(tabs)/community')}
-        className="bg-gray-100 dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-2xl p-6 items-center active:opacity-70"
+        className="bg-gray-100 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-2xl p-6 items-center active:opacity-70"
       >
         <Building2 size={48} color="#64748b" />
         <Text className="text-gray-900 dark:text-white text-lg font-bold mt-4 mb-2">Browse All Suppliers</Text>
@@ -594,7 +594,7 @@ function LocationsTab({ searchQuery }: { searchQuery: string }) {
       </View>
 
       {/* Coming Soon */}
-      <View className="bg-gray-100 dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-2xl p-6 items-center">
+      <View className="bg-gray-100 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-2xl p-6 items-center">
         <MapPin size={48} color="#64748b" />
         <Text className="text-gray-900 dark:text-white text-lg font-bold mt-4 mb-2">More Locations Coming Soon</Text>
         <Text className="text-gray-600 dark:text-slate-400 text-center text-sm">

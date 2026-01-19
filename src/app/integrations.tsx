@@ -116,7 +116,7 @@ export default function IntegrationsScreen() {
   return (
     <View className="flex-1 bg-white dark:bg-slate-950" style={{ paddingTop: insets.top }}>
       {/* Header */}
-      <View className="px-6 py-4 border-b border-gray-300 dark:border-slate-800">
+      <View className="px-6 py-4 border-b border-gray-300 dark:border-slate-700">
         <View className="flex-row items-center justify-between mb-4">
           <View className="flex-row items-center">
             <HapticPressable
@@ -162,7 +162,7 @@ export default function IntegrationsScreen() {
               className={`px-4 py-2 rounded-lg mr-2 ${
                 selectedCategory === category
                   ? 'bg-blue-500'
-                  : 'bg-gray-100 dark:bg-slate-900 border border-gray-300 dark:border-slate-800'
+                  : 'bg-gray-100 dark:bg-slate-900 border border-gray-300 dark:border-slate-700'
               }`}
             >
               <Text
@@ -253,7 +253,7 @@ export default function IntegrationsScreen() {
                       placeholderTextColor="#94a3b8"
                       secureTextEntry={field.type === 'password'}
                       autoCapitalize="none"
-                      className="bg-gray-100 dark:bg-slate-900 rounded-xl px-4 py-3 text-gray-900 dark:text-white border border-gray-300 dark:border-slate-800"
+                      className="bg-gray-100 dark:bg-slate-900 rounded-xl px-4 py-3 text-gray-900 dark:text-white border border-gray-300 dark:border-slate-700"
                     />
                   </View>
                 ))}

@@ -394,7 +394,7 @@ export default function FinancialDashboardScreen() {
 
   // Render health indicator
   const renderHealthIndicator = (indicator: HealthIndicator) => (
-    <View key={indicator.name} className="bg-gray-50 dark:bg-slate-800/50 rounded-xl p-4 mb-2">
+    <View key={indicator.name} className="bg-gray-50 dark:bg-slate-900/50 rounded-xl p-4 mb-2">
       <View className="flex-row items-center justify-between mb-2">
         <Text className="text-gray-900 dark:text-white font-semibold text-sm">{indicator.name}</Text>
         <View className={cn(
@@ -489,7 +489,7 @@ export default function FinancialDashboardScreen() {
     categoryKey: string,
     total: number
   ) => (
-    <View className="bg-gray-100 dark:bg-slate-900 rounded-xl p-4 border border-gray-300 dark:border-slate-800 mb-3">
+    <View className="bg-gray-100 dark:bg-slate-900 rounded-xl p-4 border border-gray-300 dark:border-slate-700 mb-3">
       <View className="flex-row items-center justify-between mb-3">
         <View className="flex-row items-center">
           {icon}
@@ -536,7 +536,7 @@ export default function FinancialDashboardScreen() {
   return (
     <View className="flex-1 bg-white dark:bg-slate-950" style={{ paddingTop: insets.top }}>
       {/* Header */}
-      <View className="px-6 py-4 flex-row items-center justify-between border-b border-gray-200 dark:border-slate-800">
+      <View className="px-6 py-4 flex-row items-center justify-between border-b border-gray-200 dark:border-slate-700">
         <View>
           <Text className="text-gray-900 dark:text-white text-xl font-bold">Financial Dashboard</Text>
           <Text className="text-gray-500 dark:text-slate-400 text-xs">CFO-Grade Analytics & Insights</Text>
@@ -624,7 +624,7 @@ export default function FinancialDashboardScreen() {
           </Pressable>
 
           {expandedSections.pnl && (
-            <View className="bg-gray-50 dark:bg-slate-900 rounded-xl p-4 mb-4 border border-gray-200 dark:border-slate-800">
+            <View className="bg-gray-50 dark:bg-slate-900 rounded-xl p-4 mb-4 border border-gray-200 dark:border-slate-700">
               <Text className="text-gray-500 dark:text-slate-500 text-xs font-semibold mb-3">MONTHLY P&L (£'000s)</Text>
 
               {renderPnLLine('Revenue', pnl.revenue, false, false, 100)}
@@ -742,7 +742,7 @@ export default function FinancialDashboardScreen() {
           </Pressable>
 
           {expandedSections.unitEconomics && (
-            <View className="bg-gray-50 dark:bg-slate-900 rounded-xl p-4 mb-4 border border-gray-200 dark:border-slate-800">
+            <View className="bg-gray-50 dark:bg-slate-900 rounded-xl p-4 mb-4 border border-gray-200 dark:border-slate-700">
               {/* Check if we have any actual metrics */}
               {INITIAL_DATA.metrics.cac === 0 && INITIAL_DATA.metrics.ltv === 0 && INITIAL_DATA.metrics.paybackPeriod === 0 ? (
                 <View className="py-8 items-center">
@@ -760,17 +760,17 @@ export default function FinancialDashboardScreen() {
               ) : (
                 <>
                   <View className="flex-row flex-wrap gap-3">
-                <View className="bg-white dark:bg-slate-800 rounded-xl p-4 flex-1" style={{ minWidth: '45%' }}>
+                <View className="bg-white dark:bg-slate-900 rounded-xl p-4 flex-1" style={{ minWidth: '45%' }}>
                   <Text className="text-gray-500 dark:text-slate-400 text-xs mb-1">CAC</Text>
                   <Text className="text-gray-900 dark:text-white text-xl font-bold">£{INITIAL_DATA.metrics.cac}</Text>
                   <Text className="text-gray-500 dark:text-slate-400 text-xs mt-1">Customer Acquisition Cost</Text>
                 </View>
-                <View className="bg-white dark:bg-slate-800 rounded-xl p-4 flex-1" style={{ minWidth: '45%' }}>
+                <View className="bg-white dark:bg-slate-900 rounded-xl p-4 flex-1" style={{ minWidth: '45%' }}>
                   <Text className="text-gray-500 dark:text-slate-400 text-xs mb-1">LTV</Text>
                   <Text className="text-gray-900 dark:text-white text-xl font-bold">£{INITIAL_DATA.metrics.ltv}</Text>
                   <Text className="text-gray-500 dark:text-slate-400 text-xs mt-1">Customer Lifetime Value</Text>
                 </View>
-                <View className="bg-white dark:bg-slate-800 rounded-xl p-4 flex-1" style={{ minWidth: '45%' }}>
+                <View className="bg-white dark:bg-slate-900 rounded-xl p-4 flex-1" style={{ minWidth: '45%' }}>
                   <Text className="text-gray-500 dark:text-slate-400 text-xs mb-1">LTV:CAC</Text>
                   <Text className="text-emerald-600 dark:text-emerald-400 text-xl font-bold">
                     {(INITIAL_DATA.metrics.ltv > 0 && INITIAL_DATA.metrics.cac > 0)
@@ -779,17 +779,17 @@ export default function FinancialDashboardScreen() {
                   </Text>
                   <Text className="text-gray-500 dark:text-slate-400 text-xs mt-1">Target: 3x+</Text>
                 </View>
-                <View className="bg-white dark:bg-slate-800 rounded-xl p-4 flex-1" style={{ minWidth: '45%' }}>
+                <View className="bg-white dark:bg-slate-900 rounded-xl p-4 flex-1" style={{ minWidth: '45%' }}>
                   <Text className="text-gray-500 dark:text-slate-400 text-xs mb-1">Payback Period</Text>
                   <Text className="text-gray-900 dark:text-white text-xl font-bold">{INITIAL_DATA.metrics.paybackPeriod}mo</Text>
                   <Text className="text-gray-500 dark:text-slate-400 text-xs mt-1">Target: {'<'}12mo</Text>
                 </View>
-                <View className="bg-white dark:bg-slate-800 rounded-xl p-4 flex-1" style={{ minWidth: '45%' }}>
+                <View className="bg-white dark:bg-slate-900 rounded-xl p-4 flex-1" style={{ minWidth: '45%' }}>
                   <Text className="text-gray-500 dark:text-slate-400 text-xs mb-1">Churn Rate</Text>
                   <Text className="text-gray-900 dark:text-white text-xl font-bold">{INITIAL_DATA.metrics.churnRate}%</Text>
                   <Text className="text-gray-500 dark:text-slate-400 text-xs mt-1">Monthly customer churn</Text>
                 </View>
-                <View className="bg-white dark:bg-slate-800 rounded-xl p-4 flex-1" style={{ minWidth: '45%' }}>
+                <View className="bg-white dark:bg-slate-900 rounded-xl p-4 flex-1" style={{ minWidth: '45%' }}>
                   <Text className="text-gray-500 dark:text-slate-400 text-xs mb-1">NRR</Text>
                   <Text className="text-emerald-600 dark:text-emerald-400 text-xl font-bold">{INITIAL_DATA.metrics.nrr}%</Text>
                   <Text className="text-gray-500 dark:text-slate-400 text-xs mt-1">Net Revenue Retention</Text>
@@ -999,7 +999,7 @@ export default function FinancialDashboardScreen() {
                 </View>
                 <Pressable
                   onPress={() => setShowEditModal(false)}
-                  className="w-8 h-8 items-center justify-center rounded-full bg-gray-100 dark:bg-slate-800"
+                  className="w-8 h-8 items-center justify-center rounded-full bg-gray-100 dark:bg-slate-900"
                 >
                   <X size={16} color="#64748b" />
                 </Pressable>
@@ -1019,7 +1019,7 @@ export default function FinancialDashboardScreen() {
 
                   {/* Current vs New Value */}
                   <View className="flex-row gap-3 mb-4">
-                    <View className="flex-1 bg-gray-100 dark:bg-slate-800 rounded-xl p-3">
+                    <View className="flex-1 bg-gray-100 dark:bg-slate-900 rounded-xl p-3">
                       <Text className="text-gray-500 dark:text-slate-400 text-xs mb-1">Current</Text>
                       <Text className="text-gray-900 dark:text-white text-xl font-bold">
                         £{editingItem.item.amount.toLocaleString()}
@@ -1096,7 +1096,7 @@ export default function FinancialDashboardScreen() {
                   )}
 
                   {/* Approval Context (PwC Governance Standards) */}
-                  <View className="bg-gray-50 dark:bg-slate-800/50 rounded-xl p-3 mb-4">
+                  <View className="bg-gray-50 dark:bg-slate-900/50 rounded-xl p-3 mb-4">
                     <Text className="text-gray-700 dark:text-slate-300 font-semibold text-sm mb-2">Approval Thresholds</Text>
                     <View className="flex-row items-center mb-1">
                       <View className="w-2 h-2 rounded-full bg-emerald-500 mr-2" />

@@ -452,7 +452,7 @@ export default function CommunityScreen() {
             setShowProfileModal(true);
           }}
           className={`bg-white dark:bg-slate-900 rounded-2xl mb-3 border ${
-            isComparing ? 'border-blue-500 border-2' : 'border-gray-200 dark:border-slate-800'
+            isComparing ? 'border-blue-500 border-2' : 'border-gray-200 dark:border-slate-700'
           } overflow-hidden active:opacity-90`}
         >
           {/* Top Row - Name, Score, Actions */}
@@ -522,12 +522,12 @@ export default function CommunityScreen() {
             {!compact && (
               <View className="flex-row flex-wrap gap-1 mb-3">
                 {candidate.skills.slice(0, 4).map((skill, idx) => (
-                  <View key={idx} className="bg-gray-100 dark:bg-slate-800 px-2 py-1 rounded">
+                  <View key={idx} className="bg-gray-100 dark:bg-slate-900 px-2 py-1 rounded">
                     <Text className="text-gray-700 dark:text-slate-300 text-xs">{skill}</Text>
                   </View>
                 ))}
                 {candidate.skills.length > 4 && (
-                  <View className="bg-gray-100 dark:bg-slate-800 px-2 py-1 rounded">
+                  <View className="bg-gray-100 dark:bg-slate-900 px-2 py-1 rounded">
                     <Text className="text-gray-500 dark:text-slate-500 text-xs">+{candidate.skills.length - 4}</Text>
                   </View>
                 )}
@@ -551,7 +551,7 @@ export default function CommunityScreen() {
                 className={`w-10 h-10 rounded-xl items-center justify-center ${
                   isShortlisted
                     ? 'bg-red-100 dark:bg-red-900/30'
-                    : 'bg-gray-100 dark:bg-slate-800'
+                    : 'bg-gray-100 dark:bg-slate-900'
                 } active:opacity-70`}
               >
                 <Heart
@@ -567,7 +567,7 @@ export default function CommunityScreen() {
                   className={`w-10 h-10 rounded-xl items-center justify-center ${
                     isComparing
                       ? 'bg-blue-100 dark:bg-blue-900/30'
-                      : 'bg-gray-100 dark:bg-slate-800'
+                      : 'bg-gray-100 dark:bg-slate-900'
                   } active:opacity-70`}
                 >
                   <Scale size={20} color={isComparing ? '#3b82f6' : '#64748b'} />
@@ -578,7 +578,7 @@ export default function CommunityScreen() {
 
           {/* Score Breakdown (expandable) */}
           {showScore && candidate.score.overall >= 70 && (
-            <View className={`px-4 py-2 bg-${accentColor}-50 dark:bg-${accentColor}-900/20 border-t border-gray-100 dark:border-slate-800`}>
+            <View className={`px-4 py-2 bg-${accentColor}-50 dark:bg-${accentColor}-900/20 border-t border-gray-100 dark:border-slate-700`}>
               <View className="flex-row items-center justify-between">
                 <View className="flex-row items-center">
                   <Target size={14} color="#10b981" />
@@ -666,7 +666,7 @@ export default function CommunityScreen() {
       </LinearGradient>
 
       {/* Quick Nav Pills - Below Header */}
-      <View className="px-5 py-3 bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-800">
+      <View className="px-5 py-3 bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-700">
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -687,7 +687,7 @@ export default function CommunityScreen() {
               className={`flex-row items-center px-4 py-2 rounded-full ${
                 activeTab === tab.value
                   ? 'bg-amber-500'
-                  : 'bg-gray-100 dark:bg-slate-800'
+                  : 'bg-gray-100 dark:bg-slate-900'
               } active:opacity-70`}
             >
               <tab.icon size={16} color={activeTab === tab.value ? '#fff' : '#64748b'} />
@@ -714,9 +714,9 @@ export default function CommunityScreen() {
 
       {/* Search Bar - Contextual */}
       {(activeTab === 'executives' || activeTab === 'apprentices' || activeTab === 'suppliers' || activeTab === 'ai-agents') && (
-        <View className="px-5 py-3 bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-800">
+        <View className="px-5 py-3 bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-700">
           <View className="flex-row items-center gap-2">
-            <View className="flex-1 flex-row items-center bg-gray-100 dark:bg-slate-800 rounded-xl px-4 py-2.5">
+            <View className="flex-1 flex-row items-center bg-gray-100 dark:bg-slate-900 rounded-xl px-4 py-2.5">
               <Search size={18} color="#64748b" />
               <TextInput
                 className="flex-1 ml-2 text-gray-900 dark:text-white text-base"
@@ -734,7 +734,7 @@ export default function CommunityScreen() {
             <Pressable
               onPress={() => setShowFilters(!showFilters)}
               className={`w-11 h-11 rounded-xl items-center justify-center ${
-                showFilters ? 'bg-blue-500' : 'bg-gray-100 dark:bg-slate-800'
+                showFilters ? 'bg-blue-500' : 'bg-gray-100 dark:bg-slate-900'
               } active:opacity-70`}
             >
               <SlidersHorizontal size={20} color={showFilters ? '#fff' : '#64748b'} />
@@ -1151,7 +1151,7 @@ export default function CommunityScreen() {
                       console.log('[Community] AI Tool clicked:', tool.name, tool);
                       setSelectedAIAgent(tool);
                     }}
-                    className="bg-white dark:bg-slate-900 rounded-2xl p-4 mb-3 border border-gray-200 dark:border-slate-800 active:opacity-90"
+                    className="bg-white dark:bg-slate-900 rounded-2xl p-4 mb-3 border border-gray-200 dark:border-slate-700 active:opacity-90"
                   >
                     <View className="flex-row items-start justify-between mb-2">
                       <View className="flex-1">
@@ -1164,7 +1164,7 @@ export default function CommunityScreen() {
                     </View>
                     <View className="flex-row flex-wrap gap-1">
                       {tool.functions.map((func, i) => (
-                        <View key={i} className="bg-gray-100 dark:bg-slate-800 px-2 py-1 rounded">
+                        <View key={i} className="bg-gray-100 dark:bg-slate-900 px-2 py-1 rounded">
                           <Text className="text-gray-600 dark:text-slate-400 text-xs">{func}</Text>
                         </View>
                       ))}
@@ -1196,7 +1196,7 @@ export default function CommunityScreen() {
                       selectSupplier(supplier);
                       setActiveTab('suppliers');
                     }}
-                    className="bg-white dark:bg-slate-900 rounded-2xl p-4 mb-3 border border-gray-200 dark:border-slate-800 active:opacity-90"
+                    className="bg-white dark:bg-slate-900 rounded-2xl p-4 mb-3 border border-gray-200 dark:border-slate-700 active:opacity-90"
                   >
                     <View className="flex-row items-start justify-between mb-2">
                       <View className="flex-1">
@@ -1218,12 +1218,12 @@ export default function CommunityScreen() {
                     </View>
                     <View className="flex-row flex-wrap gap-1 mb-2">
                       {supplier.capabilities.slice(0, 3).map((cap, i) => (
-                        <View key={i} className="bg-gray-100 dark:bg-slate-800 px-2 py-1 rounded">
+                        <View key={i} className="bg-gray-100 dark:bg-slate-900 px-2 py-1 rounded">
                           <Text className="text-gray-600 dark:text-slate-400 text-xs">{cap}</Text>
                         </View>
                       ))}
                       {supplier.capabilities.length > 3 && (
-                        <View className="bg-gray-100 dark:bg-slate-800 px-2 py-1 rounded">
+                        <View className="bg-gray-100 dark:bg-slate-900 px-2 py-1 rounded">
                           <Text className="text-gray-500 dark:text-slate-500 text-xs">+{supplier.capabilities.length - 3}</Text>
                         </View>
                       )}
@@ -1408,7 +1408,7 @@ export default function CommunityScreen() {
                         type.value === 'accountant' ? 'bg-green-500' :
                         type.value === 'professional-services' ? 'bg-indigo-500' :
                         'bg-amber-500'
-                      : 'bg-gray-200 dark:bg-slate-800'
+                      : 'bg-gray-200 dark:bg-slate-900'
                   } active:opacity-70`}
                 >
                   <Text className={`text-sm font-semibold ${
@@ -1429,7 +1429,7 @@ export default function CommunityScreen() {
                     selectSupplier(supplier);
                     setShowProfileModal(true);
                   }}
-                  className="bg-white dark:bg-slate-900 rounded-2xl p-4 mb-3 border border-gray-200 dark:border-slate-800 active:opacity-90"
+                  className="bg-white dark:bg-slate-900 rounded-2xl p-4 mb-3 border border-gray-200 dark:border-slate-700 active:opacity-90"
                 >
                   <View className="flex-row items-start justify-between mb-2">
                     <View className="flex-1">
@@ -1492,7 +1492,7 @@ export default function CommunityScreen() {
                           </View>
                         ))}
                         {(supplier.specialties || []).length > 3 && (
-                          <View className="bg-gray-100 dark:bg-slate-800 px-2 py-1 rounded">
+                          <View className="bg-gray-100 dark:bg-slate-900 px-2 py-1 rounded">
                             <Text className="text-gray-500 dark:text-slate-500 text-xs">+{(supplier.specialties || []).length - 3}</Text>
                           </View>
                         )}
@@ -1506,7 +1506,7 @@ export default function CommunityScreen() {
                           </View>
                         ))}
                         {supplier.capabilities.length > 3 && (
-                          <View className="bg-gray-100 dark:bg-slate-800 px-2 py-1 rounded">
+                          <View className="bg-gray-100 dark:bg-slate-900 px-2 py-1 rounded">
                             <Text className="text-gray-500 dark:text-slate-500 text-xs">+{supplier.capabilities.length - 3}</Text>
                           </View>
                         )}
@@ -1514,7 +1514,7 @@ export default function CommunityScreen() {
                     )}
                   </View>
 
-                  <View className="flex-row items-center justify-between pt-3 border-t border-gray-100 dark:border-slate-800">
+                  <View className="flex-row items-center justify-between pt-3 border-t border-gray-100 dark:border-slate-700">
                     {/* Show relevant info based on service type */}
                     {supplier.serviceType && ['bank', 'lawyer', 'accountant'].includes(supplier.serviceType) ? (
                       <View className="flex-row gap-4">
@@ -1569,7 +1569,7 @@ export default function CommunityScreen() {
                 className={`px-4 py-2 rounded-full ${
                   selectedAIFunction === 'all'
                     ? 'bg-cyan-500'
-                    : 'bg-gray-200 dark:bg-slate-800'
+                    : 'bg-gray-200 dark:bg-slate-900'
                 } active:opacity-70`}
               >
                 <Text className={`text-sm font-semibold ${
@@ -1587,7 +1587,7 @@ export default function CommunityScreen() {
                   className={`px-4 py-2 rounded-full ${
                     selectedAIFunction === func
                       ? 'bg-cyan-500'
-                      : 'bg-gray-200 dark:bg-slate-800'
+                      : 'bg-gray-200 dark:bg-slate-900'
                   } active:opacity-70`}
                 >
                   <Text className={`text-sm font-semibold ${
@@ -1607,7 +1607,7 @@ export default function CommunityScreen() {
                 <Animated.View key={tool.id} entering={FadeInDown.delay(idx * 50).duration(300)}>
                   <Pressable
                     onPress={() => setSelectedAIAgent(tool)}
-                    className="bg-white dark:bg-slate-900 rounded-2xl p-4 mb-3 border border-gray-200 dark:border-slate-800 active:opacity-90"
+                    className="bg-white dark:bg-slate-900 rounded-2xl p-4 mb-3 border border-gray-200 dark:border-slate-700 active:opacity-90"
                   >
                     <View className="flex-row items-start justify-between mb-2">
                       <View className="flex-row items-center flex-1">
@@ -1641,7 +1641,7 @@ export default function CommunityScreen() {
                       ))}
                     </View>
 
-                    <View className="flex-row items-center justify-between pt-3 border-t border-gray-100 dark:border-slate-800">
+                    <View className="flex-row items-center justify-between pt-3 border-t border-gray-100 dark:border-slate-700">
                       <View className="flex-row items-center">
                         <Text className="text-emerald-600 dark:text-emerald-400 font-bold">£{tool.costPerMonth}</Text>
                         <Text className="text-gray-500 dark:text-slate-500 text-xs ml-1">/month</Text>
@@ -1833,7 +1833,7 @@ export default function CommunityScreen() {
         <View className="flex-1 bg-black/70 justify-end">
           <View className="bg-white dark:bg-slate-950 rounded-t-3xl flex-1" style={{ maxHeight: '90%', marginTop: 'auto' }}>
             {/* Header */}
-            <View className="px-6 pt-6 pb-4 border-b border-gray-200 dark:border-slate-800">
+            <View className="px-6 pt-6 pb-4 border-b border-gray-200 dark:border-slate-700">
               <View className="flex-row items-center justify-between">
                 <Text className="text-gray-900 dark:text-white text-2xl font-bold">
                   {selectedCandidate ? 'Profile Details' : 'Supplier Details'}
@@ -1902,19 +1902,19 @@ export default function CommunityScreen() {
                         </View>
                       </View>
                       <View className="flex-row gap-2">
-                        <View className="flex-1 bg-white/50 dark:bg-slate-800/50 rounded-lg p-2 items-center">
+                        <View className="flex-1 bg-white/50 dark:bg-slate-900/50 rounded-lg p-2 items-center">
                           <Text className="text-gray-500 dark:text-slate-500 text-[10px]">Experience</Text>
                           <Text className="text-gray-900 dark:text-white font-bold">{(selectedCandidate as typeof scoredExecutives[0]).score.experienceScore}</Text>
                         </View>
-                        <View className="flex-1 bg-white/50 dark:bg-slate-800/50 rounded-lg p-2 items-center">
+                        <View className="flex-1 bg-white/50 dark:bg-slate-900/50 rounded-lg p-2 items-center">
                           <Text className="text-gray-500 dark:text-slate-500 text-[10px]">Availability</Text>
                           <Text className="text-gray-900 dark:text-white font-bold">{(selectedCandidate as typeof scoredExecutives[0]).score.availabilityScore}</Text>
                         </View>
-                        <View className="flex-1 bg-white/50 dark:bg-slate-800/50 rounded-lg p-2 items-center">
+                        <View className="flex-1 bg-white/50 dark:bg-slate-900/50 rounded-lg p-2 items-center">
                           <Text className="text-gray-500 dark:text-slate-500 text-[10px]">Value</Text>
                           <Text className="text-gray-900 dark:text-white font-bold">{(selectedCandidate as typeof scoredExecutives[0]).score.valueScore}</Text>
                         </View>
-                        <View className="flex-1 bg-white/50 dark:bg-slate-800/50 rounded-lg p-2 items-center">
+                        <View className="flex-1 bg-white/50 dark:bg-slate-900/50 rounded-lg p-2 items-center">
                           <Text className="text-gray-500 dark:text-slate-500 text-[10px]">Skill Match</Text>
                           <Text className="text-gray-900 dark:text-white font-bold">{(selectedCandidate as typeof scoredExecutives[0]).score.skillMatch}</Text>
                         </View>
@@ -1953,7 +1953,7 @@ export default function CommunityScreen() {
                     </Text>
                     <View className="flex-row flex-wrap gap-2">
                       {selectedCandidate.skills.map((skill, idx) => (
-                        <View key={idx} className="bg-gray-200 dark:bg-slate-800 px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-700">
+                        <View key={idx} className="bg-gray-200 dark:bg-slate-900 px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-700">
                           <Text className="text-gray-800 dark:text-slate-200 text-sm">{skill}</Text>
                         </View>
                       ))}
@@ -1968,7 +1968,7 @@ export default function CommunityScreen() {
                       </Text>
                       <View className="gap-3">
                         {selectedCandidate.previousCompanies.map((company, idx) => (
-                          <View key={idx} className="bg-gray-100 dark:bg-slate-900 rounded-xl p-4 border border-gray-200 dark:border-slate-800">
+                          <View key={idx} className="bg-gray-100 dark:bg-slate-900 rounded-xl p-4 border border-gray-200 dark:border-slate-700">
                             <View className="flex-row items-center">
                               <Building2 size={18} color="#3b82f6" />
                               <Text className="text-gray-900 dark:text-white font-semibold ml-2">{company}</Text>
@@ -2054,7 +2054,7 @@ export default function CommunityScreen() {
                   {/* Rating and Lead Time */}
                   {selectedSupplierFromStore.customerReviews && (
                     <View className="flex-row gap-3 mb-6">
-                      <View className="flex-1 bg-gray-100 dark:bg-slate-800 rounded-xl p-4">
+                      <View className="flex-1 bg-gray-100 dark:bg-slate-900 rounded-xl p-4">
                         <Text className="text-gray-500 dark:text-slate-400 text-xs mb-1">Rating</Text>
                         <View className="flex-row items-center">
                           <Star size={16} color="#f59e0b" fill="#f59e0b" />
@@ -2066,14 +2066,14 @@ export default function CommunityScreen() {
                           {selectedSupplierFromStore.customerReviews.totalReviews} reviews
                         </Text>
                       </View>
-                      <View className="flex-1 bg-gray-100 dark:bg-slate-800 rounded-xl p-4">
+                      <View className="flex-1 bg-gray-100 dark:bg-slate-900 rounded-xl p-4">
                         <Text className="text-gray-500 dark:text-slate-400 text-xs mb-1">Lead Time</Text>
                         <Text className="text-emerald-600 dark:text-emerald-400 text-xl font-bold">
                           {selectedSupplierFromStore.leadTimeWeeks}
                         </Text>
                         <Text className="text-gray-500 dark:text-slate-500 text-xs">weeks</Text>
                       </View>
-                      <View className="flex-1 bg-gray-100 dark:bg-slate-800 rounded-xl p-4">
+                      <View className="flex-1 bg-gray-100 dark:bg-slate-900 rounded-xl p-4">
                         <Text className="text-gray-500 dark:text-slate-400 text-xs mb-1">Min Order</Text>
                         <Text className="text-blue-600 dark:text-blue-400 text-xl font-bold">
                           {selectedSupplierFromStore.minimumOrderQuantity}
@@ -2120,7 +2120,7 @@ export default function CommunityScreen() {
             </ScrollView>
 
             {/* Action Buttons */}
-            <View className="px-6 py-4 border-t border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-950">
+            <View className="px-6 py-4 border-t border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-950">
               <View className="flex-row gap-3">
                 <Pressable
                   onPress={() => {
@@ -2149,7 +2149,7 @@ export default function CommunityScreen() {
                     className={`w-14 h-14 rounded-xl items-center justify-center ${
                       shortlistedIds.has(selectedCandidate.id)
                         ? 'bg-red-100 dark:bg-red-900/30'
-                        : 'bg-gray-100 dark:bg-slate-800'
+                        : 'bg-gray-100 dark:bg-slate-900'
                     } active:opacity-70`}
                   >
                     <Heart
@@ -2175,12 +2175,12 @@ export default function CommunityScreen() {
         <View className="flex-1 bg-black/70 justify-end">
           <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} className="flex-1 justify-end">
             <View className="bg-white dark:bg-slate-900 rounded-t-3xl" style={{ maxHeight: '60%' }}>
-              <View className="px-6 pt-6 pb-4 border-b border-gray-200 dark:border-slate-800">
+              <View className="px-6 pt-6 pb-4 border-b border-gray-200 dark:border-slate-700">
                 <View className="flex-row items-center justify-between">
                   <Text className="text-gray-900 dark:text-white text-xl font-bold">Request Allocation</Text>
                   <Pressable
                     onPress={() => setShowRequestModal(false)}
-                    className="w-10 h-10 items-center justify-center rounded-full bg-gray-100 dark:bg-slate-800 active:opacity-70"
+                    className="w-10 h-10 items-center justify-center rounded-full bg-gray-100 dark:bg-slate-900 active:opacity-70"
                   >
                     <X size={24} color="#64748b" />
                   </Pressable>
@@ -2200,7 +2200,7 @@ export default function CommunityScreen() {
                 <View className="mb-4">
                   <Text className="text-gray-500 dark:text-slate-400 text-sm mb-2">Notes (Optional)</Text>
                   <TextInput
-                    className="bg-gray-100 dark:bg-slate-800 rounded-xl px-4 py-3 text-gray-900 dark:text-white text-base min-h-[100px]"
+                    className="bg-gray-100 dark:bg-slate-900 rounded-xl px-4 py-3 text-gray-900 dark:text-white text-base min-h-[100px]"
                     value={requestNotes}
                     onChangeText={setRequestNotes}
                     placeholder="Why do you need this resource?"
@@ -2235,14 +2235,14 @@ export default function CommunityScreen() {
         <View className="flex-1 bg-black/70 justify-end">
           <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} className="flex-1 justify-end">
             <View className="bg-white dark:bg-slate-900 rounded-t-3xl" style={{ maxHeight: '90%' }}>
-              <View className="px-6 pt-6 pb-4 border-b border-gray-200 dark:border-slate-800">
+              <View className="px-6 pt-6 pb-4 border-b border-gray-200 dark:border-slate-700">
                 <View className="flex-row items-center justify-between">
                   <Text className="text-gray-900 dark:text-white text-xl font-bold">
                     Apply as {applicationType === 'executive' ? 'Executive' : applicationType === 'apprentice' ? 'Apprentice' : 'Supplier'}
                   </Text>
                   <Pressable
                     onPress={() => setShowApplicationModal(false)}
-                    className="w-10 h-10 items-center justify-center rounded-full bg-gray-100 dark:bg-slate-800 active:opacity-70"
+                    className="w-10 h-10 items-center justify-center rounded-full bg-gray-100 dark:bg-slate-900 active:opacity-70"
                   >
                     <X size={24} color="#64748b" />
                   </Pressable>
@@ -2257,7 +2257,7 @@ export default function CommunityScreen() {
                 <View className="mb-3">
                   <Text className="text-gray-500 dark:text-slate-400 text-sm mb-2">Full Name *</Text>
                   <TextInput
-                    className="bg-gray-100 dark:bg-slate-800 rounded-xl px-4 py-3 text-gray-900 dark:text-white text-base"
+                    className="bg-gray-100 dark:bg-slate-900 rounded-xl px-4 py-3 text-gray-900 dark:text-white text-base"
                     value={applicationName}
                     onChangeText={setApplicationName}
                     placeholder="Your name"
@@ -2268,7 +2268,7 @@ export default function CommunityScreen() {
                 <View className="mb-3">
                   <Text className="text-gray-500 dark:text-slate-400 text-sm mb-2">Email *</Text>
                   <TextInput
-                    className="bg-gray-100 dark:bg-slate-800 rounded-xl px-4 py-3 text-gray-900 dark:text-white text-base"
+                    className="bg-gray-100 dark:bg-slate-900 rounded-xl px-4 py-3 text-gray-900 dark:text-white text-base"
                     value={applicationEmail}
                     onChangeText={setApplicationEmail}
                     placeholder="your.email@example.com"
@@ -2280,7 +2280,7 @@ export default function CommunityScreen() {
                 <View className="mb-3">
                   <Text className="text-gray-500 dark:text-slate-400 text-sm mb-2">Phone</Text>
                   <TextInput
-                    className="bg-gray-100 dark:bg-slate-800 rounded-xl px-4 py-3 text-gray-900 dark:text-white text-base"
+                    className="bg-gray-100 dark:bg-slate-900 rounded-xl px-4 py-3 text-gray-900 dark:text-white text-base"
                     value={applicationPhone}
                     onChangeText={setApplicationPhone}
                     placeholder="+44 7XXX XXXXXX"
@@ -2294,7 +2294,7 @@ export default function CommunityScreen() {
                     {applicationType === 'supplier' ? 'Services' : 'Area of Expertise'}
                   </Text>
                   <TextInput
-                    className="bg-gray-100 dark:bg-slate-800 rounded-xl px-4 py-3 text-gray-900 dark:text-white text-base"
+                    className="bg-gray-100 dark:bg-slate-900 rounded-xl px-4 py-3 text-gray-900 dark:text-white text-base"
                     value={applicationSpecialization}
                     onChangeText={setApplicationSpecialization}
                     placeholder={applicationType === 'supplier' ? 'e.g., PCB Assembly' : 'e.g., Sales, Marketing'}
@@ -2307,7 +2307,7 @@ export default function CommunityScreen() {
                     {applicationType === 'supplier' ? 'Company Description' : 'Experience Summary'}
                   </Text>
                   <TextInput
-                    className="bg-gray-100 dark:bg-slate-800 rounded-xl px-4 py-3 text-gray-900 dark:text-white text-base min-h-[100px]"
+                    className="bg-gray-100 dark:bg-slate-900 rounded-xl px-4 py-3 text-gray-900 dark:text-white text-base min-h-[100px]"
                     value={applicationExperience}
                     onChangeText={setApplicationExperience}
                     placeholder="Tell us about your background..."
@@ -2379,7 +2379,7 @@ export default function CommunityScreen() {
             {selectedAIAgent && (
               <View className="bg-white dark:bg-slate-950 rounded-t-3xl flex-1">
                 {/* Header */}
-                <View className="px-6 pt-6 pb-4 border-b border-gray-200 dark:border-slate-800">
+                <View className="px-6 pt-6 pb-4 border-b border-gray-200 dark:border-slate-700">
                   <View className="flex-row items-center justify-between">
                     <Text className="text-gray-900 dark:text-white text-2xl font-bold">
                       AI Agent Details
@@ -2415,14 +2415,14 @@ export default function CommunityScreen() {
 
                     {/* Cost and Rating */}
                     <View className="flex-row gap-3 mb-6">
-                      <View className="flex-1 bg-gray-100 dark:bg-slate-800 rounded-xl p-4">
+                      <View className="flex-1 bg-gray-100 dark:bg-slate-900 rounded-xl p-4">
                         <Text className="text-gray-500 dark:text-slate-400 text-xs mb-1">Monthly Cost</Text>
                         <Text className="text-emerald-600 dark:text-emerald-400 text-xl font-bold">
                           £{selectedAIAgent.costPerMonth}
                         </Text>
                       </View>
                       {selectedAIAgent.reviews && (
-                        <View className="flex-1 bg-gray-100 dark:bg-slate-800 rounded-xl p-4">
+                        <View className="flex-1 bg-gray-100 dark:bg-slate-900 rounded-xl p-4">
                           <Text className="text-gray-500 dark:text-slate-400 text-xs mb-1">Rating</Text>
                           <View className="flex-row items-center">
                             <Star size={16} color="#f59e0b" fill="#f59e0b" />
@@ -2436,7 +2436,7 @@ export default function CommunityScreen() {
                         </View>
                       )}
                       {selectedAIAgent.setup?.timeToValue && (
-                        <View className="flex-1 bg-gray-100 dark:bg-slate-800 rounded-xl p-4">
+                        <View className="flex-1 bg-gray-100 dark:bg-slate-900 rounded-xl p-4">
                           <Text className="text-gray-500 dark:text-slate-400 text-xs mb-1">Setup Time</Text>
                           <Text className="text-blue-600 dark:text-blue-400 text-xl font-bold">
                             {selectedAIAgent.setup.timeToValue}
@@ -2468,7 +2468,7 @@ export default function CommunityScreen() {
                     {/* Capabilities */}
                     <View className="mb-6">
                       <Text className="text-gray-900 dark:text-white font-bold text-lg mb-3">Capabilities</Text>
-                      <View className="bg-gray-100 dark:bg-slate-800 rounded-xl p-4">
+                      <View className="bg-gray-100 dark:bg-slate-900 rounded-xl p-4">
                         {selectedAIAgent.capabilities.map((cap, idx) => (
                           <View key={idx} className="flex-row items-start mb-2">
                             <CheckCircle2 size={16} color="#10b981" />
@@ -2520,7 +2520,7 @@ export default function CommunityScreen() {
                 </ScrollView>
 
                 {/* Action Button */}
-                <View className="px-6 py-4 border-t border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-950">
+                <View className="px-6 py-4 border-t border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-950">
                   <Pressable
                     onPress={() => {
                       Alert.alert('Learn More', `Visit ${selectedAIAgent.website} to get started with ${selectedAIAgent.name}.`);
@@ -2558,7 +2558,7 @@ export default function CommunityScreen() {
             style={{ maxHeight: '90%' }}
           >
             {/* Header */}
-            <View className="px-6 pt-6 pb-4 border-b border-gray-200 dark:border-slate-800">
+            <View className="px-6 pt-6 pb-4 border-b border-gray-200 dark:border-slate-700">
               <View className="flex-row items-center justify-between">
                 <View>
                   <Text className="text-gray-900 dark:text-white text-2xl font-bold">
@@ -2675,7 +2675,7 @@ export default function CommunityScreen() {
                     </View>
 
                     {/* Experience Comparison */}
-                    <View className="bg-gray-100 dark:bg-slate-800 rounded-xl p-4 mb-4">
+                    <View className="bg-gray-100 dark:bg-slate-900 rounded-xl p-4 mb-4">
                       <View className="flex-row items-center mb-3">
                         <Briefcase size={18} color="#64748b" />
                         <Text className="text-gray-700 dark:text-slate-300 font-bold ml-2">Experience</Text>
@@ -2701,7 +2701,7 @@ export default function CommunityScreen() {
                     </View>
 
                     {/* Cost Comparison */}
-                    <View className="bg-gray-100 dark:bg-slate-800 rounded-xl p-4 mb-4">
+                    <View className="bg-gray-100 dark:bg-slate-900 rounded-xl p-4 mb-4">
                       <View className="flex-row items-center mb-3">
                         <DollarSign size={18} color="#64748b" />
                         <Text className="text-gray-700 dark:text-slate-300 font-bold ml-2">Cost per Square (□)</Text>
@@ -2731,7 +2731,7 @@ export default function CommunityScreen() {
                     </View>
 
                     {/* Rating Comparison */}
-                    <View className="bg-gray-100 dark:bg-slate-800 rounded-xl p-4 mb-4">
+                    <View className="bg-gray-100 dark:bg-slate-900 rounded-xl p-4 mb-4">
                       <View className="flex-row items-center mb-3">
                         <Star size={18} color="#f59e0b" fill="#f59e0b" />
                         <Text className="text-gray-700 dark:text-slate-300 font-bold ml-2">Rating</Text>
@@ -2759,7 +2759,7 @@ export default function CommunityScreen() {
                     </View>
 
                     {/* Availability Comparison */}
-                    <View className="bg-gray-100 dark:bg-slate-800 rounded-xl p-4 mb-4">
+                    <View className="bg-gray-100 dark:bg-slate-900 rounded-xl p-4 mb-4">
                       <View className="flex-row items-center mb-3">
                         <Clock size={18} color="#64748b" />
                         <Text className="text-gray-700 dark:text-slate-300 font-bold ml-2">Availability</Text>
@@ -2787,7 +2787,7 @@ export default function CommunityScreen() {
                     </View>
 
                     {/* Skills Comparison */}
-                    <View className="bg-gray-100 dark:bg-slate-800 rounded-xl p-4 mb-4">
+                    <View className="bg-gray-100 dark:bg-slate-900 rounded-xl p-4 mb-4">
                       <View className="flex-row items-center mb-3">
                         <Layers size={18} color="#64748b" />
                         <Text className="text-gray-700 dark:text-slate-300 font-bold ml-2">Top Skills</Text>
@@ -2808,7 +2808,7 @@ export default function CommunityScreen() {
                     </View>
 
                     {/* Specialization Comparison */}
-                    <View className="bg-gray-100 dark:bg-slate-800 rounded-xl p-4 mb-4">
+                    <View className="bg-gray-100 dark:bg-slate-900 rounded-xl p-4 mb-4">
                       <View className="flex-row items-center mb-3">
                         <Award size={18} color="#64748b" />
                         <Text className="text-gray-700 dark:text-slate-300 font-bold ml-2">Specialization</Text>
@@ -2829,7 +2829,7 @@ export default function CommunityScreen() {
                     </View>
 
                     {/* Location Comparison */}
-                    <View className="bg-gray-100 dark:bg-slate-800 rounded-xl p-4 mb-6">
+                    <View className="bg-gray-100 dark:bg-slate-900 rounded-xl p-4 mb-6">
                       <View className="flex-row items-center mb-3">
                         <MapPin size={18} color="#64748b" />
                         <Text className="text-gray-700 dark:text-slate-300 font-bold ml-2">Location</Text>

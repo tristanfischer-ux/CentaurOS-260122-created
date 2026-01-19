@@ -503,7 +503,7 @@ export default function WhoScreen() {
           setSelectedCandidate(candidate);
           setShowCandidateModal(true);
         }}
-        className="bg-white dark:bg-slate-800 rounded-xl p-4 mb-3 active:opacity-80"
+        className="bg-white dark:bg-slate-900 rounded-xl p-4 mb-3 active:opacity-80"
         style={isSelectedForCompare ? { borderWidth: 2, borderColor: '#8b5cf6' } : undefined}
       >
         {/* Available to Hire Badge */}
@@ -812,7 +812,7 @@ export default function WhoScreen() {
                     </Text>
 
                     {/* Contact */}
-                    <View className="bg-slate-50 dark:bg-slate-800 rounded-xl p-4 mb-4">
+                    <View className="bg-slate-50 dark:bg-slate-900 rounded-xl p-4 mb-4">
                       <Text className="text-slate-900 dark:text-white font-semibold mb-3">Contact</Text>
                       <View className="flex-row items-center gap-2 mb-2">
                         <Mail size={14} color="#64748b" />
@@ -853,7 +853,7 @@ export default function WhoScreen() {
                     </View>
 
                     {/* Cost & Availability */}
-                    <View className="bg-slate-50 dark:bg-slate-800 rounded-xl p-4 mb-4">
+                    <View className="bg-slate-50 dark:bg-slate-900 rounded-xl p-4 mb-4">
                       <View className="flex-row justify-between mb-2">
                         <Text className="text-slate-500 dark:text-slate-400 text-sm">Day Rate</Text>
                         <Text className="text-slate-900 dark:text-white font-semibold">£{selectedCandidate.costPerDay}/day</Text>
@@ -931,7 +931,7 @@ export default function WhoScreen() {
       {/* Tab Switcher */}
       <View className="px-5 pt-4">
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          <View className="flex-row bg-slate-100 dark:bg-slate-800 rounded-xl p-1">
+          <View className="flex-row bg-slate-100 dark:bg-slate-900 rounded-xl p-1">
             {[
               { key: 'team', label: 'People', icon: Users },
               { key: 'squads', label: 'Teams', icon: UsersRound },
@@ -966,7 +966,7 @@ export default function WhoScreen() {
       {/* Search Bar (for recruitment tab) */}
       {activeTab === 'hire' && (
         <View className="px-5 pt-4">
-          <View className="flex-row items-center bg-white dark:bg-slate-800 rounded-xl px-4 py-3">
+          <View className="flex-row items-center bg-white dark:bg-slate-900 rounded-xl px-4 py-3">
             <Search size={18} color="#64748b" />
             <TextInput
               value={searchQuery}
@@ -982,7 +982,7 @@ export default function WhoScreen() {
 
           {/* Filters */}
           {showFilters && (
-            <Animated.View entering={FadeInDown.springify()} className="mt-3 bg-white dark:bg-slate-800 rounded-xl p-4">
+            <Animated.View entering={FadeInDown.springify()} className="mt-3 bg-white dark:bg-slate-900 rounded-xl p-4">
               <Text className="text-slate-900 dark:text-white font-semibold mb-3">Filters</Text>
 
               {/* Function filter */}
@@ -1093,7 +1093,7 @@ export default function WhoScreen() {
                     <AnimatedPressable
                       key={squad.id}
                       entering={FadeInDown.delay(index * 50).springify()}
-                      className="bg-white dark:bg-slate-800 rounded-xl p-4 mb-3"
+                      className="bg-white dark:bg-slate-900 rounded-xl p-4 mb-3"
                       style={{ borderLeftWidth: 4, borderLeftColor: squad.color || '#3b82f6' }}
                     >
                       <View className="flex-row items-center justify-between mb-3">
@@ -1251,7 +1251,7 @@ export default function WhoScreen() {
                 {/* Hardware Design Guild */}
                 <Pressable
                   onPress={() => router.push('/guilds')}
-                  className="bg-white dark:bg-slate-800 rounded-xl overflow-hidden active:opacity-80"
+                  className="bg-white dark:bg-slate-900 rounded-xl overflow-hidden active:opacity-80"
                 >
                   <LinearGradient
                     colors={['#3b82f6', '#8b5cf6']}
@@ -1289,7 +1289,7 @@ export default function WhoScreen() {
                 {/* Supply Chain Guild */}
                 <Pressable
                   onPress={() => router.push('/guilds')}
-                  className="bg-white dark:bg-slate-800 rounded-xl overflow-hidden active:opacity-80"
+                  className="bg-white dark:bg-slate-900 rounded-xl overflow-hidden active:opacity-80"
                 >
                   <LinearGradient
                     colors={['#10b981', '#059669']}
@@ -1327,7 +1327,7 @@ export default function WhoScreen() {
                 {/* Founder's Circle Guild */}
                 <Pressable
                   onPress={() => router.push('/guilds')}
-                  className="bg-white dark:bg-slate-800 rounded-xl overflow-hidden active:opacity-80"
+                  className="bg-white dark:bg-slate-900 rounded-xl overflow-hidden active:opacity-80"
                 >
                   <LinearGradient
                     colors={['#f59e0b', '#d97706']}
@@ -1380,7 +1380,7 @@ export default function WhoScreen() {
             {/* Weekly Resource Pool Preview */}
             <Pressable
               onPress={() => router.push('/utilization' as any)}
-              className="bg-white dark:bg-slate-800 rounded-xl p-4 mb-6"
+              className="bg-white dark:bg-slate-900 rounded-xl p-4 mb-6"
               style={{
                 borderLeftWidth: 4,
                 borderLeftColor: resourcePoolTotals.utilizationPercent >= 100
@@ -1582,7 +1582,7 @@ export default function WhoScreen() {
                     setSelectedTemplate('pre-seed');
                     setShowTemplateModal(true);
                   }}
-                  className="bg-white dark:bg-slate-800 rounded-xl p-4 active:opacity-70"
+                  className="bg-white dark:bg-slate-900 rounded-xl p-4 active:opacity-70"
                 >
                   <Text className="text-slate-900 dark:text-white font-semibold mb-2">Startup Team (Pre-Seed)</Text>
                   <Text className="text-slate-500 dark:text-slate-400 text-sm mb-3">
@@ -1601,7 +1601,7 @@ export default function WhoScreen() {
                     setSelectedTemplate('seed');
                     setShowTemplateModal(true);
                   }}
-                  className="bg-white dark:bg-slate-800 rounded-xl p-4 active:opacity-70"
+                  className="bg-white dark:bg-slate-900 rounded-xl p-4 active:opacity-70"
                 >
                   <Text className="text-slate-900 dark:text-white font-semibold mb-2">Growth Team (Seed)</Text>
                   <Text className="text-slate-500 dark:text-slate-400 text-sm mb-3">
@@ -1621,21 +1621,21 @@ export default function WhoScreen() {
             <View>
               <Text className="text-slate-900 dark:text-white font-semibold text-lg mb-3">Common Questions</Text>
               <View className="gap-3">
-                <View className="bg-white dark:bg-slate-800 rounded-xl p-4">
+                <View className="bg-white dark:bg-slate-900 rounded-xl p-4">
                   <Text className="text-slate-900 dark:text-white font-semibold mb-2">How do I allocate team members to tasks?</Text>
                   <Text className="text-slate-500 dark:text-slate-400 text-sm">
                     Go to the What tab, select a task, and assign team members from the allocation panel. Executives can request allocations that require founder approval.
                   </Text>
                 </View>
 
-                <View className="bg-white dark:bg-slate-800 rounded-xl p-4">
+                <View className="bg-white dark:bg-slate-900 rounded-xl p-4">
                   <Text className="text-slate-900 dark:text-white font-semibold mb-2">What are teams and how do they form?</Text>
                   <Text className="text-slate-500 dark:text-slate-400 text-sm">
                     Teams are groups of 2+ people working together. They form automatically when multiple people are assigned to the same task, creating performance bonuses.
                   </Text>
                 </View>
 
-                <View className="bg-white dark:bg-slate-800 rounded-xl p-4">
+                <View className="bg-white dark:bg-slate-900 rounded-xl p-4">
                   <Text className="text-slate-900 dark:text-white font-semibold mb-2">How much do fractional executives cost?</Text>
                   <Text className="text-slate-500 dark:text-slate-400 text-sm">
                     Fractional executives typically cost £400-£1000/day depending on experience and function. They work 2-5 days per week, providing senior expertise without full-time commitment.
@@ -1653,7 +1653,7 @@ export default function WhoScreen() {
             <View className="flex-row gap-2 mb-4">
               <Pressable
                 onPress={() => setSelectedFunction('all')}
-                className={`flex-1 py-2.5 rounded-lg ${selectedFunction === 'all' ? 'bg-blue-500' : 'bg-slate-100 dark:bg-slate-800'}`}
+                className={`flex-1 py-2.5 rounded-lg ${selectedFunction === 'all' ? 'bg-blue-500' : 'bg-slate-100 dark:bg-slate-900'}`}
               >
                 <Text className={`text-center font-medium ${selectedFunction === 'all' ? 'text-white' : 'text-slate-600 dark:text-slate-400'}`}>
                   Executives
@@ -1661,7 +1661,7 @@ export default function WhoScreen() {
               </Pressable>
               <Pressable
                 onPress={() => setSelectedFunction('Engineering')}
-                className={`flex-1 py-2.5 rounded-lg ${selectedFunction === 'Engineering' ? 'bg-blue-500' : 'bg-slate-100 dark:bg-slate-800'}`}
+                className={`flex-1 py-2.5 rounded-lg ${selectedFunction === 'Engineering' ? 'bg-blue-500' : 'bg-slate-100 dark:bg-slate-900'}`}
               >
                 <Text className={`text-center font-medium ${selectedFunction === 'Engineering' ? 'text-white' : 'text-slate-600 dark:text-slate-400'}`}>
                   Apprentices
@@ -1783,7 +1783,7 @@ export default function WhoScreen() {
           <Pressable onPress={(e) => e.stopPropagation()} style={{ maxHeight: '80%' }}>
             <View className="bg-white dark:bg-slate-900 rounded-t-3xl">
               {/* Header */}
-              <View className="flex-row items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-slate-800">
+              <View className="flex-row items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-slate-700">
                 <Text className="text-slate-900 dark:text-white font-bold text-xl">
                   {selectedTemplate === 'pre-seed' ? 'Startup Team (Pre-Seed)' : 'Growth Team (Seed)'}
                 </Text>
@@ -1919,7 +1919,7 @@ export default function WhoScreen() {
                   </View>
                   <Pressable
                     onPress={() => setSelectedForComparison([])}
-                    className="bg-slate-100 dark:bg-slate-800 px-3 py-2 rounded-lg"
+                    className="bg-slate-100 dark:bg-slate-900 px-3 py-2 rounded-lg"
                   >
                     <Text className="text-slate-600 dark:text-slate-300 text-sm font-medium">Clear All</Text>
                   </Pressable>
@@ -1956,7 +1956,7 @@ export default function WhoScreen() {
                     </View>
 
                     {/* Comparison Grid */}
-                    <View className="bg-slate-50 dark:bg-slate-800 rounded-xl overflow-hidden">
+                    <View className="bg-slate-50 dark:bg-slate-900 rounded-xl overflow-hidden">
                       {/* Rating */}
                       <View className="flex-row border-b border-slate-200 dark:border-slate-700">
                         <View className="w-24 p-3 bg-slate-100 dark:bg-slate-700">
@@ -2046,7 +2046,7 @@ export default function WhoScreen() {
                       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                         <View className="flex-row gap-3">
                           {candidatesForComparison.map((c) => (
-                            <View key={c.id} className="bg-white dark:bg-slate-800 rounded-xl p-3 w-32 items-center">
+                            <View key={c.id} className="bg-white dark:bg-slate-900 rounded-xl p-3 w-32 items-center">
                               <Text className="text-slate-900 dark:text-white font-semibold text-sm mb-2">
                                 {c.name.split(' ')[0]}
                               </Text>

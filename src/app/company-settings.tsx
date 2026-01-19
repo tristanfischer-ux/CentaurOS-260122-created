@@ -253,7 +253,7 @@ export default function CompanySettingsScreen() {
       >
         {/* Company Profile Section */}
         <Animated.View entering={FadeInDown.delay(100)}>
-          <View className="bg-white dark:bg-slate-800 rounded-xl p-5 mb-5">
+          <View className="bg-white dark:bg-slate-900 rounded-xl p-5 mb-5">
             <View className="flex-row items-center justify-between mb-4">
               <View className="flex-row items-center gap-2">
                 <Building2 size={20} color="#3b82f6" />
@@ -329,7 +329,7 @@ export default function CompanySettingsScreen() {
 
         {/* Your Profile Section (YOU) */}
         <Animated.View entering={FadeInDown.delay(200)}>
-          <View className="bg-white dark:bg-slate-800 rounded-xl p-5 mb-5">
+          <View className="bg-white dark:bg-slate-900 rounded-xl p-5 mb-5">
             <View className="flex-row items-center justify-between mb-4">
               <View className="flex-row items-center gap-2">
                 <User size={20} color="#8b5cf6" />
@@ -433,7 +433,7 @@ export default function CompanySettingsScreen() {
 
         {/* Internal Team Section */}
         <Animated.View entering={FadeInDown.delay(300)}>
-          <View className="bg-white dark:bg-slate-800 rounded-xl p-5 mb-5">
+          <View className="bg-white dark:bg-slate-900 rounded-xl p-5 mb-5">
             <View className="flex-row items-center justify-between mb-4">
               <View className="flex-row items-center gap-2">
                 <Users size={20} color="#10b981" />
@@ -524,7 +524,7 @@ export default function CompanySettingsScreen() {
         {/* Pending Invitations Section */}
         {pendingInvitations.filter(inv => inv.status === 'pending').length > 0 && (
           <Animated.View entering={FadeInDown.delay(400)}>
-            <View className="bg-white dark:bg-slate-800 rounded-xl p-5 mb-5">
+            <View className="bg-white dark:bg-slate-900 rounded-xl p-5 mb-5">
               <View className="flex-row items-center gap-2 mb-4">
                 <Clock size={20} color="#f59e0b" />
                 <Text className="text-slate-900 dark:text-white font-bold text-lg">
@@ -602,7 +602,7 @@ export default function CompanySettingsScreen() {
                       placeholder="colleague@example.com"
                       keyboardType="email-address"
                       autoCapitalize="none"
-                      className="bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white rounded-lg px-4 py-3"
+                      className="bg-slate-100 dark:bg-slate-900 text-slate-900 dark:text-white rounded-lg px-4 py-3"
                       placeholderTextColor="#94a3b8"
                     />
                   </View>
@@ -619,7 +619,7 @@ export default function CompanySettingsScreen() {
                           className={`flex-1 py-3 rounded-lg border-2 items-center ${
                             inviteRole === role
                               ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
-                              : 'border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800'
+                              : 'border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-900'
                           } active:opacity-70`}
                         >
                           <Text className={`text-sm font-semibold ${
@@ -646,7 +646,7 @@ export default function CompanySettingsScreen() {
                           className={`px-4 py-2 rounded-lg border ${
                             inviteFunction === func
                               ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
-                              : 'border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800'
+                              : 'border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-900'
                           } active:opacity-70`}
                         >
                           <Text className={`text-sm font-medium ${

@@ -185,7 +185,7 @@ export default function ResourcesScreen() {
             <View className="gap-3">
               {aiAgents.map((agent, index) => (
                 <Animated.View key={agent.id} entering={FadeInDown.delay(index * 50).springify()}>
-                  <View className="bg-white dark:bg-slate-800 rounded-xl p-4">
+                  <View className="bg-white dark:bg-slate-900 rounded-xl p-4">
                     <View className="flex-row items-start">
                       <View
                         className="w-12 h-12 rounded-xl items-center justify-center mr-3"
@@ -221,7 +221,7 @@ export default function ResourcesScreen() {
               ))}
             </View>
           ) : (
-            <View className="bg-slate-100 dark:bg-slate-800 rounded-xl p-6 items-center">
+            <View className="bg-slate-100 dark:bg-slate-900 rounded-xl p-6 items-center">
               <Bot size={32} color="#64748b" />
               <Text className="text-slate-500 dark:text-slate-400 text-sm mt-2">No AI tools configured</Text>
               <Pressable
@@ -270,7 +270,7 @@ export default function ResourcesScreen() {
                   <Animated.View key={engagement.id} entering={FadeInDown.delay(index * 50).springify()}>
                     <Pressable
                       onPress={() => toggleSupplierExpanded(engagement.id)}
-                      className="bg-white dark:bg-slate-800 rounded-xl mb-3 overflow-hidden"
+                      className="bg-white dark:bg-slate-900 rounded-xl mb-3 overflow-hidden"
                     >
                       <View className="p-4">
                         <View className="flex-row items-start justify-between mb-2">
@@ -386,7 +386,7 @@ export default function ResourcesScreen() {
               })}
             </>
           ) : (
-            <View className="bg-slate-100 dark:bg-slate-800 rounded-xl p-6 items-center">
+            <View className="bg-slate-100 dark:bg-slate-900 rounded-xl p-6 items-center">
               <Factory size={32} color="#64748b" />
               <Text className="text-slate-500 dark:text-slate-400 text-sm mt-2 text-center">
                 No supplier engagements yet

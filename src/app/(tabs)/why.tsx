@@ -503,7 +503,7 @@ export default function WhyScreen() {
       <Animated.View entering={FadeInDown.delay(index * 50).springify()}>
         <Pressable
           onPress={() => toggleOKRExpanded(okr.id)}
-          className="bg-white dark:bg-slate-800 rounded-xl mb-3 overflow-hidden"
+          className="bg-white dark:bg-slate-900 rounded-xl mb-3 overflow-hidden"
         >
           {/* Header */}
           <View className="p-4">
@@ -660,7 +660,7 @@ export default function WhyScreen() {
                   onChangeText={setNewOKRTitle}
                   placeholder="What do you want to achieve?"
                   placeholderTextColor="#94a3b8"
-                  className="bg-slate-100 dark:bg-slate-800 rounded-xl px-4 py-3 text-slate-900 dark:text-white"
+                  className="bg-slate-100 dark:bg-slate-900 rounded-xl px-4 py-3 text-slate-900 dark:text-white"
                 />
               </View>
 
@@ -673,7 +673,7 @@ export default function WhyScreen() {
                       <Pressable
                         key={func}
                         onPress={() => setNewOKRFunction(func)}
-                        className={`px-4 py-2 rounded-lg ${newOKRFunction === func ? 'bg-purple-500' : 'bg-slate-100 dark:bg-slate-800'}`}
+                        className={`px-4 py-2 rounded-lg ${newOKRFunction === func ? 'bg-purple-500' : 'bg-slate-100 dark:bg-slate-900'}`}
                       >
                         <Text className={`font-medium ${newOKRFunction === func ? 'text-white' : 'text-slate-600 dark:text-slate-300'}`}>
                           {func}
@@ -798,7 +798,7 @@ export default function WhyScreen() {
           </Text>
           <View className="flex-row gap-3 mb-3">
             {/* Task-to-OKR Linkage */}
-            <View className="flex-1 bg-white dark:bg-slate-800 rounded-xl p-4">
+            <View className="flex-1 bg-white dark:bg-slate-900 rounded-xl p-4">
               <View className="flex-row items-center gap-2 mb-2">
                 <LinkIcon size={16} color="#8b5cf6" />
                 <Text className="text-slate-600 dark:text-slate-400 text-xs font-medium">
@@ -814,7 +814,7 @@ export default function WhyScreen() {
             </View>
 
             {/* Completion Velocity */}
-            <View className="flex-1 bg-white dark:bg-slate-800 rounded-xl p-4">
+            <View className="flex-1 bg-white dark:bg-slate-900 rounded-xl p-4">
               <View className="flex-row items-center gap-2 mb-2">
                 <Activity size={16} color="#10b981" />
                 <Text className="text-slate-600 dark:text-slate-400 text-xs font-medium">
@@ -832,7 +832,7 @@ export default function WhyScreen() {
 
           <View className="flex-row gap-3">
             {/* Team Size */}
-            <View className="flex-1 bg-white dark:bg-slate-800 rounded-xl p-4">
+            <View className="flex-1 bg-white dark:bg-slate-900 rounded-xl p-4">
               <View className="flex-row items-center gap-2 mb-2">
                 <Users size={16} color="#3b82f6" />
                 <Text className="text-slate-600 dark:text-slate-400 text-xs font-medium">
@@ -848,7 +848,7 @@ export default function WhyScreen() {
             </View>
 
             {/* At-Risk Items */}
-            <View className="flex-1 bg-white dark:bg-slate-800 rounded-xl p-4">
+            <View className="flex-1 bg-white dark:bg-slate-900 rounded-xl p-4">
               <View className="flex-row items-center gap-2 mb-2">
                 <AlertTriangle size={16} color="#ef4444" />
                 <Text className="text-slate-600 dark:text-slate-400 text-xs font-medium">
@@ -877,7 +877,7 @@ export default function WhyScreen() {
             {strategicInsights.recentDecisions.map((decision) => (
               <View
                 key={decision.id}
-                className="bg-white dark:bg-slate-800 rounded-xl p-4 mb-2 border-l-4 border-purple-500"
+                className="bg-white dark:bg-slate-900 rounded-xl p-4 mb-2 border-l-4 border-purple-500"
               >
                 <Text className="text-slate-900 dark:text-white font-semibold mb-1">
                   {decision.title}
@@ -942,7 +942,7 @@ export default function WhyScreen() {
                   key={func}
                   onPress={() => setSelectedFunction(func as BusinessFunction | 'all')}
                   className={`px-3 py-1.5 rounded-full ${
-                    selectedFunction === func ? 'bg-purple-500' : 'bg-white dark:bg-slate-800'
+                    selectedFunction === func ? 'bg-purple-500' : 'bg-white dark:bg-slate-900'
                   }`}
                 >
                   <Text
@@ -1090,7 +1090,7 @@ export default function WhyScreen() {
           <View className="flex-1" />
           <Pressable onPress={(e) => e.stopPropagation()} style={{ maxHeight: '70%' }}>
             <View className="bg-white dark:bg-slate-900 rounded-t-3xl">
-              <View className="flex-row items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-slate-800">
+              <View className="flex-row items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-slate-700">
                 <Text className="text-slate-900 dark:text-white font-bold text-xl">Start Brainstorming</Text>
                 <Pressable onPress={() => setShowVoiceBrainstorm(false)} className="p-2">
                   <X size={24} color="#64748b" />
@@ -1107,7 +1107,7 @@ export default function WhyScreen() {
                   </Text>
                 </View>
 
-                <View className="flex-row items-start gap-3 mb-4 bg-slate-50 dark:bg-slate-800 rounded-xl p-4">
+                <View className="flex-row items-start gap-3 mb-4 bg-slate-50 dark:bg-slate-900 rounded-xl p-4">
                   <Lightbulb size={20} color="#8b5cf6" />
                   <Text className="flex-1 text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
                     The AI will start a strategic brainstorming conversation with you based on this input.

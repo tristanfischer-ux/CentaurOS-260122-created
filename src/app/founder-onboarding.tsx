@@ -345,7 +345,7 @@ export default function OnboardingScreen() {
         <View className="flex-1 flex-row">
           {/* Progress Rail (Left) */}
           <ScrollView
-            className="w-20 bg-slate-100 dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800"
+            className="w-20 bg-slate-100 dark:bg-slate-900 border-r border-slate-200 dark:border-slate-700"
             showsVerticalScrollIndicator={false}
           >
             {modules.map((module, mi) => (
@@ -436,7 +436,7 @@ export default function OnboardingScreen() {
                             onChangeText={setSkipReason}
                             placeholder="Explain briefly (min 20 chars)..."
                             placeholderTextColor="#94a3b8"
-                            className="bg-white dark:bg-slate-800 px-4 py-3 rounded-lg text-slate-900 dark:text-white"
+                            className="bg-white dark:bg-slate-900 px-4 py-3 rounded-lg text-slate-900 dark:text-white"
                           />
                           <View className="flex-row gap-3 mt-3">
                             <Pressable
@@ -501,7 +501,7 @@ function ModuleRailItem({
   const isComplete = module.completion_count >= module.total_count && module.total_count > 0;
 
   return (
-    <View className="border-b border-slate-200 dark:border-slate-800">
+    <View className="border-b border-slate-200 dark:border-slate-700">
       <Pressable
         onPress={() => setExpanded(!expanded)}
         className={`p-3 items-center ${isActive ? 'bg-purple-100 dark:bg-purple-900/30' : ''}`}
@@ -631,7 +631,7 @@ function StepPanel({
       </View>
 
       {/* Input Section */}
-      <View className="bg-white dark:bg-slate-800 rounded-2xl p-4 mb-4">
+      <View className="bg-white dark:bg-slate-900 rounded-2xl p-4 mb-4">
         <View className="flex-row items-center gap-2 mb-3">
           <FileText size={18} color="#8b5cf6" />
           <Text className="text-slate-900 dark:text-white font-semibold">Your Input</Text>
@@ -669,7 +669,7 @@ function StepPanel({
       {outputs && (outputs.objectives?.length > 0 || outputs.task_drafts?.length > 0) && (
         <Animated.View
           entering={FadeInDown}
-          className="bg-white dark:bg-slate-800 rounded-2xl p-4 mb-4"
+          className="bg-white dark:bg-slate-900 rounded-2xl p-4 mb-4"
         >
           <Text className="text-slate-900 dark:text-white font-semibold mb-3">
             Generated Outputs
@@ -756,7 +756,7 @@ function StepPanel({
       )}
 
       {/* Evidence Section */}
-      <View className="bg-white dark:bg-slate-800 rounded-2xl p-4">
+      <View className="bg-white dark:bg-slate-900 rounded-2xl p-4">
         <Text className="text-slate-900 dark:text-white font-semibold mb-3">
           Evidence Required
         </Text>

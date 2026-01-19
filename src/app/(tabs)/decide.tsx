@@ -1683,7 +1683,7 @@ export default function DecideScreen() {
             {/* Close button */}
             <Pressable
               onPress={() => setSelectedTaskForAllocation(null)}
-              className="absolute top-3 right-3 z-10 bg-white dark:bg-slate-800 rounded-full p-1"
+              className="absolute top-3 right-3 z-10 bg-white dark:bg-slate-900 rounded-full p-1"
             >
               <X size={16} color="#3b82f6" />
             </Pressable>
@@ -1697,7 +1697,7 @@ export default function DecideScreen() {
                 value={editedTaskTitle}
                 onChangeText={setEditedTaskTitle}
                 onBlur={handleSaveTaskTitle}
-                className="text-blue-900 dark:text-blue-100 font-bold text-base bg-white dark:bg-slate-800 rounded-lg px-3 py-2 border border-blue-200 dark:border-blue-700"
+                className="text-blue-900 dark:text-blue-100 font-bold text-base bg-white dark:bg-slate-900 rounded-lg px-3 py-2 border border-blue-200 dark:border-blue-700"
                 placeholder="Enter task name"
                 placeholderTextColor="#94a3b8"
                 multiline
@@ -1713,7 +1713,7 @@ export default function DecideScreen() {
                 value={editedTaskDescription}
                 onChangeText={setEditedTaskDescription}
                 onBlur={handleSaveTaskDescription}
-                className="text-blue-700 dark:text-blue-300 text-sm bg-white dark:bg-slate-800 rounded-lg px-3 py-2 border border-blue-200 dark:border-blue-700"
+                className="text-blue-700 dark:text-blue-300 text-sm bg-white dark:bg-slate-900 rounded-lg px-3 py-2 border border-blue-200 dark:border-blue-700"
                 placeholder="Enter task description"
                 placeholderTextColor="#94a3b8"
                 multiline
@@ -1730,7 +1730,7 @@ export default function DecideScreen() {
                 </Text>
                 <Pressable
                   onPress={() => setShowStartDatePicker(true)}
-                  className="bg-white dark:bg-slate-800 rounded-lg px-3 py-2 border border-blue-200 dark:border-blue-700 flex-row items-center justify-between"
+                  className="bg-white dark:bg-slate-900 rounded-lg px-3 py-2 border border-blue-200 dark:border-blue-700 flex-row items-center justify-between"
                 >
                   <Text className="text-blue-700 dark:text-blue-300 text-sm">
                     {selectedTaskForAllocation.startDate || 'Not set'}
@@ -1746,7 +1746,7 @@ export default function DecideScreen() {
                 </Text>
                 <Pressable
                   onPress={() => setShowDueDatePicker(true)}
-                  className="bg-white dark:bg-slate-800 rounded-lg px-3 py-2 border border-blue-200 dark:border-blue-700 flex-row items-center justify-between"
+                  className="bg-white dark:bg-slate-900 rounded-lg px-3 py-2 border border-blue-200 dark:border-blue-700 flex-row items-center justify-between"
                 >
                   <Text className="text-blue-700 dark:text-blue-300 text-sm">
                     {selectedTaskForAllocation.dueDate || 'Not set'}
@@ -1775,7 +1775,7 @@ export default function DecideScreen() {
             )}
 
             {/* Resource allocation display */}
-            <View className="bg-white dark:bg-slate-800 rounded-lg p-3 mb-3">
+            <View className="bg-white dark:bg-slate-900 rounded-lg p-3 mb-3">
               <View className="flex-row items-center justify-between mb-2">
                 {/* Required field with +/- buttons */}
                 <View className="flex-row items-center gap-2">
@@ -1850,7 +1850,7 @@ export default function DecideScreen() {
                         </Pressable>
 
                         {/* Allocation display */}
-                        <View className="bg-white dark:bg-slate-800 px-2 py-1 rounded">
+                        <View className="bg-white dark:bg-slate-900 px-2 py-1 rounded">
                           <Text className="text-gray-900 dark:text-white text-sm font-semibold">
                             {alloc.squaresPerWeek}□/wk
                           </Text>
@@ -1876,7 +1876,7 @@ export default function DecideScreen() {
 
             {/* Cost and timeline calculation */}
             <View className="flex-row gap-2">
-              <View className="flex-1 bg-white dark:bg-slate-800 rounded-lg p-2">
+              <View className="flex-1 bg-white dark:bg-slate-900 rounded-lg p-2">
                 <Text className="text-gray-600 dark:text-slate-400 text-xs mb-1">
                   Total Cost
                 </Text>
@@ -1887,7 +1887,7 @@ export default function DecideScreen() {
                   ).toLocaleString()}
                 </Text>
               </View>
-              <View className="flex-1 bg-white dark:bg-slate-800 rounded-lg p-2">
+              <View className="flex-1 bg-white dark:bg-slate-900 rounded-lg p-2">
                 <Text className="text-gray-600 dark:text-slate-400 text-xs mb-1">
                   Completion Time
                 </Text>
@@ -2040,7 +2040,7 @@ export default function DecideScreen() {
                       onPress={() => handleTaskPress(plan)}
                     >
                       <View
-                        className={`bg-white dark:bg-slate-800 border rounded-2xl shadow-sm ${
+                        className={`bg-white dark:bg-slate-900 border rounded-2xl shadow-sm ${
                           selectedTaskForAllocation?.id === plan.id
                             ? 'border-blue-500 dark:border-blue-400'
                             : 'border-gray-200 dark:border-slate-700'
@@ -2308,7 +2308,7 @@ export default function DecideScreen() {
         <View className="flex-1 bg-black/70 justify-end">
           <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} className="flex-1 justify-end">
             <View className="bg-gray-100 dark:bg-slate-900 rounded-t-3xl" style={{ maxHeight: '90%' }}>
-              <View className="px-6 pt-6 pb-4 border-b border-gray-300 dark:border-slate-800">
+              <View className="px-6 pt-6 pb-4 border-b border-gray-300 dark:border-slate-700">
                 <View className="flex-row items-center justify-between">
                   <View className="flex-row items-center">
                     <Lightbulb size={24} color="#8b5cf6" />
@@ -2317,7 +2317,7 @@ export default function DecideScreen() {
                   <Pressable
                     onPress={() => setShowIdeasModal(false)}
                     hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                    className="w-10 h-10 items-center justify-center rounded-full bg-gray-200 dark:bg-slate-800 active:opacity-70"
+                    className="w-10 h-10 items-center justify-center rounded-full bg-gray-200 dark:bg-slate-900 active:opacity-70"
                   >
                     <X size={24} color="#64748b" />
                   </Pressable>
@@ -2333,7 +2333,7 @@ export default function DecideScreen() {
                   <View className="flex-row gap-2">
                     <Pressable
                       onPress={() => setSelectedCategory('all')}
-                      className={`px-3 py-2 rounded-lg ${selectedCategory === 'all' ? 'bg-violet-500' : 'bg-gray-100 dark:bg-slate-800'}`}
+                      className={`px-3 py-2 rounded-lg ${selectedCategory === 'all' ? 'bg-violet-500' : 'bg-gray-100 dark:bg-slate-900'}`}
                     >
                       <Text className={`text-xs font-semibold ${selectedCategory === 'all' ? 'text-white' : 'text-gray-600 dark:text-slate-400'}`}>
                         All
@@ -2343,7 +2343,7 @@ export default function DecideScreen() {
                       <Pressable
                         key={cat.id}
                         onPress={() => setSelectedCategory(cat.id as OKRCategory)}
-                        className={`px-3 py-2 rounded-lg ${selectedCategory === cat.id ? 'bg-violet-500' : 'bg-gray-100 dark:bg-slate-800'}`}
+                        className={`px-3 py-2 rounded-lg ${selectedCategory === cat.id ? 'bg-violet-500' : 'bg-gray-100 dark:bg-slate-900'}`}
                       >
                         <Text className={`text-xs font-semibold ${selectedCategory === cat.id ? 'text-white' : 'text-gray-600 dark:text-slate-400'}`}>
                           {cat.icon} {cat.name}
@@ -2358,7 +2358,7 @@ export default function DecideScreen() {
                   <Pressable
                     key={suggestion.id}
                     onPress={() => handleSelectSuggestion(suggestion)}
-                    className="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-2xl p-4 mb-3 active:opacity-70"
+                    className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-2xl p-4 mb-3 active:opacity-70"
                   >
                     <Text className="text-gray-900 dark:text-white font-bold text-base mb-2">
                       {suggestion.title}
@@ -2404,7 +2404,7 @@ export default function DecideScreen() {
         <View className="flex-1 bg-black/70 justify-end">
           <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} className="flex-1 justify-end">
             <View className="bg-gray-100 dark:bg-slate-900 rounded-t-3xl" style={{ maxHeight: '90%' }}>
-              <View className="px-6 pt-6 pb-4 border-b border-gray-300 dark:border-slate-800">
+              <View className="px-6 pt-6 pb-4 border-b border-gray-300 dark:border-slate-700">
                 <View className="flex-row items-center justify-between">
                   <Text className="text-gray-900 dark:text-white text-xl font-bold">Create Tasks</Text>
                   <Pressable
@@ -2415,7 +2415,7 @@ export default function DecideScreen() {
                       setShowWorkPlanSection(false);
                     }}
                     hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                    className="w-10 h-10 items-center justify-center rounded-full bg-gray-200 dark:bg-slate-800 active:opacity-70"
+                    className="w-10 h-10 items-center justify-center rounded-full bg-gray-200 dark:bg-slate-900 active:opacity-70"
                   >
                     <X size={24} color="#64748b" />
                   </Pressable>
@@ -2445,7 +2445,7 @@ export default function DecideScreen() {
                   onChangeText={setNewOKRTitle}
                   placeholder="e.g., Achieve Product-Market Fit"
                   placeholderTextColor="#64748b"
-                  className="bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-xl px-4 py-3 text-gray-900 dark:text-white mb-4"
+                  className="bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-700 rounded-xl px-4 py-3 text-gray-900 dark:text-white mb-4"
                 />
 
                 {/* Description Input */}
@@ -2457,7 +2457,7 @@ export default function DecideScreen() {
                   placeholderTextColor="#64748b"
                   multiline
                   numberOfLines={3}
-                  className="bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-xl px-4 py-3 text-gray-900 dark:text-white mb-4"
+                  className="bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-700 rounded-xl px-4 py-3 text-gray-900 dark:text-white mb-4"
                   style={{ minHeight: 80, textAlignVertical: 'top' }}
                 />
 
@@ -2465,7 +2465,7 @@ export default function DecideScreen() {
                 <Text className="text-gray-900 dark:text-white font-semibold mb-2">Owner</Text>
                 <Pressable
                   onPress={() => setShowOwnerDropdown(!showOwnerDropdown)}
-                  className="bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-xl px-4 py-3 flex-row items-center justify-between mb-2"
+                  className="bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-700 rounded-xl px-4 py-3 flex-row items-center justify-between mb-2"
                 >
                   <Text className={`text-base ${newOKROwner ? 'text-gray-900 dark:text-white' : 'text-gray-500 dark:text-slate-400'}`}>
                     {newOKROwner || 'Select an owner...'}
@@ -2479,7 +2479,7 @@ export default function DecideScreen() {
 
                 {/* Dropdown */}
                 {showOwnerDropdown && (
-                  <View className="bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-xl mb-4 max-h-60">
+                  <View className="bg-white dark:bg-slate-900 border border-gray-300 dark:border-slate-700 rounded-xl mb-4 max-h-60">
                     <ScrollView>
                       {allTeamMembers.map((member, index) => (
                         <Pressable
@@ -2540,7 +2540,7 @@ export default function DecideScreen() {
                       className={`px-3 py-2 rounded-lg ${
                         newOKRFunction === func
                           ? 'bg-blue-500'
-                          : 'bg-gray-100 dark:bg-slate-800'
+                          : 'bg-gray-100 dark:bg-slate-900'
                       }`}
                     >
                       <Text className={`text-sm font-semibold ${
@@ -2588,7 +2588,7 @@ export default function DecideScreen() {
                 {showWorkPlanSection && (
                   <View className="mb-4">
                     {workPlanItems.map((item, index) => (
-                      <View key={item.id} className="bg-gray-100 dark:bg-slate-800 rounded-xl p-3 mb-2">
+                      <View key={item.id} className="bg-gray-100 dark:bg-slate-900 rounded-xl p-3 mb-2">
                         <View className="flex-row items-center justify-between mb-2">
                           <Text className="text-gray-900 dark:text-white font-semibold text-sm">
                             Work Item {index + 1}
@@ -2660,13 +2660,13 @@ export default function DecideScreen() {
       >
         <View className="flex-1 bg-black/70 justify-end">
           <View className="bg-gray-100 dark:bg-slate-900 rounded-t-3xl" style={{ maxHeight: '90%' }}>
-            <View className="px-6 pt-6 pb-4 border-b border-gray-300 dark:border-slate-800">
+            <View className="px-6 pt-6 pb-4 border-b border-gray-300 dark:border-slate-700">
               <View className="flex-row items-center justify-between">
                 <Text className="text-gray-900 dark:text-white text-xl font-bold">Approval Queue</Text>
                 <Pressable
                   onPress={() => setShowApprovalQueue(false)}
                   hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                  className="w-10 h-10 items-center justify-center rounded-full bg-gray-200 dark:bg-slate-800 active:opacity-70"
+                  className="w-10 h-10 items-center justify-center rounded-full bg-gray-200 dark:bg-slate-900 active:opacity-70"
                 >
                   <X size={24} color="#64748b" />
                 </Pressable>
@@ -2723,19 +2723,19 @@ export default function DecideScreen() {
                       </View>
 
                       {/* Experience */}
-                      <View className="bg-white/50 dark:bg-slate-800/50 rounded-xl p-3 mb-3">
+                      <View className="bg-white/50 dark:bg-slate-900/50 rounded-xl p-3 mb-3">
                         <Text className="text-purple-700 dark:text-purple-300 text-xs font-bold mb-1">EXPERIENCE</Text>
                         <Text className="text-gray-900 dark:text-white text-sm">{candidate.experience}</Text>
                       </View>
 
                       {/* Specialties */}
-                      <View className="bg-white/50 dark:bg-slate-800/50 rounded-xl p-3 mb-3">
+                      <View className="bg-white/50 dark:bg-slate-900/50 rounded-xl p-3 mb-3">
                         <Text className="text-purple-700 dark:text-purple-300 text-xs font-bold mb-1">SPECIALTIES</Text>
                         <Text className="text-gray-900 dark:text-white text-sm">{candidate.specialties.join(', ')}</Text>
                       </View>
 
                       {/* Location */}
-                      <View className="bg-white/50 dark:bg-slate-800/50 rounded-xl p-3 mb-3">
+                      <View className="bg-white/50 dark:bg-slate-900/50 rounded-xl p-3 mb-3">
                         <Text className="text-purple-700 dark:text-purple-300 text-xs font-bold mb-1">LOCATION</Text>
                         <Text className="text-gray-900 dark:text-white text-sm">
                           {candidate.location.city}, {candidate.location.country}
@@ -2753,7 +2753,7 @@ export default function DecideScreen() {
 
                       {/* Request Notes */}
                       {request.notes && (
-                        <View className="bg-white/50 dark:bg-slate-800/50 rounded-xl p-3 mb-3">
+                        <View className="bg-white/50 dark:bg-slate-900/50 rounded-xl p-3 mb-3">
                           <Text className="text-purple-700 dark:text-purple-300 text-xs font-bold mb-1">NOTES</Text>
                           <Text className="text-gray-900 dark:text-white text-sm italic">{request.notes}</Text>
                         </View>
@@ -2818,7 +2818,7 @@ export default function DecideScreen() {
           <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} className="flex-1 justify-end">
             <View className="bg-gray-100 dark:bg-slate-900 rounded-t-3xl" style={{ maxHeight: '85%' }}>
               {/* Header */}
-              <View className="px-6 pt-6 pb-4 border-b border-gray-300 dark:border-slate-800">
+              <View className="px-6 pt-6 pb-4 border-b border-gray-300 dark:border-slate-700">
                 <View className="flex-row items-center justify-between">
                   <View className="flex-row items-center">
                     <UserPlus size={24} color="#8b5cf6" />
@@ -2831,7 +2831,7 @@ export default function DecideScreen() {
                       setSelectedAI(null);
                     }}
                     hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                    className="w-10 h-10 items-center justify-center rounded-full bg-gray-200 dark:bg-slate-800 active:opacity-70"
+                    className="w-10 h-10 items-center justify-center rounded-full bg-gray-200 dark:bg-slate-900 active:opacity-70"
                   >
                     <X size={24} color="#64748b" />
                   </Pressable>
@@ -2846,7 +2846,7 @@ export default function DecideScreen() {
                 <Pressable
                   onPress={() => setResourceTypeTab('people')}
                   className={`flex-1 flex-row items-center justify-center py-3 rounded-xl ${
-                    resourceTypeTab === 'people' ? 'bg-purple-500' : 'bg-gray-200 dark:bg-slate-800'
+                    resourceTypeTab === 'people' ? 'bg-purple-500' : 'bg-gray-200 dark:bg-slate-900'
                   }`}
                 >
                   <Users size={18} color={resourceTypeTab === 'people' ? '#fff' : '#64748b'} />
@@ -2857,7 +2857,7 @@ export default function DecideScreen() {
                 <Pressable
                   onPress={() => setResourceTypeTab('ai')}
                   className={`flex-1 flex-row items-center justify-center py-3 rounded-xl ${
-                    resourceTypeTab === 'ai' ? 'bg-purple-500' : 'bg-gray-200 dark:bg-slate-800'
+                    resourceTypeTab === 'ai' ? 'bg-purple-500' : 'bg-gray-200 dark:bg-slate-900'
                   }`}
                 >
                   <Bot size={18} color={resourceTypeTab === 'ai' ? '#fff' : '#64748b'} />
@@ -2878,7 +2878,7 @@ export default function DecideScreen() {
                         className={`flex-1 p-3 rounded-xl border ${
                           hireRole === 'FractionalExec'
                             ? 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-400 dark:border-emerald-600'
-                            : 'bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700'
+                            : 'bg-white dark:bg-slate-900 border-gray-200 dark:border-slate-700'
                         }`}
                       >
                         <View className="flex-row items-center mb-1">
@@ -2896,7 +2896,7 @@ export default function DecideScreen() {
                         className={`flex-1 p-3 rounded-xl border ${
                           hireRole === 'Apprentice'
                             ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-400 dark:border-blue-600'
-                            : 'bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700'
+                            : 'bg-white dark:bg-slate-900 border-gray-200 dark:border-slate-700'
                         }`}
                       >
                         <View className="flex-row items-center mb-1">
@@ -2918,7 +2918,7 @@ export default function DecideScreen() {
                       onChangeText={setHireName}
                       placeholder="e.g., Sarah Johnson"
                       placeholderTextColor="#64748b"
-                      className="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-3 text-gray-900 dark:text-white mb-4"
+                      className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-3 text-gray-900 dark:text-white mb-4"
                     />
 
                     {/* Function Selection */}
@@ -2931,7 +2931,7 @@ export default function DecideScreen() {
                           className={`px-3 py-2 rounded-lg ${
                             hireFunction === func
                               ? 'bg-purple-500'
-                              : 'bg-gray-200 dark:bg-slate-800'
+                              : 'bg-gray-200 dark:bg-slate-900'
                           }`}
                         >
                           <Text className={`text-sm font-semibold ${
@@ -2979,7 +2979,7 @@ export default function DecideScreen() {
                           <Pressable
                             key={ai.id}
                             onPress={() => setSelectedAI(selectedAI?.id === ai.id ? null : ai)}
-                            className={`bg-white dark:bg-slate-800 border rounded-xl p-4 ${
+                            className={`bg-white dark:bg-slate-900 border rounded-xl p-4 ${
                               selectedAI?.id === ai.id
                                 ? 'border-purple-400 dark:border-purple-600'
                                 : 'border-gray-200 dark:border-slate-700'
@@ -3065,7 +3065,7 @@ export default function DecideScreen() {
               onChangeText={setRenameOKRTitle}
               placeholder="Enter OKR title..."
               placeholderTextColor="#64748b"
-              className="bg-gray-100 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-3 text-gray-900 dark:text-white mb-4"
+              className="bg-gray-100 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-3 text-gray-900 dark:text-white mb-4"
               autoFocus
             />
             <View className="flex-row gap-3">
@@ -3075,7 +3075,7 @@ export default function DecideScreen() {
                   setPendingMergeTaskIds([]);
                   setRenameOKRTitle('');
                 }}
-                className="flex-1 bg-gray-200 dark:bg-slate-800 py-3 rounded-xl"
+                className="flex-1 bg-gray-200 dark:bg-slate-900 py-3 rounded-xl"
               >
                 <Text className="text-gray-700 dark:text-slate-300 text-center font-semibold">Cancel</Text>
               </Pressable>
@@ -3130,7 +3130,7 @@ export default function DecideScreen() {
                   setPendingQueueOKR(null);
                   setPendingQueueTask(null);
                 }}
-                className="flex-1 bg-gray-200 dark:bg-slate-800 py-3 rounded-xl active:opacity-70"
+                className="flex-1 bg-gray-200 dark:bg-slate-900 py-3 rounded-xl active:opacity-70"
               >
                 <Text className="text-gray-700 dark:text-slate-300 text-center font-semibold">Cancel</Text>
               </Pressable>

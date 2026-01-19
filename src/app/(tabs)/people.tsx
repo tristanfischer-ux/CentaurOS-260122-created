@@ -313,7 +313,7 @@ export default function PeopleScreen() {
 
       {/* Tab Switcher */}
       <View className="px-5 pt-4">
-        <View className="flex-row bg-slate-100 dark:bg-slate-800 rounded-xl p-1">
+        <View className="flex-row bg-slate-100 dark:bg-slate-900 rounded-xl p-1">
           {[
             { key: 'team', label: 'People', icon: Users },
             { key: 'squads', label: 'Teams', icon: UsersRound },
@@ -503,7 +503,7 @@ export default function PeopleScreen() {
                             <Pressable
                               key={member.id}
                               onPress={() => handleOpenPersonDetails(member)}
-                              className="flex-row items-center bg-slate-50 dark:bg-slate-800/50 px-2 py-1 rounded-full active:opacity-70"
+                              className="flex-row items-center bg-slate-50 dark:bg-slate-900/50 px-2 py-1 rounded-full active:opacity-70"
                             >
                               <View
                                 className="w-5 h-5 rounded-full items-center justify-center mr-1.5"
@@ -522,7 +522,7 @@ export default function PeopleScreen() {
                             </Pressable>
                           ))}
                           {squad.members.length > 5 && (
-                            <View className="bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-full">
+                            <View className="bg-slate-100 dark:bg-slate-900 px-2 py-1 rounded-full">
                               <Text className="text-slate-500 dark:text-slate-400 text-xs">
                                 +{squad.members.length - 5} more
                               </Text>
@@ -533,7 +533,7 @@ export default function PeopleScreen() {
 
                       {/* Active Tasks */}
                       {squad.activeTasks.length > 0 && (
-                        <View className="border-t border-slate-100 dark:border-slate-800 pt-3">
+                        <View className="border-t border-slate-100 dark:border-slate-700 pt-3">
                           <View className="flex-row items-center gap-1.5 mb-2">
                             <ListTodo size={14} color="#10b981" />
                             <Text className="text-emerald-600 dark:text-emerald-400 text-xs font-medium">
@@ -566,7 +566,7 @@ export default function PeopleScreen() {
 
                       {/* Empty State for Tasks */}
                       {squad.activeTasks.length === 0 && (
-                        <View className="border-t border-slate-100 dark:border-slate-800 pt-3">
+                        <View className="border-t border-slate-100 dark:border-slate-700 pt-3">
                           <Text className="text-slate-400 dark:text-slate-500 text-sm text-center">
                             No active tasks assigned
                           </Text>
@@ -628,7 +628,7 @@ export default function PeopleScreen() {
                             <Pressable
                               key={member.id}
                               onPress={() => handleOpenPersonDetails(member)}
-                              className="flex-row items-center bg-slate-50 dark:bg-slate-800/50 px-2 py-1 rounded-full active:opacity-70"
+                              className="flex-row items-center bg-slate-50 dark:bg-slate-900/50 px-2 py-1 rounded-full active:opacity-70"
                             >
                               <View
                                 className="w-5 h-5 rounded-full items-center justify-center mr-1.5"

@@ -178,7 +178,7 @@ export default function OrgDiagramScreen() {
                           <Pressable
                             key={exec.id}
                             onPress={() => handleMemberClick(exec)}
-                            className="bg-white dark:bg-slate-900 rounded-lg p-3 border border-gray-300 dark:border-slate-800 active:opacity-70"
+                            className="bg-white dark:bg-slate-900 rounded-lg p-3 border border-gray-300 dark:border-slate-700 active:opacity-70"
                           >
                             <View className="flex-row items-center justify-between">
                               <View className="flex-row items-center flex-1">
@@ -215,7 +215,7 @@ export default function OrgDiagramScreen() {
                           <Pressable
                             key={app.id}
                             onPress={() => handleMemberClick(app)}
-                            className="bg-white dark:bg-slate-900 rounded-lg p-3 border border-gray-300 dark:border-slate-800 active:opacity-70"
+                            className="bg-white dark:bg-slate-900 rounded-lg p-3 border border-gray-300 dark:border-slate-700 active:opacity-70"
                           >
                             <View className="flex-row items-center justify-between">
                               <View className="flex-row items-center flex-1">
@@ -264,7 +264,7 @@ export default function OrgDiagramScreen() {
                 {AI_AGENTS.map(agent => (
                   <View
                     key={agent.id}
-                    className="bg-gray-100 dark:bg-slate-900 rounded-xl p-4 border border-gray-300 dark:border-slate-800"
+                    className="bg-gray-100 dark:bg-slate-900 rounded-xl p-4 border border-gray-300 dark:border-slate-700"
                   >
                     <View className="flex-row items-start justify-between mb-2">
                       <View className="flex-1">
@@ -307,7 +307,7 @@ export default function OrgDiagramScreen() {
                             return (
                               <View
                                 key={userId}
-                                className="bg-gray-200 dark:bg-slate-800 px-2 py-1 rounded"
+                                className="bg-gray-200 dark:bg-slate-900 px-2 py-1 rounded"
                               >
                                 <Text className="text-gray-700 dark:text-slate-300 text-xs">
                                   {user.name}
@@ -344,7 +344,7 @@ export default function OrgDiagramScreen() {
             onPress={(e) => e.stopPropagation()}
           >
             {/* Header */}
-            <View className="px-6 py-5 border-b border-gray-200 dark:border-slate-800 flex-row items-center justify-between">
+            <View className="px-6 py-5 border-b border-gray-200 dark:border-slate-700 flex-row items-center justify-between">
               <Text className="text-gray-900 dark:text-white text-xl font-black">Team Member</Text>
               <Pressable
                 onPress={() => setShowMemberModal(false)}
@@ -450,7 +450,7 @@ export default function OrgDiagramScreen() {
                           <Text className="text-gray-900 dark:text-white font-semibold mb-2">Skills</Text>
                           <View className="flex-row flex-wrap gap-2">
                             {marketplaceData.skills.map((skill, idx) => (
-                              <View key={idx} className="bg-gray-200 dark:bg-slate-800 px-3 py-1.5 rounded-lg">
+                              <View key={idx} className="bg-gray-200 dark:bg-slate-900 px-3 py-1.5 rounded-lg">
                                 <Text className="text-gray-700 dark:text-slate-300 text-xs">
                                   {skill}
                                 </Text>

@@ -706,7 +706,7 @@ export default function EvaluateScreen() {
       </LinearGradient>
 
       {/* View Tabs - Below Header */}
-      <View className="px-5 py-3 bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-800">
+      <View className="px-5 py-3 bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-700">
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -723,7 +723,7 @@ export default function EvaluateScreen() {
               key={tab.value}
               onPress={() => setActiveView(tab.value as EvaluateView)}
               className={`flex-row items-center px-4 py-2 rounded-full ${
-                activeView === tab.value ? 'bg-blue-500' : 'bg-gray-100 dark:bg-slate-800'
+                activeView === tab.value ? 'bg-blue-500' : 'bg-gray-100 dark:bg-slate-900'
               } active:opacity-70`}
             >
               <tab.icon size={16} color={activeView === tab.value ? '#fff' : '#64748b'} />
@@ -793,7 +793,7 @@ export default function EvaluateScreen() {
                       <Animated.View key={insight.id} entering={FadeInDown.delay(idx * 50).duration(300)}>
                         <View className={`${colors.bg} border ${colors.border} rounded-xl p-4 mb-3`}>
                           <View className="flex-row items-start">
-                            <View className="w-10 h-10 rounded-full bg-white dark:bg-slate-800 items-center justify-center mr-3">
+                            <View className="w-10 h-10 rounded-full bg-white dark:bg-slate-900 items-center justify-center mr-3">
                               <IconComponent size={20} color={colors.icon} />
                             </View>
                             <View className="flex-1">
@@ -813,7 +813,7 @@ export default function EvaluateScreen() {
                               )}
                             </View>
                             {insight.metric && (
-                              <View className="bg-white dark:bg-slate-800 px-2 py-1 rounded">
+                              <View className="bg-white dark:bg-slate-900 px-2 py-1 rounded">
                                 <Text className="text-gray-700 dark:text-slate-300 text-xs font-bold">
                                   {insight.metric}
                                 </Text>
@@ -846,7 +846,7 @@ export default function EvaluateScreen() {
                       setSelectedPerformance(perf);
                       setShowPerformanceModal(true);
                     }}
-                    className="bg-white dark:bg-slate-900 rounded-xl p-4 mb-3 border border-gray-200 dark:border-slate-800 active:opacity-90"
+                    className="bg-white dark:bg-slate-900 rounded-xl p-4 mb-3 border border-gray-200 dark:border-slate-700 active:opacity-90"
                   >
                     <View className="flex-row items-center justify-between">
                       <View className="flex-row items-center flex-1">
@@ -1023,7 +1023,7 @@ export default function EvaluateScreen() {
                             <View className={`px-2 py-1 rounded ${
                               plan.daysUntilDue <= 2 ? 'bg-red-100 dark:bg-red-900/30' :
                               plan.daysUntilDue <= 7 ? 'bg-amber-100 dark:bg-amber-900/30' :
-                              'bg-gray-100 dark:bg-slate-800'
+                              'bg-gray-100 dark:bg-slate-900'
                             }`}>
                               <Text className={`text-xs font-bold ${
                                 plan.daysUntilDue <= 2 ? 'text-red-600 dark:text-red-400' :
@@ -1066,7 +1066,7 @@ export default function EvaluateScreen() {
                   <Text className="text-gray-500 dark:text-slate-400 text-xs font-bold tracking-wide">
                     NOT STARTED
                   </Text>
-                  <View className="bg-gray-100 dark:bg-slate-800 px-2 py-0.5 rounded">
+                  <View className="bg-gray-100 dark:bg-slate-900 px-2 py-0.5 rounded">
                     <Text className="text-gray-600 dark:text-slate-400 text-xs font-semibold">
                       {categorizedTasks.notStartedTasks.length} task{categorizedTasks.notStartedTasks.length !== 1 ? 's' : ''}
                     </Text>
@@ -1082,7 +1082,7 @@ export default function EvaluateScreen() {
                         setAllocationPlan(plan);
                         setShowAllocationModal(true);
                       }}
-                        className="bg-white dark:bg-slate-900 rounded-xl p-4 mb-3 border border-gray-200 dark:border-slate-800 active:opacity-90"
+                        className="bg-white dark:bg-slate-900 rounded-xl p-4 mb-3 border border-gray-200 dark:border-slate-700 active:opacity-90"
                       >
                         <View className="flex-row items-start justify-between mb-2">
                           <View className="flex-1">
@@ -1114,7 +1114,7 @@ export default function EvaluateScreen() {
                             </Text>
                           </View>
                           <View className={`px-2 py-1 rounded ${
-                            plan.daysUntilDue <= 7 ? 'bg-amber-100 dark:bg-amber-900/30' : 'bg-gray-100 dark:bg-slate-800'
+                            plan.daysUntilDue <= 7 ? 'bg-amber-100 dark:bg-amber-900/30' : 'bg-gray-100 dark:bg-slate-900'
                           }`}>
                             <Text className={`text-xs font-bold ${
                               plan.daysUntilDue <= 7 ? 'text-amber-600 dark:text-amber-400' : 'text-gray-600 dark:text-slate-400'
@@ -1273,7 +1273,7 @@ export default function EvaluateScreen() {
               <Pressable
                 onPress={() => setSelectedFunction('all')}
                 className={`px-4 py-2 rounded-full ${
-                  selectedFunction === 'all' ? 'bg-blue-500' : 'bg-gray-200 dark:bg-slate-800'
+                  selectedFunction === 'all' ? 'bg-blue-500' : 'bg-gray-200 dark:bg-slate-900'
                 } active:opacity-70`}
               >
                 <Text className={`text-sm font-semibold ${
@@ -1287,7 +1287,7 @@ export default function EvaluateScreen() {
                   key={func}
                   onPress={() => setSelectedFunction(func)}
                   className={`px-4 py-2 rounded-full ${
-                    selectedFunction === func ? 'bg-blue-500' : 'bg-gray-200 dark:bg-slate-800'
+                    selectedFunction === func ? 'bg-blue-500' : 'bg-gray-200 dark:bg-slate-900'
                   } active:opacity-70`}
                 >
                   <Text className={`text-sm font-semibold ${
@@ -1364,7 +1364,7 @@ export default function EvaluateScreen() {
                             </View>
                           </View>
 
-                          <View className="flex-row items-center justify-between pt-3 border-t border-gray-100 dark:border-slate-800">
+                          <View className="flex-row items-center justify-between pt-3 border-t border-gray-100 dark:border-slate-700">
                             <View className="flex-row items-center gap-4">
                               <View className="flex-row items-center">
                                 <Target size={12} color="#8b5cf6" />
@@ -1403,7 +1403,7 @@ export default function EvaluateScreen() {
 
                         {/* Expanded Submissions */}
                         {isExpanded && (
-                          <View className="px-4 pb-4 pt-2 bg-gray-50 dark:bg-slate-800/50 border-t border-gray-200 dark:border-slate-800">
+                          <View className="px-4 pb-4 pt-2 bg-gray-50 dark:bg-slate-900/50 border-t border-gray-200 dark:border-slate-700">
                             {pendingSubs.map((sub, subIdx) => (
                               <Pressable
                                 key={sub.id}
@@ -1605,7 +1605,7 @@ export default function EvaluateScreen() {
                   <Animated.View key={insight.id} entering={FadeInDown.delay(idx * 50).duration(300)}>
                     <View className={`${colors.bg} border ${colors.border} rounded-xl p-4 mb-3`}>
                       <View className="flex-row items-start">
-                        <View className="w-10 h-10 rounded-full bg-white dark:bg-slate-800 items-center justify-center mr-3">
+                        <View className="w-10 h-10 rounded-full bg-white dark:bg-slate-900 items-center justify-center mr-3">
                           <IconComponent size={20} color={colors.icon} />
                         </View>
                         <View className="flex-1">
@@ -1614,7 +1614,7 @@ export default function EvaluateScreen() {
                               {insight.title}
                             </Text>
                             {insight.metric && (
-                              <View className="bg-white dark:bg-slate-800 px-2 py-1 rounded">
+                              <View className="bg-white dark:bg-slate-900 px-2 py-1 rounded">
                                 <Text className="text-gray-700 dark:text-slate-300 text-xs font-bold">
                                   {insight.metric}
                                 </Text>
@@ -1625,7 +1625,7 @@ export default function EvaluateScreen() {
                             {insight.description}
                           </Text>
                           {insight.action && (
-                            <View className="flex-row items-center bg-white/50 dark:bg-slate-800/50 px-3 py-2 rounded-lg">
+                            <View className="flex-row items-center bg-white/50 dark:bg-slate-900/50 px-3 py-2 rounded-lg">
                               <Zap size={14} color={colors.icon} />
                               <Text className="text-gray-700 dark:text-slate-300 text-sm font-medium ml-2">
                                 {insight.action}
@@ -1655,7 +1655,7 @@ export default function EvaluateScreen() {
         <View className="flex-1 bg-black/70 justify-end">
           <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} className="flex-1 justify-end">
             <View className="bg-white dark:bg-slate-900 rounded-t-3xl" style={{ maxHeight: '95%' }}>
-              <View className="px-6 pt-6 pb-4 border-b border-gray-200 dark:border-slate-800">
+              <View className="px-6 pt-6 pb-4 border-b border-gray-200 dark:border-slate-700">
                 <View className="flex-row items-center justify-between">
                   <View>
                     <Text className="text-gray-900 dark:text-white text-xl font-bold">Review Submission</Text>
@@ -1663,7 +1663,7 @@ export default function EvaluateScreen() {
                   </View>
                   <Pressable
                     onPress={() => setShowSubmissionModal(false)}
-                    className="w-10 h-10 items-center justify-center rounded-full bg-gray-100 dark:bg-slate-800 active:opacity-70"
+                    className="w-10 h-10 items-center justify-center rounded-full bg-gray-100 dark:bg-slate-900 active:opacity-70"
                   >
                     <X size={24} color="#64748b" />
                   </Pressable>
@@ -1727,16 +1727,16 @@ export default function EvaluateScreen() {
 
                     {/* Submission Data (if available from enhanced modal) */}
                     {selectedSubmission.plan.submissionData && (
-                      <View className="bg-gray-50 dark:bg-slate-800/50 rounded-xl p-4 mb-4">
+                      <View className="bg-gray-50 dark:bg-slate-900/50 rounded-xl p-4 mb-4">
                         <Text className="text-gray-900 dark:text-white font-semibold mb-3">Submission Details</Text>
                         <View className="flex-row gap-3 mb-3">
-                          <View className="flex-1 bg-white dark:bg-slate-800 rounded-lg p-3">
+                          <View className="flex-1 bg-white dark:bg-slate-900 rounded-lg p-3">
                             <Text className="text-gray-500 dark:text-slate-400 text-xs">Time Spent</Text>
                             <Text className="text-gray-900 dark:text-white font-bold text-lg">
                               {selectedSubmission.plan.submissionData.hoursSpent}h
                             </Text>
                           </View>
-                          <View className="flex-1 bg-white dark:bg-slate-800 rounded-lg p-3">
+                          <View className="flex-1 bg-white dark:bg-slate-900 rounded-lg p-3">
                             <Text className="text-gray-500 dark:text-slate-400 text-xs">Self Score</Text>
                             <Text className={`font-bold text-lg ${
                               selectedSubmission.plan.submissionData.estimatedQuality >= 80 ? 'text-emerald-600' :
@@ -1745,7 +1745,7 @@ export default function EvaluateScreen() {
                               {selectedSubmission.plan.submissionData.estimatedQuality}%
                             </Text>
                           </View>
-                          <View className="flex-1 bg-white dark:bg-slate-800 rounded-lg p-3">
+                          <View className="flex-1 bg-white dark:bg-slate-900 rounded-lg p-3">
                             <Text className="text-gray-500 dark:text-slate-400 text-xs">Confidence</Text>
                             <Text className={`font-bold text-lg capitalize ${
                               selectedSubmission.plan.submissionData.confidenceLevel === 'high' ? 'text-emerald-600' :
@@ -1830,7 +1830,7 @@ export default function EvaluateScreen() {
                     </View>
 
                     {/* Cost Impact Analysis */}
-                    <View className="bg-gray-100 dark:bg-slate-800 rounded-xl p-4 mb-4">
+                    <View className="bg-gray-100 dark:bg-slate-900 rounded-xl p-4 mb-4">
                       <View className="flex-row items-center mb-3">
                         <DollarSign size={16} color="#64748b" />
                         <Text className="text-gray-900 dark:text-white font-semibold ml-2">Cost Impact Analysis</Text>
@@ -1911,7 +1911,7 @@ export default function EvaluateScreen() {
                             key={score}
                             onPress={() => setQualityScore(score)}
                             className={`flex-1 py-2 rounded-lg items-center ${
-                              qualityScore === score ? 'bg-blue-500' : 'bg-gray-200 dark:bg-slate-800'
+                              qualityScore === score ? 'bg-blue-500' : 'bg-gray-200 dark:bg-slate-900'
                             } active:opacity-70`}
                           >
                             <Text className={`font-semibold ${
@@ -1931,7 +1931,7 @@ export default function EvaluateScreen() {
                     <View className="mb-6">
                       <Text className="text-gray-900 dark:text-white font-semibold mb-2">Feedback Notes</Text>
                       <TextInput
-                        className="bg-gray-100 dark:bg-slate-800 rounded-xl px-4 py-3 text-gray-900 dark:text-white text-base min-h-[100px]"
+                        className="bg-gray-100 dark:bg-slate-900 rounded-xl px-4 py-3 text-gray-900 dark:text-white text-base min-h-[100px]"
                         value={reviewNotes}
                         onChangeText={setReviewNotes}
                         placeholder="Provide constructive feedback for the apprentice..."
@@ -1979,12 +1979,12 @@ export default function EvaluateScreen() {
       >
         <View className="flex-1 bg-black/70 justify-end">
           <View className="bg-white dark:bg-slate-900 rounded-t-3xl" style={{ maxHeight: '90%' }}>
-            <View className="px-6 pt-6 pb-4 border-b border-gray-200 dark:border-slate-800">
+            <View className="px-6 pt-6 pb-4 border-b border-gray-200 dark:border-slate-700">
               <View className="flex-row items-center justify-between">
                 <Text className="text-gray-900 dark:text-white text-xl font-bold">Performance Profile</Text>
                 <Pressable
                   onPress={() => setShowPerformanceModal(false)}
-                  className="w-10 h-10 items-center justify-center rounded-full bg-gray-100 dark:bg-slate-800 active:opacity-70"
+                  className="w-10 h-10 items-center justify-center rounded-full bg-gray-100 dark:bg-slate-900 active:opacity-70"
                 >
                   <X size={24} color="#64748b" />
                 </Pressable>
@@ -2043,19 +2043,19 @@ export default function EvaluateScreen() {
 
                   {/* Stats Grid */}
                   <View className="flex-row gap-3 mb-6">
-                    <View className="flex-1 bg-gray-100 dark:bg-slate-800 rounded-xl p-4">
+                    <View className="flex-1 bg-gray-100 dark:bg-slate-900 rounded-xl p-4">
                       <Text className="text-gray-500 dark:text-slate-400 text-xs">Submissions</Text>
                       <Text className="text-gray-900 dark:text-white text-2xl font-bold">
                         {selectedPerformance.totalSubmissions}
                       </Text>
                     </View>
-                    <View className="flex-1 bg-gray-100 dark:bg-slate-800 rounded-xl p-4">
+                    <View className="flex-1 bg-gray-100 dark:bg-slate-900 rounded-xl p-4">
                       <Text className="text-gray-500 dark:text-slate-400 text-xs">First-Time</Text>
                       <Text className="text-emerald-600 dark:text-emerald-400 text-2xl font-bold">
                         {selectedPerformance.approvedFirstTime}
                       </Text>
                     </View>
-                    <View className="flex-1 bg-gray-100 dark:bg-slate-800 rounded-xl p-4">
+                    <View className="flex-1 bg-gray-100 dark:bg-slate-900 rounded-xl p-4">
                       <Text className="text-gray-500 dark:text-slate-400 text-xs">Avg Time</Text>
                       <Text className="text-gray-900 dark:text-white text-2xl font-bold">
                         {selectedPerformance.averageTimeToComplete}h

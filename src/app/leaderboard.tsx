@@ -173,7 +173,7 @@ export default function LeaderboardScreen() {
                   className={`rounded-xl p-4 active:opacity-70 ${
                     isSelected
                       ? 'bg-purple-50 dark:bg-purple-900/20 border-2 border-purple-500'
-                      : 'bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-800'
+                      : 'bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700'
                   }`}
                 >
                   <View className="flex-row items-center">
@@ -299,7 +299,7 @@ export default function LeaderboardScreen() {
                   </View>
 
                   {/* Company Stats */}
-                  <View className="flex-row gap-3 mt-2 pt-2 border-t border-gray-200 dark:border-slate-800">
+                  <View className="flex-row gap-3 mt-2 pt-2 border-t border-gray-200 dark:border-slate-700">
                     <View className="flex-1">
                       <Text className="text-gray-500 dark:text-slate-400 text-xs">
                         Monthly Revenue

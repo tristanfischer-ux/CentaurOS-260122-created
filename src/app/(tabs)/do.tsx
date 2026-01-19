@@ -511,7 +511,7 @@ export default function DoScreen() {
               'rounded-xl p-3 active:opacity-70 border',
               plan.status === 'blocked'
                 ? 'bg-red-50 dark:bg-red-900/10 border-red-200 dark:border-red-800'
-                : 'bg-white dark:bg-slate-900 border-gray-200 dark:border-slate-800'
+                : 'bg-white dark:bg-slate-900 border-gray-200 dark:border-slate-700'
             )}
           >
             <View className="flex-row items-center justify-between mb-2">
@@ -556,7 +556,7 @@ export default function DoScreen() {
 
               <View className="flex-row items-center gap-2">
                 {/* Squares Badge */}
-                <View className="flex-row items-center gap-0.5 bg-gray-100 dark:bg-slate-800 px-1.5 py-0.5 rounded">
+                <View className="flex-row items-center gap-0.5 bg-gray-100 dark:bg-slate-900 px-1.5 py-0.5 rounded">
                   {Array.from({ length: Math.min(plan.estimatedTimeUnits, 5) }).map((_, i) => (
                     <View
                       key={i}
@@ -586,7 +586,7 @@ export default function DoScreen() {
                   'px-2 py-0.5 rounded',
                   plan.daysUntilDue <= 2 ? 'bg-red-100 dark:bg-red-900/30' :
                   plan.daysUntilDue <= 7 ? 'bg-amber-100 dark:bg-amber-900/30' :
-                  'bg-gray-100 dark:bg-slate-800'
+                  'bg-gray-100 dark:bg-slate-900'
                 )}>
                   <Text className={cn(
                     'text-xs font-semibold',
@@ -683,7 +683,7 @@ export default function DoScreen() {
 
         {/* Expanded Actions */}
         {isExpanded && (
-          <View className="mt-1 ml-3 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl p-3">
+          <View className="mt-1 ml-3 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl p-3">
             <Text className="text-gray-700 dark:text-slate-300 text-sm mb-3">{plan.description}</Text>
 
             {/* Quick Progress Buttons */}
@@ -819,7 +819,7 @@ export default function DoScreen() {
         )}
 
         {/* View Tabs */}
-        <View className="px-5 py-3 bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-800">
+        <View className="px-5 py-3 bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-700">
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
@@ -834,7 +834,7 @@ export default function DoScreen() {
                 key={tab.value}
                 onPress={() => setViewMode(tab.value as ViewMode)}
                 className={`flex-row items-center px-4 py-2 rounded-full ${
-                  viewMode === tab.value ? 'bg-emerald-500' : 'bg-gray-100 dark:bg-slate-800'
+                  viewMode === tab.value ? 'bg-emerald-500' : 'bg-gray-100 dark:bg-slate-900'
                 } active:opacity-70`}
               >
                 <tab.icon size={16} color={viewMode === tab.value ? '#fff' : tab.value === 'blocked' ? '#ef4444' : '#64748b'} />
@@ -867,7 +867,7 @@ export default function DoScreen() {
                 key={filter}
                 onPress={() => setTimeFilter(filter)}
                 className={`px-3 py-1.5 rounded-lg ${
-                  timeFilter === filter ? 'bg-purple-100 dark:bg-purple-900/30' : 'bg-gray-50 dark:bg-slate-800'
+                  timeFilter === filter ? 'bg-purple-100 dark:bg-purple-900/30' : 'bg-gray-50 dark:bg-slate-900'
                 }`}
               >
                 <Text className={`text-xs font-semibold ${
@@ -980,7 +980,7 @@ export default function DoScreen() {
                         Ready to start
                       </Text>
                     </View>
-                    <View className="bg-gray-100 dark:bg-slate-800 px-2.5 py-1 rounded-lg">
+                    <View className="bg-gray-100 dark:bg-slate-900 px-2.5 py-1 rounded-lg">
                       <Text className="text-gray-600 dark:text-slate-400 text-sm font-bold">
                         {categorizedTasks.notStartedTasks.length}
                       </Text>
@@ -1073,7 +1073,7 @@ export default function DoScreen() {
           <View className="flex-1 bg-black/70 justify-end">
             <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} className="flex-1">
               <View className="bg-white dark:bg-slate-900 rounded-t-3xl flex-1" style={{ maxHeight: '95%' }}>
-                <View className="px-6 pt-6 pb-4 border-b border-gray-200 dark:border-slate-800">
+                <View className="px-6 pt-6 pb-4 border-b border-gray-200 dark:border-slate-700">
                   <View className="flex-row items-center justify-between">
                     <View>
                       <Text className="text-gray-900 dark:text-white text-xl font-bold">Submit Work</Text>
@@ -1081,7 +1081,7 @@ export default function DoScreen() {
                     </View>
                     <Pressable
                       onPress={() => setShowSubmitModal(false)}
-                      className="w-10 h-10 items-center justify-center rounded-full bg-gray-100 dark:bg-slate-800 active:opacity-70"
+                      className="w-10 h-10 items-center justify-center rounded-full bg-gray-100 dark:bg-slate-900 active:opacity-70"
                     >
                       <X size={24} color="#64748b" />
                     </Pressable>
@@ -1113,7 +1113,7 @@ export default function DoScreen() {
                         </View>
                         <View className="flex-row items-center gap-2">
                           <TextInput
-                            className="flex-1 bg-gray-100 dark:bg-slate-800 rounded-xl px-4 py-3 text-gray-900 dark:text-white text-base"
+                            className="flex-1 bg-gray-100 dark:bg-slate-900 rounded-xl px-4 py-3 text-gray-900 dark:text-white text-base"
                             value={hoursSpent}
                             onChangeText={setHoursSpent}
                             placeholder="0"
@@ -1130,7 +1130,7 @@ export default function DoScreen() {
                           <CheckCircle2 size={16} color="#10b981" />
                           <Text className="text-gray-900 dark:text-white font-semibold ml-2">Quality Checklist</Text>
                         </View>
-                        <View className="bg-gray-50 dark:bg-slate-800/50 rounded-xl p-3">
+                        <View className="bg-gray-50 dark:bg-slate-900/50 rounded-xl p-3">
                           {[
                             { key: 'requirementsMet', label: 'All requirements met', icon: Target },
                             { key: 'testedLocally', label: 'Tested/verified locally', icon: CheckCircle2 },
@@ -1179,7 +1179,7 @@ export default function DoScreen() {
                                   ? level === 'high' ? 'bg-emerald-100 dark:bg-emerald-900/30 border-emerald-500'
                                     : level === 'medium' ? 'bg-amber-100 dark:bg-amber-900/30 border-amber-500'
                                     : 'bg-red-100 dark:bg-red-900/30 border-red-500'
-                                  : 'bg-gray-100 dark:bg-slate-800 border-transparent'
+                                  : 'bg-gray-100 dark:bg-slate-900 border-transparent'
                               )}
                             >
                               <Text className={cn(
@@ -1219,7 +1219,7 @@ export default function DoScreen() {
                                 'px-3 py-2 rounded-lg border',
                                 blockersEncountered.includes(blocker)
                                   ? 'bg-amber-100 dark:bg-amber-900/30 border-amber-500'
-                                  : 'bg-gray-100 dark:bg-slate-800 border-gray-200 dark:border-slate-700'
+                                  : 'bg-gray-100 dark:bg-slate-900 border-gray-200 dark:border-slate-700'
                               )}
                             >
                               <Text className={cn(
@@ -1242,7 +1242,7 @@ export default function DoScreen() {
                           <Text className="text-gray-900 dark:text-white font-semibold ml-2">Summary Notes</Text>
                         </View>
                         <TextInput
-                          className="bg-gray-100 dark:bg-slate-800 rounded-xl px-4 py-3 text-gray-900 dark:text-white text-base min-h-[100px]"
+                          className="bg-gray-100 dark:bg-slate-900 rounded-xl px-4 py-3 text-gray-900 dark:text-white text-base min-h-[100px]"
                           value={submissionNotes}
                           onChangeText={setSubmissionNotes}
                           placeholder="What was completed? Any key decisions made?"
@@ -1365,7 +1365,7 @@ export default function DoScreen() {
                   {/* OKR Card */}
                   <Pressable
                     onPress={() => toggleOKR(okr.id)}
-                    className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-2xl p-4 active:opacity-70"
+                    className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-2xl p-4 active:opacity-70"
                   >
                     <View className="flex-row items-start justify-between mb-3">
                       <View className="flex-1 mr-3">
@@ -1408,7 +1408,7 @@ export default function DoScreen() {
                       {okr.objectives.map((obj, idx) => (
                         <View
                           key={idx}
-                          className="bg-gray-50 dark:bg-slate-800 px-2 py-1 rounded"
+                          className="bg-gray-50 dark:bg-slate-900 px-2 py-1 rounded"
                         >
                           <Text className="text-gray-700 dark:text-slate-300 text-xs">
                             {obj.progress}% • {obj.title}
@@ -1429,7 +1429,7 @@ export default function DoScreen() {
                   )}
 
                   {isExpanded && tasks.length === 0 && (
-                    <View className="mt-2 ml-3 bg-gray-50 dark:bg-slate-800 rounded-xl p-4">
+                    <View className="mt-2 ml-3 bg-gray-50 dark:bg-slate-900 rounded-xl p-4">
                       <Text className="text-gray-500 dark:text-slate-400 text-sm text-center">
                         No active tasks for this OKR
                       </Text>
@@ -1509,12 +1509,12 @@ export default function DoScreen() {
           </View>
         </LinearGradient>
 
-        <View className="px-5 py-3 bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-800">
+        <View className="px-5 py-3 bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-700">
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}>
             <Pressable
               onPress={() => setSelectedFunction('all')}
               className={`px-4 py-2 rounded-full ${
-                selectedFunction === 'all' ? 'bg-purple-500' : 'bg-gray-100 dark:bg-slate-800'
+                selectedFunction === 'all' ? 'bg-purple-500' : 'bg-gray-100 dark:bg-slate-900'
               }`}
             >
               <Text className={`text-sm font-semibold ${
@@ -1528,7 +1528,7 @@ export default function DoScreen() {
                 key={func}
                 onPress={() => setSelectedFunction(func)}
                 className={`px-4 py-2 rounded-full ${
-                  selectedFunction === func ? 'bg-purple-500' : 'bg-gray-100 dark:bg-slate-800'
+                  selectedFunction === func ? 'bg-purple-500' : 'bg-gray-100 dark:bg-slate-900'
                 }`}
               >
                 <Text className={`text-sm font-semibold ${
