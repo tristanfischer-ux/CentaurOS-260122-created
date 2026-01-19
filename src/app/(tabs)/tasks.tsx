@@ -648,8 +648,8 @@ export default function TasksScreen() {
           </View>
         )}
 
-        {/* Empty state */}
-        {filteredTasks.length === 0 && workspaceDrafts.length === 0 && (
+        {/* Empty state - only show "Create First Task" when there are truly no tasks */}
+        {filteredTasks.length === 0 && workspaceDrafts.length === 0 && statusFilter === 'all' && (
           <View className="items-center py-12">
             <CheckSquare size={48} color="#94a3b8" />
             <Text className="text-slate-500 dark:text-slate-400 text-center mt-4 text-base">
