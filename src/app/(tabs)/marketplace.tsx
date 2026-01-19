@@ -191,7 +191,7 @@ export default function MarketplaceScreen() {
         </View>
 
         {/* Search */}
-        <View className="flex-row items-center bg-white/20 rounded-xl px-4 py-3">
+        <View className="flex-row items-center bg-white/20 rounded-xl px-4 py-3 mb-3">
           <Search size={18} color="white" />
           <TextInput
             value={searchQuery}
@@ -207,12 +207,20 @@ export default function MarketplaceScreen() {
           )}
         </View>
 
-        {/* AI Hint */}
-        <View className="flex-row items-center gap-2 mt-2 px-1">
-          <Sparkles size={14} color="rgba(255,255,255,0.7)" />
-          <Text className="text-white/70 text-xs">
-            Try: "fractional COO for fintech" or "PCB manufacturer"
-          </Text>
+        {/* Stats - Consistent with other tabs */}
+        <View className="flex-row justify-between bg-white/10 rounded-xl p-3">
+          <View className="items-center flex-1">
+            <Text className="text-white/70 text-xs">AI Tools</Text>
+            <Text className="text-white font-bold text-lg">{aiTools.length}</Text>
+          </View>
+          <View className="items-center flex-1 border-l border-white/20">
+            <Text className="text-white/70 text-xs">Drafts</Text>
+            <Text className="text-amber-300 font-bold text-lg">{draftCount}</Text>
+          </View>
+          <View className="items-center flex-1 border-l border-white/20">
+            <Text className="text-white/70 text-xs">Categories</Text>
+            <Text className="text-white font-bold text-lg">5</Text>
+          </View>
         </View>
       </LinearGradient>
 

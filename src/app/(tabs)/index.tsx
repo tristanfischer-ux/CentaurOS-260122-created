@@ -259,12 +259,12 @@ function FounderHome() {
           paddingBottom: 16,
         }}
       >
-        <View className="flex-row items-center justify-between">
+        <View className="flex-row items-center justify-between mb-4">
           <View className="flex-1">
-            <Text className="text-white/70 text-xs font-medium">
+            <Text className="text-white/70 text-xs font-medium uppercase tracking-wide">
               {currentDate}
             </Text>
-            <Text className="text-white text-xl font-bold">
+            <Text className="text-white text-2xl font-bold">
               Mission Control
             </Text>
           </View>
@@ -293,6 +293,26 @@ function FounderHome() {
               <Settings size={16} color="white" />
             </Pressable>
             <HelpButton onPress={() => setShowHelp(true)} />
+          </View>
+        </View>
+
+        {/* Stats - Consistent with other tabs */}
+        <View className="flex-row justify-between bg-white/10 rounded-xl p-3">
+          <View className="items-center flex-1">
+            <Text className="text-white/70 text-xs">Tasks</Text>
+            <Text className="text-white font-bold text-lg">{workPlans.filter(wp => wp.status !== 'completed' && wp.status !== 'abandoned').length}</Text>
+          </View>
+          <View className="items-center flex-1 border-l border-white/20">
+            <Text className="text-white/70 text-xs">Doing</Text>
+            <Text className="text-white font-bold text-lg">{workPlans.filter(wp => wp.status === 'in-progress').length}</Text>
+          </View>
+          <View className="items-center flex-1 border-l border-white/20">
+            <Text className="text-white/70 text-xs">Blocked</Text>
+            <Text className="text-red-300 font-bold text-lg">{workPlans.filter(wp => wp.status === 'blocked').length}</Text>
+          </View>
+          <View className="items-center flex-1 border-l border-white/20">
+            <Text className="text-white/70 text-xs">Team</Text>
+            <Text className="text-white font-bold text-lg">{members.length}</Text>
           </View>
         </View>
       </LinearGradient>

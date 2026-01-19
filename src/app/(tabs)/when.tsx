@@ -94,7 +94,7 @@ export default function WhenScreen() {
   }, [workPlans, members]);
 
   return (
-    <View className="flex-1 bg-white dark:bg-slate-950">
+    <View className="flex-1 bg-slate-50 dark:bg-slate-950">
       {/* Help Modal */}
       <HelpModal
         visible={showHelp}
@@ -111,30 +111,37 @@ export default function WhenScreen() {
         style={{
           paddingHorizontal: 20,
           paddingTop: insets.top + 12,
-          paddingBottom: 12,
+          paddingBottom: 16,
         }}
       >
-        <View className="flex-row items-center justify-between">
+        <View className="flex-row items-center justify-between mb-4">
           <View>
             <Text className="text-white/70 text-xs font-medium uppercase tracking-wide">Timeline</Text>
             <Text className="text-white text-2xl font-bold">When</Text>
           </View>
           <View className="flex-row items-center gap-2">
-            {/* Task Stats - Compact */}
-            <View className="bg-white/10 rounded-lg px-2 py-1">
-              <Text className="text-white/70 text-[9px]">Active</Text>
-              <Text className="text-white font-bold text-sm">{taskStats.total}</Text>
-            </View>
-            <View className="bg-white/10 rounded-lg px-2 py-1">
-              <Text className="text-white/70 text-[9px]">Doing</Text>
-              <Text className="text-white font-bold text-sm">{taskStats.inProgress}</Text>
-            </View>
-            <View className="bg-white/10 rounded-lg px-2 py-1">
-              <Text className="text-white/70 text-[9px]">Load</Text>
-              <Text className="text-white font-bold text-sm">{taskStats.allocatedTUs}/{taskStats.totalCapacity}</Text>
-            </View>
             <SettingsGearButton style="glass" />
             <HelpButton onPress={() => setShowHelp(true)} />
+          </View>
+        </View>
+
+        {/* Stats - Consistent with other tabs */}
+        <View className="flex-row justify-between bg-white/10 rounded-xl p-3">
+          <View className="items-center flex-1">
+            <Text className="text-white/70 text-xs">Active</Text>
+            <Text className="text-white font-bold text-lg">{taskStats.total}</Text>
+          </View>
+          <View className="items-center flex-1 border-l border-white/20">
+            <Text className="text-white/70 text-xs">Doing</Text>
+            <Text className="text-white font-bold text-lg">{taskStats.inProgress}</Text>
+          </View>
+          <View className="items-center flex-1 border-l border-white/20">
+            <Text className="text-white/70 text-xs">Blocked</Text>
+            <Text className="text-red-300 font-bold text-lg">{taskStats.blocked}</Text>
+          </View>
+          <View className="items-center flex-1 border-l border-white/20">
+            <Text className="text-white/70 text-xs">Load</Text>
+            <Text className="text-white font-bold text-lg">{taskStats.allocatedTUs}/{taskStats.totalCapacity}</Text>
           </View>
         </View>
       </LinearGradient>
