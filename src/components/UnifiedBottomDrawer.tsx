@@ -485,19 +485,22 @@ export function UnifiedBottomDrawer({
                       <Text className="text-slate-700 dark:text-slate-300 text-sm leading-relaxed mb-3">
                         <Text className="font-bold">Voice Input Guide:</Text>
                       </Text>
-                      <Text className="text-slate-600 dark:text-slate-400 text-xs leading-relaxed mb-2">
+                      <Text className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-2">
                         ✓ Be specific about the task{'\n'}
                         ✓ Mention who should do it{'\n'}
                         ✓ Include a due date if known{'\n'}
-                        ✓ Estimate time needed (hours or TUs)
+                        ✓ Estimate time needed (hours or TUs){'\n'}
+                        ✓ You can create multiple tasks at once!
                       </Text>
-                      <Text className="text-slate-700 dark:text-slate-300 text-xs leading-relaxed font-semibold mb-1">
+                      <Text className="text-slate-700 dark:text-slate-300 text-sm leading-relaxed font-semibold mb-1">
                         Examples:
                       </Text>
-                      <Text className="text-slate-600 dark:text-slate-400 text-xs leading-relaxed italic">
+                      <Text className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed italic">
                         "Create a task to update the landing page, assign it to Sarah, due next Friday, will take 3 hours"
                         {'\n\n'}
                         "Fix the login bug, James should handle it, needs about 2 days of work"
+                        {'\n\n'}
+                        "Three tasks: first, review the designs for 2 hours; second, schedule team meeting; third, send investor update"
                       </Text>
                     </View>
                   </View>
