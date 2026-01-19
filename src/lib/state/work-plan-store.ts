@@ -190,6 +190,9 @@ interface WorkPlanState {
   unshareWorkPlan: (id: string) => void;
   setWorkPlanOwner: (id: string, ownerId: string) => void;
 
+  // Miscellaneous task management
+  ensureMiscellaneousTask: (workspaceId: string) => Promise<void>;
+
   // Reset method for clearing all data
   reset: () => void;
 }
@@ -474,6 +477,9 @@ export const useWorkPlanStore = create<WorkPlanState>((set, get) => ({
       });
 
       set({ workPlans, isLoading: false });
+
+      // Ensure miscellaneous task exists after loading
+      await get().ensureMiscellaneousTask(workspaceId);
     } catch (err) {
       console.error('Error loading work plans from Supabase:', err);
       set({ error: err instanceof Error ? err.message : 'Failed to load work plans', isLoading: false });
@@ -995,6 +1001,69 @@ export const useWorkPlanStore = create<WorkPlanState>((set, get) => ({
       ),
     }));
     console.log(`[WorkPlanStore] Set owner for ${id} to ${ownerId}`);
+  },
+
+  // Ensure a default miscellaneous task exists for unaccounted TUs
+  ensureMiscellaneousTask: async (workspaceId: string) => {
+    const miscTaskId = `misc-${workspaceId}`;
+    const existingMiscTask = get().workPlans.find(wp => wp.id === miscTaskId);
+
+    // If miscellaneous task already exists, skip
+    if (existingMiscTask) {
+      return;
+    }
+
+    console.log('[WorkPlanStore] Creating default miscellaneous task');
+
+    // Create a permanent miscellaneous task
+    const miscTask: WorkPlan = {
+      id: miscTaskId,
+      workspaceId,
+      title: 'Miscellaneous',
+      description: 'Default task for unaccounted time units - meetings, admin, learning, etc.',
+      function: 'Ops',
+      startDate: new Date().toISOString().split('T')[0],
+      dueDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 1 year from now
+      status: 'in-progress',
+      progress: 0,
+      assignedBy: 'system',
+      needsSubmission: false,
+      estimatedTimeUnits: 1000, // Large buffer for misc work
+      allocations: [],
+      appliedAITools: [],
+      tusExpended: 0,
+      assignedMemberIds: [],
+    };
+
+    // Add to local state first
+    set(state => ({ workPlans: [...state.workPlans, miscTask] }));
+
+    // Try to persist to Supabase
+    try {
+      const supabaseWorkPlan = {
+        id: miscTaskId,
+        workspace_id: workspaceId,
+        title: miscTask.title,
+        description: miscTask.description,
+        status: 'in-progress',
+        priority: 'low',
+        progress: 0,
+        start_date: miscTask.startDate,
+        end_date: miscTask.dueDate,
+        created_by: null,
+      };
+
+      const { error } = await supabase
+        .from('work_plans')
+        .insert(supabaseWorkPlan);
+
+      if (error) {
+        console.log('[WorkPlanStore] Failed to persist miscellaneous task to Supabase:', error.message);
+        // Don't fail if Supabase insert fails - keep local version
+      }
+    } catch (err) {
+      console.error('[WorkPlanStore] Error creating miscellaneous task:', err);
+    }
   },
 
   // Reset method - clears all work plan data
