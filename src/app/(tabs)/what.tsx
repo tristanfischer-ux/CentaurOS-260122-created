@@ -2,8 +2,13 @@
  * What Tab - LEGACY (redirects to Tasks)
  * Tasks, Gantt chart, and resource allocations
  *
- * MIGRATION NOTE: This tab is now redirected to /tasks
- * Keeping the original code for backward compatibility during transition.
+ * MIGRATION NOTE: This tab is DEPRECATED and redirects to /tasks.
+ * The original code is kept for backward compatibility during 2-4 week transition.
+ *
+ * DEPRECATION TIMELINE:
+ * - Phase 1 (Now): Auto-redirect to /tasks with deprecation warning
+ * - Phase 2 (2 weeks): Remove original code, keep redirect only
+ * - Phase 3 (4 weeks): Remove file entirely
  */
 
 import { View, Text, ScrollView, Pressable, Modal, TextInput } from 'react-native';
@@ -11,6 +16,7 @@ import { useState, useMemo, useEffect, useCallback } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { FadeInDown, useAnimatedStyle, withSpring, useSharedValue } from 'react-native-reanimated';
+import { router, usePathname } from 'expo-router';
 import {
   CheckSquare,
   Plus,
@@ -111,6 +117,16 @@ export default function WhatScreen() {
   const insets = useSafeAreaInsets();
   const currentMembership = useCurrentMembership();
   const currentWorkspace = useCurrentWorkspace();
+  const pathname = usePathname();
+
+  // AUTO-REDIRECT to /tasks (new tab)
+  // This is the primary redirect mechanism for backward compatibility
+  useEffect(() => {
+    if (pathname === '/(tabs)/what' || pathname === '/what') {
+      console.log('[LEGACY] Redirecting from /what to /tasks');
+      router.replace('/(tabs)/tasks');
+    }
+  }, [pathname]);
 
   // Stores
   const members = useOrganizationStore(s => s.members);

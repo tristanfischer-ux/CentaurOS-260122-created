@@ -4,6 +4,9 @@
  *
  * MIGRATION: Timeline/Gantt features moved here from 'what' tab
  * Anti-bloat: No duplicate task lists; link to Tasks for details
+ *
+ * IMPORTANT: This tab ONLY shows confirmed real tasks from WorkPlan store.
+ * Drafts (from Draft store) are NOT shown here - they must be confirmed first.
  */
 
 import { View, Text, ScrollView, Pressable } from 'react-native';

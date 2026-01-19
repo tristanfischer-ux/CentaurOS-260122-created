@@ -15,6 +15,40 @@ Centaur OS is a comprehensive iOS mobile application that helps lean companies o
 
 ## 🚀 Latest Updates (Jan 19, 2026)
 
+### ✅ 7-Tab Restructure v2.0 Complete
+
+**New Tab Structure:**
+| Tab | Purpose |
+|-----|---------|
+| **Home** | Snapshots + Quick Access to Plan/Analytics |
+| **People** | Team roster, capacity, hiring pipeline |
+| **Tasks** | Task creation + **Drafts section** at top |
+| **When** | Timeline/capacity week view |
+| **Resources** | Current AI tools, active suppliers |
+| **Marketplace** | Discovery only, creates **drafts** |
+| **Settings** | Config, integrations |
+
+**Draft System (NEW):**
+- ✅ **Unified Draft Store** (`src/lib/state/draft-store.ts`)
+- ✅ Drafts are separate entities from real tasks
+- ✅ Marketplace actions create drafts (not fake `[DRAFT]` prefix tasks)
+- ✅ Drafts appear in Tasks tab → Drafts section
+- ✅ User explicitly confirms drafts → become real tasks
+- ✅ Drafts excluded from When tab and metrics
+
+**Legacy Route Redirects:**
+- ✅ `/who` → `/people` (auto-redirect)
+- ✅ `/what` → `/tasks` (auto-redirect)
+- ✅ `/tools` → `/resources` (auto-redirect)
+- ✅ All legacy routes still work (4-week deprecation)
+
+**Documentation:**
+- `MIGRATION_NOTES.md` - Full migration details
+- `TAB_CONTRACT.md` - Tab boundaries and rules
+- `STYLE_SYSTEM.md` - UI primitives
+
+---
+
 ### ✅ Phase 2 UI/UX Fixes Complete
 
 **Voice Dictation Fixed:**

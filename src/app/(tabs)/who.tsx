@@ -2,8 +2,13 @@
  * Who Tab - LEGACY (redirects to People)
  * Team overview, resource pool, and recruitment
  *
- * MIGRATION NOTE: This tab is now redirected to /people
- * Keeping the original code for backward compatibility during transition.
+ * MIGRATION NOTE: This tab is DEPRECATED and redirects to /people.
+ * The original code is kept for backward compatibility during 2-4 week transition.
+ *
+ * DEPRECATION TIMELINE:
+ * - Phase 1 (Now): Auto-redirect to /people with deprecation warning
+ * - Phase 2 (2 weeks): Remove original code, keep redirect only
+ * - Phase 3 (4 weeks): Remove file entirely
  */
 
 import { View, Text, ScrollView, Pressable, Modal, TextInput, Alert, Dimensions, Linking } from 'react-native';
@@ -12,7 +17,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { FadeInDown, FadeInRight, useAnimatedStyle, withSpring, useSharedValue } from 'react-native-reanimated';
 import { FlashList } from '@shopify/flash-list';
-import { router } from 'expo-router';
+import { router, usePathname } from 'expo-router';
 import {
   Users,
   Crown,
@@ -148,6 +153,16 @@ export default function WhoScreen() {
   const currentMembership = useCurrentMembership();
   const currentWorkspace = useCurrentWorkspace();
   const currentUser = useCurrentUser();
+  const pathname = usePathname();
+
+  // AUTO-REDIRECT to /people (new tab)
+  // This is the primary redirect mechanism for backward compatibility
+  useEffect(() => {
+    if (pathname === '/(tabs)/who' || pathname === '/who') {
+      console.log('[LEGACY] Redirecting from /who to /people');
+      router.replace('/(tabs)/people');
+    }
+  }, [pathname]);
 
   // Stores
   const members = useOrganizationStore(s => s.members);

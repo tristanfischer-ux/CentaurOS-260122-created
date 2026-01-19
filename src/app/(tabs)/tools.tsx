@@ -2,16 +2,21 @@
  * Tools Tab - LEGACY (redirects to Resources)
  * Supplier engagements and AI agent management
  *
- * MIGRATION NOTE: This tab is now redirected to /resources
- * Keeping the original code for backward compatibility during transition.
+ * MIGRATION NOTE: This tab is DEPRECATED and redirects to /resources.
+ * The original code is kept for backward compatibility during 2-4 week transition.
+ *
+ * DEPRECATION TIMELINE:
+ * - Phase 1 (Now): Auto-redirect to /resources with deprecation warning
+ * - Phase 2 (2 weeks): Remove original code, keep redirect only
+ * - Phase 3 (4 weeks): Remove file entirely
  */
 
 import { View, Text, ScrollView, Pressable, Modal, Linking, TextInput } from 'react-native';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { FadeInDown } from 'react-native-reanimated';
-import { router } from 'expo-router';
+import { router, usePathname } from 'expo-router';
 import {
   Wrench,
   Package,
@@ -95,6 +100,16 @@ export default function ToolsScreen() {
   const insets = useSafeAreaInsets();
   const currentWorkspace = useCurrentWorkspace();
   const currentMembership = useCurrentMembership();
+  const pathname = usePathname();
+
+  // AUTO-REDIRECT to /resources (new tab)
+  // This is the primary redirect mechanism for backward compatibility
+  useEffect(() => {
+    if (pathname === '/(tabs)/tools' || pathname === '/tools') {
+      console.log('[LEGACY] Redirecting from /tools to /resources');
+      router.replace('/(tabs)/resources');
+    }
+  }, [pathname]);
 
   // Stores
   const aiAgents = useOrganizationStore(s => s.aiAgents);

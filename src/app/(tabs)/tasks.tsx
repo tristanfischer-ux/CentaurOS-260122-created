@@ -1,67 +1,58 @@
 /**
  * Tasks Tab - Task Management
- * Status-first view: Doing / Queued / Blocked / Done
+ * Status-first view: Drafts / Doing / Queued / Blocked / Done
  *
  * MIGRATION: This tab consolidates features from 'what', 'decide', 'do' tabs
  * Anti-bloat: This is the ONLY place to create/edit/confirm tasks
+ *
+ * IMPORTANT: Uses unified Draft store for all drafts (AI extraction + Marketplace)
+ * Drafts are a separate entity from tasks and must be explicitly confirmed.
  */
 
-import { View, Text, ScrollView, Pressable, Modal, TextInput } from 'react-native';
-import { useState, useMemo, useEffect } from 'react';
+import { View, Text, ScrollView, Pressable, Modal } from 'react-native';
+import { useState, useMemo } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { FadeInDown } from 'react-native-reanimated';
-import { router } from 'expo-router';
 import {
   CheckSquare,
   Plus,
   X,
   Clock,
   Play,
-  Pause,
   CheckCircle2,
   AlertTriangle,
-  Target,
-  Filter,
   Sparkles,
-  Calendar,
+  FileText,
+  Trash2,
+  Check,
+  Edit3,
+  Store,
+  Mic,
 } from 'lucide-react-native';
 import { useOrganizationStore } from '@/lib/state/organization-store';
 import { useWorkPlanStore, type WorkPlan } from '@/lib/state/work-plan-store';
+import { useDraftStore, type Draft } from '@/lib/state/draft-store';
 import { useCurrentMembership, useCurrentWorkspace } from '@/lib/state/app-store';
 import type { OrganizationMember } from '@/lib/organization-seed';
-import type { Function as BusinessFunction } from '@/types';
 import { HelpModal, HelpButton, type HelpContent } from '@/components/HelpModal';
 import { SettingsGearButton } from '@/components/SettingsGearButton';
 import { UnifiedTaskAllocationModal } from '@/components/UnifiedTaskAllocationModal';
 import { CompactTaskCard } from '@/components/CompactTaskCard';
 import { filterWorkPlansByRole } from '@/lib/role-utils';
 import { UnifiedBottomDrawer } from '@/components/UnifiedBottomDrawer';
-import { TaskDraftsReviewModal } from '@/components/TaskDraftsReviewModal';
 import { extractTasksFromText } from '@/lib/ai/task-extraction';
-
-interface TaskDraft {
-  id: string;
-  title: string;
-  notes?: string;
-  assignee_id?: string;
-  start_iso?: string;
-  due_iso?: string;
-  units: number;
-  confidence_assignee?: number;
-  confidence_due?: number;
-}
 
 const TASKS_HELP: HelpContent = {
   title: 'Tasks',
   subtitle: 'Manage all your work',
-  description: 'The Tasks tab is the single source of truth for all tasks. View by status, create new tasks via voice or text, and manage task lifecycle.',
+  description: 'The Tasks tab is the single source of truth for all tasks. Drafts appear at the top and must be confirmed before becoming real tasks.',
   tips: [
+    'Drafts are shown at the top - confirm them to create real tasks',
     'Tasks are organized by status: Doing, Queued, Blocked, Done',
     'Use voice or text input to create task drafts',
-    'All task drafts require confirmation before becoming real tasks',
+    'Marketplace actions also create drafts here',
     'Tap a task to view details and allocate team members',
-    'Link to When tab to see timeline, link to People to see who\'s assigned',
   ],
   quickActions: [
     { label: 'Create Task', description: 'Add a new task via voice or text' },
@@ -80,6 +71,15 @@ const STATUS_CONFIG = {
 
 type StatusFilter = 'all' | 'in-progress' | 'not-started' | 'blocked' | 'completed';
 
+// Generate UUID
+const generateUUID = (): string => {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+    const r = Math.random() * 16 | 0;
+    const v = c === 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
+};
+
 export default function TasksScreen() {
   const insets = useSafeAreaInsets();
   const currentMembership = useCurrentMembership();
@@ -89,7 +89,13 @@ export default function TasksScreen() {
   const members = useOrganizationStore(s => s.members);
   const workPlans = useWorkPlanStore(s => s.workPlans);
   const addWorkPlan = useWorkPlanStore(s => s.addWorkPlan);
-  const updateWorkPlan = useWorkPlanStore(s => s.updateWorkPlan);
+
+  // Unified Draft Store
+  const drafts = useDraftStore(s => s.drafts);
+  const addDrafts = useDraftStore(s => s.addDrafts);
+  const updateDraft = useDraftStore(s => s.updateDraft);
+  const removeDraft = useDraftStore(s => s.removeDraft);
+  const confirmDrafts = useDraftStore(s => s.confirmDrafts);
 
   // Fallback for demo mode
   const effectiveMembership = currentMembership ||
@@ -102,6 +108,11 @@ export default function TasksScreen() {
     name: 'Demo Workspace'
   };
 
+  // Filter drafts by workspace
+  const workspaceDrafts = useMemo(() => {
+    return drafts.filter(d => d.workspaceId === effectiveWorkspace.id);
+  }, [drafts, effectiveWorkspace.id]);
+
   // State
   const [showHelp, setShowHelp] = useState(false);
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
@@ -110,12 +121,11 @@ export default function TasksScreen() {
   const [openDrawerToNewTask, setOpenDrawerToNewTask] = useState(false);
   const [showVoiceTranscript, setShowVoiceTranscript] = useState(false);
   const [voiceTranscript, setVoiceTranscript] = useState('');
-  const [showDraftsReview, setShowDraftsReview] = useState(false);
-  const [taskDrafts, setTaskDrafts] = useState<TaskDraft[]>([]);
   const [isProcessingTranscript, setIsProcessingTranscript] = useState(false);
   const [isConfirmingDrafts, setIsConfirmingDrafts] = useState(false);
+  const [selectedDraftIds, setSelectedDraftIds] = useState<Set<string>>(new Set());
 
-  // Role-based filtering
+  // Role-based filtering for REAL tasks only (not drafts)
   const roleFilteredTasks = useMemo(() => {
     if (!currentMembership?.role) return workPlans;
     return filterWorkPlansByRole(
@@ -149,14 +159,14 @@ export default function TasksScreen() {
     return grouped;
   }, [filteredTasks]);
 
-  // Stats
+  // Stats - DOES NOT include drafts (drafts are separate)
   const stats = useMemo(() => {
     const doing = roleFilteredTasks.filter(t => t.status === 'in-progress').length;
     const queued = roleFilteredTasks.filter(t => t.status === 'not-started').length;
     const blocked = roleFilteredTasks.filter(t => t.status === 'blocked').length;
     const done = roleFilteredTasks.filter(t => t.status === 'completed').length;
-    return { doing, queued, blocked, done };
-  }, [roleFilteredTasks]);
+    return { doing, queued, blocked, done, drafts: workspaceDrafts.length };
+  }, [roleFilteredTasks, workspaceDrafts.length]);
 
   // Handle voice transcript
   const handleVoiceTranscript = (transcript: string) => {
@@ -164,7 +174,7 @@ export default function TasksScreen() {
     setShowVoiceTranscript(true);
   };
 
-  // Handle text input
+  // Handle text input - creates drafts in the unified Draft store
   const handleTextInput = async (text: string) => {
     if (!text.trim()) return;
 
@@ -176,18 +186,22 @@ export default function TasksScreen() {
         return;
       }
 
-      const drafts: TaskDraft[] = extraction.tasks.map((task, index) => ({
-        id: `draft-${Date.now()}-${index}`,
+      // Add to unified Draft store
+      addDrafts(extraction.tasks.map(task => ({
+        workspaceId: effectiveWorkspace.id,
         title: task.title,
-        notes: task.notes || '',
-        due_iso: task.due_date || undefined,
+        description: task.notes || '',
+        createdBy: effectiveMembership.id,
+        dueDate: task.due_date || undefined,
         units: task.units,
-        confidence_assignee: task.confidence_assignee,
-        confidence_due: task.confidence_due,
-      }));
+        source: 'ai_extraction' as const,
+        sourceMetadata: {
+          confidence: task.confidence_due,
+          extractionType: 'text' as const,
+          originalText: text,
+        },
+      })));
 
-      setTaskDrafts(drafts);
-      setShowDraftsReview(true);
     } catch (error) {
       alert(`Failed to extract tasks: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
@@ -195,7 +209,7 @@ export default function TasksScreen() {
     }
   };
 
-  // Process voice transcript
+  // Process voice transcript - creates drafts in the unified Draft store
   const handleProcessVoiceTranscript = async () => {
     if (!voiceTranscript.trim()) return;
 
@@ -208,19 +222,24 @@ export default function TasksScreen() {
         return;
       }
 
-      const drafts: TaskDraft[] = extraction.tasks.map((task, index) => ({
-        id: `draft-${Date.now()}-${index}`,
+      // Add to unified Draft store
+      addDrafts(extraction.tasks.map(task => ({
+        workspaceId: effectiveWorkspace.id,
         title: task.title,
-        notes: task.notes || '',
-        due_iso: task.due_date || undefined,
+        description: task.notes || '',
+        createdBy: effectiveMembership.id,
+        dueDate: task.due_date || undefined,
         units: task.units,
-        confidence_assignee: task.confidence_assignee,
-        confidence_due: task.confidence_due,
-      }));
+        source: 'ai_extraction' as const,
+        sourceMetadata: {
+          confidence: task.confidence_due,
+          extractionType: 'voice' as const,
+          originalText: voiceTranscript,
+        },
+      })));
 
-      setTaskDrafts(drafts);
       setShowVoiceTranscript(false);
-      setShowDraftsReview(true);
+      setVoiceTranscript('');
     } catch (error) {
       alert(`Failed to extract tasks: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
@@ -228,31 +247,29 @@ export default function TasksScreen() {
     }
   };
 
-  // Confirm drafts
-  const handleConfirmDrafts = async (draftIds: string[]) => {
+  // Confirm selected drafts - converts them to real tasks
+  const handleConfirmSelectedDrafts = async () => {
+    if (selectedDraftIds.size === 0) return;
+
     setIsConfirmingDrafts(true);
     try {
-      const draftsToConfirm = taskDrafts.filter(d => draftIds.includes(d.id));
+      // Get drafts to confirm and remove from store
+      const confirmedDrafts = await confirmDrafts(Array.from(selectedDraftIds));
 
-      for (const draft of draftsToConfirm) {
-        const uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
-          const r = Math.random() * 16 | 0;
-          const v = c === 'x' ? r : (r & 0x3 | 0x8);
-          return v.toString(16);
-        });
-
+      // Create real tasks from confirmed drafts
+      for (const draft of confirmedDrafts) {
         const newTask: WorkPlan = {
-          id: uuid,
-          workspaceId: effectiveWorkspace.id,
+          id: generateUUID(),
+          workspaceId: draft.workspaceId,
           title: draft.title,
-          description: draft.notes || '',
+          description: draft.description,
           function: 'Engineering' as const,
           startDate: new Date().toISOString().split('T')[0],
-          dueDate: draft.due_iso ? draft.due_iso.split('T')[0] : new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+          dueDate: draft.dueDate || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
           status: 'not-started' as const,
           progress: 0,
-          assignedBy: effectiveMembership.id,
-          needsSubmission: false,
+          assignedBy: draft.createdBy,
+          needsSubmission: false, // Real tasks don't need submission flag
           estimatedTimeUnits: draft.units,
           allocations: [],
           appliedAITools: [],
@@ -262,10 +279,8 @@ export default function TasksScreen() {
         await addWorkPlan(newTask);
       }
 
-      setShowDraftsReview(false);
-      setTaskDrafts([]);
-      setVoiceTranscript('');
-      alert(`${draftsToConfirm.length} task(s) created!`);
+      setSelectedDraftIds(new Set());
+      alert(`${confirmedDrafts.length} task(s) created!`);
     } catch (error) {
       alert('Failed to create tasks. Please try again.');
     } finally {
@@ -273,12 +288,38 @@ export default function TasksScreen() {
     }
   };
 
-  const handleEditDraft = (draftId: string, updates: Partial<TaskDraft>) => {
-    setTaskDrafts(prev => prev.map(d => d.id === draftId ? { ...d, ...updates } : d));
+  // Toggle draft selection
+  const toggleDraftSelection = (draftId: string) => {
+    setSelectedDraftIds(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(draftId)) {
+        newSet.delete(draftId);
+      } else {
+        newSet.add(draftId);
+      }
+      return newSet;
+    });
   };
 
-  const handleRemoveDraft = (draftId: string) => {
-    setTaskDrafts(prev => prev.filter(d => d.id !== draftId));
+  // Select all drafts
+  const selectAllDrafts = () => {
+    setSelectedDraftIds(new Set(workspaceDrafts.map(d => d.id)));
+  };
+
+  // Get source label for draft
+  const getDraftSourceLabel = (draft: Draft): string => {
+    switch (draft.source) {
+      case 'marketplace':
+        return 'Marketplace';
+      case 'ai_extraction':
+        return draft.sourceMetadata?.extractionType === 'voice' ? 'Voice' : 'Text';
+      case 'import':
+        return 'Import';
+      case 'manual':
+        return 'Manual';
+      default:
+        return 'Draft';
+    }
   };
 
   return (
@@ -332,9 +373,15 @@ export default function TasksScreen() {
           </View>
         </View>
 
-        {/* Stats - Status-first */}
+        {/* Stats - Status-first, drafts shown separately */}
         <View className="flex-row justify-between bg-white/10 rounded-xl p-3">
-          <View className="items-center flex-1">
+          {stats.drafts > 0 && (
+            <View className="items-center flex-1">
+              <Text className="text-white/70 text-xs">Drafts</Text>
+              <Text className="text-amber-300 font-bold text-lg">{stats.drafts}</Text>
+            </View>
+          )}
+          <View className={`items-center flex-1 ${stats.drafts > 0 ? 'border-l border-white/20' : ''}`}>
             <Text className="text-white/70 text-xs">Doing</Text>
             <Text className="text-white font-bold text-lg">{stats.doing}</Text>
           </View>
@@ -386,6 +433,106 @@ export default function TasksScreen() {
         className="flex-1"
         contentContainerStyle={{ padding: 20, paddingBottom: insets.bottom + 100 }}
       >
+        {/* DRAFTS SECTION - Always at top */}
+        {workspaceDrafts.length > 0 && (
+          <Animated.View entering={FadeInDown.springify()} className="mb-6">
+            <View className="flex-row items-center justify-between mb-3">
+              <View className="flex-row items-center gap-2">
+                <FileText size={18} color="#f59e0b" />
+                <Text className="text-slate-900 dark:text-white font-semibold text-base">
+                  Drafts ({workspaceDrafts.length})
+                </Text>
+              </View>
+              <View className="flex-row items-center gap-2">
+                {selectedDraftIds.size > 0 && (
+                  <Pressable
+                    onPress={handleConfirmSelectedDrafts}
+                    disabled={isConfirmingDrafts}
+                    className="bg-emerald-500 px-3 py-1.5 rounded-full flex-row items-center gap-1"
+                  >
+                    <Check size={14} color="white" />
+                    <Text className="text-white text-xs font-medium">
+                      {isConfirmingDrafts ? 'Creating...' : `Confirm (${selectedDraftIds.size})`}
+                    </Text>
+                  </Pressable>
+                )}
+                {workspaceDrafts.length > 1 && selectedDraftIds.size !== workspaceDrafts.length && (
+                  <Pressable
+                    onPress={selectAllDrafts}
+                    className="bg-slate-200 dark:bg-slate-700 px-3 py-1.5 rounded-full"
+                  >
+                    <Text className="text-slate-600 dark:text-slate-300 text-xs font-medium">Select All</Text>
+                  </Pressable>
+                )}
+              </View>
+            </View>
+
+            <View className="bg-amber-50 dark:bg-amber-900/20 rounded-xl p-3 mb-3">
+              <Text className="text-amber-700 dark:text-amber-300 text-xs">
+                Drafts must be confirmed to become real tasks. They won't appear in timeline or metrics until confirmed.
+              </Text>
+            </View>
+
+            {workspaceDrafts.map((draft) => (
+              <Pressable
+                key={draft.id}
+                onPress={() => toggleDraftSelection(draft.id)}
+                className={`bg-white dark:bg-slate-800 rounded-xl p-4 mb-2 border-l-4 ${
+                  selectedDraftIds.has(draft.id) ? 'border-emerald-500' : 'border-amber-500'
+                }`}
+              >
+                <View className="flex-row items-start justify-between">
+                  <View className="flex-1 mr-3">
+                    <View className="flex-row items-center gap-2 mb-1">
+                      <View className={`w-5 h-5 rounded-full border-2 items-center justify-center ${
+                        selectedDraftIds.has(draft.id)
+                          ? 'bg-emerald-500 border-emerald-500'
+                          : 'border-slate-300 dark:border-slate-600'
+                      }`}>
+                        {selectedDraftIds.has(draft.id) && <Check size={12} color="white" />}
+                      </View>
+                      <Text className="text-slate-900 dark:text-white font-medium flex-1" numberOfLines={1}>
+                        {draft.title}
+                      </Text>
+                    </View>
+                    {draft.description && (
+                      <Text className="text-slate-500 dark:text-slate-400 text-sm ml-7" numberOfLines={2}>
+                        {draft.description}
+                      </Text>
+                    )}
+                    <View className="flex-row items-center gap-2 mt-2 ml-7">
+                      <View className={`px-2 py-0.5 rounded-full ${
+                        draft.source === 'marketplace' ? 'bg-purple-100 dark:bg-purple-900/30' : 'bg-blue-100 dark:bg-blue-900/30'
+                      }`}>
+                        <Text className={`text-xs font-medium ${
+                          draft.source === 'marketplace' ? 'text-purple-600 dark:text-purple-400' : 'text-blue-600 dark:text-blue-400'
+                        }`}>
+                          {getDraftSourceLabel(draft)}
+                        </Text>
+                      </View>
+                      <Text className="text-slate-400 text-xs">
+                        {draft.units} TU
+                      </Text>
+                      {draft.dueDate && (
+                        <Text className="text-slate-400 text-xs">
+                          Due: {new Date(draft.dueDate).toLocaleDateString()}
+                        </Text>
+                      )}
+                    </View>
+                  </View>
+                  <Pressable
+                    onPress={() => removeDraft(draft.id)}
+                    className="p-2"
+                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                  >
+                    <Trash2 size={16} color="#ef4444" />
+                  </Pressable>
+                </View>
+              </Pressable>
+            ))}
+          </Animated.View>
+        )}
+
         {/* Doing */}
         {tasksByStatus['in-progress'].length > 0 && (
           <View className="mb-6">
@@ -502,7 +649,7 @@ export default function TasksScreen() {
         )}
 
         {/* Empty state */}
-        {filteredTasks.length === 0 && (
+        {filteredTasks.length === 0 && workspaceDrafts.length === 0 && (
           <View className="items-center py-12">
             <CheckSquare size={48} color="#94a3b8" />
             <Text className="text-slate-500 dark:text-slate-400 text-center mt-4 text-base">
@@ -527,7 +674,7 @@ export default function TasksScreen() {
         onPersonSelect={() => {}}
         onVoiceTranscript={handleVoiceTranscript}
         onTextSubmit={handleTextInput}
-        pendingDraftsCount={taskDrafts.length}
+        pendingDraftsCount={workspaceDrafts.length}
         openToNewTask={openDrawerToNewTask}
         accentColor="#10b981"
       />
@@ -584,16 +731,6 @@ export default function TasksScreen() {
           </Pressable>
         </Pressable>
       </Modal>
-
-      {/* Task Drafts Review Modal */}
-      <TaskDraftsReviewModal
-        visible={showDraftsReview}
-        onClose={() => setShowDraftsReview(false)}
-        drafts={taskDrafts}
-        onConfirm={handleConfirmDrafts}
-        onEdit={handleEditDraft}
-        onRemove={handleRemoveDraft}
-      />
     </View>
   );
 }

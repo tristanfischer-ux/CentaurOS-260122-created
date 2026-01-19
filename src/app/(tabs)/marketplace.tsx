@@ -3,7 +3,11 @@
  * People, Suppliers, AI Tools, Advisors discovery
  *
  * MIGRATION: Discovery features from 'tools' marketplace + 'community'
- * Anti-bloat: Actions create task drafts ONLY - never auto-execute
+ * Anti-bloat: Actions create DRAFTS ONLY - never auto-execute or create real tasks
+ *
+ * IMPORTANT: This tab uses the Draft store, NOT the WorkPlan store.
+ * Drafts are separate entities that must be confirmed in the Tasks tab
+ * before becoming real tasks.
  */
 
 import { View, Text, ScrollView, Pressable, TextInput, Modal } from 'react-native';
@@ -28,9 +32,9 @@ import {
   Lightbulb,
   Package,
   UserPlus,
+  FileText,
 } from 'lucide-react-native';
-import { useOrganizationStore } from '@/lib/state/organization-store';
-import { useWorkPlanStore } from '@/lib/state/work-plan-store';
+import { useDraftStore } from '@/lib/state/draft-store';
 import { useCurrentWorkspace, useCurrentMembership } from '@/lib/state/app-store';
 import { THIRD_PARTY_AI_TOOLS, type ThirdPartyAITool } from '@/lib/third-party-ai-tools';
 import { HelpModal, HelpButton, type HelpContent } from '@/components/HelpModal';
@@ -61,7 +65,10 @@ export default function MarketplaceScreen() {
   const insets = useSafeAreaInsets();
   const currentWorkspace = useCurrentWorkspace();
   const currentMembership = useCurrentMembership();
-  const addWorkPlan = useWorkPlanStore(s => s.addWorkPlan);
+
+  // Use Draft store - NOT WorkPlan store
+  const addDraft = useDraftStore(s => s.addDraft);
+  const draftCount = useDraftStore(s => s.getDraftCount());
 
   // State
   const [showHelp, setShowHelp] = useState(false);
@@ -69,7 +76,9 @@ export default function MarketplaceScreen() {
   const [activeCategory, setActiveCategory] = useState<MarketplaceCategory>('all');
   const [selectedItem, setSelectedItem] = useState<ThirdPartyAITool | null>(null);
   const [showActionConfirm, setShowActionConfirm] = useState(false);
-  const [actionType, setActionType] = useState<'outreach' | 'quote' | 'invite'>('outreach');
+  const [actionType, setActionType] = useState<'contact' | 'quote' | 'invite'>('contact');
+  const [selectedCategory, setSelectedCategory] = useState<string>('');
+  const [selectedTargetType, setSelectedTargetType] = useState<'person' | 'supplier' | 'tool' | 'advisor'>('person');
 
   // Fallback for demo mode
   const effectiveWorkspace = currentWorkspace || {
@@ -92,36 +101,29 @@ export default function MarketplaceScreen() {
     ).slice(0, 10);
   }, [searchQuery]);
 
-  // Handle creating a task draft for outreach
-  const handleCreateOutreachDraft = async (title: string, description: string) => {
-    const uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
-      const r = Math.random() * 16 | 0;
-      const v = c === 'x' ? r : (r & 0x3 | 0x8);
-      return v.toString(16);
+  // Handle creating a DRAFT (not a task) for outreach
+  // This uses the Draft store - drafts must be confirmed in Tasks tab to become real tasks
+  const handleCreateOutreachDraft = (title: string, description: string, targetType: 'person' | 'supplier' | 'tool' | 'advisor') => {
+    addDraft({
+      workspaceId: effectiveWorkspace.id,
+      title: title, // NO [DRAFT] prefix - drafts are a separate entity
+      description: description,
+      createdBy: effectiveMembership.id,
+      units: 2,
+      source: 'marketplace',
+      sourceMetadata: {
+        marketplaceCategory: selectedCategory,
+        outreachType: actionType,
+        targetType: targetType,
+      },
     });
 
-    const newTask = {
-      id: uuid,
-      workspaceId: effectiveWorkspace.id,
-      title: `[DRAFT] ${title}`,
-      description: description,
-      function: 'Ops' as const,
-      startDate: new Date().toISOString().split('T')[0],
-      dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-      status: 'not-started' as const,
-      progress: 0,
-      assignedBy: effectiveMembership.id,
-      needsSubmission: true, // Marked as draft
-      estimatedTimeUnits: 2,
-      allocations: [],
-      appliedAITools: [],
-      tusExpended: 0,
-    };
-
-    await addWorkPlan(newTask);
     setShowActionConfirm(false);
     setSelectedItem(null);
-    alert('Task draft created! Go to Tasks tab to review and confirm.');
+    setSelectedCategory('');
+
+    // Navigate to Tasks tab to show the draft
+    router.push('/(tabs)/tasks');
   };
 
   const categories = [
@@ -243,7 +245,9 @@ export default function MarketplaceScreen() {
               {/* Fractional Executives */}
               <Pressable
                 onPress={() => {
-                  setActionType('outreach');
+                  setActionType('contact');
+                  setSelectedTargetType('person');
+                  setSelectedCategory('Fractional Executives');
                   setShowActionConfirm(true);
                 }}
                 className="bg-white dark:bg-slate-800 rounded-xl p-4 active:opacity-80"
@@ -266,6 +270,8 @@ export default function MarketplaceScreen() {
               <Pressable
                 onPress={() => {
                   setActionType('invite');
+                  setSelectedTargetType('person');
+                  setSelectedCategory('Apprentices');
                   setShowActionConfirm(true);
                 }}
                 className="bg-white dark:bg-slate-800 rounded-xl p-4 active:opacity-80"
@@ -308,6 +314,8 @@ export default function MarketplaceScreen() {
                   <Pressable
                     onPress={() => {
                       setActionType('quote');
+                      setSelectedTargetType('supplier');
+                      setSelectedCategory(cat.name);
                       setShowActionConfirm(true);
                     }}
                     className="bg-white dark:bg-slate-800 rounded-xl p-4 active:opacity-80"
@@ -397,7 +405,9 @@ export default function MarketplaceScreen() {
                 <Animated.View key={cat.name} entering={FadeInDown.delay(index * 50).springify()}>
                   <Pressable
                     onPress={() => {
-                      setActionType('outreach');
+                      setActionType('contact');
+                      setSelectedTargetType('advisor');
+                      setSelectedCategory(cat.name);
                       setShowActionConfirm(true);
                     }}
                     className="bg-white dark:bg-slate-800 rounded-xl p-4 active:opacity-80"
@@ -436,7 +446,7 @@ export default function MarketplaceScreen() {
             <View className="bg-white dark:bg-slate-900 rounded-t-3xl p-6">
               <View className="flex-row items-center justify-between mb-4">
                 <Text className="text-xl font-bold text-slate-900 dark:text-white">
-                  {actionType === 'outreach' ? 'Create Outreach Draft' :
+                  {actionType === 'contact' ? 'Create Contact Draft' :
                    actionType === 'quote' ? 'Request Quote Draft' :
                    'Create Invite Draft'}
                 </Text>
@@ -450,20 +460,21 @@ export default function MarketplaceScreen() {
                   Draft Only - No Auto-Execute
                 </Text>
                 <Text className="text-amber-700 dark:text-amber-400 text-sm">
-                  This will create a task draft in your Tasks tab. You must review and confirm before any action is taken.
+                  This will create a draft in your Tasks tab. You must review and confirm before any action is taken.
                 </Text>
               </View>
 
               <Pressable
                 onPress={() => handleCreateOutreachDraft(
-                  actionType === 'outreach' ? 'Reach out to contact' :
-                  actionType === 'quote' ? 'Request supplier quote' :
-                  'Send invitation',
-                  'Created from Marketplace discovery'
+                  actionType === 'contact' ? `Contact ${selectedCategory}` :
+                  actionType === 'quote' ? `Request quote from ${selectedCategory}` :
+                  `Invite from ${selectedCategory}`,
+                  'Created from Marketplace discovery',
+                  selectedTargetType
                 )}
                 className="bg-purple-600 py-4 rounded-xl items-center active:opacity-80"
               >
-                <Text className="text-white font-bold text-base">Create Task Draft</Text>
+                <Text className="text-white font-bold text-base">Create Draft</Text>
               </Pressable>
 
               <Pressable
