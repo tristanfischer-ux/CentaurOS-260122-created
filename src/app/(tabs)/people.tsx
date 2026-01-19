@@ -49,8 +49,8 @@ const PEOPLE_HELP: HelpContent = {
     'Tap "View Schedule" to see their allocation in the When tab',
   ],
   quickActions: [
-    { label: 'My Team', description: 'View current team members and their capacity' },
-    { label: 'Squads', description: 'View team squads and their current tasks' },
+    { label: 'People', description: 'View current team members and their capacity' },
+    { label: 'Teams', description: 'View team squads and their current tasks' },
     { label: 'Hiring Pipeline', description: 'Track candidates through the hiring process' },
   ],
 };
@@ -309,8 +309,8 @@ export default function PeopleScreen() {
       <View className="px-5 pt-4">
         <View className="flex-row bg-slate-100 dark:bg-slate-800 rounded-xl p-1">
           {[
-            { key: 'team', label: 'My Team', icon: Users },
-            { key: 'squads', label: 'Squads', icon: UsersRound },
+            { key: 'team', label: 'People', icon: Users },
+            { key: 'squads', label: 'Teams', icon: UsersRound },
             { key: 'hiring', label: 'Hiring', icon: UserPlus },
           ].map(tab => (
             <Pressable
@@ -435,12 +435,12 @@ export default function PeopleScreen() {
             {/* Squad Stats Header */}
             <View className="flex-row items-center justify-between mb-4">
               <Text className="text-slate-900 dark:text-white font-bold text-lg">
-                Team Squads
+                Team Groups
               </Text>
               <View className="flex-row items-center gap-2">
                 <View className="bg-purple-100 dark:bg-purple-900/30 px-2 py-1 rounded-full">
                   <Text className="text-purple-700 dark:text-purple-300 text-xs font-medium">
-                    {manualSquads.length + automaticSquads.length} squads
+                    {manualSquads.length + automaticSquads.length} teams
                   </Text>
                 </View>
               </View>
@@ -452,7 +452,7 @@ export default function PeopleScreen() {
                 <View className="flex-row items-center gap-2 mb-3">
                   <UsersRound size={16} color="#8b5cf6" />
                   <Text className="text-slate-700 dark:text-slate-300 font-semibold">
-                    Custom Squads ({manualSquads.length})
+                    Custom Teams ({manualSquads.length})
                   </Text>
                 </View>
 
@@ -667,14 +667,14 @@ export default function PeopleScreen() {
                   <UsersRound size={48} color="#8b5cf6" />
                 </View>
                 <Text className="text-slate-900 dark:text-white font-semibold text-lg mb-2">
-                  No Squads Yet
+                  No Teams Yet
                 </Text>
                 <Text className="text-slate-500 dark:text-slate-400 text-center text-sm mb-4 px-8">
-                  Squads help you organize your team by function or project. They form automatically when multiple people work on the same task.
+                  Teams help you organize your team by function or project. They form automatically when multiple people work on the same task.
                 </Text>
                 <View className="bg-purple-50 dark:bg-purple-900/20 rounded-xl p-4 w-full">
                   <Text className="text-purple-800 dark:text-purple-300 font-medium text-center mb-2">
-                    Squads will appear when:
+                    Teams will appear when:
                   </Text>
                   <Text className="text-purple-600 dark:text-purple-400 text-sm text-center">
                     2 or more team members are assigned to the same task

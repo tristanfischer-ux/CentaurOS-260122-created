@@ -933,8 +933,8 @@ export default function WhoScreen() {
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
           <View className="flex-row bg-slate-100 dark:bg-slate-800 rounded-xl p-1">
             {[
-              { key: 'team', label: 'My Team', icon: Users },
-              { key: 'squads', label: 'Squads', icon: UsersRound },
+              { key: 'team', label: 'People', icon: Users },
+              { key: 'squads', label: 'Teams', icon: UsersRound },
               { key: 'guilds', label: 'Guilds', icon: Shield },
               { key: 'hire', label: 'Hire', icon: UserPlus },
               { key: 'resources', label: 'Resources', icon: Target },
@@ -1048,14 +1048,14 @@ export default function WhoScreen() {
         className="flex-1"
         contentContainerStyle={{ padding: 20, paddingBottom: insets.bottom + 100 }}
       >
-        {/* Squads Tab */}
+        {/* Teams Tab */}
         {activeTab === 'squads' && (
           <View>
-            {/* Squads Header */}
-            <Text className="text-slate-900 dark:text-white font-bold text-xl mb-3">Squads</Text>
+            {/* Teams Header */}
+            <Text className="text-slate-900 dark:text-white font-bold text-xl mb-3">Teams</Text>
             <View className="flex-row items-center justify-between mb-4">
               <Text className="text-slate-500 dark:text-slate-400 text-sm">
-                {squads.filter(s => s.type === 'manual').length} manual squads • {squads.filter(s => s.type === 'automatic').length} auto
+                {squads.filter(s => s.type === 'manual').length} manual teams • {squads.filter(s => s.type === 'automatic').length} auto
               </Text>
               {isFounder && (
                 <Pressable
@@ -1074,10 +1074,10 @@ export default function WhoScreen() {
               <View className="items-center py-12">
                 <UsersRound size={48} color="#94a3b8" />
                 <Text className="text-slate-500 dark:text-slate-400 text-center mt-4">
-                  No squads yet
+                  No teams yet
                 </Text>
                 <Text className="text-slate-400 dark:text-slate-500 text-center mt-1 text-sm">
-                  Squads form automatically when 2+ people work on the same task
+                  Teams form automatically when 2+ people work on the same task
                 </Text>
               </View>
             ) : (
@@ -1629,9 +1629,9 @@ export default function WhoScreen() {
                 </View>
 
                 <View className="bg-white dark:bg-slate-800 rounded-xl p-4">
-                  <Text className="text-slate-900 dark:text-white font-semibold mb-2">What are squads and how do they form?</Text>
+                  <Text className="text-slate-900 dark:text-white font-semibold mb-2">What are teams and how do they form?</Text>
                   <Text className="text-slate-500 dark:text-slate-400 text-sm">
-                    Squads are groups of 2+ people working together. They form automatically when multiple people are assigned to the same task, creating performance bonuses.
+                    Teams are groups of 2+ people working together. They form automatically when multiple people are assigned to the same task, creating performance bonuses.
                   </Text>
                 </View>
 
