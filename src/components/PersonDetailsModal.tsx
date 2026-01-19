@@ -312,7 +312,7 @@ export function PersonDetailsModal({
     return null;
   }
 
-  const roleColor = ROLE_COLORS[member.role];
+  const roleColor = ROLE_COLORS[member.role] || '#8b5cf6';
   const utilizationPercent = memberWorkload.totalCapacity > 0
     ? Math.round((memberWorkload.totalAllocated / memberWorkload.totalCapacity) * 100)
     : 0;
@@ -330,7 +330,7 @@ export function PersonDetailsModal({
                 className="bg-white dark:bg-slate-900 rounded-2xl"
                 style={{ maxHeight: '90%' }}
               >
-                <ScrollView ref={scrollViewRef} showsVerticalScrollIndicator={false}>
+                <ScrollView ref={scrollViewRef} showsVerticalScrollIndicator={false}><View>
                 {/* Header */}
                 <View
                   className="p-6 rounded-t-2xl"
@@ -966,7 +966,7 @@ export function PersonDetailsModal({
                 </View>
               </View>
             )}
-          </ScrollView>
+          </View></ScrollView>
           </Pressable>
         </Animated.View>
       </GestureDetector>
