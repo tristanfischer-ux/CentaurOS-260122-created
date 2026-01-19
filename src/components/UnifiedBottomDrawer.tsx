@@ -523,7 +523,7 @@ export function UnifiedBottomDrawer({
 
                   <VoiceInputButton
                     onTranscriptComplete={handleVoiceComplete}
-                    onError={(error) => console.error('[UnifiedDrawer] Voice error:', error)}
+                    onError={(error) => console.log('[UnifiedDrawer] Voice error:', error)}
                     color={accentColor}
                     size={80}
                   />

@@ -1,10 +1,7 @@
 /**
  * OpenAI Whisper API for Speech-to-Text
- * Uses server-side route to keep API keys secure
+ * Client-side transcription with API key from environment
  */
-
-import Constants from 'expo-constants';
-import { Platform } from 'react-native';
 
 export interface TranscriptionResult {
   transcript: string;
@@ -12,26 +9,7 @@ export interface TranscriptionResult {
 }
 
 /**
- * Get the API base URL for the current environment
- */
-function getApiUrl(): string {
-  if (Platform.OS === 'web') {
-    return ''; // Relative URLs work on web
-  }
-
-  // For native, construct the dev server URL
-  const debuggerHost = Constants.expoConfig?.hostUri;
-  if (debuggerHost) {
-    const host = debuggerHost.split(':').shift();
-    return `http://${host}:8081`;
-  }
-
-  // Fallback to localhost
-  return 'http://localhost:8081';
-}
-
-/**
- * Transcribe audio using OpenAI Whisper API via server route
+ * Transcribe audio using OpenAI Whisper API
  * @param base64Audio - Base64 encoded audio data
  * @param mimeType - MIME type of the audio (e.g., 'audio/wav', 'audio/webm')
  * @returns Transcription result
@@ -40,44 +18,64 @@ export async function transcribeAudioWithWhisper(
   base64Audio: string,
   mimeType: string = 'audio/wav'
 ): Promise<TranscriptionResult> {
-  console.log('[OpenAI Whisper] Starting transcription via server route...', {
+  console.log('[OpenAI Whisper] Starting transcription...', {
     audioSize: base64Audio.length,
     mimeType,
   });
 
   try {
-    const apiUrl = getApiUrl();
-    const url = `${apiUrl}/api/transcribe/whisper`;
+    // Get API key from environment
+    const apiKey = process.env.EXPO_PUBLIC_VIBECODE_OPENAI_API_KEY;
 
-    console.log('[OpenAI Whisper] Calling:', url);
+    if (!apiKey) {
+      throw new Error('OpenAI API key not configured. Please add it in the ENV tab.');
+    }
 
-    // Call server-side API route (keeps API key secure)
-    const response = await fetch(url, {
+    // Convert base64 to blob
+    const byteCharacters = atob(base64Audio);
+    const byteNumbers = new Array(byteCharacters.length);
+    for (let i = 0; i < byteCharacters.length; i++) {
+      byteNumbers[i] = byteCharacters.charCodeAt(i);
+    }
+    const byteArray = new Uint8Array(byteNumbers);
+    const blob = new Blob([byteArray], { type: mimeType });
+
+    // Create form data for OpenAI API
+    const formData = new FormData();
+    formData.append('file', blob, 'audio.wav');
+    formData.append('model', 'whisper-1');
+    formData.append('language', 'en');
+    formData.append('response_format', 'json');
+
+    console.log('[OpenAI Whisper] Sending request to OpenAI...');
+
+    const response = await fetch('https://api.openai.com/v1/audio/transcriptions', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`,
       },
-      body: JSON.stringify({
-        audioBase64: base64Audio,
-        mimeType,
-      }),
+      body: formData,
     });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.log('[OpenAI Whisper] Error:', errorText);
+      throw new Error(`Transcription failed: ${response.status}`);
+    }
 
     const data = await response.json();
 
-    if (!response.ok) {
-      console.log('[OpenAI Whisper] Server error:', data);
-      throw new Error(data.error || `Transcription failed: ${response.status}`);
+    if (!data.text) {
+      throw new Error('No transcription text in response');
     }
 
     console.log('[OpenAI Whisper] Transcription successful:', {
-      transcript: data.transcript?.substring(0, 100),
-      confidence: data.confidence,
+      transcript: data.text?.substring(0, 100),
     });
 
     return {
-      transcript: data.transcript,
-      confidence: data.confidence ?? 100,
+      transcript: data.text,
+      confidence: 100, // Whisper doesn't provide confidence scores
     };
   } catch (error) {
     console.log('[OpenAI Whisper] Transcription failed:', error);

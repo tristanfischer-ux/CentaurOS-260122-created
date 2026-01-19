@@ -58,7 +58,7 @@ export async function extractTasksFromText(
 
   try {
     const apiUrl = getApiUrl();
-    const url = `${apiUrl}/api/ai/extract-tasks`;
+    const url = `${apiUrl}/api/ai-extract-tasks`;
 
     console.log('[TaskExtraction] Calling:', url);
 
