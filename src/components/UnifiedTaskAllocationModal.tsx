@@ -488,7 +488,7 @@ export function UnifiedTaskAllocationModal({ visible, onClose, workPlan }: Props
 
           {/* Visual squares showing ALL capacity with allocation */}
           <View className="mb-2">
-            <View className="flex-row items-center justify-between mb-1">
+            <View className="flex-row items-center justify-between mb-1.5">
               <Text className="text-gray-600 dark:text-slate-400 text-xs font-medium">
                 Capacity: {currentAllocation}□ here • {lockedByOthers}□ locked • {available}□ free
               </Text>
@@ -500,10 +500,10 @@ export function UnifiedTaskAllocationModal({ visible, onClose, workPlan }: Props
                 </Text>
               )}
             </View>
-            <View className="flex-row flex-wrap gap-1">
-              {Array.from({ length: maxCapacity }).map((_, idx) => {
-                const isNormalRange = idx < normalCapacity;
 
+            {/* Normal capacity squares (first row) */}
+            <View className="flex-row gap-1 mb-1">
+              {Array.from({ length: normalCapacity }).map((_, idx) => {
                 // Calculate cumulative allocations
                 const totalAllocated = currentAllocation + lockedByOthers;
                 const isAllocatedHere = idx < currentAllocation;
@@ -517,21 +517,49 @@ export function UnifiedTaskAllocationModal({ visible, onClose, workPlan }: Props
                       isAllocatedHere
                         ? isMismatched
                           ? 'bg-red-500 border-red-600' // Skill mismatch
-                          : !isNormalRange
-                            ? 'bg-orange-500 border-orange-600' // Overtime
-                            : 'bg-blue-500 border-blue-600' // Normal allocation here
+                          : 'bg-blue-500 border-blue-600' // Normal allocation here
                         : isLockedByOthers
                           ? 'bg-yellow-500 border-yellow-600' // LOCKED by other projects
                           : isFree
-                            ? isNormalRange
-                              ? 'bg-gray-100 dark:bg-slate-800 border-gray-300 dark:border-slate-600' // Free normal
-                              : 'bg-orange-100 dark:bg-orange-900/20 border-orange-300 dark:border-orange-600' // Free overtime
+                            ? 'bg-emerald-100 dark:bg-emerald-900/20 border-emerald-300 dark:border-emerald-600' // Free normal
                             : 'bg-gray-100 dark:bg-slate-800 border-gray-300 dark:border-slate-600'
                     }`}
                   />
                 );
               })}
             </View>
+
+            {/* Overtime capacity squares (second row) - only if there's overtime capacity */}
+            {maxCapacity > normalCapacity && (
+              <View className="flex-row gap-1">
+                {Array.from({ length: maxCapacity - normalCapacity }).map((_, idx) => {
+                  const absoluteIdx = normalCapacity + idx;
+
+                  // Calculate cumulative allocations
+                  const totalAllocated = currentAllocation + lockedByOthers;
+                  const isAllocatedHere = absoluteIdx < currentAllocation;
+                  const isLockedByOthers = !isAllocatedHere && absoluteIdx < totalAllocated;
+                  const isFree = absoluteIdx >= totalAllocated;
+
+                  return (
+                    <View
+                      key={absoluteIdx}
+                      className={`w-7 h-7 rounded border ${
+                        isAllocatedHere
+                          ? isMismatched
+                            ? 'bg-red-500 border-red-600' // Skill mismatch
+                            : 'bg-orange-500 border-orange-600' // Overtime allocation
+                          : isLockedByOthers
+                            ? 'bg-yellow-500 border-yellow-600' // LOCKED by other projects
+                            : isFree
+                              ? 'bg-orange-100 dark:bg-orange-900/20 border-orange-300 dark:border-orange-600' // Free overtime
+                              : 'bg-gray-100 dark:bg-slate-800 border-gray-300 dark:border-slate-600'
+                      }`}
+                    />
+                  );
+                })}
+              </View>
+            )}
           </View>
 
           {lockedByOthers > 0 && (
@@ -576,21 +604,21 @@ export function UnifiedTaskAllocationModal({ visible, onClose, workPlan }: Props
     >
       <Pressable className="flex-1 bg-black/70" onPress={onClose}>
         <View className="flex-1" />
-        <Pressable onPress={(e) => e.stopPropagation()} style={{ maxHeight: '92%' }}>
-          <View className="bg-gray-50 dark:bg-slate-950 rounded-t-3xl" style={{ height: '100%' }}>
+        <Pressable onPress={(e) => e.stopPropagation()} style={{ maxHeight: '90%' }}>
+          <View className="bg-white dark:bg-slate-900 rounded-t-3xl" style={{ height: '100%' }}>
             {/* Header */}
-            <View className="flex-row items-center justify-between px-5 py-4 border-b border-gray-200 dark:border-slate-800">
+            <View className="flex-row items-center justify-between px-5 py-4 border-b border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900">
               <View className="flex-1">
-                <Text className="text-gray-500 dark:text-slate-400 text-xs font-medium">
+                <Text className="text-gray-500 dark:text-slate-400 text-xs font-medium uppercase tracking-wide">
                   {workPlan.function}
                 </Text>
-                <Text className="text-gray-900 dark:text-white text-lg font-bold" numberOfLines={2}>
+                <Text className="text-gray-900 dark:text-white text-lg font-bold mt-0.5" numberOfLines={2}>
                   {workPlan.title}
                 </Text>
               </View>
               <Pressable
                 onPress={onClose}
-                className="w-9 h-9 bg-gray-100 dark:bg-slate-800 rounded-full items-center justify-center ml-3"
+                className="w-9 h-9 bg-gray-100 dark:bg-slate-800 rounded-full items-center justify-center ml-3 active:opacity-70"
               >
                 <X size={18} color="#6b7280" />
               </Pressable>
@@ -598,7 +626,7 @@ export function UnifiedTaskAllocationModal({ visible, onClose, workPlan }: Props
 
             <ScrollView
               style={{ flex: 1 }}
-              className="px-5 py-6"
+              className="px-5 py-4 bg-slate-50 dark:bg-slate-950"
               showsVerticalScrollIndicator={false}
               contentContainerStyle={{ paddingBottom: 100 }}
             >

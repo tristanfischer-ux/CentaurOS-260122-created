@@ -15,6 +15,13 @@ Centaur OS is a comprehensive iOS mobile application that helps lean companies o
 
 ## 🚀 Latest Updates (Jan 19, 2026)
 
+### ✅ Task Allocation Modal Redesign
+- **Two-Row Capacity Display**: Capacity squares now shown on two distinct rows - 10 normal units on first row, 5 overtime units on second row
+- **Clearer Visual Hierarchy**: Instantly see the difference between normal working hours (emerald/blue) and overtime capacity (orange)
+- **App-Consistent Styling**: Updated modal to match app's design language with proper white/dark theme support
+- **Better Background Colors**: Normal capacity uses emerald for free slots, overtime uses orange for free slots
+- **Improved Header**: Added uppercase tracking and better spacing for function labels
+
 ### ✅ Home Dashboard Layout Optimization
 - **Single-Line Performance Cards**: All three performance dashboard cards (Project Health, Team Productivity, Cash Flow) now display on one line
 - **Compact Card Design**: Reduced padding and font sizes for tighter, more efficient layout
