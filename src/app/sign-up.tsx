@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Building2, Mail, User, ArrowRight, ArrowLeft, Sparkles, Rocket, Lock } from 'lucide-react-native';
 import { supabase } from '@/lib/supabase';
-import { userService } from '@/lib/supabase-service';
+import { userService, memberService } from '@/lib/supabase-service';
 import { useAppStore } from '@/lib/state/app-store';
 import { router } from 'expo-router';
 import Animated, {
@@ -201,6 +201,30 @@ export default function SignUpScreen() {
           currentWorkspace: localWorkspace,
         }));
         console.log('[Sign Up] Local workspace created successfully:', localWorkspace.name);
+      }
+
+      // Create founder member in the workspace
+      const currentWorkspaceId = useAppStore.getState().currentWorkspaceId;
+      if (currentWorkspaceId) {
+        try {
+          console.log('[Sign Up] Creating founder member...');
+          const founderMember = await memberService.create({
+            workspaceId: currentWorkspaceId,
+            userId: user.id,
+            name: user.name,
+            role: 'Founder',
+            function: 'Admin',
+            status: 'active',
+            daysPerWeek: 5,
+          });
+          console.log('[Sign Up] Founder member created:', founderMember.id);
+
+          // Reload user data to pick up the new membership
+          await useAppStore.getState().loadUserData(user.id);
+        } catch (memberError) {
+          console.error('[Sign Up] Failed to create founder member:', memberError);
+          // Continue - member can be created later if needed
+        }
       }
 
       // Set auth token from Supabase session

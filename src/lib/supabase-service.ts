@@ -100,6 +100,43 @@ function membershipToSupabase(membership: Partial<Membership>): any {
   return result;
 }
 
+// Convert Supabase row to Member (from members table)
+function supabaseToMember(row: any): any {
+  return {
+    id: row.id,
+    workspaceId: row.workspace_id,
+    userId: row.user_id,
+    name: row.name,
+    role: row.role,
+    function: row.function,
+    status: row.status,
+    daysPerWeek: row.days_per_week,
+    costPerDay: row.cost_per_day,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  };
+}
+
+// Convert Member to Supabase row (for members table)
+function memberToSupabase(member: any): any {
+  const result: any = {};
+
+  if (member.id !== undefined) result.id = member.id;
+  if (member.workspaceId !== undefined) result.workspace_id = member.workspaceId;
+  if (member.userId !== undefined) result.user_id = member.userId;
+  if (member.name !== undefined) result.name = member.name;
+  if (member.role !== undefined) result.role = member.role;
+  if (member.function !== undefined) result.function = member.function;
+  if (member.status !== undefined) result.status = member.status;
+  if (member.daysPerWeek !== undefined) result.days_per_week = member.daysPerWeek;
+  if (member.costPerDay !== undefined) result.cost_per_day = member.costPerDay;
+
+  // Remove undefined values
+  Object.keys(result).forEach(key => result[key] === undefined && delete result[key]);
+
+  return result;
+}
+
 // Convert Supabase row to TeamMember
 function supabaseToTeamMember(row: any): any {
   return {
@@ -490,7 +527,111 @@ export const membershipService = {
 };
 
 // ============================================================================
-// TEAM MEMBER OPERATIONS
+// MEMBER OPERATIONS (members table - people in workspaces)
+// ============================================================================
+
+export const memberService = {
+  /**
+   * Get all members for a workspace
+   */
+  async getForWorkspace(workspaceId: string): Promise<any[]> {
+    const { data, error } = await supabase
+      .from('members')
+      .select('*')
+      .eq('workspace_id', workspaceId)
+      .order('created_at', { ascending: true });
+
+    if (error) {
+      console.error('Error fetching members:', error);
+      return [];
+    }
+
+    return data.map(supabaseToMember);
+  },
+
+  /**
+   * Get member by user ID and workspace ID
+   */
+  async getByUserAndWorkspace(userId: string, workspaceId: string): Promise<any | null> {
+    const { data, error } = await supabase
+      .from('members')
+      .select('*')
+      .eq('user_id', userId)
+      .eq('workspace_id', workspaceId)
+      .maybeSingle();
+
+    if (error) {
+      console.error('Error fetching member:', error);
+      return null;
+    }
+
+    return data ? supabaseToMember(data) : null;
+  },
+
+  /**
+   * Create a new member
+   */
+  async create(member: {
+    workspaceId: string;
+    userId?: string;
+    name: string;
+    role: string;
+    function?: string;
+    status?: string;
+    daysPerWeek?: number;
+    costPerDay?: number;
+  }): Promise<any> {
+    const { data, error} = await supabase
+      .from('members')
+      .insert(memberToSupabase(member))
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Failed to create member:', error.message, error.details, error.hint);
+      throw new Error(`Failed to create member: ${error.message}`);
+    }
+
+    return supabaseToMember(data);
+  },
+
+  /**
+   * Update member
+   */
+  async update(memberId: string, updates: any): Promise<any> {
+    const { data, error } = await supabase
+      .from('members')
+      .update(memberToSupabase(updates))
+      .eq('id', memberId)
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Failed to update member:', error.message, error.details, error.hint);
+      throw new Error(`Failed to update member: ${error.message}`);
+    }
+
+    return supabaseToMember(data);
+  },
+
+  /**
+   * Delete member
+   */
+  async delete(memberId: string): Promise<void> {
+    const { error } = await supabase
+      .from('members')
+      .delete()
+      .eq('id', memberId);
+
+    if (error) {
+      console.error('Failed to delete member:', error.message, error.details, error.hint);
+      throw new Error(`Failed to delete member: ${error.message}`);
+    }
+  },
+};
+
+// ============================================================================
+// TEAM MEMBER OPERATIONS (team_members table - legacy system)
 // ============================================================================
 
 export const teamMemberService = {

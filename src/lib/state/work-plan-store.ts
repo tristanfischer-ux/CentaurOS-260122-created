@@ -13,6 +13,7 @@ import { create } from 'zustand';
 import { supabase } from '@/lib/supabase';
 import type { Function as BusinessFunction } from '@/types';
 import type { TaskVisibility, RestrictedCategory, TaskSharing } from '@/types/privacy';
+import { useAppStore } from './app-store';
 
 // Per-person TU allocation for a task
 export interface TUAllocation {
@@ -504,9 +505,13 @@ export const useWorkPlanStore = create<WorkPlanState>((set, get) => ({
       // priority, progress, start_date, end_date, created_by, created_at, updated_at
       // Supabase status values: 'planning', 'in-progress', 'blocked', 'completed', 'abandoned'
 
+      // Get current membership to use as default creator if assignedBy is not specified
+      const currentMembership = useAppStore.getState().currentMembership;
+      const assignedBy = workPlan.assignedBy || currentMembership?.id || '';
+
       // Only include created_by if it's a valid member ID (not a demo UUID)
       // Demo UUIDs start with 00000000, so we'll set them to null
-      const isValidMemberId = workPlan.assignedBy && !workPlan.assignedBy.startsWith('00000000');
+      const isValidMemberId = assignedBy && !assignedBy.startsWith('00000000');
 
       const supabaseWorkPlan = {
         id: workPlan.id !== tempId ? workPlan.id : undefined,
@@ -519,7 +524,7 @@ export const useWorkPlanStore = create<WorkPlanState>((set, get) => ({
         progress: workPlan.progress,
         start_date: workPlan.startDate,
         end_date: workPlan.dueDate,
-        created_by: isValidMemberId ? workPlan.assignedBy : null,
+        created_by: isValidMemberId ? assignedBy : null,
       };
 
       const { data, error } = await supabase
