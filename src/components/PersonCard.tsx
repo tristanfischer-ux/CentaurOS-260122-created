@@ -160,10 +160,10 @@ export function PersonCard({ member, roleColor, onOpenModal }: PersonCardProps) 
 
         {/* Compact stats on right */}
         <View className="items-end gap-1">
-          {/* Utilization pill */}
+          {/* TU Allocation */}
           <View className={`px-2 py-0.5 rounded-full flex-row items-center gap-1 ${utilStyle.bgClass}`}>
             <Text className={`text-xs font-bold ${utilStyle.textClass}`}>
-              {utilizationPercent}%
+              {memberWorkload.totalAllocated}/{memberWorkload.totalCapacity} TU
             </Text>
             {utilizationPercent >= 100 && <AlertCircle size={10} color="#ef4444" />}
           </View>
