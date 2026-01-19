@@ -48,10 +48,32 @@ export function PersonCard({ member, roleColor, onOpenModal }: PersonCardProps) 
       }, 0);
 
     const totalCapacity = member.role === 'Founder' || member.role === 'Apprentice'
-      ? 10
+      ? 15  // 10 normal + 5 overtime (matching CollapsibleResourcePool and TeamCapacityDashboard)
       : (member.daysPerWeek || 2) * 2;
 
-    return { tasks, totalAllocated, totalCapacity };
+    // Calculate tasks by status
+    const inProgress = tasks.filter(t => t.status === 'in-progress');
+    const blocked = tasks.filter(t => t.status === 'blocked');
+    const notStarted = tasks.filter(t => t.status === 'not-started');
+
+    // Find tasks due soon (within 7 days)
+    const now = new Date();
+    const weekFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+    const dueSoon = tasks.filter(t => {
+      if (!t.dueDate) return false;
+      const dueDate = new Date(t.dueDate);
+      return dueDate >= now && dueDate <= weekFromNow;
+    });
+
+    return {
+      tasks,
+      totalAllocated,
+      totalCapacity,
+      inProgress,
+      blocked,
+      notStarted,
+      dueSoon
+    };
   }, [member, workPlans]);
 
   // Get member's squads
@@ -192,28 +214,72 @@ export function PersonCard({ member, roleColor, onOpenModal }: PersonCardProps) 
       {/* Expanded View - Show More Details */}
       {viewState === 'expanded' && (
         <View className="mt-3 pt-3 border-t border-slate-100 dark:border-slate-700">
-          {/* Stats Row */}
+          {/* Task Status Breakdown */}
           <View className="flex-row items-center gap-2 mb-3">
-            {/* Capacity */}
+            {/* In Progress */}
+            <View className="flex-1 bg-blue-50 dark:bg-blue-900/20 rounded-lg p-2">
+              <Text className="text-slate-500 dark:text-slate-400 text-[9px] mb-0.5">In Progress</Text>
+              <Text className="text-blue-600 dark:text-blue-400 text-base font-bold">
+                {memberWorkload.inProgress.length}
+              </Text>
+            </View>
+            {/* Blocked */}
+            <View className="flex-1 bg-red-50 dark:bg-red-900/20 rounded-lg p-2">
+              <Text className="text-slate-500 dark:text-slate-400 text-[9px] mb-0.5">Blocked</Text>
+              <Text className="text-red-600 dark:text-red-400 text-base font-bold">
+                {memberWorkload.blocked.length}
+              </Text>
+            </View>
+            {/* Queued */}
+            <View className="flex-1 bg-slate-50 dark:bg-slate-700 rounded-lg p-2">
+              <Text className="text-slate-500 dark:text-slate-400 text-[9px] mb-0.5">Queued</Text>
+              <Text className="text-slate-600 dark:text-slate-300 text-base font-bold">
+                {memberWorkload.notStarted.length}
+              </Text>
+            </View>
+          </View>
+
+          {/* Workload metrics */}
+          <View className="flex-row items-center gap-2 mb-3">
+            {/* Total Capacity */}
             <View className="flex-1 bg-purple-50 dark:bg-purple-900/20 rounded-lg p-2">
-              <Text className="text-slate-500 dark:text-slate-400 text-[10px] mb-0.5">Capacity</Text>
+              <Text className="text-slate-500 dark:text-slate-400 text-[10px] mb-0.5">Weekly Capacity</Text>
               <Text className="text-purple-600 dark:text-purple-400 text-sm font-bold">
                 {memberWorkload.totalAllocated} / {memberWorkload.totalCapacity} TU
               </Text>
             </View>
-            {/* Utilization */}
-            <View className={`flex-1 rounded-lg p-2 ${utilStyle.bgClass}`}>
-              <Text className="text-slate-500 dark:text-slate-400 text-[10px] mb-0.5">Utilization</Text>
-              <View className="flex-row items-center gap-1">
-                <Text className={`text-sm font-bold ${utilStyle.textClass}`}>
-                  {utilizationPercent}%
-                </Text>
-                <Text className={`text-[10px] ${utilStyle.textClass}`}>
-                  ({utilStyle.status})
-                </Text>
-              </View>
+            {/* Available TUs */}
+            <View className="flex-1 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg p-2">
+              <Text className="text-slate-500 dark:text-slate-400 text-[10px] mb-0.5">Available</Text>
+              <Text className="text-emerald-600 dark:text-emerald-400 text-sm font-bold">
+                {Math.max(0, memberWorkload.totalCapacity - memberWorkload.totalAllocated)} TU
+              </Text>
             </View>
           </View>
+
+          {/* Due Soon Alert */}
+          {memberWorkload.dueSoon.length > 0 && (
+            <View className="bg-amber-50 dark:bg-amber-900/20 rounded-lg p-2 mb-3">
+              <View className="flex-row items-center gap-1 mb-1">
+                <Calendar size={12} color="#f59e0b" />
+                <Text className="text-amber-700 dark:text-amber-300 text-xs font-semibold">
+                  Due This Week ({memberWorkload.dueSoon.length})
+                </Text>
+              </View>
+              <View className="gap-1">
+                {memberWorkload.dueSoon.slice(0, 2).map(task => (
+                  <Text key={task.id} className="text-amber-600 dark:text-amber-400 text-[10px]">
+                    • {task.title}
+                  </Text>
+                ))}
+                {memberWorkload.dueSoon.length > 2 && (
+                  <Text className="text-amber-500 text-[9px]">
+                    +{memberWorkload.dueSoon.length - 2} more
+                  </Text>
+                )}
+              </View>
+            </View>
+          )}
 
           {/* Squads Section */}
           {memberSquads.length > 0 && (
