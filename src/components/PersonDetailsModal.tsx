@@ -147,21 +147,22 @@ export function PersonDetailsModal({
   const memberWorkload = useMemo(() => {
     if (!member) return { tasks: [], totalAllocated: 0, totalCapacity: 0 };
 
+    // Check allocations array for tasks assigned to this member (not assignedMemberIds)
     const tasks = workPlans.filter(wp =>
       wp.status !== 'completed' &&
       wp.status !== 'abandoned' &&
-      wp.assignedMemberIds?.includes(member.id)
+      wp.allocations?.some(a => a.memberId === member.id)
     );
 
     const totalAllocated = workPlans
       .filter(wp => wp.status !== 'completed' && wp.status !== 'abandoned')
       .reduce((sum, wp) => {
-        const allocation = wp.allocations.find(a => a.memberId === member.id);
+        const allocation = wp.allocations?.find(a => a.memberId === member.id);
         return sum + (allocation?.squaresPerWeek || 0);
       }, 0);
 
     const totalCapacity = member.role === 'Founder' || member.role === 'Apprentice'
-      ? 10
+      ? 15  // 10 normal + 5 overtime
       : (member.daysPerWeek || 2) * 2;
 
     return { tasks, totalAllocated, totalCapacity };

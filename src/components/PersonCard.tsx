@@ -34,16 +34,17 @@ export function PersonCard({ member, roleColor, onOpenModal }: PersonCardProps) 
 
   // Calculate member's workload
   const memberWorkload = useMemo(() => {
+    // Check allocations array for tasks assigned to this member (not assignedMemberIds)
     const tasks = workPlans.filter(wp =>
       wp.status !== 'completed' &&
       wp.status !== 'abandoned' &&
-      wp.assignedMemberIds?.includes(member.id)
+      wp.allocations?.some(a => a.memberId === member.id)
     );
 
     const totalAllocated = workPlans
       .filter(wp => wp.status !== 'completed' && wp.status !== 'abandoned')
       .reduce((sum, wp) => {
-        const allocation = wp.allocations.find(a => a.memberId === member.id);
+        const allocation = wp.allocations?.find(a => a.memberId === member.id);
         return sum + (allocation?.squaresPerWeek || 0);
       }, 0);
 
