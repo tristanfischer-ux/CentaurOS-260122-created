@@ -15,6 +15,25 @@ Centaur OS is a comprehensive iOS mobile application that helps lean companies o
 
 ## 🚀 Latest Updates (Jan 19, 2026)
 
+### ✅ Enhanced PersonDetailsModal - Task List & Personal Timeline
+- **Comprehensive Task List**: Shows all tasks assigned to the selected person with full details
+  - Color-coded left border indicating task status (blue for in-progress, red for blocked, etc.)
+  - Status-specific background colors for visual clarity
+  - TU allocation displayed prominently in purple badge (e.g., "5□/wk")
+  - Task progress percentage and due date clearly visible
+  - Visual progress bar showing task completion
+  - Function and status information for quick context
+- **Personal Timeline (Mini Gantt Chart)**: Filtered Gantt chart showing only tasks for the selected person
+  - Automatically filtered to show just the person's assigned tasks
+  - Compact 200px height view perfect for quick timeline overview
+  - Shows task timeline, progress, and scheduling across weeks
+  - Integrated directly into PersonDetailsModal for seamless UX
+  - Helps visualize workload distribution over time
+- **Better Information Architecture**: Task details now more discoverable and informative
+  - Clear section headers and spacing
+  - Description explains this is the person's personal timeline
+  - Contextual information helps users understand workload at a glance
+
 ### ✅ Enhanced Task Allocation Modal - Team Info & Precise TU Control
 - **Three-View Team Member System**: Progressive disclosure pattern for viewing team details
   - **Summary View** (Always visible): Team member card with name, role icon, and allocation

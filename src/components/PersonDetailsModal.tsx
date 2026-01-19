@@ -33,6 +33,7 @@ import { useAppStore } from '@/lib/state/app-store';
 import { cn } from '@/lib/cn';
 import type { Squad as ArmorySquad, Function as BusinessFunction } from '@/types';
 import { lightImpact } from '@/lib/haptics';
+import { MiniGanttChart } from './MiniGanttChart';
 
 // Combined squad type for display
 type CombinedSquad = SquadStoreSquad | ArmorySquad;
@@ -741,34 +742,89 @@ export function PersonDetailsModal({
               </View>
             )}
 
-            {/* Current Tasks */}
+            {/* Current Tasks - Enhanced with TU Details */}
             {memberWorkload.tasks.length > 0 && (
-              <View className="px-6 py-4">
+              <View className="px-6 py-4 border-b border-slate-200 dark:border-slate-800">
                 <Text className="text-slate-900 dark:text-white font-bold text-sm mb-3">
                   Current Tasks ({memberWorkload.tasks.length})
                 </Text>
                 <View className="gap-2">
                   {memberWorkload.tasks.map((task) => {
                     const allocation = task.allocations.find(a => a.memberId === member.id);
+                    const statusColors = {
+                      'not-started': 'border-gray-300 dark:border-gray-700',
+                      'in-progress': 'border-blue-400 dark:border-blue-600',
+                      'blocked': 'border-red-400 dark:border-red-600',
+                      'completed': 'border-emerald-400 dark:border-emerald-600',
+                      'abandoned': 'border-gray-400 dark:border-gray-700',
+                    };
+                    const statusBgColors = {
+                      'not-started': 'bg-gray-50 dark:bg-gray-900/20',
+                      'in-progress': 'bg-blue-50 dark:bg-blue-900/20',
+                      'blocked': 'bg-red-50 dark:bg-red-900/20',
+                      'completed': 'bg-emerald-50 dark:bg-emerald-900/20',
+                      'abandoned': 'bg-gray-50 dark:bg-gray-900/20',
+                    };
+
                     return (
                       <View
                         key={task.id}
-                        className="bg-slate-50 dark:bg-slate-800 rounded-lg p-3"
+                        className={`rounded-lg p-3 border-l-4 ${statusColors[task.status]} ${statusBgColors[task.status]}`}
                       >
-                        <Text className="text-slate-900 dark:text-white font-semibold text-sm mb-1">
-                          {task.title}
-                        </Text>
+                        <View className="flex-row items-start justify-between mb-2">
+                          <Text className="text-slate-900 dark:text-white font-semibold text-sm flex-1 mr-2">
+                            {task.title}
+                          </Text>
+                          <View className="bg-purple-500/20 px-2 py-0.5 rounded-full">
+                            <Text className="text-purple-600 dark:text-purple-400 text-xs font-bold">
+                              {allocation?.squaresPerWeek || 0}□/wk
+                            </Text>
+                          </View>
+                        </View>
+
                         <View className="flex-row items-center justify-between">
-                          <Text className="text-slate-500 dark:text-slate-400 text-xs">
-                            {task.function}
+                          <View className="flex-row items-center gap-3">
+                            <Text className="text-slate-500 dark:text-slate-400 text-xs">
+                              {task.function}
+                            </Text>
+                            <Text className="text-slate-600 dark:text-slate-400 text-xs">
+                              {task.progress}% complete
+                            </Text>
+                          </View>
+                          <Text className="text-slate-600 dark:text-slate-400 text-xs">
+                            Due {task.dueDate ? new Date(task.dueDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) : 'TBD'}
                           </Text>
-                          <Text className="text-slate-600 dark:text-slate-400 text-xs font-semibold">
-                            {allocation?.squaresPerWeek}□/wk
-                          </Text>
+                        </View>
+
+                        {/* Progress bar */}
+                        <View className="mt-2 h-1.5 bg-gray-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                          <View
+                            className="h-full bg-purple-500 rounded-full"
+                            style={{ width: `${task.progress}%` }}
+                          />
                         </View>
                       </View>
                     );
                   })}
+                </View>
+              </View>
+            )}
+
+            {/* Person's Timeline - Mini Gantt Chart */}
+            {memberWorkload.tasks.length > 0 && (
+              <View className="px-6 py-4">
+                <Text className="text-slate-900 dark:text-white font-bold text-sm mb-3">
+                  Personal Timeline
+                </Text>
+                <Text className="text-slate-500 dark:text-slate-400 text-xs mb-3">
+                  Tasks assigned to {member.name.split(' ')[0]} across time
+                </Text>
+                <View className="bg-slate-50 dark:bg-slate-800 rounded-xl overflow-hidden" style={{ height: 200 }}>
+                  <MiniGanttChart
+                    workPlans={memberWorkload.tasks}
+                    members={allMembers}
+                    fillAvailableSpace={true}
+                  />
                 </View>
               </View>
             )}
