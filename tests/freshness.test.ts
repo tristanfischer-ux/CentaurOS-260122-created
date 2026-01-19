@@ -320,3 +320,206 @@ describe('Integration', () => {
     expect(diff.has_changes).toBe(true);
   });
 });
+
+// ============================================================================
+// PORTFOLIO TESTS
+// ============================================================================
+
+import { normalizeCompanyName, extractPortfolioCompanies } from '../src/lib/freshness/portfolio/extract';
+import { computePortfolioDiff, calculateSimilarity } from '../src/lib/freshness/portfolio/diff';
+import type { PortfolioCompany, ExtractedCompany } from '../src/lib/freshness/portfolio/types';
+
+describe('Portfolio: normalizeCompanyName', () => {
+  test('removes common suffixes', () => {
+    expect(normalizeCompanyName('Acme Inc.')).toBe('acme');
+    expect(normalizeCompanyName('TechCorp Ltd')).toBe('techcorp');
+    expect(normalizeCompanyName('Global Solutions LLC')).toBe('global solutions');
+  });
+
+  test('normalizes whitespace', () => {
+    expect(normalizeCompanyName('  Acme   Corp  ')).toBe('acme corp');
+  });
+
+  test('removes special characters', () => {
+    expect(normalizeCompanyName('Tech & Co.')).toBe('tech co');
+    expect(normalizeCompanyName('AI.startup')).toBe('aistartup');
+  });
+
+  test('handles already normalized names', () => {
+    expect(normalizeCompanyName('acme')).toBe('acme');
+  });
+});
+
+describe('Portfolio: calculateSimilarity', () => {
+  test('identical strings have similarity 1', () => {
+    expect(calculateSimilarity('acme', 'acme')).toBe(1);
+  });
+
+  test('completely different strings have low similarity', () => {
+    const similarity = calculateSimilarity('apple', 'orange');
+    expect(similarity).toBeLessThan(0.5);
+  });
+
+  test('similar strings have high similarity', () => {
+    const similarity = calculateSimilarity('techcorp', 'techcorps');
+    expect(similarity).toBeGreaterThan(0.8);
+  });
+
+  test('short strings return 0', () => {
+    expect(calculateSimilarity('ab', 'cd')).toBe(0);
+  });
+});
+
+describe('Portfolio: extractPortfolioCompanies', () => {
+  test('extracts companies from portfolio section', () => {
+    const html = `
+      <html>
+        <body>
+          <section class="portfolio">
+            <a href="https://acme.com">Acme Inc</a>
+            <a href="https://techstartup.io">TechStartup</a>
+            <a href="https://globalco.com">Global Co</a>
+          </section>
+        </body>
+      </html>
+    `;
+
+    const result = extractPortfolioCompanies(html, 'https://vc.com/portfolio');
+    expect(result.companies.length).toBe(3);
+    expect(result.companies[0].name).toBe('Acme Inc');
+    expect(result.companies[0].domain).toBe('acme.com');
+  });
+
+  test('filters navigation noise', () => {
+    const html = `
+      <html>
+        <body>
+          <nav>
+            <a href="/about">About</a>
+            <a href="/contact">Contact</a>
+          </nav>
+          <section class="portfolio">
+            <a href="https://acme.com">Acme Inc</a>
+          </section>
+          <footer>
+            <a href="/privacy">Privacy</a>
+            <a href="https://twitter.com/vc">Twitter</a>
+          </footer>
+        </body>
+      </html>
+    `;
+
+    const result = extractPortfolioCompanies(html, 'https://vc.com/portfolio');
+    // Should only get Acme, not About/Contact/Privacy/Twitter
+    const companyNames = result.companies.map(c => c.name.toLowerCase());
+    expect(companyNames).not.toContain('about');
+    expect(companyNames).not.toContain('contact');
+    expect(companyNames).not.toContain('privacy');
+  });
+
+  test('detects JS-heavy pages', () => {
+    const html = `
+      <html>
+        <body>
+          <div id="__NEXT_DATA__">{"props":{}}</div>
+          <div data-reactroot>Loading...</div>
+        </body>
+      </html>
+    `;
+
+    const result = extractPortfolioCompanies(html, 'https://vc.com/portfolio');
+    expect(result.is_js_heavy).toBe(true);
+  });
+});
+
+describe('Portfolio: computePortfolioDiff', () => {
+  const makeExisting = (names: string[]): PortfolioCompany[] =>
+    names.map((name, i) => ({
+      id: `id-${i}`,
+      investor_org_id: 'inv-1',
+      company_name: name,
+      company_name_normalized: name.toLowerCase(),
+      company_website: null,
+      company_domain: null,
+      company_logo_url: null,
+      source_portfolio_page_id: null,
+      source_portfolio_url: null,
+      source_href: null,
+      matched_startup_id: null,
+      match_confidence: null,
+      status: 'active' as const,
+      first_seen_at: new Date().toISOString(),
+      last_seen_at: new Date().toISOString(),
+      removed_at: null,
+      confidence_score: 80,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    }));
+
+  const makeExtracted = (names: string[]): ExtractedCompany[] =>
+    names.map(name => ({
+      name,
+      name_normalized: name.toLowerCase(),
+      website: null,
+      domain: null,
+      href: null,
+      logo_url: null,
+      context: null,
+    }));
+
+  test('detects no changes when lists match', () => {
+    const existing = makeExisting(['Acme', 'TechCo', 'Global']);
+    const extracted = makeExtracted(['Acme', 'TechCo', 'Global']);
+
+    const diff = computePortfolioDiff(existing, extracted, 'high');
+
+    expect(diff.has_changes).toBe(false);
+    expect(diff.added.length).toBe(0);
+    expect(diff.removed.length).toBe(0);
+    expect(diff.renamed.length).toBe(0);
+  });
+
+  test('detects added companies', () => {
+    const existing = makeExisting(['Acme', 'TechCo']);
+    const extracted = makeExtracted(['Acme', 'TechCo', 'NewStartup']);
+
+    const diff = computePortfolioDiff(existing, extracted, 'high');
+
+    expect(diff.has_changes).toBe(true);
+    expect(diff.added.length).toBe(1);
+    expect(diff.added[0].name).toBe('NewStartup');
+  });
+
+  test('detects removed companies', () => {
+    const existing = makeExisting(['Acme', 'TechCo', 'OldCo']);
+    const extracted = makeExtracted(['Acme', 'TechCo']);
+
+    const diff = computePortfolioDiff(existing, extracted, 'high');
+
+    expect(diff.has_changes).toBe(true);
+    expect(diff.removed.length).toBe(1);
+    expect(diff.removed[0].name).toBe('OldCo');
+  });
+
+  test('detects potential renames via fuzzy matching', () => {
+    const existing = makeExisting(['Acme Corp', 'TechCo']);
+    const extracted = makeExtracted(['Acme Corporation', 'TechCo']);
+
+    const diff = computePortfolioDiff(existing, extracted, 'high');
+
+    // Acme Corp -> Acme Corporation should be detected as rename
+    expect(diff.renamed.length).toBe(1);
+    expect(diff.renamed[0].old_name).toBe('Acme Corp');
+    expect(diff.renamed[0].new_name).toBe('Acme Corporation');
+  });
+
+  test('calculates confidence based on extraction quality', () => {
+    const existing = makeExisting(['Acme']);
+    const extracted = makeExtracted(['Acme']);
+
+    const highQualityDiff = computePortfolioDiff(existing, extracted, 'high');
+    const lowQualityDiff = computePortfolioDiff(existing, extracted, 'uncertain');
+
+    expect(highQualityDiff.confidence).toBeGreaterThan(lowQualityDiff.confidence);
+  });
+});
