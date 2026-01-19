@@ -113,11 +113,11 @@ export function UnifiedBottomDrawer({
   const getContentHeight = () => {
     if (activeTab === 'resources') {
       // Resources tab: header + financial summary + members + legend
-      const HEADER_HEIGHT = 60; // Tab header
-      const FINANCIAL_SUMMARY_HEIGHT = 70; // Financial summary section
-      const MEMBER_ROW_HEIGHT = 42; // Height per member row
-      const LEGEND_HEIGHT = 32; // Legend at bottom
-      const PADDING = 10; // Extra padding
+      const HEADER_HEIGHT = 60; // Tab header (px-5 py-4)
+      const FINANCIAL_SUMMARY_HEIGHT = 60; // Financial summary section (px-4 py-2 + 2 rows)
+      const MEMBER_ROW_HEIGHT = 34; // Height per member row (py-1.5 = 6px top + 6px bottom + ~22px content)
+      const LEGEND_HEIGHT = 28; // Legend at bottom (px-4 py-1.5)
+      const PADDING = 8; // Extra padding/borders
 
       return HEADER_HEIGHT + FINANCIAL_SUMMARY_HEIGHT + (members.length * MEMBER_ROW_HEIGHT) + LEGEND_HEIGHT + PADDING;
     } else {
