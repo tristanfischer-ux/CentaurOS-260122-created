@@ -272,7 +272,7 @@ export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress
   }, [viewMode, WEEK_WIDTH, onTodayLinePositionChange]);
 
   return (
-    <View className="bg-white dark:bg-slate-900 border-t-2 border-gray-200 dark:border-slate-700">
+    <View className="flex-1 bg-white dark:bg-slate-900 border-t-2 border-gray-200 dark:border-slate-700">
       {/* Compact Header with View Toggle */}
       <View className="px-3 py-1.5 flex-row items-center justify-between border-b border-gray-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950">
         <View className="flex-row items-center gap-2">
@@ -413,12 +413,12 @@ export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress
             headerScrollRef.current?.scrollTo({ x: offsetX, y: 0, animated: false });
           }}
           scrollEventThrottle={16}
-          style={{ flexGrow: 0 }}
+          className="flex-1"
         >
           <ScrollView
             showsVerticalScrollIndicator={true}
             contentContainerStyle={{ paddingBottom: 200 }}
-            style={{ maxHeight: TASK_HEIGHT * MAX_VISIBLE_TASKS }}
+            className="flex-1"
           >
             <View style={{ width: WEEK_WIDTH * timePeriods.length }}>
               {/* Week separator lines - to distinguish between weeks */}
