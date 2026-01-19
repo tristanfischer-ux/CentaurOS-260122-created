@@ -32,6 +32,7 @@ import { HelpModal, HelpButton, type HelpContent } from '@/components/HelpModal'
 import { SettingsGearButton } from '@/components/SettingsGearButton';
 import { CollapsibleResourcePool } from '@/components/CollapsibleResourcePool';
 import { PersonDetailsModal } from '@/components/PersonDetailsModal';
+import { PersonCard } from '@/components/PersonCard';
 import { memberService } from '@/lib/supabase-service';
 import type { OrganizationMember } from '@/lib/organization-seed';
 
@@ -401,62 +402,11 @@ export default function PeopleScreen() {
                       key={member.id}
                       entering={FadeInDown.delay(index * 50).springify()}
                     >
-                      <Pressable
-                        onPress={() => handleOpenPersonDetails(member)}
-                        className="bg-white dark:bg-slate-800 rounded-xl p-4 mb-3 active:opacity-80"
-                      >
-                        <View className="flex-row items-center">
-                          <View
-                            className="w-12 h-12 rounded-full items-center justify-center mr-3"
-                            style={{ backgroundColor: getRoleColor(member.role) + '20' }}
-                          >
-                            <Text
-                              className="text-lg font-bold"
-                              style={{ color: getRoleColor(member.role) }}
-                            >
-                              {member.name.split(' ').map(n => n[0]).join('')}
-                            </Text>
-                          </View>
-                          <View className="flex-1">
-                            <Text className="text-slate-900 dark:text-white font-semibold text-base">
-                              {member.name}
-                            </Text>
-                            <Text className="text-slate-500 dark:text-slate-400 text-sm">
-                              {member.function}
-                            </Text>
-                          </View>
-                          <View className="items-end">
-                            <View className="flex-row items-center gap-1">
-                              <Clock size={14} color="#64748b" />
-                              <Text className="text-slate-500 dark:text-slate-400 text-sm">
-                                {member.daysPerWeek || 5}d/wk
-                              </Text>
-                            </View>
-                          </View>
-                        </View>
-
-                        {/* Quick Actions */}
-                        <View className="flex-row gap-2 mt-3 pt-3 border-t border-slate-100 dark:border-slate-700">
-                          <Pressable
-                            onPress={() => router.push('/(tabs)/tasks')}
-                            className="flex-1 flex-row items-center justify-center gap-1.5 bg-slate-50 dark:bg-slate-700 py-2 rounded-lg active:opacity-70"
-                          >
-                            <Target size={14} color="#3b82f6" />
-                            <Text className="text-blue-600 dark:text-blue-400 text-xs font-medium">
-                              View Tasks
-                            </Text>
-                          </Pressable>
-                          <Pressable
-                            onPress={() => router.push('/(tabs)/when')}
-                            className="flex-1 flex-row items-center justify-center gap-1.5 bg-slate-50 dark:bg-slate-700 py-2 rounded-lg active:opacity-70"
-                          >
-                            <Calendar size={14} color="#8b5cf6" />
-                            <Text className="text-purple-600 dark:text-purple-400 text-xs font-medium">
-                              View Schedule
-                            </Text>
-                          </Pressable>
-                        </View>
-                      </Pressable>
+                      <PersonCard
+                        member={member}
+                        roleColor={getRoleColor(member.role)}
+                        onOpenModal={() => handleOpenPersonDetails(member)}
+                      />
                     </Animated.View>
                   ))}
                 </View>
