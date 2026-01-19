@@ -531,8 +531,9 @@ export function UnifiedBottomDrawer({
                             {/* Founders */}
                             {members.filter((m: OrganizationMember) => m.status === 'active' && (m.role === 'Founder' || m.role === 'CoFounder')).map((member: OrganizationMember) => {
                               const capacity = getCapacityPerWeek(member);
+                              const totalCapacity = capacity.normal + capacity.overtime;
                               const allocated = getAllocatedTUs(member.id, workPlans);
-                              const available = capacity.normal - allocated;
+                              const available = totalCapacity - allocated;
                               const roleColor = ROLE_COLORS[member.role] || '#64748b';
 
                               return (
@@ -559,7 +560,7 @@ export function UnifiedBottomDrawer({
                                   </View>
                                   <View className="bg-slate-100 dark:bg-slate-700 px-2 py-1 rounded-full">
                                     <Text className="text-slate-700 dark:text-slate-300 text-[10px] font-bold">
-                                      {allocated}/{capacity.normal} TU
+                                      {allocated}/{totalCapacity} TU
                                     </Text>
                                   </View>
                                 </Pressable>
@@ -569,6 +570,7 @@ export function UnifiedBottomDrawer({
                             {/* Executives */}
                             {members.filter((m: OrganizationMember) => m.status === 'active' && m.role === 'FractionalExec').map((member: OrganizationMember) => {
                               const capacity = getCapacityPerWeek(member);
+                              const totalCapacity = capacity.normal + capacity.overtime;
                               const allocated = getAllocatedTUs(member.id, workPlans);
                               const roleColor = ROLE_COLORS[member.role] || '#64748b';
 
@@ -596,7 +598,7 @@ export function UnifiedBottomDrawer({
                                   </View>
                                   <View className="bg-slate-100 dark:bg-slate-700 px-2 py-1 rounded-full">
                                     <Text className="text-slate-700 dark:text-slate-300 text-[10px] font-bold">
-                                      {allocated}/{capacity.normal} TU
+                                      {allocated}/{totalCapacity} TU
                                     </Text>
                                   </View>
                                 </Pressable>
@@ -606,6 +608,7 @@ export function UnifiedBottomDrawer({
                             {/* Apprentices */}
                             {members.filter((m: OrganizationMember) => m.status === 'active' && m.role === 'Apprentice').map((member: OrganizationMember) => {
                               const capacity = getCapacityPerWeek(member);
+                              const totalCapacity = capacity.normal + capacity.overtime;
                               const allocated = getAllocatedTUs(member.id, workPlans);
                               const roleColor = ROLE_COLORS[member.role] || '#64748b';
 
@@ -633,7 +636,7 @@ export function UnifiedBottomDrawer({
                                   </View>
                                   <View className="bg-slate-100 dark:bg-slate-700 px-2 py-1 rounded-full">
                                     <Text className="text-slate-700 dark:text-slate-300 text-[10px] font-bold">
-                                      {allocated}/{capacity.normal} TU
+                                      {allocated}/{totalCapacity} TU
                                     </Text>
                                   </View>
                                 </Pressable>
