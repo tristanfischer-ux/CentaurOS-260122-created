@@ -122,12 +122,12 @@ export function CollapsibleGanttChart({ workPlans, members, onTaskPress }: Colla
 
       {/* Gantt Chart Content - Only visible when expanded */}
       {isExpanded && (
-        <View className="flex-1">
+        <View style={{ flex: 1 }}>
           <MiniGanttChart
             workPlans={workPlans}
             members={members}
             onTaskPress={onTaskPress}
-            fillAvailableSpace
+            fillAvailableSpace={false}
           />
         </View>
       )}

@@ -266,7 +266,7 @@ export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress
   }, [viewMode]);
 
   return (
-    <View className="flex-1 bg-white dark:bg-slate-900 border-t-2 border-gray-200 dark:border-slate-700">
+    <View style={{ flex: fillAvailableSpace ? 1 : 0 }} className="bg-white dark:bg-slate-900 border-t-2 border-gray-200 dark:border-slate-700">
       {/* Compact Header with View Toggle */}
       <View className="px-3 py-1.5 flex-row items-center justify-between border-b border-gray-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950">
         <View className="flex-row items-center gap-2">
@@ -357,7 +357,7 @@ export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress
       </View>
 
       {/* Timeline Content */}
-      <View className="flex-1 relative bg-white dark:bg-slate-900">
+      <View style={{ flex: fillAvailableSpace ? 1 : 0 }} className="relative bg-white dark:bg-slate-900">
         {/* Compact Time Period Headers */}
         <ScrollView
           ref={headerScrollRef}
@@ -406,13 +406,12 @@ export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress
             headerScrollRef.current?.scrollTo({ x: offsetX, y: 0, animated: false });
           }}
           scrollEventThrottle={16}
-          contentContainerStyle={{ flexGrow: 1 }}
-          className="flex-1"
+          style={{ flexGrow: fillAvailableSpace ? 1 : 0 }}
         >
           <ScrollView
             showsVerticalScrollIndicator={true}
-            contentContainerStyle={{ paddingBottom: 20 }}
-            className="flex-1"
+            contentContainerStyle={{ paddingBottom: 8 }}
+            style={{ flexGrow: fillAvailableSpace ? 1 : 0 }}
           >
             <View style={{ width: WEEK_WIDTH * timePeriods.length }}>
               {/* Current time indicator line */}
@@ -424,7 +423,7 @@ export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress
               />
 
               {/* Task bars */}
-              <View className="py-2">
+              <View className="pt-1">
               {taskBars.map((bar, idx) => {
                 const colors = STATUS_COLORS[bar.task.status] || STATUS_COLORS['not-started'];
                 const leftPosition = WEEK_WIDTH * (bar.startOffset + 4); // +4 to account for 4 weeks before current week
