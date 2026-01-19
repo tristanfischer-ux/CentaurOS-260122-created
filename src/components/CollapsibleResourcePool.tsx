@@ -293,7 +293,7 @@ export function CollapsibleResourcePool({ selectedPersonId, onPersonSelect }: Co
                     setSelectedMember(member);
                     setShowPersonModal(true);
                   }}
-                  className={`flex-row items-center px-3 py-1.5 border-b border-gray-100 dark:border-slate-800 active:bg-gray-50 dark:active:bg-slate-800 ${
+                  className={`flex-row items-center px-3 py-2 border-b border-gray-100 dark:border-slate-800 active:bg-gray-50 dark:active:bg-slate-800 ${
                     isSelected ? 'bg-purple-50 dark:bg-purple-900/20' : ''
                   }`}
                 >
@@ -306,7 +306,7 @@ export function CollapsibleResourcePool({ selectedPersonId, onPersonSelect }: Co
                         style={{ backgroundColor: roleColor + '20' }}
                       >
                         <Text className="font-bold text-[9px]" style={{ color: roleColor }}>
-                          {member.name.split(' ').map(n => n[0]).join('')}
+                          {member.name.split(' ').map(n => n[0].toUpperCase()).join('')}
                         </Text>
                       </View>
 
