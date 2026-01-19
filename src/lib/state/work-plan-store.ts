@@ -1015,7 +1015,12 @@ export const useWorkPlanStore = create<WorkPlanState>((set, get) => ({
 
     console.log('[WorkPlanStore] Creating default miscellaneous task');
 
-    // Create a permanent miscellaneous task
+    // Get current user from app store
+    const currentMembership = useAppStore.getState().currentMembership;
+    const assignedBy = currentMembership?.id || 'system';
+    const ownerId = currentMembership?.id || undefined;
+
+    // Create a permanent miscellaneous task assigned to current user
     const miscTask: WorkPlan = {
       id: miscTaskId,
       workspaceId,
@@ -1026,13 +1031,19 @@ export const useWorkPlanStore = create<WorkPlanState>((set, get) => ({
       dueDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 1 year from now
       status: 'in-progress',
       progress: 0,
-      assignedBy: 'system',
+      assignedBy,
       needsSubmission: false,
       estimatedTimeUnits: 1000, // Large buffer for misc work
-      allocations: [],
+      allocations: currentMembership ? [{
+        memberId: currentMembership.id,
+        memberName: 'User', // Default name - will be updated by UI
+        squaresPerWeek: 0, // User can allocate as needed
+        costPerSquare: 0,
+      }] : [],
       appliedAITools: [],
       tusExpended: 0,
-      assignedMemberIds: [],
+      assignedMemberIds: currentMembership ? [currentMembership.id] : [],
+      ownerId,
     };
 
     // Add to local state first
