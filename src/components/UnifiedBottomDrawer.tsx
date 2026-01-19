@@ -5,7 +5,7 @@
  */
 
 import { View, Text, Pressable, ScrollView, Dimensions, TextInput } from 'react-native';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import Animated, { useAnimatedStyle, withSpring, useSharedValue } from 'react-native-reanimated';
 import { ChevronUp, ChevronDown, Users, Plus, Mic, Type, Lightbulb } from 'lucide-react-native';
 import { useOrganizationStore } from '@/lib/state/organization-store';
@@ -25,6 +25,9 @@ interface UnifiedBottomDrawerProps {
   onVoiceTranscript: (transcript: string) => void;
   onTextSubmit: (text: string) => void;
   pendingDraftsCount?: number;
+
+  // Control props
+  openToNewTask?: boolean; // When true, opens drawer to new-task tab
 
   // Styling
   accentColor?: string; // Green for WHAT, Purple for WHY
@@ -76,6 +79,7 @@ export function UnifiedBottomDrawer({
   onVoiceTranscript,
   onTextSubmit,
   pendingDraftsCount = 0,
+  openToNewTask = false,
   accentColor = '#10b981', // Green by default
 }: UnifiedBottomDrawerProps) {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -100,6 +104,15 @@ export function UnifiedBottomDrawer({
   // Animated height
   const height = useSharedValue(COLLAPSED_HEIGHT);
 
+  // Handle openToNewTask prop - open drawer when requested
+  useEffect(() => {
+    if (openToNewTask && !isExpanded) {
+      setIsExpanded(true);
+      setActiveTab('new-task');
+      height.value = EXPANDED_HEIGHT;
+    }
+  }, [openToNewTask, isExpanded, EXPANDED_HEIGHT, height]);
+
   const animatedStyle = useAnimatedStyle(() => {
     return {
       height: withSpring(height.value, {
@@ -122,7 +135,7 @@ export function UnifiedBottomDrawer({
 
   // Filter active members
   const members = useMemo(() =>
-    allMembers.filter(m => m.status === 'active'),
+    allMembers.filter((m: OrganizationMember) => m.status === 'active'),
     [allMembers]
   );
 
@@ -131,7 +144,7 @@ export function UnifiedBottomDrawer({
     let allocated = 0;
     let total = 0;
 
-    members.forEach((member) => {
+    members.forEach((member: OrganizationMember) => {
       const capacity = getCapacityPerWeek(member);
       const totalCapacity = capacity.normal + capacity.overtime;
       const memberAllocated = getAllocatedTUs(member.id, workPlans);
@@ -321,7 +334,7 @@ export function UnifiedBottomDrawer({
 
               {/* Resource List */}
               <ScrollView className="flex-1" showsVerticalScrollIndicator={true}>
-                {members.map((member) => {
+                {members.map((member: OrganizationMember) => {
                   const capacity = getCapacityPerWeek(member);
                   const totalCapacity = capacity.normal + capacity.overtime;
                   const allocated = getAllocatedTUs(member.id, workPlans);
@@ -362,7 +375,7 @@ export function UnifiedBottomDrawer({
                             style={{ backgroundColor: roleColor + '20' }}
                           >
                             <Text className="font-bold text-[9px]" style={{ color: roleColor }}>
-                              {member.name.split(' ').map(n => n[0]).join('')}
+                              {member.name.split(' ').map((n: string) => n[0]).join('')}
                             </Text>
                           </View>
 

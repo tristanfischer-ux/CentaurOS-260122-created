@@ -219,13 +219,23 @@ export function TeamCapacityDashboard() {
   // Apply role-based filtering for team members
   const roleFilteredMembers = useMemo(() => {
     const activeMembers = members.filter((m) => m.status === 'active');
-    if (!currentMembership?.role) return activeMembers;
-    return filterTeamMembersByRole(
+
+    // Safety check: If no membership or role, default to showing all (Founder behavior)
+    if (!currentMembership?.role) {
+      console.log('[TeamCapacity] No role found, showing all members (default Founder behavior)');
+      return activeMembers;
+    }
+
+    // Apply role-based filtering
+    const filtered = filterTeamMembersByRole(
       activeMembers,
       currentMembership.role,
       currentMembership.function,
       currentMembership.id
     );
+
+    console.log('[TeamCapacity] Role:', currentMembership.role, 'Filtered members:', filtered.length, '/', activeMembers.length);
+    return filtered;
   }, [members, currentMembership]);
 
   // Calculate team capacity metrics from role-filtered members

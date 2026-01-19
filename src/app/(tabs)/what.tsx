@@ -141,7 +141,7 @@ export default function WhatScreen() {
   const [functionFilter, setFunctionFilter] = useState<BusinessFunction | 'all'>('all');
   const [selectedTask, setSelectedTask] = useState<WorkPlan | null>(null);
   const [showTaskModal, setShowTaskModal] = useState(false);
-  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [openDrawerToNewTask, setOpenDrawerToNewTask] = useState(false);
   const [showResourcePool, setShowResourcePool] = useState(false);
   const [selectedPersonForAllocation, setSelectedPersonForAllocation] = useState<string | null>(null);
   const [showVoiceTranscript, setShowVoiceTranscript] = useState(false);
@@ -274,7 +274,6 @@ export default function WhatScreen() {
     setNewTaskTitle('');
     setNewTaskEstimate('10');
     setShowSuggestions(true);
-    setShowCreateModal(false);
   };
 
   // Handle task status change
@@ -517,177 +516,6 @@ export default function WhatScreen() {
         workPlan={selectedTask}
       />
 
-      {/* Create Task Modal */}
-      <Modal
-        visible={showCreateModal}
-        transparent
-        animationType="slide"
-        onRequestClose={() => {
-          setShowCreateModal(false);
-          setShowSuggestions(true);
-        }}
-      >
-        <Pressable className="flex-1 bg-black/70" onPress={() => {
-          setShowCreateModal(false);
-          setShowSuggestions(true);
-        }}>
-          <View className="flex-1" />
-          <Pressable onPress={(e) => e.stopPropagation()} style={{ maxHeight: '85%' }}>
-            <View className="bg-white dark:bg-slate-900 rounded-t-3xl">
-              <View className="flex-row items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-slate-800">
-                <Text className="text-slate-900 dark:text-white font-bold text-xl">Create Task</Text>
-                <Pressable onPress={() => {
-                  setShowCreateModal(false);
-                  setShowSuggestions(true);
-                }} className="p-2">
-                  <X size={24} color="#64748b" />
-                </Pressable>
-              </View>
-
-              <ScrollView
-                className="px-6 py-4"
-                contentContainerStyle={{ flexGrow: 1, paddingBottom: 40 }}
-                keyboardShouldPersistTaps="handled"
-              >
-                {/* Function Selection First */}
-                <View className="mb-4">
-                  <Text className="text-slate-700 dark:text-slate-300 font-medium mb-2">Function</Text>
-                  <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                    <View className="flex-row gap-2">
-                      {(['Marketing', 'Sales', 'Finance', 'Engineering', 'Ops', 'Admin'] as BusinessFunction[]).map(func => (
-                        <Pressable
-                          key={func}
-                          onPress={() => {
-                            setNewTaskFunction(func);
-                            setShowSuggestions(true);
-                          }}
-                          className={`px-4 py-2 rounded-lg ${newTaskFunction === func ? 'bg-blue-500' : 'bg-slate-100 dark:bg-slate-800'}`}
-                        >
-                          <Text className={`font-medium ${newTaskFunction === func ? 'text-white' : 'text-slate-600 dark:text-slate-300'}`}>
-                            {func}
-                          </Text>
-                        </Pressable>
-                      ))}
-                    </View>
-                  </ScrollView>
-                </View>
-
-                {/* Task Suggestions Section */}
-                {showSuggestions && taskTemplates.length > 0 && (
-                  <View className="mb-4">
-                    <View className="flex-row items-center gap-2 mb-3">
-                      <Sparkles size={16} color="#8b5cf6" />
-                      <Text className="text-slate-700 dark:text-slate-300 font-semibold">
-                        Suggested Tasks
-                      </Text>
-                    </View>
-                    <View className="gap-2">
-                      {taskTemplates.map((template) => (
-                        <Pressable
-                          key={template.id}
-                          onPress={() => handleSelectTemplate(template)}
-                          className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-3 border-2 border-slate-200 dark:border-slate-700 active:border-purple-500"
-                        >
-                          <Text className="text-slate-900 dark:text-white font-semibold mb-1">
-                            {template.title}
-                          </Text>
-                          <Text className="text-slate-600 dark:text-slate-400 text-xs mb-2" numberOfLines={2}>
-                            {template.description}
-                          </Text>
-                          <View className="flex-row items-center gap-3">
-                            <View className="flex-row items-center gap-1">
-                              <Clock size={12} color="#8b5cf6" />
-                              <Text className="text-slate-500 dark:text-slate-400 text-xs">
-                                {template.estimatedTimeUnits} TU
-                              </Text>
-                            </View>
-                            <View className="flex-row gap-1 flex-wrap">
-                              {template.tags.slice(0, 2).map((tag) => (
-                                <View key={tag} className="bg-purple-100 dark:bg-purple-900/30 px-2 py-0.5 rounded">
-                                  <Text className="text-purple-600 dark:text-purple-400 text-xs">
-                                    {tag}
-                                  </Text>
-                                </View>
-                              ))}
-                            </View>
-                          </View>
-                        </Pressable>
-                      ))}
-                    </View>
-                    <Pressable
-                      onPress={() => setShowSuggestions(false)}
-                      className="mt-3 py-2 items-center"
-                    >
-                      <Text className="text-purple-600 dark:text-purple-400 text-sm font-medium">
-                        Or create custom task
-                      </Text>
-                    </Pressable>
-                  </View>
-                )}
-
-                {/* Title Input - Show when not showing suggestions or has input */}
-                {(!showSuggestions || newTaskTitle) && (
-                  <View className="mb-4">
-                    <Text className="text-slate-700 dark:text-slate-300 font-medium mb-2">Task Title</Text>
-                    <TextInput
-                      value={newTaskTitle}
-                      onChangeText={(text) => {
-                        setNewTaskTitle(text);
-                        if (text && showSuggestions) {
-                          setShowSuggestions(false);
-                        }
-                      }}
-                      placeholder="What needs to be done?"
-                      placeholderTextColor="#94a3b8"
-                      className="bg-slate-100 dark:bg-slate-800 rounded-xl px-4 py-3 text-slate-900 dark:text-white"
-                    />
-                    {showSuggestions && (
-                      <Pressable
-                        onPress={() => setShowSuggestions(true)}
-                        className="mt-2"
-                      >
-                        <Text className="text-purple-600 dark:text-purple-400 text-sm">
-                          View suggestions
-                        </Text>
-                      </Pressable>
-                    )}
-                  </View>
-                )}
-
-                {/* Estimated TUs - Show when not showing suggestions */}
-                {!showSuggestions && (
-                  <View className="mb-6">
-                    <Text className="text-slate-700 dark:text-slate-300 font-medium mb-2">Estimated Time Units</Text>
-                    <TextInput
-                      value={newTaskEstimate}
-                      onChangeText={setNewTaskEstimate}
-                      placeholder="10"
-                      placeholderTextColor="#94a3b8"
-                      keyboardType="number-pad"
-                      className="bg-slate-100 dark:bg-slate-800 rounded-xl px-4 py-3 text-slate-900 dark:text-white"
-                    />
-                    <Text className="text-slate-500 dark:text-slate-400 text-xs mt-1">
-                      1 TU = 4 hours of focused work
-                    </Text>
-                  </View>
-                )}
-
-                {/* Create Button - Only show when not showing suggestions */}
-                {!showSuggestions && (
-                  <Pressable
-                    onPress={handleCreateTask}
-                    className="bg-blue-500 py-4 rounded-xl items-center"
-                    disabled={!newTaskTitle.trim()}
-                  >
-                    <Text className="text-white font-bold text-base">Create Task</Text>
-                  </Pressable>
-                )}
-              </ScrollView>
-            </View>
-          </Pressable>
-        </Pressable>
-      </Modal>
-
       {/* Header */}
       <LinearGradient
         colors={['#10b981', '#059669', '#047857']}
@@ -706,7 +534,10 @@ export default function WhatScreen() {
           </View>
           <View className="flex-row items-center gap-2">
             <Pressable
-              onPress={() => setShowCreateModal(true)}
+              onPress={() => {
+                setOpenDrawerToNewTask(true);
+                setTimeout(() => setOpenDrawerToNewTask(false), 100); // Reset trigger
+              }}
               className="bg-white/20 p-2 rounded-full"
             >
               <Plus size={20} color="white" />
@@ -893,7 +724,10 @@ export default function WhatScreen() {
               No tasks found
             </Text>
             <Pressable
-              onPress={() => setShowCreateModal(true)}
+              onPress={() => {
+                setOpenDrawerToNewTask(true);
+                setTimeout(() => setOpenDrawerToNewTask(false), 100); // Reset trigger
+              }}
               className="mt-4 bg-blue-500 px-6 py-3 rounded-xl"
             >
               <Text className="text-white font-semibold">Create First Task</Text>
@@ -909,6 +743,7 @@ export default function WhatScreen() {
         onVoiceTranscript={handleVoiceTranscript}
         onTextSubmit={handleTextInput}
         pendingDraftsCount={taskDrafts.length}
+        openToNewTask={openDrawerToNewTask}
         accentColor="#10b981" // Green for WHAT tab
       />
 
