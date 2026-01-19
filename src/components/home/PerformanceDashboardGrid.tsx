@@ -3,7 +3,7 @@
  * Collection of mini KPI dashboards displayed in a scrollable grid
  */
 
-import { View, Text, Pressable, ScrollView } from 'react-native';
+import { View, Text, Pressable, ScrollView, Alert } from 'react-native';
 import { useMemo } from 'react';
 import { useRouter } from 'expo-router';
 import {
@@ -314,45 +314,7 @@ export function PerformanceDashboardGrid() {
         health: completedThisWeek >= 2 ? 'healthy' : 'warning',
         icon: Zap,
         iconColor: '#f59e0b',
-        onPress: () => router.push('/(tabs)/what'),
-      },
-      {
-        id: 'resource-efficiency',
-        title: 'Resource Efficiency',
-        primaryValue: `${utilizationPercent}%`,
-        primaryLabel: 'utilized',
-        secondaryValue: `${spareCapacity} TU`,
-        secondaryLabel: 'Spare',
-        trend: utilizationPercent >= 70 && utilizationPercent < 90 ? 'stable' : utilizationPercent >= 90 ? 'down' : 'up',
-        health: resourceHealth,
-        icon: Users,
-        iconColor: '#10b981',
-        onPress: () => router.push('/(tabs)/who'),
-      },
-      {
-        id: 'supplier-performance',
-        title: 'Supplier Performance',
-        primaryValue: activeEngagementCount.toString(),
-        primaryLabel: 'active engagements',
-        secondaryValue: `£${(totalSupplierSpend / 1000).toFixed(0)}K`,
-        secondaryLabel: 'Spent',
-        trend: 'stable',
-        health: supplierHealth,
-        icon: Building2,
-        iconColor: '#8b5cf6',
-        onPress: () => router.push('/financial-dashboard'),
-      },
-      {
-        id: 'okr-progress',
-        title: 'Objective Progress',
-        primaryValue: `${onTrackOKRs}/${activeOKRs.length}`,
-        primaryLabel: 'OKRs on track',
-        trend: okrPercent >= 75 ? 'up' : okrPercent >= 50 ? 'stable' : 'down',
-        trendValue: `${okrPercent}%`,
-        health: okrHealth,
-        icon: Target,
-        iconColor: '#ec4899',
-        onPress: () => router.push('/(tabs)/evaluate'),
+        onPress: () => router.push('/(tabs)/people'),
       },
       {
         id: 'cash-flow',
@@ -365,7 +327,9 @@ export function PerformanceDashboardGrid() {
         health: cashHealth,
         icon: PoundSterling,
         iconColor: '#14b8a6',
-        onPress: () => router.push('/financial-dashboard'),
+        onPress: () => {
+          Alert.alert('Coming Soon', 'Financial dashboard is coming soon!');
+        },
       },
     ];
   }, [roleFilteredWorkPlans, members, okrs, suppliers, currentWorkspace, getCashBalance, getWeeklyBurn, getMonthlyRevenue, isFinanceLoaded, router]);
