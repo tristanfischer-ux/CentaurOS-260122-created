@@ -244,12 +244,6 @@ export default function MarketplaceScreen() {
             <View className="gap-3">
               {/* Fractional Executives */}
               <Pressable
-                onPress={() => {
-                  setActionType('contact');
-                  setSelectedTargetType('person');
-                  setSelectedCategory('Fractional Executives');
-                  setShowActionConfirm(true);
-                }}
                 className="bg-white dark:bg-slate-800 rounded-xl p-4 active:opacity-80"
               >
                 <View className="flex-row items-center gap-3">
@@ -268,12 +262,6 @@ export default function MarketplaceScreen() {
 
               {/* Apprentices */}
               <Pressable
-                onPress={() => {
-                  setActionType('invite');
-                  setSelectedTargetType('person');
-                  setSelectedCategory('Apprentices');
-                  setShowActionConfirm(true);
-                }}
                 className="bg-white dark:bg-slate-800 rounded-xl p-4 active:opacity-80"
               >
                 <View className="flex-row items-center gap-3">
@@ -313,12 +301,6 @@ export default function MarketplaceScreen() {
               ].map((cat, index) => (
                 <Animated.View key={cat.name} entering={FadeInDown.delay(index * 50).springify()}>
                   <Pressable
-                    onPress={() => {
-                      setActionType('contact');
-                      setSelectedTargetType('tool');
-                      setSelectedCategory(cat.name);
-                      setShowActionConfirm(true);
-                    }}
                     className="bg-white dark:bg-slate-800 rounded-xl p-4 active:opacity-80"
                   >
                     <View className="flex-row items-center gap-3">
@@ -360,12 +342,6 @@ export default function MarketplaceScreen() {
               ].map((cat, index) => (
                 <Animated.View key={cat.name} entering={FadeInDown.delay(index * 50).springify()}>
                   <Pressable
-                    onPress={() => {
-                      setActionType('quote');
-                      setSelectedTargetType('supplier');
-                      setSelectedCategory(cat.name);
-                      setShowActionConfirm(true);
-                    }}
                     className="bg-white dark:bg-slate-800 rounded-xl p-4 active:opacity-80"
                   >
                     <View className="flex-row items-center gap-3">
@@ -405,12 +381,6 @@ export default function MarketplaceScreen() {
               ].map((cat, index) => (
                 <Animated.View key={cat.name} entering={FadeInDown.delay(index * 50).springify()}>
                   <Pressable
-                    onPress={() => {
-                      setActionType('contact');
-                      setSelectedTargetType('advisor');
-                      setSelectedCategory(cat.name);
-                      setShowActionConfirm(true);
-                    }}
                     className="bg-white dark:bg-slate-800 rounded-xl p-4 active:opacity-80"
                   >
                     <View className="flex-row items-center gap-3">
