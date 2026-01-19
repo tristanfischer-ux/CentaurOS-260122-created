@@ -148,7 +148,9 @@ export const useFinanceStore = create<FinanceStore>((set, get) => ({
         runway,
       });
     } catch (error) {
-      console.error('[FinanceStore] Failed to load financial data:', error);
+      console.error('[FinanceStore] Failed to load financial data:',
+        error instanceof Error ? error.message : JSON.stringify(error, null, 2)
+      );
       set({
         transactions: [],
         budgetTargets: [],
@@ -173,7 +175,9 @@ export const useFinanceStore = create<FinanceStore>((set, get) => ({
         transactions: [data, ...state.transactions],
       }));
     } catch (error) {
-      console.error('Failed to add transaction:', error);
+      console.error('[FinanceStore] Failed to add transaction:',
+        error instanceof Error ? error.message : JSON.stringify(error, null, 2)
+      );
       throw error;
     }
   },
@@ -195,7 +199,9 @@ export const useFinanceStore = create<FinanceStore>((set, get) => ({
         transactions: state.transactions.map((t) => (t.id === id ? data : t)),
       }));
     } catch (error) {
-      console.error('Failed to update transaction:', error);
+      console.error('[FinanceStore] Failed to update transaction:',
+        error instanceof Error ? error.message : JSON.stringify(error, null, 2)
+      );
       throw error;
     }
   },
@@ -212,7 +218,9 @@ export const useFinanceStore = create<FinanceStore>((set, get) => ({
         transactions: state.transactions.filter((t) => t.id !== id),
       }));
     } catch (error) {
-      console.error('Failed to delete transaction:', error);
+      console.error('[FinanceStore] Failed to delete transaction:',
+        error instanceof Error ? error.message : JSON.stringify(error, null, 2)
+      );
       throw error;
     }
   },
@@ -233,7 +241,9 @@ export const useFinanceStore = create<FinanceStore>((set, get) => ({
         budgetTargets: [data, ...state.budgetTargets],
       }));
     } catch (error) {
-      console.error('Failed to add budget target:', error);
+      console.error('[FinanceStore] Failed to add budget target:',
+        error instanceof Error ? error.message : JSON.stringify(error, null, 2)
+      );
       throw error;
     }
   },
