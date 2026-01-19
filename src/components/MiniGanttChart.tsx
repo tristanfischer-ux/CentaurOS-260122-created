@@ -2,8 +2,9 @@ import { View, Text, ScrollView, Pressable, Dimensions, Modal } from 'react-nati
 import { useMemo, useRef, useEffect, useState } from 'react';
 import { type WorkPlan } from '@/lib/state/work-plan-store';
 import { type OrganizationMember } from '@/lib/organization-seed';
-import { X, Calendar, Clock, Users, DollarSign, AlertCircle, AlertTriangle } from 'lucide-react-native';
+import { X, Calendar, Clock, Users, DollarSign, AlertCircle, AlertTriangle, Target } from 'lucide-react-native';
 import { getDelayInfo, formatDelay, getDelaySeverityColor } from '@/lib/task-delay-tracker';
+import { lightImpact } from '@/lib/haptics';
 
 interface MiniGanttChartProps {
   workPlans: WorkPlan[];
@@ -232,16 +233,37 @@ export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress
   const [selectedTask, setSelectedTask] = useState<WorkPlan | null>(null);
   const [showTaskModal, setShowTaskModal] = useState(false);
 
-  // Auto-scroll to show today at far left when component mounts
-  useEffect(() => {
-    // Scroll to position where current week (index 4) appears at the far left
-    const scrollPosition = WEEK_WIDTH * 4; // Scroll past the 4 weeks before current week
+  // Function to scroll to today's position
+  const scrollToToday = () => {
+    lightImpact();
 
+    // Calculate scroll position based on view mode
+    let scrollPosition = 0;
+
+    if (viewMode === 'day') {
+      // In day view, today is at index 2 (2 days before)
+      scrollPosition = WEEK_WIDTH * 2;
+    } else if (viewMode === 'week') {
+      // In week view, current week is at index 4 (4 weeks before)
+      scrollPosition = WEEK_WIDTH * 4;
+    } else if (viewMode === 'month') {
+      // In month view, current month is at index 2 (2 months before)
+      scrollPosition = WEEK_WIDTH * 2;
+    } else if (viewMode === 'year') {
+      // In year view, current year is at index 1 (1 year before)
+      scrollPosition = WEEK_WIDTH * 1;
+    }
+
+    headerScrollRef.current?.scrollTo({ x: scrollPosition, y: 0, animated: true });
+    contentScrollRef.current?.scrollTo({ x: scrollPosition, y: 0, animated: true });
+  };
+
+  // Auto-scroll to show today at far left when component mounts or view mode changes
+  useEffect(() => {
     setTimeout(() => {
-      headerScrollRef.current?.scrollTo({ x: scrollPosition, y: 0, animated: true });
-      contentScrollRef.current?.scrollTo({ x: scrollPosition, y: 0, animated: true });
+      scrollToToday();
     }, 100);
-  }, []);
+  }, [viewMode]);
 
   return (
     <View className="flex-1 bg-white dark:bg-slate-900 border-t-2 border-gray-200 dark:border-slate-700">
@@ -254,6 +276,15 @@ export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress
           <Text className="text-gray-500 dark:text-slate-400 text-[9px]">
             {filteredTasks.length} tasks
           </Text>
+
+          {/* Today Button */}
+          <Pressable
+            onPress={scrollToToday}
+            className="bg-blue-500 rounded-full px-2 py-0.5 flex-row items-center gap-1 active:opacity-70"
+          >
+            <Target size={10} color="white" />
+            <Text className="text-white text-[9px] font-bold">Today</Text>
+          </Pressable>
         </View>
 
         {/* View Mode Toggle */}
