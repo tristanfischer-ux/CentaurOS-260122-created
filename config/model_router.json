@@ -1,0 +1,116 @@
+{
+  "$schema": "./model_router.schema.json",
+  "version": "1.0.0",
+  "description": "AI Model Router Configuration - Maps operations to specific models and providers",
+  "updated_at": "2026-01-19",
+  "defaults": {
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "temperature": 0.3,
+    "max_tokens": 4000,
+    "timeout_ms": 30000
+  },
+  "operations": {
+    "transcription": {
+      "description": "Speech-to-text transcription",
+      "routes": [
+        {
+          "provider": "openai",
+          "model": "whisper-1",
+          "endpoint": "/api/transcribe/whisper",
+          "priority": 1,
+          "notes": "Primary - best accuracy for English"
+        },
+        {
+          "provider": "google",
+          "model": "speech-v1",
+          "endpoint": "/api/transcribe",
+          "priority": 2,
+          "notes": "Fallback - good accuracy, lower latency"
+        }
+      ]
+    },
+    "task_extraction": {
+      "description": "Extract tasks from voice/text input",
+      "routes": [
+        {
+          "provider": "openai",
+          "model": "gpt-4o-mini",
+          "endpoint": "/api/ai/extract-tasks",
+          "priority": 1,
+          "temperature": 0.3,
+          "notes": "Primary - good balance of speed and accuracy"
+        }
+      ]
+    },
+    "onboarding_generate": {
+      "description": "Generate objectives and task drafts for onboarding",
+      "routes": [
+        {
+          "provider": "openai",
+          "model": "gpt-4o",
+          "endpoint": "/api/onboarding/generate",
+          "priority": 1,
+          "temperature": 0.5,
+          "notes": "Use larger model for complex generation"
+        }
+      ]
+    },
+    "why_brainstorm": {
+      "description": "WHY flow brainstorming conversation",
+      "routes": [
+        {
+          "provider": "google",
+          "model": "gemini-1.5-flash",
+          "endpoint": "/api/why/turn",
+          "priority": 1,
+          "temperature": 0.7,
+          "notes": "Google Gemini - free tier available"
+        },
+        {
+          "provider": "anthropic",
+          "model": "claude-3-haiku",
+          "endpoint": "/api/why/turn",
+          "priority": 2,
+          "notes": "Fallback - Claude for nuanced conversations"
+        }
+      ]
+    },
+    "why_synthesize": {
+      "description": "Synthesize WHY conversation into objectives",
+      "routes": [
+        {
+          "provider": "google",
+          "model": "gemini-1.5-flash",
+          "endpoint": "/api/why/synthesize",
+          "priority": 1,
+          "temperature": 0.3,
+          "notes": "Google Gemini - free tier available"
+        }
+      ]
+    }
+  },
+  "providers": {
+    "openai": {
+      "base_url": "https://api.openai.com/v1",
+      "env_key": "OPENAI_API_KEY",
+      "fallback_env_key": "EXPO_PUBLIC_VIBECODE_OPENAI_API_KEY"
+    },
+    "google": {
+      "base_url": "https://generativelanguage.googleapis.com/v1",
+      "env_key": "GOOGLE_AI_API_KEY",
+      "fallback_env_key": "EXPO_PUBLIC_GOOGLE_AI_API_KEY"
+    },
+    "anthropic": {
+      "base_url": "https://api.anthropic.com/v1",
+      "env_key": "ANTHROPIC_API_KEY",
+      "fallback_env_key": "EXPO_PUBLIC_VIBECODE_ANTHROPIC_API_KEY"
+    }
+  },
+  "notes": [
+    "All operations route through server-side API routes to protect API keys",
+    "Client-side code calls /api/* endpoints, never direct provider APIs",
+    "EXPO_PUBLIC_* fallback keys will be deprecated once migration is complete",
+    "Priority determines failover order when primary provider is unavailable"
+  ]
+}

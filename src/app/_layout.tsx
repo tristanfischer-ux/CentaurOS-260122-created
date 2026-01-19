@@ -13,6 +13,14 @@ import { WelcomeSplash } from '@/components/WelcomeSplash';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { ToastContainer } from '@/components/ToastContainer';
 import { ThemeProvider as AppThemeProvider, useTheme } from '@/lib/ThemeContext';
+import { OfflineBanner } from '@/components/OfflineBanner';
+import {
+  startNetworkMonitoring,
+  stopNetworkMonitoring,
+  initializeSyncManager,
+  startAutoSync,
+  stopAutoSync,
+} from '@/lib/offline';
 
 export const unstable_settings = {
   initialRouteName: 'sign-in',
@@ -62,6 +70,18 @@ function RootLayoutNav({ colorScheme }: { colorScheme: 'light' | 'dark' | null |
     }
   }, [isInitialized]);
 
+  // Initialize offline module
+  useEffect(() => {
+    startNetworkMonitoring();
+    initializeSyncManager();
+    startAutoSync(30000); // Sync every 30 seconds when online
+
+    return () => {
+      stopNetworkMonitoring();
+      stopAutoSync();
+    };
+  }, []);
+
   if (!isInitialized) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: getBackgroundColor() }}>
@@ -73,6 +93,7 @@ function RootLayoutNav({ colorScheme }: { colorScheme: 'light' | 'dark' | null |
   return (
     <>
       <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+        <OfflineBanner />
         <Stack screenOptions={{ headerShown: false }}>
           <Stack.Screen name="sign-in" options={{ headerShown: false }} />
           <Stack.Screen name="sign-up" options={{ headerShown: false }} />

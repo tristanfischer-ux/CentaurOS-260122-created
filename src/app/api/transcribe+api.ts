@@ -18,8 +18,9 @@ export async function POST(request: Request) {
       );
     }
 
-    // Get API key from environment
-    const apiKey = process.env.EXPO_PUBLIC_GOOGLE_AI_API_KEY ||
+    // Get API key from environment (prefer server-side key, fallback to public)
+    const apiKey = process.env.GOOGLE_AI_API_KEY ||
+                   process.env.EXPO_PUBLIC_GOOGLE_AI_API_KEY ||
                    process.env.EXPO_PUBLIC_VIBECODE_GOOGLE_API_KEY;
 
     if (!apiKey) {
