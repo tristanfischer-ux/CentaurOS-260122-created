@@ -54,22 +54,52 @@ const PRIORITY_CONFIG = {
 function PriorityTaskCard({ priorityScore, onPress }: { priorityScore: PriorityScore; onPress: () => void }) {
   const config = PRIORITY_CONFIG[priorityScore.level];
   const Icon = config.icon;
+  const task = priorityScore.task;
+
+  // Calculate TU metrics (same as CompactTaskCard)
+  const allocatedPerWeek = task.allocations?.reduce((sum, alloc) => sum + (alloc.squaresPerWeek || 0), 0) || 0;
+  const totalTUs = task.estimatedTimeUnits || 0;
+  const completedTUs = Math.round((task.progress / 100) * totalTUs);
+  const remainingTUs = totalTUs - completedTUs;
+  const weeksToFinish = allocatedPerWeek > 0 ? Math.ceil(remainingTUs / allocatedPerWeek) : null;
+
+  // Format time to finish display (same as CompactTaskCard)
+  const getTimeToFinishText = () => {
+    if (task.status === 'completed') return 'Done';
+    if (allocatedPerWeek === 0) return 'No allocation';
+    if (remainingTUs <= 0) return 'Ready to complete';
+    if (weeksToFinish === 1) return '~1 week';
+    if (weeksToFinish !== null && weeksToFinish <= 4) return `~${weeksToFinish} weeks`;
+    if (weeksToFinish !== null && weeksToFinish > 4) {
+      const months = Math.ceil(weeksToFinish / 4);
+      return `~${months} month${months > 1 ? 's' : ''}`;
+    }
+    return 'TBD';
+  };
+
+  // Status color
+  const statusColor = task.status === 'in-progress' ? '#3b82f6' :
+                      task.status === 'completed' ? '#10b981' :
+                      task.status === 'blocked' ? '#ef4444' : '#64748b';
 
   return (
     <Pressable
       onPress={onPress}
-      className="bg-white dark:bg-slate-800 rounded-xl p-4 mb-3 border-l-4 active:opacity-80"
-      style={{ borderLeftColor: config.borderColor }}
+      className="bg-white dark:bg-slate-800 rounded-xl p-4 mb-3 border-2 active:opacity-80"
+      style={{ borderColor: config.borderColor }}
     >
       {/* Header */}
-      <View className="flex-row items-start justify-between mb-2">
+      <View className="flex-row items-start justify-between mb-3">
         <View className="flex-1 mr-3">
-          <Text className="text-slate-900 dark:text-white font-bold text-base mb-1" numberOfLines={2}>
-            {priorityScore.task.title}
+          <Text className="text-slate-900 dark:text-white font-bold text-base mb-2" numberOfLines={2}>
+            {task.title}
           </Text>
+
+          {/* Status and TU Info Row - Same as CompactTaskCard */}
           <View className="flex-row items-center gap-2 flex-wrap">
+            {/* Priority Badge */}
             <View
-              className="px-2 py-0.5 rounded-full flex-row items-center gap-1"
+              className="px-2 py-0.5 rounded flex-row items-center gap-1"
               style={{ backgroundColor: config.bgColor }}
             >
               <Icon size={10} color={config.textColor} />
@@ -77,68 +107,111 @@ function PriorityTaskCard({ priorityScore, onPress }: { priorityScore: PriorityS
                 {config.badge}
               </Text>
             </View>
-            <View className="bg-slate-100 dark:bg-slate-700 px-2 py-0.5 rounded-full">
-              <Text className="text-slate-600 dark:text-slate-300 text-xs font-medium">
-                {priorityScore.totalScore}/100
+
+            {/* Status Badge */}
+            <View
+              className="px-2 py-0.5 rounded"
+              style={{ backgroundColor: statusColor + '20' }}
+            >
+              <Text className="text-[10px] font-bold" style={{ color: statusColor }}>
+                {task.status.toUpperCase()}
+              </Text>
+            </View>
+
+            {/* TU Allocated per Week */}
+            <View className="bg-blue-100 dark:bg-blue-900/30 px-2 py-0.5 rounded">
+              <Text className="text-blue-700 dark:text-blue-300 text-xs font-bold">
+                {allocatedPerWeek} TU/wk
+              </Text>
+            </View>
+
+            {/* Progress: Completed/Total TU */}
+            <View className="flex-row items-center gap-0.5">
+              <Text className="text-emerald-600 dark:text-emerald-400 text-xs font-bold">
+                {completedTUs}
+              </Text>
+              <Text className="text-gray-400 dark:text-slate-500 text-xs">/</Text>
+              <Text className="text-gray-600 dark:text-slate-400 text-xs font-semibold">
+                {totalTUs} TU
+              </Text>
+            </View>
+
+            {/* Time to Finish */}
+            <View
+              className="px-2 py-0.5 rounded"
+              style={{
+                backgroundColor: task.status === 'completed' ? '#10b98120' :
+                                 allocatedPerWeek === 0 ? '#f59e0b20' :
+                                 weeksToFinish !== null && weeksToFinish > 4 ? '#ef444420' : '#3b82f620'
+              }}
+            >
+              <Text
+                className="text-xs font-semibold"
+                style={{
+                  color: task.status === 'completed' ? '#10b981' :
+                         allocatedPerWeek === 0 ? '#f59e0b' :
+                         weeksToFinish !== null && weeksToFinish > 4 ? '#ef4444' : '#3b82f6'
+                }}
+              >
+                {getTimeToFinishText()}
               </Text>
             </View>
           </View>
         </View>
       </View>
 
-      {/* AI Reasoning */}
-      <View className="bg-slate-50 dark:bg-slate-700/50 rounded-lg p-3 mb-3">
-        <View className="flex-row items-start gap-2">
-          <Sparkles size={14} color="#8b5cf6" style={{ marginTop: 2 }} />
-          <Text className="flex-1 text-slate-700 dark:text-slate-300 text-sm leading-relaxed">
-            {priorityScore.reasoning}
-          </Text>
+      {/* TU Summary Box - Clear explanation */}
+      <View className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-3 mb-3">
+        <View className="flex-row items-center justify-between">
+          <View className="flex-1">
+            <Text className="text-slate-500 dark:text-slate-400 text-[10px] mb-1">TOTAL WORK NEEDED</Text>
+            <Text className="text-slate-900 dark:text-white text-lg font-bold">
+              {totalTUs} TU
+            </Text>
+            <Text className="text-slate-500 dark:text-slate-400 text-[9px]">
+              {completedTUs} completed
+            </Text>
+          </View>
+          <View className="flex-1 items-center border-l border-blue-200 dark:border-blue-800">
+            <Text className="text-slate-500 dark:text-slate-400 text-[10px] mb-1">WORKING THIS WEEK</Text>
+            <Text className="text-blue-600 dark:text-blue-400 text-lg font-bold">
+              {allocatedPerWeek} TU
+            </Text>
+            <Text className="text-slate-500 dark:text-slate-400 text-[9px]">
+              per week
+            </Text>
+          </View>
+          <View className="flex-1 items-end border-l border-blue-200 dark:border-blue-800 pl-3">
+            <Text className="text-slate-500 dark:text-slate-400 text-[10px] mb-1">TIME LEFT</Text>
+            <Text className="text-slate-900 dark:text-white text-lg font-bold">
+              {allocatedPerWeek > 0 ? weeksToFinish : '—'}
+            </Text>
+            <Text className="text-slate-500 dark:text-slate-400 text-[9px]">
+              {allocatedPerWeek > 0 ? (weeksToFinish === 1 ? 'week' : 'weeks') : 'no work'}
+            </Text>
+          </View>
         </View>
       </View>
 
-      {/* Score Breakdown */}
-      <View className="flex-row items-center gap-2 mb-3 flex-wrap">
-        {priorityScore.factors.deadlineUrgency > 0 && (
-          <View className="bg-red-100 dark:bg-red-900/30 px-2 py-1 rounded">
-            <Text className="text-red-700 dark:text-red-300 text-xs">
-              Deadline: {priorityScore.factors.deadlineUrgency}
+      {/* AI Reasoning */}
+      <View className="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-3 mb-3">
+        <View className="flex-row items-start gap-2">
+          <Sparkles size={14} color="#8b5cf6" style={{ marginTop: 2 }} />
+          <View className="flex-1">
+            <Text className="text-purple-700 dark:text-purple-300 text-xs font-bold mb-1">
+              Why this is a priority:
+            </Text>
+            <Text className="text-slate-700 dark:text-slate-300 text-sm leading-relaxed">
+              {priorityScore.reasoning}
             </Text>
           </View>
-        )}
-        {priorityScore.factors.blockingOthers > 0 && (
-          <View className="bg-orange-100 dark:bg-orange-900/30 px-2 py-1 rounded">
-            <Text className="text-orange-700 dark:text-orange-300 text-xs">
-              Blocking: {priorityScore.factors.blockingOthers}
-            </Text>
-          </View>
-        )}
-        {priorityScore.factors.businessImpact > 0 && (
-          <View className="bg-blue-100 dark:bg-blue-900/30 px-2 py-1 rounded">
-            <Text className="text-blue-700 dark:text-blue-300 text-xs">
-              Impact: {priorityScore.factors.businessImpact}
-            </Text>
-          </View>
-        )}
-        {priorityScore.factors.riskAndStatus > 0 && (
-          <View className="bg-purple-100 dark:bg-purple-900/30 px-2 py-1 rounded">
-            <Text className="text-purple-700 dark:text-purple-300 text-xs">
-              Risk: {priorityScore.factors.riskAndStatus}
-            </Text>
-          </View>
-        )}
-        {priorityScore.factors.resourceAvailability > 0 && (
-          <View className="bg-green-100 dark:bg-green-900/30 px-2 py-1 rounded">
-            <Text className="text-green-700 dark:text-green-300 text-xs">
-              Capacity: {priorityScore.factors.resourceAvailability}
-            </Text>
-          </View>
-        )}
+        </View>
       </View>
 
       {/* Action Button */}
       <Pressable
         onPress={onPress}
-        className="py-2.5 rounded-lg flex-row items-center justify-center gap-2"
+        className="py-3 rounded-lg flex-row items-center justify-center gap-2"
         style={{ backgroundColor: config.borderColor }}
       >
         {priorityScore.actionType === 'unblock' && <AlertTriangle size={16} color="white" />}
