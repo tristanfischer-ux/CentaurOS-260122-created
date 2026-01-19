@@ -521,7 +521,10 @@ export function UnifiedBottomDrawer({
 
                   <View className="flex-row gap-3 mb-4">
                     <Pressable
-                      onPress={() => setInputMode('voice')}
+                      onPress={() => {
+                        // Don't change inputMode - keep the view the same
+                        // The VoiceInputButton component will handle showing recording state
+                      }}
                       className="flex-1 border-2 rounded-xl p-4 items-center active:opacity-70"
                       style={{
                         backgroundColor: accentColor + '10',
@@ -529,7 +532,12 @@ export function UnifiedBottomDrawer({
                       }}
                     >
                       <View className="w-12 h-12 rounded-full items-center justify-center mb-2" style={{ backgroundColor: accentColor + '20' }}>
-                        <Mic size={24} color={accentColor} />
+                        <VoiceInputButton
+                          onTranscriptComplete={handleVoiceComplete}
+                          onError={(error) => console.log('[UnifiedDrawer] Voice error:', error)}
+                          color={accentColor}
+                          size={48}
+                        />
                       </View>
                       <Text className="text-slate-900 dark:text-white font-semibold">Voice</Text>
                       <Text className="text-slate-600 dark:text-slate-400 text-xs text-center mt-1">
