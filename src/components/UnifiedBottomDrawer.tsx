@@ -536,6 +536,8 @@ export function UnifiedBottomDrawer({
                           inline={true}
                         />
                       </View>
+                      {/* Add extra spacing to prevent "Recording" text from overlapping "Voice" label */}
+                      <View style={{ minHeight: 24 }} />
                       <Text className="text-slate-900 dark:text-white font-semibold">Voice</Text>
                       <Text className="text-slate-600 dark:text-slate-400 text-xs text-center mt-1">
                         Tap to record {newTaskTabLabel === 'New Aim' ? 'your aims' : 'your task'}
