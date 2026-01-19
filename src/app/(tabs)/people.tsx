@@ -92,6 +92,14 @@ export default function PeopleScreen() {
       return;
     }
 
+    // Check if member already exists
+    const existingMember = members.find(m => m.userId === currentUser.id);
+    if (existingMember) {
+      console.log('[People] Member already exists:', existingMember.id);
+      Alert.alert('Already Added', 'You are already in the team roster!');
+      return;
+    }
+
     // If no membership, use defaults
     const role = currentMembership?.role || 'Founder';
     const functionName = currentMembership?.function || 'Admin';

@@ -121,8 +121,35 @@ export const useOrganizationStore = create<OrganizationState>((set, get) => ({
       // Filter out any remaining dummy data - only keep members with user_id
       const realMembers = (membersData || []).filter((m: any) => m.user_id);
 
+      // Remove duplicates - keep only the most recent member per user_id
+      const uniqueMembersMap = new Map<string, any>();
+      const duplicatesToDelete: string[] = [];
+
+      realMembers.forEach((m: any) => {
+        const existing = uniqueMembersMap.get(m.user_id);
+        if (!existing) {
+          uniqueMembersMap.set(m.user_id, m);
+        } else {
+          // Keep the most recent one
+          if (new Date(m.created_at) > new Date(existing.created_at)) {
+            duplicatesToDelete.push(existing.id);
+            uniqueMembersMap.set(m.user_id, m);
+          } else {
+            duplicatesToDelete.push(m.id);
+          }
+        }
+      });
+
+      // Delete duplicates from database
+      if (duplicatesToDelete.length > 0) {
+        console.log(`[Organization] Deleting ${duplicatesToDelete.length} duplicate members:`, duplicatesToDelete);
+        for (const id of duplicatesToDelete) {
+          await supabase.from('members').delete().eq('id', id);
+        }
+      }
+
       // Transform Supabase data to OrganizationMember format
-      const members: OrganizationMember[] = realMembers.map((m: any) => ({
+      const members: OrganizationMember[] = Array.from(uniqueMembersMap.values()).map((m: any) => ({
         id: m.id,
         workspaceId: m.workspace_id,
         userId: m.user_id, // Link to auth user
@@ -136,7 +163,7 @@ export const useOrganizationStore = create<OrganizationState>((set, get) => ({
         startDate: m.created_at || new Date().toISOString(),
       }));
 
-      console.log(`[Organization] Loaded ${members.length} real members for workspace ${workspaceId}`);
+      console.log(`[Organization] Loaded ${members.length} unique members for workspace ${workspaceId}`);
       set({ members, isLoading: false });
     } catch (err) {
       console.error('Error loading members from Supabase:', err);
