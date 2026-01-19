@@ -10,7 +10,7 @@
  */
 
 import { View, Text, ScrollView, Pressable, Modal } from 'react-native';
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { FadeInDown } from 'react-native-reanimated';
@@ -31,7 +31,6 @@ import { useOrganizationStore } from '@/lib/state/organization-store';
 import { useWorkPlanStore, type WorkPlan } from '@/lib/state/work-plan-store';
 import { useDraftStore, type Draft } from '@/lib/state/draft-store';
 import { useCurrentMembership, useCurrentWorkspace } from '@/lib/state/app-store';
-import { useUIStore } from '@/lib/state/ui-store';
 import type { OrganizationMember } from '@/lib/organization-seed';
 import { HelpModal, HelpButton, type HelpContent } from '@/components/HelpModal';
 import { SettingsGearButton } from '@/components/SettingsGearButton';
@@ -128,22 +127,6 @@ export default function TasksScreen() {
   const [isProcessingTranscript, setIsProcessingTranscript] = useState(false);
   const [isConfirmingDrafts, setIsConfirmingDrafts] = useState(false);
   const [selectedDraftIds, setSelectedDraftIds] = useState<Set<string>>(new Set());
-
-  // UI Store - listen for FAB trigger
-  const shouldOpenNewTaskDrawer = useUIStore((s) => s.openNewTaskDrawer);
-  const clearNewTaskDrawer = useUIStore((s) => s.clearNewTaskDrawer);
-
-  // Effect to handle FAB trigger from any tab
-  useEffect(() => {
-    if (shouldOpenNewTaskDrawer) {
-      setOpenDrawerToNewTask(true);
-      // Clear the trigger after a short delay
-      setTimeout(() => {
-        setOpenDrawerToNewTask(false);
-        clearNewTaskDrawer();
-      }, 100);
-    }
-  }, [shouldOpenNewTaskDrawer, clearNewTaskDrawer]);
 
   // Role-based filtering for REAL tasks only (not drafts)
   const roleFilteredTasks = useMemo(() => {
