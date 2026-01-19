@@ -29,6 +29,7 @@ import {
   ChevronRight,
   Target,
   BarChart3,
+  Plus,
 } from 'lucide-react-native';
 
 // Stores
@@ -394,6 +395,49 @@ function FounderHome() {
           });
         }}
       />
+
+      {/* Floating Action Button - Create Task */}
+      <View
+        className="absolute items-center"
+        style={{
+          bottom: insets.bottom + 80,
+          left: 0,
+          right: 0,
+          pointerEvents: 'box-none',
+        }}
+      >
+        <Pressable
+          onPress={() => router.push('/(tabs)/what')}
+          className="active:opacity-80"
+          style={{
+            shadowColor: '#10b981',
+            shadowOffset: { width: 0, height: 4 },
+            shadowOpacity: 0.4,
+            shadowRadius: 12,
+            elevation: 8,
+          }}
+        >
+          <LinearGradient
+            colors={['#10b981', '#059669']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={{
+              width: 64,
+              height: 64,
+              borderRadius: 32,
+              alignItems: 'center',
+              justifyContent: 'center',
+              borderWidth: 4,
+              borderColor: 'rgba(255, 255, 255, 0.3)',
+            }}
+          >
+            <Plus size={32} color="#ffffff" strokeWidth={3} />
+          </LinearGradient>
+        </Pressable>
+        <Text className="text-xs font-semibold text-slate-600 dark:text-slate-400 mt-1">
+          New Task
+        </Text>
+      </View>
     </View>
   );
 }
