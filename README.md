@@ -24,7 +24,8 @@ Centaur OS is a comprehensive iOS mobile application that helps lean companies o
 ### ✅ Drawer Height Improvements
 - **Weekly Resource Pool**: Dynamic height based on number of team members, max 50% of screen
 - **Task Timeline (Gantt Chart)**: Dynamic height based on number of active tasks, max 50% of screen
-- **No Empty Space**: Both drawers automatically size to fit content without white space below
+- **Unified Bottom Drawer (Tasks Tab)**: Dynamic height based on content and active tab, max 50% of screen
+- **No Empty Space**: All drawers automatically size to fit content without white space below
 - **Consistent UX**: All collapsible drawers follow the same dynamic sizing pattern
 
 ### ✅ Team Member Management

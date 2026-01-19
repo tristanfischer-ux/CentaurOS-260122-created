@@ -99,9 +99,46 @@ export function UnifiedBottomDrawer({
   const currentWorkspace = useCurrentWorkspace();
   const getCashBalance = useFinanceStore(s => s.getCashBalance);
 
-  // Calculate heights
+  // Filter active members FIRST (needed for height calculation)
+  const members = useMemo(() =>
+    allMembers.filter((m: OrganizationMember) => m.status === 'active'),
+    [allMembers]
+  );
+
+  // Calculate dynamic heights
   const COLLAPSED_HEIGHT = 60;
-  const EXPANDED_HEIGHT = screenHeight * 0.6;
+  const MAX_EXPANDED_HEIGHT = screenHeight * 0.5; // Max 50% of screen
+
+  // Calculate content height based on active tab and content
+  const getContentHeight = () => {
+    if (activeTab === 'resources') {
+      // Resources tab: header + financial summary + members + legend
+      const HEADER_HEIGHT = 60; // Tab header
+      const FINANCIAL_SUMMARY_HEIGHT = 70; // Financial summary section
+      const MEMBER_ROW_HEIGHT = 42; // Height per member row
+      const LEGEND_HEIGHT = 32; // Legend at bottom
+      const PADDING = 10; // Extra padding
+
+      return HEADER_HEIGHT + FINANCIAL_SUMMARY_HEIGHT + (members.length * MEMBER_ROW_HEIGHT) + LEGEND_HEIGHT + PADDING;
+    } else {
+      // New Task tab: header + input mode content
+      const HEADER_HEIGHT = 60; // Tab header
+      const MODE_SELECTION_HEIGHT = 420; // Mode selection buttons + guide
+      const VOICE_INPUT_HEIGHT = 380; // Voice input screen
+      const TEXT_INPUT_HEIGHT = 380; // Text input screen
+
+      if (inputMode === null) {
+        return HEADER_HEIGHT + MODE_SELECTION_HEIGHT;
+      } else if (inputMode === 'voice') {
+        return HEADER_HEIGHT + VOICE_INPUT_HEIGHT;
+      } else {
+        return HEADER_HEIGHT + TEXT_INPUT_HEIGHT;
+      }
+    }
+  };
+
+  const contentHeight = getContentHeight();
+  const EXPANDED_HEIGHT = Math.min(contentHeight, MAX_EXPANDED_HEIGHT);
 
   // Animated height
   const height = useSharedValue(COLLAPSED_HEIGHT);
@@ -114,6 +151,13 @@ export function UnifiedBottomDrawer({
       height.value = EXPANDED_HEIGHT;
     }
   }, [openToNewTask, isExpanded, EXPANDED_HEIGHT, height]);
+
+  // Update height when content changes (tab switch, input mode change, or member count change)
+  useEffect(() => {
+    if (isExpanded) {
+      height.value = EXPANDED_HEIGHT;
+    }
+  }, [isExpanded, activeTab, inputMode, members.length, EXPANDED_HEIGHT, height]);
 
   const animatedStyle = useAnimatedStyle(() => {
     return {
@@ -134,12 +178,6 @@ export function UnifiedBottomDrawer({
       setTextInput('');
     }
   };
-
-  // Filter active members
-  const members = useMemo(() =>
-    allMembers.filter((m: OrganizationMember) => m.status === 'active'),
-    [allMembers]
-  );
 
   // Calculate resource stats
   const { totalAllocated, totalUnallocated } = useMemo(() => {
