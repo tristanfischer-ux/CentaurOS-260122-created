@@ -110,15 +110,9 @@ export function CompactTaskCard({
                 </Text>
               </View>
             )}
-            {/* Expand/Collapse indicator */}
-            {isExpanded ? (
-              <ChevronUp size={16} color="#94a3b8" />
-            ) : (
-              <ChevronDown size={16} color="#94a3b8" />
-            )}
           </View>
 
-          <View className="flex-row items-center gap-2">
+          <View className="flex-row items-center gap-2 flex-wrap">
             <View
               className="px-1.5 py-0.5 rounded"
               style={{ backgroundColor: statusColor + '20' }}
@@ -134,7 +128,38 @@ export function CompactTaskCard({
               </Text>
             </View>
 
-            <View className="flex-1 bg-gray-200 dark:bg-slate-700 rounded-full h-1 overflow-hidden">
+            {/* Team avatars - prominent in collapsed view */}
+            {assignedMembers.length > 0 && (
+              <View className="flex-row items-center">
+                {assignedMembers.slice(0, 3).map((member, idx) => (
+                  <View
+                    key={member.id}
+                    className="w-5 h-5 rounded-full items-center justify-center border border-white dark:border-slate-800"
+                    style={{
+                      backgroundColor: ROLE_COLORS[member.role] || '#64748b',
+                      marginLeft: idx > 0 ? -4 : 0,
+                      zIndex: 10 - idx
+                    }}
+                  >
+                    <Text className="text-white font-bold text-[7px]">
+                      {getInitials(member.name)}
+                    </Text>
+                  </View>
+                ))}
+                {assignedMembers.length > 3 && (
+                  <View
+                    className="w-5 h-5 rounded-full items-center justify-center bg-gray-400 border border-white dark:border-slate-800"
+                    style={{ marginLeft: -4, zIndex: 0 }}
+                  >
+                    <Text className="text-white font-bold text-[7px]">
+                      +{assignedMembers.length - 3}
+                    </Text>
+                  </View>
+                )}
+              </View>
+            )}
+
+            <View className="flex-1 bg-gray-200 dark:bg-slate-700 rounded-full h-1 overflow-hidden min-w-[40px]">
               <View
                 className="h-full"
                 style={{
@@ -146,44 +171,74 @@ export function CompactTaskCard({
             <Text className="text-gray-500 dark:text-slate-400 text-[10px]">
               {task.progress}%
             </Text>
-          </View>
-        </View>
 
-        {/* Mini team indicator */}
-        {assignedMembers?.length > 0 && (
-          <View className="flex-row">
-            {assignedMembers.slice(0, 2).map((member, idx) => (
-              <View
-                key={member.id}
-                className="w-6 h-6 rounded-full items-center justify-center border-2 border-white dark:border-slate-800"
-                style={{
-                  backgroundColor: ROLE_COLORS[member.role] || '#64748b',
-                  marginLeft: idx > 0 ? -6 : 0,
-                  zIndex: 2 - idx
-                }}
-              >
-                <Text className="text-white font-bold text-[8px]">
-                  {getInitials(member.name)}
-                </Text>
-              </View>
-            ))}
-            {assignedMembers?.length > 2 && (
-              <View
-                className="w-6 h-6 rounded-full items-center justify-center bg-gray-400 border-2 border-white dark:border-slate-800"
-                style={{ marginLeft: -6, zIndex: 0 }}
-              >
-                <Text className="text-white font-bold text-[8px]">
-                  +{assignedMembers.length - 2}
-                </Text>
-              </View>
+            {/* Expand/Collapse indicator */}
+            {isExpanded ? (
+              <ChevronUp size={16} color="#94a3b8" />
+            ) : (
+              <ChevronDown size={16} color="#94a3b8" />
             )}
           </View>
-        )}
+        </View>
       </View>
 
       {/* EXPANDED PREVIEW - Shows on first tap */}
       {isExpanded && (
         <View className="mt-3 pt-3 border-t border-gray-200 dark:border-slate-700">
+          {/* Date Information */}
+          <View className="flex-row items-center justify-between mb-3 bg-gray-50 dark:bg-slate-900 rounded-lg p-2">
+            <View className="flex-1">
+              <Text className="text-gray-500 dark:text-slate-400 text-[9px]">Start Date</Text>
+              <Text className="text-gray-900 dark:text-white text-xs font-semibold">
+                {task.startDate ? new Date(task.startDate).toLocaleDateString('en-GB', {
+                  day: 'numeric',
+                  month: 'short',
+                  year: 'numeric'
+                }) : 'Not set'}
+              </Text>
+            </View>
+            <View className="flex-1">
+              <Text className="text-gray-500 dark:text-slate-400 text-[9px]">Due Date</Text>
+              <Text className="text-gray-900 dark:text-white text-xs font-semibold">
+                {task.dueDate ? new Date(task.dueDate).toLocaleDateString('en-GB', {
+                  day: 'numeric',
+                  month: 'short',
+                  year: 'numeric'
+                }) : 'Not set'}
+              </Text>
+            </View>
+            {task.function && (
+              <View className="flex-1">
+                <Text className="text-gray-500 dark:text-slate-400 text-[9px]">Function</Text>
+                <Text className="text-gray-900 dark:text-white text-xs font-semibold">
+                  {task.function}
+                </Text>
+              </View>
+            )}
+          </View>
+
+          {/* TU Allocation Summary */}
+          <View className="flex-row items-center justify-between bg-blue-50 dark:bg-blue-900/20 rounded-lg p-2 mb-3">
+            <View className="flex-1">
+              <Text className="text-gray-500 dark:text-slate-400 text-[9px]">Total TU Needed</Text>
+              <Text className="text-gray-900 dark:text-white text-sm font-bold">
+                {task.estimatedTimeUnits}□
+              </Text>
+            </View>
+            <View className="flex-1 items-center">
+              <Text className="text-gray-500 dark:text-slate-400 text-[9px]">Allocated/Week</Text>
+              <Text className="text-blue-600 dark:text-blue-400 text-sm font-bold">
+                {allocatedPerWeek}□
+              </Text>
+            </View>
+            <View className="flex-1 items-end">
+              <Text className="text-gray-500 dark:text-slate-400 text-[9px]">Weeks to Complete</Text>
+              <Text className="text-gray-900 dark:text-white text-sm font-bold">
+                {allocatedPerWeek > 0 ? Math.ceil(task.estimatedTimeUnits / allocatedPerWeek) : '—'}
+              </Text>
+            </View>
+          </View>
+
           {/* Assigned People */}
           {assignedMembers?.length > 0 && (
             <View className="mb-2">
@@ -246,28 +301,6 @@ export function CompactTaskCard({
               </View>
             </View>
           )}
-
-          {/* Capacity Details */}
-          <View className="flex-row items-center justify-between bg-gray-50 dark:bg-slate-900 rounded-lg p-2">
-            <View>
-              <Text className="text-gray-500 dark:text-slate-400 text-[9px]">Total Capacity</Text>
-              <Text className="text-gray-900 dark:text-white text-xs font-bold">
-                {task.estimatedTimeUnits} TU
-              </Text>
-            </View>
-            <View>
-              <Text className="text-gray-500 dark:text-slate-400 text-[9px]">Per Week</Text>
-              <Text className="text-blue-600 dark:text-blue-400 text-xs font-bold">
-                {allocatedPerWeek} TU
-              </Text>
-            </View>
-            <View>
-              <Text className="text-gray-500 dark:text-slate-400 text-[9px]">Progress</Text>
-              <Text className="text-gray-900 dark:text-white text-xs font-bold">
-                {task.progress}%
-              </Text>
-            </View>
-          </View>
 
           {/* Timeline & Delay Details */}
           {delayInfo.isDelayed && (
