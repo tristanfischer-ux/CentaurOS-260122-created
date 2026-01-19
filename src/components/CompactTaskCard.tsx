@@ -287,30 +287,90 @@ export function CompactTaskCard({
             </View>
           </View>
 
-          {/* Assigned People */}
+          {/* Assigned People - Detailed TU Breakdown */}
           {assignedMembers?.length > 0 && (
-            <View className="mb-2">
-              <Text className="text-gray-500 dark:text-slate-400 text-[10px] font-bold mb-1">
-                TEAM ({assignedMembers.length})
+            <View className="mb-3">
+              <Text className="text-gray-500 dark:text-slate-400 text-[10px] font-bold mb-2">
+                TEAM WORKLOAD ({assignedMembers.length})
               </Text>
-              <View className="flex-row flex-wrap gap-1">
+              <View className="gap-2">
                 {assignedMembers.map(member => {
                   const allocation = task.allocations?.find(a => a.memberId === member.id);
+                  const memberTUsPerWeek = allocation?.squaresPerWeek || 0;
+
+                  // Calculate member's share of total TUs based on their allocation proportion
+                  const totalAllocationPerWeek = allocatedPerWeek || 1;
+                  const memberShare = memberTUsPerWeek / totalAllocationPerWeek;
+                  const memberTotalTUs = Math.round(totalTUs * memberShare);
+                  const memberCompletedTUs = Math.round(completedTUs * memberShare);
+                  const memberRemainingTUs = memberTotalTUs - memberCompletedTUs;
+
                   return (
                     <View
                       key={member.id}
-                      className="flex-row items-center gap-1 px-2 py-1 rounded-full"
-                      style={{ backgroundColor: (ROLE_COLORS[member.role] || '#64748b') + '20' }}
+                      className="bg-gray-50 dark:bg-slate-900 rounded-lg p-2"
                     >
-                      <Text
-                        className="text-[10px] font-semibold"
-                        style={{ color: ROLE_COLORS[member.role] || '#64748b' }}
-                      >
-                        {member.name.split(' ')[0]}
-                      </Text>
-                      <Text className="text-gray-500 dark:text-slate-400 text-[9px]">
-                        {allocation?.squaresPerWeek || 0} TU
-                      </Text>
+                      {/* Member header row */}
+                      <View className="flex-row items-center gap-2 mb-2">
+                        <View
+                          className="w-7 h-7 rounded-full items-center justify-center"
+                          style={{ backgroundColor: ROLE_COLORS[member.role] || '#64748b' }}
+                        >
+                          <Text className="text-white font-bold text-[9px]">
+                            {getInitials(member.name)}
+                          </Text>
+                        </View>
+                        <View className="flex-1">
+                          <Text
+                            className="text-xs font-semibold"
+                            style={{ color: ROLE_COLORS[member.role] || '#64748b' }}
+                          >
+                            {member.name}
+                          </Text>
+                          <Text className="text-gray-400 dark:text-slate-500 text-[9px]">
+                            {member.function || member.role}
+                          </Text>
+                        </View>
+                      </View>
+
+                      {/* TU Stats row */}
+                      <View className="flex-row items-center justify-between">
+                        {/* This Week */}
+                        <View className="flex-1 items-center">
+                          <Text className="text-gray-400 dark:text-slate-500 text-[8px] mb-0.5">THIS WEEK</Text>
+                          <View className="flex-row items-center gap-0.5">
+                            <Text className="text-blue-600 dark:text-blue-400 text-sm font-bold">
+                              {memberTUsPerWeek}
+                            </Text>
+                            <Text className="text-gray-400 dark:text-slate-500 text-[9px]">TU</Text>
+                          </View>
+                        </View>
+
+                        {/* Completed */}
+                        <View className="flex-1 items-center border-l border-gray-200 dark:border-slate-700">
+                          <Text className="text-gray-400 dark:text-slate-500 text-[8px] mb-0.5">COMPLETED</Text>
+                          <View className="flex-row items-center gap-0.5">
+                            <Text className="text-emerald-600 dark:text-emerald-400 text-sm font-bold">
+                              {memberCompletedTUs}
+                            </Text>
+                            <Text className="text-gray-400 dark:text-slate-500 text-[9px]">TU</Text>
+                          </View>
+                        </View>
+
+                        {/* Remaining */}
+                        <View className="flex-1 items-center border-l border-gray-200 dark:border-slate-700">
+                          <Text className="text-gray-400 dark:text-slate-500 text-[8px] mb-0.5">REMAINING</Text>
+                          <View className="flex-row items-center gap-0.5">
+                            <Text
+                              className="text-sm font-bold"
+                              style={{ color: memberRemainingTUs > 0 ? '#f59e0b' : '#10b981' }}
+                            >
+                              {memberRemainingTUs}
+                            </Text>
+                            <Text className="text-gray-400 dark:text-slate-500 text-[9px]">TU</Text>
+                          </View>
+                        </View>
+                      </View>
                     </View>
                   );
                 })}
