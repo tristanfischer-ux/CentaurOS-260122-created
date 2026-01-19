@@ -4,7 +4,7 @@
  */
 
 import { View, Text, Pressable, Modal, ScrollView, TextInput } from 'react-native';
-import { useState, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import {
@@ -656,9 +656,9 @@ export function UrgentDecisionsSection() {
   );
 
   // Initialize on mount
-  useState(() => {
+  useEffect(() => {
     initialize();
-  });
+  }, []);
 
   const urgentDecisions = getUrgentDecisions();
 
