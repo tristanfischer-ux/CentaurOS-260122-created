@@ -749,7 +749,7 @@ export function UnifiedTaskAllocationModal({ visible, onClose, workPlan }: Props
                                     {allocation.memberName}
                                   </Text>
                                   <Text className="text-purple-600 dark:text-purple-400 text-[10px] font-medium">
-                                    {allocation.squaresPerWeek}□/wk • £{allocation.costPerSquare}/□
+                                    {allocation.squaresPerWeek}□/wk
                                   </Text>
                                 </View>
                               </View>
@@ -788,16 +788,6 @@ export function UnifiedTaskAllocationModal({ visible, onClose, workPlan }: Props
                                   </Text>
                                   <Text className="text-gray-900 dark:text-white text-[10px] font-semibold">
                                     {member.function}
-                                  </Text>
-                                </View>
-
-                                {/* Weekly Cost */}
-                                <View className="flex-row items-center justify-between">
-                                  <Text className="text-gray-500 dark:text-slate-400 text-[10px]">
-                                    Weekly Cost
-                                  </Text>
-                                  <Text className="text-purple-600 dark:text-purple-400 text-[10px] font-bold">
-                                    £{(allocation.squaresPerWeek * allocation.costPerSquare).toFixed(0)}
                                   </Text>
                                 </View>
 
