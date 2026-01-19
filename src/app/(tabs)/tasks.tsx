@@ -256,32 +256,68 @@ export default function TasksScreen() {
       // Get drafts to confirm and remove from store
       const confirmedDrafts = await confirmDrafts(Array.from(selectedDraftIds));
 
+      // Import scheduling functions
+      const { autoScheduleTask } = await import('@/lib/task-scheduling');
+
       // Create real tasks from confirmed drafts
       for (const draft of confirmedDrafts) {
-        const newTask: WorkPlan = {
+        // Default to 1 TU if not specified
+        const estimatedTUs = draft.units || 1;
+
+        // Auto-assign to current user with 1 TU/week allocation
+        const currentUserAllocation = effectiveMembership.id ? [{
+          memberId: effectiveMembership.id,
+          memberName: members.find(m => m.id === effectiveMembership.id)?.name || 'You',
+          squaresPerWeek: 1, // 1 TU per week by default
+          costPerSquare: 0,
+        }] : [];
+
+        // Create task with current user assigned
+        let newTask: WorkPlan = {
           id: generateUUID(),
           workspaceId: draft.workspaceId,
           title: draft.title,
           description: draft.description,
-          function: 'Engineering' as const,
+          function: 'Ops' as const, // Default to Miscellaneous (Ops)
           startDate: new Date().toISOString().split('T')[0],
           dueDate: draft.dueDate || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
           status: 'not-started' as const,
           progress: 0,
           assignedBy: draft.createdBy,
-          needsSubmission: false, // Real tasks don't need submission flag
-          estimatedTimeUnits: draft.units,
-          allocations: [],
+          ownerId: effectiveMembership.id, // Set owner to current user
+          needsSubmission: false,
+          estimatedTimeUnits: estimatedTUs,
+          allocations: currentUserAllocation,
           appliedAITools: [],
           tusExpended: 0,
         };
+
+        // Auto-schedule based on current user's capacity
+        if (currentUserAllocation.length > 0) {
+          newTask = autoScheduleTask(newTask, members, workPlans);
+          console.log('[Tasks] Auto-scheduled task:', {
+            title: newTask.title,
+            startDate: newTask.startDate,
+            dueDate: newTask.dueDate,
+          });
+        }
 
         await addWorkPlan(newTask);
       }
 
       setSelectedDraftIds(new Set());
-      alert(`${confirmedDrafts.length} task(s) created!`);
+
+      // Show detailed success message
+      const taskWord = confirmedDrafts.length === 1 ? 'task' : 'tasks';
+      alert(
+        `✅ ${confirmedDrafts.length} ${taskWord} created!\n\n` +
+        `📋 Assigned to: You\n` +
+        `📦 Category: Miscellaneous (Ops)\n` +
+        `⏰ Scheduled: Based on your available capacity\n\n` +
+        `Tasks will start as soon as you have free TUs.`
+      );
     } catch (error) {
+      console.error('Failed to create tasks:', error);
       alert('Failed to create tasks. Please try again.');
     } finally {
       setIsConfirmingDrafts(false);
@@ -470,67 +506,94 @@ export default function TasksScreen() {
 
             <View className="bg-amber-50 dark:bg-amber-900/20 rounded-xl p-3 mb-3">
               <Text className="text-amber-700 dark:text-amber-300 text-xs">
-                Drafts must be confirmed to become real tasks. They won't appear in timeline or metrics until confirmed.
+                <Text className="font-bold">Auto-Assignment:</Text> Tasks will be assigned to you with 1 TU, categorized as Miscellaneous (Ops), and scheduled based on your available capacity.
               </Text>
             </View>
 
-            {workspaceDrafts.map((draft) => (
-              <Pressable
-                key={draft.id}
-                onPress={() => toggleDraftSelection(draft.id)}
-                className={`bg-white dark:bg-slate-800 rounded-xl p-4 mb-2 border-l-4 ${
-                  selectedDraftIds.has(draft.id) ? 'border-emerald-500' : 'border-amber-500'
-                }`}
-              >
-                <View className="flex-row items-start justify-between">
-                  <View className="flex-1 mr-3">
-                    <View className="flex-row items-center gap-2 mb-1">
-                      <View className={`w-5 h-5 rounded-full border-2 items-center justify-center ${
-                        selectedDraftIds.has(draft.id)
-                          ? 'bg-emerald-500 border-emerald-500'
-                          : 'border-slate-300 dark:border-slate-600'
-                      }`}>
-                        {selectedDraftIds.has(draft.id) && <Check size={12} color="white" />}
-                      </View>
-                      <Text className="text-slate-900 dark:text-white font-medium flex-1" numberOfLines={1}>
-                        {draft.title}
-                      </Text>
-                    </View>
-                    {draft.description && (
-                      <Text className="text-slate-500 dark:text-slate-400 text-sm ml-7" numberOfLines={2}>
-                        {draft.description}
-                      </Text>
-                    )}
-                    <View className="flex-row items-center gap-2 mt-2 ml-7">
-                      <View className={`px-2 py-0.5 rounded-full ${
-                        draft.source === 'marketplace' ? 'bg-purple-100 dark:bg-purple-900/30' : 'bg-blue-100 dark:bg-blue-900/30'
-                      }`}>
-                        <Text className={`text-xs font-medium ${
-                          draft.source === 'marketplace' ? 'text-purple-600 dark:text-purple-400' : 'text-blue-600 dark:text-blue-400'
+            {workspaceDrafts.map((draft) => {
+              // Get current user info for avatar
+              const currentUser = members.find(m => m.id === effectiveMembership.id);
+              const initials = currentUser?.name
+                ? currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
+                : 'ME';
+
+              return (
+                <Pressable
+                  key={draft.id}
+                  onPress={() => toggleDraftSelection(draft.id)}
+                  className={`bg-white dark:bg-slate-800 rounded-xl p-4 mb-2 border-l-4 ${
+                    selectedDraftIds.has(draft.id) ? 'border-emerald-500' : 'border-amber-500'
+                  }`}
+                >
+                  <View className="flex-row items-start justify-between">
+                    <View className="flex-1 mr-3">
+                      <View className="flex-row items-center gap-2 mb-1">
+                        <View className={`w-5 h-5 rounded-full border-2 items-center justify-center ${
+                          selectedDraftIds.has(draft.id)
+                            ? 'bg-emerald-500 border-emerald-500'
+                            : 'border-slate-300 dark:border-slate-600'
                         }`}>
-                          {getDraftSourceLabel(draft)}
+                          {selectedDraftIds.has(draft.id) && <Check size={12} color="white" />}
+                        </View>
+                        <Text className="text-slate-900 dark:text-white font-medium flex-1" numberOfLines={1}>
+                          {draft.title}
                         </Text>
                       </View>
-                      <Text className="text-slate-400 text-xs">
-                        {draft.units} TU
-                      </Text>
-                      {draft.dueDate && (
-                        <Text className="text-slate-400 text-xs">
-                          Due: {new Date(draft.dueDate).toLocaleDateString()}
+                      {draft.description && (
+                        <Text className="text-slate-500 dark:text-slate-400 text-sm ml-7" numberOfLines={2}>
+                          {draft.description}
                         </Text>
                       )}
+
+                      {/* Assignment Info - Show who will be assigned */}
+                      <View className="flex-row items-center gap-2 mt-2 ml-7">
+                        {/* Avatar with initials */}
+                        <View className="w-7 h-7 rounded-full bg-blue-500 items-center justify-center">
+                          <Text className="text-white text-xs font-bold">{initials}</Text>
+                        </View>
+                        <Text className="text-slate-600 dark:text-slate-400 text-xs font-medium">
+                          {currentUser?.name || 'You'}
+                        </Text>
+                      </View>
+
+                      <View className="flex-row items-center gap-2 mt-2 ml-7 flex-wrap">
+                        <View className={`px-2 py-0.5 rounded-full ${
+                          draft.source === 'marketplace' ? 'bg-purple-100 dark:bg-purple-900/30' : 'bg-blue-100 dark:bg-blue-900/30'
+                        }`}>
+                          <Text className={`text-xs font-medium ${
+                            draft.source === 'marketplace' ? 'text-purple-600 dark:text-purple-400' : 'text-blue-600 dark:text-blue-400'
+                          }`}>
+                            {getDraftSourceLabel(draft)}
+                          </Text>
+                        </View>
+                        <View className="bg-slate-100 dark:bg-slate-700 px-2 py-0.5 rounded-full">
+                          <Text className="text-slate-600 dark:text-slate-300 text-xs font-medium">
+                            {draft.units || 1} TU
+                          </Text>
+                        </View>
+                        <View className="bg-orange-100 dark:bg-orange-900/30 px-2 py-0.5 rounded-full">
+                          <Text className="text-orange-600 dark:text-orange-400 text-xs font-medium">
+                            Ops
+                          </Text>
+                        </View>
+                        {draft.dueDate && (
+                          <Text className="text-slate-400 text-xs">
+                            Due: {new Date(draft.dueDate).toLocaleDateString()}
+                          </Text>
+                        )}
+                      </View>
                     </View>
+                    <Pressable
+                      onPress={() => removeDraft(draft.id)}
+                      className="p-2"
+                      hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                    >
+                      <Trash2 size={16} color="#ef4444" />
+                    </Pressable>
                   </View>
-                  <Pressable
-                    onPress={() => removeDraft(draft.id)}
-                    className="p-2"
-                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                  >
-                    <Trash2 size={16} color="#ef4444" />
-                  </Pressable>
-                </View>
-              </Pressable>
-            ))}
+                </Pressable>
+              );
+            })}
           </Animated.View>
         )}
 
