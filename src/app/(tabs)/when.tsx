@@ -96,7 +96,7 @@ export default function WhenScreen() {
         gradientColors={['#8b5cf6', '#7c3aed']}
       />
 
-      {/* Header */}
+      {/* Compact Header */}
       <LinearGradient
         colors={['#8b5cf6', '#7c3aed', '#6d28d9']}
         start={{ x: 0, y: 0 }}
@@ -104,66 +104,32 @@ export default function WhenScreen() {
         style={{
           paddingHorizontal: 20,
           paddingTop: insets.top + 12,
-          paddingBottom: 16,
+          paddingBottom: 12,
         }}
       >
-        <View className="flex-row items-center justify-between mb-4">
+        <View className="flex-row items-center justify-between">
           <View>
             <Text className="text-white/70 text-xs font-medium uppercase tracking-wide">Timeline</Text>
             <Text className="text-white text-2xl font-bold">When</Text>
           </View>
           <View className="flex-row items-center gap-2">
+            {/* Task Stats - Compact */}
+            <View className="bg-white/10 rounded-lg px-2 py-1">
+              <Text className="text-white/70 text-[9px]">Active</Text>
+              <Text className="text-white font-bold text-sm">{taskStats.total}</Text>
+            </View>
+            <View className="bg-white/10 rounded-lg px-2 py-1">
+              <Text className="text-white/70 text-[9px]">Doing</Text>
+              <Text className="text-white font-bold text-sm">{taskStats.inProgress}</Text>
+            </View>
+            <View className="bg-white/10 rounded-lg px-2 py-1">
+              <Text className="text-white/70 text-[9px]">Load</Text>
+              <Text className="text-white font-bold text-sm">{taskStats.utilization}%</Text>
+            </View>
             <SettingsGearButton style="glass" />
             <HelpButton onPress={() => setShowHelp(true)} />
           </View>
         </View>
-
-        {/* Task Stats */}
-        <View className="flex-row gap-2 mb-3">
-          <View className="flex-1 bg-white/10 rounded-xl p-3">
-            <View className="flex-row items-center gap-2 mb-1">
-              <Calendar size={14} color="white" />
-              <Text className="text-white/70 text-xs">Active Tasks</Text>
-            </View>
-            <Text className="text-white font-bold text-xl">
-              {taskStats.total}
-            </Text>
-          </View>
-
-          <View className="flex-1 bg-white/10 rounded-xl p-3">
-            <View className="flex-row items-center gap-2 mb-1">
-              <Clock size={14} color="white" />
-              <Text className="text-white/70 text-xs">In Progress</Text>
-            </View>
-            <Text className="text-white font-bold text-xl">
-              {taskStats.inProgress}
-            </Text>
-          </View>
-
-          <View className="flex-1 bg-white/10 rounded-xl p-3">
-            <View className="flex-row items-center gap-2 mb-1">
-              <TrendingUp size={14} color="white" />
-              <Text className="text-white/70 text-xs">Utilization</Text>
-            </View>
-            <Text className="text-white font-bold text-xl">
-              {taskStats.utilization}%
-            </Text>
-          </View>
-        </View>
-
-        {/* Blocked Tasks Alert (if any) */}
-        {taskStats.blocked > 0 && (
-          <Pressable
-            onPress={() => router.push('/(tabs)/tasks')}
-            className="bg-red-500/20 border border-red-400/30 rounded-xl p-3 flex-row items-center gap-2 active:opacity-80"
-          >
-            <AlertTriangle size={16} color="#fca5a5" />
-            <Text className="text-white text-sm font-semibold flex-1">
-              {taskStats.blocked} task{taskStats.blocked !== 1 ? 's' : ''} blocked
-            </Text>
-            <Text className="text-white/70 text-xs">View →</Text>
-          </Pressable>
-        )}
       </LinearGradient>
 
       {/* Full-screen Gantt Chart */}

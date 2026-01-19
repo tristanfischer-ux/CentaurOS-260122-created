@@ -103,27 +103,66 @@ export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress
     return cumulativeCost;
   };
 
-  // Generate weeks: 4 weeks before, current week, 8 weeks after (13 weeks total, showing 3 at a time)
-  const weeks = useMemo(() => {
+  // Generate time periods based on view mode
+  const timePeriods = useMemo(() => {
     const result = [];
-    for (let i = -4; i <= 8; i++) {
-      const weekDate = new Date(today);
-      weekDate.setDate(today.getDate() + i * 7);
-      const weekStart = getWeekStart(weekDate);
-      const weekEnd = new Date(weekStart);
-      weekEnd.setDate(weekStart.getDate() + 6);
 
-      result.push({
-        offset: i,
-        weekNumber: getWeekNumber(weekDate),
-        weekStart,
-        weekEnd,
-        label: i === 0 ? 'This Week' : formatDate(weekStart),
-        isCurrentWeek: i === 0,
-      });
+    if (viewMode === 'day') {
+      // Show 7 days: 2 before, today, 4 after
+      for (let i = -2; i <= 4; i++) {
+        const date = new Date(today);
+        date.setDate(today.getDate() + i);
+        result.push({
+          offset: i,
+          date,
+          label: i === 0 ? 'Today' : date.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric' }),
+          isToday: i === 0,
+        });
+      }
+    } else if (viewMode === 'week') {
+      // Show 13 weeks: 4 before, current week, 8 after
+      for (let i = -4; i <= 8; i++) {
+        const weekDate = new Date(today);
+        weekDate.setDate(today.getDate() + i * 7);
+        const weekStart = getWeekStart(weekDate);
+        const weekEnd = new Date(weekStart);
+        weekEnd.setDate(weekStart.getDate() + 6);
+
+        result.push({
+          offset: i,
+          weekNumber: getWeekNumber(weekDate),
+          weekStart,
+          weekEnd,
+          label: i === 0 ? 'This Week' : formatDate(weekStart),
+          isCurrentWeek: i === 0,
+        });
+      }
+    } else if (viewMode === 'month') {
+      // Show 12 months: 2 before, current, 9 after
+      for (let i = -2; i <= 9; i++) {
+        const date = new Date(today.getFullYear(), today.getMonth() + i, 1);
+        result.push({
+          offset: i,
+          date,
+          label: date.toLocaleDateString('en-GB', { month: 'short', year: i === 0 ? undefined : 'numeric' }),
+          isCurrentMonth: i === 0,
+        });
+      }
+    } else if (viewMode === 'year') {
+      // Show 5 years: 1 before, current, 3 after
+      for (let i = -1; i <= 3; i++) {
+        const year = today.getFullYear() + i;
+        result.push({
+          offset: i,
+          year,
+          label: year.toString(),
+          isCurrentYear: i === 0,
+        });
+      }
     }
+
     return result;
-  }, [today]);
+  }, [today, viewMode]);
 
   // Show all non-completed/abandoned tasks, sorted by due date
   const filteredTasks = useMemo(() => {
@@ -288,7 +327,7 @@ export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress
 
       {/* Timeline Content */}
       <View className="flex-1 relative bg-white dark:bg-slate-900">
-        {/* Compact Week Headers */}
+        {/* Compact Time Period Headers */}
         <ScrollView
           ref={headerScrollRef}
           horizontal
@@ -297,28 +336,37 @@ export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress
           scrollEnabled={false}
         >
           <View className="flex-row">
-            {weeks.map((week, idx) => (
-              <View
-                key={idx}
-                className={`border-r border-gray-200 dark:border-slate-700 py-1 ${
-                  week.isCurrentWeek ? 'bg-blue-50 dark:bg-blue-900/20' : ''
-                }`}
-                style={{ width: WEEK_WIDTH }}
-              >
-                <Text
-                  className={`text-center text-[9px] font-semibold ${
-                    week.isCurrentWeek
-                      ? 'text-blue-600 dark:text-blue-400'
-                      : 'text-gray-500 dark:text-slate-400'
+            {timePeriods.map((period: any, idx: number) => {
+              const isCurrent = viewMode === 'week' ? period.isCurrentWeek :
+                                viewMode === 'day' ? period.isToday :
+                                viewMode === 'month' ? period.isCurrentMonth :
+                                period.isCurrentYear;
+
+              return (
+                <View
+                  key={idx}
+                  className={`border-r border-gray-200 dark:border-slate-700 py-1 ${
+                    isCurrent ? 'bg-blue-50 dark:bg-blue-900/20' : ''
                   }`}
+                  style={{ width: WEEK_WIDTH }}
                 >
-                  {week.label}
-                </Text>
-                <Text className="text-center text-[8px] text-gray-400 dark:text-slate-500">
-                  W{week.weekNumber}
-                </Text>
-              </View>
-            ))}
+                  <Text
+                    className={`text-center text-[9px] font-semibold ${
+                      isCurrent
+                        ? 'text-blue-600 dark:text-blue-400'
+                        : 'text-gray-500 dark:text-slate-400'
+                    }`}
+                  >
+                    {period.label}
+                  </Text>
+                  {viewMode === 'week' && (
+                    <Text className="text-center text-[8px] text-gray-400 dark:text-slate-500">
+                      W{period.weekNumber}
+                    </Text>
+                  )}
+                </View>
+              );
+            })}
           </View>
         </ScrollView>
 
@@ -340,11 +388,13 @@ export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress
             contentContainerStyle={{ flexGrow: 1 }}
             style={fillAvailableSpace ? { flex: 1 } : { maxHeight: TASK_HEIGHT * MAX_VISIBLE_TASKS + 10 }}
           >
-            <View style={{ width: WEEK_WIDTH * weeks.length }}>
-              {/* Current week indicator line */}
+            <View style={{ width: WEEK_WIDTH * timePeriods.length }}>
+              {/* Current time indicator line */}
               <View
                 className="absolute top-0 bottom-0 w-0.5 bg-blue-500 dark:bg-blue-400 opacity-50"
-                style={{ left: WEEK_WIDTH * 4 + WEEK_WIDTH / 2 }}
+                style={{
+                  left: WEEK_WIDTH * (viewMode === 'day' ? 2 : viewMode === 'week' ? 4 : viewMode === 'month' ? 2 : 1) + WEEK_WIDTH / 2
+                }}
               />
 
               {/* Task bars */}
