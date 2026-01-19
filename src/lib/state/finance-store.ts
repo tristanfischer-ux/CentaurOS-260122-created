@@ -250,6 +250,11 @@ export const useFinanceStore = create<FinanceStore>((set, get) => ({
   getCashBalance: (workspaceId: string) => {
     const transactions = get().transactions.filter((t) => t.workspace_id === workspaceId);
 
+    // For new workspaces with no transactions, return 0
+    if (transactions.length === 0) {
+      return 0;
+    }
+
     const totalRevenue = transactions
       .filter((t) => t.type === 'revenue')
       .reduce((sum, t) => sum + t.amount, 0);
