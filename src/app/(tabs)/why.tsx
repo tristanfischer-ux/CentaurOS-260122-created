@@ -286,7 +286,7 @@ export default function WhyScreen() {
     });
 
     if (!voiceBrainstormText.trim() || !currentWorkspace || !currentMembership) {
-      console.error('[Why Tab] Missing required data, aborting');
+      console.log('[Why Tab] Missing required data, aborting');
       alert('Missing required data. Please try recording again.');
       return;
     }
@@ -309,8 +309,8 @@ export default function WhyScreen() {
         .single();
 
       if (sessionError) {
-        console.error('[Why Tab] Failed to create session:', sessionError);
-        console.error('[Why Tab] Supabase error details:', {
+        console.log('[Why Tab] Failed to create session:', sessionError);
+        console.log('[Why Tab] Supabase error details:', {
           code: sessionError.code,
           message: sessionError.message,
           details: sessionError.details,
@@ -332,7 +332,7 @@ export default function WhyScreen() {
           });
 
         if (messageError) {
-          console.error('[Why Tab] Failed to save initial message:', messageError);
+          console.log('[Why Tab] Failed to save initial message:', messageError);
           // Don't fail the request, just log the error
         } else {
           console.log('[Why Tab] Initial message created');
@@ -345,8 +345,8 @@ export default function WhyScreen() {
       setShowVoiceBrainstorm(false);
       setShowConversation(true);
     } catch (error) {
-      console.error('[Why Tab] Failed to create session:', error);
-      console.error('[Why Tab] Error details:', {
+      console.log('[Why Tab] Failed to create session:', error);
+      console.log('[Why Tab] Error details:', {
         message: error instanceof Error ? error.message : String(error),
         stack: error instanceof Error ? error.stack : undefined,
       });
@@ -387,7 +387,7 @@ export default function WhyScreen() {
       setSynthesizedObjectives(data.objectives || []);
       setShowSynthesisReview(true);
     } catch (error) {
-      console.error('[Why Tab] Failed to synthesize:', error);
+      console.log('[Why Tab] Failed to synthesize:', error);
       alert('Failed to generate objectives. Please try again.');
     } finally {
       setIsSynthesizing(false);
@@ -448,7 +448,7 @@ export default function WhyScreen() {
 
       console.log('[Why Tab] Synthesis confirmation complete');
     } catch (error) {
-      console.error('[Why Tab] Failed to confirm synthesis:', error);
+      console.log('[Why Tab] Failed to confirm synthesis:', error);
       alert('Failed to create objectives. Please try again.');
     }
   };
