@@ -160,8 +160,8 @@ export function FocusTodaySection({ onTaskPress }: FocusTodaySectionProps) {
 
   if (priorityTasks.length === 0) {
     return (
-      <View className="px-5 pt-4 pb-2">
-        <View className="flex-row items-center gap-2 mb-3">
+      <View className="pt-2 pb-2">
+        <View className="flex-row items-center gap-2 mb-3 px-5">
           <Sparkles size={20} color="#8b5cf6" />
           <Text className="text-slate-900 dark:text-white font-bold text-lg">Focus Today</Text>
           <View className="bg-purple-100 dark:bg-purple-900/30 px-2 py-0.5 rounded-full">
@@ -169,7 +169,7 @@ export function FocusTodaySection({ onTaskPress }: FocusTodaySectionProps) {
           </View>
         </View>
 
-        <View className="bg-emerald-50 dark:bg-emerald-900/20 rounded-xl p-6 border border-emerald-200 dark:border-emerald-800">
+        <View className="bg-emerald-50 dark:bg-emerald-900/20 rounded-xl p-6 border border-emerald-200 dark:border-emerald-800 mx-5">
           <View className="items-center">
             <CheckCircle size={48} color="#10b981" />
             <Text className="text-slate-900 dark:text-white font-bold text-lg mt-3 text-center">
@@ -185,16 +185,15 @@ export function FocusTodaySection({ onTaskPress }: FocusTodaySectionProps) {
   }
 
   return (
-    <View className="px-5 pt-4 pb-2">
+    <View className="pt-2 pb-2">
       {/* Header */}
       <LinearGradient
         colors={['#8b5cf6', '#7c3aed']}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 0 }}
         style={{
-          paddingHorizontal: 16,
-          paddingVertical: 12,
-          borderRadius: 12,
+          paddingHorizontal: 20,
+          paddingVertical: 14,
           marginBottom: 12,
         }}
       >
@@ -213,7 +212,7 @@ export function FocusTodaySection({ onTaskPress }: FocusTodaySectionProps) {
       </LinearGradient>
 
       {/* Info Banner */}
-      <View className="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-3 mb-3">
+      <View className="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-3 mb-3 mx-5">
         <Text className="text-purple-700 dark:text-purple-300 text-xs leading-relaxed">
           <Text className="font-bold">Smart Priority:</Text> These tasks have the highest impact based on deadlines, team blockers, business goals, and resource availability.
         </Text>
@@ -223,7 +222,7 @@ export function FocusTodaySection({ onTaskPress }: FocusTodaySectionProps) {
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
-        contentContainerStyle={{ paddingRight: 20 }}
+        contentContainerStyle={{ paddingLeft: 20, paddingRight: 20 }}
       >
         {priorityTasks.map((priorityScore) => (
           <View key={priorityScore.task.id} style={{ width: 340, marginRight: 12 }}>

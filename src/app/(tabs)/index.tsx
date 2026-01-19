@@ -321,7 +321,7 @@ function FounderHome() {
         </View>
 
         {/* ===== AI-POWERED FOCUS TODAY ===== */}
-        <View className="pt-2 px-5">
+        <View className="pt-1">
           <FocusTodaySection
             onTaskPress={(taskId) => {
               router.push({
