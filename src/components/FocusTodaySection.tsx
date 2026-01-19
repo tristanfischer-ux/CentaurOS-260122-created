@@ -172,7 +172,7 @@ export function FocusTodaySection({ onTaskPress }: FocusTodaySectionProps) {
 
   if (priorityTasks.length === 0) {
     return (
-      <View className="pt-2 pb-2">
+      <View className="pb-2">
         <View className="flex-row items-center gap-2 mb-3 px-5">
           <Sparkles size={20} color="#8b5cf6" />
           <Text className="text-slate-900 dark:text-white font-bold text-lg">Focus Today</Text>
@@ -197,7 +197,7 @@ export function FocusTodaySection({ onTaskPress }: FocusTodaySectionProps) {
   }
 
   return (
-    <View className="pt-2 pb-2">
+    <View className="pb-2">
       {/* Header */}
       <LinearGradient
         colors={['#8b5cf6', '#7c3aed']}
