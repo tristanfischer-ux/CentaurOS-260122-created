@@ -50,9 +50,11 @@ function TaskItem({ task, index, onPress, showProgress = true }: TaskItemProps) 
     0
   ) || 0;
 
-  // Calculate estimated days remaining
-  const remainingTU = task.estimatedTimeUnits - (task.estimatedTimeUnits * (task.progress / 100));
-  const daysRemaining = allocatedPerWeek > 0 ? Math.ceil((remainingTU / allocatedPerWeek) * 7) : 0;
+  // Calculate TU metrics
+  const totalTUs = task.estimatedTimeUnits || 0;
+  const completedTUs = Math.round((task.progress / 100) * totalTUs);
+  const remainingTUs = totalTUs - completedTUs;
+  const weeksToFinish = allocatedPerWeek > 0 ? Math.ceil(remainingTUs / allocatedPerWeek) : null;
 
   return (
     <Animated.View entering={FadeInDown.delay(index * 50).springify()}>
@@ -101,12 +103,12 @@ function TaskItem({ task, index, onPress, showProgress = true }: TaskItemProps) 
           <View className="items-end">
             {showProgress && (
               <>
-                <Text className="text-slate-900 dark:text-white text-sm font-bold">
-                  {task.progress}%
+                <Text className="text-slate-900 dark:text-white text-xs font-bold">
+                  {completedTUs}/{totalTUs} TU
                 </Text>
-                {daysRemaining > 0 && (
+                {weeksToFinish !== null && (
                   <Text className="text-slate-500 dark:text-slate-400 text-xs">
-                    ~{daysRemaining}d left
+                    ~{weeksToFinish} wk{weeksToFinish !== 1 ? 's' : ''} left
                   </Text>
                 )}
               </>

@@ -540,17 +540,22 @@ export default function PeopleScreen() {
                               Working on {squad.activeTasks.length} task{squad.activeTasks.length !== 1 ? 's' : ''}
                             </Text>
                           </View>
-                          {squad.activeTasks.slice(0, 3).map((task: WorkPlan) => (
-                            <View key={task.id} className="flex-row items-center gap-2 mb-1.5">
-                              <View className="w-1.5 h-1.5 rounded-full bg-blue-500" />
-                              <Text className="text-slate-600 dark:text-slate-300 text-sm flex-1" numberOfLines={1}>
-                                {task.title}
-                              </Text>
-                              <Text className="text-slate-400 dark:text-slate-500 text-xs">
-                                {task.progress || 0}%
-                              </Text>
-                            </View>
-                          ))}
+                          {squad.activeTasks.slice(0, 3).map((task: WorkPlan) => {
+                            const totalTUs = task.estimatedTimeUnits || 0;
+                            const completedTUs = Math.round((task.progress / 100) * totalTUs);
+
+                            return (
+                              <View key={task.id} className="flex-row items-center gap-2 mb-1.5">
+                                <View className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+                                <Text className="text-slate-600 dark:text-slate-300 text-sm flex-1" numberOfLines={1}>
+                                  {task.title}
+                                </Text>
+                                <Text className="text-slate-400 dark:text-slate-500 text-xs">
+                                  {completedTUs}/{totalTUs} TU
+                                </Text>
+                              </View>
+                            );
+                          })}
                           {squad.activeTasks.length > 3 && (
                             <Text className="text-slate-400 dark:text-slate-500 text-xs mt-1">
                               +{squad.activeTasks.length - 3} more tasks
@@ -647,17 +652,22 @@ export default function PeopleScreen() {
                       {/* Active Task */}
                       {squad.activeTasks.length > 0 && (
                         <View className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-2.5">
-                          {squad.activeTasks.map((task: WorkPlan) => (
-                            <View key={task.id} className="flex-row items-center gap-2">
-                              <View className="w-2 h-2 rounded-full bg-blue-500" />
-                              <Text className="text-blue-800 dark:text-blue-200 text-sm flex-1 font-medium" numberOfLines={1}>
-                                {task.title}
-                              </Text>
-                              <Text className="text-blue-600 dark:text-blue-400 text-xs font-semibold">
-                                {task.progress || 0}%
-                              </Text>
-                            </View>
-                          ))}
+                          {squad.activeTasks.map((task: WorkPlan) => {
+                            const totalTUs = task.estimatedTimeUnits || 0;
+                            const completedTUs = Math.round((task.progress / 100) * totalTUs);
+
+                            return (
+                              <View key={task.id} className="flex-row items-center gap-2">
+                                <View className="w-2 h-2 rounded-full bg-blue-500" />
+                                <Text className="text-blue-800 dark:text-blue-200 text-sm flex-1 font-medium" numberOfLines={1}>
+                                  {task.title}
+                                </Text>
+                                <Text className="text-blue-600 dark:text-blue-400 text-xs font-semibold">
+                                  {completedTUs}/{totalTUs} TU
+                                </Text>
+                              </View>
+                            );
+                          })}
                         </View>
                       )}
                     </Pressable>

@@ -83,14 +83,14 @@ export default function WhenScreen() {
 
     // Calculate total team capacity (assume 10 TU per person per week as baseline)
     const totalTeamCapacity = members.filter(m => m.status === 'active').length * 10;
-    const utilization = totalTeamCapacity > 0 ? Math.round((totalAllocatedTUs / totalTeamCapacity) * 100) : 0;
 
     return {
       total: activeTasks.length,
       inProgress: inProgress.length,
       blocked: blocked.length,
       queued: queued.length,
-      utilization,
+      allocatedTUs: totalAllocatedTUs,
+      totalCapacity: totalTeamCapacity,
     };
   }, [workPlans, members]);
 
@@ -132,7 +132,7 @@ export default function WhenScreen() {
             </View>
             <View className="bg-white/10 rounded-lg px-2 py-1">
               <Text className="text-white/70 text-[9px]">Load</Text>
-              <Text className="text-white font-bold text-sm">{taskStats.utilization}%</Text>
+              <Text className="text-white font-bold text-sm">{taskStats.allocatedTUs}/{taskStats.totalCapacity}</Text>
             </View>
             <SettingsGearButton style="glass" />
             <HelpButton onPress={() => setShowHelp(true)} />
