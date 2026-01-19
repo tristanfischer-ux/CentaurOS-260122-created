@@ -30,10 +30,21 @@ export interface PriorityScore {
  */
 function calculateDeadlineUrgency(task: WorkPlan): { score: number; reason: string } {
   const now = new Date();
+  const startDate = new Date(task.startDate);
   const dueDate = new Date(task.dueDate);
+
+  // If task hasn't started yet, don't count it as urgent
+  if (startDate > now) {
+    const daysUntilStart = Math.ceil((startDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+    return { score: 0, reason: `Starts in ${daysUntilStart} days` };
+  }
+
   const daysUntilDue = Math.ceil((dueDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
 
-  if (daysUntilDue < 0) {
+  // Cap overdue at 30 days to avoid showing tasks as "overdue by 815 days"
+  if (daysUntilDue < -30) {
+    return { score: 25, reason: `Overdue (needs rescheduling)` };
+  } else if (daysUntilDue < 0) {
     return { score: 25, reason: `Overdue by ${Math.abs(daysUntilDue)} days` };
   } else if (daysUntilDue === 0) {
     return { score: 25, reason: 'Due today' };
