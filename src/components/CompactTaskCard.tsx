@@ -153,7 +153,7 @@ export function CompactTaskCard({
 
             <View className="bg-gray-100 dark:bg-slate-700 px-1.5 py-0.5 rounded">
               <Text className="text-gray-600 dark:text-slate-400 text-[10px] font-semibold">
-                {allocatedPerWeek}□/wk
+                {allocatedPerWeek} TU/wk
               </Text>
             </View>
 
@@ -189,13 +189,13 @@ export function CompactTaskCard({
             )}
 
             {/* TU Progress - completed/total */}
-            <View className="flex-row items-center gap-1">
+            <View className="flex-row items-center gap-0.5">
               <Text className="text-emerald-600 dark:text-emerald-400 text-[10px] font-bold">
-                {completedTUs}□
+                {completedTUs}
               </Text>
               <Text className="text-gray-400 dark:text-slate-500 text-[10px]">/</Text>
               <Text className="text-gray-600 dark:text-slate-400 text-[10px] font-semibold">
-                {totalTUs}□
+                {totalTUs} TU
               </Text>
             </View>
 
@@ -270,13 +270,13 @@ export function CompactTaskCard({
             <View className="flex-1">
               <Text className="text-gray-500 dark:text-slate-400 text-[9px]">Total TU Needed</Text>
               <Text className="text-gray-900 dark:text-white text-sm font-bold">
-                {task.estimatedTimeUnits}□
+                {task.estimatedTimeUnits} TU
               </Text>
             </View>
             <View className="flex-1 items-center">
               <Text className="text-gray-500 dark:text-slate-400 text-[9px]">Allocated/Week</Text>
               <Text className="text-blue-600 dark:text-blue-400 text-sm font-bold">
-                {allocatedPerWeek}□
+                {allocatedPerWeek} TU
               </Text>
             </View>
             <View className="flex-1 items-end">
@@ -309,7 +309,7 @@ export function CompactTaskCard({
                         {member.name.split(' ')[0]}
                       </Text>
                       <Text className="text-gray-500 dark:text-slate-400 text-[9px]">
-                        {allocation?.squaresPerWeek || 0}□
+                        {allocation?.squaresPerWeek || 0} TU
                       </Text>
                     </View>
                   );
