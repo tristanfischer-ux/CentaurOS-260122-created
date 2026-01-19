@@ -241,16 +241,18 @@ export function TeamCapacityDashboard() {
   // Calculate team capacity metrics from role-filtered members
   const capacityData = useMemo(() => {
     const memberData = roleFilteredMembers.map((member) => {
-      // Calculate capacity - MUST match CollapsibleResourcePool logic
-      let capacity = 0;
-      if (member.role === 'Founder' || member.role === 'Apprentice') {
-        capacity = 15; // 10 normal + 5 overtime (matching CollapsibleResourcePool)
+      // Calculate capacity - NORMAL capacity only (not including overtime)
+      let normalCapacity = 0;
+      let totalCapacity = 0;
+      if (member.role === 'Founder' || member.role === 'CoFounder' || member.role === 'Apprentice') {
+        normalCapacity = 10; // Normal working hours only
+        totalCapacity = 15; // 10 normal + 5 overtime
       } else {
-        // Fractional exec: days per week * 2 squares per day + overtime
+        // Fractional exec: days per week * 2 squares per day
         const daysPerWeek = member.daysPerWeek || 2;
-        const normalSquares = daysPerWeek * 2;
+        normalCapacity = daysPerWeek * 2;
         const overtimeSquares = Math.min((5 - daysPerWeek) * 2, 10);
-        capacity = normalSquares + overtimeSquares;
+        totalCapacity = normalCapacity + overtimeSquares;
       }
 
       // Calculate allocated from work plans
@@ -266,15 +268,16 @@ export function TeamCapacityDashboard() {
           return sum + (allocation?.squaresPerWeek || 0);
         }, 0);
 
-      const utilization = capacity > 0 ? (allocated / capacity) * 100 : 0;
-      const available = Math.max(0, capacity - allocated);
+      // Use normalCapacity for utilization calculation (not including overtime)
+      const utilization = normalCapacity > 0 ? (allocated / normalCapacity) * 100 : 0;
+      const available = Math.max(0, normalCapacity - allocated);
 
       return {
         id: member.id,
         name: member.name,
         role: member.role,
         allocated,
-        capacity,
+        capacity: normalCapacity, // Show normal capacity in UI
         utilization,
         available,
       };
