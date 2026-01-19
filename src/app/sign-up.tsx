@@ -215,7 +215,7 @@ export default function SignUpScreen() {
             role: 'Founder',
             function: 'Admin',
             status: 'active',
-            daysPerWeek: 5,
+            // Cost fields intentionally omitted - structure kept but not populated
           });
           console.log('[Sign Up] Founder member created:', founderMember.id);
 
