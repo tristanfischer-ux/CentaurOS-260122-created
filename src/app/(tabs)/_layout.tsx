@@ -1,13 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { Tabs, router } from 'expo-router';
-import { Home, Users, CheckSquare, Calendar, Wrench, Store, Settings, Plus } from 'lucide-react-native';
-import { View, Pressable, Modal, Text, ScrollView, Dimensions } from 'react-native';
+import { Home, Users, CheckSquare, Calendar, Store, Settings, Plus } from 'lucide-react-native';
+import { View, Pressable, Dimensions } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Mic, Type, Sparkles, X } from 'lucide-react-native';
 import { useColorScheme } from '@/lib/useColorScheme';
 import { useIsAuthenticated, useCurrentWorkspace, useAppStore } from '@/lib/state/app-store';
-import Animated, { useSharedValue, useAnimatedStyle, withSpring, withTiming } from 'react-native-reanimated';
+import { useUIStore } from '@/lib/state/ui-store';
 
 /**
  * Tab Navigation Layout - 7-Tab Structure
@@ -30,7 +29,7 @@ import Animated, { useSharedValue, useAnimatedStyle, withSpring, withTiming } fr
  * - decide, do, evaluate, make, community -> tasks or marketplace
  */
 
-function TabBarIcon(props: { Icon: any; color: string }) {
+function TabBarIcon(props: { Icon: React.ComponentType<{ size: number; color: string; strokeWidth: number }>; color: string }) {
   const { Icon, color } = props;
   return <Icon size={24} color={color} strokeWidth={2} />;
 }
@@ -44,19 +43,13 @@ export default function TabLayout() {
   const workspaces = useAppStore((s) => s.workspaces);
   const memberships = useAppStore((s) => s.memberships);
   const setCurrentWorkspace = useAppStore((s) => s.setCurrentWorkspace);
+  const triggerNewTaskDrawer = useUIStore((s) => s.triggerNewTaskDrawer);
   const insets = useSafeAreaInsets();
-  const [showTaskModal, setShowTaskModal] = useState(false);
-
-  // Animation values
-  const scale = useSharedValue(0);
-  const opacity = useSharedValue(0);
 
   // Screen dimensions
-  const screenHeight = Dimensions.get('window').height;
   const screenWidth = Dimensions.get('window').width;
 
   // Calculate FAB position (centered in tab bar)
-  const tabBarHeight = 60 + insets.bottom;
   const fabSize = 70;
   const fabBottom = insets.bottom + (60 - fabSize) / 2; // Center in visible tab bar area
   const fabLeft = (screenWidth - fabSize) / 2; // Horizontally centered
@@ -74,24 +67,13 @@ export default function TabLayout() {
     ? '#e7e5e4' // stone-200
     : '#e2e8f0';
 
-  // Handle modal open/close with animation
-  const handleOpenModal = () => {
-    setShowTaskModal(true);
-    scale.value = withSpring(1, { damping: 15, stiffness: 200 });
-    opacity.value = withTiming(1, { duration: 200 });
+  // Handle FAB press - navigate to tasks and open drawer
+  const handleFABPress = () => {
+    // First trigger the drawer to open
+    triggerNewTaskDrawer();
+    // Then navigate to tasks tab
+    router.push('/(tabs)/tasks');
   };
-
-  const handleCloseModal = () => {
-    scale.value = withTiming(0, { duration: 200 });
-    opacity.value = withTiming(0, { duration: 200 });
-    setTimeout(() => setShowTaskModal(false), 200);
-  };
-
-  // Animated styles for modal content
-  const animatedModalStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: scale.value }],
-    opacity: opacity.value,
-  }));
 
   // Redirect to sign-in if not authenticated
   useEffect(() => {
@@ -108,7 +90,7 @@ export default function TabLayout() {
         setCurrentWorkspace(firstWorkspace.id);
       }
     }
-  }, [isAuthenticated, currentWorkspace, workspaces, memberships]);
+  }, [isAuthenticated, currentWorkspace, workspaces, memberships, setCurrentWorkspace]);
 
   if (!isAuthenticated) {
     return null;
@@ -123,143 +105,142 @@ export default function TabLayout() {
     : '#9ca3af'; // gray-400
 
   return (
-    <>
-      <Tabs
-        screenOptions={{
-          tabBarActiveTintColor: activeColor,
-          tabBarInactiveTintColor: inactiveColor,
-          tabBarStyle: {
-            backgroundColor,
-            borderTopColor: borderColor,
-            borderTopWidth: 1,
-            height: 60 + insets.bottom,
-            paddingBottom: insets.bottom,
-          },
-          headerStyle: {
-            backgroundColor,
-          },
-          headerTintColor: colorScheme === 'dark' ? '#ffffff' : '#000000',
+    <Tabs
+      screenOptions={{
+        tabBarActiveTintColor: activeColor,
+        tabBarInactiveTintColor: inactiveColor,
+        tabBarStyle: {
+          backgroundColor,
+          borderTopColor: borderColor,
+          borderTopWidth: 1,
+          height: 60 + insets.bottom,
+          paddingBottom: insets.bottom,
+        },
+        headerStyle: {
+          backgroundColor,
+        },
+        headerTintColor: colorScheme === 'dark' ? '#ffffff' : '#000000',
+      }}
+    >
+      {/* ========== VISIBLE TABS (6 + 1 button = 7 total) ========== */}
+
+      {/* 1. Home - Summary Dashboard */}
+      <Tabs.Screen
+        name="index"
+        options={{
+          title: 'Home',
+          headerShown: false,
+          tabBarIcon: ({ color }) => <TabBarIcon Icon={Home} color={color} />,
         }}
-      >
-        {/* ========== VISIBLE TABS (6 + 1 button = 7 total) ========== */}
+      />
 
-        {/* 1. Home - Summary Dashboard */}
-        <Tabs.Screen
-          name="index"
-          options={{
-            title: 'Home',
-            headerShown: false,
-            tabBarIcon: ({ color }) => <TabBarIcon Icon={Home} color={color} />,
-          }}
-        />
+      {/* 2. People - Team Management */}
+      <Tabs.Screen
+        name="people"
+        options={{
+          title: 'People',
+          headerShown: false,
+          tabBarIcon: ({ color }) => <TabBarIcon Icon={Users} color={color} />,
+        }}
+      />
 
-        {/* 2. People - Team Management */}
-        <Tabs.Screen
-          name="people"
-          options={{
-            title: 'People',
-            headerShown: false,
-            tabBarIcon: ({ color }) => <TabBarIcon Icon={Users} color={color} />,
-          }}
-        />
+      {/* 3. Tasks - Task Management */}
+      <Tabs.Screen
+        name="tasks"
+        options={{
+          title: 'Tasks',
+          headerShown: false,
+          tabBarIcon: ({ color }) => <TabBarIcon Icon={CheckSquare} color={color} />,
+        }}
+      />
 
-        {/* 3. Tasks - Task Management */}
-        <Tabs.Screen
-          name="tasks"
-          options={{
-            title: 'Tasks',
-            headerShown: false,
-            tabBarIcon: ({ color }) => <TabBarIcon Icon={CheckSquare} color={color} />,
-          }}
-        />
-
-        {/* 4. CREATE BUTTON - Custom rendering */}
-        <Tabs.Screen
-          name="create-task"
-          options={{
-            title: '',
-            headerShown: false,
-            tabBarIcon: () => (
-              <View
+      {/* 4. CREATE BUTTON - Custom rendering */}
+      <Tabs.Screen
+        name="create-task"
+        options={{
+          title: '',
+          headerShown: false,
+          tabBarIcon: () => (
+            <View
+              style={{
+                position: 'absolute',
+                bottom: fabBottom,
+                left: fabLeft,
+                width: fabSize,
+                height: fabSize,
+                borderRadius: fabSize / 2,
+                shadowColor: '#10b981',
+                shadowOffset: { width: 0, height: 8 },
+                shadowOpacity: 0.5,
+                shadowRadius: 16,
+                elevation: 12,
+              }}
+            >
+              <LinearGradient
+                colors={['#10b981', '#059669']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
                 style={{
-                  position: 'absolute',
-                  bottom: fabBottom,
-                  left: fabLeft,
                   width: fabSize,
                   height: fabSize,
                   borderRadius: fabSize / 2,
-                  shadowColor: '#10b981',
-                  shadowOffset: { width: 0, height: 8 },
-                  shadowOpacity: 0.5,
-                  shadowRadius: 16,
-                  elevation: 12,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  borderWidth: 5,
+                  borderColor: backgroundColor,
                 }}
               >
-                <LinearGradient
-                  colors={['#10b981', '#059669']}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 1 }}
-                  style={{
-                    width: fabSize,
-                    height: fabSize,
-                    borderRadius: fabSize / 2,
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    borderWidth: 5,
-                    borderColor: backgroundColor,
-                  }}
-                >
-                  <Plus size={36} color="#ffffff" strokeWidth={3} />
-                </LinearGradient>
-              </View>
-            ),
-            tabBarButton: (props) => (
-              <Pressable
-                {...props}
-                onPress={handleOpenModal}
-                style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}
-              />
-            ),
-          }}
-        />
+                <Plus size={36} color="#ffffff" strokeWidth={3} />
+              </LinearGradient>
+            </View>
+          ),
+          tabBarButton: (props) => (
+            <Pressable
+              {...props}
+              onPress={handleFABPress}
+              style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}
+            />
+          ),
+        }}
+      />
 
-        {/* 5. When - Timeline/Capacity */}
-        <Tabs.Screen
-          name="when"
-          options={{
-            title: 'When',
-            headerShown: false,
-            tabBarIcon: ({ color }) => <TabBarIcon Icon={Calendar} color={color} />,
-          }}
-        />
+      {/* 5. When - Timeline/Capacity */}
+      <Tabs.Screen
+        name="when"
+        options={{
+          title: 'When',
+          headerShown: false,
+          tabBarIcon: ({ color }) => <TabBarIcon Icon={Calendar} color={color} />,
+        }}
+      />
 
-        {/* 6. Marketplace - Discovery */}
-        <Tabs.Screen
-          name="marketplace"
-          options={{
-            title: 'Market',
-            headerShown: false,
-            tabBarIcon: ({ color }) => <TabBarIcon Icon={Store} color={color} />,
-          }}
-        />
+      {/* 6. Marketplace - Discovery */}
+      <Tabs.Screen
+        name="marketplace"
+        options={{
+          title: 'Market',
+          headerShown: false,
+          tabBarIcon: ({ color }) => <TabBarIcon Icon={Store} color={color} />,
+        }}
+      />
 
-        {/* 7. Settings */}
-        <Tabs.Screen
-          name="settings"
-          options={{
-            title: 'Settings',
-            headerShown: false,
-            tabBarIcon: ({ color }) => <TabBarIcon Icon={Settings} color={color} />,
-          }}
-        />
+      {/* 7. Settings */}
+      <Tabs.Screen
+        name="settings"
+        options={{
+          title: 'Settings',
+          headerShown: false,
+          tabBarIcon: ({ color }) => <TabBarIcon Icon={Settings} color={color} />,
+        }}
+      />
 
-        {/* ========== HIDDEN TABS ========== */}
+      {/* ========== HIDDEN TABS ========== */}
 
-        {/* Resources - HIDDEN - Needs rebuild */}
-        <Tabs.Screen
-          name="resources"
-          options={{ href: null }}
-        />
+      {/* Resources - HIDDEN - Needs rebuild */}
+      <Tabs.Screen
+        name="resources"
+        options={{ href: null }}
+      />
 
       {/* ========== HIDDEN LEGACY TABS ========== */}
       {/*
@@ -328,149 +309,5 @@ export default function TabLayout() {
         options={{ href: null }}
       />
     </Tabs>
-
-    {/* Task Creation Modal */}
-    <Modal
-      visible={showTaskModal}
-      transparent
-      animationType="none"
-      onRequestClose={handleCloseModal}
-    >
-      <Pressable
-        className="flex-1 bg-black/70"
-        onPress={handleCloseModal}
-        style={{ flex: 1 }}
-      >
-        <View className="flex-1" />
-        <Animated.View
-          style={[
-            animatedModalStyle,
-            {
-              maxHeight: '60%',
-              transformOrigin: 'bottom center',
-            }
-          ]}
-        >
-          <Pressable onPress={(e) => e.stopPropagation()}>
-            <View className="bg-white dark:bg-slate-900 rounded-t-3xl">
-              {/* Header */}
-              <LinearGradient
-                colors={['#10b981', '#059669']}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                style={{ padding: 20, borderTopLeftRadius: 24, borderTopRightRadius: 24 }}
-              >
-                <View className="flex-row items-center justify-between">
-                  <View className="flex-row items-center gap-3">
-                    <View className="bg-white/20 p-2 rounded-full">
-                      <Sparkles size={24} color="white" />
-                    </View>
-                    <View>
-                      <Text className="text-white text-2xl font-bold">Create Task</Text>
-                      <Text className="text-white/80 text-sm">Voice or text - your choice</Text>
-                    </View>
-                  </View>
-                  <Pressable
-                    onPress={handleCloseModal}
-                    className="bg-white/20 p-2 rounded-full active:opacity-70"
-                  >
-                    <X size={24} color="white" />
-                  </Pressable>
-                </View>
-              </LinearGradient>
-
-              {/* Content */}
-              <ScrollView className="px-6 py-6" style={{ maxHeight: screenHeight * 0.45 }}>
-                {/* Instructions */}
-                <View className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-xl p-4 mb-4">
-                  <Text className="text-emerald-900 dark:text-emerald-100 font-semibold text-sm mb-2">
-                    How to create a task:
-                  </Text>
-                  <View className="gap-2">
-                    <View className="flex-row items-start gap-2">
-                      <Text className="text-emerald-600 dark:text-emerald-400">•</Text>
-                      <Text className="text-emerald-800 dark:text-emerald-200 text-sm flex-1">
-                        Know what you should be saying - be clear and specific
-                      </Text>
-                    </View>
-                    <View className="flex-row items-start gap-2">
-                      <Text className="text-emerald-600 dark:text-emerald-400">•</Text>
-                      <Text className="text-emerald-800 dark:text-emerald-200 text-sm flex-1">
-                        You can tap to type if you prefer typing over speaking
-                      </Text>
-                    </View>
-                    <View className="flex-row items-start gap-2">
-                      <Text className="text-emerald-600 dark:text-emerald-400">•</Text>
-                      <Text className="text-emerald-800 dark:text-emerald-200 text-sm flex-1">
-                        All the information you want is in the typing space
-                      </Text>
-                    </View>
-                    <View className="flex-row items-start gap-2">
-                      <Text className="text-emerald-600 dark:text-emerald-400">•</Text>
-                      <Text className="text-emerald-800 dark:text-emerald-200 text-sm flex-1">
-                        Or use the speaker icon to record your voice
-                      </Text>
-                    </View>
-                  </View>
-                </View>
-
-                {/* Voice Input Option */}
-                <Pressable
-                  onPress={() => {
-                    handleCloseModal();
-                    router.push('/(tabs)/tasks');
-                  }}
-                  className="mb-3 active:opacity-90"
-                  style={{
-                    shadowColor: '#8b5cf6',
-                    shadowOffset: { width: 0, height: 4 },
-                    shadowOpacity: 0.3,
-                    shadowRadius: 8,
-                    elevation: 6,
-                  }}
-                >
-                  <LinearGradient
-                    colors={['#8b5cf6', '#7c3aed']}
-                    start={{ x: 0, y: 0 }}
-                    end={{ x: 1, y: 1 }}
-                    style={{ borderRadius: 16, padding: 20 }}
-                  >
-                    <View className="flex-row items-center gap-4">
-                      <View className="bg-white/20 p-3 rounded-full">
-                        <Mic size={28} color="white" />
-                      </View>
-                      <View className="flex-1">
-                        <Text className="text-white text-lg font-bold">Voice Input</Text>
-                        <Text className="text-white/80 text-sm">Speak naturally</Text>
-                      </View>
-                    </View>
-                  </LinearGradient>
-                </Pressable>
-
-                {/* Text Input Option */}
-                <Pressable
-                  onPress={() => {
-                    handleCloseModal();
-                    router.push('/(tabs)/tasks');
-                  }}
-                  className="bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-2xl p-5 active:opacity-90"
-                >
-                  <View className="flex-row items-center gap-4">
-                    <View className="bg-slate-100 dark:bg-slate-700 p-3 rounded-full">
-                      <Type size={28} color="#64748b" />
-                    </View>
-                    <View className="flex-1">
-                      <Text className="text-slate-900 dark:text-white text-lg font-bold">Text Input</Text>
-                      <Text className="text-slate-600 dark:text-slate-400 text-sm">Type your task</Text>
-                    </View>
-                  </View>
-                </Pressable>
-              </ScrollView>
-            </View>
-          </Pressable>
-        </Animated.View>
-      </Pressable>
-    </Modal>
-  </>
   );
 }
