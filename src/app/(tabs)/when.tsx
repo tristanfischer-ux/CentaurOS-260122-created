@@ -143,7 +143,7 @@ export default function WhenScreen() {
               params: { selectedTaskId: taskId },
             });
           }}
-          fillAvailableSpace={false}
+          fillAvailableSpace={true}
         />
       </View>
 

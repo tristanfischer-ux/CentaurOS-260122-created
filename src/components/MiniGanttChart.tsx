@@ -382,11 +382,12 @@ export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress
           }}
           scrollEventThrottle={16}
           contentContainerStyle={{ flexGrow: 1 }}
+          className="flex-1"
         >
           <ScrollView
             showsVerticalScrollIndicator={true}
-            contentContainerStyle={{ flexGrow: 1 }}
-            style={fillAvailableSpace ? { flex: 1 } : { maxHeight: TASK_HEIGHT * MAX_VISIBLE_TASKS + 10 }}
+            contentContainerStyle={{ paddingBottom: 20 }}
+            className="flex-1"
           >
             <View style={{ width: WEEK_WIDTH * timePeriods.length }}>
               {/* Current time indicator line */}
