@@ -26,6 +26,7 @@ interface VoiceInputButtonProps {
   onError?: (error: string) => void;
   color?: string;
   size?: number;
+  inline?: boolean; // NEW: When true, don't show modal, just pulse in place
 }
 
 export function VoiceInputButton({
@@ -33,6 +34,7 @@ export function VoiceInputButton({
   onError,
   color = '#3b82f6',
   size = 60,
+  inline = false, // Default to modal behavior
 }: VoiceInputButtonProps) {
   const [isRecording, setIsRecording] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -106,7 +108,7 @@ export function VoiceInputButton({
 
       recordingRef.current = recording;
       setIsRecording(true);
-      setShowModal(true);
+      setShowModal(!inline); // Only show modal if not inline
       setRecordingDuration(0);
 
       // Start pulse animation
@@ -402,15 +404,33 @@ export function VoiceInputButton({
 
       {/* Floating Button */}
       <Pressable
-        onPress={startRecording}
-        disabled={isRecording || isProcessing || hasPermission === null}
+        onPress={isRecording ? stopRecording : startRecording}
+        disabled={isProcessing || hasPermission === null}
         className="rounded-full shadow-lg"
         style={{
           width: size,
           height: size,
-          opacity: isRecording || isProcessing ? 0.5 : 1,
+          opacity: isProcessing ? 0.5 : 1,
         }}
       >
+        {/* Pulse animation (only when inline and recording) */}
+        {inline && isRecording && (
+          <Animated.View
+            style={[
+              pulseStyle,
+              {
+                width: size * 1.5,
+                height: size * 1.5,
+                borderRadius: (size * 1.5) / 2,
+                backgroundColor: color + '40',
+                position: 'absolute',
+                top: -(size * 0.25),
+                left: -(size * 0.25),
+              },
+            ]}
+          />
+        )}
+
         <LinearGradient
           colors={[color, color + 'dd']}
           start={{ x: 0, y: 0 }}
@@ -423,9 +443,23 @@ export function VoiceInputButton({
             justifyContent: 'center',
           }}
         >
-          <Mic size={size * 0.4} color="white" />
+          {isProcessing ? (
+            <Loader size={size * 0.4} color="white" />
+          ) : (
+            <Mic size={size * 0.4} color="white" />
+          )}
         </LinearGradient>
       </Pressable>
+
+      {/* Inline status text */}
+      {inline && (isRecording || isProcessing) && (
+        <Text
+          className="text-xs font-semibold mt-2 text-center"
+          style={{ color: color }}
+        >
+          {isProcessing ? 'Processing...' : `Recording ${formatDuration(recordingDuration)}`}
+        </Text>
+      )}
     </>
   );
 }

@@ -521,27 +521,24 @@ export function UnifiedBottomDrawer({
 
                   <View className="flex-row gap-3 mb-4">
                     <Pressable
-                      onPress={() => {
-                        // Don't change inputMode - keep the view the same
-                        // The VoiceInputButton component will handle showing recording state
-                      }}
                       className="flex-1 border-2 rounded-xl p-4 items-center active:opacity-70"
                       style={{
                         backgroundColor: accentColor + '10',
                         borderColor: accentColor + '30',
                       }}
                     >
-                      <View className="w-12 h-12 rounded-full items-center justify-center mb-2" style={{ backgroundColor: accentColor + '20' }}>
+                      <View className="w-16 h-16 rounded-full items-center justify-center mb-2" style={{ backgroundColor: accentColor + '20' }}>
                         <VoiceInputButton
                           onTranscriptComplete={handleVoiceComplete}
                           onError={(error) => console.log('[UnifiedDrawer] Voice error:', error)}
                           color={accentColor}
-                          size={48}
+                          size={64}
+                          inline={true}
                         />
                       </View>
                       <Text className="text-slate-900 dark:text-white font-semibold">Voice</Text>
                       <Text className="text-slate-600 dark:text-slate-400 text-xs text-center mt-1">
-                        Speak naturally to describe {newTaskTabLabel === 'New Aim' ? 'your aims' : 'your task'}
+                        Tap to record {newTaskTabLabel === 'New Aim' ? 'your aims' : 'your task'}
                       </Text>
                     </Pressable>
 
