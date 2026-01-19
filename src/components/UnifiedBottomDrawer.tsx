@@ -4,7 +4,7 @@
  * Mic button (above People) and Type button (above Market) at bottom
  */
 
-import { View, Text, Pressable, ScrollView, Dimensions, TextInput } from 'react-native';
+import { View, Text, Pressable, ScrollView, Dimensions, TextInput, useColorScheme } from 'react-native';
 import { useState, useMemo, useEffect } from 'react';
 import Animated, { useAnimatedStyle, withSpring, useSharedValue } from 'react-native-reanimated';
 import { ChevronUp, ChevronDown, Plus, Mic, Type, Lightbulb, Send } from 'lucide-react-native';
@@ -15,6 +15,7 @@ import { useFinanceStore } from '@/lib/state/finance-store';
 import { useCurrentWorkspace } from '@/lib/state/app-store';
 import { PersonDetailsModal } from './PersonDetailsModal';
 import { VoiceInputButton } from './VoiceInputButton';
+import { useTheme } from '@/lib/ThemeContext';
 
 interface UnifiedBottomDrawerProps {
   selectedPersonId: string | null;
@@ -69,6 +70,9 @@ export function UnifiedBottomDrawer({
   const [textInput, setTextInput] = useState('');
   const [showPersonModal, setShowPersonModal] = useState(false);
   const [selectedMember, setSelectedMember] = useState<OrganizationMember | null>(null);
+
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
 
   const screenHeight = Dimensions.get('window').height;
 
@@ -151,22 +155,26 @@ export function UnifiedBottomDrawer({
           bottom: 0,
           left: 0,
           right: 0,
-          backgroundColor: '#ffffff',
-          borderTopWidth: 2,
-          borderTopColor: accentColor,
+          backgroundColor: isDark ? '#0f172a' : '#ffffff',
+          borderTopLeftRadius: 24,
+          borderTopRightRadius: 24,
           shadowColor: '#000',
-          shadowOffset: { width: 0, height: -4 },
-          shadowOpacity: 0.1,
-          shadowRadius: 8,
-          elevation: 10,
+          shadowOffset: { width: 0, height: -8 },
+          shadowOpacity: isDark ? 0.4 : 0.15,
+          shadowRadius: 16,
+          elevation: 20,
         },
       ]}
-      className="dark:bg-slate-900"
     >
+      {/* Top Handle Bar */}
+      <View className="items-center pt-3 pb-1">
+        <View className="w-10 h-1 bg-slate-300 dark:bg-slate-600 rounded-full" />
+      </View>
+
       {/* Collapsed Header */}
       <Pressable
         onPress={toggleExpanded}
-        className="flex-row items-center justify-between px-5 py-4 active:bg-slate-50 dark:active:bg-slate-800"
+        className="flex-row items-center justify-between px-5 py-3 active:bg-slate-50 dark:active:bg-slate-800"
       >
         <View className="flex-row items-center gap-3">
           <View className="w-8 h-8 rounded-full items-center justify-center" style={{ backgroundColor: accentColor + '30' }}>
@@ -183,8 +191,8 @@ export function UnifiedBottomDrawer({
             )}
           </View>
         </View>
-        <View className="w-8 h-8 bg-slate-100 dark:bg-slate-900 rounded-full items-center justify-center">
-          {isExpanded ? <ChevronDown size={18} color="#64748b" /> : <ChevronUp size={18} color="#64748b" />}
+        <View className="w-8 h-8 bg-slate-100 dark:bg-slate-800 rounded-full items-center justify-center">
+          {isExpanded ? <ChevronDown size={18} color={isDark ? '#94a3b8' : '#64748b'} /> : <ChevronUp size={18} color={isDark ? '#94a3b8' : '#64748b'} />}
         </View>
       </Pressable>
 
@@ -194,15 +202,26 @@ export function UnifiedBottomDrawer({
           {inputMode === null ? (
             // Default view: Instructions + Team + Input buttons
             <View className="flex-1 px-4">
-              {/* Instructions Section */}
-              <View className="rounded-xl p-3 mb-3" style={{ backgroundColor: accentColor + '10' }}>
-                <View className="flex-row items-start gap-2">
-                  <Lightbulb size={16} color={accentColor} />
+              {/* Instructions Section - Card style with subtle border */}
+              <View
+                className="rounded-2xl p-4 mb-3 border"
+                style={{
+                  backgroundColor: isDark ? `${accentColor}15` : `${accentColor}08`,
+                  borderColor: isDark ? `${accentColor}30` : `${accentColor}20`,
+                }}
+              >
+                <View className="flex-row items-start gap-3">
+                  <View
+                    className="w-8 h-8 rounded-full items-center justify-center"
+                    style={{ backgroundColor: `${accentColor}20` }}
+                  >
+                    <Lightbulb size={16} color={accentColor} />
+                  </View>
                   <View className="flex-1">
-                    <Text className="text-slate-800 dark:text-slate-200 text-xs font-bold mb-1">
+                    <Text className="text-slate-900 dark:text-white text-sm font-semibold mb-2">
                       {isAimMode ? 'What to include in your aim:' : 'What to include in your task:'}
                     </Text>
-                    <Text className="text-slate-600 dark:text-slate-400 text-[11px] leading-4">
+                    <Text className="text-slate-600 dark:text-slate-300 text-xs leading-5">
                       {isAimMode ? (
                         '• Specific outcome you want to achieve\n• Target metrics or numbers\n• Timeframe (this quarter, 6 months, etc.)\n• Key actions or focus areas'
                       ) : (
@@ -213,20 +232,26 @@ export function UnifiedBottomDrawer({
                 </View>
               </View>
 
-              {/* Team Availability Section */}
-              <View className="flex-1 bg-slate-50 dark:bg-slate-900/50 rounded-xl p-3 mb-3">
-                <View className="flex-row items-center justify-between mb-2">
-                  <Text className="text-slate-800 dark:text-slate-200 text-xs font-bold">
+              {/* Team Availability Section - Better dark mode support */}
+              <View className="flex-1 bg-slate-100 dark:bg-slate-800/80 rounded-2xl p-4 mb-3">
+                <View className="flex-row items-center justify-between mb-3">
+                  <Text className="text-slate-900 dark:text-white text-sm font-semibold">
                     Team Availability This Week
                   </Text>
                   <View className="flex-row items-center gap-2">
-                    <View className="bg-emerald-100 dark:bg-emerald-900/30 px-2 py-0.5 rounded-full">
-                      <Text className="text-emerald-700 dark:text-emerald-400 text-[10px] font-bold">
-                        {totalAvailable} TU free
+                    <View
+                      className="px-2.5 py-1 rounded-full"
+                      style={{ backgroundColor: isDark ? 'rgba(16, 185, 129, 0.2)' : 'rgba(16, 185, 129, 0.15)' }}
+                    >
+                      <Text style={{ color: isDark ? '#34d399' : '#059669' }} className="text-[11px] font-bold">
+                        {totalAvailable < 0 ? totalAvailable : `${totalAvailable}`} TU free
                       </Text>
                     </View>
-                    <View className="bg-red-100 dark:bg-red-900/30 px-2 py-0.5 rounded-full">
-                      <Text className="text-red-700 dark:text-red-400 text-[10px] font-bold">
+                    <View
+                      className="px-2.5 py-1 rounded-full"
+                      style={{ backgroundColor: isDark ? 'rgba(239, 68, 68, 0.2)' : 'rgba(239, 68, 68, 0.15)' }}
+                    >
+                      <Text style={{ color: isDark ? '#f87171' : '#dc2626' }} className="text-[11px] font-bold">
                         {totalAllocated} TU used
                       </Text>
                     </View>
@@ -250,32 +275,48 @@ export function UnifiedBottomDrawer({
                           setSelectedMember(member);
                           setShowPersonModal(true);
                         }}
-                        className="flex-row items-center py-2 border-b border-slate-200 dark:border-slate-700 active:opacity-70"
+                        className="flex-row items-center py-2.5 border-b border-slate-200 dark:border-slate-700/50 active:opacity-70"
                       >
                         <View
-                          className="w-8 h-8 rounded-full items-center justify-center mr-2"
+                          className="w-9 h-9 rounded-full items-center justify-center mr-3"
                           style={{ backgroundColor: roleColor }}
                         >
-                          <Text className="text-white font-bold text-[10px]">
+                          <Text className="text-white font-bold text-[11px]">
                             {member.name.split(' ').map((n: string) => n[0]).join('')}
                           </Text>
                         </View>
                         <View className="flex-1">
-                          <Text className="text-slate-900 dark:text-white text-xs font-medium" numberOfLines={1}>
+                          <Text className="text-slate-900 dark:text-white text-sm font-medium" numberOfLines={1}>
                             {member.name}
                           </Text>
-                          <Text className="text-slate-500 dark:text-slate-400 text-[10px]">
+                          <Text className="text-slate-500 dark:text-slate-400 text-xs">
                             {member.role === 'FractionalExec' ? 'Executive' : member.role}
                           </Text>
                         </View>
                         <View className="items-end">
-                          <Text className={`text-xs font-bold ${isOverAllocated ? 'text-red-600' : available > 0 ? 'text-emerald-600' : 'text-amber-600'}`}>
+                          <Text
+                            className="text-xs font-bold"
+                            style={{
+                              color: isOverAllocated
+                                ? (isDark ? '#f87171' : '#dc2626')
+                                : available > 0
+                                  ? (isDark ? '#34d399' : '#059669')
+                                  : (isDark ? '#fbbf24' : '#d97706')
+                            }}
+                          >
                             {available} TU free
                           </Text>
-                          <View className="w-16 h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full mt-1 overflow-hidden">
+                          <View className="w-16 h-2 bg-slate-300 dark:bg-slate-600 rounded-full mt-1.5 overflow-hidden">
                             <View
-                              className={`h-full rounded-full ${isOverAllocated ? 'bg-red-500' : utilizationPercent > 80 ? 'bg-amber-500' : 'bg-emerald-500'}`}
-                              style={{ width: `${Math.min(100, utilizationPercent)}%` }}
+                              className="h-full rounded-full"
+                              style={{
+                                width: `${Math.min(100, utilizationPercent)}%`,
+                                backgroundColor: isOverAllocated
+                                  ? '#ef4444'
+                                  : utilizationPercent > 80
+                                    ? '#f59e0b'
+                                    : '#10b981'
+                              }}
                             />
                           </View>
                         </View>
@@ -290,8 +331,8 @@ export function UnifiedBottomDrawer({
                 {/* Mic Button - Left side (above People tab) */}
                 <View className="items-center">
                   <View
-                    className="w-14 h-14 rounded-full items-center justify-center mb-1"
-                    style={{ backgroundColor: accentColor + '20' }}
+                    className="w-16 h-16 rounded-2xl items-center justify-center mb-1.5"
+                    style={{ backgroundColor: isDark ? `${accentColor}30` : `${accentColor}15` }}
                   >
                     <VoiceInputButton
                       onTranscriptComplete={handleVoiceComplete}
@@ -301,7 +342,7 @@ export function UnifiedBottomDrawer({
                       inline={true}
                     />
                   </View>
-                  <Text className="text-slate-600 dark:text-slate-400 text-[10px] font-medium">Voice</Text>
+                  <Text className="text-slate-600 dark:text-slate-400 text-xs font-medium">Voice</Text>
                 </View>
 
                 {/* Spacer for center (where + button is) */}
@@ -312,10 +353,13 @@ export function UnifiedBottomDrawer({
                   onPress={() => setInputMode('text')}
                   className="items-center active:opacity-70"
                 >
-                  <View className="w-14 h-14 bg-blue-100 dark:bg-blue-900/30 rounded-full items-center justify-center mb-1">
-                    <Type size={24} color="#3b82f6" />
+                  <View
+                    className="w-16 h-16 rounded-2xl items-center justify-center mb-1.5"
+                    style={{ backgroundColor: isDark ? 'rgba(59, 130, 246, 0.25)' : 'rgba(59, 130, 246, 0.12)' }}
+                  >
+                    <Type size={26} color="#3b82f6" />
                   </View>
-                  <Text className="text-slate-600 dark:text-slate-400 text-[10px] font-medium">Type</Text>
+                  <Text className="text-slate-600 dark:text-slate-400 text-xs font-medium">Type</Text>
                 </Pressable>
               </View>
             </View>
@@ -325,7 +369,7 @@ export function UnifiedBottomDrawer({
               <Text className="text-slate-900 dark:text-white font-semibold text-lg mb-3 text-center">
                 Recording...
               </Text>
-              <Text className="text-slate-600 dark:text-slate-400 text-sm mb-6 text-center">
+              <Text className="text-slate-500 dark:text-slate-400 text-sm mb-6 text-center">
                 Describe your {isAimMode ? 'aims' : 'tasks'}
               </Text>
 
@@ -338,23 +382,34 @@ export function UnifiedBottomDrawer({
 
               <Pressable
                 onPress={() => setInputMode(null)}
-                className="mt-6 px-6 py-2 bg-slate-200 dark:bg-slate-700 rounded-lg"
+                className="mt-6 px-6 py-2.5 bg-slate-200 dark:bg-slate-700 rounded-xl active:opacity-70"
               >
-                <Text className="text-slate-700 dark:text-slate-300 font-medium">Cancel</Text>
+                <Text className="text-slate-700 dark:text-slate-300 font-semibold">Cancel</Text>
               </Pressable>
             </View>
           ) : (
             // Text Input Mode
             <View className="flex-1 px-4">
               {/* Instructions at top */}
-              <View className="rounded-xl p-3 mb-3" style={{ backgroundColor: accentColor + '10' }}>
-                <View className="flex-row items-start gap-2">
-                  <Lightbulb size={16} color={accentColor} />
+              <View
+                className="rounded-2xl p-4 mb-3 border"
+                style={{
+                  backgroundColor: isDark ? `${accentColor}15` : `${accentColor}08`,
+                  borderColor: isDark ? `${accentColor}30` : `${accentColor}20`,
+                }}
+              >
+                <View className="flex-row items-start gap-3">
+                  <View
+                    className="w-8 h-8 rounded-full items-center justify-center"
+                    style={{ backgroundColor: `${accentColor}20` }}
+                  >
+                    <Lightbulb size={16} color={accentColor} />
+                  </View>
                   <View className="flex-1">
-                    <Text className="text-slate-800 dark:text-slate-200 text-xs font-bold mb-1">
+                    <Text className="text-slate-900 dark:text-white text-sm font-semibold mb-1">
                       {isAimMode ? 'Describe your aims:' : 'Describe your tasks:'}
                     </Text>
-                    <Text className="text-slate-600 dark:text-slate-400 text-[11px] leading-4">
+                    <Text className="text-slate-600 dark:text-slate-300 text-xs leading-5">
                       {isAimMode ? (
                         'Example: "Increase revenue to $50K by Q3 through enterprise sales"'
                       ) : (
@@ -374,9 +429,9 @@ export function UnifiedBottomDrawer({
                     ? "Describe what you want to achieve..."
                     : "Describe your tasks here..."
                   }
-                  placeholderTextColor="#94a3b8"
+                  placeholderTextColor={isDark ? '#64748b' : '#94a3b8'}
                   multiline
-                  className="flex-1 bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-200 dark:border-blue-800 rounded-xl px-4 py-3 text-slate-900 dark:text-white text-sm"
+                  className="flex-1 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl px-4 py-3 text-slate-900 dark:text-white text-sm"
                   style={{ textAlignVertical: 'top', minHeight: 120 }}
                   autoFocus
                 />
@@ -392,10 +447,10 @@ export function UnifiedBottomDrawer({
                   }}
                   className="items-center active:opacity-70"
                 >
-                  <View className="w-14 h-14 bg-slate-200 dark:bg-slate-700 rounded-full items-center justify-center mb-1">
-                    <Mic size={24} color="#64748b" />
+                  <View className="w-14 h-14 bg-slate-200 dark:bg-slate-700 rounded-2xl items-center justify-center mb-1">
+                    <Mic size={24} color={isDark ? '#94a3b8' : '#64748b'} />
                   </View>
-                  <Text className="text-slate-600 dark:text-slate-400 text-[10px] font-medium">Voice</Text>
+                  <Text className="text-slate-600 dark:text-slate-400 text-xs font-medium">Voice</Text>
                 </Pressable>
 
                 {/* Spacer for center */}
@@ -409,12 +464,12 @@ export function UnifiedBottomDrawer({
                   style={{ opacity: textInput.trim() ? 1 : 0.5 }}
                 >
                   <View
-                    className="w-14 h-14 rounded-full items-center justify-center mb-1"
+                    className="w-14 h-14 rounded-2xl items-center justify-center mb-1"
                     style={{ backgroundColor: accentColor }}
                   >
                     <Send size={24} color="white" />
                   </View>
-                  <Text className="text-slate-600 dark:text-slate-400 text-[10px] font-medium">Send</Text>
+                  <Text className="text-slate-600 dark:text-slate-400 text-xs font-medium">Send</Text>
                 </Pressable>
               </View>
             </View>
