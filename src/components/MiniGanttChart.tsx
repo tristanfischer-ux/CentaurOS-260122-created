@@ -49,7 +49,6 @@ const ROLE_COLORS: Record<string, string> = {
 
 export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress }: MiniGanttChartProps) {
   const today = useMemo(() => new Date(), []);
-  const currentWeek = useMemo(() => getWeekNumber(today), [today]);
 
   // View mode state
   const [viewMode, setViewMode] = useState<'day' | 'week' | 'month' | 'year'>('week');
@@ -176,6 +175,19 @@ export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress
       });
   }, [workPlans]);
 
+  // Helper to calculate time difference based on view mode
+  const getTimeDiff = (date1: Date, date2: Date, mode: 'day' | 'week' | 'month' | 'year'): number => {
+    if (mode === 'day') {
+      return Math.floor((date1.getTime() - date2.getTime()) / (24 * 60 * 60 * 1000));
+    } else if (mode === 'week') {
+      return getWeekNumber(date1) - getWeekNumber(date2);
+    } else if (mode === 'month') {
+      return (date1.getFullYear() - date2.getFullYear()) * 12 + (date1.getMonth() - date2.getMonth());
+    } else {
+      return date1.getFullYear() - date2.getFullYear();
+    }
+  };
+
   // Calculate task position and width for each task
   const taskBars = useMemo(() => {
     return filteredTasks.map(task => {
@@ -183,45 +195,63 @@ export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress
 
       // Calculate start date based on estimated time units (1 TU = 4 hours, assume 8 hours per day)
       const estimatedDays = Math.ceil((task.estimatedTimeUnits * 4) / 8);
-      const startDate = new Date(dueDate.getTime() - estimatedDays * 24 * 60 * 60 * 1000);
+      const startDate = task.startDate
+        ? new Date(task.startDate)
+        : new Date(dueDate.getTime() - estimatedDays * 24 * 60 * 60 * 1000);
 
-      // Find which weeks this task spans
-      const startWeek = getWeekNumber(startDate);
-      const endWeek = getWeekNumber(dueDate);
+      // Calculate offset from today/current period based on view mode
+      let startOffset = 0;
+      let endOffset = 0;
+      let widthInPeriods = 1;
 
-      // Calculate offset from current week
-      const startOffset = startWeek - currentWeek;
-      const endOffset = endWeek - currentWeek;
-
-      // Calculate width (how many weeks this task spans)
-      const widthInWeeks = Math.max(1, endOffset - startOffset + 1);
+      if (viewMode === 'day') {
+        // For day view, offset is in days from today
+        startOffset = getTimeDiff(startDate, today, 'day');
+        endOffset = getTimeDiff(dueDate, today, 'day');
+        widthInPeriods = Math.max(1, endOffset - startOffset + 1);
+      } else if (viewMode === 'week') {
+        // For week view, offset is in weeks from current week
+        startOffset = getTimeDiff(startDate, today, 'week');
+        endOffset = getTimeDiff(dueDate, today, 'week');
+        widthInPeriods = Math.max(1, endOffset - startOffset + 1);
+      } else if (viewMode === 'month') {
+        // For month view, offset is in months from current month
+        startOffset = getTimeDiff(startDate, today, 'month');
+        endOffset = getTimeDiff(dueDate, today, 'month');
+        widthInPeriods = Math.max(1, endOffset - startOffset + 1);
+      } else if (viewMode === 'year') {
+        // For year view, offset is in years from current year
+        startOffset = getTimeDiff(startDate, today, 'year');
+        endOffset = getTimeDiff(dueDate, today, 'year');
+        widthInPeriods = Math.max(1, endOffset - startOffset + 1);
+      }
 
       // Get delay information
       const delayInfo = getDelayInfo(task);
 
       // Calculate original end position if there's a delay
       let originalEndOffset = endOffset;
-      let extensionWidthInWeeks = 0;
+      let extensionWidthInPeriods = 0;
 
       if (delayInfo.isDelayed && delayInfo.originalEndDate) {
-        const originalEndWeek = getWeekNumber(delayInfo.originalEndDate);
-        originalEndOffset = originalEndWeek - currentWeek;
-        extensionWidthInWeeks = endOffset - originalEndOffset;
+        const originalEndOffsetCalc = getTimeDiff(delayInfo.originalEndDate, today, viewMode);
+        originalEndOffset = originalEndOffsetCalc;
+        extensionWidthInPeriods = endOffset - originalEndOffset;
       }
 
       return {
         task,
         startOffset,
         endOffset,
-        widthInWeeks,
+        widthInPeriods,
         startDate,
         dueDate,
         delayInfo,
         originalEndOffset,
-        extensionWidthInWeeks,
+        extensionWidthInPeriods,
       };
     });
-  }, [filteredTasks, currentWeek, today]);
+  }, [filteredTasks, today, viewMode]);
 
   const screenWidth = Dimensions.get('window').width;
   const WEEK_WIDTH = screenWidth / 3; // Divide screen width by 3 weeks to fill entire width
@@ -452,18 +482,21 @@ export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress
               <View className="pt-1">
               {taskBars.map((bar, idx) => {
                 const colors = STATUS_COLORS[bar.task.status] || STATUS_COLORS['not-started'];
-                const leftPosition = WEEK_WIDTH * (bar.startOffset + 4); // +4 to account for 4 weeks before current week
+                // Calculate left position offset based on view mode
+                // Day: 2 periods before today, Week: 4 periods, Month: 2 periods, Year: 1 period
+                const periodOffset = viewMode === 'day' ? 2 : viewMode === 'week' ? 4 : viewMode === 'month' ? 2 : 1;
+                const leftPosition = WEEK_WIDTH * (bar.startOffset + periodOffset);
                 const assignedMembers = getAssignedMembers(bar.task);
                 const AVATAR_WIDTH = 32; // Width for avatar section
                 const taskCost = calculateTaskCost(bar.task);
 
                 // Calculate bar widths for original vs extension
-                const hasExtension = bar.delayInfo.isDelayed && bar.extensionWidthInWeeks > 0;
-                const originalWidthInWeeks = hasExtension
-                  ? bar.widthInWeeks - bar.extensionWidthInWeeks
-                  : bar.widthInWeeks;
-                const originalBarWidth = Math.max(60, WEEK_WIDTH * originalWidthInWeeks - 8);
-                const extensionBarWidth = hasExtension ? WEEK_WIDTH * bar.extensionWidthInWeeks : 0;
+                const hasExtension = bar.delayInfo.isDelayed && bar.extensionWidthInPeriods > 0;
+                const originalWidthInPeriods = hasExtension
+                  ? bar.widthInPeriods - bar.extensionWidthInPeriods
+                  : bar.widthInPeriods;
+                const originalBarWidth = Math.max(60, WEEK_WIDTH * originalWidthInPeriods - 8);
+                const extensionBarWidth = hasExtension ? WEEK_WIDTH * bar.extensionWidthInPeriods : 0;
 
                 // Get delay severity colors
                 const delaySeverityColors = getDelaySeverityColor(bar.delayInfo.severity);
