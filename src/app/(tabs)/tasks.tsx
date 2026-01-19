@@ -10,10 +10,11 @@
  */
 
 import { View, Text, ScrollView, Pressable, Modal } from 'react-native';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { FadeInDown } from 'react-native-reanimated';
+import { useLocalSearchParams, router } from 'expo-router';
 import {
   CheckSquare,
   Plus,
@@ -87,6 +88,7 @@ export default function TasksScreen() {
   const insets = useSafeAreaInsets();
   const currentMembership = useCurrentMembership();
   const currentWorkspace = useCurrentWorkspace();
+  const params = useLocalSearchParams<{ openNewTaskDrawer?: string }>();
 
   // Stores
   const members = useOrganizationStore(s => s.members);
@@ -127,6 +129,17 @@ export default function TasksScreen() {
   const [isProcessingTranscript, setIsProcessingTranscript] = useState(false);
   const [isConfirmingDrafts, setIsConfirmingDrafts] = useState(false);
   const [selectedDraftIds, setSelectedDraftIds] = useState<Set<string>>(new Set());
+
+  // Listen for URL param to open drawer (from FAB press)
+  useEffect(() => {
+    if (params.openNewTaskDrawer === 'true') {
+      // Trigger drawer to open
+      setOpenDrawerToNewTask(true);
+      setTimeout(() => setOpenDrawerToNewTask(false), 100);
+      // Clear the param to prevent re-triggering
+      router.setParams({ openNewTaskDrawer: undefined });
+    }
+  }, [params.openNewTaskDrawer]);
 
   // Role-based filtering for REAL tasks only (not drafts)
   const roleFilteredTasks = useMemo(() => {

@@ -58,9 +58,12 @@ export default function TabLayout() {
     ? '#e7e5e4'
     : '#e2e8f0';
 
-  // Handle FAB press - simply navigate to tasks tab
+  // Handle FAB press - navigate to tasks tab with openDrawer param
   const handleFABPress = () => {
-    router.push('/(tabs)/tasks');
+    router.push({
+      pathname: '/(tabs)/tasks',
+      params: { openNewTaskDrawer: 'true' },
+    });
   };
 
   // Redirect to sign-in if not authenticated
