@@ -13,7 +13,55 @@ Centaur OS is a comprehensive iOS mobile application that helps lean companies o
 
 ---
 
-## 🚀 Latest Updates (Jan 18, 2026)
+## 🚀 Latest Updates (Jan 19, 2026)
+
+### 🔄 Marketplace Data Freshness System
+
+**Automated verification and review workflow for marketplace data:**
+- ✅ **Periodic Re-checking**: Automatically verifies official sources (websites, portfolio pages)
+- ✅ **Change Detection**: Detects changes in contacts, focus tags, portfolios, offerings
+- ✅ **Confidence Tracking**: Records `last_verified_at` timestamps and confidence scores
+- ✅ **Review Workflow**: Creates review queue rather than silently changing trusted data
+- ✅ **Task Drafts**: Generates review tasks in WHAT (pending human confirmation)
+
+**Safety First:**
+- No aggressive scraping (conservative rate limits, respects robots.txt)
+- Prefers official pages already stored in evidence URLs
+- Never auto-edits curated data without human approval
+- All tasks created by automation are drafts requiring confirmation
+- External/unverified data can be refreshed but always remains "unverified"
+
+**Implementation:**
+- `supabase/migrations/006_freshness_system.sql` - Database schema
+- `src/lib/freshness/` - Core system (fetch, extractors, diff, runner)
+- `src/app/api/freshness/` - API endpoints (run, reviews)
+- `src/app/freshness-dashboard.tsx` - Admin UI
+- `scripts/run_freshness_job.ts` - CLI runner
+- `FRESHNESS_SYSTEM_OVERVIEW.md` - Complete documentation
+
+**How to Use:**
+```bash
+# Run verification job manually
+bun run scripts/run_freshness_job.ts
+
+# Dry run (preview only)
+bun run scripts/run_freshness_job.ts --dry-run
+
+# Access admin dashboard
+# Navigate to /freshness-dashboard in the app
+```
+
+**Environment Variables:**
+```bash
+FRESHNESS_ENABLED=true
+FRESHNESS_RATE_LIMIT_PER_MIN=10
+FRESHNESS_MAX_URLS_PER_RUN=50
+FRESHNESS_LLM_ASSIST_ENABLED=false
+```
+
+---
+
+## 🚀 Previous Updates (Jan 18, 2026)
 
 ### 🎉 Complete UX Polish & Bug Fixes - Production Ready!
 
