@@ -1,7 +1,7 @@
 /**
  * AI Tools Service Layer
  *
- * Service for loading AI tools from Supabase directory_ai_tools table
+ * Service for loading AI tools from Supabase ai_tools table
  * Replaces hardcoded AI tools data with multi-tenant database storage
  */
 
@@ -12,20 +12,15 @@ import type { ThirdPartyAITool, BusinessFunction } from './third-party-ai-tools'
 // TYPES
 // ============================================================================
 
-// Supabase directory_ai_tools table row
-interface DirectoryAIToolRow {
+// Supabase ai_tools table row (from migration 001)
+interface AIToolRow {
   id: string;
-  tool_name: string;
-  vendor_name: string;
-  category: 'sales' | 'marketing' | 'ops' | 'finance' | 'design' | 'manufacturing' | 'procurement' | 'support';
-  subcategories: string[];
-  target_user: string | null;
-  pricing_model: 'free' | 'freemium' | 'paid' | 'enterprise' | 'unknown' | null;
-  website: string | null;
-  confidence_score: number;
-  last_verified_at: string | null;
+  name: string;
+  provider: string;
+  category: string; // 'text', 'image', 'voice', 'video', etc.
+  description: string | null;
+  typical_monthly_cost: number | null;
   created_at: string;
-  updated_at: string;
 }
 
 // Extended AI tool with additional metadata (stored as JSON in future migration)
@@ -69,12 +64,17 @@ interface AIToolMetadata {
 // ============================================================================
 
 /**
- * Map Supabase category to app category
+ * Map ai_tools category to app category
  */
-function mapSupabaseCategory(
-  supabaseCategory: DirectoryAIToolRow['category']
-): ThirdPartyAITool['category'] {
-  const categoryMap: Record<DirectoryAIToolRow['category'], ThirdPartyAITool['category']> = {
+function mapCategory(category: string): ThirdPartyAITool['category'] {
+  const categoryMap: Record<string, ThirdPartyAITool['category']> = {
+    text: 'productivity',
+    image: 'engineering',
+    voice: 'sales',
+    video: 'marketing',
+    code: 'engineering',
+    data: 'finance',
+    automation: 'operations',
     sales: 'sales',
     marketing: 'marketing',
     finance: 'finance',
@@ -84,40 +84,26 @@ function mapSupabaseCategory(
     procurement: 'operations',
     support: 'productivity',
   };
-  return categoryMap[supabaseCategory] || 'productivity';
-}
-
-/**
- * Map Supabase pricing_model to estimated monthly cost
- */
-function estimateMonthlyCost(pricingModel: DirectoryAIToolRow['pricing_model']): number {
-  const costMap: Record<Exclude<DirectoryAIToolRow['pricing_model'], null>, number> = {
-    free: 0,
-    freemium: 50,
-    paid: 200,
-    enterprise: 500,
-    unknown: 0,
-  };
-  return pricingModel ? costMap[pricingModel] : 0;
+  return categoryMap[category.toLowerCase()] || 'productivity';
 }
 
 /**
  * Convert Supabase row to ThirdPartyAITool
  */
-function supabaseToAITool(row: DirectoryAIToolRow, metadata?: AIToolMetadata): ThirdPartyAITool {
+function supabaseToAITool(row: AIToolRow, metadata?: AIToolMetadata): ThirdPartyAITool {
   return {
     id: row.id,
-    name: row.tool_name,
-    provider: row.vendor_name,
-    purpose: metadata?.purpose || `${row.tool_name} for ${row.category}`,
+    name: row.name,
+    provider: row.provider,
+    purpose: metadata?.purpose || row.description || `${row.name} for ${row.category}`,
     functions: metadata?.functions || ['Admin'],
-    costPerMonth: metadata?.costPerMonth || estimateMonthlyCost(row.pricing_model),
-    website: row.website || '',
+    costPerMonth: metadata?.costPerMonth || row.typical_monthly_cost || 0,
+    website: '',
     capabilities: metadata?.capabilities || [],
     integrations: metadata?.integrations || [],
-    category: mapSupabaseCategory(row.category),
+    category: mapCategory(row.category),
     efficiencyMultiplier: metadata?.efficiencyMultiplier,
-    description: metadata?.description,
+    description: metadata?.description || row.description || undefined,
     useCases: metadata?.useCases,
     keyFeatures: metadata?.keyFeatures,
     pricing: metadata?.pricing,
@@ -131,9 +117,9 @@ function supabaseToAITool(row: DirectoryAIToolRow, metadata?: AIToolMetadata): T
  * Convert ThirdPartyAITool to Supabase row
  * For future: seeding tools into database
  */
-function aiToolToSupabase(tool: ThirdPartyAITool): DirectoryAIToolRow {
+function aiToolToSupabase(tool: ThirdPartyAITool): Omit<AIToolRow, 'created_at'> {
   // Reverse category mapping
-  const categoryMap: Record<ThirdPartyAITool['category'], DirectoryAIToolRow['category']> = {
+  const categoryMap: Record<ThirdPartyAITool['category'], string> = {
     sales: 'sales',
     marketing: 'marketing',
     finance: 'finance',
@@ -143,26 +129,13 @@ function aiToolToSupabase(tool: ThirdPartyAITool): DirectoryAIToolRow {
     productivity: 'support',
   };
 
-  // Map cost to pricing model
-  let pricingModel: DirectoryAIToolRow['pricing_model'] = 'unknown';
-  if (tool.costPerMonth === 0) pricingModel = 'free';
-  else if (tool.costPerMonth < 100) pricingModel = 'freemium';
-  else if (tool.costPerMonth < 500) pricingModel = 'paid';
-  else pricingModel = 'enterprise';
-
   return {
     id: tool.id,
-    tool_name: tool.name,
-    vendor_name: tool.provider,
+    name: tool.name,
+    provider: tool.provider,
     category: categoryMap[tool.category],
-    subcategories: tool.functions.map(f => f.toLowerCase()),
-    target_user: tool.functions[0]?.toLowerCase() || null,
-    pricing_model: pricingModel,
-    website: tool.website || null,
-    confidence_score: 80,
-    last_verified_at: new Date().toISOString(),
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
+    description: tool.description || tool.purpose || null,
+    typical_monthly_cost: tool.costPerMonth || null,
   };
 }
 
@@ -176,9 +149,9 @@ function aiToolToSupabase(tool: ThirdPartyAITool): DirectoryAIToolRow {
 export async function loadAITools(): Promise<ThirdPartyAITool[]> {
   try {
     const { data, error } = await supabase
-      .from('directory_ai_tools')
+      .from('ai_tools')
       .select('*')
-      .order('tool_name', { ascending: true });
+      .order('name', { ascending: true });
 
     if (error) {
       console.error('[AI Tools Service] Error loading AI tools:', error);
@@ -192,7 +165,7 @@ export async function loadAITools(): Promise<ThirdPartyAITool[]> {
 
     // Convert to app format
     // TODO: Load metadata from separate column or related table in future
-    return data.map(row => supabaseToAITool(row as DirectoryAIToolRow));
+    return data.map(row => supabaseToAITool(row as AIToolRow));
   } catch (err) {
     console.error('[AI Tools Service] Exception loading AI tools:', err);
     return [];
@@ -207,10 +180,10 @@ export async function loadAIToolsByCategory(
 ): Promise<ThirdPartyAITool[]> {
   try {
     const { data, error } = await supabase
-      .from('directory_ai_tools')
+      .from('ai_tools')
       .select('*')
       .eq('category', category)
-      .order('tool_name', { ascending: true });
+      .order('name', { ascending: true });
 
     if (error) {
       console.error('[AI Tools Service] Error loading AI tools by category:', error);
@@ -221,7 +194,7 @@ export async function loadAIToolsByCategory(
       return [];
     }
 
-    return data.map(row => supabaseToAITool(row as DirectoryAIToolRow));
+    return data.map(row => supabaseToAITool(row as AIToolRow));
   } catch (err) {
     console.error('[AI Tools Service] Exception loading AI tools by category:', err);
     return [];
@@ -234,7 +207,7 @@ export async function loadAIToolsByCategory(
 export async function loadAIToolsByFunction(func: BusinessFunction): Promise<ThirdPartyAITool[]> {
   try {
     // Map business function to category filter
-    const functionToCategoryMap: Record<BusinessFunction, DirectoryAIToolRow['category'][]> = {
+    const functionToCategoryMap: Record<BusinessFunction, string[]> = {
       Sales: ['sales'],
       Marketing: ['marketing'],
       Finance: ['finance'],
@@ -246,10 +219,10 @@ export async function loadAIToolsByFunction(func: BusinessFunction): Promise<Thi
     const categories = functionToCategoryMap[func] || [];
 
     const { data, error } = await supabase
-      .from('directory_ai_tools')
+      .from('ai_tools')
       .select('*')
       .in('category', categories)
-      .order('tool_name', { ascending: true });
+      .order('name', { ascending: true });
 
     if (error) {
       console.error('[AI Tools Service] Error loading AI tools by function:', error);
@@ -260,7 +233,7 @@ export async function loadAIToolsByFunction(func: BusinessFunction): Promise<Thi
       return [];
     }
 
-    return data.map(row => supabaseToAITool(row as DirectoryAIToolRow));
+    return data.map(row => supabaseToAITool(row as AIToolRow));
   } catch (err) {
     console.error('[AI Tools Service] Exception loading AI tools by function:', err);
     return [];
@@ -273,7 +246,7 @@ export async function loadAIToolsByFunction(func: BusinessFunction): Promise<Thi
 export async function getAIToolsCount(): Promise<number> {
   try {
     const { count, error } = await supabase
-      .from('directory_ai_tools')
+      .from('ai_tools')
       .select('*', { count: 'exact', head: true });
 
     if (error) {
@@ -297,7 +270,7 @@ export async function insertAITools(tools: ThirdPartyAITool[]): Promise<{ succes
     const supabaseRows = tools.map(tool => aiToolToSupabase(tool));
 
     const { error } = await supabase
-      .from('directory_ai_tools')
+      .from('ai_tools')
       .upsert(supabaseRows, { onConflict: 'id' });
 
     if (error) {
