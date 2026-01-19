@@ -6,6 +6,7 @@ import { AlertTriangle, Target } from 'lucide-react-native';
 import { getDelayInfo, formatDelay, getDelaySeverityColor } from '@/lib/task-delay-tracker';
 import { lightImpact } from '@/lib/haptics';
 import { TaskQuickActionsModal } from './TaskQuickActionsModal';
+import { getInitials, ROLE_COLORS } from './Avatar';
 
 interface MiniGanttChartProps {
   workPlans: WorkPlan[];
@@ -42,12 +43,6 @@ const STATUS_COLORS: Record<string, { bg: string; border: string; text: string }
   'abandoned': { bg: 'bg-gray-300 dark:bg-gray-800', border: 'border-gray-500 dark:border-gray-700', text: 'text-gray-600 dark:text-gray-400' },
 };
 
-const ROLE_COLORS: Record<string, string> = {
-  Founder: '#8b5cf6',
-  FractionalExec: '#3b82f6',
-  Apprentice: '#10b981',
-};
-
 export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress }: MiniGanttChartProps) {
   const today = useMemo(() => new Date(), []);
 
@@ -57,15 +52,6 @@ export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress
   // Refs for auto-scrolling to today
   const headerScrollRef = useRef<ScrollView>(null);
   const contentScrollRef = useRef<ScrollView>(null);
-
-  // Helper to get initials from name
-  const getInitials = (name: string): string => {
-    const parts = name.split(' ');
-    if (parts.length >= 2) {
-      return `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase();
-    }
-    return name.substring(0, 2).toUpperCase();
-  };
 
   // Helper to get assigned members for a task, sorted by seniority
   const getAssignedMembers = (task: WorkPlan) => {
@@ -512,31 +498,31 @@ export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress
                       height: TASK_HEIGHT,
                     }}
                   >
-                    {/* Team Avatars - positioned immediately to the left of the task bar */}
+                    {/* Team Avatars - circular with solid role colors */}
                     <View className="mr-1" style={{ width: AVATAR_WIDTH, flexDirection: 'row', justifyContent: 'flex-end' }}>
                       {assignedMembers.length > 0 ? (
                         <>
                           {assignedMembers.length > 2 && (
                             <View
-                              className="w-6 h-6 rounded-full items-center justify-center"
-                              style={{ backgroundColor: '#9ca3af20', marginRight: -6, zIndex: 0 }}
+                              className="w-7 h-7 rounded-full items-center justify-center border-2 border-white dark:border-slate-800"
+                              style={{ backgroundColor: '#6b7280', marginRight: -8, zIndex: 0 }}
                             >
-                              <Text className="font-bold text-[8px] text-gray-600 dark:text-gray-400">
+                              <Text className="font-bold text-[9px] text-white">
                                 +{assignedMembers.length - 2}
                               </Text>
                             </View>
                           )}
-                          {assignedMembers.slice(0, 2).map((member, memberIdx) => (
+                          {assignedMembers.slice(0, 2).reverse().map((member, memberIdx) => (
                             <View
                               key={member.id}
-                              className="w-6 h-6 rounded-full items-center justify-center"
+                              className="w-7 h-7 rounded-full items-center justify-center border-2 border-white dark:border-slate-800"
                               style={{
-                                backgroundColor: ROLE_COLORS[member.role] + '20',
-                                marginRight: memberIdx < assignedMembers.slice(0, 2).length - 1 ? -6 : 0,
+                                backgroundColor: ROLE_COLORS[member.role] || '#8b5cf6',
+                                marginRight: memberIdx < assignedMembers.slice(0, 2).length - 1 ? -8 : 0,
                                 zIndex: memberIdx + 1
                               }}
                             >
-                              <Text className="font-bold text-[8px]" style={{ color: ROLE_COLORS[member.role] }}>
+                              <Text className="font-bold text-[9px] text-white">
                                 {getInitials(member.name)}
                               </Text>
                             </View>
