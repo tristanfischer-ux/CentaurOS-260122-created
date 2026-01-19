@@ -5,7 +5,7 @@
  * MIGRATION: This tab consolidates features from 'who' tab
  */
 
-import { View, Text, ScrollView, Pressable } from 'react-native';
+import { View, Text, ScrollView, Pressable, Alert } from 'react-native';
 import { useState, useMemo } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -19,12 +19,14 @@ import {
   Briefcase,
   Target,
   Calendar,
+  AlertCircle,
 } from 'lucide-react-native';
 import { useOrganizationStore } from '@/lib/state/organization-store';
-import { useCurrentWorkspace, useCurrentMembership } from '@/lib/state/app-store';
+import { useCurrentWorkspace, useCurrentMembership, useAppStore } from '@/lib/state/app-store';
 import { HelpModal, HelpButton, type HelpContent } from '@/components/HelpModal';
 import { SettingsGearButton } from '@/components/SettingsGearButton';
 import { CollapsibleResourcePool } from '@/components/CollapsibleResourcePool';
+import { memberService } from '@/lib/supabase-service';
 
 const PEOPLE_HELP: HelpContent = {
   title: 'People',
@@ -50,6 +52,8 @@ export default function PeopleScreen() {
   const insets = useSafeAreaInsets();
   const currentWorkspace = useCurrentWorkspace();
   const currentMembership = useCurrentMembership();
+  const currentUser = useAppStore(s => s.currentUser);
+  const loadMembersFromSupabase = useOrganizationStore(s => s.loadMembersFromSupabase);
 
   // Stores
   const members = useOrganizationStore(s => s.members);
@@ -58,6 +62,46 @@ export default function PeopleScreen() {
   const [activeTab, setActiveTab] = useState<PeopleTab>('team');
   const [showHelp, setShowHelp] = useState(false);
   const [selectedPersonId, setSelectedPersonId] = useState<string | null>(null);
+  const [isAddingMember, setIsAddingMember] = useState(false);
+
+  // Check if current user has a member record
+  const userHasMemberRecord = useMemo(() => {
+    if (!currentUser?.id) return true; // Don't show if not logged in
+    return members.some(m => m.userId === currentUser.id);
+  }, [members, currentUser?.id]);
+
+  // Handler to add current user as a member
+  const handleAddSelfAsMember = async () => {
+    if (!currentUser || !currentWorkspace?.id || !currentMembership) {
+      Alert.alert('Error', 'Unable to add member. Please try again.');
+      return;
+    }
+
+    setIsAddingMember(true);
+    try {
+      // Create member record with current user's info
+      const newMember = await memberService.create({
+        workspaceId: currentWorkspace.id,
+        userId: currentUser.id,
+        name: currentUser.name || 'Team Member',
+        role: currentMembership.role || 'Founder', // Use their membership role
+        function: currentMembership.function || 'Admin',
+        status: 'active',
+      });
+
+      console.log('[People] Created member record:', newMember);
+
+      // Reload members from Supabase to update the UI
+      await loadMembersFromSupabase(currentWorkspace.id);
+
+      Alert.alert('Success', 'You have been added to the team roster!');
+    } catch (error) {
+      console.error('[People] Failed to create member:', error);
+      Alert.alert('Error', 'Failed to add you to the team. Please try again.');
+    } finally {
+      setIsAddingMember(false);
+    }
+  };
 
   // Group members by role
   const membersByRole = useMemo(() => {
@@ -191,6 +235,41 @@ export default function PeopleScreen() {
           ))}
         </View>
       </View>
+
+      {/* Missing Member Record Banner */}
+      {!userHasMemberRecord && (
+        <View className="px-5 pt-4">
+          <Animated.View
+            entering={FadeInDown.springify()}
+            className="bg-amber-50 dark:bg-amber-900/20 border-2 border-amber-200 dark:border-amber-800 rounded-xl p-4"
+          >
+            <View className="flex-row items-start gap-3">
+              <View className="bg-amber-100 dark:bg-amber-900/40 p-2 rounded-full">
+                <AlertCircle size={20} color="#f59e0b" />
+              </View>
+              <View className="flex-1">
+                <Text className="text-amber-900 dark:text-amber-100 font-semibold text-base mb-1">
+                  Add Yourself to the Team
+                </Text>
+                <Text className="text-amber-700 dark:text-amber-200 text-sm mb-3">
+                  You're not in the team roster yet. Add yourself so you can be assigned to tasks and manage your workload.
+                </Text>
+                <Pressable
+                  onPress={handleAddSelfAsMember}
+                  disabled={isAddingMember}
+                  className={`bg-amber-500 rounded-lg py-2.5 px-4 active:opacity-80 ${
+                    isAddingMember ? 'opacity-50' : ''
+                  }`}
+                >
+                  <Text className="text-white font-semibold text-center">
+                    {isAddingMember ? 'Adding...' : 'Add Me to Team'}
+                  </Text>
+                </Pressable>
+              </View>
+            </View>
+          </Animated.View>
+        </View>
+      )}
 
       {/* Content */}
       <ScrollView

@@ -110,8 +110,9 @@ export const useOrganizationStore = create<OrganizationState>((set, get) => ({
       const members: OrganizationMember[] = (membersData || []).map((m: any) => ({
         id: m.id,
         workspaceId: m.workspace_id,
+        userId: m.user_id, // Link to auth user
         name: m.name,
-        role: m.role as 'Founder' | 'FractionalExec' | 'Apprentice',
+        role: m.role as 'Founder' | 'CoFounder' | 'FractionalExec' | 'Apprentice',
         function: m.function || 'General',
         status: m.status as 'active' | 'inactive',
         daysPerWeek: m.days_per_week || 5,

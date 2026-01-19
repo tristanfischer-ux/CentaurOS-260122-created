@@ -15,6 +15,18 @@ Centaur OS is a comprehensive iOS mobile application that helps lean companies o
 
 ## 🚀 Latest Updates (Jan 19, 2026)
 
+### ✅ Team Member Management
+- **Automatic Member Creation**: New users automatically get a member record when signing up
+- **Retrospective Member Addition**: Existing users can add themselves to the team roster via the People tab
+- **Banner Detection**: App detects when you're not in the team roster and prompts you to add yourself
+- **Task Assignment**: Members can be assigned to tasks and tracked in resource allocation
+
+### ✅ CoFounder Role Support
+- **New Role Type**: `CoFounder` role with identical permissions to `Founder`
+- **Multiple Senior Leaders**: Support companies with multiple founders/senior advisors
+- **Full Access**: CoFounders see the same views and have the same permissions as Founders
+- **No Approval Workflows**: CoFounders can allocate resources without approval barriers
+
 ### ✅ 7-Tab Restructure v2.0 Complete
 
 **New Tab Structure:**

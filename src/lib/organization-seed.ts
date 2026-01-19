@@ -9,6 +9,7 @@ const DEFAULT_WORKSPACE_ID = 'workspace-demo-company';
 export interface OrganizationMember {
   id: string;
   workspaceId: string; // 🔑 Multi-tenancy key - links member to specific company
+  userId?: string; // 🔑 Optional link to auth user (for members who are also app users)
   name: string;
   role: 'Founder' | 'CoFounder' | 'FractionalExec' | 'Apprentice';
   function: string;
