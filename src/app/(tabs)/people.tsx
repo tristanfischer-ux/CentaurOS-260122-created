@@ -72,22 +72,37 @@ export default function PeopleScreen() {
 
   // Handler to add current user as a member
   const handleAddSelfAsMember = async () => {
+    console.log('[People] handleAddSelfAsMember called', {
+      currentUser: currentUser?.id,
+      currentWorkspace: currentWorkspace?.id,
+      currentMembership: currentMembership?.id,
+    });
+
     if (!currentUser || !currentWorkspace?.id || !currentMembership) {
+      console.error('[People] Missing required data:', {
+        hasUser: !!currentUser,
+        hasWorkspace: !!currentWorkspace?.id,
+        hasMembership: !!currentMembership,
+      });
       Alert.alert('Error', 'Unable to add member. Please try again.');
       return;
     }
 
     setIsAddingMember(true);
     try {
-      // Create member record with current user's info
-      const newMember = await memberService.create({
+      const memberData = {
         workspaceId: currentWorkspace.id,
         userId: currentUser.id,
         name: currentUser.name || 'Team Member',
         role: currentMembership.role || 'Founder', // Use their membership role
         function: currentMembership.function || 'Admin',
         status: 'active',
-      });
+      };
+
+      console.log('[People] Creating member with data:', memberData);
+
+      // Create member record with current user's info
+      const newMember = await memberService.create(memberData);
 
       console.log('[People] Created member record:', newMember);
 
@@ -97,7 +112,8 @@ export default function PeopleScreen() {
       Alert.alert('Success', 'You have been added to the team roster!');
     } catch (error) {
       console.error('[People] Failed to create member:', error);
-      Alert.alert('Error', 'Failed to add you to the team. Please try again.');
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      Alert.alert('Error', `Failed to add you to the team: ${errorMessage}`);
     } finally {
       setIsAddingMember(false);
     }
