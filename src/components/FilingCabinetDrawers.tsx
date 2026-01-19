@@ -176,7 +176,7 @@ export function FilingCabinetDrawers({ onTaskPress }: FilingCabinetDrawersProps)
             <Text
               style={{
                 fontSize: 10,
-                color: totalUnallocated > 0 ? '#10b981' : '#ef4444',
+                color: isDark ? '#94a3b8' : '#64748b',
                 fontWeight: '500',
               }}
             >
@@ -273,6 +273,73 @@ export function FilingCabinetDrawers({ onTaskPress }: FilingCabinetDrawersProps)
             style={{ flex: 1 }}
             contentContainerStyle={{ paddingBottom: 20 }}
           >
+            {/* Capacity Summary */}
+            <View
+              style={{
+                paddingHorizontal: 16,
+                paddingVertical: 12,
+                backgroundColor: isDark ? '#1e293b' : '#f8fafc',
+                borderBottomWidth: 1,
+                borderBottomColor: isDark ? '#334155' : '#e2e8f0',
+              }}
+            >
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 }}>
+                <Text style={{ fontSize: 11, color: isDark ? '#94a3b8' : '#64748b', fontWeight: '500' }}>
+                  Total Capacity
+                </Text>
+                <Text style={{ fontSize: 11, color: isDark ? '#ffffff' : '#0f172a', fontWeight: '600' }}>
+                  {totalAllocated + totalUnallocated} TU/week
+                </Text>
+              </View>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 }}>
+                <Text style={{ fontSize: 11, color: isDark ? '#94a3b8' : '#64748b', fontWeight: '500' }}>
+                  Allocated
+                </Text>
+                <Text style={{ fontSize: 11, color: isDark ? '#fbbf24' : '#d97706', fontWeight: '600' }}>
+                  {totalAllocated} TU/week
+                </Text>
+              </View>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                <Text style={{ fontSize: 11, color: isDark ? '#94a3b8' : '#64748b', fontWeight: '500' }}>
+                  Available
+                </Text>
+                <Text style={{ fontSize: 11, color: isDark ? '#10b981' : '#059669', fontWeight: '600' }}>
+                  {totalUnallocated} TU/week
+                </Text>
+              </View>
+
+              {/* Utilization bar */}
+              <View
+                style={{
+                  marginTop: 12,
+                  height: 8,
+                  backgroundColor: isDark ? '#0f172a' : '#e2e8f0',
+                  borderRadius: 4,
+                  overflow: 'hidden',
+                }}
+              >
+                <View
+                  style={{
+                    width: `${Math.min(100, (totalAllocated / (totalAllocated + totalUnallocated)) * 100)}%`,
+                    height: '100%',
+                    backgroundColor: isDark ? '#3b82f6' : '#2563eb',
+                    borderRadius: 4,
+                  }}
+                />
+              </View>
+              <Text
+                style={{
+                  fontSize: 9,
+                  color: isDark ? '#64748b' : '#94a3b8',
+                  marginTop: 4,
+                  textAlign: 'center',
+                }}
+              >
+                {Math.round((totalAllocated / (totalAllocated + totalUnallocated)) * 100)}% utilized
+              </Text>
+            </View>
+
+            {/* Team Members */}
             {members.map((member) => {
               const capacity = getCapacityPerWeek(member);
               const totalCapacity = capacity.normal + capacity.overtime;
@@ -280,6 +347,27 @@ export function FilingCabinetDrawers({ onTaskPress }: FilingCabinetDrawersProps)
               const available = Math.max(0, totalCapacity - allocated);
               const roleColor = ROLE_COLORS[member.role] || '#8b5cf6';
               const isOverallocated = allocated > totalCapacity;
+              const utilizationPercent = (allocated / totalCapacity) * 100;
+
+              // Determine status
+              let statusText = '';
+              let statusColor = '';
+              if (isOverallocated) {
+                statusText = 'Overloaded';
+                statusColor = '#ef4444';
+              } else if (utilizationPercent >= 90) {
+                statusText = 'Fully booked';
+                statusColor = '#f59e0b';
+              } else if (utilizationPercent >= 70) {
+                statusText = 'Busy';
+                statusColor = '#3b82f6';
+              } else if (utilizationPercent > 0) {
+                statusText = 'Available';
+                statusColor = '#10b981';
+              } else {
+                statusText = 'Free';
+                statusColor = '#6b7280';
+              }
 
               return (
                 <Pressable
@@ -292,7 +380,7 @@ export function FilingCabinetDrawers({ onTaskPress }: FilingCabinetDrawersProps)
                     flexDirection: 'row',
                     alignItems: 'center',
                     paddingHorizontal: 16,
-                    paddingVertical: 10,
+                    paddingVertical: 12,
                     borderBottomWidth: 1,
                     borderBottomColor: isDark ? '#1e293b' : '#f1f5f9',
                   }}
@@ -315,20 +403,51 @@ export function FilingCabinetDrawers({ onTaskPress }: FilingCabinetDrawersProps)
                       style={{
                         fontSize: 11,
                         color: isDark ? '#64748b' : '#94a3b8',
+                        marginBottom: 4,
                       }}
                     >
-                      {member.role === 'FractionalExec' ? 'Exec' : member.role} • {allocated}/{totalCapacity} TU
+                      {member.role === 'FractionalExec' ? 'Exec' : member.role} • {member.function}
                     </Text>
+
+                    {/* TU allocation and status */}
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                      <Text
+                        style={{
+                          fontSize: 10,
+                          color: isDark ? '#94a3b8' : '#64748b',
+                        }}
+                      >
+                        {allocated}/{totalCapacity} TU
+                      </Text>
+                      <View
+                        style={{
+                          paddingHorizontal: 6,
+                          paddingVertical: 2,
+                          backgroundColor: statusColor + '20',
+                          borderRadius: 8,
+                        }}
+                      >
+                        <Text
+                          style={{
+                            fontSize: 9,
+                            fontWeight: '600',
+                            color: statusColor,
+                          }}
+                        >
+                          {statusText}
+                        </Text>
+                      </View>
+                    </View>
                   </View>
 
-                  {/* Capacity Bar */}
-                  <View style={{ alignItems: 'flex-end' }}>
+                  {/* Capacity Bar - Vertical */}
+                  <View style={{ alignItems: 'center', marginLeft: 8 }}>
                     <View
                       style={{
-                        width: 60,
-                        height: 8,
+                        width: 40,
+                        height: 6,
                         backgroundColor: isDark ? '#1e293b' : '#e2e8f0',
-                        borderRadius: 4,
+                        borderRadius: 3,
                         overflow: 'hidden',
                       }}
                     >
@@ -336,15 +455,15 @@ export function FilingCabinetDrawers({ onTaskPress }: FilingCabinetDrawersProps)
                         style={{
                           width: `${Math.min(100, (allocated / totalCapacity) * 100)}%`,
                           height: '100%',
-                          backgroundColor: isOverallocated ? '#ef4444' : '#10b981',
-                          borderRadius: 4,
+                          backgroundColor: isOverallocated ? '#ef4444' : '#3b82f6',
+                          borderRadius: 3,
                         }}
                       />
                     </View>
                     <Text
                       style={{
-                        fontSize: 10,
-                        color: isOverallocated ? '#ef4444' : (isDark ? '#94a3b8' : '#64748b'),
+                        fontSize: 9,
+                        color: isDark ? '#64748b' : '#94a3b8',
                         marginTop: 2,
                       }}
                     >
