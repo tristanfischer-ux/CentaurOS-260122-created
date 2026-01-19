@@ -612,7 +612,7 @@ export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress
                     {/* Cost Display - to the immediate right of task bar */}
                     <View className="ml-2 bg-gray-100 dark:bg-slate-800 px-2 py-1 rounded-md">
                       <Text className="text-gray-700 dark:text-gray-300 text-[10px] font-bold">
-                        £{taskCost.toLocaleString()}
+                        {taskCost > 0 ? `£${taskCost.toLocaleString()}` : '£X'}
                       </Text>
                     </View>
 

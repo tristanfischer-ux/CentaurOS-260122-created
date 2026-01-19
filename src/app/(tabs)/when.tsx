@@ -154,8 +154,8 @@ export default function WhenScreen() {
         />
       )}
 
-      {/* Gantt Chart - sized to content */}
-      <View>
+      {/* Gantt Chart - full height */}
+      <View className="flex-1">
         <MiniGanttChart
           workPlans={workPlans}
           members={members}
