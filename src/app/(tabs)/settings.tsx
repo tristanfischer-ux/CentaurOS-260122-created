@@ -776,6 +776,29 @@ export default function SettingsScreen() {
           </View>
         </View>
 
+        {/* Company & Team Settings - Standalone Section */}
+        <Animated.View entering={FadeInDown.delay(200)} className="px-5 mb-4 mt-4">
+          <Pressable
+            onPress={() => router.push('/company-settings')}
+            className={`${bgCard} border ${borderColor} rounded-2xl p-4 active:opacity-90`}
+          >
+            <View className="flex-row items-center justify-between">
+              <View className="flex-row items-center flex-1">
+                <View className="w-12 h-12 rounded-xl bg-blue-500/10 items-center justify-center mr-3">
+                  <Building2 size={24} color="#3b82f6" />
+                </View>
+                <View className="flex-1">
+                  <Text className={`font-bold text-base ${textPrimary}`}>Company & Team</Text>
+                  <Text className={`text-xs ${textSecondary} mt-0.5`}>
+                    Manage company profile, team members, and invitations
+                  </Text>
+                </View>
+              </View>
+              <ChevronRight size={20} color={iconColor} />
+            </View>
+          </Pressable>
+        </Animated.View>
+
         {/* Preferences Section */}
         <Animated.View entering={FadeInDown.delay(300)} className="px-5 mb-4">
           <Pressable
@@ -818,18 +841,6 @@ export default function SettingsScreen() {
                   </Pressable>
                 ))}
               </View>
-
-              {/* Company Settings */}
-              <Pressable
-                onPress={() => router.push('/company-settings')}
-                className={`flex-row items-center justify-between mt-4 pt-4 border-t ${borderColor} active:opacity-70`}
-              >
-                <View className="flex-row items-center">
-                  <Building2 size={18} color="#3b82f6" />
-                  <Text className={`font-medium ml-3 ${textPrimary}`}>Company Settings</Text>
-                </View>
-                <ChevronRight size={18} color={iconColor} />
-              </Pressable>
 
               {/* Replay Tutorial */}
               <Pressable
