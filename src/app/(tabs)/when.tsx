@@ -132,8 +132,8 @@ export default function WhenScreen() {
         </View>
       </LinearGradient>
 
-      {/* Full-screen Gantt Chart */}
-      <View className="flex-1">
+      {/* Gantt Chart - sized to content */}
+      <View>
         <MiniGanttChart
           workPlans={workPlans}
           members={members}
@@ -143,7 +143,6 @@ export default function WhenScreen() {
               params: { selectedTaskId: taskId },
             });
           }}
-          fillAvailableSpace={true}
         />
       </View>
 

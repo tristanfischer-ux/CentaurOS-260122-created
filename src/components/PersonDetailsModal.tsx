@@ -848,7 +848,6 @@ export function PersonDetailsModal({
                   <MiniGanttChart
                     workPlans={memberWorkload.tasks}
                     members={allMembers}
-                    fillAvailableSpace={true}
                   />
                 </View>
               </View>

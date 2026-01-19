@@ -127,7 +127,6 @@ export function CollapsibleGanttChart({ workPlans, members, onTaskPress }: Colla
             workPlans={workPlans}
             members={members}
             onTaskPress={onTaskPress}
-            fillAvailableSpace={false}
           />
         </View>
       )}

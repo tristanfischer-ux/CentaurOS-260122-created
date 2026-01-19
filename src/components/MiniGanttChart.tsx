@@ -11,7 +11,6 @@ interface MiniGanttChartProps {
   members: OrganizationMember[];
   selectedTaskId?: string;
   onTaskPress?: (taskId: string) => void;
-  fillAvailableSpace?: boolean;
 }
 
 // Calculate week number from a date
@@ -48,7 +47,7 @@ const ROLE_COLORS: Record<string, string> = {
   Apprentice: '#10b981',
 };
 
-export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress, fillAvailableSpace = false }: MiniGanttChartProps) {
+export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress }: MiniGanttChartProps) {
   const today = useMemo(() => new Date(), []);
   const currentWeek = useMemo(() => getWeekNumber(today), [today]);
 
@@ -266,7 +265,7 @@ export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress
   }, [viewMode]);
 
   return (
-    <View style={{ flex: fillAvailableSpace ? 1 : 0 }} className="bg-white dark:bg-slate-900 border-t-2 border-gray-200 dark:border-slate-700">
+    <View className="bg-white dark:bg-slate-900 border-t-2 border-gray-200 dark:border-slate-700">
       {/* Compact Header with View Toggle */}
       <View className="px-3 py-1.5 flex-row items-center justify-between border-b border-gray-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950">
         <View className="flex-row items-center gap-2">
@@ -357,13 +356,14 @@ export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress
       </View>
 
       {/* Timeline Content */}
-      <View style={{ flex: fillAvailableSpace ? 1 : 0 }} className="relative bg-white dark:bg-slate-900">
+      <View className="relative bg-white dark:bg-slate-900">
         {/* Compact Time Period Headers */}
         <ScrollView
           ref={headerScrollRef}
           horizontal
           showsHorizontalScrollIndicator={false}
           scrollEnabled={false}
+          style={{ flexGrow: 0 }}
         >
           <View className="flex-row">
             {timePeriods.map((period: any, idx: number) => {
@@ -406,12 +406,12 @@ export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress
             headerScrollRef.current?.scrollTo({ x: offsetX, y: 0, animated: false });
           }}
           scrollEventThrottle={16}
-          style={{ flexGrow: fillAvailableSpace ? 1 : 0 }}
+          style={{ flexGrow: 0 }}
         >
           <ScrollView
             showsVerticalScrollIndicator={true}
             contentContainerStyle={{ paddingBottom: 8 }}
-            style={{ flexGrow: fillAvailableSpace ? 1 : 0 }}
+            style={{ flexGrow: 0 }}
           >
             <View style={{ width: WEEK_WIDTH * timePeriods.length }}>
               {/* Current time indicator line */}
