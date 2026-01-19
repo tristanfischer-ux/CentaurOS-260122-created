@@ -79,7 +79,7 @@ function supabaseToMembership(row: any): Membership {
     workspaceId: row.workspace_id,
     userId: row.user_id,
     role: row.role,
-    function: row.function,
+    function: row.function || 'Admin', // Default to Admin if column doesn't exist
     joinedAt: row.joined_at,
     permissions: row.permissions || {},
   };
@@ -87,14 +87,17 @@ function supabaseToMembership(row: any): Membership {
 
 // Convert Membership to Supabase row
 function membershipToSupabase(membership: Partial<Membership>): any {
-  return {
-    id: membership.id,
-    workspace_id: membership.workspaceId,
-    user_id: membership.userId,
-    role: membership.role,
-    function: membership.function,
-    permissions: membership.permissions,
-  };
+  const result: any = {};
+
+  // Only include defined values to avoid sending columns that don't exist
+  if (membership.id !== undefined) result.id = membership.id;
+  if (membership.workspaceId !== undefined) result.workspace_id = membership.workspaceId;
+  if (membership.userId !== undefined) result.user_id = membership.userId;
+  if (membership.role !== undefined) result.role = membership.role;
+  if (membership.permissions !== undefined) result.permissions = membership.permissions;
+  // Note: 'function' column may not exist in some Supabase setups, so we skip it
+
+  return result;
 }
 
 // Convert Supabase row to TeamMember
@@ -339,7 +342,7 @@ export const workspaceService = {
         workspaceId: data.id,
         userId: workspace.ownerId,
         role: 'Founder',
-        function: 'Admin', // Default function, can be changed later
+        // Note: 'function' column may not exist in database, so we don't pass it
       });
     } catch (membershipError) {
       console.error('Failed to create founder membership:', membershipError);
@@ -435,7 +438,7 @@ export const membershipService = {
     workspaceId: string;
     userId: string;
     role: 'Founder' | 'Apprentice' | 'FractionalExec' | 'Government' | 'Unaffiliated';
-    function: 'Finance' | 'Sales' | 'Marketing' | 'Ops' | 'Engineering' | 'Admin';
+    function?: 'Finance' | 'Sales' | 'Marketing' | 'Ops' | 'Engineering' | 'Admin';
   }): Promise<Membership> {
     const { data, error } = await supabase
       .from('memberships')
