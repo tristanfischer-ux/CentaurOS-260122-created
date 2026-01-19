@@ -20,8 +20,13 @@ import {
   Target,
   Calendar,
   AlertCircle,
+  UsersRound,
+  Plus,
+  ListTodo,
 } from 'lucide-react-native';
 import { useOrganizationStore } from '@/lib/state/organization-store';
+import { useSquadStore, type Squad } from '@/lib/state/squad-store';
+import { useWorkPlanStore, type WorkPlan } from '@/lib/state/work-plan-store';
 import { useCurrentWorkspace, useCurrentMembership, useAppStore } from '@/lib/state/app-store';
 import { HelpModal, HelpButton, type HelpContent } from '@/components/HelpModal';
 import { SettingsGearButton } from '@/components/SettingsGearButton';
@@ -31,22 +36,23 @@ import { memberService } from '@/lib/supabase-service';
 const PEOPLE_HELP: HelpContent = {
   title: 'People',
   subtitle: 'Your team and hiring',
-  description: 'The People tab shows your team roster, individual capacity, and hiring pipeline. Track who\'s on your team and who you\'re bringing on.',
+  description: 'The People tab shows your team roster, individual capacity, squads, and hiring pipeline. Track who\'s on your team and who you\'re bringing on.',
   tips: [
     'View team members by role: Founder, Executive, Apprentice',
     'See capacity allocation per person',
+    'View squads and what they\'re working on',
     'Track hiring pipeline: Identified → Contacted → Intro → Trial → Engaged',
     'Tap a person to see their tasks in the Tasks tab',
     'Tap "View Schedule" to see their allocation in the When tab',
   ],
   quickActions: [
     { label: 'My Team', description: 'View current team members and their capacity' },
+    { label: 'Squads', description: 'View team squads and their current tasks' },
     { label: 'Hiring Pipeline', description: 'Track candidates through the hiring process' },
-    { label: 'Capacity View', description: 'See who has availability' },
   ],
 };
 
-type PeopleTab = 'team' | 'hiring';
+type PeopleTab = 'team' | 'squads' | 'hiring';
 
 export default function PeopleScreen() {
   const insets = useSafeAreaInsets();
@@ -57,6 +63,8 @@ export default function PeopleScreen() {
 
   // Stores
   const members = useOrganizationStore(s => s.members);
+  const squads = useSquadStore(s => s.squads);
+  const workPlans = useWorkPlanStore(s => s.workPlans);
 
   // State
   const [activeTab, setActiveTab] = useState<PeopleTab>('team');
@@ -159,6 +167,51 @@ export default function PeopleScreen() {
     return { founders, execs, apprentices, total };
   }, [membersByRole, members]);
 
+  // Squad data with member details and tasks
+  const squadsWithDetails = useMemo(() => {
+    return squads.map(squad => {
+      // Get member details for this squad
+      const squadMembers = squad.memberIds
+        .map(id => members.find(m => m.id === id))
+        .filter(Boolean);
+
+      // Get tasks assigned to this squad
+      const squadTasks = (squad.taskIds || [])
+        .map(id => workPlans.find(wp => wp.id === id))
+        .filter(Boolean) as WorkPlan[];
+
+      // Also find tasks where squad members are allocated
+      const memberTaskIds = new Set<string>();
+      workPlans.forEach(wp => {
+        const allocatedMemberIds = wp.allocations?.map(a => a.memberId) || [];
+        const hasSquadMember = squad.memberIds.some(mid => allocatedMemberIds.includes(mid));
+        if (hasSquadMember && wp.status !== 'completed' && wp.status !== 'abandoned') {
+          memberTaskIds.add(wp.id);
+        }
+      });
+
+      // Combine explicit squad tasks with tasks that have squad members
+      const allTaskIds = new Set([
+        ...(squad.taskIds || []),
+        ...Array.from(memberTaskIds),
+      ]);
+      const allTasks = Array.from(allTaskIds)
+        .map(id => workPlans.find(wp => wp.id === id))
+        .filter(Boolean) as WorkPlan[];
+
+      return {
+        ...squad,
+        members: squadMembers,
+        tasks: allTasks,
+        activeTasks: allTasks.filter(t => t.status === 'in-progress'),
+      };
+    });
+  }, [squads, members, workPlans]);
+
+  // Separate manual and automatic squads
+  const manualSquads = squadsWithDetails.filter(s => s.type === 'manual');
+  const automaticSquads = squadsWithDetails.filter(s => s.type === 'automatic');
+
   const getRoleColor = (role: string) => {
     switch (role) {
       case 'Founder': return '#3b82f6';
@@ -241,6 +294,7 @@ export default function PeopleScreen() {
         <View className="flex-row bg-slate-100 dark:bg-slate-800 rounded-xl p-1">
           {[
             { key: 'team', label: 'My Team', icon: Users },
+            { key: 'squads', label: 'Squads', icon: UsersRound },
             { key: 'hiring', label: 'Hiring', icon: UserPlus },
           ].map(tab => (
             <Pressable
@@ -405,6 +459,259 @@ export default function PeopleScreen() {
                 >
                   <Text className="text-white font-semibold">Invite Team Member</Text>
                 </Pressable>
+              </View>
+            )}
+          </View>
+        )}
+
+        {activeTab === 'squads' && (
+          <View>
+            {/* Squad Stats Header */}
+            <View className="flex-row items-center justify-between mb-4">
+              <Text className="text-slate-900 dark:text-white font-bold text-lg">
+                Team Squads
+              </Text>
+              <View className="flex-row items-center gap-2">
+                <View className="bg-purple-100 dark:bg-purple-900/30 px-2 py-1 rounded-full">
+                  <Text className="text-purple-700 dark:text-purple-300 text-xs font-medium">
+                    {manualSquads.length + automaticSquads.length} squads
+                  </Text>
+                </View>
+              </View>
+            </View>
+
+            {/* Manual Squads */}
+            {manualSquads.length > 0 && (
+              <View className="mb-6">
+                <View className="flex-row items-center gap-2 mb-3">
+                  <UsersRound size={16} color="#8b5cf6" />
+                  <Text className="text-slate-700 dark:text-slate-300 font-semibold">
+                    Custom Squads ({manualSquads.length})
+                  </Text>
+                </View>
+
+                {manualSquads.map((squad, index) => (
+                  <Animated.View
+                    key={squad.id}
+                    entering={FadeInDown.delay(index * 50).springify()}
+                  >
+                    <Pressable className="bg-white dark:bg-slate-800 rounded-xl p-4 mb-3 active:opacity-80">
+                      {/* Squad Header */}
+                      <View className="flex-row items-center mb-3">
+                        <View
+                          className="w-10 h-10 rounded-lg items-center justify-center mr-3"
+                          style={{ backgroundColor: squad.color || '#8b5cf6' }}
+                        >
+                          <UsersRound size={20} color="white" />
+                        </View>
+                        <View className="flex-1">
+                          <Text className="text-slate-900 dark:text-white font-semibold text-base">
+                            {squad.name}
+                          </Text>
+                          {squad.function && (
+                            <Text className="text-slate-500 dark:text-slate-400 text-sm">
+                              {squad.function}
+                            </Text>
+                          )}
+                        </View>
+                        <View className="items-end">
+                          <View className="flex-row items-center gap-1 bg-slate-100 dark:bg-slate-700 px-2 py-1 rounded-full">
+                            <Users size={12} color="#64748b" />
+                            <Text className="text-slate-600 dark:text-slate-300 text-xs font-medium">
+                              {squad.members.length}
+                            </Text>
+                          </View>
+                        </View>
+                      </View>
+
+                      {/* Squad Members */}
+                      {squad.members.length > 0 && (
+                        <View className="flex-row flex-wrap gap-1.5 mb-3">
+                          {squad.members.slice(0, 5).map((member: any) => (
+                            <View
+                              key={member.id}
+                              className="flex-row items-center bg-slate-50 dark:bg-slate-700/50 px-2 py-1 rounded-full"
+                            >
+                              <View
+                                className="w-5 h-5 rounded-full items-center justify-center mr-1.5"
+                                style={{ backgroundColor: getRoleColor(member.role) + '30' }}
+                              >
+                                <Text
+                                  className="text-[10px] font-bold"
+                                  style={{ color: getRoleColor(member.role) }}
+                                >
+                                  {member.name?.charAt(0) || '?'}
+                                </Text>
+                              </View>
+                              <Text className="text-slate-600 dark:text-slate-300 text-xs">
+                                {member.name}
+                              </Text>
+                            </View>
+                          ))}
+                          {squad.members.length > 5 && (
+                            <View className="bg-slate-100 dark:bg-slate-700 px-2 py-1 rounded-full">
+                              <Text className="text-slate-500 dark:text-slate-400 text-xs">
+                                +{squad.members.length - 5} more
+                              </Text>
+                            </View>
+                          )}
+                        </View>
+                      )}
+
+                      {/* Active Tasks */}
+                      {squad.activeTasks.length > 0 && (
+                        <View className="border-t border-slate-100 dark:border-slate-700 pt-3">
+                          <View className="flex-row items-center gap-1.5 mb-2">
+                            <ListTodo size={14} color="#10b981" />
+                            <Text className="text-emerald-600 dark:text-emerald-400 text-xs font-medium">
+                              Working on {squad.activeTasks.length} task{squad.activeTasks.length !== 1 ? 's' : ''}
+                            </Text>
+                          </View>
+                          {squad.activeTasks.slice(0, 3).map((task: WorkPlan) => (
+                            <View key={task.id} className="flex-row items-center gap-2 mb-1.5">
+                              <View className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+                              <Text className="text-slate-600 dark:text-slate-300 text-sm flex-1" numberOfLines={1}>
+                                {task.title}
+                              </Text>
+                              <Text className="text-slate-400 dark:text-slate-500 text-xs">
+                                {task.progress || 0}%
+                              </Text>
+                            </View>
+                          ))}
+                          {squad.activeTasks.length > 3 && (
+                            <Text className="text-slate-400 dark:text-slate-500 text-xs mt-1">
+                              +{squad.activeTasks.length - 3} more tasks
+                            </Text>
+                          )}
+                        </View>
+                      )}
+
+                      {/* Empty State for Tasks */}
+                      {squad.activeTasks.length === 0 && (
+                        <View className="border-t border-slate-100 dark:border-slate-700 pt-3">
+                          <Text className="text-slate-400 dark:text-slate-500 text-sm text-center">
+                            No active tasks assigned
+                          </Text>
+                        </View>
+                      )}
+                    </Pressable>
+                  </Animated.View>
+                ))}
+              </View>
+            )}
+
+            {/* Automatic Squads (formed from task allocations) */}
+            {automaticSquads.length > 0 && (
+              <View className="mb-6">
+                <View className="flex-row items-center gap-2 mb-3">
+                  <Target size={16} color="#3b82f6" />
+                  <Text className="text-slate-700 dark:text-slate-300 font-semibold">
+                    Task Teams ({automaticSquads.length})
+                  </Text>
+                </View>
+                <Text className="text-slate-500 dark:text-slate-400 text-xs mb-3">
+                  Automatically formed when 2+ people work on the same task
+                </Text>
+
+                {automaticSquads.map((squad, index) => (
+                  <Animated.View
+                    key={squad.id}
+                    entering={FadeInDown.delay((manualSquads.length + index) * 50).springify()}
+                  >
+                    <Pressable className="bg-white dark:bg-slate-800 rounded-xl p-4 mb-3 active:opacity-80 border border-dashed border-slate-200 dark:border-slate-700">
+                      {/* Squad Header */}
+                      <View className="flex-row items-center mb-3">
+                        <View
+                          className="w-10 h-10 rounded-lg items-center justify-center mr-3"
+                          style={{ backgroundColor: squad.color || '#3b82f6' }}
+                        >
+                          <Target size={20} color="white" />
+                        </View>
+                        <View className="flex-1">
+                          <Text className="text-slate-900 dark:text-white font-semibold text-base">
+                            {squad.name}
+                          </Text>
+                          <Text className="text-slate-400 dark:text-slate-500 text-xs">
+                            Auto-formed team
+                          </Text>
+                        </View>
+                        <View className="flex-row items-center gap-1 bg-blue-50 dark:bg-blue-900/30 px-2 py-1 rounded-full">
+                          <Users size={12} color="#3b82f6" />
+                          <Text className="text-blue-600 dark:text-blue-400 text-xs font-medium">
+                            {squad.members.length}
+                          </Text>
+                        </View>
+                      </View>
+
+                      {/* Squad Members */}
+                      {squad.members.length > 0 && (
+                        <View className="flex-row flex-wrap gap-1.5 mb-3">
+                          {squad.members.map((member: any) => (
+                            <View
+                              key={member.id}
+                              className="flex-row items-center bg-slate-50 dark:bg-slate-700/50 px-2 py-1 rounded-full"
+                            >
+                              <View
+                                className="w-5 h-5 rounded-full items-center justify-center mr-1.5"
+                                style={{ backgroundColor: getRoleColor(member.role) + '30' }}
+                              >
+                                <Text
+                                  className="text-[10px] font-bold"
+                                  style={{ color: getRoleColor(member.role) }}
+                                >
+                                  {member.name?.charAt(0) || '?'}
+                                </Text>
+                              </View>
+                              <Text className="text-slate-600 dark:text-slate-300 text-xs">
+                                {member.name}
+                              </Text>
+                            </View>
+                          ))}
+                        </View>
+                      )}
+
+                      {/* Active Task */}
+                      {squad.activeTasks.length > 0 && (
+                        <View className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-2.5">
+                          {squad.activeTasks.map((task: WorkPlan) => (
+                            <View key={task.id} className="flex-row items-center gap-2">
+                              <View className="w-2 h-2 rounded-full bg-blue-500" />
+                              <Text className="text-blue-800 dark:text-blue-200 text-sm flex-1 font-medium" numberOfLines={1}>
+                                {task.title}
+                              </Text>
+                              <Text className="text-blue-600 dark:text-blue-400 text-xs font-semibold">
+                                {task.progress || 0}%
+                              </Text>
+                            </View>
+                          ))}
+                        </View>
+                      )}
+                    </Pressable>
+                  </Animated.View>
+                ))}
+              </View>
+            )}
+
+            {/* Empty State */}
+            {squads.length === 0 && (
+              <View className="items-center py-12">
+                <View className="bg-purple-100 dark:bg-purple-900/30 p-4 rounded-full mb-4">
+                  <UsersRound size={48} color="#8b5cf6" />
+                </View>
+                <Text className="text-slate-900 dark:text-white font-semibold text-lg mb-2">
+                  No Squads Yet
+                </Text>
+                <Text className="text-slate-500 dark:text-slate-400 text-center text-sm mb-4 px-8">
+                  Squads help you organize your team by function or project. They form automatically when multiple people work on the same task.
+                </Text>
+                <View className="bg-purple-50 dark:bg-purple-900/20 rounded-xl p-4 w-full">
+                  <Text className="text-purple-800 dark:text-purple-300 font-medium text-center mb-2">
+                    Squads will appear when:
+                  </Text>
+                  <Text className="text-purple-600 dark:text-purple-400 text-sm text-center">
+                    2 or more team members are assigned to the same task
+                  </Text>
+                </View>
               </View>
             )}
           </View>
