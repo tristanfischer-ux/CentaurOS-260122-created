@@ -24,6 +24,7 @@ import { useOrganizationStore } from '@/lib/state/organization-store';
 import { useCurrentWorkspace, useCurrentMembership } from '@/lib/state/app-store';
 import { HelpModal, HelpButton, type HelpContent } from '@/components/HelpModal';
 import { SettingsGearButton } from '@/components/SettingsGearButton';
+import { CollapsibleResourcePool } from '@/components/CollapsibleResourcePool';
 
 const PEOPLE_HELP: HelpContent = {
   title: 'People',
@@ -56,6 +57,7 @@ export default function PeopleScreen() {
   // State
   const [activeTab, setActiveTab] = useState<PeopleTab>('team');
   const [showHelp, setShowHelp] = useState(false);
+  const [selectedPersonId, setSelectedPersonId] = useState<string | null>(null);
 
   // Group members by role
   const membersByRole = useMemo(() => {
@@ -340,6 +342,12 @@ export default function PeopleScreen() {
           </View>
         )}
       </ScrollView>
+
+      {/* Resource Pool Drawer */}
+      <CollapsibleResourcePool
+        selectedPersonId={selectedPersonId}
+        onPersonSelect={setSelectedPersonId}
+      />
     </View>
   );
 }

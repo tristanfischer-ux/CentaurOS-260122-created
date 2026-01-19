@@ -28,6 +28,7 @@ import { useWorkPlanStore, type WorkPlan } from '@/lib/state/work-plan-store';
 import { useCurrentMembership, useCurrentWorkspace } from '@/lib/state/app-store';
 import { HelpModal, HelpButton, type HelpContent } from '@/components/HelpModal';
 import { SettingsGearButton } from '@/components/SettingsGearButton';
+import { CollapsibleGanttChart } from '@/components/CollapsibleGanttChart';
 
 const WHEN_HELP: HelpContent = {
   title: 'When',
@@ -355,6 +356,18 @@ export default function WhenScreen() {
           </View>
         </View>
       </ScrollView>
+
+      {/* Task Timeline Gantt Chart Drawer */}
+      <CollapsibleGanttChart
+        workPlans={workPlans}
+        members={members}
+        onTaskPress={(taskId) => {
+          router.push({
+            pathname: '/(tabs)/tasks',
+            params: { selectedTaskId: taskId },
+          });
+        }}
+      />
     </View>
   );
 }

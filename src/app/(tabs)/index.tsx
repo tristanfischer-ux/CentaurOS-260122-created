@@ -50,6 +50,7 @@ import { RoleSwitcher } from '@/components/RoleSwitcher';
 import { ApprenticeHome } from '@/components/ApprenticeHome';
 import { ExecutiveHome } from '@/components/ExecutiveHome';
 import { CollapsibleGanttChart } from '@/components/CollapsibleGanttChart';
+import { CollapsibleResourcePool } from '@/components/CollapsibleResourcePool';
 
 // New Home Dashboard Components
 import {
@@ -118,6 +119,7 @@ function FounderHome() {
   const [refreshing, setRefreshing] = useState(false);
   const [lastUpdated, setLastUpdated] = useState(new Date());
   const refreshTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const [selectedPersonId, setSelectedPersonId] = useState<string | null>(null);
 
   // DISABLED: Auto-detect squads from task allocations
   // This creates squads automatically, which should not happen after reset
@@ -374,6 +376,12 @@ function FounderHome() {
           </View>
         </View>
       </ScrollView>
+
+      {/* Resource Pool Drawer */}
+      <CollapsibleResourcePool
+        selectedPersonId={selectedPersonId}
+        onPersonSelect={setSelectedPersonId}
+      />
 
       {/* Task Timeline Gantt Chart - Collapsible at bottom */}
       <CollapsibleGanttChart
