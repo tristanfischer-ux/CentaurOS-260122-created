@@ -3,6 +3,8 @@
  * Client-side transcription with API key from environment
  */
 
+import { Platform } from 'react-native';
+
 export interface TranscriptionResult {
   transcript: string;
   confidence?: number;
@@ -31,18 +33,30 @@ export async function transcribeAudioWithWhisper(
       throw new Error('OpenAI API key not configured. Please add it in the ENV tab.');
     }
 
-    // Convert base64 to blob
-    const byteCharacters = atob(base64Audio);
-    const byteNumbers = new Array(byteCharacters.length);
-    for (let i = 0; i < byteCharacters.length; i++) {
-      byteNumbers[i] = byteCharacters.charCodeAt(i);
-    }
-    const byteArray = new Uint8Array(byteNumbers);
-    const blob = new Blob([byteArray], { type: mimeType });
-
     // Create form data for OpenAI API
     const formData = new FormData();
-    formData.append('file', blob, 'audio.wav');
+
+    // React Native FormData supports base64 directly via uri parameter
+    if (Platform.OS !== 'web') {
+      // For React Native: use data URI format
+      const dataUri = `data:${mimeType};base64,${base64Audio}`;
+      formData.append('file', {
+        uri: dataUri,
+        type: mimeType,
+        name: 'audio.wav',
+      } as any);
+    } else {
+      // For web: convert base64 to Blob
+      const byteCharacters = atob(base64Audio);
+      const byteNumbers = new Array(byteCharacters.length);
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      }
+      const byteArray = new Uint8Array(byteNumbers);
+      const blob = new Blob([byteArray], { type: mimeType });
+      formData.append('file', blob, 'audio.wav');
+    }
+
     formData.append('model', 'whisper-1');
     formData.append('language', 'en');
     formData.append('response_format', 'json');
