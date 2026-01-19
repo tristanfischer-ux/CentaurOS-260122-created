@@ -4,9 +4,11 @@
  *
  * Server-side route for extracting tasks from text using OpenAI
  * Keeps API keys secure on the server
+ * Protected by AI guardrails to prevent cost overruns
  */
 
 import { WHAT_EXTRACT_SYSTEM_PROMPT, buildWhatExtractPrompt } from '@/lib/prompts/what-extract';
+import { aiGuardrails } from '@/lib/ai-guardrails';
 
 export interface TaskDraft {
   title: string;
@@ -27,12 +29,22 @@ export interface TaskExtractionResult {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { inputText, source = 'text' } = body;
+    const { inputText, source = 'text', userId } = body;
 
     if (!inputText || typeof inputText !== 'string') {
       return Response.json(
         { error: 'No input text provided' },
         { status: 400 }
+      );
+    }
+
+    // Check guardrails before making request
+    const guardrailCheck = await aiGuardrails.canMakeRequest(userId);
+    if (!guardrailCheck.allowed) {
+      console.warn('[TaskExtraction API] Blocked by guardrails:', guardrailCheck.reason);
+      return Response.json(
+        { error: guardrailCheck.reason, blocked: true },
+        { status: 429 }
       );
     }
 
@@ -95,6 +107,18 @@ export async function POST(request: Request) {
 
     const data = await response.json();
     const generatedText = data.choices?.[0]?.message?.content;
+    const usage = data.usage;
+
+    // Record usage with guardrails
+    await aiGuardrails.recordUsage({
+      model: 'gpt-4o-mini',
+      inputTokens: usage?.prompt_tokens || Math.ceil(inputText.length / 4),
+      outputTokens: usage?.completion_tokens || 500,
+      endpoint: 'ai-extract-tasks',
+      userId,
+      success: !!generatedText,
+      error: generatedText ? undefined : 'No response from AI',
+    });
 
     if (!generatedText) {
       console.error('[TaskExtraction API] No text in response');

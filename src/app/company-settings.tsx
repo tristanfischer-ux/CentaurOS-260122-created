@@ -41,6 +41,7 @@ import { useOrganizationStore } from '@/lib/state/organization-store';
 import type { OrganizationMember } from '@/lib/organization-seed';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { getInitials, ROLE_COLORS } from '@/components/Avatar';
+import { AIUsageMonitor } from '@/components/AIUsageMonitor';
 
 type InvitationStatus = 'pending' | 'accepted' | 'rejected';
 type MemberRole = 'Founder' | 'CoFounder' | 'FractionalExec' | 'Apprentice';
@@ -536,6 +537,19 @@ export default function CompanySettingsScreen() {
                 </View>
               );
             })}
+          </View>
+        </Animated.View>
+
+        {/* AI Usage & Cost Protection */}
+        <Animated.View entering={FadeInDown.delay(275)}>
+          <View className="mb-5">
+            <View className="flex-row items-center gap-2 mb-3 px-1">
+              <Shield size={18} color="#6366f1" />
+              <Text className="text-slate-900 dark:text-white font-bold text-base">
+                AI Cost Protection
+              </Text>
+            </View>
+            <AIUsageMonitor />
           </View>
         </Animated.View>
 

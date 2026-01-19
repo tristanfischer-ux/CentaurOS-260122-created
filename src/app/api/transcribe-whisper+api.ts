@@ -4,17 +4,30 @@
  *
  * Server-side route for audio transcription using OpenAI Whisper
  * Keeps API keys secure on the server
+ * Protected by AI guardrails to prevent cost overruns
  */
+
+import { aiGuardrails } from '@/lib/ai-guardrails';
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { audioBase64, mimeType = 'audio/wav' } = body;
+    const { audioBase64, mimeType = 'audio/wav', userId } = body;
 
     if (!audioBase64) {
       return Response.json(
         { error: 'No audio data provided' },
         { status: 400 }
+      );
+    }
+
+    // Check guardrails before making request
+    const guardrailCheck = await aiGuardrails.canMakeRequest(userId);
+    if (!guardrailCheck.allowed) {
+      console.warn('[Whisper API] Blocked by guardrails:', guardrailCheck.reason);
+      return Response.json(
+        { error: guardrailCheck.reason, blocked: true },
+        { status: 429 }
       );
     }
 
@@ -78,6 +91,20 @@ export async function POST(request: Request) {
 
     console.log('[Whisper API] Transcription successful:', {
       transcript: data.text?.substring(0, 100),
+    });
+
+    // Record usage with guardrails (Whisper pricing: $0.006 per minute)
+    // Estimate audio duration from base64 size
+    const estimatedDurationSeconds = Math.ceil(audioBase64.length / 44000);
+    const estimatedTokens = estimatedDurationSeconds * 100;
+
+    await aiGuardrails.recordUsage({
+      model: 'whisper-1',
+      inputTokens: estimatedTokens,
+      outputTokens: Math.ceil((data.text?.length || 0) / 4),
+      endpoint: 'transcribe-whisper',
+      userId,
+      success: !!data.text,
     });
 
     if (!data.text) {

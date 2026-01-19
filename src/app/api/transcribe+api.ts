@@ -3,18 +3,31 @@
  * POST /api/transcribe
  *
  * Converts audio to text using Google Cloud Speech-to-Text API
+ * Protected by AI guardrails to prevent cost overruns
  */
+
+import { aiGuardrails } from '@/lib/ai-guardrails';
 
 export async function POST(request: Request) {
   try {
     // Parse JSON body with audio base64 and metadata
     const body = await request.json();
-    const { audioBase64, mimeType } = body;
+    const { audioBase64, mimeType, userId } = body;
 
     if (!audioBase64) {
       return Response.json(
         { error: 'No audio data provided' },
         { status: 400 }
+      );
+    }
+
+    // Check guardrails before making request
+    const guardrailCheck = await aiGuardrails.canMakeRequest(userId);
+    if (!guardrailCheck.allowed) {
+      console.warn('[Transcribe] Blocked by guardrails:', guardrailCheck.reason);
+      return Response.json(
+        { error: guardrailCheck.reason, blocked: true },
+        { status: 429 }
       );
     }
 
@@ -89,6 +102,20 @@ export async function POST(request: Request) {
       .join(' ');
 
     const confidence = data.results[0]?.alternatives[0]?.confidence || 0;
+
+    // Record usage with guardrails (Google STT pricing: ~$0.006 per 15 seconds)
+    // Estimate audio duration from base64 size (~44KB per second for 44.1kHz WAV)
+    const estimatedDurationSeconds = Math.ceil(audioBase64.length / 44000);
+    const estimatedTokens = estimatedDurationSeconds * 100; // Rough token equivalent
+
+    await aiGuardrails.recordUsage({
+      model: 'google-speech-to-text',
+      inputTokens: estimatedTokens,
+      outputTokens: Math.ceil(transcript.length / 4),
+      endpoint: 'transcribe',
+      userId,
+      success: true,
+    });
 
     console.log('[Transcribe] Success:', {
       transcript: transcript.substring(0, 100),

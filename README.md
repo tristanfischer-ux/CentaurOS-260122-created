@@ -15,6 +15,26 @@ Centaur OS is a comprehensive iOS mobile application that helps lean companies o
 
 ## 🚀 Latest Updates (Jan 19, 2026)
 
+### ✅ AI Cost Protection Guardrails (TODAY)
+
+**Comprehensive AI API cost protection system:**
+- 🛡️ **Rate Limiting**: Max 10 req/min, 100/hour, 500/day prevents accidental spam
+- 💰 **Budget Controls**: Daily ($5) and monthly ($50) cost limits with automatic blocking
+- 🔌 **Circuit Breaker**: Auto-pauses AI calls if costs spike 5x above average
+- 👤 **Per-User Quotas**: 50 requests/day per user prevents abuse
+- 📊 **Usage Monitoring**: Real-time dashboard shows costs, tokens, and status
+- ⚠️ **Smart Alerts**: Warns at 80% budget threshold
+
+**New Components:**
+- `src/lib/ai-guardrails.ts` - Core guardrails library with rate limiting, budgets, circuit breaker
+- `src/components/AIUsageMonitor.tsx` - Visual dashboard for AI usage stats
+- Updated all AI API routes to use guardrails protection
+
+**Integration Points:**
+- `src/app/api/ai-extract-tasks+api.ts` - Task extraction with guardrails
+- `src/app/api/transcribe+api.ts` - Google Speech-to-Text with guardrails
+- `src/app/api/transcribe-whisper+api.ts` - OpenAI Whisper with guardrails
+
 ### ✅ Mission Control Redesign - Side-by-Side Drawers & Interactive Stats (TODAY)
 
 **Major UX Improvements to Home Tab:**
