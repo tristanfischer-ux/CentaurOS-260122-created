@@ -538,7 +538,7 @@ export const useWorkPlanStore = create<WorkPlanState>((set, get) => ({
         .single();
 
       if (error) {
-        console.error('[WorkPlanStore] Failed to add work plan to Supabase:', {
+        console.log('[WorkPlanStore] Failed to add work plan to Supabase:', {
           error: error.message,
           code: error.code,
           details: error.details,
@@ -561,7 +561,7 @@ export const useWorkPlanStore = create<WorkPlanState>((set, get) => ({
           .insert(allocationsToInsert);
 
         if (allocError) {
-          console.error('Failed to insert allocations:', allocError);
+          console.log('Failed to insert allocations:', allocError);
         }
       }
 
@@ -585,7 +585,7 @@ export const useWorkPlanStore = create<WorkPlanState>((set, get) => ({
       set((state) => ({
         workPlans: state.workPlans.filter(wp => wp.id !== tempId)
       }));
-      console.error('Failed to add work plan:', err);
+      console.log('Failed to add work plan:', err);
       throw err;
     }
   },
@@ -600,6 +600,15 @@ export const useWorkPlanStore = create<WorkPlanState>((set, get) => ({
     }));
 
     try {
+      // Check if this is a real work plan (exists in Supabase) or a temporary draft
+      const workPlanExists = !id.startsWith('temp-');
+
+      if (!workPlanExists) {
+        // This is a temporary work plan (draft), only update local state
+        console.log('[WorkPlan] Skipping Supabase update for temporary work plan:', id);
+        return;
+      }
+
       // Transform updates to Supabase format
       // Only use columns that exist in the actual Supabase schema
       const supabaseUpdates: any = {};
@@ -617,9 +626,16 @@ export const useWorkPlanStore = create<WorkPlanState>((set, get) => ({
         .update(supabaseUpdates)
         .eq('id', id)
         .select()
-        .single();
+        .maybeSingle(); // Use maybeSingle() instead of single() to handle 0 rows gracefully
 
       if (error) throw error;
+
+      // If no data returned, the work plan doesn't exist in the database
+      if (!data) {
+        console.log('[WorkPlan] Work plan not found in database:', id);
+        // Keep the optimistic update, but don't sync to server
+        return;
+      }
 
       // Update allocations if provided
       if (updates.allocations !== undefined) {
@@ -642,7 +658,7 @@ export const useWorkPlanStore = create<WorkPlanState>((set, get) => ({
             .insert(allocationsToInsert);
 
           if (allocError) {
-            console.error('Failed to update allocations:', allocError);
+            console.log('[WorkPlan] Failed to update allocations:', allocError);
           }
         }
       }
@@ -659,7 +675,7 @@ export const useWorkPlanStore = create<WorkPlanState>((set, get) => ({
     } catch (err) {
       // Rollback on error
       set({ workPlans: previousWorkPlans });
-      console.error('Failed to update work plan:', err);
+      console.log('[WorkPlan] Failed to update work plan:', err);
       throw err;
     }
   },
@@ -690,6 +706,14 @@ export const useWorkPlanStore = create<WorkPlanState>((set, get) => ({
     }));
 
     try {
+      // Check if this is a real work plan or temporary draft
+      const workPlanExists = !id.startsWith('temp-');
+
+      if (!workPlanExists) {
+        console.log('[WorkPlan] Skipping Supabase update for temporary work plan:', id);
+        return;
+      }
+
       // Update in Supabase
       const { error } = await supabase
         .from('work_plans')
@@ -706,7 +730,7 @@ export const useWorkPlanStore = create<WorkPlanState>((set, get) => ({
     } catch (err) {
       // Rollback on error
       set({ workPlans: previousWorkPlans });
-      console.error('Failed to complete work plan:', err);
+      console.log('[WorkPlan] Failed to complete work plan:', err);
       throw err;
     }
   },
@@ -737,6 +761,14 @@ export const useWorkPlanStore = create<WorkPlanState>((set, get) => ({
     }));
 
     try {
+      // Check if this is a real work plan or temporary draft
+      const workPlanExists = !id.startsWith('temp-');
+
+      if (!workPlanExists) {
+        console.log('[WorkPlan] Skipping Supabase update for temporary work plan:', id);
+        return;
+      }
+
       // Update in Supabase
       const { error } = await supabase
         .from('work_plans')
@@ -753,7 +785,7 @@ export const useWorkPlanStore = create<WorkPlanState>((set, get) => ({
     } catch (err) {
       // Rollback on error
       set({ workPlans: previousWorkPlans });
-      console.error('Failed to abandon work plan:', err);
+      console.log('[WorkPlan] Failed to abandon work plan:', err);
       throw err;
     }
   },
@@ -768,6 +800,14 @@ export const useWorkPlanStore = create<WorkPlanState>((set, get) => ({
     }));
 
     try {
+      // Check if this is a real work plan or temporary draft
+      const workPlanExists = !id.startsWith('temp-');
+
+      if (!workPlanExists) {
+        console.log('[WorkPlan] Skipping Supabase delete for temporary work plan:', id);
+        return;
+      }
+
       // Delete allocations first (foreign key constraint)
       await supabase
         .from('work_plan_allocations')
@@ -784,7 +824,7 @@ export const useWorkPlanStore = create<WorkPlanState>((set, get) => ({
     } catch (err) {
       // Rollback on error
       set({ workPlans: previousWorkPlans });
-      console.error('Failed to delete work plan:', err);
+      console.log('[WorkPlan] Failed to delete work plan:', err);
       throw err;
     }
   },
