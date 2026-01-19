@@ -431,7 +431,8 @@ export default function TasksScreen() {
       {/* Content */}
       <ScrollView
         className="flex-1"
-        contentContainerStyle={{ padding: 20, paddingBottom: insets.bottom + 100 }}
+        contentContainerStyle={{ padding: 20, paddingBottom: insets.bottom + 180 }}
+        showsVerticalScrollIndicator={true}
       >
         {/* DRAFTS SECTION - Always at top */}
         {workspaceDrafts.length > 0 && (
