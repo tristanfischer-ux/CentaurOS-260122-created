@@ -1025,31 +1025,6 @@ export default function SettingsScreen() {
           </Animated.View>
         )}
 
-        {/* Resources Section */}
-        <Animated.View entering={FadeInDown.delay(600)} className="px-5 mb-8">
-          <View className="flex-row items-center mb-3">
-            <View className="w-8 h-8 rounded-lg bg-pink-500/20 items-center justify-center mr-3">
-              <Sparkles size={18} color="#ec4899" />
-            </View>
-            <Text className={`font-bold text-lg ${textPrimary}`}>Resources</Text>
-          </View>
-
-          {/* Startup Pack - For Founders */}
-          {userRole === 'Founder' && (
-            <NavigationCard
-              icon={Rocket}
-              iconColor="#10b981"
-              title="Startup Pack"
-              subtitle="UK company setup guides & templates"
-              onPress={() => router.push('/startup-pack')}
-              isDark={isDark}
-              isOffWhite={isOffWhite}
-            />
-          )}
-
-          {/* Function Library removed per user request */}
-        </Animated.View>
-
         <View className="h-8" />
       </ScrollView>
 
