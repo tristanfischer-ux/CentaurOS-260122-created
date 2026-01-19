@@ -251,8 +251,8 @@ export function PersonDetailsModal({
     await deleteSquad(squadId);
   };
 
-  // Don't render modal content if no member selected
-  if (!member) {
+  // Don't render anything if no member selected or modal not visible
+  if (!member || !visible) {
     return null;
   }
 
@@ -263,7 +263,7 @@ export function PersonDetailsModal({
 
   return (
     <>
-      <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
+      <Modal visible={true} transparent animationType="fade" onRequestClose={onClose}>
         <Pressable className="flex-1 bg-black/70 justify-center items-center p-4" onPress={onClose}>
           <GestureDetector gesture={panGesture}>
             <Animated.View
