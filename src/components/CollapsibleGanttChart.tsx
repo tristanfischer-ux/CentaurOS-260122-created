@@ -110,7 +110,7 @@ export function CollapsibleGanttChart({ workPlans, members, onTaskPress }: Colla
               <View className="w-2 h-2 rounded-sm bg-gray-300 dark:bg-gray-600" />
             </View>
           )}
-          <View className="w-6 h-6 bg-gray-100 dark:bg-slate-800 rounded-full items-center justify-center">
+          <View className="w-6 h-6 bg-gray-100 dark:bg-slate-900 rounded-full items-center justify-center">
             {isExpanded ? (
               <ChevronDown size={16} color="#6b7280" />
             ) : (

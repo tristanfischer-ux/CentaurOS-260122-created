@@ -467,7 +467,7 @@ export default function PeopleScreen() {
                     key={squad.id}
                     entering={FadeInDown.delay(index * 50).springify()}
                   >
-                    <Pressable className="bg-white dark:bg-slate-800 rounded-xl p-4 mb-3 active:opacity-80">
+                    <Pressable className="bg-white dark:bg-slate-900 rounded-xl p-4 mb-3 active:opacity-80">
                       {/* Squad Header */}
                       <View className="flex-row items-center mb-3">
                         <View
@@ -503,7 +503,7 @@ export default function PeopleScreen() {
                             <Pressable
                               key={member.id}
                               onPress={() => handleOpenPersonDetails(member)}
-                              className="flex-row items-center bg-slate-50 dark:bg-slate-700/50 px-2 py-1 rounded-full active:opacity-70"
+                              className="flex-row items-center bg-slate-50 dark:bg-slate-800/50 px-2 py-1 rounded-full active:opacity-70"
                             >
                               <View
                                 className="w-5 h-5 rounded-full items-center justify-center mr-1.5"
@@ -522,7 +522,7 @@ export default function PeopleScreen() {
                             </Pressable>
                           ))}
                           {squad.members.length > 5 && (
-                            <View className="bg-slate-100 dark:bg-slate-700 px-2 py-1 rounded-full">
+                            <View className="bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-full">
                               <Text className="text-slate-500 dark:text-slate-400 text-xs">
                                 +{squad.members.length - 5} more
                               </Text>
@@ -533,7 +533,7 @@ export default function PeopleScreen() {
 
                       {/* Active Tasks */}
                       {squad.activeTasks.length > 0 && (
-                        <View className="border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <View className="border-t border-slate-100 dark:border-slate-800 pt-3">
                           <View className="flex-row items-center gap-1.5 mb-2">
                             <ListTodo size={14} color="#10b981" />
                             <Text className="text-emerald-600 dark:text-emerald-400 text-xs font-medium">
@@ -566,7 +566,7 @@ export default function PeopleScreen() {
 
                       {/* Empty State for Tasks */}
                       {squad.activeTasks.length === 0 && (
-                        <View className="border-t border-slate-100 dark:border-slate-700 pt-3">
+                        <View className="border-t border-slate-100 dark:border-slate-800 pt-3">
                           <Text className="text-slate-400 dark:text-slate-500 text-sm text-center">
                             No active tasks assigned
                           </Text>
@@ -596,7 +596,7 @@ export default function PeopleScreen() {
                     key={squad.id}
                     entering={FadeInDown.delay((manualSquads.length + index) * 50).springify()}
                   >
-                    <Pressable className="bg-white dark:bg-slate-800 rounded-xl p-4 mb-3 active:opacity-80 border border-dashed border-slate-200 dark:border-slate-700">
+                    <Pressable className="bg-white dark:bg-slate-900 rounded-xl p-4 mb-3 active:opacity-80 border border-dashed border-slate-200 dark:border-slate-700">
                       {/* Squad Header */}
                       <View className="flex-row items-center mb-3">
                         <View
@@ -628,7 +628,7 @@ export default function PeopleScreen() {
                             <Pressable
                               key={member.id}
                               onPress={() => handleOpenPersonDetails(member)}
-                              className="flex-row items-center bg-slate-50 dark:bg-slate-700/50 px-2 py-1 rounded-full active:opacity-70"
+                              className="flex-row items-center bg-slate-50 dark:bg-slate-800/50 px-2 py-1 rounded-full active:opacity-70"
                             >
                               <View
                                 className="w-5 h-5 rounded-full items-center justify-center mr-1.5"

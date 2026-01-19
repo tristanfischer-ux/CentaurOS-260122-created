@@ -176,7 +176,7 @@ export function UnifiedTaskAllocationModal({ visible, onClose, workPlan }: Props
   }) => (
     <View className="flex-1">
       <Text className="text-slate-500 dark:text-slate-400 text-xs mb-2">{label}</Text>
-      <View className="flex-row items-center bg-slate-100 dark:bg-slate-800 rounded-xl">
+      <View className="flex-row items-center bg-slate-100 dark:bg-slate-900 rounded-xl">
         <Pressable
           onPress={() => {
             if (value > min) {
@@ -225,7 +225,7 @@ export function UnifiedTaskAllocationModal({ visible, onClose, workPlan }: Props
               keyboardShouldPersistTaps="handled"
             >
               {/* Header Section */}
-              <View className="bg-slate-50 dark:bg-slate-800 px-6 pt-6 pb-6">
+              <View className="bg-slate-50 dark:bg-slate-900 px-6 pt-6 pb-6">
                 {/* Close Button */}
                 <Pressable
                   onPress={onClose}
@@ -302,7 +302,7 @@ export function UnifiedTaskAllocationModal({ visible, onClose, workPlan }: Props
               </View>
 
               {/* Description - Editable */}
-              <View className="px-6 py-4 border-b border-slate-200 dark:border-slate-800">
+              <View className="px-6 py-4 border-b border-slate-200 dark:border-slate-700">
                 <View className="flex-row items-center gap-2 mb-2">
                   <Edit3 size={16} color="#64748b" />
                   <Text className="text-slate-500 dark:text-slate-400 text-xs font-medium">Description</Text>
@@ -313,7 +313,7 @@ export function UnifiedTaskAllocationModal({ visible, onClose, workPlan }: Props
                     setDescription(text);
                     markChanged();
                   }}
-                  className="text-slate-700 dark:text-slate-300 text-sm leading-5 bg-slate-50 dark:bg-slate-800 rounded-xl p-3 min-h-[80px]"
+                  className="text-slate-700 dark:text-slate-300 text-sm leading-5 bg-slate-50 dark:bg-slate-900 rounded-xl p-3 min-h-[80px]"
                   placeholder="Add task description..."
                   placeholderTextColor="#94a3b8"
                   multiline
@@ -322,7 +322,7 @@ export function UnifiedTaskAllocationModal({ visible, onClose, workPlan }: Props
               </View>
 
               {/* Timeline Section - Editable */}
-              <View className="px-6 py-4 border-b border-slate-200 dark:border-slate-800">
+              <View className="px-6 py-4 border-b border-slate-200 dark:border-slate-700">
                 <View className="flex-row items-center gap-2 mb-3">
                   <Calendar size={18} color="#3b82f6" />
                   <Text className="text-slate-900 dark:text-white font-bold text-sm">
@@ -334,7 +334,7 @@ export function UnifiedTaskAllocationModal({ visible, onClose, workPlan }: Props
                     <Text className="text-slate-500 dark:text-slate-400 text-xs mb-2">Start Date</Text>
                     <Pressable
                       onPress={() => setShowStartDatePicker(true)}
-                      className="bg-slate-100 dark:bg-slate-800 rounded-xl p-3 flex-row items-center justify-between"
+                      className="bg-slate-100 dark:bg-slate-900 rounded-xl p-3 flex-row items-center justify-between"
                     >
                       <Text className="text-slate-900 dark:text-white text-sm font-semibold">
                         {formatDate(startDate)}
@@ -346,7 +346,7 @@ export function UnifiedTaskAllocationModal({ visible, onClose, workPlan }: Props
                     <Text className="text-slate-500 dark:text-slate-400 text-xs mb-2">Due Date</Text>
                     <Pressable
                       onPress={() => setShowDueDatePicker(true)}
-                      className="bg-slate-100 dark:bg-slate-800 rounded-xl p-3 flex-row items-center justify-between"
+                      className="bg-slate-100 dark:bg-slate-900 rounded-xl p-3 flex-row items-center justify-between"
                     >
                       <Text className="text-slate-900 dark:text-white text-sm font-semibold">
                         {formatDate(dueDate)}
@@ -358,7 +358,7 @@ export function UnifiedTaskAllocationModal({ visible, onClose, workPlan }: Props
               </View>
 
               {/* Progress Section - Editable */}
-              <View className="px-6 py-4 border-b border-slate-200 dark:border-slate-800">
+              <View className="px-6 py-4 border-b border-slate-200 dark:border-slate-700">
                 <View className="flex-row items-center gap-2 mb-3">
                   <Target size={18} color="#f59e0b" />
                   <Text className="text-slate-900 dark:text-white font-bold text-sm">
@@ -374,7 +374,7 @@ export function UnifiedTaskAllocationModal({ visible, onClose, workPlan }: Props
                       />
                     </View>
                   </View>
-                  <View className="flex-row items-center bg-slate-100 dark:bg-slate-800 rounded-xl">
+                  <View className="flex-row items-center bg-slate-100 dark:bg-slate-900 rounded-xl">
                     <Pressable
                       onPress={() => {
                         if (progress >= 10) {
@@ -405,7 +405,7 @@ export function UnifiedTaskAllocationModal({ visible, onClose, workPlan }: Props
               </View>
 
               {/* Time Units Section - Editable */}
-              <View className="px-6 py-4 border-b border-slate-200 dark:border-slate-800">
+              <View className="px-6 py-4 border-b border-slate-200 dark:border-slate-700">
                 <View className="flex-row items-center gap-2 mb-3">
                   <Clock size={18} color="#10b981" />
                   <Text className="text-slate-900 dark:text-white font-bold text-sm">
@@ -430,7 +430,7 @@ export function UnifiedTaskAllocationModal({ visible, onClose, workPlan }: Props
                     suffix=" TU"
                   />
                 </View>
-                <View className="flex-row justify-between mt-3 bg-slate-50 dark:bg-slate-800 rounded-xl p-3">
+                <View className="flex-row justify-between mt-3 bg-slate-50 dark:bg-slate-900 rounded-xl p-3">
                   <View className="items-center flex-1">
                     <Text className="text-slate-500 dark:text-slate-400 text-xs">Completed</Text>
                     <Text className="text-emerald-600 dark:text-emerald-400 font-bold">
@@ -454,7 +454,7 @@ export function UnifiedTaskAllocationModal({ visible, onClose, workPlan }: Props
 
               {/* Team Section */}
               {assignedMembers.length > 0 && (
-                <View className="px-6 py-4 border-b border-slate-200 dark:border-slate-800">
+                <View className="px-6 py-4 border-b border-slate-200 dark:border-slate-700">
                   <View className="flex-row items-center gap-2 mb-3">
                     <Users size={18} color="#8b5cf6" />
                     <Text className="text-slate-900 dark:text-white font-bold text-sm">
@@ -470,7 +470,7 @@ export function UnifiedTaskAllocationModal({ visible, onClose, workPlan }: Props
                       return (
                         <View
                           key={member.id}
-                          className="bg-slate-50 dark:bg-slate-800 rounded-xl p-3 flex-row items-center justify-between"
+                          className="bg-slate-50 dark:bg-slate-900 rounded-xl p-3 flex-row items-center justify-between"
                         >
                           <View className="flex-row items-center gap-3 flex-1">
                             {/* Avatar */}
@@ -550,7 +550,7 @@ export function UnifiedTaskAllocationModal({ visible, onClose, workPlan }: Props
           className="flex-1 bg-black/50 justify-center items-center"
           onPress={() => setShowStatusPicker(false)}
         >
-          <View className="bg-white dark:bg-slate-800 rounded-2xl p-4 mx-6 w-[280px]">
+          <View className="bg-white dark:bg-slate-900 rounded-2xl p-4 mx-6 w-[280px]">
             <Text className="text-slate-900 dark:text-white font-bold text-lg mb-3 text-center">
               Select Status
             </Text>
@@ -586,7 +586,7 @@ export function UnifiedTaskAllocationModal({ visible, onClose, workPlan }: Props
           className="flex-1 bg-black/50 justify-center items-center"
           onPress={() => setShowFunctionPicker(false)}
         >
-          <View className="bg-white dark:bg-slate-800 rounded-2xl p-4 mx-6 w-[280px]">
+          <View className="bg-white dark:bg-slate-900 rounded-2xl p-4 mx-6 w-[280px]">
             <Text className="text-slate-900 dark:text-white font-bold text-lg mb-3 text-center">
               Select Function
             </Text>

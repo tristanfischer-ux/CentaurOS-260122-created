@@ -60,7 +60,7 @@ function TaskItem({ task, index, onPress, showProgress = true }: TaskItemProps) 
     <Animated.View entering={FadeInDown.delay(index * 50).springify()}>
       <Pressable
         onPress={onPress}
-        className="bg-white dark:bg-slate-800 rounded-xl p-3 mb-2 border border-slate-200 dark:border-slate-700 active:opacity-90"
+        className="bg-white dark:bg-slate-900 rounded-xl p-3 mb-2 border border-slate-200 dark:border-slate-700 active:opacity-90"
       >
         <View className="flex-row items-start justify-between">
           <View className="flex-1 mr-3">
@@ -246,7 +246,7 @@ export function CurrentActivitiesSection() {
             Current Activities
           </Text>
         </View>
-        <View className="bg-slate-100 dark:bg-slate-800 rounded-xl p-6 items-center">
+        <View className="bg-slate-100 dark:bg-slate-900 rounded-xl p-6 items-center">
           <Clock size={32} color="#64748b" />
           <Text className="text-slate-600 dark:text-slate-400 text-sm mt-2 text-center">
             No active tasks. Go to the What tab to start work.

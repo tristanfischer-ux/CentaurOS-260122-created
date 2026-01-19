@@ -212,7 +212,7 @@ export function SquaresDisplay({
       )}
 
       {/* Time and Cost estimate */}
-      <View className="flex-row items-center justify-between mt-1 pt-2 border-t border-gray-100 dark:border-slate-800">
+      <View className="flex-row items-center justify-between mt-1 pt-2 border-t border-gray-100 dark:border-slate-700">
         <View className="flex-row items-center">
           <Text className="text-gray-400 dark:text-slate-500 text-[10px]">
             ≈ {(remaining * 4)}h ({remaining} TU × 4h)

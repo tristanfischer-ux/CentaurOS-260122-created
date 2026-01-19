@@ -119,7 +119,7 @@ export function CollapsibleBrainstormStarter({
         </View>
 
         {/* Expand/Collapse Indicator */}
-        <View className="w-8 h-8 bg-slate-100 dark:bg-slate-800 rounded-full items-center justify-center">
+        <View className="w-8 h-8 bg-slate-100 dark:bg-slate-900 rounded-full items-center justify-center">
           {isExpanded ? (
             <ChevronDown size={18} color="#64748b" />
           ) : (
@@ -231,7 +231,7 @@ export function CollapsibleBrainstormStarter({
                 placeholderTextColor="#94a3b8"
                 multiline
                 numberOfLines={6}
-                className="bg-slate-100 dark:bg-slate-800 rounded-xl px-4 py-3 text-slate-900 dark:text-white mb-3 min-h-[150px]"
+                className="bg-slate-100 dark:bg-slate-900 rounded-xl px-4 py-3 text-slate-900 dark:text-white mb-3 min-h-[150px]"
                 style={{ textAlignVertical: 'top' }}
               />
 

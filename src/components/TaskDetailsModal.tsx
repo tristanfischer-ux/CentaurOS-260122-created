@@ -114,7 +114,7 @@ export function TaskDetailsModal({ visible, onClose, task }: TaskDetailsModalPro
               </View>
               <Pressable
                 onPress={onClose}
-                className="w-10 h-10 bg-white dark:bg-slate-800 rounded-full items-center justify-center active:opacity-70"
+                className="w-10 h-10 bg-white dark:bg-slate-900 rounded-full items-center justify-center active:opacity-70"
               >
                 <X size={20} color="#6b7280" />
               </Pressable>
@@ -156,7 +156,7 @@ export function TaskDetailsModal({ visible, onClose, task }: TaskDetailsModalPro
             </View>
 
             {/* Effort & Cost Summary */}
-            <View className="px-5 py-4 bg-gray-50 dark:bg-slate-800/50">
+            <View className="px-5 py-4 bg-gray-50 dark:bg-slate-900/50">
               <Text className="text-gray-900 dark:text-white font-semibold mb-3">
                 Effort & Cost Summary
               </Text>
@@ -226,7 +226,7 @@ export function TaskDetailsModal({ visible, onClose, task }: TaskDetailsModalPro
                     return (
                       <View
                         key={member.id}
-                        className="flex-row items-center justify-between bg-white dark:bg-slate-800 rounded-lg p-3"
+                        className="flex-row items-center justify-between bg-white dark:bg-slate-900 rounded-lg p-3"
                       >
                         <View className="flex-row items-center flex-1">
                           <View

@@ -183,7 +183,7 @@ export function UnifiedBottomDrawer({
             )}
           </View>
         </View>
-        <View className="w-8 h-8 bg-slate-100 dark:bg-slate-800 rounded-full items-center justify-center">
+        <View className="w-8 h-8 bg-slate-100 dark:bg-slate-900 rounded-full items-center justify-center">
           {isExpanded ? <ChevronDown size={18} color="#64748b" /> : <ChevronUp size={18} color="#64748b" />}
         </View>
       </Pressable>
@@ -214,7 +214,7 @@ export function UnifiedBottomDrawer({
               </View>
 
               {/* Team Availability Section */}
-              <View className="flex-1 bg-slate-50 dark:bg-slate-800/50 rounded-xl p-3 mb-3">
+              <View className="flex-1 bg-slate-50 dark:bg-slate-900/50 rounded-xl p-3 mb-3">
                 <View className="flex-row items-center justify-between mb-2">
                   <Text className="text-slate-800 dark:text-slate-200 text-xs font-bold">
                     Team Availability This Week

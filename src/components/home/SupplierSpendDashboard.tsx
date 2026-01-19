@@ -286,7 +286,7 @@ export function SupplierSpendDashboard() {
       </View>
 
       {/* Main Dashboard Card */}
-      <View className="bg-white dark:bg-slate-800 rounded-2xl p-4 border border-slate-200 dark:border-slate-700">
+      <View className="bg-white dark:bg-slate-900 rounded-2xl p-4 border border-slate-200 dark:border-slate-700">
         <View className="flex-row gap-4 mb-4">
           {/* Pie Chart */}
           <View className="items-center">

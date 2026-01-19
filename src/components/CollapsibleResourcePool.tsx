@@ -203,7 +203,7 @@ export function CollapsibleResourcePool({ selectedPersonId, onPersonSelect }: Co
               <View className="w-2 h-2 rounded-sm bg-amber-300" />
             </View>
           )}
-          <View className="w-6 h-6 bg-gray-100 dark:bg-slate-800 rounded-full items-center justify-center">
+          <View className="w-6 h-6 bg-gray-100 dark:bg-slate-900 rounded-full items-center justify-center">
             {isExpanded ? (
               <ChevronDown size={16} color="#6b7280" />
             ) : (
@@ -217,7 +217,7 @@ export function CollapsibleResourcePool({ selectedPersonId, onPersonSelect }: Co
       {isExpanded && (
         <View className="flex-1">
           {/* Financial Summary Header */}
-          <View className="px-4 py-2 border-b border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800/50">
+          <View className="px-4 py-2 border-b border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-900/50">
             <View className="flex-row items-center justify-between">
               <View className="flex-row items-center gap-3">
                 <View className="flex-row items-center">
@@ -303,7 +303,7 @@ export function CollapsibleResourcePool({ selectedPersonId, onPersonSelect }: Co
                     setSelectedMember(member);
                     setShowPersonModal(true);
                   }}
-                  className={`flex-row items-center px-3 py-2 border-b border-gray-100 dark:border-slate-800 active:bg-gray-50 dark:active:bg-slate-800 ${
+                  className={`flex-row items-center px-3 py-2 border-b border-gray-100 dark:border-slate-700 active:bg-gray-50 dark:active:bg-slate-800 ${
                     isSelected ? 'bg-purple-50 dark:bg-purple-900/20' : ''
                   }`}
                 >

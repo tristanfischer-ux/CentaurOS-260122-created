@@ -90,7 +90,7 @@ export function RoleSwitcher({ compact = false }: RoleSwitcherProps) {
     <>
       <Pressable
         onPress={() => setShowModal(true)}
-        className="bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-800 rounded-2xl p-4 active:opacity-70"
+        className="bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-700 rounded-2xl p-4 active:opacity-70"
       >
         <View className="flex-row items-center gap-3">
           <View
@@ -144,7 +144,7 @@ function RoleSwitcherModal({ visible, onClose, activeRole, onSelectRole }: RoleS
         <Pressable onPress={(e) => e.stopPropagation()} style={{ maxHeight: '80%' }}>
           <View className="bg-white dark:bg-slate-900 rounded-t-3xl">
             {/* Header */}
-            <View className="flex-row items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-slate-800">
+            <View className="flex-row items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-slate-700">
               <Text className="text-slate-900 dark:text-white text-xl font-bold">
                 Switch View
               </Text>
@@ -174,7 +174,7 @@ function RoleSwitcherModal({ visible, onClose, activeRole, onSelectRole }: RoleS
                         className={`rounded-2xl p-4 border-2 ${
                           isActive
                             ? 'border-transparent'
-                            : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900'
+                            : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900'
                         }`}
                       >
                         {isActive ? (
@@ -256,7 +256,7 @@ function RoleSwitcherModal({ visible, onClose, activeRole, onSelectRole }: RoleS
               </View>
 
               {/* Info Note */}
-              <View className="mt-6 bg-slate-100 dark:bg-slate-800 rounded-xl p-4">
+              <View className="mt-6 bg-slate-100 dark:bg-slate-900 rounded-xl p-4">
                 <View className="flex-row items-start gap-2">
                   <View className="mt-0.5">
                     <Zap size={16} color="#64748b" />

@@ -323,7 +323,7 @@ export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress
             className={`px-2 py-1 rounded ${
               viewMode === 'day'
                 ? 'bg-purple-500'
-                : 'bg-gray-200 dark:bg-slate-800'
+                : 'bg-gray-200 dark:bg-slate-900'
             }`}
           >
             <Text className={`text-[9px] font-semibold ${
@@ -339,7 +339,7 @@ export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress
             className={`px-2 py-1 rounded ${
               viewMode === 'week'
                 ? 'bg-purple-500'
-                : 'bg-gray-200 dark:bg-slate-800'
+                : 'bg-gray-200 dark:bg-slate-900'
             }`}
           >
             <Text className={`text-[9px] font-semibold ${
@@ -355,7 +355,7 @@ export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress
             className={`px-2 py-1 rounded ${
               viewMode === 'month'
                 ? 'bg-purple-500'
-                : 'bg-gray-200 dark:bg-slate-800'
+                : 'bg-gray-200 dark:bg-slate-900'
             }`}
           >
             <Text className={`text-[9px] font-semibold ${
@@ -371,7 +371,7 @@ export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress
             className={`px-2 py-1 rounded ${
               viewMode === 'year'
                 ? 'bg-purple-500'
-                : 'bg-gray-200 dark:bg-slate-800'
+                : 'bg-gray-200 dark:bg-slate-900'
             }`}
           >
             <Text className={`text-[9px] font-semibold ${
@@ -661,7 +661,7 @@ export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress
                     </View>
 
                     {/* Cost Display - to the immediate right of task bar */}
-                    <View className="ml-2 bg-gray-100 dark:bg-slate-800 px-2 py-1 rounded-md">
+                    <View className="ml-2 bg-gray-100 dark:bg-slate-900 px-2 py-1 rounded-md">
                       <Text className="text-gray-700 dark:text-gray-300 text-[10px] font-bold">
                         {taskCost > 0 ? `£${taskCost.toLocaleString()}` : '£X'}
                       </Text>
@@ -722,7 +722,7 @@ export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress
             style={{ maxHeight: '80%' }}
           >
             {selectedTask ? (
-              <View className="mx-4 bg-white dark:bg-slate-800 rounded-2xl overflow-hidden shadow-2xl">
+              <View className="mx-4 bg-white dark:bg-slate-900 rounded-2xl overflow-hidden shadow-2xl">
                 {/* Header */}
                 <View className={`px-4 py-3 ${STATUS_COLORS[selectedTask.status]?.bg || 'bg-gray-200'}`}>
                   <View className="flex-row items-start justify-between">

@@ -235,7 +235,7 @@ export default function MarketplaceScreen() {
                 className={`flex-row items-center gap-1.5 px-3 py-2 rounded-full ${
                   activeCategory === cat.key
                     ? 'bg-purple-600'
-                    : 'bg-slate-100 dark:bg-slate-800'
+                    : 'bg-slate-100 dark:bg-slate-900'
                 }`}
               >
                 <cat.icon
@@ -276,7 +276,7 @@ export default function MarketplaceScreen() {
             <View className="gap-3">
               {/* Fractional Executives */}
               <Pressable
-                className="bg-white dark:bg-slate-800 rounded-xl p-4 active:opacity-80"
+                className="bg-white dark:bg-slate-900 rounded-xl p-4 active:opacity-80"
               >
                 <View className="flex-row items-center gap-3">
                   <View className="bg-blue-100 dark:bg-blue-900/30 p-3 rounded-xl">
@@ -294,7 +294,7 @@ export default function MarketplaceScreen() {
 
               {/* Apprentices */}
               <Pressable
-                className="bg-white dark:bg-slate-800 rounded-xl p-4 active:opacity-80"
+                className="bg-white dark:bg-slate-900 rounded-xl p-4 active:opacity-80"
               >
                 <View className="flex-row items-center gap-3">
                   <View className="bg-emerald-100 dark:bg-emerald-900/30 p-3 rounded-xl">
@@ -328,7 +328,7 @@ export default function MarketplaceScreen() {
               {/* Manufacturing & Design - Collapsible */}
               <Pressable
                 onPress={() => toggleCategory('manufacturing')}
-                className="bg-white dark:bg-slate-800 rounded-xl p-4 active:opacity-80"
+                className="bg-white dark:bg-slate-900 rounded-xl p-4 active:opacity-80"
               >
                 <View className="flex-row items-center gap-3">
                   <View className="bg-orange-100 dark:bg-orange-900/30 p-3 rounded-xl">
@@ -352,7 +352,7 @@ export default function MarketplaceScreen() {
               {expandedCategories.has('manufacturing') && aiTools.filter((t: ThirdPartyAITool) => t.category === 'manufacturing').map((tool: ThirdPartyAITool, index: number) => (
                 <Animated.View key={tool.id} entering={FadeInDown.delay(index * 50).springify()}>
                   <Pressable
-                    className="bg-white dark:bg-slate-800 rounded-xl p-4 ml-4 active:opacity-80 border border-orange-200 dark:border-orange-800"
+                    className="bg-white dark:bg-slate-900 rounded-xl p-4 ml-4 active:opacity-80 border border-orange-200 dark:border-orange-800"
                   >
                     <View className="flex-row items-center gap-3">
                       <View className="bg-orange-100 dark:bg-orange-900/30 p-2 rounded-lg">
@@ -376,7 +376,7 @@ export default function MarketplaceScreen() {
               {/* Sales - Collapsible */}
               <Pressable
                 onPress={() => toggleCategory('sales')}
-                className="bg-white dark:bg-slate-800 rounded-xl p-4 active:opacity-80"
+                className="bg-white dark:bg-slate-900 rounded-xl p-4 active:opacity-80"
               >
                 <View className="flex-row items-center gap-3">
                   <View className="bg-emerald-100 dark:bg-emerald-900/30 p-3 rounded-xl">
@@ -400,7 +400,7 @@ export default function MarketplaceScreen() {
               {expandedCategories.has('sales') && aiTools.filter((t: ThirdPartyAITool) => t.category === 'sales').map((tool: ThirdPartyAITool, index: number) => (
                 <Animated.View key={tool.id} entering={FadeInDown.delay(index * 50).springify()}>
                   <Pressable
-                    className="bg-white dark:bg-slate-800 rounded-xl p-4 ml-4 active:opacity-80 border border-emerald-200 dark:border-emerald-800"
+                    className="bg-white dark:bg-slate-900 rounded-xl p-4 ml-4 active:opacity-80 border border-emerald-200 dark:border-emerald-800"
                   >
                     <View className="flex-row items-center gap-3">
                       <View className="bg-emerald-100 dark:bg-emerald-900/30 p-2 rounded-lg">
@@ -424,7 +424,7 @@ export default function MarketplaceScreen() {
               {/* Marketing - Collapsible */}
               <Pressable
                 onPress={() => toggleCategory('marketing')}
-                className="bg-white dark:bg-slate-800 rounded-xl p-4 active:opacity-80"
+                className="bg-white dark:bg-slate-900 rounded-xl p-4 active:opacity-80"
               >
                 <View className="flex-row items-center gap-3">
                   <View className="bg-pink-100 dark:bg-pink-900/30 p-3 rounded-xl">
@@ -448,7 +448,7 @@ export default function MarketplaceScreen() {
               {expandedCategories.has('marketing') && aiTools.filter((t: ThirdPartyAITool) => t.category === 'marketing').map((tool: ThirdPartyAITool, index: number) => (
                 <Animated.View key={tool.id} entering={FadeInDown.delay(index * 50).springify()}>
                   <Pressable
-                    className="bg-white dark:bg-slate-800 rounded-xl p-4 ml-4 active:opacity-80 border border-pink-200 dark:border-pink-800"
+                    className="bg-white dark:bg-slate-900 rounded-xl p-4 ml-4 active:opacity-80 border border-pink-200 dark:border-pink-800"
                   >
                     <View className="flex-row items-center gap-3">
                       <View className="bg-pink-100 dark:bg-pink-900/30 p-2 rounded-lg">
@@ -472,7 +472,7 @@ export default function MarketplaceScreen() {
               {/* Finance - Collapsible */}
               <Pressable
                 onPress={() => toggleCategory('finance')}
-                className="bg-white dark:bg-slate-800 rounded-xl p-4 active:opacity-80"
+                className="bg-white dark:bg-slate-900 rounded-xl p-4 active:opacity-80"
               >
                 <View className="flex-row items-center gap-3">
                   <View className="bg-purple-100 dark:bg-purple-900/30 p-3 rounded-xl">
@@ -496,7 +496,7 @@ export default function MarketplaceScreen() {
               {expandedCategories.has('finance') && aiTools.filter((t: ThirdPartyAITool) => t.category === 'finance').map((tool: ThirdPartyAITool, index: number) => (
                 <Animated.View key={tool.id} entering={FadeInDown.delay(index * 50).springify()}>
                   <Pressable
-                    className="bg-white dark:bg-slate-800 rounded-xl p-4 ml-4 active:opacity-80 border border-purple-200 dark:border-purple-800"
+                    className="bg-white dark:bg-slate-900 rounded-xl p-4 ml-4 active:opacity-80 border border-purple-200 dark:border-purple-800"
                   >
                     <View className="flex-row items-center gap-3">
                       <View className="bg-purple-100 dark:bg-purple-900/30 p-2 rounded-lg">
@@ -520,7 +520,7 @@ export default function MarketplaceScreen() {
               {/* Operations - Collapsible */}
               <Pressable
                 onPress={() => toggleCategory('operations')}
-                className="bg-white dark:bg-slate-800 rounded-xl p-4 active:opacity-80"
+                className="bg-white dark:bg-slate-900 rounded-xl p-4 active:opacity-80"
               >
                 <View className="flex-row items-center gap-3">
                   <View className="bg-amber-100 dark:bg-amber-900/30 p-3 rounded-xl">
@@ -544,7 +544,7 @@ export default function MarketplaceScreen() {
               {expandedCategories.has('operations') && aiTools.filter((t: ThirdPartyAITool) => t.category === 'operations').map((tool: ThirdPartyAITool, index: number) => (
                 <Animated.View key={tool.id} entering={FadeInDown.delay(index * 50).springify()}>
                   <Pressable
-                    className="bg-white dark:bg-slate-800 rounded-xl p-4 ml-4 active:opacity-80 border border-amber-200 dark:border-amber-800"
+                    className="bg-white dark:bg-slate-900 rounded-xl p-4 ml-4 active:opacity-80 border border-amber-200 dark:border-amber-800"
                   >
                     <View className="flex-row items-center gap-3">
                       <View className="bg-amber-100 dark:bg-amber-900/30 p-2 rounded-lg">
@@ -568,7 +568,7 @@ export default function MarketplaceScreen() {
               {/* Admin & Productivity - Collapsible */}
               <Pressable
                 onPress={() => toggleCategory('productivity')}
-                className="bg-white dark:bg-slate-800 rounded-xl p-4 active:opacity-80"
+                className="bg-white dark:bg-slate-900 rounded-xl p-4 active:opacity-80"
               >
                 <View className="flex-row items-center gap-3">
                   <View className="bg-blue-100 dark:bg-blue-900/30 p-3 rounded-xl">
@@ -592,7 +592,7 @@ export default function MarketplaceScreen() {
               {expandedCategories.has('productivity') && aiTools.filter((t: ThirdPartyAITool) => t.category === 'productivity').map((tool: ThirdPartyAITool, index: number) => (
                 <Animated.View key={tool.id} entering={FadeInDown.delay(index * 50).springify()}>
                   <Pressable
-                    className="bg-white dark:bg-slate-800 rounded-xl p-4 ml-4 active:opacity-80 border border-blue-200 dark:border-blue-800"
+                    className="bg-white dark:bg-slate-900 rounded-xl p-4 ml-4 active:opacity-80 border border-blue-200 dark:border-blue-800"
                   >
                     <View className="flex-row items-center gap-3">
                       <View className="bg-blue-100 dark:bg-blue-900/30 p-2 rounded-lg">
@@ -635,7 +635,7 @@ export default function MarketplaceScreen() {
               ].map((cat, index) => (
                 <Animated.View key={cat.name} entering={FadeInDown.delay(index * 50).springify()}>
                   <Pressable
-                    className="bg-white dark:bg-slate-800 rounded-xl p-4 active:opacity-80"
+                    className="bg-white dark:bg-slate-900 rounded-xl p-4 active:opacity-80"
                   >
                     <View className="flex-row items-center gap-3">
                       <View className="bg-amber-100 dark:bg-amber-900/30 p-3 rounded-xl">
@@ -674,7 +674,7 @@ export default function MarketplaceScreen() {
               ].map((cat, index) => (
                 <Animated.View key={cat.name} entering={FadeInDown.delay(index * 50).springify()}>
                   <Pressable
-                    className="bg-white dark:bg-slate-800 rounded-xl p-4 active:opacity-80"
+                    className="bg-white dark:bg-slate-900 rounded-xl p-4 active:opacity-80"
                   >
                     <View className="flex-row items-center gap-3">
                       <View

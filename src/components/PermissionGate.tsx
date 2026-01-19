@@ -56,7 +56,7 @@ export function PermissionGate({
   // If showRestricted is true, show a restricted message
   if (showRestricted) {
     return (
-      <View className="bg-gray-100 dark:bg-slate-800 rounded-xl p-4 items-center justify-center">
+      <View className="bg-gray-100 dark:bg-slate-900 rounded-xl p-4 items-center justify-center">
         <Lock size={20} color="#94a3b8" />
         <Text className="text-gray-500 dark:text-slate-400 text-sm mt-2 text-center">
           This section is restricted

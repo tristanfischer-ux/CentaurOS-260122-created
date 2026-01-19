@@ -72,7 +72,7 @@ export function MessageInput({
   };
 
   return (
-    <View className="bg-white dark:bg-slate-950 border-t border-gray-300 dark:border-slate-800 px-4 py-3">
+    <View className="bg-white dark:bg-slate-950 border-t border-gray-300 dark:border-slate-700 px-4 py-3">
       {/* Attachments preview */}
       {attachments.length > 0 && (
         <View className="flex-row flex-wrap gap-2 mb-3">

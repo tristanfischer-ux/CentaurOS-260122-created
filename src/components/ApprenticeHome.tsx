@@ -195,7 +195,7 @@ export function ApprenticeHome() {
           </View>
 
           {activeTasks.length === 0 ? (
-            <View className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 items-center">
+            <View className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 items-center">
               <CheckCircle2 size={48} color="#10b981" />
               <Text className="text-slate-900 dark:text-white font-bold text-lg mt-3">
                 All Caught Up!
@@ -210,7 +210,7 @@ export function ApprenticeHome() {
                 <Pressable
                   key={task.id}
                   onPress={() => router.push('/(tabs)/what')}
-                  className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 active:opacity-70"
+                  className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 active:opacity-70"
                 >
                   <View className="flex-row items-start justify-between">
                     <View className="flex-1">
@@ -288,7 +288,7 @@ export function ApprenticeHome() {
               {pendingTasks.slice(0, 3).map((task, index) => (
                 <View
                   key={task.id}
-                  className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-3 flex-row items-center"
+                  className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-3 flex-row items-center"
                 >
                   <View className="bg-blue-100 dark:bg-blue-900/30 w-8 h-8 rounded-full items-center justify-center mr-3">
                     <Text className="text-blue-600 dark:text-blue-400 font-bold">{index + 1}</Text>
@@ -329,7 +329,7 @@ export function ApprenticeHome() {
 
           <View className="flex-row gap-3">
             {/* Completion Rate */}
-            <View className="flex-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4">
+            <View className="flex-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-4">
               <View className="items-center">
                 <Text className="text-3xl font-bold text-purple-600 dark:text-purple-400">
                   {completionRate}%
@@ -337,7 +337,7 @@ export function ApprenticeHome() {
                 <Text className="text-slate-600 dark:text-slate-400 text-xs mt-1">
                   Completion Rate
                 </Text>
-                <View className="w-full h-2 bg-slate-200 dark:bg-slate-800 rounded-full mt-3">
+                <View className="w-full h-2 bg-slate-200 dark:bg-slate-900 rounded-full mt-3">
                   <View
                     className="h-full bg-purple-500 rounded-full"
                     style={{ width: `${completionRate}%` }}
@@ -347,7 +347,7 @@ export function ApprenticeHome() {
             </View>
 
             {/* Total Tasks */}
-            <View className="flex-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4">
+            <View className="flex-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-4">
               <View className="items-center">
                 <Text className="text-3xl font-bold text-emerald-600 dark:text-emerald-400">
                   {completedTasks.length}
@@ -379,7 +379,7 @@ export function ApprenticeHome() {
           <View className="flex-row gap-3">
             <Pressable
               onPress={() => router.push('/learning')}
-              className="flex-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 active:opacity-70"
+              className="flex-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-4 active:opacity-70"
             >
               <BookOpen size={24} color="#8b5cf6" />
               <Text className="text-slate-900 dark:text-white font-bold mt-2">Learning</Text>
@@ -390,7 +390,7 @@ export function ApprenticeHome() {
 
             <Pressable
               onPress={() => router.push('/calendar')}
-              className="flex-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 active:opacity-70"
+              className="flex-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-4 active:opacity-70"
             >
               <Calendar size={24} color="#3b82f6" />
               <Text className="text-slate-900 dark:text-white font-bold mt-2">Calendar</Text>
@@ -401,7 +401,7 @@ export function ApprenticeHome() {
 
             <Pressable
               onPress={() => router.push('/messages')}
-              className="flex-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 active:opacity-70"
+              className="flex-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-4 active:opacity-70"
             >
               <MessageSquare size={24} color="#10b981" />
               <Text className="text-slate-900 dark:text-white font-bold mt-2">Messages</Text>

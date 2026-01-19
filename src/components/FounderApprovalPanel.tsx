@@ -41,7 +41,7 @@ function RequestCard({ request, onApprove, onReject, onViewDetails }: RequestCar
   );
 
   return (
-    <View className="bg-white dark:bg-slate-800 rounded-xl p-4 mb-3 border border-gray-200 dark:border-slate-700">
+    <View className="bg-white dark:bg-slate-900 rounded-xl p-4 mb-3 border border-gray-200 dark:border-slate-700">
       <Pressable onPress={onViewDetails}>
         {/* Header */}
         <View className="flex-row items-start justify-between mb-3">
@@ -163,7 +163,7 @@ function RequestDetailModal({
                 <Text className="text-gray-500 dark:text-slate-400 text-xs font-bold mb-2">
                   REQUESTED BY
                 </Text>
-                <View className="flex-row items-center bg-gray-50 dark:bg-slate-800 rounded-xl p-3">
+                <View className="flex-row items-center bg-gray-50 dark:bg-slate-900 rounded-xl p-3">
                   <View className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 items-center justify-center mr-3">
                     <Text className="text-blue-600 dark:text-blue-400 font-bold">
                       {requester?.name.split(' ').map((n) => n[0]).join('')}
@@ -185,7 +185,7 @@ function RequestDetailModal({
                 <Text className="text-gray-500 dark:text-slate-400 text-xs font-bold mb-2">
                   REQUESTING ALLOCATION OF
                 </Text>
-                <View className="flex-row items-center bg-gray-50 dark:bg-slate-800 rounded-xl p-3">
+                <View className="flex-row items-center bg-gray-50 dark:bg-slate-900 rounded-xl p-3">
                   <View className="w-10 h-10 rounded-full bg-emerald-100 dark:bg-emerald-900/30 items-center justify-center mr-3">
                     <Text className="text-emerald-600 dark:text-emerald-400 font-bold">
                       {apprentice?.name.split(' ').map((n) => n[0]).join('')}
@@ -207,7 +207,7 @@ function RequestDetailModal({
                 <Text className="text-gray-500 dark:text-slate-400 text-xs font-bold mb-2">
                   ALLOCATION DETAILS
                 </Text>
-                <View className="bg-gray-50 dark:bg-slate-800 rounded-xl p-4">
+                <View className="bg-gray-50 dark:bg-slate-900 rounded-xl p-4">
                   <View className="flex-row justify-between mb-2">
                     <Text className="text-gray-600 dark:text-slate-400">Time Units</Text>
                     <Text className="text-gray-900 dark:text-white font-medium">
@@ -238,7 +238,7 @@ function RequestDetailModal({
                 <Text className="text-gray-500 dark:text-slate-400 text-xs font-bold mb-2">
                   JUSTIFICATION
                 </Text>
-                <View className="bg-gray-50 dark:bg-slate-800 rounded-xl p-4">
+                <View className="bg-gray-50 dark:bg-slate-900 rounded-xl p-4">
                   <Text className="text-gray-700 dark:text-slate-300">
                     {request.justification}
                   </Text>
@@ -258,7 +258,7 @@ function RequestDetailModal({
                   multiline
                   numberOfLines={3}
                   textAlignVertical="top"
-                  className="bg-gray-100 dark:bg-slate-800 rounded-xl px-4 py-3 text-gray-900 dark:text-white min-h-[80px]"
+                  className="bg-gray-100 dark:bg-slate-900 rounded-xl px-4 py-3 text-gray-900 dark:text-white min-h-[80px]"
                 />
               </View>
 
@@ -331,7 +331,7 @@ function DelegationSettingsModal({ visible, onClose }: DelegationSettingsModalPr
               </Text>
 
               {/* Direct Report Delegation */}
-              <View className="flex-row items-center justify-between py-4 border-b border-gray-100 dark:border-slate-800">
+              <View className="flex-row items-center justify-between py-4 border-b border-gray-100 dark:border-slate-700">
                 <View className="flex-1 mr-4">
                   <Text className="text-gray-900 dark:text-white font-medium">
                     Direct Report Delegation
@@ -349,7 +349,7 @@ function DelegationSettingsModal({ visible, onClose }: DelegationSettingsModalPr
               </View>
 
               {/* Full Delegation */}
-              <View className="flex-row items-center justify-between py-4 border-b border-gray-100 dark:border-slate-800">
+              <View className="flex-row items-center justify-between py-4 border-b border-gray-100 dark:border-slate-700">
                 <View className="flex-1 mr-4">
                   <Text className="text-gray-900 dark:text-white font-medium">
                     Full Delegation
@@ -378,7 +378,7 @@ function DelegationSettingsModal({ visible, onClose }: DelegationSettingsModalPr
 
               <Pressable
                 onPress={onClose}
-                className="bg-gray-100 dark:bg-slate-800 py-4 rounded-xl mt-6 items-center"
+                className="bg-gray-100 dark:bg-slate-900 py-4 rounded-xl mt-6 items-center"
               >
                 <Text className="text-gray-700 dark:text-slate-300 font-medium">Done</Text>
               </Pressable>
@@ -465,7 +465,7 @@ export function FounderApprovalPanel() {
       {/* Requests */}
       <View className="px-4">
         {pendingRequests.length === 0 ? (
-          <View className="bg-gray-50 dark:bg-slate-800 rounded-xl p-6 items-center">
+          <View className="bg-gray-50 dark:bg-slate-900 rounded-xl p-6 items-center">
             <Check size={32} color="#10b981" />
             <Text className="text-gray-600 dark:text-slate-400 mt-2 text-center">
               No pending requests

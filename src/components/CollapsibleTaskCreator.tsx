@@ -119,7 +119,7 @@ export function CollapsibleTaskCreator({
         </View>
 
         {/* Expand/Collapse Indicator */}
-        <View className="w-8 h-8 bg-slate-100 dark:bg-slate-800 rounded-full items-center justify-center">
+        <View className="w-8 h-8 bg-slate-100 dark:bg-slate-900 rounded-full items-center justify-center">
           {isExpanded ? (
             <ChevronDown size={18} color="#64748b" />
           ) : (
@@ -173,7 +173,7 @@ export function CollapsibleTaskCreator({
               </View>
 
               {/* Info Box */}
-              <View className="flex-row items-start gap-2 bg-slate-50 dark:bg-slate-800 rounded-xl p-3">
+              <View className="flex-row items-start gap-2 bg-slate-50 dark:bg-slate-900 rounded-xl p-3">
                 <Lightbulb size={16} color="#64748b" />
                 <View className="flex-1">
                   <Text className="text-slate-600 dark:text-slate-400 text-xs leading-relaxed">
@@ -217,7 +217,7 @@ export function CollapsibleTaskCreator({
                 placeholderTextColor="#94a3b8"
                 multiline
                 numberOfLines={6}
-                className="bg-slate-100 dark:bg-slate-800 rounded-xl px-4 py-3 text-slate-900 dark:text-white mb-3 min-h-[150px]"
+                className="bg-slate-100 dark:bg-slate-900 rounded-xl px-4 py-3 text-slate-900 dark:text-white mb-3 min-h-[150px]"
                 style={{ textAlignVertical: 'top' }}
               />
 

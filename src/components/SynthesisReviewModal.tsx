@@ -40,7 +40,7 @@ export function SynthesisReviewModal({
         <Pressable onPress={(e) => e.stopPropagation()} style={{ maxHeight: '90%' }}>
           <View className="bg-white dark:bg-slate-900 rounded-t-3xl">
             {/* Header */}
-            <View className="flex-row items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-slate-800">
+            <View className="flex-row items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-slate-700">
               <View>
                 <Text className="text-slate-900 dark:text-white font-bold text-xl">
                   Strategic Plan
@@ -83,7 +83,7 @@ export function SynthesisReviewModal({
                   {objectives.map((objective, objIndex) => (
                     <View
                       key={objIndex}
-                      className="bg-slate-50 dark:bg-slate-800 rounded-xl p-4 border-l-4 border-purple-500"
+                      className="bg-slate-50 dark:bg-slate-900 rounded-xl p-4 border-l-4 border-purple-500"
                     >
                       {/* Objective Header */}
                       <View className="flex-row items-start gap-3 mb-3">
@@ -145,7 +145,7 @@ export function SynthesisReviewModal({
 
             {/* Footer Actions */}
             {objectives.length > 0 && (
-              <View className="px-6 py-4 border-t border-slate-200 dark:border-slate-800">
+              <View className="px-6 py-4 border-t border-slate-200 dark:border-slate-700">
                 <View className="flex-row gap-3">
                   <Pressable
                     onPress={onClose}

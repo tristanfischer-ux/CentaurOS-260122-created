@@ -463,7 +463,7 @@ export default function TasksScreen() {
                   key={status}
                   onPress={() => setStatusFilter(status)}
                   className={`px-3 py-1.5 rounded-full flex-row items-center gap-1 ${
-                    statusFilter === status ? 'bg-slate-900 dark:bg-white' : 'bg-slate-100 dark:bg-slate-800'
+                    statusFilter === status ? 'bg-slate-900 dark:bg-white' : 'bg-slate-100 dark:bg-slate-900'
                   }`}
                 >
                   <Text
@@ -537,7 +537,7 @@ export default function TasksScreen() {
                 <Pressable
                   key={draft.id}
                   onPress={() => toggleDraftSelection(draft.id)}
-                  className={`bg-white dark:bg-slate-800 rounded-xl p-4 mb-2 border-l-4 ${
+                  className={`bg-white dark:bg-slate-900 rounded-xl p-4 mb-2 border-l-4 ${
                     selectedDraftIds.has(draft.id) ? 'border-emerald-500' : 'border-amber-500'
                   }`}
                 >
@@ -783,7 +783,7 @@ export default function TasksScreen() {
               </View>
 
               <ScrollView className="max-h-60 mb-4">
-                <View className="bg-slate-50 dark:bg-slate-800 rounded-xl p-4">
+                <View className="bg-slate-50 dark:bg-slate-900/50 rounded-xl p-4">
                   <Text className="text-slate-700 dark:text-slate-300 text-base leading-6">
                     {voiceTranscript}
                   </Text>

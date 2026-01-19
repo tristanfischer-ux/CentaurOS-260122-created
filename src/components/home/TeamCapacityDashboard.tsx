@@ -327,7 +327,7 @@ export function TeamCapacityDashboard() {
       </View>
 
       {/* Main Dashboard Card */}
-      <View className="mx-5 bg-white dark:bg-slate-800 rounded-2xl p-4 border border-slate-200 dark:border-slate-700 mb-3">
+      <View className="mx-5 bg-white dark:bg-slate-900 rounded-2xl p-4 border border-slate-200 dark:border-slate-700 mb-3">
         <View className="flex-row items-center justify-between">
           {/* Gauge */}
           <UtilizationGauge percentage={capacityData.overallUtilization} />
@@ -404,7 +404,7 @@ export function TeamCapacityDashboard() {
             {capacityData.mostAvailable.map((member) => (
               <View
                 key={member.id}
-                className="bg-white dark:bg-slate-800 rounded-lg px-2 py-1 flex-row items-center gap-1"
+                className="bg-white dark:bg-slate-900 rounded-lg px-2 py-1 flex-row items-center gap-1"
               >
                 <User size={10} color="#10b981" />
                 <Text className="text-slate-700 dark:text-slate-300 text-xs">

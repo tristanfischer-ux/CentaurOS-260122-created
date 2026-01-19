@@ -118,7 +118,7 @@ export function SendInvitationModal({ visible, onClose, candidate }: SendInvitat
         <View className="flex-1 bg-black/50 justify-end">
           <View className="bg-white dark:bg-slate-950 rounded-t-3xl max-h-[90%]">
             {/* Header */}
-            <View className="flex-row items-center justify-between p-5 border-b border-gray-200 dark:border-slate-800">
+            <View className="flex-row items-center justify-between p-5 border-b border-gray-200 dark:border-slate-700">
               <View className="flex-1">
                 <Text className="text-gray-900 dark:text-white font-bold text-xl">
                   {invitationSent ? 'Invitation Sent!' : 'Send Invitation'}
@@ -131,7 +131,7 @@ export function SendInvitationModal({ visible, onClose, candidate }: SendInvitat
               </View>
               <Pressable
                 onPress={handleClose}
-                className="w-9 h-9 bg-gray-100 dark:bg-slate-800 rounded-full items-center justify-center active:opacity-70"
+                className="w-9 h-9 bg-gray-100 dark:bg-slate-900 rounded-full items-center justify-center active:opacity-70"
               >
                 <X size={20} color="#64748b" />
               </Pressable>
@@ -189,7 +189,7 @@ export function SendInvitationModal({ visible, onClose, candidate }: SendInvitat
                 <View className="flex-row gap-3 pt-4">
                   <Pressable
                     onPress={handleSendAnother}
-                    className="flex-1 bg-gray-200 dark:bg-slate-800 rounded-xl py-4 active:opacity-70"
+                    className="flex-1 bg-gray-200 dark:bg-slate-900 rounded-xl py-4 active:opacity-70"
                   >
                     <Text className="text-gray-900 dark:text-white font-semibold text-center">
                       Send Another
@@ -277,7 +277,7 @@ export function SendInvitationModal({ visible, onClose, candidate }: SendInvitat
 
             {/* Footer with Send Button (only show if not sent) */}
             {!invitationSent && (
-              <View className="p-5 border-t border-gray-200 dark:border-slate-800">
+              <View className="p-5 border-t border-gray-200 dark:border-slate-700">
                 <Pressable
                   onPress={handleSend}
                   disabled={isLoading}

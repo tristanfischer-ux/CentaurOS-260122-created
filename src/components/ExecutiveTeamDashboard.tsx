@@ -75,7 +75,7 @@ function TeamMemberCard({
       .toUpperCase();
 
   return (
-    <View className="bg-white dark:bg-slate-800 rounded-xl p-4 mb-3 border border-gray-200 dark:border-slate-700">
+    <View className="bg-white dark:bg-slate-900 rounded-xl p-4 mb-3 border border-gray-200 dark:border-slate-700">
       <View className="flex-row items-center justify-between">
         {/* Avatar & Info */}
         <View className="flex-row items-center flex-1">
@@ -245,7 +245,7 @@ function AllocationRequestModal({
 
             <ScrollView className="p-4">
               {/* Apprentice Info */}
-              <View className="bg-gray-50 dark:bg-slate-800 rounded-xl p-4 mb-4">
+              <View className="bg-gray-50 dark:bg-slate-900 rounded-xl p-4 mb-4">
                 <Text className="text-gray-500 dark:text-slate-400 text-xs font-bold mb-2">
                   REQUESTING ALLOCATION FROM
                 </Text>
@@ -304,7 +304,7 @@ function AllocationRequestModal({
                       className={`flex-1 py-3 rounded-xl items-center ${
                         timeUnits === tu.toString()
                           ? 'bg-blue-500'
-                          : 'bg-gray-100 dark:bg-slate-800'
+                          : 'bg-gray-100 dark:bg-slate-900'
                       }`}
                     >
                       <Text
@@ -332,7 +332,7 @@ function AllocationRequestModal({
                   placeholder="e.g., 4"
                   placeholderTextColor="#94a3b8"
                   keyboardType="number-pad"
-                  className="bg-gray-100 dark:bg-slate-800 rounded-xl px-4 py-3 text-gray-900 dark:text-white"
+                  className="bg-gray-100 dark:bg-slate-900 rounded-xl px-4 py-3 text-gray-900 dark:text-white"
                 />
               </View>
 
@@ -346,7 +346,7 @@ function AllocationRequestModal({
                   onChangeText={setTaskTitle}
                   placeholder="e.g., Sales Demo Automation"
                   placeholderTextColor="#94a3b8"
-                  className="bg-gray-100 dark:bg-slate-800 rounded-xl px-4 py-3 text-gray-900 dark:text-white"
+                  className="bg-gray-100 dark:bg-slate-900 rounded-xl px-4 py-3 text-gray-900 dark:text-white"
                 />
               </View>
 
@@ -363,7 +363,7 @@ function AllocationRequestModal({
                   multiline
                   numberOfLines={4}
                   textAlignVertical="top"
-                  className="bg-gray-100 dark:bg-slate-800 rounded-xl px-4 py-3 text-gray-900 dark:text-white min-h-[100px]"
+                  className="bg-gray-100 dark:bg-slate-900 rounded-xl px-4 py-3 text-gray-900 dark:text-white min-h-[100px]"
                 />
               </View>
 

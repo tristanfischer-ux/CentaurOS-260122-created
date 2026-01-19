@@ -37,7 +37,7 @@ export function SettingsGearButton({
     return (
       <Pressable
         onPress={handlePress}
-        className="bg-slate-100 dark:bg-slate-800 p-2.5 rounded-full active:opacity-70"
+        className="bg-slate-100 dark:bg-slate-900 p-2.5 rounded-full active:opacity-70"
       >
         <Settings size={size} color="#64748b" />
       </Pressable>

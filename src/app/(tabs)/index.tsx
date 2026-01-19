@@ -375,7 +375,7 @@ function FounderHome() {
             {/* Plan / Strategy - Coming Soon */}
             <Pressable
               onPress={() => Alert.alert('Coming Soon', 'Strategy & OKRs planning is coming soon!')}
-              className="flex-1 min-w-[45%] bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-3 flex-row items-center gap-2 active:opacity-70"
+              className="flex-1 min-w-[45%] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-3 flex-row items-center gap-2 active:opacity-70"
             >
               <View className="bg-indigo-100 dark:bg-indigo-900/30 p-2 rounded-lg">
                 <Target size={16} color="#6366f1" />
@@ -389,7 +389,7 @@ function FounderHome() {
             {/* Analytics - Coming Soon */}
             <Pressable
               onPress={() => Alert.alert('Coming Soon', 'Performance analytics are coming soon!')}
-              className="flex-1 min-w-[45%] bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-3 flex-row items-center gap-2 active:opacity-70"
+              className="flex-1 min-w-[45%] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-3 flex-row items-center gap-2 active:opacity-70"
             >
               <View className="bg-rose-100 dark:bg-rose-900/30 p-2 rounded-lg">
                 <BarChart3 size={16} color="#f43f5e" />
@@ -403,7 +403,7 @@ function FounderHome() {
             {/* Function Hub - Coming Soon */}
             <Pressable
               onPress={() => Alert.alert('Coming Soon', 'Functions business areas are coming soon!')}
-              className="flex-1 min-w-[45%] bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-3 flex-row items-center gap-2 active:opacity-70"
+              className="flex-1 min-w-[45%] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-3 flex-row items-center gap-2 active:opacity-70"
             >
               <View className="bg-purple-100 dark:bg-purple-900/30 p-2 rounded-lg">
                 <Briefcase size={16} color="#8b5cf6" />
@@ -417,7 +417,7 @@ function FounderHome() {
             {/* Startup Hub - Coming Soon */}
             <Pressable
               onPress={() => Alert.alert('Coming Soon', 'Startup launch tools are coming soon!')}
-              className="flex-1 min-w-[45%] bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-3 flex-row items-center gap-2 active:opacity-70"
+              className="flex-1 min-w-[45%] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-3 flex-row items-center gap-2 active:opacity-70"
             >
               <View className="bg-blue-100 dark:bg-blue-900/30 p-2 rounded-lg">
                 <Rocket size={16} color="#3b82f6" />

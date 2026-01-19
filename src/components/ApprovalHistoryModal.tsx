@@ -57,7 +57,7 @@ export function ApprovalHistoryModal({ visible, onClose, ownership }: ApprovalHi
       <View className="flex-1 bg-black/50 justify-end">
         <View className="bg-white dark:bg-slate-950 rounded-t-3xl max-h-[85%]">
           {/* Header */}
-          <View className="flex-row items-center justify-between p-5 border-b border-gray-200 dark:border-slate-800">
+          <View className="flex-row items-center justify-between p-5 border-b border-gray-200 dark:border-slate-700">
             <View className="flex-1">
               <Text className="text-gray-900 dark:text-white font-bold text-xl">
                 Resource Details
@@ -68,7 +68,7 @@ export function ApprovalHistoryModal({ visible, onClose, ownership }: ApprovalHi
             </View>
             <Pressable
               onPress={onClose}
-              className="w-9 h-9 bg-gray-100 dark:bg-slate-800 rounded-full items-center justify-center active:opacity-70"
+              className="w-9 h-9 bg-gray-100 dark:bg-slate-900 rounded-full items-center justify-center active:opacity-70"
             >
               <X size={20} color="#64748b" />
             </Pressable>
@@ -137,7 +137,7 @@ export function ApprovalHistoryModal({ visible, onClose, ownership }: ApprovalHi
                   </View>
                 </View>
 
-                <View className="mt-3 pt-3 border-t border-gray-200 dark:border-slate-800">
+                <View className="mt-3 pt-3 border-t border-gray-200 dark:border-slate-700">
                   <View className="flex-row items-center">
                     <Calendar size={14} color="#9ca3af" />
                     <Text className="text-gray-500 dark:text-slate-400 text-xs ml-2">

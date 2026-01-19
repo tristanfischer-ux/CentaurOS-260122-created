@@ -60,7 +60,7 @@ export function RoleIndicator({ compact = false }: RoleIndicatorProps) {
   }
 
   return (
-    <View className="flex-row items-center gap-1.5 bg-slate-100 dark:bg-slate-800 px-2.5 py-1.5 rounded-full">
+    <View className="flex-row items-center gap-1.5 bg-slate-100 dark:bg-slate-900 px-2.5 py-1.5 rounded-full">
       <View
         className="w-2 h-2 rounded-full"
         style={{ backgroundColor: roleConfig.color }}

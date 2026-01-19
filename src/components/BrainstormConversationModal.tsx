@@ -123,7 +123,7 @@ export function BrainstormConversationModal({
                 className={`max-w-[80%] rounded-2xl px-4 py-3 ${
                   message.role === 'user'
                     ? 'bg-purple-500'
-                    : 'bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700'
+                    : 'bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700'
                 }`}
               >
                 {message.role === 'assistant' && (
@@ -150,7 +150,7 @@ export function BrainstormConversationModal({
           {/* Loading indicator */}
           {isLoading && (
             <View className="items-start mb-3">
-              <View className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl px-4 py-3 flex-row items-center gap-2">
+              <View className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl px-4 py-3 flex-row items-center gap-2">
                 <Loader size={16} color="#8b5cf6" />
                 <Text className="text-slate-600 dark:text-slate-400 text-sm">
                   Thinking...
@@ -161,7 +161,7 @@ export function BrainstormConversationModal({
         </ScrollView>
 
         {/* Input Area */}
-        <View className="bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 px-4 py-3">
+        <View className="bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-700 px-4 py-3">
           {/* Synthesize Button */}
           {messages.length >= 4 && !isLoading && (
             <Pressable
@@ -184,7 +184,7 @@ export function BrainstormConversationModal({
               placeholderTextColor="#94a3b8"
               multiline
               maxLength={500}
-              className="flex-1 bg-slate-100 dark:bg-slate-800 rounded-2xl px-4 py-3 text-slate-900 dark:text-white max-h-[100px]"
+              className="flex-1 bg-slate-100 dark:bg-slate-900 rounded-2xl px-4 py-3 text-slate-900 dark:text-white max-h-[100px]"
               editable={!isLoading}
             />
             <Pressable

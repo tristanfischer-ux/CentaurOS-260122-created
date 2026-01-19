@@ -124,7 +124,7 @@ export function CompactTaskCard({
   return (
     <Pressable
       onPress={handleCardPress}
-      className={`bg-white dark:bg-slate-800 rounded-xl p-3 mb-2 border-2 ${
+      className={`bg-white dark:bg-slate-900 rounded-xl p-3 mb-2 border-2 ${
         isSelected ? 'border-blue-500' : isExpanded ? 'border-blue-300 dark:border-blue-700' : 'border-gray-200 dark:border-slate-700'
       } active:opacity-90`}
     >
@@ -184,7 +184,7 @@ export function CompactTaskCard({
                 {assignedMembers.slice(0, 3).map((member, idx) => (
                   <View
                     key={member.id}
-                    className="w-5 h-5 rounded-full items-center justify-center border border-white dark:border-slate-800"
+                    className="w-5 h-5 rounded-full items-center justify-center border border-white dark:border-slate-700"
                     style={{
                       backgroundColor: ROLE_COLORS[member.role] || '#64748b',
                       marginLeft: idx > 0 ? -4 : 0,
@@ -198,7 +198,7 @@ export function CompactTaskCard({
                 ))}
                 {assignedMembers.length > 3 && (
                   <View
-                    className="w-5 h-5 rounded-full items-center justify-center bg-gray-400 border border-white dark:border-slate-800"
+                    className="w-5 h-5 rounded-full items-center justify-center bg-gray-400 border border-white dark:border-slate-700"
                     style={{ marginLeft: -4, zIndex: 0 }}
                   >
                     <Text className="text-white font-bold text-[7px]">
@@ -255,7 +255,7 @@ export function CompactTaskCard({
       {isExpanded && (
         <View className="mt-3 pt-3 border-t border-gray-200 dark:border-slate-700">
           {/* Importance Score Breakdown */}
-          <View className="mb-3 bg-slate-50 dark:bg-slate-800 rounded-lg p-3">
+          <View className="mb-3 bg-slate-50 dark:bg-slate-900/50 rounded-lg p-3">
             <View className="flex-row items-center justify-between mb-2">
               <View className="flex-row items-center gap-2">
                 <Zap size={14} color={importance.color} fill={importance.color} />
@@ -393,7 +393,7 @@ export function CompactTaskCard({
                   return (
                     <View
                       key={member.id}
-                      className="bg-gray-50 dark:bg-slate-900 rounded-lg p-2"
+                      className="bg-gray-50 dark:bg-slate-900/70 rounded-lg p-2"
                     >
                       {/* Member header row */}
                       <View className="flex-row items-center gap-2 mb-2">

@@ -37,7 +37,7 @@ export function IntegrationCard({ integration, onPress }: IntegrationCardProps) 
 
     if (integration.status === 'coming-soon') {
       return (
-        <View className="bg-gray-100 dark:bg-slate-800 px-2 py-1 rounded">
+        <View className="bg-gray-100 dark:bg-slate-900 px-2 py-1 rounded">
           <Text className="text-gray-600 dark:text-slate-400 text-xs font-semibold">
             Coming Soon
           </Text>
@@ -68,7 +68,7 @@ export function IntegrationCard({ integration, onPress }: IntegrationCardProps) 
     <HapticPressable
       onPress={onPress}
       disabled={integration.status === 'coming-soon'}
-      className={`bg-white dark:bg-slate-900 rounded-2xl p-5 border border-gray-300 dark:border-slate-800 mb-3 ${
+      className={`bg-white dark:bg-slate-900 rounded-2xl p-5 border border-gray-300 dark:border-slate-700 mb-3 ${
         integration.status === 'coming-soon' ? 'opacity-60' : 'active:opacity-70'
       }`}
     >
@@ -125,7 +125,7 @@ export function IntegrationCard({ integration, onPress }: IntegrationCardProps) 
 
       {/* Action Button */}
       {integration.status === 'available' && (
-        <View className="flex-row items-center justify-between pt-3 border-t border-gray-200 dark:border-slate-800">
+        <View className="flex-row items-center justify-between pt-3 border-t border-gray-200 dark:border-slate-700">
           <HapticPressable
             onPress={(e) => {
               e.stopPropagation();

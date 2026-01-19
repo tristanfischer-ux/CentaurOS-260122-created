@@ -105,7 +105,7 @@ export function PersonCard({ member, roleColor, onOpenModal }: PersonCardProps) 
   return (
     <Pressable
       onPress={handlePress}
-      className="bg-white dark:bg-slate-800 rounded-2xl mb-3 overflow-hidden active:opacity-90"
+      className="bg-white dark:bg-slate-900 rounded-2xl mb-3 overflow-hidden active:opacity-90"
       style={{
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },

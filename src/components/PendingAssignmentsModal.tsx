@@ -177,7 +177,7 @@ export function PendingAssignmentsModal({ visible, onClose, memberId }: PendingA
                     </Text>
                   )}
                   {selectedIds.size !== pendingAssignments.length && (
-                    <Pressable onPress={selectAll} className="px-3 py-1 bg-slate-100 dark:bg-slate-800 rounded-full">
+                    <Pressable onPress={selectAll} className="px-3 py-1 bg-slate-100 dark:bg-slate-900 rounded-full">
                       <Text className="text-slate-700 dark:text-slate-300 text-xs font-medium">Select All</Text>
                     </Pressable>
                   )}
@@ -220,7 +220,7 @@ export function PendingAssignmentsModal({ visible, onClose, memberId }: PendingA
                   {pendingAssignments.map((assignment) => (
                     <View
                       key={assignment.id}
-                      className="bg-slate-50 dark:bg-slate-800 rounded-xl p-4 border-l-4 border-amber-500"
+                      className="bg-slate-50 dark:bg-slate-900 rounded-xl p-4 border-l-4 border-amber-500"
                     >
                       {/* Selection Checkbox */}
                       <Pressable
@@ -325,7 +325,7 @@ export function PendingAssignmentsModal({ visible, onClose, memberId }: PendingA
               onChangeText={setRejectionReason}
               placeholder="e.g., No capacity this week, Wrong skillset, etc."
               placeholderTextColor="#94a3b8"
-              className="bg-slate-100 dark:bg-slate-800 rounded-lg px-4 py-3 text-slate-900 dark:text-white mb-4"
+              className="bg-slate-100 dark:bg-slate-900 rounded-lg px-4 py-3 text-slate-900 dark:text-white mb-4"
             />
 
             <Text className="text-slate-900 dark:text-white font-medium mb-2">Message to Task Creator (Optional)</Text>
@@ -336,7 +336,7 @@ export function PendingAssignmentsModal({ visible, onClose, memberId }: PendingA
               placeholderTextColor="#94a3b8"
               multiline
               numberOfLines={3}
-              className="bg-slate-100 dark:bg-slate-800 rounded-lg px-4 py-3 text-slate-900 dark:text-white mb-4"
+              className="bg-slate-100 dark:bg-slate-900 rounded-lg px-4 py-3 text-slate-900 dark:text-white mb-4"
               style={{ textAlignVertical: 'top' }}
             />
 
