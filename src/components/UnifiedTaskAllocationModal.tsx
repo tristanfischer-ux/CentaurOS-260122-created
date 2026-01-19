@@ -549,7 +549,8 @@ export function UnifiedTaskAllocationModal({ visible, onClose, workPlan }: Props
             </View>
           </View>
 
-          {/* Visual squares showing ALL capacity with allocation */}
+          {/* Visual squares showing ALL capacity with allocation - ALL ON ONE ROW */}
+          {/* First 10 = normal (blue), next 5 = overtime (amber) */}
           <View className="mb-2">
             <View className="flex-row items-center justify-between mb-1.5">
               <Text className="text-gray-600 dark:text-slate-400 text-xs font-medium">
@@ -564,65 +565,46 @@ export function UnifiedTaskAllocationModal({ visible, onClose, workPlan }: Props
               )}
             </View>
 
-            {/* Normal capacity squares (first row) */}
-            <View className="flex-row gap-1 mb-1">
-              {Array.from({ length: normalCapacity }).map((_, idx) => {
+            {/* All capacity squares on ONE row - 10 normal + 5 overtime = 15 total */}
+            <View className="flex-row gap-1 flex-wrap">
+              {Array.from({ length: maxCapacity }).map((_, idx) => {
                 // Calculate cumulative allocations
                 const totalAllocated = currentAllocation + lockedByOthers;
                 const isAllocatedHere = idx < currentAllocation;
                 const isLockedByOthers = !isAllocatedHere && idx < totalAllocated;
                 const isFree = idx >= totalAllocated;
+                const isOvertimeSquare = idx >= normalCapacity; // Squares beyond normal capacity are overtime
+
+                // Determine the color based on allocation state and whether it's overtime
+                let squareStyle = '';
+                if (isAllocatedHere) {
+                  if (isMismatched) {
+                    squareStyle = 'bg-red-500 border-red-600'; // Skill mismatch
+                  } else if (isOvertimeSquare) {
+                    squareStyle = 'bg-orange-500 border-orange-600'; // Overtime allocation
+                  } else {
+                    squareStyle = 'bg-blue-500 border-blue-600'; // Normal allocation
+                  }
+                } else if (isLockedByOthers) {
+                  squareStyle = 'bg-yellow-500 border-yellow-600'; // LOCKED by other projects
+                } else if (isFree) {
+                  if (isOvertimeSquare) {
+                    squareStyle = 'bg-orange-100 dark:bg-orange-900/20 border-orange-300 dark:border-orange-600'; // Free overtime
+                  } else {
+                    squareStyle = 'bg-emerald-100 dark:bg-emerald-900/20 border-emerald-300 dark:border-emerald-600'; // Free normal
+                  }
+                } else {
+                  squareStyle = 'bg-gray-100 dark:bg-slate-800 border-gray-300 dark:border-slate-600';
+                }
 
                 return (
                   <View
                     key={idx}
-                    className={`w-7 h-7 rounded border ${
-                      isAllocatedHere
-                        ? isMismatched
-                          ? 'bg-red-500 border-red-600' // Skill mismatch
-                          : 'bg-blue-500 border-blue-600' // Normal allocation here
-                        : isLockedByOthers
-                          ? 'bg-yellow-500 border-yellow-600' // LOCKED by other projects
-                          : isFree
-                            ? 'bg-emerald-100 dark:bg-emerald-900/20 border-emerald-300 dark:border-emerald-600' // Free normal
-                            : 'bg-gray-100 dark:bg-slate-800 border-gray-300 dark:border-slate-600'
-                    }`}
+                    className={`w-7 h-7 rounded border ${squareStyle}`}
                   />
                 );
               })}
             </View>
-
-            {/* Overtime capacity squares (second row) - only if there's overtime capacity */}
-            {maxCapacity > normalCapacity && (
-              <View className="flex-row gap-1">
-                {Array.from({ length: maxCapacity - normalCapacity }).map((_, idx) => {
-                  const absoluteIdx = normalCapacity + idx;
-
-                  // Calculate cumulative allocations
-                  const totalAllocated = currentAllocation + lockedByOthers;
-                  const isAllocatedHere = absoluteIdx < currentAllocation;
-                  const isLockedByOthers = !isAllocatedHere && absoluteIdx < totalAllocated;
-                  const isFree = absoluteIdx >= totalAllocated;
-
-                  return (
-                    <View
-                      key={absoluteIdx}
-                      className={`w-7 h-7 rounded border ${
-                        isAllocatedHere
-                          ? isMismatched
-                            ? 'bg-red-500 border-red-600' // Skill mismatch
-                            : 'bg-orange-500 border-orange-600' // Overtime allocation
-                          : isLockedByOthers
-                            ? 'bg-yellow-500 border-yellow-600' // LOCKED by other projects
-                            : isFree
-                              ? 'bg-orange-100 dark:bg-orange-900/20 border-orange-300 dark:border-orange-600' // Free overtime
-                              : 'bg-gray-100 dark:bg-slate-800 border-gray-300 dark:border-slate-600'
-                      }`}
-                    />
-                  );
-                })}
-              </View>
-            )}
           </View>
 
           {lockedByOthers > 0 && (
