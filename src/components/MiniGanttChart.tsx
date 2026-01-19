@@ -2,7 +2,8 @@ import { View, Text, ScrollView, Pressable, Dimensions, Modal } from 'react-nati
 import { useMemo, useRef, useEffect, useState } from 'react';
 import { type WorkPlan } from '@/lib/state/work-plan-store';
 import { type OrganizationMember } from '@/lib/organization-seed';
-import { X, Calendar, Clock, Users, DollarSign, AlertCircle } from 'lucide-react-native';
+import { X, Calendar, Clock, Users, DollarSign, AlertCircle, AlertTriangle } from 'lucide-react-native';
+import { getDelayInfo, formatDelay, getDelaySeverityColor } from '@/lib/task-delay-tracker';
 
 interface MiniGanttChartProps {
   workPlans: WorkPlan[];
@@ -156,6 +157,19 @@ export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress
       // Calculate width (how many weeks this task spans)
       const widthInWeeks = Math.max(1, endOffset - startOffset + 1);
 
+      // Get delay information
+      const delayInfo = getDelayInfo(task);
+
+      // Calculate original end position if there's a delay
+      let originalEndOffset = endOffset;
+      let extensionWidthInWeeks = 0;
+
+      if (delayInfo.isDelayed && delayInfo.originalEndDate) {
+        const originalEndWeek = getWeekNumber(delayInfo.originalEndDate);
+        originalEndOffset = originalEndWeek - currentWeek;
+        extensionWidthInWeeks = endOffset - originalEndOffset;
+      }
+
       return {
         task,
         startOffset,
@@ -163,9 +177,12 @@ export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress
         widthInWeeks,
         startDate,
         dueDate,
+        delayInfo,
+        originalEndOffset,
+        extensionWidthInWeeks,
       };
     });
-  }, [filteredTasks, currentWeek]);
+  }, [filteredTasks, currentWeek, today]);
 
   const screenWidth = Dimensions.get('window').width;
   const WEEK_WIDTH = screenWidth / 3; // Divide screen width by 3 weeks to fill entire width
@@ -335,10 +352,21 @@ export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress
               {taskBars.map((bar, idx) => {
                 const colors = STATUS_COLORS[bar.task.status] || STATUS_COLORS['not-started'];
                 const leftPosition = WEEK_WIDTH * (bar.startOffset + 4); // +4 to account for 4 weeks before current week
-                const barWidth = WEEK_WIDTH * bar.widthInWeeks - 8; // -8 for padding
                 const assignedMembers = getAssignedMembers(bar.task);
                 const AVATAR_WIDTH = 32; // Width for avatar section
                 const taskCost = calculateTaskCost(bar.task);
+
+                // Calculate bar widths for original vs extension
+                const hasExtension = bar.delayInfo.isDelayed && bar.extensionWidthInWeeks > 0;
+                const originalWidthInWeeks = hasExtension
+                  ? bar.widthInWeeks - bar.extensionWidthInWeeks
+                  : bar.widthInWeeks;
+                const originalBarWidth = Math.max(60, WEEK_WIDTH * originalWidthInWeeks - 8);
+                const extensionBarWidth = hasExtension ? WEEK_WIDTH * bar.extensionWidthInWeeks : 0;
+
+                // Get delay severity colors
+                const delaySeverityColors = getDelaySeverityColor(bar.delayInfo.severity);
+                const delayBadgeText = formatDelay(bar.delayInfo);
 
                 return (
                   <View
@@ -363,14 +391,14 @@ export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress
                               </Text>
                             </View>
                           )}
-                          {assignedMembers.slice(0, 2).map((member, idx) => (
+                          {assignedMembers.slice(0, 2).map((member, memberIdx) => (
                             <View
                               key={member.id}
                               className="w-6 h-6 rounded-full items-center justify-center"
                               style={{
                                 backgroundColor: ROLE_COLORS[member.role] + '20',
-                                marginRight: idx < assignedMembers.slice(0, 2).length - 1 ? -6 : 0,
-                                zIndex: idx + 1
+                                marginRight: memberIdx < assignedMembers.slice(0, 2).length - 1 ? -6 : 0,
+                                zIndex: memberIdx + 1
                               }}
                             >
                               <Text className="font-bold text-[8px]" style={{ color: ROLE_COLORS[member.role] }}>
@@ -382,47 +410,121 @@ export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress
                       ) : null}
                     </View>
 
-                    {/* Task Bar */}
-                    <Pressable
-                      onPress={() => {
-                        console.log('[MiniGanttChart] Task pressed:', bar.task.title);
-                        onTaskPress?.(bar.task.id);
-                      }}
-                      hitSlop={{ top: 5, bottom: 5, left: 5, right: 5 }}
-                      style={{
-                        width: Math.max(60, barWidth),
-                        height: TASK_HEIGHT,
-                      }}
-                    >
-                      <View
-                        className={`flex-row items-center px-2 py-1 rounded-lg border-2 ${
-                          selectedTaskId === bar.task.id
-                            ? 'border-blue-500 dark:border-blue-400'
-                            : colors.border
-                        } ${colors.bg}`}
-                        style={{ height: TASK_HEIGHT }}
-                        pointerEvents="none"
+                    {/* Task Bar Container - includes original bar + extension */}
+                    <View className="flex-row items-center">
+                      {/* Original Timeline Bar */}
+                      <Pressable
+                        onPress={() => {
+                          console.log('[MiniGanttChart] Task pressed:', bar.task.title);
+                          onTaskPress?.(bar.task.id);
+                        }}
+                        hitSlop={{ top: 5, bottom: 5, left: 5, right: 5 }}
+                        style={{
+                          width: originalBarWidth,
+                          height: TASK_HEIGHT,
+                        }}
                       >
-                        <View className="flex-1">
-                          <Text
-                            className={`text-xs font-semibold ${colors.text}`}
-                            numberOfLines={1}
-                          >
-                            {bar.task.title}
-                          </Text>
-                          <Text
-                            className={`text-[10px] ${colors.text} opacity-80`}
-                            numberOfLines={1}
-                          >
-                            {bar.task.function} • {bar.task.progress}%
-                          </Text>
+                        <View
+                          className={`flex-row items-center px-2 py-1 border-2 ${
+                            selectedTaskId === bar.task.id
+                              ? 'border-blue-500 dark:border-blue-400'
+                              : colors.border
+                          } ${colors.bg}`}
+                          style={{
+                            height: TASK_HEIGHT,
+                            borderTopLeftRadius: 8,
+                            borderBottomLeftRadius: 8,
+                            // Only round right side if no extension
+                            borderTopRightRadius: hasExtension ? 0 : 8,
+                            borderBottomRightRadius: hasExtension ? 0 : 8,
+                            borderRightWidth: hasExtension ? 0 : 2,
+                          }}
+                          pointerEvents="none"
+                        >
+                          <View className="flex-1">
+                            <View className="flex-row items-center gap-1">
+                              {/* Warning icon for delayed tasks */}
+                              {bar.delayInfo.isDelayed && (
+                                <AlertTriangle size={10} color={delaySeverityColors.bar} />
+                              )}
+                              <Text
+                                className={`text-xs font-semibold ${colors.text}`}
+                                numberOfLines={1}
+                                style={{ flex: 1 }}
+                              >
+                                {bar.task.title}
+                              </Text>
+                            </View>
+                            <Text
+                              className={`text-[10px] ${colors.text} opacity-80`}
+                              numberOfLines={1}
+                            >
+                              {bar.task.function} • {bar.task.progress}%
+                            </Text>
+                          </View>
+                          {/* Progress indicator */}
+                          {bar.task.status === 'in-progress' && !hasExtension && (
+                            <View className="ml-1 w-1.5 h-1.5 rounded-full bg-white" />
+                          )}
                         </View>
-                        {/* Progress indicator */}
-                        {bar.task.status === 'in-progress' && (
-                          <View className="ml-1 w-1.5 h-1.5 rounded-full bg-white" />
-                        )}
-                      </View>
-                    </Pressable>
+                      </Pressable>
+
+                      {/* Extension Bar (for delayed tasks) */}
+                      {hasExtension && (
+                        <View
+                          style={{
+                            width: extensionBarWidth,
+                            height: TASK_HEIGHT,
+                            backgroundColor: delaySeverityColors.bar,
+                            borderTopRightRadius: 8,
+                            borderBottomRightRadius: 8,
+                            borderWidth: 2,
+                            borderLeftWidth: 0,
+                            borderColor: delaySeverityColors.bar,
+                            justifyContent: 'center',
+                            paddingHorizontal: 6,
+                          }}
+                        >
+                          {/* Diagonal stripes pattern overlay */}
+                          <View
+                            style={{
+                              position: 'absolute',
+                              top: 0,
+                              left: 0,
+                              right: 0,
+                              bottom: 0,
+                              opacity: 0.3,
+                              overflow: 'hidden',
+                              borderTopRightRadius: 6,
+                              borderBottomRightRadius: 6,
+                            }}
+                          >
+                            {/* Simple stripe pattern using multiple thin views */}
+                            {[...Array(10)].map((_, i) => (
+                              <View
+                                key={i}
+                                style={{
+                                  position: 'absolute',
+                                  width: 3,
+                                  height: 60,
+                                  backgroundColor: 'rgba(255,255,255,0.4)',
+                                  transform: [{ rotate: '45deg' }],
+                                  left: i * 12 - 20,
+                                  top: -15,
+                                }}
+                              />
+                            ))}
+                          </View>
+
+                          {/* Delay badge */}
+                          <View className="flex-row items-center justify-center">
+                            <Text className="text-white text-[9px] font-bold">
+                              {delayBadgeText}
+                            </Text>
+                          </View>
+                        </View>
+                      )}
+                    </View>
 
                     {/* Cost Display - to the immediate right of task bar */}
                     <View className="ml-2 bg-gray-100 dark:bg-slate-800 px-2 py-1 rounded-md">
@@ -430,6 +532,18 @@ export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress
                         £{taskCost.toLocaleString()}
                       </Text>
                     </View>
+
+                    {/* Delay badge (alternative position) - shows if there's a delay but no extension visual */}
+                    {bar.delayInfo.isDelayed && !hasExtension && delayBadgeText && (
+                      <View
+                        className="ml-1 px-1.5 py-0.5 rounded"
+                        style={{ backgroundColor: delaySeverityColors.bar }}
+                      >
+                        <Text className="text-white text-[8px] font-bold">
+                          {delayBadgeText}
+                        </Text>
+                      </View>
+                    )}
                   </View>
                 );
               })}

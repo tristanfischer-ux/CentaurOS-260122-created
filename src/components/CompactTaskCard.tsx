@@ -9,10 +9,11 @@
 
 import { View, Text, Pressable } from 'react-native';
 import { useState, useEffect } from 'react';
-import { Clock, Users as UsersIcon, CheckCircle2, AlertTriangle, Circle, ChevronDown, ChevronUp, Edit3, Check } from 'lucide-react-native';
+import { Clock, Users as UsersIcon, CheckCircle2, AlertTriangle, Circle, ChevronDown, ChevronUp, Edit3, Check, TrendingUp } from 'lucide-react-native';
 import { type WorkPlan, useWorkPlanStore } from '@/lib/state/work-plan-store';
 import { type OrganizationMember } from '@/lib/organization-seed';
 import { useSquadStore } from '@/lib/state/squad-store';
+import { getDelayInfo, formatDelay, getDelaySeverityColor, getOriginalTimeline } from '@/lib/task-delay-tracker';
 
 interface CompactTaskCardProps {
   task: WorkPlan;
@@ -49,6 +50,12 @@ export function CompactTaskCard({
 
   // Calculate allocated TU per week
   const allocatedPerWeek = task.allocations?.reduce((sum, alloc) => sum + (alloc.squaresPerWeek || 0), 0) || 0;
+
+  // Get delay information
+  const delayInfo = getDelayInfo(task);
+  const delayBadgeText = formatDelay(delayInfo);
+  const delaySeverityColors = getDelaySeverityColor(delayInfo.severity);
+  const originalTimeline = getOriginalTimeline(task);
 
   // Status icon
   const StatusIcon = task.status === 'in-progress' ? Clock :
@@ -91,6 +98,18 @@ export function CompactTaskCard({
             <Text className="text-gray-900 dark:text-white font-semibold text-sm flex-1" numberOfLines={1}>
               {task.title}
             </Text>
+            {/* Delay badge in collapsed view */}
+            {delayInfo.isDelayed && delayBadgeText && (
+              <View
+                className="px-1.5 py-0.5 rounded flex-row items-center gap-0.5"
+                style={{ backgroundColor: delaySeverityColors.bar }}
+              >
+                <AlertTriangle size={9} color="#fff" />
+                <Text className="text-white text-[9px] font-bold">
+                  {delayBadgeText}
+                </Text>
+              </View>
+            )}
             {/* Expand/Collapse indicator */}
             {isExpanded ? (
               <ChevronUp size={16} color="#94a3b8" />
@@ -249,6 +268,80 @@ export function CompactTaskCard({
               </Text>
             </View>
           </View>
+
+          {/* Timeline & Delay Details */}
+          {delayInfo.isDelayed && (
+            <View
+              className="mt-2 rounded-lg p-2"
+              style={{ backgroundColor: delaySeverityColors.bar + '15' }}
+            >
+              <View className="flex-row items-center gap-1 mb-1.5">
+                <TrendingUp size={12} color={delaySeverityColors.bar} />
+                <Text
+                  className="text-[10px] font-bold"
+                  style={{ color: delaySeverityColors.bar }}
+                >
+                  TIMELINE EXTENDED
+                </Text>
+              </View>
+
+              <View className="flex-row items-center justify-between">
+                {/* Original Timeline */}
+                <View>
+                  <Text className="text-gray-500 dark:text-slate-400 text-[9px]">Original</Text>
+                  <Text className="text-gray-900 dark:text-white text-[10px] font-semibold">
+                    {originalTimeline.originalTUs} TU
+                  </Text>
+                  {delayInfo.originalEndDate && (
+                    <Text className="text-gray-500 dark:text-slate-400 text-[9px]">
+                      Due {delayInfo.originalEndDate.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
+                    </Text>
+                  )}
+                </View>
+
+                {/* Arrow */}
+                <Text className="text-gray-400 dark:text-slate-500 text-lg">→</Text>
+
+                {/* Current Timeline */}
+                <View>
+                  <Text className="text-gray-500 dark:text-slate-400 text-[9px]">Current</Text>
+                  <Text
+                    className="text-[10px] font-bold"
+                    style={{ color: delaySeverityColors.bar }}
+                  >
+                    {task.estimatedTimeUnits} TU
+                    {delayInfo.tuOverrun > 0 && (
+                      <Text className="text-[9px]"> (+{delayInfo.tuOverrun})</Text>
+                    )}
+                  </Text>
+                  {delayInfo.currentEndDate && (
+                    <Text
+                      className="text-[9px] font-semibold"
+                      style={{ color: delaySeverityColors.bar }}
+                    >
+                      Due {delayInfo.currentEndDate.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
+                      {delayInfo.delayDays > 0 && (
+                        <Text> (+{delayInfo.delayDays}d)</Text>
+                      )}
+                    </Text>
+                  )}
+                </View>
+
+                {/* Overrun Percentage */}
+                <View className="items-center">
+                  <Text
+                    className="text-lg font-bold"
+                    style={{ color: delaySeverityColors.bar }}
+                  >
+                    {Math.max(delayInfo.delayPercentage, delayInfo.tuOverrunPercentage)}%
+                  </Text>
+                  <Text className="text-gray-500 dark:text-slate-400 text-[8px]">
+                    OVER
+                  </Text>
+                </View>
+              </View>
+            </View>
+          )}
 
           {/* Action buttons */}
           {task.status !== 'completed' && task.status !== 'abandoned' && (

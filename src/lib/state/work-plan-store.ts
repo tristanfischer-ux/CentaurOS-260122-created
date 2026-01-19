@@ -41,6 +41,15 @@ export interface TaskAuditRecord {
   reason?: string;           // For abandoned tasks
 }
 
+// Timeline extension record for tracking delays
+export interface TimelineExtension {
+  extendedAt: string;              // When the extension was made
+  previousDueDate: string;         // What the due date was before
+  newDueDate: string;              // What it was extended to
+  additionalTUs: number;           // How many TUs were added
+  reason?: string;                 // Optional reason for extension
+}
+
 export interface WorkPlan {
   id: string;
   workspaceId: string; // 🔑 Multi-tenancy key - links work plan to specific company
@@ -76,6 +85,17 @@ export interface WorkPlan {
 
   // TUs already expended (progress tracking)
   tusExpended: number;                  // TUs spent so far
+
+  // ========================================
+  // ORIGINAL TIMELINE TRACKING (for delay detection)
+  // ========================================
+
+  // Original estimates (frozen when task starts)
+  originalDueDate?: string;             // Original planned end date
+  originalEstimatedTimeUnits?: number;  // Original TU estimate
+
+  // Timeline extension history
+  timelineExtensions?: TimelineExtension[];
 
   // Audit trail for completed/abandoned tasks
   auditRecord?: TaskAuditRecord;

@@ -15,6 +15,28 @@ Centaur OS is a comprehensive iOS mobile application that helps lean companies o
 
 ## 🚀 Latest Updates (Jan 19, 2026)
 
+### ✅ Task Timeline Delay Tracking & Visualization
+- **Original vs Current Timeline**: Tasks now track their original due date and TU estimate separately from current values
+  - `originalDueDate` - Frozen when task starts
+  - `originalEstimatedTimeUnits` - Frozen when task starts
+  - `timelineExtensions` - History of all timeline extensions with reasons
+- **Delay Detection System**: New utility (`src/lib/task-delay-tracker.ts`) calculates:
+  - Whether a task is delayed (current end > original end)
+  - Delay in days and percentage over original timeline
+  - TU overrun amount and percentage
+  - Severity level: none → minor (1-25%) → moderate (26-50%) → severe (50%+)
+- **Gantt Chart Delay Visualization** (MiniGanttChart):
+  - Original timeline shown as solid colored bar
+  - Extension beyond original shown as striped bar in amber/orange/red based on severity
+  - Warning triangle icon appears on delayed tasks
+  - Delay badge shows "+Xd / +X TU" on extended section
+  - Color coding: Amber (minor), Orange (moderate), Red (severe delay)
+- **Task Card Delay Badges** (CompactTaskCard):
+  - Collapsed view: Small delay badge with warning icon shows "+3d / +2 TU"
+  - Expanded view: Full timeline comparison showing Original vs Current
+  - Shows original TUs, original due date → current TUs, current due date
+  - Displays overall percentage over original estimate
+
 ### ✅ Improved Resource Display Clarity & Team Member Access
 - **Clear Resource Labeling**: Bottom drawer resource section now clearly distinguishes capacity types
   - **"X□ allocated (team-wide)"**: Shows total TUs allocated across entire company
