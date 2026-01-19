@@ -473,3 +473,163 @@ export interface WarmIntroOpportunity {
   relationship_strength: RelationshipStrength;
   warm_intro_notes?: string;
 }
+
+// ============================================================================
+// SEEDING & PARTNERSHIPS TYPES
+// ============================================================================
+
+export type PartnerOrgType = 'university' | 'bootcamp' | 'provider' | 'community' | 'other';
+
+export type PartnerStatus = 'not_contacted' | 'contacted' | 'in_conversation' | 'active' | 'paused' | 'declined';
+
+export interface PartnerOrg {
+  id: string;
+  name: string;
+  org_type: PartnerOrgType;
+  region: string;
+  contact_name?: string;
+  contact_email?: string;
+  contact_url?: string;
+  status: PartnerStatus;
+  volume_estimate?: number;
+  quality_score?: number;
+  priority: 'low' | 'medium' | 'high';
+  notes?: string;
+  last_contacted_at?: string;
+  next_followup_at?: string;
+  workspace_id?: string;
+  created_by_user_id?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export type SeedSourceType = 'network' | 'event' | 'import' | 'manual';
+
+export interface SeedBatch {
+  id: string;
+  source_type: SeedSourceType;
+  source_name?: string;
+  total_rows: number;
+  created_count: number;
+  duplicate_count: number;
+  error_count: number;
+  raw_data_json?: unknown;
+  error_details_json?: unknown;
+  workspace_id?: string;
+  created_by_user_id?: string;
+  created_at: string;
+}
+
+export interface SeedRow {
+  name: string;
+  linkedin_url?: string;
+  role_archetype?: RoleArchetype;
+  sector_tags?: string;
+  notes?: string;
+  email?: string;
+}
+
+export interface SeedUploadResult {
+  batch_id: string;
+  total_rows: number;
+  created: number;
+  duplicates: number;
+  errors: number;
+  created_person_ids: string[];
+  duplicate_matches: Array<{
+    row_index: number;
+    input_name: string;
+    match_id: string;
+    match_name: string;
+    match_type: string;
+  }>;
+  error_details: Array<{
+    row_index: number;
+    error: string;
+  }>;
+}
+
+export type ApprenticeAppStatus = 'new' | 'screening' | 'interview' | 'offer' | 'accepted' | 'rejected' | 'withdrawn';
+
+export interface ApprenticeApplication {
+  id: string;
+  name: string;
+  email: string;
+  linkedin_url?: string;
+  education_status?: EducationStatus;
+  interests_json?: RoleArchetype[];
+  availability_hours_per_week?: number;
+  availability_start_date?: string;
+  location_city?: string;
+  location_country: string;
+  remote_ok: boolean;
+  bio?: string;
+  portfolio_url?: string;
+  referral_source?: string;
+  status: ApprenticeAppStatus;
+  converted_person_id?: string;
+  workspace_id?: string;
+  processed_by_user_id?: string;
+  created_at: string;
+  updated_at: string;
+  processed_at?: string;
+}
+
+export interface VerificationChecklist {
+  linkedin_confirmed: boolean;
+  role_history_checked: boolean;
+  evidence_count: number;
+  references_checked: boolean;
+  notes?: string;
+}
+
+export interface VerificationAuditEntry {
+  id: string;
+  person_id: string;
+  action: 'verify' | 'unverify' | 'flag' | 'update_visibility';
+  previous_status?: string;
+  new_status?: string;
+  previous_visibility?: string;
+  new_visibility?: string;
+  checklist_json?: VerificationChecklist;
+  verified_by_user_id?: string;
+  created_at: string;
+}
+
+export interface SeedingStats {
+  verification_status: Record<VerificationStatus, number>;
+  person_type: Record<PersonType, number>;
+  invite_status: Record<InviteStatus, number>;
+  partner_status: Record<PartnerStatus, number>;
+  apprentice_app_status: Record<ApprenticeAppStatus, number>;
+  stale_invites_count: number;
+}
+
+export interface StaleInvite {
+  invite_id: string;
+  person_id?: string;
+  person_name: string;
+  email: string;
+  linkedin_url?: string;
+  invited_at: string;
+  days_since_invite: number;
+  followup_count: number;
+}
+
+export interface InviteTemplateData {
+  person_name: string;
+  role?: string;
+  sector?: string;
+  event_name?: string;
+  referrer_name?: string;
+  invite_link: string;
+  your_name: string;
+}
+
+export type InviteChannel = 'email' | 'linkedin' | 'other';
+
+export interface BulkInviteRequest {
+  person_ids: string[];
+  channel: InviteChannel;
+  template_type?: 'warm' | 'cold' | 'event' | 'referral';
+}
