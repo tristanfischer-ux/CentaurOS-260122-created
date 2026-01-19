@@ -184,7 +184,7 @@ export default function TabLayout() {
                 style={{
                   position: 'absolute',
                   bottom: fabBottom,
-                  left: 0,
+                  left: fabLeft,
                   width: fabSize,
                   height: fabSize,
                   borderRadius: fabSize / 2,
