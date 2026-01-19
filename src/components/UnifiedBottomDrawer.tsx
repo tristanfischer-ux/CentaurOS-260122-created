@@ -419,8 +419,7 @@ export function UnifiedBottomDrawer({
                   return (
                     <Pressable
                       key={member.id}
-                      onPress={() => onPersonSelect(isSelected ? '' : member.id)}
-                      onLongPress={() => {
+                      onPress={() => {
                         setSelectedMember(member);
                         setShowPersonModal(true);
                       }}
@@ -691,6 +690,8 @@ export function UnifiedBottomDrawer({
           setSelectedMember(null);
         }}
         member={selectedMember}
+        allMembers={members}
+        onMemberChange={(newMember) => setSelectedMember(newMember)}
       />
     </Animated.View>
   );

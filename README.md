@@ -15,6 +15,19 @@ Centaur OS is a comprehensive iOS mobile application that helps lean companies o
 
 ## 🚀 Latest Updates (Jan 19, 2026)
 
+### ✅ Improved Resource Display Clarity & Team Member Access
+- **Clear Resource Labeling**: Bottom drawer resource section now clearly distinguishes capacity types
+  - **"X□ allocated (team-wide)"**: Shows total TUs allocated across entire company
+  - **"X□ normal"**: Shows available normal capacity (regular working hours) - green indicator
+  - **"X□ overtime"**: Shows available overtime capacity (beyond normal hours) - amber indicator
+  - Removed ambiguous "available" label that didn't specify normal vs overtime
+  - Made it crystal clear these are company-wide totals, not per-person
+- **One-Tap Team Member Access**: Click any team member in resource list to view full PersonDetailsModal
+  - Previously required long-press, now just tap the name or avatar
+  - Opens comprehensive modal with tasks, timeline, squad info, AI tools, and contact details
+  - Can swipe between team members without closing the modal
+  - Seamless navigation through entire team roster
+
 ### ✅ Enhanced PersonDetailsModal - Task List & Personal Timeline
 - **Comprehensive Task List**: Shows all tasks assigned to the selected person with full details
   - Color-coded left border indicating task status (blue for in-progress, red for blocked, etc.)
