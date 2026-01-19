@@ -16,9 +16,25 @@ Centaur OS is a comprehensive iOS mobile application that helps lean companies o
 ## 🚀 Latest Updates (Jan 19, 2026)
 
 ### ✅ Enhanced Task Allocation Modal - Team Info & Precise TU Control
-- **Team Information Section**: New purple card showing who's currently assigned to the task with their allocation details
-  - Display team member names, TU allocation per week, and cost per TU
-  - Shows immediately below task description for quick context
+- **Three-View Team Member System**: Progressive disclosure pattern for viewing team details
+  - **Summary View** (Always visible): Team member card with name, role icon, allocation, and cost
+    - Purple card with role-specific icon (Crown for Founders, Briefcase for Execs, Graduation Cap for Apprentices)
+    - Shows TUs per week and cost per TU at a glance
+    - Tap to expand for more details
+  - **Medium View** (Tap to expand): Detailed breakdown of member contribution
+    - Role and business function
+    - Weekly cost calculation (TUs × cost per TU)
+    - Total capacity (normal TUs per week)
+    - "Tap for full details" hint to access in-depth view
+    - Smooth expand/collapse animation with chevron indicator
+  - **In-Depth View** (Long press or tap button): Full PersonDetailsModal
+    - Complete member profile with contact information
+    - All active tasks and workload visualization
+    - Squad memberships and AI tool loadout
+    - Reporting relationships and direct reports
+    - Swipe between team members without closing modal
+- **Team Information Section**: New purple card showing who's currently assigned to the task
+  - Displays immediately below task description for quick context
   - Purple theme matches app's accent color scheme
 - **Fine-Grained TU Controls**: Complete redesign of allocation controls with +/- buttons
   - **Minus Button (-)**: Decrement allocation by 1 TU (red button on left)

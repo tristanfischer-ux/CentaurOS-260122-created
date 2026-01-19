@@ -27,13 +27,14 @@ import Animated, { FadeIn, FadeInDown, FadeOut } from 'react-native-reanimated';
 import {
   X, Clock, Users, DollarSign, Zap, AlertTriangle, CheckCircle2,
   Plus, Minus, Bot, Briefcase, GraduationCap, Crown, ChevronRight,
-  TrendingUp, AlertCircle, Archive, Target
+  TrendingUp, AlertCircle, Archive, Target, ChevronDown, ChevronUp
 } from 'lucide-react-native';
 import { useWorkPlanStore, type WorkPlan, type TUAllocation, type AppliedAITool } from '@/lib/state/work-plan-store';
 import { useOrganizationStore } from '@/lib/state/organization-store';
 import { type OrganizationMember } from '@/lib/organization-seed';
 import { getTeamSizeEfficiency } from '@/lib/state/resource-store';
 import type { Function as BusinessFunction } from '@/types';
+import { PersonDetailsModal } from './PersonDetailsModal';
 
 // AI Tool definitions - single source of truth
 export const AI_PRODUCTIVITY_TOOLS = [
@@ -60,6 +61,11 @@ export function UnifiedTaskAllocationModal({ visible, onClose, workPlan }: Props
   const [allocations, setAllocations] = useState<Record<string, number>>({});
   const [selectedAITool, setSelectedAITool] = useState<string>('ai-none');
   const [expandedSection, setExpandedSection] = useState<string | null>('people');
+
+  // Team card view states
+  const [expandedTeamMember, setExpandedTeamMember] = useState<string | null>(null);
+  const [showPersonModal, setShowPersonModal] = useState(false);
+  const [selectedMemberForModal, setSelectedMemberForModal] = useState<OrganizationMember | null>(null);
 
   // Reset state when workPlan changes
   useEffect(() => {
@@ -653,13 +659,14 @@ export function UnifiedTaskAllocationModal({ visible, onClose, workPlan }: Props
   if (!workPlan) return null;
 
   return (
-    <Modal
-      visible={visible}
-      transparent
-      animationType="slide"
-      onRequestClose={onClose}
-    >
-      <Pressable className="flex-1 bg-black/70" onPress={onClose}>
+    <>
+      <Modal
+        visible={visible}
+        transparent
+        animationType="slide"
+        onRequestClose={onClose}
+      >
+        <Pressable className="flex-1 bg-black/70" onPress={onClose}>
         <View className="flex-1" />
         <Pressable onPress={(e) => e.stopPropagation()} style={{ maxHeight: '90%' }}>
           <View className="bg-white dark:bg-slate-900 rounded-t-3xl" style={{ height: '100%' }}>
@@ -703,17 +710,125 @@ export function UnifiedTaskAllocationModal({ visible, onClose, workPlan }: Props
                       Team Assigned
                     </Text>
                   </View>
-                  <View className="flex-row flex-wrap gap-2">
-                    {workPlan.allocations.map((allocation) => (
-                      <View key={allocation.memberId} className="bg-white dark:bg-slate-900 px-2.5 py-1.5 rounded-lg border border-purple-200 dark:border-purple-700">
-                        <Text className="text-gray-900 dark:text-white text-xs font-semibold">
-                          {allocation.memberName}
-                        </Text>
-                        <Text className="text-purple-600 dark:text-purple-400 text-[10px] font-medium">
-                          {allocation.squaresPerWeek}□/wk • £{allocation.costPerSquare}/□
-                        </Text>
-                      </View>
-                    ))}
+
+                  {/* Team Members - Three View System */}
+                  <View className="gap-2">
+                    {workPlan.allocations.map((allocation) => {
+                      const member = members.find(m => m.id === allocation.memberId);
+                      if (!member) return null;
+
+                      const isExpanded = expandedTeamMember === allocation.memberId;
+
+                      return (
+                        <View key={allocation.memberId}>
+                          {/* Summary View - Always visible */}
+                          <Pressable
+                            onPress={() => setExpandedTeamMember(isExpanded ? null : allocation.memberId)}
+                            onLongPress={() => {
+                              setSelectedMemberForModal(member);
+                              setShowPersonModal(true);
+                            }}
+                            className="bg-white dark:bg-slate-900 px-2.5 py-2 rounded-lg border border-purple-200 dark:border-purple-700 active:bg-purple-50 dark:active:bg-purple-900/20"
+                          >
+                            <View className="flex-row items-center justify-between">
+                              <View className="flex-row items-center gap-2 flex-1">
+                                {/* Role Icon */}
+                                <View className={`w-7 h-7 rounded-full items-center justify-center ${
+                                  member.role === 'Founder' ? 'bg-purple-100 dark:bg-purple-900/30' :
+                                  member.role === 'FractionalExec' ? 'bg-blue-100 dark:bg-blue-900/30' :
+                                  'bg-emerald-100 dark:bg-emerald-900/30'
+                                }`}>
+                                  {member.role === 'Founder' && <Crown size={14} color="#8b5cf6" />}
+                                  {member.role === 'FractionalExec' && <Briefcase size={14} color="#3b82f6" />}
+                                  {member.role === 'Apprentice' && <GraduationCap size={14} color="#10b981" />}
+                                </View>
+
+                                {/* Name and basic info */}
+                                <View className="flex-1">
+                                  <Text className="text-gray-900 dark:text-white text-xs font-semibold">
+                                    {allocation.memberName}
+                                  </Text>
+                                  <Text className="text-purple-600 dark:text-purple-400 text-[10px] font-medium">
+                                    {allocation.squaresPerWeek}□/wk • £{allocation.costPerSquare}/□
+                                  </Text>
+                                </View>
+                              </View>
+
+                              {/* Expand indicator */}
+                              <View className="w-5 h-5 bg-purple-100 dark:bg-purple-900/30 rounded-full items-center justify-center">
+                                {isExpanded ? (
+                                  <ChevronUp size={12} color="#9333ea" />
+                                ) : (
+                                  <ChevronDown size={12} color="#9333ea" />
+                                )}
+                              </View>
+                            </View>
+                          </Pressable>
+
+                          {/* Medium View - Expandable details */}
+                          {isExpanded && (
+                            <Animated.View
+                              entering={FadeInDown.duration(200)}
+                              className="bg-white dark:bg-slate-900 px-3 py-2 mt-1 rounded-lg border border-purple-100 dark:border-purple-800"
+                            >
+                              <View className="gap-2">
+                                {/* Role & Function */}
+                                <View className="flex-row items-center justify-between">
+                                  <Text className="text-gray-500 dark:text-slate-400 text-[10px]">
+                                    Role
+                                  </Text>
+                                  <Text className="text-gray-900 dark:text-white text-[10px] font-semibold">
+                                    {member.role === 'FractionalExec' ? 'Fractional Executive' : member.role}
+                                  </Text>
+                                </View>
+
+                                <View className="flex-row items-center justify-between">
+                                  <Text className="text-gray-500 dark:text-slate-400 text-[10px]">
+                                    Function
+                                  </Text>
+                                  <Text className="text-gray-900 dark:text-white text-[10px] font-semibold">
+                                    {member.function}
+                                  </Text>
+                                </View>
+
+                                {/* Weekly Cost */}
+                                <View className="flex-row items-center justify-between">
+                                  <Text className="text-gray-500 dark:text-slate-400 text-[10px]">
+                                    Weekly Cost
+                                  </Text>
+                                  <Text className="text-purple-600 dark:text-purple-400 text-[10px] font-bold">
+                                    £{(allocation.squaresPerWeek * allocation.costPerSquare).toFixed(0)}
+                                  </Text>
+                                </View>
+
+                                {/* Total Capacity */}
+                                <View className="flex-row items-center justify-between">
+                                  <Text className="text-gray-500 dark:text-slate-400 text-[10px]">
+                                    Total Capacity
+                                  </Text>
+                                  <Text className="text-gray-900 dark:text-white text-[10px] font-semibold">
+                                    {member.role === 'Founder' || member.role === 'Apprentice' ? '10' : (member.daysPerWeek || 2) * 2}□/wk normal
+                                  </Text>
+                                </View>
+
+                                {/* Tap hint */}
+                                <Pressable
+                                  onPress={() => {
+                                    setSelectedMemberForModal(member);
+                                    setShowPersonModal(true);
+                                  }}
+                                  className="bg-purple-50 dark:bg-purple-900/20 px-2 py-1.5 rounded mt-1 active:opacity-70"
+                                >
+                                  <Text className="text-purple-600 dark:text-purple-400 text-[9px] font-semibold text-center">
+                                    Long press or tap here for full details
+                                  </Text>
+                                </Pressable>
+                              </View>
+                            </Animated.View>
+                          )}
+                        </View>
+                      );
+                    })}
                   </View>
                 </Animated.View>
               )}
@@ -1058,7 +1173,20 @@ export function UnifiedTaskAllocationModal({ visible, onClose, workPlan }: Props
           </View>
         </Pressable>
       </Pressable>
-    </Modal>
+      </Modal>
+
+      {/* Person Details Modal - In-Depth View (separate modal) */}
+      <PersonDetailsModal
+        visible={showPersonModal}
+        onClose={() => {
+          setShowPersonModal(false);
+          setSelectedMemberForModal(null);
+        }}
+        member={selectedMemberForModal}
+        allMembers={members.filter(m => m.status === 'active')}
+        onMemberChange={(newMember) => setSelectedMemberForModal(newMember)}
+      />
+    </>
   );
 }
 
