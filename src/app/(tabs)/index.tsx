@@ -345,18 +345,19 @@ function FounderHome() {
               <ChevronRight size={14} color="#64748b" />
             </Pressable>
 
-            {/* Function Hub - Disabled */}
-            <View
-              className="flex-1 min-w-[45%] bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-3 flex-row items-center gap-2 opacity-50"
+            {/* Function Hub - Coming Soon */}
+            <Pressable
+              onPress={() => Alert.alert('Coming Soon', 'Functions business areas are coming soon!')}
+              className="flex-1 min-w-[45%] bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-3 flex-row items-center gap-2 active:opacity-70"
             >
               <View className="bg-purple-100 dark:bg-purple-900/30 p-2 rounded-lg">
                 <Briefcase size={16} color="#8b5cf6" />
               </View>
               <View className="flex-1">
                 <Text className="text-slate-900 dark:text-white font-semibold text-sm">Functions</Text>
-                <Text className="text-slate-500 dark:text-slate-400 text-xs">Business areas</Text>
+                <Text className="text-slate-500 dark:text-slate-400 text-xs">Coming soon</Text>
               </View>
-            </View>
+            </Pressable>
 
             {/* Startup Hub - Coming Soon */}
             <Pressable
