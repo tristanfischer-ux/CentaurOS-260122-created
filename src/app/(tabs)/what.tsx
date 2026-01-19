@@ -242,13 +242,15 @@ export default function WhatScreen() {
 
   // Handle task creation
   const handleCreateTask = () => {
-    if (!newTaskTitle.trim() || !currentWorkspace) return;
+    if (!newTaskTitle.trim()) return;
 
     console.log('[What Tab] Creating task, current count:', workPlans.length);
+    console.log('[What Tab] Using workspace:', effectiveWorkspace.id);
+    console.log('[What Tab] Using membership:', effectiveMembership.id);
 
     const newTask: WorkPlan = {
       id: `task-${Date.now()}`,
-      workspaceId: currentWorkspace.id,
+      workspaceId: effectiveWorkspace.id,
       title: newTaskTitle.trim(),
       description: '',
       function: newTaskFunction,
@@ -260,7 +262,7 @@ export default function WhatScreen() {
       tusExpended: 0,
       startDate: new Date().toISOString(),
       dueDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(),
-      assignedBy: currentMembership?.id || 'founder',
+      assignedBy: effectiveMembership.id,
       needsSubmission: false,
     };
 

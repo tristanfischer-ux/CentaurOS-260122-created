@@ -124,7 +124,7 @@ export default function AboutScreen() {
         >
           <ArrowLeft size={20} color="#64748b" />
         </Pressable>
-        <Text className="text-gray-900 dark:text-white text-2xl font-bold">About Fractional Foundry</Text>
+        <Text className="text-gray-900 dark:text-white text-2xl font-bold">About Centaur OS</Text>
       </View>
 
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
@@ -144,7 +144,7 @@ export default function AboutScreen() {
                 The Operating System for{'\n'}Super-Lean Hardware Startups
               </Text>
               <Text className="text-white/90 text-base text-center leading-6">
-                Fractional Foundry empowers hardware startups to operate with 2-3 core team members, leveraging Time Units (4-hour blocks), per-person AI tools, and supply chain orchestration to execute with elite efficiency.
+                Centaur OS empowers hardware startups to operate with 2-3 core team members, leveraging Time Units (4-hour blocks), per-person AI tools, and supply chain orchestration to execute with elite efficiency.
               </Text>
             </View>
           </LinearGradient>
@@ -159,7 +159,7 @@ export default function AboutScreen() {
             </View>
             <Text className="text-gray-700 dark:text-slate-300 text-base leading-7">
               We believe hardware innovation shouldn't require a massive team, complex enterprise software, or in-house manufacturing.
-              Fractional Foundry gives founders the tools to run their entire company with 2-3 core team members,
+              Centaur OS gives founders the tools to run their entire company with 2-3 core team members,
               orchestrating suppliers instead of owning factories, and multiplying team productivity with AI tools equipped per person
               across 5 slots: Think, Create, Verify, Execute, and Ops. Every resource is measured in Time Units (TU = 4 hours),
               and "Done" means Accepted with evidence—never just shipped.
@@ -234,7 +234,7 @@ export default function AboutScreen() {
         {/* Who It's For */}
         <View className="px-6 pb-6">
           <Text className="text-gray-900 dark:text-white text-2xl font-bold mb-4">
-            Who Is Fractional Foundry For?
+            Who Is Centaur OS For?
           </Text>
 
           <View className="gap-4">
@@ -286,7 +286,7 @@ export default function AboutScreen() {
           </Text>
           <View className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-6 border border-gray-300 dark:border-slate-800">
             <Text className="text-gray-700 dark:text-slate-300 text-base leading-7 mb-4">
-              Fractional Foundry is built with React Native and Expo SDK 53, delivering a native mobile experience
+              Centaur OS is built with React Native and Expo SDK 53, delivering a native mobile experience
               with beautiful animations, smooth gestures, offline-first architecture, and elite iOS-grade UX.
             </Text>
             <View className="flex-row flex-wrap gap-2">

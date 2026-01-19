@@ -233,15 +233,7 @@ export default function SettingsScreen() {
 
     if (userRole === 'Founder') {
       actions.push(
-        {
-          id: 'pending_approvals',
-          title: 'Pending Approvals',
-          subtitle: 'Review allocation requests',
-          icon: Clock,
-          color: '#f97316',
-          action: () => router.push('/(tabs)/decide'),
-          badge: '3',
-        },
+        // Removed 'pending_approvals' - orphan screen per user request
         {
           id: 'generate_report',
           title: 'Generate Report',
@@ -299,15 +291,7 @@ export default function SettingsScreen() {
       );
     }
 
-    // Common actions
-    actions.push({
-      id: 'function_library',
-      title: 'Function Library',
-      subtitle: 'Tools & templates',
-      icon: Library,
-      color: '#f59e0b',
-      action: () => router.push('/function-hub'),
-    });
+    // Common actions removed: Function Library (per user request)
 
     return actions;
   }, [userRole]);
@@ -1026,17 +1010,7 @@ export default function SettingsScreen() {
             />
           )}
 
-          <View className={userRole === 'Founder' ? 'mt-2' : ''}>
-            <NavigationCard
-              icon={Library}
-              iconColor="#f59e0b"
-              title="Function Library"
-              subtitle="Templates, tools, and best practices"
-              onPress={() => router.push('/function-hub')}
-              isDark={isDark}
-              isOffWhite={isOffWhite}
-            />
-          </View>
+          {/* Function Library removed per user request */}
         </Animated.View>
 
         <View className="h-8" />
