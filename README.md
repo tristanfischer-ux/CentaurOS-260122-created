@@ -15,6 +15,16 @@ Centaur OS is a comprehensive iOS mobile application that helps lean companies o
 
 ## 🚀 Latest Updates (Jan 19, 2026)
 
+### ✅ When Tab Redesign - Full Task Timeline
+- **Full-Screen Gantt Chart**: Redesigned When tab to show a full task timeline instead of week-by-week capacity grid
+- **Task Bars Across Time**: Each task shows as a horizontal bar spanning across weeks from start to due date
+- **Status Color Coding**: Visual indicators - Queued (gray), In Progress (blue), Blocked (red), Completed (green)
+- **Task Stats Header**: Shows Active Tasks count, In Progress count, and Team Utilization percentage
+- **Blocked Task Alerts**: Warning banner when tasks are blocked with quick link to Tasks tab
+- **Auto-Scroll to Today**: Timeline automatically positions current week on screen load
+- **Team Member Avatars**: See who's assigned to each task directly on the timeline
+- **Tap to View Details**: Tap any task bar to navigate to full task details in Tasks tab
+
 ### ✅ Task Completion Feature
 - **Mark as Done Button**: Added "Mark as Done" button to task cards in the expanded view
 - **Automatic Resource Release**: Completing a task automatically frees up all allocated team members
@@ -57,7 +67,7 @@ Centaur OS is a comprehensive iOS mobile application that helps lean companies o
 | **Home** | Snapshots + Quick Access to Plan/Analytics |
 | **People** | Team roster, capacity, hiring pipeline |
 | **Tasks** | Task creation + **Drafts section** at top |
-| **When** | Timeline/capacity week view |
+| **When** | Full task timeline (Gantt chart view) |
 | **Resources** | Current AI tools, active suppliers |
 | **Marketplace** | Discovery only, creates **drafts** |
 | **Settings** | Config, integrations |

@@ -1,6 +1,6 @@
 /**
- * When Tab - Timeline & Capacity View
- * Week view grid: rows=people, cols=Mon–Sun
+ * When Tab - Full Task Timeline (Gantt Chart)
+ * Shows all tasks across time in a Gantt chart view
  *
  * MIGRATION: Timeline/Gantt features moved here from 'what' tab
  * Anti-bloat: No duplicate task lists; link to Tasks for details
@@ -9,46 +9,42 @@
  * Drafts (from Draft store) are NOT shown here - they must be confirmed first.
  */
 
-import { View, Text, ScrollView, Pressable } from 'react-native';
+import { View, Text, Pressable } from 'react-native';
 import { useState, useMemo } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
-import Animated, { FadeInDown } from 'react-native-reanimated';
 import { router } from 'expo-router';
 import {
   Calendar,
-  ChevronLeft,
-  ChevronRight,
   Clock,
   Users,
-  Target,
+  TrendingUp,
+  AlertTriangle,
 } from 'lucide-react-native';
 import { useOrganizationStore } from '@/lib/state/organization-store';
 import { useWorkPlanStore, type WorkPlan } from '@/lib/state/work-plan-store';
 import { useCurrentMembership, useCurrentWorkspace } from '@/lib/state/app-store';
 import { HelpModal, HelpButton, type HelpContent } from '@/components/HelpModal';
 import { SettingsGearButton } from '@/components/SettingsGearButton';
-import { CollapsibleGanttChart } from '@/components/CollapsibleGanttChart';
+import { MiniGanttChart } from '@/components/MiniGanttChart';
 
 const WHEN_HELP: HelpContent = {
   title: 'When',
-  subtitle: 'Timeline & capacity',
-  description: 'The When tab shows who is doing what and when. View weekly capacity allocation across your team.',
+  subtitle: 'Task timeline & delivery dates',
+  description: 'The When tab shows a Gantt chart view of all your tasks across time. See when tasks start, end, and who is working on them.',
   tips: [
-    'Each row is a team member, each column is a day of the week',
-    'Colored blocks show allocated tasks for that person',
-    'Tap a block to see task details in the Tasks tab',
-    'Use arrows to navigate between weeks',
-    'Check capacity utilization to avoid overallocation',
+    'Each horizontal bar represents a task spanning across weeks',
+    'Color coding shows task status: Queued (gray), In Progress (blue), Blocked (red)',
+    'Tap any task to see full details and edit in the Tasks tab',
+    'Timeline automatically scrolls to show current week',
+    'Team member avatars show who\'s assigned to each task',
   ],
   quickActions: [
-    { label: 'Week View', description: 'See the current week\'s allocations' },
-    { label: 'Navigate Weeks', description: 'Move forward/backward through time' },
-    { label: 'View Task', description: 'Tap any allocation to see task details' },
+    { label: 'Task Timeline', description: 'See all tasks across weeks' },
+    { label: 'Scroll Timeline', description: 'Swipe left/right to view past and future' },
+    { label: 'View Task', description: 'Tap any task bar to see details' },
   ],
 };
-
-const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
 export default function WhenScreen() {
   const insets = useSafeAreaInsets();
@@ -61,92 +57,35 @@ export default function WhenScreen() {
 
   // State
   const [showHelp, setShowHelp] = useState(false);
-  const [weekOffset, setWeekOffset] = useState(0);
 
-  // Get current week dates
-  const weekDates = useMemo(() => {
-    const today = new Date();
-    const dayOfWeek = today.getDay();
-    const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
-    const monday = new Date(today);
-    monday.setDate(today.getDate() + mondayOffset + (weekOffset * 7));
+  // Calculate task stats
+  const taskStats = useMemo(() => {
+    const activeTasks = workPlans.filter(wp => wp.status !== 'completed' && wp.status !== 'abandoned');
+    const inProgress = activeTasks.filter(wp => wp.status === 'in-progress');
+    const blocked = activeTasks.filter(wp => wp.status === 'blocked');
+    const queued = activeTasks.filter(wp => wp.status === 'not-started');
 
-    return DAYS.map((_, i) => {
-      const date = new Date(monday);
-      date.setDate(monday.getDate() + i);
-      return date;
-    });
-  }, [weekOffset]);
+    // Calculate team utilization
+    const totalAllocatedTUs = activeTasks.reduce((sum, task) => {
+      const allocated = task.allocations?.reduce((taskSum, alloc) => taskSum + (alloc.squaresPerWeek || 0), 0) || 0;
+      return sum + allocated;
+    }, 0);
 
-  const weekLabel = useMemo(() => {
-    const start = weekDates[0];
-    const end = weekDates[6];
-    const startMonth = start.toLocaleDateString('en-GB', { month: 'short' });
-    const endMonth = end.toLocaleDateString('en-GB', { month: 'short' });
+    // Calculate total team capacity (assume 10 TU per person per week as baseline)
+    const totalTeamCapacity = members.filter(m => m.status === 'active').length * 10;
+    const utilization = totalTeamCapacity > 0 ? Math.round((totalAllocatedTUs / totalTeamCapacity) * 100) : 0;
 
-    if (startMonth === endMonth) {
-      return `${start.getDate()} - ${end.getDate()} ${startMonth}`;
-    }
-    return `${start.getDate()} ${startMonth} - ${end.getDate()} ${endMonth}`;
-  }, [weekDates]);
-
-  // Get tasks allocated to each member for the current week
-  const memberAllocations = useMemo(() => {
-    return members.map(member => {
-      const memberTasks = workPlans.filter(wp => {
-        // Check if member is allocated to this task
-        const isAllocated = wp.allocations?.some(a => a.memberId === member.id) ||
-          wp.assignedMemberIds?.includes(member.id);
-
-        if (!isAllocated) return false;
-
-        // Check if task overlaps with current week
-        const taskStart = new Date(wp.startDate);
-        const taskEnd = new Date(wp.dueDate);
-        const weekStart = weekDates[0];
-        const weekEnd = weekDates[6];
-
-        return taskStart <= weekEnd && taskEnd >= weekStart;
-      });
-
-      return {
-        member,
-        tasks: memberTasks,
-        hoursAllocated: memberTasks.reduce((sum, t) => {
-          const allocation = t.allocations?.find(a => a.memberId === member.id);
-          return sum + (allocation?.squaresPerWeek || t.estimatedTimeUnits / 4 || 0);
-        }, 0),
-      };
-    });
-  }, [members, workPlans, weekDates]);
-
-  // Calculate total capacity
-  const totalCapacity = useMemo(() => {
-    const allocated = memberAllocations.reduce((sum, m) => sum + m.hoursAllocated, 0);
-    const available = members.reduce((sum, m) => sum + ((m.daysPerWeek || 5) * 8), 0);
-    return { allocated, available, utilization: available > 0 ? (allocated / available) * 100 : 0 };
-  }, [memberAllocations, members]);
-
-  const getRoleColor = (role: string) => {
-    switch (role) {
-      case 'Founder': return '#3b82f6';
-      case 'FractionalExec': return '#8b5cf6';
-      case 'Apprentice': return '#10b981';
-      default: return '#64748b';
-    }
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'in-progress': return '#3b82f6';
-      case 'blocked': return '#ef4444';
-      case 'completed': return '#10b981';
-      default: return '#64748b';
-    }
-  };
+    return {
+      total: activeTasks.length,
+      inProgress: inProgress.length,
+      blocked: blocked.length,
+      queued: queued.length,
+      utilization,
+    };
+  }, [workPlans, members]);
 
   return (
-    <View className="flex-1 bg-slate-50 dark:bg-slate-950">
+    <View className="flex-1 bg-white dark:bg-slate-950">
       {/* Help Modal */}
       <HelpModal
         visible={showHelp}
@@ -177,194 +116,87 @@ export default function WhenScreen() {
           </View>
         </View>
 
-        {/* Week Navigation */}
-        <View className="flex-row items-center justify-between bg-white/10 rounded-xl p-3">
-          <Pressable
-            onPress={() => setWeekOffset(w => w - 1)}
-            className="p-2 bg-white/10 rounded-lg active:opacity-70"
-          >
-            <ChevronLeft size={20} color="white" />
-          </Pressable>
-
-          <View className="items-center">
-            <Text className="text-white font-bold text-lg">{weekLabel}</Text>
-            <Text className="text-white/70 text-xs">
-              {weekOffset === 0 ? 'This Week' : weekOffset > 0 ? `${weekOffset} week${weekOffset > 1 ? 's' : ''} ahead` : `${Math.abs(weekOffset)} week${Math.abs(weekOffset) > 1 ? 's' : ''} ago`}
+        {/* Task Stats */}
+        <View className="flex-row gap-2 mb-3">
+          <View className="flex-1 bg-white/10 rounded-xl p-3">
+            <View className="flex-row items-center gap-2 mb-1">
+              <Calendar size={14} color="white" />
+              <Text className="text-white/70 text-xs">Active Tasks</Text>
+            </View>
+            <Text className="text-white font-bold text-xl">
+              {taskStats.total}
             </Text>
           </View>
 
-          <Pressable
-            onPress={() => setWeekOffset(w => w + 1)}
-            className="p-2 bg-white/10 rounded-lg active:opacity-70"
-          >
-            <ChevronRight size={20} color="white" />
-          </Pressable>
-        </View>
+          <View className="flex-1 bg-white/10 rounded-xl p-3">
+            <View className="flex-row items-center gap-2 mb-1">
+              <Clock size={14} color="white" />
+              <Text className="text-white/70 text-xs">In Progress</Text>
+            </View>
+            <Text className="text-white font-bold text-xl">
+              {taskStats.inProgress}
+            </Text>
+          </View>
 
-        {/* Capacity Summary */}
-        <View className="flex-row mt-3 gap-3">
           <View className="flex-1 bg-white/10 rounded-xl p-3">
-            <Text className="text-white/70 text-xs">Capacity Used</Text>
-            <Text className="text-white font-bold text-lg">
-              {Math.round(totalCapacity.utilization)}%
-            </Text>
-          </View>
-          <View className="flex-1 bg-white/10 rounded-xl p-3">
-            <Text className="text-white/70 text-xs">Hours Allocated</Text>
-            <Text className="text-white font-bold text-lg">
-              {totalCapacity.allocated}h
-            </Text>
-          </View>
-          <View className="flex-1 bg-white/10 rounded-xl p-3">
-            <Text className="text-white/70 text-xs">Available</Text>
-            <Text className="text-white font-bold text-lg">
-              {totalCapacity.available}h
+            <View className="flex-row items-center gap-2 mb-1">
+              <TrendingUp size={14} color="white" />
+              <Text className="text-white/70 text-xs">Utilization</Text>
+            </View>
+            <Text className="text-white font-bold text-xl">
+              {taskStats.utilization}%
             </Text>
           </View>
         </View>
+
+        {/* Blocked Tasks Alert (if any) */}
+        {taskStats.blocked > 0 && (
+          <Pressable
+            onPress={() => router.push('/(tabs)/tasks')}
+            className="bg-red-500/20 border border-red-400/30 rounded-xl p-3 flex-row items-center gap-2 active:opacity-80"
+          >
+            <AlertTriangle size={16} color="#fca5a5" />
+            <Text className="text-white text-sm font-semibold flex-1">
+              {taskStats.blocked} task{taskStats.blocked !== 1 ? 's' : ''} blocked
+            </Text>
+            <Text className="text-white/70 text-xs">View →</Text>
+          </Pressable>
+        )}
       </LinearGradient>
 
-      {/* Week Grid Header */}
-      <View className="flex-row px-5 py-3 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800">
-        <View className="w-24" />
-        {weekDates.map((date, i) => {
-          const isToday = date.toDateString() === new Date().toDateString();
-          return (
-            <View key={i} className="flex-1 items-center">
-              <Text className={`text-xs font-medium ${isToday ? 'text-purple-600 dark:text-purple-400' : 'text-slate-500 dark:text-slate-400'}`}>
-                {DAYS[i]}
-              </Text>
-              <Text className={`text-sm font-bold ${isToday ? 'text-purple-600 dark:text-purple-400' : 'text-slate-900 dark:text-white'}`}>
-                {date.getDate()}
-              </Text>
-            </View>
-          );
-        })}
+      {/* Full-screen Gantt Chart */}
+      <View className="flex-1">
+        <MiniGanttChart
+          workPlans={workPlans}
+          members={members}
+          onTaskPress={(taskId) => {
+            router.push({
+              pathname: '/(tabs)/tasks',
+              params: { selectedTaskId: taskId },
+            });
+          }}
+          fillAvailableSpace
+        />
       </View>
 
-      {/* Content - Team Grid */}
-      <ScrollView
-        className="flex-1"
-        contentContainerStyle={{ paddingBottom: insets.bottom + 100 }}
-      >
-        {memberAllocations.map((allocation, index) => (
-          <Animated.View
-            key={allocation.member.id}
-            entering={FadeInDown.delay(index * 30).springify()}
-            className="flex-row px-5 py-3 border-b border-slate-100 dark:border-slate-800"
-          >
-            {/* Member Info */}
-            <Pressable
-              onPress={() => router.push('/(tabs)/people')}
-              className="w-24 active:opacity-70"
-            >
-              <View className="flex-row items-center gap-2">
-                <View
-                  className="w-8 h-8 rounded-full items-center justify-center"
-                  style={{ backgroundColor: getRoleColor(allocation.member.role) + '20' }}
-                >
-                  <Text
-                    className="text-xs font-bold"
-                    style={{ color: getRoleColor(allocation.member.role) }}
-                  >
-                    {allocation.member.name.split(' ').map(n => n[0]).join('')}
-                  </Text>
-                </View>
-              </View>
-              <Text className="text-slate-900 dark:text-white text-xs font-medium mt-1" numberOfLines={1}>
-                {allocation.member.name.split(' ')[0]}
-              </Text>
-              <Text className="text-slate-500 dark:text-slate-400 text-xs">
-                {allocation.hoursAllocated}h
-              </Text>
-            </Pressable>
-
-            {/* Day Columns */}
-            {weekDates.map((date, dayIndex) => {
-              // Find tasks active on this day
-              const dayTasks = allocation.tasks.filter(t => {
-                const start = new Date(t.startDate);
-                const end = new Date(t.dueDate);
-                return date >= start && date <= end;
-              });
-
-              return (
-                <View key={dayIndex} className="flex-1 px-0.5">
-                  {dayTasks.length > 0 ? (
-                    <Pressable
-                      onPress={() => router.push('/(tabs)/tasks')}
-                      className="flex-1 min-h-[48px] rounded-lg items-center justify-center active:opacity-70"
-                      style={{ backgroundColor: getStatusColor(dayTasks[0].status) + '20' }}
-                    >
-                      <View
-                        className="w-2 h-2 rounded-full"
-                        style={{ backgroundColor: getStatusColor(dayTasks[0].status) }}
-                      />
-                      {dayTasks.length > 1 && (
-                        <Text className="text-xs mt-0.5" style={{ color: getStatusColor(dayTasks[0].status) }}>
-                          +{dayTasks.length - 1}
-                        </Text>
-                      )}
-                    </Pressable>
-                  ) : (
-                    <View className="flex-1 min-h-[48px] rounded-lg bg-slate-50 dark:bg-slate-800/50" />
-                  )}
-                </View>
-              );
-            })}
-          </Animated.View>
-        ))}
-
-        {/* Empty state */}
-        {members.length === 0 && (
-          <View className="items-center py-12 px-5">
-            <Users size={48} color="#94a3b8" />
-            <Text className="text-slate-500 dark:text-slate-400 text-center mt-4 text-base">
-              No team members yet
-            </Text>
-            <Text className="text-slate-400 dark:text-slate-500 text-center mt-2 text-sm">
-              Go to the People tab to add team members
-            </Text>
-          </View>
-        )}
-
-        {/* Legend */}
-        <View className="mx-5 mt-6 p-4 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800">
-          <Text className="text-slate-500 dark:text-slate-400 text-xs font-medium uppercase mb-3">
-            Legend
+      {/* Empty state */}
+      {workPlans.filter(wp => wp.status !== 'completed' && wp.status !== 'abandoned').length === 0 && (
+        <View className="absolute inset-0 items-center justify-center" style={{ top: insets.top + 200 }}>
+          <Calendar size={64} color="#cbd5e1" />
+          <Text className="text-slate-500 dark:text-slate-400 text-center mt-4 text-lg font-medium">
+            No active tasks
           </Text>
-          <View className="flex-row flex-wrap gap-4">
-            <View className="flex-row items-center gap-2">
-              <View className="w-3 h-3 rounded-full bg-blue-500" />
-              <Text className="text-slate-700 dark:text-slate-300 text-sm">Doing</Text>
-            </View>
-            <View className="flex-row items-center gap-2">
-              <View className="w-3 h-3 rounded-full bg-slate-500" />
-              <Text className="text-slate-700 dark:text-slate-300 text-sm">Queued</Text>
-            </View>
-            <View className="flex-row items-center gap-2">
-              <View className="w-3 h-3 rounded-full bg-red-500" />
-              <Text className="text-slate-700 dark:text-slate-300 text-sm">Blocked</Text>
-            </View>
-            <View className="flex-row items-center gap-2">
-              <View className="w-3 h-3 rounded-full bg-emerald-500" />
-              <Text className="text-slate-700 dark:text-slate-300 text-sm">Done</Text>
-            </View>
-          </View>
+          <Text className="text-slate-400 dark:text-slate-500 text-center mt-2 text-sm px-8">
+            Create tasks in the Tasks tab to see them on the timeline
+          </Text>
+          <Pressable
+            onPress={() => router.push('/(tabs)/tasks')}
+            className="mt-6 bg-purple-500 px-6 py-3 rounded-xl active:opacity-80"
+          >
+            <Text className="text-white font-semibold">Go to Tasks</Text>
+          </Pressable>
         </View>
-      </ScrollView>
-
-      {/* Task Timeline Gantt Chart Drawer */}
-      <CollapsibleGanttChart
-        workPlans={workPlans}
-        members={members}
-        onTaskPress={(taskId) => {
-          router.push({
-            pathname: '/(tabs)/tasks',
-            params: { selectedTaskId: taskId },
-          });
-        }}
-      />
+      )}
     </View>
   );
 }
