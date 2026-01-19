@@ -138,7 +138,7 @@ export default function TabLayout() {
             tabBarIcon: () => (
               <View
                 style={{
-                  top: -20,
+                  top: -10,
                   width: 70,
                   height: 70,
                   borderRadius: 35,
