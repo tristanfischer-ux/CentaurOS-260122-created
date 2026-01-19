@@ -754,6 +754,14 @@ export function PersonDetailsModal({
                 <View className="gap-2">
                   {memberWorkload.tasks.map((task) => {
                     const allocation = task.allocations.find(a => a.memberId === member.id);
+
+                    // Calculate total TU for this member on this task
+                    const tuPerWeek = allocation?.squaresPerWeek || 0;
+                    const totalTaskTU = task.estimatedTimeUnits || 0;
+                    // Calculate how many weeks this will take for this person
+                    const weeksToComplete = tuPerWeek > 0 ? Math.ceil(totalTaskTU / tuPerWeek) : 0;
+                    const memberTotalTU = tuPerWeek * weeksToComplete;
+
                     const statusColors = {
                       'not-started': 'border-gray-300 dark:border-gray-700',
                       'in-progress': 'border-blue-400 dark:border-blue-600',
@@ -778,14 +786,21 @@ export function PersonDetailsModal({
                           <Text className="text-slate-900 dark:text-white font-semibold text-sm flex-1 mr-2">
                             {task.title}
                           </Text>
-                          <View className="bg-purple-500/20 px-2 py-0.5 rounded-full">
-                            <Text className="text-purple-600 dark:text-purple-400 text-xs font-bold">
-                              {allocation?.squaresPerWeek || 0}□/wk
-                            </Text>
+                          <View className="flex-row items-center gap-1.5">
+                            <View className="bg-purple-500/20 px-2 py-0.5 rounded-full">
+                              <Text className="text-purple-600 dark:text-purple-400 text-xs font-bold">
+                                {tuPerWeek}□/wk
+                              </Text>
+                            </View>
+                            <View className="bg-blue-500/20 px-2 py-0.5 rounded-full">
+                              <Text className="text-blue-600 dark:text-blue-400 text-xs font-bold">
+                                {memberTotalTU}□ total
+                              </Text>
+                            </View>
                           </View>
                         </View>
 
-                        <View className="flex-row items-center justify-between">
+                        <View className="flex-row items-center justify-between mb-1">
                           <View className="flex-row items-center gap-3">
                             <Text className="text-slate-500 dark:text-slate-400 text-xs">
                               {task.function}
@@ -798,6 +813,13 @@ export function PersonDetailsModal({
                             Due {task.dueDate ? new Date(task.dueDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) : 'TBD'}
                           </Text>
                         </View>
+
+                        {/* Duration info */}
+                        {weeksToComplete > 0 && (
+                          <Text className="text-slate-500 dark:text-slate-400 text-xs mb-2">
+                            Est. {weeksToComplete} week{weeksToComplete !== 1 ? 's' : ''} at {tuPerWeek}□/wk
+                          </Text>
+                        )}
 
                         {/* Progress bar */}
                         <View className="mt-2 h-1.5 bg-gray-200 dark:bg-slate-700 rounded-full overflow-hidden">
