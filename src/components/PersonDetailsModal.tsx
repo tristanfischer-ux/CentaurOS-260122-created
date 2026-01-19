@@ -23,16 +23,21 @@ import {
   Cpu,
   ChevronRight,
   ChevronLeft,
+  CheckCircle,
+  XCircle,
+  CalendarClock,
+  UserMinus,
+  MoreHorizontal,
 } from 'lucide-react-native';
 import { type OrganizationMember, type AIAgent } from '@/lib/organization-seed';
-import { useWorkPlanStore } from '@/lib/state/work-plan-store';
+import { useWorkPlanStore, type WorkPlan } from '@/lib/state/work-plan-store';
 import { useOrganizationStore } from '@/lib/state/organization-store';
 import { useSquadStore, type Squad as SquadStoreSquad } from '@/lib/state/squad-store';
 import { useArmoryStore } from '@/lib/state/armory-store';
 import { useAppStore } from '@/lib/state/app-store';
 import { cn } from '@/lib/cn';
 import type { Squad as ArmorySquad, Function as BusinessFunction } from '@/types';
-import { lightImpact } from '@/lib/haptics';
+import { lightImpact, heavyImpact } from '@/lib/haptics';
 import { MiniGanttChart } from './MiniGanttChart';
 
 // Combined squad type for display
@@ -121,8 +126,15 @@ export function PersonDetailsModal({
   }));
 
   const workPlans = useWorkPlanStore(s => s.workPlans);
+  const updateWorkPlan = useWorkPlanStore(s => s.updateWorkPlan);
+  const deleteWorkPlan = useWorkPlanStore(s => s.deleteWorkPlan);
   const allMembers = useOrganizationStore(s => s.members);
   const squadsFromSquadStore = useSquadStore(s => s.squads);
+
+  // Task action states
+  const [expandedTaskId, setExpandedTaskId] = useState<string | null>(null);
+  const [showReassignModal, setShowReassignModal] = useState(false);
+  const [taskToReassign, setTaskToReassign] = useState<WorkPlan | null>(null);
 
   // Armory store for squad management and AI tools
   const armorySquads = useArmoryStore(s => s.squads);
@@ -235,6 +247,54 @@ export function PersonDetailsModal({
 
     setNewSquadName('');
     setShowCreateSquad(false);
+  };
+
+  // Task action handlers
+  const handleCompleteTask = (taskId: string) => {
+    heavyImpact();
+    updateWorkPlan(taskId, { status: 'completed', progress: 100 });
+    setExpandedTaskId(null);
+  };
+
+  const handleDeleteTask = (taskId: string) => {
+    heavyImpact();
+    deleteWorkPlan(taskId);
+    setExpandedTaskId(null);
+  };
+
+  const handlePostponeTask = (taskId: string) => {
+    lightImpact();
+    // Postpone by 1 week
+    const task = workPlans.find(t => t.id === taskId);
+    if (task?.dueDate) {
+      const newDueDate = new Date(task.dueDate);
+      newDueDate.setDate(newDueDate.getDate() + 7);
+      updateWorkPlan(taskId, { dueDate: newDueDate.toISOString().split('T')[0] });
+    }
+    setExpandedTaskId(null);
+  };
+
+  const handleUnassignFromTask = (taskId: string) => {
+    if (!member) return;
+    lightImpact();
+    const task = workPlans.find(t => t.id === taskId);
+    if (task) {
+      const newAllocations = task.allocations.filter(a => a.memberId !== member.id);
+      updateWorkPlan(taskId, { allocations: newAllocations });
+    }
+    setExpandedTaskId(null);
+  };
+
+  const handleReassignTask = (task: WorkPlan, newMemberId: string) => {
+    if (!member) return;
+    lightImpact();
+    // Replace current member's allocation with new member
+    const newAllocations = task.allocations.map(a =>
+      a.memberId === member.id ? { ...a, memberId: newMemberId } : a
+    );
+    updateWorkPlan(task.id, { allocations: newAllocations });
+    setShowReassignModal(false);
+    setTaskToReassign(null);
   };
 
   const handleJoinSquad = async (squadId: string) => {
@@ -746,93 +806,151 @@ export function PersonDetailsModal({
               </View>
             )}
 
-            {/* Current Tasks - Enhanced with TU Details */}
+            {/* Current Tasks - Interactive with Actions */}
             {memberWorkload.tasks.length > 0 && (
               <View className="px-6 py-4 border-b border-slate-200 dark:border-slate-800">
-                <Text className="text-slate-900 dark:text-white font-bold text-sm mb-3">
-                  Current Tasks ({memberWorkload.tasks.length})
-                </Text>
-                <View className="gap-2">
-                  {memberWorkload.tasks.map((task) => {
-                    const allocation = task.allocations.find(a => a.memberId === member.id);
-
-                    // Calculate total TU for this member on this task
-                    const tuPerWeek = allocation?.squaresPerWeek || 0;
-                    const totalTaskTU = task.estimatedTimeUnits || 0;
-                    // Calculate how many weeks this will take for this person
-                    const weeksToComplete = tuPerWeek > 0 ? Math.ceil(totalTaskTU / tuPerWeek) : 0;
-                    const memberTotalTU = tuPerWeek * weeksToComplete;
-
-                    const statusColors = {
-                      'not-started': 'border-gray-300 dark:border-gray-700',
-                      'in-progress': 'border-blue-400 dark:border-blue-600',
-                      'blocked': 'border-red-400 dark:border-red-600',
-                      'completed': 'border-emerald-400 dark:border-emerald-600',
-                      'abandoned': 'border-gray-400 dark:border-gray-700',
-                    };
-                    const statusBgColors = {
-                      'not-started': 'bg-gray-50 dark:bg-gray-900/20',
-                      'in-progress': 'bg-blue-50 dark:bg-blue-900/20',
-                      'blocked': 'bg-red-50 dark:bg-red-900/20',
-                      'completed': 'bg-emerald-50 dark:bg-emerald-900/20',
-                      'abandoned': 'bg-gray-50 dark:bg-gray-900/20',
-                    };
-
-                    return (
-                      <View
-                        key={task.id}
-                        className={`rounded-lg p-3 border-l-4 ${statusColors[task.status]} ${statusBgColors[task.status]}`}
-                      >
-                        <View className="flex-row items-start justify-between mb-2">
-                          <Text className="text-slate-900 dark:text-white font-semibold text-sm flex-1 mr-2">
-                            {task.title}
-                          </Text>
-                          <View className="flex-row items-center gap-1.5">
-                            <View className="bg-purple-500/20 px-2 py-0.5 rounded-full">
-                              <Text className="text-purple-600 dark:text-purple-400 text-xs font-bold">
-                                {tuPerWeek}□/wk
-                              </Text>
-                            </View>
-                            <View className="bg-blue-500/20 px-2 py-0.5 rounded-full">
-                              <Text className="text-blue-600 dark:text-blue-400 text-xs font-bold">
-                                {memberTotalTU}□ total
-                              </Text>
-                            </View>
-                          </View>
-                        </View>
-
-                        <View className="flex-row items-center justify-between mb-1">
-                          <View className="flex-row items-center gap-3">
-                            <Text className="text-slate-500 dark:text-slate-400 text-xs">
-                              {task.function}
-                            </Text>
-                            <Text className="text-slate-600 dark:text-slate-400 text-xs">
-                              {task.progress}% complete
-                            </Text>
-                          </View>
-                          <Text className="text-slate-600 dark:text-slate-400 text-xs">
-                            Due {task.dueDate ? new Date(task.dueDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) : 'TBD'}
-                          </Text>
-                        </View>
-
-                        {/* Duration info */}
-                        {weeksToComplete > 0 && (
-                          <Text className="text-slate-500 dark:text-slate-400 text-xs mb-2">
-                            Est. {weeksToComplete} week{weeksToComplete !== 1 ? 's' : ''} at {tuPerWeek}□/wk
-                          </Text>
-                        )}
-
-                        {/* Progress bar */}
-                        <View className="mt-2 h-1.5 bg-gray-200 dark:bg-slate-700 rounded-full overflow-hidden">
-                          <View
-                            className="h-full bg-purple-500 rounded-full"
-                            style={{ width: `${task.progress}%` }}
-                          />
-                        </View>
-                      </View>
-                    );
-                  })}
+                <View className="flex-row items-center justify-between mb-3">
+                  <Text className="text-slate-900 dark:text-white font-bold text-sm">
+                    Current Tasks ({memberWorkload.tasks.length})
+                  </Text>
+                  <Text className="text-slate-400 dark:text-slate-500 text-xs">
+                    Tap task for actions
+                  </Text>
                 </View>
+
+                {/* Scrollable task list with max height */}
+                <ScrollView
+                  style={{ maxHeight: 280 }}
+                  showsVerticalScrollIndicator={true}
+                  nestedScrollEnabled={true}
+                >
+                  <View className="gap-2">
+                    {memberWorkload.tasks.map((task) => {
+                      const allocation = task.allocations.find(a => a.memberId === member.id);
+                      const tuPerWeek = allocation?.squaresPerWeek || 0;
+                      const isExpanded = expandedTaskId === task.id;
+
+                      const statusColors: Record<string, string> = {
+                        'not-started': 'border-gray-300 dark:border-gray-700',
+                        'in-progress': 'border-blue-400 dark:border-blue-600',
+                        'blocked': 'border-red-400 dark:border-red-600',
+                        'completed': 'border-emerald-400 dark:border-emerald-600',
+                        'abandoned': 'border-gray-400 dark:border-gray-700',
+                      };
+                      const statusBgColors: Record<string, string> = {
+                        'not-started': 'bg-gray-50 dark:bg-gray-900/20',
+                        'in-progress': 'bg-blue-50 dark:bg-blue-900/20',
+                        'blocked': 'bg-red-50 dark:bg-red-900/20',
+                        'completed': 'bg-emerald-50 dark:bg-emerald-900/20',
+                        'abandoned': 'bg-gray-50 dark:bg-gray-900/20',
+                      };
+
+                      return (
+                        <Pressable
+                          key={task.id}
+                          onPress={() => {
+                            lightImpact();
+                            setExpandedTaskId(isExpanded ? null : task.id);
+                          }}
+                          className={`rounded-lg p-3 border-l-4 ${statusColors[task.status]} ${statusBgColors[task.status]} active:opacity-80`}
+                        >
+                          {/* Task Header */}
+                          <View className="flex-row items-start justify-between">
+                            <View className="flex-1 mr-2">
+                              <Text className="text-slate-900 dark:text-white font-semibold text-sm" numberOfLines={isExpanded ? undefined : 1}>
+                                {task.title}
+                              </Text>
+                              <View className="flex-row items-center gap-2 mt-1">
+                                <Text className="text-slate-500 dark:text-slate-400 text-xs">
+                                  {task.function}
+                                </Text>
+                                <Text className="text-slate-400 dark:text-slate-500 text-xs">•</Text>
+                                <Text className="text-slate-500 dark:text-slate-400 text-xs">
+                                  {task.progress}%
+                                </Text>
+                                <Text className="text-slate-400 dark:text-slate-500 text-xs">•</Text>
+                                <Text className="text-slate-500 dark:text-slate-400 text-xs">
+                                  Due {task.dueDate ? new Date(task.dueDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) : 'TBD'}
+                                </Text>
+                              </View>
+                            </View>
+                            <View className="flex-row items-center gap-1">
+                              <View className="bg-purple-500/20 px-2 py-0.5 rounded-full">
+                                <Text className="text-purple-600 dark:text-purple-400 text-xs font-bold">
+                                  {tuPerWeek} TU/wk
+                                </Text>
+                              </View>
+                              <MoreHorizontal size={16} color={isExpanded ? '#8b5cf6' : '#94a3b8'} />
+                            </View>
+                          </View>
+
+                          {/* Progress bar - always visible */}
+                          <View className="mt-2 h-1.5 bg-gray-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                            <View
+                              className="h-full bg-purple-500 rounded-full"
+                              style={{ width: `${task.progress}%` }}
+                            />
+                          </View>
+
+                          {/* Action Buttons - Visible when expanded */}
+                          {isExpanded && (
+                            <View className="mt-3 pt-3 border-t border-slate-200 dark:border-slate-700">
+                              <View className="flex-row flex-wrap gap-2">
+                                {/* Complete */}
+                                <Pressable
+                                  onPress={() => handleCompleteTask(task.id)}
+                                  className="flex-row items-center gap-1.5 bg-emerald-500 px-3 py-2 rounded-lg active:opacity-70"
+                                >
+                                  <CheckCircle size={14} color="white" />
+                                  <Text className="text-white text-xs font-bold">Complete</Text>
+                                </Pressable>
+
+                                {/* Postpone */}
+                                <Pressable
+                                  onPress={() => handlePostponeTask(task.id)}
+                                  className="flex-row items-center gap-1.5 bg-amber-500 px-3 py-2 rounded-lg active:opacity-70"
+                                >
+                                  <CalendarClock size={14} color="white" />
+                                  <Text className="text-white text-xs font-bold">+1 Week</Text>
+                                </Pressable>
+
+                                {/* Unassign */}
+                                <Pressable
+                                  onPress={() => handleUnassignFromTask(task.id)}
+                                  className="flex-row items-center gap-1.5 bg-blue-500 px-3 py-2 rounded-lg active:opacity-70"
+                                >
+                                  <UserMinus size={14} color="white" />
+                                  <Text className="text-white text-xs font-bold">Unassign</Text>
+                                </Pressable>
+
+                                {/* Reassign */}
+                                <Pressable
+                                  onPress={() => {
+                                    setTaskToReassign(task);
+                                    setShowReassignModal(true);
+                                  }}
+                                  className="flex-row items-center gap-1.5 bg-purple-500 px-3 py-2 rounded-lg active:opacity-70"
+                                >
+                                  <Users size={14} color="white" />
+                                  <Text className="text-white text-xs font-bold">Reassign</Text>
+                                </Pressable>
+
+                                {/* Delete */}
+                                <Pressable
+                                  onPress={() => handleDeleteTask(task.id)}
+                                  className="flex-row items-center gap-1.5 bg-red-500 px-3 py-2 rounded-lg active:opacity-70"
+                                >
+                                  <XCircle size={14} color="white" />
+                                  <Text className="text-white text-xs font-bold">Delete</Text>
+                                </Pressable>
+                              </View>
+                            </View>
+                          )}
+                        </Pressable>
+                      );
+                    })}
+                  </View>
+                </ScrollView>
               </View>
             )}
 
@@ -976,6 +1094,78 @@ export function PersonDetailsModal({
                 })}
               </ScrollView>
             )}
+          </Pressable>
+        </Pressable>
+      </Modal>
+
+      {/* Reassign Task Modal */}
+      <Modal visible={showReassignModal} transparent animationType="fade" onRequestClose={() => setShowReassignModal(false)}>
+        <Pressable
+          className="flex-1 bg-black/70 justify-center items-center px-6"
+          onPress={() => setShowReassignModal(false)}
+        >
+          <Pressable onPress={(e) => e.stopPropagation()} className="bg-white dark:bg-slate-900 rounded-2xl p-6 w-full max-w-sm">
+            <View className="flex-row items-center justify-between mb-4">
+              <Text className="text-slate-900 dark:text-white text-xl font-bold">Reassign Task</Text>
+              <Pressable onPress={() => setShowReassignModal(false)} className="bg-slate-100 dark:bg-slate-800 p-2 rounded-full">
+                <X size={18} color="#64748b" />
+              </Pressable>
+            </View>
+
+            {taskToReassign && (
+              <View className="bg-slate-50 dark:bg-slate-800 rounded-xl p-3 mb-4">
+                <Text className="text-slate-900 dark:text-white font-semibold text-sm" numberOfLines={2}>
+                  {taskToReassign.title}
+                </Text>
+                <Text className="text-slate-500 dark:text-slate-400 text-xs mt-1">
+                  {taskToReassign.function} • {taskToReassign.progress}% complete
+                </Text>
+              </View>
+            )}
+
+            <Text className="text-slate-500 dark:text-slate-400 text-sm mb-3">
+              Select a team member to reassign this task to:
+            </Text>
+
+            <ScrollView style={{ maxHeight: 250 }}>
+              {allMembers
+                .filter(m => m.status === 'active' && m.id !== member?.id)
+                .map((teamMember) => {
+                  const roleColor = ROLE_COLORS[teamMember.role];
+                  return (
+                    <Pressable
+                      key={teamMember.id}
+                      onPress={() => taskToReassign && handleReassignTask(taskToReassign, teamMember.id)}
+                      className="flex-row items-center p-3 mb-2 bg-slate-50 dark:bg-slate-800 rounded-xl active:opacity-70"
+                    >
+                      <View
+                        className="w-10 h-10 rounded-full items-center justify-center mr-3"
+                        style={{ backgroundColor: roleColor + '20' }}
+                      >
+                        <Text className="font-bold text-sm" style={{ color: roleColor }}>
+                          {teamMember.name.split(' ').map(n => n[0]).join('')}
+                        </Text>
+                      </View>
+                      <View className="flex-1">
+                        <Text className="text-slate-900 dark:text-white font-semibold text-sm">
+                          {teamMember.name}
+                        </Text>
+                        <Text className="text-slate-500 dark:text-slate-400 text-xs">
+                          {teamMember.role === 'FractionalExec' ? 'Fractional Exec' : teamMember.role} • {teamMember.function}
+                        </Text>
+                      </View>
+                      <ChevronRight size={18} color="#94a3b8" />
+                    </Pressable>
+                  );
+                })}
+            </ScrollView>
+
+            <Pressable
+              onPress={() => setShowReassignModal(false)}
+              className="mt-4 bg-slate-200 dark:bg-slate-700 rounded-xl py-3 active:opacity-70"
+            >
+              <Text className="text-slate-700 dark:text-slate-300 font-semibold text-center">Cancel</Text>
+            </Pressable>
           </Pressable>
         </Pressable>
       </Modal>
