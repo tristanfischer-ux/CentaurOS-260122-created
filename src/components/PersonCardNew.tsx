@@ -811,7 +811,7 @@ export function PersonCardNew({ member, allMembers = [], onMemberChange }: Perso
                     </Text>
                   </View>
 
-                  {member.costPerDay && (
+                  {member.costPerDay != null && (
                     <View className="flex-row items-center mb-2">
                       <DollarSign size={16} color="#64748b" />
                       <Text className="text-slate-700 dark:text-slate-300 text-sm ml-2">
@@ -820,7 +820,7 @@ export function PersonCardNew({ member, allMembers = [], onMemberChange }: Perso
                     </View>
                   )}
 
-                  {member.daysPerWeek && (
+                  {member.daysPerWeek != null && (
                     <View className="flex-row items-center mb-2">
                       <Clock size={16} color="#64748b" />
                       <Text className="text-slate-700 dark:text-slate-300 text-sm ml-2">
@@ -857,7 +857,7 @@ export function PersonCardNew({ member, allMembers = [], onMemberChange }: Perso
                       Performance Modifiers
                     </Text>
 
-                    {member.teamLeadershipMultiplier && (
+                    {member.teamLeadershipMultiplier != null && (
                       <View className="flex-row items-center justify-between mb-2 bg-purple-50 dark:bg-purple-900/20 rounded-lg p-3">
                         <View className="flex-row items-center flex-1">
                           <View className="w-8 h-8 bg-purple-100 dark:bg-purple-900/40 rounded-full items-center justify-center mr-3">
@@ -873,7 +873,7 @@ export function PersonCardNew({ member, allMembers = [], onMemberChange }: Perso
                       </View>
                     )}
 
-                    {member.collaborationMultiplier && (
+                    {member.collaborationMultiplier != null && (
                       <View className="flex-row items-center justify-between mb-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg p-3">
                         <View className="flex-row items-center flex-1">
                           <View className="w-8 h-8 bg-blue-100 dark:bg-blue-900/40 rounded-full items-center justify-center mr-3">
@@ -889,7 +889,7 @@ export function PersonCardNew({ member, allMembers = [], onMemberChange }: Perso
                       </View>
                     )}
 
-                    {member.aiProficiencyMultiplier && (
+                    {member.aiProficiencyMultiplier != null && (
                       <View className="flex-row items-center justify-between bg-amber-50 dark:bg-amber-900/20 rounded-lg p-3">
                         <View className="flex-row items-center flex-1">
                           <View className="w-8 h-8 bg-amber-100 dark:bg-amber-900/40 rounded-full items-center justify-center mr-3">

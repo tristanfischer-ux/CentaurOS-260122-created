@@ -34,6 +34,7 @@ A mobile app for lean companies to manage tasks, track team capacity, and coordi
 - ✅ Three-tier progressive disclosure (Compact → Medium → Full)
 - ✅ Avatar initials fixed (first name + last name initials)
 - ✅ Fixed all nested ScrollView issues - smooth single-scroll experience
+- ✅ Fixed "Text strings must be rendered within a <Text> component" error (numeric conditional rendering)
 - ✅ Quick Assign button with capacity-aware modal
 - ✅ Clickable avatars with MemberQuickView popover
 - ✅ Capacity impact display in PendingAssignmentsModal
