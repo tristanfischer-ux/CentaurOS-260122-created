@@ -147,6 +147,15 @@ export interface WorkPlan {
 
   // Sharing configuration (if visibility is 'shared')
   sharedWith?: TaskSharing;              // Who can access and their permission level
+
+  // ========================================
+  // ESCALATION TRACKING
+  // ========================================
+
+  // Escalation metadata
+  isEscalated?: boolean;              // Quick flag for filtering
+  currentEscalationId?: string;       // If currently escalated
+  escalationHistory?: string[];       // Array of escalation IDs (for pattern detection)
 }
 
 interface WorkPlanState {

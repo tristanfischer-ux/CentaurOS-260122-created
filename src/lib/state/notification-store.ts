@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { mmkvStorage } from '@/lib/storage/mmkv-storage';
 
-export type NotificationType = 'approval' | 'deadline' | 'capacity' | 'budget' | 'assignment' | 'message' | 'achievement';
+export type NotificationType = 'approval' | 'deadline' | 'capacity' | 'budget' | 'assignment' | 'message' | 'achievement' | 'escalation';
 
 export interface Notification {
   id: string;
@@ -27,6 +27,7 @@ interface NotificationStore {
     assignments: boolean;
     messages: boolean;
     achievements: boolean;
+    escalations: boolean;
   };
   addNotification: (notification: Omit<Notification, 'id' | 'read' | 'timestamp'>) => void;
   markAsRead: (id: string) => void;
@@ -50,6 +51,7 @@ export const useNotificationStore = create<NotificationStore>()(
         assignments: true,
         messages: true,
         achievements: true,
+        escalations: true,
       },
 
       addNotification: (notification: Omit<Notification, 'id' | 'read' | 'timestamp'>) => {
@@ -59,7 +61,8 @@ export const useNotificationStore = create<NotificationStore>()(
                        notification.type === 'capacity' ? 'capacity' :
                        notification.type === 'budget' ? 'budget' :
                        notification.type === 'assignment' ? 'assignments' :
-                       notification.type === 'message' ? 'messages' : 'achievements';
+                       notification.type === 'message' ? 'messages' :
+                       notification.type === 'escalation' ? 'escalations' : 'achievements';
 
         if (!get().preferences[typeKey]) return;
 
@@ -175,5 +178,34 @@ export const notificationHelpers = {
     title: 'Achievement Unlocked!',
     message: `You earned "${achievementName}"`,
     actionLabel: 'View All',
+  }),
+
+  escalationCreated: (
+    workspaceId: string,
+    taskTitle: string,
+    escalatedByName: string,
+    reason: string
+  ) => ({
+    type: 'escalation' as NotificationType,
+    workspaceId,
+    title: '🚨 Task Escalated to Leadership',
+    message: `${escalatedByName} escalated "${taskTitle}" - ${reason}`,
+    actionLabel: 'Review Escalations',
+    actionRoute: '/(tabs)/?modal=escalations',
+  }),
+
+  escalationResolved: (
+    workspaceId: string,
+    taskTitle: string,
+    action: string,
+    respondedByName: string,
+    notes: string
+  ) => ({
+    type: 'escalation' as NotificationType,
+    workspaceId,
+    title: `Escalation ${action}`,
+    message: `${respondedByName} ${action} your escalation for "${taskTitle}": ${notes}`,
+    actionLabel: 'View Task',
+    actionRoute: '/(tabs)/tasks',
   }),
 };

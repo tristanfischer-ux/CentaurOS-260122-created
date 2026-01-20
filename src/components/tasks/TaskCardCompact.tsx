@@ -9,6 +9,7 @@
  */
 
 import { View, Text, Pressable } from 'react-native';
+import { AlertTriangle } from 'lucide-react-native';
 import type { WorkPlan } from '@/lib/state/work-plan-store';
 import type { PriorityLevel } from '@/lib/ai-priority-scoring';
 import {
@@ -89,6 +90,14 @@ export function TaskCardCompact({
       {/* Line 1: Status, Title, Avatars, Priority */}
       <View className="flex-row items-center gap-2">
         <TaskStatusDot status={task.status} size={8} />
+        {task.isEscalated && (
+          <View className="flex-row items-center gap-1 bg-red-50 dark:bg-red-900/30 px-2 py-0.5 rounded">
+            <AlertTriangle size={12} color="#ef4444" />
+            <Text className="text-red-600 dark:text-red-400 text-xs font-semibold">
+              Escalated
+            </Text>
+          </View>
+        )}
         <Text className={TYPOGRAPHY.title} numberOfLines={1} style={{ flexShrink: 1 }}>
           {task.title}
         </Text>

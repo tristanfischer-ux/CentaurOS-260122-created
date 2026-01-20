@@ -57,6 +57,10 @@ import { FocusTodaySection } from '@/components/FocusTodaySection';
 import { PendingAssignmentsBadge } from '@/components/PendingAssignmentsBadge';
 import { PendingAssignmentsModal } from '@/components/PendingAssignmentsModal';
 
+// Escalation System
+import { EscalationsBadge } from '@/components/EscalationsBadge';
+import { EscalationsInboxModal } from '@/components/EscalationsInboxModal';
+
 // Role-based components
 import { FounderApprovalPanel } from '@/components/FounderApprovalPanel';
 import { seedAllocationRequests } from '@/lib/state/allocation-request-store';
@@ -120,6 +124,7 @@ function FounderHome() {
   const [lastUpdated, setLastUpdated] = useState(new Date());
   const refreshTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const [showPendingAssignments, setShowPendingAssignments] = useState(false);
+  const [showEscalationsModal, setShowEscalationsModal] = useState(false);
   const [statsFilter, setStatsFilter] = useState<'all' | 'doing' | 'blocked' | 'team' | null>(null);
 
   // Task expansion state (for inline Medium view)
@@ -142,6 +147,9 @@ function FounderHome() {
   const members = useOrganizationStore((s) => s.members);
   const currentWorkspace = useCurrentWorkspace();
   const currentMembership = useCurrentMembership();
+
+  // Get current member from organization members
+  const currentMember = members.find(m => m.id === currentMembership?.id);
 
   // Initialize all stores on mount
   useEffect(() => {
@@ -270,6 +278,14 @@ function FounderHome() {
                 style="icon-only"
               />
             )}
+            {/* Escalations Badge (Founders only) */}
+            {currentMember?.role === 'Founder' && currentWorkspace?.id && (
+              <EscalationsBadge
+                workspaceId={currentWorkspace.id}
+                onPress={() => setShowEscalationsModal(true)}
+                style="icon-only"
+              />
+            )}
             {/* Last Updated */}
             <Pressable
               onPress={handleRefresh}
@@ -370,6 +386,16 @@ function FounderHome() {
           visible={showPendingAssignments}
           onClose={() => setShowPendingAssignments(false)}
           memberId={currentMembership.id}
+        />
+      )}
+
+      {/* Escalations Inbox Modal (Founders only) */}
+      {currentWorkspace?.id && currentMembership?.id && (
+        <EscalationsInboxModal
+          visible={showEscalationsModal}
+          onClose={() => setShowEscalationsModal(false)}
+          workspaceId={currentWorkspace.id}
+          currentMemberId={currentMembership.id}
         />
       )}
     </View>

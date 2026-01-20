@@ -8,7 +8,7 @@
  * All inline, no modals. Each tier builds on the previous.
  */
 
-import { View, Text, Pressable, TextInput, Modal, ScrollView } from 'react-native';
+import { View, Text, Pressable, TextInput, Modal, ScrollView, Alert } from 'react-native';
 import { useState } from 'react';
 import {
   Play,
@@ -35,6 +35,7 @@ import type { WorkPlan } from '@/lib/state/work-plan-store';
 import type { PriorityLevel } from '@/lib/ai-priority-scoring';
 import { useOrganizationStore } from '@/lib/state/organization-store';
 import { useWorkPlanStore } from '@/lib/state/work-plan-store';
+import { useEscalationStore, type EscalationReason } from '@/lib/state/escalation-store';
 import type { OrganizationMember } from '@/lib/organization-seed';
 import { HapticPressable } from '@/components/HapticPressable';
 import { TaskProgressBar } from './index';
@@ -94,6 +95,14 @@ export function TaskCardExpansion({
   const [splitTaskName1, setSplitTaskName1] = useState<string>('');
   const [splitTaskName2, setSplitTaskName2] = useState<string>('');
   const [splitPercentage, setSplitPercentage] = useState<number>(50);
+
+  // Escalation modal state
+  const [escalationReason, setEscalationReason] = useState<EscalationReason>('resource_constraint');
+  const [escalationDetails, setEscalationDetails] = useState<string>('');
+
+  // Get escalation store
+  const createEscalation = useEscalationStore(s => s.createEscalation);
+  const escalationHistory = useEscalationStore(s => s.getEscalationsByTask(task.id));
 
   // Calculate current metrics
   const rawVelocity = task.allocations.reduce((sum, a) => sum + a.squaresPerWeek, 0);
@@ -258,13 +267,53 @@ export function TaskCardExpansion({
 
   // Handler: Escalate to Leadership
   const handleEscalate = () => {
-    const escalationNote = `🚨 ESCALATED TO LEADERSHIP\n\nThis task requires leadership attention due to:\n- Critical priority level\n- Resource constraints\n- Timeline concerns\n\nEscalated on: ${new Date().toLocaleDateString()}\n\n${task.description}`;
+    if (!escalationDetails.trim()) {
+      Alert.alert('Details Required', 'Please explain why you need to escalate this task.');
+      return;
+    }
 
+    // Get current member (in a real app, this would come from auth context)
+    const currentMember = members.find(m => m.status === 'active'); // Simplified for demo
+    if (!currentMember) {
+      Alert.alert('Error', 'Could not identify current user.');
+      return;
+    }
+
+    const reasonOptions: Record<EscalationReason, string> = {
+      resource_constraint: 'Resource Constraint',
+      timeline_issue: 'Timeline Issue',
+      scope_unclear: 'Scope Unclear',
+      blocked: 'Blocked',
+      complexity: 'Too Complex',
+      other: 'Other',
+    };
+
+    const reasonLabel = reasonOptions[escalationReason];
+
+    const escalation = createEscalation({
+      workPlanId: task.id,
+      workspaceId: task.workspaceId,
+      escalatedBy: currentMember.id,
+      escalatedByName: currentMember.name,
+      reason: escalationReason,
+      reasonLabel,
+      details: escalationDetails,
+      taskTitle: task.title,
+      taskDescription: task.description,
+      taskDueDate: task.dueDate,
+      currentAllocations: task.allocations.map(a => a.memberId),
+    });
+
+    // Mark task as escalated
     updateWorkPlan(task.id, {
-      description: escalationNote,
+      isEscalated: true,
+      currentEscalationId: escalation.id,
+      escalationHistory: [...(task.escalationHistory || []), escalation.id],
     });
 
     setShowEscalateModal(false);
+    setEscalationDetails('');
+    Alert.alert('Task Escalated', 'Leadership has been notified and will review shortly.');
   };
 
   return (
@@ -624,6 +673,46 @@ export function TaskCardExpansion({
               </View>
             </View>
 
+            {/* Escalation History */}
+            {escalationHistory.length > 0 && (
+              <View className="mt-4 pt-4 border-t border-slate-200 dark:border-slate-700">
+                <View className="flex-row items-center gap-2 mb-3">
+                  <AlertTriangle size={16} color="#ef4444" />
+                  <Text className="text-sm font-bold text-slate-900 dark:text-white">
+                    Escalation History ({escalationHistory.length})
+                  </Text>
+                </View>
+                {escalationHistory.map((esc) => (
+                  <View key={esc.id} className="bg-red-50 dark:bg-red-900/20 rounded-lg p-3 mb-2">
+                    <View className="flex-row items-center justify-between mb-1">
+                      <Text className="text-xs font-bold text-red-900 dark:text-red-200">
+                        {esc.reasonLabel}
+                      </Text>
+                      <Text className="text-xs text-red-700 dark:text-red-400">
+                        {new Date(esc.escalatedAt).toLocaleDateString()}
+                      </Text>
+                    </View>
+                    <Text className="text-sm text-red-800 dark:text-red-300 mb-2">
+                      {esc.details}
+                    </Text>
+                    <Text className="text-xs text-red-600 dark:text-red-400">
+                      Escalated by {esc.escalatedByName}
+                    </Text>
+                    {esc.resolution && (
+                      <View className="mt-2 pt-2 border-t border-red-200 dark:border-red-800">
+                        <Text className="text-xs font-bold text-green-700 dark:text-green-400 mb-1">
+                          {esc.resolution.action.toUpperCase()} by {esc.respondedByName}
+                        </Text>
+                        <Text className="text-xs text-green-800 dark:text-green-300">
+                          {esc.resolution.notes}
+                        </Text>
+                      </View>
+                    )}
+                  </View>
+                ))}
+              </View>
+            )}
+
             {/* Strategic Actions */}
             <View className="gap-2">
               <View className="flex-row gap-2">
@@ -972,8 +1061,8 @@ export function TaskCardExpansion({
                 {/* Header */}
                 <View className="flex-row items-center justify-between mb-6">
                   <View className="flex-row items-center gap-3">
-                    <View className="w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-900/30 items-center justify-center">
-                      <ArrowUpCircle size={20} color="#f59e0b" />
+                    <View className="w-10 h-10 rounded-full bg-red-100 dark:bg-red-900/30 items-center justify-center">
+                      <ArrowUpCircle size={20} color="#ef4444" />
                     </View>
                     <Text className="text-slate-900 dark:text-white font-bold text-lg">Escalate to Leadership</Text>
                   </View>
@@ -983,16 +1072,15 @@ export function TaskCardExpansion({
                 </View>
 
                 {/* Warning */}
-                <View className="bg-amber-50 dark:bg-amber-900/20 rounded-lg p-4 mb-6">
+                <View className="bg-red-50 dark:bg-red-900/20 rounded-lg p-4 mb-6">
                   <View className="flex-row items-start gap-3">
-                    <AlertTriangle size={20} color="#f59e0b" style={{ marginTop: 2 }} />
+                    <AlertTriangle size={20} color="#ef4444" style={{ marginTop: 2 }} />
                     <View className="flex-1">
-                      <Text className="text-amber-900 dark:text-amber-100 font-bold text-sm mb-1">
-                        This will flag the task for leadership review
+                      <Text className="text-red-900 dark:text-red-100 font-bold text-sm mb-1">
+                        This will notify all Founders
                       </Text>
-                      <Text className="text-amber-700 dark:text-amber-300 text-xs">
-                        The task description will be updated to indicate it has been escalated and requires
-                        leadership attention for resource constraints or timeline concerns.
+                      <Text className="text-red-700 dark:text-red-300 text-xs">
+                        Leadership will be notified immediately and can review this task to provide resources, extend timelines, or provide guidance.
                       </Text>
                     </View>
                   </View>
@@ -1023,6 +1111,63 @@ export function TaskCardExpansion({
                   </View>
                 </View>
 
+                {/* Reason Selection */}
+                <View className="mb-4">
+                  <Text className="text-slate-900 dark:text-white font-bold text-sm mb-3">
+                    Why are you escalating?
+                  </Text>
+                  <View className="flex-row flex-wrap gap-2">
+                    {[
+                      { value: 'resource_constraint', label: 'Resource Constraint', icon: '👥' },
+                      { value: 'timeline_issue', label: 'Timeline Issue', icon: '⏰' },
+                      { value: 'scope_unclear', label: 'Scope Unclear', icon: '❓' },
+                      { value: 'blocked', label: 'Blocked', icon: '🚧' },
+                      { value: 'complexity', label: 'Too Complex', icon: '🧩' },
+                      { value: 'other', label: 'Other', icon: '📌' },
+                    ].map((reason) => (
+                      <Pressable
+                        key={reason.value}
+                        onPress={() => setEscalationReason(reason.value as EscalationReason)}
+                        className={`px-3 py-2 rounded-lg border flex-row items-center gap-2 ${
+                          escalationReason === reason.value
+                            ? 'bg-red-500 border-red-500'
+                            : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-600'
+                        }`}
+                      >
+                        <Text className="text-sm">{reason.icon}</Text>
+                        <Text
+                          className={`text-sm ${
+                            escalationReason === reason.value
+                              ? 'text-white font-bold'
+                              : 'text-slate-700 dark:text-slate-300'
+                          }`}
+                        >
+                          {reason.label}
+                        </Text>
+                      </Pressable>
+                    ))}
+                  </View>
+                </View>
+
+                {/* Details */}
+                <View className="mb-6">
+                  <Text className="text-slate-900 dark:text-white font-bold text-sm mb-2">
+                    Explain the situation *
+                  </Text>
+                  <TextInput
+                    placeholder="What's blocking you? What do you need from leadership?"
+                    value={escalationDetails}
+                    onChangeText={setEscalationDetails}
+                    multiline
+                    numberOfLines={4}
+                    className="bg-white dark:bg-slate-800 rounded-lg p-3 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-600"
+                    placeholderTextColor="#94a3b8"
+                  />
+                  <Text className="text-slate-500 dark:text-slate-400 text-xs mt-1">
+                    Be specific - this helps leadership make faster decisions
+                  </Text>
+                </View>
+
                 {/* Action Buttons */}
                 <View className="flex-row gap-3">
                   <HapticPressable
@@ -1033,7 +1178,7 @@ export function TaskCardExpansion({
                   </HapticPressable>
                   <HapticPressable
                     onPress={handleEscalate}
-                    className="flex-1 py-3 bg-amber-500 rounded-lg"
+                    className="flex-1 py-3 bg-red-500 rounded-lg"
                   >
                     <Text className="text-white font-bold text-sm text-center">Escalate Task</Text>
                   </HapticPressable>
