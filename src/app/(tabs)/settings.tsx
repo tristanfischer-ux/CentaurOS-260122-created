@@ -149,6 +149,7 @@ export default function SettingsScreen() {
   const [showDataManagement, setShowDataManagement] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
   const [showCurrencyPicker, setShowCurrencyPicker] = useState(false);
+  const [showOnboardingGuide, setShowOnboardingGuide] = useState(false);
   const [selectedCurrency, setSelectedCurrency] = useState(() => detectUserCurrency());
   const [syncStatus, setSyncStatus] = useState<'idle' | 'syncing' | 'success' | 'error'>('idle');
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
@@ -780,6 +781,57 @@ export default function SettingsScreen() {
           </View>
         </View>
 
+        {/* 🎯 ONBOARDING GUIDE - Critical for Founders */}
+        {userRole === 'Founder' && (
+          <Animated.View entering={FadeInDown.delay(150)} className="px-5 mb-4 mt-4">
+            <Pressable
+              onPress={() => setShowOnboardingGuide(true)}
+              className={`${bgCard} border-2 border-blue-500/50 rounded-2xl p-5 active:opacity-90`}
+              style={{ borderStyle: 'dashed' }}
+            >
+              <View className="flex-row items-start justify-between">
+                <View className="flex-row items-start flex-1">
+                  <View className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 items-center justify-center mr-4">
+                    <Rocket size={28} color="#ffffff" />
+                  </View>
+                  <View className="flex-1">
+                    <View className="flex-row items-center gap-2 mb-1">
+                      <Text className={`font-bold text-lg ${textPrimary}`}>Setup & Onboarding</Text>
+                      <View className="bg-blue-500 rounded-full px-2 py-0.5">
+                        <Text className="text-white text-[10px] font-bold">IMPORTANT</Text>
+                      </View>
+                    </View>
+                    <Text className={`text-sm ${textSecondary} mb-2`}>
+                      Step-by-step guide to set up your database and add team members
+                    </Text>
+                    <View className="flex-row flex-wrap gap-2 mt-2">
+                      <View className="flex-row items-center bg-blue-500/10 rounded-lg px-2 py-1">
+                        <Database size={12} color="#3b82f6" />
+                        <Text className="text-blue-600 dark:text-blue-400 text-xs font-semibold ml-1">
+                          Database Setup
+                        </Text>
+                      </View>
+                      <View className="flex-row items-center bg-emerald-500/10 rounded-lg px-2 py-1">
+                        <Users size={12} color="#10b981" />
+                        <Text className="text-emerald-600 dark:text-emerald-400 text-xs font-semibold ml-1">
+                          Add Team
+                        </Text>
+                      </View>
+                      <View className="flex-row items-center bg-violet-500/10 rounded-lg px-2 py-1">
+                        <CheckCircle2 size={12} color="#8b5cf6" />
+                        <Text className="text-violet-600 dark:text-violet-400 text-xs font-semibold ml-1">
+                          Verification
+                        </Text>
+                      </View>
+                    </View>
+                  </View>
+                </View>
+                <ChevronRight size={24} color="#3b82f6" style={{ marginLeft: 8 }} />
+              </View>
+            </Pressable>
+          </Animated.View>
+        )}
+
         {/* Company & Team Settings - Standalone Section */}
         <Animated.View entering={FadeInDown.delay(200)} className="px-5 mb-4 mt-4">
           <Pressable
@@ -1248,6 +1300,244 @@ export default function SettingsScreen() {
                   </Pressable>
                 ))}
                 <View className="h-8" />
+              </ScrollView>
+            </View>
+          </Pressable>
+        </Pressable>
+      </Modal>
+
+      {/* Onboarding Guide Modal */}
+      <Modal
+        visible={showOnboardingGuide}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setShowOnboardingGuide(false)}
+      >
+        <Pressable className="flex-1 bg-black/70" onPress={() => setShowOnboardingGuide(false)}>
+          <View className="flex-1" />
+          <Pressable onPress={(e) => e.stopPropagation()} style={{ maxHeight: '90%' }}>
+            <View className={`${isDark ? 'bg-slate-900' : isOffWhite ? 'bg-orange-50' : 'bg-white'} rounded-t-3xl`}>
+              {/* Header */}
+              <View className={`p-6 border-b ${borderColor}`}>
+                <View className="flex-row items-center justify-between">
+                  <View className="flex-row items-center gap-3">
+                    <View className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl items-center justify-center">
+                      <Rocket size={24} color="#ffffff" />
+                    </View>
+                    <View>
+                      <Text className={`text-xl font-bold ${textPrimary}`}>Setup & Onboarding</Text>
+                      <Text className={`text-xs ${textSecondary}`}>Follow these steps exactly</Text>
+                    </View>
+                  </View>
+                  <Pressable
+                    onPress={() => setShowOnboardingGuide(false)}
+                    className={`w-10 h-10 items-center justify-center rounded-full ${bgCardAlt} active:opacity-70`}
+                  >
+                    <X size={24} color={iconColor} />
+                  </Pressable>
+                </View>
+              </View>
+
+              {/* Content */}
+              <ScrollView className="px-6 py-4" showsVerticalScrollIndicator={true}>
+                {/* Part 1: Database Setup */}
+                <View className="mb-6">
+                  <View className="flex-row items-center gap-2 mb-3">
+                    <Database size={20} color="#3b82f6" />
+                    <Text className={`text-lg font-bold ${textPrimary}`}>Part 1: Database Setup</Text>
+                    <View className="bg-blue-500 rounded-full px-2 py-0.5">
+                      <Text className="text-white text-[10px] font-bold">ONE-TIME</Text>
+                    </View>
+                  </View>
+
+                  <View className="bg-blue-500/10 border-2 border-blue-500/30 rounded-xl p-4 mb-3">
+                    <Text className={`font-semibold ${textPrimary} mb-2`}>Step 1: Run Core Schema</Text>
+                    <Text className={`text-sm ${textSecondary} mb-3`}>
+                      This creates all database tables (users, workspaces, members, tasks, etc.)
+                    </Text>
+                    <View className={`${isDark ? 'bg-slate-800' : isOffWhite ? 'bg-orange-100' : 'bg-gray-100'} rounded-lg p-3 mb-2`}>
+                      <Text className="text-xs font-mono text-emerald-600 dark:text-emerald-400">
+                        1. Open Supabase Dashboard → SQL Editor{'\n'}
+                        2. Click + New Query{'\n'}
+                        3. Copy supabase-schema.sql file{'\n'}
+                        4. Paste and click Run{'\n'}
+                        5. Wait for ✅ "Success. No rows returned"
+                      </Text>
+                    </View>
+                    <Pressable
+                      onPress={() => Linking.openURL('https://supabase.com/dashboard')}
+                      className="bg-blue-500 py-2 px-4 rounded-lg flex-row items-center justify-center gap-2 active:opacity-70"
+                    >
+                      <ExternalLink size={16} color="#ffffff" />
+                      <Text className="text-white font-semibold text-sm">Open Supabase Dashboard</Text>
+                    </Pressable>
+                  </View>
+
+                  <Text className={`text-xs ${textMuted} mb-3`}>
+                    ✅ Verify: Table Editor shows users, workspaces, memberships, team_members, tasks, objectives tables
+                  </Text>
+                </View>
+
+                {/* Part 2: Create Founder Account */}
+                <View className="mb-6">
+                  <View className="flex-row items-center gap-2 mb-3">
+                    <User size={20} color="#8b5cf6" />
+                    <Text className={`text-lg font-bold ${textPrimary}`}>Part 2: Create Founder Account</Text>
+                  </View>
+
+                  <View className="bg-violet-500/10 border-2 border-violet-500/30 rounded-xl p-4 mb-3">
+                    <Text className={`font-semibold ${textPrimary} mb-2`}>Step 2: Sign Up</Text>
+                    <Text className={`text-sm ${textSecondary} mb-3`}>
+                      If you haven't already, create your founder account:
+                    </Text>
+                    <View className={`${isDark ? 'bg-slate-800' : isOffWhite ? 'bg-orange-100' : 'bg-gray-100'} rounded-lg p-3 mb-2`}>
+                      <Text className="text-xs font-mono text-violet-600 dark:text-violet-400">
+                        1. Sign Out (if already signed in){'\n'}
+                        2. Tap "Create Account"{'\n'}
+                        3. Enter: Name, Email, Password (6+ chars){'\n'}
+                        4. Enter: Workspace Name{'\n'}
+                        5. Tap "Create Account"
+                      </Text>
+                    </View>
+                    <Pressable
+                      onPress={() => {
+                        Alert.alert(
+                          'Sign Out?',
+                          'This will sign you out so you can create a new account. Continue?',
+                          [
+                            { text: 'Cancel', style: 'cancel' },
+                            {
+                              text: 'Sign Out',
+                              style: 'destructive',
+                              onPress: () => {
+                                setShowOnboardingGuide(false);
+                                useAppStore.getState().setCurrentUser(null);
+                                router.replace('/sign-in');
+                              },
+                            },
+                          ]
+                        );
+                      }}
+                      className="bg-violet-500 py-2 px-4 rounded-lg flex-row items-center justify-center gap-2 active:opacity-70"
+                    >
+                      <LogOut size={16} color="#ffffff" />
+                      <Text className="text-white font-semibold text-sm">Sign Out to Create Account</Text>
+                    </Pressable>
+                  </View>
+
+                  <Text className={`text-xs ${textMuted} mb-3`}>
+                    ✅ Verify: Supabase → Authentication → Users shows your email
+                  </Text>
+                </View>
+
+                {/* Part 3: Add Team Members */}
+                <View className="mb-6">
+                  <View className="flex-row items-center gap-2 mb-3">
+                    <Users size={20} color="#10b981" />
+                    <Text className={`text-lg font-bold ${textPrimary}`}>Part 3: Add Team Members</Text>
+                  </View>
+
+                  {/* Option A */}
+                  <View className="bg-emerald-500/10 border-2 border-emerald-500/30 rounded-xl p-4 mb-3">
+                    <Text className={`font-semibold ${textPrimary} mb-2`}>OPTION A: Without User Accounts (Faster)</Text>
+                    <Text className={`text-sm ${textSecondary} mb-3`}>
+                      For planning only - team members won't be able to log in yet
+                    </Text>
+                    <View className={`${isDark ? 'bg-slate-800' : isOffWhite ? 'bg-orange-100' : 'bg-gray-100'} rounded-lg p-3 mb-2`}>
+                      <Text className="text-xs font-mono text-emerald-600 dark:text-emerald-400">
+                        1. Go to People tab{'\n'}
+                        2. Tap + Add Member{'\n'}
+                        3. Fill in: Name, Role, Function, Capacity{'\n'}
+                        4. Tap Save
+                      </Text>
+                    </View>
+                    <Pressable
+                      onPress={() => {
+                        setShowOnboardingGuide(false);
+                        router.push('/(tabs)/people');
+                      }}
+                      className="bg-emerald-500 py-2 px-4 rounded-lg flex-row items-center justify-center gap-2 active:opacity-70"
+                    >
+                      <Users size={16} color="#ffffff" />
+                      <Text className="text-white font-semibold text-sm">Go to People Tab</Text>
+                    </Pressable>
+                  </View>
+
+                  {/* Option B */}
+                  <View className="bg-amber-500/10 border-2 border-amber-500/30 rounded-xl p-4 mb-3">
+                    <Text className={`font-semibold ${textPrimary} mb-2`}>OPTION B: With User Accounts (Production)</Text>
+                    <Text className={`text-sm ${textSecondary} mb-3`}>
+                      Full multi-user setup - team members can log in and collaborate
+                    </Text>
+                    <View className={`${isDark ? 'bg-slate-800' : isOffWhite ? 'bg-orange-100' : 'bg-gray-100'} rounded-lg p-3 mb-2`}>
+                      <Text className="text-xs font-mono text-amber-600 dark:text-amber-400">
+                        STEP 1: Team member creates account{'\n'}
+                        • They tap "Create Account"{'\n'}
+                        • Enter their name, email, password{'\n'}
+                        {'\n'}
+                        STEP 2: You invite them to workspace{'\n'}
+                        • Supabase → Table Editor → memberships{'\n'}
+                        • Insert row with:{'\n'}
+                        {'  '}workspace_id: (your workspace ID){'\n'}
+                        {'  '}user_id: (their user ID from users table){'\n'}
+                        {'  '}role: Founder/FractionalExec/Apprentice{'\n'}
+                        {'  '}function: Finance/Sales/etc{'\n'}
+                        {'\n'}
+                        STEP 3: Link to team member record{'\n'}
+                        • People tab → Add Member (same name){'\n'}
+                        • Supabase → team_members → Edit row{'\n'}
+                        • Set user_id field to their user ID
+                      </Text>
+                    </View>
+                    <View className="flex-row gap-2">
+                      <Pressable
+                        onPress={() => Linking.openURL('https://supabase.com/dashboard')}
+                        className="flex-1 bg-amber-500 py-2 px-4 rounded-lg flex-row items-center justify-center gap-2 active:opacity-70"
+                      >
+                        <Database size={16} color="#ffffff" />
+                        <Text className="text-white font-semibold text-sm">Supabase</Text>
+                      </Pressable>
+                      <Pressable
+                        onPress={() => {
+                          setShowOnboardingGuide(false);
+                          router.push('/(tabs)/people');
+                        }}
+                        className="flex-1 bg-emerald-500 py-2 px-4 rounded-lg flex-row items-center justify-center gap-2 active:opacity-70"
+                      >
+                        <Users size={16} color="#ffffff" />
+                        <Text className="text-white font-semibold text-sm">People Tab</Text>
+                      </Pressable>
+                    </View>
+                  </View>
+
+                  <Text className={`text-xs ${textMuted} mb-3`}>
+                    ✅ Verify: People tab shows team members, assignments work correctly
+                  </Text>
+                </View>
+
+                {/* Full Guide Link */}
+                <View className="bg-gradient-to-r from-blue-500/20 to-violet-500/20 border-2 border-blue-500/30 rounded-xl p-4 mb-4">
+                  <Text className={`font-bold text-base ${textPrimary} mb-2`}>
+                    📖 Complete Onboarding Guide
+                  </Text>
+                  <Text className={`text-sm ${textSecondary} mb-3`}>
+                    For detailed instructions, troubleshooting, and advanced scenarios, see ONBOARDING_GUIDE.md in your project folder.
+                  </Text>
+                  <Text className={`text-xs ${textMuted}`}>
+                    Covers: Database setup, user management, multi-workspace support, escalation system, troubleshooting, and more.
+                  </Text>
+                </View>
+
+                {/* Support */}
+                <View className={`${isDark ? 'bg-slate-800' : isOffWhite ? 'bg-orange-100' : 'bg-gray-100'} rounded-xl p-4`}>
+                  <Text className={`font-semibold ${textPrimary} mb-2`}>Need Help?</Text>
+                  <Text className={`text-xs ${textSecondary}`}>
+                    • Check SUPABASE_AUTH_GUIDE.md for auth issues{'\n'}
+                    • Check README.md for feature documentation{'\n'}
+                    • Review expo.log file for runtime errors{'\n'}
+                    • Settings → Help & Support for more resources
+                  </Text>
+                </View>
               </ScrollView>
             </View>
           </Pressable>
