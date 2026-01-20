@@ -851,7 +851,7 @@ export function PersonCardNew({ member, allMembers = [], onMemberChange }: Perso
                 </View>
 
                 {/* Performance Modifiers */}
-                {(member.teamLeadershipMultiplier || member.collaborationMultiplier || member.aiProficiencyMultiplier) && (
+                {(member.teamLeadershipMultiplier != null || member.collaborationMultiplier != null || member.aiProficiencyMultiplier != null) && (
                   <View className="mb-4">
                     <Text className="text-slate-900 dark:text-white font-bold text-sm mb-2">
                       Performance Modifiers
