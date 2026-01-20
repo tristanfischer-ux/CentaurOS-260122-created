@@ -44,13 +44,17 @@ A mobile app for lean companies to manage tasks, track team capacity, and coordi
 - ✅ Capacity-focused header stats (Available, At Capacity, Overallocated)
 - ✅ Removed Personal Timeline (prevented scroll conflicts)
 
-**Escalation System - PLANNING COMPLETE**:
-- ✅ Comprehensive implementation plan created (ESCALATION_SYSTEM_PLAN.md)
-- ✅ User identification and message routing architecture documented
-- ✅ Multi-user notification flow designed (auth users → organization members → device notifications)
-- ✅ Request/response workflow defined (escalate → notify → resolve)
-- ✅ Identified critical dependencies (userId population, notification type updates)
-- 📋 Ready for implementation (13-16 hour estimate)
+**Escalation System - ENHANCED PLAN COMPLETE**:
+- ✅ Comprehensive v1 plan created and reviewed (ESCALATION_SYSTEM_PLAN.md)
+- ✅ Identified and fixed critical issues in v1 (userId, notification types, preferences)
+- ✅ **NEW: Enhanced v2 plan** (ESCALATION_SYSTEM_ENHANCED_PLAN.md) with:
+  - Complete technical specifications with exact file paths and line numbers
+  - Simplified workspace-level notification routing for MVP
+  - All code examples provided (copy-paste ready)
+  - Full testing strategy and edge case handling
+  - Realistic 15-19 hour timeline
+  - Future v2.0 enhancements documented
+- 📋 Ready for implementation with zero ambiguity
 
 **Implementation Details**:
 - **Scrolling**: Single parent ScrollView for entire full view - no nested scroll zones
