@@ -15,6 +15,7 @@ import {
   TaskStatusBadge,
   TaskProgressBar,
   TaskPriorityIndicator,
+  TaskAvatarStack,
 } from './index';
 import {
   calculateNetVelocity,
@@ -86,12 +87,15 @@ export function TaskCardMedium({
                 </Pressable>
               </View>
 
-              {/* Title */}
-              <View className="flex-row items-start gap-2">
+              {/* Title with avatars and priority */}
+              <View className="flex-row items-start justify-between gap-2">
                 <Text className="flex-1 text-slate-900 dark:text-white text-lg font-bold">
                   {task.title}
                 </Text>
-                <TaskPriorityIndicator priority={priority} size={20} />
+                <View className="flex-row items-center gap-2">
+                  <TaskAvatarStack memberIds={task.allocations.map(a => a.memberId)} maxVisible={3} size={24} />
+                  <TaskPriorityIndicator priority={priority} size={20} />
+                </View>
               </View>
 
               {/* Due Date */}
