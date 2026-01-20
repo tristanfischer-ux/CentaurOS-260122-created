@@ -4,7 +4,7 @@
  */
 
 import { View, Text, Pressable, ScrollView, Modal, TextInput, Alert } from 'react-native';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { X, CheckCircle, XCircle, Clock, User, Calendar, Target, MessageSquare, CheckCheck, XCircleIcon } from 'lucide-react-native';
 import { useTaskAssignmentStore, type TaskAssignment } from '@/lib/state/task-assignment-store';
 import { useOrganizationStore } from '@/lib/state/organization-store';
@@ -17,12 +17,19 @@ interface PendingAssignmentsModalProps {
 }
 
 export function PendingAssignmentsModal({ visible, onClose, memberId }: PendingAssignmentsModalProps) {
-  const pendingAssignments = useTaskAssignmentStore(s => s.getPendingForMember(memberId));
+  // Select the raw assignments array (stable reference)
+  const assignments = useTaskAssignmentStore(s => s.assignments);
   const acceptAssignment = useTaskAssignmentStore(s => s.acceptAssignment);
   const rejectAssignment = useTaskAssignmentStore(s => s.rejectAssignment);
   const bulkAccept = useTaskAssignmentStore(s => s.bulkAccept);
   const bulkReject = useTaskAssignmentStore(s => s.bulkReject);
   const members = useOrganizationStore(s => s.members);
+
+  // Filter pending assignments with useMemo to avoid creating new array on every render
+  const pendingAssignments = useMemo(() =>
+    assignments.filter(a => a.assignedTo === memberId && a.status === 'pending'),
+    [assignments, memberId]
+  );
 
   const [selectedAssignment, setSelectedAssignment] = useState<TaskAssignment | null>(null);
   const [showRejectModal, setShowRejectModal] = useState(false);
