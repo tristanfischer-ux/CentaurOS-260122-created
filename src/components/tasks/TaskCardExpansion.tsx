@@ -8,7 +8,7 @@
  * All inline, no modals. Each tier builds on the previous.
  */
 
-import { View, Text, Pressable, TextInput } from 'react-native';
+import { View, Text, Pressable, TextInput, Modal, ScrollView } from 'react-native';
 import { useState } from 'react';
 import {
   Play,
@@ -25,12 +25,15 @@ import {
   Split,
   ArrowUpCircle,
   Edit3,
+  X,
+  Check,
 } from 'lucide-react-native';
 import Animated, { SlideInDown, SlideOutUp } from 'react-native-reanimated';
 import type { WorkPlan } from '@/lib/state/work-plan-store';
 import type { PriorityLevel } from '@/lib/ai-priority-scoring';
 import { useOrganizationStore } from '@/lib/state/organization-store';
 import { useWorkPlanStore } from '@/lib/state/work-plan-store';
+import type { OrganizationMember } from '@/lib/organization-seed';
 import { HapticPressable } from '@/components/HapticPressable';
 import { TaskProgressBar } from './index';
 import {
@@ -69,10 +72,26 @@ export function TaskCardExpansion({
 }: TaskCardExpansionProps) {
   const members = useOrganizationStore((s) => s.members);
   const allTasks = useWorkPlanStore((s) => s.workPlans);
+  const updateWorkPlan = useWorkPlanStore((s) => s.updateWorkPlan);
+  const addWorkPlan = useWorkPlanStore((s) => s.addWorkPlan);
 
   const [editingDescription, setEditingDescription] = useState(false);
   const [localDescription, setLocalDescription] = useState(task.description);
   const [editedTask, setEditedTask] = useState(task);
+
+  // Modal state for strategic actions
+  const [showAddResourceModal, setShowAddResourceModal] = useState(false);
+  const [showSplitTaskModal, setShowSplitTaskModal] = useState(false);
+  const [showEscalateModal, setShowEscalateModal] = useState(false);
+
+  // Add Resource modal state
+  const [selectedMemberId, setSelectedMemberId] = useState<string>('');
+  const [newAllocationSquares, setNewAllocationSquares] = useState<number>(4);
+
+  // Split Task modal state
+  const [splitTaskName1, setSplitTaskName1] = useState<string>('');
+  const [splitTaskName2, setSplitTaskName2] = useState<string>('');
+  const [splitPercentage, setSplitPercentage] = useState<number>(50);
 
   // Calculate current metrics
   const rawVelocity = task.allocations.reduce((sum, a) => sum + a.squaresPerWeek, 0);
@@ -161,7 +180,93 @@ export function TaskCardExpansion({
     }
   };
 
+  // Handler: Add Resource
+  const handleAddResource = () => {
+    if (!selectedMemberId) return;
+
+    const member = members.find((m) => m.id === selectedMemberId);
+    if (!member) return;
+
+    // Calculate cost per square: costPerDay / (daysPerWeek * 2 squares per day)
+    const daysPerWeek = member.daysPerWeek || 5;
+    const squaresPerDay = 2;
+    const costPerSquare = (member.costPerDay || 0) / squaresPerDay;
+
+    const updatedAllocations: typeof task.allocations = [
+      ...task.allocations,
+      {
+        memberId: selectedMemberId,
+        memberName: member.name,
+        squaresPerWeek: newAllocationSquares,
+        costPerSquare: costPerSquare,
+      },
+    ];
+
+    updateWorkPlan(task.id, { allocations: updatedAllocations });
+    setShowAddResourceModal(false);
+    setSelectedMemberId('');
+    setNewAllocationSquares(4);
+  };
+
+  // Handler: Split Task
+  const handleSplitTask = () => {
+    if (!splitTaskName1 || !splitTaskName2) return;
+
+    const splitRatio = splitPercentage / 100;
+    const task1TUs = Math.round(task.estimatedTimeUnits * splitRatio);
+    const task2TUs = task.estimatedTimeUnits - task1TUs;
+
+    // Create first split task
+    const newTask1: WorkPlan = {
+      ...task,
+      id: `${task.id}-split-1-${Date.now()}`,
+      title: splitTaskName1,
+      description: `Split from: ${task.title}\n\n${task.description}`,
+      progress: 0,
+      estimatedTimeUnits: task1TUs,
+      tusExpended: 0,
+    };
+
+    // Create second split task
+    const newTask2: WorkPlan = {
+      ...task,
+      id: `${task.id}-split-2-${Date.now()}`,
+      title: splitTaskName2,
+      description: `Split from: ${task.title}\n\n${task.description}`,
+      progress: 0,
+      estimatedTimeUnits: task2TUs,
+      tusExpended: 0,
+    };
+
+    // Add both tasks
+    addWorkPlan(newTask1);
+    addWorkPlan(newTask2);
+
+    // Mark original as completed
+    updateWorkPlan(task.id, {
+      status: 'completed',
+      description: `${task.description}\n\n✂️ Split into: "${splitTaskName1}" and "${splitTaskName2}"`,
+    });
+
+    setShowSplitTaskModal(false);
+    setSplitTaskName1('');
+    setSplitTaskName2('');
+    setSplitPercentage(50);
+  };
+
+  // Handler: Escalate to Leadership
+  const handleEscalate = () => {
+    const escalationNote = `🚨 ESCALATED TO LEADERSHIP\n\nThis task requires leadership attention due to:\n- Critical priority level\n- Resource constraints\n- Timeline concerns\n\nEscalated on: ${new Date().toLocaleDateString()}\n\n${task.description}`;
+
+    updateWorkPlan(task.id, {
+      description: escalationNote,
+    });
+
+    setShowEscalateModal(false);
+  };
+
   return (
+    <>
     <Animated.View
       entering={SlideInDown.duration(200)}
       exiting={SlideOutUp.duration(150)}
@@ -508,7 +613,7 @@ export function TaskCardExpansion({
             <View className="gap-2">
               <View className="flex-row gap-2">
                 <HapticPressable
-                  onPress={handleSave}
+                  onPress={() => setShowAddResourceModal(true)}
                   className="flex-1 flex-row items-center justify-center gap-1.5 bg-blue-500 rounded-lg py-2.5"
                 >
                   <UserPlus size={14} color="#ffffff" />
@@ -516,7 +621,7 @@ export function TaskCardExpansion({
                 </HapticPressable>
 
                 <HapticPressable
-                  onPress={handleSave}
+                  onPress={() => setShowSplitTaskModal(true)}
                   className="flex-1 flex-row items-center justify-center gap-1.5 bg-purple-500 rounded-lg py-2.5"
                 >
                   <Split size={14} color="#ffffff" />
@@ -525,7 +630,7 @@ export function TaskCardExpansion({
               </View>
 
               <HapticPressable
-                onPress={handleSave}
+                onPress={() => setShowEscalateModal(true)}
                 className="flex-row items-center justify-center gap-1.5 bg-amber-500 rounded-lg py-2.5"
               >
                 <ArrowUpCircle size={16} color="#ffffff" />
@@ -556,5 +661,374 @@ export function TaskCardExpansion({
         </View>
       </View>
     </Animated.View>
+
+    {/* Add Resource Modal */}
+    <Modal
+      visible={showAddResourceModal}
+      transparent
+      animationType="slide"
+      onRequestClose={() => setShowAddResourceModal(false)}
+    >
+      <Pressable className="flex-1 bg-black/70" onPress={() => setShowAddResourceModal(false)}>
+        <View className="flex-1" />
+        <Pressable onPress={(e) => e.stopPropagation()} style={{ maxHeight: '90%' }}>
+          <View className="bg-white dark:bg-slate-900 rounded-t-3xl">
+            <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+              <View className="p-6">
+                {/* Header */}
+                <View className="flex-row items-center justify-between mb-6">
+                  <View className="flex-row items-center gap-3">
+                    <View className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 items-center justify-center">
+                      <UserPlus size={20} color="#3b82f6" />
+                    </View>
+                    <Text className="text-slate-900 dark:text-white font-bold text-lg">Add Resource</Text>
+                  </View>
+                  <HapticPressable onPress={() => setShowAddResourceModal(false)}>
+                    <X size={24} color="#64748b" />
+                  </HapticPressable>
+                </View>
+
+                {/* Select Member */}
+                <View className="mb-6">
+                  <Text className="text-slate-900 dark:text-white font-semibold text-sm mb-3">Select Team Member</Text>
+                  <View className="gap-2">
+                    {members
+                      .filter((m) => !task.allocations.some((a) => a.memberId === m.id))
+                      .map((member) => {
+                        const capacity = getMemberTotalCapacity(member.id);
+                        const isSelected = selectedMemberId === member.id;
+
+                        return (
+                          <HapticPressable
+                            key={member.id}
+                            onPress={() => setSelectedMemberId(member.id)}
+                            className={`flex-row items-center justify-between p-3 rounded-lg border ${
+                              isSelected
+                                ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-500'
+                                : 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700'
+                            }`}
+                          >
+                            <View className="flex-row items-center gap-3 flex-1">
+                              <View className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 items-center justify-center">
+                                <Text className="text-blue-600 dark:text-blue-400 font-bold text-sm">
+                                  {member.name
+                                    .split(' ')
+                                    .map((n) => n[0])
+                                    .join('')
+                                    .toUpperCase()
+                                    .slice(0, 2)}
+                                </Text>
+                              </View>
+                              <View className="flex-1">
+                                <Text className="text-slate-900 dark:text-white font-semibold text-sm">
+                                  {member.name}
+                                </Text>
+                                <Text className="text-slate-500 dark:text-slate-400 text-xs">
+                                  {member.role} • {member.function}
+                                </Text>
+                              </View>
+                            </View>
+                            <View className="items-end">
+                              <Text
+                                className={`font-bold text-sm ${
+                                  capacity.available <= 0
+                                    ? 'text-red-600 dark:text-red-400'
+                                    : capacity.available < 4
+                                    ? 'text-amber-600 dark:text-amber-400'
+                                    : 'text-emerald-600 dark:text-emerald-400'
+                                }`}
+                              >
+                                {capacity.available} TU
+                              </Text>
+                              <Text className="text-slate-500 dark:text-slate-400 text-xs">available</Text>
+                            </View>
+                          </HapticPressable>
+                        );
+                      })}
+                  </View>
+                </View>
+
+                {/* Allocation Amount */}
+                {selectedMemberId && (
+                  <View className="mb-6">
+                    <Text className="text-slate-900 dark:text-white font-semibold text-sm mb-3">
+                      Time Units per Week
+                    </Text>
+                    <View className="flex-row gap-2">
+                      {[2, 4, 6, 8, 10].map((amount) => (
+                        <HapticPressable
+                          key={amount}
+                          onPress={() => setNewAllocationSquares(amount)}
+                          className={`flex-1 py-3 rounded-lg ${
+                            newAllocationSquares === amount
+                              ? 'bg-blue-500'
+                              : 'bg-slate-100 dark:bg-slate-800'
+                          }`}
+                        >
+                          <Text
+                            className={`text-center font-bold text-sm ${
+                              newAllocationSquares === amount
+                                ? 'text-white'
+                                : 'text-slate-900 dark:text-white'
+                            }`}
+                          >
+                            {amount}
+                          </Text>
+                        </HapticPressable>
+                      ))}
+                    </View>
+                  </View>
+                )}
+
+                {/* Action Buttons */}
+                <View className="flex-row gap-3">
+                  <HapticPressable
+                    onPress={() => setShowAddResourceModal(false)}
+                    className="flex-1 py-3 bg-slate-100 dark:bg-slate-800 rounded-lg"
+                  >
+                    <Text className="text-slate-900 dark:text-white font-bold text-sm text-center">Cancel</Text>
+                  </HapticPressable>
+                  <HapticPressable
+                    onPress={handleAddResource}
+                    disabled={!selectedMemberId}
+                    className={`flex-1 py-3 rounded-lg ${
+                      selectedMemberId ? 'bg-blue-500' : 'bg-slate-200 dark:bg-slate-700'
+                    }`}
+                  >
+                    <Text
+                      className={`font-bold text-sm text-center ${
+                        selectedMemberId ? 'text-white' : 'text-slate-400'
+                      }`}
+                    >
+                      Add Resource
+                    </Text>
+                  </HapticPressable>
+                </View>
+              </View>
+            </ScrollView>
+          </View>
+        </Pressable>
+      </Pressable>
+    </Modal>
+
+    {/* Split Task Modal */}
+    <Modal
+      visible={showSplitTaskModal}
+      transparent
+      animationType="slide"
+      onRequestClose={() => setShowSplitTaskModal(false)}
+    >
+      <Pressable className="flex-1 bg-black/70" onPress={() => setShowSplitTaskModal(false)}>
+        <View className="flex-1" />
+        <Pressable onPress={(e) => e.stopPropagation()} style={{ maxHeight: '90%' }}>
+          <View className="bg-white dark:bg-slate-900 rounded-t-3xl">
+            <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+              <View className="p-6">
+                {/* Header */}
+                <View className="flex-row items-center justify-between mb-6">
+                  <View className="flex-row items-center gap-3">
+                    <View className="w-10 h-10 rounded-full bg-purple-100 dark:bg-purple-900/30 items-center justify-center">
+                      <Split size={20} color="#8b5cf6" />
+                    </View>
+                    <Text className="text-slate-900 dark:text-white font-bold text-lg">Split Task</Text>
+                  </View>
+                  <HapticPressable onPress={() => setShowSplitTaskModal(false)}>
+                    <X size={24} color="#64748b" />
+                  </HapticPressable>
+                </View>
+
+                {/* Original Task Info */}
+                <View className="bg-slate-50 dark:bg-slate-800 rounded-lg p-3 mb-6">
+                  <Text className="text-slate-500 dark:text-slate-400 text-xs mb-1">Splitting task:</Text>
+                  <Text className="text-slate-900 dark:text-white font-semibold text-sm">{task.title}</Text>
+                  <Text className="text-slate-500 dark:text-slate-400 text-xs mt-1">
+                    {task.estimatedTimeUnits} TUs total
+                  </Text>
+                </View>
+
+                {/* Task 1 Name */}
+                <View className="mb-4">
+                  <Text className="text-slate-900 dark:text-white font-semibold text-sm mb-2">First Task Name</Text>
+                  <TextInput
+                    value={splitTaskName1}
+                    onChangeText={setSplitTaskName1}
+                    className="bg-slate-100 dark:bg-slate-800 rounded-lg px-4 py-3 text-slate-900 dark:text-white text-sm"
+                    placeholder="Enter first task name..."
+                    placeholderTextColor="#94a3b8"
+                  />
+                </View>
+
+                {/* Task 2 Name */}
+                <View className="mb-6">
+                  <Text className="text-slate-900 dark:text-white font-semibold text-sm mb-2">Second Task Name</Text>
+                  <TextInput
+                    value={splitTaskName2}
+                    onChangeText={setSplitTaskName2}
+                    className="bg-slate-100 dark:bg-slate-800 rounded-lg px-4 py-3 text-slate-900 dark:text-white text-sm"
+                    placeholder="Enter second task name..."
+                    placeholderTextColor="#94a3b8"
+                  />
+                </View>
+
+                {/* Split Percentage */}
+                <View className="mb-6">
+                  <Text className="text-slate-900 dark:text-white font-semibold text-sm mb-3">
+                    Split {splitPercentage}% / {100 - splitPercentage}%
+                  </Text>
+                  <View className="flex-row gap-2 mb-3">
+                    {[30, 40, 50, 60, 70].map((percent) => (
+                      <HapticPressable
+                        key={percent}
+                        onPress={() => setSplitPercentage(percent)}
+                        className={`flex-1 py-2 rounded-lg ${
+                          splitPercentage === percent ? 'bg-purple-500' : 'bg-slate-100 dark:bg-slate-800'
+                        }`}
+                      >
+                        <Text
+                          className={`text-center font-bold text-xs ${
+                            splitPercentage === percent ? 'text-white' : 'text-slate-900 dark:text-white'
+                          }`}
+                        >
+                          {percent}%
+                        </Text>
+                      </HapticPressable>
+                    ))}
+                  </View>
+                  <View className="flex-row items-center justify-between bg-purple-50 dark:bg-purple-900/20 rounded-lg p-3">
+                    <View className="flex-1">
+                      <Text className="text-purple-700 dark:text-purple-300 font-semibold text-xs">Task 1</Text>
+                      <Text className="text-purple-600 dark:text-purple-400 text-xs">
+                        {Math.round(task.estimatedTimeUnits * (splitPercentage / 100))} TUs
+                      </Text>
+                    </View>
+                    <View className="flex-1 items-end">
+                      <Text className="text-purple-700 dark:text-purple-300 font-semibold text-xs">Task 2</Text>
+                      <Text className="text-purple-600 dark:text-purple-400 text-xs">
+                        {task.estimatedTimeUnits - Math.round(task.estimatedTimeUnits * (splitPercentage / 100))} TUs
+                      </Text>
+                    </View>
+                  </View>
+                </View>
+
+                {/* Action Buttons */}
+                <View className="flex-row gap-3">
+                  <HapticPressable
+                    onPress={() => setShowSplitTaskModal(false)}
+                    className="flex-1 py-3 bg-slate-100 dark:bg-slate-800 rounded-lg"
+                  >
+                    <Text className="text-slate-900 dark:text-white font-bold text-sm text-center">Cancel</Text>
+                  </HapticPressable>
+                  <HapticPressable
+                    onPress={handleSplitTask}
+                    disabled={!splitTaskName1 || !splitTaskName2}
+                    className={`flex-1 py-3 rounded-lg ${
+                      splitTaskName1 && splitTaskName2 ? 'bg-purple-500' : 'bg-slate-200 dark:bg-slate-700'
+                    }`}
+                  >
+                    <Text
+                      className={`font-bold text-sm text-center ${
+                        splitTaskName1 && splitTaskName2 ? 'text-white' : 'text-slate-400'
+                      }`}
+                    >
+                      Split Task
+                    </Text>
+                  </HapticPressable>
+                </View>
+              </View>
+            </ScrollView>
+          </View>
+        </Pressable>
+      </Pressable>
+    </Modal>
+
+    {/* Escalate to Leadership Modal */}
+    <Modal
+      visible={showEscalateModal}
+      transparent
+      animationType="slide"
+      onRequestClose={() => setShowEscalateModal(false)}
+    >
+      <Pressable className="flex-1 bg-black/70" onPress={() => setShowEscalateModal(false)}>
+        <View className="flex-1" />
+        <Pressable onPress={(e) => e.stopPropagation()} style={{ maxHeight: '90%' }}>
+          <View className="bg-white dark:bg-slate-900 rounded-t-3xl">
+            <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+              <View className="p-6">
+                {/* Header */}
+                <View className="flex-row items-center justify-between mb-6">
+                  <View className="flex-row items-center gap-3">
+                    <View className="w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-900/30 items-center justify-center">
+                      <ArrowUpCircle size={20} color="#f59e0b" />
+                    </View>
+                    <Text className="text-slate-900 dark:text-white font-bold text-lg">Escalate to Leadership</Text>
+                  </View>
+                  <HapticPressable onPress={() => setShowEscalateModal(false)}>
+                    <X size={24} color="#64748b" />
+                  </HapticPressable>
+                </View>
+
+                {/* Warning */}
+                <View className="bg-amber-50 dark:bg-amber-900/20 rounded-lg p-4 mb-6">
+                  <View className="flex-row items-start gap-3">
+                    <AlertTriangle size={20} color="#f59e0b" style={{ marginTop: 2 }} />
+                    <View className="flex-1">
+                      <Text className="text-amber-900 dark:text-amber-100 font-bold text-sm mb-1">
+                        This will flag the task for leadership review
+                      </Text>
+                      <Text className="text-amber-700 dark:text-amber-300 text-xs">
+                        The task description will be updated to indicate it has been escalated and requires
+                        leadership attention for resource constraints or timeline concerns.
+                      </Text>
+                    </View>
+                  </View>
+                </View>
+
+                {/* Task Info */}
+                <View className="bg-slate-50 dark:bg-slate-800 rounded-lg p-4 mb-6">
+                  <Text className="text-slate-500 dark:text-slate-400 text-xs mb-2">Task to escalate:</Text>
+                  <Text className="text-slate-900 dark:text-white font-bold text-base mb-3">{task.title}</Text>
+
+                  <View className="flex-row items-center gap-4">
+                    <View>
+                      <Text className="text-slate-500 dark:text-slate-400 text-xs">Team Size</Text>
+                      <Text className="text-slate-900 dark:text-white font-semibold text-sm">
+                        {task.allocations.length} members
+                      </Text>
+                    </View>
+                    <View>
+                      <Text className="text-slate-500 dark:text-slate-400 text-xs">Progress</Text>
+                      <Text className="text-slate-900 dark:text-white font-semibold text-sm">{task.progress}%</Text>
+                    </View>
+                    <View>
+                      <Text className="text-slate-500 dark:text-slate-400 text-xs">Due Date</Text>
+                      <Text className="text-slate-900 dark:text-white font-semibold text-sm">
+                        {new Date(task.dueDate).toLocaleDateString()}
+                      </Text>
+                    </View>
+                  </View>
+                </View>
+
+                {/* Action Buttons */}
+                <View className="flex-row gap-3">
+                  <HapticPressable
+                    onPress={() => setShowEscalateModal(false)}
+                    className="flex-1 py-3 bg-slate-100 dark:bg-slate-800 rounded-lg"
+                  >
+                    <Text className="text-slate-900 dark:text-white font-bold text-sm text-center">Cancel</Text>
+                  </HapticPressable>
+                  <HapticPressable
+                    onPress={handleEscalate}
+                    className="flex-1 py-3 bg-amber-500 rounded-lg"
+                  >
+                    <Text className="text-white font-bold text-sm text-center">Escalate Task</Text>
+                  </HapticPressable>
+                </View>
+              </View>
+            </ScrollView>
+          </View>
+        </Pressable>
+      </Pressable>
+    </Modal>
+  </>
   );
 }
