@@ -163,34 +163,19 @@ export function FocusTodaySection({
 
         return (
           <View key={task.id}>
-            {/* Wrapper with priority left border */}
-            <View
-              style={{
-                borderLeftWidth: 4,
-                borderLeftColor:
-                  priorityScore.level === 'critical'
-                    ? '#ef4444'
-                    : priorityScore.level === 'high'
-                    ? '#f59e0b'
-                    : priorityScore.level === 'important'
-                    ? '#3b82f6'
-                    : '#64748b',
-                borderRadius: 8,
-                overflow: 'hidden',
-                marginBottom: 2,
+            {/* Compact card with priority indicator built-in */}
+            <TaskCardCompact
+              task={task}
+              priorityLevel={priorityScore.level}
+              isExpanded={isExpanded}
+              onPress={() => {
+                if (isExpanded) {
+                  setActiveExpandedId(null);
+                } else {
+                  setActiveExpandedId(task.id);
+                }
               }}
-            >
-              <TaskCardCompact
-                task={task}
-                onPress={() => {
-                  if (isExpanded) {
-                    setActiveExpandedId(null);
-                  } else {
-                    setActiveExpandedId(task.id);
-                  }
-                }}
-              />
-            </View>
+            />
 
             {/* Inline Expansion */}
             {isExpanded && (
@@ -213,9 +198,6 @@ export function FocusTodaySection({
                   updateWorkPlan(task.id, {
                     dueDate: currentDate.toISOString().split('T')[0],
                   });
-                }}
-                onUpdateTitle={(title) => {
-                  updateWorkPlan(task.id, { title });
                 }}
                 onUpdateDescription={(description) => {
                   updateWorkPlan(task.id, { description });

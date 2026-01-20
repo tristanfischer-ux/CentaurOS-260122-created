@@ -105,7 +105,7 @@ export function formatEstimatedWeeks(weeks: number): string {
  * Format date for display in task cards
  *
  * @param date - Date to format
- * @returns Formatted string like "Mon 16 Feb"
+ * @returns Formatted string like "Wed 20 Jan '26"
  */
 export function formatTaskDate(date: Date): string {
   const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -114,8 +114,9 @@ export function formatTaskDate(date: Date): string {
   const dayName = days[date.getDay()];
   const day = date.getDate();
   const monthName = months[date.getMonth()];
+  const year = date.getFullYear().toString().slice(-2); // Get last 2 digits
 
-  return `${dayName} ${day} ${monthName}`;
+  return `${dayName} ${day} ${monthName} '${year}`;
 }
 
 /**

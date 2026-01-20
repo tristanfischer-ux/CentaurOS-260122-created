@@ -176,7 +176,6 @@ export default function DemoScreen() {
         onUpdateStatus={(status) => console.log('Update status:', status)}
         onUpdateProgress={(progress) => console.log('Update progress:', progress)}
         onRescheduleDays={(days) => console.log('Reschedule days:', days)}
-        onUpdateTitle={(title) => console.log('Update title:', title)}
         onUpdateDescription={(description) => console.log('Update description:', description)}
       />
 

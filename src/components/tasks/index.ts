@@ -16,3 +16,4 @@ export { TaskCardCompact } from './TaskCardCompact';
 export { TaskCardMedium } from './TaskCardMedium';
 export { TaskCardMediumInline } from './TaskCardMediumInline';
 export { TaskCardFull } from './TaskCardFull';
+export { TaskQuickActions } from './TaskQuickActions';

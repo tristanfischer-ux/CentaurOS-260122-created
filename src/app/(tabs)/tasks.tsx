@@ -410,9 +410,6 @@ export default function TasksScreen() {
               currentDate.setDate(currentDate.getDate() + days);
               updateWorkPlan(selectedTask.id, { dueDate: currentDate.toISOString().split('T')[0] });
             }}
-            onUpdateTitle={(title) => {
-              updateWorkPlan(selectedTask.id, { title });
-            }}
             onUpdateDescription={(description) => {
               updateWorkPlan(selectedTask.id, { description });
             }}

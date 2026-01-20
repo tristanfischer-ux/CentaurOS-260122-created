@@ -142,33 +142,38 @@ export function CurrentActivitiesSection({
               <View key={task.id}>
                 <Animated.View entering={FadeInDown.delay(index * 50).springify()}>
                   <View className="px-5">
-                    <TaskCardCompact task={task} onPress={() => handleTaskPress(task.id)} />
+                    <TaskCardCompact
+                      task={task}
+                      isExpanded={isExpanded}
+                      onPress={() => handleTaskPress(task.id)}
+                    />
                   </View>
                 </Animated.View>
 
                 {/* Inline Expansion */}
                 {isExpanded && (
-                  <TaskCardMediumInline
-                    task={task}
-                    onClose={() => onExpandTask?.(null)}
-                    onViewFullDetails={() => {
-                      onExpandTask?.(null);
-                      onShowFullModal?.(true, task);
-                    }}
-                    onUpdateStatus={(status) => updateWorkPlan(task.id, { status })}
-                    onUpdateProgress={(progress) => updateWorkPlan(task.id, { progress })}
-                    onRescheduleDays={(days) => {
-                      const currentDate = new Date(task.dueDate);
-                      currentDate.setDate(currentDate.getDate() + days);
-                      updateWorkPlan(task.id, {
-                        dueDate: currentDate.toISOString().split('T')[0],
-                      });
-                    }}
-                    onUpdateTitle={(title) => updateWorkPlan(task.id, { title })}
-                    onUpdateDescription={(description) =>
-                      updateWorkPlan(task.id, { description })
-                    }
-                  />
+                  <View className="px-5">
+                    <TaskCardMediumInline
+                      task={task}
+                      onClose={() => onExpandTask?.(null)}
+                      onViewFullDetails={() => {
+                        onExpandTask?.(null);
+                        onShowFullModal?.(true, task);
+                      }}
+                      onUpdateStatus={(status) => updateWorkPlan(task.id, { status })}
+                      onUpdateProgress={(progress) => updateWorkPlan(task.id, { progress })}
+                      onRescheduleDays={(days) => {
+                        const currentDate = new Date(task.dueDate);
+                        currentDate.setDate(currentDate.getDate() + days);
+                        updateWorkPlan(task.id, {
+                          dueDate: currentDate.toISOString().split('T')[0],
+                        });
+                      }}
+                      onUpdateDescription={(description) =>
+                        updateWorkPlan(task.id, { description })
+                      }
+                    />
+                  </View>
                 )}
               </View>
             );
@@ -191,33 +196,38 @@ export function CurrentActivitiesSection({
               <View key={task.id}>
                 <Animated.View entering={FadeInDown.delay(index * 50).springify()}>
                   <View className="px-5">
-                    <TaskCardCompact task={task} onPress={() => handleTaskPress(task.id)} />
+                    <TaskCardCompact
+                      task={task}
+                      isExpanded={isExpanded}
+                      onPress={() => handleTaskPress(task.id)}
+                    />
                   </View>
                 </Animated.View>
 
                 {/* Inline Expansion */}
                 {isExpanded && (
-                  <TaskCardMediumInline
-                    task={task}
-                    onClose={() => onExpandTask?.(null)}
-                    onViewFullDetails={() => {
-                      onExpandTask?.(null);
-                      onShowFullModal?.(true, task);
-                    }}
-                    onUpdateStatus={(status) => updateWorkPlan(task.id, { status })}
-                    onUpdateProgress={(progress) => updateWorkPlan(task.id, { progress })}
-                    onRescheduleDays={(days) => {
-                      const currentDate = new Date(task.dueDate);
-                      currentDate.setDate(currentDate.getDate() + days);
-                      updateWorkPlan(task.id, {
-                        dueDate: currentDate.toISOString().split('T')[0],
-                      });
-                    }}
-                    onUpdateTitle={(title) => updateWorkPlan(task.id, { title })}
-                    onUpdateDescription={(description) =>
-                      updateWorkPlan(task.id, { description })
-                    }
-                  />
+                  <View className="px-5">
+                    <TaskCardMediumInline
+                      task={task}
+                      onClose={() => onExpandTask?.(null)}
+                      onViewFullDetails={() => {
+                        onExpandTask?.(null);
+                        onShowFullModal?.(true, task);
+                      }}
+                      onUpdateStatus={(status) => updateWorkPlan(task.id, { status })}
+                      onUpdateProgress={(progress) => updateWorkPlan(task.id, { progress })}
+                      onRescheduleDays={(days) => {
+                        const currentDate = new Date(task.dueDate);
+                        currentDate.setDate(currentDate.getDate() + days);
+                        updateWorkPlan(task.id, {
+                          dueDate: currentDate.toISOString().split('T')[0],
+                        });
+                      }}
+                      onUpdateDescription={(description) =>
+                        updateWorkPlan(task.id, { description })
+                      }
+                    />
+                  </View>
                 )}
               </View>
             );
@@ -239,33 +249,38 @@ export function CurrentActivitiesSection({
               <View key={task.id}>
                 <Animated.View entering={FadeInDown.delay(index * 50).springify()}>
                   <View className="px-5">
-                    <TaskCardCompact task={task} onPress={() => handleTaskPress(task.id)} />
+                    <TaskCardCompact
+                      task={task}
+                      isExpanded={isExpanded}
+                      onPress={() => handleTaskPress(task.id)}
+                    />
                   </View>
                 </Animated.View>
 
                 {/* Inline Expansion */}
                 {isExpanded && (
-                  <TaskCardMediumInline
-                    task={task}
-                    onClose={() => onExpandTask?.(null)}
-                    onViewFullDetails={() => {
-                      onExpandTask?.(null);
-                      onShowFullModal?.(true, task);
-                    }}
-                    onUpdateStatus={(status) => updateWorkPlan(task.id, { status })}
-                    onUpdateProgress={(progress) => updateWorkPlan(task.id, { progress })}
-                    onRescheduleDays={(days) => {
-                      const currentDate = new Date(task.dueDate);
-                      currentDate.setDate(currentDate.getDate() + days);
-                      updateWorkPlan(task.id, {
-                        dueDate: currentDate.toISOString().split('T')[0],
-                      });
-                    }}
-                    onUpdateTitle={(title) => updateWorkPlan(task.id, { title })}
-                    onUpdateDescription={(description) =>
-                      updateWorkPlan(task.id, { description })
-                    }
-                  />
+                  <View className="px-5">
+                    <TaskCardMediumInline
+                      task={task}
+                      onClose={() => onExpandTask?.(null)}
+                      onViewFullDetails={() => {
+                        onExpandTask?.(null);
+                        onShowFullModal?.(true, task);
+                      }}
+                      onUpdateStatus={(status) => updateWorkPlan(task.id, { status })}
+                      onUpdateProgress={(progress) => updateWorkPlan(task.id, { progress })}
+                      onRescheduleDays={(days) => {
+                        const currentDate = new Date(task.dueDate);
+                        currentDate.setDate(currentDate.getDate() + days);
+                        updateWorkPlan(task.id, {
+                          dueDate: currentDate.toISOString().split('T')[0],
+                        });
+                      }}
+                      onUpdateDescription={(description) =>
+                        updateWorkPlan(task.id, { description })
+                      }
+                    />
+                  </View>
                 )}
               </View>
             );
