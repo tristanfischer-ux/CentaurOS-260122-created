@@ -25,7 +25,7 @@ export function EscalationsInboxModal({
   workspaceId,
   currentMemberId,
 }: EscalationsInboxModalProps) {
-  const pendingEscalations = useEscalationStore(s => s.getPendingEscalations(workspaceId));
+  const getPendingEscalations = useEscalationStore(s => s.getPendingEscalations);
   const acceptEscalation = useEscalationStore(s => s.acceptEscalation);
   const delegateEscalation = useEscalationStore(s => s.delegateEscalation);
   const rejectEscalation = useEscalationStore(s => s.rejectEscalation);
@@ -38,6 +38,9 @@ export function EscalationsInboxModal({
   const [newDueDate, setNewDueDate] = useState('');
   const [additionalTUs, setAdditionalTUs] = useState('');
   const [selectedDelegate, setSelectedDelegate] = useState<string | null>(null);
+
+  // Get pending escalations
+  const pendingEscalations = getPendingEscalations(workspaceId);
 
   // Check if current user is a Founder
   const currentMember = members.find(m => m.id === currentMemberId);
