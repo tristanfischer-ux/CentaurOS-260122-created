@@ -35,7 +35,7 @@ import { useCurrentMembership, useCurrentWorkspace } from '@/lib/state/app-store
 import type { OrganizationMember } from '@/lib/organization-seed';
 import { HelpModal, HelpButton, type HelpContent } from '@/components/HelpModal';
 import { SettingsGearButton } from '@/components/SettingsGearButton';
-import { TaskCardCompact, TaskCardMedium, TaskCardFull } from '@/components/tasks';
+import { TaskCardCompact, TaskCardMediumInline, TaskCardFull } from '@/components/tasks';
 import { filterWorkPlansByRole } from '@/lib/role-utils';
 import { UnifiedBottomDrawer } from '@/components/UnifiedBottomDrawer';
 import { extractTasksFromText } from '@/lib/ai/task-extraction';
@@ -121,8 +121,9 @@ export default function TasksScreen() {
   // State
   const [showHelp, setShowHelp] = useState(false);
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
+  // Inline expansion state (same pattern as Home tab)
+  const [expandedTaskId, setExpandedTaskId] = useState<string | null>(null);
   const [selectedTask, setSelectedTask] = useState<WorkPlan | null>(null);
-  const [showMediumView, setShowMediumView] = useState(false);
   const [showFullView, setShowFullView] = useState(false);
   const [openDrawerToNewTask, setOpenDrawerToNewTask] = useState(false);
   const [showVoiceTranscript, setShowVoiceTranscript] = useState(false);
@@ -385,50 +386,21 @@ export default function TasksScreen() {
         gradientColors={['#10b981', '#059669']}
       />
 
-      {/* Task Modals - Tier System */}
-      {selectedTask && (
-        <>
-          <TaskCardMedium
-            task={selectedTask}
-            visible={showMediumView}
-            onClose={() => {
-              setShowMediumView(false);
-              setSelectedTask(null);
-            }}
-            onViewFullDetails={() => {
-              setShowMediumView(false);
-              setShowFullView(true);
-            }}
-            onUpdateStatus={(status) => {
-              updateWorkPlan(selectedTask.id, { status });
-            }}
-            onUpdateProgress={(progress) => {
-              updateWorkPlan(selectedTask.id, { progress });
-            }}
-            onRescheduleDays={(days) => {
-              const currentDate = new Date(selectedTask.dueDate);
-              currentDate.setDate(currentDate.getDate() + days);
-              updateWorkPlan(selectedTask.id, { dueDate: currentDate.toISOString().split('T')[0] });
-            }}
-            onUpdateDescription={(description) => {
-              updateWorkPlan(selectedTask.id, { description });
-            }}
-          />
-
-          <TaskCardFull
-            task={selectedTask}
-            visible={showFullView}
-            onClose={() => {
-              setShowFullView(false);
-              setSelectedTask(null);
-            }}
-            onSave={(updates) => {
-              updateWorkPlan(selectedTask.id, updates);
-              setShowFullView(false);
-              setSelectedTask(null);
-            }}
-          />
-        </>
+      {/* Task Full Modal - Only for Full Details view */}
+      {selectedTask && showFullView && (
+        <TaskCardFull
+          task={selectedTask}
+          visible={showFullView}
+          onClose={() => {
+            setShowFullView(false);
+            setSelectedTask(null);
+          }}
+          onSave={(updates) => {
+            updateWorkPlan(selectedTask.id, updates);
+            setShowFullView(false);
+            setSelectedTask(null);
+          }}
+        />
       )}
 
       {/* Header */}
@@ -660,15 +632,43 @@ export default function TasksScreen() {
               </Text>
             </View>
             {tasksByStatus['in-progress'].map((task) => {
+              const isExpanded = expandedTaskId === task.id;
               return (
-                <TaskCardCompact
-                  key={task.id}
-                  task={task}
-                  onPress={() => {
-                    setSelectedTask(task);
-                    setShowMediumView(true);
-                  }}
-                />
+                <View key={task.id}>
+                  <TaskCardCompact
+                    task={task}
+                    isExpanded={isExpanded}
+                    onPress={() => {
+                      setExpandedTaskId(isExpanded ? null : task.id);
+                    }}
+                  />
+                  {/* Inline Medium Expansion */}
+                  {isExpanded && (
+                    <TaskCardMediumInline
+                      task={task}
+                      onClose={() => setExpandedTaskId(null)}
+                      onViewFullDetails={() => {
+                        setExpandedTaskId(null);
+                        setSelectedTask(task);
+                        setShowFullView(true);
+                      }}
+                      onUpdateStatus={(status: WorkPlan['status']) => {
+                        updateWorkPlan(task.id, { status });
+                      }}
+                      onUpdateProgress={(progress: number) => {
+                        updateWorkPlan(task.id, { progress });
+                      }}
+                      onRescheduleDays={(days: number) => {
+                        const currentDate = new Date(task.dueDate);
+                        currentDate.setDate(currentDate.getDate() + days);
+                        updateWorkPlan(task.id, { dueDate: currentDate.toISOString().split('T')[0] });
+                      }}
+                      onUpdateDescription={(description: string) => {
+                        updateWorkPlan(task.id, { description });
+                      }}
+                    />
+                  )}
+                </View>
               );
             })}
           </View>
@@ -684,15 +684,43 @@ export default function TasksScreen() {
               </Text>
             </View>
             {tasksByStatus['blocked'].map((task) => {
+              const isExpanded = expandedTaskId === task.id;
               return (
-                <TaskCardCompact
-                  key={task.id}
-                  task={task}
-                  onPress={() => {
-                    setSelectedTask(task);
-                    setShowMediumView(true);
-                  }}
-                />
+                <View key={task.id}>
+                  <TaskCardCompact
+                    task={task}
+                    isExpanded={isExpanded}
+                    onPress={() => {
+                      setExpandedTaskId(isExpanded ? null : task.id);
+                    }}
+                  />
+                  {/* Inline Medium Expansion */}
+                  {isExpanded && (
+                    <TaskCardMediumInline
+                      task={task}
+                      onClose={() => setExpandedTaskId(null)}
+                      onViewFullDetails={() => {
+                        setExpandedTaskId(null);
+                        setSelectedTask(task);
+                        setShowFullView(true);
+                      }}
+                      onUpdateStatus={(status: WorkPlan['status']) => {
+                        updateWorkPlan(task.id, { status });
+                      }}
+                      onUpdateProgress={(progress: number) => {
+                        updateWorkPlan(task.id, { progress });
+                      }}
+                      onRescheduleDays={(days: number) => {
+                        const currentDate = new Date(task.dueDate);
+                        currentDate.setDate(currentDate.getDate() + days);
+                        updateWorkPlan(task.id, { dueDate: currentDate.toISOString().split('T')[0] });
+                      }}
+                      onUpdateDescription={(description: string) => {
+                        updateWorkPlan(task.id, { description });
+                      }}
+                    />
+                  )}
+                </View>
               );
             })}
           </View>
@@ -708,15 +736,43 @@ export default function TasksScreen() {
               </Text>
             </View>
             {tasksByStatus['not-started'].map((task) => {
+              const isExpanded = expandedTaskId === task.id;
               return (
-                <TaskCardCompact
-                  key={task.id}
-                  task={task}
-                  onPress={() => {
-                    setSelectedTask(task);
-                    setShowMediumView(true);
-                  }}
-                />
+                <View key={task.id}>
+                  <TaskCardCompact
+                    task={task}
+                    isExpanded={isExpanded}
+                    onPress={() => {
+                      setExpandedTaskId(isExpanded ? null : task.id);
+                    }}
+                  />
+                  {/* Inline Medium Expansion */}
+                  {isExpanded && (
+                    <TaskCardMediumInline
+                      task={task}
+                      onClose={() => setExpandedTaskId(null)}
+                      onViewFullDetails={() => {
+                        setExpandedTaskId(null);
+                        setSelectedTask(task);
+                        setShowFullView(true);
+                      }}
+                      onUpdateStatus={(status: WorkPlan['status']) => {
+                        updateWorkPlan(task.id, { status });
+                      }}
+                      onUpdateProgress={(progress: number) => {
+                        updateWorkPlan(task.id, { progress });
+                      }}
+                      onRescheduleDays={(days: number) => {
+                        const currentDate = new Date(task.dueDate);
+                        currentDate.setDate(currentDate.getDate() + days);
+                        updateWorkPlan(task.id, { dueDate: currentDate.toISOString().split('T')[0] });
+                      }}
+                      onUpdateDescription={(description: string) => {
+                        updateWorkPlan(task.id, { description });
+                      }}
+                    />
+                  )}
+                </View>
               );
             })}
           </View>
@@ -732,15 +788,43 @@ export default function TasksScreen() {
               </Text>
             </View>
             {tasksByStatus['completed'].slice(0, 5).map((task) => {
+              const isExpanded = expandedTaskId === task.id;
               return (
-                <TaskCardCompact
-                  key={task.id}
-                  task={task}
-                  onPress={() => {
-                    setSelectedTask(task);
-                    setShowMediumView(true);
-                  }}
-                />
+                <View key={task.id}>
+                  <TaskCardCompact
+                    task={task}
+                    isExpanded={isExpanded}
+                    onPress={() => {
+                      setExpandedTaskId(isExpanded ? null : task.id);
+                    }}
+                  />
+                  {/* Inline Medium Expansion */}
+                  {isExpanded && (
+                    <TaskCardMediumInline
+                      task={task}
+                      onClose={() => setExpandedTaskId(null)}
+                      onViewFullDetails={() => {
+                        setExpandedTaskId(null);
+                        setSelectedTask(task);
+                        setShowFullView(true);
+                      }}
+                      onUpdateStatus={(status: WorkPlan['status']) => {
+                        updateWorkPlan(task.id, { status });
+                      }}
+                      onUpdateProgress={(progress: number) => {
+                        updateWorkPlan(task.id, { progress });
+                      }}
+                      onRescheduleDays={(days: number) => {
+                        const currentDate = new Date(task.dueDate);
+                        currentDate.setDate(currentDate.getDate() + days);
+                        updateWorkPlan(task.id, { dueDate: currentDate.toISOString().split('T')[0] });
+                      }}
+                      onUpdateDescription={(description: string) => {
+                        updateWorkPlan(task.id, { description });
+                      }}
+                    />
+                  )}
+                </View>
               );
             })}
             {tasksByStatus['completed'].length > 5 && (

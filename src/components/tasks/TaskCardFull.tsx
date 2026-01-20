@@ -1,34 +1,37 @@
 /**
- * TaskCardFull - Tier 3 (Strategic Resource Planning)
+ * TaskCardFull - Tier 3 (Full Details + Strategic Resource Planning)
  *
- * Purpose: Answer "Why is this slow?" and "Should we add/reallocate resources?"
- * Focus: Team capacity, coordination costs, resource planning decisions
+ * ADDITIVE design: Includes everything from Medium PLUS strategic info
+ * - Medium content: Status buttons, progress quick set, reschedule, description
+ * - Full additions: Team capacity analysis, coordination cost, what-if scenarios
  */
 
 import { View, Text, Modal, ScrollView, Pressable, TextInput } from 'react-native';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   X,
   Calendar,
   Users,
   UserPlus,
-  TrendingDown,
   AlertCircle,
   Edit3,
   Zap,
   Activity,
   Target,
-  Clock,
   BarChart3,
   Split,
   ArrowUpCircle,
+  Play,
+  Pause,
+  CheckCircle2,
+  AlertTriangle,
 } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import type { WorkPlan } from '@/lib/state/work-plan-store';
 import { useOrganizationStore } from '@/lib/state/organization-store';
 import { useWorkPlanStore } from '@/lib/state/work-plan-store';
 import { HapticPressable } from '@/components/HapticPressable';
-import { TaskProgressBar } from './index';
+import { TaskProgressBar, TaskAvatarStack, TaskEffortTimeline } from './index';
 import {
   calculateNetVelocity,
   calculateEstimatedWeeks,
@@ -49,6 +52,12 @@ export function TaskCardFull({ task, visible, onClose, onSave }: TaskCardFullPro
 
   const [editedTask, setEditedTask] = useState(task);
   const [editingTitle, setEditingTitle] = useState(false);
+  const [editingDescription, setEditingDescription] = useState(false);
+
+  // Sync state when task prop changes
+  useEffect(() => {
+    setEditedTask(task);
+  }, [task]);
 
   // Calculate current metrics
   const rawVelocity = editedTask.allocations.reduce((sum, a) => sum + a.squaresPerWeek, 0);
@@ -58,7 +67,7 @@ export function TaskCardFull({ task, visible, onClose, onSave }: TaskCardFullPro
   const remaining = Math.max(0, editedTask.estimatedTimeUnits - completed);
   const estimatedWeeks = calculateEstimatedWeeks(remaining, netVelocity);
   const estimatedDate = calculateEstimatedDate(new Date(), estimatedWeeks);
-  const progress = Math.round((completed / editedTask.estimatedTimeUnits) * 100);
+  const progressPercent = Math.round((completed / editedTask.estimatedTimeUnits) * 100);
 
   // Coordination cost analysis
   const coordinationCost = teamSize > 1 ? Math.round((teamSize * (teamSize - 1)) / 2 * 0.5) : 0;
@@ -67,7 +76,7 @@ export function TaskCardFull({ task, visible, onClose, onSave }: TaskCardFullPro
 
   // What-if scenario: Add one person
   const whatIfTeamSize = teamSize + 1;
-  const whatIfRawVelocity = rawVelocity + 8; // Assume new person adds 8 TU/wk
+  const whatIfRawVelocity = rawVelocity + 8;
   const whatIfCoordinationCost = Math.round((whatIfTeamSize * (whatIfTeamSize - 1)) / 2 * 0.5);
   const whatIfNetVelocity = calculateNetVelocity(whatIfTeamSize, whatIfRawVelocity);
   const whatIfWeeks = calculateEstimatedWeeks(remaining, whatIfNetVelocity);
@@ -120,6 +129,31 @@ export function TaskCardFull({ task, visible, onClose, onSave }: TaskCardFullPro
     return capacity.total > capacity.maxCapacity;
   });
 
+  // Get member IDs for avatars
+  const memberIds = editedTask.allocations.map((a) => a.memberId);
+
+  // Status config (same as Medium)
+  const statusConfig = {
+    'not-started': { icon: Pause, color: '#6b7280', label: 'Queue' },
+    'in-progress': { icon: Play, color: '#3b82f6', label: 'Active' },
+    blocked: { icon: AlertTriangle, color: '#ef4444', label: 'Blocked' },
+    completed: { icon: CheckCircle2, color: '#10b981', label: 'Done' },
+  };
+
+  const handleStatusUpdate = (status: WorkPlan['status']) => {
+    setEditedTask({ ...editedTask, status });
+  };
+
+  const handleProgressUpdate = (progress: number) => {
+    setEditedTask({ ...editedTask, progress });
+  };
+
+  const handleReschedule = (days: number) => {
+    const currentDate = new Date(editedTask.dueDate);
+    currentDate.setDate(currentDate.getDate() + days);
+    setEditedTask({ ...editedTask, dueDate: currentDate.toISOString().split('T')[0] });
+  };
+
   const handleSave = () => {
     onSave(editedTask);
     onClose();
@@ -169,7 +203,7 @@ export function TaskCardFull({ task, visible, onClose, onSave }: TaskCardFullPro
               </View>
 
               {/* Quick stats row */}
-              <View className="flex-row items-center gap-3">
+              <View className="flex-row items-center gap-3 flex-wrap">
                 <View className="flex-row items-center gap-1.5 bg-white/60 rounded-full px-3 py-1">
                   <Users size={12} color="#64748b" />
                   <Text className="text-slate-700 text-xs font-semibold">{teamSize} people</Text>
@@ -186,19 +220,164 @@ export function TaskCardFull({ task, visible, onClose, onSave }: TaskCardFullPro
                 </View>
                 <View className="flex-row items-center gap-1.5 bg-white/60 rounded-full px-3 py-1">
                   <Activity size={12} color="#64748b" />
-                  <Text className="text-slate-700 text-xs font-semibold">{progress}% done</Text>
+                  <Text className="text-slate-700 text-xs font-semibold">{progressPercent}% done</Text>
                 </View>
               </View>
             </LinearGradient>
 
             <ScrollView
               className="px-5"
-              contentContainerStyle={{ paddingBottom: 120 }}
+              contentContainerStyle={{ paddingBottom: 180 }}
               showsVerticalScrollIndicator={false}
             >
+              {/* ===== MEDIUM CONTENT (from TaskCardMediumInline) ===== */}
+
+              {/* Task Info Row - Avatars and Timeline */}
+              <View className="py-4 border-b border-slate-100 dark:border-slate-800">
+                <View className="flex-row items-center justify-between">
+                  <View className="flex-row items-center gap-3">
+                    <TaskAvatarStack memberIds={memberIds} maxVisible={3} size={24} />
+                    <TaskEffortTimeline
+                      totalTU={editedTask.estimatedTimeUnits}
+                      velocityPerWeek={netVelocity}
+                      estimatedWeeks={estimatedWeeks}
+                      completed={completed}
+                      showProgressBar={false}
+                    />
+                  </View>
+                </View>
+              </View>
+
+              {/* Quick Status Row - Same as Medium */}
+              <View className="py-4 border-b border-slate-100 dark:border-slate-800">
+                <Text className="text-slate-500 dark:text-slate-400 text-xs font-medium mb-2">
+                  Status
+                </Text>
+                <View className="flex-row gap-1.5">
+                  {(['not-started', 'in-progress', 'blocked', 'completed'] as const).map((status) => {
+                    const isActive = editedTask.status === status;
+                    const { icon: Icon, color, label } = statusConfig[status];
+
+                    return (
+                      <HapticPressable
+                        key={status}
+                        onPress={() => handleStatusUpdate(status)}
+                        className="flex-1 flex-row items-center justify-center gap-1 py-2.5 rounded-lg"
+                        style={{
+                          backgroundColor: isActive ? color + '15' : '#f1f5f9',
+                          borderWidth: isActive ? 1.5 : 0,
+                          borderColor: color,
+                        }}
+                      >
+                        <Icon size={14} color={isActive ? color : '#9ca3af'} />
+                        <Text
+                          className="text-xs font-semibold"
+                          style={{ color: isActive ? color : '#9ca3af' }}
+                        >
+                          {label}
+                        </Text>
+                      </HapticPressable>
+                    );
+                  })}
+                </View>
+              </View>
+
+              {/* Progress + Reschedule Row - Same as Medium */}
+              <View className="py-4 border-b border-slate-100 dark:border-slate-800">
+                <View className="flex-row gap-3">
+                  {/* Progress Quick Set */}
+                  <View className="flex-1">
+                    <Text className="text-xs font-medium text-slate-500 dark:text-slate-400 mb-2">
+                      Progress
+                    </Text>
+                    <View className="flex-row gap-1.5">
+                      {[25, 50, 75, 100].map((preset) => (
+                        <HapticPressable
+                          key={preset}
+                          onPress={() => handleProgressUpdate(preset)}
+                          className="flex-1 py-2 rounded-lg items-center"
+                          style={{
+                            backgroundColor: editedTask.progress === preset ? '#3b82f6' : '#f1f5f9',
+                          }}
+                        >
+                          <Text
+                            className={`text-xs font-semibold ${
+                              editedTask.progress === preset ? 'text-white' : 'text-slate-600'
+                            }`}
+                          >
+                            {preset}%
+                          </Text>
+                        </HapticPressable>
+                      ))}
+                    </View>
+                  </View>
+
+                  {/* Reschedule Quick Set */}
+                  <View className="flex-1">
+                    <Text className="text-xs font-medium text-slate-500 dark:text-slate-400 mb-2">
+                      Reschedule
+                    </Text>
+                    <View className="flex-row gap-1.5">
+                      {[
+                        { days: 1, label: '+1d' },
+                        { days: 3, label: '+3d' },
+                        { days: 7, label: '+1w' },
+                      ].map(({ days, label }) => (
+                        <HapticPressable
+                          key={days}
+                          onPress={() => handleReschedule(days)}
+                          className="flex-1 py-2 bg-slate-100 dark:bg-slate-700 rounded-lg items-center"
+                        >
+                          <Text className="text-slate-700 dark:text-slate-300 text-xs font-semibold">
+                            {label}
+                          </Text>
+                        </HapticPressable>
+                      ))}
+                    </View>
+                  </View>
+                </View>
+              </View>
+
+              {/* Description - Editable (from Medium) */}
+              <View className="py-4 border-b border-slate-100 dark:border-slate-800">
+                <Text className="text-xs font-medium text-slate-500 dark:text-slate-400 mb-2">
+                  Notes
+                </Text>
+                {editingDescription ? (
+                  <TextInput
+                    value={editedTask.description}
+                    onChangeText={(description) => setEditedTask({ ...editedTask, description })}
+                    onBlur={() => setEditingDescription(false)}
+                    autoFocus
+                    multiline
+                    numberOfLines={3}
+                    className="text-slate-900 dark:text-white text-sm bg-slate-100 dark:bg-slate-700 rounded-xl px-3 py-3"
+                    placeholder="Add notes..."
+                    placeholderTextColor="#94a3b8"
+                  />
+                ) : (
+                  <Pressable
+                    onPress={() => setEditingDescription(true)}
+                    className="bg-slate-50 dark:bg-slate-800 rounded-xl px-3 py-3"
+                  >
+                    <Text
+                      className="text-slate-600 dark:text-slate-400 text-sm"
+                      numberOfLines={3}
+                    >
+                      {editedTask.description || 'Tap to add notes...'}
+                    </Text>
+                  </Pressable>
+                )}
+              </View>
+
+              {/* ===== FULL-ONLY CONTENT (Strategic Analysis) ===== */}
+
               {/* Issue Alerts */}
               {(isHighCoordination || hasOverallocatedMembers || isOverdue) && (
-                <View className="py-4 gap-2">
+                <View className="py-4 gap-2 border-b border-slate-100 dark:border-slate-800">
+                  <Text className="text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">
+                    Alerts
+                  </Text>
                   {isHighCoordination && (
                     <View className="flex-row items-start gap-2 bg-amber-50 dark:bg-amber-900/20 rounded-xl p-3">
                       <Zap size={16} color="#f59e0b" style={{ marginTop: 2 }} />
@@ -229,12 +408,12 @@ export function TaskCardFull({ task, visible, onClose, onSave }: TaskCardFullPro
                 </View>
               )}
 
-              {/* Current Progress */}
+              {/* Current Progress - Enhanced with TU details */}
               <View className="py-4 border-b border-slate-100 dark:border-slate-800">
                 <View className="flex-row items-center gap-2 mb-2">
                   <Target size={16} color="#3b82f6" />
                   <Text className="text-slate-900 dark:text-white font-semibold">
-                    Current Progress
+                    Progress Details
                   </Text>
                 </View>
                 <TaskProgressBar
@@ -352,7 +531,7 @@ export function TaskCardFull({ task, visible, onClose, onSave }: TaskCardFullPro
 
                         {isOverallocated && (
                           <Text className="text-red-600 dark:text-red-400 text-xs mt-1 font-medium">
-                            ⚠️ Over capacity by {capacity.total - capacity.maxCapacity} TU/wk
+                            Over capacity by {capacity.total - capacity.maxCapacity} TU/wk
                           </Text>
                         )}
                       </View>
@@ -404,7 +583,7 @@ export function TaskCardFull({ task, visible, onClose, onSave }: TaskCardFullPro
               )}
 
               {/* What-If: Add Resource */}
-              <View className="py-4 border-b border-slate-100 dark:border-slate-800">
+              <View className="py-4">
                 <View className="flex-row items-center gap-2 mb-3">
                   <BarChart3 size={16} color="#8b5cf6" />
                   <Text className="text-slate-900 dark:text-white font-semibold">
@@ -473,7 +652,7 @@ export function TaskCardFull({ task, visible, onClose, onSave }: TaskCardFullPro
                   {velocityImprovement < 2 && (
                     <View className="bg-amber-100 dark:bg-amber-900/30 rounded-lg p-2 mt-3">
                       <Text className="text-amber-800 dark:text-amber-200 text-xs">
-                        ⚠️ Warning: Adding another person only gains{' '}
+                        Warning: Adding another person only gains{' '}
                         {velocityImprovement.toFixed(1)} TU/wk due to coordination overhead
                       </Text>
                     </View>
@@ -488,7 +667,6 @@ export function TaskCardFull({ task, visible, onClose, onSave }: TaskCardFullPro
                 <View className="flex-row gap-2.5">
                   <HapticPressable
                     onPress={() => {
-                      // TODO: Open add resource modal
                       handleSave();
                     }}
                     className="flex-1 flex-row items-center justify-center gap-2 bg-blue-500 rounded-xl py-3.5"
@@ -499,7 +677,6 @@ export function TaskCardFull({ task, visible, onClose, onSave }: TaskCardFullPro
 
                   <HapticPressable
                     onPress={() => {
-                      // TODO: Open split task modal
                       handleSave();
                     }}
                     className="flex-1 flex-row items-center justify-center gap-2 bg-purple-500 rounded-xl py-3.5"
@@ -521,7 +698,6 @@ export function TaskCardFull({ task, visible, onClose, onSave }: TaskCardFullPro
 
                   <HapticPressable
                     onPress={() => {
-                      // TODO: Escalate to leadership
                       handleSave();
                     }}
                     className="flex-row items-center gap-2 bg-amber-500 rounded-xl px-5 py-3.5"
