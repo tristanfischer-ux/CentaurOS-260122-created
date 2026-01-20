@@ -474,7 +474,6 @@ export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress
                 const periodOffset = viewMode === 'day' ? 2 : viewMode === 'week' ? 4 : viewMode === 'month' ? 2 : 1;
                 const leftPosition = WEEK_WIDTH * (bar.startOffset + periodOffset);
                 const assignedMembers = getAssignedMembers(bar.task);
-                const AVATAR_WIDTH = 32; // Width for avatar section
                 const taskCost = calculateTaskCost(bar.task);
 
                 // Calculate bar widths for original vs extension
@@ -494,43 +493,10 @@ export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress
                     key={bar.task.id}
                     className="mb-2 flex-row items-center"
                     style={{
-                      marginLeft: Math.max(0, leftPosition) - AVATAR_WIDTH - 4,
+                      marginLeft: Math.max(4, leftPosition),
                       height: TASK_HEIGHT,
                     }}
                   >
-                    {/* Team Avatars - circular with solid role colors */}
-                    <View className="mr-1" style={{ width: AVATAR_WIDTH, flexDirection: 'row', justifyContent: 'flex-end' }}>
-                      {assignedMembers.length > 0 ? (
-                        <>
-                          {assignedMembers.length > 2 && (
-                            <View
-                              className="w-7 h-7 rounded-full items-center justify-center border-2 border-white dark:border-slate-800"
-                              style={{ backgroundColor: '#6b7280', marginRight: -8, zIndex: 0 }}
-                            >
-                              <Text className="font-bold text-[9px] text-white">
-                                +{assignedMembers.length - 2}
-                              </Text>
-                            </View>
-                          )}
-                          {assignedMembers.slice(0, 2).reverse().map((member, memberIdx) => (
-                            <View
-                              key={member.id}
-                              className="w-7 h-7 rounded-full items-center justify-center border-2 border-white dark:border-slate-800"
-                              style={{
-                                backgroundColor: ROLE_COLORS[member.role] || '#8b5cf6',
-                                marginRight: memberIdx < assignedMembers.slice(0, 2).length - 1 ? -8 : 0,
-                                zIndex: memberIdx + 1
-                              }}
-                            >
-                              <Text className="font-bold text-[9px] text-white">
-                                {getInitials(member.name)}
-                              </Text>
-                            </View>
-                          ))}
-                        </>
-                      ) : null}
-                    </View>
-
                     {/* Task Bar Container - includes original bar + extension */}
                     <View className="flex-row items-center">
                       {/* Original Timeline Bar */}
@@ -655,6 +621,37 @@ export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress
                         {taskCost > 0 ? `£${taskCost.toLocaleString()}` : '£X'}
                       </Text>
                     </View>
+
+                    {/* Team Avatars - circular with solid role colors */}
+                    {assignedMembers.length > 0 && (
+                      <View className="ml-2 flex-row">
+                        {assignedMembers.slice(0, 3).map((member, memberIdx) => (
+                          <View
+                            key={member.id}
+                            className="w-6 h-6 rounded-full items-center justify-center border-2 border-white dark:border-slate-800"
+                            style={{
+                              backgroundColor: ROLE_COLORS[member.role] || '#8b5cf6',
+                              marginLeft: memberIdx > 0 ? -6 : 0,
+                              zIndex: 3 - memberIdx,
+                            }}
+                          >
+                            <Text className="font-bold text-[8px] text-white">
+                              {getInitials(member.name)}
+                            </Text>
+                          </View>
+                        ))}
+                        {assignedMembers.length > 3 && (
+                          <View
+                            className="w-6 h-6 rounded-full items-center justify-center border-2 border-white dark:border-slate-800"
+                            style={{ backgroundColor: '#6b7280', marginLeft: -6, zIndex: 0 }}
+                          >
+                            <Text className="font-bold text-[8px] text-white">
+                              +{assignedMembers.length - 3}
+                            </Text>
+                          </View>
+                        )}
+                      </View>
+                    )}
 
                     {/* Delay badge (alternative position) - shows if there's a delay but no extension visual */}
                     {bar.delayInfo.isDelayed && !hasExtension && delayBadgeText && (
