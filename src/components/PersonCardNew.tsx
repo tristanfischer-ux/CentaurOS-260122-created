@@ -548,19 +548,18 @@ export function PersonCardNew({ member, allMembers = [], onMemberChange }: Perso
               </View>
             )}
 
-            <ScrollView style={{ maxHeight: 500 }} showsVerticalScrollIndicator={true}>
-              <View className="p-4">
-                {/* Bio */}
-                {member.bio && (
-                  <View className="mb-4">
-                    <Text className="text-slate-900 dark:text-white font-bold text-sm mb-2">
-                      About
-                    </Text>
-                    <Text className="text-slate-700 dark:text-slate-300 text-sm leading-5">
-                      {member.bio}
-                    </Text>
-                  </View>
-                )}
+            <View className="p-4">
+              {/* Bio */}
+              {member.bio && (
+                <View className="mb-4">
+                  <Text className="text-slate-900 dark:text-white font-bold text-sm mb-2">
+                    About
+                  </Text>
+                  <Text className="text-slate-700 dark:text-slate-300 text-sm leading-5">
+                    {member.bio}
+                  </Text>
+                </View>
+              )}
 
                 {/* All Current Tasks - Interactive */}
                 {memberWorkload.tasks.length > 0 && (
@@ -1111,7 +1110,6 @@ export function PersonCardNew({ member, allMembers = [], onMemberChange }: Perso
                   )}
                 </View>
               </View>
-            </ScrollView>
 
             <Text className="text-slate-400 dark:text-slate-500 text-[10px] text-center py-3 border-t border-slate-100 dark:border-slate-800">
               Tap again to collapse
