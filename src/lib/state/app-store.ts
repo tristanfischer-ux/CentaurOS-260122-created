@@ -147,7 +147,6 @@ export const useAppStore = create<AppState>((set, get) => ({
           workspaceId,
           userId: state.currentUser.id,
           role: 'Founder',
-          function: 'Admin', // Default function for auto-created memberships
         });
 
         // Add to local state
