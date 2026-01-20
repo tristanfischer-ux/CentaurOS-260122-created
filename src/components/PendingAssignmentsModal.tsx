@@ -5,9 +5,10 @@
 
 import { View, Text, Pressable, ScrollView, Modal, TextInput, Alert } from 'react-native';
 import { useState, useMemo } from 'react';
-import { X, CheckCircle, XCircle, Clock, User, Calendar, Target, MessageSquare, CheckCheck, XCircleIcon } from 'lucide-react-native';
+import { X, CheckCircle, XCircle, Clock, User, Calendar, Target, MessageSquare, CheckCheck, XCircleIcon, AlertTriangle, TrendingUp } from 'lucide-react-native';
 import { useTaskAssignmentStore, type TaskAssignment } from '@/lib/state/task-assignment-store';
 import { useOrganizationStore } from '@/lib/state/organization-store';
+import { useWorkPlanStore } from '@/lib/state/work-plan-store';
 import { LinearGradient } from 'expo-linear-gradient';
 
 interface PendingAssignmentsModalProps {
@@ -24,6 +25,44 @@ export function PendingAssignmentsModal({ visible, onClose, memberId }: PendingA
   const bulkAccept = useTaskAssignmentStore(s => s.bulkAccept);
   const bulkReject = useTaskAssignmentStore(s => s.bulkReject);
   const members = useOrganizationStore(s => s.members);
+  const workPlans = useWorkPlanStore(s => s.workPlans);
+
+  // Get current member
+  const currentMember = useMemo(() => members.find(m => m.id === memberId), [members, memberId]);
+
+  // Calculate current capacity
+  const currentCapacity = useMemo(() => {
+    if (!currentMember) return { allocated: 0, total: 0 };
+
+    const totalAllocated = workPlans
+      .filter(wp => wp.status !== 'completed' && wp.status !== 'abandoned')
+      .reduce((sum, wp) => {
+        const allocation = wp.allocations?.find(a => a.memberId === memberId);
+        return sum + (allocation?.squaresPerWeek || 0);
+      }, 0);
+
+    const totalCapacity = currentMember.role === 'Founder' || currentMember.role === 'Apprentice'
+      ? 15
+      : (currentMember.daysPerWeek || 2) * 2;
+
+    return { allocated: totalAllocated, total: totalCapacity };
+  }, [currentMember, workPlans, memberId]);
+
+  // Calculate capacity impact for an assignment
+  const getCapacityImpact = (assignment: TaskAssignment) => {
+    const newAllocated = currentCapacity.allocated + assignment.proposedAllocation.squaresPerWeek;
+    const utilizationPercent = Math.round((newAllocated / currentCapacity.total) * 100);
+    const isOverallocated = newAllocated > currentCapacity.total;
+    const available = currentCapacity.total - newAllocated;
+
+    return {
+      newAllocated,
+      utilizationPercent,
+      isOverallocated,
+      available,
+      status: isOverallocated ? 'overallocated' : utilizationPercent >= 85 ? 'warning' : 'good',
+    };
+  };
 
   // Filter pending assignments with useMemo to avoid creating new array on every render
   const pendingAssignments = useMemo(() =>
@@ -276,6 +315,60 @@ export function PendingAssignmentsModal({ visible, onClose, memberId }: PendingA
                           </Text>
                         </View>
                       </View>
+
+                      {/* Capacity Impact */}
+                      {(() => {
+                        const impact = getCapacityImpact(assignment);
+                        const bgColor = impact.status === 'overallocated'
+                          ? 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800'
+                          : impact.status === 'warning'
+                          ? 'bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800'
+                          : 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800';
+
+                        const textColor = impact.status === 'overallocated'
+                          ? 'text-red-700 dark:text-red-300'
+                          : impact.status === 'warning'
+                          ? 'text-amber-700 dark:text-amber-300'
+                          : 'text-emerald-700 dark:text-emerald-300';
+
+                        const iconColor = impact.status === 'overallocated'
+                          ? '#ef4444'
+                          : impact.status === 'warning'
+                          ? '#f59e0b'
+                          : '#10b981';
+
+                        return (
+                          <View className={`rounded-lg p-3 mb-3 border ${bgColor}`}>
+                            <View className="flex-row items-center gap-2 mb-1.5">
+                              {impact.status === 'overallocated' ? (
+                                <AlertTriangle size={14} color={iconColor} />
+                              ) : impact.status === 'warning' ? (
+                                <AlertTriangle size={14} color={iconColor} />
+                              ) : (
+                                <TrendingUp size={14} color={iconColor} />
+                              )}
+                              <Text className={`font-bold text-xs ${textColor}`}>
+                                Capacity Impact
+                              </Text>
+                            </View>
+                            <Text className={`text-xs ${textColor}`}>
+                              Current: {currentCapacity.allocated}/{currentCapacity.total} TU ({Math.round((currentCapacity.allocated / currentCapacity.total) * 100)}%)
+                            </Text>
+                            <Text className={`text-xs font-bold ${textColor}`}>
+                              After accepting: {impact.newAllocated}/{currentCapacity.total} TU ({impact.utilizationPercent}%)
+                            </Text>
+                            {impact.isOverallocated ? (
+                              <Text className="text-xs text-red-600 dark:text-red-400 font-bold mt-1">
+                                ⚠️ This would overallocate you by {Math.abs(impact.available)} TU
+                              </Text>
+                            ) : (
+                              <Text className={`text-xs ${textColor} mt-1`}>
+                                ✓ {impact.available} TU would remain available
+                              </Text>
+                            )}
+                          </View>
+                        );
+                      })()}
 
                       {/* Actions */}
                       <View className="flex-row items-center gap-2">

@@ -27,8 +27,10 @@ import {
   Edit3,
   X,
   Check,
+  ChevronRight,
 } from 'lucide-react-native';
 import Animated, { SlideInDown, SlideOutUp } from 'react-native-reanimated';
+import { router } from 'expo-router';
 import type { WorkPlan } from '@/lib/state/work-plan-store';
 import type { PriorityLevel } from '@/lib/ai-priority-scoring';
 import { useOrganizationStore } from '@/lib/state/organization-store';
@@ -522,6 +524,19 @@ export function TaskCardExpansion({
                           ⚠️ Over by {capacity.total - capacity.maxCapacity} TU/wk
                         </Text>
                       )}
+
+                      {/* Navigation to People Tab */}
+                      <Pressable
+                        onPress={() => {
+                          router.push('/(tabs)/people');
+                        }}
+                        className="flex-row items-center justify-center gap-1 mt-2 active:opacity-70"
+                      >
+                        <Text className="text-blue-500 text-[9px] font-semibold">
+                          View {member.name.split(' ')[0]}'s Profile
+                        </Text>
+                        <ChevronRight size={10} color="#3b82f6" />
+                      </Pressable>
                     </View>
                   );
                 })}

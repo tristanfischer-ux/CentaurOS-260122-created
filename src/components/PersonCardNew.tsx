@@ -44,6 +44,7 @@ import { cn } from '@/lib/cn';
 import { MiniGanttChart } from './MiniGanttChart';
 import { getInitials, ROLE_COLORS } from './Avatar';
 import { QuickAssignModal } from './QuickAssignModal';
+import { CapacityIndicator } from './CapacityIndicator';
 import type { Function as BusinessFunction } from '@/types';
 
 type PersonViewState = 'compact' | 'medium' | 'full';
@@ -386,31 +387,14 @@ export function PersonCardNew({ member, allMembers = [], onMemberChange }: Perso
           <View className="px-4 pb-4 border-t border-slate-100 dark:border-slate-800 pt-3">
             {/* Capacity Bar */}
             <View className="mb-4">
-              <View className="flex-row items-center justify-between mb-1.5">
-                <Text className="text-slate-500 dark:text-slate-400 text-[11px] font-medium">
-                  Weekly Capacity
-                </Text>
-                <Text className="text-slate-900 dark:text-white text-[11px] font-bold">
-                  {utilizationPercent}% utilized
-                </Text>
-              </View>
-              <View className="h-2 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
-                <View
-                  className="h-full rounded-full"
-                  style={{
-                    width: `${Math.min(100, utilizationPercent)}%`,
-                    backgroundColor: utilColor.bg,
-                  }}
-                />
-              </View>
-              <View className="flex-row items-center justify-between mt-1">
-                <Text className="text-slate-400 dark:text-slate-500 text-[10px]">
-                  0 TU
-                </Text>
-                <Text className="text-slate-400 dark:text-slate-500 text-[10px]">
-                  {memberWorkload.totalCapacity} TU
-                </Text>
-              </View>
+              <CapacityIndicator
+                allocated={memberWorkload.totalAllocated}
+                total={memberWorkload.totalCapacity}
+                size="small"
+                variant="bar"
+                showLabel={true}
+                showPercentage={true}
+              />
             </View>
 
             {/* Alert Badges */}
@@ -714,6 +698,18 @@ export function PersonCardNew({ member, allMembers = [], onMemberChange }: Perso
                                       <Text className="text-white text-xs font-bold">Delete</Text>
                                     </Pressable>
                                   </View>
+
+                                  {/* Navigation to Tasks Tab */}
+                                  <Pressable
+                                    onPress={() => {
+                                      lightImpact();
+                                      router.push('/(tabs)/tasks');
+                                    }}
+                                    className="mt-2 flex-row items-center justify-center gap-1 active:opacity-70"
+                                  >
+                                    <Text className="text-blue-500 text-xs font-semibold">View in Tasks</Text>
+                                    <ChevronRight size={12} color="#3b82f6" />
+                                  </Pressable>
                                 </View>
                               )}
                             </Pressable>
