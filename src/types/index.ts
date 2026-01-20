@@ -1,6 +1,6 @@
 // Core domain types for Centaur OS
 
-export type Role = 'Founder' | 'CoFounder' | 'Apprentice' | 'FractionalExec' | 'Government' | 'Unaffiliated';
+export type Role = 'Founder' | 'FractionalExec' | 'Apprentice';
 export type Function = 'Finance' | 'Sales' | 'Marketing' | 'Ops' | 'Engineering' | 'Admin';
 export type TaskStatus = 'backlog' | 'todo' | 'in_progress' | 'in_review' | 'done';
 export type TaskPriority = 'low' | 'medium' | 'high' | 'urgent';

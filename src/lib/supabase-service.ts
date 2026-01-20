@@ -474,7 +474,7 @@ export const membershipService = {
   async create(membership: {
     workspaceId: string;
     userId: string;
-    role: 'Founder' | 'Apprentice' | 'FractionalExec' | 'Government' | 'Unaffiliated';
+    role: 'Founder' | 'FractionalExec' | 'Apprentice';
     function?: 'Finance' | 'Sales' | 'Marketing' | 'Ops' | 'Engineering' | 'Admin';
   }): Promise<Membership> {
     const { data, error } = await supabase

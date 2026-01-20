@@ -37,10 +37,6 @@ export function checkPermission(
       // Founders can do everything
       '*': ['*'],
     },
-    CoFounder: {
-      // CoFounders have same permissions as Founders
-      '*': ['*'],
-    },
     Apprentice: {
       task: ['read', 'create', 'update_own', 'request_review'],
       project: ['read'],
@@ -57,15 +53,6 @@ export function checkPermission(
       weeklyPack: ['read', 'generate'],
       comment: ['create', 'read'],
       timeEntry: ['read'],
-    },
-    Government: {
-      // Government users have read-only access across all workspaces
-      '*': ['read', 'view_all_workspaces'],
-    },
-    Unaffiliated: {
-      // Unaffiliated users can only view invitations and manage their profile
-      invitation: ['read', 'respond'],
-      profile: ['read', 'update'],
     },
   };
 

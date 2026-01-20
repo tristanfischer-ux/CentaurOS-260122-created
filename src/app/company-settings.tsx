@@ -44,7 +44,7 @@ import { getInitials, ROLE_COLORS } from '@/components/Avatar';
 import { AIUsageMonitor } from '@/components/AIUsageMonitor';
 
 type InvitationStatus = 'pending' | 'accepted' | 'rejected';
-type MemberRole = 'Founder' | 'CoFounder' | 'FractionalExec' | 'Apprentice';
+type MemberRole = 'Founder' | 'FractionalExec' | 'Apprentice';
 
 type Invitation = {
   id: string;
@@ -63,12 +63,6 @@ const ROLE_INFO: Record<MemberRole, { icon: typeof Crown; title: string; descrip
     icon: Crown,
     title: 'Founder',
     description: 'Full access. Owns the company. Can invite, remove, and manage all team members.',
-    color: '#8b5cf6',
-  },
-  CoFounder: {
-    icon: Crown,
-    title: 'Co-Founder',
-    description: 'Full access. Co-owns the company with the Founder. Same permissions as Founder.',
     color: '#8b5cf6',
   },
   FractionalExec: {

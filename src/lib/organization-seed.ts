@@ -11,7 +11,7 @@ export interface OrganizationMember {
   workspaceId: string; // 🔑 Multi-tenancy key - links member to specific company
   userId?: string; // 🔑 Optional link to auth user (for members who are also app users)
   name: string;
-  role: 'Founder' | 'CoFounder' | 'FractionalExec' | 'Apprentice';
+  role: 'Founder' | 'FractionalExec' | 'Apprentice';
   function: string;
   reportsTo?: string; // ID of who they report to
   manages?: string[]; // IDs of people they manage

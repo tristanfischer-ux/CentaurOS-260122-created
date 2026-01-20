@@ -194,8 +194,8 @@ export function canManageMember(
   currentMember: OrganizationMember,
   targetMember: OrganizationMember
 ): boolean {
-  // Founders and CoFounders can manage everyone
-  if (currentMember.role === 'Founder' || currentMember.role === 'CoFounder') return true;
+  // Founders can manage everyone
+  if (currentMember.role === 'Founder') return true;
 
   // Execs can manage their direct reports
   if (currentMember.role === 'FractionalExec') {

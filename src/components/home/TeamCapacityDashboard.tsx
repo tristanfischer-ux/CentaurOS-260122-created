@@ -243,7 +243,7 @@ export function TeamCapacityDashboard() {
     const memberData = roleFilteredMembers.map((member) => {
       // Calculate capacity - matching PersonCard and CollapsibleResourcePool logic
       let totalCapacity = 0;
-      if (member.role === 'Founder' || member.role === 'CoFounder' || member.role === 'Apprentice') {
+      if (member.role === 'Founder' || member.role === 'Apprentice') {
         totalCapacity = 15; // 10 normal + 5 overtime (matching CollapsibleResourcePool:51 and PersonCard:51)
       } else {
         // Fractional exec: days per week * 2 squares per day
