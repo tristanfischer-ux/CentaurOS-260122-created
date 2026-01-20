@@ -473,7 +473,7 @@ export function TaskCardFull({ task, visible, onClose, onSave }: TaskCardFullPro
                             <View className="flex-row items-center gap-2 mb-1">
                               <View className="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/30 items-center justify-center">
                                 <Text className="text-blue-600 dark:text-blue-400 font-bold text-xs">
-                                  {member.name.charAt(0)}
+                                  {member.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
                                 </Text>
                               </View>
                               <View className="flex-1">
