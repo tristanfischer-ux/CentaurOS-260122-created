@@ -58,13 +58,22 @@ A mobile app for lean companies to manage tasks, track team capacity, and coordi
   - ✅ Escalated badge on task cards (TaskCardCompact)
   - ✅ Escalation history display in task full view
   - ✅ Full workflow: Escalate → Notify Founders → Accept/Delegate/Reject → Resolve
+- ✅ **MULTI-USER UPGRADE COMPLETE** (Jan 20, 2026):
+  - ✅ User-specific notification routing (notifications target specific users, not just workspace)
+  - ✅ userId tracking in all escalation operations
+  - ✅ useCurrentMember() hook for auth user → organization member linking
+  - ✅ Founders with auth receive targeted notifications
+  - ✅ Escalators receive user-specific resolution notifications
+  - ✅ Notification filtering by userId (users only see their own notifications)
+  - ✅ Graceful fallback to workspace-level notifications when userId unavailable
 
 **How It Works**:
 - Any team member can escalate a blocked task from the task full view
+- Founders with auth accounts receive user-specific notifications (not workspace-wide)
 - Founders see a red badge on Home tab with count of pending escalations
 - Founders can Accept (with changes), Delegate to someone else, or Reject with feedback
-- Original escalator gets notified of leadership's decision
-- Full audit trail preserved in task escalation history
+- Original escalator gets notified of leadership's decision (user-specific if they have auth)
+- Full audit trail preserved in task escalation history with userId tracking
 
 **Implementation Details**:
 - **Scrolling**: Single parent ScrollView for entire full view - no nested scroll zones

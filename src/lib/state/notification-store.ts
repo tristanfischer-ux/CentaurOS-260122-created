@@ -15,6 +15,7 @@ export interface Notification {
   timestamp: string;
   read: boolean;
   workspaceId: string;
+  userId?: string; // Optional: for user-specific notifications
 }
 
 interface NotificationStore {
@@ -31,11 +32,11 @@ interface NotificationStore {
   };
   addNotification: (notification: Omit<Notification, 'id' | 'read' | 'timestamp'>) => void;
   markAsRead: (id: string) => void;
-  markAllAsRead: (workspaceId: string) => void;
+  markAllAsRead: (workspaceId: string, userId?: string) => void;
   deleteNotification: (id: string) => void;
-  clearAll: (workspaceId: string) => void;
-  getUnreadCount: (workspaceId: string) => number;
-  getNotificationsByWorkspace: (workspaceId: string) => Notification[];
+  clearAll: (workspaceId: string, userId?: string) => void;
+  getUnreadCount: (workspaceId: string, userId?: string) => number;
+  getNotificationsByWorkspace: (workspaceId: string, userId?: string) => Notification[];
   updatePreferences: (preferences: Partial<NotificationStore['preferences']>) => void;
 }
 
@@ -86,10 +87,12 @@ export const useNotificationStore = create<NotificationStore>()(
         }));
       },
 
-      markAllAsRead: (workspaceId: string) => {
+      markAllAsRead: (workspaceId: string, userId?: string) => {
         set((state: NotificationStore) => ({
           notifications: state.notifications.map((n: Notification) =>
-            n.workspaceId === workspaceId ? { ...n, read: true } : n
+            n.workspaceId === workspaceId && (!userId || !n.userId || n.userId === userId)
+              ? { ...n, read: true }
+              : n
           ),
         }));
       },
@@ -100,18 +103,30 @@ export const useNotificationStore = create<NotificationStore>()(
         }));
       },
 
-      clearAll: (workspaceId: string) => {
+      clearAll: (workspaceId: string, userId?: string) => {
         set((state: NotificationStore) => ({
-          notifications: state.notifications.filter((n: Notification) => n.workspaceId !== workspaceId),
+          notifications: state.notifications.filter(
+            (n: Notification) =>
+              n.workspaceId !== workspaceId ||
+              (userId && n.userId && n.userId !== userId)
+          ),
         }));
       },
 
-      getUnreadCount: (workspaceId: string) => {
-        return get().notifications.filter((n: Notification) => n.workspaceId === workspaceId && !n.read).length;
+      getUnreadCount: (workspaceId: string, userId?: string) => {
+        return get().notifications.filter((n: Notification) => {
+          const matchesWorkspace = n.workspaceId === workspaceId;
+          const matchesUser = !userId || !n.userId || n.userId === userId;
+          return matchesWorkspace && matchesUser && !n.read;
+        }).length;
       },
 
-      getNotificationsByWorkspace: (workspaceId: string) => {
-        return get().notifications.filter((n: Notification) => n.workspaceId === workspaceId);
+      getNotificationsByWorkspace: (workspaceId: string, userId?: string) => {
+        return get().notifications.filter((n: Notification) => {
+          const matchesWorkspace = n.workspaceId === workspaceId;
+          const matchesUser = !userId || !n.userId || n.userId === userId;
+          return matchesWorkspace && matchesUser;
+        });
       },
 
       updatePreferences: (preferences: Partial<NotificationStore['preferences']>) => {

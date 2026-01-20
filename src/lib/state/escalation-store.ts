@@ -12,6 +12,7 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 import { mmkvStorage } from '@/lib/storage/mmkv-storage';
 import { useNotificationStore, notificationHelpers } from './notification-store';
 import { useOrganizationStore } from './organization-store';
+import { getFoundersWithAuth, getMemberUserId } from './user-member-helpers';
 
 export type EscalationStatus = 'pending' | 'accepted' | 'delegated' | 'rejected' | 'resolved';
 export type EscalationReason =
@@ -29,6 +30,7 @@ export interface EscalationRequest {
 
   // Who escalated and why
   escalatedBy: string;           // Member ID (e.g., 'exec-5')
+  escalatedByUserId?: string;    // Auth user ID (for user-specific notifications)
   escalatedByName: string;       // Display name (preserved even if member deleted)
   escalatedAt: string;           // ISO timestamp
   reason: EscalationReason;
@@ -40,6 +42,7 @@ export interface EscalationRequest {
 
   // Resolution (when leadership responds)
   respondedBy?: string;          // Founder member ID who handled it
+  respondedByUserId?: string;    // Auth user ID of responder
   respondedByName?: string;      // Display name of responder
   respondedAt?: string;          // When resolved
   resolution?: {
@@ -47,6 +50,7 @@ export interface EscalationRequest {
     notes: string;               // Leadership's guidance/explanation
     delegatedTo?: string;        // If delegated, who gets it (member ID)
     delegatedToName?: string;    // Display name
+    delegatedToUserId?: string;  // Auth user ID of delegate
     proposedChanges?: {          // If accepted, what changes
       newDueDate?: string;
       additionalTUs?: number;
@@ -100,15 +104,33 @@ export const useEscalationStore = create<EscalationStore>()(
           escalations: [...state.escalations, newEscalation],
         }));
 
-        // Notify all users in workspace (Founders will see it in their inbox)
-        useNotificationStore.getState().addNotification(
-          notificationHelpers.escalationCreated(
-            request.workspaceId,
-            request.taskTitle,
-            request.escalatedByName,
-            request.reasonLabel
-          )
+        // Notify Founders with auth accounts (user-specific routing)
+        const members = useOrganizationStore.getState().members;
+        const foundersWithAuth = getFoundersWithAuth(request.workspaceId, members);
+
+        const notification = notificationHelpers.escalationCreated(
+          request.workspaceId,
+          request.taskTitle,
+          request.escalatedByName,
+          request.reasonLabel
         );
+
+        if (foundersWithAuth.length > 0) {
+          // Send to specific Founders with auth
+          foundersWithAuth.forEach(founder => {
+            if (founder.userId) {
+              useNotificationStore.getState().addNotification({
+                ...notification,
+                userId: founder.userId, // User-specific routing
+              });
+            }
+          });
+          console.log('[Escalation] Notified', foundersWithAuth.length, 'Founders with auth');
+        } else {
+          // Fallback: workspace-level notification if no Founders have auth
+          useNotificationStore.getState().addNotification(notification);
+          console.log('[Escalation] Fallback: workspace-level notification (no Founders with auth)');
+        }
 
         console.log('[Escalation] Created:', newEscalation.id, 'for task:', request.taskTitle);
         return newEscalation;
@@ -136,6 +158,7 @@ export const useEscalationStore = create<EscalationStore>()(
                   ...esc,
                   status: 'accepted' as EscalationStatus,
                   respondedBy: founder.id,
+                  respondedByUserId: founder.userId, // Track responder's auth user ID
                   respondedByName: founder.name,
                   respondedAt: new Date().toISOString(),
                   resolution: {
@@ -148,16 +171,27 @@ export const useEscalationStore = create<EscalationStore>()(
           ),
         }));
 
-        // Notify original escalator
-        useNotificationStore.getState().addNotification(
-          notificationHelpers.escalationResolved(
-            escalation.workspaceId,
-            escalation.taskTitle,
-            'accepted',
-            founder.name,
-            notes
-          )
+        // Notify original escalator (user-specific if they have auth)
+        const notification = notificationHelpers.escalationResolved(
+          escalation.workspaceId,
+          escalation.taskTitle,
+          'accepted',
+          founder.name,
+          notes
         );
+
+        if (escalation.escalatedByUserId) {
+          // User-specific notification to escalator
+          useNotificationStore.getState().addNotification({
+            ...notification,
+            userId: escalation.escalatedByUserId,
+          });
+          console.log('[Escalation] Notified escalator (userId:', escalation.escalatedByUserId, ')');
+        } else {
+          // Fallback: workspace-level notification
+          useNotificationStore.getState().addNotification(notification);
+          console.log('[Escalation] Fallback: workspace-level notification');
+        }
 
         console.log('[Escalation] Accepted:', id, 'by', founder.name);
       },
@@ -176,6 +210,8 @@ export const useEscalationStore = create<EscalationStore>()(
           return;
         }
 
+        const delegateMember = members.find(m => m.id === memberId);
+
         set((state) => ({
           escalations: state.escalations.map((esc) =>
             esc.id === id
@@ -183,6 +219,7 @@ export const useEscalationStore = create<EscalationStore>()(
                   ...esc,
                   status: 'delegated' as EscalationStatus,
                   respondedBy: founder.id,
+                  respondedByUserId: founder.userId, // Track responder's auth user ID
                   respondedByName: founder.name,
                   respondedAt: new Date().toISOString(),
                   resolution: {
@@ -190,22 +227,47 @@ export const useEscalationStore = create<EscalationStore>()(
                     notes,
                     delegatedTo: memberId,
                     delegatedToName: memberName,
+                    delegatedToUserId: delegateMember?.userId, // Track delegate's auth user ID
                   },
                 }
               : esc
           ),
         }));
 
-        // Notify original escalator and new assignee
-        useNotificationStore.getState().addNotification(
-          notificationHelpers.escalationResolved(
-            escalation.workspaceId,
-            escalation.taskTitle,
-            'delegated',
-            founder.name,
-            `Delegated to ${memberName}: ${notes}`
-          )
+        // Notify original escalator and new assignee (user-specific if they have auth)
+        const notification = notificationHelpers.escalationResolved(
+          escalation.workspaceId,
+          escalation.taskTitle,
+          'delegated',
+          founder.name,
+          `Delegated to ${memberName}: ${notes}`
         );
+
+        // Notify original escalator
+        if (escalation.escalatedByUserId) {
+          useNotificationStore.getState().addNotification({
+            ...notification,
+            userId: escalation.escalatedByUserId,
+          });
+          console.log('[Escalation] Notified escalator (userId:', escalation.escalatedByUserId, ')');
+        }
+
+        // Notify delegate
+        if (delegateMember?.userId) {
+          useNotificationStore.getState().addNotification({
+            ...notification,
+            userId: delegateMember.userId,
+            title: '📋 Task Delegated to You',
+            message: `${founder.name} delegated "${escalation.taskTitle}" to you: ${notes}`,
+          });
+          console.log('[Escalation] Notified delegate (userId:', delegateMember.userId, ')');
+        }
+
+        // Fallback if no one has auth
+        if (!escalation.escalatedByUserId && !delegateMember?.userId) {
+          useNotificationStore.getState().addNotification(notification);
+          console.log('[Escalation] Fallback: workspace-level notification');
+        }
 
         console.log('[Escalation] Delegated:', id, 'to', memberName, 'by', founder.name);
       },
@@ -231,6 +293,7 @@ export const useEscalationStore = create<EscalationStore>()(
                   ...esc,
                   status: 'rejected' as EscalationStatus,
                   respondedBy: founder.id,
+                  respondedByUserId: founder.userId, // Track responder's auth user ID
                   respondedByName: founder.name,
                   respondedAt: new Date().toISOString(),
                   resolution: {
@@ -242,16 +305,27 @@ export const useEscalationStore = create<EscalationStore>()(
           ),
         }));
 
-        // Notify original escalator with feedback
-        useNotificationStore.getState().addNotification(
-          notificationHelpers.escalationResolved(
-            escalation.workspaceId,
-            escalation.taskTitle,
-            'rejected',
-            founder.name,
-            notes
-          )
+        // Notify original escalator with feedback (user-specific if they have auth)
+        const notification = notificationHelpers.escalationResolved(
+          escalation.workspaceId,
+          escalation.taskTitle,
+          'rejected',
+          founder.name,
+          notes
         );
+
+        if (escalation.escalatedByUserId) {
+          // User-specific notification to escalator
+          useNotificationStore.getState().addNotification({
+            ...notification,
+            userId: escalation.escalatedByUserId,
+          });
+          console.log('[Escalation] Notified escalator (userId:', escalation.escalatedByUserId, ')');
+        } else {
+          // Fallback: workspace-level notification
+          useNotificationStore.getState().addNotification(notification);
+          console.log('[Escalation] Fallback: workspace-level notification');
+        }
 
         console.log('[Escalation] Rejected:', id, 'by', founder.name);
       },

@@ -36,6 +36,7 @@ import type { PriorityLevel } from '@/lib/ai-priority-scoring';
 import { useOrganizationStore } from '@/lib/state/organization-store';
 import { useWorkPlanStore } from '@/lib/state/work-plan-store';
 import { useEscalationStore, type EscalationReason } from '@/lib/state/escalation-store';
+import { useCurrentMember } from '@/lib/state/user-member-helpers';
 import type { OrganizationMember } from '@/lib/organization-seed';
 import { HapticPressable } from '@/components/HapticPressable';
 import { TaskProgressBar } from './index';
@@ -77,6 +78,7 @@ export function TaskCardExpansion({
   const allTasks = useWorkPlanStore((s) => s.workPlans);
   const updateWorkPlan = useWorkPlanStore((s) => s.updateWorkPlan);
   const addWorkPlan = useWorkPlanStore((s) => s.addWorkPlan);
+  const currentMember = useCurrentMember(); // Get current user's member record
 
   const [editingDescription, setEditingDescription] = useState(false);
   const [localDescription, setLocalDescription] = useState(task.description);
@@ -272,10 +274,9 @@ export function TaskCardExpansion({
       return;
     }
 
-    // Get current member (in a real app, this would come from auth context)
-    const currentMember = members.find(m => m.status === 'active'); // Simplified for demo
+    // Get current member from auth
     if (!currentMember) {
-      Alert.alert('Error', 'Could not identify current user.');
+      Alert.alert('Error', 'Could not identify current user. Please sign in again.');
       return;
     }
 
@@ -294,6 +295,7 @@ export function TaskCardExpansion({
       workPlanId: task.id,
       workspaceId: task.workspaceId,
       escalatedBy: currentMember.id,
+      escalatedByUserId: currentMember.userId, // Track auth user ID for notifications
       escalatedByName: currentMember.name,
       reason: escalationReason,
       reasonLabel,
