@@ -211,6 +211,12 @@ export default function TabLayout() {
           width: fabSize,
           height: fabSize,
           zIndex: 999,
+          // Shadow for depth
+          shadowColor: '#000000',
+          shadowOffset: { width: 0, height: 4 },
+          shadowOpacity: 0.3,
+          shadowRadius: 8,
+          elevation: 12,
         }}
       >
         <LinearGradient
@@ -225,11 +231,6 @@ export default function TabLayout() {
             justifyContent: 'center',
             borderWidth: 4,
             borderColor: backgroundColor,
-            shadowColor: '#10b981',
-            shadowOffset: { width: 0, height: 4 },
-            shadowOpacity: 0.4,
-            shadowRadius: 8,
-            elevation: 8,
           }}
         >
           <Plus size={28} color="#ffffff" strokeWidth={3} />
