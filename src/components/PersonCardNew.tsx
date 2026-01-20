@@ -578,41 +578,36 @@ export function PersonCardNew({ member, allMembers = [], onMemberChange }: Perso
                       </Pressable>
                     </View>
 
-                    <ScrollView
-                      style={{ maxHeight: 280 }}
-                      showsVerticalScrollIndicator={true}
-                      nestedScrollEnabled={true}
-                    >
-                      <View className="gap-2">
-                        {memberWorkload.tasks.map((task) => {
-                          const allocation = task.allocations.find(a => a.memberId === member.id);
-                          const tuPerWeek = allocation?.squaresPerWeek || 0;
-                          const isExpanded = expandedTaskId === task.id;
+                    <View className="gap-2">
+                      {memberWorkload.tasks.map((task) => {
+                        const allocation = task.allocations.find(a => a.memberId === member.id);
+                        const tuPerWeek = allocation?.squaresPerWeek || 0;
+                        const isExpanded = expandedTaskId === task.id;
 
-                          const statusColors: Record<string, string> = {
-                            'not-started': 'border-gray-300 dark:border-gray-700',
-                            'in-progress': 'border-blue-400 dark:border-blue-600',
-                            'blocked': 'border-red-400 dark:border-red-600',
-                            'completed': 'border-emerald-400 dark:border-emerald-600',
-                            'abandoned': 'border-gray-400 dark:border-gray-700',
-                          };
-                          const statusBgColors: Record<string, string> = {
-                            'not-started': 'bg-gray-50 dark:bg-gray-900/20',
-                            'in-progress': 'bg-blue-50 dark:bg-blue-900/20',
-                            'blocked': 'bg-red-50 dark:bg-red-900/20',
-                            'completed': 'bg-emerald-50 dark:bg-emerald-900/20',
-                            'abandoned': 'bg-gray-50 dark:bg-gray-900/20',
-                          };
+                        const statusColors: Record<string, string> = {
+                          'not-started': 'border-gray-300 dark:border-gray-700',
+                          'in-progress': 'border-blue-400 dark:border-blue-600',
+                          'blocked': 'border-red-400 dark:border-red-600',
+                          'completed': 'border-emerald-400 dark:border-emerald-600',
+                          'abandoned': 'border-gray-400 dark:border-gray-700',
+                        };
+                        const statusBgColors: Record<string, string> = {
+                          'not-started': 'bg-gray-50 dark:bg-gray-900/20',
+                          'in-progress': 'bg-blue-50 dark:bg-blue-900/20',
+                          'blocked': 'bg-red-50 dark:bg-red-900/20',
+                          'completed': 'bg-emerald-50 dark:bg-emerald-900/20',
+                          'abandoned': 'bg-gray-50 dark:bg-gray-900/20',
+                        };
 
-                          return (
-                            <Pressable
-                              key={task.id}
-                              onPress={() => {
-                                lightImpact();
-                                setExpandedTaskId(isExpanded ? null : task.id);
-                              }}
-                              className={`rounded-lg p-3 border-l-4 ${statusColors[task.status]} ${statusBgColors[task.status]} active:opacity-80`}
-                            >
+                        return (
+                          <Pressable
+                            key={task.id}
+                            onPress={() => {
+                              lightImpact();
+                              setExpandedTaskId(isExpanded ? null : task.id);
+                            }}
+                            className={`rounded-lg p-3 border-l-4 ${statusColors[task.status]} ${statusBgColors[task.status]} active:opacity-80`}
+                          >
                               {/* Task Header */}
                               <View className="flex-row items-start justify-between">
                                 <View className="flex-1 mr-2">
@@ -716,11 +711,92 @@ export function PersonCardNew({ member, allMembers = [], onMemberChange }: Perso
                           );
                         })}
                       </View>
-                    </ScrollView>
-                  </View>
-                )}
+                    </View>
+                  )}
 
-                {/* Personal Timeline */}
+                  {/* What-If Capacity Calculator */}
+                  <View className="mb-4">
+                    <View className="flex-row items-center gap-2 mb-2">
+                      <Target size={14} color="#8b5cf6" />
+                      <Text className="text-slate-900 dark:text-white font-bold text-sm">
+                        What-If Calculator
+                      </Text>
+                    </View>
+
+                    <View className="bg-purple-50 dark:bg-purple-900/20 rounded-xl p-3 border border-purple-200 dark:border-purple-800">
+                      <Text className="text-purple-700 dark:text-purple-300 text-xs mb-3">
+                        Impact of adding more work to {member.name.split(' ')[0]}
+                      </Text>
+
+                      <View className="gap-2">
+                        {[2, 4, 6, 8].map((additionalTU) => {
+                          const newAllocated = memberWorkload.totalAllocated + additionalTU;
+                          const newUtilization = Math.round((newAllocated / memberWorkload.totalCapacity) * 100);
+                          const isOverallocated = newAllocated > memberWorkload.totalCapacity;
+                          const isNearCapacity = newUtilization > 80 && newUtilization <= 100;
+                          const remaining = memberWorkload.totalCapacity - newAllocated;
+
+                          const statusColor = isOverallocated
+                            ? '#ef4444'
+                            : isNearCapacity
+                            ? '#f59e0b'
+                            : '#10b981';
+
+                          const statusBg = isOverallocated
+                            ? 'bg-red-50 dark:bg-red-900/20'
+                            : isNearCapacity
+                            ? 'bg-amber-50 dark:bg-amber-900/20'
+                            : 'bg-emerald-50 dark:bg-emerald-900/20';
+
+                          return (
+                            <View
+                              key={additionalTU}
+                              className={`rounded-lg p-2.5 ${statusBg}`}
+                            >
+                              <View className="flex-row items-center justify-between mb-1">
+                                <Text className="text-slate-900 dark:text-white font-semibold text-xs">
+                                  +{additionalTU} TU/week
+                                </Text>
+                                <View className="flex-row items-center gap-2">
+                                  <Text className="text-slate-600 dark:text-slate-400 text-xs">
+                                    {newAllocated}/{memberWorkload.totalCapacity} TU
+                                  </Text>
+                                  <Text className="font-bold text-xs" style={{ color: statusColor }}>
+                                    {newUtilization}%
+                                  </Text>
+                                </View>
+                              </View>
+
+                              {/* Mini progress bar */}
+                              <View className="h-1 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden mb-1">
+                                <View
+                                  className="h-full rounded-full"
+                                  style={{
+                                    width: `${Math.min(100, newUtilization)}%`,
+                                    backgroundColor: statusColor,
+                                  }}
+                                />
+                              </View>
+
+                              <Text className="text-[9px]" style={{ color: statusColor }}>
+                                {isOverallocated
+                                  ? `⚠️ Overallocated by ${Math.abs(remaining)} TU`
+                                  : isNearCapacity
+                                  ? `⚠️ ${remaining} TU remaining (near capacity)`
+                                  : `✓ ${remaining} TU would remain available`}
+                              </Text>
+                            </View>
+                          );
+                        })}
+                      </View>
+
+                      <Text className="text-purple-600 dark:text-purple-400 text-[9px] mt-2 text-center">
+                        Current: {memberWorkload.totalAllocated}/{memberWorkload.totalCapacity} TU ({utilizationPercent}%)
+                      </Text>
+                    </View>
+                  </View>
+
+                  {/* Personal Timeline */}
                 {memberWorkload.tasks.length > 0 && (
                   <View className="mb-4">
                     <Text className="text-slate-900 dark:text-white font-bold text-sm mb-2">
