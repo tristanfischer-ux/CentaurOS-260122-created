@@ -24,12 +24,13 @@ import {
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useWorkPlanStore } from '@/lib/state/work-plan-store';
 import { useOrganizationStore } from '@/lib/state/organization-store';
-import { useCurrentMembership } from '@/lib/state/app-store';
+import { useCurrentMembership, useAppStore } from '@/lib/state/app-store';
 import { filterWorkPlansByRole } from '@/lib/role-utils';
 import { useOKRStore } from '@/lib/state/okr-store';
 import { useFinanceStore } from '@/lib/state/finance-store';
 import { useSupplierStore } from '@/lib/state/supplier-store';
 import { useCurrentWorkspace } from '@/lib/state/app-store';
+import { useColorScheme } from '@/lib/useColorScheme';
 
 type TrendDirection = 'up' | 'down' | 'stable';
 type HealthStatus = 'healthy' | 'warning' | 'critical';
@@ -55,20 +56,28 @@ const TrendIcon = ({ trend, size = 12 }: { trend: TrendDirection; size?: number 
   return <Minus size={size} color="#64748b" />;
 };
 
-const HEALTH_COLORS: Record<HealthStatus, { bg: string; border: string }> = {
-  healthy: { bg: '#f0fdf4', border: '#86efac' },
-  warning: { bg: '#fffbeb', border: '#fde047' },
-  critical: { bg: '#fef2f2', border: '#fecaca' },
+const HEALTH_COLORS = {
+  light: {
+    healthy: { bg: '#f0fdf4', border: '#86efac', text: '#166534' },
+    warning: { bg: '#fffbeb', border: '#fde047', text: '#854d0e' },
+    critical: { bg: '#fef2f2', border: '#fecaca', text: '#991b1b' },
+  },
+  dark: {
+    healthy: { bg: '#052e16', border: '#166534', text: '#86efac' },
+    warning: { bg: '#422006', border: '#854d0e', text: '#fde047' },
+    critical: { bg: '#450a0a', border: '#991b1b', text: '#fecaca' },
+  },
 };
 
 interface KPICardProps {
   data: KPICardData;
   index: number;
+  isDark: boolean;
 }
 
-function KPICard({ data, index }: KPICardProps) {
+function KPICard({ data, index, isDark }: KPICardProps) {
   const Icon = data.icon;
-  const healthColors = HEALTH_COLORS[data.health];
+  const healthColors = isDark ? HEALTH_COLORS.dark[data.health] : HEALTH_COLORS.light[data.health];
 
   return (
     <Animated.View
@@ -108,22 +117,30 @@ function KPICard({ data, index }: KPICardProps) {
         </View>
 
         {/* Title */}
-        <Text className="text-slate-600 dark:text-slate-400 text-[10px] mb-1" numberOfLines={1}>
+        <Text
+          className="text-[10px] mb-1 opacity-70"
+          style={{ color: healthColors.text }}
+          numberOfLines={1}
+        >
           {data.title}
         </Text>
 
         {/* Primary Value */}
-        <Text className="text-slate-900 text-lg font-bold" numberOfLines={1}>
+        <Text
+          className="text-lg font-bold"
+          style={{ color: healthColors.text }}
+          numberOfLines={1}
+        >
           {data.primaryValue}
         </Text>
         {data.primaryLabel && (
-          <Text className="text-slate-500 text-[9px]">{data.primaryLabel}</Text>
+          <Text className="text-[9px] opacity-60" style={{ color: healthColors.text }}>{data.primaryLabel}</Text>
         )}
 
         {/* Secondary Value */}
         {data.secondaryValue && (
-          <View className="mt-1 pt-1 border-t border-slate-200/50">
-            <Text className="text-slate-600 text-[10px]">
+          <View className="mt-1 pt-1 border-t" style={{ borderColor: healthColors.border }}>
+            <Text className="text-[10px] opacity-70" style={{ color: healthColors.text }}>
               {data.secondaryLabel}: <Text className="font-semibold">{data.secondaryValue}</Text>
             </Text>
           </View>
@@ -136,6 +153,8 @@ function KPICard({ data, index }: KPICardProps) {
 export function PerformanceDashboardGrid() {
   const router = useRouter();
   const currentWorkspace = useCurrentWorkspace();
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === 'dark';
 
   // Data from stores
   const workPlans = useWorkPlanStore((s) => s.workPlans);
@@ -339,22 +358,22 @@ export function PerformanceDashboardGrid() {
       {/* KPI Grid */}
       <View className="flex-row flex-wrap justify-between">
         {kpiCards.map((card, index) => (
-          <KPICard key={card.id} data={card} index={index} />
+          <KPICard key={card.id} data={card} index={index} isDark={isDark} />
         ))}
       </View>
 
       {/* Legend */}
       <View className="flex-row items-center justify-center gap-4 mt-2">
         <View className="flex-row items-center gap-1">
-          <View className="w-2 h-2 rounded-full" style={{ backgroundColor: HEALTH_COLORS.healthy.border }} />
+          <View className="w-2 h-2 rounded-full" style={{ backgroundColor: isDark ? HEALTH_COLORS.dark.healthy.border : HEALTH_COLORS.light.healthy.border }} />
           <Text className="text-slate-500 dark:text-slate-400 text-[10px]">Healthy</Text>
         </View>
         <View className="flex-row items-center gap-1">
-          <View className="w-2 h-2 rounded-full" style={{ backgroundColor: HEALTH_COLORS.warning.border }} />
+          <View className="w-2 h-2 rounded-full" style={{ backgroundColor: isDark ? HEALTH_COLORS.dark.warning.border : HEALTH_COLORS.light.warning.border }} />
           <Text className="text-slate-500 dark:text-slate-400 text-[10px]">Warning</Text>
         </View>
         <View className="flex-row items-center gap-1">
-          <View className="w-2 h-2 rounded-full" style={{ backgroundColor: HEALTH_COLORS.critical.border }} />
+          <View className="w-2 h-2 rounded-full" style={{ backgroundColor: isDark ? HEALTH_COLORS.dark.critical.border : HEALTH_COLORS.light.critical.border }} />
           <Text className="text-slate-500 dark:text-slate-400 text-[10px]">Critical</Text>
         </View>
       </View>
