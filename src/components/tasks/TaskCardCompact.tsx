@@ -13,6 +13,7 @@ import {
   TaskAvatarStack,
   TaskEffortTimeline,
   TaskPriorityIndicator,
+  TaskProgressBar,
 } from './index';
 import {
   calculateNetVelocity,
@@ -51,38 +52,50 @@ export function TaskCardCompact({ task, onPress }: TaskCardCompactProps) {
       onPress={onPress}
       className="bg-white dark:bg-slate-800 rounded-lg p-3 mb-2 border border-slate-200 dark:border-slate-700 active:opacity-70"
     >
-      <View className="flex-row items-start gap-2 mb-1.5">
-        <View className="flex-1 flex-row items-center gap-2">
-          <TaskStatusDot status={task.status} size={8} />
-          <Text
-            className="flex-1 text-slate-900 dark:text-white text-sm font-medium"
-            numberOfLines={1}
-          >
-            {task.title}
-          </Text>
-        </View>
-        <View className="items-end gap-1">
-          <View className="flex-row items-center gap-1">
-            <TaskAvatarStack memberIds={memberIds} maxVisible={3} size={20} />
-            <TaskPriorityIndicator priority={priority} size={14} />
-          </View>
-          <Text
-            className={`text-[10px] font-medium ${
-              isOverdue ? 'text-red-600 dark:text-red-400' : 'text-slate-600 dark:text-slate-400'
-            }`}
-          >
-            Due: {formatTaskDate(dueDate)}
-          </Text>
+      {/* Single line with everything */}
+      <View className="flex-row items-center gap-2">
+        <TaskStatusDot status={task.status} size={8} />
+        <Text
+          className="text-slate-900 dark:text-white text-sm font-medium"
+          numberOfLines={1}
+          style={{ flexShrink: 1 }}
+        >
+          {task.title}
+        </Text>
+        <View className="flex-1" />
+        <View className="flex-row items-center gap-2">
+          <TaskAvatarStack memberIds={memberIds} maxVisible={3} size={20} />
+          <TaskPriorityIndicator priority={priority} size={14} />
         </View>
       </View>
 
-      <View className="pl-4">
-        <TaskEffortTimeline
-          totalTU={task.estimatedTimeUnits}
-          velocityPerWeek={netVelocity}
-          estimatedWeeks={estimatedWeeks}
+      {/* Second line with effort timeline and due date */}
+      <View className="pl-4 mt-1 flex-row items-center justify-between gap-2">
+        <View className="flex-row items-center gap-2">
+          <TaskEffortTimeline
+            totalTU={task.estimatedTimeUnits}
+            velocityPerWeek={netVelocity}
+            estimatedWeeks={estimatedWeeks}
+            completed={task.tusExpended || 0}
+            showProgressBar={false}
+          />
+        </View>
+        <Text
+          className={`text-[10px] font-medium ${
+            isOverdue ? 'text-red-600 dark:text-red-400' : 'text-slate-600 dark:text-slate-400'
+          }`}
+        >
+          {formatTaskDate(dueDate)}
+        </Text>
+      </View>
+
+      {/* Third line with progress bar */}
+      <View className="pl-4 mt-1">
+        <TaskProgressBar
           completed={task.tusExpended || 0}
-          showProgressBar={true}
+          total={task.estimatedTimeUnits}
+          showPercentage={false}
+          variant="thin"
         />
       </View>
     </Pressable>
