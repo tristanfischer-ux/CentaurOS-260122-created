@@ -94,8 +94,8 @@ function membershipToSupabase(membership: Partial<Membership>): any {
   if (membership.workspaceId !== undefined) result.workspace_id = membership.workspaceId;
   if (membership.userId !== undefined) result.user_id = membership.userId;
   if (membership.role !== undefined) result.role = membership.role;
+  if (membership.function !== undefined) result.function = membership.function;
   if (membership.permissions !== undefined) result.permissions = membership.permissions;
-  // Note: 'function' column may not exist in some Supabase setups, so we skip it
 
   return result;
 }
@@ -477,9 +477,12 @@ export const membershipService = {
     role: 'Founder' | 'FractionalExec' | 'Apprentice';
     function?: 'Finance' | 'Sales' | 'Marketing' | 'Ops' | 'Engineering' | 'Admin';
   }): Promise<Membership> {
+    const payload = membershipToSupabase(membership);
+    console.log('[membershipService.create] Inserting membership with payload:', JSON.stringify(payload));
+
     const { data, error } = await supabase
       .from('memberships')
-      .insert(membershipToSupabase(membership))
+      .insert(payload)
       .select()
       .single();
 
