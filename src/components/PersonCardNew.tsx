@@ -41,7 +41,6 @@ import { useArmoryStore } from '@/lib/state/armory-store';
 import { useAppStore } from '@/lib/state/app-store';
 import { lightImpact, heavyImpact } from '@/lib/haptics';
 import { cn } from '@/lib/cn';
-import { MiniGanttChart } from './MiniGanttChart';
 import { getInitials, ROLE_COLORS } from './Avatar';
 import { QuickAssignModal } from './QuickAssignModal';
 import { CapacityIndicator } from './CapacityIndicator';
@@ -796,22 +795,7 @@ export function PersonCardNew({ member, allMembers = [], onMemberChange }: Perso
                     </View>
                   </View>
 
-                  {/* Personal Timeline */}
-                {memberWorkload.tasks.length > 0 && (
-                  <View className="mb-4">
-                    <Text className="text-slate-900 dark:text-white font-bold text-sm mb-2">
-                      Personal Timeline
-                    </Text>
-                    <View className="bg-slate-50 dark:bg-slate-900 rounded-xl overflow-hidden" style={{ height: 200 }}>
-                      <MiniGanttChart
-                        workPlans={memberWorkload.tasks}
-                        members={orgMembers}
-                      />
-                    </View>
-                  </View>
-                )}
-
-                {/* Company Details */}
+                  {/* Company Details */}
                 <View className="mb-4">
                   <Text className="text-slate-900 dark:text-white font-bold text-sm mb-2">
                     Company Details

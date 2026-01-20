@@ -30,14 +30,24 @@ A mobile app for lean companies to manage tasks, track team capacity, and coordi
 
 ### Recent Updates (Jan 20, 2026)
 
-**People Tab Improvements - IN PROGRESS**:
+**People Tab Improvements - COMPLETED**:
 - ✅ Three-tier progressive disclosure (Compact → Medium → Full)
 - ✅ Avatar initials fixed (first name + last name initials)
-- ✅ Quick Assign button added to full view (assign tasks to people)
-- 🚧 Unified capacity indicator system (in progress)
-- 🚧 What-If capacity calculator (in progress)
-- 🚧 AI task suggestions based on skills (in progress)
-- 🚧 Enhanced assignment context modal (in progress)
+- ✅ Fixed nested ScrollView issues - removed conflicting scroll zones
+- ✅ Quick Assign button with capacity-aware modal
+- ✅ Clickable avatars with MemberQuickView popover
+- ✅ Capacity impact display in PendingAssignmentsModal
+- ✅ Bidirectional navigation (People ↔ Tasks tabs)
+- ✅ Unified CapacityIndicator component (3 variants: dot, bar, full)
+- ✅ What-If capacity calculator (shows impact of adding 2/4/6/8 TU)
+- ✅ Removed Personal Timeline (had nested scroll conflicts)
+
+**Implementation Details**:
+- Fixed nested scrolling: Removed ScrollView from task list and timeline
+- Task list now renders directly in parent ScrollView for smooth scrolling
+- What-If Calculator shows color-coded scenarios (green/amber/red)
+- CapacityIndicator provides consistent visualization across all tabs
+- Navigation links enable quick jumps between Tasks and People contexts
 
 **Task Display Standardization - COMPLETED**:
 - ✅ New unified task card system implemented throughout the app
