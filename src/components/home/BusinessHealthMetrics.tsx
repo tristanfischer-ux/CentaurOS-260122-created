@@ -1,17 +1,16 @@
 /**
  * Business Health Metrics
- * Simplified version showing 3 large, readable metrics instead of 9 tiny KPI cards
+ * Simplified informational dashboard - no navigation confusion
+ * Shows 3 key metrics at a glance
  */
 
-import { View, Text, Pressable } from 'react-native';
-import { useRouter } from 'expo-router';
-import { Users, Activity, TrendingUp, AlertTriangle, CheckCircle2 } from 'lucide-react-native';
+import { View, Text } from 'react-native';
+import { Users, Activity, CheckCircle2, AlertTriangle } from 'lucide-react-native';
 import { useMemo } from 'react';
 import { useWorkPlanStore } from '@/lib/state/work-plan-store';
 import { useOrganizationStore } from '@/lib/state/organization-store';
 
 export function BusinessHealthMetrics() {
-  const router = useRouter();
   const workPlans = useWorkPlanStore((s) => s.workPlans);
   const members = useOrganizationStore((s) => s.members);
 
@@ -76,10 +75,7 @@ export function BusinessHealthMetrics() {
       {/* 3 Column Grid */}
       <View className="flex-row gap-2">
         {/* Team Utilization */}
-        <Pressable
-          onPress={() => router.push('/(tabs)/people')}
-          className={`flex-1 rounded-xl p-3 border ${utilizationColor.bg} ${utilizationColor.border} active:opacity-70`}
-        >
+        <View className={`flex-1 rounded-xl p-3 border ${utilizationColor.bg} ${utilizationColor.border}`}>
           <View className="flex-row items-center gap-2 mb-2">
             <Users size={16} color={metrics.teamUtilization >= 100 ? '#ef4444' : metrics.teamUtilization >= 90 ? '#f59e0b' : '#10b981'} />
             <Text className="text-slate-600 dark:text-slate-400 text-xs font-medium">Team</Text>
@@ -97,13 +93,10 @@ export function BusinessHealthMetrics() {
               </Text>
             </View>
           )}
-        </Pressable>
+        </View>
 
         {/* Active Tasks Progress */}
-        <Pressable
-          onPress={() => router.push('/(tabs)/tasks')}
-          className="flex-1 bg-blue-50 dark:bg-blue-900/20 rounded-xl p-3 border border-blue-200 dark:border-blue-800 active:opacity-70"
-        >
+        <View className="flex-1 bg-blue-50 dark:bg-blue-900/20 rounded-xl p-3 border border-blue-200 dark:border-blue-800">
           <View className="flex-row items-center gap-2 mb-2">
             <Activity size={16} color="#3b82f6" />
             <Text className="text-slate-600 dark:text-slate-400 text-xs font-medium">Progress</Text>
@@ -121,13 +114,10 @@ export function BusinessHealthMetrics() {
               </Text>
             </View>
           )}
-        </Pressable>
+        </View>
 
         {/* Overall Health */}
-        <Pressable
-          onPress={() => router.push('/(tabs)/tasks')}
-          className={`flex-1 rounded-xl p-3 border ${healthStatus.bg} ${healthStatus.border} active:opacity-70`}
-        >
+        <View className={`flex-1 rounded-xl p-3 border ${healthStatus.bg} ${healthStatus.border}`}>
           <View className="flex-row items-center gap-2 mb-2">
             <HealthIcon size={16} color={healthStatus.color} />
             <Text className="text-slate-600 dark:text-slate-400 text-xs font-medium">Health</Text>
@@ -138,7 +128,7 @@ export function BusinessHealthMetrics() {
           <Text className="text-slate-700 dark:text-slate-300 text-xs font-semibold">
             {healthStatus.label}
           </Text>
-        </Pressable>
+        </View>
       </View>
     </View>
   );

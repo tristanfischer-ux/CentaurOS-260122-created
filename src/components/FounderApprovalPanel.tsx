@@ -440,7 +440,7 @@ export function FounderApprovalPanel() {
   return (
     <View className="mb-6">
       {/* Header */}
-      <View className="flex-row items-center justify-between mb-3 px-4">
+      <View className="flex-row items-center justify-between mb-3">
         <View className="flex-row items-center gap-2">
           <Bell size={18} color="#8b5cf6" />
           <Text className="text-gray-900 dark:text-white font-semibold text-lg">
@@ -463,7 +463,7 @@ export function FounderApprovalPanel() {
       </View>
 
       {/* Requests */}
-      <View className="px-4">
+      <View>
         {pendingRequests.length === 0 ? (
           <View className="bg-gray-50 dark:bg-slate-900 rounded-lg p-3 flex-row items-center gap-3">
             <View className="bg-emerald-100 dark:bg-emerald-900/30 p-2 rounded-lg">
