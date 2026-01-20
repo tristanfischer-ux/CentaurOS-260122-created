@@ -85,7 +85,7 @@ export function TaskCardCompact({ task, onPress }: TaskCardCompactProps) {
             isOverdue ? 'text-red-600 dark:text-red-400' : 'text-slate-600 dark:text-slate-400'
           }`}
         >
-          {formatTaskDate(dueDate)}
+          Due {formatTaskDate(dueDate)}
         </Text>
       </View>
 
