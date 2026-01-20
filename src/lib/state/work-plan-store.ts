@@ -1046,12 +1046,31 @@ export const useWorkPlanStore = create<WorkPlanState>((set, get) => ({
 
   // Ensure a default miscellaneous task exists for unaccounted TUs
   ensureMiscellaneousTask: async (workspaceId: string) => {
-    const miscTaskId = `misc-${workspaceId}`;
-    const existingMiscTask = get().workPlans.find(wp => wp.id === miscTaskId);
+    // Check if any miscellaneous task already exists for this workspace
+    const existingMiscTask = get().workPlans.find(
+      wp => wp.workspaceId === workspaceId && wp.title === 'Miscellaneous'
+    );
 
     // If miscellaneous task already exists, skip
     if (existingMiscTask) {
       return;
+    }
+
+    // Also check Supabase to see if one exists there
+    try {
+      const { data: existingInDb } = await supabase
+        .from('work_plans')
+        .select('id')
+        .eq('workspace_id', workspaceId)
+        .eq('title', 'Miscellaneous')
+        .maybeSingle();
+
+      if (existingInDb) {
+        // Already exists in database, don't create duplicate
+        return;
+      }
+    } catch {
+      // If check fails, continue to try creating
     }
 
     console.log('[WorkPlanStore] Creating default miscellaneous task');
@@ -1062,8 +1081,10 @@ export const useWorkPlanStore = create<WorkPlanState>((set, get) => ({
     const ownerId = currentMembership?.id || undefined;
 
     // Create a permanent miscellaneous task assigned to current user
+    // Use a local-only ID that won't be persisted to Supabase
+    const localMiscTaskId = `local-misc-${Date.now()}`;
     const miscTask: WorkPlan = {
-      id: miscTaskId,
+      id: localMiscTaskId,
       workspaceId,
       title: 'Miscellaneous',
       description: 'Default task for unaccounted time units - meetings, admin, learning, etc.',
@@ -1087,13 +1108,10 @@ export const useWorkPlanStore = create<WorkPlanState>((set, get) => ({
       ownerId,
     };
 
-    // Add to local state first
-    set(state => ({ workPlans: [...state.workPlans, miscTask] }));
-
-    // Try to persist to Supabase
+    // Try to persist to Supabase first (let DB generate proper UUID)
     try {
       const supabaseWorkPlan = {
-        id: miscTaskId,
+        // Don't provide id - let Supabase generate a proper UUID
         workspace_id: workspaceId,
         title: miscTask.title,
         description: miscTask.description,
@@ -1105,16 +1123,28 @@ export const useWorkPlanStore = create<WorkPlanState>((set, get) => ({
         created_by: null,
       };
 
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('work_plans')
-        .insert(supabaseWorkPlan);
+        .insert(supabaseWorkPlan)
+        .select()
+        .single();
 
       if (error) {
         console.log('[WorkPlanStore] Failed to persist miscellaneous task to Supabase:', error.message);
-        // Don't fail if Supabase insert fails - keep local version
+        // Add local-only version
+        set(state => ({ workPlans: [...state.workPlans, miscTask] }));
+      } else if (data) {
+        // Update the task with the real ID from Supabase
+        const realMiscTask: WorkPlan = {
+          ...miscTask,
+          id: data.id,
+        };
+        set(state => ({ workPlans: [...state.workPlans, realMiscTask] }));
       }
     } catch (err) {
       console.error('[WorkPlanStore] Error creating miscellaneous task:', err);
+      // Add local-only version as fallback
+      set(state => ({ workPlans: [...state.workPlans, miscTask] }));
     }
   },
 

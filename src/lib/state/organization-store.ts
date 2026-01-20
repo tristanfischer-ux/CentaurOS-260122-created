@@ -93,19 +93,9 @@ export const useOrganizationStore = create<OrganizationState>((set, get) => ({
     set({ isLoading: true, error: null });
 
     try {
-      // First, delete any dummy members (members without user_id)
-      const { error: deleteError } = await supabase
-        .from('members')
-        .delete()
-        .eq('workspace_id', workspaceId)
-        .is('user_id', null);
-
-      if (deleteError) {
-        console.warn('[Organization] Failed to delete dummy members:', deleteError);
-        // Continue anyway - not critical
-      }
-
       // Load members from Supabase
+      // Note: We no longer try to delete dummy members as they may have foreign key references
+      // Instead, we just filter them out client-side
       const { data: membersData, error: membersError } = await supabase
         .from('members')
         .select('*')
@@ -118,7 +108,7 @@ export const useOrganizationStore = create<OrganizationState>((set, get) => ({
         return;
       }
 
-      // Filter out any remaining dummy data - only keep members with user_id
+      // Filter out any dummy data - only keep members with user_id
       const realMembers = (membersData || []).filter((m: any) => m.user_id);
 
       // Remove duplicates - keep only the most recent member per user_id

@@ -1,5 +1,22 @@
-// This is a placeholder tab that should never be rendered
-// The actual functionality is handled by the modal in _layout.tsx
-export default function CreateTaskPlaceholder() {
-  return null;
+/**
+ * Create Task Screen - REDIRECT to Tasks
+ * This route is kept for backward compatibility only.
+ */
+import { useEffect } from 'react';
+import { router } from 'expo-router';
+import { View, ActivityIndicator } from 'react-native';
+
+export default function CreateTaskRedirect() {
+  useEffect(() => {
+    router.replace({
+      pathname: '/(tabs)/tasks',
+      params: { openNewTaskDrawer: 'true' },
+    });
+  }, []);
+
+  return (
+    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+      <ActivityIndicator size="large" color="#3b82f6" />
+    </View>
+  );
 }

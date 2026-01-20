@@ -60,7 +60,7 @@ interface AppState {
   // Actions
   setCurrentUser: (user: User | null) => void;
   setAuthToken: (token: string | null) => void;
-  setCurrentWorkspace: (workspaceId: string | null) => void;
+  setCurrentWorkspace: (workspaceId: string | null) => Promise<void>;
   setWorkspaces: (workspaces: Record<string, Workspace>) => void;
   setMemberships: (memberships: Record<string, Membership>) => void;
   setUsers: (users: Record<string, User>) => void;
@@ -128,14 +128,40 @@ export const useAppStore = create<AppState>((set, get) => ({
     }
   },
 
-  setCurrentWorkspace: (workspaceId) => {
+  setCurrentWorkspace: async (workspaceId) => {
     const state = get();
     const workspace = workspaceId ? state.workspaces[workspaceId] : null;
-    const membership = workspaceId
+    let membership = workspaceId
       ? Object.values(state.memberships).find(
           (m) => m.workspaceId === workspaceId && m.userId === state.currentUser?.id
         )
       : null;
+
+    // If no membership found but user is authenticated and workspace exists,
+    // auto-create a Founder membership for the user
+    // This handles the case where the user has workspace access but no membership record
+    if (!membership && workspaceId && state.currentUser?.id && workspace) {
+      console.log('[setCurrentWorkspace] No membership found, creating default Founder membership');
+      try {
+        const newMembership = await membershipService.create({
+          workspaceId,
+          userId: state.currentUser.id,
+          role: 'Founder',
+        });
+
+        // Add to local state
+        const updatedMemberships = {
+          ...state.memberships,
+          [newMembership.id]: newMembership,
+        };
+        set({ memberships: updatedMemberships });
+        membership = newMembership;
+        console.log('[setCurrentWorkspace] Created membership:', newMembership.id);
+      } catch (err) {
+        console.error('[setCurrentWorkspace] Failed to create membership:', err);
+        // Continue without membership - user can still view workspace
+      }
+    }
 
     console.log('setCurrentWorkspace:', {
       workspaceId,
