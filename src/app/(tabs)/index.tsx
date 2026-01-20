@@ -14,7 +14,7 @@
  * 8. Essential Tools
  */
 
-import { View, Text, ScrollView, Pressable, RefreshControl, Alert } from 'react-native';
+import { View, Text, ScrollView, Pressable, RefreshControl } from 'react-native';
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -22,13 +22,6 @@ import { LinearGradient } from 'expo-linear-gradient';
 import {
   Settings,
   RefreshCw,
-  Trophy,
-  Rocket,
-  Zap,
-  Briefcase,
-  ChevronRight,
-  Target,
-  BarChart3,
 } from 'lucide-react-native';
 
 // Stores
@@ -51,15 +44,11 @@ import { ApprenticeHome } from '@/components/ApprenticeHome';
 import { ExecutiveHome } from '@/components/ExecutiveHome';
 import { FilingCabinetDrawers } from '@/components/FilingCabinetDrawers';
 
-// New Home Dashboard Components
-import {
-  UrgentDecisionsSection,
-  BusinessObjectivesSection,
-  CurrentActivitiesSection,
-  TeamCapacityDashboard,
-  SupplierSpendDashboard,
-  PerformanceDashboardGrid,
-} from '@/components/home';
+// New redesigned components
+import { AIInsightsPanel } from '@/components/home/AIInsightsPanel';
+import { BusinessHealthMetrics } from '@/components/home/BusinessHealthMetrics';
+import { ThisWeekSection } from '@/components/home/ThisWeekSection';
+import { CondensedObjectivesSection } from '@/components/home/CondensedObjectivesSection';
 
 // AI-Powered Priority Section
 import { FocusTodaySection } from '@/components/FocusTodaySection';
@@ -300,48 +289,29 @@ function FounderHome() {
           </View>
         </View>
 
-        {/* Interactive Stats Bar */}
-        <View className="flex-row justify-between bg-white/10 rounded-xl p-1">
-          <Pressable
-            onPress={() => {
-              setStatsFilter(statsFilter === 'all' ? null : 'all');
-              router.push('/(tabs)/tasks');
+        {/* Business Health Indicator */}
+        <View className="flex-row items-center gap-2 bg-white/10 rounded-xl px-3 py-2.5">
+          <View
+            className="w-2.5 h-2.5 rounded-full"
+            style={{
+              backgroundColor: workPlans.filter(wp => wp.status === 'blocked').length > 5 ||
+                              workPlans.filter(wp => wp.status !== 'completed' && wp.status !== 'abandoned' && new Date(wp.dueDate) < new Date()).length > 3
+                ? '#ef4444'  // Red
+                : workPlans.filter(wp => wp.status === 'blocked').length > 2
+                ? '#f59e0b'  // Yellow
+                : '#10b981'  // Green
             }}
-            className={`items-center flex-1 py-2 rounded-lg ${statsFilter === 'all' ? 'bg-white/20' : ''}`}
-          >
-            <Text className="text-white/70 text-xs">Tasks</Text>
-            <Text className="text-white font-bold text-lg">{workPlans.filter(wp => wp.status !== 'completed' && wp.status !== 'abandoned').length}</Text>
-          </Pressable>
-          <Pressable
-            onPress={() => {
-              setStatsFilter(statsFilter === 'doing' ? null : 'doing');
-              router.push({ pathname: '/(tabs)/tasks', params: { filter: 'in-progress' } });
-            }}
-            className={`items-center flex-1 py-2 rounded-lg border-l border-white/20 ${statsFilter === 'doing' ? 'bg-white/20' : ''}`}
-          >
-            <Text className="text-white/70 text-xs">Doing</Text>
-            <Text className="text-white font-bold text-lg">{workPlans.filter(wp => wp.status === 'in-progress').length}</Text>
-          </Pressable>
-          <Pressable
-            onPress={() => {
-              setStatsFilter(statsFilter === 'blocked' ? null : 'blocked');
-              router.push({ pathname: '/(tabs)/tasks', params: { filter: 'blocked' } });
-            }}
-            className={`items-center flex-1 py-2 rounded-lg border-l border-white/20 ${statsFilter === 'blocked' ? 'bg-white/20' : ''}`}
-          >
-            <Text className="text-white/70 text-xs">Blocked</Text>
-            <Text className="text-red-300 font-bold text-lg">{workPlans.filter(wp => wp.status === 'blocked').length}</Text>
-          </Pressable>
-          <Pressable
-            onPress={() => {
-              setStatsFilter(statsFilter === 'team' ? null : 'team');
-              router.push('/(tabs)/people');
-            }}
-            className={`items-center flex-1 py-2 rounded-lg border-l border-white/20 ${statsFilter === 'team' ? 'bg-white/20' : ''}`}
-          >
-            <Text className="text-white/70 text-xs">Team</Text>
-            <Text className="text-white font-bold text-lg">{members.length}</Text>
-          </Pressable>
+          />
+          <Text className="text-white/90 text-sm font-medium flex-1">
+            Business Health: {
+              workPlans.filter(wp => wp.status === 'blocked').length > 5 ||
+              workPlans.filter(wp => wp.status !== 'completed' && wp.status !== 'abandoned' && new Date(wp.dueDate) < new Date()).length > 3
+                ? 'Needs Attention'
+                : workPlans.filter(wp => wp.status === 'blocked').length > 2
+                ? 'At Risk'
+                : 'On Track'
+            }
+          </Text>
         </View>
       </LinearGradient>
 
@@ -363,88 +333,24 @@ function FounderHome() {
           <FounderApprovalPanel />
         </View>
 
-        {/* ===== AI-POWERED FOCUS TODAY - Compact Summary ===== */}
-        <View className="px-5 pt-2">
-          <FocusTodaySection compact maxTasks={2} />
+        {/* ===== AI INSIGHTS (replaces Focus Today) ===== */}
+        <View className="px-5 pt-4">
+          <AIInsightsPanel />
         </View>
 
-        {/* ===== 2. BUSINESS OBJECTIVES ===== */}
+        {/* ===== THIS WEEK (new forward-looking section) ===== */}
         <View className="px-5 pt-4">
-          <BusinessObjectivesSection />
+          <ThisWeekSection />
         </View>
 
-        {/* ===== 4. TEAM CAPACITY OVERVIEW ===== */}
+        {/* ===== BUSINESS HEALTH (simplified 3 metrics) ===== */}
         <View className="px-5 pt-4">
-          <TeamCapacityDashboard />
+          <BusinessHealthMetrics />
         </View>
 
-        {/* ===== 5. PERFORMANCE DASHBOARD SUITE ===== */}
+        {/* ===== OBJECTIVES (condensed list) ===== */}
         <View className="px-5 pt-4">
-          <PerformanceDashboardGrid />
-        </View>
-
-        {/* ===== 7. ESSENTIAL TOOLS SECTION ===== */}
-        <View className="px-5 pt-4">
-          <Text className="text-slate-500 dark:text-slate-500 text-xs font-semibold mb-3 uppercase tracking-wider">
-            Quick Access
-          </Text>
-          <View className="flex-row flex-wrap gap-2">
-            {/* Plan / Strategy - Coming Soon */}
-            <Pressable
-              onPress={() => Alert.alert('Coming Soon', 'Strategy & OKRs planning is coming soon!')}
-              className="flex-1 min-w-[45%] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-3 flex-row items-center gap-2 active:opacity-70"
-            >
-              <View className="bg-indigo-100 dark:bg-indigo-900/30 p-2 rounded-lg">
-                <Target size={16} color="#6366f1" />
-              </View>
-              <View className="flex-1">
-                <Text className="text-slate-900 dark:text-white font-semibold text-sm">Plan</Text>
-                <Text className="text-slate-500 dark:text-slate-400 text-xs">Coming soon</Text>
-              </View>
-            </Pressable>
-
-            {/* Analytics - Coming Soon */}
-            <Pressable
-              onPress={() => Alert.alert('Coming Soon', 'Performance analytics are coming soon!')}
-              className="flex-1 min-w-[45%] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-3 flex-row items-center gap-2 active:opacity-70"
-            >
-              <View className="bg-rose-100 dark:bg-rose-900/30 p-2 rounded-lg">
-                <BarChart3 size={16} color="#f43f5e" />
-              </View>
-              <View className="flex-1">
-                <Text className="text-slate-900 dark:text-white font-semibold text-sm">Analytics</Text>
-                <Text className="text-slate-500 dark:text-slate-400 text-xs">Coming soon</Text>
-              </View>
-            </Pressable>
-
-            {/* Function Hub - Coming Soon */}
-            <Pressable
-              onPress={() => Alert.alert('Coming Soon', 'Functions business areas are coming soon!')}
-              className="flex-1 min-w-[45%] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-3 flex-row items-center gap-2 active:opacity-70"
-            >
-              <View className="bg-purple-100 dark:bg-purple-900/30 p-2 rounded-lg">
-                <Briefcase size={16} color="#8b5cf6" />
-              </View>
-              <View className="flex-1">
-                <Text className="text-slate-900 dark:text-white font-semibold text-sm">Functions</Text>
-                <Text className="text-slate-500 dark:text-slate-400 text-xs">Coming soon</Text>
-              </View>
-            </Pressable>
-
-            {/* Startup Hub - Coming Soon */}
-            <Pressable
-              onPress={() => Alert.alert('Coming Soon', 'Startup launch tools are coming soon!')}
-              className="flex-1 min-w-[45%] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-3 flex-row items-center gap-2 active:opacity-70"
-            >
-              <View className="bg-blue-100 dark:bg-blue-900/30 p-2 rounded-lg">
-                <Rocket size={16} color="#3b82f6" />
-              </View>
-              <View className="flex-1">
-                <Text className="text-slate-900 dark:text-white font-semibold text-sm">Startup</Text>
-                <Text className="text-slate-500 dark:text-slate-400 text-xs">Coming soon</Text>
-              </View>
-            </Pressable>
-          </View>
+          <CondensedObjectivesSection />
         </View>
       </ScrollView>
 
