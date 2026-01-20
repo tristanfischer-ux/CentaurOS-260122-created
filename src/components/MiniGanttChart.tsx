@@ -474,7 +474,6 @@ export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress
                 const periodOffset = viewMode === 'day' ? 2 : viewMode === 'week' ? 4 : viewMode === 'month' ? 2 : 1;
                 const leftPosition = WEEK_WIDTH * (bar.startOffset + periodOffset);
                 const assignedMembers = getAssignedMembers(bar.task);
-                const taskCost = calculateTaskCost(bar.task);
 
                 // Calculate bar widths for original vs extension
                 const hasExtension = bar.delayInfo.isDelayed && bar.extensionWidthInPeriods > 0;
@@ -615,43 +614,45 @@ export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress
                       )}
                     </View>
 
-                    {/* Cost Display - to the immediate right of task bar */}
-                    <View className="ml-2 bg-gray-100 dark:bg-slate-900 px-2 py-1 rounded-md">
-                      <Text className="text-gray-700 dark:text-gray-300 text-[10px] font-bold">
-                        {taskCost > 0 ? `£${taskCost.toLocaleString()}` : '£X'}
-                      </Text>
-                    </View>
-
                     {/* Team Avatars - circular with solid role colors */}
-                    {assignedMembers.length > 0 && (
-                      <View className="ml-2 flex-row">
-                        {assignedMembers.slice(0, 3).map((member, memberIdx) => (
-                          <View
-                            key={member.id}
-                            className="w-6 h-6 rounded-full items-center justify-center border-2 border-white dark:border-slate-800"
-                            style={{
-                              backgroundColor: ROLE_COLORS[member.role] || '#8b5cf6',
-                              marginLeft: memberIdx > 0 ? -6 : 0,
-                              zIndex: 3 - memberIdx,
-                            }}
-                          >
-                            <Text className="font-bold text-[8px] text-white">
-                              {getInitials(member.name)}
-                            </Text>
-                          </View>
-                        ))}
-                        {assignedMembers.length > 3 && (
-                          <View
-                            className="w-6 h-6 rounded-full items-center justify-center border-2 border-white dark:border-slate-800"
-                            style={{ backgroundColor: '#6b7280', marginLeft: -6, zIndex: 0 }}
-                          >
-                            <Text className="font-bold text-[8px] text-white">
-                              +{assignedMembers.length - 3}
-                            </Text>
-                          </View>
-                        )}
-                      </View>
-                    )}
+                    <View className="ml-2 flex-row">
+                      {assignedMembers.length > 0 ? (
+                        <>
+                          {assignedMembers.slice(0, 3).map((member, memberIdx) => (
+                            <View
+                              key={member.id}
+                              className="w-6 h-6 rounded-full items-center justify-center border-2 border-white dark:border-slate-800"
+                              style={{
+                                backgroundColor: ROLE_COLORS[member.role] || '#8b5cf6',
+                                marginLeft: memberIdx > 0 ? -6 : 0,
+                                zIndex: 3 - memberIdx,
+                              }}
+                            >
+                              <Text className="font-bold text-[8px] text-white">
+                                {getInitials(member.name)}
+                              </Text>
+                            </View>
+                          ))}
+                          {assignedMembers.length > 3 && (
+                            <View
+                              className="w-6 h-6 rounded-full items-center justify-center border-2 border-white dark:border-slate-800"
+                              style={{ backgroundColor: '#6b7280', marginLeft: -6, zIndex: 0 }}
+                            >
+                              <Text className="font-bold text-[8px] text-white">
+                                +{assignedMembers.length - 3}
+                              </Text>
+                            </View>
+                          )}
+                        </>
+                      ) : (
+                        // Placeholder avatar when no one is assigned
+                        <View
+                          className="w-6 h-6 rounded-full items-center justify-center border-2 border-white dark:border-slate-800 bg-gray-400 dark:bg-slate-600"
+                        >
+                          <Text className="font-bold text-[8px] text-white">?</Text>
+                        </View>
+                      )}
+                    </View>
 
                     {/* Delay badge (alternative position) - shows if there's a delay but no extension visual */}
                     {bar.delayInfo.isDelayed && !hasExtension && delayBadgeText && (
