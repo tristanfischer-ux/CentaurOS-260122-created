@@ -164,13 +164,13 @@ export default function TabLayout() {
           }}
         />
 
-        {/* 5. Demo - TEMPORARY - push right */}
+        {/* 5. Marketplace - push right */}
         <Tabs.Screen
-          name="demo"
+          name="marketplace"
           options={{
-            title: 'Demo',
+            title: 'Market',
             headerShown: false,
-            tabBarIcon: ({ color }) => <TabBarIcon Icon={Sparkles} color={color} />,
+            tabBarIcon: ({ color }) => <TabBarIcon Icon={Store} color={color} />,
             tabBarItemStyle: { marginLeft: -4 },
           }}
         />
@@ -187,7 +187,7 @@ export default function TabLayout() {
         />
 
         {/* ========== HIDDEN TABS ========== */}
-        <Tabs.Screen name="marketplace" options={{ href: null }} />
+        <Tabs.Screen name="demo" options={{ href: null }} />
         <Tabs.Screen name="create-task" options={{ href: null }} />
         <Tabs.Screen name="resources" options={{ href: null }} />
         <Tabs.Screen name="who" options={{ href: null }} />

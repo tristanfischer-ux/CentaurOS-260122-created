@@ -30,13 +30,23 @@ A mobile app for lean companies to manage tasks, track team capacity, and coordi
 
 ### Recent Updates (Jan 20, 2026)
 
-**Task Display Standardization**:
-- New unified task card system with 3 tiers (Compact, Medium, Full)
-- Compact view: Single line with avatars, effort timeline ("16 TU @ 8/wk = ~2w")
-- Medium view: Expanded card with quick actions
-- Full view: Complete editing with coordination cost breakdown
-- Coordination penalties: 5% (2 people), 10% (3), 15% (4), 20% (5+)
-- Member capacity indicators with overallocation warnings
+**Task Display Standardization - COMPLETED**:
+- ✅ New unified task card system implemented throughout the app
+- ✅ Compact view: Single line with status, title, avatars, due date, progress
+- ✅ Medium view: Expanded card with quick actions (status, progress, reschedule)
+- ✅ Full view: Complete editing with coordination cost breakdown
+- ✅ Tasks tab now uses tier system (Compact → Medium → Full)
+- ✅ Coordination cost calculation: 5% (2 people), 10% (3), 15% (4), 20% (5+)
+- ✅ Due date format: "Due Tue 3 Feb" with overdue indicators
+- ✅ Removed old CompactTaskCard component
+- ✅ Demo tab removed, Marketplace tab restored
+
+**Implementation Details**:
+- `TaskCardCompact` replaces old CompactTaskCard throughout app
+- Clicking a compact card opens `TaskCardMedium` for quick actions
+- "View Full Details" button in Medium view opens `TaskCardFull` for complete editing
+- All task views show avatars (including dummy avatars for missing members)
+- Inline editing for title and description with tap-to-edit functionality
 
 See `TASK_DISPLAY_PLAN.md` for full specification.
 

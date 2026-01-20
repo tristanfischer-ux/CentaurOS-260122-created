@@ -35,8 +35,7 @@ import { useCurrentMembership, useCurrentWorkspace } from '@/lib/state/app-store
 import type { OrganizationMember } from '@/lib/organization-seed';
 import { HelpModal, HelpButton, type HelpContent } from '@/components/HelpModal';
 import { SettingsGearButton } from '@/components/SettingsGearButton';
-import { UnifiedTaskAllocationModal } from '@/components/UnifiedTaskAllocationModal';
-import { CompactTaskCard } from '@/components/CompactTaskCard';
+import { TaskCardCompact, TaskCardMedium, TaskCardFull } from '@/components/tasks';
 import { filterWorkPlansByRole } from '@/lib/role-utils';
 import { UnifiedBottomDrawer } from '@/components/UnifiedBottomDrawer';
 import { extractTasksFromText } from '@/lib/ai/task-extraction';
@@ -94,6 +93,7 @@ export default function TasksScreen() {
   const members = useOrganizationStore(s => s.members);
   const workPlans = useWorkPlanStore(s => s.workPlans);
   const addWorkPlan = useWorkPlanStore(s => s.addWorkPlan);
+  const updateWorkPlan = useWorkPlanStore(s => s.updateWorkPlan);
 
   // Unified Draft Store
   const drafts = useDraftStore(s => s.drafts);
@@ -122,7 +122,8 @@ export default function TasksScreen() {
   const [showHelp, setShowHelp] = useState(false);
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
   const [selectedTask, setSelectedTask] = useState<WorkPlan | null>(null);
-  const [showTaskModal, setShowTaskModal] = useState(false);
+  const [showMediumView, setShowMediumView] = useState(false);
+  const [showFullView, setShowFullView] = useState(false);
   const [openDrawerToNewTask, setOpenDrawerToNewTask] = useState(false);
   const [showVoiceTranscript, setShowVoiceTranscript] = useState(false);
   const [voiceTranscript, setVoiceTranscript] = useState('');
@@ -384,14 +385,61 @@ export default function TasksScreen() {
         gradientColors={['#10b981', '#059669']}
       />
 
-      {/* Task Allocation Modal */}
-      <UnifiedTaskAllocationModal
-        visible={showTaskModal}
+      {/* Task Modals - Tier System */}
+      <TaskCardMedium
+        task={selectedTask!}
+        visible={showMediumView}
         onClose={() => {
-          setShowTaskModal(false);
+          setShowMediumView(false);
           setSelectedTask(null);
         }}
-        workPlan={selectedTask}
+        onViewFullDetails={() => {
+          setShowMediumView(false);
+          setShowFullView(true);
+        }}
+        onUpdateStatus={(status) => {
+          if (selectedTask) {
+            updateWorkPlan(selectedTask.id, { status });
+          }
+        }}
+        onUpdateProgress={(progress) => {
+          if (selectedTask) {
+            updateWorkPlan(selectedTask.id, { progress });
+          }
+        }}
+        onRescheduleDays={(days) => {
+          if (selectedTask) {
+            const currentDate = new Date(selectedTask.dueDate);
+            currentDate.setDate(currentDate.getDate() + days);
+            updateWorkPlan(selectedTask.id, { dueDate: currentDate.toISOString().split('T')[0] });
+          }
+        }}
+        onUpdateTitle={(title) => {
+          if (selectedTask) {
+            updateWorkPlan(selectedTask.id, { title });
+          }
+        }}
+        onUpdateDescription={(description) => {
+          if (selectedTask) {
+            updateWorkPlan(selectedTask.id, { description });
+          }
+        }}
+      />
+
+      <TaskCardFull
+        task={selectedTask!}
+        visible={showFullView}
+        onClose={() => {
+          setShowFullView(false);
+          setSelectedTask(null);
+        }}
+        onSave={(updates) => {
+          if (selectedTask) {
+            updateWorkPlan(selectedTask.id, updates);
+          }
+          setShowFullView(false);
+          setSelectedTask(null);
+        }}
       />
 
       {/* Header */}
@@ -623,16 +671,13 @@ export default function TasksScreen() {
               </Text>
             </View>
             {tasksByStatus['in-progress'].map((task) => {
-              const taskMembers = task.assignedMemberIds?.map(id => members.find(m => m.id === id)).filter(Boolean) as OrganizationMember[];
               return (
-                <CompactTaskCard
+                <TaskCardCompact
                   key={task.id}
                   task={task}
-                  assignedMembers={taskMembers}
-                  onPress={() => {}}
-                  onFullDetailPress={() => {
+                  onPress={() => {
                     setSelectedTask(task);
-                    setShowTaskModal(true);
+                    setShowMediumView(true);
                   }}
                 />
               );
@@ -650,16 +695,13 @@ export default function TasksScreen() {
               </Text>
             </View>
             {tasksByStatus['blocked'].map((task) => {
-              const taskMembers = task.assignedMemberIds?.map(id => members.find(m => m.id === id)).filter(Boolean) as OrganizationMember[];
               return (
-                <CompactTaskCard
+                <TaskCardCompact
                   key={task.id}
                   task={task}
-                  assignedMembers={taskMembers}
-                  onPress={() => {}}
-                  onFullDetailPress={() => {
+                  onPress={() => {
                     setSelectedTask(task);
-                    setShowTaskModal(true);
+                    setShowMediumView(true);
                   }}
                 />
               );
@@ -677,16 +719,13 @@ export default function TasksScreen() {
               </Text>
             </View>
             {tasksByStatus['not-started'].map((task) => {
-              const taskMembers = task.assignedMemberIds?.map(id => members.find(m => m.id === id)).filter(Boolean) as OrganizationMember[];
               return (
-                <CompactTaskCard
+                <TaskCardCompact
                   key={task.id}
                   task={task}
-                  assignedMembers={taskMembers}
-                  onPress={() => {}}
-                  onFullDetailPress={() => {
+                  onPress={() => {
                     setSelectedTask(task);
-                    setShowTaskModal(true);
+                    setShowMediumView(true);
                   }}
                 />
               );
@@ -704,16 +743,13 @@ export default function TasksScreen() {
               </Text>
             </View>
             {tasksByStatus['completed'].slice(0, 5).map((task) => {
-              const taskMembers = task.assignedMemberIds?.map(id => members.find(m => m.id === id)).filter(Boolean) as OrganizationMember[];
               return (
-                <CompactTaskCard
+                <TaskCardCompact
                   key={task.id}
                   task={task}
-                  assignedMembers={taskMembers}
-                  onPress={() => {}}
-                  onFullDetailPress={() => {
+                  onPress={() => {
                     setSelectedTask(task);
-                    setShowTaskModal(true);
+                    setShowMediumView(true);
                   }}
                 />
               );
