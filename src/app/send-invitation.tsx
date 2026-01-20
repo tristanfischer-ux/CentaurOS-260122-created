@@ -1,8 +1,9 @@
 import { View, Text, ScrollView, Pressable, TextInput, Alert } from 'react-native';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { router, useLocalSearchParams } from 'expo-router';
-import { ArrowLeft, Calendar, DollarSign, Clock, MessageSquare } from 'lucide-react-native';
+import { ArrowLeft, Calendar, Clock, MessageSquare } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { detectUserCurrency, getCurrencySymbol, formatCurrency } from '@/lib/currency';
 
 export default function SendInvitationScreen() {
   const params = useLocalSearchParams<{
@@ -13,6 +14,10 @@ export default function SendInvitationScreen() {
   }>();
 
   const insets = useSafeAreaInsets();
+
+  // Detect user's currency based on locale
+  const currencyCode = useMemo(() => detectUserCurrency(), []);
+  const currencySymbol = useMemo(() => getCurrencySymbol(currencyCode), [currencyCode]);
 
   const [roleTitle, setRoleTitle] = useState('');
   const [commitment, setCommitment] = useState('');
@@ -101,10 +106,10 @@ export default function SendInvitationScreen() {
         {/* Proposed Rate */}
         <View className="mb-4">
           <Text className="text-gray-900 dark:text-white font-semibold mb-2">
-            Proposed Day Rate (£) <Text className="text-red-500">*</Text>
+            Proposed Day Rate ({currencySymbol}) <Text className="text-red-500">*</Text>
           </Text>
           <View className="flex-row items-center bg-gray-100 dark:bg-slate-900 border border-gray-300 dark:border-slate-700 rounded-xl px-4">
-            <DollarSign size={18} color="#64748b" />
+            <Text className="text-gray-500 dark:text-slate-400 text-lg font-medium">{currencySymbol}</Text>
             <TextInput
               value={proposedRate}
               onChangeText={setProposedRate}
@@ -116,7 +121,7 @@ export default function SendInvitationScreen() {
             <Text className="text-gray-600 dark:text-slate-400">/day</Text>
           </View>
           <Text className="text-gray-500 dark:text-slate-500 text-xs mt-1">
-            Their current rate: £{params.candidateRate}/day
+            Their current rate: {currencySymbol}{params.candidateRate}/day
           </Text>
         </View>
 
@@ -172,9 +177,9 @@ export default function SendInvitationScreen() {
               </Text>
             </View>
             <View className="flex-row items-center">
-              <DollarSign size={14} color="#3b82f6" />
+              <Text className="text-blue-500 text-sm font-bold">{currencySymbol}</Text>
               <Text className="text-blue-800 dark:text-blue-200 text-sm ml-2">
-                £{proposedRate || '0'}/day
+                {currencySymbol}{proposedRate || '0'}/day
               </Text>
             </View>
             <View className="flex-row items-center">

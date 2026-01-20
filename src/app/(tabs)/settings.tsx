@@ -4,7 +4,8 @@ import {
   Download, Upload, RefreshCw, Check, ExternalLink, Sheet, Play, Library, Eye,
   Mail, Users, Award, Building2, CheckCircle2,
   TrendingUp, Clock, Target, Zap, Settings2, ChevronDown, ChevronUp,
-  Sparkles, Shield, BarChart3, User, Briefcase, Rocket, HelpCircle, Trash2
+  Sparkles, Shield, BarChart3, User, Briefcase, Rocket, HelpCircle, Trash2,
+  Globe
 } from 'lucide-react-native';
 import { useAppStore, useCurrentUser, useCurrentMembership, useCurrentWorkspace } from '@/lib/state/app-store';
 import { router } from 'expo-router';
@@ -15,6 +16,7 @@ import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useTheme } from '@/lib/ThemeContext';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
+import { detectUserCurrency, getSupportedCurrencyList, getCurrencySymbol } from '@/lib/currency';
 import { HelpModal, HelpButton, type HelpContent } from '@/components/HelpModal';
 import * as FileSystem from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
@@ -146,6 +148,8 @@ export default function SettingsScreen() {
 
   const [showDataManagement, setShowDataManagement] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
+  const [showCurrencyPicker, setShowCurrencyPicker] = useState(false);
+  const [selectedCurrency, setSelectedCurrency] = useState(() => detectUserCurrency());
   const [syncStatus, setSyncStatus] = useState<'idle' | 'syncing' | 'success' | 'error'>('idle');
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
     checklist: true,
@@ -842,6 +846,26 @@ export default function SettingsScreen() {
                 ))}
               </View>
 
+              {/* Currency Preference */}
+              <Text className={`text-xs font-medium mb-3 mt-4 ${textSecondary}`}>CURRENCY</Text>
+              <Pressable
+                onPress={() => setShowCurrencyPicker(true)}
+                className={`flex-row items-center justify-between p-3 rounded-xl border ${
+                  isDark ? 'bg-slate-800 border-slate-700' : isOffWhite ? 'bg-orange-100 border-orange-300' : 'bg-gray-100 border-gray-300'
+                } active:opacity-70`}
+              >
+                <View className="flex-row items-center">
+                  <Globe size={18} color="#10b981" />
+                  <Text className={`font-medium ml-3 ${textPrimary}`}>
+                    {getCurrencySymbol(selectedCurrency)} {selectedCurrency}
+                  </Text>
+                </View>
+                <Text className={`text-sm ${textSecondary}`}>Change</Text>
+              </Pressable>
+              <Text className={`text-xs mt-2 ${textMuted}`}>
+                Used for displaying rates and financial data
+              </Text>
+
               {/* Replay Tutorial */}
               <Pressable
                 onPress={handleReplayOnboarding}
@@ -1156,6 +1180,78 @@ export default function SettingsScreen() {
             </ScrollView>
           </View>
         </View>
+      </Modal>
+
+      {/* Currency Picker Modal */}
+      <Modal
+        visible={showCurrencyPicker}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setShowCurrencyPicker(false)}
+      >
+        <Pressable className="flex-1 bg-black/70" onPress={() => setShowCurrencyPicker(false)}>
+          <View className="flex-1" />
+          <Pressable onPress={(e) => e.stopPropagation()} style={{ maxHeight: '70%' }}>
+            <View className={`${isDark ? 'bg-slate-900' : isOffWhite ? 'bg-orange-50' : 'bg-white'} rounded-t-3xl`}>
+              <View className={`p-6 border-b ${borderColor}`}>
+                <View className="flex-row items-center justify-between">
+                  <View className="flex-row items-center gap-3">
+                    <View className="w-12 h-12 bg-emerald-500/20 rounded-xl items-center justify-center">
+                      <Globe size={24} color="#10b981" />
+                    </View>
+                    <View>
+                      <Text className={`text-xl font-bold ${textPrimary}`}>Select Currency</Text>
+                      <Text className={`text-xs ${textSecondary}`}>Choose your preferred currency</Text>
+                    </View>
+                  </View>
+                  <Pressable
+                    onPress={() => setShowCurrencyPicker(false)}
+                    className={`w-10 h-10 items-center justify-center rounded-full ${bgCardAlt} active:opacity-70`}
+                  >
+                    <X size={24} color={iconColor} />
+                  </Pressable>
+                </View>
+              </View>
+
+              <ScrollView className="px-4 py-4" contentContainerStyle={{ flexGrow: 1 }}>
+                {getSupportedCurrencyList().map((currency) => (
+                  <Pressable
+                    key={currency.code}
+                    onPress={() => {
+                      setSelectedCurrency(currency.code);
+                      setShowCurrencyPicker(false);
+                    }}
+                    className={`flex-row items-center justify-between p-4 rounded-xl mb-2 ${
+                      selectedCurrency === currency.code
+                        ? 'bg-emerald-500/20 border-2 border-emerald-500'
+                        : isDark ? 'bg-slate-800 border border-slate-700' : isOffWhite ? 'bg-orange-100 border border-orange-200' : 'bg-gray-100 border border-gray-200'
+                    } active:opacity-70`}
+                  >
+                    <View className="flex-row items-center">
+                      <View className={`w-10 h-10 rounded-full items-center justify-center ${
+                        selectedCurrency === currency.code ? 'bg-emerald-500' : isDark ? 'bg-slate-700' : isOffWhite ? 'bg-orange-200' : 'bg-gray-200'
+                      }`}>
+                        <Text className={`text-lg font-bold ${
+                          selectedCurrency === currency.code ? 'text-white' : textPrimary
+                        }`}>
+                          {currency.symbol}
+                        </Text>
+                      </View>
+                      <View className="ml-3">
+                        <Text className={`font-semibold ${textPrimary}`}>{currency.code}</Text>
+                        <Text className={`text-xs ${textSecondary}`}>{currency.label.replace(` (${currency.symbol})`, '')}</Text>
+                      </View>
+                    </View>
+                    {selectedCurrency === currency.code && (
+                      <Check size={20} color="#10b981" />
+                    )}
+                  </Pressable>
+                ))}
+                <View className="h-8" />
+              </ScrollView>
+            </View>
+          </Pressable>
+        </Pressable>
       </Modal>
     </View>
   );

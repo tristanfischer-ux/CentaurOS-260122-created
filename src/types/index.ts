@@ -82,6 +82,7 @@ export interface User {
   createdAt: string;
   preferences?: {
     themeMode: ThemeMode;
+    currency?: string; // ISO 4217 currency code (e.g., 'GBP', 'USD', 'EUR')
   };
   // Extended profile data for different roles
   executiveProfile?: ExecutiveProfile;
