@@ -43,6 +43,7 @@ import { lightImpact, heavyImpact } from '@/lib/haptics';
 import { cn } from '@/lib/cn';
 import { MiniGanttChart } from './MiniGanttChart';
 import { getInitials, ROLE_COLORS } from './Avatar';
+import { QuickAssignModal } from './QuickAssignModal';
 import type { Function as BusinessFunction } from '@/types';
 
 type PersonViewState = 'compact' | 'medium' | 'full';
@@ -88,6 +89,9 @@ export function PersonCardNew({ member, allMembers = [], onMemberChange }: Perso
   const [showJoinSquad, setShowJoinSquad] = useState(false);
   const [newSquadName, setNewSquadName] = useState('');
   const [newSquadFunction, setNewSquadFunction] = useState<BusinessFunction>('Ops');
+
+  // Quick assign modal state
+  const [showQuickAssign, setShowQuickAssign] = useState(false);
 
   // Calculate member's workload
   const memberWorkload = useMemo(() => {
@@ -582,9 +586,12 @@ export function PersonCardNew({ member, allMembers = [], onMemberChange }: Perso
                       <Text className="text-slate-900 dark:text-white font-bold text-sm">
                         All Tasks ({memberWorkload.tasks.length})
                       </Text>
-                      <Text className="text-slate-400 dark:text-slate-500 text-xs">
-                        Tap for actions
-                      </Text>
+                      <Pressable
+                        onPress={() => setShowQuickAssign(true)}
+                        className="bg-blue-500 px-3 py-1.5 rounded-lg active:opacity-80"
+                      >
+                        <Text className="text-white text-xs font-bold">Assign Task</Text>
+                      </Pressable>
                     </View>
 
                     <ScrollView
@@ -1259,6 +1266,17 @@ export function PersonCardNew({ member, allMembers = [], onMemberChange }: Perso
           </Pressable>
         </Pressable>
       </Modal>
+
+      {/* Quick Assign Modal */}
+      <QuickAssignModal
+        visible={showQuickAssign}
+        onClose={() => setShowQuickAssign(false)}
+        member={member}
+        currentCapacity={{
+          allocated: memberWorkload.totalAllocated,
+          total: memberWorkload.totalCapacity,
+        }}
+      />
     </>
   );
 }

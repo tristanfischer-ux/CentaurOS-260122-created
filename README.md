@@ -30,6 +30,15 @@ A mobile app for lean companies to manage tasks, track team capacity, and coordi
 
 ### Recent Updates (Jan 20, 2026)
 
+**People Tab Improvements - IN PROGRESS**:
+- ✅ Three-tier progressive disclosure (Compact → Medium → Full)
+- ✅ Avatar initials fixed (first name + last name initials)
+- ✅ Quick Assign button added to full view (assign tasks to people)
+- 🚧 Unified capacity indicator system (in progress)
+- 🚧 What-If capacity calculator (in progress)
+- 🚧 AI task suggestions based on skills (in progress)
+- 🚧 Enhanced assignment context modal (in progress)
+
 **Task Display Standardization - COMPLETED**:
 - ✅ New unified task card system implemented throughout the app
 - ✅ Compact view: Single line with status, title, avatars, due date, progress
