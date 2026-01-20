@@ -63,7 +63,9 @@ export interface EscalationRequest {
   workspaceId: string;
 
   // Who escalated and why
-  escalatedBy: string;           // Member ID
+  escalatedBy: string;           // Member ID (e.g., 'exec-5')
+  escalatedByUserId?: string;    // Auth user ID (e.g., 'auth-user-456') - for notification routing
+  escalatedByName: string;       // Display name (preserved even if member deleted)
   escalatedAt: string;           // ISO timestamp
   reason: EscalationReason;
   details: string;               // Explanation of the issue
@@ -72,12 +74,15 @@ export interface EscalationRequest {
   status: EscalationStatus;
 
   // Resolution (when leadership responds)
-  respondedBy?: string;          // Founder who handled it
+  respondedBy?: string;          // Founder member ID who handled it
+  respondedByUserId?: string;    // Auth user ID of responder - for audit trail
+  respondedByName?: string;      // Display name of responder
   respondedAt?: string;          // When resolved
   resolution?: {
     action: 'accepted' | 'delegated' | 'rejected';
     notes: string;               // Leadership's guidance/explanation
-    delegatedTo?: string;        // If delegated, who gets it
+    delegatedTo?: string;        // If delegated, who gets it (member ID)
+    delegatedToUserId?: string;  // Auth user ID of delegate - for notifications
     proposedChanges?: {          // If accepted, what changes
       newDueDate?: string;
       additionalTUs?: number;
@@ -112,28 +117,40 @@ New notification type: `'escalation'`
 
 New helper functions:
 ```typescript
-escalationCreated: (workspaceId: string, taskTitle: string, escalatedBy: string, reason: string) => ({
+escalationCreated: (
+  workspaceId: string,
+  taskTitle: string,
+  escalatedByName: string,
+  reason: string
+) => ({
   type: 'escalation' as NotificationType,
   workspaceId,
   title: '🚨 Task Escalated to Leadership',
-  message: `${escalatedBy} escalated "${taskTitle}" - ${reason}`,
+  message: `${escalatedByName} escalated "${taskTitle}" - ${reason}`,
   actionLabel: 'Review Escalation',
   actionRoute: '/escalations',
 })
 
-escalationResolved: (workspaceId: string, taskTitle: string, action: string, notes: string) => ({
+escalationResolved: (
+  workspaceId: string,
+  taskTitle: string,
+  action: string,
+  respondedByName: string,
+  notes: string
+) => ({
   type: 'escalation' as NotificationType,
   workspaceId,
   title: `Escalation ${action}`,
-  message: `Leadership ${action} your escalation for "${taskTitle}": ${notes}`,
+  message: `${respondedByName} ${action} your escalation for "${taskTitle}": ${notes}`,
   actionLabel: 'View Task',
 })
 ```
 
 **Integration Points**:
-- When escalation created → notify all Founders
-- When escalation resolved → notify the person who escalated
-- If delegated → notify the person it's delegated to
+- When escalation created → Find all Founders with `userId != null` → Notify each
+- When escalation resolved → Find escalator by `escalatedByUserId` → Notify them
+- If delegated → Find delegate by `delegatedToUserId` → Notify them
+- Track `userId` alongside `memberId` for accurate notification routing
 
 ---
 
@@ -479,6 +496,365 @@ After implementation, we should be able to:
 - End-to-end testing
 
 **Total**: ~12-15 hours of development
+
+---
+
+## User Identification & Message Routing
+
+### Multi-User Architecture
+
+This app is designed as a **collaborative multi-user system** where multiple people can be logged in simultaneously to the same workspace:
+
+#### 1. Authentication vs Organization Members
+
+**Two-Layer Identity System**:
+
+```typescript
+// Layer 1: Supabase Auth User (actual login account)
+interface User {
+  id: string;              // Supabase auth user ID
+  email: string;
+  name: string;
+  // ... other auth fields
+}
+
+// Layer 2: Organization Member (role within a workspace)
+interface OrganizationMember {
+  id: string;              // Member ID (e.g., "founder-1", "exec-5")
+  workspaceId: string;     // Which company/workspace they belong to
+  userId?: string;         // 🔑 LINK to auth user ID
+  name: string;
+  role: 'Founder' | 'FractionalExec' | 'Apprentice';
+  email: string;
+  // ... role-specific fields
+}
+```
+
+**Key Relationship**:
+- A **User** is someone with a login account (can access the app)
+- An **OrganizationMember** is a role within a workspace (may or may not have login access)
+- The `userId` field in `OrganizationMember` links the two
+
+**Example Scenario**:
+```typescript
+// Alice logs in
+const aliceUser = {
+  id: 'auth-user-123',
+  email: 'alice@company.com',
+  name: 'Alice Johnson'
+};
+
+// Alice is a Founder in Demo Company workspace
+const aliceMember = {
+  id: 'founder-1',
+  workspaceId: 'workspace-demo-company',
+  userId: 'auth-user-123',  // 👈 Links to her auth account
+  name: 'Alice Johnson',
+  role: 'Founder',
+  email: 'alice@company.com'
+};
+
+// Bob is a fractional exec (also has login)
+const bobUser = {
+  id: 'auth-user-456',
+  email: 'bob@fractional.com',
+  name: 'Bob Smith'
+};
+
+const bobMember = {
+  id: 'exec-5',
+  workspaceId: 'workspace-demo-company',
+  userId: 'auth-user-456',  // 👈 Links to his auth account
+  name: 'Bob Smith',
+  role: 'FractionalExec'
+};
+
+// Charlie is an external consultant (no login access yet)
+const charlieMember = {
+  id: 'exec-12',
+  workspaceId: 'workspace-demo-company',
+  userId: undefined,  // 👈 No auth account yet (can be invited later)
+  name: 'Charlie Wilson',
+  role: 'FractionalExec'
+};
+```
+
+#### 2. How Notifications Route to Real Users
+
+**When an escalation is created**, the system needs to notify all Founders:
+
+```typescript
+// Step 1: Create escalation
+const escalation = await createEscalation({
+  workPlanId: 'task-123',
+  workspaceId: currentWorkspace.id,
+  escalatedBy: 'exec-5',  // Bob's member ID
+  reason: 'resource_constraint',
+  details: 'Need more developers for this sprint'
+});
+
+// Step 2: Find all Founders in this workspace
+const founders = organizationMembers.filter(
+  m => m.workspaceId === currentWorkspace.id && m.role === 'Founder'
+);
+// Result: [{ id: 'founder-1', userId: 'auth-user-123', name: 'Alice', ... }]
+
+// Step 3: For each Founder, check if they have a login account
+founders.forEach(founder => {
+  if (founder.userId) {
+    // This Founder has an auth account - send them a notification
+    addNotification({
+      type: 'escalation',
+      workspaceId: currentWorkspace.id,
+      title: '🚨 Task Escalated to Leadership',
+      message: `${bobMember.name} escalated "Build payment flow" - resource constraint`,
+      actionLabel: 'Review Escalation',
+      actionRoute: '/escalations',
+    });
+
+    // CRITICAL: Notification is stored with workspaceId
+    // When Alice logs in, she'll see notifications for her workspace
+  } else {
+    // This Founder doesn't have login yet - can't notify via app
+    // In production, might send email or SMS instead
+    console.log(`Cannot notify ${founder.name} - no user account`);
+  }
+});
+```
+
+#### 3. In-App vs Push Notifications
+
+**Current Implementation** (from code analysis):
+
+The app has **two notification systems**:
+
+**A. In-App Notifications** (`notification-store.ts`):
+- Stored in Zustand + MMKV persistent storage
+- Filtered by `workspaceId` when displayed
+- When user logs in and selects a workspace, they see notifications for that workspace
+- **How it works**:
+  ```typescript
+  // When Alice logs in and opens "Demo Company" workspace
+  const unreadNotifications = useNotificationStore(s =>
+    s.getNotificationsByWorkspace('workspace-demo-company')
+  );
+  // Shows all escalation notifications for this workspace
+  ```
+
+**B. Push Notifications** (`notifications.ts`):
+- Uses Expo's push notification system
+- Requires device token registration
+- Can send to user's phone even when app is closed
+- **How it works**:
+  ```typescript
+  // When Alice installs app, device registers for push
+  const deviceToken = await registerForPushNotifications();
+  // Store this: { userId: 'auth-user-123', deviceToken: 'ExponentPushToken[xxx]' }
+
+  // When escalation created, send push to Alice's device
+  await sendPushNotification(deviceToken, {
+    title: '🚨 Task Escalated',
+    body: 'Bob escalated "Build payment flow"',
+    data: { escalationId: escalation.id }
+  });
+  ```
+
+**For Escalation System**:
+- **In-app notifications**: Automatically work (filtered by workspace)
+- **Push notifications**: Need to map member.userId → device tokens
+
+#### 4. Message Routing Flow (Complete Example)
+
+**Scenario**: Bob (exec) escalates a task to leadership
+
+```typescript
+// 1. Bob is logged in as auth-user-456
+const currentUser = useAppStore(s => s.currentUser);
+// { id: 'auth-user-456', name: 'Bob Smith', ... }
+
+const currentWorkspace = useAppStore(s => s.currentWorkspace);
+// { id: 'workspace-demo-company', name: 'Demo Company', ... }
+
+// 2. Bob clicks "Escalate to Leadership" on a task
+const currentMember = organizationMembers.find(
+  m => m.workspaceId === currentWorkspace.id && m.userId === currentUser.id
+);
+// { id: 'exec-5', userId: 'auth-user-456', name: 'Bob Smith', role: 'FractionalExec' }
+
+// 3. System creates escalation
+const escalation = await createEscalation({
+  workPlanId: task.id,
+  workspaceId: currentWorkspace.id,
+  escalatedBy: currentMember.id,  // 'exec-5'
+  escalatedByUserId: currentUser.id,  // 'auth-user-456' (for audit trail)
+  reason: 'resource_constraint',
+  details: 'Need 2 more frontend devs',
+  // ... metadata
+});
+
+// 4. Find all Founders with login access
+const foundersWithAccess = organizationMembers.filter(
+  m => m.workspaceId === currentWorkspace.id
+    && m.role === 'Founder'
+    && m.userId != null  // Only notify if they have login
+);
+// Result: [{ id: 'founder-1', userId: 'auth-user-123', name: 'Alice', ... }]
+
+// 5. Notify each Founder
+for (const founder of foundersWithAccess) {
+  // A. In-app notification (stored in notification-store)
+  addNotification({
+    type: 'escalation',
+    workspaceId: currentWorkspace.id,  // 🔑 Key for filtering
+    title: '🚨 Task Escalated to Leadership',
+    message: `${currentMember.name} escalated "${task.title}" - ${escalation.reason}`,
+    actionLabel: 'Review Escalation',
+    actionRoute: '/escalations',
+    actionData: { escalationId: escalation.id },
+  });
+
+  // B. Push notification (if device token exists)
+  const deviceToken = await getDeviceTokenForUser(founder.userId);
+  if (deviceToken) {
+    await sendPushNotification(deviceToken, {
+      title: '🚨 Task Escalated',
+      body: `${currentMember.name} escalated "${task.title}"`,
+      data: { escalationId: escalation.id, route: '/escalations' }
+    });
+  }
+}
+
+// 6. Alice (on her phone) receives notification
+// - If app is open: sees red badge on Home tab
+// - If app is closed: gets push notification on lock screen
+// - Taps notification → opens EscalationsInboxModal
+// - Sees Bob's escalation with full details
+// - Can Accept/Delegate/Reject
+```
+
+#### 5. Handling Resolution (Reverse Flow)
+
+**Scenario**: Alice accepts the escalation and adds resources
+
+```typescript
+// 1. Alice taps "Accept & Resolve" in EscalationsInboxModal
+await acceptEscalation(escalation.id, {
+  notes: 'Adding 2 frontend devs from partner agency',
+  proposedChanges: {
+    newDueDate: '2026-02-15',
+    additionalTUs: 40,
+    additionalMembers: ['exec-8', 'exec-9']
+  }
+});
+
+// 2. System updates escalation
+escalation.status = 'accepted';
+escalation.respondedBy = 'founder-1';  // Alice's member ID
+escalation.respondedByUserId = 'auth-user-123';  // Alice's user ID
+
+// 3. Apply changes to task automatically
+updateWorkPlan(task.id, {
+  dueDate: '2026-02-15',
+  estimatedTimeUnits: task.estimatedTimeUnits + 40,
+  allocations: [...task.allocations, newAllocation1, newAllocation2]
+});
+
+// 4. Notify Bob (the person who escalated)
+const bobMember = organizationMembers.find(m => m.id === escalation.escalatedBy);
+// { id: 'exec-5', userId: 'auth-user-456', ... }
+
+if (bobMember.userId) {
+  // A. In-app notification
+  addNotification({
+    type: 'escalation',
+    workspaceId: currentWorkspace.id,
+    title: 'Escalation Accepted',
+    message: `Alice accepted your escalation for "${task.title}": ${notes}`,
+    actionLabel: 'View Task',
+    actionRoute: '/(tabs)/tasks',
+    actionData: { taskId: task.id }
+  });
+
+  // B. Push notification
+  const bobDeviceToken = await getDeviceTokenForUser(bobMember.userId);
+  if (bobDeviceToken) {
+    await sendPushNotification(bobDeviceToken, {
+      title: '✅ Escalation Accepted',
+      body: `Alice resolved your escalation for "${task.title}"`,
+      data: { taskId: task.id, route: '/(tabs)/tasks' }
+    });
+  }
+}
+
+// 5. Bob (on his phone) gets notified
+// - Sees notification: "Alice accepted your escalation..."
+// - Taps it → navigates to the task
+// - Sees updated due date, new team members, Alice's notes
+// - Can continue working with new resources
+```
+
+#### 6. Edge Cases & Considerations
+
+**What if a Founder doesn't have a login?**
+- They won't receive in-app or push notifications
+- Solution: Send email notification via Supabase Edge Functions
+- Or: Show "Pending Invitation" status in UI, allow sending invite
+
+**What if multiple Founders respond to the same escalation?**
+- First one to respond "locks" the escalation
+- Use optimistic locking: check `status === 'pending'` before updating
+- If another Founder already responded, show error: "Already handled by Alice"
+
+**What if the escalator deletes their account?**
+- Keep `escalatedBy` member ID in the record
+- Also store `escalatedByName` for display even if member is gone
+- Escalation history preserved for audit trail
+
+**What if someone changes workspaces?**
+- Notifications filtered by `workspaceId`
+- Alice switching from "Demo Company" to "Startup XYZ" sees different notifications
+- Each workspace has its own escalation inbox
+
+**What about anonymous/guest users?**
+- Guests can't escalate or receive escalations
+- Escalation feature only available to authenticated users with workspace membership
+- UI can hide "Escalate" button for guest users
+
+#### 7. Implementation Checklist for User Routing
+
+**Phase 1: Data Model Updates**
+- [ ] Add `escalatedByUserId?: string` to `EscalationRequest` (for audit trail)
+- [ ] Add `respondedByUserId?: string` to `EscalationRequest` (for audit trail)
+- [ ] Ensure `OrganizationMember.userId` is populated for all users with login
+
+**Phase 2: Notification Routing Logic**
+- [ ] Create helper: `getFoundersWithAccess(workspaceId) => OrganizationMember[]` (filters by role + userId exists)
+- [ ] Create helper: `getMemberByUserId(workspaceId, userId) => OrganizationMember | null`
+- [ ] Create helper: `getUserIdByMemberId(memberId) => string | null`
+- [ ] Update `createEscalation()` to notify only Founders with `userId` set
+- [ ] Update `resolveEscalation()` to notify original escalator via their `userId`
+
+**Phase 3: Device Token Management** (for push notifications)
+- [ ] Create `device_tokens` table in Supabase:
+  ```sql
+  create table device_tokens (
+    id uuid primary key default gen_random_uuid(),
+    user_id uuid references auth.users(id),
+    device_token text not null,
+    platform text, -- 'ios' or 'android'
+    created_at timestamp default now(),
+    updated_at timestamp default now()
+  );
+  ```
+- [ ] Register device token on app launch
+- [ ] Update token when user logs in/out
+- [ ] Query tokens when sending push notifications
+
+**Phase 4: Fallback for Non-Login Members**
+- [ ] Detect when Founder has no `userId` (can't receive in-app notification)
+- [ ] Option A: Send email via Supabase Edge Function
+- [ ] Option B: Show warning in UI: "Cannot notify [Name] - no account"
+- [ ] Option C: Create invitation flow to invite them to app
 
 ---
 
