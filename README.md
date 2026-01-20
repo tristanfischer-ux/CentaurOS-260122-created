@@ -20,10 +20,25 @@ A mobile app for lean companies to manage tasks, track team capacity, and coordi
 
 - **Authentication**: Sign up/sign in with email via Supabase
 - **Task Management**: Create, edit, assign tasks with time unit allocations
+- **Task Display System**: New standardized 3-tier task cards (Compact, Medium, Full)
+- **Coordination Cost Calculation**: Automatic overhead penalties based on team size
+- **Capacity Warnings**: Real-time member overallocation indicators
 - **Team Roster**: View team members and their capacity
 - **Timeline View**: See tasks on a Gantt-style chart
 - **Multi-tenant**: Workspace-based data isolation
 - **Themes**: Light, dark, and off-white modes
+
+### Recent Updates (Jan 20, 2026)
+
+**Task Display Standardization**:
+- New unified task card system with 3 tiers (Compact, Medium, Full)
+- Compact view: Single line with avatars, effort timeline ("16 TU @ 8/wk = ~2w")
+- Medium view: Expanded card with quick actions
+- Full view: Complete editing with coordination cost breakdown
+- Coordination penalties: 5% (2 people), 10% (3), 15% (4), 20% (5+)
+- Member capacity indicators with overallocation warnings
+
+See `TASK_DISPLAY_PLAN.md` for full specification.
 
 ### Known Limitations
 
