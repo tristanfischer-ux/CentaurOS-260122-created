@@ -358,43 +358,30 @@ function FounderHome() {
         }
         showsVerticalScrollIndicator={false}
       >
-        {/* ===== 1. URGENT DECISIONS (Top Priority) ===== */}
-        <View className="px-5">
-          <UrgentDecisionsSection />
-        </View>
-
         {/* ===== FOUNDER APPROVAL PANEL (Allocation Requests) ===== */}
-        <View>
+        <View className="px-5 pt-3">
           <FounderApprovalPanel />
         </View>
 
-        {/* ===== AI-POWERED FOCUS TODAY ===== */}
-        <View>
-          <FocusTodaySection />
+        {/* ===== AI-POWERED FOCUS TODAY - Compact Summary ===== */}
+        <View className="px-5 pt-2">
+          <FocusTodaySection compact maxTasks={2} />
         </View>
 
         {/* ===== 2. BUSINESS OBJECTIVES ===== */}
-        <View className="pt-2">
+        <View className="px-5 pt-4">
           <BusinessObjectivesSection />
         </View>
 
-        {/* ===== 3. CURRENT & UPCOMING ACTIVITIES ===== */}
-        <CurrentActivitiesSection
-          expandedTaskId={expandedTaskId}
-          onExpandTask={setExpandedTaskId}
-          selectedTask={selectedTask}
-          showFullModal={showFullModal}
-          onShowFullModal={(show, task) => {
-            setShowFullModal(show);
-            setSelectedTask(task);
-          }}
-        />
-
         {/* ===== 4. TEAM CAPACITY OVERVIEW ===== */}
-        <TeamCapacityDashboard />
+        <View className="px-5 pt-4">
+          <TeamCapacityDashboard />
+        </View>
 
         {/* ===== 5. PERFORMANCE DASHBOARD SUITE ===== */}
-        <PerformanceDashboardGrid />
+        <View className="px-5 pt-4">
+          <PerformanceDashboardGrid />
+        </View>
 
         {/* ===== 7. ESSENTIAL TOOLS SECTION ===== */}
         <View className="px-5 pt-4">

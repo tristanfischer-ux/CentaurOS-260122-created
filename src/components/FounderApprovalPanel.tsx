@@ -465,10 +465,12 @@ export function FounderApprovalPanel() {
       {/* Requests */}
       <View className="px-4">
         {pendingRequests.length === 0 ? (
-          <View className="bg-gray-50 dark:bg-slate-900 rounded-xl p-6 items-center">
-            <Check size={32} color="#10b981" />
-            <Text className="text-gray-600 dark:text-slate-400 mt-2 text-center">
-              No pending requests
+          <View className="bg-gray-50 dark:bg-slate-900 rounded-lg p-3 flex-row items-center gap-3">
+            <View className="bg-emerald-100 dark:bg-emerald-900/30 p-2 rounded-lg">
+              <Check size={16} color="#10b981" />
+            </View>
+            <Text className="text-gray-600 dark:text-slate-400 text-sm flex-1">
+              All clear - no pending allocation requests
             </Text>
           </View>
         ) : (
