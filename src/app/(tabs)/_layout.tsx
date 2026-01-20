@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { Tabs, router } from 'expo-router';
-import { Home, Users, CheckSquare, Calendar, Store, Settings, Plus } from 'lucide-react-native';
+import { Home, Users, CheckSquare, Calendar, Store, Settings, Plus, Sparkles } from 'lucide-react-native';
 import { View, Pressable, Dimensions } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -164,13 +164,13 @@ export default function TabLayout() {
           }}
         />
 
-        {/* 5. Marketplace - push right */}
+        {/* 5. Demo - TEMPORARY - push right */}
         <Tabs.Screen
-          name="marketplace"
+          name="demo"
           options={{
-            title: 'Market',
+            title: 'Demo',
             headerShown: false,
-            tabBarIcon: ({ color }) => <TabBarIcon Icon={Store} color={color} />,
+            tabBarIcon: ({ color }) => <TabBarIcon Icon={Sparkles} color={color} />,
             tabBarItemStyle: { marginLeft: -4 },
           }}
         />
@@ -187,6 +187,7 @@ export default function TabLayout() {
         />
 
         {/* ========== HIDDEN TABS ========== */}
+        <Tabs.Screen name="marketplace" options={{ href: null }} />
         <Tabs.Screen name="create-task" options={{ href: null }} />
         <Tabs.Screen name="resources" options={{ href: null }} />
         <Tabs.Screen name="who" options={{ href: null }} />
