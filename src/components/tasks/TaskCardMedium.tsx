@@ -6,7 +6,7 @@
  * Does NOT show: Coordination cost (only in Full view)
  */
 
-import { View, Text, Pressable, Modal, ScrollView } from 'react-native';
+import { View, Text, Pressable, Modal, ScrollView, TextInput } from 'react-native';
 import { useState } from 'react';
 import { X } from 'lucide-react-native';
 import type { WorkPlan } from '@/lib/state/work-plan-store';
@@ -32,6 +32,8 @@ interface TaskCardMediumProps {
   onUpdateStatus?: (status: WorkPlan['status']) => void;
   onUpdateProgress?: (progress: number) => void;
   onRescheduleDays?: (days: number) => void;
+  onUpdateTitle?: (title: string) => void;
+  onUpdateDescription?: (description: string) => void;
 }
 
 export function TaskCardMedium({
@@ -42,8 +44,16 @@ export function TaskCardMedium({
   onUpdateStatus,
   onUpdateProgress,
   onRescheduleDays,
+  onUpdateTitle,
+  onUpdateDescription,
 }: TaskCardMediumProps) {
   const members = useOrganizationStore((s) => s.members);
+
+  // Local editing state
+  const [editingTitle, setEditingTitle] = useState(false);
+  const [editingDescription, setEditingDescription] = useState(false);
+  const [localTitle, setLocalTitle] = useState(task.title);
+  const [localDescription, setLocalDescription] = useState(task.description);
 
   // Calculate effort metrics
   const rawVelocity = task.allocations.reduce((sum, a) => sum + a.squaresPerWeek, 0);
@@ -87,11 +97,28 @@ export function TaskCardMedium({
                 </Pressable>
               </View>
 
-              {/* Title with avatars and priority */}
+              {/* Title with avatars and priority - EDITABLE */}
               <View className="flex-row items-start justify-between gap-2">
-                <Text className="flex-1 text-slate-900 dark:text-white text-lg font-bold">
-                  {task.title}
-                </Text>
+                {editingTitle ? (
+                  <TextInput
+                    value={localTitle}
+                    onChangeText={setLocalTitle}
+                    onBlur={() => {
+                      setEditingTitle(false);
+                      if (onUpdateTitle && localTitle !== task.title) {
+                        onUpdateTitle(localTitle);
+                      }
+                    }}
+                    autoFocus
+                    className="flex-1 text-slate-900 dark:text-white text-lg font-bold bg-slate-100 dark:bg-slate-700 rounded px-2 py-1"
+                  />
+                ) : (
+                  <Pressable onPress={() => setEditingTitle(true)} className="flex-1">
+                    <Text className="text-slate-900 dark:text-white text-lg font-bold">
+                      {task.title}
+                    </Text>
+                  </Pressable>
+                )}
                 <View className="flex-row items-center gap-2">
                   <TaskAvatarStack memberIds={task.allocations.map(a => a.memberId)} maxVisible={3} size={24} />
                   <TaskPriorityIndicator priority={priority} size={20} />
@@ -107,6 +134,34 @@ export function TaskCardMedium({
                 >
                   📅 {isOverdue ? `${daysOverdue} days overdue` : `Due ${formatTaskDate(dueDate)}`}
                 </Text>
+              </View>
+
+              {/* Description - EDITABLE */}
+              <View className="gap-2">
+                <Text className="text-slate-900 dark:text-white text-sm font-semibold">Description</Text>
+                {editingDescription ? (
+                  <TextInput
+                    value={localDescription}
+                    onChangeText={setLocalDescription}
+                    onBlur={() => {
+                      setEditingDescription(false);
+                      if (onUpdateDescription && localDescription !== task.description) {
+                        onUpdateDescription(localDescription);
+                      }
+                    }}
+                    autoFocus
+                    multiline
+                    numberOfLines={3}
+                    className="text-slate-900 dark:text-white text-sm bg-slate-100 dark:bg-slate-700 rounded px-3 py-2"
+                    placeholder="Add description..."
+                  />
+                ) : (
+                  <Pressable onPress={() => setEditingDescription(true)}>
+                    <Text className="text-slate-700 dark:text-slate-300 text-sm">
+                      {task.description || 'Tap to add description...'}
+                    </Text>
+                  </Pressable>
+                )}
               </View>
 
               {/* Progress */}

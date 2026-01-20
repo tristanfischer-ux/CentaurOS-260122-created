@@ -38,6 +38,8 @@ export function TaskCardFull({ task, visible, onClose, onSave }: TaskCardFullPro
 
   // Local state for editing
   const [editedTask, setEditedTask] = useState(task);
+  const [editingTitle, setEditingTitle] = useState(false);
+  const [editingDescription, setEditingDescription] = useState(false);
 
   // Calculate effort metrics
   const rawVelocity = editedTask.allocations.reduce((sum, a) => sum + a.squaresPerWeek, 0);
@@ -81,9 +83,21 @@ export function TaskCardFull({ task, visible, onClose, onSave }: TaskCardFullPro
               </View>
 
               <View className="flex-row items-start justify-between gap-3">
-                <Text className="flex-1 text-white text-xl font-bold">
-                  {editedTask.title}
-                </Text>
+                {editingTitle ? (
+                  <TextInput
+                    value={editedTask.title}
+                    onChangeText={(title) => setEditedTask({ ...editedTask, title })}
+                    onBlur={() => setEditingTitle(false)}
+                    autoFocus
+                    className="flex-1 text-white text-xl font-bold bg-white/20 rounded px-2 py-1"
+                  />
+                ) : (
+                  <Pressable onPress={() => setEditingTitle(true)} className="flex-1">
+                    <Text className="text-white text-xl font-bold">
+                      {editedTask.title}
+                    </Text>
+                  </Pressable>
+                )}
                 <View className="flex-row items-center gap-2">
                   <TaskAvatarStack memberIds={editedTask.allocations.map(a => a.memberId)} maxVisible={3} size={28} />
                   <TaskPriorityIndicator priority={priority} size={24} />
@@ -108,15 +122,28 @@ export function TaskCardFull({ task, visible, onClose, onSave }: TaskCardFullPro
             </View>
 
             <ScrollView className="p-5 gap-5" style={{ maxHeight: 500 }}>
-              {/* Description */}
-              {editedTask.description && (
-                <View className="gap-2">
-                  <Text className="text-slate-900 dark:text-white text-sm font-bold">DESCRIPTION</Text>
-                  <Text className="text-slate-700 dark:text-slate-300 text-sm">
-                    {editedTask.description}
-                  </Text>
-                </View>
-              )}
+              {/* Description - EDITABLE */}
+              <View className="gap-2">
+                <Text className="text-slate-900 dark:text-white text-sm font-bold">DESCRIPTION</Text>
+                {editingDescription ? (
+                  <TextInput
+                    value={editedTask.description}
+                    onChangeText={(description) => setEditedTask({ ...editedTask, description })}
+                    onBlur={() => setEditingDescription(false)}
+                    autoFocus
+                    multiline
+                    numberOfLines={4}
+                    className="text-slate-900 dark:text-white text-sm bg-slate-100 dark:bg-slate-700 rounded px-3 py-2"
+                    placeholder="Add description..."
+                  />
+                ) : (
+                  <Pressable onPress={() => setEditingDescription(true)}>
+                    <Text className="text-slate-700 dark:text-slate-300 text-sm">
+                      {editedTask.description || 'Tap to add description...'}
+                    </Text>
+                  </Pressable>
+                )}
+              </View>
 
               {/* Timeline */}
               <View className="gap-3">
