@@ -210,6 +210,7 @@ export default function TabLayout() {
           left: fabLeft,
           width: fabSize,
           height: fabSize,
+          borderRadius: fabSize / 2,
           zIndex: 999,
           // Shadow for depth
           shadowColor: '#000000',
