@@ -13,6 +13,16 @@ interface TaskAvatarStackProps {
   size?: number;
 }
 
+// Colors for dummy avatars when member not found
+const AVATAR_COLORS = [
+  '#3B82F6', // blue
+  '#8B5CF6', // purple
+  '#10B981', // green
+  '#F59E0B', // amber
+  '#EF4444', // red
+  '#06B6D4', // cyan
+];
+
 export function TaskAvatarStack({ memberIds, maxVisible = 3, size = 24 }: TaskAvatarStackProps) {
   const members = useOrganizationStore((s) => s.members);
 
@@ -23,24 +33,30 @@ export function TaskAvatarStack({ memberIds, maxVisible = 3, size = 24 }: TaskAv
     <View className="flex-row items-center">
       {visibleIds.map((memberId, index) => {
         const member = members.find((m) => m.id === memberId);
-        if (!member) return null;
 
-        const initials = member.name
-          .split(' ')
-          .map((n) => n[0])
-          .join('')
-          .toUpperCase()
-          .slice(0, 2);
+        // Generate initials: use member name if found, otherwise generate dummy initials
+        const initials = member
+          ? member.name
+              .split(' ')
+              .map((n) => n[0])
+              .join('')
+              .toUpperCase()
+              .slice(0, 2)
+          : `U${index + 1}`; // Fallback: U1, U2, U3, etc.
+
+        // Use different colors for variety
+        const bgColor = AVATAR_COLORS[index % AVATAR_COLORS.length];
 
         return (
           <View
             key={memberId}
-            className="rounded-full bg-blue-500 items-center justify-center border-2 border-white dark:border-slate-900"
+            className="rounded-full items-center justify-center border-2 border-white dark:border-slate-900"
             style={{
               width: size,
               height: size,
               marginLeft: index > 0 ? -size / 3 : 0,
               zIndex: visibleIds.length - index,
+              backgroundColor: bgColor,
             }}
           >
             <Text
