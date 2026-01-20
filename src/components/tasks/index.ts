@@ -13,6 +13,9 @@ export { CoordinationCostDisplay } from './CoordinationCostDisplay';
 
 // Tier components
 export { TaskCardCompact } from './TaskCardCompact';
+export { TaskCardExpansion } from './TaskCardExpansion';
+
+// Legacy modal components (deprecated - use TaskCardExpansion instead)
 export { TaskCardMedium } from './TaskCardMedium';
 export { TaskCardMediumInline } from './TaskCardMediumInline';
 export { TaskCardFull } from './TaskCardFull';

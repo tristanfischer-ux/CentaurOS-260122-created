@@ -371,14 +371,6 @@ function FounderHome() {
         {/* ===== AI-POWERED FOCUS TODAY ===== */}
         <View>
           <FocusTodaySection
-            expandedTaskId={expandedTaskId}
-            onExpandTask={setExpandedTaskId}
-            selectedTask={selectedTask}
-            showFullModal={showFullModal}
-            onShowFullModal={(show, task) => {
-              setShowFullModal(show);
-              setSelectedTask(task);
-            }}
             onTaskPress={(taskId) => {
               router.push({
                 pathname: '/(tabs)/tasks',

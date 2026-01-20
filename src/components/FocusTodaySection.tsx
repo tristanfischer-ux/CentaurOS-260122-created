@@ -1,58 +1,69 @@
 /**
- * Focus Today Section - Redesigned with Standardized Task Cards
- * AI-Powered Priority Task Surfacing using TaskCardCompact
- * Inline expansion for quick actions
+ * Focus Today Section - Progressive Inline Disclosure
+ * AI-Powered Priority Task Surfacing
+ * Click once for Medium (quick actions), click again for Full (resource planning)
  */
 
-import { View, Text, Pressable } from 'react-native';
+import { View, Text } from 'react-native';
 import { Sparkles, CheckCircle } from 'lucide-react-native';
 import { useMemo, useState } from 'react';
 import { useWorkPlanStore, type WorkPlan } from '@/lib/state/work-plan-store';
 import { useOrganizationStore } from '@/lib/state/organization-store';
-import { getFocusTodayTasks, type PriorityScore } from '@/lib/ai-priority-scoring';
+import { getFocusTodayTasks } from '@/lib/ai-priority-scoring';
 import { useTheme } from '@/lib/ThemeContext';
-import { TaskCardCompact, TaskCardMediumInline, TaskCardFull } from '@/components/tasks';
+import { TaskCardCompact, TaskCardExpansion } from '@/components/tasks';
+
+type ExpansionLevel = 'medium' | 'full' | null;
+
+interface TaskExpansionState {
+  taskId: string;
+  level: ExpansionLevel;
+}
 
 interface FocusTodaySectionProps {
   onTaskPress?: (taskId: string) => void;
-  expandedTaskId?: string | null;
-  onExpandTask?: (taskId: string | null) => void;
-  selectedTask?: WorkPlan | null;
-  showFullModal?: boolean;
-  onShowFullModal?: (show: boolean, task: WorkPlan | null) => void;
 }
 
-export function FocusTodaySection({
-  onTaskPress,
-  expandedTaskId,
-  onExpandTask,
-  selectedTask,
-  showFullModal,
-  onShowFullModal,
-}: FocusTodaySectionProps) {
+export function FocusTodaySection({ onTaskPress }: FocusTodaySectionProps) {
   const { theme } = useTheme();
   const isDark = theme === 'dark';
-  const workPlans = useWorkPlanStore(s => s.workPlans);
-  const updateWorkPlan = useWorkPlanStore(s => s.updateWorkPlan);
-  const members = useOrganizationStore(s => s.members);
+  const workPlans = useWorkPlanStore((s) => s.workPlans);
+  const updateWorkPlan = useWorkPlanStore((s) => s.updateWorkPlan);
+  const members = useOrganizationStore((s) => s.members);
 
-  // Local state fallback if parent doesn't manage state
-  const [localExpandedId, setLocalExpandedId] = useState<string | null>(null);
-  const [localSelectedTask, setLocalSelectedTask] = useState<WorkPlan | null>(null);
-  const [localShowFullModal, setLocalShowFullModal] = useState(false);
-
-  const activeExpandedId = expandedTaskId !== undefined ? expandedTaskId : localExpandedId;
-  const setActiveExpandedId = onExpandTask || setLocalExpandedId;
-  const activeSelectedTask = selectedTask !== undefined ? selectedTask : localSelectedTask;
-  const activeShowFullModal = showFullModal !== undefined ? showFullModal : localShowFullModal;
-  const setActiveShowFullModal = onShowFullModal || ((show: boolean, task: WorkPlan | null) => {
-    setLocalShowFullModal(show);
-    setLocalSelectedTask(task);
-  });
+  const [expansionState, setExpansionState] = useState<TaskExpansionState | null>(null);
 
   const priorityTasks = useMemo(() => {
-    return getFocusTodayTasks(workPlans, members, 3); // Only show top 3
+    return getFocusTodayTasks(workPlans, members, 3);
   }, [workPlans, members]);
+
+  const handleTaskPress = (taskId: string) => {
+    if (onTaskPress) {
+      onTaskPress(taskId);
+    }
+
+    // Toggle or expand
+    if (expansionState?.taskId === taskId) {
+      if (expansionState.level === 'medium') {
+        // Go from medium → full
+        setExpansionState({ taskId, level: 'full' });
+      } else {
+        // Collapse from full
+        setExpansionState(null);
+      }
+    } else {
+      // Expand to medium
+      setExpansionState({ taskId, level: 'medium' });
+    }
+  };
+
+  const handleExpandMore = (taskId: string) => {
+    setExpansionState({ taskId, level: 'full' });
+  };
+
+  const handleClose = () => {
+    setExpansionState(null);
+  };
 
   if (priorityTasks.length === 0) {
     return (
@@ -94,7 +105,7 @@ export function FocusTodaySection({
 
   return (
     <View style={{ paddingHorizontal: 20, paddingVertical: 8 }}>
-      {/* Compact Header */}
+      {/* Header */}
       <View
         style={{
           flexDirection: 'row',
@@ -156,36 +167,29 @@ export function FocusTodaySection({
         </View>
       </View>
 
-      {/* Task List with Priority Indicators */}
+      {/* Task List with Progressive Disclosure */}
       {priorityTasks.map((priorityScore) => {
         const task = priorityScore.task;
-        const isExpanded = activeExpandedId === task.id;
+        const isExpanded = expansionState?.taskId === task.id;
+        const expansionLevel = expansionState?.taskId === task.id ? expansionState.level : null;
 
         return (
           <View key={task.id}>
-            {/* Compact card with priority indicator built-in */}
+            {/* Compact card */}
             <TaskCardCompact
               task={task}
               priorityLevel={priorityScore.level}
               isExpanded={isExpanded}
-              onPress={() => {
-                if (isExpanded) {
-                  setActiveExpandedId(null);
-                } else {
-                  setActiveExpandedId(task.id);
-                }
-              }}
+              onPress={() => handleTaskPress(task.id)}
             />
 
-            {/* Inline Expansion */}
-            {isExpanded && (
-              <TaskCardMediumInline
+            {/* Progressive inline expansion */}
+            {isExpanded && expansionLevel && (
+              <TaskCardExpansion
                 task={task}
-                onClose={() => setActiveExpandedId(null)}
-                onViewFullDetails={() => {
-                  setActiveExpandedId(null);
-                  setActiveShowFullModal(true, task);
-                }}
+                level={expansionLevel}
+                onClose={handleClose}
+                onExpandMore={() => handleExpandMore(task.id)}
                 onUpdateStatus={(status) => {
                   updateWorkPlan(task.id, { status });
                 }}
@@ -202,6 +206,9 @@ export function FocusTodaySection({
                 onUpdateDescription={(description) => {
                   updateWorkPlan(task.id, { description });
                 }}
+                onSave={(updates) => {
+                  updateWorkPlan(task.id, updates);
+                }}
                 priorityLevel={priorityScore.level}
                 priorityReasoning={priorityScore.reasoning}
               />
@@ -209,19 +216,6 @@ export function FocusTodaySection({
           </View>
         );
       })}
-
-      {/* Full Modal - only render if managed by parent */}
-      {activeSelectedTask && activeShowFullModal && onShowFullModal && (
-        <TaskCardFull
-          task={activeSelectedTask}
-          visible={activeShowFullModal}
-          onClose={() => setActiveShowFullModal(false, null)}
-          onSave={(updates) => {
-            updateWorkPlan(activeSelectedTask.id, updates);
-            setActiveShowFullModal(false, null);
-          }}
-        />
-      )}
     </View>
   );
 }
