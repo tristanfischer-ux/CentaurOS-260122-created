@@ -35,7 +35,7 @@ import { useCurrentMembership, useCurrentWorkspace } from '@/lib/state/app-store
 import type { OrganizationMember } from '@/lib/organization-seed';
 import { HelpModal, HelpButton, type HelpContent } from '@/components/HelpModal';
 import { SettingsGearButton } from '@/components/SettingsGearButton';
-import { TaskCardCompact, TaskCardMediumInline, TaskCardFull } from '@/components/tasks';
+import { TaskCardCompact, TaskCardExpansion } from '@/components/tasks';
 import { filterWorkPlansByRole } from '@/lib/role-utils';
 import { UnifiedBottomDrawer } from '@/components/UnifiedBottomDrawer';
 import { extractTasksFromText } from '@/lib/ai/task-extraction';
@@ -121,10 +121,8 @@ export default function TasksScreen() {
   // State
   const [showHelp, setShowHelp] = useState(false);
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
-  // Inline expansion state (same pattern as Home tab)
-  const [expandedTaskId, setExpandedTaskId] = useState<string | null>(null);
-  const [selectedTask, setSelectedTask] = useState<WorkPlan | null>(null);
-  const [showFullView, setShowFullView] = useState(false);
+  // Inline expansion state (same pattern as Focus Today)
+  const [expansionState, setExpansionState] = useState<{ taskId: string; level: 'medium' | 'full' } | null>(null);
   const [openDrawerToNewTask, setOpenDrawerToNewTask] = useState(false);
   const [showVoiceTranscript, setShowVoiceTranscript] = useState(false);
   const [voiceTranscript, setVoiceTranscript] = useState('');
@@ -386,22 +384,7 @@ export default function TasksScreen() {
         gradientColors={['#10b981', '#059669']}
       />
 
-      {/* Task Full Modal - Only for Full Details view */}
-      {selectedTask && showFullView && (
-        <TaskCardFull
-          task={selectedTask}
-          visible={showFullView}
-          onClose={() => {
-            setShowFullView(false);
-            setSelectedTask(null);
-          }}
-          onSave={(updates) => {
-            updateWorkPlan(selectedTask.id, updates);
-            setShowFullView(false);
-            setSelectedTask(null);
-          }}
-        />
-      )}
+      {/* No separate modal - using inline expansion only */}
 
       {/* Header */}
       <LinearGradient
@@ -632,26 +615,32 @@ export default function TasksScreen() {
               </Text>
             </View>
             {tasksByStatus['in-progress'].map((task) => {
-              const isExpanded = expandedTaskId === task.id;
+              const isExpanded = expansionState?.taskId === task.id;
+              const expansionLevel = expansionState?.taskId === task.id ? expansionState.level : null;
+
               return (
                 <View key={task.id}>
                   <TaskCardCompact
                     task={task}
                     isExpanded={isExpanded}
                     onPress={() => {
-                      setExpandedTaskId(isExpanded ? null : task.id);
+                      if (expansionState?.taskId === task.id) {
+                        if (expansionState.level === 'medium') {
+                          setExpansionState({ taskId: task.id, level: 'full' });
+                        } else {
+                          setExpansionState(null);
+                        }
+                      } else {
+                        setExpansionState({ taskId: task.id, level: 'medium' });
+                      }
                     }}
                   />
-                  {/* Inline Medium Expansion */}
-                  {isExpanded && (
-                    <TaskCardMediumInline
+                  {isExpanded && expansionLevel && (
+                    <TaskCardExpansion
                       task={task}
-                      onClose={() => setExpandedTaskId(null)}
-                      onViewFullDetails={() => {
-                        setExpandedTaskId(null);
-                        setSelectedTask(task);
-                        setShowFullView(true);
-                      }}
+                      level={expansionLevel}
+                      onClose={() => setExpansionState(null)}
+                      onExpandMore={() => setExpansionState({ taskId: task.id, level: 'full' })}
                       onUpdateStatus={(status: WorkPlan['status']) => {
                         updateWorkPlan(task.id, { status });
                       }}
@@ -665,6 +654,9 @@ export default function TasksScreen() {
                       }}
                       onUpdateDescription={(description: string) => {
                         updateWorkPlan(task.id, { description });
+                      }}
+                      onSave={(updates: Partial<WorkPlan>) => {
+                        updateWorkPlan(task.id, updates);
                       }}
                     />
                   )}
@@ -684,26 +676,32 @@ export default function TasksScreen() {
               </Text>
             </View>
             {tasksByStatus['blocked'].map((task) => {
-              const isExpanded = expandedTaskId === task.id;
+              const isExpanded = expansionState?.taskId === task.id;
+              const expansionLevel = expansionState?.taskId === task.id ? expansionState.level : null;
+
               return (
                 <View key={task.id}>
                   <TaskCardCompact
                     task={task}
                     isExpanded={isExpanded}
                     onPress={() => {
-                      setExpandedTaskId(isExpanded ? null : task.id);
+                      if (expansionState?.taskId === task.id) {
+                        if (expansionState.level === 'medium') {
+                          setExpansionState({ taskId: task.id, level: 'full' });
+                        } else {
+                          setExpansionState(null);
+                        }
+                      } else {
+                        setExpansionState({ taskId: task.id, level: 'medium' });
+                      }
                     }}
                   />
-                  {/* Inline Medium Expansion */}
-                  {isExpanded && (
-                    <TaskCardMediumInline
+                  {isExpanded && expansionLevel && (
+                    <TaskCardExpansion
                       task={task}
-                      onClose={() => setExpandedTaskId(null)}
-                      onViewFullDetails={() => {
-                        setExpandedTaskId(null);
-                        setSelectedTask(task);
-                        setShowFullView(true);
-                      }}
+                      level={expansionLevel}
+                      onClose={() => setExpansionState(null)}
+                      onExpandMore={() => setExpansionState({ taskId: task.id, level: 'full' })}
                       onUpdateStatus={(status: WorkPlan['status']) => {
                         updateWorkPlan(task.id, { status });
                       }}
@@ -717,6 +715,9 @@ export default function TasksScreen() {
                       }}
                       onUpdateDescription={(description: string) => {
                         updateWorkPlan(task.id, { description });
+                      }}
+                      onSave={(updates: Partial<WorkPlan>) => {
+                        updateWorkPlan(task.id, updates);
                       }}
                     />
                   )}
@@ -736,26 +737,32 @@ export default function TasksScreen() {
               </Text>
             </View>
             {tasksByStatus['not-started'].map((task) => {
-              const isExpanded = expandedTaskId === task.id;
+              const isExpanded = expansionState?.taskId === task.id;
+              const expansionLevel = expansionState?.taskId === task.id ? expansionState.level : null;
+
               return (
                 <View key={task.id}>
                   <TaskCardCompact
                     task={task}
                     isExpanded={isExpanded}
                     onPress={() => {
-                      setExpandedTaskId(isExpanded ? null : task.id);
+                      if (expansionState?.taskId === task.id) {
+                        if (expansionState.level === 'medium') {
+                          setExpansionState({ taskId: task.id, level: 'full' });
+                        } else {
+                          setExpansionState(null);
+                        }
+                      } else {
+                        setExpansionState({ taskId: task.id, level: 'medium' });
+                      }
                     }}
                   />
-                  {/* Inline Medium Expansion */}
-                  {isExpanded && (
-                    <TaskCardMediumInline
+                  {isExpanded && expansionLevel && (
+                    <TaskCardExpansion
                       task={task}
-                      onClose={() => setExpandedTaskId(null)}
-                      onViewFullDetails={() => {
-                        setExpandedTaskId(null);
-                        setSelectedTask(task);
-                        setShowFullView(true);
-                      }}
+                      level={expansionLevel}
+                      onClose={() => setExpansionState(null)}
+                      onExpandMore={() => setExpansionState({ taskId: task.id, level: 'full' })}
                       onUpdateStatus={(status: WorkPlan['status']) => {
                         updateWorkPlan(task.id, { status });
                       }}
@@ -769,6 +776,9 @@ export default function TasksScreen() {
                       }}
                       onUpdateDescription={(description: string) => {
                         updateWorkPlan(task.id, { description });
+                      }}
+                      onSave={(updates: Partial<WorkPlan>) => {
+                        updateWorkPlan(task.id, updates);
                       }}
                     />
                   )}
@@ -788,26 +798,32 @@ export default function TasksScreen() {
               </Text>
             </View>
             {tasksByStatus['completed'].slice(0, 5).map((task) => {
-              const isExpanded = expandedTaskId === task.id;
+              const isExpanded = expansionState?.taskId === task.id;
+              const expansionLevel = expansionState?.taskId === task.id ? expansionState.level : null;
+
               return (
                 <View key={task.id}>
                   <TaskCardCompact
                     task={task}
                     isExpanded={isExpanded}
                     onPress={() => {
-                      setExpandedTaskId(isExpanded ? null : task.id);
+                      if (expansionState?.taskId === task.id) {
+                        if (expansionState.level === 'medium') {
+                          setExpansionState({ taskId: task.id, level: 'full' });
+                        } else {
+                          setExpansionState(null);
+                        }
+                      } else {
+                        setExpansionState({ taskId: task.id, level: 'medium' });
+                      }
                     }}
                   />
-                  {/* Inline Medium Expansion */}
-                  {isExpanded && (
-                    <TaskCardMediumInline
+                  {isExpanded && expansionLevel && (
+                    <TaskCardExpansion
                       task={task}
-                      onClose={() => setExpandedTaskId(null)}
-                      onViewFullDetails={() => {
-                        setExpandedTaskId(null);
-                        setSelectedTask(task);
-                        setShowFullView(true);
-                      }}
+                      level={expansionLevel}
+                      onClose={() => setExpansionState(null)}
+                      onExpandMore={() => setExpansionState({ taskId: task.id, level: 'full' })}
                       onUpdateStatus={(status: WorkPlan['status']) => {
                         updateWorkPlan(task.id, { status });
                       }}
@@ -821,6 +837,9 @@ export default function TasksScreen() {
                       }}
                       onUpdateDescription={(description: string) => {
                         updateWorkPlan(task.id, { description });
+                      }}
+                      onSave={(updates: Partial<WorkPlan>) => {
+                        updateWorkPlan(task.id, updates);
                       }}
                     />
                   )}

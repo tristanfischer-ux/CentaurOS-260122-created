@@ -370,14 +370,7 @@ function FounderHome() {
 
         {/* ===== AI-POWERED FOCUS TODAY ===== */}
         <View>
-          <FocusTodaySection
-            onTaskPress={(taskId) => {
-              router.push({
-                pathname: '/(tabs)/tasks',
-                params: { selectedTaskId: taskId },
-              });
-            }}
-          />
+          <FocusTodaySection />
         </View>
 
         {/* ===== 2. BUSINESS OBJECTIVES ===== */}
