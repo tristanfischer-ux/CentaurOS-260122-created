@@ -113,37 +113,71 @@ export interface EscalationRequest {
 
 **Add to notification-store.ts**:
 
-New notification type: `'escalation'`
-
-New helper functions:
+**1. Update NotificationType**:
 ```typescript
-escalationCreated: (
-  workspaceId: string,
-  taskTitle: string,
-  escalatedByName: string,
-  reason: string
-) => ({
-  type: 'escalation' as NotificationType,
-  workspaceId,
-  title: '🚨 Task Escalated to Leadership',
-  message: `${escalatedByName} escalated "${taskTitle}" - ${reason}`,
-  actionLabel: 'Review Escalation',
-  actionRoute: '/escalations',
-})
+export type NotificationType = 'approval' | 'deadline' | 'capacity' | 'budget' | 'assignment' | 'message' | 'achievement' | 'escalation';
+```
 
-escalationResolved: (
-  workspaceId: string,
-  taskTitle: string,
-  action: string,
-  respondedByName: string,
-  notes: string
-) => ({
-  type: 'escalation' as NotificationType,
-  workspaceId,
-  title: `Escalation ${action}`,
-  message: `${respondedByName} ${action} your escalation for "${taskTitle}": ${notes}`,
-  actionLabel: 'View Task',
-})
+**2. Add escalations preference**:
+```typescript
+preferences: {
+  approvals: boolean;
+  deadlines: boolean;
+  capacity: boolean;
+  budget: boolean;
+  assignments: boolean;
+  messages: boolean;
+  achievements: boolean;
+  escalations: boolean; // 🆕 ADD THIS
+}
+```
+
+**3. Update preference checking logic**:
+```typescript
+// In addNotification method, add:
+const typeKey = notification.type === 'approval' ? 'approvals' :
+               notification.type === 'deadline' ? 'deadlines' :
+               notification.type === 'capacity' ? 'capacity' :
+               notification.type === 'budget' ? 'budget' :
+               notification.type === 'assignment' ? 'assignments' :
+               notification.type === 'message' ? 'messages' :
+               notification.type === 'escalation' ? 'escalations' : // 🆕 ADD THIS
+               'achievements';
+```
+
+**4. Add helper functions to notificationHelpers**:
+```typescript
+export const notificationHelpers = {
+  // ... existing helpers ...
+
+  escalationCreated: (
+    workspaceId: string,
+    taskTitle: string,
+    escalatedByName: string,
+    reason: string
+  ) => ({
+    type: 'escalation' as NotificationType,
+    workspaceId,
+    title: '🚨 Task Escalated to Leadership',
+    message: `${escalatedByName} escalated "${taskTitle}" - ${reason}`,
+    actionLabel: 'Review Escalation',
+    actionRoute: '/escalations',
+  }),
+
+  escalationResolved: (
+    workspaceId: string,
+    taskTitle: string,
+    action: string,
+    respondedByName: string,
+    notes: string
+  ) => ({
+    type: 'escalation' as NotificationType,
+    workspaceId,
+    title: `Escalation ${action}`,
+    message: `${respondedByName} ${action} your escalation for "${taskTitle}": ${notes}`,
+    actionLabel: 'View Task',
+  }),
+};
 ```
 
 **Integration Points**:
@@ -452,6 +486,11 @@ After implementation, we should be able to:
 - Notification system must work reliably
 - Task assignment system must be stable (we're building on that pattern)
 - Member role data must be accurate (to identify Founders)
+- **⚠️ CRITICAL**: `OrganizationMember.userId` must be populated for notification routing to work
+  - Currently `ORGANIZATION_MEMBERS` is an empty array in organization-seed.ts
+  - Need to populate userId for members who have auth accounts
+  - OR implement email-based matching when user logs in
+  - OR use demo mode where notifications just go to in-app inbox (no user-specific routing)
 
 **Risks**:
 - Too many escalations → inbox overwhelmed
@@ -460,42 +499,56 @@ After implementation, we should be able to:
   - Mitigation: Reminder notifications, auto-escalate to other Founders
 - Duplicate notifications if multiple Founders respond
   - Mitigation: Lock escalation when first Founder starts responding
+- **⚠️ userId not populated → notifications won't route to specific users**
+  - Mitigation: Add setup phase to populate userId OR fall back to workspace-level notifications
 
 **Technical Risks**:
 - State synchronization (escalation marked resolved but task not updated)
   - Mitigation: Optimistic updates with rollback
 - Notification delivery failures
   - Mitigation: Persist notifications in store, poll on app open
+- userId is null for most members → can't send notifications
+  - Mitigation: Filter to only members with userId, OR match by email on login
 
 ---
 
 ## Timeline Estimate
 
-**Phase 1 (Store)**: 2-3 hours
-- Create escalation-store.ts
-- Add types to work-plan-store
+**Phase 1 (Store & Data)**: 3-4 hours
+- Create escalation-store.ts with full CRUD
+- Add escalation fields to WorkPlan type
+- Update work-plan-store to handle escalation state changes
+- **CRITICAL**: Decide userId population strategy (real multi-user vs demo mode)
+- Create user↔member mapping helpers
 
-**Phase 2 (Notifications)**: 1 hour
-- Add notification helpers
-- Wire up notification triggers
+**Phase 2 (Notifications)**: 2 hours
+- Update notification-store.ts to add 'escalation' type
+- Add escalations preference field
+- Update preference checking logic in addNotification
+- Add escalation helpers to notificationHelpers object
+- Wire up notification triggers in escalation-store methods
 
 **Phase 3 (UI Components)**: 4-5 hours
-- Enhanced escalate modal
-- EscalationsInboxModal
-- Badge components
-- History display
+- Enhanced escalate modal with reason selection
+- EscalationsInboxModal for Founders
+- Badge components for Home tab
+- History display in task full view
+- Escalated indicator on task cards
 
 **Phase 4 (Integration)**: 2-3 hours
-- Connect all the pieces
-- Handle state updates
-- Test flows
+- Connect escalation store to UI components
+- Handle state updates in work-plan-store
+- Test notification routing (userId → member)
+- Verify founders-only access
+- Test flows end-to-end
 
 **Phase 5 (Polish & Testing)**: 2 hours
-- Visual indicators
-- Edge case handling
-- End-to-end testing
+- Visual indicators (badges, colors)
+- Edge case handling (null userId, etc.)
+- End-to-end testing of all flows
+- Handle concurrent escalations
 
-**Total**: ~12-15 hours of development
+**Total**: ~13-16 hours of development
 
 ---
 
@@ -825,7 +878,13 @@ if (bobMember.userId) {
 **Phase 1: Data Model Updates**
 - [ ] Add `escalatedByUserId?: string` to `EscalationRequest` (for audit trail)
 - [ ] Add `respondedByUserId?: string` to `EscalationRequest` (for audit trail)
-- [ ] Ensure `OrganizationMember.userId` is populated for all users with login
+- [ ] **CRITICAL**: Populate `userId` field in OrganizationMember seed data for demo users
+  - Currently `ORGANIZATION_MEMBERS` is empty array
+  - Need to either:
+    - Option A: Populate userId for founders/execs who should receive notifications (if using real auth)
+    - Option B: Use email matching to link members to auth users on login
+    - Option C: Demo mode - skip userId and just use member IDs (notifications won't route to real users)
+  - **Decision needed**: Is this a real multi-user app or single-user demo?
 
 **Phase 2: Notification Routing Logic**
 - [ ] Create helper: `getFoundersWithAccess(workspaceId) => OrganizationMember[]` (filters by role + userId exists)
@@ -833,9 +892,10 @@ if (bobMember.userId) {
 - [ ] Create helper: `getUserIdByMemberId(memberId) => string | null`
 - [ ] Update `createEscalation()` to notify only Founders with `userId` set
 - [ ] Update `resolveEscalation()` to notify original escalator via their `userId`
+- [ ] **Handle case where userId is null**: Show in-app message or log warning
 
-**Phase 3: Device Token Management** (for push notifications)
-- [ ] Create `device_tokens` table in Supabase:
+**Phase 3: Device Token Management** (for push notifications - OPTIONAL)
+- [ ] Create `device_tokens` table in Supabase (only if push notifications needed):
   ```sql
   create table device_tokens (
     id uuid primary key default gen_random_uuid(),
@@ -849,12 +909,14 @@ if (bobMember.userId) {
 - [ ] Register device token on app launch
 - [ ] Update token when user logs in/out
 - [ ] Query tokens when sending push notifications
+- **NOTE**: For demo/MVP, in-app notifications may be sufficient
 
 **Phase 4: Fallback for Non-Login Members**
 - [ ] Detect when Founder has no `userId` (can't receive in-app notification)
 - [ ] Option A: Send email via Supabase Edge Function
 - [ ] Option B: Show warning in UI: "Cannot notify [Name] - no account"
 - [ ] Option C: Create invitation flow to invite them to app
+- **For MVP**: Just log to console and skip notification
 
 ---
 
