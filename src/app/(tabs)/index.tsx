@@ -368,7 +368,7 @@ function FounderHome() {
           <FocusTodaySection
             onTaskPress={(taskId) => {
               router.push({
-                pathname: '/(tabs)/decide',
+                pathname: '/(tabs)/tasks',
                 params: { selectedTaskId: taskId },
               });
             }}
@@ -458,7 +458,7 @@ function FounderHome() {
       <FilingCabinetDrawers
         onTaskPress={(taskId: string) => {
           router.push({
-            pathname: '/(tabs)/decide',
+            pathname: '/(tabs)/tasks',
             params: { selectedTaskId: taskId },
           });
         }}

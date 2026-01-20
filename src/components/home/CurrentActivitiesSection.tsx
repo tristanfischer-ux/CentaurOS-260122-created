@@ -152,7 +152,7 @@ function BottleneckAlert({ blockedCount, overloadedMembers }: BottleneckAlertPro
 
   return (
     <Pressable
-      onPress={() => router.push('/(tabs)/what')}
+      onPress={() => router.push('/(tabs)/tasks')}
       className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-3 mb-3"
     >
       <View className="flex-row items-center gap-2 mb-1">

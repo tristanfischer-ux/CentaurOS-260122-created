@@ -289,7 +289,7 @@ export function PerformanceDashboardGrid() {
         health: projectHealth,
         icon: Activity,
         iconColor: '#3b82f6',
-        onPress: () => router.push('/(tabs)/what'),
+        onPress: () => router.push('/(tabs)/tasks'),
       },
       {
         id: 'team-productivity',
