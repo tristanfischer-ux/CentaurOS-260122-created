@@ -178,8 +178,37 @@ export default function PeopleScreen() {
     const execs = membersByRole.FractionalExec.length;
     const apprentices = membersByRole.Apprentice.length;
     const total = members.length;
-    return { founders, execs, apprentices, total };
-  }, [membersByRole, members]);
+
+    // Calculate capacity stats
+    let available = 0;
+    let atCapacity = 0;
+    let overallocated = 0;
+
+    members.forEach(member => {
+      const totalCapacity = member.role === 'Founder' || member.role === 'Apprentice'
+        ? 15
+        : (member.daysPerWeek || 2) * 2;
+
+      const totalAllocated = workPlans
+        .filter(wp => wp.status !== 'completed' && wp.status !== 'abandoned')
+        .reduce((sum, wp) => {
+          const allocation = wp.allocations?.find(a => a.memberId === member.id);
+          return sum + (allocation?.squaresPerWeek || 0);
+        }, 0);
+
+      const utilizationPercent = Math.round((totalAllocated / totalCapacity) * 100);
+
+      if (totalAllocated > totalCapacity) {
+        overallocated++;
+      } else if (utilizationPercent >= 85) {
+        atCapacity++;
+      } else if (utilizationPercent < 50) {
+        available++;
+      }
+    });
+
+    return { founders, execs, apprentices, total, available, atCapacity, overallocated };
+  }, [membersByRole, members, workPlans]);
 
   // Squad data with member details and tasks
   const squadsWithDetails = useMemo(() => {
@@ -282,23 +311,23 @@ export default function PeopleScreen() {
           </View>
         </View>
 
-        {/* Stats */}
+        {/* Stats - Capacity Focused */}
         <View className="flex-row justify-between bg-white/10 rounded-xl p-3">
           <View className="items-center flex-1">
             <Text className="text-white/70 text-xs">Total</Text>
             <Text className="text-white font-bold text-lg">{stats.total}</Text>
           </View>
           <View className="items-center flex-1 border-l border-white/20">
-            <Text className="text-white/70 text-xs">Founders</Text>
-            <Text className="text-white font-bold text-lg">{stats.founders}</Text>
+            <Text className="text-white/70 text-xs">Available</Text>
+            <Text className="text-emerald-300 font-bold text-lg">{stats.available}</Text>
           </View>
           <View className="items-center flex-1 border-l border-white/20">
-            <Text className="text-white/70 text-xs">Execs</Text>
-            <Text className="text-purple-300 font-bold text-lg">{stats.execs}</Text>
+            <Text className="text-white/70 text-xs">At Capacity</Text>
+            <Text className="text-amber-300 font-bold text-lg">{stats.atCapacity}</Text>
           </View>
           <View className="items-center flex-1 border-l border-white/20">
-            <Text className="text-white/70 text-xs">Apprentices</Text>
-            <Text className="text-emerald-300 font-bold text-lg">{stats.apprentices}</Text>
+            <Text className="text-white/70 text-xs">Overalloc.</Text>
+            <Text className="text-red-300 font-bold text-lg">{stats.overallocated}</Text>
           </View>
         </View>
       </LinearGradient>

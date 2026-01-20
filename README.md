@@ -30,24 +30,26 @@ A mobile app for lean companies to manage tasks, track team capacity, and coordi
 
 ### Recent Updates (Jan 20, 2026)
 
-**People Tab Improvements - COMPLETED**:
+**People Tab - FULLY COMPLETED**:
 - ✅ Three-tier progressive disclosure (Compact → Medium → Full)
 - ✅ Avatar initials fixed (first name + last name initials)
-- ✅ Fixed nested ScrollView issues - removed conflicting scroll zones
+- ✅ Fixed all nested ScrollView issues - smooth single-scroll experience
 - ✅ Quick Assign button with capacity-aware modal
 - ✅ Clickable avatars with MemberQuickView popover
 - ✅ Capacity impact display in PendingAssignmentsModal
 - ✅ Bidirectional navigation (People ↔ Tasks tabs)
 - ✅ Unified CapacityIndicator component (3 variants: dot, bar, full)
 - ✅ What-If capacity calculator (shows impact of adding 2/4/6/8 TU)
-- ✅ Removed Personal Timeline (had nested scroll conflicts)
+- ✅ Capacity-focused header stats (Available, At Capacity, Overallocated)
+- ✅ Removed Personal Timeline (prevented scroll conflicts)
 
 **Implementation Details**:
-- Fixed nested scrolling: Removed ScrollView from task list and timeline
-- Task list now renders directly in parent ScrollView for smooth scrolling
-- What-If Calculator shows color-coded scenarios (green/amber/red)
-- CapacityIndicator provides consistent visualization across all tabs
-- Navigation links enable quick jumps between Tasks and People contexts
+- **Scrolling**: Single parent ScrollView for entire full view - no nested scroll zones
+- **Header Stats**: Changed from role-based (Founders/Execs/Apprentices) to capacity-based (Available/At Capacity/Overallocated)
+- **What-If Calculator**: Interactive scenarios with color-coded warnings (green/amber/red)
+- **CapacityIndicator**: Reusable component provides consistent visualization across all tabs
+- **Navigation**: "View in Tasks" and "View Profile" links enable quick context switching
+- **Quick Actions**: Tap avatars anywhere to see capacity and assign tasks
 
 **Task Display Standardization - COMPLETED**:
 - ✅ New unified task card system implemented throughout the app
