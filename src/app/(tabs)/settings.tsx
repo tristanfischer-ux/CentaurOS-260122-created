@@ -1325,8 +1325,8 @@ export default function SettingsScreen() {
                       <Rocket size={24} color="#ffffff" />
                     </View>
                     <View>
-                      <Text className={`text-xl font-bold ${textPrimary}`}>Setup & Onboarding</Text>
-                      <Text className={`text-xs ${textSecondary}`}>Follow these steps exactly</Text>
+                      <Text className={`text-xl font-bold ${textPrimary}`}>Backend Setup</Text>
+                      <Text className={`text-xs ${textSecondary}`}>3 simple steps - ~10 minutes total</Text>
                     </View>
                   </View>
                   <Pressable
