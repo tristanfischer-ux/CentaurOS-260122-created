@@ -1029,6 +1029,6 @@ export function TaskCardExpansion({
         </Pressable>
       </Pressable>
     </Modal>
-  </>
+    </>
   );
 }
