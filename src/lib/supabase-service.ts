@@ -74,11 +74,19 @@ function workspaceToSupabase(workspace: Partial<Workspace>): any {
 
 // Convert Supabase row to Membership
 function supabaseToMembership(row: any): Membership {
+  // Database uses lowercase role values, convert back to app format
+  const roleMap: Record<string, string> = {
+    'founder': 'Founder',
+    'fractional_exec': 'FractionalExec',
+    'apprentice': 'Apprentice',
+  };
+  const appRole = roleMap[row.role] || row.role;
+
   return {
     id: row.id,
     workspaceId: row.workspace_id,
     userId: row.user_id,
-    role: row.role,
+    role: appRole,
     function: row.function || 'Admin', // Default to Admin if column doesn't exist
     joinedAt: row.joined_at,
     permissions: row.permissions || {},
@@ -93,7 +101,15 @@ function membershipToSupabase(membership: Partial<Membership>): any {
   if (membership.id !== undefined) result.id = membership.id;
   if (membership.workspaceId !== undefined) result.workspace_id = membership.workspaceId;
   if (membership.userId !== undefined) result.user_id = membership.userId;
-  if (membership.role !== undefined) result.role = membership.role;
+  // Database uses lowercase role values: 'founder', 'fractional_exec', 'apprentice'
+  if (membership.role !== undefined) {
+    const roleMap: Record<string, string> = {
+      'Founder': 'founder',
+      'FractionalExec': 'fractional_exec',
+      'Apprentice': 'apprentice',
+    };
+    result.role = roleMap[membership.role] || membership.role.toLowerCase();
+  }
   if (membership.permissions !== undefined) result.permissions = membership.permissions;
   // Note: 'function' column does not exist in the actual memberships table
 
