@@ -386,61 +386,53 @@ export default function TasksScreen() {
       />
 
       {/* Task Modals - Tier System */}
-      <TaskCardMedium
-        task={selectedTask!}
-        visible={showMediumView}
-        onClose={() => {
-          setShowMediumView(false);
-          setSelectedTask(null);
-        }}
-        onViewFullDetails={() => {
-          setShowMediumView(false);
-          setShowFullView(true);
-        }}
-        onUpdateStatus={(status) => {
-          if (selectedTask) {
-            updateWorkPlan(selectedTask.id, { status });
-          }
-        }}
-        onUpdateProgress={(progress) => {
-          if (selectedTask) {
-            updateWorkPlan(selectedTask.id, { progress });
-          }
-        }}
-        onRescheduleDays={(days) => {
-          if (selectedTask) {
-            const currentDate = new Date(selectedTask.dueDate);
-            currentDate.setDate(currentDate.getDate() + days);
-            updateWorkPlan(selectedTask.id, { dueDate: currentDate.toISOString().split('T')[0] });
-          }
-        }}
-        onUpdateTitle={(title) => {
-          if (selectedTask) {
-            updateWorkPlan(selectedTask.id, { title });
-          }
-        }}
-        onUpdateDescription={(description) => {
-          if (selectedTask) {
-            updateWorkPlan(selectedTask.id, { description });
-          }
-        }}
-      />
+      {selectedTask && (
+        <>
+          <TaskCardMedium
+            task={selectedTask}
+            visible={showMediumView}
+            onClose={() => {
+              setShowMediumView(false);
+              setSelectedTask(null);
+            }}
+            onViewFullDetails={() => {
+              setShowMediumView(false);
+              setShowFullView(true);
+            }}
+            onUpdateStatus={(status) => {
+              updateWorkPlan(selectedTask.id, { status });
+            }}
+            onUpdateProgress={(progress) => {
+              updateWorkPlan(selectedTask.id, { progress });
+            }}
+            onRescheduleDays={(days) => {
+              const currentDate = new Date(selectedTask.dueDate);
+              currentDate.setDate(currentDate.getDate() + days);
+              updateWorkPlan(selectedTask.id, { dueDate: currentDate.toISOString().split('T')[0] });
+            }}
+            onUpdateTitle={(title) => {
+              updateWorkPlan(selectedTask.id, { title });
+            }}
+            onUpdateDescription={(description) => {
+              updateWorkPlan(selectedTask.id, { description });
+            }}
+          />
 
-      <TaskCardFull
-        task={selectedTask!}
-        visible={showFullView}
-        onClose={() => {
-          setShowFullView(false);
-          setSelectedTask(null);
-        }}
-        onSave={(updates) => {
-          if (selectedTask) {
-            updateWorkPlan(selectedTask.id, updates);
-          }
-          setShowFullView(false);
-          setSelectedTask(null);
-        }}
-      />
+          <TaskCardFull
+            task={selectedTask}
+            visible={showFullView}
+            onClose={() => {
+              setShowFullView(false);
+              setSelectedTask(null);
+            }}
+            onSave={(updates) => {
+              updateWorkPlan(selectedTask.id, updates);
+              setShowFullView(false);
+              setSelectedTask(null);
+            }}
+          />
+        </>
+      )}
 
       {/* Header */}
       <LinearGradient
