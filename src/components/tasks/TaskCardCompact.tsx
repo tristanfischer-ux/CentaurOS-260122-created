@@ -17,6 +17,8 @@ import {
 import {
   calculateNetVelocity,
   calculateEstimatedWeeks,
+  calculateEstimatedDate,
+  formatTaskDate,
 } from '@/lib/task-calculations';
 
 interface TaskCardCompactProps {
@@ -31,6 +33,7 @@ export function TaskCardCompact({ task, onPress }: TaskCardCompactProps) {
   const netVelocity = calculateNetVelocity(teamSize, rawVelocity);
   const remaining = Math.max(0, task.estimatedTimeUnits - (task.tusExpended || 0));
   const estimatedWeeks = calculateEstimatedWeeks(remaining, netVelocity);
+  const estimatedDate = calculateEstimatedDate(new Date(), estimatedWeeks);
 
   // Get member IDs for avatars
   const memberIds = task.allocations.map((a) => a.memberId);
@@ -38,6 +41,10 @@ export function TaskCardCompact({ task, onPress }: TaskCardCompactProps) {
   // Determine priority (you might need to add this field to WorkPlan or derive it)
   // For now, using a placeholder
   const priority: 'normal' | 'high' | 'critical' = 'normal';
+
+  // Check if overdue
+  const dueDate = new Date(task.dueDate);
+  const isOverdue = dueDate < new Date() && task.status !== 'completed';
 
   return (
     <Pressable
@@ -56,7 +63,7 @@ export function TaskCardCompact({ task, onPress }: TaskCardCompactProps) {
         <TaskPriorityIndicator priority={priority} size={14} />
       </View>
 
-      <View className="pl-4">
+      <View className="pl-4 gap-1">
         <TaskEffortTimeline
           totalTU={task.estimatedTimeUnits}
           velocityPerWeek={netVelocity}
@@ -64,6 +71,14 @@ export function TaskCardCompact({ task, onPress }: TaskCardCompactProps) {
           completed={task.tusExpended || 0}
           showProgressBar={true}
         />
+        {/* Due Date */}
+        <Text
+          className={`text-[10px] font-medium ${
+            isOverdue ? 'text-red-600 dark:text-red-400' : 'text-slate-600 dark:text-slate-400'
+          }`}
+        >
+          Due: {formatTaskDate(dueDate)}
+        </Text>
       </View>
     </Pressable>
   );
