@@ -14,4 +14,5 @@ export { CoordinationCostDisplay } from './CoordinationCostDisplay';
 // Tier components
 export { TaskCardCompact } from './TaskCardCompact';
 export { TaskCardMedium } from './TaskCardMedium';
+export { TaskCardMediumInline } from './TaskCardMediumInline';
 export { TaskCardFull } from './TaskCardFull';

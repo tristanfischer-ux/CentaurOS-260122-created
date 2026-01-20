@@ -1,187 +1,58 @@
 /**
- * Focus Today Section - Redesigned
- * More compact, actionable AI-Powered Priority Task Surfacing
- * Shows inline quick actions without horizontal scrolling
+ * Focus Today Section - Redesigned with Standardized Task Cards
+ * AI-Powered Priority Task Surfacing using TaskCardCompact
+ * Inline expansion for quick actions
  */
 
 import { View, Text, Pressable } from 'react-native';
-import { Sparkles, CheckCircle, Play, AlertTriangle, ChevronRight } from 'lucide-react-native';
+import { Sparkles, CheckCircle } from 'lucide-react-native';
 import { useMemo, useState } from 'react';
 import { useWorkPlanStore, type WorkPlan } from '@/lib/state/work-plan-store';
 import { useOrganizationStore } from '@/lib/state/organization-store';
 import { getFocusTodayTasks, type PriorityScore } from '@/lib/ai-priority-scoring';
 import { useTheme } from '@/lib/ThemeContext';
-import { TaskQuickActionsModal } from './TaskQuickActionsModal';
-import { lightImpact, successNotification } from '@/lib/haptics';
+import { TaskCardCompact, TaskCardMediumInline, TaskCardFull } from '@/components/tasks';
 
 interface FocusTodaySectionProps {
   onTaskPress?: (taskId: string) => void;
+  expandedTaskId?: string | null;
+  onExpandTask?: (taskId: string | null) => void;
+  selectedTask?: WorkPlan | null;
+  showFullModal?: boolean;
+  onShowFullModal?: (show: boolean, task: WorkPlan | null) => void;
 }
 
-// Status badge component
-function StatusBadge({ status }: { status: WorkPlan['status'] }) {
-  const { theme } = useTheme();
-  const isDark = theme === 'dark';
-
-  const config = {
-    'not-started': { label: 'Todo', color: '#6b7280', bg: isDark ? 'rgba(107, 114, 128, 0.2)' : '#f3f4f6' },
-    'in-progress': { label: 'Doing', color: '#3b82f6', bg: isDark ? 'rgba(59, 130, 246, 0.2)' : '#dbeafe' },
-    'blocked': { label: 'Blocked', color: '#ef4444', bg: isDark ? 'rgba(239, 68, 68, 0.2)' : '#fee2e2' },
-    'completed': { label: 'Done', color: '#10b981', bg: isDark ? 'rgba(16, 185, 129, 0.2)' : '#d1fae5' },
-    'abandoned': { label: 'Closed', color: '#9ca3af', bg: isDark ? 'rgba(156, 163, 175, 0.2)' : '#f3f4f6' },
-  };
-
-  const c = config[status] || config['not-started'];
-
-  return (
-    <View style={{ backgroundColor: c.bg, paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4 }}>
-      <Text style={{ fontSize: 9, fontWeight: '600', color: c.color }}>{c.label}</Text>
-    </View>
-  );
-}
-
-// Compact task row
-function FocusTaskRow({
-  priorityScore,
-  onPress,
-  onQuickAction,
-}: {
-  priorityScore: PriorityScore;
-  onPress: () => void;
-  onQuickAction: () => void;
-}) {
-  const { theme } = useTheme();
-  const isDark = theme === 'dark';
-  const task = priorityScore.task;
-  const updateWorkPlan = useWorkPlanStore(s => s.updateWorkPlan);
-
-  const handleStartTask = () => {
-    lightImpact();
-    updateWorkPlan(task.id, { status: 'in-progress' });
-    successNotification();
-  };
-
-  return (
-    <Pressable
-      onPress={onPress}
-      style={{
-        flexDirection: 'row',
-        alignItems: 'center',
-        backgroundColor: isDark ? '#1e293b' : '#ffffff',
-        borderRadius: 12,
-        padding: 12,
-        marginBottom: 8,
-        borderWidth: 1,
-        borderColor: isDark ? '#334155' : '#e2e8f0',
-      }}
-    >
-      {/* Priority indicator */}
-      <View
-        style={{
-          width: 4,
-          height: 36,
-          backgroundColor: priorityScore.level === 'critical' ? '#ef4444' : priorityScore.level === 'high' ? '#f59e0b' : '#22c55e',
-          borderRadius: 2,
-          marginRight: 10,
-        }}
-      />
-
-      {/* Task info */}
-      <View style={{ flex: 1 }}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 2 }}>
-          <StatusBadge status={task.status} />
-          {task.function && (
-            <Text style={{ fontSize: 9, color: isDark ? '#94a3b8' : '#64748b' }}>
-              {task.function}
-            </Text>
-          )}
-        </View>
-        <Text
-          style={{
-            fontSize: 13,
-            fontWeight: '600',
-            color: isDark ? '#ffffff' : '#0f172a',
-            marginBottom: 2,
-          }}
-          numberOfLines={1}
-        >
-          {task.title}
-        </Text>
-        <Text
-          style={{
-            fontSize: 10,
-            color: isDark ? '#64748b' : '#94a3b8',
-          }}
-          numberOfLines={1}
-        >
-          {priorityScore.reasoning}
-        </Text>
-      </View>
-
-      {/* Quick actions */}
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-        {task.status === 'not-started' && (
-          <Pressable
-            onPress={handleStartTask}
-            style={{
-              width: 32,
-              height: 32,
-              borderRadius: 16,
-              backgroundColor: isDark ? 'rgba(59, 130, 246, 0.2)' : '#dbeafe',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <Play size={14} color="#3b82f6" fill="#3b82f6" />
-          </Pressable>
-        )}
-        {task.status === 'blocked' && (
-          <View
-            style={{
-              width: 32,
-              height: 32,
-              borderRadius: 16,
-              backgroundColor: isDark ? 'rgba(239, 68, 68, 0.2)' : '#fee2e2',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <AlertTriangle size={14} color="#ef4444" />
-          </View>
-        )}
-        <Pressable
-          onPress={onQuickAction}
-          style={{
-            width: 32,
-            height: 32,
-            borderRadius: 16,
-            backgroundColor: isDark ? '#334155' : '#f1f5f9',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-        >
-          <ChevronRight size={14} color={isDark ? '#94a3b8' : '#64748b'} />
-        </Pressable>
-      </View>
-    </Pressable>
-  );
-}
-
-export function FocusTodaySection({ onTaskPress }: FocusTodaySectionProps) {
+export function FocusTodaySection({
+  onTaskPress,
+  expandedTaskId,
+  onExpandTask,
+  selectedTask,
+  showFullModal,
+  onShowFullModal,
+}: FocusTodaySectionProps) {
   const { theme } = useTheme();
   const isDark = theme === 'dark';
   const workPlans = useWorkPlanStore(s => s.workPlans);
+  const updateWorkPlan = useWorkPlanStore(s => s.updateWorkPlan);
   const members = useOrganizationStore(s => s.members);
-  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
+
+  // Local state fallback if parent doesn't manage state
+  const [localExpandedId, setLocalExpandedId] = useState<string | null>(null);
+  const [localSelectedTask, setLocalSelectedTask] = useState<WorkPlan | null>(null);
+  const [localShowFullModal, setLocalShowFullModal] = useState(false);
+
+  const activeExpandedId = expandedTaskId !== undefined ? expandedTaskId : localExpandedId;
+  const setActiveExpandedId = onExpandTask || setLocalExpandedId;
+  const activeSelectedTask = selectedTask !== undefined ? selectedTask : localSelectedTask;
+  const activeShowFullModal = showFullModal !== undefined ? showFullModal : localShowFullModal;
+  const setActiveShowFullModal = onShowFullModal || ((show: boolean, task: WorkPlan | null) => {
+    setLocalShowFullModal(show);
+    setLocalSelectedTask(task);
+  });
 
   const priorityTasks = useMemo(() => {
     return getFocusTodayTasks(workPlans, members, 3); // Only show top 3
   }, [workPlans, members]);
-
-  const selectedTask = useMemo(() => {
-    if (!selectedTaskId) return null;
-    return workPlans.find(wp => wp.id === selectedTaskId) || null;
-  }, [selectedTaskId, workPlans]);
 
   if (priorityTasks.length === 0) {
     return (
@@ -285,26 +156,90 @@ export function FocusTodaySection({ onTaskPress }: FocusTodaySectionProps) {
         </View>
       </View>
 
-      {/* Task List */}
-      {priorityTasks.map((priorityScore) => (
-        <FocusTaskRow
-          key={priorityScore.task.id}
-          priorityScore={priorityScore}
-          onPress={() => onTaskPress?.(priorityScore.task.id)}
-          onQuickAction={() => setSelectedTaskId(priorityScore.task.id)}
-        />
-      ))}
+      {/* Task List with Priority Indicators */}
+      {priorityTasks.map((priorityScore) => {
+        const task = priorityScore.task;
+        const isExpanded = activeExpandedId === task.id;
 
-      {/* Task Quick Actions Modal */}
-      <TaskQuickActionsModal
-        visible={selectedTaskId !== null}
-        onClose={() => setSelectedTaskId(null)}
-        task={selectedTask}
-        onNavigateToDetails={(taskId) => {
-          setSelectedTaskId(null);
-          onTaskPress?.(taskId);
-        }}
-      />
+        return (
+          <View key={task.id}>
+            {/* Wrapper with priority left border */}
+            <View
+              style={{
+                borderLeftWidth: 4,
+                borderLeftColor:
+                  priorityScore.level === 'critical'
+                    ? '#ef4444'
+                    : priorityScore.level === 'high'
+                    ? '#f59e0b'
+                    : priorityScore.level === 'important'
+                    ? '#3b82f6'
+                    : '#64748b',
+                borderRadius: 8,
+                overflow: 'hidden',
+                marginBottom: 2,
+              }}
+            >
+              <TaskCardCompact
+                task={task}
+                onPress={() => {
+                  if (isExpanded) {
+                    setActiveExpandedId(null);
+                  } else {
+                    setActiveExpandedId(task.id);
+                  }
+                }}
+              />
+            </View>
+
+            {/* Inline Expansion */}
+            {isExpanded && (
+              <TaskCardMediumInline
+                task={task}
+                onClose={() => setActiveExpandedId(null)}
+                onViewFullDetails={() => {
+                  setActiveExpandedId(null);
+                  setActiveShowFullModal(true, task);
+                }}
+                onUpdateStatus={(status) => {
+                  updateWorkPlan(task.id, { status });
+                }}
+                onUpdateProgress={(progress) => {
+                  updateWorkPlan(task.id, { progress });
+                }}
+                onRescheduleDays={(days) => {
+                  const currentDate = new Date(task.dueDate);
+                  currentDate.setDate(currentDate.getDate() + days);
+                  updateWorkPlan(task.id, {
+                    dueDate: currentDate.toISOString().split('T')[0],
+                  });
+                }}
+                onUpdateTitle={(title) => {
+                  updateWorkPlan(task.id, { title });
+                }}
+                onUpdateDescription={(description) => {
+                  updateWorkPlan(task.id, { description });
+                }}
+                priorityLevel={priorityScore.level}
+                priorityReasoning={priorityScore.reasoning}
+              />
+            )}
+          </View>
+        );
+      })}
+
+      {/* Full Modal - only render if managed by parent */}
+      {activeSelectedTask && activeShowFullModal && onShowFullModal && (
+        <TaskCardFull
+          task={activeSelectedTask}
+          visible={activeShowFullModal}
+          onClose={() => setActiveShowFullModal(false, null)}
+          onSave={(updates) => {
+            updateWorkPlan(activeSelectedTask.id, updates);
+            setActiveShowFullModal(false, null);
+          }}
+        />
+      )}
     </View>
   );
 }

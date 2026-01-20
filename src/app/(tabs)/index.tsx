@@ -33,7 +33,7 @@ import {
 
 // Stores
 import { useTechTreeStore } from '@/lib/state/tech-tree-store';
-import { useWorkPlanStore } from '@/lib/state/work-plan-store';
+import { useWorkPlanStore, type WorkPlan } from '@/lib/state/work-plan-store';
 import { useOrganizationStore } from '@/lib/state/organization-store';
 import { useSupplierStore } from '@/lib/state/supplier-store';
 import { useRoleStore, useActiveRole } from '@/lib/state/role-store';
@@ -132,6 +132,11 @@ function FounderHome() {
   const refreshTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const [showPendingAssignments, setShowPendingAssignments] = useState(false);
   const [statsFilter, setStatsFilter] = useState<'all' | 'doing' | 'blocked' | 'team' | null>(null);
+
+  // Task expansion state (for inline Medium view)
+  const [expandedTaskId, setExpandedTaskId] = useState<string | null>(null);
+  const [selectedTask, setSelectedTask] = useState<WorkPlan | null>(null);
+  const [showFullModal, setShowFullModal] = useState(false);
 
   // DISABLED: Auto-detect squads from task allocations
   // This creates squads automatically, which should not happen after reset
@@ -366,6 +371,14 @@ function FounderHome() {
         {/* ===== AI-POWERED FOCUS TODAY ===== */}
         <View>
           <FocusTodaySection
+            expandedTaskId={expandedTaskId}
+            onExpandTask={setExpandedTaskId}
+            selectedTask={selectedTask}
+            showFullModal={showFullModal}
+            onShowFullModal={(show, task) => {
+              setShowFullModal(show);
+              setSelectedTask(task);
+            }}
             onTaskPress={(taskId) => {
               router.push({
                 pathname: '/(tabs)/tasks',
@@ -381,7 +394,16 @@ function FounderHome() {
         </View>
 
         {/* ===== 3. CURRENT & UPCOMING ACTIVITIES ===== */}
-        <CurrentActivitiesSection />
+        <CurrentActivitiesSection
+          expandedTaskId={expandedTaskId}
+          onExpandTask={setExpandedTaskId}
+          selectedTask={selectedTask}
+          showFullModal={showFullModal}
+          onShowFullModal={(show, task) => {
+            setShowFullModal(show);
+            setSelectedTask(task);
+          }}
+        />
 
         {/* ===== 4. TEAM CAPACITY OVERVIEW ===== */}
         <TeamCapacityDashboard />
