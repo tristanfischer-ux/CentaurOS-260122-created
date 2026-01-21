@@ -9,7 +9,7 @@
  */
 
 import { View, Text, Pressable, TextInput, Modal, ScrollView, Alert } from 'react-native';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import {
   Play,
   Pause,
@@ -104,7 +104,13 @@ export function TaskCardExpansion({
 
   // Get escalation store
   const createEscalation = useEscalationStore(s => s.createEscalation);
-  const escalationHistory = useEscalationStore(s => s.getEscalationsByTask(task.id));
+  const escalations = useEscalationStore(s => s.escalations);
+
+  // Compute escalation history from raw escalations array (avoids infinite loop)
+  const escalationHistory = useMemo(
+    () => escalations.filter(esc => esc.workPlanId === task.id),
+    [escalations, task.id]
+  );
 
   // Calculate current metrics
   const rawVelocity = task.allocations.reduce((sum, a) => sum + a.squaresPerWeek, 0);
