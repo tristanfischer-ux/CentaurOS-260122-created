@@ -9,12 +9,17 @@ import { useWorkPlanStore, type WorkPlan } from '@/lib/state/work-plan-store';
 import { useFinanceStore } from '@/lib/state/finance-store';
 import { useCurrentWorkspace } from '@/lib/state/app-store';
 import { PersonDetailsModal } from './PersonDetailsModal';
-import { RoleAvatar, ROLE_COLORS } from './Avatar';
 
 interface CollapsibleResourcePoolProps {
   selectedPersonId: string | null;
   onPersonSelect: (personId: string) => void;
 }
+
+const ROLE_COLORS: Record<string, string> = {
+  Founder: '#8b5cf6',     // Purple
+  FractionalExec: '#3b82f6', // Blue
+  Apprentice: '#10b981',  // Green
+};
 
 // Calculate TU capacity per week based on role
 const getCapacityPerWeek = (member: OrganizationMember): { normal: number; overtime: number } => {
@@ -68,24 +73,9 @@ export function CollapsibleResourcePool({ selectedPersonId, onPersonSelect }: Co
   const [showPersonModal, setShowPersonModal] = useState(false);
   const [selectedMember, setSelectedMember] = useState<OrganizationMember | null>(null);
 
-  // Memoize the filtered members to avoid creating new array each render
-  const members = useMemo(() =>
-    allMembers.filter(m => m.status === 'active'),
-    [allMembers]
-  );
-
   // Calculate heights
   const COLLAPSED_HEIGHT = 52; // Just the tab
-  const MAX_EXPANDED_HEIGHT = screenHeight * 0.5; // Max 50% of screen
-
-  // Calculate content height based on number of members
-  const HEADER_HEIGHT = 52; // Tab header
-  const SUMMARY_HEIGHT = 80; // Financial summary section
-  const MEMBER_ROW_HEIGHT = 42; // Height per member row
-  const LEGEND_HEIGHT = 32; // Legend at bottom
-
-  const contentHeight = HEADER_HEIGHT + SUMMARY_HEIGHT + (members.length * MEMBER_ROW_HEIGHT) + LEGEND_HEIGHT;
-  const EXPANDED_HEIGHT = Math.min(contentHeight, MAX_EXPANDED_HEIGHT);
+  const EXPANDED_HEIGHT = screenHeight * 0.5; // 50% of screen
 
   // Animated height
   const height = useSharedValue(COLLAPSED_HEIGHT);
@@ -105,8 +95,14 @@ export function CollapsibleResourcePool({ selectedPersonId, onPersonSelect }: Co
     height.value = newExpanded ? EXPANDED_HEIGHT : COLLAPSED_HEIGHT;
   };
 
+  // Memoize the filtered members to avoid creating new array each render
+  const members = useMemo(() =>
+    allMembers.filter(m => m.status === 'active'),
+    [allMembers]
+  );
+
   // Calculate total allocated and unallocated squares across all members
-  const { totalAllocated, totalUnallocated, totalCapacity: totalTeamCapacity } = useMemo(() => {
+  const { totalAllocated, totalUnallocated } = useMemo(() => {
     let allocated = 0;
     let total = 0;
 
@@ -119,13 +115,9 @@ export function CollapsibleResourcePool({ selectedPersonId, onPersonSelect }: Co
       total += totalCapacity;
     });
 
-    // Clamp unallocated to 0 minimum (can't have negative availability)
-    const unallocated = Math.max(0, total - allocated);
-
     return {
       totalAllocated: allocated,
-      totalUnallocated: unallocated,
-      totalCapacity: total,
+      totalUnallocated: total - allocated,
     };
   }, [members, workPlans]);
 
@@ -144,9 +136,7 @@ export function CollapsibleResourcePool({ selectedPersonId, onPersonSelect }: Co
 
   // Get cash balance
   const cashBalance = currentWorkspace ? getCashBalance(currentWorkspace.id) : 0;
-  // Only show after-week calculation if there's a meaningful cash balance
-  const hasFinancialData = cashBalance > 0;
-  const remainingCash = hasFinancialData ? cashBalance - weeklyCost : 0;
+  const remainingCash = cashBalance - weeklyCost;
 
   return (
     <Animated.View
@@ -198,7 +188,7 @@ export function CollapsibleResourcePool({ selectedPersonId, onPersonSelect }: Co
               <View className="w-2 h-2 rounded-sm bg-amber-300" />
             </View>
           )}
-          <View className="w-6 h-6 bg-gray-100 dark:bg-slate-900 rounded-full items-center justify-center">
+          <View className="w-6 h-6 bg-gray-100 dark:bg-slate-800 rounded-full items-center justify-center">
             {isExpanded ? (
               <ChevronDown size={16} color="#6b7280" />
             ) : (
@@ -212,7 +202,7 @@ export function CollapsibleResourcePool({ selectedPersonId, onPersonSelect }: Co
       {isExpanded && (
         <View className="flex-1">
           {/* Financial Summary Header */}
-          <View className="px-4 py-2 border-b border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-900/50">
+          <View className="px-4 py-2 border-b border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800/50">
             <View className="flex-row items-center justify-between">
               <View className="flex-row items-center gap-3">
                 <View className="flex-row items-center">
@@ -235,17 +225,21 @@ export function CollapsibleResourcePool({ selectedPersonId, onPersonSelect }: Co
               <View className="flex-row items-center">
                 <Text className="text-gray-500 dark:text-slate-500 text-[9px] mr-1">Bank:</Text>
                 <Text className="text-gray-900 dark:text-white text-[10px] font-bold">
-                  {hasFinancialData ? `£${(cashBalance / 1000).toFixed(0)}k` : '—'}
+                  £{(cashBalance / 1000).toFixed(0)}k
                 </Text>
               </View>
-              {hasFinancialData && (
-                <View className="flex-row items-center">
-                  <Text className="text-gray-500 dark:text-slate-500 text-[9px] mr-1">After Week:</Text>
-                  <Text className={`text-[10px] font-bold ${remainingCash > 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
-                    £{(remainingCash / 1000).toFixed(0)}k
-                  </Text>
-                </View>
-              )}
+              <View className="flex-row items-center">
+                <Text className="text-gray-500 dark:text-slate-500 text-[9px] mr-1">Weekly Cost:</Text>
+                <Text className="text-orange-600 dark:text-orange-400 text-[10px] font-bold">
+                  £{(weeklyCost / 1000).toFixed(1)}k
+                </Text>
+              </View>
+              <View className="flex-row items-center">
+                <Text className="text-gray-500 dark:text-slate-500 text-[9px] mr-1">After Week:</Text>
+                <Text className={`text-[10px] font-bold ${remainingCash > 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
+                  £{(remainingCash / 1000).toFixed(0)}k
+                </Text>
+              </View>
             </View>
           </View>
 
@@ -258,24 +252,22 @@ export function CollapsibleResourcePool({ selectedPersonId, onPersonSelect }: Co
               const capacity = getCapacityPerWeek(member);
               const totalCapacity = capacity.normal + capacity.overtime;
               const allocated = getAllocatedTUs(member.id, workPlans);
-              const available = Math.max(0, totalCapacity - allocated); // Clamp to 0
-              const overAllocated = allocated > totalCapacity;
+              const available = totalCapacity - allocated;
               const isSelected = selectedPersonId === member.id;
               const roleColor = ROLE_COLORS[member.role];
+              const costPerTU = getCostPerTU(member);
 
               // Render 15 squares (capacity.normal + capacity.overtime)
-              // When over-allocated, cap the red squares at totalCapacity
-              const allocatedToShow = Math.min(allocated, totalCapacity);
               const squares = [];
               for (let i = 0; i < 15; i++) {
                 let squareState: 'hidden' | 'available' | 'overtime-available' | 'allocated' | 'overtime-allocated' = 'hidden';
 
                 if (i < capacity.normal) {
                   // Normal capacity squares
-                  squareState = i < allocatedToShow ? 'allocated' : 'available';
+                  squareState = i < allocated ? 'allocated' : 'available';
                 } else if (i < totalCapacity) {
                   // Overtime squares
-                  squareState = i < allocatedToShow ? 'overtime-allocated' : 'overtime-available';
+                  squareState = i < allocated ? 'overtime-allocated' : 'overtime-available';
                 }
 
                 squares.push({
@@ -292,24 +284,31 @@ export function CollapsibleResourcePool({ selectedPersonId, onPersonSelect }: Co
                     setSelectedMember(member);
                     setShowPersonModal(true);
                   }}
-                  className={`flex-row items-center px-3 py-2 border-b border-gray-100 dark:border-slate-700 active:bg-gray-50 dark:active:bg-slate-800 ${
+                  className={`flex-row items-center px-3 py-1.5 border-b border-gray-100 dark:border-slate-800 active:bg-gray-50 dark:active:bg-slate-800 ${
                     isSelected ? 'bg-purple-50 dark:bg-purple-900/20' : ''
                   }`}
                 >
                   {/* Left: Name, Role, and Cost */}
                   <View className="w-24 mr-2">
                     <View className="flex-row items-center gap-1.5">
-                      {/* Avatar with proper initials */}
-                      <RoleAvatar name={member.name} role={member.role} size="sm" />
+                      {/* Initials circle - smaller */}
+                      <View
+                        className="w-6 h-6 rounded-full items-center justify-center"
+                        style={{ backgroundColor: roleColor + '20' }}
+                      >
+                        <Text className="font-bold text-[9px]" style={{ color: roleColor }}>
+                          {member.name.split(' ').map(n => n[0]).join('')}
+                        </Text>
+                      </View>
 
                       {/* Name - compact */}
                       <View className="flex-1">
                         <Text className="text-gray-900 dark:text-white text-[11px] font-semibold" numberOfLines={1}>
                           {member.name.split(' ')[0]}
                         </Text>
-                        {/* Role only - cost removed */}
+                        {/* Role and cost on same line */}
                         <Text className="text-[8px] text-gray-500 dark:text-slate-500">
-                          {member.role === 'FractionalExec' ? 'Exec' : member.role.slice(0, 4)} • £X/TU
+                          {member.role === 'FractionalExec' ? 'Exec' : member.role.slice(0, 4)} • £{costPerTU}/TU
                         </Text>
                       </View>
                     </View>
@@ -347,11 +346,9 @@ export function CollapsibleResourcePool({ selectedPersonId, onPersonSelect }: Co
                       );
                     })}
 
-                    {/* Available count - compact, show OVER if over-allocated */}
-                    <Text
-                      className={`text-[10px] font-semibold ml-1 ${overAllocated ? 'text-red-500' : 'text-gray-600 dark:text-slate-400'}`}
-                    >
-                      {overAllocated ? `+${allocated - totalCapacity}` : available}/{totalCapacity}
+                    {/* Available count - compact */}
+                    <Text className="text-gray-600 dark:text-slate-400 text-[10px] font-semibold ml-1">
+                      {available}/{totalCapacity}
                     </Text>
                   </View>
 

@@ -9,7 +9,6 @@ const DEFAULT_WORKSPACE_ID = 'workspace-demo-company';
 export interface OrganizationMember {
   id: string;
   workspaceId: string; // 🔑 Multi-tenancy key - links member to specific company
-  userId?: string; // 🔑 Optional link to auth user (for members who are also app users)
   name: string;
   role: 'Founder' | 'FractionalExec' | 'Apprentice';
   function: string;
@@ -213,13 +212,7 @@ export interface Advisor {
 }
 
 // Organization structure with reporting lines
-// Organization Members (Team)
-// DISABLED: Organization members should be loaded from Supabase
-// All hardcoded member data has been disabled for multi-tenant architecture
-export const ORGANIZATION_MEMBERS: OrganizationMember[] = [];
-
-/* REFERENCE: Original hardcoded data (will be migrated to Supabase)
-export const ORGANIZATION_MEMBERS_ORIGINAL: OrganizationMember[] = [
+export const ORGANIZATION_MEMBERS: OrganizationMember[] = [
   // Founders (no reports to anyone)
   {
     workspaceId: DEFAULT_WORKSPACE_ID,
@@ -466,15 +459,9 @@ export const ORGANIZATION_MEMBERS_ORIGINAL: OrganizationMember[] = [
     aiProficiencyMultiplier: 1.55, // Excellent with AI (creative tools)
   },
 ];
-*/
 
 // Active supplier engagements
-// DISABLED: Supplier engagements should be loaded from Supabase
-// All hardcoded supplier data has been disabled for multi-tenant architecture
-export const SUPPLIER_ENGAGEMENTS: SupplierEngagement[] = [];
-
-/* REFERENCE: Original hardcoded data (will be migrated to Supabase)
-export const SUPPLIER_ENGAGEMENTS_ORIGINAL: SupplierEngagement[] = [
+export const SUPPLIER_ENGAGEMENTS: SupplierEngagement[] = [
   {
     workspaceId: DEFAULT_WORKSPACE_ID,
     id: 'eng-1',
@@ -548,16 +535,10 @@ export const SUPPLIER_ENGAGEMENTS_ORIGINAL: SupplierEngagement[] = [
     },
   },
 ];
-*/
 
 // AI Agents & Assistants Directory
 // Organized by business function to match org structure
-// DISABLED: AI agents should be loaded from Supabase
-// All hardcoded AI agent data has been disabled for multi-tenant architecture
-export const AI_AGENTS: AIAgent[] = [];
-
-/* REFERENCE: Original hardcoded data (will be migrated to Supabase)
-export const AI_AGENTS_ORIGINAL: AIAgent[] = [
+export const AI_AGENTS: AIAgent[] = [
   // ========== FINANCE (3 agents) ==========
   {
     workspaceId: DEFAULT_WORKSPACE_ID,
@@ -1442,7 +1423,6 @@ export const AI_AGENTS_ORIGINAL: AIAgent[] = [
     },
   },
 ];
-*/
 
 // Calculate total AI spend
 export const getTotalAISpend = (): number => {
@@ -1496,12 +1476,7 @@ export const getTotalSupplierSpend = (): {
 };
 
 // Advisors Directory - Professional Services for Startups
-// DISABLED: Advisors should be loaded from Supabase
-// All hardcoded advisor data has been disabled for multi-tenant architecture
-export const ADVISORS: Advisor[] = [];
-
-/* REFERENCE: Original hardcoded data (will be migrated to Supabase)
-export const ADVISORS_ORIGINAL: Advisor[] = [
+export const ADVISORS: Advisor[] = [
   // VENTURE CAPITAL FIRMS
   {
     id: 'vc-1',
@@ -1706,4 +1681,3 @@ export const ADVISORS_ORIGINAL: Advisor[] = [
     notableClients: ['Ford', 'Tesla', 'Google', 'NASA JPL'],
   },
 ];
-*/

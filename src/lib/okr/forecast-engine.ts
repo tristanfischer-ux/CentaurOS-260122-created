@@ -20,7 +20,6 @@ const HOURS_PER_WEEK = {
   Apprentice: 40,
   FractionalExec: 10,
   Founder: 15,
-  CoFounder: 15,
 } as const;
 
 const DEFAULT_TASK_HOURS = 8; // Fallback if no estimate

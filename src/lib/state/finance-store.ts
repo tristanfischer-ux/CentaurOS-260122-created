@@ -1,54 +1,25 @@
 /**
  * Finance Store
+ * Central source of truth for company financial data
  *
- * Manages financial data for workspaces (company data tier).
- * All data is loaded from Supabase and cached in memory.
- *
- * Includes:
- * - Financial transactions (revenue and costs)
- * - Budget targets
- * - Calculated metrics (cash balance, burn rate, runway, etc.)
+ * DATA SEPARATION:
+ * - All financial data is COMPANY DATA (keyed by workspaceId)
+ * - Cash is the ONLY currency (no secondary currencies like "Fuel")
  */
 
 import { create } from 'zustand';
-import { WEEKS_PER_MONTH, subMonthsSafe } from '@/lib/time/periods';
-import { safeDiv } from '@/lib/math';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-// ============================================================================
-// TYPES
-// ============================================================================
+const STORAGE_KEY = 'finance-store-v1';
+const DEFAULT_WORKSPACE_ID = 'workspace-demo-company';
 
-export interface FinancialTransaction {
-  id: string;
-  workspace_id: string;
-  type: 'revenue' | 'cost';
-  category: string; // 'product_sales', 'services', 'team', 'ai_tools', 'manufacturing', etc.
-  subcategory: string | null;
-  amount: number;
-  transaction_date: string; // ISO date string
-  description: string | null;
-  recurring: boolean;
-  recurrence_period: string | null; // 'monthly', 'quarterly', 'annual'
-  created_at: string;
-}
-
-export interface BudgetTarget {
-  id: string;
-  workspace_id: string;
-  month: string; // ISO date string (first day of month)
-  category: string; // 'revenue', 'team_cost', 'ai_cost', 'cogs', 'other'
-  target_amount: number;
-  created_at: string;
-}
-
-export interface BurnBreakdown {
-  teamCostGBP: number;
-  aiToolsCostGBP: number;
-  supplierCostGBP: number;
-  infrastructureCostGBP: number;
-  manufacturingCostGBP: number;
-  otherCostGBP: number;
-  totalWeeklyBurnGBP: number;
+export interface FinanceSnapshot {
+  workspaceId: string;
+  cashBalanceGBP: number;
+  weeklyBurnGBP: number;
+  runwayWeeks: number;
+  monthlyRevenueGBP: number;
+  updatedAt: string;
 }
 
 export interface CashFlowProjection {
@@ -59,390 +30,169 @@ export interface CashFlowProjection {
   endingCashGBP: number;
 }
 
-// ============================================================================
-// STORE
-// ============================================================================
+export interface BurnBreakdown {
+  teamCostGBP: number;
+  aiToolsCostGBP: number;
+  supplierCostGBP: number;
+  otherCostGBP: number;
+  totalWeeklyBurnGBP: number;
+}
 
-interface FinanceStore {
-  // State
-  transactions: FinancialTransaction[];
-  budgetTargets: BudgetTarget[];
-  isLoaded: boolean;
+interface FinanceState {
+  snapshots: FinanceSnapshot[];
+  isInitialized: boolean;
 
   // Actions
-  loadFinancialData: (workspaceId: string) => Promise<void>;
-  addTransaction: (transaction: Omit<FinancialTransaction, 'id' | 'created_at'>) => Promise<void>;
-  updateTransaction: (id: string, updates: Partial<FinancialTransaction>) => Promise<void>;
-  deleteTransaction: (id: string) => Promise<void>;
-  addBudgetTarget: (target: Omit<BudgetTarget, 'id' | 'created_at'>) => Promise<void>;
-  clearFinancialData: () => void;
-  reset: () => Promise<void>;
+  initializeFinance: () => Promise<void>;
 
-  // Selectors - Cash metrics
+  // Getters
+  getSnapshot: (workspaceId: string) => FinanceSnapshot | undefined;
   getCashBalance: (workspaceId: string) => number;
   getWeeklyBurn: (workspaceId: string) => number;
-  getMonthlyBurn: (workspaceId: string) => number;
   getRunway: (workspaceId: string) => number;
   getMonthlyRevenue: (workspaceId: string) => number;
 
-  // Selectors - Breakdowns
-  getBurnBreakdown: (workspaceId: string) => BurnBreakdown;
-  getRevenueByCategory: (workspaceId: string) => Record<string, number>;
-  getCostsByCategory: (workspaceId: string) => Record<string, number>;
+  // Mutations
+  updateCashBalance: (workspaceId: string, newBalance: number) => void;
+  updateWeeklyBurn: (workspaceId: string, newBurn: number) => void;
+  updateMonthlyRevenue: (workspaceId: string, newRevenue: number) => void;
+  updateSnapshot: (workspaceId: string, updates: Partial<Omit<FinanceSnapshot, 'workspaceId'>>) => void;
 
-  // Selectors - Projections
+  // Calculations
+  calculateRunway: (cashGBP: number, weeklyBurnGBP: number) => number;
   projectCashFlow: (workspaceId: string, weeksAhead: number) => CashFlowProjection[];
+  getBurnBreakdown: (workspaceId: string) => BurnBreakdown;
+
+  // Persistence
+  saveToStorage: () => Promise<void>;
+  loadFromStorage: () => Promise<void>;
 }
 
-export const useFinanceStore = create<FinanceStore>((set, get) => ({
-  // Initial state
-  transactions: [],
-  budgetTargets: [],
-  isLoaded: false,
+// Demo financial data
+const DEMO_SNAPSHOT: FinanceSnapshot = {
+  workspaceId: DEFAULT_WORKSPACE_ID,
+  cashBalanceGBP: 485000, // ~£485K in the bank
+  weeklyBurnGBP: 18500, // £18.5K/week burn (team + AI + suppliers)
+  runwayWeeks: 26, // ~6 months
+  monthlyRevenueGBP: 26000, // £26K/month revenue (early traction)
+  updatedAt: new Date().toISOString(),
+};
 
-  // Actions
-  loadFinancialData: async (workspaceId: string) => {
-    const { supabase } = await import('../supabase');
+export const useFinanceStore = create<FinanceState>((set, get) => ({
+  snapshots: [],
+  isInitialized: false,
 
-    console.log('[FinanceStore] Loading financial data for workspace:', workspaceId);
+  initializeFinance: async () => {
+    await get().loadFromStorage();
 
-    try {
-      // Load all financial data for workspace
-      const [transactionsRes, budgetTargetsRes] = await Promise.all([
-        supabase
-          .from('financial_transactions')
-          .select('*')
-          .eq('workspace_id', workspaceId)
-          .order('transaction_date', { ascending: false }),
-        supabase
-          .from('budget_targets')
-          .select('*')
-          .eq('workspace_id', workspaceId)
-          .order('month', { ascending: false }),
-      ]);
+    const state = get();
+    const existingSnapshot = state.snapshots.find(s => s.workspaceId === DEFAULT_WORKSPACE_ID);
 
-      if (transactionsRes.error) {
-        console.error('[FinanceStore] Transaction error:', transactionsRes.error);
-        throw transactionsRes.error;
-      }
-      if (budgetTargetsRes.error) {
-        console.error('[FinanceStore] Budget targets error:', budgetTargetsRes.error);
-        throw budgetTargetsRes.error;
-      }
-
-      console.log('[FinanceStore] Loaded transactions:', transactionsRes.data?.length || 0);
-      console.log('[FinanceStore] Loaded budget targets:', budgetTargetsRes.data?.length || 0);
-
-      set({
-        transactions: transactionsRes.data || [],
-        budgetTargets: budgetTargetsRes.data || [],
-        isLoaded: true,
-      });
-
-      // Calculate and log metrics
-      const cashBalance = get().getCashBalance(workspaceId);
-      const weeklyBurn = get().getWeeklyBurn(workspaceId);
-      const runway = get().getRunway(workspaceId);
-      console.log('[FinanceStore] Calculated metrics:', {
-        cashBalance,
-        weeklyBurn,
-        runway,
-      });
-    } catch (error) {
-      console.error('[FinanceStore] Failed to load financial data:',
-        error instanceof Error ? error.message : JSON.stringify(error, null, 2)
-      );
-      set({
-        transactions: [],
-        budgetTargets: [],
-        isLoaded: true,
-      });
-    }
-  },
-
-  addTransaction: async (transaction) => {
-    const { supabase } = await import('../supabase');
-
-    try {
-      const { data, error } = await supabase
-        .from('financial_transactions')
-        .insert(transaction)
-        .select()
-        .single();
-
-      if (error) throw error;
-
+    if (!existingSnapshot) {
       set((state) => ({
-        transactions: [data, ...state.transactions],
+        snapshots: [...state.snapshots, DEMO_SNAPSHOT],
+        isInitialized: true,
       }));
-    } catch (error) {
-      console.error('[FinanceStore] Failed to add transaction:',
-        error instanceof Error ? error.message : JSON.stringify(error, null, 2)
-      );
-      throw error;
+      await get().saveToStorage();
+    } else {
+      set({ isInitialized: true });
     }
   },
 
-  updateTransaction: async (id, updates) => {
-    const { supabase } = await import('../supabase');
-
-    try {
-      const { data, error } = await supabase
-        .from('financial_transactions')
-        .update(updates)
-        .eq('id', id)
-        .select()
-        .single();
-
-      if (error) throw error;
-
-      set((state) => ({
-        transactions: state.transactions.map((t) => (t.id === id ? data : t)),
-      }));
-    } catch (error) {
-      console.error('[FinanceStore] Failed to update transaction:',
-        error instanceof Error ? error.message : JSON.stringify(error, null, 2)
-      );
-      throw error;
-    }
+  getSnapshot: (workspaceId: string) => {
+    return get().snapshots.find(s => s.workspaceId === workspaceId);
   },
 
-  deleteTransaction: async (id) => {
-    const { supabase } = await import('../supabase');
-
-    try {
-      const { error } = await supabase.from('financial_transactions').delete().eq('id', id);
-
-      if (error) throw error;
-
-      set((state) => ({
-        transactions: state.transactions.filter((t) => t.id !== id),
-      }));
-    } catch (error) {
-      console.error('[FinanceStore] Failed to delete transaction:',
-        error instanceof Error ? error.message : JSON.stringify(error, null, 2)
-      );
-      throw error;
-    }
-  },
-
-  addBudgetTarget: async (target) => {
-    const { supabase } = await import('../supabase');
-
-    try {
-      const { data, error } = await supabase
-        .from('budget_targets')
-        .insert(target)
-        .select()
-        .single();
-
-      if (error) throw error;
-
-      set((state) => ({
-        budgetTargets: [data, ...state.budgetTargets],
-      }));
-    } catch (error) {
-      console.error('[FinanceStore] Failed to add budget target:',
-        error instanceof Error ? error.message : JSON.stringify(error, null, 2)
-      );
-      throw error;
-    }
-  },
-
-  clearFinancialData: () => {
-    set({
-      transactions: [],
-      budgetTargets: [],
-      isLoaded: false,
-    });
-  },
-
-  reset: async () => {
-    // Clear in-memory state (no AsyncStorage/MMKV for finance store - it loads from Supabase)
-    set({
-      transactions: [],
-      budgetTargets: [],
-      isLoaded: false,
-    });
-    console.log('[FinanceStore] Reset complete - cleared in-memory cache');
-  },
-
-  // Selectors - Cash metrics
   getCashBalance: (workspaceId: string) => {
-    const transactions = get().transactions.filter((t) => t.workspace_id === workspaceId);
-
-    // For new workspaces with no transactions, return 0
-    if (transactions.length === 0) {
-      return 0;
-    }
-
-    const totalRevenue = transactions
-      .filter((t) => t.type === 'revenue')
-      .reduce((sum, t) => sum + t.amount, 0);
-
-    const totalCosts = transactions
-      .filter((t) => t.type === 'cost')
-      .reduce((sum, t) => sum + t.amount, 0);
-
-    return totalRevenue - totalCosts;
+    const snapshot = get().getSnapshot(workspaceId);
+    return snapshot?.cashBalanceGBP ?? 0;
   },
 
   getWeeklyBurn: (workspaceId: string) => {
-    const transactions = get().transactions.filter((t) => t.workspace_id === workspaceId);
-
-    // Get recurring monthly costs
-    const monthlyRecurringCosts = transactions
-      .filter((t) => t.type === 'cost' && t.recurring && t.recurrence_period === 'monthly')
-      .reduce((sum, t) => sum + t.amount, 0);
-
-    // Convert to weekly using canonical constant
-    return safeDiv(monthlyRecurringCosts, WEEKS_PER_MONTH, 0);
-  },
-
-  getMonthlyBurn: (workspaceId: string) => {
-    const weeklyBurn = get().getWeeklyBurn(workspaceId);
-    return weeklyBurn * WEEKS_PER_MONTH;
+    const snapshot = get().getSnapshot(workspaceId);
+    return snapshot?.weeklyBurnGBP ?? 0;
   },
 
   getRunway: (workspaceId: string) => {
-    const cashBalance = get().getCashBalance(workspaceId);
-    const monthlyBurn = get().getMonthlyBurn(workspaceId);
-
-    // Return infinite runway if not burning cash
-    if (monthlyBurn < 100) return 999;
-
-    // Return 0 if out of cash
-    if (cashBalance <= 0) return 0;
-
-    // Calculate runway in MONTHS (not weeks)
-    return safeDiv(cashBalance, monthlyBurn, 0);
+    const snapshot = get().getSnapshot(workspaceId);
+    return snapshot?.runwayWeeks ?? 0;
   },
 
   getMonthlyRevenue: (workspaceId: string) => {
-    const transactions = get().transactions.filter((t) => t.workspace_id === workspaceId);
-
-    // Get recurring monthly revenue
-    const monthlyRecurringRevenue = transactions
-      .filter((t) => t.type === 'revenue' && t.recurring && t.recurrence_period === 'monthly')
-      .reduce((sum, t) => sum + t.amount, 0);
-
-    // Also calculate average monthly revenue from recent transactions (last 3 months)
-    // Use DST-safe date calculation
-    const threeMonthsAgo = subMonthsSafe(new Date(), 3);
-
-    const recentRevenue = transactions
-      .filter(
-        (t) =>
-          t.type === 'revenue' &&
-          !t.recurring &&
-          new Date(t.transaction_date) >= threeMonthsAgo
-      )
-      .reduce((sum, t) => sum + t.amount, 0);
-
-    const recentMonthlyAvg = safeDiv(recentRevenue, 3, 0);
-
-    // Return sum of recurring + average recent
-    return monthlyRecurringRevenue + recentMonthlyAvg;
+    const snapshot = get().getSnapshot(workspaceId);
+    return snapshot?.monthlyRevenueGBP ?? 0;
   },
 
-  // Selectors - Breakdowns
-  getBurnBreakdown: (workspaceId: string) => {
-    const transactions = get().transactions.filter(
-      (t) => t.workspace_id === workspaceId && t.type === 'cost' && t.recurring
-    );
-
-    const breakdown: BurnBreakdown = {
-      teamCostGBP: 0,
-      aiToolsCostGBP: 0,
-      supplierCostGBP: 0,
-      infrastructureCostGBP: 0,
-      manufacturingCostGBP: 0,
-      otherCostGBP: 0,
-      totalWeeklyBurnGBP: 0,
-    };
-
-    transactions.forEach((t) => {
-      const weeklyAmount = t.recurrence_period === 'monthly' ? safeDiv(t.amount, WEEKS_PER_MONTH, 0) : t.amount;
-
-      switch (t.category) {
-        case 'team':
-          breakdown.teamCostGBP += weeklyAmount;
-          break;
-        case 'ai_tools':
-          breakdown.aiToolsCostGBP += weeklyAmount;
-          break;
-        case 'supplier':
-          breakdown.supplierCostGBP += weeklyAmount;
-          break;
-        case 'infrastructure':
-          breakdown.infrastructureCostGBP += weeklyAmount;
-          break;
-        case 'manufacturing':
-          breakdown.manufacturingCostGBP += weeklyAmount;
-          break;
-        default:
-          breakdown.otherCostGBP += weeklyAmount;
-      }
-    });
-
-    breakdown.totalWeeklyBurnGBP =
-      breakdown.teamCostGBP +
-      breakdown.aiToolsCostGBP +
-      breakdown.supplierCostGBP +
-      breakdown.infrastructureCostGBP +
-      breakdown.manufacturingCostGBP +
-      breakdown.otherCostGBP;
-
-    return breakdown;
-  },
-
-  getRevenueByCategory: (workspaceId: string) => {
-    const transactions = get().transactions.filter(
-      (t) => t.workspace_id === workspaceId && t.type === 'revenue'
-    );
-
-    const breakdown: Record<string, number> = {};
-
-    transactions.forEach((t) => {
-      const category = t.category || 'other';
-      breakdown[category] = (breakdown[category] || 0) + t.amount;
-    });
-
-    return breakdown;
-  },
-
-  getCostsByCategory: (workspaceId: string) => {
-    const transactions = get().transactions.filter(
-      (t) => t.workspace_id === workspaceId && t.type === 'cost'
-    );
-
-    const breakdown: Record<string, number> = {};
-
-    transactions.forEach((t) => {
-      const category = t.category || 'other';
-      breakdown[category] = (breakdown[category] || 0) + t.amount;
-    });
-
-    return breakdown;
-  },
-
-  // Selectors - Projections
-  projectCashFlow: (workspaceId: string, weeksAhead: number) => {
-    const cashBalance = get().getCashBalance(workspaceId);
+  updateCashBalance: (workspaceId: string, newBalance: number) => {
     const weeklyBurn = get().getWeeklyBurn(workspaceId);
-    const monthlyRevenue = get().getMonthlyRevenue(workspaceId);
-    const weeklyRevenue = safeDiv(monthlyRevenue, WEEKS_PER_MONTH, 0);
+    const newRunway = get().calculateRunway(newBalance, weeklyBurn);
+
+    set((state) => ({
+      snapshots: state.snapshots.map(s =>
+        s.workspaceId === workspaceId
+          ? { ...s, cashBalanceGBP: newBalance, runwayWeeks: newRunway, updatedAt: new Date().toISOString() }
+          : s
+      ),
+    }));
+    get().saveToStorage();
+  },
+
+  updateWeeklyBurn: (workspaceId: string, newBurn: number) => {
+    const cashBalance = get().getCashBalance(workspaceId);
+    const newRunway = get().calculateRunway(cashBalance, newBurn);
+
+    set((state) => ({
+      snapshots: state.snapshots.map(s =>
+        s.workspaceId === workspaceId
+          ? { ...s, weeklyBurnGBP: newBurn, runwayWeeks: newRunway, updatedAt: new Date().toISOString() }
+          : s
+      ),
+    }));
+    get().saveToStorage();
+  },
+
+  updateMonthlyRevenue: (workspaceId: string, newRevenue: number) => {
+    set((state) => ({
+      snapshots: state.snapshots.map(s =>
+        s.workspaceId === workspaceId
+          ? { ...s, monthlyRevenueGBP: newRevenue, updatedAt: new Date().toISOString() }
+          : s
+      ),
+    }));
+    get().saveToStorage();
+  },
+
+  updateSnapshot: (workspaceId: string, updates: Partial<Omit<FinanceSnapshot, 'workspaceId'>>) => {
+    set((state) => ({
+      snapshots: state.snapshots.map(s =>
+        s.workspaceId === workspaceId
+          ? { ...s, ...updates, updatedAt: new Date().toISOString() }
+          : s
+      ),
+    }));
+    get().saveToStorage();
+  },
+
+  calculateRunway: (cashGBP: number, weeklyBurnGBP: number) => {
+    if (weeklyBurnGBP <= 0) return 999; // Infinite runway if not burning
+    return Math.floor(cashGBP / weeklyBurnGBP);
+  },
+
+  projectCashFlow: (workspaceId: string, weeksAhead: number) => {
+    const snapshot = get().getSnapshot(workspaceId);
+    if (!snapshot) return [];
 
     const projections: CashFlowProjection[] = [];
-    let currentCash = cashBalance;
+    let currentCash = snapshot.cashBalanceGBP;
+    const weeklyRevenue = snapshot.monthlyRevenueGBP / 4.33; // Convert monthly to weekly
 
     for (let week = 0; week < weeksAhead; week++) {
       const projection: CashFlowProjection = {
         weekOffset: week,
         startingCashGBP: currentCash,
         incomingGBP: weeklyRevenue,
-        outgoingGBP: weeklyBurn,
-        endingCashGBP: currentCash + weeklyRevenue - weeklyBurn,
+        outgoingGBP: snapshot.weeklyBurnGBP,
+        endingCashGBP: currentCash + weeklyRevenue - snapshot.weeklyBurnGBP,
       };
       projections.push(projection);
       currentCash = projection.endingCashGBP;
@@ -450,20 +200,55 @@ export const useFinanceStore = create<FinanceStore>((set, get) => ({
 
     return projections;
   },
+
+  getBurnBreakdown: (workspaceId: string) => {
+    // This would ideally pull from organization store
+    // For now, use reasonable approximations based on demo data
+    const weeklyBurn = get().getWeeklyBurn(workspaceId);
+
+    return {
+      teamCostGBP: weeklyBurn * 0.65, // ~65% team costs
+      aiToolsCostGBP: weeklyBurn * 0.08, // ~8% AI tools
+      supplierCostGBP: weeklyBurn * 0.20, // ~20% supplier costs
+      otherCostGBP: weeklyBurn * 0.07, // ~7% other
+      totalWeeklyBurnGBP: weeklyBurn,
+    };
+  },
+
+  saveToStorage: async () => {
+    try {
+      const { snapshots } = get();
+      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify({ snapshots }));
+    } catch (error) {
+      console.error('Failed to save finance store:', error);
+    }
+  },
+
+  loadFromStorage: async () => {
+    try {
+      const json = await AsyncStorage.getItem(STORAGE_KEY);
+      if (json) {
+        const data = JSON.parse(json);
+        set({
+          snapshots: data.snapshots || [],
+          isInitialized: true,
+        });
+      }
+    } catch (error) {
+      console.error('Failed to load finance store:', error);
+    }
+  },
 }));
 
-// Selector hooks for convenience
+// Selector hooks
 export const useCashBalance = (workspaceId: string) =>
-  useFinanceStore((s) => s.getCashBalance(workspaceId));
+  useFinanceStore((s) => s.snapshots.find(snap => snap.workspaceId === workspaceId)?.cashBalanceGBP ?? 0);
 
 export const useWeeklyBurn = (workspaceId: string) =>
-  useFinanceStore((s) => s.getWeeklyBurn(workspaceId));
-
-export const useMonthlyBurn = (workspaceId: string) =>
-  useFinanceStore((s) => s.getMonthlyBurn(workspaceId));
+  useFinanceStore((s) => s.snapshots.find(snap => snap.workspaceId === workspaceId)?.weeklyBurnGBP ?? 0);
 
 export const useRunway = (workspaceId: string) =>
-  useFinanceStore((s) => s.getRunway(workspaceId));
+  useFinanceStore((s) => s.snapshots.find(snap => snap.workspaceId === workspaceId)?.runwayWeeks ?? 0);
 
 export const useMonthlyRevenue = (workspaceId: string) =>
-  useFinanceStore((s) => s.getMonthlyRevenue(workspaceId));
+  useFinanceStore((s) => s.snapshots.find(snap => snap.workspaceId === workspaceId)?.monthlyRevenueGBP ?? 0);

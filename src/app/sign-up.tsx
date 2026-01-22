@@ -1,9 +1,8 @@
-import { View, Text, Pressable, TextInput, ActivityIndicator, ScrollView, KeyboardAvoidingView, Platform, Alert } from 'react-native';
+import { View, Text, Pressable, TextInput, ActivityIndicator, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import { useState, useEffect } from 'react';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Building2, Mail, User, ArrowRight, ArrowLeft, Sparkles, Rocket, Lock } from 'lucide-react-native';
-import { supabase } from '@/lib/supabase';
-import { userService, memberService } from '@/lib/supabase-service';
+import { Building2, Mail, User, ArrowRight, ArrowLeft, Sparkles, Rocket } from 'lucide-react-native';
+import { userApi, workspaceApi } from '@/lib/api';
 import { useAppStore } from '@/lib/state/app-store';
 import { router } from 'expo-router';
 import Animated, {
@@ -18,7 +17,6 @@ import Animated, {
 export default function SignUpScreen() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [workspaceName, setWorkspaceName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
@@ -76,16 +74,6 @@ export default function SignUpScreen() {
       return;
     }
 
-    if (!password.trim()) {
-      setError('Please enter a password');
-      return;
-    }
-
-    if (password.length < 6) {
-      setError('Password must be at least 6 characters');
-      return;
-    }
-
     if (!workspaceName.trim()) {
       setError('Please enter a workspace name');
       return;
@@ -102,144 +90,37 @@ export default function SignUpScreen() {
     setError('');
 
     try {
-      // Sign up with Supabase
-      const { data: authData, error: authError } = await supabase.auth.signUp({
-        email: email.toLowerCase().trim(),
-        password: password,
-        options: {
-          data: {
-            name: name.trim(),
-          },
-        },
-      });
-
-      if (authError) {
-        setError(authError.message);
-        setIsLoading(false);
-        return;
-      }
-
-      if (!authData.user) {
-        setError('Failed to create account. Please try again.');
-        setIsLoading(false);
-        return;
-      }
-
-      // Check if email confirmation is required
-      // If session is null but user exists, email confirmation is needed
-      if (!authData.session && authData.user.identities?.length === 0) {
-        // User already exists
+      // Check if user already exists
+      const existingUser = await userApi.getByEmail(email.toLowerCase());
+      if (existingUser) {
         setError('An account with this email already exists. Please sign in instead.');
         setIsLoading(false);
         return;
       }
 
-      if (!authData.session) {
-        // Email confirmation required - show success message
-        setError('');
-        Alert.alert(
-          'Check Your Email',
-          'We sent you a confirmation link. Please check your email and click the link to activate your account.',
-          [{ text: 'OK', onPress: () => router.replace('/sign-in') }]
-        );
-        setIsLoading(false);
-        return;
-      }
+      // Create new user
+      const user = await userApi.create({
+        email: email.toLowerCase(),
+        name: name.trim(),
+      });
 
-      // Try to get or create user profile
-      // If RLS blocks creation, use auth data directly without requiring database profile
-      let user = await userService.getById(authData.user.id);
+      // Create workspace for the user
+      const workspace = await workspaceApi.create({
+        name: workspaceName.trim(),
+        ownerId: user.id,
+      });
 
-      if (!user) {
-        console.log('[Sign Up] Profile not found, attempting to create...');
-        try {
-          user = await userService.create({
-            id: authData.user.id,
-            email: email.toLowerCase(),
-            name: name.trim(),
-          });
-          console.log('[Sign Up] Profile created successfully');
-        } catch (createError) {
-          console.error('[Sign Up] Failed to create profile, using auth data:', createError);
-          // Create a user object from auth data without requiring database profile
-          user = {
-            id: authData.user.id,
-            email: email.toLowerCase(),
-            name: name.trim(),
-            avatarUrl: undefined,
-            createdAt: new Date().toISOString(),
-            preferences: {
-              themeMode: 'system' as const,
-            },
-          };
-          console.log('[Sign Up] Using auth-based user object (no database profile)');
-        }
-      } else {
-        console.log('[Sign Up] Existing profile found');
-      }
-
-      console.log('[Sign Up] User profile obtained:', user.email);
-
-      // Try to create workspace using Supabase
-      // If RLS blocks it, create a local workspace and proceed
-      try {
-        await useAppStore.getState().createWorkspace(workspaceName.trim(), user.id);
-        console.log('[Sign Up] Workspace created in database');
-      } catch (workspaceError) {
-        console.log('[Sign Up] Database workspace creation blocked by RLS, using local workspace');
-        // Create a local workspace object without database persistence
-        const localWorkspace = {
-          id: `local-${Date.now()}`,
-          name: workspaceName.trim(),
-          ownerId: user.id,
-          createdAt: new Date().toISOString(),
-        };
-        // Set it in the app store manually
-        useAppStore.setState((state) => ({
-          workspaces: { ...state.workspaces, [localWorkspace.id]: localWorkspace },
-          currentWorkspaceId: localWorkspace.id,
-          currentWorkspace: localWorkspace,
-        }));
-        console.log('[Sign Up] Local workspace created successfully:', localWorkspace.name);
-      }
-
-      // Create founder member in the workspace
-      const currentWorkspaceId = useAppStore.getState().currentWorkspaceId;
-      if (currentWorkspaceId) {
-        try {
-          console.log('[Sign Up] Creating founder member...');
-          const founderMember = await memberService.create({
-            workspaceId: currentWorkspaceId,
-            userId: user.id,
-            name: user.name,
-            role: 'Founder',
-            function: 'Admin',
-            status: 'active',
-            // Cost fields intentionally omitted - structure kept but not populated
-          });
-          console.log('[Sign Up] Founder member created:', founderMember.id);
-
-          // Reload user data to pick up the new membership
-          await useAppStore.getState().loadUserData(user.id);
-        } catch (memberError) {
-          console.error('[Sign Up] Failed to create founder member:', memberError);
-          // Continue - member can be created later if needed
-        }
-      }
-
-      // Set auth token from Supabase session
-      const token = authData.session?.access_token || '';
+      // Mock auth token
+      const token = `token_${user.id}_${Date.now()}`;
 
       setCurrentUser(user);
       setAuthToken(token);
-
-      console.log('[Sign Up] Sign up complete! Navigating to welcome screen...');
 
       // Navigate to welcome screen for role selection
       router.replace('/welcome');
     } catch (err) {
       console.error('Sign up error:', err);
-      setError(err instanceof Error ? err.message : 'Failed to create account. Please try again.');
+      setError('Failed to create account. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -393,27 +274,6 @@ export default function SignUpScreen() {
                       value={email}
                       onChangeText={setEmail}
                       keyboardType="email-address"
-                      autoCapitalize="none"
-                      autoCorrect={false}
-                      editable={!isLoading}
-                    />
-                  </View>
-                </View>
-
-                {/* Password Input */}
-                <View className="mb-5">
-                  <Text className="text-gray-700 mb-2 text-sm font-semibold">Password</Text>
-                  <View className="flex-row items-center bg-gray-100 rounded-2xl px-4 py-4 border-2 border-gray-200">
-                    <View className="bg-blue-500 p-2 rounded-lg mr-3">
-                      <Lock size={18} color="white" />
-                    </View>
-                    <TextInput
-                      className="flex-1 text-gray-900 text-base font-medium"
-                      placeholder="At least 6 characters"
-                      placeholderTextColor="#94a3b8"
-                      value={password}
-                      onChangeText={setPassword}
-                      secureTextEntry
                       autoCapitalize="none"
                       autoCorrect={false}
                       editable={!isLoading}

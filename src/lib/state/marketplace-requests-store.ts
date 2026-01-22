@@ -22,6 +22,9 @@ export interface MarketplaceRequest {
   requestedAt: string;
   reviewedAt?: string;
   reviewedBy?: string;
+  // Commentary fields for approval/rejection
+  approvalNotes?: string; // Notes when approving (optional)
+  rejectionReason?: string; // Reason when rejecting (required)
 }
 
 interface MarketplaceRequestsState {
@@ -29,8 +32,8 @@ interface MarketplaceRequestsState {
 
   // Actions
   createRequest: (request: Omit<MarketplaceRequest, 'id' | 'requestedAt' | 'status'>) => string;
-  approveRequest: (requestId: string, reviewedBy: string) => void;
-  rejectRequest: (requestId: string, reviewedBy: string) => void;
+  approveRequest: (requestId: string, reviewedBy: string, notes?: string) => void;
+  rejectRequest: (requestId: string, reviewedBy: string, reason: string) => void;
   getPendingRequests: () => MarketplaceRequest[];
   getRequestByCandidate: (candidateId: string) => MarketplaceRequest | undefined;
 }
@@ -55,7 +58,7 @@ export const useMarketplaceRequestsStore = create<MarketplaceRequestsState>()(
         return newRequest.id;
       },
 
-      approveRequest: (requestId, reviewedBy) => {
+      approveRequest: (requestId, reviewedBy, notes) => {
         set((state) => ({
           requests: state.requests.map((req) =>
             req.id === requestId
@@ -64,13 +67,14 @@ export const useMarketplaceRequestsStore = create<MarketplaceRequestsState>()(
                   status: 'approved' as const,
                   reviewedAt: new Date().toISOString(),
                   reviewedBy,
+                  approvalNotes: notes || undefined,
                 }
               : req
           ),
         }));
       },
 
-      rejectRequest: (requestId, reviewedBy) => {
+      rejectRequest: (requestId, reviewedBy, reason) => {
         set((state) => ({
           requests: state.requests.map((req) =>
             req.id === requestId
@@ -79,6 +83,7 @@ export const useMarketplaceRequestsStore = create<MarketplaceRequestsState>()(
                   status: 'rejected' as const,
                   reviewedAt: new Date().toISOString(),
                   reviewedBy,
+                  rejectionReason: reason,
                 }
               : req
           ),

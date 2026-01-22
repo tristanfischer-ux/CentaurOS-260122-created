@@ -20,25 +20,19 @@ import {
   Bot,
   Factory,
   ChevronRight,
-  Crown,
-  Briefcase,
-  GraduationCap,
-  Brain,
-  Cpu,
-  Network,
-  Workflow,
-  LayoutGrid,
-  Calendar,
-  AlertTriangle,
+  X,
+  AlertCircle,
 } from 'lucide-react-native';
 import Animated, {
   FadeIn,
   FadeInDown,
   FadeInUp,
+  SlideInRight,
   useSharedValue,
   useAnimatedStyle,
   withRepeat,
   withTiming,
+  withSpring,
   Easing,
 } from 'react-native-reanimated';
 
@@ -52,165 +46,277 @@ interface TutorialSlide {
   gradient: [string, string, string];
   icon: LucideIcon;
   description: string;
-  content?: React.ReactNode;
+  stats?: Array<{ label: string; value: string; color: string; icon?: LucideIcon }>;
+  features?: Array<{ title: string; detail: string; value: string; fullTime: string }> | string[];
+  realExample?: {
+    task: string;
+    before: string;
+    after: string[];
+  };
+  dashboard?: Array<{ label: string; status: string; icon: LucideIcon }>;
+  suppliers?: Array<{ name: string; capability: string; lead: string }>;
+  testimonials?: Array<{ founder: string; quote: string; metric: string }>;
+  matchingProcess?: string[];
+  workflow?: {
+    you: string;
+    aiAgent: string;
+    apprentice: string;
+    result: string;
+  };
+  learning?: Array<{ exec: string; teaches: string; yourTasks: string }>;
+  portfolio?: string[];
+  workPlan?: Record<string, string>;
+  comparison?: {
+    traditional: string;
+    centaurOS: string;
+  };
 }
 
-// ============ SHARED INTRO SLIDES ============
-const INTRO_SLIDES: TutorialSlide[] = [
-  {
-    title: "Welcome to\nCentaurOS",
-    subtitle: "The Operating System for Lean Companies",
-    gradient: ['#8b5cf6', '#7c3aed', '#6d28d9'],
-    icon: Cpu,
-    description: "CentaurOS helps small teams operate like large organizations. Named after the mythical centaur—half human, half horse—we combine human creativity with AI power to help you move faster.",
-  },
-  {
-    title: "The Centaur\nPhilosophy",
-    subtitle: "Humans + AI = Superpowers",
-    gradient: ['#3b82f6', '#2563eb', '#1e40af'],
-    icon: Brain,
-    description: "A centaur is neither fully human nor fully horse—it's something greater than both. In CentaurOS, you don't replace humans with AI. Instead, each person is equipped with AI tools that multiply their effectiveness 2-10x.",
-  },
-  {
-    title: "Three Roles,\nOne Team",
-    subtitle: "Founders, Executives, and Apprentices",
-    gradient: ['#10b981', '#059669', '#047857'],
-    icon: Users,
-    description: "CentaurOS is built for lean teams with three types of people working together. Each role has specific capabilities, costs, and responsibilities—and each can be equipped with AI tools.",
-  },
-];
-
-// ============ FOUNDER SLIDES ============
-const FOUNDER_SLIDES: TutorialSlide[] = [
-  ...INTRO_SLIDES,
-  {
-    title: "You're the\nFounder",
-    subtitle: "Captain of the ship",
-    gradient: ['#8b5cf6', '#7c3aed', '#6d28d9'],
-    icon: Crown,
-    description: "As a Founder, you have full access to everything. You set the vision, make key decisions, and orchestrate your team. You can create tasks, assign work, hire team members, and track progress across all business functions.",
-  },
-  {
-    title: "Time Units (TU)",
-    subtitle: "1 TU = 4 hours of focused work",
-    gradient: ['#f59e0b', '#d97706', '#b45309'],
-    icon: Clock,
-    description: "Every person in CentaurOS has a weekly TU capacity. Founders have 10 TU/week (40 hours). Work is assigned in TU blocks. This helps you see exactly how much capacity your team has and where it's being used.",
-  },
-  {
-    title: "Your Team\nStructure",
-    subtitle: "Build a lean, powerful organization",
-    gradient: ['#ec4899', '#db2777', '#be185d'],
-    icon: Network,
-    description: "Hire Fractional Executives (part-time experts) for strategic leadership. Hire Apprentices (full-time doers) for execution. Equip everyone with AI tools. A team of 2-5 people can achieve what traditionally required 15-20.",
-  },
-  {
-    title: "Assign Work\nto Your Team",
-    subtitle: "Create tasks, allocate TUs, track progress",
-    gradient: ['#06b6d4', '#0891b2', '#0e7490'],
-    icon: Workflow,
-    description: "Create tasks in the Tasks tab. Assign team members and allocate their TUs. Set due dates and track progress. Your team will see their assignments and can update their progress. You'll see everything in real-time.",
-  },
-  {
-    title: "Mission Control",
-    subtitle: "Your command center",
-    gradient: ['#3b82f6', '#2563eb', '#1e40af'],
-    icon: LayoutGrid,
-    description: "The Home tab is your Mission Control. See your team's capacity, active tasks, blocked items, and priorities at a glance. Focus Today shows AI-prioritized tasks that need your attention. The bottom drawers show Team and Timeline views.",
-  },
-  {
-    title: "Invite Your\nTeam",
-    subtitle: "Add Executives, Apprentices, or Co-Founders",
-    gradient: ['#10b981', '#059669', '#047857'],
-    icon: Users,
-    description: "Go to Settings to invite team members. Select their role (Founder, Executive, or Apprentice), their primary function (Engineering, Sales, Marketing, etc.), and send an invitation. You can change roles later as people grow.",
-  },
-];
-
-// ============ EXECUTIVE SLIDES ============
-const EXECUTIVE_SLIDES: TutorialSlide[] = [
-  ...INTRO_SLIDES,
-  {
-    title: "You're a\nFractional Executive",
-    subtitle: "Strategic leadership, part-time",
-    gradient: ['#3b82f6', '#2563eb', '#1e40af'],
-    icon: Briefcase,
-    description: "As a Fractional Executive, you provide strategic leadership to startups on a part-time basis. You might work 2-3 days per week for each company, bringing your 10-20 years of experience to help them succeed.",
-  },
-  {
-    title: "Your TU\nCapacity",
-    subtitle: "2 TU per day × days worked",
-    gradient: ['#f59e0b', '#d97706', '#b45309'],
-    icon: Clock,
-    description: "Your TU capacity depends on how many days per week you work for each company. Working 2 days/week = 4 TU capacity. Working 3 days/week = 6 TU capacity. This is visible to Founders so they know your availability.",
-  },
-  {
-    title: "Review &\nGuide Work",
-    subtitle: "Mentor apprentices, make decisions",
-    gradient: ['#8b5cf6', '#7c3aed', '#6d28d9'],
-    icon: Award,
-    description: "Your main job is to provide strategic guidance. Review work from Apprentices, make key decisions, unblock problems, and guide the team. You don't do all the execution—you enable others to execute well.",
-  },
-  {
-    title: "Your Dashboard",
-    subtitle: "See your tasks and team",
-    gradient: ['#10b981', '#059669', '#047857'],
-    icon: LayoutGrid,
-    description: "Your Home tab shows tasks assigned to you, decisions that need your input, and work from your function that needs review. The When tab shows your timeline. The Tasks tab shows all tasks you're involved in.",
-  },
-  {
-    title: "Work with\nApprentices",
-    subtitle: "Delegate execution, review results",
-    gradient: ['#ec4899', '#db2777', '#be185d'],
-    icon: GraduationCap,
-    description: "Apprentices handle execution under your guidance. Create tasks for them with clear instructions. Review their work and provide feedback. Help them learn and grow while you focus on high-level strategy.",
-  },
-];
-
-// ============ APPRENTICE SLIDES ============
-const APPRENTICE_SLIDES: TutorialSlide[] = [
-  ...INTRO_SLIDES,
-  {
-    title: "You're an\nApprentice",
-    subtitle: "Learn while you earn",
-    gradient: ['#10b981', '#059669', '#047857'],
-    icon: GraduationCap,
-    description: "As an Apprentice, you're the execution engine of the company. You do real work on real projects, learning from experienced Executives and Founders. This isn't an unpaid internship—you're a valuable team member.",
-  },
-  {
-    title: "Your TU\nCapacity",
-    subtitle: "10 TU/week = 40 hours",
-    gradient: ['#f59e0b', '#d97706', '#b45309'],
-    icon: Clock,
-    description: "You have 10 TU per week (40 hours of focused work). Tasks are assigned to you by Founders and Executives. Each task shows how many TUs it needs. Complete your tasks and update your progress in the app.",
-  },
-  {
-    title: "Your Assignments",
-    subtitle: "Clear tasks with due dates",
-    gradient: ['#3b82f6', '#2563eb', '#1e40af'],
-    icon: Target,
-    description: "Go to the Tasks tab to see work assigned to you. Each task has a title, description, due date, and TU estimate. Mark tasks as in-progress when you start, and completed when you're done. Ask for help if you get blocked.",
-  },
-  {
-    title: "Learn from\nExperts",
-    subtitle: "Executives mentor you",
-    gradient: ['#8b5cf6', '#7c3aed', '#6d28d9'],
-    icon: Award,
-    description: "Fractional Executives in your function will review your work and teach you their expertise. Marketing Execs teach marketing. Sales Execs teach sales. Engineering Execs teach engineering. You're building real skills.",
-  },
-  {
-    title: "Build Your\nPortfolio",
-    subtitle: "Real work, real results",
-    gradient: ['#ec4899', '#db2777', '#be185d'],
-    icon: Sparkles,
-    description: "Every task you complete is a portfolio piece. 'Launched social media campaign with 50K reach.' 'Generated 200 qualified leads.' 'Coordinated 3 supplier projects.' This is how you prove your value to future employers.",
-  },
-];
-
 const TUTORIAL_SLIDES: Record<Role, TutorialSlide[]> = {
-  Founder: FOUNDER_SLIDES,
-  FractionalExec: EXECUTIVE_SLIDES,
-  Apprentice: APPRENTICE_SLIDES,
+  Founder: [
+    {
+      title: "Your Startup,\nSuperpowered",
+      subtitle: "Build a £10M company with 2-3 core team members",
+      gradient: ['#3b82f6', '#2563eb', '#1e40af'],
+      icon: Rocket,
+      stats: [
+        { label: 'Traditional Team Cost', value: '£500K+/year', color: '#ef4444' },
+        { label: 'With Fractional Foundry', value: '£95K/year', color: '#10b981' },
+        { label: 'Savings', value: '81%', color: '#8b5cf6' },
+      ],
+      description: "Most hardware startups fail because they run out of money before finding product-market fit. Fractional Foundry helps you operate with 2-3 core team members using Time Units (TU = 4 hours), per-person AI tools, and supply chain orchestration—not manufacturing ownership.",
+    },
+    {
+      title: "Time Units (TU),\nNot Hours",
+      subtitle: "1 TU = 4 hours of focused work",
+      gradient: ['#8b5cf6', '#7c3aed', '#6d28d9'],
+      icon: Clock,
+      features: [
+        {
+          title: 'Founders',
+          detail: '10 TU/week capacity',
+          value: '£960/TU',
+          fullTime: '40 hours/week at £9,600/week',
+        },
+        {
+          title: 'Fractional Executives',
+          detail: '2 TU/day × days worked',
+          value: '£400-475/TU',
+          fullTime: 'Work 2-5 days/week per startup',
+        },
+        {
+          title: 'Apprentices',
+          detail: '10 TU/week capacity',
+          value: '£70/TU',
+          fullTime: '40 hours/week at £700/week',
+        },
+      ],
+      description: "Every resource is measured in Time Units. Capacity = TU/week. Cost = £/TU. AI tools multiply effective TU output via speed, quality, and flow multipliers.",
+    },
+    {
+      title: "AI Tools\nPer Person",
+      subtitle: "Equip each team member in 5 slots",
+      gradient: ['#10b981', '#059669', '#047857'],
+      icon: Bot,
+      realExample: {
+        task: "Launch 30-day social media campaign",
+        before: "You: 20 TU trying to do marketing + build product = burnout",
+        after: [
+          "Marketing Exec: Creates strategy (1 TU = 4 hours)",
+          "Exec equips Cursor Pro (Create slot): Drafts 30 posts (0.5 TU thanks to 2× speed)",
+          "Apprentice equips Linear AI (Ops slot): Schedules posts, tracks analytics (0.5 TU/week)",
+          "Result: Professional marketing on autopilot, you focus on product",
+        ],
+      },
+      description: "Each person equips AI tools in 5 slots: Think (research), Create (draft/design), Verify (QA), Execute (code/automation), Ops (workflow/PM). Effective TU = TU × speed × quality × flow.",
+    },
+    {
+      title: "Orchestrate Suppliers,\nDon't Manufacture",
+      subtitle: "Track Quote → PO → Production → QC → Acceptance",
+      gradient: ['#f59e0b', '#d97706', '#b45309'],
+      icon: Factory,
+      dashboard: [
+        { label: 'Value Delivered', status: '£45K accepted this month', icon: CheckCircle2 },
+        { label: 'Value In Flight', status: '£120K in progress (not accepted yet)', icon: Clock },
+        { label: 'Cash at Risk', status: '£18K late/disputed/at-risk', icon: AlertCircle },
+        { label: 'Engagements', status: '8 active, 12 completed', icon: Factory },
+      ],
+      description: "You don't own factories. You orchestrate suppliers. 'Done' = Accepted with evidence (POD, photos, inspection reports), NOT shipped. Multi-hop logistics supported (Supplier A → B → Customer).",
+    },
+    {
+      title: "TU Analytics\nDashboard",
+      subtitle: "Elite consulting-grade metrics",
+      gradient: ['#ec4899', '#db2777', '#be185d'],
+      icon: TrendingUp,
+      suppliers: [
+        { name: 'TU Efficiency', capability: 'Track actual vs. estimated per person', lead: 'Live' },
+        { name: 'AI ROI', capability: 'Tool costs vs. TU saved & quality gains', lead: 'Real-time' },
+        { name: 'Optimization Opportunities', capability: 'Skill mismatches, underutilization, AI gaps', lead: 'Auto-fix' },
+      ],
+      description: "Track TU variance, efficiency, forecasting, team performance, and AI tool impact. Get optimization opportunities with auto-fix for skill mismatches and underutilization.",
+    },
+    {
+      title: "The Result?\nYou Move Fast",
+      subtitle: "Real founders, real results",
+      gradient: ['#06b6d4', '#0891b2', '#0e7490'],
+      icon: Sparkles,
+      testimonials: [
+        {
+          founder: "Sarah Chen, Hardware Startup",
+          quote: "Ran with 2 founders + 1 fractional exec + 2 apprentices. Equipped everyone with AI tools. Went from idea to first 100 customers in 8 months at £95K total spend.",
+          metric: "0 → £500K ARR in 12 months",
+        },
+        {
+          founder: "Marcus Thompson, IoT Company",
+          quote: "Orchestrated 6 suppliers across 3 countries without owning a factory. TU Analytics helped us identify 15% efficiency gains. AI tools saved 8 TU/week across the team.",
+          metric: "Raised £2M seed, 18-month runway",
+        },
+      ],
+      description: "This isn't theory. Real founders are building real companies with lean teams, TU allocation, AI tools, and supplier orchestration—getting real results.",
+    },
+  ],
+  FractionalExec: [
+    {
+      title: "Turn Your Expertise\nInto Income",
+      subtitle: "Work with 5 startups, earn £15K+/month",
+      gradient: ['#8b5cf6', '#7c3aed', '#6d28d9'],
+      icon: Award,
+      stats: [
+        { label: 'Your Day Rate', value: '£800/day', color: '#8b5cf6' },
+        { label: '5 Clients × 2 days/week', value: '£32K/month', color: '#10b981' },
+        { label: 'Annual Income', value: '£384K/year', color: '#f59e0b' },
+      ],
+      description: "You've got 15 years of experience. Why work for one company when you can help 5 startups succeed and earn more doing it?",
+    },
+    {
+      title: "Get Matched with\nGreat Founders",
+      subtitle: "Choose who you work with, on your terms",
+      gradient: ['#3b82f6', '#2563eb', '#1e40af'],
+      icon: Users,
+      matchingProcess: [
+        "Founders browse your profile and expertise",
+        "You receive engagement requests with details",
+        "Review the startup, team, and challenge",
+        "Accept engagements that excite you",
+        "Set your own schedule and deliverables",
+      ],
+      description: "No more job hunting. Founders come to you. You pick the best opportunities and work on your own terms.",
+    },
+    {
+      title: "Structure Your Work,\nScale Your Impact",
+      subtitle: "Work smarter with AI agents & apprentices",
+      gradient: ['#10b981', '#059669', '#047857'],
+      icon: Zap,
+      workflow: {
+        you: "4 hours: Strategy, high-level decisions, executive oversight",
+        aiAgent: "Jasper AI writes content, Gong analyzes calls, Vic.ai processes invoices",
+        apprentice: "Junior talent executes tasks, manages details, reports back",
+        result: "10x output, same time investment",
+      },
+      description: "Stop doing everything yourself. Delegate to AI and apprentices. Focus on what only you can do: strategic thinking and leadership.",
+    },
+    {
+      title: "Track Everything,\nStay Accountable",
+      subtitle: "Transparent work plans and deliverables",
+      gradient: ['#f59e0b', '#d97706', '#b45309'],
+      icon: CheckCircle2,
+      features: [
+        "Create weekly work plans for each client",
+        "Founders see exactly what you're delivering",
+        "Track progress with clear milestones",
+        "Submit work for review and feedback",
+        "Build your reputation with every win",
+      ],
+      description: "Centaur OS keeps you organized across multiple clients. Founders see your impact. You build a track record that attracts more work.",
+    },
+    {
+      title: "Build Your Brand,\nGrow Your Practice",
+      subtitle: "Ratings, reviews, and repeat business",
+      gradient: ['#ec4899', '#db2777', '#be185d'],
+      icon: TrendingUp,
+      stats: [
+        { label: 'Average Executive Rating', value: '4.8 stars', color: '#8b5cf6', icon: Award },
+        { label: 'Repeat Engagement Rate', value: '87%', color: '#10b981', icon: Users },
+        { label: 'Avg Engagement Length', value: '8 months', color: '#f59e0b', icon: Clock },
+      ],
+      description: "Great work leads to great reviews. Great reviews lead to more opportunities. Build a thriving fractional executive practice.",
+    },
+  ],
+  Apprentice: [
+    {
+      title: "Learn While You\nEarn Real Money",
+      subtitle: "Get paid to build skills working with top startups",
+      gradient: ['#10b981', '#059669', '#047857'],
+      icon: Zap,
+      stats: [
+        { label: 'Your Day Rate', value: '£180-220/day', color: '#10b981' },
+        { label: 'Part-time (2-3 days/week)', value: '£1,600+/month', color: '#3b82f6' },
+        { label: 'Annual Income', value: '£19K+/year', color: '#f59e0b' },
+      ],
+      description: "Most internships pay nothing or minimum wage. Centaur OS apprentices earn £180-220/day learning real startup skills.",
+    },
+    {
+      title: "Work with Experts\nWho Teach You",
+      subtitle: "Learn from fractional executives with 10-20 years experience",
+      gradient: ['#3b82f6', '#2563eb', '#1e40af'],
+      icon: Award,
+      learning: [
+        {
+          exec: "Marketing Executive",
+          teaches: "Content strategy, SEO, social media campaigns",
+          yourTasks: "Write blog posts, schedule content, track analytics",
+        },
+        {
+          exec: "Sales Executive",
+          teaches: "Lead generation, CRM, customer qualification",
+          yourTasks: "Research prospects, update Salesforce, book meetings",
+        },
+        {
+          exec: "Engineering Executive",
+          teaches: "Product development, CAD, prototyping",
+          yourTasks: "3D modeling, testing, supplier coordination",
+        },
+      ],
+      description: "You're not making coffee. You're doing real work under expert guidance. Every task is a learning opportunity.",
+    },
+    {
+      title: "Build Skills That\nActually Matter",
+      subtitle: "Portfolio work that gets you hired",
+      gradient: ['#8b5cf6', '#7c3aed', '#6d28d9'],
+      icon: Building2,
+      portfolio: [
+        "Launched social media campaign → 50K reach",
+        "Generated 200 qualified leads → 12 became customers",
+        "Created product documentation → used by 500 users",
+        "Coordinated 3 supplier projects → all on time, on budget",
+      ],
+      description: "Graduates with generic internships struggle to get jobs. You'll have a portfolio of real startup wins that prove your value.",
+    },
+    {
+      title: "Get Clear Direction,\nNever Wonder What to Do",
+      subtitle: "Structured work plans from your executive",
+      gradient: ['#f59e0b', '#d97706', '#b45309'],
+      icon: Target,
+      workPlan: {
+        monday: "Research 50 potential customers, add to CRM (2 hours)",
+        tuesday: "Write 3 LinkedIn posts, schedule for next week (3 hours)",
+        wednesday: "Call 20 leads, qualify and book 3 demos (4 hours)",
+        feedback: "Marketing Exec reviews your work every Friday",
+      },
+      description: "No guessing what to do. Your executive gives you clear tasks, reviews your work, and helps you improve every week.",
+    },
+    {
+      title: "Start Your Career\nThe Smart Way",
+      subtitle: "Multiple startups = faster learning curve",
+      gradient: ['#ec4899', '#db2777', '#be185d'],
+      icon: Sparkles,
+      comparison: {
+        traditional: "1 internship → 1 company → 1 way of doing things",
+        centaurOS: "Work with 2-3 startups → See different approaches → Learn faster",
+      },
+      description: "Most people spend years at one company learning slowly. You'll work with multiple startups, see what works, and accelerate your career.",
+    },
+  ],
 };
 
 export default function TutorialScreen() {
@@ -257,12 +363,6 @@ export default function TutorialScreen() {
     }
   };
 
-  const handleBack = () => {
-    if (currentSlide > 0) {
-      setCurrentSlide(currentSlide - 1);
-    }
-  };
-
   const handleRoleChange = (role: Role) => {
     setSelectedRole(role);
     setCurrentSlide(0);
@@ -279,9 +379,6 @@ export default function TutorialScreen() {
   };
 
   const Icon = slide.icon;
-
-  // Determine if we're in the shared intro section (first 3 slides)
-  const isIntroSlide = currentSlide < 3;
 
   return (
     <View className="flex-1 bg-slate-950">
@@ -325,70 +422,56 @@ export default function TutorialScreen() {
       </View>
 
       <SafeAreaView className="flex-1">
-        {/* Header */}
+        {/* Header - Role Selector */}
         <Animated.View
           entering={FadeInDown.duration(600)}
           className="px-6 pt-2 pb-4"
         >
           <View className="flex-row justify-between items-center mb-4">
-            <View className="flex-row items-center gap-2">
-              <View className="bg-white/10 px-3 py-1.5 rounded-full">
-                <Text className="text-white/80 text-xs font-semibold">
-                  {currentSlide + 1} of {slides.length}
-                </Text>
-              </View>
-              {isIntroSlide && (
-                <View className="bg-purple-500/30 px-3 py-1.5 rounded-full">
-                  <Text className="text-purple-200 text-xs font-semibold">
-                    What is CentaurOS?
-                  </Text>
-                </View>
-              )}
+            <View className="bg-white/10 px-3 py-1.5 rounded-full">
+              <Text className="text-white/80 text-xs font-semibold">Interactive Demo</Text>
             </View>
             <Pressable onPress={handleSkip} className="bg-white/10 px-3 py-1.5 rounded-full">
               <Text className="text-white/80 text-xs font-bold">Skip</Text>
             </Pressable>
           </View>
 
-          {/* Role Selector - only show after intro slides */}
-          {!isIntroSlide && (
-            <View className="flex-row gap-2">
-              {(['Founder', 'FractionalExec', 'Apprentice'] as Role[]).map((role) => (
-                <Pressable
-                  key={role}
-                  onPress={() => handleRoleChange(role)}
-                  className={`flex-1 px-4 py-3 rounded-2xl border-2 ${
-                    selectedRole === role
-                      ? 'bg-white/20 border-white/40'
-                      : 'bg-white/5 border-white/10'
+          <View className="flex-row gap-2">
+            {(['Founder', 'FractionalExec', 'Apprentice'] as Role[]).map((role) => (
+              <Pressable
+                key={role}
+                onPress={() => handleRoleChange(role)}
+                className={`flex-1 px-4 py-3.5 rounded-2xl border-2 ${
+                  selectedRole === role
+                    ? 'bg-white/20 border-white/40'
+                    : 'bg-white/5 border-white/10'
+                }`}
+              >
+                <Text
+                  className={`text-center text-sm font-bold ${
+                    selectedRole === role ? 'text-white' : 'text-white/50'
                   }`}
                 >
-                  <Text
-                    className={`text-center text-xs font-bold ${
-                      selectedRole === role ? 'text-white' : 'text-white/50'
-                    }`}
-                  >
-                    {role === 'FractionalExec' ? 'Executive' : role}
-                  </Text>
-                </Pressable>
-              ))}
-            </View>
-          )}
+                  {role === 'FractionalExec' ? 'Executive' : role}
+                </Text>
+              </Pressable>
+            ))}
+          </View>
         </Animated.View>
 
         <ScrollView
           className="flex-1 px-6"
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingBottom: 140 }}
+          contentContainerStyle={{ paddingBottom: 120 }}
         >
           {/* Icon */}
           <Animated.View
             key={`icon-${currentSlide}`}
             entering={FadeIn.duration(800).springify()}
-            className="items-center mb-6 mt-2"
+            className="items-center mb-8 mt-4"
           >
-            <View className="bg-white/15 p-6 rounded-[28px] shadow-2xl border-2 border-white/20">
-              <Icon size={56} color="white" strokeWidth={2} />
+            <View className="bg-white/15 p-8 rounded-[32px] shadow-2xl border-2 border-white/20">
+              <Icon size={72} color="white" strokeWidth={2} />
             </View>
           </Animated.View>
 
@@ -397,104 +480,276 @@ export default function TutorialScreen() {
             key={`title-${currentSlide}`}
             entering={FadeInUp.delay(200).duration(700).springify()}
           >
-            <Text className="text-white text-4xl font-black mb-2 leading-tight">
+            <Text className="text-white text-5xl font-black mb-3 leading-tight">
               {slide.title}
             </Text>
-            <Text className="text-white/90 text-xl font-bold mb-6">{slide.subtitle}</Text>
+            <Text className="text-white/90 text-2xl font-bold mb-8">{slide.subtitle}</Text>
           </Animated.View>
 
-          {/* Description */}
+          {/* Content */}
           <Animated.View
-            key={`desc-${currentSlide}`}
+            key={`content-${currentSlide}`}
             entering={FadeInUp.delay(400).duration(700).springify()}
+            className="mb-6"
           >
-            <View className="bg-white/10 backdrop-blur-xl rounded-2xl p-5 border border-white/20">
-              <Text className="text-white/90 text-base leading-7">{slide.description}</Text>
-            </View>
+            {/* Stats */}
+            {slide.stats && (
+              <View className="bg-white/10 backdrop-blur-xl rounded-3xl p-7 mb-7 border border-white/20 shadow-xl">
+                {slide.stats.map((stat, index) => (
+                  <View
+                    key={index}
+                    className={`flex-row justify-between items-center ${
+                      index < slide.stats!.length - 1 ? 'mb-5 pb-5 border-b border-white/15' : ''
+                    }`}
+                  >
+                    <Text className="text-white/90 text-base font-semibold flex-1">{stat.label}</Text>
+                    <Text className="text-3xl font-black ml-4" style={{ color: stat.color }}>
+                      {stat.value}
+                    </Text>
+                  </View>
+                ))}
+              </View>
+            )}
 
-            {/* Role-specific highlights for intro slides */}
-            {currentSlide === 2 && (
-              <View className="mt-5 gap-3">
-                <View className="bg-purple-500/20 rounded-2xl p-4 border border-purple-400/30 flex-row items-center">
-                  <View className="bg-purple-500/30 p-2 rounded-xl mr-3">
-                    <Crown size={20} color="#a78bfa" />
-                  </View>
-                  <View className="flex-1">
-                    <Text className="text-purple-200 text-sm font-bold">Founders</Text>
-                    <Text className="text-white/70 text-xs">Own the vision, make decisions, orchestrate the team</Text>
-                  </View>
+            {/* Features for Executives */}
+            {slide.features && (
+              <View className="gap-4 mb-7">
+                {slide.features.map((feature, index) => {
+                  if (typeof feature === 'string') {
+                    return (
+                      <View key={index} className="flex-row items-start bg-white/5 rounded-2xl p-4 border border-white/10">
+                        <CheckCircle2 size={22} color="#10b981" style={{ marginRight: 12, marginTop: 2 }} />
+                        <Text className="text-white/90 text-base flex-1 font-medium">{feature}</Text>
+                      </View>
+                    );
+                  }
+                  return (
+                    <View key={index} className="bg-white/10 backdrop-blur-xl rounded-3xl p-6 border border-white/20 shadow-xl">
+                      <Text className="text-white text-xl font-black mb-2">
+                        {feature.title}
+                      </Text>
+                      <Text className="text-white/70 text-sm mb-4">{feature.detail}</Text>
+                      <View className="flex-row justify-between items-center">
+                        <Text className="text-white/90 text-lg font-bold">{feature.value}</Text>
+                        <Text className="text-white/50 text-xs">{feature.fullTime}</Text>
+                      </View>
+                    </View>
+                  );
+                })}
+              </View>
+            )}
+
+            {/* Real Example */}
+            {slide.realExample && (
+              <View className="bg-white/10 backdrop-blur-xl rounded-3xl p-7 mb-7 border border-white/20 shadow-xl">
+                <Text className="text-white text-xl font-black mb-5">
+                  {slide.realExample.task}
+                </Text>
+                <View className="bg-red-500/25 rounded-2xl p-5 mb-4 border border-red-400/30">
+                  <Text className="text-red-200 text-sm font-bold mb-2">Before:</Text>
+                  <Text className="text-white/90 text-base">{slide.realExample.before}</Text>
                 </View>
-                <View className="bg-blue-500/20 rounded-2xl p-4 border border-blue-400/30 flex-row items-center">
-                  <View className="bg-blue-500/30 p-2 rounded-xl mr-3">
-                    <Briefcase size={20} color="#93c5fd" />
-                  </View>
-                  <View className="flex-1">
-                    <Text className="text-blue-200 text-sm font-bold">Fractional Executives</Text>
-                    <Text className="text-white/70 text-xs">Part-time experts who guide strategy and review work</Text>
-                  </View>
-                </View>
-                <View className="bg-emerald-500/20 rounded-2xl p-4 border border-emerald-400/30 flex-row items-center">
-                  <View className="bg-emerald-500/30 p-2 rounded-xl mr-3">
-                    <GraduationCap size={20} color="#6ee7b7" />
-                  </View>
-                  <View className="flex-1">
-                    <Text className="text-emerald-200 text-sm font-bold">Apprentices</Text>
-                    <Text className="text-white/70 text-xs">Full-time doers who execute tasks and learn on the job</Text>
-                  </View>
+                <View className="bg-emerald-500/25 rounded-2xl p-5 border border-emerald-400/30">
+                  <Text className="text-emerald-200 text-sm font-bold mb-3">After:</Text>
+                  {slide.realExample.after.map((item, index) => (
+                    <View key={index} className="flex-row items-start mb-2">
+                      <CheckCircle2 size={18} color="#10b981" style={{ marginRight: 10, marginTop: 2 }} />
+                      <Text className="text-white/90 text-base flex-1">{item}</Text>
+                    </View>
+                  ))}
                 </View>
               </View>
             )}
 
-            {/* TU capacity visual for TU slides */}
-            {slide.title.includes('Time Units') && (
-              <View className="mt-5 bg-white/10 rounded-2xl p-5 border border-white/20">
-                <Text className="text-white/60 text-xs font-bold uppercase mb-3">Weekly Capacity</Text>
-                <View className="flex-row items-center mb-3">
-                  <View className="flex-1 bg-white/10 h-3 rounded-full overflow-hidden mr-3">
-                    <View className="bg-purple-500 h-full w-full rounded-full" />
-                  </View>
-                  <Text className="text-white text-sm font-bold">10 TU</Text>
-                </View>
-                <Text className="text-white/50 text-xs">= 40 hours of focused work per week</Text>
+            {/* Dashboard Preview */}
+            {slide.dashboard && (
+              <View className="gap-3 mb-7">
+                {slide.dashboard.map((item, index) => {
+                  const ItemIcon = item.icon;
+                  return (
+                    <View key={index} className="bg-white/10 backdrop-blur-xl rounded-2xl p-5 flex-row items-center border border-white/20 shadow-lg">
+                      <View className="bg-white/20 p-3 rounded-xl mr-4">
+                        <ItemIcon size={24} color="white" />
+                      </View>
+                      <View className="flex-1">
+                        <Text className="text-white text-base font-bold">{item.label}</Text>
+                        <Text className="text-white/70 text-sm">{item.status}</Text>
+                      </View>
+                      <ChevronRight size={20} color="rgba(255,255,255,0.5)" />
+                    </View>
+                  );
+                })}
               </View>
             )}
+
+            {/* Suppliers */}
+            {slide.suppliers && (
+              <View className="gap-4 mb-7">
+                {slide.suppliers.map((supplier, index) => (
+                  <View key={index} className="bg-white/10 backdrop-blur-xl rounded-3xl p-6 border border-white/20 shadow-xl">
+                    <Text className="text-white text-xl font-black mb-3">
+                      {supplier.name}
+                    </Text>
+                    <View className="flex-row justify-between items-center">
+                      <Text className="text-white/70 text-base">{supplier.capability}</Text>
+                      <View className="bg-emerald-500/30 px-3 py-1.5 rounded-full">
+                        <Text className="text-emerald-300 text-sm font-bold">
+                          {supplier.lead}
+                        </Text>
+                      </View>
+                    </View>
+                  </View>
+                ))}
+              </View>
+            )}
+
+            {/* Testimonials */}
+            {slide.testimonials && (
+              <View className="gap-5 mb-7">
+                {slide.testimonials.map((testimonial, index) => (
+                  <View key={index} className="bg-white/10 backdrop-blur-xl rounded-3xl p-7 border border-white/20 shadow-xl">
+                    <Text className="text-white text-lg italic mb-5 leading-7">
+                      "{testimonial.quote}"
+                    </Text>
+                    <Text className="text-white/70 text-sm mb-3">{testimonial.founder}</Text>
+                    <View className="bg-emerald-500/30 rounded-2xl px-4 py-3 self-start border border-emerald-400/30">
+                      <Text className="text-emerald-200 text-base font-black">
+                        {testimonial.metric}
+                      </Text>
+                    </View>
+                  </View>
+                ))}
+              </View>
+            )}
+
+            {/* Matching Process */}
+            {slide.matchingProcess && (
+              <View className="bg-white/10 backdrop-blur-xl rounded-3xl p-7 mb-7 border border-white/20 shadow-xl">
+                {slide.matchingProcess.map((step, index) => (
+                  <View key={index} className="flex-row items-start mb-5 last:mb-0">
+                    <View className="bg-white/30 rounded-full w-10 h-10 items-center justify-center mr-4">
+                      <Text className="text-white font-black text-base">{index + 1}</Text>
+                    </View>
+                    <Text className="text-white/90 text-base flex-1 pt-2 leading-6">{step}</Text>
+                  </View>
+                ))}
+              </View>
+            )}
+
+            {/* Workflow */}
+            {slide.workflow && (
+              <View className="gap-4 mb-7">
+                <View className="bg-violet-500/25 backdrop-blur-xl rounded-2xl p-5 border border-violet-400/30">
+                  <Text className="text-violet-200 text-sm font-bold mb-2">You</Text>
+                  <Text className="text-white text-base">{slide.workflow.you}</Text>
+                </View>
+                <View className="bg-blue-500/25 backdrop-blur-xl rounded-2xl p-5 border border-blue-400/30">
+                  <Text className="text-blue-200 text-sm font-bold mb-2">AI Agents</Text>
+                  <Text className="text-white text-base">{slide.workflow.aiAgent}</Text>
+                </View>
+                <View className="bg-emerald-500/25 backdrop-blur-xl rounded-2xl p-5 border border-emerald-400/30">
+                  <Text className="text-emerald-200 text-sm font-bold mb-2">Apprentice</Text>
+                  <Text className="text-white text-base">{slide.workflow.apprentice}</Text>
+                </View>
+                <View className="bg-amber-500/25 backdrop-blur-xl rounded-2xl p-5 border border-amber-400/30">
+                  <Text className="text-amber-200 text-sm font-bold mb-2">Result</Text>
+                  <Text className="text-white text-xl font-black">{slide.workflow.result}</Text>
+                </View>
+              </View>
+            )}
+
+            {/* Learning Examples */}
+            {slide.learning && (
+              <View className="gap-4 mb-7">
+                {slide.learning.map((item, index) => (
+                  <View key={index} className="bg-white/10 backdrop-blur-xl rounded-3xl p-6 border border-white/20 shadow-xl">
+                    <Text className="text-white text-lg font-black mb-3">{item.exec}</Text>
+                    <Text className="text-emerald-300 text-sm mb-2 font-semibold">Teaches: {item.teaches}</Text>
+                    <Text className="text-white/70 text-sm">Your Tasks: {item.yourTasks}</Text>
+                  </View>
+                ))}
+              </View>
+            )}
+
+            {/* Portfolio */}
+            {slide.portfolio && (
+              <View className="bg-white/10 backdrop-blur-xl rounded-3xl p-7 mb-7 border border-white/20 shadow-xl">
+                {slide.portfolio.map((item, index) => (
+                  <View key={index} className="flex-row items-start mb-4 last:mb-0">
+                    <CheckCircle2 size={22} color="#10b981" style={{ marginRight: 12, marginTop: 2 }} />
+                    <Text className="text-white text-base flex-1 font-medium">{item}</Text>
+                  </View>
+                ))}
+              </View>
+            )}
+
+            {/* Work Plan */}
+            {slide.workPlan && (
+              <View className="bg-white/10 backdrop-blur-xl rounded-3xl p-7 mb-7 border border-white/20 shadow-xl">
+                {Object.entries(slide.workPlan).map(([day, task], index) => {
+                  if (day === 'feedback') {
+                    return (
+                      <View key={day} className="bg-violet-500/25 rounded-2xl p-5 mt-4 border border-violet-400/30">
+                        <Text className="text-violet-200 text-sm font-bold mb-2">
+                          Weekly Feedback
+                        </Text>
+                        <Text className="text-white text-base">{task}</Text>
+                      </View>
+                    );
+                  }
+                  return (
+                    <View key={day} className="mb-4 last:mb-0">
+                      <Text className="text-white/60 text-xs font-black uppercase mb-2 tracking-wider">
+                        {day}
+                      </Text>
+                      <Text className="text-white text-base">{task}</Text>
+                    </View>
+                  );
+                })}
+              </View>
+            )}
+
+            {/* Comparison */}
+            {slide.comparison && (
+              <View className="gap-4 mb-7">
+                <View className="bg-red-500/25 backdrop-blur-xl rounded-2xl p-5 border border-red-400/30">
+                  <Text className="text-red-200 text-sm font-bold mb-3">Traditional Path</Text>
+                  <Text className="text-white/90 text-base">{slide.comparison.traditional}</Text>
+                </View>
+                <View className="bg-emerald-500/25 backdrop-blur-xl rounded-2xl p-5 border border-emerald-400/30">
+                  <Text className="text-emerald-200 text-sm font-bold mb-3">Fractional Foundry</Text>
+                  <Text className="text-white text-base font-semibold">{slide.comparison.centaurOS}</Text>
+                </View>
+              </View>
+            )}
+
+            {/* Description */}
+            <Text className="text-white/80 text-lg leading-8 font-medium">{slide.description}</Text>
           </Animated.View>
         </ScrollView>
 
-        {/* Footer - Progress & Navigation */}
-        <View className="absolute bottom-0 left-0 right-0 px-6 pb-8 pt-6 bg-gradient-to-t from-black/80 via-black/60 to-transparent">
-          {/* Progress dots */}
+        {/* Footer - Progress & CTA */}
+        <View className="absolute bottom-0 left-0 right-0 px-6 pb-8 pt-6 bg-gradient-to-t from-black/80 via-black/60 to-transparent backdrop-blur-xl">
           <View className="flex-row justify-center mb-5">
             {slides.map((_, index) => (
               <View
                 key={index}
-                className={`h-2 rounded-full mx-1 ${
-                  index === currentSlide ? 'bg-white w-8' : 'bg-white/30 w-2'
+                className={`h-2.5 rounded-full mx-1 ${
+                  index === currentSlide ? 'bg-white w-10' : 'bg-white/30 w-2.5'
                 }`}
               />
             ))}
           </View>
 
-          {/* Navigation buttons */}
-          <View className="flex-row gap-3">
-            {currentSlide > 0 && (
-              <Pressable
-                onPress={handleBack}
-                className="bg-white/20 rounded-2xl py-4 px-6 active:scale-[0.98]"
-              >
-                <Text className="text-white text-base font-bold">Back</Text>
-              </Pressable>
-            )}
-            <Pressable
-              onPress={handleNext}
-              className="flex-1 bg-white rounded-2xl py-4 flex-row items-center justify-center active:scale-[0.98] shadow-2xl"
-            >
-              <Text className="text-slate-900 text-lg font-black mr-2">
-                {currentSlide === slides.length - 1 ? "Get Started" : 'Next'}
-              </Text>
-              <ArrowRight size={24} color="#0f172a" strokeWidth={3} />
-            </Pressable>
-          </View>
+          <Pressable
+            onPress={handleNext}
+            className="bg-white rounded-3xl py-5 flex-row items-center justify-center active:scale-[0.98] shadow-2xl"
+          >
+            <Text className="text-slate-900 text-xl font-black mr-2">
+              {currentSlide === slides.length - 1 ? "Let's Get Started" : 'Next'}
+            </Text>
+            <ArrowRight size={28} color="#0f172a" strokeWidth={3} />
+          </Pressable>
         </View>
       </SafeAreaView>
     </View>

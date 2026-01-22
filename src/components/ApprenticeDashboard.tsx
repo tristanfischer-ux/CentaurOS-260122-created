@@ -53,7 +53,7 @@ function TaskCard({ task, onPress }: TaskCardProps) {
   return (
     <Pressable
       onPress={onPress}
-      className="bg-white dark:bg-slate-900 rounded-xl p-4 mb-3 border border-gray-200 dark:border-slate-700 active:opacity-90"
+      className="bg-white dark:bg-slate-800 rounded-xl p-4 mb-3 border border-gray-200 dark:border-slate-700 active:opacity-90"
     >
       <View className="flex-row items-start justify-between">
         <View className="flex-1 mr-3">
@@ -143,7 +143,7 @@ function SquadMemberChip({ member, isCurrentUser }: SquadMemberChipProps) {
   return (
     <View
       className={`flex-row items-center gap-2 px-3 py-2 rounded-xl mr-2 mb-2 ${
-        isCurrentUser ? 'bg-emerald-100 dark:bg-emerald-900/30' : 'bg-gray-100 dark:bg-slate-900'
+        isCurrentUser ? 'bg-emerald-100 dark:bg-emerald-900/30' : 'bg-gray-100 dark:bg-slate-800'
       }`}
     >
       <View
@@ -287,7 +287,7 @@ export function ApprenticeDashboard() {
             <Text className="text-gray-500 dark:text-slate-400 text-xs font-bold mb-3">
               YOUR MANAGER
             </Text>
-            <Pressable className="bg-white dark:bg-slate-900 rounded-xl p-4 flex-row items-center border border-gray-200 dark:border-slate-700">
+            <Pressable className="bg-white dark:bg-slate-800 rounded-xl p-4 flex-row items-center border border-gray-200 dark:border-slate-700">
               <View className="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900/30 items-center justify-center mr-3">
                 <Text className="text-blue-600 dark:text-blue-400 font-bold">
                   {manager.name.split(' ').map((n) => n[0]).join('')}
@@ -379,7 +379,7 @@ export function ApprenticeDashboard() {
               return (
                 <View
                   key={squad.id}
-                  className="bg-white dark:bg-slate-900 rounded-xl p-4 mb-3 border border-gray-200 dark:border-slate-700"
+                  className="bg-white dark:bg-slate-800 rounded-xl p-4 mb-3 border border-gray-200 dark:border-slate-700"
                 >
                   <View className="flex-row items-center gap-2 mb-3">
                     <View
@@ -427,7 +427,7 @@ export function ApprenticeDashboard() {
 
         {/* Empty State */}
         {myTasks.length === 0 && (
-          <View className="bg-white dark:bg-slate-900 rounded-xl p-8 items-center">
+          <View className="bg-white dark:bg-slate-800 rounded-xl p-8 items-center">
             <Target size={48} color="#94a3b8" />
             <Text className="text-gray-900 dark:text-white font-semibold text-lg mt-4">
               No Tasks Yet

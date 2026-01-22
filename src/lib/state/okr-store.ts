@@ -4,7 +4,6 @@
  */
 
 import { create } from 'zustand';
-import { supabase } from '@/lib/supabase';
 import type { Function as BusinessFunction } from '@/types';
 
 export interface Objective {
@@ -37,12 +36,9 @@ export interface OKR {
 interface OKRState {
   okrs: OKR[];
   selectedOKR: OKR | null;
-  isLoading: boolean;
-  error: string | null;
 
   // Actions
   initializeOKRs: () => void;
-  loadOKRsFromSupabase: (workspaceId: string) => Promise<void>;
   getOKRById: (id: string) => OKR | undefined;
   getOKRsByFunction: (func: BusinessFunction) => OKR[];
   getOKRsByStatus: (status: 'on-track' | 'at-risk' | 'off-track') => OKR[];
@@ -211,77 +207,9 @@ const INITIAL_OKRS: OKR[] = [
 export const useOKRStore = create<OKRState>((set, get) => ({
   okrs: [],
   selectedOKR: null,
-  isLoading: false,
-  error: null,
 
   initializeOKRs: () => {
-    // DISABLED: OKRs should be loaded from Supabase
-    // set({ okrs: INITIAL_OKRS });
-
-    // Start with empty array until Supabase integration is complete
-    set({ okrs: [] });
-  },
-
-  loadOKRsFromSupabase: async (workspaceId: string) => {
-    set({ isLoading: true, error: null });
-
-    try {
-      // Load OKRs from Supabase
-      const { data: okrsData, error: okrsError } = await supabase
-        .from('okrs')
-        .select('*')
-        .eq('workspace_id', workspaceId)
-        .order('created_at', { ascending: false });
-
-      if (okrsError) {
-        console.error('Error loading OKRs:', okrsError);
-        set({ error: okrsError.message, isLoading: false });
-        return;
-      }
-
-      // Load objectives for all OKRs
-      const { data: objectivesData, error: objectivesError } = await supabase
-        .from('okr_objectives')
-        .select('*')
-        .in('okr_id', (okrsData || []).map((okr: any) => okr.id));
-
-      if (objectivesError) {
-        console.error('Error loading objectives:', objectivesError);
-      }
-
-      // Transform Supabase data to OKR format
-      const okrs: OKR[] = (okrsData || []).map((okr: any) => {
-        // Find objectives for this OKR
-        const okrObjectives = (objectivesData || [])
-          .filter((obj: any) => obj.okr_id === okr.id)
-          .map((obj: any) => ({
-            id: obj.id,
-            title: obj.title || '',
-            target: '100', // Not in current schema
-            current: String(obj.progress || 0),
-            progress: obj.progress || 0,
-            status: (obj.progress || 0) >= 80 ? 'on-track' : (obj.progress || 0) >= 50 ? 'at-risk' : 'off-track' as Objective['status'],
-          }));
-
-        return {
-          id: okr.id,
-          workspaceId: okr.workspace_id,
-          function: 'Engineering' as BusinessFunction, // Not in current schema
-          title: okr.title || '',
-          description: okr.description || '',
-          owner: '', // owner_id in schema but need to join
-          startDate: okr.quarter || 'Q1 2026',
-          endDate: okr.quarter || 'Q1 2026',
-          status: (okr.status || 'on-track') as 'on-track' | 'at-risk' | 'off-track',
-          objectives: okrObjectives,
-        };
-      });
-
-      set({ okrs, isLoading: false });
-    } catch (err) {
-      console.error('Error loading OKRs from Supabase:', err);
-      set({ error: err instanceof Error ? err.message : 'Failed to load OKRs', isLoading: false });
-    }
+    set({ okrs: INITIAL_OKRS });
   },
 
   getOKRById: (id: string) => {
@@ -312,137 +240,14 @@ export const useOKRStore = create<OKRState>((set, get) => ({
     }));
   },
 
-  addOKR: async (okr: OKR) => {
-    // Generate temp ID for optimistic update
-    const tempId = `temp-${Date.now()}`;
-    const tempOKR = { ...okr, id: okr.id || tempId };
-
-    // Optimistic update
-    set(state => ({ okrs: [...state.okrs, tempOKR] }));
-
-    try {
-      // Transform to Supabase format
-      const supabaseOKR = {
-        id: okr.id !== tempId ? okr.id : undefined,
-        workspace_id: okr.workspaceId,
-        title: okr.title,
-        description: okr.description,
-        quarter: okr.startDate, // Using startDate as quarter
-        status: okr.status,
-      };
-
-      const { data, error } = await supabase
-        .from('okrs')
-        .insert(supabaseOKR)
-        .select()
-        .single();
-
-      if (error) throw error;
-
-      // Insert objectives if any
-      if (okr.objectives && okr.objectives.length > 0) {
-        const objectivesToInsert = okr.objectives.map(obj => ({
-          okr_id: data.id,
-          title: obj.title,
-          progress: obj.progress,
-        }));
-
-        const { error: objError } = await supabase
-          .from('okr_objectives')
-          .insert(objectivesToInsert);
-
-        if (objError) {
-          console.error('Failed to insert objectives:', objError);
-        }
-      }
-
-      // Replace temp with real data
-      const realOKR: OKR = {
-        ...okr,
-        id: data.id,
-        workspaceId: data.workspace_id,
-      };
-
-      set((state) => ({
-        okrs: state.okrs.map(o => o.id === tempId ? realOKR : o)
-      }));
-    } catch (err) {
-      // Rollback on error
-      set((state) => ({
-        okrs: state.okrs.filter(o => o.id !== tempId)
-      }));
-      console.error('Failed to add OKR:', err);
-      throw err;
-    }
+  addOKR: (okr: OKR) => {
+    set(state => ({ okrs: [...state.okrs, okr] }));
   },
 
-  updateOKR: async (id: string, updates: Partial<OKR>) => {
-    // Store previous state for rollback
-    const previousOKRs = get().okrs;
-
-    // Optimistic update
+  updateOKR: (id: string, updates: Partial<OKR>) => {
     set(state => ({
       okrs: state.okrs.map(okr => (okr.id === id ? { ...okr, ...updates } : okr)),
     }));
-
-    try {
-      // Transform updates to Supabase format
-      const supabaseUpdates: any = {};
-      if (updates.title !== undefined) supabaseUpdates.title = updates.title;
-      if (updates.description !== undefined) supabaseUpdates.description = updates.description;
-      if (updates.status !== undefined) supabaseUpdates.status = updates.status;
-      if (updates.startDate !== undefined) supabaseUpdates.quarter = updates.startDate;
-
-      const { data, error } = await supabase
-        .from('okrs')
-        .update(supabaseUpdates)
-        .eq('id', id)
-        .select()
-        .single();
-
-      if (error) throw error;
-
-      // Update objectives if provided
-      if (updates.objectives !== undefined) {
-        // Delete existing objectives
-        await supabase
-          .from('okr_objectives')
-          .delete()
-          .eq('okr_id', id);
-
-        // Insert new objectives
-        if (updates.objectives.length > 0) {
-          const objectivesToInsert = updates.objectives.map(obj => ({
-            okr_id: id,
-            title: obj.title,
-            progress: obj.progress,
-          }));
-
-          const { error: objError } = await supabase
-            .from('okr_objectives')
-            .insert(objectivesToInsert);
-
-          if (objError) {
-            console.error('Failed to update objectives:', objError);
-          }
-        }
-      }
-
-      // Update with real data from server
-      const current = get().okrs.find(o => o.id === id);
-      if (current) {
-        set((state) => ({
-          okrs: state.okrs.map(o =>
-            o.id === id ? { ...current, ...updates } : o
-          )
-        }));
-      }
-    } catch (err) {
-      // Rollback on error
-      set({ okrs: previousOKRs });
-      console.error('Failed to update OKR:', err);
-      throw err;
-    }
   },
 
   updateQueueStatus: (okrId: string, queueStatus: QueueStatus) => {
@@ -453,35 +258,10 @@ export const useOKRStore = create<OKRState>((set, get) => ({
     }));
   },
 
-  deleteOKR: async (id: string) => {
-    // Store previous state for rollback
-    const previousOKRs = get().okrs;
-
-    // Optimistic update
+  deleteOKR: (id: string) => {
     set(state => ({
       okrs: state.okrs.filter(okr => okr.id !== id),
     }));
-
-    try {
-      // Delete objectives first (foreign key constraint)
-      await supabase
-        .from('okr_objectives')
-        .delete()
-        .eq('okr_id', id);
-
-      // Delete OKR
-      const { error } = await supabase
-        .from('okrs')
-        .delete()
-        .eq('id', id);
-
-      if (error) throw error;
-    } catch (err) {
-      // Rollback on error
-      set({ okrs: previousOKRs });
-      console.error('Failed to delete OKR:', err);
-      throw err;
-    }
   },
 
   reorderOKRs: (okrIds: string[]) => {
@@ -585,16 +365,6 @@ export const useOKRStore = create<OKRState>((set, get) => ({
 
   getOKRsByWorkspaceAndStatus: (workspaceId: string, status: 'on-track' | 'at-risk' | 'off-track') => {
     return get().okrs.filter(okr => okr.workspaceId === workspaceId && okr.status === status);
-  },
-
-  // Reset method - clears all OKR data
-  reset: () => {
-    set({
-      okrs: [],
-      selectedOKR: null,
-      isLoading: false,
-      error: null,
-    });
   },
 }));
 

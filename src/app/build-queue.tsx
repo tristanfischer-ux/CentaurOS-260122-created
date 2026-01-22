@@ -215,7 +215,7 @@ export default function BuildQueueScreen() {
                           onPress={() => moveTaskUp(task.id)}
                           disabled={index === 0}
                           className={`flex-row items-center px-2 py-1 rounded ${
-                            index === 0 ? 'opacity-30' : 'bg-gray-100 dark:bg-slate-900'
+                            index === 0 ? 'opacity-30' : 'bg-gray-100 dark:bg-slate-800'
                           }`}
                         >
                           <ArrowUp size={14} color="#6b7280" />
@@ -225,7 +225,7 @@ export default function BuildQueueScreen() {
                           onPress={() => moveTaskDown(task.id)}
                           disabled={index === inProgressTasks.length - 1}
                           className={`flex-row items-center px-2 py-1 rounded ${
-                            index === inProgressTasks.length - 1 ? 'opacity-30' : 'bg-gray-100 dark:bg-slate-900'
+                            index === inProgressTasks.length - 1 ? 'opacity-30' : 'bg-gray-100 dark:bg-slate-800'
                           }`}
                         >
                           <ArrowDown size={14} color="#6b7280" />
@@ -293,7 +293,7 @@ export default function BuildQueueScreen() {
           {/* Empty State */}
           {filteredTasks.length === 0 && (
             <View className="items-center py-12">
-              <View className="w-16 h-16 bg-gray-100 dark:bg-slate-900 rounded-full items-center justify-center mb-4">
+              <View className="w-16 h-16 bg-gray-100 dark:bg-slate-800 rounded-full items-center justify-center mb-4">
                 <ListOrdered size={32} color="#9ca3af" />
               </View>
               <Text className="text-gray-900 dark:text-white font-bold text-lg mb-1">

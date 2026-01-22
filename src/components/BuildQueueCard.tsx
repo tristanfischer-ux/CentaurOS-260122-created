@@ -107,11 +107,11 @@ export function BuildQueueCard({
       className={`bg-white dark:bg-slate-900 rounded-xl border-2 ${
         isActive
           ? 'border-purple-500'
-          : 'border-gray-200 dark:border-slate-700'
+          : 'border-gray-200 dark:border-slate-800'
       } overflow-hidden active:opacity-70`}
     >
       {/* Progress Bar Header */}
-      <View className="h-2 bg-gray-100 dark:bg-slate-900">
+      <View className="h-2 bg-gray-100 dark:bg-slate-800">
         <View
           className="h-full rounded-r"
           style={{
@@ -256,7 +256,7 @@ export function BuildQueueCard({
         </View>
 
         {/* Bottom Row: Timeline + Quality */}
-        <View className="flex-row items-center justify-between pt-3 border-t border-gray-100 dark:border-slate-700">
+        <View className="flex-row items-center justify-between pt-3 border-t border-gray-100 dark:border-slate-800">
           {/* Timeline */}
           <View className="flex-row items-center">
             <Clock size={14} color="#9ca3af" />

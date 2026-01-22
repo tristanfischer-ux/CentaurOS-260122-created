@@ -147,7 +147,7 @@ export function CreateTaskModal({ visible, onClose, workspaceId }: CreateTaskMod
                 TASK TITLE
               </Text>
               <TextInput
-                className="bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-3 text-gray-900 dark:text-white text-base"
+                className="bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-xl px-4 py-3 text-gray-900 dark:text-white text-base"
                 placeholder="e.g., Launch Marketing Campaign"
                 placeholderTextColor="#9ca3af"
                 value={title}
@@ -161,7 +161,7 @@ export function CreateTaskModal({ visible, onClose, workspaceId }: CreateTaskMod
                 DESCRIPTION (Optional)
               </Text>
               <TextInput
-                className="bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-3 text-gray-900 dark:text-white text-base min-h-[80px]"
+                className="bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-xl px-4 py-3 text-gray-900 dark:text-white text-base min-h-[80px]"
                 placeholder="Describe the task..."
                 placeholderTextColor="#9ca3af"
                 value={description}
@@ -184,7 +184,7 @@ export function CreateTaskModal({ visible, onClose, workspaceId }: CreateTaskMod
                     className={`px-4 py-2 rounded-lg border-2 ${
                       selectedFunction === func
                         ? 'border-purple-500'
-                        : 'border-gray-200 dark:border-slate-700'
+                        : 'border-gray-200 dark:border-slate-800'
                     }`}
                     style={selectedFunction === func ? { backgroundColor: getFunctionColor(func) + '20' } : {}}
                   >
@@ -214,7 +214,7 @@ export function CreateTaskModal({ visible, onClose, workspaceId }: CreateTaskMod
                   <View className="flex-row items-center gap-3">
                     <Pressable
                       onPress={() => setOriginalSquares(Math.max(1, originalSquares - 1))}
-                      className="w-10 h-10 bg-gray-200 dark:bg-slate-900 rounded-full items-center justify-center"
+                      className="w-10 h-10 bg-gray-200 dark:bg-slate-800 rounded-full items-center justify-center"
                     >
                       <Minus size={18} color="#6b7280" />
                     </Pressable>
@@ -223,7 +223,7 @@ export function CreateTaskModal({ visible, onClose, workspaceId }: CreateTaskMod
                     </Text>
                     <Pressable
                       onPress={() => setOriginalSquares(Math.min(100, originalSquares + 1))}
-                      className="w-10 h-10 bg-gray-200 dark:bg-slate-900 rounded-full items-center justify-center"
+                      className="w-10 h-10 bg-gray-200 dark:bg-slate-800 rounded-full items-center justify-center"
                     >
                       <Plus size={18} color="#6b7280" />
                     </Pressable>
@@ -262,7 +262,7 @@ export function CreateTaskModal({ visible, onClose, workspaceId }: CreateTaskMod
                     className={`flex-1 rounded-lg p-3 border-2 ${
                       aiMode === mode
                         ? 'border-purple-500'
-                        : 'border-gray-200 dark:border-slate-700'
+                        : 'border-gray-200 dark:border-slate-800'
                     }`}
                     style={aiMode === mode ? { backgroundColor: getAIModeColor(mode) + '20' } : {}}
                   >
@@ -314,7 +314,7 @@ export function CreateTaskModal({ visible, onClose, workspaceId }: CreateTaskMod
                     className={`flex-1 rounded-lg py-2 border-2 ${
                       urgency === u.id
                         ? 'border-purple-500'
-                        : 'border-gray-200 dark:border-slate-700'
+                        : 'border-gray-200 dark:border-slate-800'
                     }`}
                     style={urgency === u.id ? { backgroundColor: u.color + '20' } : {}}
                   >
@@ -366,7 +366,7 @@ export function CreateTaskModal({ visible, onClose, workspaceId }: CreateTaskMod
           </ScrollView>
 
           {/* Footer */}
-          <View className="p-5 border-t border-gray-200 dark:border-slate-700">
+          <View className="p-5 border-t border-gray-200 dark:border-slate-800">
             <View className="flex-row gap-3">
               <Pressable
                 onPress={handleClose}

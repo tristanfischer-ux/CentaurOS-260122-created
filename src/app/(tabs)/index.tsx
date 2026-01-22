@@ -22,44 +22,40 @@ import { LinearGradient } from 'expo-linear-gradient';
 import {
   Settings,
   RefreshCw,
+  Trophy,
+  Rocket,
+  Zap,
+  Briefcase,
+  ChevronRight,
 } from 'lucide-react-native';
 
 // Stores
 import { useTechTreeStore } from '@/lib/state/tech-tree-store';
-import { useWorkPlanStore, type WorkPlan } from '@/lib/state/work-plan-store';
+import { useWorkPlanStore } from '@/lib/state/work-plan-store';
 import { useOrganizationStore } from '@/lib/state/organization-store';
 import { useSupplierStore } from '@/lib/state/supplier-store';
 import { useRoleStore, useActiveRole } from '@/lib/state/role-store';
 import { useDecisionsStore } from '@/lib/state/decisions-store';
 import { useObjectivesStore } from '@/lib/state/objectives-store';
-import { useCurrentWorkspace, useCurrentMembership } from '@/lib/state/app-store';
 import { useAutomaticSquadDetection } from '@/lib/hooks/useAutomaticSquadDetection';
 import { autoSeedDemoDataIfNeeded } from '@/lib/seed-demo-data';
-import { subscribeToWorkPlans } from '@/lib/realtime-subscriptions';
 
 // Components
 import { HelpModal, HelpButton, type HelpContent } from '@/components/HelpModal';
 import { RoleSwitcher } from '@/components/RoleSwitcher';
 import { ApprenticeHome } from '@/components/ApprenticeHome';
 import { ExecutiveHome } from '@/components/ExecutiveHome';
-import { FilingCabinetDrawers } from '@/components/FilingCabinetDrawers';
+import { CollapsibleGanttChart } from '@/components/CollapsibleGanttChart';
 
-// New redesigned components
-import { AIInsightsPanel } from '@/components/home/AIInsightsPanel';
-import { BusinessHealthMetrics } from '@/components/home/BusinessHealthMetrics';
-import { ThisWeekSection } from '@/components/home/ThisWeekSection';
-import { CondensedObjectivesSection } from '@/components/home/CondensedObjectivesSection';
-
-// AI-Powered Priority Section
-import { FocusTodaySection } from '@/components/FocusTodaySection';
-
-// Task Assignment System
-import { PendingAssignmentsBadge } from '@/components/PendingAssignmentsBadge';
-import { PendingAssignmentsModal } from '@/components/PendingAssignmentsModal';
-
-// Escalation System
-import { EscalationsBadge } from '@/components/EscalationsBadge';
-import { EscalationsInboxModal } from '@/components/EscalationsInboxModal';
+// New Home Dashboard Components
+import {
+  UrgentDecisionsSection,
+  BusinessObjectivesSection,
+  CurrentActivitiesSection,
+  TeamCapacityDashboard,
+  SupplierSpendDashboard,
+  PerformanceDashboardGrid,
+} from '@/components/home';
 
 // Role-based components
 import { FounderApprovalPanel } from '@/components/FounderApprovalPanel';
@@ -67,24 +63,19 @@ import { seedAllocationRequests } from '@/lib/state/allocation-request-store';
 
 const HOME_HELP: HelpContent = {
   title: 'Mission Control',
-  subtitle: 'Your AI-Powered Executive Command Center',
-  description: 'Mission Control is your business intelligence hub - everything you need to make fast, informed decisions. AI-powered priority surfacing, real-time team capacity, urgent decisions, and performance metrics all in one place.',
+  subtitle: 'Your Executive Command Center',
+  description: 'Everything you need to run your business at a glance. Urgent decisions, objectives, activities, team capacity, and performance metrics - all in one place.',
   tips: [
-    '🎯 Focus Today: AI analyzes your tasks and surfaces the most critical ones based on deadlines, team blockers, business impact, and capacity',
-    '🔔 Pending Assignments: Get notified when tasks are assigned to you - accept or reject with one tap',
-    '⚡ Urgent Decisions: Color-coded warnings appear when decisions are blocking team progress',
-    '📊 Business Objectives: Track Q1 goals with real-time progress and linked tasks',
-    '👥 Team Capacity: See who has bandwidth for new work, who\'s at capacity, and who\'s overloaded',
-    '📈 Performance KPIs: Instant health checks across all business functions',
-    '🔄 Pull down to refresh all data in real-time',
-    '➕ Green button at bottom: Create new tasks instantly with AI assistance',
+    'Urgent Decisions appear at the top with color-coded priority',
+    'Business Objectives show Q1 goals with progress tracking',
+    'Team Capacity dashboard shows who can take on new work',
+    'Performance KPIs give you instant health checks',
+    'Pull down to refresh all data',
   ],
   quickActions: [
-    { label: 'Focus Today', description: 'AI-prioritized tasks that need your attention right now' },
-    { label: 'Review Assignments', description: 'Accept or reject tasks assigned to you' },
-    { label: 'Make Decisions', description: 'Unblock team progress with urgent decisions' },
-    { label: 'Check Capacity', description: 'See who can take on new work this week' },
-    { label: 'Create Task', description: 'Tap green + button to add tasks with AI' },
+    { label: 'Decide', description: 'Make urgent decisions that are blocking progress' },
+    { label: 'Allocate', description: 'Assign team capacity to priority tasks' },
+    { label: 'Review', description: 'Check performance and adjust course' },
   ],
 };
 
@@ -108,7 +99,6 @@ export default function HomeScreen() {
     case 'FractionalExec':
       return <ExecutiveHome />;
     case 'Founder':
-    case 'CoFounder':
     default:
       return <FounderHome />;
   }
@@ -123,70 +113,30 @@ function FounderHome() {
   const [refreshing, setRefreshing] = useState(false);
   const [lastUpdated, setLastUpdated] = useState(new Date());
   const refreshTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const [showPendingAssignments, setShowPendingAssignments] = useState(false);
-  const [showEscalationsModal, setShowEscalationsModal] = useState(false);
-  const [statsFilter, setStatsFilter] = useState<'all' | 'doing' | 'blocked' | 'team' | null>(null);
 
-  // Task expansion state (for inline Medium view)
-  const [expandedTaskId, setExpandedTaskId] = useState<string | null>(null);
-  const [selectedTask, setSelectedTask] = useState<WorkPlan | null>(null);
-  const [showFullModal, setShowFullModal] = useState(false);
-
-  // DISABLED: Auto-detect squads from task allocations
-  // This creates squads automatically, which should not happen after reset
-  // useAutomaticSquadDetection();
+  // Auto-detect squads from task allocations
+  useAutomaticSquadDetection();
 
   // Store initializations
   const initializeTechTree = useTechTreeStore((s) => s.initialize);
   const initializeSuppliers = useSupplierStore((s) => s.initializeSuppliers);
   const initializeDecisions = useDecisionsStore((s) => s.initialize);
   const initializeObjectives = useObjectivesStore((s) => s.initialize);
-  const loadWorkPlansFromSupabase = useWorkPlanStore((s) => s.loadWorkPlansFromSupabase);
   const suppliers = useSupplierStore((s) => s.suppliers);
   const workPlans = useWorkPlanStore((s) => s.workPlans);
   const members = useOrganizationStore((s) => s.members);
-  const currentWorkspace = useCurrentWorkspace();
-  const currentMembership = useCurrentMembership();
-
-  // Get current member from organization members
-  const currentMember = members.find(m => m.id === currentMembership?.id);
 
   // Initialize all stores on mount
   useEffect(() => {
     initializeTechTree();
     initializeDecisions();
     initializeObjectives();
-
-    // DISABLED: Auto-seeding demo data
-    // autoSeedDemoDataIfNeeded();
-    // seedAllocationRequests();
-
+    autoSeedDemoDataIfNeeded();
+    seedAllocationRequests(); // Seed sample allocation requests for demo
     if (suppliers.length === 0) {
       initializeSuppliers();
     }
   }, [initializeTechTree, initializeSuppliers, initializeDecisions, initializeObjectives, suppliers.length]);
-
-  // Load work plans from Supabase and subscribe to real-time updates
-  useEffect(() => {
-    if (!currentWorkspace?.id) {
-      console.log('[Home] No workspace selected, skipping work plan load');
-      return;
-    }
-
-    console.log('[Home] Loading work plans for workspace:', currentWorkspace.id);
-
-    // Load work plans from Supabase
-    loadWorkPlansFromSupabase(currentWorkspace.id);
-
-    // Subscribe to real-time updates
-    const cleanup = subscribeToWorkPlans(currentWorkspace.id, (payload) => {
-      console.log('[Home] Work plan update received:', payload.eventType);
-      // Reload work plans when changes occur
-      loadWorkPlansFromSupabase(currentWorkspace.id);
-    });
-
-    return cleanup;
-  }, [currentWorkspace?.id, loadWorkPlansFromSupabase]);
 
   // Auto-refresh timer
   useEffect(() => {
@@ -205,20 +155,13 @@ function FounderHome() {
   const handleRefresh = useCallback(async () => {
     setRefreshing(true);
     // Re-initialize stores to fetch latest data
-    const promises = [
+    await Promise.all([
       initializeDecisions(),
       initializeObjectives(),
-    ];
-
-    // Also reload work plans if workspace is available
-    if (currentWorkspace?.id) {
-      promises.push(loadWorkPlansFromSupabase(currentWorkspace.id));
-    }
-
-    await Promise.all(promises);
+    ]);
     setLastUpdated(new Date());
     setTimeout(() => setRefreshing(false), 800);
-  }, [initializeDecisions, initializeObjectives, currentWorkspace?.id, loadWorkPlansFromSupabase]);
+  }, [initializeDecisions, initializeObjectives]);
 
   // Format last updated time
   const formattedLastUpdated = useMemo(() => {
@@ -260,32 +203,16 @@ function FounderHome() {
           paddingBottom: 16,
         }}
       >
-        <View className="flex-row items-center justify-between mb-4">
+        <View className="flex-row items-center justify-between">
           <View className="flex-1">
-            <Text className="text-white/70 text-xs font-medium uppercase tracking-wide">
+            <Text className="text-white/70 text-xs font-medium">
               {currentDate}
             </Text>
-            <Text className="text-white text-2xl font-bold">
+            <Text className="text-white text-xl font-bold">
               Mission Control
             </Text>
           </View>
           <View className="flex-row items-center gap-2">
-            {/* Pending Assignments Badge */}
-            {currentMembership?.id && (
-              <PendingAssignmentsBadge
-                memberId={currentMembership.id}
-                onPress={() => setShowPendingAssignments(true)}
-                style="icon-only"
-              />
-            )}
-            {/* Escalations Badge (Founders only) */}
-            {currentMember?.role === 'Founder' && currentWorkspace?.id && (
-              <EscalationsBadge
-                workspaceId={currentWorkspace.id}
-                onPress={() => setShowEscalationsModal(true)}
-                style="icon-only"
-              />
-            )}
             {/* Last Updated */}
             <Pressable
               onPress={handleRefresh}
@@ -304,36 +231,11 @@ function FounderHome() {
             <HelpButton onPress={() => setShowHelp(true)} />
           </View>
         </View>
-
-        {/* Business Health Indicator */}
-        <View className="flex-row items-center gap-2 bg-white/10 rounded-xl px-3 py-2.5">
-          <View
-            className="w-2.5 h-2.5 rounded-full"
-            style={{
-              backgroundColor: workPlans.filter(wp => wp.status === 'blocked').length > 5 ||
-                              workPlans.filter(wp => wp.status !== 'completed' && wp.status !== 'abandoned' && new Date(wp.dueDate) < new Date()).length > 3
-                ? '#ef4444'  // Red
-                : workPlans.filter(wp => wp.status === 'blocked').length > 2
-                ? '#f59e0b'  // Yellow
-                : '#10b981'  // Green
-            }}
-          />
-          <Text className="text-white/90 text-sm font-medium flex-1">
-            Business Health: {
-              workPlans.filter(wp => wp.status === 'blocked').length > 5 ||
-              workPlans.filter(wp => wp.status !== 'completed' && wp.status !== 'abandoned' && new Date(wp.dueDate) < new Date()).length > 3
-                ? 'Needs Attention'
-                : workPlans.filter(wp => wp.status === 'blocked').length > 2
-                ? 'At Risk'
-                : 'On Track'
-            }
-          </Text>
-        </View>
       </LinearGradient>
 
       <ScrollView
         className="flex-1"
-        contentContainerStyle={{ paddingBottom: insets.bottom + 100 }}
+        contentContainerStyle={{ paddingBottom: insets.bottom + 140 }}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
@@ -344,60 +246,98 @@ function FounderHome() {
         }
         showsVerticalScrollIndicator={false}
       >
+        {/* ===== 1. URGENT DECISIONS (Top Priority) ===== */}
+        <View className="px-5 pt-5">
+          <UrgentDecisionsSection />
+        </View>
+
         {/* ===== FOUNDER APPROVAL PANEL (Allocation Requests) ===== */}
-        <View className="px-5 pt-3">
+        <View className="pt-4">
           <FounderApprovalPanel />
         </View>
 
-        {/* ===== AI INSIGHTS (replaces Focus Today) ===== */}
-        <View className="px-5 pt-4">
-          <AIInsightsPanel />
+        {/* ===== 2. BUSINESS OBJECTIVES ===== */}
+        <View className="pt-2">
+          <BusinessObjectivesSection />
         </View>
 
-        {/* ===== THIS WEEK (new forward-looking section) ===== */}
-        <View className="px-5 pt-4">
-          <ThisWeekSection />
-        </View>
+        {/* ===== 3. CURRENT & UPCOMING ACTIVITIES ===== */}
+        <CurrentActivitiesSection />
 
-        {/* ===== BUSINESS HEALTH (simplified 3 metrics) ===== */}
-        <View className="px-5 pt-4">
-          <BusinessHealthMetrics />
-        </View>
+        {/* ===== 4. TEAM CAPACITY OVERVIEW ===== */}
+        <TeamCapacityDashboard />
 
-        {/* ===== OBJECTIVES (condensed list) ===== */}
+        {/* ===== 5. PERFORMANCE DASHBOARD SUITE ===== */}
+        <PerformanceDashboardGrid />
+
+        {/* ===== 6. SUPPLIER & SPEND OVERVIEW ===== */}
+        <SupplierSpendDashboard />
+
+        {/* ===== 7. ESSENTIAL TOOLS SECTION ===== */}
         <View className="px-5 pt-4">
-          <CondensedObjectivesSection />
+          <Text className="text-slate-500 dark:text-slate-500 text-xs font-semibold mb-3 uppercase tracking-wider">
+            Quick Access
+          </Text>
+          <View className="flex-row flex-wrap gap-2">
+            {/* Function Hub */}
+            <Pressable
+              onPress={() => router.push('/function-hub')}
+              className="flex-1 min-w-[45%] bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-3 flex-row items-center gap-2 active:opacity-70"
+            >
+              <View className="bg-purple-100 dark:bg-purple-900/30 p-2 rounded-lg">
+                <Briefcase size={16} color="#8b5cf6" />
+              </View>
+              <View className="flex-1">
+                <Text className="text-slate-900 dark:text-white font-semibold text-sm">Functions</Text>
+                <Text className="text-slate-500 dark:text-slate-400 text-xs">Business areas</Text>
+              </View>
+              <ChevronRight size={14} color="#64748b" />
+            </Pressable>
+
+            {/* Getting Started */}
+            <Pressable
+              onPress={() => router.push('/tech-tree')}
+              className="flex-1 min-w-[45%] bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-3 flex-row items-center gap-2 active:opacity-70"
+            >
+              <View className="bg-emerald-100 dark:bg-emerald-900/30 p-2 rounded-lg">
+                <Trophy size={16} color="#10b981" />
+              </View>
+              <View className="flex-1">
+                <Text className="text-slate-900 dark:text-white font-semibold text-sm">Progress</Text>
+                <Text className="text-slate-500 dark:text-slate-400 text-xs">Tech tree</Text>
+              </View>
+              <ChevronRight size={14} color="#64748b" />
+            </Pressable>
+
+            {/* Startup Hub */}
+            <Pressable
+              onPress={() => router.push('/startup-pack/wizard')}
+              className="flex-1 min-w-[45%] bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-3 flex-row items-center gap-2 active:opacity-70"
+            >
+              <View className="bg-blue-100 dark:bg-blue-900/30 p-2 rounded-lg">
+                <Rocket size={16} color="#3b82f6" />
+              </View>
+              <View className="flex-1">
+                <Text className="text-slate-900 dark:text-white font-semibold text-sm">Startup</Text>
+                <Text className="text-slate-500 dark:text-slate-400 text-xs">Launch tools</Text>
+              </View>
+              <ChevronRight size={14} color="#64748b" />
+            </Pressable>
+          </View>
         </View>
       </ScrollView>
 
-      {/* Filing Cabinet Drawers - Team & Timeline */}
-      <FilingCabinetDrawers
-        onTaskPress={(taskId: string) => {
+      {/* Task Timeline Gantt Chart - Collapsible at bottom */}
+      <CollapsibleGanttChart
+        workPlans={workPlans}
+        members={members}
+        onTaskPress={(taskId) => {
           router.push({
-            pathname: '/(tabs)/tasks',
+            pathname: '/(tabs)/decide',
             params: { selectedTaskId: taskId },
           });
         }}
       />
-
-      {/* Pending Assignments Modal */}
-      {currentMembership?.id && (
-        <PendingAssignmentsModal
-          visible={showPendingAssignments}
-          onClose={() => setShowPendingAssignments(false)}
-          memberId={currentMembership.id}
-        />
-      )}
-
-      {/* Escalations Inbox Modal (Founders only) */}
-      {currentWorkspace?.id && currentMembership?.id && (
-        <EscalationsInboxModal
-          visible={showEscalationsModal}
-          onClose={() => setShowEscalationsModal(false)}
-          workspaceId={currentWorkspace.id}
-          currentMemberId={currentMembership.id}
-        />
-      )}
     </View>
   );
 }

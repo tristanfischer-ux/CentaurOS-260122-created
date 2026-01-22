@@ -17,14 +17,6 @@ import type {
   Role,
 } from '@/types';
 import { authStorage, appStorage } from '../storage';
-import { supabase } from '../supabase';
-import {
-  userService,
-  workspaceService,
-  membershipService,
-  teamMemberService,
-  initializeUserData,
-} from '../supabase-service';
 
 interface AppState {
   // Auth
@@ -60,7 +52,7 @@ interface AppState {
   // Actions
   setCurrentUser: (user: User | null) => void;
   setAuthToken: (token: string | null) => void;
-  setCurrentWorkspace: (workspaceId: string | null) => Promise<void>;
+  setCurrentWorkspace: (workspaceId: string | null) => void;
   setWorkspaces: (workspaces: Record<string, Workspace>) => void;
   setMemberships: (memberships: Record<string, Membership>) => void;
   setUsers: (users: Record<string, User>) => void;
@@ -79,9 +71,6 @@ interface AppState {
   setError: (error: string | null) => void;
   logout: () => void;
   initialize: () => Promise<void>;
-  loadUserData: (userId: string) => Promise<void>;
-  createWorkspace: (name: string, ownerId: string) => Promise<Workspace>;
-  updateWorkspace: (workspaceId: string, updates: Partial<Workspace>) => Promise<void>;
 }
 
 export const useAppStore = create<AppState>((set, get) => ({
@@ -128,40 +117,14 @@ export const useAppStore = create<AppState>((set, get) => ({
     }
   },
 
-  setCurrentWorkspace: async (workspaceId) => {
+  setCurrentWorkspace: (workspaceId) => {
     const state = get();
     const workspace = workspaceId ? state.workspaces[workspaceId] : null;
-    let membership = workspaceId
+    const membership = workspaceId
       ? Object.values(state.memberships).find(
           (m) => m.workspaceId === workspaceId && m.userId === state.currentUser?.id
         )
       : null;
-
-    // If no membership found but user is authenticated and workspace exists,
-    // auto-create a Founder membership for the user
-    // This handles the case where the user has workspace access but no membership record
-    if (!membership && workspaceId && state.currentUser?.id && workspace) {
-      console.log('[setCurrentWorkspace] No membership found, creating default Founder membership');
-      try {
-        const newMembership = await membershipService.create({
-          workspaceId,
-          userId: state.currentUser.id,
-          role: 'Founder',
-        });
-
-        // Add to local state
-        const updatedMemberships = {
-          ...state.memberships,
-          [newMembership.id]: newMembership,
-        };
-        set({ memberships: updatedMemberships });
-        membership = newMembership;
-        console.log('[setCurrentWorkspace] Created membership:', newMembership.id);
-      } catch (err) {
-        console.error('[setCurrentWorkspace] Failed to create membership:', err);
-        // Continue without membership - user can still view workspace
-      }
-    }
 
     console.log('setCurrentWorkspace:', {
       workspaceId,
@@ -202,9 +165,6 @@ export const useAppStore = create<AppState>((set, get) => ({
   setError: (error) => set({ error }),
 
   logout: async () => {
-    // Sign out from Supabase
-    await supabase.auth.signOut();
-
     authStorage.removeToken();
     await authStorage.removeCurrentUser();
     await appStorage.removeCurrentWorkspaceId();
@@ -215,130 +175,23 @@ export const useAppStore = create<AppState>((set, get) => ({
       currentWorkspaceId: null,
       currentWorkspace: null,
       currentMembership: null,
-      workspaces: {},
-      memberships: {},
-      users: {},
     });
   },
 
   initialize: async () => {
     try {
-      // Check for existing Supabase session
-      const { data: { session } } = await supabase.auth.getSession();
+      const user = await authStorage.getCurrentUser();
+      const token = authStorage.getToken();
+      const workspaceId = await appStorage.getCurrentWorkspaceId();
 
-      if (session?.user) {
-        // Get user profile from database
-        const user = await userService.getById(session.user.id);
-
-        if (user) {
-          set({
-            currentUser: user,
-            isAuthenticated: true,
-            authToken: session.access_token,
-          });
-
-          // Load user's workspaces and memberships
-          await get().loadUserData(user.id);
-        }
-      } else {
-        // Fallback to local storage (for backwards compatibility)
-        const user = await authStorage.getCurrentUser();
-        const token = authStorage.getToken();
-        const workspaceId = await appStorage.getCurrentWorkspaceId();
-
-        set({
-          currentUser: (user as User) ?? null,
-          isAuthenticated: !!user && !!token,
-          authToken: token ?? null,
-          currentWorkspaceId: workspaceId,
-        });
-      }
+      set({
+        currentUser: (user as User) ?? null,
+        isAuthenticated: !!user && !!token,
+        authToken: token ?? null,
+        currentWorkspaceId: workspaceId,
+      });
     } catch (error) {
       console.error('Failed to initialize app state:', error);
-    }
-  },
-
-  loadUserData: async (userId: string) => {
-    try {
-      set({ isLoading: true, error: null });
-
-      // Fetch all user data from Supabase
-      const { workspaces, memberships, teamMembers } = await initializeUserData(userId);
-
-      // Convert arrays to records for efficient lookup
-      const workspacesRecord: Record<string, Workspace> = {};
-      workspaces.forEach((ws) => {
-        workspacesRecord[ws.id] = ws;
-      });
-
-      const membershipsRecord: Record<string, Membership> = {};
-      memberships.forEach((m) => {
-        membershipsRecord[m.id] = m;
-      });
-
-      set({
-        workspaces: workspacesRecord,
-        memberships: membershipsRecord,
-        isLoading: false,
-      });
-
-      // Set current workspace if we have workspaces
-      const currentWorkspaceId = await appStorage.getCurrentWorkspaceId();
-      if (currentWorkspaceId && workspacesRecord[currentWorkspaceId]) {
-        get().setCurrentWorkspace(currentWorkspaceId);
-      } else if (workspaces.length > 0) {
-        // Default to first workspace
-        get().setCurrentWorkspace(workspaces[0].id);
-      }
-    } catch (error) {
-      console.error('Failed to load user data:', error);
-      set({ isLoading: false, error: 'Failed to load data' });
-    }
-  },
-
-  createWorkspace: async (name: string, ownerId: string) => {
-    try {
-      const workspace = await workspaceService.create({ name, ownerId });
-
-      // Add to local state
-      const state = get();
-      set({
-        workspaces: {
-          ...state.workspaces,
-          [workspace.id]: workspace,
-        },
-      });
-
-      // Reload memberships to include the new founder membership
-      await get().loadUserData(ownerId);
-
-      return workspace;
-    } catch (error) {
-      console.error('Failed to create workspace:', error);
-      throw error;
-    }
-  },
-
-  updateWorkspace: async (workspaceId: string, updates: Partial<Workspace>) => {
-    try {
-      const workspace = await workspaceService.update(workspaceId, updates);
-
-      // Update local state
-      const state = get();
-      set({
-        workspaces: {
-          ...state.workspaces,
-          [workspace.id]: workspace,
-        },
-      });
-
-      // Update current workspace if it's the one being updated
-      if (state.currentWorkspaceId === workspaceId) {
-        set({ currentWorkspace: workspace });
-      }
-    } catch (error) {
-      console.error('Failed to update workspace:', error);
-      throw error;
     }
   },
 }));

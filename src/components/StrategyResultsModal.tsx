@@ -220,7 +220,7 @@ export function StrategyResultsModal({
                         <View className="flex-row items-start justify-between mb-2">
                           <View className="flex-1">
                             <View className="flex-row items-center mb-2">
-                              <View className="w-6 h-6 rounded-full items-center justify-center bg-gray-200 dark:bg-slate-900">
+                              <View className="w-6 h-6 rounded-full items-center justify-center bg-gray-200 dark:bg-slate-800">
                                 <Text className="text-gray-700 dark:text-slate-300 font-bold text-xs">
                                   {index + 1}
                                 </Text>
@@ -316,7 +316,7 @@ export function StrategyResultsModal({
 
           {/* Footer Actions */}
           {!isGenerating && (
-            <View className="p-5 border-t border-gray-200 dark:border-slate-700">
+            <View className="p-5 border-t border-gray-200 dark:border-slate-800">
               <View className="flex-row gap-3">
                 <Pressable
                   onPress={onClose}

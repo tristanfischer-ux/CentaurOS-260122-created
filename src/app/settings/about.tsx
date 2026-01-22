@@ -117,14 +117,14 @@ export default function AboutScreen() {
   return (
     <View className="flex-1 bg-white dark:bg-slate-950" style={{ paddingTop: insets.top }}>
       {/* Header */}
-      <View className="px-6 py-4 border-b border-gray-300 dark:border-slate-700 flex-row items-center">
+      <View className="px-6 py-4 border-b border-gray-300 dark:border-slate-800 flex-row items-center">
         <Pressable
           onPress={() => router.back()}
           className="mr-4 w-10 h-10 items-center justify-center rounded-full bg-gray-100 dark:bg-slate-900 active:opacity-70"
         >
           <ArrowLeft size={20} color="#64748b" />
         </Pressable>
-        <Text className="text-gray-900 dark:text-white text-2xl font-bold">About Centaur OS</Text>
+        <Text className="text-gray-900 dark:text-white text-2xl font-bold">About Fractional Foundry</Text>
       </View>
 
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
@@ -144,7 +144,7 @@ export default function AboutScreen() {
                 The Operating System for{'\n'}Super-Lean Hardware Startups
               </Text>
               <Text className="text-white/90 text-base text-center leading-6">
-                Centaur OS empowers hardware startups to operate with 2-3 core team members, leveraging Time Units (4-hour blocks), per-person AI tools, and supply chain orchestration to execute with elite efficiency.
+                Fractional Foundry empowers hardware startups to operate with 2-3 core team members, leveraging Time Units (4-hour blocks), per-person AI tools, and supply chain orchestration to execute with elite efficiency.
               </Text>
             </View>
           </LinearGradient>
@@ -152,14 +152,14 @@ export default function AboutScreen() {
 
         {/* Mission Statement */}
         <View className="px-6 pb-6">
-          <View className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-6 border border-gray-300 dark:border-slate-700">
+          <View className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-6 border border-gray-300 dark:border-slate-800">
             <View className="flex-row items-center gap-3 mb-3">
               <Sparkles size={24} color="#f59e0b" />
               <Text className="text-gray-900 dark:text-white text-xl font-bold">Our Mission</Text>
             </View>
             <Text className="text-gray-700 dark:text-slate-300 text-base leading-7">
               We believe hardware innovation shouldn't require a massive team, complex enterprise software, or in-house manufacturing.
-              Centaur OS gives founders the tools to run their entire company with 2-3 core team members,
+              Fractional Foundry gives founders the tools to run their entire company with 2-3 core team members,
               orchestrating suppliers instead of owning factories, and multiplying team productivity with AI tools equipped per person
               across 5 slots: Think, Create, Verify, Execute, and Ops. Every resource is measured in Time Units (TU = 4 hours),
               and "Done" means Accepted with evidence—never just shipped.
@@ -178,7 +178,7 @@ export default function AboutScreen() {
               return (
                 <View
                   key={index}
-                  className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-5 border border-gray-300 dark:border-slate-700"
+                  className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-5 border border-gray-300 dark:border-slate-800"
                 >
                   <View className="flex-row items-start gap-4">
                     <View
@@ -234,7 +234,7 @@ export default function AboutScreen() {
         {/* Who It's For */}
         <View className="px-6 pb-6">
           <Text className="text-gray-900 dark:text-white text-2xl font-bold mb-4">
-            Who Is Centaur OS For?
+            Who Is Fractional Foundry For?
           </Text>
 
           <View className="gap-4">
@@ -284,9 +284,9 @@ export default function AboutScreen() {
           <Text className="text-gray-900 dark:text-white text-2xl font-bold mb-4">
             Built With Modern Technology
           </Text>
-          <View className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-6 border border-gray-300 dark:border-slate-700">
+          <View className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-6 border border-gray-300 dark:border-slate-800">
             <Text className="text-gray-700 dark:text-slate-300 text-base leading-7 mb-4">
-              Centaur OS is built with React Native and Expo SDK 53, delivering a native mobile experience
+              Fractional Foundry is built with React Native and Expo SDK 53, delivering a native mobile experience
               with beautiful animations, smooth gestures, offline-first architecture, and elite iOS-grade UX.
             </Text>
             <View className="flex-row flex-wrap gap-2">
@@ -311,12 +311,12 @@ export default function AboutScreen() {
                   <Text className="text-gray-900 dark:text-white text-4xl font-bold mb-1">31+</Text>
                   <Text className="text-gray-600 dark:text-slate-400 text-sm">UK Suppliers</Text>
                 </View>
-                <View className="w-px bg-gray-300 dark:bg-slate-900" />
+                <View className="w-px bg-gray-300 dark:bg-slate-800" />
                 <View className="items-center">
                   <Text className="text-gray-900 dark:text-white text-4xl font-bold mb-1">12+</Text>
                   <Text className="text-gray-600 dark:text-slate-400 text-sm">AI Tools</Text>
                 </View>
-                <View className="w-px bg-gray-300 dark:bg-slate-900" />
+                <View className="w-px bg-gray-300 dark:bg-slate-800" />
                 <View className="items-center">
                   <Text className="text-gray-900 dark:text-white text-4xl font-bold mb-1">100%</Text>
                   <Text className="text-gray-600 dark:text-slate-400 text-sm">Mobile Native</Text>
@@ -334,7 +334,7 @@ export default function AboutScreen() {
 
           <Pressable
             onPress={() => Linking.openURL('mailto:support@centauros.com')}
-            className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-5 border border-gray-300 dark:border-slate-700 flex-row items-center gap-4 mb-3 active:opacity-70"
+            className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-5 border border-gray-300 dark:border-slate-800 flex-row items-center gap-4 mb-3 active:opacity-70"
           >
             <View className="w-12 h-12 bg-blue-500/10 rounded-xl items-center justify-center">
               <Mail size={24} color="#3b82f6" />
@@ -348,7 +348,7 @@ export default function AboutScreen() {
 
           <Pressable
             onPress={() => Linking.openURL('https://docs.centauros.com')}
-            className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-5 border border-gray-300 dark:border-slate-700 flex-row items-center gap-4 mb-3 active:opacity-70"
+            className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-5 border border-gray-300 dark:border-slate-800 flex-row items-center gap-4 mb-3 active:opacity-70"
           >
             <View className="w-12 h-12 bg-purple-500/10 rounded-xl items-center justify-center">
               <Book size={24} color="#8b5cf6" />
@@ -362,7 +362,7 @@ export default function AboutScreen() {
 
           <Pressable
             onPress={() => Linking.openURL('https://centauros.com')}
-            className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-5 border border-gray-300 dark:border-slate-700 flex-row items-center gap-4 active:opacity-70"
+            className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-5 border border-gray-300 dark:border-slate-800 flex-row items-center gap-4 active:opacity-70"
           >
             <View className="w-12 h-12 bg-emerald-500/10 rounded-xl items-center justify-center">
               <Globe size={24} color="#10b981" />

@@ -1,6 +1,8 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-// Import the singleton MMKV instance from mmkv-storage to avoid multiple instances
-import { mmkv } from './storage/mmkv-storage';
+import { MMKV } from 'react-native-mmkv';
+
+// MMKV for fast key-value storage (auth tokens, simple flags)
+export const mmkv = new MMKV();
 
 // AsyncStorage for complex data (all domain entities)
 // Since we don't have a backend for MVP, we simulate a database with AsyncStorage
@@ -72,24 +74,6 @@ export const storage = {
       mmkv.clearAll();
     } catch (error) {
       console.error('Error clearing storage:', error);
-      throw error;
-    }
-  },
-
-  // Clear all app data (for fresh start)
-  async clearAllAppData(): Promise<void> {
-    try {
-      console.log('[Storage] Clearing all app data...');
-
-      // Clear AsyncStorage
-      await AsyncStorage.clear();
-
-      // Clear MMKV
-      mmkv.clearAll();
-
-      console.log('[Storage] ✅ All app data cleared successfully');
-    } catch (error) {
-      console.error('[Storage] ❌ Error clearing app data:', error);
       throw error;
     }
   },

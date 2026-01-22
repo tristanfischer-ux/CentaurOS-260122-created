@@ -121,7 +121,7 @@ function PersonCard({
       className={`bg-white dark:bg-slate-900 rounded-xl p-3 mr-3 border-2 ${
         isSelected
           ? 'border-purple-500'
-          : 'border-gray-200 dark:border-slate-700'
+          : 'border-gray-200 dark:border-slate-800'
       } min-w-[140px]`}
     >
       {/* Header */}
@@ -188,7 +188,7 @@ function PersonCard({
         className={`flex-row items-center justify-center py-1.5 rounded-lg mb-2 ${
           person.overtimeEnabled
             ? 'bg-amber-100 dark:bg-amber-900/30'
-            : 'bg-gray-100 dark:bg-slate-900'
+            : 'bg-gray-100 dark:bg-slate-800'
         }`}
       >
         <Clock size={12} color={person.overtimeEnabled ? '#f59e0b' : '#9ca3af'} />
@@ -206,7 +206,7 @@ function PersonCard({
       </Pressable>
 
       {/* Cost */}
-      <View className="flex-row items-center justify-between pt-2 border-t border-gray-100 dark:border-slate-700">
+      <View className="flex-row items-center justify-between pt-2 border-t border-gray-100 dark:border-slate-800">
         <View className="flex-row items-center">
           <DollarSign size={10} color="#9ca3af" />
           <Text className="text-gray-500 dark:text-slate-400 text-[10px] ml-0.5">
@@ -351,7 +351,7 @@ export function ResourceBar({
       className="bg-white dark:bg-slate-950"
     >
         {/* Header */}
-        <View className="flex-row items-center justify-between px-4 py-3 border-b border-gray-100 dark:border-slate-700">
+        <View className="flex-row items-center justify-between px-4 py-3 border-b border-gray-100 dark:border-slate-800">
           <View>
             <View className="flex-row items-center">
               <Text className="text-gray-500 dark:text-slate-400 text-xs font-semibold">

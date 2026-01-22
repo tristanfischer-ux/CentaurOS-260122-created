@@ -84,6 +84,7 @@ export default function ProfileScreen() {
       case 'Founder': return 'Founder';
       case 'FractionalExec': return 'Executive';
       case 'Apprentice': return 'Team Member';
+      case 'Government': return 'Investor';
       default: return role;
     }
   };

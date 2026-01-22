@@ -147,7 +147,7 @@ export function EngagementSections({ role, tasks = [], userName }: EngagementSec
         {/* Quick Win Counter */}
         <Pressable
           onPress={() => router.push('/(tabs)/do')}
-          className="flex-1 bg-gray-100 dark:bg-slate-900 rounded-2xl p-4 border border-gray-300 dark:border-slate-700 active:opacity-70"
+          className="flex-1 bg-gray-100 dark:bg-slate-900 rounded-2xl p-4 border border-gray-300 dark:border-slate-800 active:opacity-70"
         >
           <View className="flex-row items-center gap-2 mb-1">
             <Zap size={20} color="#eab308" />
@@ -221,7 +221,7 @@ export function EngagementSections({ role, tasks = [], userName }: EngagementSec
             </View>
           </View>
 
-          <View className="bg-gray-100 dark:bg-slate-900 rounded-2xl border border-gray-300 dark:border-slate-700 overflow-hidden">
+          <View className="bg-gray-100 dark:bg-slate-900 rounded-2xl border border-gray-300 dark:border-slate-800 overflow-hidden">
             {activityFeed.map((item, index) => (
               <View
                 key={item.id}
@@ -275,7 +275,7 @@ export function EngagementSections({ role, tasks = [], userName }: EngagementSec
           onPress={() => router.push('/(tabs)/decide')}
           className="flex-1 active:opacity-70"
         >
-          <View className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-4 border border-gray-300 dark:border-slate-700 flex-row items-center justify-center gap-2">
+          <View className="bg-gray-100 dark:bg-slate-900 rounded-2xl p-4 border border-gray-300 dark:border-slate-800 flex-row items-center justify-center gap-2">
             <Target size={20} color="#8b5cf6" />
             <Text className="text-gray-700 dark:text-slate-300 font-bold">Update OKRs</Text>
           </View>

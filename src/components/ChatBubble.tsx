@@ -46,7 +46,7 @@ export function ChatBubble({ message, isOwnMessage, showSender = false }: ChatBu
         className={`max-w-[80%] rounded-2xl px-4 py-3 ${
           isOwnMessage
             ? 'bg-blue-500'
-            : 'bg-gray-100 dark:bg-slate-900'
+            : 'bg-gray-100 dark:bg-slate-800'
         }`}
       >
         {/* Message content */}

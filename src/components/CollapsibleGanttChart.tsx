@@ -16,23 +16,9 @@ export function CollapsibleGanttChart({ workPlans, members, onTaskPress }: Colla
   const [isExpanded, setIsExpanded] = useState(false);
   const screenHeight = Dimensions.get('window').height;
 
-  // Count active tasks
-  const activeTasks = useMemo(() =>
-    workPlans.filter(wp => wp.status !== 'completed' && wp.status !== 'abandoned'),
-    [workPlans]
-  );
-
-  // Calculate heights
+  // Calculate heights - make collapsed state show mini preview
   const COLLAPSED_HEIGHT = 120; // Taller to show mini task preview
-  const MAX_EXPANDED_HEIGHT = screenHeight * 0.5; // Max 50% of screen
-
-  // Calculate content height based on number of tasks
-  const HEADER_HEIGHT = 52; // Tab header
-  const TASK_ROW_HEIGHT = 48; // Height per task row in Gantt chart
-  const PADDING_BOTTOM = 20; // Bottom padding
-
-  const contentHeight = HEADER_HEIGHT + (activeTasks.length * TASK_ROW_HEIGHT) + PADDING_BOTTOM;
-  const EXPANDED_HEIGHT = Math.min(contentHeight, MAX_EXPANDED_HEIGHT);
+  const EXPANDED_HEIGHT = screenHeight * 0.5; // 50% of screen
 
   // Animated height
   const height = useSharedValue(COLLAPSED_HEIGHT);
@@ -52,7 +38,10 @@ export function CollapsibleGanttChart({ workPlans, members, onTaskPress }: Colla
     height.value = newExpanded ? EXPANDED_HEIGHT : COLLAPSED_HEIGHT;
   };
 
-  const activeTasksCount = activeTasks.length;
+  // Count active tasks
+  const activeTasksCount = workPlans.filter(
+    wp => wp.status !== 'completed' && wp.status !== 'abandoned'
+  ).length;
 
   // Get preview tasks for collapsed state
   const previewTasks = useMemo(() => {
@@ -110,7 +99,7 @@ export function CollapsibleGanttChart({ workPlans, members, onTaskPress }: Colla
               <View className="w-2 h-2 rounded-sm bg-gray-300 dark:bg-gray-600" />
             </View>
           )}
-          <View className="w-6 h-6 bg-gray-100 dark:bg-slate-900 rounded-full items-center justify-center">
+          <View className="w-6 h-6 bg-gray-100 dark:bg-slate-800 rounded-full items-center justify-center">
             {isExpanded ? (
               <ChevronDown size={16} color="#6b7280" />
             ) : (
@@ -122,11 +111,12 @@ export function CollapsibleGanttChart({ workPlans, members, onTaskPress }: Colla
 
       {/* Gantt Chart Content - Only visible when expanded */}
       {isExpanded && (
-        <View style={{ flex: 1 }}>
+        <View className="flex-1">
           <MiniGanttChart
             workPlans={workPlans}
             members={members}
             onTaskPress={onTaskPress}
+            fillAvailableSpace
           />
         </View>
       )}

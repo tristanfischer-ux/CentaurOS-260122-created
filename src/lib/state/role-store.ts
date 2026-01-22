@@ -7,7 +7,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { Role } from '@/types';
 
 // Define valid role views for the app
-export type RoleView = 'Founder' | 'CoFounder' | 'FractionalExec' | 'Apprentice';
+export type RoleView = 'Founder' | 'FractionalExec' | 'Apprentice';
 
 interface RoleState {
   // Current active role view (determines what UI the user sees)

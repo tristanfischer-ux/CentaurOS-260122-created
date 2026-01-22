@@ -37,7 +37,7 @@ export interface TimeSlot {
 export interface MemberCapacityView {
   memberId: string;
   name: string;
-  role: 'Founder' | 'CoFounder' | 'FractionalExec' | 'Apprentice';
+  role: 'Founder' | 'FractionalExec' | 'Apprentice';
   function: string;
 
   // Capacity metrics

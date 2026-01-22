@@ -169,7 +169,7 @@ export function GoalQuestionnaireModal({ visible, onClose, onComplete }: GoalQue
                 </View>
 
                 <TextInput
-                  className="bg-white dark:bg-slate-950 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-4 text-gray-900 dark:text-white text-base min-h-[120px]"
+                  className="bg-white dark:bg-slate-950 border border-gray-200 dark:border-slate-800 rounded-xl px-4 py-4 text-gray-900 dark:text-white text-base min-h-[120px]"
                   placeholder={currentQuestion?.placeholder}
                   placeholderTextColor="#9ca3af"
                   value={responses[currentQuestion?.id] || ''}
@@ -225,7 +225,7 @@ export function GoalQuestionnaireModal({ visible, onClose, onComplete }: GoalQue
 
           {/* Footer Actions */}
           {!isProcessing && (
-            <View className="p-5 border-t border-gray-200 dark:border-slate-700">
+            <View className="p-5 border-t border-gray-200 dark:border-slate-800">
               <View className="flex-row gap-3">
                 {currentStep > 0 && (
                   <Pressable
@@ -244,7 +244,7 @@ export function GoalQuestionnaireModal({ visible, onClose, onComplete }: GoalQue
                   onPress={handleNext}
                   disabled={!canProceed}
                   className={`rounded-xl px-5 py-4 active:opacity-70 flex-row items-center justify-center ${
-                    canProceed ? 'bg-purple-600' : 'bg-gray-200 dark:bg-slate-900'
+                    canProceed ? 'bg-purple-600' : 'bg-gray-200 dark:bg-slate-800'
                   }`}
                   style={{ flex: currentStep > 0 ? 2 : 1 }}
                 >

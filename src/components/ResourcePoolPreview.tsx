@@ -84,7 +84,7 @@ export function ResourcePoolPreview({ onPress }: ResourcePoolPreviewProps) {
       style={{ borderColor: capacityData.statusColor }}
     >
       {/* Header */}
-      <View className="flex-row items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-slate-700">
+      <View className="flex-row items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-slate-800">
         <View className="flex-row items-center gap-2">
           <Users size={18} color={capacityData.statusColor} />
           <Text className="text-gray-900 dark:text-white font-bold text-sm">

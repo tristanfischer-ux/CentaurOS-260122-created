@@ -18,6 +18,9 @@ export interface TaskRequest {
   requestedAt: string;
   approvedAt?: string;
   workPlanId?: string; // Once approved, links to work plan
+  // Founder feedback
+  founderFeedback?: string; // Commentary from founder when approving/rejecting
+  reviewedBy?: string; // Who reviewed
 }
 
 export interface OKRRequest {
@@ -37,6 +40,9 @@ export interface OKRRequest {
   requestedAt: string;
   approvedAt?: string;
   okrId?: string; // Once approved, links to OKR
+  // Founder feedback
+  founderFeedback?: string; // Commentary from founder when approving/rejecting
+  reviewedBy?: string; // Who reviewed
 }
 
 export type Request = TaskRequest | OKRRequest;
@@ -45,8 +51,8 @@ interface RequestState {
   requests: Request[];
   addTaskRequest: (request: Omit<TaskRequest, 'id' | 'status' | 'requestedAt'>) => void;
   addOKRRequest: (request: Omit<OKRRequest, 'id' | 'status' | 'requestedAt'>) => void;
-  approveRequest: (requestId: string) => void;
-  rejectRequest: (requestId: string) => void;
+  approveRequest: (requestId: string, reviewedBy?: string, feedback?: string) => void;
+  rejectRequest: (requestId: string, reviewedBy?: string, feedback?: string) => void;
   getPendingRequests: () => Request[];
   getRequestsByMember: (memberId: string) => Request[];
   initializeDemoRequests: () => void;
@@ -79,20 +85,33 @@ export const useRequestStore = create<RequestState>((set, get) => ({
     }));
   },
 
-  approveRequest: (requestId) => {
+  approveRequest: (requestId, reviewedBy, feedback) => {
     set((state) => ({
       requests: state.requests.map((req) =>
         req.id === requestId
-          ? { ...req, status: 'approved' as RequestStatus, approvedAt: new Date().toISOString() }
+          ? {
+              ...req,
+              status: 'approved' as RequestStatus,
+              approvedAt: new Date().toISOString(),
+              reviewedBy,
+              founderFeedback: feedback || undefined,
+            }
           : req
       ),
     }));
   },
 
-  rejectRequest: (requestId) => {
+  rejectRequest: (requestId, reviewedBy, feedback) => {
     set((state) => ({
       requests: state.requests.map((req) =>
-        req.id === requestId ? { ...req, status: 'rejected' as RequestStatus } : req
+        req.id === requestId
+          ? {
+              ...req,
+              status: 'rejected' as RequestStatus,
+              reviewedBy,
+              founderFeedback: feedback || undefined,
+            }
+          : req
       ),
     }));
   },

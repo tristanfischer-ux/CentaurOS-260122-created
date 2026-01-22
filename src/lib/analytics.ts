@@ -39,11 +39,8 @@ export interface FunctionPerformanceData {
   score: number;
 }
 
-// DISABLED: Mock data generators disabled for multi-tenant architecture
-// Analytics data should be calculated from real OKRs, tasks, and team data
+// Mock data generators
 export const generateTeamVelocityData = (): TeamVelocityData[] => {
-  return [];
-  /* REFERENCE: Original mock data
   const weeks = ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5', 'Week 6'];
   return weeks.map((week, idx) => ({
     week,
@@ -51,12 +48,9 @@ export const generateTeamVelocityData = (): TeamVelocityData[] => {
     tasksAssigned: Math.floor(Math.random() * 10) + 35,
     completionRate: Math.floor(Math.random() * 30) + 60,
   }));
-  */
 };
 
 export const generateOKRHealthData = (): OKRHealthData[] => {
-  return [];
-  /* REFERENCE: Original mock data
   return [
     {
       okrName: 'Increase Monthly Revenue',
@@ -89,12 +83,9 @@ export const generateOKRHealthData = (): OKRHealthData[] => {
       function: 'Product',
     },
   ];
-  */
 };
 
 export const generateResourceUtilizationData = (): ResourceUtilizationData[] => {
-  return [];
-  /* REFERENCE: Original mock data
   return [
     {
       name: 'Sarah Chen',
@@ -132,12 +123,9 @@ export const generateResourceUtilizationData = (): ResourceUtilizationData[] => 
       utilizationRate: 90,
     },
   ];
-  */
 };
 
 export const generateAIToolUsageData = (): AIToolUsageData[] => {
-  return [];
-  /* REFERENCE: Original mock data
   return [
     { toolName: 'ChatGPT', uses: 127, category: 'Writing' },
     { toolName: 'GitHub Copilot', uses: 89, category: 'Development' },
@@ -146,12 +134,9 @@ export const generateAIToolUsageData = (): AIToolUsageData[] => {
     { toolName: 'ElevenLabs', uses: 23, category: 'Audio' },
     { toolName: 'Claude', uses: 98, category: 'Research' },
   ];
-  */
 };
 
 export const generateFunctionPerformanceData = (): FunctionPerformanceData[] => {
-  return [];
-  /* REFERENCE: Original mock data
   return [
     {
       function: 'Marketing',
@@ -189,7 +174,6 @@ export const generateFunctionPerformanceData = (): FunctionPerformanceData[] => 
       score: 68,
     },
   ];
-  */
 };
 
 // Utility functions

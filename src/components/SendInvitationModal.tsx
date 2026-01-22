@@ -2,17 +2,15 @@
  * SendInvitationModal Component
  *
  * Modal for founders to send invitations to executives/apprentices with rate proposals
- * Now using secure Supabase invitation system with cryptographic tokens
  */
 
-import { View, Text, Modal, TextInput, Pressable, ScrollView, KeyboardAvoidingView, Platform, Alert, ActivityIndicator } from 'react-native';
+import { View, Text, Modal, TextInput, Pressable, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import { useState } from 'react';
-import { X, Send, CheckCircle, Copy, Mail } from 'lucide-react-native';
+import { X, Send, DollarSign, Calendar, Briefcase, User } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useCurrentWorkspace, useCurrentUser } from '@/lib/state/app-store';
-import { createSecureInvitation, generateInvitationLink } from '@/lib/supabase-invitation-service';
+import { useInvitationStore, type NegotiationType } from '@/lib/state/invitation-store';
+import { useCurrentWorkspace } from '@/lib/state/app-store';
 import type { Candidate } from '@/lib/candidates-seed';
-import * as Clipboard from 'expo-clipboard';
 
 interface SendInvitationModalProps {
   visible: boolean;
@@ -22,95 +20,86 @@ interface SendInvitationModalProps {
 
 export function SendInvitationModal({ visible, onClose, candidate }: SendInvitationModalProps) {
   const currentWorkspace = useCurrentWorkspace();
-  const currentUser = useCurrentUser();
+  const createInvitation = useInvitationStore(s => s.createInvitation);
 
-  const [email, setEmail] = useState('');
-  const [personalMessage, setPersonalMessage] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [inviteLink, setInviteLink] = useState<string | null>(null);
-  const [invitationSent, setInvitationSent] = useState(false);
+  const [position, setPosition] = useState('');
+  const [description, setDescription] = useState('');
+  const [rateAmount, setRateAmount] = useState('');
+  const [rateType, setRateType] = useState<NegotiationType>('hourly_rate');
+  const [daysPerWeek, setDaysPerWeek] = useState('');
+  const [hoursPerWeek, setHoursPerWeek] = useState('');
+  const [startDate, setStartDate] = useState('');
+  const [message, setMessage] = useState('');
 
   const resetForm = () => {
-    setEmail('');
-    setPersonalMessage('');
-    setInviteLink(null);
-    setInvitationSent(false);
+    setPosition('');
+    setDescription('');
+    setRateAmount('');
+    setRateType('hourly_rate');
+    setDaysPerWeek('');
+    setHoursPerWeek('');
+    setStartDate('');
+    setMessage('');
   };
 
-  const handleClose = () => {
-    resetForm();
-    onClose();
-  };
+  const handleSend = () => {
+    if (!candidate || !currentWorkspace) return;
 
-  const handleSend = async () => {
-    if (!candidate || !currentWorkspace || !currentUser) return;
-
-    // Validate email
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!email || !emailRegex.test(email)) {
-      Alert.alert('Invalid Email', 'Please enter a valid email address');
+    // Validate required fields
+    if (!position || !description || !rateAmount) {
+      alert('Please fill in all required fields');
       return;
     }
 
-    setIsLoading(true);
-
-    try {
-      // Create secure invitation in Supabase with email sending
-      const result = await createSecureInvitation({
-        email: email.toLowerCase(),
-        workspaceId: currentWorkspace.id,
-        userId: currentUser.id,
-        prefillName: candidate.name,
-        prefillRoleArchetypes: [candidate.role],
-        prefillSourceNotes: personalMessage || `Invited by ${currentUser.name} from ${currentWorkspace.name}`,
-        expiresInDays: 7,
-        // Email parameters
-        inviterName: currentUser.name,
-        companyName: currentWorkspace.name,
-        personalMessage: personalMessage || undefined,
-        sendEmail: true, // Enable automatic email sending
-      });
-
-      if (!result.success) {
-        Alert.alert('Error', result.error);
-        setIsLoading(false);
-        return;
-      }
-
-      // Generate invitation link
-      const link = generateInvitationLink(result.data.token);
-      setInviteLink(link);
-      setInvitationSent(true);
-
-      console.log(`[SendInvitation] Secure invitation created for ${email}`);
-      console.log(`[SendInvitation] Invitation link: ${link}`);
-      console.log(`[SendInvitation] Token: ${result.data.token}`);
-      console.log(`[SendInvitation] Expires: ${result.data.expires_at}`);
-      console.log(`[SendInvitation] Email sent automatically via Resend`);
-
-    } catch (error) {
-      console.error('[SendInvitation] Error:', error);
-      Alert.alert('Error', 'Failed to create invitation. Please try again.');
-    } finally {
-      setIsLoading(false);
+    const amount = parseFloat(rateAmount);
+    if (isNaN(amount) || amount <= 0) {
+      alert('Please enter a valid rate amount');
+      return;
     }
-  };
 
-  const handleCopyLink = async () => {
-    if (inviteLink) {
-      await Clipboard.setStringAsync(inviteLink);
-      Alert.alert('Copied!', 'Invitation link copied to clipboard');
+    // Validate candidate role (can only invite executives or apprentices)
+    if (candidate.role !== 'FractionalExec' && candidate.role !== 'Apprentice') {
+      alert('Can only send invitations to Fractional Executives or Apprentices');
+      return;
     }
-  };
 
-  const handleSendAnother = () => {
+    // Create the invitation
+    createInvitation({
+      workspaceId: currentWorkspace.id,
+      companyName: currentWorkspace.name,
+      candidateId: `candidate-${candidate.id}`,
+      candidateName: candidate.name,
+      candidateEmail: candidate.email || `${candidate.name.toLowerCase().replace(' ', '.')}@example.com`,
+      candidateRole: candidate.role,
+      candidateFunction: candidate.specialization[0] || 'Marketing',
+      position,
+      description,
+      startDate: startDate || new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(),
+      createdBy: 'founder-current', // TODO: Get actual user ID
+      currentRate: {
+        proposedBy: 'founder',
+        amount,
+        currency: 'GBP',
+        type: rateType,
+        daysPerWeek: daysPerWeek ? parseInt(daysPerWeek) : undefined,
+        hoursPerWeek: hoursPerWeek ? parseInt(hoursPerWeek) : undefined,
+        message: message || undefined,
+        timestamp: new Date().toISOString(),
+      },
+    });
+
     resetForm();
+    onClose();
+    alert(`Invitation sent to ${candidate.name}!`);
   };
 
   if (!candidate) return null;
 
+  const suggestedRate = candidate.costPerDay;
+  const hourlyEquivalent = Math.round(suggestedRate / 8);
+
   return (
-    <Modal visible={visible} animationType="slide" transparent onRequestClose={handleClose}>
+    <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         className="flex-1"
@@ -118,193 +107,217 @@ export function SendInvitationModal({ visible, onClose, candidate }: SendInvitat
         <View className="flex-1 bg-black/50 justify-end">
           <View className="bg-white dark:bg-slate-950 rounded-t-3xl max-h-[90%]">
             {/* Header */}
-            <View className="flex-row items-center justify-between p-5 border-b border-gray-200 dark:border-slate-700">
+            <View className="flex-row items-center justify-between p-5 border-b border-gray-200 dark:border-slate-800">
               <View className="flex-1">
                 <Text className="text-gray-900 dark:text-white font-bold text-xl">
-                  {invitationSent ? 'Invitation Sent!' : 'Send Invitation'}
+                  Send Invitation
                 </Text>
                 <Text className="text-gray-500 dark:text-slate-400 text-sm mt-0.5">
-                  {invitationSent
-                    ? 'Share the link with your candidate'
-                    : `Invite ${candidate.name} to join your team`}
+                  Invite {candidate.name} to join your team
                 </Text>
               </View>
               <Pressable
-                onPress={handleClose}
-                className="w-9 h-9 bg-gray-100 dark:bg-slate-900 rounded-full items-center justify-center active:opacity-70"
+                onPress={onClose}
+                className="w-9 h-9 bg-gray-100 dark:bg-slate-800 rounded-full items-center justify-center active:opacity-70"
               >
                 <X size={20} color="#64748b" />
               </Pressable>
             </View>
 
-            {/* Success View */}
-            {invitationSent && inviteLink ? (
-              <ScrollView className="px-5 py-6" showsVerticalScrollIndicator={false}>
-                {/* Success Icon */}
-                <View className="items-center py-6">
-                  <View className="w-20 h-20 bg-green-100 dark:bg-green-900/30 rounded-full items-center justify-center mb-4">
-                    <CheckCircle size={40} color="#22c55e" />
+            {/* Form */}
+            <ScrollView className="px-5 py-6" showsVerticalScrollIndicator={false}>
+              {/* Candidate Info */}
+              <View className="py-4 border-b border-gray-200 dark:border-slate-800">
+                <View className="flex-row items-center">
+                  <View className="w-12 h-12 bg-purple-500 rounded-full items-center justify-center">
+                    <User size={24} color="#fff" />
                   </View>
-                  <Text className="text-gray-900 dark:text-white font-bold text-lg text-center">
-                    Invitation Sent! 📧
-                  </Text>
-                  <Text className="text-gray-500 dark:text-slate-400 text-sm text-center mt-2">
-                    We've sent a secure invitation email to {email}
+                  <View className="ml-3 flex-1">
+                    <Text className="text-gray-900 dark:text-white font-semibold">
+                      {candidate.name}
+                    </Text>
+                    <Text className="text-gray-500 dark:text-slate-400 text-sm">
+                      {candidate.role} • {candidate.specialization.join(', ')}
+                    </Text>
+                    <Text className="text-gray-500 dark:text-slate-400 text-xs mt-0.5">
+                      Suggested rate: £{suggestedRate}/day (≈ £{hourlyEquivalent}/hr)
+                    </Text>
+                  </View>
+                </View>
+              </View>
+
+              {/* Position */}
+              <View className="pt-4">
+                <Text className="text-gray-900 dark:text-white font-semibold mb-2">
+                  Position Title *
+                </Text>
+                <TextInput
+                  value={position}
+                  onChangeText={setPosition}
+                  placeholder="e.g., Marketing Apprentice"
+                  placeholderTextColor="#9ca3af"
+                  className="bg-gray-100 dark:bg-slate-900 rounded-xl p-4 text-gray-900 dark:text-white"
+                />
+              </View>
+
+              {/* Description */}
+              <View className="pt-4">
+                <Text className="text-gray-900 dark:text-white font-semibold mb-2">
+                  Role Description *
+                </Text>
+                <TextInput
+                  value={description}
+                  onChangeText={setDescription}
+                  placeholder="Describe the role, responsibilities, and expectations..."
+                  placeholderTextColor="#9ca3af"
+                  multiline
+                  numberOfLines={4}
+                  className="bg-gray-100 dark:bg-slate-900 rounded-xl p-4 text-gray-900 dark:text-white min-h-[100px]"
+                  textAlignVertical="top"
+                />
+              </View>
+
+              {/* Rate Type */}
+              <View className="pt-4">
+                <Text className="text-gray-900 dark:text-white font-semibold mb-2">
+                  Rate Structure
+                </Text>
+                <View className="flex-row gap-2">
+                  {[
+                    { value: 'hourly_rate' as NegotiationType, label: 'Hourly' },
+                    { value: 'daily_rate' as NegotiationType, label: 'Daily' },
+                    { value: 'monthly_retainer' as NegotiationType, label: 'Monthly' },
+                  ].map(option => (
+                    <Pressable
+                      key={option.value}
+                      onPress={() => setRateType(option.value)}
+                      className={`flex-1 py-3 px-4 rounded-xl border-2 ${
+                        rateType === option.value
+                          ? 'border-purple-500 bg-purple-50 dark:bg-purple-900/20'
+                          : 'border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900'
+                      }`}
+                    >
+                      <Text
+                        className={`text-center font-semibold ${
+                          rateType === option.value
+                            ? 'text-purple-600 dark:text-purple-400'
+                            : 'text-gray-700 dark:text-slate-300'
+                        }`}
+                      >
+                        {option.label}
+                      </Text>
+                    </Pressable>
+                  ))}
+                </View>
+              </View>
+
+              {/* Rate Amount */}
+              <View className="pt-4">
+                <Text className="text-gray-900 dark:text-white font-semibold mb-2">
+                  Proposed Rate (GBP) *
+                </Text>
+                <View className="flex-row items-center bg-gray-100 dark:bg-slate-900 rounded-xl px-4">
+                  <DollarSign size={20} color="#9ca3af" />
+                  <TextInput
+                    value={rateAmount}
+                    onChangeText={setRateAmount}
+                    placeholder={`${suggestedRate}`}
+                    placeholderTextColor="#9ca3af"
+                    keyboardType="numeric"
+                    className="flex-1 p-4 text-gray-900 dark:text-white"
+                  />
+                  <Text className="text-gray-500 dark:text-slate-400 text-sm">
+                    /{rateType === 'hourly_rate' ? 'hr' : rateType === 'daily_rate' ? 'day' : 'mo'}
                   </Text>
                 </View>
+              </View>
 
-                {/* Invitation Link */}
-                <View className="bg-gray-100 dark:bg-slate-900 rounded-xl p-4 mb-4">
-                  <Text className="text-gray-900 dark:text-white font-semibold mb-2">
-                    Invitation Link
-                  </Text>
-                  <Text className="text-gray-600 dark:text-slate-400 text-xs mb-3">
-                    {inviteLink}
-                  </Text>
-                  <Pressable
-                    onPress={handleCopyLink}
-                    className="bg-purple-500 rounded-lg py-3 active:opacity-70"
-                  >
-                    <View className="flex-row items-center justify-center">
-                      <Copy size={18} color="#fff" />
-                      <Text className="text-white font-semibold ml-2">Copy Link</Text>
-                    </View>
-                  </Pressable>
-                </View>
-
-                {/* Security Info */}
-                <View className="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-4 mb-4">
-                  <Text className="text-blue-900 dark:text-blue-300 font-semibold mb-2 text-sm">
-                    🔒 Secure Invitation
-                  </Text>
-                  <Text className="text-blue-800 dark:text-blue-400 text-xs leading-5">
-                    • Cryptographically secure token{'\n'}
-                    • Expires in 7 days{'\n'}
-                    • One-time use only{'\n'}
-                    • Email verification required
-                  </Text>
-                </View>
-
-                {/* Action Buttons */}
+              {/* Days/Hours per week */}
+              {rateType !== 'monthly_retainer' && (
                 <View className="flex-row gap-3 pt-4">
-                  <Pressable
-                    onPress={handleSendAnother}
-                    className="flex-1 bg-gray-200 dark:bg-slate-900 rounded-xl py-4 active:opacity-70"
-                  >
-                    <Text className="text-gray-900 dark:text-white font-semibold text-center">
-                      Send Another
-                    </Text>
-                  </Pressable>
-                  <Pressable
-                    onPress={handleClose}
-                    className="flex-1 bg-purple-500 rounded-xl py-4 active:opacity-70"
-                  >
-                    <Text className="text-white font-semibold text-center">
-                      Done
-                    </Text>
-                  </Pressable>
-                </View>
-              </ScrollView>
-            ) : (
-              /* Form View */
-              <ScrollView className="px-5 py-6" showsVerticalScrollIndicator={false}>
-                {/* Candidate Info */}
-                <View className="bg-purple-50 dark:bg-purple-900/20 rounded-xl p-4 mb-6">
-                  <Text className="text-gray-900 dark:text-white font-semibold text-lg">
-                    {candidate.name}
-                  </Text>
-                  <Text className="text-gray-600 dark:text-slate-400 text-sm mt-1">
-                    {candidate.role} • {candidate.specialization.join(', ')}
-                  </Text>
-                  {candidate.costPerDay && (
-                    <Text className="text-gray-500 dark:text-slate-500 text-xs mt-2">
-                      Suggested rate: £{candidate.costPerDay}/day
-                    </Text>
+                  {rateType === 'daily_rate' && (
+                    <View className="flex-1">
+                      <Text className="text-gray-900 dark:text-white font-semibold mb-2">
+                        Days per Week
+                      </Text>
+                      <TextInput
+                        value={daysPerWeek}
+                        onChangeText={setDaysPerWeek}
+                        placeholder="e.g., 3"
+                        placeholderTextColor="#9ca3af"
+                        keyboardType="numeric"
+                        className="bg-gray-100 dark:bg-slate-900 rounded-xl p-4 text-gray-900 dark:text-white"
+                      />
+                    </View>
+                  )}
+                  {rateType === 'hourly_rate' && (
+                    <View className="flex-1">
+                      <Text className="text-gray-900 dark:text-white font-semibold mb-2">
+                        Hours per Week
+                      </Text>
+                      <TextInput
+                        value={hoursPerWeek}
+                        onChangeText={setHoursPerWeek}
+                        placeholder="e.g., 40"
+                        placeholderTextColor="#9ca3af"
+                        keyboardType="numeric"
+                        className="bg-gray-100 dark:bg-slate-900 rounded-xl p-4 text-gray-900 dark:text-white"
+                      />
+                    </View>
                   )}
                 </View>
+              )}
 
-                {/* Email */}
-                <View className="mb-4">
-                  <Text className="text-gray-900 dark:text-white font-semibold mb-2">
-                    Email Address *
-                  </Text>
-                  <TextInput
-                    value={email}
-                    onChangeText={setEmail}
-                    placeholder={candidate.email || "candidate@example.com"}
-                    placeholderTextColor="#9ca3af"
-                    keyboardType="email-address"
-                    autoCapitalize="none"
-                    autoCorrect={false}
-                    className="bg-gray-100 dark:bg-slate-900 rounded-xl p-4 text-gray-900 dark:text-white"
-                  />
-                  <Text className="text-gray-500 dark:text-slate-400 text-xs mt-2">
-                    A secure invitation link will be sent to this email
-                  </Text>
-                </View>
-
-                {/* Personal Message */}
-                <View className="mb-6">
-                  <Text className="text-gray-900 dark:text-white font-semibold mb-2">
-                    Personal Message (Optional)
-                  </Text>
-                  <TextInput
-                    value={personalMessage}
-                    onChangeText={setPersonalMessage}
-                    placeholder="Add a personal note to your invitation..."
-                    placeholderTextColor="#9ca3af"
-                    multiline
-                    numberOfLines={4}
-                    className="bg-gray-100 dark:bg-slate-900 rounded-xl p-4 text-gray-900 dark:text-white min-h-[100px]"
-                    textAlignVertical="top"
-                  />
-                </View>
-
-                {/* Info Box */}
-                <View className="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-4 mb-4">
-                  <Text className="text-blue-900 dark:text-blue-300 font-semibold mb-2 text-sm">
-                    How It Works
-                  </Text>
-                  <Text className="text-blue-800 dark:text-blue-400 text-xs leading-5">
-                    1. We'll create a secure invitation link{'\n'}
-                    2. You can copy and send it via email or any channel{'\n'}
-                    3. The candidate clicks the link to accept{'\n'}
-                    4. Link expires in 7 days for security
-                  </Text>
-                </View>
-              </ScrollView>
-            )}
-
-            {/* Footer with Send Button (only show if not sent) */}
-            {!invitationSent && (
-              <View className="p-5 border-t border-gray-200 dark:border-slate-700">
-                <Pressable
-                  onPress={handleSend}
-                  disabled={isLoading}
-                  className="active:opacity-70"
-                >
-                  <LinearGradient
-                    colors={['#8b5cf6', '#6d28d9']}
-                    start={{ x: 0, y: 0 }}
-                    end={{ x: 1, y: 0 }}
-                    style={{ borderRadius: 12, padding: 16, opacity: isLoading ? 0.6 : 1 }}
-                  >
-                    <View className="flex-row items-center justify-center">
-                      {isLoading ? (
-                        <ActivityIndicator color="#fff" />
-                      ) : (
-                        <>
-                          <Mail size={20} color="#fff" />
-                          <Text className="text-white font-bold text-base ml-2">
-                            Create Invitation
-                          </Text>
-                        </>
-                      )}
-                    </View>
-                  </LinearGradient>
-                </Pressable>
+              {/* Start Date */}
+              <View className="pt-4">
+                <Text className="text-gray-900 dark:text-white font-semibold mb-2">
+                  Proposed Start Date
+                </Text>
+                <TextInput
+                  value={startDate}
+                  onChangeText={setStartDate}
+                  placeholder="YYYY-MM-DD (leave blank for ~2 weeks)"
+                  placeholderTextColor="#9ca3af"
+                  className="bg-gray-100 dark:bg-slate-900 rounded-xl p-4 text-gray-900 dark:text-white"
+                />
               </View>
-            )}
+
+              {/* Message */}
+              <View className="pt-4 pb-6">
+                <Text className="text-gray-900 dark:text-white font-semibold mb-2">
+                  Personal Message (Optional)
+                </Text>
+                <TextInput
+                  value={message}
+                  onChangeText={setMessage}
+                  placeholder="Add a personal note to your invitation..."
+                  placeholderTextColor="#9ca3af"
+                  multiline
+                  numberOfLines={3}
+                  className="bg-gray-100 dark:bg-slate-900 rounded-xl p-4 text-gray-900 dark:text-white min-h-[80px]"
+                  textAlignVertical="top"
+                />
+              </View>
+            </ScrollView>
+
+            {/* Footer with Send Button */}
+            <View className="p-5 border-t border-gray-200 dark:border-slate-800">
+              <Pressable onPress={handleSend} className="active:opacity-70">
+                <LinearGradient
+                  colors={['#8b5cf6', '#6d28d9']}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 0 }}
+                  style={{ borderRadius: 12, padding: 16 }}
+                >
+                  <View className="flex-row items-center justify-center">
+                    <Send size={20} color="#fff" />
+                    <Text className="text-white font-bold text-base ml-2">
+                      Send Invitation
+                    </Text>
+                  </View>
+                </LinearGradient>
+              </Pressable>
+            </View>
           </View>
         </View>
       </KeyboardAvoidingView>

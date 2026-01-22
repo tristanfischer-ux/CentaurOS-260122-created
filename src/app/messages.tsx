@@ -81,7 +81,7 @@ export default function MessagesScreen() {
     return (
       <View className="flex-1 bg-white dark:bg-slate-950" style={{ paddingTop: insets.top }}>
         {/* Header */}
-        <View className="px-6 py-4 border-b border-gray-300 dark:border-slate-700">
+        <View className="px-6 py-4 border-b border-gray-300 dark:border-slate-800">
           <View className="flex-row items-center justify-between mb-4">
             <View className="flex-row items-center">
               <HapticPressable
@@ -117,7 +117,7 @@ export default function MessagesScreen() {
                 setActiveConversation(item.id);
                 setView('chat');
               }}
-              className="px-6 py-4 border-b border-gray-200 dark:border-slate-700 active:bg-gray-50 dark:active:bg-slate-900"
+              className="px-6 py-4 border-b border-gray-200 dark:border-slate-800 active:bg-gray-50 dark:active:bg-slate-900"
             >
               <View className="flex-row items-center">
                 {/* Avatar */}
@@ -199,7 +199,7 @@ export default function MessagesScreen() {
     >
       {/* Chat Header */}
       <View
-        className="px-6 py-4 border-b border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-950"
+        className="px-6 py-4 border-b border-gray-300 dark:border-slate-800 bg-white dark:bg-slate-950"
         style={{ paddingTop: insets.top + 16 }}
       >
         <View className="flex-row items-center">

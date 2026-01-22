@@ -65,7 +65,7 @@ export function CapacityBreakdownModal({
     return (
       <View
         key={member.memberId}
-        className="bg-gray-50 dark:bg-slate-900 rounded-xl p-4 mb-3"
+        className="bg-gray-50 dark:bg-slate-800 rounded-xl p-4 mb-3"
       >
         <View className="flex-row items-center justify-between mb-2">
           <View className="flex-row items-center flex-1">
@@ -162,7 +162,7 @@ export function CapacityBreakdownModal({
       <View className="flex-1 bg-black/50 justify-end">
         <View className="bg-white dark:bg-slate-950 rounded-t-3xl max-h-[85%]">
           {/* Header */}
-          <View className="flex-row items-center justify-between p-5 border-b border-gray-200 dark:border-slate-700">
+          <View className="flex-row items-center justify-between p-5 border-b border-gray-200 dark:border-slate-800">
             <View>
               <Text className="text-gray-900 dark:text-white font-bold text-xl">
                 Team Capacity Breakdown
@@ -173,7 +173,7 @@ export function CapacityBreakdownModal({
             </View>
             <Pressable
               onPress={onClose}
-              className="w-9 h-9 bg-gray-100 dark:bg-slate-900 rounded-full items-center justify-center active:opacity-70"
+              className="w-9 h-9 bg-gray-100 dark:bg-slate-800 rounded-full items-center justify-center active:opacity-70"
             >
               <X size={20} color="#64748b" />
             </Pressable>

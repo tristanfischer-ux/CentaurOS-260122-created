@@ -82,7 +82,7 @@ export default function GettingStartedScreen() {
       />
 
       {/* Progress Header */}
-      <View className="px-5 py-4 bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-700">
+      <View className="px-5 py-4 bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-800">
         <View className="flex-row items-center justify-between mb-3">
           <View>
             <Text className="text-gray-900 dark:text-white text-2xl font-bold">
@@ -95,7 +95,7 @@ export default function GettingStartedScreen() {
         </View>
 
         {/* Progress Bar */}
-        <View className="w-full h-2.5 bg-gray-200 dark:bg-slate-900 rounded-full overflow-hidden">
+        <View className="w-full h-2.5 bg-gray-200 dark:bg-slate-800 rounded-full overflow-hidden">
           <View
             className="h-full bg-purple-500"
             style={{ width: `${completionPercent}%` }}
@@ -130,7 +130,7 @@ export default function GettingStartedScreen() {
                     ? 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800'
                     : isAvailable
                     ? 'bg-white dark:bg-slate-900 border-purple-200 dark:border-purple-800'
-                    : 'bg-gray-100 dark:bg-slate-900 border-gray-200 dark:border-slate-700 opacity-50'
+                    : 'bg-gray-100 dark:bg-slate-800 border-gray-200 dark:border-slate-700 opacity-50'
                 }`}
               >
                 <View className="flex-row items-start gap-3">
@@ -233,7 +233,7 @@ export default function GettingStartedScreen() {
             <View className="flex-row gap-3">
               <Pressable
                 onPress={() => setShowResetConfirm(false)}
-                className="flex-1 bg-gray-200 dark:bg-slate-900 rounded-xl py-3 items-center"
+                className="flex-1 bg-gray-200 dark:bg-slate-800 rounded-xl py-3 items-center"
               >
                 <Text className="text-gray-900 dark:text-white text-base font-semibold">
                   Cancel

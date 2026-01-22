@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { mmkvStorage } from '@/lib/storage/mmkv-storage';
 
-export type NotificationType = 'approval' | 'deadline' | 'capacity' | 'budget' | 'assignment' | 'message' | 'achievement' | 'escalation';
+export type NotificationType = 'approval' | 'deadline' | 'capacity' | 'budget' | 'assignment' | 'message' | 'achievement';
 
 export interface Notification {
   id: string;
@@ -15,7 +15,6 @@ export interface Notification {
   timestamp: string;
   read: boolean;
   workspaceId: string;
-  userId?: string; // Optional: for user-specific notifications
 }
 
 interface NotificationStore {
@@ -28,15 +27,15 @@ interface NotificationStore {
     assignments: boolean;
     messages: boolean;
     achievements: boolean;
-    escalations: boolean;
+    emailPromptAfterAssignment: boolean; // Prompt to send email after assigning tasks
   };
   addNotification: (notification: Omit<Notification, 'id' | 'read' | 'timestamp'>) => void;
   markAsRead: (id: string) => void;
-  markAllAsRead: (workspaceId: string, userId?: string) => void;
+  markAllAsRead: (workspaceId: string) => void;
   deleteNotification: (id: string) => void;
-  clearAll: (workspaceId: string, userId?: string) => void;
-  getUnreadCount: (workspaceId: string, userId?: string) => number;
-  getNotificationsByWorkspace: (workspaceId: string, userId?: string) => Notification[];
+  clearAll: (workspaceId: string) => void;
+  getUnreadCount: (workspaceId: string) => number;
+  getNotificationsByWorkspace: (workspaceId: string) => Notification[];
   updatePreferences: (preferences: Partial<NotificationStore['preferences']>) => void;
 }
 
@@ -52,7 +51,7 @@ export const useNotificationStore = create<NotificationStore>()(
         assignments: true,
         messages: true,
         achievements: true,
-        escalations: true,
+        emailPromptAfterAssignment: true, // Default to prompting for email
       },
 
       addNotification: (notification: Omit<Notification, 'id' | 'read' | 'timestamp'>) => {
@@ -62,8 +61,7 @@ export const useNotificationStore = create<NotificationStore>()(
                        notification.type === 'capacity' ? 'capacity' :
                        notification.type === 'budget' ? 'budget' :
                        notification.type === 'assignment' ? 'assignments' :
-                       notification.type === 'message' ? 'messages' :
-                       notification.type === 'escalation' ? 'escalations' : 'achievements';
+                       notification.type === 'message' ? 'messages' : 'achievements';
 
         if (!get().preferences[typeKey]) return;
 
@@ -87,12 +85,10 @@ export const useNotificationStore = create<NotificationStore>()(
         }));
       },
 
-      markAllAsRead: (workspaceId: string, userId?: string) => {
+      markAllAsRead: (workspaceId: string) => {
         set((state: NotificationStore) => ({
           notifications: state.notifications.map((n: Notification) =>
-            n.workspaceId === workspaceId && (!userId || !n.userId || n.userId === userId)
-              ? { ...n, read: true }
-              : n
+            n.workspaceId === workspaceId ? { ...n, read: true } : n
           ),
         }));
       },
@@ -103,30 +99,18 @@ export const useNotificationStore = create<NotificationStore>()(
         }));
       },
 
-      clearAll: (workspaceId: string, userId?: string) => {
+      clearAll: (workspaceId: string) => {
         set((state: NotificationStore) => ({
-          notifications: state.notifications.filter(
-            (n: Notification) =>
-              n.workspaceId !== workspaceId ||
-              (userId && n.userId && n.userId !== userId)
-          ),
+          notifications: state.notifications.filter((n: Notification) => n.workspaceId !== workspaceId),
         }));
       },
 
-      getUnreadCount: (workspaceId: string, userId?: string) => {
-        return get().notifications.filter((n: Notification) => {
-          const matchesWorkspace = n.workspaceId === workspaceId;
-          const matchesUser = !userId || !n.userId || n.userId === userId;
-          return matchesWorkspace && matchesUser && !n.read;
-        }).length;
+      getUnreadCount: (workspaceId: string) => {
+        return get().notifications.filter((n: Notification) => n.workspaceId === workspaceId && !n.read).length;
       },
 
-      getNotificationsByWorkspace: (workspaceId: string, userId?: string) => {
-        return get().notifications.filter((n: Notification) => {
-          const matchesWorkspace = n.workspaceId === workspaceId;
-          const matchesUser = !userId || !n.userId || n.userId === userId;
-          return matchesWorkspace && matchesUser;
-        });
+      getNotificationsByWorkspace: (workspaceId: string) => {
+        return get().notifications.filter((n: Notification) => n.workspaceId === workspaceId);
       },
 
       updatePreferences: (preferences: Partial<NotificationStore['preferences']>) => {
@@ -193,34 +177,5 @@ export const notificationHelpers = {
     title: 'Achievement Unlocked!',
     message: `You earned "${achievementName}"`,
     actionLabel: 'View All',
-  }),
-
-  escalationCreated: (
-    workspaceId: string,
-    taskTitle: string,
-    escalatedByName: string,
-    reason: string
-  ) => ({
-    type: 'escalation' as NotificationType,
-    workspaceId,
-    title: '🚨 Task Escalated to Leadership',
-    message: `${escalatedByName} escalated "${taskTitle}" - ${reason}`,
-    actionLabel: 'Review Escalations',
-    actionRoute: '/(tabs)/?modal=escalations',
-  }),
-
-  escalationResolved: (
-    workspaceId: string,
-    taskTitle: string,
-    action: string,
-    respondedByName: string,
-    notes: string
-  ) => ({
-    type: 'escalation' as NotificationType,
-    workspaceId,
-    title: `Escalation ${action}`,
-    message: `${respondedByName} ${action} your escalation for "${taskTitle}": ${notes}`,
-    actionLabel: 'View Task',
-    actionRoute: '/(tabs)/tasks',
   }),
 };

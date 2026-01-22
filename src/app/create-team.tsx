@@ -31,7 +31,7 @@ import { useArmoryStore } from '@/lib/state/armory-store';
 import { useMarketplaceRequestsStore } from '@/lib/state/marketplace-requests-store';
 import type { OrganizationMember, AIAgent } from '@/lib/organization-seed';
 import { THIRD_PARTY_AI_TOOLS } from '@/lib/third-party-ai-tools';
-import { MARKETPLACE_EXECUTIVES, type MarketplaceExecutive } from '@/lib/marketplace-executives';
+import { MARKETPLACE_EXECUTIVES } from '@/lib/marketplace-executives';
 import { cn } from '@/lib/cn';
 import { useCurrentRole, useCurrentUser } from '@/lib/state/app-store';
 
@@ -108,15 +108,11 @@ export default function TeamManagementScreen() {
 
   // Get recommended people from marketplace
   // Show pending requests first, then available people
-  const recommendedPeople = useMemo<MarketplaceExecutive[]>(() => {
-    // DISABLED: Marketplace executives should be loaded from Supabase
-    // const available = MARKETPLACE_EXECUTIVES
-    //   .filter(exec => exec.availability === 'available')
-    //   .slice(0, 10);
-    // return available;
-
-    // Return empty array until Supabase integration is complete
-    return [];
+  const recommendedPeople = useMemo(() => {
+    const available = MARKETPLACE_EXECUTIVES
+      .filter(exec => exec.availability === 'available')
+      .slice(0, 10);
+    return available;
   }, []);
 
   // Split recommendations into pending requests and available people
@@ -132,7 +128,7 @@ export default function TeamManagementScreen() {
     return recommendedPeople.filter(p => !requestedIds.includes(p.id));
   }, [recommendedPeople, pendingRequests]);
 
-  const handleRequestPerson = (person: MarketplaceExecutive) => {
+  const handleRequestPerson = (person: typeof MARKETPLACE_EXECUTIVES[0]) => {
     // Create a marketplace request
     createRequest({
       workspaceId: 'workspace-demo-company',

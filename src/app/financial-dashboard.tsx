@@ -33,27 +33,29 @@ interface HealthIndicator {
   description: string;
 }
 
-// Use centralized financial data - now returns zeros for multi-tenant architecture
-// Actual data should come from Supabase via finance store
+// Use centralized financial data
 const INITIAL_DATA = {
-  runway: 0,
+  runway: 14.2,
   cashPosition: FINANCIAL_DATA.cashPosition,
   monthlyRevenue: FINANCIAL_DATA.monthlyRevenue,
 
-  // Revenue streams - empty by default, should be loaded from Supabase
-  revenueStreams: [] as { name: string; amount: number; growth: number; margin: number }[],
+  revenueStreams: [
+    { name: 'Product Sales', amount: 185000, growth: 12, margin: 42 },
+    { name: 'Subscriptions (MRR)', amount: 87000, growth: 8, margin: 85 },
+    { name: 'Professional Services', amount: 28000, growth: -3, margin: 65 },
+    { name: 'Licensing', amount: 12000, growth: 5, margin: 95 },
+  ],
 
   costs: FINANCIAL_DATA.costs,
 
-  // Unit economics metrics - zeros by default, should be loaded from Supabase
   metrics: {
-    cac: 0,
-    ltv: 0,
-    grossMargin: 0,
-    burnMultiple: 0,
-    paybackPeriod: 0,
-    churnRate: 0,
-    nrr: 0,
+    cac: 125,
+    ltv: 3600,
+    grossMargin: 68,
+    burnMultiple: 0.27,
+    paybackPeriod: 4.2,
+    churnRate: 2.1,
+    nrr: 108,
   },
 };
 
@@ -135,9 +137,7 @@ export default function FinancialDashboardScreen() {
 
   // Financial Health Indicators
   const healthIndicators = useMemo((): HealthIndicator[] => {
-    const ltvCacRatio = (INITIAL_DATA.metrics.ltv > 0 && INITIAL_DATA.metrics.cac > 0)
-      ? INITIAL_DATA.metrics.ltv / INITIAL_DATA.metrics.cac
-      : 0;
+    const ltvCacRatio = INITIAL_DATA.metrics.ltv / INITIAL_DATA.metrics.cac;
 
     return [
       {
@@ -160,7 +160,7 @@ export default function FinancialDashboardScreen() {
         name: 'LTV:CAC Ratio',
         value: ltvCacRatio,
         target: 3,
-        status: ltvCacRatio === 0 ? 'yellow' : ltvCacRatio >= 3 ? 'green' : ltvCacRatio >= 2 ? 'yellow' : 'red',
+        status: ltvCacRatio >= 3 ? 'green' : ltvCacRatio >= 2 ? 'yellow' : 'red',
         trend: 'up',
         description: 'Customer lifetime value vs acquisition cost',
       },
@@ -394,7 +394,7 @@ export default function FinancialDashboardScreen() {
 
   // Render health indicator
   const renderHealthIndicator = (indicator: HealthIndicator) => (
-    <View key={indicator.name} className="bg-gray-50 dark:bg-slate-900/50 rounded-xl p-4 mb-2">
+    <View key={indicator.name} className="bg-gray-50 dark:bg-slate-800/50 rounded-xl p-4 mb-2">
       <View className="flex-row items-center justify-between mb-2">
         <Text className="text-gray-900 dark:text-white font-semibold text-sm">{indicator.name}</Text>
         <View className={cn(
@@ -419,16 +419,12 @@ export default function FinancialDashboardScreen() {
             {indicator.value === 999 ? '∞' : indicator.name === 'Gross Margin' || indicator.name === 'Net Revenue Retention'
               ? `${indicator.value.toFixed(1)}%`
               : indicator.name === 'LTV:CAC Ratio'
-                ? (indicator.value === 0 ? 'Not yet tracked' : `${indicator.value.toFixed(1)}x`)
+                ? `${indicator.value.toFixed(1)}x`
                 : indicator.name === 'CAC Payback' || indicator.name === 'Runway'
                   ? `${indicator.value.toFixed(1)}mo`
                   : indicator.value.toFixed(2)}
           </Text>
-          <Text className="text-gray-500 dark:text-slate-400 text-xs mt-1">
-            {indicator.name === 'LTV:CAC Ratio' && indicator.value === 0
-              ? 'Start tracking customers to see this metric'
-              : indicator.description}
-          </Text>
+          <Text className="text-gray-500 dark:text-slate-400 text-xs mt-1">{indicator.description}</Text>
         </View>
         <View className="items-end">
           <Text className="text-gray-500 dark:text-slate-500 text-xs">Target</Text>
@@ -489,7 +485,7 @@ export default function FinancialDashboardScreen() {
     categoryKey: string,
     total: number
   ) => (
-    <View className="bg-gray-100 dark:bg-slate-900 rounded-xl p-4 border border-gray-300 dark:border-slate-700 mb-3">
+    <View className="bg-gray-100 dark:bg-slate-900 rounded-xl p-4 border border-gray-300 dark:border-slate-800 mb-3">
       <View className="flex-row items-center justify-between mb-3">
         <View className="flex-row items-center">
           {icon}
@@ -536,7 +532,7 @@ export default function FinancialDashboardScreen() {
   return (
     <View className="flex-1 bg-white dark:bg-slate-950" style={{ paddingTop: insets.top }}>
       {/* Header */}
-      <View className="px-6 py-4 flex-row items-center justify-between border-b border-gray-200 dark:border-slate-700">
+      <View className="px-6 py-4 flex-row items-center justify-between border-b border-gray-200 dark:border-slate-800">
         <View>
           <Text className="text-gray-900 dark:text-white text-xl font-bold">Financial Dashboard</Text>
           <Text className="text-gray-500 dark:text-slate-400 text-xs">CFO-Grade Analytics & Insights</Text>
@@ -624,7 +620,7 @@ export default function FinancialDashboardScreen() {
           </Pressable>
 
           {expandedSections.pnl && (
-            <View className="bg-gray-50 dark:bg-slate-900 rounded-xl p-4 mb-4 border border-gray-200 dark:border-slate-700">
+            <View className="bg-gray-50 dark:bg-slate-900 rounded-xl p-4 mb-4 border border-gray-200 dark:border-slate-800">
               <Text className="text-gray-500 dark:text-slate-500 text-xs font-semibold mb-3">MONTHLY P&L (£'000s)</Text>
 
               {renderPnLLine('Revenue', pnl.revenue, false, false, 100)}
@@ -742,54 +738,36 @@ export default function FinancialDashboardScreen() {
           </Pressable>
 
           {expandedSections.unitEconomics && (
-            <View className="bg-gray-50 dark:bg-slate-900 rounded-xl p-4 mb-4 border border-gray-200 dark:border-slate-700">
-              {/* Check if we have any actual metrics */}
-              {INITIAL_DATA.metrics.cac === 0 && INITIAL_DATA.metrics.ltv === 0 && INITIAL_DATA.metrics.paybackPeriod === 0 ? (
-                <View className="py-8 items-center">
-                  <PieChart size={48} color="#64748b" />
-                  <Text className="text-gray-900 dark:text-white font-semibold text-base mt-4">
-                    No Unit Economics Yet
-                  </Text>
-                  <Text className="text-gray-500 dark:text-slate-400 text-sm text-center mt-2 max-w-sm">
-                    Start tracking customer acquisition costs (CAC) and lifetime value (LTV) to see your unit economics.
-                  </Text>
-                  <Text className="text-gray-500 dark:text-slate-400 text-xs text-center mt-4 max-w-sm">
-                    These metrics appear automatically once you have customer and revenue data in the system.
-                  </Text>
-                </View>
-              ) : (
-                <>
-                  <View className="flex-row flex-wrap gap-3">
-                <View className="bg-white dark:bg-slate-900 rounded-xl p-4 flex-1" style={{ minWidth: '45%' }}>
+            <View className="bg-gray-50 dark:bg-slate-900 rounded-xl p-4 mb-4 border border-gray-200 dark:border-slate-800">
+              <View className="flex-row flex-wrap gap-3">
+                <View className="bg-white dark:bg-slate-800 rounded-xl p-4 flex-1" style={{ minWidth: '45%' }}>
                   <Text className="text-gray-500 dark:text-slate-400 text-xs mb-1">CAC</Text>
                   <Text className="text-gray-900 dark:text-white text-xl font-bold">£{INITIAL_DATA.metrics.cac}</Text>
                   <Text className="text-gray-500 dark:text-slate-400 text-xs mt-1">Customer Acquisition Cost</Text>
                 </View>
-                <View className="bg-white dark:bg-slate-900 rounded-xl p-4 flex-1" style={{ minWidth: '45%' }}>
+                <View className="bg-white dark:bg-slate-800 rounded-xl p-4 flex-1" style={{ minWidth: '45%' }}>
                   <Text className="text-gray-500 dark:text-slate-400 text-xs mb-1">LTV</Text>
                   <Text className="text-gray-900 dark:text-white text-xl font-bold">£{INITIAL_DATA.metrics.ltv}</Text>
                   <Text className="text-gray-500 dark:text-slate-400 text-xs mt-1">Customer Lifetime Value</Text>
                 </View>
-                <View className="bg-white dark:bg-slate-900 rounded-xl p-4 flex-1" style={{ minWidth: '45%' }}>
+                <View className="bg-white dark:bg-slate-800 rounded-xl p-4 flex-1" style={{ minWidth: '45%' }}>
                   <Text className="text-gray-500 dark:text-slate-400 text-xs mb-1">LTV:CAC</Text>
                   <Text className="text-emerald-600 dark:text-emerald-400 text-xl font-bold">
-                    {(INITIAL_DATA.metrics.ltv > 0 && INITIAL_DATA.metrics.cac > 0)
-                      ? `${(INITIAL_DATA.metrics.ltv / INITIAL_DATA.metrics.cac).toFixed(1)}x`
-                      : 'Not yet tracked'}
+                    {(INITIAL_DATA.metrics.ltv / INITIAL_DATA.metrics.cac).toFixed(1)}x
                   </Text>
                   <Text className="text-gray-500 dark:text-slate-400 text-xs mt-1">Target: 3x+</Text>
                 </View>
-                <View className="bg-white dark:bg-slate-900 rounded-xl p-4 flex-1" style={{ minWidth: '45%' }}>
+                <View className="bg-white dark:bg-slate-800 rounded-xl p-4 flex-1" style={{ minWidth: '45%' }}>
                   <Text className="text-gray-500 dark:text-slate-400 text-xs mb-1">Payback Period</Text>
                   <Text className="text-gray-900 dark:text-white text-xl font-bold">{INITIAL_DATA.metrics.paybackPeriod}mo</Text>
                   <Text className="text-gray-500 dark:text-slate-400 text-xs mt-1">Target: {'<'}12mo</Text>
                 </View>
-                <View className="bg-white dark:bg-slate-900 rounded-xl p-4 flex-1" style={{ minWidth: '45%' }}>
+                <View className="bg-white dark:bg-slate-800 rounded-xl p-4 flex-1" style={{ minWidth: '45%' }}>
                   <Text className="text-gray-500 dark:text-slate-400 text-xs mb-1">Churn Rate</Text>
                   <Text className="text-gray-900 dark:text-white text-xl font-bold">{INITIAL_DATA.metrics.churnRate}%</Text>
                   <Text className="text-gray-500 dark:text-slate-400 text-xs mt-1">Monthly customer churn</Text>
                 </View>
-                <View className="bg-white dark:bg-slate-900 rounded-xl p-4 flex-1" style={{ minWidth: '45%' }}>
+                <View className="bg-white dark:bg-slate-800 rounded-xl p-4 flex-1" style={{ minWidth: '45%' }}>
                   <Text className="text-gray-500 dark:text-slate-400 text-xs mb-1">NRR</Text>
                   <Text className="text-emerald-600 dark:text-emerald-400 text-xl font-bold">{INITIAL_DATA.metrics.nrr}%</Text>
                   <Text className="text-gray-500 dark:text-slate-400 text-xs mt-1">Net Revenue Retention</Text>
@@ -821,8 +799,6 @@ export default function FinancialDashboardScreen() {
                   </View>
                 ))}
               </View>
-                </>
-              )}
             </View>
           )}
 
@@ -999,7 +975,7 @@ export default function FinancialDashboardScreen() {
                 </View>
                 <Pressable
                   onPress={() => setShowEditModal(false)}
-                  className="w-8 h-8 items-center justify-center rounded-full bg-gray-100 dark:bg-slate-900"
+                  className="w-8 h-8 items-center justify-center rounded-full bg-gray-100 dark:bg-slate-800"
                 >
                   <X size={16} color="#64748b" />
                 </Pressable>
@@ -1019,7 +995,7 @@ export default function FinancialDashboardScreen() {
 
                   {/* Current vs New Value */}
                   <View className="flex-row gap-3 mb-4">
-                    <View className="flex-1 bg-gray-100 dark:bg-slate-900 rounded-xl p-3">
+                    <View className="flex-1 bg-gray-100 dark:bg-slate-800 rounded-xl p-3">
                       <Text className="text-gray-500 dark:text-slate-400 text-xs mb-1">Current</Text>
                       <Text className="text-gray-900 dark:text-white text-xl font-bold">
                         £{editingItem.item.amount.toLocaleString()}
@@ -1096,7 +1072,7 @@ export default function FinancialDashboardScreen() {
                   )}
 
                   {/* Approval Context (PwC Governance Standards) */}
-                  <View className="bg-gray-50 dark:bg-slate-900/50 rounded-xl p-3 mb-4">
+                  <View className="bg-gray-50 dark:bg-slate-800/50 rounded-xl p-3 mb-4">
                     <Text className="text-gray-700 dark:text-slate-300 font-semibold text-sm mb-2">Approval Thresholds</Text>
                     <View className="flex-row items-center mb-1">
                       <View className="w-2 h-2 rounded-full bg-emerald-500 mr-2" />

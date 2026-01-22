@@ -1,18 +1,15 @@
-import { View, Text, ScrollView, Pressable, Dimensions } from 'react-native';
+import { View, Text, ScrollView, Pressable, Dimensions, Modal } from 'react-native';
 import { useMemo, useRef, useEffect, useState } from 'react';
 import { type WorkPlan } from '@/lib/state/work-plan-store';
 import { type OrganizationMember } from '@/lib/organization-seed';
-import { AlertTriangle, Target } from 'lucide-react-native';
-import { getDelayInfo, formatDelay, getDelaySeverityColor } from '@/lib/task-delay-tracker';
-import { lightImpact } from '@/lib/haptics';
-import { TaskQuickActionsModal } from './TaskQuickActionsModal';
-import { getInitials, ROLE_COLORS } from './Avatar';
+import { X, Calendar, Clock, Users, DollarSign, AlertCircle } from 'lucide-react-native';
 
 interface MiniGanttChartProps {
   workPlans: WorkPlan[];
   members: OrganizationMember[];
   selectedTaskId?: string;
   onTaskPress?: (taskId: string) => void;
+  fillAvailableSpace?: boolean;
 }
 
 // Calculate week number from a date
@@ -43,20 +40,33 @@ const STATUS_COLORS: Record<string, { bg: string; border: string; text: string }
   'abandoned': { bg: 'bg-gray-300 dark:bg-gray-800', border: 'border-gray-500 dark:border-gray-700', text: 'text-gray-600 dark:text-gray-400' },
 };
 
-export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress }: MiniGanttChartProps) {
-  const today = useMemo(() => new Date(), []);
+const ROLE_COLORS: Record<string, string> = {
+  Founder: '#8b5cf6',
+  FractionalExec: '#3b82f6',
+  Apprentice: '#10b981',
+};
 
-  // View mode state
-  const [viewMode, setViewMode] = useState<'day' | 'week' | 'month' | 'year'>('week');
+export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress, fillAvailableSpace = false }: MiniGanttChartProps) {
+  const today = useMemo(() => new Date(), []);
+  const currentWeek = useMemo(() => getWeekNumber(today), [today]);
 
   // Refs for auto-scrolling to today
   const headerScrollRef = useRef<ScrollView>(null);
   const contentScrollRef = useRef<ScrollView>(null);
 
+  // Helper to get initials from name
+  const getInitials = (name: string): string => {
+    const parts = name.split(' ');
+    if (parts.length >= 2) {
+      return `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase();
+    }
+    return name.substring(0, 2).toUpperCase();
+  };
+
   // Helper to get assigned members for a task, sorted by seniority
   const getAssignedMembers = (task: WorkPlan) => {
     const memberIds = task.assignedMemberIds || [];
-    const roleOrder = { Founder: 0, CoFounder: 0, FractionalExec: 1, Apprentice: 2 };
+    const roleOrder = { Founder: 0, FractionalExec: 1, Apprentice: 2 };
 
     return memberIds
       .map(id => members.find(m => m.id === id))
@@ -89,66 +99,27 @@ export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress
     return cumulativeCost;
   };
 
-  // Generate time periods based on view mode
-  const timePeriods = useMemo(() => {
+  // Generate weeks: 4 weeks before, current week, 8 weeks after (13 weeks total, showing 3 at a time)
+  const weeks = useMemo(() => {
     const result = [];
+    for (let i = -4; i <= 8; i++) {
+      const weekDate = new Date(today);
+      weekDate.setDate(today.getDate() + i * 7);
+      const weekStart = getWeekStart(weekDate);
+      const weekEnd = new Date(weekStart);
+      weekEnd.setDate(weekStart.getDate() + 6);
 
-    if (viewMode === 'day') {
-      // Show 7 days: 2 before, today, 4 after
-      for (let i = -2; i <= 4; i++) {
-        const date = new Date(today);
-        date.setDate(today.getDate() + i);
-        result.push({
-          offset: i,
-          date,
-          label: i === 0 ? 'Today' : date.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric' }),
-          isToday: i === 0,
-        });
-      }
-    } else if (viewMode === 'week') {
-      // Show 13 weeks: 4 before, current week, 8 after
-      for (let i = -4; i <= 8; i++) {
-        const weekDate = new Date(today);
-        weekDate.setDate(today.getDate() + i * 7);
-        const weekStart = getWeekStart(weekDate);
-        const weekEnd = new Date(weekStart);
-        weekEnd.setDate(weekStart.getDate() + 6);
-
-        result.push({
-          offset: i,
-          weekNumber: getWeekNumber(weekDate),
-          weekStart,
-          weekEnd,
-          label: i === 0 ? 'This Week' : formatDate(weekStart),
-          isCurrentWeek: i === 0,
-        });
-      }
-    } else if (viewMode === 'month') {
-      // Show 12 months: 2 before, current, 9 after
-      for (let i = -2; i <= 9; i++) {
-        const date = new Date(today.getFullYear(), today.getMonth() + i, 1);
-        result.push({
-          offset: i,
-          date,
-          label: date.toLocaleDateString('en-GB', { month: 'short', year: i === 0 ? undefined : 'numeric' }),
-          isCurrentMonth: i === 0,
-        });
-      }
-    } else if (viewMode === 'year') {
-      // Show 5 years: 1 before, current, 3 after
-      for (let i = -1; i <= 3; i++) {
-        const year = today.getFullYear() + i;
-        result.push({
-          offset: i,
-          year,
-          label: year.toString(),
-          isCurrentYear: i === 0,
-        });
-      }
+      result.push({
+        offset: i,
+        weekNumber: getWeekNumber(weekDate),
+        weekStart,
+        weekEnd,
+        label: i === 0 ? 'This Week' : formatDate(weekStart),
+        isCurrentWeek: i === 0,
+      });
     }
-
     return result;
-  }, [today, viewMode]);
+  }, [today]);
 
   // Show all non-completed/abandoned tasks, sorted by due date
   const filteredTasks = useMemo(() => {
@@ -162,19 +133,6 @@ export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress
       });
   }, [workPlans]);
 
-  // Helper to calculate time difference based on view mode
-  const getTimeDiff = (date1: Date, date2: Date, mode: 'day' | 'week' | 'month' | 'year'): number => {
-    if (mode === 'day') {
-      return Math.floor((date1.getTime() - date2.getTime()) / (24 * 60 * 60 * 1000));
-    } else if (mode === 'week') {
-      return getWeekNumber(date1) - getWeekNumber(date2);
-    } else if (mode === 'month') {
-      return (date1.getFullYear() - date2.getFullYear()) * 12 + (date1.getMonth() - date2.getMonth());
-    } else {
-      return date1.getFullYear() - date2.getFullYear();
-    }
-  };
-
   // Calculate task position and width for each task
   const taskBars = useMemo(() => {
     return filteredTasks.map(task => {
@@ -182,63 +140,29 @@ export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress
 
       // Calculate start date based on estimated time units (1 TU = 4 hours, assume 8 hours per day)
       const estimatedDays = Math.ceil((task.estimatedTimeUnits * 4) / 8);
-      const startDate = task.startDate
-        ? new Date(task.startDate)
-        : new Date(dueDate.getTime() - estimatedDays * 24 * 60 * 60 * 1000);
+      const startDate = new Date(dueDate.getTime() - estimatedDays * 24 * 60 * 60 * 1000);
 
-      // Calculate offset from today/current period based on view mode
-      let startOffset = 0;
-      let endOffset = 0;
-      let widthInPeriods = 1;
+      // Find which weeks this task spans
+      const startWeek = getWeekNumber(startDate);
+      const endWeek = getWeekNumber(dueDate);
 
-      if (viewMode === 'day') {
-        // For day view, offset is in days from today
-        startOffset = getTimeDiff(startDate, today, 'day');
-        endOffset = getTimeDiff(dueDate, today, 'day');
-        widthInPeriods = Math.max(1, endOffset - startOffset + 1);
-      } else if (viewMode === 'week') {
-        // For week view, offset is in weeks from current week
-        startOffset = getTimeDiff(startDate, today, 'week');
-        endOffset = getTimeDiff(dueDate, today, 'week');
-        widthInPeriods = Math.max(1, endOffset - startOffset + 1);
-      } else if (viewMode === 'month') {
-        // For month view, offset is in months from current month
-        startOffset = getTimeDiff(startDate, today, 'month');
-        endOffset = getTimeDiff(dueDate, today, 'month');
-        widthInPeriods = Math.max(1, endOffset - startOffset + 1);
-      } else if (viewMode === 'year') {
-        // For year view, offset is in years from current year
-        startOffset = getTimeDiff(startDate, today, 'year');
-        endOffset = getTimeDiff(dueDate, today, 'year');
-        widthInPeriods = Math.max(1, endOffset - startOffset + 1);
-      }
+      // Calculate offset from current week
+      const startOffset = startWeek - currentWeek;
+      const endOffset = endWeek - currentWeek;
 
-      // Get delay information
-      const delayInfo = getDelayInfo(task);
-
-      // Calculate original end position if there's a delay
-      let originalEndOffset = endOffset;
-      let extensionWidthInPeriods = 0;
-
-      if (delayInfo.isDelayed && delayInfo.originalEndDate) {
-        const originalEndOffsetCalc = getTimeDiff(delayInfo.originalEndDate, today, viewMode);
-        originalEndOffset = originalEndOffsetCalc;
-        extensionWidthInPeriods = endOffset - originalEndOffset;
-      }
+      // Calculate width (how many weeks this task spans)
+      const widthInWeeks = Math.max(1, endOffset - startOffset + 1);
 
       return {
         task,
         startOffset,
         endOffset,
-        widthInPeriods,
+        widthInWeeks,
         startDate,
         dueDate,
-        delayInfo,
-        originalEndOffset,
-        extensionWidthInPeriods,
       };
     });
-  }, [filteredTasks, today, viewMode]);
+  }, [filteredTasks, currentWeek]);
 
   const screenWidth = Dimensions.get('window').width;
   const WEEK_WIDTH = screenWidth / 3; // Divide screen width by 3 weeks to fill entire width
@@ -249,166 +173,79 @@ export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress
   const [selectedTask, setSelectedTask] = useState<WorkPlan | null>(null);
   const [showTaskModal, setShowTaskModal] = useState(false);
 
-  // Function to scroll to today's position
-  const scrollToToday = () => {
-    lightImpact();
-
-    // Calculate scroll position based on view mode
-    let scrollPosition = 0;
-
-    if (viewMode === 'day') {
-      // In day view, today is at index 2 (2 days before)
-      scrollPosition = WEEK_WIDTH * 2;
-    } else if (viewMode === 'week') {
-      // In week view, current week is at index 4 (4 weeks before)
-      scrollPosition = WEEK_WIDTH * 4;
-    } else if (viewMode === 'month') {
-      // In month view, current month is at index 2 (2 months before)
-      scrollPosition = WEEK_WIDTH * 2;
-    } else if (viewMode === 'year') {
-      // In year view, current year is at index 1 (1 year before)
-      scrollPosition = WEEK_WIDTH * 1;
-    }
-
-    headerScrollRef.current?.scrollTo({ x: scrollPosition, y: 0, animated: true });
-    contentScrollRef.current?.scrollTo({ x: scrollPosition, y: 0, animated: true });
-  };
-
-  // Auto-scroll to show today at far left when component mounts or view mode changes
+  // Auto-scroll to show today at far left when component mounts
   useEffect(() => {
+    // Scroll to position where current week (index 4) appears at the far left
+    const scrollPosition = WEEK_WIDTH * 4; // Scroll past the 4 weeks before current week
+
     setTimeout(() => {
-      scrollToToday();
+      headerScrollRef.current?.scrollTo({ x: scrollPosition, y: 0, animated: true });
+      contentScrollRef.current?.scrollTo({ x: scrollPosition, y: 0, animated: true });
     }, 100);
-  }, [viewMode]);
+  }, []);
 
   return (
     <View className="flex-1 bg-white dark:bg-slate-900 border-t-2 border-gray-200 dark:border-slate-700">
-      {/* Compact Header with View Toggle */}
-      <View className="px-3 py-1.5 flex-row items-center justify-between border-b border-gray-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950">
-        <View className="flex-row items-center gap-2">
-          <Text className="text-gray-900 dark:text-white text-[10px] font-bold uppercase tracking-wide">
-            Timeline
+      {/* Header - Compact with inline legend */}
+      <View className="px-4 py-2 flex-row items-center justify-between border-b border-gray-200 dark:border-slate-700">
+        <View className="flex-row items-center gap-3">
+          <Text className="text-gray-900 dark:text-white text-xs font-bold">
+            TIMELINE
           </Text>
-          <Text className="text-gray-500 dark:text-slate-400 text-[9px]">
-            {filteredTasks.length} tasks
+          <Text className="text-gray-500 dark:text-slate-400 text-[10px]">
+            {filteredTasks.length}
           </Text>
-
-          {/* Today Button */}
-          <Pressable
-            onPress={scrollToToday}
-            className="bg-blue-500 rounded-full px-2 py-0.5 flex-row items-center gap-1 active:opacity-70"
-          >
-            <Target size={10} color="white" />
-            <Text className="text-white text-[9px] font-bold">Today</Text>
-          </Pressable>
         </View>
-
-        {/* View Mode Toggle */}
-        <View className="flex-row items-center gap-1">
-          <Pressable
-            onPress={() => setViewMode('day')}
-            className={`px-2 py-1 rounded ${
-              viewMode === 'day'
-                ? 'bg-purple-500'
-                : 'bg-gray-200 dark:bg-slate-900'
-            }`}
-          >
-            <Text className={`text-[9px] font-semibold ${
-              viewMode === 'day'
-                ? 'text-white'
-                : 'text-gray-600 dark:text-slate-400'
-            }`}>
-              Day
-            </Text>
-          </Pressable>
-          <Pressable
-            onPress={() => setViewMode('week')}
-            className={`px-2 py-1 rounded ${
-              viewMode === 'week'
-                ? 'bg-purple-500'
-                : 'bg-gray-200 dark:bg-slate-900'
-            }`}
-          >
-            <Text className={`text-[9px] font-semibold ${
-              viewMode === 'week'
-                ? 'text-white'
-                : 'text-gray-600 dark:text-slate-400'
-            }`}>
-              Week
-            </Text>
-          </Pressable>
-          <Pressable
-            onPress={() => setViewMode('month')}
-            className={`px-2 py-1 rounded ${
-              viewMode === 'month'
-                ? 'bg-purple-500'
-                : 'bg-gray-200 dark:bg-slate-900'
-            }`}
-          >
-            <Text className={`text-[9px] font-semibold ${
-              viewMode === 'month'
-                ? 'text-white'
-                : 'text-gray-600 dark:text-slate-400'
-            }`}>
-              Month
-            </Text>
-          </Pressable>
-          <Pressable
-            onPress={() => setViewMode('year')}
-            className={`px-2 py-1 rounded ${
-              viewMode === 'year'
-                ? 'bg-purple-500'
-                : 'bg-gray-200 dark:bg-slate-900'
-            }`}
-          >
-            <Text className={`text-[9px] font-semibold ${
-              viewMode === 'year'
-                ? 'text-white'
-                : 'text-gray-600 dark:text-slate-400'
-            }`}>
-              Year
-            </Text>
-          </Pressable>
+        {/* Inline status legend */}
+        <View className="flex-row items-center gap-2">
+          <View className="flex-row items-center gap-1">
+            <View className="w-2 h-2 rounded-sm bg-gray-300 dark:bg-gray-600" />
+            <Text className="text-gray-500 dark:text-slate-400 text-[8px]">Queued</Text>
+          </View>
+          <View className="flex-row items-center gap-1">
+            <View className="w-2 h-2 rounded-sm bg-blue-400" />
+            <Text className="text-gray-500 dark:text-slate-400 text-[8px]">Live</Text>
+          </View>
+          <View className="flex-row items-center gap-1">
+            <View className="w-2 h-2 rounded-sm bg-red-400" />
+            <Text className="text-gray-500 dark:text-slate-400 text-[8px]">Blocked</Text>
+          </View>
         </View>
       </View>
 
       {/* Timeline Content */}
       <View className="flex-1 relative bg-white dark:bg-slate-900">
-        {/* Compact Time Period Headers */}
+        {/* Week Headers */}
         <ScrollView
           ref={headerScrollRef}
           horizontal
           showsHorizontalScrollIndicator={false}
+          className="border-b border-gray-200 dark:border-slate-700"
           scrollEnabled={false}
-          style={{ flexGrow: 0 }}
         >
           <View className="flex-row">
-            {timePeriods.map((period: any, idx: number) => {
-              const isCurrent = viewMode === 'week' ? period.isCurrentWeek :
-                                viewMode === 'day' ? period.isToday :
-                                viewMode === 'month' ? period.isCurrentMonth :
-                                period.isCurrentYear;
-
-              return (
-                <View
-                  key={idx}
-                  className={`border-r border-b border-gray-200 dark:border-slate-700 py-0.5 ${
-                    isCurrent ? 'bg-blue-50 dark:bg-blue-900/20' : ''
+            {weeks.map((week, idx) => (
+              <View
+                key={idx}
+                className={`border-r border-gray-200 dark:border-slate-700 py-2 ${
+                  week.isCurrentWeek ? 'bg-blue-50 dark:bg-blue-900/20' : ''
+                }`}
+                style={{ width: WEEK_WIDTH }}
+              >
+                <Text
+                  className={`text-center text-[10px] font-semibold ${
+                    week.isCurrentWeek
+                      ? 'text-blue-600 dark:text-blue-400'
+                      : 'text-gray-500 dark:text-slate-400'
                   }`}
-                  style={{ width: WEEK_WIDTH }}
                 >
-                  <Text
-                    className={`text-center text-[9px] font-semibold ${
-                      isCurrent
-                        ? 'text-blue-600 dark:text-blue-400'
-                        : 'text-gray-500 dark:text-slate-400'
-                    }`}
-                  >
-                    {period.label}
-                  </Text>
-                </View>
-              );
-            })}
+                  {week.label}
+                </Text>
+                <Text className="text-center text-[9px] text-gray-400 dark:text-slate-500 mt-0.5">
+                  W{week.weekNumber}
+                </Text>
+              </View>
+            ))}
           </View>
         </ScrollView>
 
@@ -423,277 +260,298 @@ export function MiniGanttChart({ workPlans, members, selectedTaskId, onTaskPress
             headerScrollRef.current?.scrollTo({ x: offsetX, y: 0, animated: false });
           }}
           scrollEventThrottle={16}
-          style={{ flex: 1 }}
           contentContainerStyle={{ flexGrow: 1 }}
         >
           <ScrollView
             showsVerticalScrollIndicator={true}
-            contentContainerStyle={{ flexGrow: 1, paddingBottom: 80 }}
-            style={{ flex: 1 }}
+            contentContainerStyle={{ flexGrow: 1 }}
+            style={fillAvailableSpace ? { flex: 1 } : { maxHeight: TASK_HEIGHT * MAX_VISIBLE_TASKS + 10 }}
           >
-            <View style={{ width: WEEK_WIDTH * timePeriods.length, minHeight: '100%' }}>
-              {/* Week separator lines - full height */}
-              {timePeriods.map((period: any, idx: number) => (
-                <View
-                  key={`separator-${idx}`}
-                  className="absolute top-0 w-px bg-gray-200 dark:bg-slate-700"
-                  style={{ left: WEEK_WIDTH * idx, height: '100%' }}
-                />
-              ))}
-
-              {/* Today indicator line - full height */}
-              {(() => {
-                let todayIndex = 0;
-                if (viewMode === 'day') {
-                  todayIndex = 2; // 2 days before
-                } else if (viewMode === 'week') {
-                  todayIndex = 4; // 4 weeks before
-                } else if (viewMode === 'month') {
-                  todayIndex = 2; // 2 months before
-                } else if (viewMode === 'year') {
-                  todayIndex = 1; // 1 year before
-                }
-
-                const todayLineX = (todayIndex * WEEK_WIDTH) + (WEEK_WIDTH / 2);
-
-                return (
-                  <View
-                    className="absolute top-0 w-1 bg-blue-500 dark:bg-blue-400"
-                    style={{ left: todayLineX, height: '100%', zIndex: 5 }}
-                    pointerEvents="none"
-                  />
-                );
-              })()}
+            <View style={{ width: WEEK_WIDTH * weeks.length }}>
+              {/* Current week indicator line */}
+              <View
+                className="absolute top-0 bottom-0 w-0.5 bg-blue-500 dark:bg-blue-400 opacity-50"
+                style={{ left: WEEK_WIDTH * 4 + WEEK_WIDTH / 2 }}
+              />
 
               {/* Task bars */}
-              <View className="pt-1">
+              <View className="py-2">
               {taskBars.map((bar, idx) => {
                 const colors = STATUS_COLORS[bar.task.status] || STATUS_COLORS['not-started'];
-                // Calculate left position offset based on view mode
-                // Day: 2 periods before today, Week: 4 periods, Month: 2 periods, Year: 1 period
-                const periodOffset = viewMode === 'day' ? 2 : viewMode === 'week' ? 4 : viewMode === 'month' ? 2 : 1;
-                const leftPosition = WEEK_WIDTH * (bar.startOffset + periodOffset);
+                const leftPosition = WEEK_WIDTH * (bar.startOffset + 4); // +4 to account for 4 weeks before current week
+                const barWidth = WEEK_WIDTH * bar.widthInWeeks - 8; // -8 for padding
                 const assignedMembers = getAssignedMembers(bar.task);
-
-                // Calculate bar widths for original vs extension
-                const hasExtension = bar.delayInfo.isDelayed && bar.extensionWidthInPeriods > 0;
-                const originalWidthInPeriods = hasExtension
-                  ? bar.widthInPeriods - bar.extensionWidthInPeriods
-                  : bar.widthInPeriods;
-                const originalBarWidth = Math.max(60, WEEK_WIDTH * originalWidthInPeriods - 8);
-                const extensionBarWidth = hasExtension ? WEEK_WIDTH * bar.extensionWidthInPeriods : 0;
-
-                // Get delay severity colors
-                const delaySeverityColors = getDelaySeverityColor(bar.delayInfo.severity);
-                const delayBadgeText = formatDelay(bar.delayInfo);
+                const AVATAR_WIDTH = 32; // Width for avatar section
+                const taskCost = calculateTaskCost(bar.task);
 
                 return (
                   <View
                     key={bar.task.id}
                     className="mb-2 flex-row items-center"
                     style={{
-                      marginLeft: Math.max(4, leftPosition - 30),
+                      marginLeft: Math.max(0, leftPosition) - AVATAR_WIDTH - 4,
                       height: TASK_HEIGHT,
                     }}
                   >
-                    {/* Team Avatars - circular with solid role colors */}
-                    <View className="mr-1 flex-row" style={{ width: 28 }}>
+                    {/* Team Avatars - positioned immediately to the left of the task bar */}
+                    <View className="mr-1" style={{ width: AVATAR_WIDTH, flexDirection: 'row', justifyContent: 'flex-end' }}>
                       {assignedMembers.length > 0 ? (
                         <>
-                          {assignedMembers.slice(0, 2).map((member, memberIdx) => (
-                            <View
-                              key={member.id}
-                              className="w-6 h-6 rounded-full items-center justify-center border-2 border-white dark:border-slate-800"
-                              style={{
-                                backgroundColor: ROLE_COLORS[member.role] || '#8b5cf6',
-                                marginLeft: memberIdx > 0 ? -10 : 0,
-                                zIndex: 2 - memberIdx,
-                              }}
-                            >
-                              <Text className="font-bold text-[8px] text-white">
-                                {getInitials(member.name)}
-                              </Text>
-                            </View>
-                          ))}
                           {assignedMembers.length > 2 && (
                             <View
-                              className="w-6 h-6 rounded-full items-center justify-center border-2 border-white dark:border-slate-800"
-                              style={{ backgroundColor: '#6b7280', marginLeft: -10, zIndex: 0 }}
+                              className="w-6 h-6 rounded-full items-center justify-center"
+                              style={{ backgroundColor: '#9ca3af20', marginRight: -6, zIndex: 0 }}
                             >
-                              <Text className="font-bold text-[8px] text-white">
+                              <Text className="font-bold text-[8px] text-gray-600 dark:text-gray-400">
                                 +{assignedMembers.length - 2}
                               </Text>
                             </View>
                           )}
-                        </>
-                      ) : (
-                        <View
-                          className="w-6 h-6 rounded-full items-center justify-center border-2 border-white dark:border-slate-800 bg-gray-400 dark:bg-slate-600"
-                        >
-                          <Text className="font-bold text-[8px] text-white">?</Text>
-                        </View>
-                      )}
-                    </View>
-
-                    {/* Task Bar Container - includes original bar + extension */}
-                    <View className="flex-row items-center">
-                      {/* Original Timeline Bar */}
-                      <Pressable
-                        onPress={() => {
-                          console.log('[MiniGanttChart] Task pressed:', bar.task.title);
-                          lightImpact();
-                          setSelectedTask(bar.task);
-                          setShowTaskModal(true);
-                        }}
-                        hitSlop={{ top: 5, bottom: 5, left: 5, right: 5 }}
-                        style={{
-                          width: originalBarWidth,
-                          height: TASK_HEIGHT,
-                        }}
-                      >
-                        <View
-                          className={`flex-row items-center px-2 py-1 border-2 ${
-                            selectedTaskId === bar.task.id
-                              ? 'border-blue-500 dark:border-blue-400'
-                              : colors.border
-                          } ${colors.bg}`}
-                          style={{
-                            height: TASK_HEIGHT,
-                            borderTopLeftRadius: 8,
-                            borderBottomLeftRadius: 8,
-                            // Only round right side if no extension
-                            borderTopRightRadius: hasExtension ? 0 : 8,
-                            borderBottomRightRadius: hasExtension ? 0 : 8,
-                            borderRightWidth: hasExtension ? 0 : 2,
-                          }}
-                          pointerEvents="none"
-                        >
-                          <View className="flex-1">
-                            <View className="flex-row items-center gap-1">
-                              {/* Warning icon for delayed tasks */}
-                              {bar.delayInfo.isDelayed && (
-                                <AlertTriangle size={10} color={delaySeverityColors.bar} />
-                              )}
-                              <Text
-                                className={`text-xs font-semibold ${colors.text}`}
-                                numberOfLines={1}
-                                style={{ flex: 1 }}
-                              >
-                                {bar.task.title}
+                          {assignedMembers.slice(0, 2).map((member, idx) => (
+                            <View
+                              key={member.id}
+                              className="w-6 h-6 rounded-full items-center justify-center"
+                              style={{
+                                backgroundColor: ROLE_COLORS[member.role] + '20',
+                                marginRight: idx < assignedMembers.slice(0, 2).length - 1 ? -6 : 0,
+                                zIndex: idx + 1
+                              }}
+                            >
+                              <Text className="font-bold text-[8px]" style={{ color: ROLE_COLORS[member.role] }}>
+                                {getInitials(member.name)}
                               </Text>
                             </View>
-                            <Text
-                              className={`text-[10px] ${colors.text} opacity-80`}
-                              numberOfLines={1}
-                            >
-                              {bar.task.function} • {bar.task.progress}%
-                            </Text>
-                          </View>
-                          {/* Progress indicator */}
-                          {bar.task.status === 'in-progress' && !hasExtension && (
-                            <View className="ml-1 w-1.5 h-1.5 rounded-full bg-white" />
-                          )}
-                        </View>
-                      </Pressable>
-
-                      {/* Extension Bar (for delayed tasks) */}
-                      {hasExtension && (
-                        <View
-                          style={{
-                            width: extensionBarWidth,
-                            height: TASK_HEIGHT,
-                            backgroundColor: delaySeverityColors.bar,
-                            borderTopRightRadius: 8,
-                            borderBottomRightRadius: 8,
-                            borderWidth: 2,
-                            borderLeftWidth: 0,
-                            borderColor: delaySeverityColors.bar,
-                            justifyContent: 'center',
-                            paddingHorizontal: 6,
-                          }}
-                        >
-                          {/* Diagonal stripes pattern overlay */}
-                          <View
-                            style={{
-                              position: 'absolute',
-                              top: 0,
-                              left: 0,
-                              right: 0,
-                              bottom: 0,
-                              opacity: 0.3,
-                              overflow: 'hidden',
-                              borderTopRightRadius: 6,
-                              borderBottomRightRadius: 6,
-                            }}
-                          >
-                            {/* Simple stripe pattern using multiple thin views */}
-                            {[...Array(10)].map((_, i) => (
-                              <View
-                                key={i}
-                                style={{
-                                  position: 'absolute',
-                                  width: 3,
-                                  height: 60,
-                                  backgroundColor: 'rgba(255,255,255,0.4)',
-                                  transform: [{ rotate: '45deg' }],
-                                  left: i * 12 - 20,
-                                  top: -15,
-                                }}
-                              />
-                            ))}
-                          </View>
-
-                          {/* Delay badge */}
-                          <View className="flex-row items-center justify-center">
-                            <Text className="text-white text-[9px] font-bold">
-                              {delayBadgeText}
-                            </Text>
-                          </View>
-                        </View>
-                      )}
+                          ))}
+                        </>
+                      ) : null}
                     </View>
 
-                    {/* Delay badge (alternative position) - shows if there's a delay but no extension visual */}
-                    {bar.delayInfo.isDelayed && !hasExtension && delayBadgeText && (
+                    {/* Task Bar */}
+                    <Pressable
+                      onPress={() => {
+                        console.log('[MiniGanttChart] Task pressed:', bar.task.title);
+                        onTaskPress?.(bar.task.id);
+                      }}
+                      hitSlop={{ top: 5, bottom: 5, left: 5, right: 5 }}
+                      style={{
+                        width: Math.max(60, barWidth),
+                        height: TASK_HEIGHT,
+                      }}
+                    >
                       <View
-                        className="ml-1 px-1.5 py-0.5 rounded"
-                        style={{ backgroundColor: delaySeverityColors.bar }}
+                        className={`flex-row items-center px-2 py-1 rounded-lg border-2 ${
+                          selectedTaskId === bar.task.id
+                            ? 'border-blue-500 dark:border-blue-400'
+                            : colors.border
+                        } ${colors.bg}`}
+                        style={{ height: TASK_HEIGHT }}
+                        pointerEvents="none"
                       >
-                        <Text className="text-white text-[8px] font-bold">
-                          {delayBadgeText}
-                        </Text>
+                        <View className="flex-1">
+                          <Text
+                            className={`text-xs font-semibold ${colors.text}`}
+                            numberOfLines={1}
+                          >
+                            {bar.task.title}
+                          </Text>
+                          <Text
+                            className={`text-[10px] ${colors.text} opacity-80`}
+                            numberOfLines={1}
+                          >
+                            {bar.task.function} • {bar.task.progress}%
+                          </Text>
+                        </View>
+                        {/* Progress indicator */}
+                        {bar.task.status === 'in-progress' && (
+                          <View className="ml-1 w-1.5 h-1.5 rounded-full bg-white" />
+                        )}
                       </View>
-                    )}
+                    </Pressable>
+
+                    {/* Cost Display - to the immediate right of task bar */}
+                    <View className="ml-2 bg-gray-100 dark:bg-slate-800 px-2 py-1 rounded-md">
+                      <Text className="text-gray-700 dark:text-gray-300 text-[10px] font-bold">
+                        £{taskCost.toLocaleString()}
+                      </Text>
+                    </View>
                   </View>
                 );
               })}
-              </View>
 
               {/* Empty state */}
               {taskBars.length === 0 && (
-                <View className="flex-1 items-center justify-center py-8">
+                <View className="items-center justify-center py-8">
                   <Text className="text-gray-400 dark:text-slate-500 text-sm">
                     No active tasks
                   </Text>
                 </View>
               )}
             </View>
-          </ScrollView>
+          </View>
+        </ScrollView>
         </ScrollView>
       </View>
 
-      {/* Task Quick Actions Modal */}
-      <TaskQuickActionsModal
+      {/* Task Info Modal */}
+      <Modal
         visible={showTaskModal}
-        onClose={() => {
+        transparent
+        animationType="fade"
+        onRequestClose={() => {
           console.log('[MiniGanttChart] Modal closing');
           setShowTaskModal(false);
         }}
-        task={selectedTask}
-        onNavigateToDetails={(taskId) => {
-          onTaskPress?.(taskId);
-        }}
-      />
+      >
+        <Pressable
+          className="flex-1 bg-black/60"
+          onPress={() => {
+            console.log('[MiniGanttChart] Backdrop pressed');
+            setShowTaskModal(false);
+          }}
+        >
+          <View className="flex-1" />
+          <Pressable
+            onPress={(e) => {
+              console.log('[MiniGanttChart] Modal content pressed');
+              e.stopPropagation();
+            }}
+            style={{ maxHeight: '80%' }}
+          >
+            {selectedTask ? (
+              <View className="mx-4 bg-white dark:bg-slate-800 rounded-2xl overflow-hidden shadow-2xl">
+                {/* Header */}
+                <View className={`px-4 py-3 ${STATUS_COLORS[selectedTask.status]?.bg || 'bg-gray-200'}`}>
+                  <View className="flex-row items-start justify-between">
+                    <View className="flex-1 mr-3">
+                      <Text className={`text-base font-bold ${STATUS_COLORS[selectedTask.status]?.text || 'text-gray-900'}`}>
+                        {selectedTask.title}
+                      </Text>
+                      <Text className={`text-xs mt-0.5 ${STATUS_COLORS[selectedTask.status]?.text || 'text-gray-700'} opacity-80`}>
+                        {selectedTask.function} • {selectedTask.status.replace('-', ' ')}
+                      </Text>
+                    </View>
+                    <Pressable
+                      onPress={() => setShowTaskModal(false)}
+                      className="p-1 rounded-full bg-black/10"
+                    >
+                      <X size={16} color={selectedTask.status === 'not-started' ? '#374151' : '#ffffff'} />
+                    </Pressable>
+                  </View>
+                </View>
+
+                {/* Content - Scrollable */}
+                <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ flexGrow: 1 }}>
+                  <View className="p-4">
+                  {/* Progress Bar */}
+                  <View className="mb-4">
+                    <View className="flex-row justify-between mb-1">
+                      <Text className="text-xs text-gray-500 dark:text-slate-400">Progress</Text>
+                      <Text className="text-xs font-semibold text-gray-700 dark:text-gray-300">{selectedTask.progress}%</Text>
+                    </View>
+                    <View className="h-2 bg-gray-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                      <View
+                        className="h-full bg-blue-500 rounded-full"
+                        style={{ width: `${selectedTask.progress}%` }}
+                      />
+                    </View>
+                  </View>
+
+                  {/* Info Grid */}
+                  <View className="flex-row flex-wrap gap-3 mb-4">
+                    {/* Due Date */}
+                    <View className="flex-row items-center bg-gray-100 dark:bg-slate-700 px-3 py-2 rounded-lg">
+                      <Calendar size={14} color="#6b7280" />
+                      <Text className="text-xs text-gray-600 dark:text-gray-300 ml-2">
+                        {selectedTask.dueDate
+                          ? new Date(selectedTask.dueDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
+                          : 'No due date'}
+                      </Text>
+                    </View>
+
+                    {/* Time Units */}
+                    <View className="flex-row items-center bg-gray-100 dark:bg-slate-700 px-3 py-2 rounded-lg">
+                      <Clock size={14} color="#6b7280" />
+                      <Text className="text-xs text-gray-600 dark:text-gray-300 ml-2">
+                        {selectedTask.estimatedTimeUnits} TUs
+                      </Text>
+                    </View>
+
+                    {/* Cost */}
+                    <View className="flex-row items-center bg-gray-100 dark:bg-slate-700 px-3 py-2 rounded-lg">
+                      <DollarSign size={14} color="#6b7280" />
+                      <Text className="text-xs text-gray-600 dark:text-gray-300 ml-2">
+                        £{calculateTaskCost(selectedTask).toLocaleString()}
+                      </Text>
+                    </View>
+                  </View>
+
+                  {/* Assigned Members */}
+                  {(() => {
+                    const taskMembers = getAssignedMembers(selectedTask);
+                    if (taskMembers.length === 0) return null;
+                    return (
+                      <View className="mb-4">
+                        <View className="flex-row items-center mb-2">
+                          <Users size={14} color="#6b7280" />
+                          <Text className="text-xs text-gray-500 dark:text-slate-400 ml-2">Assigned Team</Text>
+                        </View>
+                        <View className="flex-row flex-wrap gap-2">
+                          {taskMembers.map((member) => (
+                            <View
+                              key={member.id}
+                              className="flex-row items-center px-2 py-1.5 rounded-lg"
+                              style={{ backgroundColor: ROLE_COLORS[member.role] + '15' }}
+                            >
+                              <View
+                                className="w-5 h-5 rounded-full items-center justify-center mr-1.5"
+                                style={{ backgroundColor: ROLE_COLORS[member.role] + '30' }}
+                              >
+                                <Text className="text-[8px] font-bold" style={{ color: ROLE_COLORS[member.role] }}>
+                                  {getInitials(member.name)}
+                                </Text>
+                              </View>
+                              <Text className="text-xs font-medium" style={{ color: ROLE_COLORS[member.role] }}>
+                                {member.name.split(' ')[0]}
+                              </Text>
+                            </View>
+                          ))}
+                        </View>
+                      </View>
+                    );
+                  })()}
+
+                  {/* Blockers */}
+                  {selectedTask.status === 'blocked' && (
+                    <View className="bg-red-50 dark:bg-red-900/20 p-3 rounded-lg">
+                      <View className="flex-row items-center mb-1">
+                        <AlertCircle size={14} color="#ef4444" />
+                        <Text className="text-xs font-semibold text-red-600 dark:text-red-400 ml-2">Blocked</Text>
+                      </View>
+                      <Text className="text-xs text-red-600 dark:text-red-400">
+                        This task has blockers that need to be resolved.
+                      </Text>
+                    </View>
+                  )}
+
+                  {/* Go to Decide Button */}
+                  <Pressable
+                    onPress={() => {
+                      setShowTaskModal(false);
+                      onTaskPress?.(selectedTask.id);
+                    }}
+                    className="mt-4 bg-blue-500 py-3 rounded-xl active:bg-blue-600"
+                  >
+                    <Text className="text-white text-center text-sm font-semibold">
+                      Manage Task
+                    </Text>
+                  </Pressable>
+                </View>
+                </ScrollView>
+              </View>
+            ) : null}
+          </Pressable>
+        </Pressable>
+      </Modal>
     </View>
   );
 }

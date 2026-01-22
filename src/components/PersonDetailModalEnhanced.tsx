@@ -203,7 +203,7 @@ export function PersonDetailModalEnhanced({
       <View className="flex-1 bg-black/70 justify-center items-center p-4">
         <View className="bg-white dark:bg-slate-900 rounded-2xl w-full max-w-md" style={{ maxHeight: '90%' }}>
           {/* Navigation Header */}
-          <View className="flex-row items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-slate-700">
+          <View className="flex-row items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-slate-800">
             <Pressable
               onPress={goToPrevious}
               disabled={currentIndex === 0}
@@ -260,7 +260,7 @@ export function PersonDetailModalEnhanced({
                 <View className="p-6 rounded-t-2xl" style={{ backgroundColor: roleColor + '15' }}>
                   <Pressable
                     onPress={onClose}
-                    className="absolute top-4 right-4 z-10 bg-white dark:bg-slate-900 rounded-full p-2 active:opacity-70"
+                    className="absolute top-4 right-4 z-10 bg-white dark:bg-slate-800 rounded-full p-2 active:opacity-70"
                   >
                     <X size={20} color="#64748b" />
                   </Pressable>
@@ -279,7 +279,7 @@ export function PersonDetailModalEnhanced({
                       <TextInput
                         value={editedName}
                         onChangeText={setEditedName}
-                        className="text-gray-900 dark:text-white text-xl font-bold text-center bg-white dark:bg-slate-900 px-4 py-2 rounded-lg mb-2"
+                        className="text-gray-900 dark:text-white text-xl font-bold text-center bg-white dark:bg-slate-800 px-4 py-2 rounded-lg mb-2"
                         placeholder="Name"
                       />
                     ) : (
@@ -301,7 +301,7 @@ export function PersonDetailModalEnhanced({
                       <TextInput
                         value={editedFunction}
                         onChangeText={setEditedFunction}
-                        className="text-gray-700 dark:text-slate-300 text-sm text-center bg-white dark:bg-slate-900 px-4 py-2 rounded-lg mt-2"
+                        className="text-gray-700 dark:text-slate-300 text-sm text-center bg-white dark:bg-slate-800 px-4 py-2 rounded-lg mt-2"
                         placeholder="Function"
                       />
                     ) : (
@@ -354,7 +354,7 @@ export function PersonDetailModalEnhanced({
 
                 {/* Squad Membership */}
                 {memberSquads.length > 0 && (
-                  <View className="px-6 py-4 border-b border-gray-200 dark:border-slate-700">
+                  <View className="px-6 py-4 border-b border-gray-200 dark:border-slate-800">
                     <View className="flex-row items-center gap-2 mb-3">
                       <Users size={18} color="#8b5cf6" />
                       <Text className="text-gray-900 dark:text-white font-bold text-base">
@@ -371,7 +371,7 @@ export function PersonDetailModalEnhanced({
                       return (
                         <View
                           key={squad.id}
-                          className="bg-white dark:bg-slate-900 border-2 rounded-xl p-3 mb-2"
+                          className="bg-white dark:bg-slate-800 border-2 rounded-xl p-3 mb-2"
                           style={{ borderColor: squad.color || '#8b5cf6' }}
                         >
                           <View className="flex-row items-start justify-between mb-2">
@@ -418,13 +418,13 @@ export function PersonDetailModalEnhanced({
                 )}
 
                 {/* Current Work */}
-                <View className="px-6 py-4 border-b border-gray-200 dark:border-slate-700">
+                <View className="px-6 py-4 border-b border-gray-200 dark:border-slate-800">
                   <Text className="text-gray-900 dark:text-white font-bold text-base mb-3">
                     Current Work ({memberData.tasks.length})
                   </Text>
 
                   {memberData.tasks.length === 0 ? (
-                    <View className="bg-gray-50 dark:bg-slate-900 rounded-xl p-4 items-center">
+                    <View className="bg-gray-50 dark:bg-slate-800 rounded-xl p-4 items-center">
                       <Package size={32} color="#64748b" />
                       <Text className="text-gray-500 dark:text-slate-400 text-sm mt-2">
                         No active tasks
@@ -442,7 +442,7 @@ export function PersonDetailModalEnhanced({
                             onClose();
                             onNavigate?.(task.id);
                           }}
-                          className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl p-3 mb-2 active:opacity-70"
+                          className="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl p-3 mb-2 active:opacity-70"
                         >
                           <View className="flex-row items-start justify-between mb-2">
                             <View className="flex-1 mr-2">

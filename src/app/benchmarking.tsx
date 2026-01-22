@@ -69,7 +69,7 @@ export default function BenchmarkingScreen() {
     return (
       <View
         key={benchmark.metric}
-        className="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-gray-300 dark:border-slate-700 mb-3"
+        className="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-gray-300 dark:border-slate-800 mb-3"
       >
         {/* Header */}
         <View className="flex-row items-center justify-between mb-4">
@@ -109,7 +109,7 @@ export default function BenchmarkingScreen() {
           </View>
 
           {/* Range Visualization */}
-          <View className="relative h-2 bg-gray-200 dark:bg-slate-900 rounded-full overflow-hidden mb-3">
+          <View className="relative h-2 bg-gray-200 dark:bg-slate-800 rounded-full overflow-hidden mb-3">
             {/* Industry Average Marker */}
             <View
               className="absolute top-0 bottom-0 w-0.5 bg-gray-900 dark:bg-white"
@@ -169,7 +169,7 @@ export default function BenchmarkingScreen() {
   return (
     <View className="flex-1 bg-white dark:bg-slate-950" style={{ paddingTop: insets.top }}>
       {/* Header */}
-      <View className="px-6 py-4 border-b border-gray-300 dark:border-slate-700">
+      <View className="px-6 py-4 border-b border-gray-300 dark:border-slate-800">
         <View className="flex-row items-center mb-4">
           <HapticPressable
             onPress={() => router.back()}
@@ -194,7 +194,7 @@ export default function BenchmarkingScreen() {
               className={`px-4 py-2 rounded-lg mr-2 ${
                 selectedCategory === category
                   ? 'bg-blue-500'
-                  : 'bg-gray-100 dark:bg-slate-900 border border-gray-300 dark:border-slate-700'
+                  : 'bg-gray-100 dark:bg-slate-900 border border-gray-300 dark:border-slate-800'
               }`}
             >
               <Text
@@ -236,7 +236,7 @@ export default function BenchmarkingScreen() {
           {COMPARISON_GROUPS.map((group) => (
             <HapticPressable
               key={group.id}
-              className="bg-white dark:bg-slate-900 rounded-xl p-4 mb-3 border border-gray-300 dark:border-slate-700 flex-row items-center"
+              className="bg-white dark:bg-slate-900 rounded-xl p-4 mb-3 border border-gray-300 dark:border-slate-800 flex-row items-center"
             >
               <View className="flex-1">
                 <Text className="text-gray-900 dark:text-white font-bold mb-1">

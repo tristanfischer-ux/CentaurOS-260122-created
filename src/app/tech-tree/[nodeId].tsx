@@ -86,7 +86,7 @@ export default function StepDetailScreen() {
         contentContainerStyle={{ paddingBottom: insets.bottom + 100 }}
       >
         {/* Step Header */}
-        <View className="px-5 pt-6 pb-4 bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-700">
+        <View className="px-5 pt-6 pb-4 bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-800">
           <Text className="text-gray-900 dark:text-white text-2xl font-bold mb-2">
             {node.title}
           </Text>
@@ -121,7 +121,7 @@ export default function StepDetailScreen() {
                   className={`border rounded-xl p-4 shadow-sm ${
                     isCompleted
                       ? 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800'
-                      : 'bg-white dark:bg-slate-900 border-gray-200 dark:border-slate-700'
+                      : 'bg-white dark:bg-slate-900 border-gray-200 dark:border-slate-800'
                   }`}
                 >
                   <View className="flex-row items-start gap-3">
@@ -157,11 +157,11 @@ export default function StepDetailScreen() {
 
       {/* Action Button */}
       <View
-        className="absolute bottom-0 left-0 right-0 bg-gray-50 dark:bg-slate-900 border-t border-gray-200 dark:border-slate-700 px-5 py-4"
+        className="absolute bottom-0 left-0 right-0 bg-gray-50 dark:bg-slate-900 border-t border-gray-200 dark:border-slate-800 px-5 py-4"
         style={{ paddingBottom: insets.bottom + 16 }}
       >
         {nodeState === 'locked' && (
-          <View className="bg-gray-200 dark:bg-slate-900 rounded-xl py-3 items-center">
+          <View className="bg-gray-200 dark:bg-slate-800 rounded-xl py-3 items-center">
             <Text className="text-gray-600 dark:text-slate-400 text-base font-semibold">
               Complete previous steps first
             </Text>

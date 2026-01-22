@@ -288,17 +288,17 @@ export function DropZone({ isActive, label, variant }: DropZoneProps) {
   const colors = {
     'create-okr': {
       active: 'bg-purple-100 dark:bg-purple-900/30 border-purple-400 dark:border-purple-500',
-      inactive: 'bg-gray-100 dark:bg-slate-900 border-gray-300 dark:border-slate-600',
+      inactive: 'bg-gray-100 dark:bg-slate-800 border-gray-300 dark:border-slate-600',
       text: 'text-purple-600 dark:text-purple-400',
     },
     'queued': {
       active: 'bg-blue-100 dark:bg-blue-900/30 border-blue-400 dark:border-blue-500',
-      inactive: 'bg-gray-100 dark:bg-slate-900 border-gray-300 dark:border-slate-600',
+      inactive: 'bg-gray-100 dark:bg-slate-800 border-gray-300 dark:border-slate-600',
       text: 'text-blue-600 dark:text-blue-400',
     },
     'active': {
       active: 'bg-emerald-100 dark:bg-emerald-900/30 border-emerald-400 dark:border-emerald-500',
-      inactive: 'bg-gray-100 dark:bg-slate-900 border-gray-300 dark:border-slate-600',
+      inactive: 'bg-gray-100 dark:bg-slate-800 border-gray-300 dark:border-slate-600',
       text: 'text-emerald-600 dark:text-emerald-400',
     },
   };

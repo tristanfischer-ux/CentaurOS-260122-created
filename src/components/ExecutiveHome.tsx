@@ -206,7 +206,7 @@ export function ExecutiveHome() {
               <Pressable
                 key={engagement.id}
                 onPress={() => router.push('/engagements')}
-                className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 active:opacity-70"
+                className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 active:opacity-70"
               >
                 <View className="flex-row items-center gap-3">
                   <View
@@ -292,7 +292,7 @@ export function ExecutiveHome() {
                   <Pressable
                     key={apprentice.id}
                     onPress={() => router.push('/learning')}
-                    className="flex-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-3 active:opacity-70"
+                    className="flex-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-3 active:opacity-70"
                   >
                     <View className="bg-emerald-100 dark:bg-emerald-900/30 w-10 h-10 rounded-full items-center justify-center mb-2">
                       <User size={20} color="#10b981" />
@@ -374,13 +374,13 @@ export function ExecutiveHome() {
                 return (
                   <View
                     key={okr.id}
-                    className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-4"
+                    className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4"
                   >
                     <Text className="text-slate-900 dark:text-white font-bold text-base mb-2" numberOfLines={2}>
                       {okr.title}
                     </Text>
                     <View className="flex-row items-center gap-2">
-                      <View className="flex-1 h-2 bg-slate-200 dark:bg-slate-900 rounded-full">
+                      <View className="flex-1 h-2 bg-slate-200 dark:bg-slate-800 rounded-full">
                         <View
                           className="h-full bg-blue-500 rounded-full"
                           style={{ width: `${avgProgress}%` }}
@@ -425,7 +425,7 @@ export function ExecutiveHome() {
                   <Pressable
                     key={task.id}
                     onPress={() => router.push('/(tabs)/what')}
-                    className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-3 flex-row items-center active:opacity-70"
+                    className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-3 flex-row items-center active:opacity-70"
                   >
                     <View className="bg-amber-100 dark:bg-amber-900/30 w-2 h-2 rounded-full mr-3" />
                     <View className="flex-1">
@@ -453,7 +453,7 @@ export function ExecutiveHome() {
           <View className="flex-row gap-3">
             <Pressable
               onPress={() => router.push('/utilization')}
-              className="flex-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-4 active:opacity-70"
+              className="flex-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 active:opacity-70"
             >
               <BarChart3 size={24} color="#3b82f6" />
               <Text className="text-slate-900 dark:text-white font-bold mt-2">Utilization</Text>
@@ -464,7 +464,7 @@ export function ExecutiveHome() {
 
             <Pressable
               onPress={() => router.push('/reports')}
-              className="flex-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-4 active:opacity-70"
+              className="flex-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 active:opacity-70"
             >
               <DollarSign size={24} color="#10b981" />
               <Text className="text-slate-900 dark:text-white font-bold mt-2">Reports</Text>
@@ -475,7 +475,7 @@ export function ExecutiveHome() {
 
             <Pressable
               onPress={() => router.push('/calendar')}
-              className="flex-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-4 active:opacity-70"
+              className="flex-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 active:opacity-70"
             >
               <Calendar size={24} color="#8b5cf6" />
               <Text className="text-slate-900 dark:text-white font-bold mt-2">Calendar</Text>
@@ -526,13 +526,13 @@ export function ExecutiveHome() {
       >
         <View className="flex-1 bg-slate-50 dark:bg-slate-950">
           {/* Modal Header */}
-          <View className="flex-row items-center justify-between px-4 py-4 border-b border-gray-200 dark:border-slate-700">
+          <View className="flex-row items-center justify-between px-4 py-4 border-b border-gray-200 dark:border-slate-800">
             <Text className="text-gray-900 dark:text-white font-bold text-lg">
               Team Management
             </Text>
             <Pressable
               onPress={() => setShowTeamDashboard(false)}
-              className="bg-gray-100 dark:bg-slate-900 px-4 py-2 rounded-full"
+              className="bg-gray-100 dark:bg-slate-800 px-4 py-2 rounded-full"
             >
               <Text className="text-gray-700 dark:text-slate-300 font-medium">Done</Text>
             </Pressable>

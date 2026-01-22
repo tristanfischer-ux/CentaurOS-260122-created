@@ -124,7 +124,7 @@ export function CompanyAimModal({ visible, onClose, workspaceId }: CompanyAimMod
                 </Text>
               </View>
               <TextInput
-                className="bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-4 text-gray-900 dark:text-white text-base min-h-[100px]"
+                className="bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-xl px-4 py-4 text-gray-900 dark:text-white text-base min-h-[100px]"
                 placeholder="e.g., Make renewable energy affordable for every home"
                 placeholderTextColor="#9ca3af"
                 value={aim}
@@ -143,7 +143,7 @@ export function CompanyAimModal({ visible, onClose, workspaceId }: CompanyAimMod
                 </Text>
               </View>
               <TextInput
-                className="bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-4 text-gray-900 dark:text-white text-base min-h-[100px]"
+                className="bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-xl px-4 py-4 text-gray-900 dark:text-white text-base min-h-[100px]"
                 placeholder="e.g., Climate change demands urgent action, but cost is the #1 barrier for families"
                 placeholderTextColor="#9ca3af"
                 value={why}
@@ -162,7 +162,7 @@ export function CompanyAimModal({ visible, onClose, workspaceId }: CompanyAimMod
                 </Text>
               </View>
               <TextInput
-                className="bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-4 text-gray-900 dark:text-white text-base min-h-[100px]"
+                className="bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-xl px-4 py-4 text-gray-900 dark:text-white text-base min-h-[100px]"
                 placeholder="e.g., We're not just building to increase valuation — we're building to solve a real problem that matters"
                 placeholderTextColor="#9ca3af"
                 value={notAbout}
@@ -188,7 +188,7 @@ export function CompanyAimModal({ visible, onClose, workspaceId }: CompanyAimMod
           </ScrollView>
 
           {/* Footer Actions */}
-          <View className="p-5 border-t border-gray-200 dark:border-slate-700">
+          <View className="p-5 border-t border-gray-200 dark:border-slate-800">
             <View className="flex-row gap-3">
               <Pressable
                 onPress={handleClose}
@@ -204,7 +204,7 @@ export function CompanyAimModal({ visible, onClose, workspaceId }: CompanyAimMod
                 onPress={handleSave}
                 disabled={!canSave}
                 className={`rounded-xl px-5 py-4 active:opacity-70 flex-row items-center justify-center ${
-                  canSave ? 'bg-purple-600' : 'bg-gray-200 dark:bg-slate-900'
+                  canSave ? 'bg-purple-600' : 'bg-gray-200 dark:bg-slate-800'
                 }`}
                 style={{ flex: 2 }}
               >

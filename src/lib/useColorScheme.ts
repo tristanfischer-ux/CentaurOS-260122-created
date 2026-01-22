@@ -25,8 +25,7 @@ export function useColorScheme(): 'light' | 'dark' {
     effectiveScheme = 'dark';
   } else {
     // If preference is 'system' or not set, use system preference
-    // Default to 'light' if system scheme is not available
-    effectiveScheme = systemColorScheme === 'dark' ? 'dark' : 'light';
+    effectiveScheme = systemColorScheme === 'light' ? 'light' : 'dark';
   }
 
   // Apply the color scheme to NativeWind

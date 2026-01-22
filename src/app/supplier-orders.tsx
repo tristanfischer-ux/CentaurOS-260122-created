@@ -125,7 +125,7 @@ export default function SupplierOrdersScreen() {
   return (
     <View className="flex-1 bg-white dark:bg-slate-950" style={{ paddingTop: insets.top }}>
       {/* Header */}
-      <View className="px-6 py-4 border-b border-gray-300 dark:border-slate-700">
+      <View className="px-6 py-4 border-b border-gray-300 dark:border-slate-800">
         <View className="flex-row items-center mb-3">
           <Pressable
             onPress={() => router.back()}
@@ -174,7 +174,7 @@ export default function SupplierOrdersScreen() {
               className={`px-3 py-1.5 rounded-lg ${
                 filterStatus === filter.value
                   ? 'bg-blue-500'
-                  : 'bg-gray-200 dark:bg-slate-900'
+                  : 'bg-gray-200 dark:bg-slate-800'
               }`}
             >
               <Text className={`text-sm font-medium ${
@@ -208,7 +208,7 @@ export default function SupplierOrdersScreen() {
             <Pressable
               key={order.id}
               onPress={() => setSelectedOrder(order)}
-              className="bg-gray-100 dark:bg-slate-900 border border-gray-300 dark:border-slate-700 rounded-2xl p-4 mb-3 active:opacity-70"
+              className="bg-gray-100 dark:bg-slate-900 border border-gray-300 dark:border-slate-800 rounded-2xl p-4 mb-3 active:opacity-70"
             >
               <View className="flex-row items-start justify-between mb-3">
                 <View className="flex-1">
@@ -267,7 +267,7 @@ export default function SupplierOrdersScreen() {
         <View className="flex-1 bg-black/70 justify-center items-center px-6">
           {selectedOrder && (
             <View className="bg-gray-100 dark:bg-slate-900 rounded-3xl w-full" style={{ maxHeight: '85%' }}>
-              <View className="px-6 pt-6 pb-4 border-b border-gray-300 dark:border-slate-700">
+              <View className="px-6 pt-6 pb-4 border-b border-gray-300 dark:border-slate-800">
                 <View className="flex-row items-center justify-between mb-2">
                   <View className="flex-1">
                     <Text className="text-gray-900 dark:text-white text-xl font-bold">
@@ -296,7 +296,7 @@ export default function SupplierOrdersScreen() {
                 </View>
 
                 {/* Details Grid */}
-                <View className="bg-gray-200 dark:bg-slate-900 rounded-xl p-4 mb-4">
+                <View className="bg-gray-200 dark:bg-slate-800 rounded-xl p-4 mb-4">
                   <View className="flex-row justify-between items-center mb-3">
                     <Text className="text-gray-600 dark:text-slate-400">Quantity:</Text>
                     <Text className="text-gray-900 dark:text-white font-semibold">
@@ -364,7 +364,7 @@ export default function SupplierOrdersScreen() {
         >
           <View className="flex-1 bg-black/70 justify-center items-center px-6">
             <View className="bg-gray-100 dark:bg-slate-900 rounded-3xl w-full" style={{ maxHeight: '80%' }}>
-              <View className="px-6 pt-6 pb-4 border-b border-gray-300 dark:border-slate-700">
+              <View className="px-6 pt-6 pb-4 border-b border-gray-300 dark:border-slate-800">
                 <View className="flex-row items-center justify-between">
                   <Text className="text-gray-900 dark:text-white text-xl font-bold">
                     Request Quote
@@ -387,7 +387,7 @@ export default function SupplierOrdersScreen() {
                 <TextInput
                   placeholder="e.g., Custom PCB Assembly"
                   placeholderTextColor="#94a3b8"
-                  className="bg-gray-200 dark:bg-slate-900 border border-gray-300 dark:border-slate-700 rounded-xl px-4 py-3 text-gray-900 dark:text-white"
+                  className="bg-gray-200 dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-xl px-4 py-3 text-gray-900 dark:text-white"
                 />
               </View>
 
@@ -397,7 +397,7 @@ export default function SupplierOrdersScreen() {
                   placeholder="e.g., 1000"
                   placeholderTextColor="#94a3b8"
                   keyboardType="numeric"
-                  className="bg-gray-200 dark:bg-slate-900 border border-gray-300 dark:border-slate-700 rounded-xl px-4 py-3 text-gray-900 dark:text-white"
+                  className="bg-gray-200 dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-xl px-4 py-3 text-gray-900 dark:text-white"
                 />
               </View>
 
@@ -409,7 +409,7 @@ export default function SupplierOrdersScreen() {
                   multiline
                   numberOfLines={4}
                   textAlignVertical="top"
-                  className="bg-gray-200 dark:bg-slate-900 border border-gray-300 dark:border-slate-700 rounded-xl px-4 py-3 text-gray-900 dark:text-white min-h-[100px]"
+                  className="bg-gray-200 dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-xl px-4 py-3 text-gray-900 dark:text-white min-h-[100px]"
                 />
               </View>
 

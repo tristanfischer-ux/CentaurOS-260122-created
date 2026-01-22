@@ -1,9 +1,15 @@
 import { View, Text, ScrollView, Pressable, TextInput, Alert } from 'react-native';
-import { useState, useMemo } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { router, useLocalSearchParams } from 'expo-router';
-import { ArrowLeft, Calendar, Clock, MessageSquare } from 'lucide-react-native';
+import { ArrowLeft, Calendar, DollarSign, Clock, MessageSquare, UserPlus, Send, AlertCircle, ChevronDown } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { detectUserCurrency, getCurrencySymbol, formatCurrency } from '@/lib/currency';
+import { useInvitationStore, type NegotiationType } from '@/lib/state/invitation-store';
+import { useWorkspaceStore } from '@/lib/state/workspace-store';
+import { useCurrentMembership } from '@/lib/state/app-store';
+import { composeInvitationEmail, isEmailAvailable } from '@/lib/email-service';
+import type { Function as BusinessFunction } from '@/types';
+
+const FUNCTIONS: BusinessFunction[] = ['Marketing', 'Sales', 'Finance', 'Engineering', 'Ops', 'Admin'];
 
 export default function SendInvitationScreen() {
   const params = useLocalSearchParams<{
@@ -11,48 +17,133 @@ export default function SendInvitationScreen() {
     candidateName: string;
     candidateRole: string;
     candidateRate: string;
+    candidateEmail: string;
+    candidateFunction: string;
   }>();
 
   const insets = useSafeAreaInsets();
+  const createInvitation = useInvitationStore(s => s.createInvitation);
+  const currentWorkspace = useWorkspaceStore(s => s.currentWorkspace);
+  const currentMembership = useCurrentMembership();
 
-  // Detect user's currency based on locale
-  const currencyCode = useMemo(() => detectUserCurrency(), []);
-  const currencySymbol = useMemo(() => getCurrencySymbol(currencyCode), [currencyCode]);
-
+  // Form state - pre-fill from params if available
+  const [candidateName, setCandidateName] = useState(params.candidateName || '');
+  const [candidateEmail, setCandidateEmail] = useState(params.candidateEmail || '');
+  const [candidateRole, setCandidateRole] = useState<'FractionalExec' | 'Apprentice'>(
+    params.candidateRole === 'FractionalExec' ? 'FractionalExec' : 'Apprentice'
+  );
+  const [candidateFunction, setCandidateFunction] = useState<BusinessFunction>(
+    (params.candidateFunction as BusinessFunction) || 'Engineering'
+  );
   const [roleTitle, setRoleTitle] = useState('');
+  const [description, setDescription] = useState('');
   const [commitment, setCommitment] = useState('');
   const [proposedRate, setProposedRate] = useState(params.candidateRate || '');
+  const [rateType, setRateType] = useState<NegotiationType>('daily_rate');
   const [startDate, setStartDate] = useState('');
   const [message, setMessage] = useState('');
 
-  const handleSendInvitation = () => {
-    if (!roleTitle || !commitment || !proposedRate || !startDate) {
-      Alert.alert('Missing Information', 'Please fill in all required fields.');
+  // UI state
+  const [showFunctionPicker, setShowFunctionPicker] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // If we have params, it means someone was selected - otherwise show a prompt
+  const hasCandidate = !!params.candidateName;
+
+  const handleSendInvitation = useCallback(async () => {
+    // Validate
+    if (!candidateName.trim()) {
+      setError('Please enter candidate name');
+      return;
+    }
+    if (!candidateEmail.trim() || !candidateEmail.includes('@')) {
+      setError('Please enter a valid email address');
+      return;
+    }
+    if (!roleTitle.trim()) {
+      setError('Please enter a role title');
+      return;
+    }
+    if (!proposedRate || parseFloat(proposedRate) <= 0) {
+      setError('Please enter a valid rate');
+      return;
+    }
+    if (!currentWorkspace || !currentMembership) {
+      setError('No workspace selected');
       return;
     }
 
-    // In real app, this would send to backend
-    Alert.alert(
-      'Invitation Sent!',
-      `Your invitation to ${params.candidateName} has been sent successfully. You'll be notified when they respond.`,
-      [
-        {
-          text: 'View My Invitations',
-          onPress: () => router.push('/invitations')
+    setError(null);
+    setSending(true);
+
+    try {
+      // Create the invitation
+      const invitation = createInvitation({
+        workspaceId: currentWorkspace.id,
+        companyName: currentWorkspace.name,
+        candidateId: params.candidateId || `unaffiliated-${Date.now()}`,
+        candidateName: candidateName.trim(),
+        candidateEmail: candidateEmail.trim().toLowerCase(),
+        candidateRole,
+        candidateFunction,
+        position: roleTitle.trim(),
+        description: description.trim(),
+        startDate: startDate || new Date().toISOString(),
+        currentRate: {
+          proposedBy: 'founder',
+          amount: parseFloat(proposedRate),
+          currency: 'GBP',
+          type: rateType,
+          message: message.trim() || undefined,
+          timestamp: new Date().toISOString(),
         },
-        {
-          text: 'Back to Marketplace',
-          onPress: () => router.push('/(tabs)/community'),
-          style: 'cancel'
-        }
-      ]
-    );
-  };
+        createdBy: currentMembership.id,
+      });
+
+      // Try to send email
+      const emailAvailable = await isEmailAvailable();
+      if (emailAvailable) {
+        await composeInvitationEmail(candidateEmail.trim().toLowerCase(), {
+          recipientName: candidateName.trim(),
+          companyName: currentWorkspace.name,
+          position: roleTitle.trim(),
+          proposedRate: parseFloat(proposedRate),
+          rateType: rateType === 'hourly_rate' ? 'hourly' : rateType === 'daily_rate' ? 'daily' : 'monthly',
+          senderName: currentWorkspace.name,
+        });
+      }
+
+      Alert.alert(
+        'Invitation Sent!',
+        `Your invitation to ${candidateName} has been created${emailAvailable ? ' and email composer opened' : ''}. You can track their response in the People tab.`,
+        [
+          {
+            text: 'View Invitations',
+            onPress: () => router.push('/(tabs)/who')
+          },
+          {
+            text: 'Done',
+            onPress: () => router.back(),
+            style: 'cancel'
+          }
+        ]
+      );
+    } catch (err) {
+      setError('Failed to create invitation. Please try again.');
+    } finally {
+      setSending(false);
+    }
+  }, [
+    candidateName, candidateEmail, candidateRole, candidateFunction,
+    roleTitle, description, startDate, rateType, proposedRate, message,
+    currentWorkspace, currentMembership, createInvitation, params.candidateId
+  ]);
 
   return (
     <View className="flex-1 bg-white dark:bg-slate-950" style={{ paddingTop: insets.top }}>
       {/* Header */}
-      <View className="px-6 py-4 border-b border-gray-300 dark:border-slate-700">
+      <View className="px-6 py-4 border-b border-gray-300 dark:border-slate-800">
         <View className="flex-row items-center mb-2">
           <Pressable
             onPress={() => router.back()}
@@ -82,7 +173,7 @@ export default function SendInvitationScreen() {
             onChangeText={setRoleTitle}
             placeholder={`e.g., ${params.candidateRole === 'FractionalExec' ? 'VP of Sales' : 'Marketing Apprentice'}`}
             placeholderTextColor="#94a3b8"
-            className="bg-gray-100 dark:bg-slate-900 border border-gray-300 dark:border-slate-700 rounded-xl px-4 py-3 text-gray-900 dark:text-white"
+            className="bg-gray-100 dark:bg-slate-900 border border-gray-300 dark:border-slate-800 rounded-xl px-4 py-3 text-gray-900 dark:text-white"
           />
         </View>
 
@@ -96,7 +187,7 @@ export default function SendInvitationScreen() {
             onChangeText={setCommitment}
             placeholder="e.g., 2 days/week or 20 hours/week"
             placeholderTextColor="#94a3b8"
-            className="bg-gray-100 dark:bg-slate-900 border border-gray-300 dark:border-slate-700 rounded-xl px-4 py-3 text-gray-900 dark:text-white"
+            className="bg-gray-100 dark:bg-slate-900 border border-gray-300 dark:border-slate-800 rounded-xl px-4 py-3 text-gray-900 dark:text-white"
           />
           <Text className="text-gray-500 dark:text-slate-500 text-xs mt-1">
             Specify days per week or hours per week
@@ -106,10 +197,10 @@ export default function SendInvitationScreen() {
         {/* Proposed Rate */}
         <View className="mb-4">
           <Text className="text-gray-900 dark:text-white font-semibold mb-2">
-            Proposed Day Rate ({currencySymbol}) <Text className="text-red-500">*</Text>
+            Proposed Day Rate (£) <Text className="text-red-500">*</Text>
           </Text>
-          <View className="flex-row items-center bg-gray-100 dark:bg-slate-900 border border-gray-300 dark:border-slate-700 rounded-xl px-4">
-            <Text className="text-gray-500 dark:text-slate-400 text-lg font-medium">{currencySymbol}</Text>
+          <View className="flex-row items-center bg-gray-100 dark:bg-slate-900 border border-gray-300 dark:border-slate-800 rounded-xl px-4">
+            <DollarSign size={18} color="#64748b" />
             <TextInput
               value={proposedRate}
               onChangeText={setProposedRate}
@@ -121,7 +212,7 @@ export default function SendInvitationScreen() {
             <Text className="text-gray-600 dark:text-slate-400">/day</Text>
           </View>
           <Text className="text-gray-500 dark:text-slate-500 text-xs mt-1">
-            Their current rate: {currencySymbol}{params.candidateRate}/day
+            Their current rate: £{params.candidateRate}/day
           </Text>
         </View>
 
@@ -130,7 +221,7 @@ export default function SendInvitationScreen() {
           <Text className="text-gray-900 dark:text-white font-semibold mb-2">
             Proposed Start Date <Text className="text-red-500">*</Text>
           </Text>
-          <View className="flex-row items-center bg-gray-100 dark:bg-slate-900 border border-gray-300 dark:border-slate-700 rounded-xl px-4">
+          <View className="flex-row items-center bg-gray-100 dark:bg-slate-900 border border-gray-300 dark:border-slate-800 rounded-xl px-4">
             <Calendar size={18} color="#64748b" />
             <TextInput
               value={startDate}
@@ -147,7 +238,7 @@ export default function SendInvitationScreen() {
           <Text className="text-gray-900 dark:text-white font-semibold mb-2">
             Personal Message (Optional)
           </Text>
-          <View className="bg-gray-100 dark:bg-slate-900 border border-gray-300 dark:border-slate-700 rounded-xl p-4">
+          <View className="bg-gray-100 dark:bg-slate-900 border border-gray-300 dark:border-slate-800 rounded-xl p-4">
             <TextInput
               value={message}
               onChangeText={setMessage}
@@ -177,9 +268,9 @@ export default function SendInvitationScreen() {
               </Text>
             </View>
             <View className="flex-row items-center">
-              <Text className="text-blue-500 text-sm font-bold">{currencySymbol}</Text>
+              <DollarSign size={14} color="#3b82f6" />
               <Text className="text-blue-800 dark:text-blue-200 text-sm ml-2">
-                {currencySymbol}{proposedRate || '0'}/day
+                £{proposedRate || '0'}/day
               </Text>
             </View>
             <View className="flex-row items-center">
@@ -193,7 +284,7 @@ export default function SendInvitationScreen() {
       </ScrollView>
 
       {/* Fixed Bottom Button */}
-      <View className="px-6 py-4 border-t border-gray-300 dark:border-slate-700" style={{ paddingBottom: insets.bottom + 16 }}>
+      <View className="px-6 py-4 border-t border-gray-300 dark:border-slate-800" style={{ paddingBottom: insets.bottom + 16 }}>
         <Pressable
           onPress={handleSendInvitation}
           className="bg-blue-500 py-4 rounded-xl active:opacity-70"

@@ -66,7 +66,7 @@ export function TimeAllocationBadge({
       };
     }
     return {
-      bg: 'bg-gray-100 dark:bg-slate-900',
+      bg: 'bg-gray-100 dark:bg-slate-800',
       border: 'border-gray-300 dark:border-slate-600',
       text: 'text-gray-700 dark:text-gray-300',
       icon: Clock,

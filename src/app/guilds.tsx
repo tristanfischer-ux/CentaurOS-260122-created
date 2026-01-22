@@ -114,12 +114,8 @@ const getLevelProgress = (xp: number) => {
   return (xp - currentThreshold) / (nextThreshold - currentThreshold);
 };
 
-// DISABLED: Demo data removed for multi-tenant architecture
-// Guilds should be loaded from Supabase
-const DEMO_GUILDS: Guild[] = [];
-
-/* REFERENCE: Original demo data (will be migrated to Supabase)
-const DEMO_GUILDS_ORIGINAL: Guild[] = [
+// Enhanced demo guilds with engagement features
+const DEMO_GUILDS: Guild[] = [
   {
     id: 'guild-1',
     name: 'Hardware Design Guild',
@@ -265,7 +261,6 @@ const DEMO_GUILDS_ORIGINAL: Guild[] = [
     upcomingEvents: 2,
   },
 ];
-*/
 
 // Badge definitions
 const BADGES = {
@@ -828,17 +823,6 @@ export default function GuildsScreen() {
                   </Pressable>
                 </Animated.View>
               ))}
-
-              {/* Empty State for Discover Tab */}
-              {discoverGuilds.length === 0 && (
-                <View className="bg-slate-900 border border-slate-800 rounded-2xl p-8 items-center">
-                  <Award size={48} color="#64748b" />
-                  <Text className="text-white font-bold text-lg mt-4">No Guilds Available</Text>
-                  <Text className="text-slate-400 text-center mt-2">
-                    Guilds will be added soon. Check back later to discover communities of practice!
-                  </Text>
-                </View>
-              )}
             </>
           )}
         </View>

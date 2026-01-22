@@ -1,9 +1,10 @@
 /**
  * Role Switcher Component
  * Allows users to switch between Founder, Executive, and Apprentice views
+ * Updated: Founder Team label + Coming Soon for Executive/Apprentice
  */
 
-import { View, Text, Pressable, Modal, ScrollView } from 'react-native';
+import { View, Text, Pressable, Modal, ScrollView, Alert } from 'react-native';
 import { useState } from 'react';
 import { LinearGradient } from 'expo-linear-gradient';
 import {
@@ -14,6 +15,7 @@ import {
   ChevronDown,
   X,
   Zap,
+  Clock,
 } from 'lucide-react-native';
 import { useRoleStore, useActiveRole, type RoleView } from '@/lib/state/role-store';
 import { getRoleCapabilities } from '@/lib/role-utils';
@@ -22,30 +24,36 @@ interface RoleSwitcherProps {
   compact?: boolean;
 }
 
-const ROLES: { id: RoleView; label: string; description: string; icon: any; color: string; gradient: readonly [string, string] }[] = [
+const ROLES: { id: RoleView; label: string; shortLabel: string; description: string; icon: any; color: string; gradient: readonly [string, string]; comingSoon?: boolean }[] = [
   {
     id: 'Founder',
-    label: 'Founder',
+    label: 'Founder & Founder Team',
+    shortLabel: 'Founder',
     description: 'Full company overview with financials, strategy, and team management',
     icon: Building2,
     color: '#3b82f6',
     gradient: ['#3b82f6', '#2563eb'] as const,
+    comingSoon: false,
   },
   {
     id: 'FractionalExec',
     label: 'Executive',
+    shortLabel: 'Executive',
     description: 'Multi-company view with domain-specific access and time tracking',
     icon: Briefcase,
     color: '#8b5cf6',
     gradient: ['#8b5cf6', '#7c3aed'] as const,
+    comingSoon: true,
   },
   {
     id: 'Apprentice',
     label: 'Apprentice',
+    shortLabel: 'Apprentice',
     description: 'Task-focused view with learning resources and mentor communication',
     icon: GraduationCap,
     color: '#10b981',
     gradient: ['#10b981', '#059669'] as const,
+    comingSoon: true,
   },
 ];
 
@@ -58,6 +66,15 @@ export function RoleSwitcher({ compact = false }: RoleSwitcherProps) {
   const Icon = currentRoleConfig.icon;
 
   const handleSelectRole = (roleId: RoleView) => {
+    const role = ROLES.find(r => r.id === roleId);
+    if (role?.comingSoon) {
+      Alert.alert(
+        'Coming Soon',
+        `The ${role.label} view is coming soon! Stay tuned for updates.`,
+        [{ text: 'OK' }]
+      );
+      return;
+    }
     setActiveRole(roleId);
     setShowModal(false);
   };
@@ -71,7 +88,7 @@ export function RoleSwitcher({ compact = false }: RoleSwitcherProps) {
         >
           <Icon size={16} color="white" />
           <Text className="text-white font-semibold text-sm">
-            {currentRoleConfig.label}
+            {currentRoleConfig.shortLabel}
           </Text>
           <ChevronDown size={14} color="white" />
         </Pressable>
@@ -90,7 +107,7 @@ export function RoleSwitcher({ compact = false }: RoleSwitcherProps) {
     <>
       <Pressable
         onPress={() => setShowModal(true)}
-        className="bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-700 rounded-2xl p-4 active:opacity-70"
+        className="bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-800 rounded-2xl p-4 active:opacity-70"
       >
         <View className="flex-row items-center gap-3">
           <View
@@ -104,7 +121,7 @@ export function RoleSwitcher({ compact = false }: RoleSwitcherProps) {
               Viewing as
             </Text>
             <Text className="text-slate-900 dark:text-white text-lg font-bold">
-              {currentRoleConfig.label}
+              {currentRoleConfig.shortLabel}
             </Text>
           </View>
           <ChevronDown size={20} color="#64748b" />
@@ -144,7 +161,7 @@ function RoleSwitcherModal({ visible, onClose, activeRole, onSelectRole }: RoleS
         <Pressable onPress={(e) => e.stopPropagation()} style={{ maxHeight: '80%' }}>
           <View className="bg-white dark:bg-slate-900 rounded-t-3xl">
             {/* Header */}
-            <View className="flex-row items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-slate-700">
+            <View className="flex-row items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-slate-800">
               <Text className="text-slate-900 dark:text-white text-xl font-bold">
                 Switch View
               </Text>
@@ -163,19 +180,24 @@ function RoleSwitcherModal({ visible, onClose, activeRole, onSelectRole }: RoleS
                 {ROLES.map((role) => {
                   const RoleIcon = role.icon;
                   const isActive = activeRole === role.id;
+                  const isComingSoon = role.comingSoon;
 
                   return (
                     <Pressable
                       key={role.id}
                       onPress={() => onSelectRole(role.id)}
                       className="active:opacity-80"
+                      disabled={isComingSoon}
                     >
                       <View
                         className={`rounded-2xl p-4 border-2 ${
                           isActive
                             ? 'border-transparent'
-                            : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900'
+                            : isComingSoon
+                            ? 'border-slate-300 dark:border-slate-600 bg-slate-100 dark:bg-slate-800/30'
+                            : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900'
                         }`}
+                        style={isComingSoon ? { opacity: 0.6 } : undefined}
                       >
                         {isActive ? (
                           <LinearGradient
@@ -206,13 +228,23 @@ function RoleSwitcherModal({ visible, onClose, activeRole, onSelectRole }: RoleS
                             />
                           </View>
                           <View className="flex-1">
-                            <Text
-                              className={`text-lg font-bold ${
-                                isActive ? 'text-white' : 'text-slate-900 dark:text-white'
-                              }`}
-                            >
-                              {role.label}
-                            </Text>
+                            <View className="flex-row items-center gap-2">
+                              <Text
+                                className={`text-lg font-bold ${
+                                  isActive ? 'text-white' : 'text-slate-900 dark:text-white'
+                                }`}
+                              >
+                                {role.label}
+                              </Text>
+                              {isComingSoon && (
+                                <View className="bg-amber-100 dark:bg-amber-900/30 px-2 py-0.5 rounded-full flex-row items-center gap-1">
+                                  <Clock size={10} color="#f59e0b" />
+                                  <Text className="text-amber-600 dark:text-amber-400 text-[10px] font-bold">
+                                    COMING SOON
+                                  </Text>
+                                </View>
+                              )}
+                            </View>
                             <Text
                               className={`text-sm mt-0.5 ${
                                 isActive ? 'text-white/80' : 'text-slate-600 dark:text-slate-400'
@@ -256,7 +288,7 @@ function RoleSwitcherModal({ visible, onClose, activeRole, onSelectRole }: RoleS
               </View>
 
               {/* Info Note */}
-              <View className="mt-6 bg-slate-100 dark:bg-slate-900 rounded-xl p-4">
+              <View className="mt-6 bg-slate-100 dark:bg-slate-800 rounded-xl p-4">
                 <View className="flex-row items-start gap-2">
                   <View className="mt-0.5">
                     <Zap size={16} color="#64748b" />

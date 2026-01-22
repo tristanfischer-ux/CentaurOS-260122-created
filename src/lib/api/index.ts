@@ -54,6 +54,15 @@ export function checkPermission(
       comment: ['create', 'read'],
       timeEntry: ['read'],
     },
+    Government: {
+      // Government users have read-only access across all workspaces
+      '*': ['read', 'view_all_workspaces'],
+    },
+    Unaffiliated: {
+      // Unaffiliated users can only view invitations and manage their profile
+      invitation: ['read', 'respond'],
+      profile: ['read', 'update'],
+    },
   };
 
   const rolePerms = permissions[role];

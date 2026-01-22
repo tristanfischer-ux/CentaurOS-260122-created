@@ -25,14 +25,8 @@ interface Invitation {
   };
 }
 
-// DISABLED: Demo data removed for multi-tenant architecture
-// Invitations should be loaded from Supabase
-const DEMO_SENT_INVITATIONS: Invitation[] = [];
-
-const DEMO_RECEIVED_INVITATIONS: Invitation[] = [];
-
-/* REFERENCE: Original demo data (will be migrated to Supabase)
-const DEMO_SENT_INVITATIONS_ORIGINAL: Invitation[] = [
+// Demo data
+const DEMO_SENT_INVITATIONS: Invitation[] = [
   {
     id: 'inv-1',
     candidateName: 'Sarah Mitchell',
@@ -74,7 +68,7 @@ const DEMO_SENT_INVITATIONS_ORIGINAL: Invitation[] = [
   },
 ];
 
-const DEMO_RECEIVED_INVITATIONS_ORIGINAL: Invitation[] = [
+const DEMO_RECEIVED_INVITATIONS: Invitation[] = [
   {
     id: 'inv-4',
     candidateName: 'Acme Hardware Inc',
@@ -88,7 +82,6 @@ const DEMO_RECEIVED_INVITATIONS_ORIGINAL: Invitation[] = [
     sentAt: '1 day ago',
   },
 ];
-*/
 
 export default function InvitationsScreen() {
   const insets = useSafeAreaInsets();
@@ -202,7 +195,7 @@ export default function InvitationsScreen() {
   return (
     <View className="flex-1 bg-white dark:bg-slate-950" style={{ paddingTop: insets.top }}>
       {/* Header */}
-      <View className="px-6 py-4 border-b border-gray-300 dark:border-slate-700">
+      <View className="px-6 py-4 border-b border-gray-300 dark:border-slate-800">
         <View className="flex-row items-center mb-3">
           <Pressable
             onPress={() => router.back()}
@@ -260,7 +253,7 @@ export default function InvitationsScreen() {
                 <Pressable
                   key={invitation.id}
                   onPress={() => setSelectedInvitation(invitation)}
-                  className="bg-gray-100 dark:bg-slate-900 border border-gray-300 dark:border-slate-700 rounded-2xl p-4 mb-3 active:opacity-70"
+                  className="bg-gray-100 dark:bg-slate-900 border border-gray-300 dark:border-slate-800 rounded-2xl p-4 mb-3 active:opacity-70"
                 >
                   <View className="flex-row items-start justify-between mb-2">
                     <View className="flex-1">
@@ -322,7 +315,7 @@ export default function InvitationsScreen() {
                 <Pressable
                   key={invitation.id}
                   onPress={() => setSelectedInvitation(invitation)}
-                  className="bg-gray-100 dark:bg-slate-900 border border-gray-300 dark:border-slate-700 rounded-2xl p-4 mb-3 active:opacity-70"
+                  className="bg-gray-100 dark:bg-slate-900 border border-gray-300 dark:border-slate-800 rounded-2xl p-4 mb-3 active:opacity-70"
                 >
                   <View className="flex-row items-start justify-between mb-2">
                     <View className="flex-1">
@@ -367,7 +360,7 @@ export default function InvitationsScreen() {
         <View className="flex-1 bg-black/70 justify-center items-center px-6">
           {selectedInvitation && (
             <View className="bg-gray-100 dark:bg-slate-900 rounded-3xl w-full" style={{ maxHeight: '85%' }}>
-              <View className="px-6 pt-6 pb-4 border-b border-gray-300 dark:border-slate-700">
+              <View className="px-6 pt-6 pb-4 border-b border-gray-300 dark:border-slate-800">
                 <View className="flex-row items-center justify-between mb-2">
                   <View className="flex-1">
                     <Text className="text-gray-900 dark:text-white text-xl font-bold">
@@ -383,7 +376,7 @@ export default function InvitationsScreen() {
 
               <ScrollView showsVerticalScrollIndicator={true} className="flex-1 px-6 py-4">
                 {/* Details Card */}
-                <View className="bg-gray-200 dark:bg-slate-900 rounded-xl p-4 mb-4">
+                <View className="bg-gray-200 dark:bg-slate-800 rounded-xl p-4 mb-4">
                   <View className="flex-row justify-between items-center mb-3">
                     <Text className="text-gray-600 dark:text-slate-400">Rate:</Text>
                     <Text className="text-emerald-400 text-lg font-bold">
@@ -458,7 +451,7 @@ export default function InvitationsScreen() {
 
                         <Pressable
                           onPress={() => handleDeclineInvitation(selectedInvitation)}
-                          className="bg-gray-200 dark:bg-slate-900 py-4 rounded-xl active:opacity-70"
+                          className="bg-gray-200 dark:bg-slate-800 py-4 rounded-xl active:opacity-70"
                         >
                           <Text className="text-gray-900 dark:text-white text-center font-semibold">Decline</Text>
                         </Pressable>
@@ -496,7 +489,7 @@ export default function InvitationsScreen() {
         >
           <View className="flex-1 bg-black/70 justify-center items-center px-6">
             <View className="bg-gray-100 dark:bg-slate-900 rounded-3xl w-full" style={{ maxHeight: '70%' }}>
-              <View className="px-6 pt-6 pb-4 border-b border-gray-300 dark:border-slate-700">
+              <View className="px-6 pt-6 pb-4 border-b border-gray-300 dark:border-slate-800">
                 <View className="flex-row items-center justify-between">
                   <Text className="text-gray-900 dark:text-white text-xl font-bold">
                     Send Counter Offer
@@ -516,7 +509,7 @@ export default function InvitationsScreen() {
                   placeholder="e.g., 900"
                   placeholderTextColor="#94a3b8"
                   keyboardType="numeric"
-                  className="bg-gray-200 dark:bg-slate-900 border border-gray-300 dark:border-slate-700 rounded-xl px-4 py-3 text-gray-900 dark:text-white"
+                  className="bg-gray-200 dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-xl px-4 py-3 text-gray-900 dark:text-white"
                 />
               </View>
 
@@ -527,7 +520,7 @@ export default function InvitationsScreen() {
                   onChangeText={setCounterCommitment}
                   placeholder="e.g., 3 days/week"
                   placeholderTextColor="#94a3b8"
-                  className="bg-gray-200 dark:bg-slate-900 border border-gray-300 dark:border-slate-700 rounded-xl px-4 py-3 text-gray-900 dark:text-white"
+                  className="bg-gray-200 dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-xl px-4 py-3 text-gray-900 dark:text-white"
                 />
               </View>
 
@@ -541,7 +534,7 @@ export default function InvitationsScreen() {
                   multiline
                   numberOfLines={4}
                   textAlignVertical="top"
-                  className="bg-gray-200 dark:bg-slate-900 border border-gray-300 dark:border-slate-700 rounded-xl px-4 py-3 text-gray-900 dark:text-white min-h-[80px]"
+                  className="bg-gray-200 dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-xl px-4 py-3 text-gray-900 dark:text-white min-h-[80px]"
                 />
               </View>
 

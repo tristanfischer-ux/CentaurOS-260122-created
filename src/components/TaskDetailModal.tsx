@@ -223,7 +223,7 @@ export function TaskDetailModal({ visible, onClose, taskId, workspaceId }: TaskD
                       className={`flex-1 rounded-lg p-3 border-2 ${
                         selectedAIMode === mode
                           ? 'border-purple-500'
-                          : 'border-transparent bg-gray-100 dark:bg-slate-900'
+                          : 'border-transparent bg-gray-100 dark:bg-slate-800'
                       }`}
                       style={selectedAIMode === mode ? { backgroundColor: getAIModeColor(mode) + '20' } : {}}
                     >
@@ -297,7 +297,7 @@ export function TaskDetailModal({ visible, onClose, taskId, workspaceId }: TaskD
                         <View className="flex-row items-center gap-2">
                           <Pressable
                             onPress={() => handleUpdateSquares(person.id, -0.5)}
-                            className="w-8 h-8 bg-gray-200 dark:bg-slate-900 rounded-full items-center justify-center"
+                            className="w-8 h-8 bg-gray-200 dark:bg-slate-800 rounded-full items-center justify-center"
                           >
                             <Minus size={16} color="#6b7280" />
                           </Pressable>
@@ -306,7 +306,7 @@ export function TaskDetailModal({ visible, onClose, taskId, workspaceId }: TaskD
                           </Text>
                           <Pressable
                             onPress={() => handleUpdateSquares(person.id, 0.5)}
-                            className="w-8 h-8 bg-gray-200 dark:bg-slate-900 rounded-full items-center justify-center"
+                            className="w-8 h-8 bg-gray-200 dark:bg-slate-800 rounded-full items-center justify-center"
                           >
                             <Plus size={16} color="#6b7280" />
                           </Pressable>
@@ -336,7 +336,7 @@ export function TaskDetailModal({ visible, onClose, taskId, workspaceId }: TaskD
                       <Pressable
                         key={person.id}
                         onPress={() => handleAssignPerson(person.id)}
-                        className="flex-row items-center bg-gray-100 dark:bg-slate-900 rounded-lg px-3 py-2 active:opacity-70"
+                        className="flex-row items-center bg-gray-100 dark:bg-slate-800 rounded-lg px-3 py-2 active:opacity-70"
                       >
                         <View
                           className="w-6 h-6 rounded-full items-center justify-center mr-2"
@@ -374,7 +374,7 @@ export function TaskDetailModal({ visible, onClose, taskId, workspaceId }: TaskD
                     className={`flex-1 rounded-xl p-3 border-2 ${
                       selectedCadence === cadence.id
                         ? 'border-purple-500'
-                        : 'border-gray-200 dark:border-slate-700'
+                        : 'border-gray-200 dark:border-slate-800'
                     }`}
                     style={selectedCadence === cadence.id ? { backgroundColor: cadence.color + '20' } : {}}
                   >
@@ -447,7 +447,7 @@ export function TaskDetailModal({ visible, onClose, taskId, workspaceId }: TaskD
                     className={`px-3 py-2 rounded-lg ${
                       !selectedQAReviewer
                         ? 'bg-gray-300 dark:bg-slate-700'
-                        : 'bg-gray-100 dark:bg-slate-900'
+                        : 'bg-gray-100 dark:bg-slate-800'
                     }`}
                   >
                     <Text className={`text-sm ${!selectedQAReviewer ? 'font-bold' : ''} text-gray-700 dark:text-slate-300`}>
@@ -461,7 +461,7 @@ export function TaskDetailModal({ visible, onClose, taskId, workspaceId }: TaskD
                       className={`flex-row items-center px-3 py-2 rounded-lg ${
                         selectedQAReviewer === person.id
                           ? 'bg-purple-100 dark:bg-purple-900/30'
-                          : 'bg-gray-100 dark:bg-slate-900'
+                          : 'bg-gray-100 dark:bg-slate-800'
                       }`}
                     >
                       <Shield size={14} color={selectedQAReviewer === person.id ? '#8b5cf6' : '#6b7280'} />
@@ -527,7 +527,7 @@ export function TaskDetailModal({ visible, onClose, taskId, workspaceId }: TaskD
           </ScrollView>
 
           {/* Footer */}
-          <View className="p-5 border-t border-gray-200 dark:border-slate-700">
+          <View className="p-5 border-t border-gray-200 dark:border-slate-800">
             <Pressable
               onPress={onClose}
               className="bg-purple-600 rounded-xl py-4 items-center active:opacity-70"
