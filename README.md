@@ -31,6 +31,20 @@ A mobile app for lean companies to manage tasks, track team capacity, and coordi
 
 ### Recent Updates (Jan 22, 2026)
 
+**Task Assignment & Escalation System v2 - FULLY IMPLEMENTED** ✅:
+- ✅ Assignment state machine: PROPOSED → PENDING → ACCEPTED/REJECTED/EXPIRED/WITHDRAWN
+- ✅ Capacity reservation system (soft holds during pending assignments)
+- ✅ SLA tracking with 48h response deadline and auto-expiry
+- ✅ Smart rejection flow with alternative member suggestions
+- ✅ Assignment history and audit trail per task
+- ✅ Early response encouragement ("quick response builds trust")
+- ✅ Escalation urgency levels: Critical (2h SLA), High (8h), Medium (24h), Low (48h)
+- ✅ Auto-escalation to backup founders if primary doesn't respond
+- ✅ Urgency inflation prevention (max 1 critical per user per week)
+- ✅ One active escalation per task (deduplication)
+- ✅ Visual SLA countdown timers
+- ✅ Quick date extension options for escalation resolution
+
 **Objectives System - FULLY IMPLEMENTED** ✅:
 - ✅ Business objectives with title, description, period, and category
 - ✅ Progress tracking with status indicators (On Track, At Risk, Behind, Completed)
