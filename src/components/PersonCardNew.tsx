@@ -150,6 +150,23 @@ export function PersonCardNew({ member, allMembers = [], onMemberChange }: Perso
   const normalAvailable = Math.max(0, normalCapacity - memberWorkload.totalAllocated);
   const overtimeAvailable = overtimeCapacity - overtimeUsed;
 
+  // Get capacity display text
+  const getCapacityDisplayText = () => {
+    if (memberWorkload.totalAllocated === 0) {
+      return `${memberWorkload.totalCapacity} TU (${normalCapacity} reg + ${overtimeCapacity} OT)`;
+    }
+    if (memberWorkload.totalAllocated > memberWorkload.totalCapacity) {
+      return `Over by ${memberWorkload.totalAllocated - memberWorkload.totalCapacity} TU`;
+    }
+    if (overtimeUsed > 0) {
+      return `${overtimeUsed} OT used • ${overtimeAvailable} left`;
+    }
+    if (normalAvailable === 0) {
+      return `Full • ${overtimeAvailable} OT`;
+    }
+    return `${normalAvailable} free • ${overtimeAvailable} OT`;
+  };
+
   // Get utilization color
   const getUtilColor = () => {
     if (isOverAllocated) return { bg: '#ef4444', text: '#fff', dot: '#ef4444' };
@@ -374,17 +391,7 @@ export function PersonCardNew({ member, allMembers = [], onMemberChange }: Perso
                 style={{ backgroundColor: utilColor.dot }}
               />
               <Text className="text-slate-700 dark:text-slate-300 text-xs font-semibold">
-                {memberWorkload.totalAllocated === 0 ? (
-                  `${memberWorkload.totalCapacity} TU (${normalCapacity} reg + ${overtimeCapacity} OT)`
-                ) : memberWorkload.totalAllocated > memberWorkload.totalCapacity ? (
-                  `Over by ${memberWorkload.totalAllocated - memberWorkload.totalCapacity} TU`
-                ) : overtimeUsed > 0 ? (
-                  `${overtimeUsed} OT used • ${overtimeAvailable} left`
-                ) : normalAvailable === 0 ? (
-                  `Full • ${overtimeAvailable} OT`
-                ) : (
-                  `${normalAvailable} free • ${overtimeAvailable} OT`
-                )}
+                {getCapacityDisplayText()}
               </Text>
               {overtimeUsed > 0 && (
                 <View
