@@ -37,7 +37,7 @@ import { HelpModal, HelpButton, type HelpContent } from '@/components/HelpModal'
 import { SettingsGearButton } from '@/components/SettingsGearButton';
 import { TaskCardCompact, TaskCardExpansion } from '@/components/tasks';
 import { filterWorkPlansByRole } from '@/lib/role-utils';
-import { UnifiedBottomDrawer } from '@/components/UnifiedBottomDrawer';
+import { TaskCreationModal } from '@/components/TaskCreationModal';
 import { extractTasksFromText } from '@/lib/ai/task-extraction';
 
 const TASKS_HELP: HelpContent = {
@@ -123,7 +123,6 @@ export default function TasksScreen() {
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
   // Inline expansion state (same pattern as Focus Today)
   const [expansionState, setExpansionState] = useState<{ taskId: string; level: 'medium' | 'full' } | null>(null);
-  const [openDrawerToNewTask, setOpenDrawerToNewTask] = useState(false);
   const [showVoiceTranscript, setShowVoiceTranscript] = useState(false);
   const [voiceTranscript, setVoiceTranscript] = useState('');
   const [isProcessingTranscript, setIsProcessingTranscript] = useState(false);
@@ -131,13 +130,13 @@ export default function TasksScreen() {
   const [selectedDraftIds, setSelectedDraftIds] = useState<Set<string>>(new Set());
   const [editingDraftId, setEditingDraftId] = useState<string | null>(null);
   const [editingTitle, setEditingTitle] = useState('');
+  const [showTaskModal, setShowTaskModal] = useState(false);
 
-  // Listen for URL param to open drawer (from FAB press)
+  // Listen for URL param to open modal (from FAB press)
   useEffect(() => {
     if (params.openNewTaskDrawer === 'true') {
-      // Trigger drawer to open
-      setOpenDrawerToNewTask(true);
-      setTimeout(() => setOpenDrawerToNewTask(false), 100);
+      // Trigger modal to open
+      setShowTaskModal(true);
       // Clear the param to prevent re-triggering
       router.setParams({ openNewTaskDrawer: undefined });
     }
@@ -456,10 +455,7 @@ export default function TasksScreen() {
           </View>
           <View className="flex-row items-center gap-2">
             <Pressable
-              onPress={() => {
-                setOpenDrawerToNewTask(true);
-                setTimeout(() => setOpenDrawerToNewTask(false), 100);
-              }}
+              onPress={() => setShowTaskModal(true)}
               className="bg-white/20 p-2 rounded-full"
             >
               <Plus size={20} color="white" />
@@ -975,10 +971,7 @@ export default function TasksScreen() {
               No tasks found
             </Text>
             <Pressable
-              onPress={() => {
-                setOpenDrawerToNewTask(true);
-                setTimeout(() => setOpenDrawerToNewTask(false), 100);
-              }}
+              onPress={() => setShowTaskModal(true)}
               className="mt-4 bg-emerald-500 px-6 py-3 rounded-xl"
             >
               <Text className="text-white font-semibold">Create First Task</Text>
@@ -987,14 +980,32 @@ export default function TasksScreen() {
         )}
       </ScrollView>
 
-      {/* Bottom Drawer */}
-      <UnifiedBottomDrawer
-        selectedPersonId={null}
-        onPersonSelect={() => {}}
+      {/* Floating Action Button */}
+      <Pressable
+        onPress={() => setShowTaskModal(true)}
+        className="absolute right-5 bg-emerald-500 w-14 h-14 rounded-full items-center justify-center shadow-lg"
+        style={{
+          bottom: insets.bottom + 90,
+          shadowColor: '#10b981',
+          shadowOffset: { width: 0, height: 4 },
+          shadowOpacity: 0.3,
+          shadowRadius: 8,
+          elevation: 8,
+        }}
+      >
+        <Plus size={24} color="white" />
+      </Pressable>
+
+      {/* Task Creation Modal */}
+      <TaskCreationModal
+        visible={showTaskModal}
+        onClose={() => setShowTaskModal(false)}
         onVoiceTranscript={handleVoiceTranscript}
         onTextSubmit={handleTextInput}
-        pendingDraftsCount={workspaceDrafts.length}
-        openToNewTask={openDrawerToNewTask}
+        onConfirmDrafts={async (draftIds) => {
+          setSelectedDraftIds(new Set(draftIds));
+          await handleConfirmSelectedDrafts();
+        }}
         accentColor="#10b981"
       />
 

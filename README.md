@@ -31,6 +31,28 @@ A mobile app for lean companies to manage tasks, track team capacity, and coordi
 
 ### Recent Updates (Jan 22, 2026)
 
+**Task Creation Modal V4 - IMPLEMENTED** ✅:
+- ✅ New 75% height bottom sheet modal (replaces old 55% drawer)
+- ✅ Drafts displayed at TOP of modal (immediately visible)
+- ✅ Checkbox selection for bulk draft confirmation
+- ✅ Inline edit expansion (no nested bottom sheets)
+- ✅ Edit draft fields via picker chips (Assignee, TU, Function)
+- ✅ Assignee picker shows capacity ("Name (X TU free)")
+- ✅ 5-second undo for draft deletion
+- ✅ Confidence-based indicators (green/amber/red dots)
+- ✅ Smart confirm warnings for low-confidence drafts
+- ✅ Team availability with horizontal capacity bars
+- ✅ Keyboard-aware height (75% idle, 95% with keyboard)
+- ✅ Swipe-to-close gesture when scroll at top
+- ✅ Floating action button for easy thumb access
+
+**Overtime Display System - IMPLEMENTED** ✅:
+- ✅ Hidden Weekly Cost from CollapsibleResourcePool
+- ✅ Distinct regular capacity (10 TU) vs overtime capacity (5 TU)
+- ✅ Capacity breakdown display: "X free • Y OT available"
+- ✅ Overtime badges with warning indicators
+- ✅ Segmented progress bars showing regular vs overtime usage
+
 **Task Assignment & Escalation System v2 - FULLY IMPLEMENTED** ✅:
 - ✅ Assignment state machine: PROPOSED → PENDING → ACCEPTED/REJECTED/EXPIRED/WITHDRAWN
 - ✅ Capacity reservation system (soft holds during pending assignments)
