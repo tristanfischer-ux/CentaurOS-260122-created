@@ -981,20 +981,30 @@ export default function TasksScreen() {
       </ScrollView>
 
       {/* Floating Action Button */}
-      <Pressable
-        onPress={() => setShowTaskModal(true)}
-        className="absolute right-5 bg-emerald-500 w-14 h-14 rounded-full items-center justify-center shadow-lg"
+      <Animated.View
         style={{
+          position: 'absolute',
+          right: 20,
           bottom: insets.bottom + 90,
-          shadowColor: '#10b981',
-          shadowOffset: { width: 0, height: 4 },
-          shadowOpacity: 0.3,
-          shadowRadius: 8,
-          elevation: 8,
+          opacity: showTaskModal ? 0 : 1,
+          transform: [{ scale: showTaskModal ? 0.8 : 1 }],
         }}
+        pointerEvents={showTaskModal ? 'none' : 'auto'}
       >
-        <Plus size={24} color="white" />
-      </Pressable>
+        <Pressable
+          onPress={() => setShowTaskModal(true)}
+          className="bg-emerald-500 w-14 h-14 rounded-full items-center justify-center shadow-lg"
+          style={{
+            shadowColor: '#10b981',
+            shadowOffset: { width: 0, height: 4 },
+            shadowOpacity: 0.3,
+            shadowRadius: 8,
+            elevation: 8,
+          }}
+        >
+          <Plus size={24} color="white" />
+        </Pressable>
+      </Animated.View>
 
       {/* Task Creation Modal */}
       <TaskCreationModal

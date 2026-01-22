@@ -23,6 +23,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { PanGestureHandler, PanGestureHandlerGestureEvent } from 'react-native-gesture-handler';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import * as Haptics from 'expo-haptics';
 import {
   X,
   Check,
@@ -36,6 +37,7 @@ import {
   Calendar,
   ChevronUp,
   AlertCircle,
+  Lightbulb,
 } from 'lucide-react-native';
 import { useOrganizationStore } from '@/lib/state/organization-store';
 import { type OrganizationMember } from '@/lib/organization-seed';
@@ -557,6 +559,15 @@ export function TaskCreationModal({
 
             {/* Input Section */}
             <View className="px-4 pt-4 pb-4">
+              {/* Helper text - only show when no drafts */}
+              {workspaceDrafts.length === 0 && inputMode === 'idle' && (
+                <View className="mb-4 items-center">
+                  <Text className="text-slate-400 dark:text-slate-500 text-xs text-center leading-5">
+                    Describe your task: what, who, when, how long
+                  </Text>
+                </View>
+              )}
+
               {inputMode === 'idle' ? (
                 <View className="flex-row items-center justify-center gap-8">
                   <View className="items-center">
@@ -667,9 +678,8 @@ function DraftCard({
 }: DraftCardProps) {
   const [editingTitle, setEditingTitle] = useState(false);
   const [titleValue, setTitleValue] = useState(draft.title);
-  const [showAssigneePicker, setShowAssigneePicker] = useState(false);
-  const [showFunctionPicker, setShowFunctionPicker] = useState(false);
-  const [showTUPicker, setShowTUPicker] = useState(false);
+  // Single picker state - only one can be open at a time
+  const [activePicker, setActivePicker] = useState<'assignee' | 'tu' | 'function' | null>(null);
 
   const confidence = draft.sourceMetadata?.confidence ?? 0.8;
   const confidenceColor = confidence >= 0.9
@@ -687,6 +697,12 @@ function DraftCard({
     : 'ME';
 
   const roleColor = assignee ? (ROLE_COLORS[assignee.role] || '#64748b') : '#3b82f6';
+
+  // Handle picker toggle with haptic feedback
+  const handlePickerToggle = (picker: 'assignee' | 'tu' | 'function') => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    setActivePicker(activePicker === picker ? null : picker);
+  };
 
   return (
     <View
@@ -766,9 +782,16 @@ function DraftCard({
       <View className="flex-row items-center gap-2 px-3 pb-3 flex-wrap">
         {/* Assignee Chip */}
         <Pressable
-          onPress={() => setShowAssigneePicker(!showAssigneePicker)}
-          className="flex-row items-center gap-1.5 px-2 py-1 rounded-full"
-          style={{ backgroundColor: isDark ? '#1e293b' : '#f1f5f9' }}
+          onPress={() => handlePickerToggle('assignee')}
+          className="flex-row items-center gap-1.5 px-2.5 py-1.5 rounded-lg border"
+          style={{
+            backgroundColor: activePicker === 'assignee'
+              ? (isDark ? '#1e3a5f' : '#dbeafe')
+              : (isDark ? '#1e293b' : '#f1f5f9'),
+            borderColor: activePicker === 'assignee'
+              ? '#3b82f6'
+              : (isDark ? '#334155' : '#e5e7eb'),
+          }}
         >
           <View
             className="w-5 h-5 rounded-full items-center justify-center"
@@ -776,33 +799,62 @@ function DraftCard({
           >
             <Text className="text-white text-[8px] font-bold">{initials}</Text>
           </View>
-          <Text className="text-slate-700 dark:text-slate-300 text-xs">
+          <Text className="text-slate-700 dark:text-slate-300 text-xs font-medium">
             {assignee?.name || 'You'}
           </Text>
+          <ChevronDown
+            size={14}
+            color={isDark ? '#94a3b8' : '#64748b'}
+            style={{ marginLeft: 2 }}
+          />
         </Pressable>
 
         {/* TU Chip */}
         <Pressable
-          onPress={() => setShowTUPicker(!showTUPicker)}
-          className="flex-row items-center gap-1 px-2 py-1 rounded-full"
-          style={{ backgroundColor: isDark ? '#1e293b' : '#f1f5f9' }}
+          onPress={() => handlePickerToggle('tu')}
+          className="flex-row items-center gap-1.5 px-2.5 py-1.5 rounded-lg border"
+          style={{
+            backgroundColor: activePicker === 'tu'
+              ? (isDark ? '#1e3a5f' : '#dbeafe')
+              : (isDark ? '#1e293b' : '#f1f5f9'),
+            borderColor: activePicker === 'tu'
+              ? '#3b82f6'
+              : (isDark ? '#334155' : '#e5e7eb'),
+          }}
         >
           <Clock size={12} color={isDark ? '#94a3b8' : '#64748b'} />
-          <Text className="text-slate-700 dark:text-slate-300 text-xs">
+          <Text className="text-slate-700 dark:text-slate-300 text-xs font-medium">
             {draft.units || 1} TU
           </Text>
+          <ChevronDown
+            size={14}
+            color={isDark ? '#94a3b8' : '#64748b'}
+            style={{ marginLeft: 2 }}
+          />
         </Pressable>
 
         {/* Function Chip */}
         <Pressable
-          onPress={() => setShowFunctionPicker(!showFunctionPicker)}
-          className="flex-row items-center gap-1 px-2 py-1 rounded-full"
-          style={{ backgroundColor: isDark ? '#1e293b' : '#f1f5f9' }}
+          onPress={() => handlePickerToggle('function')}
+          className="flex-row items-center gap-1.5 px-2.5 py-1.5 rounded-lg border"
+          style={{
+            backgroundColor: activePicker === 'function'
+              ? (isDark ? '#1e3a5f' : '#dbeafe')
+              : (isDark ? '#1e293b' : '#f1f5f9'),
+            borderColor: activePicker === 'function'
+              ? '#3b82f6'
+              : (isDark ? '#334155' : '#e5e7eb'),
+          }}
         >
           <Briefcase size={12} color={isDark ? '#94a3b8' : '#64748b'} />
-          <Text className="text-slate-700 dark:text-slate-300 text-xs">
+          <Text className="text-slate-700 dark:text-slate-300 text-xs font-medium">
             {draft.function || 'Ops'}
           </Text>
+          <ChevronDown
+            size={14}
+            color={isDark ? '#94a3b8' : '#64748b'}
+            style={{ marginLeft: 2 }}
+          />
         </Pressable>
 
         {/* Low Confidence Warning */}
@@ -825,7 +877,7 @@ function DraftCard({
           )}
 
           {/* Assignee Picker */}
-          {showAssigneePicker && (
+          {activePicker === 'assignee' && (
             <View className="mb-3">
               <Text className="text-slate-500 dark:text-slate-400 text-xs mb-2">Assign to:</Text>
               <View className="flex-row flex-wrap gap-2">
@@ -833,9 +885,10 @@ function DraftCard({
                   <Pressable
                     key={member.id}
                     onPress={() => {
+                      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                       onUpdate('assigneeId', member.id);
                       onUpdate('assigneeName', member.name);
-                      setShowAssigneePicker(false);
+                      setActivePicker(null);
                     }}
                     className="flex-row items-center gap-2 px-3 py-2 rounded-lg"
                     style={{
@@ -868,7 +921,7 @@ function DraftCard({
           )}
 
           {/* TU Picker */}
-          {showTUPicker && (
+          {activePicker === 'tu' && (
             <View className="mb-3">
               <Text className="text-slate-500 dark:text-slate-400 text-xs mb-2">Time Units:</Text>
               <View className="flex-row flex-wrap gap-2">
@@ -876,8 +929,9 @@ function DraftCard({
                   <Pressable
                     key={tu}
                     onPress={() => {
+                      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                       onUpdate('units', tu);
-                      setShowTUPicker(false);
+                      setActivePicker(null);
                     }}
                     className="px-4 py-2 rounded-lg"
                     style={{
@@ -896,7 +950,7 @@ function DraftCard({
           )}
 
           {/* Function Picker */}
-          {showFunctionPicker && (
+          {activePicker === 'function' && (
             <View className="mb-3">
               <Text className="text-slate-500 dark:text-slate-400 text-xs mb-2">Function:</Text>
               <View className="flex-row flex-wrap gap-2">
@@ -904,8 +958,9 @@ function DraftCard({
                   <Pressable
                     key={func}
                     onPress={() => {
+                      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                       onUpdate('function', func);
-                      setShowFunctionPicker(false);
+                      setActivePicker(null);
                     }}
                     className="px-3 py-2 rounded-lg"
                     style={{
