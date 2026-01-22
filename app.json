@@ -9,6 +9,7 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
+      "bundleIdentifier": "com.centauros.app",
       "infoPlist": {
         "NSMicrophoneUsageDescription": "This app needs access to your microphone to record voice messages."
       }
