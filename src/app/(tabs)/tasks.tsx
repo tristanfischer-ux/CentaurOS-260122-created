@@ -614,13 +614,11 @@ export default function TasksScreen() {
                         >
                           {selectedDraftIds.has(draft.id) && <Check size={12} color="white" />}
                         </Pressable>
-
                         {/* Confidence indicator dot */}
                         <View
                           className="w-2 h-2 rounded-full"
                           style={{ backgroundColor: confidenceDotColor }}
                         />
-
                         {/* Inline title editing */}
                         {editingDraftId === draft.id ? (
                           <TextInput
@@ -683,21 +681,18 @@ export default function TasksScreen() {
                             {getDraftSourceLabel(draft)}
                           </Text>
                         </View>
-
                         {/* TU */}
                         <View className="bg-slate-100 dark:bg-slate-700 px-2 py-0.5 rounded-full">
                           <Text className="text-slate-600 dark:text-slate-300 text-xs font-medium">
                             {draft.units || 1} TU
                           </Text>
                         </View>
-
                         {/* Function */}
                         <View className="bg-orange-100 dark:bg-orange-900/30 px-2 py-0.5 rounded-full">
                           <Text className="text-orange-600 dark:text-orange-400 text-xs font-medium">
                             {draft.function || 'Ops'}
                           </Text>
                         </View>
-
                         {/* Due Date */}
                         {draft.dueDate && (
                           <Text className="text-slate-400 text-xs">
@@ -706,7 +701,6 @@ export default function TasksScreen() {
                         )}
                       </View>
                     </View>
-
                     {/* Delete button */}
                     <Pressable
                       onPress={() => removeDraft(draft.id)}
