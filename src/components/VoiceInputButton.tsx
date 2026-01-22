@@ -55,6 +55,10 @@ export function VoiceInputButton({
       try {
         const { status } = await Audio.requestPermissionsAsync();
         setHasPermission(status === 'granted');
+
+        if (status !== 'granted') {
+          console.log('[VoiceInput] Microphone permission not granted:', status);
+        }
       } catch (error) {
         console.log('[VoiceInput] Permission error:', error);
         setHasPermission(false);
@@ -62,11 +66,30 @@ export function VoiceInputButton({
     })();
   }, []);
 
+  // Function to manually request permissions again
+  const requestPermission = async () => {
+    try {
+      const { status } = await Audio.requestPermissionsAsync();
+      setHasPermission(status === 'granted');
+
+      if (status === 'granted') {
+        console.log('[VoiceInput] Permission granted!');
+      } else {
+        onError?.('Microphone permission is required. Please enable it in your device settings.');
+      }
+    } catch (error) {
+      console.log('[VoiceInput] Permission request failed:', error);
+      onError?.('Failed to request microphone permission');
+    }
+  };
+
   // Start recording
   const startRecording = async () => {
     try {
-      if (hasPermission === false) {
-        onError?.('Microphone permission denied');
+      // Always check permission status before recording
+      if (hasPermission === false || hasPermission === null) {
+        console.log('[VoiceInput] No permission, requesting...');
+        await requestPermission();
         return;
       }
 
@@ -279,7 +302,20 @@ export function VoiceInputButton({
   if (hasPermission === false) {
     return (
       <View className="items-center">
-        <Text className="text-red-500 text-sm">Microphone permission required</Text>
+        <Pressable
+          onPress={requestPermission}
+          className="bg-red-500 px-6 py-4 rounded-2xl active:opacity-80 mb-2"
+        >
+          <View className="flex-row items-center gap-2">
+            <Mic size={20} color="#fff" />
+            <Text className="text-white text-base font-bold">
+              Enable Microphone
+            </Text>
+          </View>
+        </Pressable>
+        <Text className="text-red-600 dark:text-red-400 text-sm text-center max-w-xs">
+          Microphone access is required for voice input. Tap above to enable.
+        </Text>
       </View>
     );
   }
