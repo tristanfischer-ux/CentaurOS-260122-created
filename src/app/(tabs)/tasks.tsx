@@ -9,7 +9,7 @@
  * Drafts are a separate entity from tasks and must be explicitly confirmed.
  */
 
-import { View, Text, ScrollView, Pressable, Modal } from 'react-native';
+import { View, Text, ScrollView, Pressable, Modal, TextInput, Alert } from 'react-native';
 import { useState, useMemo, useEffect } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -129,6 +129,8 @@ export default function TasksScreen() {
   const [isProcessingTranscript, setIsProcessingTranscript] = useState(false);
   const [isConfirmingDrafts, setIsConfirmingDrafts] = useState(false);
   const [selectedDraftIds, setSelectedDraftIds] = useState<Set<string>>(new Set());
+  const [editingDraftId, setEditingDraftId] = useState<string | null>(null);
+  const [editingTitle, setEditingTitle] = useState('');
 
   // Listen for URL param to open drawer (from FAB press)
   useEffect(() => {
@@ -263,6 +265,40 @@ export default function TasksScreen() {
     }
   };
 
+  // Confirm selected drafts - with warning for low confidence
+  const handleConfirmWithWarning = () => {
+    if (selectedDraftIds.size === 0) return;
+
+    // Check for low-confidence drafts
+    const selectedDrafts = workspaceDrafts.filter(d => selectedDraftIds.has(d.id));
+    const lowConfidenceDrafts = selectedDrafts.filter(d =>
+      (d.sourceMetadata?.confidence ?? 0.8) < 0.7
+    );
+    const hasProblems = selectedDrafts.some(d => !d.title.trim());
+
+    if (hasProblems) {
+      Alert.alert(
+        'Cannot Confirm',
+        'Some drafts have missing titles. Please fix them before confirming.',
+        [{ text: 'OK' }]
+      );
+      return;
+    }
+
+    if (lowConfidenceDrafts.length > 0) {
+      Alert.alert(
+        'Review Recommended',
+        `${lowConfidenceDrafts.length} draft(s) have low AI confidence and may need review. Confirm anyway?`,
+        [
+          { text: 'Review First', style: 'cancel' },
+          { text: 'Confirm Anyway', onPress: handleConfirmSelectedDrafts }
+        ]
+      );
+    } else {
+      handleConfirmSelectedDrafts();
+    }
+  };
+
   // Confirm selected drafts - converts them to real tasks
   const handleConfirmSelectedDrafts = async () => {
     if (selectedDraftIds.size === 0) return;
@@ -280,36 +316,40 @@ export default function TasksScreen() {
         // Default to 1 TU if not specified
         const estimatedTUs = draft.units || 1;
 
-        // Auto-assign to current user with 1 TU/week allocation
-        const currentUserAllocation = effectiveMembership.id ? [{
-          memberId: effectiveMembership.id,
-          memberName: members.find(m => m.id === effectiveMembership.id)?.name || 'You',
-          squaresPerWeek: 1, // 1 TU per week by default
+        // Use assignee from draft, or default to current user
+        const assigneeId = draft.assigneeId || effectiveMembership.id;
+        const assigneeName = draft.assigneeName || members.find(m => m.id === assigneeId)?.name || 'You';
+
+        // Allocation based on draft values
+        const allocation = assigneeId ? [{
+          memberId: assigneeId,
+          memberName: assigneeName,
+          squaresPerWeek: draft.units || 1, // Use draft TU value
           costPerSquare: 0,
         }] : [];
 
-        // Create task with current user assigned
+        // Create task with assignee from draft
         let newTask: WorkPlan = {
           id: generateUUID(),
           workspaceId: draft.workspaceId,
           title: draft.title,
           description: draft.description,
-          function: 'Ops' as const, // Default to Miscellaneous (Ops)
+          function: draft.function || 'Ops' as const, // Use draft function or default to Ops
           startDate: new Date().toISOString().split('T')[0],
           dueDate: draft.dueDate || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
           status: 'not-started' as const,
           progress: 0,
           assignedBy: draft.createdBy,
-          ownerId: effectiveMembership.id, // Set owner to current user
+          ownerId: assigneeId || effectiveMembership.id, // Set owner to assignee
           needsSubmission: false,
           estimatedTimeUnits: estimatedTUs,
-          allocations: currentUserAllocation,
+          allocations: allocation,
           appliedAITools: [],
           tusExpended: 0,
         };
 
-        // Auto-schedule based on current user's capacity
-        if (currentUserAllocation.length > 0) {
+        // Auto-schedule based on assignee's capacity
+        if (allocation.length > 0) {
           newTask = autoScheduleTask(newTask, members, workPlans);
           console.log('[Tasks] Auto-scheduled task:', {
             title: newTask.title,
@@ -333,8 +373,20 @@ export default function TasksScreen() {
         `Tasks will start as soon as you have free TUs.`
       );
     } catch (error) {
-      console.error('Failed to create tasks:', error);
-      alert('Failed to create tasks. Please try again.');
+      console.error('[Tasks] Failed to create tasks:', error);
+
+      // Provide specific error messages
+      if (error instanceof Error) {
+        if (error.message.includes('API') || error.message.includes('network')) {
+          alert('Failed to create tasks. Check your connection and try again.\n\nIf the problem persists, check the LOGS tab for details.');
+        } else if (error.message.includes('capacity') || error.message.includes('schedule')) {
+          alert('Failed to schedule tasks. Try adjusting due dates or reducing time units.');
+        } else {
+          alert(`Failed to create tasks: ${error.message}\n\nCheck the LOGS tab for details.`);
+        }
+      } else {
+        alert('Failed to create tasks. Please try again.\n\nCheck the LOGS tab for details.');
+      }
     } finally {
       setIsConfirmingDrafts(false);
     }
@@ -491,7 +543,7 @@ export default function TasksScreen() {
               <View className="flex-row items-center gap-2">
                 {selectedDraftIds.size > 0 && (
                   <Pressable
-                    onPress={handleConfirmSelectedDrafts}
+                    onPress={handleConfirmWithWarning}
                     disabled={isConfirmingDrafts}
                     className="bg-emerald-500 px-3 py-1.5 rounded-full flex-row items-center gap-1"
                   >
@@ -519,11 +571,25 @@ export default function TasksScreen() {
             </View>
 
             {workspaceDrafts.map((draft) => {
-              // Get current user info for avatar
-              const currentUser = members.find(m => m.id === effectiveMembership.id);
-              const initials = currentUser?.name
-                ? currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
+              // Get confidence from AI extraction
+              const confidence = draft.sourceMetadata?.confidence ?? 0.8;
+              const needsAttention = confidence < 0.7 || !draft.title.trim();
+
+              // Get assignee info
+              const assignee = draft.assigneeId
+                ? members.find(m => m.id === draft.assigneeId)
+                : members.find(m => m.id === effectiveMembership.id);
+
+              const initials = assignee?.name
+                ? assignee.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
                 : 'ME';
+
+              // Confidence indicator colors
+              const confidenceDotColor = confidence >= 0.9
+                ? '#10b981' // emerald
+                : confidence >= 0.7
+                ? '#f59e0b' // amber
+                : '#ef4444'; // red
 
               return (
                 <Pressable
@@ -536,35 +602,82 @@ export default function TasksScreen() {
                   <View className="flex-row items-start justify-between">
                     <View className="flex-1 mr-3">
                       <View className="flex-row items-center gap-2 mb-1">
-                        <View className={`w-5 h-5 rounded-full border-2 items-center justify-center ${
-                          selectedDraftIds.has(draft.id)
-                            ? 'bg-emerald-500 border-emerald-500'
-                            : 'border-slate-300 dark:border-slate-600'
-                        }`}>
+                        {/* Selection checkbox */}
+                        <Pressable
+                          onPress={() => toggleDraftSelection(draft.id)}
+                          className={`w-5 h-5 rounded-full border-2 items-center justify-center ${
+                            selectedDraftIds.has(draft.id)
+                              ? 'bg-emerald-500 border-emerald-500'
+                              : 'border-slate-300 dark:border-slate-600'
+                          }`}
+                          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                        >
                           {selectedDraftIds.has(draft.id) && <Check size={12} color="white" />}
-                        </View>
-                        <Text className="text-slate-900 dark:text-white font-medium flex-1" numberOfLines={1}>
-                          {draft.title}
-                        </Text>
+                        </Pressable>
+
+                        {/* Confidence indicator dot */}
+                        <View
+                          className="w-2 h-2 rounded-full"
+                          style={{ backgroundColor: confidenceDotColor }}
+                        />
+
+                        {/* Inline title editing */}
+                        {editingDraftId === draft.id ? (
+                          <TextInput
+                            value={editingTitle}
+                            onChangeText={setEditingTitle}
+                            onBlur={() => {
+                              if (editingTitle.trim()) {
+                                updateDraft(draft.id, { title: editingTitle.trim() });
+                              }
+                              setEditingDraftId(null);
+                            }}
+                            autoFocus
+                            className="flex-1 text-slate-900 dark:text-white font-medium border-b border-blue-500"
+                            style={{ minHeight: 20, padding: 0 }}
+                            placeholderTextColor="#9ca3af"
+                          />
+                        ) : (
+                          <Pressable
+                            onPress={() => {
+                              setEditingDraftId(draft.id);
+                              setEditingTitle(draft.title);
+                            }}
+                            className="flex-1"
+                          >
+                            <Text className="text-slate-900 dark:text-white font-medium" numberOfLines={1}>
+                              {draft.title}
+                            </Text>
+                          </Pressable>
+                        )}
+
+                        {/* Low confidence badge */}
+                        {confidence < 0.7 && (
+                          <View className="bg-red-100 dark:bg-red-900/30 px-1.5 py-0.5 rounded">
+                            <Text className="text-red-600 dark:text-red-400 text-[9px] font-bold">⚠️ Review</Text>
+                          </View>
+                        )}
                       </View>
+
                       {draft.description && (
-                        <Text className="text-slate-500 dark:text-slate-400 text-sm ml-7" numberOfLines={2}>
+                        <Text className="text-slate-500 dark:text-slate-400 text-sm ml-9" numberOfLines={2}>
                           {draft.description}
                         </Text>
                       )}
 
-                      {/* Assignment Info - Show who will be assigned */}
-                      <View className="flex-row items-center gap-2 mt-2 ml-7">
-                        {/* Avatar with initials */}
+                      {/* Assignment Info */}
+                      <View className="flex-row items-center gap-2 mt-2 ml-9">
                         <View className="w-7 h-7 rounded-full bg-blue-500 items-center justify-center">
                           <Text className="text-white text-xs font-bold">{initials}</Text>
                         </View>
                         <Text className="text-slate-600 dark:text-slate-400 text-xs font-medium">
-                          {currentUser?.name || 'You'}
+                          {assignee?.name || 'You'}
                         </Text>
                       </View>
 
-                      <View className="flex-row items-center gap-2 mt-2 ml-7 flex-wrap">
+                      {/* Chips for TU, Function, Due Date */}
+                      <View className="flex-row items-center gap-2 mt-2 ml-9 flex-wrap">
+                        {/* Source */}
                         <View className={`px-2 py-0.5 rounded-full ${
                           draft.source === 'marketplace' ? 'bg-purple-100 dark:bg-purple-900/30' : 'bg-blue-100 dark:bg-blue-900/30'
                         }`}>
@@ -574,16 +687,22 @@ export default function TasksScreen() {
                             {getDraftSourceLabel(draft)}
                           </Text>
                         </View>
+
+                        {/* TU */}
                         <View className="bg-slate-100 dark:bg-slate-700 px-2 py-0.5 rounded-full">
                           <Text className="text-slate-600 dark:text-slate-300 text-xs font-medium">
                             {draft.units || 1} TU
                           </Text>
                         </View>
+
+                        {/* Function */}
                         <View className="bg-orange-100 dark:bg-orange-900/30 px-2 py-0.5 rounded-full">
                           <Text className="text-orange-600 dark:text-orange-400 text-xs font-medium">
-                            Ops
+                            {draft.function || 'Ops'}
                           </Text>
                         </View>
+
+                        {/* Due Date */}
                         {draft.dueDate && (
                           <Text className="text-slate-400 text-xs">
                             Due: {new Date(draft.dueDate).toLocaleDateString()}
@@ -591,6 +710,8 @@ export default function TasksScreen() {
                         )}
                       </View>
                     </View>
+
+                    {/* Delete button */}
                     <Pressable
                       onPress={() => removeDraft(draft.id)}
                       className="p-2"
