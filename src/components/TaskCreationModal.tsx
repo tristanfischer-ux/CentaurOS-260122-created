@@ -499,11 +499,11 @@ export function TaskCreationModal({
             )}
 
             {/* Team Availability Section */}
-            <View className="px-4 pt-4">
+            <View className="px-4 pt-4 pb-4">
               <Text className="text-slate-900 dark:text-white font-semibold mb-3">
                 Team Availability
               </Text>
-              <View className="bg-slate-100 dark:bg-slate-800 rounded-xl p-3">
+              <View className="bg-slate-100 dark:bg-slate-800 rounded-xl p-3 mb-4">
                 {teamStats.map(({ member, available, totalCapacity, utilizationPercent, isOverAllocated }) => {
                   const roleColor = ROLE_COLORS[member.role] || '#64748b';
                   const initials = member.name.split(' ').map((n: string) => n[0]).join('');
@@ -555,20 +555,92 @@ export function TaskCreationModal({
                   );
                 })}
               </View>
-            </View>
 
-            {/* Input Section */}
-            <View className="px-4 pt-4 pb-4">
-              {/* Helper text - only show when no drafts */}
-              {workspaceDrafts.length === 0 && inputMode === 'idle' && (
-                <View className="mb-4 items-center">
-                  <Text className="text-slate-400 dark:text-slate-500 text-xs text-center leading-5">
-                    Describe your task: what, who, when, how long
-                  </Text>
+              {/* Instructions Card */}
+              <View
+                className="rounded-xl p-4 mb-4 border"
+                style={{
+                  backgroundColor: isDark ? `${accentColor}15` : `${accentColor}08`,
+                  borderColor: isDark ? `${accentColor}30` : `${accentColor}20`,
+                }}
+              >
+                <View className="flex-row items-start gap-3">
+                  <View
+                    className="w-8 h-8 rounded-full items-center justify-center"
+                    style={{ backgroundColor: `${accentColor}30` }}
+                  >
+                    <Lightbulb size={16} color={accentColor} />
+                  </View>
+                  <View className="flex-1">
+                    <Text className="text-slate-900 dark:text-white text-sm font-bold mb-2">
+                      How to describe your task:
+                    </Text>
+                    <Text className="text-slate-700 dark:text-slate-300 text-xs leading-5">
+                      • <Text className="font-semibold">What</Text> needs to be done{'\n'}
+                      • <Text className="font-semibold">Who</Text> should do it (name or leave blank){'\n'}
+                      • <Text className="font-semibold">When</Text> it's due (date or "by Friday"){'\n'}
+                      • <Text className="font-semibold">How long</Text> it'll take (hours or TU)
+                    </Text>
+                    <Text className="text-slate-500 dark:text-slate-400 text-[10px] mt-2 italic">
+                      Example: "Sarah needs to review the marketing deck by Friday, should take 2 hours"
+                    </Text>
+                  </View>
                 </View>
-              )}
+              </View>
+            </View>
+          </ScrollView>
 
-              {inputMode === 'idle' ? (
+          {/* Fixed Bottom Input Section */}
+          <View
+            className="border-t"
+            style={{
+              backgroundColor: isDark ? '#0f172a' : '#ffffff',
+              borderTopColor: isDark ? '#334155' : '#e2e8f0',
+              paddingBottom: insets.bottom,
+            }}
+          >
+            {inputMode === 'text' ? (
+              <View className="px-4 pt-3 pb-3">
+                <TextInput
+                  value={textInput}
+                  onChangeText={setTextInput}
+                  placeholder="Describe your tasks..."
+                  placeholderTextColor={isDark ? '#64748b' : '#94a3b8'}
+                  multiline
+                  className="bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white text-sm mb-3"
+                  style={{ textAlignVertical: 'top', minHeight: 100 }}
+                  autoFocus
+                />
+                <View className="flex-row items-center justify-end gap-3">
+                  <Pressable
+                    onPress={() => {
+                      setInputMode('idle');
+                      setTextInput('');
+                      Keyboard.dismiss();
+                    }}
+                    className="px-4 py-2 bg-slate-200 dark:bg-slate-700 rounded-xl"
+                  >
+                    <Text className="text-slate-700 dark:text-slate-300 font-medium">Cancel</Text>
+                  </Pressable>
+                  <Pressable
+                    onPress={handleTextSubmit}
+                    disabled={!textInput.trim()}
+                    className="px-4 py-2 rounded-xl"
+                    style={{
+                      backgroundColor: textInput.trim() ? accentColor : (isDark ? '#334155' : '#e2e8f0'),
+                    }}
+                  >
+                    <Text
+                      className="font-medium"
+                      style={{ color: textInput.trim() ? 'white' : (isDark ? '#64748b' : '#94a3b8') }}
+                    >
+                      Extract Tasks
+                    </Text>
+                  </Pressable>
+                </View>
+              </View>
+            ) : (
+              <View className="px-4 py-3">
                 <View className="flex-row items-center justify-center gap-8">
                   <View className="items-center">
                     <View
@@ -598,49 +670,9 @@ export function TaskCreationModal({
                     <Text className="text-slate-600 dark:text-slate-400 text-xs font-medium">Type</Text>
                   </Pressable>
                 </View>
-              ) : inputMode === 'text' ? (
-                <View>
-                  <TextInput
-                    value={textInput}
-                    onChangeText={setTextInput}
-                    placeholder="Describe your tasks..."
-                    placeholderTextColor={isDark ? '#64748b' : '#94a3b8'}
-                    multiline
-                    className="bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white text-sm mb-3"
-                    style={{ textAlignVertical: 'top', minHeight: 100 }}
-                    autoFocus
-                  />
-                  <View className="flex-row items-center justify-end gap-3">
-                    <Pressable
-                      onPress={() => {
-                        setInputMode('idle');
-                        setTextInput('');
-                        Keyboard.dismiss();
-                      }}
-                      className="px-4 py-2 bg-slate-200 dark:bg-slate-700 rounded-xl"
-                    >
-                      <Text className="text-slate-700 dark:text-slate-300 font-medium">Cancel</Text>
-                    </Pressable>
-                    <Pressable
-                      onPress={handleTextSubmit}
-                      disabled={!textInput.trim()}
-                      className="px-4 py-2 rounded-xl"
-                      style={{
-                        backgroundColor: textInput.trim() ? accentColor : (isDark ? '#334155' : '#e2e8f0'),
-                      }}
-                    >
-                      <Text
-                        className="font-medium"
-                        style={{ color: textInput.trim() ? 'white' : (isDark ? '#64748b' : '#94a3b8') }}
-                      >
-                        Extract Tasks
-                      </Text>
-                    </Pressable>
-                  </View>
-                </View>
-              ) : null}
-            </View>
-          </ScrollView>
+              </View>
+            )}
+          </View>
         </Animated.View>
       </PanGestureHandler>
     </View>
@@ -701,7 +733,18 @@ function DraftCard({
   // Handle picker toggle with haptic feedback
   const handlePickerToggle = (picker: 'assignee' | 'tu' | 'function') => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    // Auto-expand card if not already expanded
+    if (!isExpanded) {
+      onToggleExpand();
+    }
     setActivePicker(activePicker === picker ? null : picker);
+  };
+
+  // Handle confirm for this specific draft
+  const handleConfirm = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    onToggleSelect(); // Select this draft
+    // Trigger parent confirm logic via selection
   };
 
   return (
@@ -978,14 +1021,27 @@ function DraftCard({
             </View>
           )}
 
-          {/* Delete Button */}
-          <Pressable
-            onPress={onDelete}
-            className="flex-row items-center justify-center gap-2 py-2 mt-2 bg-red-50 dark:bg-red-900/20 rounded-lg"
-          >
-            <Trash2 size={16} color="#ef4444" />
-            <Text className="text-red-500 font-medium text-sm">Delete Draft</Text>
-          </Pressable>
+          {/* Action Buttons Row */}
+          <View className="flex-row items-center justify-between gap-3 mt-3">
+            {/* Delete Button - Left */}
+            <Pressable
+              onPress={onDelete}
+              className="flex-row items-center gap-2 px-3 py-2 bg-red-50 dark:bg-red-900/20 rounded-lg"
+            >
+              <Trash2 size={14} color="#ef4444" />
+              <Text className="text-red-500 font-medium text-xs">Delete</Text>
+            </Pressable>
+
+            {/* Confirm Button - Right */}
+            <Pressable
+              onPress={handleConfirm}
+              className="flex-row items-center gap-2 px-4 py-2 rounded-lg"
+              style={{ backgroundColor: '#10b981' }}
+            >
+              <Check size={14} color="white" />
+              <Text className="text-white font-semibold text-sm">Confirm</Text>
+            </Pressable>
+          </View>
         </View>
       )}
     </View>

@@ -986,23 +986,23 @@ export default function TasksScreen() {
           position: 'absolute',
           right: 20,
           bottom: insets.bottom + 90,
-          opacity: showTaskModal ? 0 : 1,
-          transform: [{ scale: showTaskModal ? 0.8 : 1 }],
+          opacity: 1,
+          transform: [{ scale: 1 }],
         }}
-        pointerEvents={showTaskModal ? 'none' : 'auto'}
       >
         <Pressable
-          onPress={() => setShowTaskModal(true)}
-          className="bg-emerald-500 w-14 h-14 rounded-full items-center justify-center shadow-lg"
+          onPress={() => setShowTaskModal(!showTaskModal)}
+          className="w-14 h-14 rounded-full items-center justify-center shadow-lg"
           style={{
-            shadowColor: '#10b981',
+            backgroundColor: showTaskModal ? '#64748b' : '#10b981',
+            shadowColor: showTaskModal ? '#64748b' : '#10b981',
             shadowOffset: { width: 0, height: 4 },
             shadowOpacity: 0.3,
             shadowRadius: 8,
             elevation: 8,
           }}
         >
-          <Plus size={24} color="white" />
+          {showTaskModal ? <X size={24} color="white" /> : <Plus size={24} color="white" />}
         </Pressable>
       </Animated.View>
 
