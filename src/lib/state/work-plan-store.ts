@@ -52,6 +52,14 @@ export interface TimelineExtension {
   reason?: string;                 // Optional reason for extension
 }
 
+// Completion checklist item
+export interface CompletionChecklistItem {
+  id: string;
+  label: string;
+  completed: boolean;
+  required: boolean;
+}
+
 export interface WorkPlan {
   id: string;
   workspaceId: string; // 🔑 Multi-tenancy key - links work plan to specific company
@@ -121,6 +129,28 @@ export interface WorkPlan {
   };
 
   // ========================================
+  // COMPLETION WORKFLOW (NEW)
+  // ========================================
+
+  // Completion status for review workflow
+  completionStatus?: 'working' | 'submitted' | 'approved' | 'needs-revision';
+
+  // Submission tracking
+  submittedForReviewAt?: string;
+  submittedBy?: string;
+  submittedByName?: string;
+  submissionNotes?: string;
+
+  // Review tracking
+  reviewedAt?: string;
+  reviewedBy?: string;
+  reviewedByName?: string;
+  reviewFeedback?: string;
+
+  // Completion checklist
+  completionChecklist?: CompletionChecklistItem[];
+
+  // ========================================
   // MANUFACTURING / SUPPLIER LINKAGE
   // ========================================
   linkedSupplierEngagementId?: string;  // Link to supplier engagement in Make tab
@@ -179,6 +209,11 @@ interface WorkPlanState {
   completeWorkPlan: (id: string) => void; // Mark as complete and free resources
   abandonWorkPlan: (id: string, reason?: string) => void; // Abandon task and free resources
   deleteWorkPlan: (id: string) => void;
+
+  // NEW: Completion workflow methods
+  submitForReview: (workPlanId: string, submittedBy: string, submittedByName: string, notes?: string) => Promise<boolean>;
+  approveCompletion: (workPlanId: string, reviewedBy: string, reviewedByName: string, feedback?: string) => Promise<boolean>;
+  requestRevisions: (workPlanId: string, reviewedBy: string, reviewedByName: string, feedback: string) => Promise<boolean>;
   getCounts: () => {
     total: number;
     notStarted: number;
@@ -977,6 +1012,186 @@ export const useWorkPlanStore = create<WorkPlanState>((set, get) => ({
 
   getWorkPlansByWorkspaceAndStatus: (workspaceId: string, status: WorkPlan['status']) => {
     return get().workPlans.filter(wp => wp.workspaceId === workspaceId && wp.status === status);
+  },
+
+  // ========================================
+  // COMPLETION WORKFLOW METHODS (NEW)
+  // ========================================
+
+  submitForReview: async (workPlanId: string, submittedBy: string, submittedByName: string, notes?: string) => {
+    const workPlan = get().workPlans.find(wp => wp.id === workPlanId);
+    if (!workPlan) {
+      console.error('[WorkPlan] Work plan not found:', workPlanId);
+      return false;
+    }
+
+    // Validation: Must be at least 90% complete
+    if (workPlan.progress < 90) {
+      console.error('[WorkPlan] Task must be at least 90% complete to submit');
+      return false;
+    }
+
+    // Validation: Check required checklist items
+    const requiredIncomplete = workPlan.completionChecklist?.filter(
+      item => item.required && !item.completed
+    ) || [];
+
+    if (requiredIncomplete.length > 0) {
+      console.error('[WorkPlan] Required checklist items incomplete:', requiredIncomplete);
+      return false;
+    }
+
+    const now = new Date().toISOString();
+
+    // Optimistic update
+    set(state => ({
+      workPlans: state.workPlans.map(wp =>
+        wp.id === workPlanId
+          ? {
+              ...wp,
+              completionStatus: 'submitted' as const,
+              submittedForReviewAt: now,
+              submittedBy,
+              submittedByName,
+              submissionNotes: notes,
+              status: 'in-progress' as const, // Stays in-progress until approved
+            }
+          : wp
+      ),
+    }));
+
+    console.log(`[WorkPlan] Task ${workPlanId} submitted for review by ${submittedByName}`);
+
+    try {
+      const workPlanExists = !workPlanId.startsWith('temp-');
+      if (workPlanExists) {
+        await supabase
+          .from('work_plans')
+          .update({
+            completion_status: 'submitted',
+            submitted_for_review_at: now,
+            submitted_by: submittedBy,
+            submitted_by_name: submittedByName,
+            submission_notes: notes,
+          })
+          .eq('id', workPlanId);
+      }
+    } catch (err) {
+      console.error('[WorkPlan] Failed to sync submission:', err);
+    }
+
+    return true;
+  },
+
+  approveCompletion: async (workPlanId: string, reviewedBy: string, reviewedByName: string, feedback?: string) => {
+    const workPlan = get().workPlans.find(wp => wp.id === workPlanId);
+    if (!workPlan) {
+      console.error('[WorkPlan] Work plan not found:', workPlanId);
+      return false;
+    }
+
+    // Can only approve tasks that are submitted
+    if (workPlan.completionStatus !== 'submitted') {
+      console.error('[WorkPlan] Task must be submitted before approval');
+      return false;
+    }
+
+    const now = new Date().toISOString();
+
+    // Update to approved
+    set(state => ({
+      workPlans: state.workPlans.map(wp =>
+        wp.id === workPlanId
+          ? {
+              ...wp,
+              completionStatus: 'approved' as const,
+              reviewedAt: now,
+              reviewedBy,
+              reviewedByName,
+              reviewFeedback: feedback,
+            }
+          : wp
+      ),
+    }));
+
+    // Now actually complete the task
+    await get().completeWorkPlan(workPlanId);
+
+    console.log(`[WorkPlan] Task ${workPlanId} approved by ${reviewedByName}`);
+
+    try {
+      const workPlanExists = !workPlanId.startsWith('temp-');
+      if (workPlanExists) {
+        await supabase
+          .from('work_plans')
+          .update({
+            completion_status: 'approved',
+            reviewed_at: now,
+            reviewed_by: reviewedBy,
+            reviewed_by_name: reviewedByName,
+            review_feedback: feedback,
+          })
+          .eq('id', workPlanId);
+      }
+    } catch (err) {
+      console.error('[WorkPlan] Failed to sync approval:', err);
+    }
+
+    return true;
+  },
+
+  requestRevisions: async (workPlanId: string, reviewedBy: string, reviewedByName: string, feedback: string) => {
+    const workPlan = get().workPlans.find(wp => wp.id === workPlanId);
+    if (!workPlan) {
+      console.error('[WorkPlan] Work plan not found:', workPlanId);
+      return false;
+    }
+
+    if (workPlan.completionStatus !== 'submitted') {
+      console.error('[WorkPlan] Task must be submitted before requesting revisions');
+      return false;
+    }
+
+    const now = new Date().toISOString();
+
+    set(state => ({
+      workPlans: state.workPlans.map(wp =>
+        wp.id === workPlanId
+          ? {
+              ...wp,
+              completionStatus: 'needs-revision' as const,
+              reviewedAt: now,
+              reviewedBy,
+              reviewedByName,
+              reviewFeedback: feedback,
+              status: 'in-progress' as const, // Back to in-progress
+            }
+          : wp
+      ),
+    }));
+
+    console.log(`[WorkPlan] Task ${workPlanId} needs revisions: ${feedback}`);
+
+    try {
+      const workPlanExists = !workPlanId.startsWith('temp-');
+      if (workPlanExists) {
+        await supabase
+          .from('work_plans')
+          .update({
+            completion_status: 'needs-revision',
+            reviewed_at: now,
+            reviewed_by: reviewedBy,
+            reviewed_by_name: reviewedByName,
+            review_feedback: feedback,
+            status: 'in-progress',
+          })
+          .eq('id', workPlanId);
+      }
+    } catch (err) {
+      console.error('[WorkPlan] Failed to sync revision request:', err);
+    }
+
+    return true;
   },
 
   // ========================================

@@ -133,10 +133,10 @@ export function TaskQuickActionsModal({
   const handleStatusChange = (newStatus: WorkPlan['status']) => {
     lightImpact();
 
+    // Don't allow instant completion - must go through submission workflow
     if (newStatus === 'completed') {
-      completeWorkPlan(task.id);
-      successNotification();
-      onClose();
+      // This should no longer be reachable via this modal
+      // Completion now requires TaskCompletionModal → CompletionReviewModal workflow
       return;
     }
 
@@ -165,15 +165,9 @@ export function TaskQuickActionsModal({
     updateWorkPlan(task.id, {
       progress: localProgress,
       dueDate: localDueDate,
-      // Auto-update status based on progress
-      status: localProgress === 100 ? 'completed' :
-              localProgress > 0 && task.status === 'not-started' ? 'in-progress' :
-              task.status,
+      // Auto-update status to in-progress when progress > 0, but don't auto-complete
+      status: localProgress > 0 && task.status === 'not-started' ? 'in-progress' : task.status,
     });
-
-    if (localProgress === 100) {
-      successNotification();
-    }
 
     setHasChanges(false);
     onClose();
@@ -283,7 +277,7 @@ export function TaskQuickActionsModal({
                     Quick Status Change
                   </Text>
                   <View className="flex-row gap-2">
-                    {(['not-started', 'in-progress', 'blocked', 'completed'] as const).map((status) => {
+                    {(['not-started', 'in-progress', 'blocked'] as const).map((status) => {
                       const config = STATUS_CONFIG[status];
                       const Icon = config.icon;
                       const isActive = task.status === status;
@@ -311,12 +305,15 @@ export function TaskQuickActionsModal({
                           >
                             {status === 'not-started' ? 'Queue' :
                              status === 'in-progress' ? 'Start' :
-                             status === 'blocked' ? 'Block' : 'Done'}
+                             'Block'}
                           </Text>
                         </Pressable>
                       );
                     })}
                   </View>
+                  <Text className="text-gray-500 dark:text-slate-400 text-xs mt-3 text-center italic">
+                    Use TaskCompletionModal to submit task for review when done
+                  </Text>
                 </View>
               )}
 
