@@ -51,7 +51,7 @@ export function CondensedObjectivesSection() {
           </View>
         </View>
         <Pressable
-          onPress={() => router.push('/(tabs)/tasks')}
+          onPress={() => router.push('/(tabs)/objectives')}
           className="flex-row items-center gap-1"
         >
           <Text className="text-purple-600 dark:text-purple-400 text-sm font-semibold">View All</Text>
@@ -68,7 +68,7 @@ export function CondensedObjectivesSection() {
           return (
             <Pressable
               key={objective.id}
-              onPress={() => router.push('/(tabs)/tasks')}
+              onPress={() => router.push('/(tabs)/objectives')}
               className="bg-white dark:bg-slate-900 rounded-lg p-3 border border-slate-200 dark:border-slate-700 active:opacity-70"
             >
               <View className="flex-row items-center justify-between mb-2">

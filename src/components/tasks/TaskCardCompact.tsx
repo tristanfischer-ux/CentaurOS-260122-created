@@ -19,6 +19,7 @@ import {
   TaskPriorityIndicator,
   TaskProgressBar,
 } from './index';
+import { ObjectiveBadges } from '@/components/LinkToObjectiveModal';
 import {
   calculateNetVelocity,
   calculateEstimatedWeeks,
@@ -110,13 +111,17 @@ export function TaskCardCompact({
 
       {/* Line 2: Effort timeline LEFT, Due date RIGHT */}
       <View className="pl-4 mt-1 flex-row items-center justify-between gap-2">
-        <TaskEffortTimeline
-          totalTU={task.estimatedTimeUnits}
-          velocityPerWeek={netVelocity}
-          estimatedWeeks={estimatedWeeks}
-          completed={task.tusExpended || 0}
-          showProgressBar={false}
-        />
+        <View className="flex-row items-center gap-2 flex-1">
+          <TaskEffortTimeline
+            totalTU={task.estimatedTimeUnits}
+            velocityPerWeek={netVelocity}
+            estimatedWeeks={estimatedWeeks}
+            completed={task.tusExpended || 0}
+            showProgressBar={false}
+          />
+          {/* Objective badges */}
+          <ObjectiveBadges taskId={task.id} maxBadges={1} />
+        </View>
         <Text
           className={`${TYPOGRAPHY.smallValue} ${
             isOverdue ? 'text-red-600 dark:text-red-400' : 'text-slate-600 dark:text-slate-400'

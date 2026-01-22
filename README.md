@@ -16,11 +16,12 @@ A mobile app for lean companies to manage tasks, track team capacity, and coordi
 
 **This app is in active development.** Core functionality works, but some features are incomplete.
 
-### What Works (Jan 20, 2026)
+### What Works (Jan 22, 2026)
 
 - **Authentication**: Sign up/sign in with email via Supabase
 - **Task Management**: Create, edit, assign tasks with time unit allocations
 - **Task Display System**: New standardized 3-tier task cards (Compact, Medium, Full)
+- **Objectives System**: Strategic business objectives with metrics, milestones, and task linking
 - **Coordination Cost Calculation**: Automatic overhead penalties based on team size
 - **Capacity Warnings**: Real-time member overallocation indicators
 - **Team Roster**: View team members and their capacity
@@ -28,7 +29,30 @@ A mobile app for lean companies to manage tasks, track team capacity, and coordi
 - **Multi-tenant**: Workspace-based data isolation
 - **Themes**: Light, dark, and off-white modes
 
-### Recent Updates (Jan 20, 2026)
+### Recent Updates (Jan 22, 2026)
+
+**Objectives System - FULLY IMPLEMENTED** ✅:
+- ✅ Business objectives with title, description, period, and category
+- ✅ Progress tracking with status indicators (On Track, At Risk, Behind, Completed)
+- ✅ Milestones with completion tracking and due dates
+- ✅ Key metrics with targets, current values, and trend indicators
+- ✅ Task-objective linking (connect tasks to strategic goals)
+- ✅ AI-suggested tasks based on objective keywords
+- ✅ ObjectiveCard component with collapsed/expanded views
+- ✅ ObjectiveDetailModal for full editing and management
+- ✅ LinkToObjectiveModal for task-objective connections
+- ✅ ObjectiveBadges on task cards showing linked objectives
+- ✅ Category-based color coding (Growth, Product, Financial, Operations, Team)
+
+**How Objectives Work**:
+- Navigate to Objectives tab (via Home tab or deep link)
+- Create objectives with quarterly/yearly periods
+- Add milestones to break down large goals
+- Link tasks to objectives to track execution
+- View objective badges on task cards
+- Track progress automatically via milestone completion
+
+### Previous Updates (Jan 20, 2026)
 
 **People Tab - FULLY COMPLETED**:
 - ✅ Three-tier progressive disclosure (Compact → Medium → Full)

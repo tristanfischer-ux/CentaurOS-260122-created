@@ -200,6 +200,7 @@ export default function TabLayout() {
         <Tabs.Screen name="evaluate" options={{ href: null }} />
         <Tabs.Screen name="make" options={{ href: null }} />
         <Tabs.Screen name="community" options={{ href: null }} />
+        <Tabs.Screen name="objectives" options={{ href: null }} />
       </Tabs>
 
       {/* Green FAB - Absolutely positioned in center of tab bar */}
