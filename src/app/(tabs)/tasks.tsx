@@ -633,9 +633,9 @@ export default function TasksScreen() {
                               setEditingDraftId(null);
                             }}
                             autoFocus
-                            selectTextOnFocus
-                            className="text-slate-900 dark:text-white font-medium flex-1 border-b border-blue-500 py-0"
-                            style={{ minHeight: 20 }}
+                            className="flex-1 text-slate-900 dark:text-white font-medium border-b border-blue-500"
+                            style={{ minHeight: 20, padding: 0 }}
+                            placeholderTextColor="#9ca3af"
                           />
                         ) : (
                           <Pressable
