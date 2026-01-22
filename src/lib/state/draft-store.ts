@@ -35,6 +35,7 @@ export interface Draft {
   assigneeName?: string;
   dueDate?: string;
   units: number; // Time units estimate (default: 1)
+  function?: 'Ops' | 'Marketing' | 'Sales' | 'Finance' | 'Engineering' | 'Admin';
 
   // Source tracking
   source: DraftSource;
