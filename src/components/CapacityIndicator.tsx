@@ -14,6 +14,10 @@ interface CapacityIndicatorProps {
   variant?: 'dot' | 'bar' | 'full';
   showLabel?: boolean;
   showPercentage?: boolean;
+  // New props for overtime display
+  normalCapacity?: number;
+  overtimeCapacity?: number;
+  showOvertimeSegmentation?: boolean;
 }
 
 export function CapacityIndicator({
@@ -23,10 +27,21 @@ export function CapacityIndicator({
   variant = 'bar',
   showLabel = true,
   showPercentage = true,
+  normalCapacity,
+  overtimeCapacity,
+  showOvertimeSegmentation = false,
 }: CapacityIndicatorProps) {
   const utilizationPercent = total > 0 ? Math.round((allocated / total) * 100) : 0;
   const available = Math.max(0, total - allocated);
   const isOverallocated = allocated > total;
+
+  // Calculate overtime usage if segmentation is enabled
+  const normalUsed = showOvertimeSegmentation && normalCapacity
+    ? Math.min(allocated ?? 0, normalCapacity ?? 10)
+    : allocated;
+  const overtimeUsed = showOvertimeSegmentation && normalCapacity
+    ? Math.max(0, (allocated ?? 0) - (normalCapacity ?? 10))
+    : 0;
 
   // Get color based on utilization
   const getUtilColor = () => {
@@ -93,18 +108,42 @@ export function CapacityIndicator({
           </View>
         )}
 
+        {/* Progress bar - segmented if overtime display is enabled */}
         <View
-          className="bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden"
+          className="bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden flex-row"
           style={{ height: sizeMap.barHeight }}
         >
-          <View
-            className="rounded-full"
-            style={{
-              width: `${Math.min(100, utilizationPercent)}%`,
-              height: '100%',
-              backgroundColor: colors.bg,
-            }}
-          />
+          {showOvertimeSegmentation && normalCapacity && total > 0 ? (
+            <>
+              {/* Normal capacity segment */}
+              <View
+                style={{
+                  width: `${(normalUsed / total) * 100}%`,
+                  height: '100%',
+                  backgroundColor: normalUsed === normalCapacity ? '#f59e0b' : '#3b82f6',
+                }}
+              />
+              {/* Overtime capacity segment */}
+              {overtimeUsed > 0 && (
+                <View
+                  style={{
+                    width: `${(overtimeUsed / total) * 100}%`,
+                    height: '100%',
+                    backgroundColor: overtimeUsed >= 4 ? '#dc2626' : '#f97316',
+                  }}
+                />
+              )}
+            </>
+          ) : (
+            <View
+              className="rounded-full"
+              style={{
+                width: `${Math.min(100, utilizationPercent)}%`,
+                height: '100%',
+                backgroundColor: colors.bg,
+              }}
+            />
+          )}
         </View>
 
         {showLabel && (

@@ -238,12 +238,6 @@ export function CollapsibleResourcePool({ selectedPersonId, onPersonSelect }: Co
                   {hasFinancialData ? `£${(cashBalance / 1000).toFixed(0)}k` : '—'}
                 </Text>
               </View>
-              <View className="flex-row items-center">
-                <Text className="text-gray-500 dark:text-slate-500 text-[9px] mr-1">Weekly Cost:</Text>
-                <Text className="text-orange-600 dark:text-orange-400 text-[10px] font-bold">
-                  £{(weeklyCost / 1000).toFixed(1)}k
-                </Text>
-              </View>
               {hasFinancialData && (
                 <View className="flex-row items-center">
                   <Text className="text-gray-500 dark:text-slate-500 text-[9px] mr-1">After Week:</Text>

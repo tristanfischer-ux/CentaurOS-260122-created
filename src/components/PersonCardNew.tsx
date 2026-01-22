@@ -142,6 +142,14 @@ export function PersonCardNew({ member, allMembers = [], onMemberChange }: Perso
   const available = Math.max(0, memberWorkload.totalCapacity - memberWorkload.totalAllocated);
   const isOverAllocated = memberWorkload.totalAllocated > memberWorkload.totalCapacity;
 
+  // Calculate capacity breakdown (regular vs overtime)
+  const normalCapacity = member.role === 'Founder' || member.role === 'Apprentice' ? 10 : (member.daysPerWeek || 2) * 2;
+  const overtimeCapacity = member.role === 'Founder' || member.role === 'Apprentice' ? 5 : Math.min((5 - (member.daysPerWeek || 2)) * 2, 10);
+  const normalUsed = Math.min(memberWorkload.totalAllocated ?? 0, normalCapacity ?? 10);
+  const overtimeUsed = Math.max(0, (memberWorkload.totalAllocated ?? 0) - (normalCapacity ?? 10));
+  const normalAvailable = Math.max(0, normalCapacity - memberWorkload.totalAllocated);
+  const overtimeAvailable = overtimeCapacity - overtimeUsed;
+
   // Get utilization color
   const getUtilColor = () => {
     if (isOverAllocated) return { bg: '#ef4444', text: '#fff', dot: '#ef4444' };
@@ -360,14 +368,36 @@ export function PersonCardNew({ member, allMembers = [], onMemberChange }: Perso
 
           {/* Capacity Indicator */}
           <View className="items-end">
-            <View className="flex-row items-center gap-1.5 mb-1">
+            <View className="flex-row items-center gap-1.5 mb-1 flex-wrap justify-end">
               <View
                 className="w-2.5 h-2.5 rounded-full"
                 style={{ backgroundColor: utilColor.dot }}
               />
               <Text className="text-slate-700 dark:text-slate-300 text-xs font-semibold">
-                {available > 0 ? `${available} TU free` : isOverAllocated ? `Over by ${Math.abs(available)}` : 'At capacity'}
+                {memberWorkload.totalAllocated === 0 ? (
+                  `${memberWorkload.totalCapacity} TU (${normalCapacity} reg + ${overtimeCapacity} OT)`
+                ) : memberWorkload.totalAllocated > memberWorkload.totalCapacity ? (
+                  `Over by ${memberWorkload.totalAllocated - memberWorkload.totalCapacity} TU`
+                ) : overtimeUsed > 0 ? (
+                  `${overtimeUsed} OT used • ${overtimeAvailable} left`
+                ) : normalAvailable === 0 ? (
+                  `Full • ${overtimeAvailable} OT`
+                ) : (
+                  `${normalAvailable} free • ${overtimeAvailable} OT`
+                )}
               </Text>
+              {overtimeUsed > 0 && (
+                <View
+                  className="px-1.5 py-0.5 rounded-full"
+                  style={{
+                    backgroundColor: overtimeUsed >= 4 ? '#dc2626' : '#f97316'
+                  }}
+                >
+                  <Text className="text-white text-[9px] font-bold">
+                    {overtimeUsed >= 4 ? '🚨 OT' : '⚠️ OT'}
+                  </Text>
+                </View>
+              )}
             </View>
             <View className="bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-full">
               <Text className="text-slate-600 dark:text-slate-400 text-[10px] font-medium">
@@ -393,6 +423,9 @@ export function PersonCardNew({ member, allMembers = [], onMemberChange }: Perso
                 variant="bar"
                 showLabel={true}
                 showPercentage={true}
+                normalCapacity={normalCapacity}
+                overtimeCapacity={overtimeCapacity}
+                showOvertimeSegmentation={true}
               />
             </View>
 
