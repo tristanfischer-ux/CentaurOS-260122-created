@@ -650,7 +650,6 @@ export default function TasksScreen() {
                             </Text>
                           </Pressable>
                         )}
-
                         {/* Low confidence badge */}
                         {confidence < 0.7 && (
                           <View className="bg-red-100 dark:bg-red-900/30 px-1.5 py-0.5 rounded">
@@ -658,13 +657,11 @@ export default function TasksScreen() {
                           </View>
                         )}
                       </View>
-
                       {draft.description && (
                         <Text className="text-slate-500 dark:text-slate-400 text-sm ml-9" numberOfLines={2}>
                           {draft.description}
                         </Text>
                       )}
-
                       {/* Assignment Info */}
                       <View className="flex-row items-center gap-2 mt-2 ml-9">
                         <View className="w-7 h-7 rounded-full bg-blue-500 items-center justify-center">
@@ -674,7 +671,6 @@ export default function TasksScreen() {
                           {assignee?.name || 'You'}
                         </Text>
                       </View>
-
                       {/* Chips for TU, Function, Due Date */}
                       <View className="flex-row items-center gap-2 mt-2 ml-9 flex-wrap">
                         {/* Source */}
