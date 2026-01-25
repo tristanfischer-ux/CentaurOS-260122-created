@@ -126,6 +126,8 @@ export function InvitationCreationModal({ visible, onClose, workspaceId, company
           proposedRate: parseFloat(rateAmount),
           rateType: rateType === 'hourly_rate' ? 'hourly' : rateType === 'daily_rate' ? 'daily' : 'monthly',
           senderName: companyName, // Use company name as sender
+          invitationLink: 'https://centauros.app/join', // Placeholder for legacy
+          expiresInDays: 7,
         });
       }
 
@@ -200,17 +202,15 @@ export function InvitationCreationModal({ visible, onClose, workspaceId, company
                 <View className="flex-row gap-3">
                   <Pressable
                     onPress={() => setCandidateRole('Apprentice')}
-                    className={`flex-1 p-4 rounded-xl border-2 ${
-                      candidateRole === 'Apprentice'
+                    className={`flex-1 p-4 rounded-xl border-2 ${candidateRole === 'Apprentice'
                         ? 'border-emerald-400 bg-emerald-50 dark:bg-emerald-900/20'
                         : 'border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800'
-                    }`}
+                      }`}
                   >
                     <View className="items-center">
                       <GraduationCap size={24} color={candidateRole === 'Apprentice' ? '#10b981' : '#9ca3af'} />
-                      <Text className={`font-semibold mt-2 ${
-                        candidateRole === 'Apprentice' ? 'text-emerald-700 dark:text-emerald-300' : 'text-slate-600 dark:text-slate-400'
-                      }`}>
+                      <Text className={`font-semibold mt-2 ${candidateRole === 'Apprentice' ? 'text-emerald-700 dark:text-emerald-300' : 'text-slate-600 dark:text-slate-400'
+                        }`}>
                         Apprentice
                       </Text>
                       <Text className="text-slate-500 dark:text-slate-400 text-xs text-center mt-1">
@@ -220,17 +220,15 @@ export function InvitationCreationModal({ visible, onClose, workspaceId, company
                   </Pressable>
                   <Pressable
                     onPress={() => setCandidateRole('FractionalExec')}
-                    className={`flex-1 p-4 rounded-xl border-2 ${
-                      candidateRole === 'FractionalExec'
+                    className={`flex-1 p-4 rounded-xl border-2 ${candidateRole === 'FractionalExec'
                         ? 'border-blue-400 bg-blue-50 dark:bg-blue-900/20'
                         : 'border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800'
-                    }`}
+                      }`}
                   >
                     <View className="items-center">
                       <Briefcase size={24} color={candidateRole === 'FractionalExec' ? '#3b82f6' : '#9ca3af'} />
-                      <Text className={`font-semibold mt-2 ${
-                        candidateRole === 'FractionalExec' ? 'text-blue-700 dark:text-blue-300' : 'text-slate-600 dark:text-slate-400'
-                      }`}>
+                      <Text className={`font-semibold mt-2 ${candidateRole === 'FractionalExec' ? 'text-blue-700 dark:text-blue-300' : 'text-slate-600 dark:text-slate-400'
+                        }`}>
                         Executive
                       </Text>
                       <Text className="text-slate-500 dark:text-slate-400 text-xs text-center mt-1">
@@ -286,13 +284,11 @@ export function InvitationCreationModal({ visible, onClose, workspaceId, company
                           setCandidateFunction(func);
                           setShowFunctionPicker(false);
                         }}
-                        className={`px-4 py-3 border-b border-slate-200 dark:border-slate-700 ${
-                          candidateFunction === func ? 'bg-blue-50 dark:bg-blue-900/20' : ''
-                        }`}
+                        className={`px-4 py-3 border-b border-slate-200 dark:border-slate-700 ${candidateFunction === func ? 'bg-blue-50 dark:bg-blue-900/20' : ''
+                          }`}
                       >
-                        <Text className={`${
-                          candidateFunction === func ? 'text-blue-600 dark:text-blue-400 font-semibold' : 'text-slate-700 dark:text-slate-300'
-                        }`}>
+                        <Text className={`${candidateFunction === func ? 'text-blue-600 dark:text-blue-400 font-semibold' : 'text-slate-700 dark:text-slate-300'
+                          }`}>
                           {func}
                         </Text>
                       </Pressable>
@@ -338,15 +334,13 @@ export function InvitationCreationModal({ visible, onClose, workspaceId, company
                     <Pressable
                       key={type.value}
                       onPress={() => setRateType(type.value)}
-                      className={`flex-1 py-2 px-3 rounded-lg ${
-                        rateType === type.value
+                      className={`flex-1 py-2 px-3 rounded-lg ${rateType === type.value
                           ? 'bg-blue-500'
                           : 'bg-slate-100 dark:bg-slate-800'
-                      }`}
+                        }`}
                     >
-                      <Text className={`text-center text-sm font-medium ${
-                        rateType === type.value ? 'text-white' : 'text-slate-600 dark:text-slate-300'
-                      }`}>
+                      <Text className={`text-center text-sm font-medium ${rateType === type.value ? 'text-white' : 'text-slate-600 dark:text-slate-300'
+                        }`}>
                         {type.label}
                       </Text>
                     </Pressable>
@@ -369,7 +363,7 @@ export function InvitationCreationModal({ visible, onClose, workspaceId, company
                 </View>
                 <Text className="text-slate-500 dark:text-slate-400 text-xs mt-1">
                   {rateType === 'hourly_rate' ? 'Per hour worked' :
-                   rateType === 'daily_rate' ? 'Per day worked' : 'Fixed monthly retainer'}
+                    rateType === 'daily_rate' ? 'Per day worked' : 'Fixed monthly retainer'}
                 </Text>
               </View>
 
@@ -382,15 +376,13 @@ export function InvitationCreationModal({ visible, onClose, workspaceId, company
                       <Pressable
                         key={days}
                         onPress={() => setDaysPerWeek(days.toString())}
-                        className={`flex-1 py-3 rounded-lg ${
-                          daysPerWeek === days.toString()
+                        className={`flex-1 py-3 rounded-lg ${daysPerWeek === days.toString()
                             ? 'bg-blue-500'
                             : 'bg-slate-100 dark:bg-slate-800'
-                        }`}
+                          }`}
                       >
-                        <Text className={`text-center font-semibold ${
-                          daysPerWeek === days.toString() ? 'text-white' : 'text-slate-600 dark:text-slate-300'
-                        }`}>
+                        <Text className={`text-center font-semibold ${daysPerWeek === days.toString() ? 'text-white' : 'text-slate-600 dark:text-slate-300'
+                          }`}>
                           {days}
                         </Text>
                       </Pressable>
@@ -411,9 +403,8 @@ export function InvitationCreationModal({ visible, onClose, workspaceId, company
               <Pressable
                 onPress={handleSend}
                 disabled={sending}
-                className={`flex-1 py-3.5 rounded-xl items-center flex-row justify-center gap-2 ${
-                  sending ? 'bg-blue-300 dark:bg-blue-800' : 'bg-blue-500'
-                }`}
+                className={`flex-1 py-3.5 rounded-xl items-center flex-row justify-center gap-2 ${sending ? 'bg-blue-300 dark:bg-blue-800' : 'bg-blue-500'
+                  }`}
               >
                 <Send size={18} color="white" />
                 <Text className="text-white font-semibold">

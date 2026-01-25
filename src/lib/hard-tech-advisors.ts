@@ -801,12 +801,9 @@ export const HARD_TECH_ADVISORS: HardTechAdvisor[] = [
 // COMBINED DATABASE
 // ============================================
 
-export const ALL_HARD_TECH_ADVISORS: HardTechAdvisor[] = [
-  ...HARD_TECH_VCS,
-  ...HARD_TECH_LAW_FIRMS,
-  ...HARD_TECH_ACCOUNTING_FIRMS,
-  ...HARD_TECH_ADVISORS,
-];
+// DISABLED: Advisors should be loaded from Supabase
+// All hardcoded advisor data has been disabled for multi-tenant architecture
+export const ALL_HARD_TECH_ADVISORS: HardTechAdvisor[] = [];
 
 // ============================================
 // HELPER FUNCTIONS

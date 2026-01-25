@@ -57,6 +57,7 @@ interface DecisionsState {
 
   // Actions
   initialize: () => Promise<void>;
+  reset: () => Promise<void>;
   addDecision: (decision: Omit<Decision, 'id' | 'createdAt' | 'status'>) => void;
   makeDecision: (decisionId: string, optionId: string, decidedBy: string) => void;
   deferDecision: (decisionId: string) => void;
@@ -273,13 +274,23 @@ export const useDecisionsStore = create<DecisionsState>((set, get) => ({
         const parsed = JSON.parse(stored);
         set({ decisions: parsed, initialized: true });
       } else {
-        // Seed with sample data
-        set({ decisions: sampleDecisions, initialized: true });
-        await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(sampleDecisions));
+        // CHANGED: Start with empty array instead of seeding sample data
+        set({ decisions: [], initialized: true });
       }
     } catch (error) {
       console.error('[DecisionsStore] Failed to initialize:', error);
-      set({ decisions: sampleDecisions, initialized: true });
+      // CHANGED: Start with empty array instead of seeding sample data
+      set({ decisions: [], initialized: true });
+    }
+  },
+
+  reset: async () => {
+    try {
+      await AsyncStorage.removeItem(STORAGE_KEY);
+      set({ decisions: [], initialized: false });
+      console.log('[DecisionsStore] Reset complete');
+    } catch (error) {
+      console.error('[DecisionsStore] Failed to reset:', error);
     }
   },
 

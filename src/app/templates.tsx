@@ -59,7 +59,7 @@ export default function TemplatesScreen() {
     return (
       <View className="flex-1 bg-white dark:bg-slate-950" style={{ paddingTop: insets.top }}>
         {/* Header */}
-        <View className="px-6 py-4 border-b border-gray-300 dark:border-slate-800 flex-row items-center">
+        <View className="px-6 py-4 border-b border-gray-300 dark:border-slate-700 flex-row items-center">
           <HapticPressable
             onPress={() => setSelectedTemplate(null)}
             className="mr-4 w-10 h-10 items-center justify-center rounded-full bg-gray-100 dark:bg-slate-900 active:opacity-70"
@@ -83,7 +83,7 @@ export default function TemplatesScreen() {
                   {selectedTemplate.function}
                 </Text>
               </View>
-              <View className="bg-gray-100 dark:bg-slate-800 px-3 py-1 rounded">
+              <View className="bg-gray-100 dark:bg-slate-900 px-3 py-1 rounded">
                 <Text className="text-gray-700 dark:text-slate-300 text-sm font-semibold">
                   {selectedTemplate.difficulty}
                 </Text>
@@ -131,7 +131,7 @@ export default function TemplatesScreen() {
                 .map((task, idx) => (
                   <View
                     key={idx}
-                    className="bg-gray-100 dark:bg-slate-900 rounded-xl p-4 border border-gray-300 dark:border-slate-800"
+                    className="bg-gray-100 dark:bg-slate-900 rounded-xl p-4 border border-gray-300 dark:border-slate-700"
                   >
                     <View className="flex-row items-start gap-3">
                       <View className="w-8 h-8 rounded-full bg-blue-500 items-center justify-center">
@@ -165,7 +165,7 @@ export default function TemplatesScreen() {
             <Text className="text-gray-900 dark:text-white text-xl font-bold mb-3">
               Deliverables
             </Text>
-            <View className="bg-gray-100 dark:bg-slate-900 rounded-xl p-4 border border-gray-300 dark:border-slate-800">
+            <View className="bg-gray-100 dark:bg-slate-900 rounded-xl p-4 border border-gray-300 dark:border-slate-700">
               {selectedTemplate.deliverables.map((deliverable, idx) => (
                 <View key={idx} className="flex-row items-start gap-2 mb-2">
                   <Text className="text-emerald-500 font-bold">✓</Text>
@@ -209,7 +209,7 @@ export default function TemplatesScreen() {
                 {selectedTemplate.tags.map((tag, idx) => (
                   <View
                     key={idx}
-                    className="bg-gray-100 dark:bg-slate-800 px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-700"
+                    className="bg-gray-100 dark:bg-slate-900 px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-700"
                   >
                     <Text className="text-gray-700 dark:text-slate-300 text-sm">{tag}</Text>
                   </View>
@@ -221,7 +221,7 @@ export default function TemplatesScreen() {
 
         {/* Use Template Button */}
         <View
-          className="px-6 py-4 border-t border-gray-300 dark:border-slate-800 bg-white dark:bg-slate-950"
+          className="px-6 py-4 border-t border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-950"
           style={{ paddingBottom: insets.bottom + 16 }}
         >
           <HapticPressable
@@ -240,7 +240,7 @@ export default function TemplatesScreen() {
   return (
     <View className="flex-1 bg-white dark:bg-slate-950" style={{ paddingTop: insets.top }}>
       {/* Header */}
-      <View className="px-6 py-4 border-b border-gray-300 dark:border-slate-800">
+      <View className="px-6 py-4 border-b border-gray-300 dark:border-slate-700">
         <View className="flex-row items-center justify-between mb-4">
           <View className="flex-row items-center">
             <HapticPressable
@@ -273,7 +273,7 @@ export default function TemplatesScreen() {
               className={`px-4 py-2 rounded-lg mr-2 ${
                 selectedFunction === func
                   ? 'bg-blue-500'
-                  : 'bg-gray-100 dark:bg-slate-900 border border-gray-300 dark:border-slate-800'
+                  : 'bg-gray-100 dark:bg-slate-900 border border-gray-300 dark:border-slate-700'
               }`}
             >
               <Text

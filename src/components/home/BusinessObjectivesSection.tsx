@@ -60,7 +60,7 @@ function ObjectiveCard({ objective, onPress, index }: ObjectiveCardProps) {
     <Animated.View entering={FadeInRight.delay(index * 80).springify()}>
       <Pressable
         onPress={onPress}
-        className="bg-white dark:bg-slate-800 rounded-2xl mr-3 overflow-hidden active:opacity-90"
+        className="bg-white dark:bg-slate-900 rounded-2xl mr-3 overflow-hidden active:opacity-90"
         style={{ width: 280, borderWidth: 1, borderColor: config.color + '30' }}
       >
         {/* Header with gradient */}
@@ -225,7 +225,7 @@ function ObjectiveDetailModal({ objective, visible, onClose }: ObjectiveDetailMo
               </View>
 
               {/* Description */}
-              <View className="mb-4 bg-slate-50 dark:bg-slate-800 rounded-xl p-4">
+              <View className="mb-4 bg-slate-50 dark:bg-slate-900 rounded-xl p-4">
                 <Text className="text-slate-700 dark:text-slate-300 text-sm leading-relaxed">
                   {objective.description}
                 </Text>
@@ -246,7 +246,7 @@ function ObjectiveDetailModal({ objective, visible, onClose }: ObjectiveDetailMo
                       return (
                         <View
                           key={metric.id}
-                          className="bg-slate-50 dark:bg-slate-800 rounded-xl p-3"
+                          className="bg-slate-50 dark:bg-slate-900 rounded-xl p-3"
                         >
                           <View className="flex-row items-center justify-between mb-2">
                             <Text className="text-slate-700 dark:text-slate-300 text-sm font-medium">
@@ -294,7 +294,7 @@ function ObjectiveDetailModal({ objective, visible, onClose }: ObjectiveDetailMo
                         className={`flex-row items-center gap-3 p-3 rounded-xl ${
                           milestone.completed
                             ? 'bg-emerald-50 dark:bg-emerald-900/20'
-                            : 'bg-slate-50 dark:bg-slate-800'
+                            : 'bg-slate-50 dark:bg-slate-900'
                         }`}
                       >
                         <View

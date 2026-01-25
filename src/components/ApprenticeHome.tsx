@@ -19,6 +19,7 @@ import {
   TrendingUp,
   Zap,
   User,
+  Users,
   CheckCircle2,
   AlertCircle,
   Play,
@@ -195,7 +196,7 @@ export function ApprenticeHome() {
           </View>
 
           {activeTasks.length === 0 ? (
-            <View className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 items-center">
+            <View className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 items-center">
               <CheckCircle2 size={48} color="#10b981" />
               <Text className="text-slate-900 dark:text-white font-bold text-lg mt-3">
                 All Caught Up!
@@ -209,8 +210,8 @@ export function ApprenticeHome() {
               {activeTasks.slice(0, 3).map((task) => (
                 <Pressable
                   key={task.id}
-                  onPress={() => router.push('/(tabs)/what')}
-                  className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 active:opacity-70"
+                  onPress={() => router.push('/(tabs)/tasks')}
+                  className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 active:opacity-70"
                 >
                   <View className="flex-row items-start justify-between">
                     <View className="flex-1">
@@ -239,7 +240,7 @@ export function ApprenticeHome() {
         {blockedTasks.length > 0 && (
           <View className="px-5 pt-4">
             <Pressable
-              onPress={() => router.push('/(tabs)/what')}
+              onPress={() => router.push('/(tabs)/tasks')}
               className="active:opacity-70"
             >
               <LinearGradient
@@ -288,7 +289,7 @@ export function ApprenticeHome() {
               {pendingTasks.slice(0, 3).map((task, index) => (
                 <View
                   key={task.id}
-                  className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-3 flex-row items-center"
+                  className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-3 flex-row items-center"
                 >
                   <View className="bg-blue-100 dark:bg-blue-900/30 w-8 h-8 rounded-full items-center justify-center mr-3">
                     <Text className="text-blue-600 dark:text-blue-400 font-bold">{index + 1}</Text>
@@ -306,7 +307,7 @@ export function ApprenticeHome() {
 
               {pendingTasks.length > 3 && (
                 <Pressable
-                  onPress={() => router.push('/(tabs)/what')}
+                  onPress={() => router.push('/(tabs)/tasks')}
                   className="pt-2"
                 >
                   <Text className="text-blue-600 dark:text-blue-400 text-sm font-bold text-center">
@@ -329,7 +330,7 @@ export function ApprenticeHome() {
 
           <View className="flex-row gap-3">
             {/* Completion Rate */}
-            <View className="flex-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4">
+            <View className="flex-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-4">
               <View className="items-center">
                 <Text className="text-3xl font-bold text-purple-600 dark:text-purple-400">
                   {completionRate}%
@@ -337,7 +338,7 @@ export function ApprenticeHome() {
                 <Text className="text-slate-600 dark:text-slate-400 text-xs mt-1">
                   Completion Rate
                 </Text>
-                <View className="w-full h-2 bg-slate-200 dark:bg-slate-800 rounded-full mt-3">
+                <View className="w-full h-2 bg-slate-200 dark:bg-slate-900 rounded-full mt-3">
                   <View
                     className="h-full bg-purple-500 rounded-full"
                     style={{ width: `${completionRate}%` }}
@@ -347,7 +348,7 @@ export function ApprenticeHome() {
             </View>
 
             {/* Total Tasks */}
-            <View className="flex-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4">
+            <View className="flex-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-4">
               <View className="items-center">
                 <Text className="text-3xl font-bold text-emerald-600 dark:text-emerald-400">
                   {completedTasks.length}
@@ -379,7 +380,7 @@ export function ApprenticeHome() {
           <View className="flex-row gap-3">
             <Pressable
               onPress={() => router.push('/learning')}
-              className="flex-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 active:opacity-70"
+              className="flex-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-4 active:opacity-70"
             >
               <BookOpen size={24} color="#8b5cf6" />
               <Text className="text-slate-900 dark:text-white font-bold mt-2">Learning</Text>
@@ -390,7 +391,7 @@ export function ApprenticeHome() {
 
             <Pressable
               onPress={() => router.push('/calendar')}
-              className="flex-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 active:opacity-70"
+              className="flex-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-4 active:opacity-70"
             >
               <Calendar size={24} color="#3b82f6" />
               <Text className="text-slate-900 dark:text-white font-bold mt-2">Calendar</Text>
@@ -401,7 +402,7 @@ export function ApprenticeHome() {
 
             <Pressable
               onPress={() => router.push('/messages')}
-              className="flex-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 active:opacity-70"
+              className="flex-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-4 active:opacity-70"
             >
               <MessageSquare size={24} color="#10b981" />
               <Text className="text-slate-900 dark:text-white font-bold mt-2">Messages</Text>
@@ -409,6 +410,48 @@ export function ApprenticeHome() {
                 Team chat
               </Text>
             </Pressable>
+          </View>
+        </View>
+
+        {/* My Team Section */}
+        <View className="px-5 pt-5">
+          <View className="flex-row items-center justify-between mb-3">
+            <View className="flex-row items-center gap-2">
+              <Users size={18} color="#10b981" />
+              <Text className="text-slate-900 dark:text-white text-base font-bold">
+                My Team
+              </Text>
+            </View>
+            <Pressable onPress={() => router.push('/(tabs)/who')}>
+              <Text className="text-emerald-600 dark:text-emerald-400 text-sm font-semibold">View All</Text>
+            </Pressable>
+          </View>
+
+          <View className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-4">
+            <View className="flex-row items-center justify-between mb-3">
+              <Text className="text-slate-500 dark:text-slate-400 text-xs font-medium uppercase">Role Distribution</Text>
+              <Text className="text-slate-900 dark:text-white text-xs font-bold">{members.length} Members</Text>
+            </View>
+            <View className="flex-row gap-2">
+              <View className="flex-1 bg-emerald-50 dark:bg-emerald-900/20 py-2 rounded-lg items-center">
+                <Text className="text-emerald-700 dark:text-emerald-300 font-bold text-base">
+                  {members.filter(m => m.role === 'Apprentice').length}
+                </Text>
+                <Text className="text-emerald-600 dark:text-emerald-400 text-[10px]">Apprentices</Text>
+              </View>
+              <View className="flex-1 bg-blue-50 dark:bg-blue-900/20 py-2 rounded-lg items-center">
+                <Text className="text-blue-700 dark:text-blue-300 font-bold text-base">
+                  {members.filter(m => m.role === 'FractionalExec').length}
+                </Text>
+                <Text className="text-blue-600 dark:text-blue-400 text-[10px]">Executives</Text>
+              </View>
+              <View className="flex-1 bg-purple-50 dark:bg-purple-900/20 py-2 rounded-lg items-center">
+                <Text className="text-purple-700 dark:text-purple-300 font-bold text-base">
+                  {members.filter(m => m.role === 'Founder').length}
+                </Text>
+                <Text className="text-purple-600 dark:text-purple-400 text-[10px]">Founders</Text>
+              </View>
+            </View>
           </View>
         </View>
 

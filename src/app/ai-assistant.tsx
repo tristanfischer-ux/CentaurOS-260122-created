@@ -191,7 +191,7 @@ export default function AIAssistantScreen() {
             {okr.keyResults.map((kr, idx) => (
               <View
                 key={idx}
-                className="bg-gray-100 dark:bg-slate-900 rounded-xl p-3 mb-2 border border-gray-300 dark:border-slate-800"
+                className="bg-gray-100 dark:bg-slate-900 rounded-xl p-3 mb-2 border border-gray-300 dark:border-slate-700"
               >
                 <Text className="text-gray-900 dark:text-white font-semibold text-sm mb-1">
                   {kr.description}
@@ -214,7 +214,7 @@ export default function AIAssistantScreen() {
             {tasks.tasks.map((task, idx) => (
               <View
                 key={idx}
-                className="bg-gray-100 dark:bg-slate-900 rounded-xl p-4 mb-2 border border-gray-300 dark:border-slate-800"
+                className="bg-gray-100 dark:bg-slate-900 rounded-xl p-4 mb-2 border border-gray-300 dark:border-slate-700"
               >
                 <View className="flex-row items-center mb-2">
                   <View className="w-6 h-6 rounded-full bg-purple-500 items-center justify-center mr-2">
@@ -406,7 +406,7 @@ export default function AIAssistantScreen() {
   return (
     <View className="flex-1 bg-white dark:bg-slate-950" style={{ paddingTop: insets.top }}>
       {/* Header */}
-      <View className="px-6 py-4 border-b border-gray-300 dark:border-slate-800 flex-row items-center">
+      <View className="px-6 py-4 border-b border-gray-300 dark:border-slate-700 flex-row items-center">
         <HapticPressable
           onPress={() => router.back()}
           className="mr-4 w-10 h-10 items-center justify-center rounded-full bg-gray-100 dark:bg-slate-900 active:opacity-70"
@@ -433,7 +433,7 @@ export default function AIAssistantScreen() {
               key={feature.id}
               onPress={feature.action}
               disabled={isLoading}
-              className={`bg-white dark:bg-slate-900 rounded-2xl p-5 border border-gray-300 dark:border-slate-800 mb-4 ${
+              className={`bg-white dark:bg-slate-900 rounded-2xl p-5 border border-gray-300 dark:border-slate-700 mb-4 ${
                 isLoading ? 'opacity-50' : 'active:opacity-70'
               }`}
             >
@@ -491,7 +491,7 @@ export default function AIAssistantScreen() {
               <View className="flex-row gap-3 mt-6">
                 <HapticPressable
                   onPress={() => setShowModal(false)}
-                  className="flex-1 bg-gray-200 dark:bg-slate-800 rounded-xl py-3 items-center"
+                  className="flex-1 bg-gray-200 dark:bg-slate-900 rounded-xl py-3 items-center"
                 >
                   <Text className="text-gray-900 dark:text-white font-bold">Close</Text>
                 </HapticPressable>

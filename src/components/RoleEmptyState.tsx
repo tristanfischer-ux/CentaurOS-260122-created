@@ -43,7 +43,7 @@ export function RoleEmptyState({ role, context, onAction }: RoleEmptyStateProps)
 
   return (
     <View className="py-12 px-6 items-center">
-      <View className="bg-slate-100 dark:bg-slate-800 p-6 rounded-full mb-4">
+      <View className="bg-slate-100 dark:bg-slate-900 p-6 rounded-full mb-4">
         <Icon size={48} color="#94a3b8" />
       </View>
 

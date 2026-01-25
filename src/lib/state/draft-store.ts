@@ -36,6 +36,13 @@ export interface Draft {
   dueDate?: string;
   units: number; // Time units estimate (default: 1)
   function?: 'Ops' | 'Marketing' | 'Sales' | 'Finance' | 'Engineering' | 'Admin';
+  linkedObjectiveId?: string; // 🔑 Link to strategic objective
+  attachments?: {
+    id: string;
+    name: string;
+    url: string;
+    type: string;
+  }[];
 
   // Source tracking
   source: DraftSource;

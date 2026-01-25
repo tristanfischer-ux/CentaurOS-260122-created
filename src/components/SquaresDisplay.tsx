@@ -135,7 +135,7 @@ export function SquaresDisplay({
           )}
         </View>
         <Text className="text-gray-600 dark:text-slate-300 text-[10px] font-semibold">
-          {completedSquares}/{totalSquares}□
+          {completedSquares}/{totalSquares} TU
         </Text>
         {hasAIReduction && (
           <View className="flex-row items-center ml-1.5 bg-purple-50 dark:bg-purple-900/30 px-1 py-0.5 rounded">
@@ -212,10 +212,10 @@ export function SquaresDisplay({
       )}
 
       {/* Time and Cost estimate */}
-      <View className="flex-row items-center justify-between mt-1 pt-2 border-t border-gray-100 dark:border-slate-800">
+      <View className="flex-row items-center justify-between mt-1 pt-2 border-t border-gray-100 dark:border-slate-700">
         <View className="flex-row items-center">
           <Text className="text-gray-400 dark:text-slate-500 text-[10px]">
-            ≈ {(remaining * 4)}h ({remaining}□ × 4h)
+            ≈ {(remaining * 4)}h ({remaining} TU × 4h)
           </Text>
           {weeksRemaining !== null && weeksRemaining < Infinity && (
             <Text className="text-gray-500 dark:text-slate-400 text-[10px] ml-2 font-medium">

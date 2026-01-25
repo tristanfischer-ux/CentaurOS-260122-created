@@ -1238,5 +1238,10 @@ const generatedExecutives = generateExecutives(31, 70); // Generate 70 more exec
 const generatedApprentices = generateApprentices(31, 70); // Generate 70 more apprentices (31-100)
 
 // Export combined arrays with 100+ profiles each
-export const fractionalExecutives: Candidate[] = [...baseExecutives, ...generatedExecutives];
-export const apprentices: Candidate[] = [...baseApprentices, ...generatedApprentices];
+// DISABLED: Marketplace candidates should be loaded from Supabase
+// export const fractionalExecutives: Candidate[] = [...baseExecutives, ...generatedExecutives];
+// export const apprentices: Candidate[] = [...baseApprentices, ...generatedApprentices];
+
+// Return empty arrays until Supabase integration is complete
+export const fractionalExecutives: Candidate[] = [];
+export const apprentices: Candidate[] = [];

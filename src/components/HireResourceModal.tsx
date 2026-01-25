@@ -52,9 +52,9 @@ export default function HireResourceModal({ visible, onClose, okr }: HireResourc
 
   const addMember = useOrganizationStore(s => s.addMember);
   const cashBalance = useFinanceStore(s => s.getCashBalance(okr.workspaceId));
-  const updateCashBalance = useFinanceStore(s => s.updateCashBalance);
-  const updateWeeklyBurn = useFinanceStore(s => s.updateWeeklyBurn);
   const weeklyBurn = useFinanceStore(s => s.getWeeklyBurn(okr.workspaceId));
+  // TODO: Add financial transaction to Supabase instead of direct updates
+  // const addTransaction = useFinanceStore(s => s.addTransaction);
 
   // Theme colors
   const bgPrimary = isDark ? 'bg-slate-900' : isOffWhite ? 'bg-white' : 'bg-white';
@@ -91,12 +91,19 @@ export default function HireResourceModal({ visible, onClose, okr }: HireResourc
       addMember(newMember);
     }
 
+    // TODO: Add financial transactions to Supabase
     // Deduct hiring cost (4 weeks upfront)
-    const hiringCost = selectedCost.costPerWeek * 4;
-    updateCashBalance(okr.workspaceId, cashBalance - hiringCost);
-
-    // Increase weekly burn
-    updateWeeklyBurn(okr.workspaceId, weeklyBurn + selectedCost.costPerWeek);
+    // const hiringCost = selectedCost.costPerWeek * 4;
+    // await addTransaction({
+    //   workspace_id: okr.workspaceId,
+    //   type: 'cost',
+    //   category: 'team',
+    //   amount: selectedCost.costPerWeek,
+    //   transaction_date: new Date().toISOString(),
+    //   description: `Hired ${name} as ${selectedType}`,
+    //   recurring: true,
+    //   recurrence_period: 'weekly'
+    // });
 
     // Show success
     setShowSuccess(true);

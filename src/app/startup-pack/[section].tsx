@@ -190,7 +190,7 @@ export default function SectionDetailScreen() {
   };
 
   const renderTabs = () => (
-    <View className="flex-row bg-gray-200 dark:bg-slate-800 rounded-xl p-1 mx-5 mb-4">
+    <View className="flex-row bg-gray-200 dark:bg-slate-900 rounded-xl p-1 mx-5 mb-4">
       {[
         { id: 'guide' as TabType, label: 'Guide', icon: BookOpen },
         { id: 'checklist' as TabType, label: 'Checklist', icon: CheckSquare },

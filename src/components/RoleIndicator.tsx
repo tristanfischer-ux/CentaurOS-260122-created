@@ -24,6 +24,12 @@ export function RoleIndicator({ compact = false }: RoleIndicatorProps) {
       icon: Building2,
       dotColor: '#3b82f6',
     },
+    CoFounder: {
+      color: '#3b82f6',
+      label: 'Command',
+      icon: Building2,
+      dotColor: '#3b82f6',
+    },
     FractionalExec: {
       color: '#8b5cf6',
       label: currentMembership?.function ? `${currentMembership.function} Lead` : 'Executive',
@@ -54,7 +60,7 @@ export function RoleIndicator({ compact = false }: RoleIndicatorProps) {
   }
 
   return (
-    <View className="flex-row items-center gap-1.5 bg-slate-100 dark:bg-slate-800 px-2.5 py-1.5 rounded-full">
+    <View className="flex-row items-center gap-1.5 bg-slate-100 dark:bg-slate-900 px-2.5 py-1.5 rounded-full">
       <View
         className="w-2 h-2 rounded-full"
         style={{ backgroundColor: roleConfig.color }}

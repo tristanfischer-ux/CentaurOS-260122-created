@@ -37,7 +37,7 @@ import {
 } from 'lucide-react-native';
 import { useOrganizationStore } from '@/lib/state/organization-store';
 import { useWorkPlanStore, type WorkPlan } from '@/lib/state/work-plan-store';
-import { useCurrentMembership, useCurrentWorkspace } from '@/lib/state/app-store';
+import { useCurrentMembership, useCurrentWorkspace, useCurrentUser } from '@/lib/state/app-store';
 import type { OrganizationMember } from '@/lib/organization-seed';
 import type { Function as BusinessFunction } from '@/types';
 import { HelpModal, HelpButton, type HelpContent } from '@/components/HelpModal';
@@ -95,6 +95,7 @@ export default function WhatScreen() {
   const insets = useSafeAreaInsets();
   const currentMembership = useCurrentMembership();
   const currentWorkspace = useCurrentWorkspace();
+  const currentUser = useCurrentUser();
 
   // Stores
   const members = useOrganizationStore(s => s.members);
@@ -208,7 +209,7 @@ export default function WhatScreen() {
       task.status !== 'completed' &&
       task.status !== 'abandoned' &&
       (task.allocations?.some(a => a.memberId === currentMembership.id) ||
-       task.assignedMemberIds?.includes(currentMembership.id))
+        task.assignedMemberIds?.includes(currentMembership.id))
     );
   }, [filteredTasks, currentMembership?.id]);
 
@@ -242,10 +243,19 @@ export default function WhatScreen() {
       const member = members.find(m => m.id === memberId);
       return {
         memberId,
+        memberName: member?.name || 'Unknown',
         squaresPerWeek: 2, // Default 2 TU per week per person
         costPerSquare: member?.costPerDay ? member.costPerDay / 2 : 0,
       };
     });
+
+    // Determine assignment status
+    const assignedMembers = Array.from(selectedAssignees).map(id => members.find(m => m.id === id)).filter(Boolean);
+    const hasSeniorMember = assignedMembers.some(m => m?.role === 'Founder' || m?.role === 'FractionalExec');
+
+    // Status should be pending if assigned to senior member by someone else
+    const isSelfAssignment = selectedAssignees.size === 1 && selectedAssignees.has(currentMembership?.id || '');
+    const assignmentStatus = (hasSeniorMember && !isSelfAssignment) ? 'pending' : 'accepted';
 
     const newTask: WorkPlan = {
       id: `task-${Date.now()}`,
@@ -253,7 +263,9 @@ export default function WhatScreen() {
       title: newTaskTitle.trim(),
       description: '',
       function: newTaskFunction,
-      status: selectedAssignees.size > 0 ? 'in-progress' : 'not-started', // Auto-start if assigned
+      status: selectedAssignees.size > 0
+        ? (assignmentStatus === 'pending' ? 'not-started' : 'in-progress')
+        : 'not-started',
       progress: 0,
       estimatedTimeUnits: parseInt(newTaskEstimate) || 10,
       allocations,
@@ -263,6 +275,7 @@ export default function WhatScreen() {
       dueDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(),
       assignedBy: currentMembership?.id || 'founder',
       needsSubmission: false,
+      assignmentStatus,
     };
 
     console.log('[What Tab] New task:', newTask);
@@ -483,16 +496,15 @@ export default function WhatScreen() {
                       {activeTeamMembers.map(member => {
                         const isSelected = selectedAssignees.has(member.id);
                         const roleColor = member.role === 'Founder' ? '#f59e0b' :
-                                         member.role === 'FractionalExec' ? '#3b82f6' : '#10b981';
+                          member.role === 'FractionalExec' ? '#3b82f6' : '#10b981';
                         return (
                           <Pressable
                             key={member.id}
                             onPress={() => toggleAssignee(member.id)}
-                            className={`flex-row items-center gap-2 px-3 py-2 rounded-xl border-2 ${
-                              isSelected
-                                ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
-                                : 'border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800'
-                            }`}
+                            className={`flex-row items-center gap-2 px-3 py-2 rounded-xl border-2 ${isSelected
+                              ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
+                              : 'border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800'
+                              }`}
                           >
                             <View
                               className="w-8 h-8 rounded-full items-center justify-center"
@@ -599,14 +611,12 @@ export default function WhatScreen() {
                 <Pressable
                   key={status}
                   onPress={() => setStatusFilter(status)}
-                  className={`px-3 py-1.5 rounded-full flex-row items-center gap-1 ${
-                    statusFilter === status ? 'bg-slate-900 dark:bg-white' : 'bg-slate-100 dark:bg-slate-800'
-                  }`}
+                  className={`px-3 py-1.5 rounded-full flex-row items-center gap-1 ${statusFilter === status ? 'bg-slate-900 dark:bg-white' : 'bg-slate-100 dark:bg-slate-800'
+                    }`}
                 >
                   <Text
-                    className={`text-sm font-medium ${
-                      statusFilter === status ? 'text-white dark:text-slate-900' : 'text-slate-600 dark:text-slate-300'
-                    }`}
+                    className={`text-sm font-medium ${statusFilter === status ? 'text-white dark:text-slate-900' : 'text-slate-600 dark:text-slate-300'
+                      }`}
                   >
                     {config.label}
                   </Text>
@@ -644,7 +654,7 @@ export default function WhatScreen() {
                   <View key={task.id}>
                     {index > 0 && <View className="h-px bg-purple-200 dark:bg-purple-800 my-2" />}
                     <View>
-                      {assignerName && assignerName !== currentMembership?.name && (
+                      {assignerName && assignerName !== currentUser?.name && (
                         <Text className="text-purple-600 dark:text-purple-400 text-xs font-medium mb-1">
                           Assigned by {assignerName}
                         </Text>
@@ -652,7 +662,7 @@ export default function WhatScreen() {
                       <CompactTaskCard
                         task={task}
                         assignedMembers={taskMembers}
-                        onPress={() => {}}
+                        onPress={() => { }}
                         onFullDetailPress={() => {
                           setSelectedTask(task);
                           setShowTaskModal(true);
@@ -686,7 +696,7 @@ export default function WhatScreen() {
                   key={task.id}
                   task={task}
                   assignedMembers={taskMembers}
-                  onPress={() => {}}
+                  onPress={() => { }}
                   onFullDetailPress={() => {
                     setSelectedTask(task);
                     setShowTaskModal(true);
@@ -717,7 +727,7 @@ export default function WhatScreen() {
                   key={task.id}
                   task={task}
                   assignedMembers={taskMembers}
-                  onPress={() => {}}
+                  onPress={() => { }}
                   onFullDetailPress={() => {
                     setSelectedTask(task);
                     setShowTaskModal(true);
@@ -748,7 +758,7 @@ export default function WhatScreen() {
                   key={task.id}
                   task={task}
                   assignedMembers={taskMembers}
-                  onPress={() => {}}
+                  onPress={() => { }}
                   onFullDetailPress={() => {
                     setSelectedTask(task);
                     setShowTaskModal(true);
@@ -779,7 +789,7 @@ export default function WhatScreen() {
                   key={task.id}
                   task={task}
                   assignedMembers={taskMembers}
-                  onPress={() => {}}
+                  onPress={() => { }}
                   onFullDetailPress={() => {
                     setSelectedTask(task);
                     setShowTaskModal(true);

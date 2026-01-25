@@ -6,7 +6,7 @@
  */
 
 import { supabase } from './supabase';
-import { sendInvitationEmail, isEmailConfigured } from './email-service';
+import { composeInvitationEmail, isEmailAvailable } from './email-service';
 
 export interface SecureInvitation {
   id: string;
@@ -59,7 +59,7 @@ export async function createSecureInvitation(
       inviterName,
       companyName,
       personalMessage,
-      sendEmail = isEmailConfigured(),
+      sendEmail = await isEmailAvailable(),
     } = params;
 
     // Validate email format
@@ -115,17 +115,19 @@ export async function createSecureInvitation(
     if (sendEmail && inviterName && companyName) {
       const invitationLink = generateInvitationLink(invitation.token);
 
-      const emailResult = await sendInvitationEmail({
-        to: email,
-        candidateName: prefillName || 'there',
-        inviterName,
+      const emailResult = await composeInvitationEmail(email, {
+        recipientName: prefillName || 'there',
         companyName,
+        position: prefillRoleArchetypes?.join(', ') || 'Team Member',
+        proposedRate: 0, // Rate can be negotiated on platform
+        rateType: 'daily',
+        senderName: inviterName,
         invitationLink,
         personalMessage,
         expiresInDays,
       });
 
-      if (emailResult.success) {
+      if (emailResult.sent) {
         // Mark invitation as sent
         await markInvitationAsSent(invitation.id);
         console.log(`[InvitationService] Email sent successfully to ${email}`);

@@ -3,7 +3,7 @@
  * Collection of mini KPI dashboards displayed in a scrollable grid
  */
 
-import { View, Text, Pressable, ScrollView } from 'react-native';
+import { View, Text, Pressable, ScrollView, Alert } from 'react-native';
 import { useMemo } from 'react';
 import { useRouter } from 'expo-router';
 import {
@@ -13,7 +13,7 @@ import {
   Minus,
   Target,
   Users,
-  DollarSign,
+  PoundSterling,
   Clock,
   CheckCircle2,
   AlertTriangle,
@@ -24,12 +24,13 @@ import {
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useWorkPlanStore } from '@/lib/state/work-plan-store';
 import { useOrganizationStore } from '@/lib/state/organization-store';
-import { useCurrentMembership } from '@/lib/state/app-store';
+import { useCurrentMembership, useAppStore } from '@/lib/state/app-store';
 import { filterWorkPlansByRole } from '@/lib/role-utils';
 import { useOKRStore } from '@/lib/state/okr-store';
 import { useFinanceStore } from '@/lib/state/finance-store';
 import { useSupplierStore } from '@/lib/state/supplier-store';
 import { useCurrentWorkspace } from '@/lib/state/app-store';
+import { useColorScheme } from '@/lib/useColorScheme';
 
 type TrendDirection = 'up' | 'down' | 'stable';
 type HealthStatus = 'healthy' | 'warning' | 'critical';
@@ -55,29 +56,37 @@ const TrendIcon = ({ trend, size = 12 }: { trend: TrendDirection; size?: number 
   return <Minus size={size} color="#64748b" />;
 };
 
-const HEALTH_COLORS: Record<HealthStatus, { bg: string; border: string }> = {
-  healthy: { bg: '#f0fdf4', border: '#86efac' },
-  warning: { bg: '#fffbeb', border: '#fde047' },
-  critical: { bg: '#fef2f2', border: '#fecaca' },
+const HEALTH_COLORS = {
+  light: {
+    healthy: { bg: '#f0fdf4', border: '#86efac', text: '#166534' },
+    warning: { bg: '#fffbeb', border: '#fde047', text: '#854d0e' },
+    critical: { bg: '#fef2f2', border: '#fecaca', text: '#991b1b' },
+  },
+  dark: {
+    healthy: { bg: '#052e16', border: '#166534', text: '#86efac' },
+    warning: { bg: '#422006', border: '#854d0e', text: '#fde047' },
+    critical: { bg: '#450a0a', border: '#991b1b', text: '#fecaca' },
+  },
 };
 
 interface KPICardProps {
   data: KPICardData;
   index: number;
+  isDark: boolean;
 }
 
-function KPICard({ data, index }: KPICardProps) {
+function KPICard({ data, index, isDark }: KPICardProps) {
   const Icon = data.icon;
-  const healthColors = HEALTH_COLORS[data.health];
+  const healthColors = isDark ? HEALTH_COLORS.dark[data.health] : HEALTH_COLORS.light[data.health];
 
   return (
     <Animated.View
       entering={FadeInDown.delay(index * 50).springify()}
-      style={{ width: '48%' }}
+      style={{ width: '32%' }}
     >
       <Pressable
         onPress={data.onPress}
-        className="rounded-xl p-3 mb-3 active:opacity-90"
+        className="rounded-xl p-2.5 mb-3 active:opacity-90"
         style={{
           backgroundColor: healthColors.bg,
           borderWidth: 1,
@@ -85,18 +94,18 @@ function KPICard({ data, index }: KPICardProps) {
         }}
       >
         {/* Header */}
-        <View className="flex-row items-center justify-between mb-2">
+        <View className="flex-row items-center justify-between mb-1.5">
           <View
-            className="w-7 h-7 rounded-lg items-center justify-center"
+            className="w-6 h-6 rounded-lg items-center justify-center"
             style={{ backgroundColor: data.iconColor + '20' }}
           >
-            <Icon size={14} color={data.iconColor} />
+            <Icon size={12} color={data.iconColor} />
           </View>
-          <View className="flex-row items-center gap-1">
-            <TrendIcon trend={data.trend} />
+          <View className="flex-row items-center gap-0.5">
+            <TrendIcon trend={data.trend} size={10} />
             {data.trendValue && (
               <Text
-                className="text-xs font-medium"
+                className="text-[10px] font-medium"
                 style={{
                   color: data.trend === 'up' ? '#10b981' : data.trend === 'down' ? '#ef4444' : '#64748b',
                 }}
@@ -108,22 +117,30 @@ function KPICard({ data, index }: KPICardProps) {
         </View>
 
         {/* Title */}
-        <Text className="text-slate-600 dark:text-slate-400 text-xs mb-1" numberOfLines={1}>
+        <Text
+          className="text-[10px] mb-1 opacity-70"
+          style={{ color: healthColors.text }}
+          numberOfLines={1}
+        >
           {data.title}
         </Text>
 
         {/* Primary Value */}
-        <Text className="text-slate-900 text-xl font-bold" numberOfLines={1}>
+        <Text
+          className="text-lg font-bold"
+          style={{ color: healthColors.text }}
+          numberOfLines={1}
+        >
           {data.primaryValue}
         </Text>
         {data.primaryLabel && (
-          <Text className="text-slate-500 text-[10px]">{data.primaryLabel}</Text>
+          <Text className="text-[9px] opacity-60" style={{ color: healthColors.text }}>{data.primaryLabel}</Text>
         )}
 
         {/* Secondary Value */}
         {data.secondaryValue && (
-          <View className="mt-1 pt-1 border-t border-slate-200/50">
-            <Text className="text-slate-600 text-xs">
+          <View className="mt-1 pt-1 border-t" style={{ borderColor: healthColors.border }}>
+            <Text className="text-[10px] opacity-70" style={{ color: healthColors.text }}>
               {data.secondaryLabel}: <Text className="font-semibold">{data.secondaryValue}</Text>
             </Text>
           </View>
@@ -136,15 +153,19 @@ function KPICard({ data, index }: KPICardProps) {
 export function PerformanceDashboardGrid() {
   const router = useRouter();
   const currentWorkspace = useCurrentWorkspace();
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === 'dark';
 
   // Data from stores
   const workPlans = useWorkPlanStore((s) => s.workPlans);
   const members = useOrganizationStore((s) => s.members);
+  const supplierEngagements = useOrganizationStore((s) => s.supplierEngagements);
   const okrs = useOKRStore((s) => s.okrs);
   const suppliers = useSupplierStore((s) => s.suppliers);
   const getCashBalance = useFinanceStore((s) => s.getCashBalance);
   const getWeeklyBurn = useFinanceStore((s) => s.getWeeklyBurn);
   const getMonthlyRevenue = useFinanceStore((s) => s.getMonthlyRevenue);
+  const isFinanceLoaded = useFinanceStore((s) => s.isLoaded);
   const currentMembership = useCurrentMembership();
 
   // Apply role-based filtering
@@ -160,6 +181,10 @@ export function PerformanceDashboardGrid() {
 
   // Calculate KPI data from role-filtered workplans
   const kpiCards = useMemo<KPICardData[]>(() => {
+    // Use test workspace if no current workspace selected
+    const TEST_WORKSPACE_ID = '00000000-0000-0000-0000-000000000001';
+    const workspaceId = currentWorkspace?.id || TEST_WORKSPACE_ID;
+
     // 1. Project Health
     const completedTasks = roleFilteredWorkPlans.filter((wp) => wp.status === 'completed').length;
     const inProgressTasks = roleFilteredWorkPlans.filter((wp) => wp.status === 'in-progress').length;
@@ -173,9 +198,32 @@ export function PerformanceDashboardGrid() {
     const projectHealth: HealthStatus =
       blockedTasks > 2 ? 'critical' : blockedTasks > 0 || onTimePercent < 70 ? 'warning' : 'healthy';
 
-    // 2. Team Productivity
-    const completedThisWeek = 3; // Mock - would calculate from timestamps
-    const avgCycleTime = 5; // Mock - average days per task
+    // 2. Team Productivity - calculate from actual completed tasks
+    const now = new Date();
+    const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+
+    const completedThisWeek = roleFilteredWorkPlans.filter((wp) => {
+      if (wp.status !== 'completed' || !wp.auditRecord?.completedAt) return false;
+      const completedDate = new Date(wp.auditRecord.completedAt);
+      return completedDate >= oneWeekAgo;
+    }).length;
+
+    // Calculate average cycle time from recently completed tasks
+    const recentlyCompleted = roleFilteredWorkPlans
+      .filter((wp) => wp.status === 'completed' && wp.auditRecord?.completedAt && wp.startDate)
+      .slice(0, 10); // Last 10 completed tasks
+
+    const avgCycleTime = recentlyCompleted.length > 0
+      ? Math.round(
+          recentlyCompleted.reduce((sum, wp) => {
+            const start = new Date(wp.startDate);
+            const end = new Date(wp.auditRecord!.completedAt!);
+            const days = Math.max(1, Math.ceil((end.getTime() - start.getTime()) / (24 * 60 * 60 * 1000)));
+            return sum + days;
+          }, 0) / recentlyCompleted.length
+        )
+      : 0;
+
     const productivityTrend: TrendDirection = completedThisWeek >= 3 ? 'up' : completedThisWeek >= 2 ? 'stable' : 'down';
 
     // 3. Resource Efficiency
@@ -199,10 +247,13 @@ export function PerformanceDashboardGrid() {
     const resourceHealth: HealthStatus =
       utilizationPercent >= 100 ? 'critical' : utilizationPercent >= 85 ? 'warning' : 'healthy';
 
-    // 4. Supplier Performance
-    const activeSupplierCount = suppliers.filter((s) => s.status === 'approved' || s.status === 'verified').length;
-    const totalSupplierSpend = 33000; // Mock monthly spend
-    const supplierHealth: HealthStatus = activeSupplierCount > 5 ? 'warning' : 'healthy';
+    // 4. Supplier Performance - using actual engagement data
+    const workspaceEngagements = supplierEngagements.filter(e => e.workspaceId === workspaceId);
+    const activeEngagementCount = workspaceEngagements.filter(
+      (e) => e.status === 'in_progress' || e.status === 'planning'
+    ).length;
+    const totalSupplierSpend = workspaceEngagements.reduce((sum: number, eng) => sum + (eng.paidToDate || 0), 0);
+    const supplierHealth: HealthStatus = activeEngagementCount > 5 ? 'warning' : 'healthy';
 
     // 5. OKR Progress
     const activeOKRs = okrs.filter((okr) => okr.status !== 'off-track');
@@ -215,13 +266,35 @@ export function PerformanceDashboardGrid() {
       okrPercent < 50 ? 'critical' : okrPercent < 75 ? 'warning' : 'healthy';
 
     // 6. Cash Flow / Budget
-    const cashBalance = currentWorkspace ? getCashBalance(currentWorkspace.id) : 0;
-    const weeklyBurn = currentWorkspace ? getWeeklyBurn(currentWorkspace.id) : 0;
+    const cashBalance = getCashBalance(workspaceId);
+    const weeklyBurn = getWeeklyBurn(workspaceId);
     const monthlyBurn = weeklyBurn * 4.33;
-    const monthlyRevenue = currentWorkspace ? getMonthlyRevenue(currentWorkspace.id) : 0;
+    const monthlyRevenue = getMonthlyRevenue(workspaceId);
     const netCashFlow = monthlyRevenue - monthlyBurn;
-    const runway = netCashFlow >= 0 ? 999 : cashBalance / Math.abs(netCashFlow);
-    const cashHealth: HealthStatus = runway < 6 ? 'critical' : runway < 12 ? 'warning' : 'healthy';
+
+    // Fix runway calculation: use weekly burn for weeks of runway
+    // If finance data hasn't loaded yet, don't show misleading infinite runway
+    let runwayMonths = 0;
+    let cashHealth: HealthStatus = 'warning';
+
+    if (!isFinanceLoaded) {
+      // Data not loaded yet - show neutral state
+      runwayMonths = 0;
+      cashHealth = 'warning';
+    } else if (weeklyBurn === 0) {
+      // No burn rate - infinite runway (show as very high number)
+      runwayMonths = 999;
+      cashHealth = 'healthy';
+    } else if (cashBalance <= 0) {
+      // Out of cash
+      runwayMonths = 0;
+      cashHealth = 'critical';
+    } else {
+      // Calculate actual runway
+      const runwayWeeks = cashBalance / weeklyBurn;
+      runwayMonths = runwayWeeks / 4.33;
+      cashHealth = runwayMonths < 6 ? 'critical' : runwayMonths < 12 ? 'warning' : 'healthy';
+    }
 
     return [
       {
@@ -235,7 +308,7 @@ export function PerformanceDashboardGrid() {
         health: projectHealth,
         icon: Activity,
         iconColor: '#3b82f6',
-        onPress: () => router.push('/(tabs)/what'),
+        onPress: () => router.push('/(tabs)/tasks'),
       },
       {
         id: 'team-productivity',
@@ -248,61 +321,25 @@ export function PerformanceDashboardGrid() {
         health: completedThisWeek >= 2 ? 'healthy' : 'warning',
         icon: Zap,
         iconColor: '#f59e0b',
-        onPress: () => router.push('/analytics'),
-      },
-      {
-        id: 'resource-efficiency',
-        title: 'Resource Efficiency',
-        primaryValue: `${utilizationPercent}%`,
-        primaryLabel: 'utilized',
-        secondaryValue: `${spareCapacity} TU`,
-        secondaryLabel: 'Spare',
-        trend: utilizationPercent >= 70 && utilizationPercent < 90 ? 'stable' : utilizationPercent >= 90 ? 'down' : 'up',
-        health: resourceHealth,
-        icon: Users,
-        iconColor: '#10b981',
-        onPress: () => router.push('/(tabs)/who'),
-      },
-      {
-        id: 'supplier-performance',
-        title: 'Supplier Performance',
-        primaryValue: activeSupplierCount.toString(),
-        primaryLabel: 'active suppliers',
-        secondaryValue: `£${(totalSupplierSpend / 1000).toFixed(0)}K`,
-        secondaryLabel: 'Monthly',
-        trend: 'stable',
-        health: supplierHealth,
-        icon: Building2,
-        iconColor: '#8b5cf6',
-        onPress: () => router.push('/financial-dashboard'),
-      },
-      {
-        id: 'okr-progress',
-        title: 'Objective Progress',
-        primaryValue: `${onTrackOKRs}/${activeOKRs.length}`,
-        primaryLabel: 'OKRs on track',
-        trend: okrPercent >= 75 ? 'up' : okrPercent >= 50 ? 'stable' : 'down',
-        trendValue: `${okrPercent}%`,
-        health: okrHealth,
-        icon: Target,
-        iconColor: '#ec4899',
-        onPress: () => router.push('/(tabs)/evaluate'),
+        onPress: () => router.push('/(tabs)/people'),
       },
       {
         id: 'cash-flow',
         title: 'Cash Flow',
-        primaryValue: runway === 999 ? '∞' : `${Math.round(runway)}mo`,
+        primaryValue: !isFinanceLoaded ? '—' : runwayMonths >= 999 ? '∞' : `${Math.round(runwayMonths)}mo`,
         primaryLabel: 'runway',
-        secondaryValue: `£${(cashBalance / 1000).toFixed(0)}K`,
+        secondaryValue: `£${(cashBalance / 1000).toFixed(1)}K`,
         secondaryLabel: 'Balance',
         trend: netCashFlow >= 0 ? 'up' : 'down',
         health: cashHealth,
-        icon: DollarSign,
+        icon: PoundSterling,
         iconColor: '#14b8a6',
-        onPress: () => router.push('/financial-dashboard'),
+        onPress: () => {
+          Alert.alert('Coming Soon', 'Financial dashboard is coming soon!');
+        },
       },
     ];
-  }, [roleFilteredWorkPlans, members, okrs, suppliers, currentWorkspace, getCashBalance, getWeeklyBurn, getMonthlyRevenue, router]);
+  }, [roleFilteredWorkPlans, members, okrs, suppliers, currentWorkspace, getCashBalance, getWeeklyBurn, getMonthlyRevenue, isFinanceLoaded, router]);
 
   return (
     <View className="px-5 mb-4">
@@ -321,22 +358,22 @@ export function PerformanceDashboardGrid() {
       {/* KPI Grid */}
       <View className="flex-row flex-wrap justify-between">
         {kpiCards.map((card, index) => (
-          <KPICard key={card.id} data={card} index={index} />
+          <KPICard key={card.id} data={card} index={index} isDark={isDark} />
         ))}
       </View>
 
       {/* Legend */}
       <View className="flex-row items-center justify-center gap-4 mt-2">
         <View className="flex-row items-center gap-1">
-          <View className="w-2 h-2 rounded-full" style={{ backgroundColor: HEALTH_COLORS.healthy.border }} />
+          <View className="w-2 h-2 rounded-full" style={{ backgroundColor: isDark ? HEALTH_COLORS.dark.healthy.border : HEALTH_COLORS.light.healthy.border }} />
           <Text className="text-slate-500 dark:text-slate-400 text-[10px]">Healthy</Text>
         </View>
         <View className="flex-row items-center gap-1">
-          <View className="w-2 h-2 rounded-full" style={{ backgroundColor: HEALTH_COLORS.warning.border }} />
+          <View className="w-2 h-2 rounded-full" style={{ backgroundColor: isDark ? HEALTH_COLORS.dark.warning.border : HEALTH_COLORS.light.warning.border }} />
           <Text className="text-slate-500 dark:text-slate-400 text-[10px]">Warning</Text>
         </View>
         <View className="flex-row items-center gap-1">
-          <View className="w-2 h-2 rounded-full" style={{ backgroundColor: HEALTH_COLORS.critical.border }} />
+          <View className="w-2 h-2 rounded-full" style={{ backgroundColor: isDark ? HEALTH_COLORS.dark.critical.border : HEALTH_COLORS.light.critical.border }} />
           <Text className="text-slate-500 dark:text-slate-400 text-[10px]">Critical</Text>
         </View>
       </View>

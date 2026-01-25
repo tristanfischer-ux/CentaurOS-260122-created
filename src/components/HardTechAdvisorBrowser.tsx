@@ -63,7 +63,7 @@ function AdvisorCard({ advisor, onPress, isExpanded }: AdvisorCardProps) {
   return (
     <Pressable
       onPress={onPress}
-      className="bg-white dark:bg-slate-800 rounded-xl mb-3 overflow-hidden"
+      className="bg-white dark:bg-slate-900 rounded-xl mb-3 overflow-hidden"
     >
       {/* Header */}
       <View className="p-4">
@@ -284,7 +284,7 @@ export function HardTechAdvisorBrowser({ initialCategory }: HardTechAdvisorBrows
     <View className="flex-1">
       {/* Search */}
       <View className="px-4 pt-4 pb-3">
-        <View className="flex-row items-center bg-slate-100 dark:bg-slate-800 rounded-xl px-4 py-3">
+        <View className="flex-row items-center bg-slate-100 dark:bg-slate-900 rounded-xl px-4 py-3">
           <Search size={20} color="#64748b" />
           <TextInput
             value={searchQuery}
@@ -315,7 +315,7 @@ export function HardTechAdvisorBrowser({ initialCategory }: HardTechAdvisorBrows
                   key={category}
                   onPress={() => setSelectedCategory(category)}
                   className={`px-4 py-2 rounded-full flex-row items-center gap-2 ${
-                    isSelected ? '' : 'bg-white dark:bg-slate-800'
+                    isSelected ? '' : 'bg-white dark:bg-slate-900'
                   }`}
                   style={isSelected ? { backgroundColor: color } : {}}
                 >

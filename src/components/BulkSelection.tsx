@@ -25,12 +25,12 @@ export function BulkSelectionBar({
   onCancel,
   actions,
 }: BulkSelectionBarProps) {
-  const { theme } = useTheme();
+  const { theme, isOffWhite } = useTheme();
   const isDark = theme === 'dark';
   const allSelected = selectedCount === totalCount;
 
   return (
-    <View className={`${isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-gray-200'} border-t py-3 px-5`}>
+    <View className={`${isDark ? 'bg-slate-900 border-slate-800' : isOffWhite ? 'bg-stone-50 border-stone-300' : 'bg-white border-gray-200'} border-t py-3 px-5`}>
       <View className="flex-row items-center justify-between mb-3">
         <View className="flex-row items-center gap-3">
           <Pressable
@@ -40,9 +40,9 @@ export function BulkSelectionBar({
             {allSelected ? (
               <CheckSquare size={20} color="#8b5cf6" />
             ) : (
-              <Square size={20} color={isDark ? '#94a3b8' : '#64748b'} />
+              <Square size={20} color={isDark ? '#94a3b8' : isOffWhite ? '#78716c' : '#64748b'} />
             )}
-            <Text className={`${isDark ? 'text-white' : 'text-gray-900'} font-semibold`}>
+            <Text className={`${isDark ? 'text-white' : isOffWhite ? 'text-stone-900' : 'text-gray-900'} font-semibold`}>
               {selectedCount} of {totalCount} selected
             </Text>
           </Pressable>

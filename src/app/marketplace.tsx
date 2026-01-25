@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, Pressable, TextInput, Modal } from 'react-native';
+import { View, Text, ScrollView, Pressable, TextInput, Modal, ActivityIndicator } from 'react-native';
 import { useState } from 'react';
 import {
   Users,
@@ -11,14 +11,23 @@ import {
   GraduationCap,
   ChevronRight,
   Heart,
-  TrendingUp
+  TrendingUp,
+  Sparkles,
+  Code,
+  Palette,
+  ArrowLeft,
 } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
+import { useQuery } from '@tanstack/react-query';
+import { aiToolsService } from '@/lib/supabase-three-tier-service';
+import { useTheme } from '@/lib/ThemeContext';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 type MarketplaceCategory = 'executives' | 'apprentices' | 'suppliers' | 'ai-agents' | 'locations';
 
 export default function MarketplaceScreen() {
+  const insets = useSafeAreaInsets();
   const [activeCategory, setActiveCategory] = useState<MarketplaceCategory>('executives');
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -31,13 +40,21 @@ export default function MarketplaceScreen() {
   ];
 
   return (
-    <View className="flex-1 bg-white dark:bg-slate-950">
+    <View className="flex-1 bg-white dark:bg-slate-950" style={{ paddingTop: insets.top }}>
       {/* Header */}
-      <View className="px-6 pt-6 pb-4 border-b border-gray-200 dark:border-slate-800">
-        <Text className="text-gray-900 dark:text-white text-3xl font-bold mb-2">Marketplace</Text>
-        <Text className="text-gray-600 dark:text-slate-400 text-sm">
-          Discover executives, apprentices, suppliers, AI tools, and spaces
-        </Text>
+      <View className="px-6 py-4 border-b border-gray-200 dark:border-slate-700 flex-row items-center justify-between">
+        <Pressable
+          onPress={() => router.back()}
+          className="w-10 h-10 items-center justify-center rounded-full bg-gray-100 dark:bg-slate-900 active:opacity-70"
+        >
+          <ArrowLeft size={24} color="#64748b" />
+        </Pressable>
+        <View className="flex-1 ml-4">
+          <Text className="text-gray-900 dark:text-white text-2xl font-bold">Marketplace</Text>
+          <Text className="text-gray-600 dark:text-slate-400 text-xs">
+            Discover executives, apprentices, suppliers & more
+          </Text>
+        </View>
       </View>
 
       {/* Discover Button */}
@@ -72,7 +89,7 @@ export default function MarketplaceScreen() {
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
-        className="border-b border-gray-200 dark:border-slate-800"
+        className="border-b border-gray-200 dark:border-slate-700"
         style={{ flexGrow: 0 }}
       >
         <View className="flex-row px-4 py-3">
@@ -108,7 +125,7 @@ export default function MarketplaceScreen() {
 
       {/* Search Bar */}
       <View className="px-6 pt-4 pb-2">
-        <View className="bg-gray-100 dark:bg-slate-900 rounded-xl flex-row items-center px-4 py-3 border border-gray-200 dark:border-slate-800">
+        <View className="bg-gray-100 dark:bg-slate-900 rounded-xl flex-row items-center px-4 py-3 border border-gray-200 dark:border-slate-700">
           <Search size={20} color="#64748b" />
           <TextInput
             className="flex-1 text-gray-900 dark:text-white ml-3 text-base"
@@ -187,7 +204,7 @@ function ExecutivesTab({ searchQuery }: { searchQuery: string }) {
       {/* Call to Action */}
       <Pressable
         onPress={() => router.push('/(tabs)/community')}
-        className="bg-gray-100 dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-2xl p-6 items-center active:opacity-70"
+        className="bg-gray-100 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-2xl p-6 items-center active:opacity-70"
       >
         <Users size={48} color="#64748b" />
         <Text className="text-gray-900 dark:text-white text-lg font-bold mt-4 mb-2">Browse All Executives</Text>
@@ -253,7 +270,7 @@ function ApprenticesTab({ searchQuery }: { searchQuery: string }) {
       {/* Call to Action */}
       <Pressable
         onPress={() => router.push('/(tabs)/community')}
-        className="bg-gray-100 dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-2xl p-6 items-center active:opacity-70"
+        className="bg-gray-100 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-2xl p-6 items-center active:opacity-70"
       >
         <GraduationCap size={48} color="#64748b" />
         <Text className="text-gray-900 dark:text-white text-lg font-bold mt-4 mb-2">Browse All Apprentices</Text>
@@ -321,7 +338,7 @@ function SuppliersTab({ searchQuery }: { searchQuery: string }) {
       {/* Call to Action */}
       <Pressable
         onPress={() => router.push('/(tabs)/community')}
-        className="bg-gray-100 dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-2xl p-6 items-center active:opacity-70"
+        className="bg-gray-100 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-2xl p-6 items-center active:opacity-70"
       >
         <Building2 size={48} color="#64748b" />
         <Text className="text-gray-900 dark:text-white text-lg font-bold mt-4 mb-2">Browse All Suppliers</Text>
@@ -339,66 +356,189 @@ function SuppliersTab({ searchQuery }: { searchQuery: string }) {
 
 // AI Agents Marketplace Tab
 function AIAgentsTab({ searchQuery }: { searchQuery: string }) {
+  const { theme, isOffWhite } = useTheme();
+  const { data: tools, isLoading, error } = useQuery({
+    queryKey: ['aiTools'],
+    queryFn: aiToolsService.getAll,
+  });
+
+  // Filter tools based on search query
+  const filteredTools = tools?.filter(tool =>
+    tool.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    tool.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    tool.provider?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  // Group tools by category
+  const toolsByCategory = filteredTools?.reduce((acc, tool) => {
+    if (!acc[tool.category]) acc[tool.category] = [];
+    acc[tool.category]?.push(tool);
+    return acc;
+  }, {} as Record<string, typeof filteredTools>);
+
+  const getCategoryIcon = (category: string) => {
+    switch (category) {
+      case 'productivity': return Sparkles;
+      case 'coding': return Code;
+      case 'design': return Palette;
+      case 'marketing': return TrendingUp;
+      default: return Bot;
+    }
+  };
+
+  const getCategoryColor = (category: string) => {
+    switch (category) {
+      case 'productivity': return '#3b82f6';
+      case 'coding': return '#8b5cf6';
+      case 'design': return '#ec4899';
+      case 'marketing': return '#10b981';
+      default: return '#64748b';
+    }
+  };
+
+  const textPrimary = theme === 'dark' ? 'text-white' : 'text-gray-900';
+  const textSecondary = theme === 'dark' ? 'text-slate-400' : 'text-gray-600';
+  const textTertiary = theme === 'dark' ? 'text-slate-500' : 'text-gray-500';
+  const cardBg = theme === 'dark' ? 'bg-slate-800' : isOffWhite ? 'bg-white' : 'bg-gray-50';
+  const borderColor = theme === 'dark' ? 'border-slate-700' : 'border-gray-200';
+
   return (
     <View className="p-6">
       <View className="mb-4">
-        <Text className="text-gray-900 dark:text-white text-xl font-bold mb-2">AI Agents Directory</Text>
-        <Text className="text-gray-600 dark:text-slate-400 text-sm">
-          Discover AI tools across Finance, Sales, Marketing, Ops, Engineering & Admin
+        <Text className={`${textPrimary} text-xl font-bold mb-2`}>AI Tools Marketplace</Text>
+        <Text className={`${textSecondary} text-sm`}>
+          Discover AI tools to amplify your team's productivity
         </Text>
       </View>
 
-      {/* Featured AI Agent */}
-      <View className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl p-4 mb-4">
-        <View className="flex-row items-center gap-2 mb-3">
-          <Star size={16} color="#fbbf24" fill="#fbbf24" />
-          <Text className="text-white text-xs font-bold uppercase tracking-wide">Popular Agent</Text>
+      {/* Loading State */}
+      {isLoading && (
+        <View className="py-12 items-center">
+          <ActivityIndicator size="large" color={theme === 'dark' ? '#60a5fa' : '#3b82f6'} />
+          <Text className={`mt-4 ${textSecondary}`}>Loading AI tools...</Text>
         </View>
-        <View className="bg-white/10 backdrop-blur-xl rounded-xl p-4">
-          <View className="flex-row items-start justify-between mb-3">
-            <View className="flex-1">
-              <Text className="text-white text-lg font-bold mb-1">Claude Sonnet 4.5</Text>
-              <Text className="text-purple-100 text-sm mb-2">Anthropic</Text>
-              <View className="flex-row items-center gap-2 mb-2 flex-wrap">
-                <View className="bg-white/20 px-2 py-1 rounded">
-                  <Text className="text-white text-xs font-semibold">All Functions</Text>
-                </View>
-                <View className="bg-white/20 px-2 py-1 rounded">
-                  <Text className="text-white text-xs font-semibold">API Available</Text>
-                </View>
-              </View>
-              <Text className="text-purple-100 text-xs">General-purpose AI for analysis & automation</Text>
-            </View>
-            <View className="items-end">
-              <Text className="text-white text-2xl font-bold">£15</Text>
-              <Text className="text-purple-100 text-xs">/month</Text>
-            </View>
-          </View>
-          <Pressable
-            onPress={() => router.push('/(tabs)/community')}
-            className="bg-white rounded-xl py-3 flex-row items-center justify-center gap-2"
-          >
-            <Text className="text-purple-600 font-bold">View Details</Text>
-            <ChevronRight size={16} color="#9333ea" />
-          </Pressable>
-        </View>
-      </View>
+      )}
 
-      {/* Call to Action */}
-      <Pressable
-        onPress={() => router.push({ pathname: '/(tabs)/make', params: { tab: 'ai' } })}
-        className="bg-gray-100 dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-2xl p-6 items-center active:opacity-70"
-      >
-        <Bot size={48} color="#64748b" />
-        <Text className="text-gray-900 dark:text-white text-lg font-bold mt-4 mb-2">Browse All AI Agents</Text>
-        <Text className="text-gray-600 dark:text-slate-400 text-center text-sm mb-4">
-          Discover 50+ AI agents organized by business function
-        </Text>
-        <View className="bg-purple-500 rounded-xl px-6 py-3 flex-row items-center gap-2">
-          <Text className="text-white font-bold">View AI Library</Text>
-          <ChevronRight size={16} color="#fff" />
+      {/* Error State */}
+      {error && (
+        <View className={`${cardBg} border ${borderColor} rounded-2xl p-6 items-center`}>
+          <Bot size={48} color="#ef4444" />
+          <Text className={`${textPrimary} text-lg font-bold mt-4 mb-2`}>Unable to load tools</Text>
+          <Text className={`${textSecondary} text-center text-sm`}>
+            {error instanceof Error ? error.message : 'Something went wrong'}
+          </Text>
         </View>
-      </Pressable>
+      )}
+
+      {/* Tools List */}
+      {!isLoading && !error && filteredTools && (
+        <>
+          {filteredTools.length === 0 ? (
+            <View className={`${cardBg} border ${borderColor} rounded-2xl p-6 items-center`}>
+              <Bot size={48} color="#64748b" />
+              <Text className={`${textPrimary} text-lg font-bold mt-4 mb-2`}>No tools found</Text>
+              <Text className={`${textSecondary} text-center text-sm`}>
+                Try adjusting your search
+              </Text>
+            </View>
+          ) : (
+            <>
+              <Text className={`${textTertiary} text-sm mb-4`}>
+                {filteredTools.length} {filteredTools.length === 1 ? 'tool' : 'tools'} available
+              </Text>
+
+              {/* Tools grouped by category */}
+              {toolsByCategory && Object.entries(toolsByCategory).map(([category, categoryTools]) => {
+                if (!categoryTools) return null;
+
+                const CategoryIcon = getCategoryIcon(category);
+                const categoryColor = getCategoryColor(category);
+
+                return (
+                  <View key={category} className="mb-6">
+                    {/* Category Header */}
+                    <View className="flex-row items-center gap-2 mb-3">
+                      <CategoryIcon size={20} color={categoryColor} />
+                      <Text className={`${textPrimary} text-base font-bold capitalize`}>
+                        {category}
+                      </Text>
+                      <View className={`px-2 py-0.5 rounded-full ${theme === 'dark' ? 'bg-slate-700' : 'bg-gray-200'}`}>
+                        <Text className={`${textTertiary} text-xs`}>{categoryTools.length}</Text>
+                      </View>
+                    </View>
+
+                    {/* Tools in Category */}
+                    {categoryTools.map((tool) => (
+                      <View
+                        key={tool.id}
+                        className={`${cardBg} border ${borderColor} rounded-xl p-4 mb-3`}
+                      >
+                        <View className="flex-row items-start justify-between mb-2">
+                          <View className="flex-1">
+                            <Text className={`${textPrimary} text-base font-bold mb-1`}>{tool.name}</Text>
+                            <Text className={`${textTertiary} text-xs mb-2`}>{tool.provider}</Text>
+                            <Text className={`${textSecondary} text-sm mb-3`} numberOfLines={2}>
+                              {tool.description}
+                            </Text>
+
+                            {/* Capabilities */}
+                            <View className="flex-row flex-wrap gap-2 mb-3">
+                              {tool.capabilities.slice(0, 3).map((capability, index) => (
+                                <View
+                                  key={index}
+                                  className={`px-2 py-1 rounded-md ${theme === 'dark' ? 'bg-slate-700' : 'bg-gray-100'}`}
+                                >
+                                  <Text className={`${textSecondary} text-xs`}>{capability}</Text>
+                                </View>
+                              ))}
+                              {tool.capabilities.length > 3 && (
+                                <View className={`px-2 py-1 rounded-md ${theme === 'dark' ? 'bg-slate-700' : 'bg-gray-100'}`}>
+                                  <Text className={`${textSecondary} text-xs`}>+{tool.capabilities.length - 3}</Text>
+                                </View>
+                              )}
+                            </View>
+
+                            {/* Pricing and Multiplier */}
+                            <View className="flex-row items-center justify-between">
+                              <View>
+                                {tool.pricingModel === 'free' ? (
+                                  <Text className={`text-sm font-semibold ${theme === 'dark' ? 'text-green-400' : 'text-green-600'}`}>
+                                    Free
+                                  </Text>
+                                ) : tool.pricingModel === 'subscription' ? (
+                                  <Text className={`text-sm font-semibold ${textPrimary}`}>
+                                    ${tool.monthlyCost?.toFixed(2)}/mo
+                                  </Text>
+                                ) : (
+                                  <Text className={`text-sm font-semibold ${textPrimary}`}>
+                                    {tool.pricingModel}
+                                  </Text>
+                                )}
+                              </View>
+
+                              <View className="flex-row items-center gap-3">
+                                <View className="items-end">
+                                  <Text className={`text-xs ${textTertiary}`}>Multiplier</Text>
+                                  <Text className={`text-lg font-bold ${theme === 'dark' ? 'text-blue-400' : 'text-blue-600'}`}>
+                                    {tool.multiplierEffect.toFixed(1)}x
+                                  </Text>
+                                </View>
+                                <Pressable className="flex-row items-center gap-1">
+                                  <ChevronRight size={16} color={theme === 'dark' ? '#60a5fa' : '#3b82f6'} />
+                                </Pressable>
+                              </View>
+                            </View>
+                          </View>
+                        </View>
+                      </View>
+                    ))}
+                  </View>
+                );
+              })}
+            </>
+          )}
+        </>
+      )}
     </View>
   );
 }
@@ -454,7 +594,7 @@ function LocationsTab({ searchQuery }: { searchQuery: string }) {
       </View>
 
       {/* Coming Soon */}
-      <View className="bg-gray-100 dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-2xl p-6 items-center">
+      <View className="bg-gray-100 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-2xl p-6 items-center">
         <MapPin size={48} color="#64748b" />
         <Text className="text-gray-900 dark:text-white text-lg font-bold mt-4 mb-2">More Locations Coming Soon</Text>
         <Text className="text-gray-600 dark:text-slate-400 text-center text-sm">

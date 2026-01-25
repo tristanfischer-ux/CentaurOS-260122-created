@@ -1,12 +1,16 @@
 {
-  "name": "template-app-53",
+  "name": "centauros",
   "version": "1.0.0",
+  "description": "CentaurOS - Intelligent Productivity System",
+  "author": "Tristan Fischer",
   "main": "index.ts",
   "scripts": {
     "start": "expo start",
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "DARK_MODE=class expo start --web",
+    "desktop:start": "electron electron/main.js",
+    "desktop:build": "npx expo export --platform web && electron-builder",
     "lint": "expo lint",
     "typecheck": "tsc --noEmit"
   },
@@ -159,6 +163,8 @@
     "@typescript-eslint/eslint-plugin": "^8.29.1",
     "@typescript-eslint/parser": "^8.29.1",
     "babel-plugin-module-resolver": "^5.0.2",
+    "electron": "^40.0.0",
+    "electron-builder": "^26.4.0",
     "eslint": "^9.25.0",
     "eslint-config-expo": "~9.2.0",
     "eslint-config-prettier": "^9.1.0",
@@ -169,7 +175,8 @@
     "prettier": "^3.3.3",
     "react-native-svg-transformer": "^1.5.1",
     "react-test-renderer": "19.0.0",
-    "typescript": "~5.8.3"
+    "typescript": "~5.8.3",
+    "wait-on": "^9.0.3"
   },
   "private": true,
   "overrides": {
@@ -179,5 +186,43 @@
   "patchedDependencies": {
     "react-native@0.79.6": "patches/react-native@0.79.6.patch",
     "expo-asset@11.1.5": "patches/expo-asset@11.1.5.patch"
+  },
+  "build": {
+    "appId": "com.centauros.app",
+    "productName": "CentaurOS",
+    "extraMetadata": {
+      "main": "electron/main.js"
+    },
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**/*",
+      "electron/**/*",
+      "package.json"
+    ],
+    "mac": {
+      "category": "public.app-category.productivity",
+      "target": "dmg",
+      "icon": "assets/desktop/icon.png",
+      "identity": null
+    },
+    "dmg": {
+      "background": "assets/desktop/dmg-background.png",
+      "iconSize": 128,
+      "contents": [
+        {
+          "x": 130,
+          "y": 150,
+          "type": "link",
+          "path": "/Applications"
+        },
+        {
+          "x": 410,
+          "y": 150,
+          "type": "file"
+        }
+      ]
+    }
   }
 }

@@ -6,10 +6,10 @@ import { useSupplierStore } from '../state/supplier-store';
 import { useOrganizationStore } from '../state/organization-store';
 import { useOKRPlannerStore } from '../state/okr-planner-store';
 import { useSquadStore } from '../state/squad-store';
+import { useUniversalStore } from '../state/universal-store';
+import { useFinanceStore } from '../state/finance-store';
 import { db } from '../storage';
-import { seedDemoData } from '../api/seed';
-import { seedArmoryDemo } from '../armory/seed-demo';
-import { runMigrationIfNeeded } from '../storage/migrate-to-mmkv';
+import { supabase } from '../supabase';
 
 export function useInitializeApp() {
   const [isInitialized, setIsInitialized] = useState(false);
@@ -34,28 +34,64 @@ export function useInitializeApp() {
   const setAuditLogs = useAppStore((s) => s.setAuditLogs);
   const setMetricEvents = useAppStore((s) => s.setMetricEvents);
 
+  // NEW: Supabase data loading
+  const loadUniversalData = useUniversalStore((s) => s.loadUniversalData);
+  const loadFinancialData = useFinanceStore((s) => s.loadFinancialData);
+
   useEffect(() => {
     async function initApp() {
       try {
-        // FIRST: Migrate AsyncStorage to MMKV if needed (one-time migration)
-        await runMigrationIfNeeded();
+        console.log('[Init] Starting app initialization...');
 
         // Initialize auth state
         await initialize();
 
-        // Initialize suppliers (from seed data)
+        // Check if user is authenticated
+        let session = null;
+        try {
+          const result = await supabase.auth.getSession();
+          session = result.data?.session || null;
+        } catch (error) {
+          console.warn('[Init] Failed to get session from Supabase:', error);
+          // Continue without session
+        }
+
+        // NEW: Load universal data from Supabase (AI tools, templates, etc.)
+        // This is loaded once at app start for all users
+        console.log('[Init] Loading universal data from Supabase...');
+        try {
+          await loadUniversalData();
+        } catch (error) {
+          console.warn('[Init] Failed to load universal data from Supabase, continuing without it:', error);
+          // Continue initialization even if Supabase data fails
+        }
+
+        // If user is authenticated, load their financial data
+        if (session?.user) {
+          console.log('[Init] User authenticated, loading user-specific data...');
+
+          // Load financial data if workspace is available
+          // Note: This will be updated to use actual workspace ID after workspace selection
+          const currentWorkspaceId = useAppStore.getState().currentWorkspaceId;
+          if (currentWorkspaceId) {
+            console.log('[Init] Loading financial data for workspace:', currentWorkspaceId);
+            try {
+              await loadFinancialData(currentWorkspaceId);
+            } catch (error) {
+              console.warn('[Init] Failed to load financial data from Supabase, continuing without it:', error);
+              // Continue initialization even if financial data fails
+            }
+          }
+        }
+
+        // Initialize local stores (will be empty until workspace is selected)
         initializeSuppliers();
-
-        // Initialize organization (from seed data)
-        initializeOrganization();
-
-        // Initialize OKR Planner store
+        // REMOVED: initializeOrganization() - this was clearing members on every login
+        // Members should be loaded from Supabase via loadMembersFromSupabase()
         await initializePlans();
-
-        // Initialize Squads store
         await initializeSquads();
 
-        // Load all data from storage
+        // Load all data from AsyncStorage (legacy data)
         const [
           workspaces,
           memberships,
@@ -88,89 +124,26 @@ export function useInitializeApp() {
           db.getAuditLogs(),
         ]);
 
-        // Check if we need to seed demo data
-        const hasUsers = Object.keys(users).length > 0;
+        // Load into app store
+        setWorkspaces(workspaces);
+        setMemberships(memberships);
+        setUsers(users);
+        setObjectives(objectives);
+        setKeyResults(keyResults);
+        setMetricEvents(metricEvents);
+        setProjects(projects);
+        setTasks(tasks);
+        setTaskComments(taskComments);
+        setTimeEntries(timeEntries);
+        setReviews(reviews);
+        setWeeklyPacks(weeklyPacks);
+        setTemplates(templates);
+        setAuditLogs(auditLogs);
 
-        if (!hasUsers) {
-          console.log('No existing data found, seeding demo workspace...');
-          await seedDemoData();
-
-          // Reload data after seeding
-          const [
-            newWorkspaces,
-            newMemberships,
-            newUsers,
-            newObjectives,
-            newKeyResults,
-            newMetricEvents,
-            newProjects,
-            newTasks,
-            newTaskComments,
-            newTimeEntries,
-            newReviews,
-            newWeeklyPacks,
-            newTemplates,
-            newAuditLogs,
-          ] = await Promise.all([
-            db.getWorkspaces(),
-            db.getMemberships(),
-            db.getUsers(),
-            db.getObjectives(),
-            db.getKeyResults(),
-            db.getMetricEvents(),
-            db.getProjects(),
-            db.getTasks(),
-            db.getTaskComments(),
-            db.getTimeEntries(),
-            db.getReviews(),
-            db.getWeeklyPacks(),
-            db.getTemplates(),
-            db.getAuditLogs(),
-          ]);
-
-          setWorkspaces(newWorkspaces);
-          setMemberships(newMemberships);
-          setUsers(newUsers);
-          setObjectives(newObjectives);
-          setKeyResults(newKeyResults);
-          setMetricEvents(newMetricEvents);
-          setProjects(newProjects);
-          setTasks(newTasks);
-          setTaskComments(newTaskComments);
-          setTimeEntries(newTimeEntries);
-          setReviews(newReviews);
-          setWeeklyPacks(newWeeklyPacks);
-          setTemplates(newTemplates);
-          setAuditLogs(newAuditLogs);
-          setIsSeeded(true);
-        } else {
-          setWorkspaces(workspaces);
-          setMemberships(memberships);
-          setUsers(users);
-          setObjectives(objectives);
-          setKeyResults(keyResults);
-          setMetricEvents(metricEvents);
-          setProjects(projects);
-          setTasks(tasks);
-          setTaskComments(taskComments);
-          setTimeEntries(timeEntries);
-          setReviews(reviews);
-          setWeeklyPacks(weeklyPacks);
-          setTemplates(templates);
-          setAuditLogs(auditLogs);
-        }
-
-        // Initialize Armory with demo loadouts and squads
-        try {
-          await seedArmoryDemo();
-        } catch (armoryError) {
-          console.error('Failed to seed armory demo:', armoryError);
-          // Don't fail initialization if armory seeding fails
-        }
-
+        console.log('[Init] App initialization complete!');
         setIsInitialized(true);
       } catch (error) {
-        console.error('Failed to initialize app:', error);
+        console.error('[Init] Failed to initialize app:', error);
         setIsInitialized(true); // Set anyway to avoid infinite loading
       }
     }

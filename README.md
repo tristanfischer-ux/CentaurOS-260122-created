@@ -297,4 +297,4 @@ All company tables use `workspace_id` with RLS policies. Users only see data fro
 
 ## License
 
-Proprietary - Vibecode Company
+Proprietary - Centaur OS

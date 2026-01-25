@@ -502,14 +502,12 @@ export default function TasksScreen() {
                 <Pressable
                   key={status}
                   onPress={() => setStatusFilter(status)}
-                  className={`px-3 py-1.5 rounded-full flex-row items-center gap-1 ${
-                    statusFilter === status ? 'bg-slate-900 dark:bg-white' : 'bg-slate-100 dark:bg-slate-900'
-                  }`}
+                  className={`px-3 py-1.5 rounded-full flex-row items-center gap-1 ${statusFilter === status ? 'bg-slate-900 dark:bg-white' : 'bg-slate-100 dark:bg-slate-900'
+                    }`}
                 >
                   <Text
-                    className={`text-sm font-medium ${
-                      statusFilter === status ? 'text-white dark:text-slate-900' : 'text-slate-600 dark:text-slate-300'
-                    }`}
+                    className={`text-sm font-medium ${statusFilter === status ? 'text-white dark:text-slate-900' : 'text-slate-600 dark:text-slate-300'
+                      }`}
                   >
                     {config.label}
                   </Text>
@@ -584,16 +582,15 @@ export default function TasksScreen() {
               const confidenceDotColor = confidence >= 0.9
                 ? '#10b981' // emerald
                 : confidence >= 0.7
-                ? '#f59e0b' // amber
-                : '#ef4444'; // red
+                  ? '#f59e0b' // amber
+                  : '#ef4444'; // red
 
               return (
                 <Pressable
                   key={draft.id}
                   onPress={() => toggleDraftSelection(draft.id)}
-                  className={`bg-white dark:bg-slate-900 rounded-xl p-4 mb-2 border-l-4 ${
-                    selectedDraftIds.has(draft.id) ? 'border-emerald-500' : 'border-amber-500'
-                  }`}
+                  className={`bg-white dark:bg-slate-900 rounded-xl p-4 mb-2 border-l-4 ${selectedDraftIds.has(draft.id) ? 'border-emerald-500' : 'border-amber-500'
+                    }`}
                 >
                   <View className="flex-row items-start justify-between">
                     <View className="flex-1 mr-3">
@@ -601,11 +598,10 @@ export default function TasksScreen() {
                         {/* Selection checkbox */}
                         <Pressable
                           onPress={() => toggleDraftSelection(draft.id)}
-                          className={`w-5 h-5 rounded-full border-2 items-center justify-center ${
-                            selectedDraftIds.has(draft.id)
+                          className={`w-5 h-5 rounded-full border-2 items-center justify-center ${selectedDraftIds.has(draft.id)
                               ? 'bg-emerald-500 border-emerald-500'
                               : 'border-slate-300 dark:border-slate-600'
-                          }`}
+                            }`}
                           hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                         >
                           {selectedDraftIds.has(draft.id) && <Check size={12} color="white" />}
@@ -668,12 +664,10 @@ export default function TasksScreen() {
                       {/* Chips for TU, Function, Due Date */}
                       <View className="flex-row items-center gap-2 mt-2 ml-9 flex-wrap">
                         {/* Source */}
-                        <View className={`px-2 py-0.5 rounded-full ${
-                          draft.source === 'marketplace' ? 'bg-purple-100 dark:bg-purple-900/30' : 'bg-blue-100 dark:bg-blue-900/30'
-                        }`}>
-                          <Text className={`text-xs font-medium ${
-                            draft.source === 'marketplace' ? 'text-purple-600 dark:text-purple-400' : 'text-blue-600 dark:text-blue-400'
+                        <View className={`px-2 py-0.5 rounded-full ${draft.source === 'marketplace' ? 'bg-purple-100 dark:bg-purple-900/30' : 'bg-blue-100 dark:bg-blue-900/30'
                           }`}>
+                          <Text className={`text-xs font-medium ${draft.source === 'marketplace' ? 'text-purple-600 dark:text-purple-400' : 'text-blue-600 dark:text-blue-400'
+                            }`}>
                             {getDraftSourceLabel(draft)}
                           </Text>
                         </View>
@@ -980,31 +974,7 @@ export default function TasksScreen() {
         )}
       </ScrollView>
 
-      {/* Floating Action Button */}
-      <Animated.View
-        style={{
-          position: 'absolute',
-          right: 20,
-          bottom: insets.bottom + 90,
-          opacity: 1,
-          transform: [{ scale: 1 }],
-        }}
-      >
-        <Pressable
-          onPress={() => setShowTaskModal(!showTaskModal)}
-          className="w-14 h-14 rounded-full items-center justify-center shadow-lg"
-          style={{
-            backgroundColor: showTaskModal ? '#64748b' : '#10b981',
-            shadowColor: showTaskModal ? '#64748b' : '#10b981',
-            shadowOffset: { width: 0, height: 4 },
-            shadowOpacity: 0.3,
-            shadowRadius: 8,
-            elevation: 8,
-          }}
-        >
-          {showTaskModal ? <X size={24} color="white" /> : <Plus size={24} color="white" />}
-        </Pressable>
-      </Animated.View>
+
 
       {/* Task Creation Modal */}
       <TaskCreationModal

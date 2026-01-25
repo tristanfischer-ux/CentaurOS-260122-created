@@ -45,6 +45,7 @@ interface ObjectivesState {
 
   // Actions
   initialize: () => Promise<void>;
+  reset: () => Promise<void>;
   addObjective: (objective: Omit<BusinessObjective, 'id' | 'createdAt' | 'updatedAt'>) => void;
   updateObjective: (id: string, updates: Partial<BusinessObjective>) => void;
   updateProgress: (id: string, progress: number) => void;
@@ -171,13 +172,23 @@ export const useObjectivesStore = create<ObjectivesState>((set, get) => ({
         const parsed = JSON.parse(stored);
         set({ objectives: parsed, initialized: true });
       } else {
-        // Seed with sample data
-        set({ objectives: sampleObjectives, initialized: true });
-        await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(sampleObjectives));
+        // CHANGED: Start with empty array instead of seeding sample data
+        set({ objectives: [], initialized: true });
       }
     } catch (error) {
       console.error('[ObjectivesStore] Failed to initialize:', error);
-      set({ objectives: sampleObjectives, initialized: true });
+      // CHANGED: Start with empty array instead of seeding sample data
+      set({ objectives: [], initialized: true });
+    }
+  },
+
+  reset: async () => {
+    try {
+      await AsyncStorage.removeItem(STORAGE_KEY);
+      set({ objectives: [], initialized: false });
+      console.log('[ObjectivesStore] Reset complete');
+    } catch (error) {
+      console.error('[ObjectivesStore] Failed to reset:', error);
     }
   },
 

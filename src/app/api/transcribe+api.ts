@@ -33,8 +33,8 @@ export async function POST(request: Request) {
 
     // Get API key from environment (prefer server-side key, fallback to public)
     const apiKey = process.env.GOOGLE_AI_API_KEY ||
-                   process.env.EXPO_PUBLIC_GOOGLE_AI_API_KEY ||
-                   process.env.EXPO_PUBLIC_VIBECODE_GOOGLE_API_KEY;
+      process.env.EXPO_PUBLIC_GOOGLE_AI_API_KEY ||
+      process.env.EXPO_PUBLIC_CENTAUROS_GOOGLE_API_KEY;
 
     if (!apiKey) {
       console.error('[Transcribe] No Google API key found');

@@ -47,7 +47,7 @@ export function TemplateCard({ template, onPress }: TemplateCardProps) {
   return (
     <HapticPressable
       onPress={onPress}
-      className="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-gray-300 dark:border-slate-800 active:opacity-70 mb-3"
+      className="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-gray-300 dark:border-slate-700 active:opacity-70 mb-3"
     >
       {/* Header */}
       <View className="flex-row items-start justify-between mb-3">
@@ -107,7 +107,7 @@ export function TemplateCard({ template, onPress }: TemplateCardProps) {
       {template.tags.length > 0 && (
         <View className="flex-row items-center flex-wrap gap-2">
           {template.tags.slice(0, 3).map((tag, idx) => (
-            <View key={idx} className="flex-row items-center bg-gray-100 dark:bg-slate-800 px-2 py-1 rounded">
+            <View key={idx} className="flex-row items-center bg-gray-100 dark:bg-slate-900 px-2 py-1 rounded">
               <Tag size={12} color="#64748b" />
               <Text className="text-gray-600 dark:text-slate-400 text-xs ml-1">
                 {tag}

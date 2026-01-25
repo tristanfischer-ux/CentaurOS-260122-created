@@ -1,6 +1,9 @@
 /**
  * Third-Party AI Tools Data for Community Marketplace
  * External AI tools that teams can use, organized by business function
+ *
+ * DISABLED: All hardcoded AI tools have been disabled for multi-tenant architecture
+ * AI tools should be loaded from Supabase
  */
 
 export type BusinessFunction = 'Sales' | 'Marketing' | 'Finance' | 'Ops' | 'Engineering' | 'Admin';
@@ -51,6 +54,8 @@ export interface ThirdPartyAITool {
   };
 }
 
+// AI tools re-enabled with comprehensive coverage for all business functions
+// Focus on: Design, Manufacturing, Sales, Marketing, Admin, and RFQ tools
 export const THIRD_PARTY_AI_TOOLS: ThirdPartyAITool[] = [
   // ========== FINANCE (3 agents) ==========
   {
@@ -1349,3 +1354,4 @@ export function getCategoryColor(category: string): { bg: string; text: string; 
   };
   return colors[category] || colors.productivity;
 }
+

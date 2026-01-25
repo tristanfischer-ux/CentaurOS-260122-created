@@ -1,6 +1,7 @@
+import "expo-router/entry";
 import "react-native-get-random-values";
 import "react-native-reanimated";
-import { LogBox } from "react-native";
 import "./global.css";
-import "expo-router/entry";
+import { LogBox } from "react-native";
+
 LogBox.ignoreLogs(["Expo AV has been deprecated", "Disconnected from Metro"]);

@@ -24,9 +24,10 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   );
 
   // Determine the actual theme based on mode
+  // Default to 'light' if device scheme is null/undefined
   const theme: 'light' | 'dark' =
     themeMode === 'system'
-      ? (deviceColorScheme ?? 'dark')
+      ? (deviceColorScheme === 'dark' ? 'dark' : 'light')
       : (themeMode === 'light' || themeMode === 'off-white')
       ? 'light'
       : 'dark';

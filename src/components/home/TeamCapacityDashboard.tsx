@@ -219,46 +219,61 @@ export function TeamCapacityDashboard() {
   // Apply role-based filtering for team members
   const roleFilteredMembers = useMemo(() => {
     const activeMembers = members.filter((m) => m.status === 'active');
-    if (!currentMembership?.role) return activeMembers;
-    return filterTeamMembersByRole(
+
+    // Safety check: If no membership or role, default to showing all (Founder behavior)
+    if (!currentMembership?.role) {
+      console.log('[TeamCapacity] No role found, showing all members (default Founder behavior)');
+      return activeMembers;
+    }
+
+    // Apply role-based filtering
+    const filtered = filterTeamMembersByRole(
       activeMembers,
       currentMembership.role,
       currentMembership.function,
       currentMembership.id
     );
+
+    console.log('[TeamCapacity] Role:', currentMembership.role, 'Filtered members:', filtered.length, '/', activeMembers.length);
+    return filtered;
   }, [members, currentMembership]);
 
   // Calculate team capacity metrics from role-filtered members
   const capacityData = useMemo(() => {
     const memberData = roleFilteredMembers.map((member) => {
-      // Calculate capacity
-      const capacity =
-        member.role === 'Founder' || member.role === 'Apprentice'
-          ? 10 // Base capacity (excluding overtime for cleaner display)
-          : (member.daysPerWeek || 2) * 2;
+      // Calculate capacity - matching PersonCard and CollapsibleResourcePool logic
+      let totalCapacity = 0;
+      if (member.role === 'Founder' || member.role === 'Apprentice') {
+        totalCapacity = 15; // 10 normal + 5 overtime (matching CollapsibleResourcePool:51 and PersonCard:51)
+      } else {
+        // Fractional exec: days per week * 2 squares per day
+        totalCapacity = (member.daysPerWeek || 2) * 2;
+      }
 
-      // Calculate allocated from work plans
+      // Calculate allocated from work plans - use allocations array as source of truth
+      // (matching CollapsibleResourcePool logic)
       const allocated = workPlans
         .filter(
           (wp) =>
             wp.status !== 'completed' &&
-            wp.status !== 'abandoned' &&
-            wp.assignedMemberIds?.includes(member.id)
+            wp.status !== 'abandoned'
         )
         .reduce((sum, wp) => {
+          // Look up allocation by memberId in the allocations array
           const allocation = wp.allocations?.find((a) => a.memberId === member.id);
           return sum + (allocation?.squaresPerWeek || 0);
         }, 0);
 
-      const utilization = capacity > 0 ? (allocated / capacity) * 100 : 0;
-      const available = Math.max(0, capacity - allocated);
+      // Calculate utilization and available capacity
+      const utilization = totalCapacity > 0 ? (allocated / totalCapacity) * 100 : 0;
+      const available = Math.max(0, totalCapacity - allocated);
 
       return {
         id: member.id,
         name: member.name,
         role: member.role,
         allocated,
-        capacity,
+        capacity: totalCapacity,
         utilization,
         available,
       };
@@ -312,7 +327,7 @@ export function TeamCapacityDashboard() {
       </View>
 
       {/* Main Dashboard Card */}
-      <View className="mx-5 bg-white dark:bg-slate-800 rounded-2xl p-4 border border-slate-200 dark:border-slate-700 mb-3">
+      <View className="mx-5 bg-white dark:bg-slate-900 rounded-2xl p-4 border border-slate-200 dark:border-slate-700 mb-3">
         <View className="flex-row items-center justify-between">
           {/* Gauge */}
           <UtilizationGauge percentage={capacityData.overallUtilization} />
@@ -389,7 +404,7 @@ export function TeamCapacityDashboard() {
             {capacityData.mostAvailable.map((member) => (
               <View
                 key={member.id}
-                className="bg-white dark:bg-slate-800 rounded-lg px-2 py-1 flex-row items-center gap-1"
+                className="bg-white dark:bg-slate-900 rounded-lg px-2 py-1 flex-row items-center gap-1"
               >
                 <User size={10} color="#10b981" />
                 <Text className="text-slate-700 dark:text-slate-300 text-xs">

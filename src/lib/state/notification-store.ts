@@ -15,6 +15,7 @@ export interface Notification {
   timestamp: string;
   read: boolean;
   workspaceId: string;
+  userId?: string;
 }
 
 interface NotificationStore {
@@ -57,11 +58,11 @@ export const useNotificationStore = create<NotificationStore>()(
       addNotification: (notification: Omit<Notification, 'id' | 'read' | 'timestamp'>) => {
         // Check if this type is enabled
         const typeKey = notification.type === 'approval' ? 'approvals' :
-                       notification.type === 'deadline' ? 'deadlines' :
-                       notification.type === 'capacity' ? 'capacity' :
-                       notification.type === 'budget' ? 'budget' :
-                       notification.type === 'assignment' ? 'assignments' :
-                       notification.type === 'message' ? 'messages' : 'achievements';
+          notification.type === 'deadline' ? 'deadlines' :
+            notification.type === 'capacity' ? 'capacity' :
+              notification.type === 'budget' ? 'budget' :
+                notification.type === 'assignment' ? 'assignments' :
+                  notification.type === 'message' ? 'messages' : 'achievements';
 
         if (!get().preferences[typeKey]) return;
 
@@ -70,6 +71,7 @@ export const useNotificationStore = create<NotificationStore>()(
           id: `notif-${Date.now()}-${Math.random().toString(36).substring(7)}`,
           timestamp: new Date().toISOString(),
           read: false,
+          userId: notification.userId,
         };
 
         set((state: NotificationStore) => ({
@@ -177,5 +179,22 @@ export const notificationHelpers = {
     title: 'Achievement Unlocked!',
     message: `You earned "${achievementName}"`,
     actionLabel: 'View All',
+  }),
+
+  escalationCreated: (workspaceId: string, taskTitle: string, escalatedByName: string, reasonLabel: string) => ({
+    type: 'approval' as NotificationType,
+    workspaceId,
+    title: '⚠️ Task Escalated',
+    message: `${escalatedByName} escalated "${taskTitle}": ${reasonLabel}`,
+    actionLabel: 'Review',
+    actionRoute: '/(tabs)/settings', // Fallback for now
+  }),
+
+  escalationResolved: (workspaceId: string, taskTitle: string, action: string, responderName: string, notes: string) => ({
+    type: 'assignment' as NotificationType,
+    workspaceId,
+    title: `📋 Escalation ${action.toUpperCase()}`,
+    message: `${responderName} ${action} your escalation for "${taskTitle}": ${notes}`,
+    actionLabel: 'View Task',
   }),
 };

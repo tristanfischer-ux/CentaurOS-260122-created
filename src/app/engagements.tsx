@@ -15,8 +15,12 @@ interface Engagement {
   workspaceId: string;
 }
 
-// Demo data
-const DEMO_ENGAGEMENTS: Engagement[] = [
+// DISABLED: Demo data removed for multi-tenant architecture
+// Engagements should be loaded from Supabase
+const DEMO_ENGAGEMENTS: Engagement[] = [];
+
+/* REFERENCE: Original demo data (will be migrated to Supabase)
+const DEMO_ENGAGEMENTS_ORIGINAL: Engagement[] = [
   {
     id: 'eng-1',
     companyName: 'Acme Hardware Inc',
@@ -48,6 +52,7 @@ const DEMO_ENGAGEMENTS: Engagement[] = [
     workspaceId: 'ws-buildright',
   },
 ];
+*/
 
 export default function EngagementsScreen() {
   const insets = useSafeAreaInsets();
@@ -83,7 +88,7 @@ export default function EngagementsScreen() {
   return (
     <View className="flex-1 bg-white dark:bg-slate-950" style={{ paddingTop: insets.top }}>
       {/* Header */}
-      <View className="px-6 py-4 border-b border-gray-300 dark:border-slate-800">
+      <View className="px-6 py-4 border-b border-gray-300 dark:border-slate-700">
         <View className="flex-row items-center mb-2">
           <Pressable
             onPress={() => router.back()}
@@ -123,7 +128,7 @@ export default function EngagementsScreen() {
             </View>
 
             {/* Capacity Bar */}
-            <View className="mt-3 bg-gray-200 dark:bg-slate-800 rounded-full h-2 overflow-hidden">
+            <View className="mt-3 bg-gray-200 dark:bg-slate-900 rounded-full h-2 overflow-hidden">
               <View
                 className="bg-gradient-to-r from-blue-500 to-purple-500 h-full"
                 style={{ width: `${(totalDaysPerWeek / 5) * 100}%` }}
@@ -165,7 +170,7 @@ export default function EngagementsScreen() {
                   // In real app, this would switch workspace
                   // For now, just show a message
                 }}
-                className="bg-gray-100 dark:bg-slate-900 border border-gray-300 dark:border-slate-800 rounded-2xl p-4 mb-3 active:opacity-70"
+                className="bg-gray-100 dark:bg-slate-900 border border-gray-300 dark:border-slate-700 rounded-2xl p-4 mb-3 active:opacity-70"
               >
                 <View className="flex-row items-start justify-between mb-3">
                   <View className="flex-1">
@@ -185,7 +190,7 @@ export default function EngagementsScreen() {
                 </View>
 
                 {/* Details Grid */}
-                <View className="bg-gray-200 dark:bg-slate-800 rounded-xl p-3 mb-3">
+                <View className="bg-gray-200 dark:bg-slate-900 rounded-xl p-3 mb-3">
                   <View className="flex-row items-center justify-between mb-2">
                     <View className="flex-row items-center">
                       <Clock size={14} color="#64748b" />
@@ -231,7 +236,7 @@ export default function EngagementsScreen() {
                   .map((engagement) => (
                     <View
                       key={engagement.id}
-                      className="bg-gray-100 dark:bg-slate-900 border border-gray-300 dark:border-slate-800 rounded-2xl p-4 mb-3 opacity-60"
+                      className="bg-gray-100 dark:bg-slate-900 border border-gray-300 dark:border-slate-700 rounded-2xl p-4 mb-3 opacity-60"
                     >
                       <View className="flex-row items-start justify-between mb-2">
                         <View className="flex-1">

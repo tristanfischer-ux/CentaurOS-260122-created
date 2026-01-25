@@ -92,7 +92,7 @@ export function TeamPerformanceDashboard({
   const ProgressBar = ({ value, max = 100, color }: { value: number; max?: number; color: string }) => {
     const percentage = Math.min((value / max) * 100, 100);
     return (
-      <View className="h-2 bg-gray-200 dark:bg-slate-800 rounded-full overflow-hidden">
+      <View className="h-2 bg-gray-200 dark:bg-slate-900 rounded-full overflow-hidden">
         <View
           className="h-full rounded-full"
           style={{ width: `${percentage}%`, backgroundColor: color }}
@@ -113,7 +113,7 @@ export function TeamPerformanceDashboard({
 
         {/* Summary Stats */}
         <View className="flex-row gap-2 mb-4">
-          <View className="flex-1 bg-gray-100 dark:bg-slate-900 rounded-xl p-3 border border-gray-300 dark:border-slate-800">
+          <View className="flex-1 bg-gray-100 dark:bg-slate-900 rounded-xl p-3 border border-gray-300 dark:border-slate-700">
             <View className="flex-row items-center mb-1">
               <Users size={14} color="#64748b" />
               <Text className="text-gray-600 dark:text-slate-400 text-xs ml-1">Team Size</Text>
@@ -124,7 +124,7 @@ export function TeamPerformanceDashboard({
             </Text>
           </View>
 
-          <View className="flex-1 bg-gray-100 dark:bg-slate-900 rounded-xl p-3 border border-gray-300 dark:border-slate-800">
+          <View className="flex-1 bg-gray-100 dark:bg-slate-900 rounded-xl p-3 border border-gray-300 dark:border-slate-700">
             <View className="flex-row items-center mb-1">
               <Target size={14} color="#64748b" />
               <Text className="text-gray-600 dark:text-slate-400 text-xs ml-1">Avg Score</Text>
@@ -137,7 +137,7 @@ export function TeamPerformanceDashboard({
             </Text>
           </View>
 
-          <View className="flex-1 bg-gray-100 dark:bg-slate-900 rounded-xl p-3 border border-gray-300 dark:border-slate-800">
+          <View className="flex-1 bg-gray-100 dark:bg-slate-900 rounded-xl p-3 border border-gray-300 dark:border-slate-700">
             <View className="flex-row items-center mb-1">
               <CheckCircle2 size={14} color="#64748b" />
               <Text className="text-gray-600 dark:text-slate-400 text-xs ml-1">Tasks/Week</Text>
@@ -323,7 +323,7 @@ export function TeamPerformanceDashboard({
         <Text className="text-gray-900 dark:text-white font-semibold mb-3">Individual Performance</Text>
 
         {filteredPerformances.length === 0 ? (
-          <View className="bg-gray-100 dark:bg-slate-900 rounded-xl p-6 border border-gray-300 dark:border-slate-800 items-center">
+          <View className="bg-gray-100 dark:bg-slate-900 rounded-xl p-6 border border-gray-300 dark:border-slate-700 items-center">
             <Users size={32} color="#475569" />
             <Text className="text-gray-600 dark:text-slate-400 text-center mt-2">
               No team members in this category
@@ -342,7 +342,7 @@ export function TeamPerformanceDashboard({
                     onPress={() => toggleMemberExpansion(member.userId)}
                     className="active:opacity-80"
                   >
-                    <View className="bg-gray-100 dark:bg-slate-900 rounded-xl border border-gray-300 dark:border-slate-800 overflow-hidden">
+                    <View className="bg-gray-100 dark:bg-slate-900 rounded-xl border border-gray-300 dark:border-slate-700 overflow-hidden">
                       {/* Header with Gradient Score */}
                       <LinearGradient
                         colors={scoreColors}
@@ -423,7 +423,7 @@ export function TeamPerformanceDashboard({
                                 Productivity
                               </Text>
                             </View>
-                            <View className="bg-gray-200 dark:bg-slate-800 rounded-lg p-3 gap-2">
+                            <View className="bg-gray-200 dark:bg-slate-900 rounded-lg p-3 gap-2">
                               <View className="flex-row justify-between">
                                 <Text className="text-gray-600 dark:text-slate-400 text-xs">Tasks Completed (Total):</Text>
                                 <Text className="text-gray-900 dark:text-white text-xs font-semibold">
@@ -462,7 +462,7 @@ export function TeamPerformanceDashboard({
                                 Quality
                               </Text>
                             </View>
-                            <View className="bg-gray-200 dark:bg-slate-800 rounded-lg p-3 gap-2">
+                            <View className="bg-gray-200 dark:bg-slate-900 rounded-lg p-3 gap-2">
                               <View className="flex-row justify-between">
                                 <Text className="text-gray-600 dark:text-slate-400 text-xs">Review Approval Rate:</Text>
                                 <Text className="text-emerald-400 text-xs font-semibold">
@@ -498,7 +498,7 @@ export function TeamPerformanceDashboard({
                                 Efficiency
                               </Text>
                             </View>
-                            <View className="bg-gray-200 dark:bg-slate-800 rounded-lg p-3 gap-2">
+                            <View className="bg-gray-200 dark:bg-slate-900 rounded-lg p-3 gap-2">
                               <View className="flex-row justify-between">
                                 <Text className="text-gray-600 dark:text-slate-400 text-xs">Avg Time to Complete:</Text>
                                 <Text className="text-gray-900 dark:text-white text-xs font-semibold">
@@ -522,7 +522,7 @@ export function TeamPerformanceDashboard({
                                 Engagement
                               </Text>
                             </View>
-                            <View className="bg-gray-200 dark:bg-slate-800 rounded-lg p-3 gap-2">
+                            <View className="bg-gray-200 dark:bg-slate-900 rounded-lg p-3 gap-2">
                               <View className="flex-row justify-between">
                                 <Text className="text-gray-600 dark:text-slate-400 text-xs">Days Active:</Text>
                                 <Text className="text-gray-900 dark:text-white text-xs font-semibold">

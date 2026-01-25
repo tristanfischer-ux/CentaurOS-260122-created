@@ -128,7 +128,7 @@ export function CompletedTasksView({ tasks, workspaceId, onClose, members = [] }
   return (
     <View className="flex-1 bg-white dark:bg-slate-950">
       {/* Header */}
-      <View className="px-6 pt-6 pb-4 border-b border-gray-300 dark:border-slate-800">
+      <View className="px-6 pt-6 pb-4 border-b border-gray-300 dark:border-slate-700">
         <View className="flex-row items-center justify-between mb-4">
           <Pressable onPress={onClose} className="active:opacity-70">
             <View className="flex-row items-center gap-2">
@@ -157,15 +157,15 @@ export function CompletedTasksView({ tasks, workspaceId, onClose, members = [] }
 
       {/* Stats Cards */}
       <View className="px-6 py-4 flex-row gap-3">
-        <View className="flex-1 bg-gray-100 dark:bg-slate-900 rounded-xl p-3 border border-gray-300 dark:border-slate-800">
+        <View className="flex-1 bg-gray-100 dark:bg-slate-900 rounded-xl p-3 border border-gray-300 dark:border-slate-700">
           <Text className="text-emerald-400 text-xs mb-1">Today</Text>
           <Text className="text-gray-900 dark:text-white text-2xl font-bold">{todayCompleted.length}</Text>
         </View>
-        <View className="flex-1 bg-gray-100 dark:bg-slate-900 rounded-xl p-3 border border-gray-300 dark:border-slate-800">
+        <View className="flex-1 bg-gray-100 dark:bg-slate-900 rounded-xl p-3 border border-gray-300 dark:border-slate-700">
           <Text className="text-blue-400 text-xs mb-1">This Week</Text>
           <Text className="text-gray-900 dark:text-white text-2xl font-bold">{thisWeekCompleted.length}</Text>
         </View>
-        <View className="flex-1 bg-gray-100 dark:bg-slate-900 rounded-xl p-3 border border-gray-300 dark:border-slate-800">
+        <View className="flex-1 bg-gray-100 dark:bg-slate-900 rounded-xl p-3 border border-gray-300 dark:border-slate-700">
           <Text className="text-purple-400 text-xs mb-1">This Month</Text>
           <Text className="text-gray-900 dark:text-white text-2xl font-bold">{thisMonthCompleted.length}</Text>
         </View>
@@ -190,7 +190,7 @@ export function CompletedTasksView({ tasks, workspaceId, onClose, members = [] }
               >
                 <View
                   className={`bg-gray-100 dark:bg-slate-900 rounded-xl p-4 border ${
-                    selectedTasks.has(task.id) ? 'border-blue-500' : 'border-gray-300 dark:border-slate-800'
+                    selectedTasks.has(task.id) ? 'border-blue-500' : 'border-gray-300 dark:border-slate-700'
                   }`}
                 >
                   <View className="flex-row items-start gap-3">
@@ -235,7 +235,7 @@ export function CompletedTasksView({ tasks, workspaceId, onClose, members = [] }
                               ? 'bg-red-500/20'
                               : task.priority === 'high'
                               ? 'bg-orange-500/20'
-                              : 'bg-gray-200 dark:bg-slate-800'
+                              : 'bg-gray-200 dark:bg-slate-900'
                           }`}
                         >
                           <Text className={`${getPriorityColor(task.priority)} text-xs font-semibold uppercase`}>
@@ -243,7 +243,7 @@ export function CompletedTasksView({ tasks, workspaceId, onClose, members = [] }
                           </Text>
                         </View>
 
-                        <View className="bg-gray-200 dark:bg-slate-800 px-2 py-0.5 rounded">
+                        <View className="bg-gray-200 dark:bg-slate-900 px-2 py-0.5 rounded">
                           <Text className="text-gray-600 dark:text-slate-400 text-xs">{task.function}</Text>
                         </View>
 
@@ -265,7 +265,7 @@ export function CompletedTasksView({ tasks, workspaceId, onClose, members = [] }
 
       {/* Selection Hint */}
       {completedTasks.length > 0 && selectedTasks.size === 0 && (
-        <View className="px-6 py-4 bg-gray-100 dark:bg-slate-900 border-t border-gray-300 dark:border-slate-800">
+        <View className="px-6 py-4 bg-gray-100 dark:bg-slate-900 border-t border-gray-300 dark:border-slate-700">
           <Text className="text-gray-600 dark:text-slate-400 text-center text-sm">
             Tap tasks to select, then delete permanently or keep as reference
           </Text>

@@ -10,7 +10,7 @@
 import { useCurrentMembership } from '@/lib/state/app-store';
 import { type OrganizationMember } from '@/lib/organization-seed';
 
-export type UserRole = 'Founder' | 'FractionalExec' | 'Apprentice';
+export type UserRole = 'Founder' | 'CoFounder' | 'FractionalExec' | 'Apprentice';
 
 export interface RolePermissions {
   // Visibility permissions
@@ -76,6 +76,11 @@ const FOUNDER_PERMISSIONS: RolePermissions = {
   canAccessToolsTab: true,
 };
 
+const CO_FOUNDER_PERMISSIONS: RolePermissions = {
+  // CoFounders have identical permissions to Founders
+  ...FOUNDER_PERMISSIONS,
+};
+
 const EXEC_PERMISSIONS: RolePermissions = {
   // Limited visibility - no personnel costs
   canViewPersonnelCosts: false,
@@ -90,8 +95,8 @@ const EXEC_PERMISSIONS: RolePermissions = {
   canCreateTasks: true,
   canEditTasks: true,
   canDeleteTasks: false, // Only founders can delete
-  canCreateObjectives: true,
-  canEditObjectives: true,
+  canCreateObjectives: false, // Restricted to Founders
+  canEditObjectives: false, // Restricted to Founders
   canAllocateResources: true,
   canAllocateWithoutApproval: false, // Needs founder approval (unless delegated)
   canRequestResources: true,
@@ -147,6 +152,8 @@ export function getPermissionsForRole(role: UserRole): RolePermissions {
   switch (role) {
     case 'Founder':
       return FOUNDER_PERMISSIONS;
+    case 'CoFounder':
+      return CO_FOUNDER_PERMISSIONS;
     case 'FractionalExec':
       return EXEC_PERMISSIONS;
     case 'Apprentice':

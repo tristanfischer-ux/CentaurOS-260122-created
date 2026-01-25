@@ -24,7 +24,7 @@
 import Anthropic from '@anthropic-ai/sdk';
 
 const anthropic = new Anthropic({
-  apiKey: process.env.EXPO_PUBLIC_VIBECODE_ANTHROPIC_API_KEY!,
+  apiKey: process.env.EXPO_PUBLIC_CENTAUROS_ANTHROPIC_API_KEY!,
 });
 
 interface InterpretRequest {

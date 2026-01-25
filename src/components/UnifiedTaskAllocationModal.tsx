@@ -22,7 +22,7 @@
  */
 
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
-import { View, Text, ScrollView, Pressable, Modal, Alert } from 'react-native';
+import { View, Text, ScrollView, Pressable, Modal, Alert, TextInput } from 'react-native';
 import Animated, { FadeIn, FadeInDown, FadeOut } from 'react-native-reanimated';
 import {
   X, Clock, Users, DollarSign, Zap, AlertTriangle, CheckCircle2,
@@ -34,7 +34,8 @@ import { EmailNotificationPrompt } from './EmailNotificationPrompt';
 import { useWorkPlanStore, type WorkPlan, type TUAllocation, type AppliedAITool } from '@/lib/state/work-plan-store';
 import { useOrganizationStore } from '@/lib/state/organization-store';
 import { useNotificationStore, notificationHelpers } from '@/lib/state/notification-store';
-import { useCurrentMembership } from '@/lib/state/app-store';
+import { useCurrentWorkspace, useCurrentMembership, useCurrentUser } from '@/lib/state/app-store';
+import { useObjectivesStore } from '@/lib/state/objectives-store';
 import { type OrganizationMember } from '@/lib/organization-seed';
 import { getTeamSizeEfficiency } from '@/lib/state/resource-store';
 import type { Function as BusinessFunction } from '@/types';
@@ -61,6 +62,14 @@ export function UnifiedTaskAllocationModal({ visible, onClose, workPlan }: Props
   const addNotification = useNotificationStore(s => s.addNotification);
   const emailPromptEnabled = useNotificationStore(s => s.preferences.emailPromptAfterAssignment);
   const currentMembership = useCurrentMembership();
+  const currentWorkspace = useCurrentWorkspace();
+  const currentUser = useCurrentUser();
+  const objectives = useObjectivesStore(s => s.objectives);
+  const acceptTask = useWorkPlanStore(s => s.acceptTask);
+  const rejectTask = useWorkPlanStore(s => s.rejectTask);
+
+  const [rejectionReason, setRejectionReason] = useState('');
+  const [showRejectInput, setShowRejectInput] = useState(false);
 
   // Local state for editing
   const [totalTUs, setTotalTUs] = useState(workPlan?.estimatedTimeUnits ?? 10);
@@ -280,11 +289,11 @@ export function UnifiedTaskAllocationModal({ visible, onClose, workPlan }: Props
     const aiTool = getAITool(selectedAITool);
     const appliedAITools: AppliedAITool[] = aiTool.multiplier > 1
       ? [{
-          toolId: aiTool.id,
-          toolName: aiTool.name,
-          multiplier: aiTool.multiplier,
-          costPerSquare: aiTool.costPerSquare,
-        }]
+        toolId: aiTool.id,
+        toolName: aiTool.name,
+        multiplier: aiTool.multiplier,
+        costPerSquare: aiTool.costPerSquare,
+      }]
       : [];
 
     updateWorkPlan(workPlan.id, {
@@ -463,21 +472,19 @@ export function UnifiedTaskAllocationModal({ visible, onClose, workPlan }: Props
       <Pressable
         key={member.id}
         onPress={() => handleMemberTap(member.id)}
-        className={`rounded-xl p-4 mb-3 border-2 active:bg-blue-50 dark:active:bg-blue-900/10 ${
-          isMismatched && currentAllocation > 0
-            ? 'bg-red-50 dark:bg-red-900/10 border-red-300 dark:border-red-700 active:border-red-400'
-            : inOvertime
-              ? 'bg-orange-50 dark:bg-orange-900/10 border-orange-300 dark:border-orange-700 active:border-orange-400'
-              : 'bg-white dark:bg-slate-900 border-gray-200 dark:border-slate-700 active:border-blue-400'
-        }`}
+        className={`rounded-xl p-4 mb-3 border-2 active:bg-blue-50 dark:active:bg-blue-900/10 ${isMismatched && currentAllocation > 0
+          ? 'bg-red-50 dark:bg-red-900/10 border-red-300 dark:border-red-700 active:border-red-400'
+          : inOvertime
+            ? 'bg-orange-50 dark:bg-orange-900/10 border-orange-300 dark:border-orange-700 active:border-orange-400'
+            : 'bg-white dark:bg-slate-900 border-gray-200 dark:border-slate-700 active:border-blue-400'
+          }`}
       >
         <Animated.View entering={FadeInDown.delay(50).duration(200)}>
           <View className="flex-row items-center justify-between mb-3">
             <View className="flex-row items-center flex-1">
-              <View className={`w-10 h-10 rounded-full items-center justify-center mr-3 ${
-                member.role === 'Founder' ? 'bg-purple-500' :
+              <View className={`w-10 h-10 rounded-full items-center justify-center mr-3 ${member.role === 'Founder' ? 'bg-purple-500' :
                 member.role === 'FractionalExec' ? 'bg-blue-500' : 'bg-emerald-500'
-              }`}>
+                }`}>
                 {member.role === 'Founder' && <Crown size={18} color="white" />}
                 {member.role === 'FractionalExec' && <Briefcase size={18} color="white" />}
                 {member.role === 'Apprentice' && <GraduationCap size={18} color="white" />}
@@ -519,9 +526,8 @@ export function UnifiedTaskAllocationModal({ visible, onClose, workPlan }: Props
             <View className="flex-row items-center gap-2">
               {currentAllocation > 0 ? (
                 <>
-                  <View className={`px-3 py-1.5 rounded-lg ${
-                    inOvertime ? 'bg-orange-500' : 'bg-blue-500'
-                  }`}>
+                  <View className={`px-3 py-1.5 rounded-lg ${inOvertime ? 'bg-orange-500' : 'bg-blue-500'
+                    }`}>
                     <Text className="text-white font-bold text-base">
                       {currentAllocation}□
                     </Text>
@@ -550,9 +556,8 @@ export function UnifiedTaskAllocationModal({ visible, onClose, workPlan }: Props
                 Capacity: {currentAllocation}□ here • {lockedByOthers}□ locked • {available}□ free
               </Text>
               {currentAllocation > 0 && (
-                <Text className={`text-xs font-semibold ${
-                  inOvertime ? 'text-orange-600 dark:text-orange-400' : 'text-blue-600 dark:text-blue-400'
-                }`}>
+                <Text className={`text-xs font-semibold ${inOvertime ? 'text-orange-600 dark:text-orange-400' : 'text-blue-600 dark:text-blue-400'
+                  }`}>
                   £{(currentAllocation * costPerSquare).toFixed(0)}/wk
                 </Text>
               )}
@@ -570,21 +575,20 @@ export function UnifiedTaskAllocationModal({ visible, onClose, workPlan }: Props
                 return (
                   <View
                     key={idx}
-                    className={`w-7 h-7 rounded border ${
-                      isAllocatedHere
-                        ? isMismatched
-                          ? 'bg-red-500 border-red-600' // Skill mismatch
-                          : !isNormalRange
-                            ? 'bg-orange-500 border-orange-600' // Overtime
-                            : 'bg-blue-500 border-blue-600' // Normal allocation here
-                        : isLockedByOthers
-                          ? 'bg-yellow-500 border-yellow-600' // LOCKED by other projects
-                          : isFree
-                            ? isNormalRange
-                              ? 'bg-gray-100 dark:bg-slate-800 border-gray-300 dark:border-slate-600' // Free normal
-                              : 'bg-orange-100 dark:bg-orange-900/20 border-orange-300 dark:border-orange-600' // Free overtime
-                            : 'bg-gray-100 dark:bg-slate-800 border-gray-300 dark:border-slate-600'
-                    }`}
+                    className={`w-7 h-7 rounded border ${isAllocatedHere
+                      ? isMismatched
+                        ? 'bg-red-500 border-red-600' // Skill mismatch
+                        : !isNormalRange
+                          ? 'bg-orange-500 border-orange-600' // Overtime
+                          : 'bg-blue-500 border-blue-600' // Normal allocation here
+                      : isLockedByOthers
+                        ? 'bg-yellow-500 border-yellow-600' // LOCKED by other projects
+                        : isFree
+                          ? isNormalRange
+                            ? 'bg-gray-100 dark:bg-slate-800 border-gray-300 dark:border-slate-600' // Free normal
+                            : 'bg-orange-100 dark:bg-orange-900/20 border-orange-300 dark:border-orange-600' // Free overtime
+                          : 'bg-gray-100 dark:bg-slate-800 border-gray-300 dark:border-slate-600'
+                      }`}
                   />
                 );
               })}
@@ -664,7 +668,81 @@ export function UnifiedTaskAllocationModal({ visible, onClose, workPlan }: Props
                 <Text className="text-gray-600 dark:text-slate-400 text-sm leading-relaxed">
                   {workPlan.description}
                 </Text>
+
+                {/* Strategic Alignment Badge */}
+                {workPlan.linkedObjectiveId && (
+                  <View className="mt-3 flex-row items-center border border-purple-200 dark:border-purple-800 bg-purple-50 dark:bg-purple-900/10 px-3 py-2 rounded-lg">
+                    <Target size={14} color="#8b5cf6" />
+                    <View className="ml-2 flex-1">
+                      <Text className="text-purple-600 dark:text-purple-400 text-[10px] font-bold uppercase">Strategic Objective</Text>
+                      <Text className="text-slate-700 dark:text-slate-300 text-xs font-medium" numberOfLines={1}>
+                        {objectives.find(o => o.id === workPlan.linkedObjectiveId)?.title || 'Linked Objective'}
+                      </Text>
+                    </View>
+                  </View>
+                )}
               </Animated.View>
+
+              {/* Acceptance Workflow (NEW) */}
+              {workPlan.assignmentStatus === 'pending' && (workPlan.assignedMemberIds?.includes(currentMembership?.id || '') || workPlan.allocations?.some(a => a.memberId === currentMembership?.id)) && (
+                <Animated.View entering={FadeInDown} className="bg-blue-50 dark:bg-blue-900/10 border border-blue-200 dark:border-blue-800 rounded-xl p-4 mb-4">
+                  <View className="flex-row items-center gap-2 mb-3">
+                    <Clock size={18} color="#3b82f6" />
+                    <Text className="text-blue-900 dark:text-blue-100 font-bold">New Task Assignment</Text>
+                  </View>
+                  <Text className="text-blue-700 dark:text-blue-300 text-xs mb-4">
+                    This task has been assigned to you. Please accept to confirm alignment or reject with a reason.
+                  </Text>
+
+                  {showRejectInput ? (
+                    <View>
+                      <TextInput
+                        value={rejectionReason}
+                        onChangeText={setRejectionReason}
+                        placeholder="Reason for rejection..."
+                        placeholderTextColor="#94a3b8"
+                        className="bg-white dark:bg-slate-900 border border-red-200 dark:border-red-800 rounded-lg p-3 text-slate-900 dark:text-white mb-3"
+                        multiline
+                      />
+                      <View className="flex-row gap-2">
+                        <Pressable
+                          onPress={() => setShowRejectInput(false)}
+                          className="flex-1 py-3 border border-slate-300 dark:border-slate-700 rounded-lg items-center"
+                        >
+                          <Text className="text-slate-600 dark:text-slate-400 font-bold">Cancel</Text>
+                        </Pressable>
+                        <Pressable
+                          onPress={() => {
+                            if (!rejectionReason.trim()) return;
+                            rejectTask(workPlan.id, currentMembership!.id, rejectionReason.trim());
+                            onClose();
+                          }}
+                          className="flex-1 py-3 bg-red-500 rounded-lg items-center"
+                        >
+                          <Text className="text-white font-bold">Confirm Reject</Text>
+                        </Pressable>
+                      </View>
+                    </View>
+                  ) : (
+                    <View className="flex-row gap-2">
+                      <Pressable
+                        onPress={() => setShowRejectInput(true)}
+                        className="flex-1 py-3 border border-red-300 dark:border-red-700 rounded-lg items-center"
+                      >
+                        <Text className="text-red-500 font-bold">Reject</Text>
+                      </Pressable>
+                      <Pressable
+                        onPress={() => {
+                          acceptTask(workPlan.id, currentMembership!.id);
+                        }}
+                        className="flex-1 py-3 bg-emerald-500 rounded-lg items-center"
+                      >
+                        <Text className="text-white font-bold">Accept Task</Text>
+                      </Pressable>
+                    </View>
+                  )}
+                </Animated.View>
+              )}
 
               {/* Quick Actions Section - Status, Progress, Reschedule */}
               <Animated.View
@@ -698,46 +776,40 @@ export function UnifiedTaskAllocationModal({ visible, onClose, workPlan }: Props
                       <View className="flex-row gap-2">
                         <Pressable
                           onPress={() => updateWorkPlan(workPlan.id, { status: 'not-started' })}
-                          className={`flex-1 py-2.5 rounded-lg items-center border-2 ${
-                            workPlan.status === 'not-started'
-                              ? 'bg-gray-100 dark:bg-gray-800 border-gray-400'
-                              : 'bg-gray-50 dark:bg-slate-800 border-gray-200 dark:border-slate-700'
-                          }`}
+                          className={`flex-1 py-2.5 rounded-lg items-center border-2 ${workPlan.status === 'not-started'
+                            ? 'bg-gray-100 dark:bg-gray-800 border-gray-400'
+                            : 'bg-gray-50 dark:bg-slate-800 border-gray-200 dark:border-slate-700'
+                            }`}
                         >
                           <Clock size={16} color={workPlan.status === 'not-started' ? '#374151' : '#9ca3af'} />
-                          <Text className={`text-xs font-medium mt-1 ${
-                            workPlan.status === 'not-started' ? 'text-gray-700 dark:text-gray-200' : 'text-gray-500 dark:text-slate-400'
-                          }`}>
+                          <Text className={`text-xs font-medium mt-1 ${workPlan.status === 'not-started' ? 'text-gray-700 dark:text-gray-200' : 'text-gray-500 dark:text-slate-400'
+                            }`}>
                             Queue
                           </Text>
                         </Pressable>
                         <Pressable
                           onPress={() => updateWorkPlan(workPlan.id, { status: 'in-progress' })}
-                          className={`flex-1 py-2.5 rounded-lg items-center border-2 ${
-                            workPlan.status === 'in-progress'
-                              ? 'bg-blue-100 dark:bg-blue-900/30 border-blue-400'
-                              : 'bg-gray-50 dark:bg-slate-800 border-gray-200 dark:border-slate-700'
-                          }`}
+                          className={`flex-1 py-2.5 rounded-lg items-center border-2 ${workPlan.status === 'in-progress'
+                            ? 'bg-blue-100 dark:bg-blue-900/30 border-blue-400'
+                            : 'bg-gray-50 dark:bg-slate-800 border-gray-200 dark:border-slate-700'
+                            }`}
                         >
                           <Play size={16} color={workPlan.status === 'in-progress' ? '#3b82f6' : '#9ca3af'} />
-                          <Text className={`text-xs font-medium mt-1 ${
-                            workPlan.status === 'in-progress' ? 'text-blue-700 dark:text-blue-300' : 'text-gray-500 dark:text-slate-400'
-                          }`}>
+                          <Text className={`text-xs font-medium mt-1 ${workPlan.status === 'in-progress' ? 'text-blue-700 dark:text-blue-300' : 'text-gray-500 dark:text-slate-400'
+                            }`}>
                             Start
                           </Text>
                         </Pressable>
                         <Pressable
                           onPress={() => updateWorkPlan(workPlan.id, { status: 'blocked' })}
-                          className={`flex-1 py-2.5 rounded-lg items-center border-2 ${
-                            workPlan.status === 'blocked'
-                              ? 'bg-red-100 dark:bg-red-900/30 border-red-400'
-                              : 'bg-gray-50 dark:bg-slate-800 border-gray-200 dark:border-slate-700'
-                          }`}
+                          className={`flex-1 py-2.5 rounded-lg items-center border-2 ${workPlan.status === 'blocked'
+                            ? 'bg-red-100 dark:bg-red-900/30 border-red-400'
+                            : 'bg-gray-50 dark:bg-slate-800 border-gray-200 dark:border-slate-700'
+                            }`}
                         >
                           <AlertTriangle size={16} color={workPlan.status === 'blocked' ? '#ef4444' : '#9ca3af'} />
-                          <Text className={`text-xs font-medium mt-1 ${
-                            workPlan.status === 'blocked' ? 'text-red-700 dark:text-red-300' : 'text-gray-500 dark:text-slate-400'
-                          }`}>
+                          <Text className={`text-xs font-medium mt-1 ${workPlan.status === 'blocked' ? 'text-red-700 dark:text-red-300' : 'text-gray-500 dark:text-slate-400'
+                            }`}>
                             Block
                           </Text>
                         </Pressable>
@@ -753,10 +825,9 @@ export function UnifiedTaskAllocationModal({ visible, onClose, workPlan }: Props
                         <Text className="text-gray-500 dark:text-slate-400 text-xs font-semibold">
                           PROGRESS
                         </Text>
-                        <Text className={`text-lg font-bold ${
-                          workPlan.progress >= 100 ? 'text-emerald-500' :
+                        <Text className={`text-lg font-bold ${workPlan.progress >= 100 ? 'text-emerald-500' :
                           workPlan.progress >= 50 ? 'text-blue-500' : 'text-gray-500'
-                        }`}>
+                          }`}>
                           {workPlan.progress}%
                         </Text>
                       </View>
@@ -771,15 +842,13 @@ export function UnifiedTaskAllocationModal({ visible, onClose, workPlan }: Props
                           <Pressable
                             key={pct}
                             onPress={() => updateWorkPlan(workPlan.id, { progress: pct })}
-                            className={`flex-1 py-2 rounded-lg items-center ${
-                              workPlan.progress === pct
-                                ? 'bg-blue-500'
-                                : 'bg-gray-100 dark:bg-slate-800'
-                            }`}
+                            className={`flex-1 py-2 rounded-lg items-center ${workPlan.progress === pct
+                              ? 'bg-blue-500'
+                              : 'bg-gray-100 dark:bg-slate-800'
+                              }`}
                           >
-                            <Text className={`text-xs font-semibold ${
-                              workPlan.progress === pct ? 'text-white' : 'text-gray-600 dark:text-slate-300'
-                            }`}>
+                            <Text className={`text-xs font-semibold ${workPlan.progress === pct ? 'text-white' : 'text-gray-600 dark:text-slate-300'
+                              }`}>
                               {pct}%
                             </Text>
                           </Pressable>
@@ -832,18 +901,16 @@ export function UnifiedTaskAllocationModal({ visible, onClose, workPlan }: Props
                     <Text className="text-blue-900 dark:text-blue-100 text-sm font-medium mb-1">
                       Allocated
                     </Text>
-                    <Text className={`text-3xl font-bold ${
-                      calculations.totalAllocatedPerWeek >= totalTUs
-                        ? 'text-emerald-600 dark:text-emerald-400'
-                        : 'text-orange-600 dark:text-orange-400'
-                    }`}>
+                    <Text className={`text-3xl font-bold ${calculations.totalAllocatedPerWeek >= totalTUs
+                      ? 'text-emerald-600 dark:text-emerald-400'
+                      : 'text-orange-600 dark:text-orange-400'
+                      }`}>
                       {calculations.totalAllocatedPerWeek}□
                     </Text>
-                    <Text className={`text-xs mt-1 font-semibold ${
-                      calculations.totalAllocatedPerWeek >= totalTUs
-                        ? 'text-emerald-700 dark:text-emerald-300'
-                        : 'text-orange-700 dark:text-orange-300'
-                    }`}>
+                    <Text className={`text-xs mt-1 font-semibold ${calculations.totalAllocatedPerWeek >= totalTUs
+                      ? 'text-emerald-700 dark:text-emerald-300'
+                      : 'text-orange-700 dark:text-orange-300'
+                      }`}>
                       {calculations.totalAllocatedPerWeek >= totalTUs ? '✓ Fully allocated' : `Need ${totalTUs - calculations.totalAllocatedPerWeek}□ more`}
                     </Text>
                   </View>
@@ -853,11 +920,10 @@ export function UnifiedTaskAllocationModal({ visible, onClose, workPlan }: Props
                 <View className="mt-4">
                   <View className="h-3 bg-blue-100 dark:bg-blue-900/20 rounded-full overflow-hidden">
                     <View
-                      className={`h-full rounded-full ${
-                        calculations.totalAllocatedPerWeek >= totalTUs
-                          ? 'bg-emerald-500'
-                          : 'bg-orange-500'
-                      }`}
+                      className={`h-full rounded-full ${calculations.totalAllocatedPerWeek >= totalTUs
+                        ? 'bg-emerald-500'
+                        : 'bg-orange-500'
+                        }`}
                       style={{ width: `${Math.min(100, (calculations.totalAllocatedPerWeek / totalTUs) * 100)}%` }}
                     />
                   </View>
@@ -963,30 +1029,27 @@ export function UnifiedTaskAllocationModal({ visible, onClose, workPlan }: Props
 
                     {/* Team efficiency indicator */}
                     {calculations.teamSize > 0 && (
-                      <View className={`rounded-lg p-3 mb-3 ${
-                        calculations.teamEfficiency.efficiencyMultiplier >= 1
-                          ? 'bg-emerald-50 dark:bg-emerald-900/10'
-                          : calculations.teamEfficiency.efficiencyMultiplier >= 0.9
-                            ? 'bg-amber-50 dark:bg-amber-900/10'
-                            : 'bg-red-50 dark:bg-red-900/10'
-                      }`}>
+                      <View className={`rounded-lg p-3 mb-3 ${calculations.teamEfficiency.efficiencyMultiplier >= 1
+                        ? 'bg-emerald-50 dark:bg-emerald-900/10'
+                        : calculations.teamEfficiency.efficiencyMultiplier >= 0.9
+                          ? 'bg-amber-50 dark:bg-amber-900/10'
+                          : 'bg-red-50 dark:bg-red-900/10'
+                        }`}>
                         <View className="flex-row items-center justify-between">
-                          <Text className={`font-semibold ${
-                            calculations.teamEfficiency.efficiencyMultiplier >= 1
-                              ? 'text-emerald-700 dark:text-emerald-300'
-                              : calculations.teamEfficiency.efficiencyMultiplier >= 0.9
-                                ? 'text-amber-700 dark:text-amber-300'
-                                : 'text-red-700 dark:text-red-300'
-                          }`}>
+                          <Text className={`font-semibold ${calculations.teamEfficiency.efficiencyMultiplier >= 1
+                            ? 'text-emerald-700 dark:text-emerald-300'
+                            : calculations.teamEfficiency.efficiencyMultiplier >= 0.9
+                              ? 'text-amber-700 dark:text-amber-300'
+                              : 'text-red-700 dark:text-red-300'
+                            }`}>
                             {calculations.teamEfficiency.label} ({calculations.teamSize} people)
                           </Text>
-                          <Text className={`font-bold ${
-                            calculations.teamEfficiency.efficiencyMultiplier >= 1
-                              ? 'text-emerald-600'
-                              : calculations.teamEfficiency.efficiencyMultiplier >= 0.9
-                                ? 'text-amber-600'
-                                : 'text-red-600'
-                          }`}>
+                          <Text className={`font-bold ${calculations.teamEfficiency.efficiencyMultiplier >= 1
+                            ? 'text-emerald-600'
+                            : calculations.teamEfficiency.efficiencyMultiplier >= 0.9
+                              ? 'text-amber-600'
+                              : 'text-red-600'
+                            }`}>
                             {Math.round(calculations.teamEfficiency.efficiencyMultiplier * 100)}% efficiency
                           </Text>
                         </View>
@@ -1146,7 +1209,7 @@ export function UnifiedTaskAllocationModal({ visible, onClose, workPlan }: Props
           taskTitle={workPlan.title}
           taskDescription={workPlan.description}
           dueDate={workPlan.dueDate}
-          assignedBy={currentMembership?.name || 'Team Lead'}
+          assignedBy={currentUser?.name || 'Team Lead'}
           assignedMembers={pendingEmailAssignments}
         />
       )}

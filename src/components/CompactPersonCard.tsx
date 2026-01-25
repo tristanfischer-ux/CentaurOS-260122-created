@@ -107,7 +107,7 @@ export function CompactPersonCard({
   return (
     <Pressable
       onPress={handleCardPress}
-      className={`bg-white dark:bg-slate-800 rounded-xl p-3 mb-2 ${
+      className={`bg-white dark:bg-slate-900 rounded-xl p-3 mb-2 ${
         isSelected ? 'border-2 border-blue-500' : isExpanded ? 'border-2 border-blue-300 dark:border-blue-700' : 'border border-gray-200 dark:border-slate-700'
       } active:opacity-90`}
       style={{ borderLeftWidth: 4, borderLeftColor: roleColor }}

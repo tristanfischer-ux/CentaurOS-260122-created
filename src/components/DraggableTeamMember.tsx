@@ -21,9 +21,10 @@ interface DraggableTeamMemberProps {
   onDragEnd?: (memberId: string, x: number, y: number) => void;
 }
 
-const getRoleColor = (role: 'Founder' | 'FractionalExec' | 'Apprentice') => {
+const getRoleColor = (role: 'Founder' | 'CoFounder' | 'FractionalExec' | 'Apprentice') => {
   switch (role) {
     case 'Founder':
+    case 'CoFounder':
       return '#8b5cf6'; // Purple
     case 'FractionalExec':
       return '#3b82f6'; // Blue

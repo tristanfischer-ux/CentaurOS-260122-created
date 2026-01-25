@@ -21,6 +21,9 @@ export interface InvitationEmailParams {
   proposedRate: number;
   rateType: 'hourly' | 'daily' | 'monthly';
   senderName: string;
+  invitationLink: string;
+  personalMessage?: string;
+  expiresInDays: number;
 }
 
 export interface ReminderEmailParams {
@@ -97,6 +100,9 @@ export function getInvitationEmail(params: InvitationEmailParams): {
     proposedRate,
     rateType,
     senderName,
+    invitationLink,
+    personalMessage,
+    expiresInDays,
   } = params;
 
   const rateLabel = rateType === 'hourly' ? '/hour' : rateType === 'daily' ? '/day' : '/month';
@@ -111,8 +117,11 @@ POSITION DETAILS
 ----------------
 Position: ${position}
 Proposed Rate: £${proposedRate}${rateLabel}
+${personalMessage ? `\nMESSAGE FROM ${senderName.toUpperCase()}\n----------------\n${personalMessage}\n` : ''}
+To respond to this invitation and join the team, please click the link below:
+${invitationLink}
 
-To respond to this invitation, please open the CentaurOS app and view your inbox.
+This link will expire in ${expiresInDays} days.
 
 Best regards,
 The CentaurOS Team`;

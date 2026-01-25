@@ -9,10 +9,20 @@ import { KeyboardProvider } from 'react-native-keyboard-controller';
 import { View, ActivityIndicator } from 'react-native';
 import { useEffect, useState } from 'react';
 import { useInitializeApp } from '@/lib/hooks/useInitializeApp';
+import { useWorkspaceData } from '@/lib/hooks/useWorkspaceData';
+import { useCurrentWorkspace } from '@/lib/state/app-store';
 import { WelcomeSplash } from '@/components/WelcomeSplash';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { ToastContainer } from '@/components/ToastContainer';
 import { ThemeProvider as AppThemeProvider, useTheme } from '@/lib/ThemeContext';
+import { OfflineBanner } from '@/components/OfflineBanner';
+import {
+  startNetworkMonitoring,
+  stopNetworkMonitoring,
+  initializeSyncManager,
+  startAutoSync,
+  stopAutoSync,
+} from '@/lib/offline';
 
 export const unstable_settings = {
   initialRouteName: 'sign-in',
@@ -34,6 +44,10 @@ function RootLayoutNav({ colorScheme }: { colorScheme: 'light' | 'dark' | null |
   const { isInitialized } = useInitializeApp();
   const [showWelcomeSplash, setShowWelcomeSplash] = useState(false);
   const { theme, isOffWhite } = useTheme();
+  const currentWorkspace = useCurrentWorkspace();
+
+  // Load workspace data (including members) when workspace is selected
+  useWorkspaceData(currentWorkspace?.id || null);
 
   // Theme-aware colors
   const getBackgroundColor = () => {
@@ -62,6 +76,18 @@ function RootLayoutNav({ colorScheme }: { colorScheme: 'light' | 'dark' | null |
     }
   }, [isInitialized]);
 
+  // Initialize offline module
+  useEffect(() => {
+    startNetworkMonitoring();
+    initializeSyncManager();
+    startAutoSync(30000); // Sync every 30 seconds when online
+
+    return () => {
+      stopNetworkMonitoring();
+      stopAutoSync();
+    };
+  }, []);
+
   if (!isInitialized) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: getBackgroundColor() }}>
@@ -73,6 +99,7 @@ function RootLayoutNav({ colorScheme }: { colorScheme: 'light' | 'dark' | null |
   return (
     <>
       <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+        <OfflineBanner />
         <Stack screenOptions={{ headerShown: false }}>
           <Stack.Screen name="sign-in" options={{ headerShown: false }} />
           <Stack.Screen name="sign-up" options={{ headerShown: false }} />

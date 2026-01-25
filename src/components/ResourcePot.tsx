@@ -44,7 +44,7 @@ export function ResourcePot({ workspaceId }: ResourcePotProps) {
   };
 
   return (
-    <View className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-200 dark:border-slate-800 overflow-hidden">
+    <View className="bg-white dark:bg-slate-900 rounded-2xl border border-gray-200 dark:border-slate-700 overflow-hidden">
       {/* Header */}
       <Pressable
         onPress={() => setExpanded(!expanded)}
@@ -118,7 +118,7 @@ export function ResourcePot({ workspaceId }: ResourcePotProps) {
               return (
                 <View
                   key={role}
-                  className="flex-row items-center justify-between bg-gray-50 dark:bg-slate-800 rounded-xl p-3"
+                  className="flex-row items-center justify-between bg-gray-50 dark:bg-slate-900 rounded-xl p-3"
                 >
                   <View className="flex-row items-center">
                     <View
@@ -159,7 +159,7 @@ export function ResourcePot({ workspaceId }: ResourcePotProps) {
           <Text className="text-gray-500 dark:text-slate-400 text-xs font-bold mb-3 tracking-wide">
             WEEKLY FORECAST
           </Text>
-          <View className="bg-gray-50 dark:bg-slate-800 rounded-xl p-3">
+          <View className="bg-gray-50 dark:bg-slate-900 rounded-xl p-3">
             <View className="flex-row justify-between mb-2">
               {weeklyCapacity.slice(0, 5).map((day, i) => {
                 const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];

@@ -33,7 +33,7 @@ export async function POST(request: Request) {
 
     // Get API key from environment (server-side only, not EXPO_PUBLIC_)
     const apiKey = process.env.OPENAI_API_KEY ||
-                   process.env.EXPO_PUBLIC_VIBECODE_OPENAI_API_KEY;
+      process.env.EXPO_PUBLIC_CENTAUROS_OPENAI_API_KEY;
 
     if (!apiKey) {
       console.error('[Whisper API] No OpenAI API key found');

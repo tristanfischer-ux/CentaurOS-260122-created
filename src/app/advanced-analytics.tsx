@@ -87,12 +87,12 @@ export default function AdvancedAnalyticsScreen() {
     return (
       <View
         key={kpi.id}
-        className="bg-white dark:bg-slate-900 rounded-2xl p-4 border border-gray-300 dark:border-slate-800 mb-3"
+        className="bg-white dark:bg-slate-900 rounded-2xl p-4 border border-gray-300 dark:border-slate-700 mb-3"
         style={{ width: cardWidth }}
       >
         {/* Category badge */}
         <View className="flex-row items-center justify-between mb-2">
-          <View className="bg-gray-100 dark:bg-slate-800 px-2 py-1 rounded">
+          <View className="bg-gray-100 dark:bg-slate-900 px-2 py-1 rounded">
             <Text className="text-gray-700 dark:text-slate-300 text-xs font-semibold">
               {kpi.category}
             </Text>
@@ -134,7 +134,7 @@ export default function AdvancedAnalyticsScreen() {
                 {formatValue(kpi.target, kpi.unit)}
               </Text>
             </View>
-            <View className="w-full h-1.5 bg-gray-200 dark:bg-slate-800 rounded-full overflow-hidden">
+            <View className="w-full h-1.5 bg-gray-200 dark:bg-slate-900 rounded-full overflow-hidden">
               <View
                 className="h-full rounded-full"
                 style={{
@@ -174,7 +174,7 @@ export default function AdvancedAnalyticsScreen() {
   return (
     <View className="flex-1 bg-white dark:bg-slate-950" style={{ paddingTop: insets.top }}>
       {/* Header */}
-      <View className="px-6 py-4 border-b border-gray-300 dark:border-slate-800">
+      <View className="px-6 py-4 border-b border-gray-300 dark:border-slate-700">
         <View className="flex-row items-center justify-between mb-4">
           <View className="flex-row items-center">
             <HapticPressable
@@ -209,7 +209,7 @@ export default function AdvancedAnalyticsScreen() {
               className={`px-4 py-2 rounded-lg mr-2 ${
                 selectedDashboard.id === dashboard.id
                   ? 'bg-blue-500'
-                  : 'bg-gray-100 dark:bg-slate-900 border border-gray-300 dark:border-slate-800'
+                  : 'bg-gray-100 dark:bg-slate-900 border border-gray-300 dark:border-slate-700'
               }`}
             >
               <Text
@@ -223,7 +223,7 @@ export default function AdvancedAnalyticsScreen() {
               </Text>
             </HapticPressable>
           ))}
-          <HapticPressable className="px-4 py-2 rounded-lg bg-gray-100 dark:bg-slate-900 border border-gray-300 dark:border-slate-800 flex-row items-center">
+          <HapticPressable className="px-4 py-2 rounded-lg bg-gray-100 dark:bg-slate-900 border border-gray-300 dark:border-slate-700 flex-row items-center">
             <Plus size={16} color="#64748b" />
             <Text className="text-gray-700 dark:text-slate-300 font-semibold text-sm ml-1">
               New
@@ -249,7 +249,7 @@ export default function AdvancedAnalyticsScreen() {
 
         {/* Featured Chart - Revenue Trend */}
         <View className="px-6 pb-4">
-          <View className="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-gray-300 dark:border-slate-800">
+          <View className="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-gray-300 dark:border-slate-700">
             <View className="flex-row items-center justify-between mb-4">
               <Text className="text-gray-900 dark:text-white text-lg font-bold">
                 Revenue Trend
@@ -262,7 +262,7 @@ export default function AdvancedAnalyticsScreen() {
                     className={`px-3 py-1 rounded ${
                       timeRange === range
                         ? 'bg-blue-500'
-                        : 'bg-gray-100 dark:bg-slate-800'
+                        : 'bg-gray-100 dark:bg-slate-900'
                     }`}
                   >
                     <Text
@@ -295,7 +295,7 @@ export default function AdvancedAnalyticsScreen() {
           <Text className="text-gray-900 dark:text-white text-xl font-bold mb-3">
             Performance Comparison
           </Text>
-          <View className="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-gray-300 dark:border-slate-800">
+          <View className="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-gray-300 dark:border-slate-700">
             {['Team Velocity', 'Task Completion', 'OKR Progress'].map((metric, idx) => {
               const values = [21, 87, 68];
               const targets = [25, 90, 75];
@@ -311,7 +311,7 @@ export default function AdvancedAnalyticsScreen() {
                       {values[idx]} / {targets[idx]}
                     </Text>
                   </View>
-                  <View className="w-full h-2 bg-gray-200 dark:bg-slate-800 rounded-full overflow-hidden">
+                  <View className="w-full h-2 bg-gray-200 dark:bg-slate-900 rounded-full overflow-hidden">
                     <View
                       className="h-full rounded-full bg-blue-500"
                       style={{ width: `${percentage}%` }}
@@ -350,7 +350,7 @@ export default function AdvancedAnalyticsScreen() {
                 return (
                   <View
                     key={kpi.id}
-                    className="bg-white dark:bg-slate-900 rounded-xl p-4 mb-2 border border-gray-300 dark:border-slate-800"
+                    className="bg-white dark:bg-slate-900 rounded-xl p-4 mb-2 border border-gray-300 dark:border-slate-700"
                   >
                     <View className="flex-row items-center justify-between">
                       <View className="flex-1">

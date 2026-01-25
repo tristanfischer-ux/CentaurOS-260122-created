@@ -4,7 +4,8 @@ import {
   Download, Upload, RefreshCw, Check, ExternalLink, Sheet, Play, Library, Eye,
   Mail, Users, Award, Building2, CheckCircle2,
   TrendingUp, Clock, Target, Zap, Settings2, ChevronDown, ChevronUp,
-  Sparkles, Shield, BarChart3, User, Briefcase, Rocket, HelpCircle
+  Sparkles, Shield, BarChart3, User, Briefcase, Rocket, HelpCircle, Trash2,
+  Globe
 } from 'lucide-react-native';
 import { useAppStore, useCurrentUser, useCurrentMembership, useCurrentWorkspace } from '@/lib/state/app-store';
 import { router } from 'expo-router';
@@ -15,6 +16,7 @@ import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useTheme } from '@/lib/ThemeContext';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
+import { detectUserCurrency, getSupportedCurrencyList, getCurrencySymbol } from '@/lib/currency';
 import { HelpModal, HelpButton, type HelpContent } from '@/components/HelpModal';
 import * as FileSystem from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
@@ -26,21 +28,51 @@ import {
   generateGoogleSheetsURL,
   getAllDataForSync,
 } from '@/lib/data-export';
+import { storage } from '@/lib/storage';
+import { resetAllCompanyData, formatDebugReport, getDataCounts } from '@/lib/reset-system';
+import type { StoreResetHandlers } from '@/lib/reset-system';
+// Import stores for reset handlers
+import { useArmoryStore } from '@/lib/state/armory-store';
+import { useFinanceStore } from '@/lib/state/finance-store';
+import { useOrganizationStore } from '@/lib/state/organization-store';
+import { useSupplierStore } from '@/lib/state/supplier-store';
+import { useDecisionsStore } from '@/lib/state/decisions-store';
+import { useObjectivesStore } from '@/lib/state/objectives-store';
+import { useWorkPlanStore } from '@/lib/state/work-plan-store';
+import { useOKRStore } from '@/lib/state/okr-store';
+import { useQueueStore } from '@/lib/state/okr-queue-store';
+import { useRequestStore } from '@/lib/state/request-store';
+import { useMessagesStore } from '@/lib/state/messages-store';
+import { useCalendarStore } from '@/lib/state/calendar-store';
+import { useCapacityStore } from '@/lib/state/capacity-store';
+import { useSquadStore } from '@/lib/state/squad-store';
+import { useBusinessImprovementsStore } from '@/lib/state/business-improvements-store';
+import { useIntegrationsStore } from '@/lib/state/integrations-store';
+import { useLeaderboardStore } from '@/lib/state/leaderboard-store';
+import { useOKRPlannerStore } from '@/lib/state/okr-planner-store';
+import { useTechTreeStore } from '@/lib/state/tech-tree-store';
 
 const SETTINGS_HELP: HelpContent = {
   title: 'Operations & Config',
-  subtitle: 'Setup and preferences',
-  description: 'The Settings tab helps you configure Centaur OS for your role and preferences. Complete the setup checklist, customize your theme, and access resources.',
+  subtitle: 'System Preferences & Workspace Management',
+  description: 'The Settings tab is your control center for customizing your Centaur OS experience. Manage themes, account settings, workspace configuration, data operations, and system preferences all in one place.',
   tips: [
-    'Complete all Critical priority setup tasks first to unlock full functionality',
-    'Switch between Dark, Light, and Off-White themes based on your preference',
-    'Use Quick Actions for common operations like generating reports',
-    'Reset onboarding if you want to see the tutorial again',
+    '🎨 Theme Control: Switch between Dark, Light, and Off-White themes instantly',
+    '👤 Profile Settings: Update your name, email, and profile information',
+    '🏢 Workspace Management: Switch between workspaces or manage workspace settings',
+    '📊 Data Operations: Import/export data, generate reports, and manage backups',
+    '🔄 System Actions: Reset onboarding, clear cache, or restore demo data',
+    '🔐 Security: Manage authentication and privacy settings',
+    '🌐 Integrations: Connect external tools and services',
+    '📱 App Version: See current version and check for updates',
+    '💡 Help & Support: Access documentation and contact support',
   ],
   quickActions: [
-    { label: 'Setup Checklist', description: 'Complete setup tasks to fully configure your workspace' },
-    { label: 'Theme Settings', description: 'Switch between dark, light, and off-white color schemes' },
-    { label: 'Data Management', description: 'Import/export data and generate reports' },
+    { label: 'Change Theme', description: 'Switch color scheme (Dark/Light/Off-White)' },
+    { label: 'Manage Profile', description: 'Update your personal information' },
+    { label: 'Data Export', description: 'Download your workspace data' },
+    { label: 'Reset Onboarding', description: 'See the tutorial again' },
+    { label: 'Support', description: 'Get help or report issues' },
   ],
 };
 
@@ -116,6 +148,9 @@ export default function SettingsScreen() {
 
   const [showDataManagement, setShowDataManagement] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
+  const [showCurrencyPicker, setShowCurrencyPicker] = useState(false);
+  const [showOnboardingGuide, setShowOnboardingGuide] = useState(false);
+  const [selectedCurrency, setSelectedCurrency] = useState(() => detectUserCurrency());
   const [syncStatus, setSyncStatus] = useState<'idle' | 'syncing' | 'success' | 'error'>('idle');
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
     checklist: true,
@@ -131,189 +166,76 @@ export default function SettingsScreen() {
   // SETUP CHECKLIST - Operations Excellence Framework
   // ===========================================================================
   const setupSteps: SetupStep[] = useMemo(() => {
-    const baseSteps: SetupStep[] = [
-      // Foundation (Critical)
+    const steps: SetupStep[] = [
       {
-        id: 'complete_profile',
-        title: 'Complete Your Profile',
-        description: 'Add photo, bio, and contact details for team visibility',
+        id: 'team_setup',
+        title: 'Add Team Members',
+        description: 'Invite executives and apprentices',
         priority: 'critical',
-        category: 'foundation',
-        action: () => router.push('/profile'),
-        isComplete: Boolean(currentUser?.name && currentUser?.email),
-        estimatedMinutes: 2,
+        category: 'team',
+        action: () => router.push('/invitations'),
+        isComplete: false, // Could check organization store
+        estimatedMinutes: 5,
+        roleRequired: 'Founder',
       },
       {
-        id: 'set_theme',
-        title: 'Configure Display Theme',
-        description: 'Choose light, dark, or system theme for optimal viewing',
-        priority: 'low',
-        category: 'foundation',
-        action: () => setExpandedSections(prev => ({ ...prev, preferences: true })),
-        isComplete: true, // Always available
-        estimatedMinutes: 1,
+        id: 'okr_setup',
+        title: 'Define OKRs',
+        description: 'Set objectives and key results',
+        priority: 'critical',
+        category: 'workflow',
+        action: () => router.push('/(tabs)/'),
+        isComplete: false, // Could check OKR store
+        estimatedMinutes: 15,
+        roleRequired: 'Founder',
       },
       {
-        id: 'replay_tutorial',
-        title: 'Complete Onboarding Tutorial',
-        description: 'Learn role-specific workflows and best practices',
+        id: 'supplier_setup',
+        title: 'Add Suppliers',
+        description: 'Configure vendor relationships',
         priority: 'high',
         category: 'foundation',
-        action: () => handleReplayOnboarding(),
-        isComplete: false, // User can always replay
-        estimatedMinutes: 5,
+        action: () => router.push('/suppliers'),
+        isComplete: false, // Could check supplier store
+        estimatedMinutes: 10,
+        roleRequired: 'Founder',
+      },
+      {
+        id: 'budget_setup',
+        title: 'Set Budgets',
+        description: 'Allocate financial resources',
+        priority: 'high',
+        category: 'foundation',
+        action: () => router.push('/(tabs)/tasks'),
+        isComplete: false, // Could check finance store
+        estimatedMinutes: 10,
+        roleRequired: 'Founder',
       },
     ];
 
-    // Role-specific steps
-    if (userRole === 'Founder') {
-      baseSteps.push(
-        {
-          id: 'setup_okrs',
-          title: 'Define Strategic OKRs',
-          description: 'Set quarterly objectives across all business functions',
-          priority: 'critical',
-          category: 'workflow',
-          action: () => router.push('/(tabs)/decide'),
-          isComplete: false,
-          estimatedMinutes: 30,
-          roleRequired: 'Founder',
-        },
-        {
-          id: 'invite_team',
-          title: 'Invite Team Members',
-          description: 'Add fractional executives and apprentices to your organization',
-          priority: 'critical',
-          category: 'team',
-          action: () => router.push('/invitations'),
-          isComplete: false,
-          estimatedMinutes: 10,
-          roleRequired: 'Founder',
-        },
-        {
-          id: 'setup_org',
-          title: 'Configure Organization Structure',
-          description: 'Define reporting lines and team hierarchy',
-          priority: 'high',
-          category: 'team',
-          action: () => router.push('/org-diagram'),
-          isComplete: false,
-          estimatedMinutes: 15,
-          roleRequired: 'Founder',
-        },
-        {
-          id: 'connect_data',
-          title: 'Connect Data Sources',
-          description: 'Sync with Google Sheets or import existing data',
-          priority: 'medium',
-          category: 'optimization',
-          action: () => setShowDataManagement(true),
-          isComplete: false,
-          estimatedMinutes: 10,
-          roleRequired: 'Founder',
-        },
-        {
-          id: 'review_reports',
-          title: 'Generate First Report',
-          description: 'Create a baseline report for your organization',
-          priority: 'medium',
-          category: 'optimization',
-          action: () => router.push('/reports'),
-          isComplete: false,
-          estimatedMinutes: 5,
-          roleRequired: 'Founder',
-        }
-      );
-    } else if (userRole === 'FractionalExec') {
-      baseSteps.push(
-        {
-          id: 'review_engagements',
-          title: 'Review Active Engagements',
-          description: 'Check your current company assignments and capacity',
-          priority: 'critical',
-          category: 'workflow',
-          action: () => router.push('/engagements'),
-          isComplete: false,
-          estimatedMinutes: 5,
-          roleRequired: 'FractionalExec',
-        },
-        {
-          id: 'join_guild',
-          title: 'Join Relevant Guilds',
-          description: 'Connect with peers in your functional area',
-          priority: 'high',
-          category: 'team',
-          action: () => router.push('/guilds'),
-          isComplete: false,
-          estimatedMinutes: 3,
-          roleRequired: 'FractionalExec',
-        },
-        {
-          id: 'explore_functions',
-          title: 'Explore Function Library',
-          description: 'Access templates, tools, and best practices',
-          priority: 'medium',
-          category: 'optimization',
-          action: () => router.push('/function-hub'),
-          isComplete: false,
-          estimatedMinutes: 10,
-          roleRequired: 'FractionalExec',
-        }
-      );
-    } else if (userRole === 'Apprentice') {
-      baseSteps.push(
-        {
-          id: 'view_assignments',
-          title: 'View Your Assignments',
-          description: 'Check current work plans and tasks assigned to you',
-          priority: 'critical',
-          category: 'workflow',
-          action: () => router.push('/(tabs)/do'),
-          isComplete: false,
-          estimatedMinutes: 5,
-          roleRequired: 'Apprentice',
-        },
-        {
-          id: 'join_apprentice_guild',
-          title: 'Join Apprentice Guild',
-          description: 'Connect with other apprentices for peer support',
-          priority: 'high',
-          category: 'team',
-          action: () => router.push('/guilds'),
-          isComplete: false,
-          estimatedMinutes: 2,
-          roleRequired: 'Apprentice',
-        },
-        {
-          id: 'learn_tools',
-          title: 'Explore AI Tools',
-          description: 'Discover AI assistants that can help with your work',
-          priority: 'medium',
-          category: 'optimization',
-          action: () => router.push('/(tabs)/make'),
-          isComplete: false,
-          estimatedMinutes: 10,
-          roleRequired: 'Apprentice',
-        }
-      );
+    // Filter based on role
+    if (userRole !== 'Founder') {
+      return steps.filter(s => !s.roleRequired || s.roleRequired !== 'Founder');
     }
 
-    return baseSteps.filter(step => !step.roleRequired || step.roleRequired === userRole || userRole === 'Founder');
-  }, [userRole, currentUser]);
+    return steps;
+  }, [userRole]);
 
-  // Calculate completion metrics
+  // ===========================================================================
+  // COMPLETION METRICS
+  // ===========================================================================
   const completionMetrics = useMemo(() => {
-    const total = setupSteps.length;
     const completed = setupSteps.filter(s => s.isComplete).length;
-    const critical = setupSteps.filter(s => s.priority === 'critical' && !s.isComplete);
-    const totalMinutes = setupSteps.filter(s => !s.isComplete).reduce((acc, s) => acc + s.estimatedMinutes, 0);
+    const total = setupSteps.length;
+    const percentage = total > 0 ? Math.round((completed / total) * 100) : 100;
+    const remainingSteps = setupSteps.filter(s => !s.isComplete);
+    const estimatedMinutes = remainingSteps.reduce((acc, s) => acc + s.estimatedMinutes, 0);
 
     return {
-      percentage: total > 0 ? Math.round((completed / total) * 100) : 0,
       completed,
       total,
-      criticalRemaining: critical.length,
-      estimatedMinutes: totalMinutes,
+      percentage,
+      estimatedMinutes,
     };
   }, [setupSteps]);
 
@@ -325,22 +247,14 @@ export default function SettingsScreen() {
 
     if (userRole === 'Founder') {
       actions.push(
-        {
-          id: 'pending_approvals',
-          title: 'Pending Approvals',
-          subtitle: 'Review allocation requests',
-          icon: Clock,
-          color: '#f97316',
-          action: () => router.push('/(tabs)/decide'),
-          badge: '3',
-        },
+        // Removed 'pending_approvals' - orphan screen per user request
         {
           id: 'generate_report',
           title: 'Generate Report',
           subtitle: 'Weekly or Board Pack',
           icon: BarChart3,
           color: '#10b981',
-          action: () => router.push('/reports'),
+          action: () => router.push('/(tabs)/'),
         },
         {
           id: 'sync_data',
@@ -359,7 +273,7 @@ export default function SettingsScreen() {
           subtitle: 'Review and manage',
           icon: Target,
           color: '#8b5cf6',
-          action: () => router.push('/(tabs)/evaluate'),
+          action: () => router.push('/(tabs)/'),
         },
         {
           id: 'team_capacity',
@@ -378,7 +292,7 @@ export default function SettingsScreen() {
           subtitle: 'View assigned work',
           icon: CheckCircle2,
           color: '#10b981',
-          action: () => router.push('/(tabs)/do'),
+          action: () => router.push('/(tabs)/tasks'),
         },
         {
           id: 'submit_work',
@@ -386,20 +300,10 @@ export default function SettingsScreen() {
           subtitle: 'Send for review',
           icon: Upload,
           color: '#8b5cf6',
-          action: () => router.push('/(tabs)/do'),
+          action: () => router.push('/(tabs)/tasks'),
         }
       );
     }
-
-    // Common actions
-    actions.push({
-      id: 'function_library',
-      title: 'Function Library',
-      subtitle: 'Tools & templates',
-      icon: Library,
-      color: '#f59e0b',
-      action: () => router.push('/function-hub'),
-    });
 
     return actions;
   }, [userRole]);
@@ -430,6 +334,135 @@ export default function SettingsScreen() {
   const handleLogout = async () => {
     await logout();
     router.replace('/sign-in');
+  };
+
+  const handleClearAllData = async () => {
+    Alert.alert(
+      'Reset Company Data',
+      'This will remove ALL company data:\n\n• All objectives, tasks, and work plans\n• All team members and assignments\n• All decisions and allocations\n• All squads, loadouts, and tech tree progress\n• All notifications and messages\n\nYour Supabase account will remain intact.\n\nAre you absolutely sure?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Reset Everything',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              console.log('[Settings] 🔄 Starting comprehensive reset...');
+
+              // Gather all store reset handlers
+              const storeHandlers: StoreResetHandlers = {
+                armoryStore: useArmoryStore.getState(),
+                financeStore: useFinanceStore.getState(),
+                organizationStore: useOrganizationStore.getState(),
+                supplierStore: useSupplierStore.getState(),
+                decisionsStore: useDecisionsStore.getState(),
+                objectivesStore: useObjectivesStore.getState(),
+                workPlanStore: useWorkPlanStore.getState(),
+                okrStore: useOKRStore.getState(),
+                queueStore: useQueueStore.getState(),
+                requestStore: useRequestStore.getState(),
+                messagesStore: useMessagesStore.getState(),
+                calendarStore: useCalendarStore.getState(),
+                capacityStore: useCapacityStore.getState(),
+                squadStore: useSquadStore.getState(),
+                businessImprovementsStore: useBusinessImprovementsStore.getState(),
+                integrationsStore: useIntegrationsStore.getState(),
+                leaderboardStore: useLeaderboardStore.getState(),
+                okrPlannerStore: useOKRPlannerStore.getState(),
+                techTreeStore: useTechTreeStore.getState(),
+              };
+
+              // Get counts BEFORE reset (for debug report)
+              const beforeCounts = await getDataCounts();
+              console.log('[Settings] 📊 Before reset:', beforeCounts);
+
+              // Execute comprehensive reset
+              const resetReport = await resetAllCompanyData(storeHandlers);
+
+              // ALSO clear Supabase financial data for the test workspace
+              try {
+                const { supabase } = await import('@/lib/supabase');
+                const testWorkspaceId = '00000000-0000-0000-0000-000000000001';
+
+                console.log('[Settings] 🗑️ Clearing Supabase financial data for test workspace...');
+
+                // Delete financial transactions
+                const { error: txError } = await supabase
+                  .from('financial_transactions')
+                  .delete()
+                  .eq('workspace_id', testWorkspaceId);
+
+                if (txError) {
+                  console.error('[Settings] Error deleting financial_transactions:', txError);
+                } else {
+                  console.log('[Settings] ✅ Deleted financial_transactions');
+                }
+
+                // Delete budget targets
+                const { error: budgetError } = await supabase
+                  .from('budget_targets')
+                  .delete()
+                  .eq('workspace_id', testWorkspaceId);
+
+                if (budgetError) {
+                  console.error('[Settings] Error deleting budget_targets:', budgetError);
+                } else {
+                  console.log('[Settings] ✅ Deleted budget_targets');
+                }
+
+                console.log('[Settings] ✅ Supabase financial data cleared');
+              } catch (supabaseError) {
+                console.error('[Settings] Failed to clear Supabase financial data:', supabaseError);
+                // Don't throw - we still want the rest of the reset to complete
+              }
+
+              // Get counts AFTER reset (for verification)
+              const afterCounts = await getDataCounts();
+              console.log('[Settings] 📊 After reset:', afterCounts);
+
+              // Log debug report in dev mode
+              if (__DEV__) {
+                console.log('\n' + formatDebugReport(resetReport) + '\n');
+                console.log('[Settings] 📊 Data Counts After Reset:');
+                console.log('  - Urgent Decisions:', useDecisionsStore.getState().decisions.length);
+                console.log('  - Objectives:', useObjectivesStore.getState().objectives.length);
+                console.log('  - Tasks/Activities:', useWorkPlanStore.getState().workPlans.length);
+                console.log('  - Team Members:', useOrganizationStore.getState().members.length);
+                console.log('  - AI Agents:', useOrganizationStore.getState().aiAgents.length);
+                console.log('  - Squads:', useArmoryStore.getState().squads.length);
+                console.log('  - Tech Tree Nodes:', Object.keys(useTechTreeStore.getState().nodeProgress).length);
+              }
+
+              console.log('[Settings] ✅ Reset complete! Signing out...');
+
+              // Sign out (this will clear auth state)
+              await logout();
+
+              // Show success message with debug info
+              const successMessage = __DEV__
+                ? `Reset complete!\n\n✅ Cleared ${resetReport.totalItemsCleared} items\n✅ Cleared Supabase financial data\n\nSign in again to start fresh.`
+                : 'All company data has been cleared. Sign in again to start fresh.';
+
+              Alert.alert(
+                'Reset Complete!',
+                successMessage,
+                [
+                  {
+                    text: 'OK',
+                    onPress: () => {
+                      router.replace('/sign-in');
+                    },
+                  },
+                ]
+              );
+            } catch (error) {
+              console.error('[Settings] ❌ Failed to reset data:', error);
+              Alert.alert('Reset Failed', 'Could not reset data. Please try again or contact support.');
+            }
+          },
+        },
+      ]
+    );
   };
 
   const handleReplayOnboarding = async () => {
@@ -723,19 +756,17 @@ export default function SettingsScreen() {
               {operationalMetrics.map((metric, index) => (
                 <View
                   key={metric.label}
-                  className={`flex-1 rounded-xl p-3 ${
-                    metric.status === 'good' ? 'bg-emerald-500/10 border border-emerald-500/30' :
+                  className={`flex-1 rounded-xl p-3 ${metric.status === 'good' ? 'bg-emerald-500/10 border border-emerald-500/30' :
                     metric.status === 'warning' ? 'bg-amber-500/10 border border-amber-500/30' :
-                    'bg-red-500/10 border border-red-500/30'
-                  }`}
+                      'bg-red-500/10 border border-red-500/30'
+                    }`}
                 >
                   <Text className={textSecondary} style={{ fontSize: 10 }}>{metric.label}</Text>
                   <View className="flex-row items-center mt-1">
-                    <Text className={`text-lg font-bold ${
-                      metric.status === 'good' ? 'text-emerald-400' :
+                    <Text className={`text-lg font-bold ${metric.status === 'good' ? 'text-emerald-400' :
                       metric.status === 'warning' ? 'text-amber-400' :
-                      'text-red-400'
-                    }`}>
+                        'text-red-400'
+                      }`}>
                       {metric.value}
                     </Text>
                     {metric.trend === 'up' && <TrendingUp size={14} color="#10b981" style={{ marginLeft: 4 }} />}
@@ -746,138 +777,78 @@ export default function SettingsScreen() {
           </View>
         </View>
 
-        {/* Setup Checklist Section */}
-        {(groupedSteps.critical.length > 0 || groupedSteps.high.length > 0 || groupedSteps.medium.length > 0) && (
-          <Animated.View entering={FadeInDown.delay(100)} className="px-5 mt-4 mb-4">
+        {/* 🎯 ONBOARDING GUIDE - Critical for Founders */}
+        {userRole === 'Founder' && (
+          <Animated.View entering={FadeInDown.delay(150)} className="px-5 mb-4 mt-4">
             <Pressable
-              onPress={() => toggleSection('checklist')}
-              className="flex-row items-center justify-between mb-3"
+              onPress={() => setShowOnboardingGuide(true)}
+              className={`${bgCard} border-2 border-blue-500/50 rounded-2xl p-5 active:opacity-90`}
+              style={{ borderStyle: 'dashed' }}
             >
-              <View className="flex-row items-center">
-                <View className="w-8 h-8 rounded-lg bg-amber-500/20 items-center justify-center mr-3">
-                  <Target size={18} color="#f59e0b" />
+              <View className="flex-row items-start justify-between">
+                <View className="flex-row items-start flex-1">
+                  <View className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 items-center justify-center mr-4">
+                    <Rocket size={28} color="#ffffff" />
+                  </View>
+                  <View className="flex-1">
+                    <View className="flex-row items-center gap-2 mb-1">
+                      <Text className={`font-bold text-lg ${textPrimary}`}>Setup & Onboarding</Text>
+                      <View className="bg-blue-500 rounded-full px-2 py-0.5">
+                        <Text className="text-white text-[10px] font-bold">IMPORTANT</Text>
+                      </View>
+                    </View>
+                    <Text className={`text-sm ${textSecondary} mb-2`}>
+                      Step-by-step guide to set up your database and add team members
+                    </Text>
+                    <View className="flex-row flex-wrap gap-2 mt-2">
+                      <View className="flex-row items-center bg-blue-500/10 rounded-lg px-2 py-1">
+                        <Database size={12} color="#3b82f6" />
+                        <Text className="text-blue-600 dark:text-blue-400 text-xs font-semibold ml-1">
+                          Database Setup
+                        </Text>
+                      </View>
+                      <View className="flex-row items-center bg-emerald-500/10 rounded-lg px-2 py-1">
+                        <Users size={12} color="#10b981" />
+                        <Text className="text-emerald-600 dark:text-emerald-400 text-xs font-semibold ml-1">
+                          Add Team
+                        </Text>
+                      </View>
+                      <View className="flex-row items-center bg-violet-500/10 rounded-lg px-2 py-1">
+                        <CheckCircle2 size={12} color="#8b5cf6" />
+                        <Text className="text-violet-600 dark:text-violet-400 text-xs font-semibold ml-1">
+                          Verification
+                        </Text>
+                      </View>
+                    </View>
+                  </View>
                 </View>
-                <View>
-                  <Text className={`font-bold text-lg ${textPrimary}`}>Setup Checklist</Text>
-                  <Text className={`text-xs ${textSecondary}`}>
-                    {completionMetrics.completed}/{completionMetrics.total} complete • {completionMetrics.estimatedMinutes}m remaining
-                  </Text>
-                </View>
+                <ChevronRight size={24} color="#3b82f6" style={{ marginLeft: 8 }} />
               </View>
-              {expandedSections.checklist ? (
-                <ChevronUp size={20} color={iconColor} />
-              ) : (
-                <ChevronDown size={20} color={iconColor} />
-              )}
             </Pressable>
-
-            {expandedSections.checklist && (
-              <View className="gap-2">
-                {/* Critical Priority */}
-                {groupedSteps.critical.length > 0 && (
-                  <View className="mb-2">
-                    <View className="flex-row items-center mb-2">
-                      <View
-                        className="px-2 py-1 rounded-md mr-2"
-                        style={{ backgroundColor: PRIORITY_COLORS.critical.bg }}
-                      >
-                        <Text className="text-white text-xs font-bold">CRITICAL</Text>
-                      </View>
-                      <Text className={`text-xs ${textSecondary}`}>Do these first</Text>
-                    </View>
-                    {groupedSteps.critical.map((step) => (
-                      <SetupStepCard key={step.id} step={step} isDark={isDark} isOffWhite={isOffWhite} />
-                    ))}
-                  </View>
-                )}
-
-                {/* High Priority */}
-                {groupedSteps.high.length > 0 && (
-                  <View className="mb-2">
-                    <View className="flex-row items-center mb-2">
-                      <View
-                        className="px-2 py-1 rounded-md mr-2"
-                        style={{ backgroundColor: PRIORITY_COLORS.high.bg }}
-                      >
-                        <Text className="text-white text-xs font-bold">HIGH</Text>
-                      </View>
-                      <Text className={`text-xs ${textSecondary}`}>Important for efficiency</Text>
-                    </View>
-                    {groupedSteps.high.map((step) => (
-                      <SetupStepCard key={step.id} step={step} isDark={isDark} isOffWhite={isOffWhite} />
-                    ))}
-                  </View>
-                )}
-
-                {/* Medium Priority */}
-                {groupedSteps.medium.length > 0 && (
-                  <View className="mb-2">
-                    <View className="flex-row items-center mb-2">
-                      <View
-                        className="px-2 py-1 rounded-md mr-2"
-                        style={{ backgroundColor: PRIORITY_COLORS.medium.bg }}
-                      >
-                        <Text className="text-white text-xs font-bold">RECOMMENDED</Text>
-                      </View>
-                      <Text className={`text-xs ${textSecondary}`}>Optimize your workflow</Text>
-                    </View>
-                    {groupedSteps.medium.map((step) => (
-                      <SetupStepCard key={step.id} step={step} isDark={isDark} isOffWhite={isOffWhite} />
-                    ))}
-                  </View>
-                )}
-              </View>
-            )}
           </Animated.View>
         )}
 
-        {/* Quick Actions Section */}
-        <Animated.View entering={FadeInDown.delay(200)} className="px-5 mb-4">
+        {/* Company & Team Settings - Standalone Section */}
+        <Animated.View entering={FadeInDown.delay(200)} className="px-5 mb-4 mt-4">
           <Pressable
-            onPress={() => toggleSection('quickActions')}
-            className="flex-row items-center justify-between mb-3"
+            onPress={() => router.push('/company-settings')}
+            className={`${bgCard} border ${borderColor} rounded-2xl p-4 active:opacity-90`}
           >
-            <View className="flex-row items-center">
-              <View className="w-8 h-8 rounded-lg bg-blue-500/20 items-center justify-center mr-3">
-                <Zap size={18} color="#3b82f6" />
+            <View className="flex-row items-center justify-between">
+              <View className="flex-row items-center flex-1">
+                <View className="w-12 h-12 rounded-xl bg-blue-500/10 items-center justify-center mr-3">
+                  <Building2 size={24} color="#3b82f6" />
+                </View>
+                <View className="flex-1">
+                  <Text className={`font-bold text-base ${textPrimary}`}>Company & Team</Text>
+                  <Text className={`text-xs ${textSecondary} mt-0.5`}>
+                    Manage company profile, team members, and invitations
+                  </Text>
+                </View>
               </View>
-              <Text className={`font-bold text-lg ${textPrimary}`}>Quick Actions</Text>
+              <ChevronRight size={20} color={iconColor} />
             </View>
-            {expandedSections.quickActions ? (
-              <ChevronUp size={20} color={iconColor} />
-            ) : (
-              <ChevronDown size={20} color={iconColor} />
-            )}
           </Pressable>
-
-          {expandedSections.quickActions && (
-            <View className="flex-row flex-wrap gap-3">
-              {quickActions.map((action) => (
-                <Pressable
-                  key={action.id}
-                  onPress={action.action}
-                  className={`${bgCard} border ${borderColor} rounded-xl p-4 active:opacity-70`}
-                  style={{ width: '47%' }}
-                >
-                  <View className="flex-row items-center justify-between mb-2">
-                    <View
-                      className="w-10 h-10 rounded-xl items-center justify-center"
-                      style={{ backgroundColor: `${action.color}20` }}
-                    >
-                      <action.icon size={20} color={action.color} />
-                    </View>
-                    {action.badge && (
-                      <View className="bg-red-500 rounded-full px-2 py-0.5">
-                        <Text className="text-white text-xs font-bold">{action.badge}</Text>
-                      </View>
-                    )}
-                  </View>
-                  <Text className={`font-semibold text-sm ${textPrimary}`}>{action.title}</Text>
-                  <Text className={`text-xs mt-0.5 ${textSecondary}`}>{action.subtitle}</Text>
-                </Pressable>
-              ))}
-            </View>
-          )}
         </Animated.View>
 
         {/* Preferences Section */}
@@ -907,26 +878,43 @@ export default function SettingsScreen() {
                   <Pressable
                     key={mode}
                     onPress={() => handleThemeChange(mode)}
-                    className={`flex-1 p-3 rounded-xl border-2 items-center ${
-                      themeMode === mode
-                        ? 'bg-blue-500/10 border-blue-500'
-                        : isDark ? 'bg-slate-800 border-slate-700' : isOffWhite ? 'bg-orange-100 border-orange-300' : 'bg-gray-100 border-gray-300'
-                    } active:opacity-70`}
+                    className={`flex-1 p-3 rounded-xl border-2 items-center ${themeMode === mode
+                      ? 'bg-blue-500/10 border-blue-500'
+                      : isDark ? 'bg-slate-800 border-slate-700' : isOffWhite ? 'bg-orange-100 border-orange-300' : 'bg-gray-100 border-gray-300'
+                      } active:opacity-70`}
                   >
                     <Icon size={20} color={themeMode === mode ? '#3b82f6' : iconColor} />
-                    <Text className={`text-xs font-medium mt-1 ${
-                      themeMode === mode ? 'text-blue-400' : textSecondary
-                    }`}>
+                    <Text className={`text-xs font-medium mt-1 ${themeMode === mode ? 'text-blue-400' : textSecondary
+                      }`}>
                       {label}
                     </Text>
                   </Pressable>
                 ))}
               </View>
 
+              {/* Currency Preference */}
+              <Text className={`text-xs font-medium mb-3 mt-4 ${textSecondary}`}>CURRENCY</Text>
+              <Pressable
+                onPress={() => setShowCurrencyPicker(true)}
+                className={`flex-row items-center justify-between p-3 rounded-xl border ${isDark ? 'bg-slate-800 border-slate-700' : isOffWhite ? 'bg-orange-100 border-orange-300' : 'bg-gray-100 border-gray-300'
+                  } active:opacity-70`}
+              >
+                <View className="flex-row items-center">
+                  <Globe size={18} color="#10b981" />
+                  <Text className={`font-medium ml-3 ${textPrimary}`}>
+                    {getCurrencySymbol(selectedCurrency)} {selectedCurrency}
+                  </Text>
+                </View>
+                <Text className={`text-sm ${textSecondary}`}>Change</Text>
+              </Pressable>
+              <Text className={`text-xs mt-2 ${textMuted}`}>
+                Used for displaying rates and financial data
+              </Text>
+
               {/* Replay Tutorial */}
               <Pressable
                 onPress={handleReplayOnboarding}
-                className={`flex-row items-center justify-between mt-4 pt-4 border-t ${borderColor} active:opacity-70`}
+                className={`flex-row items-center justify-between mt-3 pt-3 border-t ${borderColor} active:opacity-70`}
               >
                 <View className="flex-row items-center">
                   <Play size={18} color="#8b5cf6" />
@@ -943,6 +931,18 @@ export default function SettingsScreen() {
                 <View className="flex-row items-center">
                   <Info size={18} color="#3b82f6" />
                   <Text className={`font-medium ml-3 ${textPrimary}`}>About Centaur OS</Text>
+                </View>
+                <ChevronRight size={18} color={iconColor} />
+              </Pressable>
+
+              {/* Privacy Settings */}
+              <Pressable
+                onPress={() => router.push('/settings/privacy')}
+                className={`flex-row items-center justify-between mt-3 pt-3 border-t ${borderColor} active:opacity-70`}
+              >
+                <View className="flex-row items-center">
+                  <Shield size={18} color="#8b5cf6" />
+                  <Text className={`font-medium ml-3 ${textPrimary}`}>Privacy & Visibility</Text>
                 </View>
                 <ChevronRight size={18} color={iconColor} />
               </Pressable>
@@ -1062,45 +1062,19 @@ export default function SettingsScreen() {
                   isDark={isDark}
                   isOffWhite={isOffWhite}
                 />
+                <NavigationCard
+                  icon={Trash2}
+                  iconColor="#ef4444"
+                  title="Clear All Data"
+                  subtitle="Remove all local app data (DANGEROUS)"
+                  onPress={handleClearAllData}
+                  isDark={isDark}
+                  isOffWhite={isOffWhite}
+                />
               </View>
             )}
           </Animated.View>
         )}
-
-        {/* Resources Section */}
-        <Animated.View entering={FadeInDown.delay(600)} className="px-5 mb-8">
-          <View className="flex-row items-center mb-3">
-            <View className="w-8 h-8 rounded-lg bg-pink-500/20 items-center justify-center mr-3">
-              <Sparkles size={18} color="#ec4899" />
-            </View>
-            <Text className={`font-bold text-lg ${textPrimary}`}>Resources</Text>
-          </View>
-
-          {/* Startup Pack - For Founders */}
-          {userRole === 'Founder' && (
-            <NavigationCard
-              icon={Rocket}
-              iconColor="#10b981"
-              title="Startup Pack"
-              subtitle="UK company setup guides & templates"
-              onPress={() => router.push('/startup-pack')}
-              isDark={isDark}
-              isOffWhite={isOffWhite}
-            />
-          )}
-
-          <View className={userRole === 'Founder' ? 'mt-2' : ''}>
-            <NavigationCard
-              icon={Library}
-              iconColor="#f59e0b"
-              title="Function Library"
-              subtitle="Templates, tools, and best practices"
-              onPress={() => router.push('/function-hub')}
-              isDark={isDark}
-              isOffWhite={isOffWhite}
-            />
-          </View>
-        </Animated.View>
 
         <View className="h-8" />
       </ScrollView>
@@ -1158,13 +1132,12 @@ export default function SettingsScreen() {
                 <Pressable
                   onPress={handleGoogleSheetsSync}
                   disabled={syncStatus === 'syncing' || syncStatus === 'success'}
-                  className={`rounded-xl p-4 flex-row items-center justify-center gap-2 ${
-                    syncStatus === 'syncing'
-                      ? (isDark ? 'bg-slate-800' : isOffWhite ? 'bg-orange-200' : 'bg-gray-200')
-                      : syncStatus === 'success'
-                        ? 'bg-emerald-600'
-                        : 'bg-emerald-500'
-                  } active:opacity-70`}
+                  className={`rounded-xl p-4 flex-row items-center justify-center gap-2 ${syncStatus === 'syncing'
+                    ? (isDark ? 'bg-slate-800' : isOffWhite ? 'bg-orange-200' : 'bg-gray-200')
+                    : syncStatus === 'success'
+                      ? 'bg-emerald-600'
+                      : 'bg-emerald-500'
+                    } active:opacity-70`}
                 >
                   {syncStatus === 'syncing' ? (
                     <>
@@ -1251,6 +1224,313 @@ export default function SettingsScreen() {
             </ScrollView>
           </View>
         </View>
+      </Modal>
+
+      {/* Currency Picker Modal */}
+      <Modal
+        visible={showCurrencyPicker}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setShowCurrencyPicker(false)}
+      >
+        <Pressable className="flex-1 bg-black/70" onPress={() => setShowCurrencyPicker(false)}>
+          <View className="flex-1" />
+          <Pressable onPress={(e) => e.stopPropagation()} style={{ maxHeight: '70%' }}>
+            <View className={`${isDark ? 'bg-slate-900' : isOffWhite ? 'bg-orange-50' : 'bg-white'} rounded-t-3xl`}>
+              <View className={`p-6 border-b ${borderColor}`}>
+                <View className="flex-row items-center justify-between">
+                  <View className="flex-row items-center gap-3">
+                    <View className="w-12 h-12 bg-emerald-500/20 rounded-xl items-center justify-center">
+                      <Globe size={24} color="#10b981" />
+                    </View>
+                    <View>
+                      <Text className={`text-xl font-bold ${textPrimary}`}>Select Currency</Text>
+                      <Text className={`text-xs ${textSecondary}`}>Choose your preferred currency</Text>
+                    </View>
+                  </View>
+                  <Pressable
+                    onPress={() => setShowCurrencyPicker(false)}
+                    className={`w-10 h-10 items-center justify-center rounded-full ${bgCardAlt} active:opacity-70`}
+                  >
+                    <X size={24} color={iconColor} />
+                  </Pressable>
+                </View>
+              </View>
+
+              <ScrollView className="px-4 py-4" contentContainerStyle={{ flexGrow: 1 }}>
+                {getSupportedCurrencyList().map((currency) => (
+                  <Pressable
+                    key={currency.code}
+                    onPress={() => {
+                      setSelectedCurrency(currency.code);
+                      setShowCurrencyPicker(false);
+                    }}
+                    className={`flex-row items-center justify-between p-4 rounded-xl mb-2 ${selectedCurrency === currency.code
+                      ? 'bg-emerald-500/20 border-2 border-emerald-500'
+                      : isDark ? 'bg-slate-800 border border-slate-700' : isOffWhite ? 'bg-orange-100 border border-orange-200' : 'bg-gray-100 border border-gray-200'
+                      } active:opacity-70`}
+                  >
+                    <View className="flex-row items-center">
+                      <View className={`w-10 h-10 rounded-full items-center justify-center ${selectedCurrency === currency.code ? 'bg-emerald-500' : isDark ? 'bg-slate-700' : isOffWhite ? 'bg-orange-200' : 'bg-gray-200'
+                        }`}>
+                        <Text className={`text-lg font-bold ${selectedCurrency === currency.code ? 'text-white' : textPrimary
+                          }`}>
+                          {currency.symbol}
+                        </Text>
+                      </View>
+                      <View className="ml-3">
+                        <Text className={`font-semibold ${textPrimary}`}>{currency.code}</Text>
+                        <Text className={`text-xs ${textSecondary}`}>{currency.label.replace(` (${currency.symbol})`, '')}</Text>
+                      </View>
+                    </View>
+                    {selectedCurrency === currency.code && (
+                      <Check size={20} color="#10b981" />
+                    )}
+                  </Pressable>
+                ))}
+                <View className="h-8" />
+              </ScrollView>
+            </View>
+          </Pressable>
+        </Pressable>
+      </Modal>
+
+      {/* Onboarding Guide Modal */}
+      <Modal
+        visible={showOnboardingGuide}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setShowOnboardingGuide(false)}
+      >
+        <Pressable className="flex-1 bg-black/70" onPress={() => setShowOnboardingGuide(false)}>
+          <View className="flex-1" />
+          <Pressable onPress={(e) => e.stopPropagation()} style={{ maxHeight: '90%' }}>
+            <View className={`${isDark ? 'bg-slate-900' : isOffWhite ? 'bg-orange-50' : 'bg-white'} rounded-t-3xl`}>
+              {/* Header */}
+              <View className={`p-6 border-b ${borderColor}`}>
+                <View className="flex-row items-center justify-between">
+                  <View className="flex-row items-center gap-3">
+                    <View className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl items-center justify-center">
+                      <Rocket size={24} color="#ffffff" />
+                    </View>
+                    <View>
+                      <Text className={`text-xl font-bold ${textPrimary}`}>Backend Setup</Text>
+                      <Text className={`text-xs ${textSecondary}`}>3 simple steps - ~10 minutes total</Text>
+                    </View>
+                  </View>
+                  <Pressable
+                    onPress={() => setShowOnboardingGuide(false)}
+                    className={`w-10 h-10 items-center justify-center rounded-full ${bgCardAlt} active:opacity-70`}
+                  >
+                    <X size={24} color={iconColor} />
+                  </Pressable>
+                </View>
+              </View>
+
+              {/* Content */}
+              <ScrollView className="px-6 py-4" showsVerticalScrollIndicator={true}>
+                {/* Part 1: Database Setup */}
+                <View className="mb-6">
+                  <View className="flex-row items-center gap-2 mb-3">
+                    <Database size={20} color="#3b82f6" />
+                    <Text className={`text-lg font-bold ${textPrimary}`}>Part 1: Database Setup</Text>
+                    <View className="bg-blue-500 rounded-full px-2 py-0.5">
+                      <Text className="text-white text-[10px] font-bold">ONE-TIME</Text>
+                    </View>
+                  </View>
+
+                  <View className="bg-blue-500/10 border-2 border-blue-500/30 rounded-xl p-4 mb-3">
+                    <Text className={`font-semibold ${textPrimary} mb-2`}>Step 1: Run Core Schema</Text>
+                    <Text className={`text-sm ${textSecondary} mb-3`}>
+                      This creates all database tables (users, workspaces, members, tasks, etc.)
+                    </Text>
+                    <View className={`${isDark ? 'bg-slate-800' : isOffWhite ? 'bg-orange-100' : 'bg-gray-100'} rounded-lg p-3 mb-2`}>
+                      <Text className="text-xs font-mono text-emerald-600 dark:text-emerald-400">
+                        1. Open Supabase Dashboard → SQL Editor{'\n'}
+                        2. Click + New Query{'\n'}
+                        3. Copy supabase-schema.sql file{'\n'}
+                        4. Paste and click Run{'\n'}
+                        5. Wait for ✅ "Success. No rows returned"
+                      </Text>
+                    </View>
+                    <Pressable
+                      onPress={() => Linking.openURL('https://supabase.com/dashboard')}
+                      className="bg-blue-500 py-2 px-4 rounded-lg flex-row items-center justify-center gap-2 active:opacity-70"
+                    >
+                      <ExternalLink size={16} color="#ffffff" />
+                      <Text className="text-white font-semibold text-sm">Open Supabase Dashboard</Text>
+                    </Pressable>
+                  </View>
+
+                  <Text className={`text-xs ${textMuted} mb-3`}>
+                    ✅ Verify: Table Editor shows users, workspaces, memberships, team_members, tasks, objectives tables
+                  </Text>
+                </View>
+
+                {/* Part 2: Create Founder Account */}
+                <View className="mb-6">
+                  <View className="flex-row items-center gap-2 mb-3">
+                    <User size={20} color="#8b5cf6" />
+                    <Text className={`text-lg font-bold ${textPrimary}`}>Part 2: Create Founder Account</Text>
+                  </View>
+
+                  <View className="bg-violet-500/10 border-2 border-violet-500/30 rounded-xl p-4 mb-3">
+                    <Text className={`font-semibold ${textPrimary} mb-2`}>Step 2: Sign Up</Text>
+                    <Text className={`text-sm ${textSecondary} mb-3`}>
+                      If you haven't already, create your founder account:
+                    </Text>
+                    <View className={`${isDark ? 'bg-slate-800' : isOffWhite ? 'bg-orange-100' : 'bg-gray-100'} rounded-lg p-3 mb-2`}>
+                      <Text className="text-xs font-mono text-violet-600 dark:text-violet-400">
+                        1. Sign Out (if already signed in){'\n'}
+                        2. Tap "Create Account"{'\n'}
+                        3. Enter: Name, Email, Password (6+ chars){'\n'}
+                        4. Enter: Workspace Name{'\n'}
+                        5. Tap "Create Account"
+                      </Text>
+                    </View>
+                    <Pressable
+                      onPress={() => {
+                        Alert.alert(
+                          'Sign Out?',
+                          'This will sign you out so you can create a new account. Continue?',
+                          [
+                            { text: 'Cancel', style: 'cancel' },
+                            {
+                              text: 'Sign Out',
+                              style: 'destructive',
+                              onPress: () => {
+                                setShowOnboardingGuide(false);
+                                useAppStore.getState().setCurrentUser(null);
+                                router.replace('/sign-in');
+                              },
+                            },
+                          ]
+                        );
+                      }}
+                      className="bg-violet-500 py-2 px-4 rounded-lg flex-row items-center justify-center gap-2 active:opacity-70"
+                    >
+                      <LogOut size={16} color="#ffffff" />
+                      <Text className="text-white font-semibold text-sm">Sign Out to Create Account</Text>
+                    </Pressable>
+                  </View>
+
+                  <Text className={`text-xs ${textMuted} mb-3`}>
+                    ✅ Verify: Supabase → Authentication → Users shows your email
+                  </Text>
+                </View>
+
+                {/* Part 3: Add Team Members */}
+                <View className="mb-6">
+                  <View className="flex-row items-center gap-2 mb-3">
+                    <Users size={20} color="#10b981" />
+                    <Text className={`text-lg font-bold ${textPrimary}`}>Part 3: Add Team Members</Text>
+                  </View>
+
+                  {/* Option A */}
+                  <View className="bg-emerald-500/10 border-2 border-emerald-500/30 rounded-xl p-4 mb-3">
+                    <Text className={`font-semibold ${textPrimary} mb-2`}>OPTION A: Without User Accounts (Faster)</Text>
+                    <Text className={`text-sm ${textSecondary} mb-3`}>
+                      For planning only - team members won't be able to log in yet
+                    </Text>
+                    <View className={`${isDark ? 'bg-slate-800' : isOffWhite ? 'bg-orange-100' : 'bg-gray-100'} rounded-lg p-3 mb-2`}>
+                      <Text className="text-xs font-mono text-emerald-600 dark:text-emerald-400">
+                        1. Go to People tab{'\n'}
+                        2. Tap + Add Member{'\n'}
+                        3. Fill in: Name, Role, Function, Capacity{'\n'}
+                        4. Tap Save
+                      </Text>
+                    </View>
+                    <Pressable
+                      onPress={() => {
+                        setShowOnboardingGuide(false);
+                        router.push('/(tabs)/people');
+                      }}
+                      className="bg-emerald-500 py-2 px-4 rounded-lg flex-row items-center justify-center gap-2 active:opacity-70"
+                    >
+                      <Users size={16} color="#ffffff" />
+                      <Text className="text-white font-semibold text-sm">Go to People Tab</Text>
+                    </Pressable>
+                  </View>
+
+                  {/* Option B */}
+                  <View className="bg-amber-500/10 border-2 border-amber-500/30 rounded-xl p-4 mb-3">
+                    <Text className={`font-semibold ${textPrimary} mb-2`}>OPTION B: With User Accounts (Production)</Text>
+                    <Text className={`text-sm ${textSecondary} mb-3`}>
+                      Full multi-user setup - team members can log in and collaborate
+                    </Text>
+                    <View className={`${isDark ? 'bg-slate-800' : isOffWhite ? 'bg-orange-100' : 'bg-gray-100'} rounded-lg p-3 mb-2`}>
+                      <Text className="text-xs font-mono text-amber-600 dark:text-amber-400">
+                        STEP 1: Team member creates account{'\n'}
+                        • They tap "Create Account"{'\n'}
+                        • Enter their name, email, password{'\n'}
+                        {'\n'}
+                        STEP 2: You invite them to workspace{'\n'}
+                        • Supabase → Table Editor → memberships{'\n'}
+                        • Insert row with:{'\n'}
+                        {'  '}workspace_id: (your workspace ID){'\n'}
+                        {'  '}user_id: (their user ID from users table){'\n'}
+                        {'  '}role: Founder/FractionalExec/Apprentice{'\n'}
+                        {'  '}function: Finance/Sales/etc{'\n'}
+                        {'\n'}
+                        STEP 3: Link to team member record{'\n'}
+                        • People tab → Add Member (same name){'\n'}
+                        • Supabase → team_members → Edit row{'\n'}
+                        • Set user_id field to their user ID
+                      </Text>
+                    </View>
+                    <View className="flex-row gap-2">
+                      <Pressable
+                        onPress={() => Linking.openURL('https://supabase.com/dashboard')}
+                        className="flex-1 bg-amber-500 py-2 px-4 rounded-lg flex-row items-center justify-center gap-2 active:opacity-70"
+                      >
+                        <Database size={16} color="#ffffff" />
+                        <Text className="text-white font-semibold text-sm">Supabase</Text>
+                      </Pressable>
+                      <Pressable
+                        onPress={() => {
+                          setShowOnboardingGuide(false);
+                          router.push('/(tabs)/people');
+                        }}
+                        className="flex-1 bg-emerald-500 py-2 px-4 rounded-lg flex-row items-center justify-center gap-2 active:opacity-70"
+                      >
+                        <Users size={16} color="#ffffff" />
+                        <Text className="text-white font-semibold text-sm">People Tab</Text>
+                      </Pressable>
+                    </View>
+                  </View>
+
+                  <Text className={`text-xs ${textMuted} mb-3`}>
+                    ✅ Verify: People tab shows team members, assignments work correctly
+                  </Text>
+                </View>
+
+                {/* Full Guide Link */}
+                <View className="bg-gradient-to-r from-blue-500/20 to-violet-500/20 border-2 border-blue-500/30 rounded-xl p-4 mb-4">
+                  <Text className={`font-bold text-base ${textPrimary} mb-2`}>
+                    📖 Complete Onboarding Guide
+                  </Text>
+                  <Text className={`text-sm ${textSecondary} mb-3`}>
+                    For detailed instructions, troubleshooting, and advanced scenarios, see ONBOARDING_GUIDE.md in your project folder.
+                  </Text>
+                  <Text className={`text-xs ${textMuted}`}>
+                    Covers: Database setup, user management, multi-workspace support, escalation system, troubleshooting, and more.
+                  </Text>
+                </View>
+
+                {/* Support */}
+                <View className={`${isDark ? 'bg-slate-800' : isOffWhite ? 'bg-orange-100' : 'bg-gray-100'} rounded-xl p-4`}>
+                  <Text className={`font-semibold ${textPrimary} mb-2`}>Need Help?</Text>
+                  <Text className={`text-xs ${textSecondary}`}>
+                    • Check SUPABASE_AUTH_GUIDE.md for auth issues{'\n'}
+                    • Check README.md for feature documentation{'\n'}
+                    • Review expo.log file for runtime errors{'\n'}
+                    • Settings → Help & Support for more resources
+                  </Text>
+                </View>
+              </ScrollView>
+            </View>
+          </Pressable>
+        </Pressable>
       </Modal>
     </View>
   );

@@ -44,7 +44,7 @@ import { getInitials, ROLE_COLORS } from '@/components/Avatar';
 import { AIUsageMonitor } from '@/components/AIUsageMonitor';
 
 type InvitationStatus = 'pending' | 'accepted' | 'rejected';
-type MemberRole = 'Founder' | 'FractionalExec' | 'Apprentice';
+type MemberRole = 'Founder' | 'CoFounder' | 'FractionalExec' | 'Apprentice';
 
 type Invitation = {
   id: string;
@@ -63,6 +63,12 @@ const ROLE_INFO: Record<MemberRole, { icon: typeof Crown; title: string; descrip
     icon: Crown,
     title: 'Founder',
     description: 'Full access. Owns the company. Can invite, remove, and manage all team members.',
+    color: '#8b5cf6',
+  },
+  CoFounder: {
+    icon: Shield,
+    title: 'Co-Founder',
+    description: 'Executive level access. Shares leadership with the Founder.',
     color: '#8b5cf6',
   },
   FractionalExec: {
@@ -584,9 +590,8 @@ export default function CompanySettingsScreen() {
                 <Pressable
                   key={member.id}
                   onPress={() => !isYou && openRoleChangeModal(member)}
-                  className={`flex-row items-center justify-between py-3 ${
-                    index < internalTeam.length - 1 ? 'border-b border-slate-100 dark:border-slate-800' : ''
-                  } ${!isYou ? 'active:bg-slate-50 dark:active:bg-slate-800' : ''}`}
+                  className={`flex-row items-center justify-between py-3 ${index < internalTeam.length - 1 ? 'border-b border-slate-100 dark:border-slate-800' : ''
+                    } ${!isYou ? 'active:bg-slate-50 dark:active:bg-slate-800' : ''}`}
                 >
                   <View className="flex-row items-center gap-3 flex-1">
                     <View
@@ -672,11 +677,10 @@ export default function CompanySettingsScreen() {
               {pendingInvitations.filter(inv => inv.status === 'pending').map((invitation, index) => (
                 <View
                   key={invitation.id}
-                  className={`py-3 ${
-                    index < pendingInvitations.filter(inv => inv.status === 'pending').length - 1
+                  className={`py-3 ${index < pendingInvitations.filter(inv => inv.status === 'pending').length - 1
                       ? 'border-b border-slate-100 dark:border-slate-800'
                       : ''
-                  }`}
+                    }`}
                 >
                   <View className="flex-row items-center justify-between mb-2">
                     <View className="flex-1">
@@ -758,11 +762,10 @@ export default function CompanySettingsScreen() {
                           <Pressable
                             key={role}
                             onPress={() => setInviteRole(role)}
-                            className={`flex-row items-center p-3 rounded-xl border-2 ${
-                              isSelected
+                            className={`flex-row items-center p-3 rounded-xl border-2 ${isSelected
                                 ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
                                 : 'border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800'
-                            } active:opacity-70`}
+                              } active:opacity-70`}
                           >
                             <View
                               className="w-10 h-10 rounded-lg items-center justify-center mr-3"
@@ -771,9 +774,8 @@ export default function CompanySettingsScreen() {
                               <IconComponent size={20} color={info.color} />
                             </View>
                             <View className="flex-1">
-                              <Text className={`font-semibold ${
-                                isSelected ? 'text-blue-600 dark:text-blue-400' : 'text-slate-700 dark:text-slate-300'
-                              }`}>
+                              <Text className={`font-semibold ${isSelected ? 'text-blue-600 dark:text-blue-400' : 'text-slate-700 dark:text-slate-300'
+                                }`}>
                                 {info.title}
                               </Text>
                               <Text className="text-slate-500 dark:text-slate-400 text-xs mt-0.5" numberOfLines={2}>
@@ -798,17 +800,15 @@ export default function CompanySettingsScreen() {
                         <Pressable
                           key={func}
                           onPress={() => setInviteFunction(func)}
-                          className={`px-4 py-2 rounded-lg border ${
-                            inviteFunction === func
+                          className={`px-4 py-2 rounded-lg border ${inviteFunction === func
                               ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
                               : 'border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800'
-                          } active:opacity-70`}
+                            } active:opacity-70`}
                         >
-                          <Text className={`text-sm font-medium ${
-                            inviteFunction === func
+                          <Text className={`text-sm font-medium ${inviteFunction === func
                               ? 'text-blue-600 dark:text-blue-400'
                               : 'text-slate-600 dark:text-slate-400'
-                          }`}>
+                            }`}>
                             {func}
                           </Text>
                         </Pressable>
@@ -868,11 +868,10 @@ export default function CompanySettingsScreen() {
                     <Pressable
                       key={role}
                       onPress={() => setNewRole(role)}
-                      className={`flex-row items-center p-3 rounded-xl border-2 ${
-                        isSelected
+                      className={`flex-row items-center p-3 rounded-xl border-2 ${isSelected
                           ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
                           : 'border-slate-200 dark:border-slate-700'
-                      } active:opacity-70`}
+                        } active:opacity-70`}
                     >
                       <View
                         className="w-8 h-8 rounded-lg items-center justify-center mr-3"
@@ -882,9 +881,8 @@ export default function CompanySettingsScreen() {
                       </View>
                       <View className="flex-1">
                         <View className="flex-row items-center gap-2">
-                          <Text className={`font-semibold ${
-                            isSelected ? 'text-blue-600 dark:text-blue-400' : 'text-slate-700 dark:text-slate-300'
-                          }`}>
+                          <Text className={`font-semibold ${isSelected ? 'text-blue-600 dark:text-blue-400' : 'text-slate-700 dark:text-slate-300'
+                            }`}>
                             {info.title}
                           </Text>
                           {isCurrent && (

@@ -136,7 +136,7 @@ export function ResourcePoolHeader({ selectedPersonId, onPersonSelect }: Resourc
         </View>
 
         {/* Financial Summary */}
-        <View className="flex-row items-center justify-between pt-2 border-t border-gray-100 dark:border-slate-800">
+        <View className="flex-row items-center justify-between pt-2 border-t border-gray-100 dark:border-slate-700">
           <View className="flex-row items-center gap-3">
             <View className="flex-row items-center">
               <Text className="text-gray-500 dark:text-slate-500 text-[9px] mr-1">Bank:</Text>
@@ -201,7 +201,7 @@ export function ResourcePoolHeader({ selectedPersonId, onPersonSelect }: Resourc
                 setSelectedMember(member);
                 setShowPersonModal(true);
               }}
-              className={`flex-row items-center px-3 py-1.5 border-b border-gray-100 dark:border-slate-800 active:bg-gray-50 dark:active:bg-slate-800 ${
+              className={`flex-row items-center px-3 py-1.5 border-b border-gray-100 dark:border-slate-700 active:bg-gray-50 dark:active:bg-slate-800 ${
                 isSelected ? 'bg-purple-50 dark:bg-purple-900/20' : ''
               }`}
             >

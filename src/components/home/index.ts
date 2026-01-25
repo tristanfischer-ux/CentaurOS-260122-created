@@ -4,6 +4,7 @@
  */
 
 export { UrgentDecisionsSection } from './UrgentDecisionsSection';
+export * from './EssentialToolsSection';
 export { BusinessObjectivesSection } from './BusinessObjectivesSection';
 export { CurrentActivitiesSection } from './CurrentActivitiesSection';
 export { TeamCapacityDashboard } from './TeamCapacityDashboard';

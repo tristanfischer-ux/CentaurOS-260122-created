@@ -114,8 +114,10 @@ export function InvitationListItem({ invitation, onUpdate }: InvitationListItemP
       position: invitation.position,
       proposedRate: currentRate.amount,
       rateType: currentRate.type === 'hourly_rate' ? 'hourly' :
-                currentRate.type === 'daily_rate' ? 'daily' : 'monthly',
+        currentRate.type === 'daily_rate' ? 'daily' : 'monthly',
       senderName: 'Your Team',
+      invitationLink: 'https://centauros.app/join', // Placeholder for legacy
+      expiresInDays: 7,
     });
   };
 

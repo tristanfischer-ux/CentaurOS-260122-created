@@ -4,8 +4,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { ArrowLeft, Calendar, DollarSign, Clock, MessageSquare, UserPlus, Send, AlertCircle, ChevronDown } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useInvitationStore, type NegotiationType } from '@/lib/state/invitation-store';
-import { useWorkspaceStore } from '@/lib/state/workspace-store';
-import { useCurrentMembership } from '@/lib/state/app-store';
+import { useCurrentMembership, useCurrentWorkspace } from '@/lib/state/app-store';
 import { composeInvitationEmail, isEmailAvailable } from '@/lib/email-service';
 import type { Function as BusinessFunction } from '@/types';
 
@@ -23,7 +22,7 @@ export default function SendInvitationScreen() {
 
   const insets = useSafeAreaInsets();
   const createInvitation = useInvitationStore(s => s.createInvitation);
-  const currentWorkspace = useWorkspaceStore(s => s.currentWorkspace);
+  const currentWorkspace = useCurrentWorkspace();
   const currentMembership = useCurrentMembership();
 
   // Form state - pre-fill from params if available
@@ -111,6 +110,8 @@ export default function SendInvitationScreen() {
           proposedRate: parseFloat(proposedRate),
           rateType: rateType === 'hourly_rate' ? 'hourly' : rateType === 'daily_rate' ? 'daily' : 'monthly',
           senderName: currentWorkspace.name,
+          invitationLink: 'https://centauros.app/join', // Placeholder for legacy
+          expiresInDays: 7,
         });
       }
 

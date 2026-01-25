@@ -12,8 +12,12 @@ interface Workspace {
   isActive: boolean;
 }
 
-// Demo workspaces
-const DEMO_WORKSPACES: Workspace[] = [
+// DISABLED: Demo data removed for multi-tenant architecture
+// Workspaces should be loaded from app-store
+const DEMO_WORKSPACES: Workspace[] = [];
+
+/* REFERENCE: Original demo data (will be migrated to use app-store)
+const DEMO_WORKSPACES_ORIGINAL: Workspace[] = [
   {
     id: 'ws-1',
     name: 'My Startup',
@@ -38,6 +42,7 @@ const DEMO_WORKSPACES: Workspace[] = [
     isActive: false,
   },
 ];
+*/
 
 interface WorkspaceSwitcherProps {
   currentWorkspace?: { id: string; name: string };

@@ -4,7 +4,7 @@
  */
 
 import { View, Text, Pressable, Modal, ScrollView, TextInput } from 'react-native';
-import { useState, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import {
@@ -340,7 +340,7 @@ function DecisionDetailModal({ decision, visible, onClose, onDecide }: DecisionD
               </View>
 
               {/* Context */}
-              <View className="mb-4 bg-slate-50 dark:bg-slate-800 rounded-xl p-4">
+              <View className="mb-4 bg-slate-50 dark:bg-slate-900 rounded-xl p-4">
                 <Text className="text-slate-500 dark:text-slate-400 text-xs font-bold uppercase mb-2">
                   Context
                 </Text>
@@ -363,7 +363,7 @@ function DecisionDetailModal({ decision, visible, onClose, onDecide }: DecisionD
                         className={`rounded-xl p-4 border-2 ${
                           selectedOption === option.id
                             ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
-                            : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800'
+                            : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900'
                         }`}
                       >
                         <View className="flex-row items-center justify-between mb-1">
@@ -492,7 +492,7 @@ function AllocationRequestDetailModal({
                 <Text className="text-slate-500 dark:text-slate-400 text-xs font-bold uppercase mb-2">
                   Requested By
                 </Text>
-                <View className="flex-row items-center bg-slate-50 dark:bg-slate-800 rounded-xl p-3">
+                <View className="flex-row items-center bg-slate-50 dark:bg-slate-900 rounded-xl p-3">
                   <View className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 items-center justify-center mr-3">
                     <Text className="text-blue-600 dark:text-blue-400 font-bold">
                       {requester?.name.split(' ').map((n) => n[0]).join('')}
@@ -514,7 +514,7 @@ function AllocationRequestDetailModal({
                 <Text className="text-slate-500 dark:text-slate-400 text-xs font-bold uppercase mb-2">
                   Requesting Allocation Of
                 </Text>
-                <View className="flex-row items-center bg-slate-50 dark:bg-slate-800 rounded-xl p-3">
+                <View className="flex-row items-center bg-slate-50 dark:bg-slate-900 rounded-xl p-3">
                   <View className="w-10 h-10 rounded-full bg-emerald-100 dark:bg-emerald-900/30 items-center justify-center mr-3">
                     <Text className="text-emerald-600 dark:text-emerald-400 font-bold">
                       {apprentice?.name.split(' ').map((n) => n[0]).join('')}
@@ -532,7 +532,7 @@ function AllocationRequestDetailModal({
               </View>
 
               {/* Allocation Details */}
-              <View className="mb-4 bg-slate-50 dark:bg-slate-800 rounded-xl p-4">
+              <View className="mb-4 bg-slate-50 dark:bg-slate-900 rounded-xl p-4">
                 <Text className="text-slate-500 dark:text-slate-400 text-xs font-bold uppercase mb-3">
                   Allocation Details
                 </Text>
@@ -561,7 +561,7 @@ function AllocationRequestDetailModal({
               </View>
 
               {/* Justification */}
-              <View className="mb-4 bg-slate-50 dark:bg-slate-800 rounded-xl p-4">
+              <View className="mb-4 bg-slate-50 dark:bg-slate-900 rounded-xl p-4">
                 <Text className="text-slate-500 dark:text-slate-400 text-xs font-bold uppercase mb-2">
                   Justification
                 </Text>
@@ -583,7 +583,7 @@ function AllocationRequestDetailModal({
                   multiline
                   numberOfLines={3}
                   textAlignVertical="top"
-                  className="bg-slate-100 dark:bg-slate-800 rounded-xl px-4 py-3 text-slate-900 dark:text-white min-h-[80px]"
+                  className="bg-slate-100 dark:bg-slate-900 rounded-xl px-4 py-3 text-slate-900 dark:text-white min-h-[80px]"
                 />
               </View>
 
@@ -630,6 +630,7 @@ function AllocationRequestDetailModal({
 }
 
 export function UrgentDecisionsSection() {
+  const router = useRouter();
   const [selectedDecision, setSelectedDecision] = useState<Decision | null>(null);
   const [selectedRequest, setSelectedRequest] = useState<AllocationRequest | null>(null);
   const [showDecisionModal, setShowDecisionModal] = useState(false);
@@ -655,9 +656,9 @@ export function UrgentDecisionsSection() {
   );
 
   // Initialize on mount
-  useState(() => {
+  useEffect(() => {
     initialize();
-  });
+  }, []);
 
   const urgentDecisions = getUrgentDecisions();
 
@@ -753,7 +754,10 @@ export function UrgentDecisionsSection() {
         ))}
 
         {totalUrgentItems > 3 && (
-          <Pressable className="py-2 items-center">
+          <Pressable
+            onPress={() => router.push('/(tabs)/decide')}
+            className="py-2 items-center active:opacity-70"
+          >
             <Text className="text-blue-600 dark:text-blue-400 text-sm font-semibold">
               View {totalUrgentItems - 3} more urgent items
             </Text>

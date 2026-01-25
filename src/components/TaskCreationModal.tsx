@@ -38,6 +38,8 @@ import {
   ChevronUp,
   AlertCircle,
   Lightbulb,
+  Target,
+  Paperclip,
 } from 'lucide-react-native';
 import { useOrganizationStore } from '@/lib/state/organization-store';
 import { type OrganizationMember } from '@/lib/organization-seed';
@@ -46,6 +48,7 @@ import { useDraftStore, type Draft } from '@/lib/state/draft-store';
 import { useCurrentWorkspace, useCurrentMembership } from '@/lib/state/app-store';
 import { VoiceInputButton } from './VoiceInputButton';
 import { useTheme } from '@/lib/ThemeContext';
+import { useObjectivesStore } from '@/lib/state/objectives-store';
 
 interface TaskCreationModalProps {
   visible: boolean;
@@ -141,6 +144,12 @@ export function TaskCreationModal({
   const [showAllDrafts, setShowAllDrafts] = useState(false);
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
   const [deletedDraft, setDeletedDraft] = useState<{ draft: Draft; timeout: ReturnType<typeof setTimeout> } | null>(null);
+  const objectives = useObjectivesStore(s => s.objectives);
+  const initializeObjectives = useObjectivesStore(s => s.initialize);
+
+  useEffect(() => {
+    initializeObjectives();
+  }, []);
 
   const scrollViewRef = useRef<ScrollView>(null);
   const scrollOffset = useRef(0);
@@ -283,10 +292,12 @@ export function TaskCreationModal({
         `${lowConfidenceDrafts.length} draft(s) have low AI confidence. Confirm anyway?`,
         [
           { text: 'Review First', style: 'cancel' },
-          { text: 'Confirm Anyway', onPress: () => {
-            onConfirmDrafts(Array.from(selectedDraftIds));
-            setSelectedDraftIds(new Set());
-          }}
+          {
+            text: 'Confirm Anyway', onPress: () => {
+              onConfirmDrafts(Array.from(selectedDraftIds));
+              setSelectedDraftIds(new Set());
+            }
+          }
         ]
       );
     } else {
@@ -711,14 +722,15 @@ function DraftCard({
   const [editingTitle, setEditingTitle] = useState(false);
   const [titleValue, setTitleValue] = useState(draft.title);
   // Single picker state - only one can be open at a time
-  const [activePicker, setActivePicker] = useState<'assignee' | 'tu' | 'function' | null>(null);
+  const [activePicker, setActivePicker] = useState<'assignee' | 'tu' | 'function' | 'objective' | null>(null);
+  const objectives = useObjectivesStore(s => s.objectives);
 
   const confidence = draft.sourceMetadata?.confidence ?? 0.8;
   const confidenceColor = confidence >= 0.9
     ? '#10b981'
     : confidence >= 0.7
-    ? '#f59e0b'
-    : '#ef4444';
+      ? '#f59e0b'
+      : '#ef4444';
 
   const assignee = draft.assigneeId
     ? members.find(m => m.id === draft.assigneeId)
@@ -730,8 +742,12 @@ function DraftCard({
 
   const roleColor = assignee ? (ROLE_COLORS[assignee.role] || '#64748b') : '#3b82f6';
 
+  const linkedObjective = draft.linkedObjectiveId
+    ? objectives.find(o => o.id === draft.linkedObjectiveId)
+    : null;
+
   // Handle picker toggle with haptic feedback
-  const handlePickerToggle = (picker: 'assignee' | 'tu' | 'function') => {
+  const handlePickerToggle = (picker: 'assignee' | 'tu' | 'function' | 'objective') => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     // Auto-expand card if not already expanded
     if (!isExpanded) {
@@ -900,6 +916,40 @@ function DraftCard({
           />
         </Pressable>
 
+        {/* Objective Chip (MANDATORY) */}
+        <Pressable
+          onPress={() => handlePickerToggle('objective')}
+          className="flex-row items-center gap-1.5 px-2.5 py-1.5 rounded-lg border"
+          style={{
+            backgroundColor: activePicker === 'objective'
+              ? (isDark ? '#3b0764' : '#f5f3ff')
+              : (isDark ? '#1e293b' : '#f1f5f9'),
+            borderColor: activePicker === 'objective'
+              ? '#8b5cf6'
+              : !draft.linkedObjectiveId ? '#ef4444' : (isDark ? '#334155' : '#e5e7eb'),
+          }}
+        >
+          <Target size={12} color={!draft.linkedObjectiveId ? '#ef4444' : (isDark ? '#94a3b8' : '#64748b')} />
+          <Text className={`${!draft.linkedObjectiveId ? 'text-red-500' : 'text-slate-700 dark:text-slate-300'} text-xs font-medium`}>
+            {linkedObjective?.title || 'Relate to Objective'}
+          </Text>
+          <ChevronDown
+            size={14}
+            color={!draft.linkedObjectiveId ? '#ef4444' : (isDark ? '#94a3b8' : '#64748b')}
+            style={{ marginLeft: 2 }}
+          />
+        </Pressable>
+
+        {/* Attachment Count Chip */}
+        {draft.attachments && draft.attachments.length > 0 && (
+          <View className="flex-row items-center gap-1 px-2 py-1 bg-slate-100 dark:bg-slate-800 rounded-full">
+            <Paperclip size={10} color={isDark ? '#94a3b8' : '#64748b'} />
+            <Text className="text-slate-500 dark:text-slate-400 text-[10px] font-medium">
+              {draft.attachments.length}
+            </Text>
+          </View>
+        )}
+
         {/* Low Confidence Warning */}
         {confidence < 0.7 && (
           <View className="flex-row items-center gap-1 px-2 py-1 bg-red-100 dark:bg-red-900/30 rounded-full">
@@ -1015,6 +1065,42 @@ function DraftCard({
                     <Text className="text-slate-700 dark:text-slate-300 text-sm">
                       {func}
                     </Text>
+                  </Pressable>
+                ))}
+              </View>
+            </View>
+          )}
+
+          {/* Objective Picker */}
+          {activePicker === 'objective' && (
+            <View className="mb-3">
+              <Text className="text-slate-500 dark:text-slate-400 text-xs mb-2">Target Objective:</Text>
+              <View className="gap-2">
+                {objectives.map(obj => (
+                  <Pressable
+                    key={obj.id}
+                    onPress={() => {
+                      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                      onUpdate('linkedObjectiveId', obj.id);
+                      setActivePicker(null);
+                    }}
+                    className="flex-row items-center gap-2 px-3 py-2 rounded-lg border"
+                    style={{
+                      backgroundColor: draft.linkedObjectiveId === obj.id
+                        ? (isDark ? '#3b0764' : '#f5f3ff')
+                        : (isDark ? '#1e293b' : '#f1f5f9'),
+                      borderColor: draft.linkedObjectiveId === obj.id
+                        ? '#8b5cf6'
+                        : 'transparent',
+                    }}
+                  >
+                    <Target size={14} color={draft.linkedObjectiveId === obj.id ? '#8b5cf6' : '#94a3b8'} />
+                    <View className="flex-1">
+                      <Text className="text-slate-700 dark:text-slate-300 text-sm font-medium" numberOfLines={1}>
+                        {obj.title}
+                      </Text>
+                      <Text className="text-slate-500 dark:text-slate-400 text-[10px]">{obj.category} • {obj.progress}%</Text>
+                    </View>
                   </Pressable>
                 ))}
               </View>
